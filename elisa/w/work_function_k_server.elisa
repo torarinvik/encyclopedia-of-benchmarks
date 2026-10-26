@@ -1,0 +1,211 @@
+# Clean-room bounded work-function profile for finite k-server metrics.
+const MAX_P: usize = 6
+const MAX_K: usize = 3
+const MAX_R: usize = 8
+const MAX_CONFIGS: usize = 20
+const MAX_INPUT: usize = 50
+
+def wf_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def wf_sort_config(values: mutable i64&, k: usize) -> void:
+    i: mutable usize = 0
+    while i < k:
+        j: mutable usize = i + 1
+        while j < k:
+            if values[j] < values[i]:
+                tmp: i64 = values[i]
+                values[i] <- values[j]
+                values[j] <- tmp
+            j <- j + 1
+        i <- i + 1
+
+def wf_find_config(configs: mutable i64&, count: usize, values: mutable i64&, k: usize) -> usize:
+    i: mutable usize = 0
+    while i < count:
+        same: mutable bool = true
+        j: mutable usize = 0
+        while j < k:
+            if configs[i * MAX_K + j] != values[j]: same <- false
+            j <- j + 1
+        if same: return i
+        i <- i + 1
+    count
+
+def wf_config_distance(a: mutable i64&, b: mutable i64&, metric: mutable i64&, p: usize, k: usize) -> i64:
+    if k == 1: return metric[a[0].usize() * p + b[0].usize()]
+    if k == 2:
+        first: i64 = metric[a[0].usize() * p + b[0].usize()] + metric[a[1].usize() * p + b[1].usize()]
+        second: i64 = metric[a[0].usize() * p + b[1].usize()] + metric[a[1].usize() * p + b[0].usize()]
+        return if first < second: first else: second
+    perms: mutable usize[18] = zeroed
+    perms[0] <- 0; perms[1] <- 1; perms[2] <- 2
+    perms[3] <- 0; perms[4] <- 2; perms[5] <- 1
+    perms[6] <- 1; perms[7] <- 0; perms[8] <- 2
+    perms[9] <- 1; perms[10] <- 2; perms[11] <- 0
+    perms[12] <- 2; perms[13] <- 0; perms[14] <- 1
+    perms[15] <- 2; perms[16] <- 1; perms[17] <- 0
+    best: mutable i64 = 9223372036854775807
+    q: mutable usize = 0
+    while q < 6:
+        value: i64 = metric[a[0].usize() * p + b[perms[q*3]].usize()] + metric[a[1].usize() * p + b[perms[q*3+1]].usize()] + metric[a[2].usize() * p + b[perms[q*3+2]].usize()]
+        if value < best: best <- value
+        q <- q + 1
+    best
+
+def work_function_k_server(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("work_function_k_server"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    p64: i64 = input[0]
+    k64: i64 = input[1]
+    n64: i64 = input[2]
+    if p64 < 2 or p64 > 6 or k64 < 1 or k64 > 3 or k64 > p64 or n64 < 0 or n64 > 8: return -1
+    p: usize = p64.usize()
+    k: usize = k64.usize()
+    n: usize = n64.usize()
+    initial_at: usize = 3 + p * p
+    requests_at: usize = initial_at + k
+    if length != requests_at + n: return -1
+    metric: mutable i64[36] = zeroed
+    i: mutable usize = 0
+    while i < p:
+        j: mutable usize = 0
+        while j < p:
+            value: i64 = input[3 + i * p + j]
+            if value < 0 or value > 1000 or (i == j and value != 0) or (i != j and value == 0): return -1
+            metric[i * p + j] <- value
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < p:
+        j: mutable usize = 0
+        while j < p:
+            if metric[i * p + j] != metric[j * p + i]: return -1
+            z: mutable usize = 0
+            while z < p:
+                if metric[i * p + j] > metric[i * p + z] + metric[z * p + j]: return -1
+                z <- z + 1
+            j <- j + 1
+        i <- i + 1
+    initial: mutable i64[MAX_K] = zeroed
+    i <- 0
+    while i < k:
+        initial[i] <- input[initial_at + i]
+        if initial[i] < 0 or initial[i] >= p64: return -1
+        j: mutable usize = 0
+        while j < i:
+            if initial[j] == initial[i]: return -1
+            j <- j + 1
+        i <- i + 1
+    wf_sort_config(initial&, k)
+    requests: mutable i64[MAX_R] = zeroed
+    i <- 0
+    while i < n:
+        requests[i] <- input[requests_at + i]
+        if requests[i] < 0 or requests[i] >= p64: return -1
+        i <- i + 1
+    output_bytes: usize = 8 * (2 + n * k)
+    if output.is_null() or capacity < output_bytes: return -2
+
+    configs: mutable i64[MAX_CONFIGS * MAX_K] = zeroed
+    config_count: mutable usize = 0
+    a: mutable usize = 0
+    while a < p:
+        if k == 1:
+            configs[config_count * MAX_K] <- a.i64()
+            config_count <- config_count + 1
+        else:
+            b: mutable usize = a + 1
+            while b < p:
+                if k == 2:
+                    configs[config_count * MAX_K] <- a.i64()
+                    configs[config_count * MAX_K + 1] <- b.i64()
+                    config_count <- config_count + 1
+                else:
+                    c: mutable usize = b + 1
+                    while c < p:
+                        configs[config_count * MAX_K] <- a.i64()
+                        configs[config_count * MAX_K + 1] <- b.i64()
+                        configs[config_count * MAX_K + 2] <- c.i64()
+                        config_count <- config_count + 1
+                        c <- c + 1
+                b <- b + 1
+        a <- a + 1
+    work: mutable i64[MAX_CONFIGS] = zeroed
+    next_work: mutable i64[MAX_CONFIGS] = zeroed
+    x: mutable usize = 0
+    while x < config_count:
+        work[x] <- wf_config_distance(initial&, configs[x * MAX_K]&, metric&, p, k)
+        x <- x + 1
+    staged: mutable i64[2 + MAX_R * MAX_K] = zeroed
+    staged[0] <- n.i64()
+    staged[1] <- k.i64()
+    current: mutable i64[MAX_K] = zeroed
+    i <- 0
+    while i < k:
+        current[i] <- initial[i]
+        i <- i + 1
+    t: mutable usize = 0
+    while t < n:
+        r: i64 = requests[t]
+        x <- 0
+        while x < config_count:
+            next_work[x] <- 9223372036854775807
+            y: mutable usize = 0
+            while y < config_count:
+                contains: mutable bool = false
+                j: mutable usize = 0
+                while j < k:
+                    if configs[y * MAX_K + j] == r: contains <- true
+                    j <- j + 1
+                if contains:
+                    value: i64 = work[y] + wf_config_distance(configs[y * MAX_K]&, configs[x * MAX_K]&, metric&, p, k)
+                    if value < next_work[x]: next_work[x] <- value
+                y <- y + 1
+            x <- x + 1
+        chosen: mutable i64[MAX_K] = zeroed
+        already_served: mutable bool = false
+        j: mutable usize = 0
+        while j < k:
+            chosen[j] <- current[j]
+            if current[j] == r: already_served <- true
+            j <- j + 1
+        if not already_served:
+            best: mutable i64 = 9223372036854775807
+            best_slot: mutable usize = 0
+            slot: mutable usize = 0
+            while slot < k:
+                candidate: mutable i64[MAX_K] = zeroed
+                j <- 0
+                while j < k:
+                    candidate[j] <- if j == slot: r else: current[j]
+                    j <- j + 1
+                wf_sort_config(candidate&, k)
+                index: usize = wf_find_config(configs&, config_count, candidate&, k)
+                score: i64 = work[index] + metric[current[slot].usize() * p + r.usize()]
+                if score < best or (score == best and slot < best_slot):
+                    best <- score
+                    best_slot <- slot
+                    j <- 0
+                    while j < k:
+                        chosen[j] <- candidate[j]
+                        j <- j + 1
+                slot <- slot + 1
+        j <- 0
+        while j < k:
+            staged[2 + t * k + j] <- chosen[j]
+            current[j] <- chosen[j]
+            j <- j + 1
+        x <- 0
+        while x < config_count:
+            work[x] <- next_work[x]
+            x <- x + 1
+        t <- t + 1
+    i <- 0
+    while i < 2 + n * k:
+        wf_store_i64_le(staged[i], output&, 8 * i)
+        i <- i + 1
+    output_bytes.i64()

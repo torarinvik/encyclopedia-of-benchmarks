@@ -1,0 +1,3 @@
+const N:usize=16;const K:usize=4;const L:usize=66;
+unsafe fn put64(o:*mut u8,p:usize,x:i64){let b=x as u64;for j in 0..8{*o.add(p+j)=(b>>(8*j)) as u8;}}
+#[no_mangle]pub unsafe extern "C" fn min_hash_k_mins(input:*const i64,length:usize,output:*mut u8,capacity:usize)->i64{if input.is_null()||length<3||length>L{return -1}let nr=*input;let kr=*input.add(1);if nr<1||nr>N as i64||kr<1||kr>K as i64||length!=2+nr as usize*kr as usize{return -1}let n=nr as usize;let k=kr as usize;for i in 0..n*k{let x=*input.add(2+i);if x<0||x>1000{return -1}}let bytes=8*k;if output.is_null()||capacity<bytes{return -2}for col in 0..k{let mut best=0;for row in 1..n{if *input.add(2+row*k+col)<*input.add(2+best*k+col){best=row}}put64(output,8*col,best as i64)}bytes as i64}

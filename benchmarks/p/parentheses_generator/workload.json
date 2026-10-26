@@ -23,6 +23,10 @@
     "maximum_output_bytes": 1586,
     "invalid_result": -1
   },
+  "workspace": {
+    "bytes": 1586,
+    "meaning": "Staged count-prefixed output for at most 132 strings of twelve ASCII bytes each."
+  },
   "source_bound": {
     "description": "The pinned Java recursion tries '(' before ')' and only closes when close_count < open_count. The benchmark bounds the number of pairs to six."
   },

@@ -1,0 +1,19 @@
+{
+  "schema_version":"1.0.0",
+  "id":"closest-substring-center-exhaustive-v1",
+  "algorithm":"closest_substring_center",
+  "function_symbol":"closest_substring_center",
+  "comparison_model":"i64_array_bytes_output_call",
+  "input":{"kind":"signed_i64_array","layout":"[n,m,L,q,strings[n*m]]","string_count_range":[1,4],"string_length_range":[1,10],"center_length_range":"[1,min(8,m)]","alphabet_size_values":[2,3],"symbol_range":"[0,q)","maximum_valid_length":44,"maximum_parseable_length":45,"invalid_result":-1},
+  "output":{"kind":"little_endian_i64_array","description":"[minimum max of each input string's best-window Hamming distance, lexicographically smallest optimal center symbols...]","maximum_output_bytes":72,"maximum_output_elements":9,"success_result":"8*(L+1) bytes","invalid_result":-1,"insufficient_output_capacity_result":-2,"null_output_when_nonempty_result":-2},
+  "workspace":{"bytes":128,"meaning":"Candidate and best center vectors, each at most eight symbols."},
+  "measurement":{"sample_count":7,"warmup_rounds":2,"repetitions_per_sample":1000},
+  "cases":[
+    {"id":"opposite-constant-strings","input_values":[2,4,2,2,0,0,0,0,1,1,1,1],"input_length":12,"expected_result":24,"expected_output_hex":"010000000000000000000000000000000100000000000000"},
+    {"id":"best-window-per-string","input_values":[2,3,2,2,0,0,0,0,1,0],"input_length":10,"expected_result":24,"expected_output_hex":"010000000000000000000000000000000000000000000000"},
+    {"id":"single-string-zero-radius","input_values":[1,3,2,3,0,1,2],"input_length":7,"expected_result":24,"expected_output_hex":"000000000000000000000000000000000100000000000000"},
+    {"id":"length-exceeds-string-invalid","input_values":[1,2,3,2,0,1],"input_length":6,"expected_result":-1,"expected_output_hex":""},
+    {"id":"symbol-out-of-range-invalid","input_values":[1,2,1,2,0,2],"input_length":6,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,2,2,2,0,1],"input_length":6,"expected_result":-2,"expected_output_hex":"","workspace_bytes":23,"capacity_error_result":-2}
+  ]
+}

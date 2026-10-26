@@ -10,6 +10,7 @@ Return the greatest product of a nonempty contiguous segment of an integer array
 - Null, empty, overlength, or out-of-range inputs return `INT64_MIN`, outside the valid result range.
 
 The pinned Java source returns zero for null or empty arrays; the Ruby source assumes a nonempty input. The benchmark's invalid-input sentinel is the common adapter policy. The valid nonempty domain preserves both sources' recurrence and result.
+The pinned Python `max_product_subarray` source uses the same maximum/minimum ending-product recurrence and aliases this package; its empty-input result is outside the shared nonempty domain.
 
 ## Workload and oracle
 

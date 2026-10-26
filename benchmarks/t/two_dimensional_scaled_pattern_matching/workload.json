@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-two-dimensional-scaled-pattern-matching-rational-center-sampling-i64-array-bytes-output-v1",
+  "algorithm": "two_dimensional_scaled_pattern_matching",
+  "function_symbol": "two_dimensional_scaled_pattern_matching",
+  "abi": "i64_array_bytes_output",
+  "description": "Find all placements at one exact rational scale under geometric pixel-center sampling.",
+  "source": {
+    "title": "Two-Dimensional Scaled Pattern Matching",
+    "authors": ["Amihood Amir"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_444",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_444",
+    "algorithm_attribution": "real-scale geometric model using text pixel centers and scaled pattern squares",
+    "implementation_status": "clean-room fixed-rational-scale deterministic profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_height,text_width,pattern_height,pattern_width,scale_numerator,scale_denominator,text_symbols row-major,pattern_symbols row-major]",
+    "text_height_range": [1, 12],
+    "text_width_range": [1, 12],
+    "pattern_height_range": [1, 6],
+    "pattern_width_range": [1, 6],
+    "scale_range": "1 <= p/q <= 2; 1 <= q <= 8",
+    "symbol_range": [0, 255],
+    "maximum_valid_length": 186,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[match_count,row_0,column_0,...] in row-major origin order",
+    "maximum_bytes": 2312,
+    "success_result": "8 * (1 + 2 * match_count) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Bounded staged match coordinate list and fixed scalar state."
+  },
+  "contract": {
+    "scale": "The caller supplies one positive rational scale p/q; all comparisons are exact integer arithmetic.",
+    "pixel_center": "A text pixel at local integer coordinate t has center t+1/2. It participates only when that center is strictly inside the scaled pattern rectangle.",
+    "pattern_square": "The containing pattern coordinate is floor((2*t+1)*q/(2*p)) on each axis.",
+    "placement": "The scaled pattern rectangle must fit entirely inside the text; origins are text-grid corners.",
+    "matching": "Every text pixel center inside the rectangle must have the same symbol as its containing pattern square.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "all-matches-at-three-halves-scale",
+      "input_values": [4, 4, 2, 2, 3, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+      "input_length": 26,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output_hex": "040000000000000000000000000000000000000000000000000000000000000001000000000000000100000000000000000000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "unit-scale-two-row-matches",
+      "input_values": [2, 3, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2],
+      "input_length": 14,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000000000000000000000000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "scale-below-profile-bound",
+      "input_values": [2, 2, 1, 1, 1, 2, 0, 0, 0, 0, 0],
+      "input_length": 11,
+      "output_capacity": 2312,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "symbol-out-of-range",
+      "input_values": [1, 1, 1, 1, 1, 1, 256, 0],
+      "input_length": 8,
+      "output_capacity": 2312,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 3, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2],
+      "input_length": 14,
+      "output_capacity": 39,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 3, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2],
+      "input_length": 14,
+      "output_capacity": 40,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 6,
+      "input_is_null": true,
+      "output_capacity": 2312,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

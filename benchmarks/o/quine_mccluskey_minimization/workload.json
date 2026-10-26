@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-quine-mccluskey-two-level-minimization-i64-array-bytes-output-v1",
+  "algorithm": "quine_mccluskey_minimization",
+  "function_symbol": "quine_mccluskey_minimization",
+  "abi": "i64_array_bytes_output",
+  "description": "Exact bounded Quine–McCluskey minimization of a single-output Boolean truth table.",
+  "source": {
+    "title": "Optimal Two-Level Boolean Minimization",
+    "authors": [
+      "Robert P. Dick"
+    ],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_446",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_446",
+    "algorithm_attribution": "Quine–McCluskey prime-implicant generation and minimum-cardinality unate cover selection",
+    "implementation_status": "clean-room bounded exact profile for at most three variables"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[variable_count, status for each minterm in ascending integer order]",
+    "variable_count_range": [
+      1,
+      3
+    ],
+    "minterm_count_formula": "2^variable_count",
+    "status_values": {
+      "0": "OFF",
+      "1": "ON",
+      "2": "don't-care"
+    },
+    "maximum_valid_length": 9,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_bytes",
+    "encoding": "[term_count, care_mask_0, value_mask_0, ...] sorted by (care_mask,value_mask)",
+    "term_encoding": "A minterm is covered when (minterm & care_mask)==value_mask; one literal is used per set care bit.",
+    "maximum_terms": 8,
+    "maximum_bytes": 136,
+    "success_result": "8*(1+2*term_count)",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "contract": {
+    "prime_implicants": "Legal cubes cover one or more ON minterms and no OFF minterms; a cube is prime if dropping any one literal would cover an OFF minterm.",
+    "optimization": "First minimize the number of prime implicants; among covers with that count, minimize total literal count.",
+    "final_tie_break": "Lexicographically smallest sorted (care_mask,value_mask) sequence.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "At most 27 cube candidates and dynamic-programming records for 256 ON-minterm coverage states, including staged output."
+  },
+  "cases": [
+    {
+      "id": "empty_on_set",
+      "input_values": [
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 136,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "one_required_minterm",
+      "input_values": [
+        2,
+        1,
+        0,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 136,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000003000000000000000000000000000000"
+    },
+    {
+      "id": "adjacent_minterms_merge",
+      "input_values": [
+        2,
+        0,
+        1,
+        0,
+        1
+      ],
+      "input_length": 5,
+      "output_capacity": 136,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "minimum_two_prime_cover",
+      "input_values": [
+        2,
+        0,
+        1,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "output_capacity": 136,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000100000000000000010000000000000002000000000000000200000000000000"
+    },
+    {
+      "id": "dont_care_expansion",
+      "input_values": [
+        2,
+        1,
+        2,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 136,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "three_variable_parity",
+      "input_values": [
+        3,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1
+      ],
+      "input_length": 9,
+      "output_capacity": 136,
+      "expected_result": 72,
+      "expected_output_hex": "040000000000000007000000000000000100000000000000070000000000000002000000000000000700000000000000040000000000000007000000000000000700000000000000"
+    },
+    {
+      "id": "maximum_variable_count_constant_one",
+      "input_values": [
+        3,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 9,
+      "output_capacity": 136,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        2,
+        0,
+        1,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "output_capacity": 39,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_status",
+      "input_values": [
+        2,
+        0,
+        1,
+        3,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 136,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "variable_count_above_bound",
+      "input_values": [
+        4
+      ],
+      "input_length": 1,
+      "output_capacity": 136,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input_length_mismatch",
+      "input_values": [
+        2,
+        1,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "output_capacity": 136,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 136,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_is_null": true
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        1,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "output_capacity": 136,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

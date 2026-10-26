@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-non-shared-edges-i64-array-bytes-output-v1",
+  "algorithm": "non_shared_edges",
+  "function_symbol": "non_shared_edges",
+  "abi": "i64_array_bytes_output",
+  "description": "Robinson-Foulds non-shared edge count for two bounded unrooted binary phylogenies.",
+  "source": {
+    "title": "Non-shared Edges",
+    "authors": ["Wing-Kai Hon"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_259",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_259",
+    "algorithm_attribution": "Day's non-shared edge distance problem, represented by its defining leaf bipartitions",
+    "implementation_status": "clean-room bounded split-set profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[leaf_count, edge_split_masks_for_tree_A, edge_split_masks_for_tree_B]",
+    "leaf_count_range": [3, 8],
+    "split_encoding": "Each mask gives the side of an edge bipartition excluding leaf 0; each tree has 2*n-3 distinct compatible splits, including all n pendant splits.",
+    "maximum_valid_length": 27,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[non_shared_edge_distance]",
+    "maximum_bytes": 8,
+    "success_result": "8 bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Fixed arrays of at most thirteen split masks and staged scalar output."
+  },
+  "contract": {
+    "split_normalization": "The stored side of each split excludes leaf 0.",
+    "tree_validity": "All pendant splits must be present; internal splits must form a compatible hierarchy with n-3 internal edges.",
+    "distance": "(2*n-3) minus the number of shared canonical edge splits.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"three-leaf-unique-tree","input_values":[3,2,4,6,2,4,6],"input_length":7,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"quartet-topology-difference","input_values":[4,2,4,8,14,6,2,4,8,14,10],"input_length":11,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"same-quartet-reordered-splits","input_values":[4,14,6,2,8,4,8,2,6,14,4],"input_length":11,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"maximum-eight-leaf-caterpillar","input_values":[8,2,4,8,16,32,64,128,254,6,14,30,62,126,2,4,8,16,32,64,128,254,6,14,30,62,126],"input_length":27,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"incompatible-quartet-splits","input_values":[4,2,4,8,14,6,10,4,8,14,6],"input_length":11,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"split-includes-root-leaf","input_values":[3,3,4,6,2,4,6],"input_length":7,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[3,2,4,6,2,4],"input_length":6,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[3,2,4,6,2,4,6],"input_length":7,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":7,"input_is_null":true,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[3,2,4,6,2,4,6],"input_length":7,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

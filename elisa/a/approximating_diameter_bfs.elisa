@@ -1,0 +1,54 @@
+def approximating_diameter_bfs_put_i64(output: mutable u8&, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[byte] <- (bits >> (byte * 8)).u8()
+
+def approximating_diameter_bfs_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 242:
+        return -1
+    n0: i64 = input[0]
+    m0: i64 = input[1]
+    if n0 < 1 or n0 > 16 or m0 < 0 or m0 > 120 or length != (2 + 2 * m0).usize():
+        return -1
+    n: usize = n0.usize()
+    m: usize = m0.usize()
+    adj: mutable bool[256] = zeroed
+    for i in 0..<m:
+        u0: i64 = input[2 + 2 * i]
+        v0: i64 = input[3 + 2 * i]
+        if u0 < 0 or v0 <= u0 or v0 >= n0:
+            return -1
+        u: usize = u0.usize()
+        v: usize = v0.usize()
+        if adj[u * 16 + v]:
+            return -1
+        adj[u * 16 + v] <- true
+        adj[v * 16 + u] <- true
+    dist: mutable i64[16] = zeroed
+    queue: mutable usize[16] = zeroed
+    for i in 0..<n:
+        dist[i] <- -1
+    dist[0] <- 0
+    queue[0] <- 0
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        for v in 0..<n:
+            if adj[u * 16 + v] and dist[v] < 0:
+                dist[v] <- dist[u] + 1
+                queue[tail] <- v
+                tail <- tail + 1
+    if tail != n:
+        return -1
+    estimate: mutable i64 = 0
+    for i in 0..<n:
+        if dist[i] > estimate:
+            estimate <- dist[i]
+    if output == null or capacity < 8:
+        return -2
+    approximating_diameter_bfs_put_i64(output, estimate)
+    8
+
+export fn approximating_diameter_bfs(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = approximating_diameter_bfs_impl

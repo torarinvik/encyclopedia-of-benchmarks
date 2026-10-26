@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-vector-bin-packing-first-fit-i64-array-bytes-output-v1",
+  "algorithm": "vector_bin_packing",
+  "function_symbol": "vector_bin_packing",
+  "abi": "i64_array_bytes_output",
+  "description": "Pack bounded multidimensional items by input-order generalized First Fit.",
+  "source": {
+    "title": "Vector Bin Packing",
+    "authors": ["David S. Johnson"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_495",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_495",
+    "algorithm_attribution": "input-order generalized First Fit under unit coordinate capacities",
+    "implementation_status": "clean-room bounded deterministic profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[item_count,dimension_count,item_vectors row-major]",
+    "item_count_range": [1, 32],
+    "dimension_count_range": [1, 4],
+    "coordinate_range": [0, 1000],
+    "coordinate_scale": "1000 is unit capacity in each dimension",
+    "maximum_valid_length": 130,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[bin_count,zero_based_bin_assignment[item_count],bin_major_coordinate_loads]",
+    "maximum_bytes": 1288,
+    "success_result": "8 * (1 + item_count + bin_count * dimension_count) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 3072,
+    "meaning": "Conservative fixed workspace bound for 32 four-coordinate bin loads, 32 assignments, staged output, and local bookkeeping."
+  },
+  "contract": {
+    "placement": "For each item in input order, choose the lowest-index existing bin where every coordinate load plus the item coordinate is at most 1000; otherwise append a new bin.",
+    "tie_break": "Lowest creation-order bin index wins.",
+    "output_order": "Input-order assignments followed by bin-major accumulated coordinate loads.",
+    "integer_behavior": "All sums are exact integers within signed 64-bit range.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "two-dimensional-first-fit",
+      "input_values": [4, 2, 600, 100, 400, 900, 500, 100, 100, 100],
+      "input_length": 10,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output_hex": "02000000000000000000000000000000000000000000000001000000000000000100000000000000e803000000000000e8030000000000005802000000000000c8000000000000"
+    },
+    {
+      "id": "single-exact-capacity-item",
+      "input_values": [1, 1, 1000],
+      "input_length": 3,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "01000000000000000000000000000000e803000000000000"
+    },
+    {
+      "id": "coordinate-out-of-range",
+      "input_values": [1, 2, 1000, 1001],
+      "input_length": 4,
+      "output_capacity": 1288,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input-length-mismatch",
+      "input_values": [2, 2, 500, 500],
+      "input_length": 4,
+      "output_capacity": 1288,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 1, 1000],
+      "input_length": 3,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1, 1000],
+      "input_length": 3,
+      "output_capacity": 24,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "output_capacity": 1288,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

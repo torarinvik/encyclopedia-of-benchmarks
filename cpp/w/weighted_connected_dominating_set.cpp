@@ -1,0 +1,7 @@
+// Clean-room exact bounded minimum weighted connected dominating set.
+#include <cstddef>
+#include <cstdint>
+namespace {constexpr std::size_t N=16;void put(std::uint8_t*o,std::size_t at,std::int64_t x){auto b=static_cast<std::uint64_t>(x);for(int i=0;i<8;++i){o[at+i]=static_cast<std::uint8_t>(b);b>>=8;}}}
+extern "C" std::int64_t weighted_connected_dominating_set(const std::int64_t*v,std::size_t n,std::uint8_t*out,std::size_t cap){if(!v||n<3||n>33||v[0]<1||v[0]>16)return -1;auto count=static_cast<std::size_t>(v[0]);if(n!=1+2*count)return -1;const auto all=(std::uint64_t{1}<<count)-1;std::uint64_t adj[N]{};for(std::size_t i=0;i<count;++i){auto mask=v[1+i],weight=v[1+count+i];if(mask<0||static_cast<std::uint64_t>(mask)>all||(static_cast<std::uint64_t>(mask)&(std::uint64_t{1}<<i))||weight<1||weight>1000)return -1;adj[i]=static_cast<std::uint64_t>(mask);}for(std::size_t i=0;i<count;++i)for(std::size_t j=0;j<count;++j)if(((adj[i]>>j)&1u)!=((adj[j]>>i)&1u))return -1;
+ std::int64_t best=-1;std::uint64_t best_mask=0;for(std::uint64_t mask=1;mask<=all;++mask){auto dominated=mask;std::int64_t cost=0;for(std::size_t i=0;i<count;++i)if((mask>>i)&1u){dominated|=adj[i];cost+=v[1+count+i];}if(dominated!=all)continue;auto seen=mask&(~mask+1),old=std::uint64_t{0};do{old=seen;for(std::size_t i=0;i<count;++i)if((seen>>i)&1u)seen|=adj[i]&mask;}while(seen!=old);if(seen!=mask)continue;if(best<0||cost<best||(cost==best&&mask<best_mask)){best=cost;best_mask=mask;}}
+ if(!out||cap<16)return -2;put(out,0,best);put(out,8,static_cast<std::int64_t>(best_mask));return 16;}

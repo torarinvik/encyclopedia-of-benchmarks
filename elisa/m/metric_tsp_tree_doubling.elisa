@@ -1,0 +1,110 @@
+const MAX_N: usize = 8
+const MAX_INPUT: usize = 65
+
+def metric_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def metric_tsp_tree_doubling(input: i64&, length: usize,
+                             output: mutable u8&, capacity: usize) -> i64 @export("metric_tsp_tree_doubling"):
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    if n64 < 1 or n64 > 8 or length != 1 + n64.usize() * n64.usize(): return -1
+    n: usize = n64.usize()
+    d: mutable i64[8][8] = zeroed
+    u: mutable usize = 0
+    while u < n:
+        v: mutable usize = 0
+        while v < n:
+            w: i64 = input[1 + u * n + v]
+            if w < 0 or w > 10000 or (u == v and w != 0): return -1
+            d[u][v] <- w
+            v <- v + 1
+        u <- u + 1
+    u <- 0
+    while u < n:
+        v: usize = u + 1
+        while v < n:
+            if d[u][v] != d[v][u]: return -1
+            v <- v + 1
+        u <- u + 1
+    u <- 0
+    while u < n:
+        v <- 0
+        while v < n:
+            k: mutable usize = 0
+            while k < n:
+                if d[u][v] > d[u][k] + d[k][v]: return -1
+                k <- k + 1
+            v <- v + 1
+        u <- u + 1
+    output_bytes: usize = 8 * (n + 2)
+    if output.is_null() or capacity < output_bytes: return -2
+    processed: mutable bool[8][8] = zeroed
+    tree: mutable bool[8][8] = zeroed
+    parent: mutable usize[8] = zeroed
+    u <- 0
+    while u < n: parent[u] <- u; u <- u + 1
+    accepted: mutable usize = 0
+    edge_count: usize = n * (n - 1) / 2
+    step: mutable usize = 0
+    while step < edge_count and accepted + 1 < n:
+        bu: mutable usize = 0
+        bv: mutable usize = 0
+        bw: mutable i64 = 9223372036854775807
+        u <- 0
+        while u < n:
+            v <- u + 1
+            while v < n:
+                if not processed[u][v] and d[u][v] < bw:
+                    bw <- d[u][v]
+                    bu <- u
+                    bv <- v
+                v <- v + 1
+            u <- u + 1
+        processed[bu][bv] <- true
+        ru: mutable usize = bu
+        rv: mutable usize = bv
+        while parent[ru] != ru: ru <- parent[ru]
+        while parent[rv] != rv: rv <- parent[rv]
+        if ru != rv:
+            parent[rv] <- ru
+            tree[bu][bv] <- true
+            tree[bv][bu] <- true
+            accepted <- accepted + 1
+        step <- step + 1
+    stack: mutable usize[8] = zeroed
+    order: mutable usize[8] = zeroed
+    visited: mutable bool[8] = zeroed
+    top: mutable usize = 1
+    count: mutable usize = 0
+    stack[0] <- 0
+    while top > 0:
+        top <- top - 1
+        v <- stack[top]
+        if not visited[v]:
+            visited[v] <- true
+            order[count] <- v
+            count <- count + 1
+            rev: mutable usize = n
+            while rev > 0:
+                rev <- rev - 1
+                if tree[v][rev] and not visited[rev]:
+                    stack[top] <- rev
+                    top <- top + 1
+    cost: mutable i64 = 0
+    u <- 0
+    while u + 1 < n:
+        cost <- cost + d[order[u]][order[u + 1]]
+        u <- u + 1
+    cost <- cost + d[order[n - 1]][0]
+    metric_store_i64_le(cost, output, 0)
+    u <- 0
+    while u < n:
+        metric_store_i64_le(order[u].i64(), output, 8 * (u + 1))
+        u <- u + 1
+    metric_store_i64_le(0, output, 8 * (n + 1))
+    output_bytes.i64()

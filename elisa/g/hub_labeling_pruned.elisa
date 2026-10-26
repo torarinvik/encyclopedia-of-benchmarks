@@ -1,0 +1,139 @@
+const MAX_VERTICES: usize = 8
+const MAX_EDGES: usize = 28
+const MAX_INPUT: usize = 66
+const MAX_FIELDS: usize = 73
+const MAX_OUTPUT_BYTES: usize = 8 * MAX_FIELDS
+
+def hub_labeling_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def hub_labeling_unique_paths(adjacency: u8&, n: usize) -> bool:
+    source: mutable usize = 0
+    while source < n:
+        distance: mutable i16[MAX_VERTICES] = zeroed
+        ways: mutable u8[MAX_VERTICES] = zeroed
+        queue: mutable usize[MAX_VERTICES] = zeroed
+        vertex: mutable usize = 0
+        while vertex < n: distance[vertex] <- -1; vertex <- vertex + 1
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        distance[source] <- 0
+        ways[source] <- 1
+        queue[0] <- source
+        while head < tail:
+            vertex <- queue[head]
+            head <- head + 1
+            neighbor: mutable usize = 0
+            while neighbor < n:
+                if adjacency[vertex * MAX_VERTICES + neighbor] != 0:
+                    if distance[neighbor] < 0:
+                        distance[neighbor] <- distance[vertex] + 1
+                        ways[neighbor] <- ways[vertex]
+                        queue[tail] <- neighbor
+                        tail <- tail + 1
+                    else if distance[neighbor] == distance[vertex] + 1:
+                        sum: usize = ways[neighbor].usize() + ways[vertex].usize()
+                        ways[neighbor] <- if sum > 1: 2 else: sum.u8()
+                neighbor <- neighbor + 1
+        vertex <- 0
+        while vertex < n:
+            if ways[vertex] != 1: return false
+            vertex <- vertex + 1
+        source <- source + 1
+    true
+
+def hub_labeling_pruned(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("hub_labeling_pruned"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_VERTICES.i64() or m_value < 0 or m_value > MAX_EDGES.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + n + 2 * m: return -1
+    seen_order: mutable bool[MAX_VERTICES] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        order_vertex: i64 = input[2 + i]
+        if order_vertex < 0 or order_vertex >= n.i64() or seen_order[order_vertex.usize()]: return -1
+        seen_order[order_vertex.usize()] <- true
+        i <- i + 1
+    adjacency: mutable u8[MAX_VERTICES * MAX_VERTICES] = zeroed
+    previous_left: mutable i64 = -1
+    previous_right: mutable i64 = -1
+    edge: mutable usize = 0
+    while edge < m:
+        left: i64 = input[2 + n + 2 * edge]
+        right: i64 = input[3 + n + 2 * edge]
+        if left < 0 or right <= left or right >= n.i64() or left < previous_left or (left == previous_left and right <= previous_right): return -1
+        previous_left <- left
+        previous_right <- right
+        adjacency[left.usize() * MAX_VERTICES + right.usize()] <- 1
+        adjacency[right.usize() * MAX_VERTICES + left.usize()] <- 1
+        edge <- edge + 1
+    if not hub_labeling_unique_paths(adjacency&, n): return -1
+    labels: mutable i16[MAX_VERTICES * MAX_VERTICES] = zeroed
+    i <- 0
+    while i < MAX_VERTICES * MAX_VERTICES: labels[i] <- -1; i <- i + 1
+    order_index: mutable usize = 0
+    vertex: mutable usize = 0
+    while order_index < n:
+        current_hub: usize = input[2 + order_index].usize()
+        distance: mutable i16[MAX_VERTICES] = zeroed
+        queue: mutable usize[MAX_VERTICES] = zeroed
+        vertex <- 0
+        while vertex < n: distance[vertex] <- -1; vertex <- vertex + 1
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        distance[current_hub] <- 0
+        queue[0] <- current_hub
+        while head < tail:
+            vertex <- queue[head]
+            head <- head + 1
+            estimate: mutable i16 = (2 * MAX_VERTICES).i16()
+            common: mutable usize = 0
+            while common < n:
+                from_hub: i16 = labels[current_hub * MAX_VERTICES + common]
+                from_vertex: i16 = labels[vertex * MAX_VERTICES + common]
+                if from_hub >= 0 and from_vertex >= 0 and from_hub + from_vertex < estimate: estimate <- from_hub + from_vertex
+                common <- common + 1
+            if estimate <= distance[vertex]: continue
+            labels[vertex * MAX_VERTICES + current_hub] <- distance[vertex]
+            neighbor: mutable usize = 0
+            while neighbor < n:
+                if adjacency[vertex * MAX_VERTICES + neighbor] != 0 and distance[neighbor] < 0:
+                    distance[neighbor] <- distance[vertex] + 1
+                    queue[tail] <- neighbor
+                    tail <- tail + 1
+                neighbor <- neighbor + 1
+        order_index <- order_index + 1
+    fields: mutable i64[MAX_FIELDS] = zeroed
+    field_count: mutable usize = 0
+    fields[field_count] <- n.i64()
+    field_count <- field_count + 1
+    vertex <- 0
+    while vertex < n:
+        count_index: usize = field_count
+        field_count <- field_count + 1
+        count: mutable i64 = 0
+        hub: mutable usize = 0
+        while hub < n:
+            value: i16 = labels[vertex * MAX_VERTICES + hub]
+            if value >= 0:
+                fields[field_count] <- hub.i64() | (value.i64() << 8)
+                field_count <- field_count + 1
+                count <- count + 1
+            hub <- hub + 1
+        fields[count_index] <- count
+        vertex <- vertex + 1
+    bytes: usize = field_count * 8
+    if output.is_null() or capacity < bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    i <- 0
+    while i < field_count: hub_labeling_put(fields[i], staged&, i * 8); i <- i + 1
+    i <- 0
+    while i < bytes: output[i] <- staged[i]; i <- i + 1
+    bytes.i64()

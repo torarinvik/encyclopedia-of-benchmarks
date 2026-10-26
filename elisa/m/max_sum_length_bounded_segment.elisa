@@ -1,0 +1,55 @@
+const MAX_N: usize = 32
+const MAX_INPUT: usize = 35
+
+def max_sum_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def max_sum_length_bounded_segment(input: i64&, length: usize,
+                                   output: mutable u8&, capacity: usize) -> i64 @export("max_sum_length_bounded_segment"):
+    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    lower64: i64 = input[1]
+    upper64: i64 = input[2]
+    if n64 < 1 or n64 > 32 or lower64 < 1 or upper64 < lower64 or upper64 > n64 or length != 3 + n64.usize(): return -1
+    n: usize = n64.usize()
+    lower: usize = lower64.usize()
+    upper: usize = upper64.usize()
+    prefix: mutable i64[33] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        value: i64 = input[3 + i]
+        if value < -10000 or value > 10000: return -1
+        prefix[i + 1] <- prefix[i] + value
+        i <- i + 1
+    if output.is_null() or capacity < 24: return -2
+    deque: mutable usize[33] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    best_sum: mutable i64 = 0
+    best_start: mutable usize = 0
+    best_end: mutable usize = 0
+    have_best: mutable bool = false
+    end: mutable usize = lower
+    while end <= n:
+        added: usize = end - lower
+        while tail > head and prefix[deque[tail - 1]] > prefix[added]: tail <- tail - 1
+        deque[tail] <- added
+        tail <- tail + 1
+        earliest: usize = if end > upper: end - upper else: 0
+        while head < tail and deque[head] < earliest: head <- head + 1
+        start: usize = deque[head]
+        sum: i64 = prefix[end] - prefix[start]
+        if not have_best or sum > best_sum or (sum == best_sum and (start < best_start or (start == best_start and end < best_end))):
+            best_sum <- sum
+            best_start <- start
+            best_end <- end
+            have_best <- true
+        end <- end + 1
+    max_sum_store_i64_le(best_sum, output, 0)
+    max_sum_store_i64_le(best_start.i64(), output, 8)
+    max_sum_store_i64_le(best_end.i64(), output, 16)
+    24.i64()

@@ -1,0 +1,43 @@
+def fibonacci_integer_code_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 33:
+        return -1
+    n0: i64 = input[0]
+    if n0 < 1 or n0 > 32 or length != n0.usize() + 1:
+        return -1
+    n: usize = n0.usize()
+    for i in 0..<n:
+        if input[i + 1] < 0 or input[i + 1] > 1000000:
+            return -1
+    fib: mutable u64[30] = zeroed
+    fib[0] <- 1
+    fib[1] <- 2
+    fib_count: mutable usize = 2
+    while fib_count < 30 and fib[fib_count - 1] + fib[fib_count - 2] <= 1000001:
+        fib[fib_count] <- fib[fib_count - 1] + fib[fib_count - 2]
+        fib_count <- fib_count + 1
+    staged: mutable u8[960] = zeroed
+    out: mutable usize = 0
+    for v in 0..<n:
+        remaining: mutable u64 = (input[v + 1] + 1).u64()
+        top: mutable usize = 0
+        while top + 1 < fib_count and fib[top + 1] <= remaining:
+            top <- top + 1
+        bits: mutable u8[30] = zeroed
+        j: mutable usize = top + 1
+        while j > 0:
+            j <- j - 1
+            if fib[j] <= remaining:
+                bits[j] <- 1
+                remaining <- remaining - fib[j]
+        for i in 0..=top:
+            staged[out] <- (48 + bits[i]).u8()
+            out <- out + 1
+        staged[out] <- 49
+        out <- out + 1
+    if output == null or capacity < out:
+        return -2
+    for i in 0..<out:
+        output[i] <- staged[i]
+    out.i64()
+
+export fn fibonacci_integer_code(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = fibonacci_integer_code_impl

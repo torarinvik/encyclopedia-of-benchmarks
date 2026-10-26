@@ -1,0 +1,154 @@
+const MAX_N: usize = 8
+const MAX_CLAUSES: usize = 12
+const MAX_INPUT: usize = 54
+const MAX_OUTPUT: usize = 72
+
+def ppsz_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def ppsz_fixed_mask(mask0: u64, assigned: i64[MAX_N], n: usize) -> u64:
+    mask: mutable u64 = mask0
+    variable: mutable usize = 0
+    while variable < n:
+        if assigned[variable] >= 0:
+            bit: u64 = 1.u64() << variable
+            if assigned[variable] == 1: mask <- mask | bit
+            else: mask <- mask & ~bit
+        variable <- variable + 1
+    mask
+
+def ppsz_clause_true(clauses: i64[MAX_CLAUSES * 3], clause_id: usize, mask: u64) -> bool:
+    literal_index: mutable usize = 0
+    while literal_index < 3:
+        literal: i64 = clauses[3 * clause_id + literal_index]
+        variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+        bit: bool = ((mask >> variable) & 1.u64()) != 0
+        if (literal > 0 and bit) or (literal < 0 and not bit): return true
+        literal_index <- literal_index + 1
+    false
+
+def ppsz_selected_true(clauses: i64[MAX_CLAUSES * 3], m: usize, subset: u64, mask: u64) -> bool:
+    clause_id: mutable usize = 0
+    while clause_id < m:
+        if (subset & (1.u64() << clause_id)) != 0 and not ppsz_clause_true(clauses, clause_id, mask): return false
+        clause_id <- clause_id + 1
+    true
+
+def ppsz_popcount(value0: usize) -> usize:
+    value: mutable usize = value0
+    count: mutable usize = 0
+    while value > 0:
+        count <- count + (value & 1)
+        value <- value >> 1
+    count
+
+def ppsz_current_sat(n: usize, m: usize, clauses: i64[MAX_CLAUSES * 3], assigned: i64[MAX_N]) -> bool:
+    mask: mutable u64 = 0
+    while mask < (1.u64() << n):
+        if ppsz_selected_true(clauses, m, (1.u64() << m) - 1, ppsz_fixed_mask(mask, assigned, n)): return true
+        mask <- mask + 1
+    false
+
+def ppsz_find_force(n: usize, m: usize, clauses: i64[MAX_CLAUSES * 3], assigned: i64[MAX_N]) -> i64:
+    if not ppsz_current_sat(n, m, clauses, assigned): return -1
+    threshold: mutable usize = 0
+    while (1.u64() << (threshold + 1)) <= n.u64(): threshold <- threshold + 1
+    implied: mutable i64[MAX_N] = zeroed
+    variable: mutable usize = 0
+    while variable < MAX_N: implied[variable] <- -1; variable <- variable + 1
+    subset: mutable usize = 1
+    while subset < (1.usize() << m):
+        if ppsz_popcount(subset) <= threshold:
+            seen_zero: mutable bool[MAX_N] = zeroed
+            seen_one: mutable bool[MAX_N] = zeroed
+            mask: mutable u64 = 0
+            while mask < (1.u64() << n):
+                full: u64 = ppsz_fixed_mask(mask, assigned, n)
+                if ppsz_selected_true(clauses, m, subset.u64(), full):
+                    variable <- 0
+                    while variable < n:
+                        if assigned[variable] < 0:
+                            if ((full >> variable) & 1.u64()) != 0: seen_one[variable] <- true
+                            else: seen_zero[variable] <- true
+                        variable <- variable + 1
+                mask <- mask + 1
+            variable <- 0
+            while variable < n:
+                if assigned[variable] < 0 and seen_zero[variable] != seen_one[variable] and implied[variable] < 0:
+                    implied[variable] <- if seen_one[variable]: 1 else: 0
+                variable <- variable + 1
+        subset <- subset + 1
+    variable <- 0
+    while variable < n:
+        if implied[variable] >= 0: return (2 * variable + implied[variable].usize()).i64()
+        variable <- variable + 1
+    -1
+
+def ppsz_k_sat_trace(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("ppsz_k_sat_trace"):
+    if input.is_null() or length < 2 or length > MAX_INPUT or input[0] < 3 or input[0] > 8 or input[1] < 0 or input[1] > 12: return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 3 * m + 2 * n: return -1
+    clauses: mutable i64[MAX_CLAUSES * 3] = zeroed
+    clause_id: mutable usize = 0
+    while clause_id < m:
+        seen: mutable bool[MAX_N] = zeroed
+        literal_index: mutable usize = 0
+        while literal_index < 3:
+            literal: i64 = input[2 + 3 * clause_id + literal_index]
+            if literal == 0 or literal < -n.i64() or literal > n.i64(): return -1
+            variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+            if seen[variable]: return -1
+            seen[variable] <- true
+            clauses[3 * clause_id + literal_index] <- literal
+            literal_index <- literal_index + 1
+        clause_id <- clause_id + 1
+    start: usize = 2 + 3 * m
+    order: mutable usize[MAX_N] = zeroed
+    beta: mutable i64[MAX_N] = zeroed
+    seen_var: mutable bool[MAX_N] = zeroed
+    assigned: mutable i64[MAX_N] = zeroed
+    variable <- 0
+    while variable < MAX_N: assigned[variable] <- -1; variable <- variable + 1
+    variable <- 0
+    while variable < n:
+        x: i64 = input[start + variable]
+        if x < 0 or x >= n.i64() or seen_var[x.usize()]: return -1
+        order[variable] <- x.usize()
+        seen_var[x.usize()] <- true
+        variable <- variable + 1
+    variable <- 0
+    while variable < n:
+        bit: i64 = input[start + n + variable]
+        if bit != 0 and bit != 1: return -1
+        beta[variable] <- bit
+        variable <- variable + 1
+    step: mutable usize = 0
+    while step < n:
+        while true:
+            encoded: i64 = ppsz_find_force(n, m, clauses, assigned)
+            if encoded < 0: break
+            forced_variable: usize = (encoded / 2).usize()
+            assigned[forced_variable] <- encoded % 2
+        variable <- order[step]
+        if assigned[variable] < 0: assigned[variable] <- beta[variable]
+        step <- step + 1
+    mask: mutable u64 = 0
+    variable <- 0
+    while variable < n:
+        if assigned[variable] == 1: mask <- mask | (1.u64() << variable)
+        variable <- variable + 1
+    verdict: i64 = if ppsz_selected_true(clauses, m, (1.u64() << m) - 1, mask): 1 else: 0
+    bytes: usize = 8 * (n + 1)
+    if output.is_null() or capacity < bytes: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    ppsz_put(verdict, staged, 0)
+    variable <- 0
+    while variable < n: ppsz_put(assigned[variable], staged, 8 * (variable + 1)); variable <- variable + 1
+    variable <- 0
+    while variable < bytes: output[variable] <- staged[variable]; variable <- variable + 1
+    bytes.i64()

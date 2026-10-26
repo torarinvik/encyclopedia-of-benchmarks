@@ -1,0 +1,9 @@
+// Clean-room exact Delaunay graph construction by empty circumcircles.
+const N:usize=8;const F:usize=37;
+fn orient(a:(i64,i64),b:(i64,i64),c:(i64,i64))->i64{(b.0-a.0)*(c.1-a.1)-(b.1-a.1)*(c.0-a.0)}
+fn circle(a:(i64,i64),b:(i64,i64),c:(i64,i64),d:(i64,i64))->i64{let ax=a.0-d.0;let ay=a.1-d.1;let bx=b.0-d.0;let by=b.1-d.1;let cx=c.0-d.0;let cy=c.1-d.1;let aa=ax*ax+ay*ay;let bb=bx*bx+by*by;let cc=cx*cx+cy*cy;aa*(bx*cy-by*cx)-bb*(ax*cy-ay*cx)+cc*(ax*by-ay*bx)}
+#[no_mangle]
+pub unsafe extern "C" fn voronoi_delaunay_empty_circle(v:*const i64,n:usize,out:*mut u8,cap:usize)->i64{if v.is_null()||n<7||n>17||*v<3||*v>8{return -1}let count=*v as usize;if n!=1+2*count{return -1}let mut pts=[(0i64,0i64);N];for i in 0..count{pts[i]=(*v.add(1+2*i),*v.add(2+2*i));if !(-50..=50).contains(&pts[i].0)||!(-50..=50).contains(&pts[i].1){return -1}for j in 0..i{if pts[i]==pts[j]{return -1}}}
+ for a in 0..count{for b in a+1..count{for c in b+1..count{if orient(pts[a],pts[b],pts[c])==0{return -1}}}}for a in 0..count{for b in a+1..count{for c in b+1..count{for d in c+1..count{if circle(pts[a],pts[b],pts[c],pts[d])==0{return -1}}}}}
+ let mut edge=[[false;N];N];for a in 0..count{for b in a+1..count{for c in b+1..count{let o=orient(pts[a],pts[b],pts[c]);let mut empty=true;for d in 0..count{if d!=a&&d!=b&&d!=c{let z=circle(pts[a],pts[b],pts[c],pts[d]);if (o>0&&z>0)||(o<0&&z<0){empty=false;break}}}if empty{edge[a][b]=true;edge[b][a]=true;edge[a][c]=true;edge[c][a]=true;edge[b][c]=true;edge[c][b]=true}}}}
+ let mut fields=[0i64;F];let mut at=1usize;let mut m=0i64;for a in 0..count{for b in a+1..count{if edge[a][b]{fields[at]=a as i64;fields[at+1]=b as i64;at+=2;m+=1}}}fields[0]=m;let bytes=at*8;if out.is_null()||cap<bytes{return -2}for i in 0..at{std::ptr::copy_nonoverlapping(fields[i].to_le_bytes().as_ptr(),out.add(8*i),8)}bytes as i64}

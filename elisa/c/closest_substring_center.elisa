@@ -1,0 +1,34 @@
+// Bounded exact closest-substring center by lexicographic exhaustive search.
+def closest_substring_center_impl(x:i64&,length:usize,out:mutable u8&,cap:usize)->i64:
+ if length<4 or length>44:return -1
+ nv:i64=x[0];mv:i64=x[1];lv:i64=x[2];qv:i64=x[3]
+ if nv<1 or nv>4 or mv<1 or mv>10 or lv<1 or lv>8 or lv>mv or (qv!=2 and qv!=3) or length!=4+(nv*mv).usize():return -1
+ n:usize=nv.usize();m:usize=mv.usize();l:usize=lv.usize();q:usize=qv.usize()
+ for i in 4..length:if x[i]<0 or x[i]>=qv:return -1
+ total:mutable usize=1
+ for _ in 0..l:total<-total*q
+ best:mutable usize=l+1;bc:mutable usize[8]=zeroed
+ for code in 0..total:
+  v:mutable usize=code;candidate:mutable usize[8]=zeroed
+  for p0 in 0..l:p:usize=l-1-p0;candidate[p]<-v%q;v<-v/q
+  radius:mutable usize=0
+  for row in 0..n:
+   rowbest:mutable usize=l+1
+   for st in 0..(m-l+1):
+    d:mutable usize=0
+    for j in 0..l:if candidate[j].i64()!=x[4+row*m+st+j]:d<-d+1
+    if d<rowbest:rowbest<-d
+   if rowbest>radius:radius<-rowbest
+  if radius<best:
+   best<-radius
+   for j in 0..l:bc[j]<-candidate[j]
+ bytes:usize=8*(l+1)
+ if cap<bytes:return -2
+ z:u64=best.u64()
+ for b in 0..8:out[b]<-((z>>(8*b)) & 255).u8()
+ for j in 0..l:
+  z<-bc[j].u64()
+  for b in 0..8:out[8*(j+1)+b]<-((z>>(8*b)) & 255).u8()
+ bytes.i64()
+
+export fn closest_substring_center(x:i64&,length:usize,out:mutable u8&,cap:usize)->i64=closest_substring_center_impl

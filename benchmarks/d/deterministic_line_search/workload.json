@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0.0",
+  "id": "deterministic-line-search-doubling-v1",
+  "algorithm": "deterministic_line_search",
+  "function_symbol": "deterministic_line_search",
+  "comparison_model": "i64_array_bytes_output_call",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[target_coordinate]",
+    "target_range": [-50000, 50000],
+    "zero_target_invalid": true,
+    "minimum_target_distance": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_i64_array",
+    "description": "[total distance traveled, zero-based successful leg index].",
+    "maximum_output_bytes": 16,
+    "maximum_output_elements": 2,
+    "success_result": 16,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_when_nonempty_result": -2
+  },
+  "workspace": {
+    "bytes": 24,
+    "meaning": "Scalar leg depth, total traveled distance, and two staged output values."
+  },
+  "measurement": {
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "first-negative-leg-finds-unit-target",
+      "input_values": [-1],
+      "input_length": 1,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000000000000000000"
+    },
+    {
+      "id": "positive-unit-target-after-first-failed-leg",
+      "input_values": [1],
+      "input_length": 1,
+      "expected_result": 16,
+      "expected_output_hex": "03000000000000000100000000000000"
+    },
+    {
+      "id": "negative-target-after-two-small-explorations",
+      "input_values": [-3],
+      "input_length": 1,
+      "expected_result": 16,
+      "expected_output_hex": "09000000000000000200000000000000"
+    },
+    {
+      "id": "positive-target-at-large-bound",
+      "input_values": [50000],
+      "input_length": 1,
+      "expected_result": 16,
+      "expected_output_hex": "4ec30400000000001100000000000000"
+    },
+    {
+      "id": "origin-target-outside-source-domain",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "target-outside-profile-bound",
+      "input_values": [-50001],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2],
+      "input_length": 1,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 7,
+      "capacity_error_result": -2
+    }
+  ]
+}

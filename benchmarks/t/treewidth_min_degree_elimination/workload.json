@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-treewidth-min-degree-elimination-i64-array-bytes-output-v1",
+  "algorithm": "treewidth_min_degree_elimination",
+  "function_symbol": "treewidth_min_degree_elimination",
+  "pinned_source": {
+    "title": "Treewidth of Graphs",
+    "author": "Hans L. Bodlaender",
+    "doi": "10.1007/978-1-4939-2864-4_431",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_431",
+    "summarized_original_work": "The chapter describes standard minimum-degree and minimum-fill-in elimination heuristics for treewidth upper bounds.",
+    "license": "No source-code redistribution license asserted; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,u0,v0,...] for an undirected simple graph",
+    "vertex_count_range": [1, 16],
+    "maximum_edge_count": 120,
+    "edge_rule": "0 <= u < v < n; edges are unordered and unique.",
+    "maximum_valid_length": 242,
+    "invalid_result": -1
+  },
+  "contract": {
+    "algorithm": "Repeatedly eliminate an active minimum-degree vertex, fill its active neighborhood into a clique, and remove it.",
+    "tie_breaking": "Choose the smallest vertex ID among equal minimum degrees; record fill edges in ascending-neighbor pair order.",
+    "reported_width": "Maximum number of active neighbors at elimination time; an upper bound, not an exact treewidth claim.",
+    "profile_scope": "The source-described minimum-degree heuristic only; exact treewidth recognition is outside this package."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[width,elimination_order...,fill_edge_count,u0,v0,...]",
+    "maximum_bytes": 2064,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Fixed 16 by 16 adjacency state, active vertices, 120 fill-edge pairs, and staged maximum output."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "three-vertex-path",
+      "input_values": [3, 2, 0, 1, 1, 2],
+      "input_length": 6,
+      "output_capacity": 2064,
+      "expected_result": 40,
+      "expected_output_hex": "01000000000000000000000000000000010000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "four-cycle-adds-one-fill-edge",
+      "input_values": [4, 4, 0, 1, 0, 3, 1, 2, 2, 3],
+      "input_length": 10,
+      "output_capacity": 2064,
+      "expected_result": 64,
+      "expected_output_hex": "02000000000000000000000000000000010000000000000002000000000000000300000000000000010000000000000001000000000000000300000000000000"
+    },
+    {
+      "id": "single-isolated-vertex",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 2064,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "duplicate-edge-invalid",
+      "input_values": [3, 2, 0, 1, 0, 1],
+      "input_length": 6,
+      "output_capacity": 2064,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [3, 2, 0, 1, 1, 2],
+      "input_length": 6,
+      "output_capacity": 39,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

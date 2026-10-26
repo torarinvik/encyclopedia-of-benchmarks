@@ -1,0 +1,231 @@
+const MAX_LEAVES: usize = 7
+const MAX_EDGES: usize = 11
+const MAX_INPUT: usize = 23
+const MAX_STATES: usize = 945
+const MAX_DEGREE: usize = 8
+
+def nni_bit_count(value: u16, n: usize) -> usize:
+    count: mutable usize = 0
+    bit: mutable usize = 0
+    while bit < n:
+        count <- count + ((value >> bit) & 1).usize()
+        bit <- bit + 1
+    count
+
+def nni_valid_tree(input: i64&, offset: usize, n: usize, edges: usize) -> bool:
+    splits: mutable u16[MAX_EDGES] = zeroed
+    internal: mutable u16[MAX_EDGES] = zeroed
+    internal_count: mutable usize = 0
+    universe: u16 = ((1.u16() << n) - 1)
+    edge: mutable usize = 0
+    while edge < edges:
+        raw: i64 = input[offset + edge]
+        if raw <= 0 or raw.u64() >= universe.u64() or (raw & 1) != 0: return false
+        splits[edge] <- raw.u16()
+        earlier: mutable usize = 0
+        while earlier < edge:
+            if splits[earlier] == splits[edge]: return false
+            earlier <- earlier + 1
+        size: usize = nni_bit_count(splits[edge], n)
+        if size == 1 or size == n - 1:
+            if size == n - 1 and splits[edge] != (universe ^ 1): return false
+        else if size >= 2 and size <= n - 2:
+            internal[internal_count] <- splits[edge]
+            internal_count <- internal_count + 1
+        else:
+            return false
+        edge <- edge + 1
+    if internal_count != n - 3: return false
+    leaf: mutable usize = 1
+    while leaf < n:
+        pendant: u16 = 1.u16() << leaf
+        found: mutable usize = 0
+        edge <- 0
+        while edge < edges:
+            if splits[edge] == pendant: found <- found + 1
+            edge <- edge + 1
+        if found != 1: return false
+        leaf <- leaf + 1
+    root_pendant: mutable usize = 0
+    edge <- 0
+    while edge < edges:
+        if splits[edge] == (universe ^ 1): root_pendant <- root_pendant + 1
+        edge <- edge + 1
+    if root_pendant != 1: return false
+    i: mutable usize = 0
+    while i < internal_count:
+        j: mutable usize = i + 1
+        while j < internal_count:
+            common: u16 = internal[i] & internal[j]
+            if common != 0 and common != internal[i] and common != internal[j]: return false
+            j <- j + 1
+        i <- i + 1
+    true
+
+def nni_sort(state: mutable u16[MAX_EDGES], count: usize) -> void:
+    i: mutable usize = 1
+    while i < count:
+        value: u16 = state[i]
+        j: mutable usize = i
+        while j > 0 and state[j - 1] > value:
+            state[j] <- state[j - 1]
+            j <- j - 1
+        state[j] <- value
+        i <- i + 1
+
+def nni_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def nni_phylogeny_distance(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("nni_phylogeny_distance"):
+    if input.is_null() or length < 7 or length > MAX_INPUT: return -1
+    leaf_value: i64 = input[0]
+    if leaf_value < 3 or leaf_value > MAX_LEAVES.i64(): return -1
+    leaves: usize = leaf_value.usize()
+    edges: usize = 2 * leaves - 3
+    if length != 1 + 2 * edges or not nni_valid_tree(input&, 1, leaves, edges) or not nni_valid_tree(input&, 1 + edges, leaves, edges): return -1
+
+    states_a: mutable u16[MAX_STATES * MAX_EDGES] = zeroed
+    states_b: mutable u16[MAX_STATES * MAX_EDGES] = zeroed
+    current_is_a: mutable bool = true
+    state_count: mutable usize = 1
+    states_a[0] <- 2
+    states_a[1] <- 4
+    states_a[2] <- 6
+    old_edges: mutable usize = 3
+    size: mutable usize = 4
+    while size <= leaves:
+        new_edges: usize = old_edges + 2
+        new_bit: u16 = 1.u16() << (size - 1)
+        next_count: mutable usize = 0
+        state_index: mutable usize = 0
+        while state_index < state_count:
+            selected_index: mutable usize = 0
+            while selected_index < old_edges:
+                selected: u16 = if current_is_a: states_a[state_index * MAX_EDGES + selected_index] else: states_b[state_index * MAX_EDGES + selected_index]
+                candidate: mutable u16[MAX_EDGES] = zeroed
+                candidate_count: mutable usize = 0
+                edge: mutable usize = 0
+                while edge < old_edges:
+                    split: u16 = if current_is_a: states_a[state_index * MAX_EDGES + edge] else: states_b[state_index * MAX_EDGES + edge]
+                    if split == selected:
+                        candidate[candidate_count] <- split
+                        candidate_count <- candidate_count + 1
+                        candidate[candidate_count] <- split | new_bit
+                        candidate_count <- candidate_count + 1
+                    else if (selected & split) == selected:
+                        candidate[candidate_count] <- split | new_bit
+                        candidate_count <- candidate_count + 1
+                    else:
+                        candidate[candidate_count] <- split
+                        candidate_count <- candidate_count + 1
+                    edge <- edge + 1
+                candidate[candidate_count] <- new_bit
+                candidate_count <- candidate_count + 1
+                nni_sort(candidate, candidate_count)
+                found: mutable usize = 0
+                duplicate: mutable bool = false
+                while found < next_count and not duplicate:
+                    same: mutable bool = true
+                    edge <- 0
+                    while edge < new_edges:
+                        existing: u16 = if current_is_a: states_b[found * MAX_EDGES + edge] else: states_a[found * MAX_EDGES + edge]
+                        if existing != candidate[edge]: same <- false
+                        edge <- edge + 1
+                    if same: duplicate <- true else: found <- found + 1
+                if not duplicate:
+                    if next_count >= MAX_STATES: return -1
+                    edge <- 0
+                    while edge < new_edges:
+                        if current_is_a: states_b[next_count * MAX_EDGES + edge] <- candidate[edge] else: states_a[next_count * MAX_EDGES + edge] <- candidate[edge]
+                        edge <- edge + 1
+                    next_count <- next_count + 1
+                selected_index <- selected_index + 1
+            state_index <- state_index + 1
+        current_is_a <- not current_is_a
+        state_count <- next_count
+        old_edges <- new_edges
+        size <- size + 1
+
+    start: mutable u16[MAX_EDGES] = zeroed
+    goal: mutable u16[MAX_EDGES] = zeroed
+    i: mutable usize = 0
+    while i < edges:
+        start[i] <- input[1 + i].u16()
+        goal[i] <- input[1 + edges + i].u16()
+        i <- i + 1
+    nni_sort(start, edges)
+    nni_sort(goal, edges)
+    start_index: mutable usize = state_count
+    goal_index: mutable usize = state_count
+    state_index <- 0
+    while state_index < state_count:
+        same_start: mutable bool = true
+        same_goal: mutable bool = true
+        i <- 0
+        while i < edges:
+            state_value: u16 = if current_is_a: states_a[state_index * MAX_EDGES + i] else: states_b[state_index * MAX_EDGES + i]
+            if state_value != start[i]: same_start <- false
+            if state_value != goal[i]: same_goal <- false
+            i <- i + 1
+        if same_start: start_index <- state_index
+        if same_goal: goal_index <- state_index
+        state_index <- state_index + 1
+    if start_index == state_count or goal_index == state_count: return -1
+
+    neighbors: mutable u16[MAX_STATES * MAX_DEGREE] = zeroed
+    degree: mutable u8[MAX_STATES] = zeroed
+    left: mutable usize = 0
+    while left < state_count:
+        right: mutable usize = left + 1
+        while right < state_count:
+            common: mutable usize = 0
+            i <- 0
+            while i < edges:
+                left_size: usize = nni_bit_count(if current_is_a: states_a[left * MAX_EDGES + i] else: states_b[left * MAX_EDGES + i], leaves)
+                if left_size < 2 or left_size > leaves - 2:
+                    i <- i + 1
+                    continue
+                j: mutable usize = 0
+                left_value: u16 = if current_is_a: states_a[left * MAX_EDGES + i] else: states_b[left * MAX_EDGES + i]
+                while j < edges:
+                    right_value: u16 = if current_is_a: states_a[right * MAX_EDGES + j] else: states_b[right * MAX_EDGES + j]
+                    right_size: usize = nni_bit_count(right_value, leaves)
+                    if right_size >= 2 and right_size <= leaves - 2 and left_value == right_value: common <- common + 1; break
+                    j <- j + 1
+                i <- i + 1
+            if common + leaves == edges - 1:
+                if degree[left].usize() >= MAX_DEGREE or degree[right].usize() >= MAX_DEGREE: return -1
+                neighbors[left * MAX_DEGREE + degree[left].usize()] <- right.u16()
+                degree[left] <- degree[left] + 1
+                neighbors[right * MAX_DEGREE + degree[right].usize()] <- left.u16()
+                degree[right] <- degree[right] + 1
+            right <- right + 1
+        left <- left + 1
+    distance: mutable i16[MAX_STATES] = zeroed
+    queue: mutable u16[MAX_STATES] = zeroed
+    i <- 0
+    while i < state_count: distance[i] <- -1; i <- i + 1
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    distance[start_index] <- 0
+    queue[0] <- start_index.u16()
+    while head < tail:
+        current: usize = queue[head].usize()
+        head <- head + 1
+        if current == goal_index: break
+        i <- 0
+        while i < degree[current].usize():
+            next: usize = neighbors[current * MAX_DEGREE + i].usize()
+            if distance[next] < 0:
+                distance[next] <- distance[current] + 1
+                queue[tail] <- next.u16()
+                tail <- tail + 1
+            i <- i + 1
+    if distance[goal_index] < 0: return -1
+    if output.is_null() or capacity < 8: return -2
+    nni_put(distance[goal_index].i64(), output&, 0)
+    8

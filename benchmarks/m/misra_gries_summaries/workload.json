@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-misra-gries-summaries-i64-array-bytes-output-v1",
+  "algorithm": "misra_gries_summaries",
+  "function_symbol": "misra_gries_summaries",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded deterministic Misra-Gries frequent-item summary.",
+  "source": {
+    "title": "Misra-Gries Summaries",
+    "authors": ["J. Misra", "D. Gries"],
+    "year": 1982,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_572",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_572",
+    "implementation_status": "clean-room; no book prose or upstream source code copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[counter_capacity, item_count, item_ids...]",
+    "counter_capacity_range": [1, 8],
+    "item_count_range": [0, 64],
+    "item_id_range": [0, 15],
+    "exact_length": "2 + item_count",
+    "maximum_valid_length": 66,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[candidate_count, (item_id, residual_count)...], candidate pairs in ascending item_id order",
+    "maximum_values": 17,
+    "maximum_bytes": 136,
+    "success_result": "8 * (1 + 2 * candidate_count) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 136,
+    "meaning": "Staged candidate count and at most eight item/residual-count pairs."
+  },
+  "contract": {
+    "update_rule": "Increment an existing candidate; otherwise fill a free counter; otherwise decrement every counter and remove zeros, discarding the triggering item.",
+    "guarantee": "Every item with true frequency greater than item_count/(counter_capacity+1) is retained as a candidate.",
+    "canonical_output": "Candidate pairs are sorted by item ID after stream processing.",
+    "error_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"two-counter-cancellation","input_values":[2,7,1,2,1,3,1,2,1],"input_length":9,"output_capacity":136,"expected_result":40,"expected_output_hex":"02000000000000000100000000000000020000000000000002000000000000000100000000000000"},
+    {"id":"single-counter-cancellation","input_values":[1,5,2,3,2,4,2],"input_length":7,"output_capacity":136,"expected_result":24,"expected_output_hex":"010000000000000002000000000000000100000000000000"},
+    {"id":"empty-stream","input_values":[3,0],"input_length":2,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"one-repeated-candidate","input_values":[2,5,7,7,7,7,7],"input_length":7,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000007000000000000000500000000000000"},
+    {"id":"length-mismatch","input_values":[2,1,4,5],"input_length":4,"output_capacity":136,"expected_result":-1,"expected_output_hex":""},
+    {"id":"item-out-of-range","input_values":[2,1,16],"input_length":3,"output_capacity":136,"expected_result":-1,"expected_output_hex":""},
+    {"id":"counter-capacity-out-of-range","input_values":[9,0],"input_length":2,"output_capacity":136,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,2,9,9],"input_length":4,"output_capacity":23,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,2,9,9],"input_length":4,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":2,"input_is_null":true,"output_capacity":136,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

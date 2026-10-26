@@ -1,0 +1,6 @@
+module concave_gap_alignment_global;
+const usz D=8;const usz MAX_INPUT=26;const long INF=1152921504606846976;
+fn void put64(char*o,long x){ulong b=(ulong)x;for(usz j=0;j<8;j+=1){o[j]=(char)(b&255);b>>=8;}}
+long concave_gap_alignment_global(long*in,usz len,char*out,usz cap) @export("concave_gap_alignment_global"){
+ if(in==null||len<5||len>MAX_INPUT)return -1;long nr=in[0],mr=in[1];if(nr<1||nr>8||mr<1||mr>8)return -1;usz n=(usz)nr,m=(usz)mr,g=n>m?n:m;if(len!=2+n+m+g)return -1;long x[8],y[8],w[8];usz p=2;for(usz i=0;i<n;i+=1){x[i]=in[p++];if(x[i]<0||x[i]>3)return -1;}for(usz j=0;j<m;j+=1){y[j]=in[p++];if(y[j]<0||y[j]>3)return -1;}long slope=INF;for(usz k=0;k<g;k+=1){w[k]=in[p++];if(w[k]<0||w[k]>100)return -1;long delta=w[k]-(k>0?w[k-1]:0);if(k>0&&(w[k]<w[k-1]||delta>slope))return -1;slope=delta;}if(out==null||cap<8)return -2;long dp[81];for(usz i=0;i<81;i+=1)dp[i]=INF;dp[0]=0;for(usz i=0;i<=n;i+=1)for(usz j=0;j<=m;j+=1){if(i==0&&j==0)continue;long best=INF;if(i>0&&j>0){long c=dp[(i-1)*9+j-1]+(x[i-1]==y[j-1]?0:1);if(c<best)best=c;}for(usz z=1;z<=i;z+=1){long c=dp[(i-z)*9+j]+w[z-1];if(c<best)best=c;}for(usz z=1;z<=j;z+=1){long c=dp[i*9+j-z]+w[z-1];if(c<best)best=c;}dp[i*9+j]=best;}put64(out,dp[n*9+m]);return 8;
+}

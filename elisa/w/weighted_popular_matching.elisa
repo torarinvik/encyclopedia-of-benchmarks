@@ -1,0 +1,93 @@
+// Clean-room exhaustive solver for bounded weighted popular matchings.
+const MAX_N: usize = 4
+const MAX_FIELDS: usize = 6
+def matching_decode(code0: usize, n: usize, m: usize, assignment: mutable usize[MAX_N]) -> bool:
+    code: mutable usize = code0
+    used: mutable u64 = 0
+    i: mutable usize = 0
+    while i < n:
+        digit: usize = code % (m+1)
+        code <- code / (m+1)
+        assignment[i] <- digit
+        if digit > 0:
+            bit: u64 = 1.u64() << (digit-1)
+            if (used & bit) != 0: return false
+            used <- used | bit
+        i <- i+1
+    true
+def matching_lex_less(a: usize[MAX_N], b: usize[MAX_N], n: usize) -> bool:
+    i: mutable usize = 0
+    while i < n:
+        if a[i] != b[i]: return a[i] < b[i]
+        i <- i+1
+    false
+def matching_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    i: mutable usize = 0
+    while i < 8: output[offset+i] <- ((bits>>(8*i))&255).u8(); i <- i+1
+def weighted_popular_matching(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("weighted_popular_matching"):
+    if input.is_null() or length < 4 or length > 22 or input[0] < 1 or input[0] > MAX_N.i64() or input[1] < 1 or input[1] > MAX_N.i64(): return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2+n+n*m: return -1
+    i: mutable usize = 0
+    while i < n:
+        if input[2+i] < 1 or input[2+i] > 1000: return -1
+        seen: mutable u64 = 0
+        j: mutable usize = 0
+        while j < m:
+            rank: i64 = input[2+n+i*m+j]
+            if rank < 0 or rank >= m.i64(): return -1
+            bit: u64 = 1.u64() << rank.usize()
+            if (seen & bit) != 0: return -1
+            seen <- seen | bit
+            j <- j+1
+        i <- i+1
+    total: mutable usize = 1
+    i <- 0
+    while i < n: total <- total*(m+1); i <- i+1
+    best_card: mutable i64 = -1
+    best: mutable usize[MAX_N] = zeroed
+    i <- 0
+    while i < MAX_N: best[i] <- MAX_N; i <- i+1
+    code: mutable usize = 0
+    while code < total:
+        candidate: mutable usize[MAX_N] = zeroed
+        if matching_decode(code,n,m,candidate):
+            popular: mutable bool = true
+            other_code: mutable usize = 0
+            while other_code < total and popular:
+                other: mutable usize[MAX_N] = zeroed
+                if matching_decode(other_code,n,m,other):
+                    score: mutable i64 = 0
+                    i <- 0
+                    while i < n:
+                        rank_candidate: i64 = m.i64()
+                        rank_other: i64 = m.i64()
+                        if candidate[i] > 0: rank_candidate <- input[2+n+i*m+candidate[i]-1]
+                        if other[i] > 0: rank_other <- input[2+n+i*m+other[i]-1]
+                        if rank_other < rank_candidate: score <- score+input[2+i]
+                        if rank_other > rank_candidate: score <- score-input[2+i]
+                        i <- i+1
+                    if score > 0: popular <- false
+                other_code <- other_code+1
+            if popular:
+                card: mutable i64 = 0
+                i <- 0
+                while i < n:
+                    if candidate[i] > 0: card <- card+1
+                    i <- i+1
+                if card > best_card or (card == best_card and matching_lex_less(candidate,best,n)):
+                    best_card <- card
+                    best <- candidate
+        code <- code+1
+    fields: mutable i64[MAX_FIELDS] = zeroed
+    fields[0] <- if best_card < 0: 0 else: 1
+    fields[1] <- if best_card < 0: 0 else: best_card
+    i <- 0
+    while i < n: fields[2+i] <- if best_card < 0: -1 else: best[i].i64()-1; i <- i+1
+    bytes: usize = 8*(n+2)
+    if output.is_null() or capacity < bytes: return -2
+    i <- 0
+    while i < n+2: matching_put(fields[i],output&,8*i); i <- i+1
+    bytes.i64()

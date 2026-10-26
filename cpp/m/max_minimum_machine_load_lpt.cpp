@@ -1,0 +1,7 @@
+#include <cstddef>
+#include <cstdint>
+namespace{constexpr std::size_t N=16,L=18;void put64(std::uint8_t*o,std::size_t p,std::int64_t x){auto b=static_cast<std::uint64_t>(x);for(std::size_t j=0;j<8;j++){o[p+j]=static_cast<std::uint8_t>(b&255U);b>>=8;}}}
+extern "C" std::int64_t max_minimum_machine_load_lpt(const std::int64_t*in,std::size_t len,std::uint8_t*out,std::size_t cap)noexcept{
+ if(!in||len<3||len>L)return -1;auto nr=in[0],mr=in[1];if(nr<1||nr>N||mr<1||mr>4||len!=2+static_cast<std::size_t>(nr))return -1;auto n=static_cast<std::size_t>(nr),m=static_cast<std::size_t>(mr);std::int64_t p[N]{},order[N]{},assign[N]{},loads[4]{};for(std::size_t i=0;i<n;i++){p[i]=in[2+i];if(p[i]<1||p[i]>100)return -1;order[i]=static_cast<std::int64_t>(i);}auto bytes=8*(1+n+m);if(!out||cap<bytes)return -2;
+ for(std::size_t i=1;i<n;i++){auto key=order[i];auto j=i;while(j>0&&(p[key]>p[order[j-1]]||(p[key]==p[order[j-1]]&&key<order[j-1]))){order[j]=order[j-1];--j;}order[j]=key;}for(std::size_t k=0;k<n;k++){auto job=static_cast<std::size_t>(order[k]);std::size_t machine=0;for(std::size_t j=1;j<m;j++)if(loads[j]<loads[machine])machine=j;assign[job]=static_cast<std::int64_t>(machine);loads[machine]+=p[job];}auto low=loads[0];for(std::size_t j=1;j<m;j++)if(loads[j]<low)low=loads[j];put64(out,0,low);for(std::size_t i=0;i<n;i++)put64(out,8*(1+i),assign[i]);for(std::size_t j=0;j<m;j++)put64(out,8*(1+n+j),loads[j]);return static_cast<std::int64_t>(bytes);
+}

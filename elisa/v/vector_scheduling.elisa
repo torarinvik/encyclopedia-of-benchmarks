@@ -1,0 +1,71 @@
+# Clean-room explicit-choice profile of randomized vector scheduling.
+const MAX_N: usize = 16
+const MAX_M: usize = 8
+const MAX_D: usize = 4
+const MAX_INPUT: usize = 83
+const MAX_FIELDS: usize = 35
+
+def vector_schedule_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def vector_scheduling(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("vector_scheduling"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    d64: i64 = input[2]
+    if n64 < 1 or n64 > 16 or m64 < 1 or m64 > 8 or d64 < 1 or d64 > 4 or length != 3 + n64.usize() + (n64 * d64).usize(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    d: usize = d64.usize()
+    job: mutable usize = 0
+    while job < n:
+        if input[3 + job] < 0 or input[3 + job] >= m64: return -1
+        job <- job + 1
+    coordinate: mutable usize = 0
+    while coordinate < n * d:
+        value: i64 = input[3 + n + coordinate]
+        if value < 0 or value > 1000: return -1
+        coordinate <- coordinate + 1
+    loads: mutable i64[MAX_M * MAX_D] = zeroed
+    job <- 0
+    while job < n:
+        machine: usize = input[3 + job].usize()
+        dimension: mutable usize = 0
+        while dimension < d:
+            loads[machine * MAX_D + dimension] <- loads[machine * MAX_D + dimension] + input[3 + n + job * d + dimension]
+            dimension <- dimension + 1
+        job <- job + 1
+    makespan: mutable i64 = 0
+    machine: mutable usize = 0
+    while machine < m:
+        dimension: mutable usize = 0
+        while dimension < d:
+            if loads[machine * MAX_D + dimension] > makespan: makespan <- loads[machine * MAX_D + dimension]
+            dimension <- dimension + 1
+        machine <- machine + 1
+    staged: mutable i64[MAX_FIELDS] = zeroed
+    count: mutable usize = 0
+    staged[count] <- m64
+    count <- count + 1
+    staged[count] <- d64
+    count <- count + 1
+    staged[count] <- makespan
+    count <- count + 1
+    machine <- 0
+    while machine < m:
+        dimension: mutable usize = 0
+        while dimension < d:
+            staged[count] <- loads[machine * MAX_D + dimension]
+            count <- count + 1
+            dimension <- dimension + 1
+        machine <- machine + 1
+    if output.is_null() or capacity < 8 * count: return -2
+    coordinate <- 0
+    while coordinate < count:
+        vector_schedule_put(staged[coordinate], output&, 8 * coordinate)
+        coordinate <- coordinate + 1
+    (8 * count).i64()

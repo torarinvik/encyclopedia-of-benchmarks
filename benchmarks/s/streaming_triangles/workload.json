@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "chapter-705-streaming-triangles-i64-array-bytes-v1",
+  "algorithm": "streaming_triangles",
+  "function_symbol": "streaming_triangles",
+  "comparison_model": "i64_array_bytes_output_call",
+  "source": {
+    "chapter": "Counting Triangles in Graph Streams",
+    "doi": "10.1007/978-1-4939-2864-4_705",
+    "paper": "Jha, Seshadhri, Pinar, A Space Efficient Streaming Algorithm for Triangle Counting using the Birthday Paradox, KDD 2013, DOI 10.1145/2487575.2487678",
+    "profile": "Streaming-Triangles procedures with bounded se=2..4 and sw=1..4; random outcomes are explicit inputs."
+  },
+  "contract": {
+    "operation": "One-pass edge-reservoir and wedge-reservoir update with future-closure flags and running transitivity/triangle estimates.",
+    "input_layout": "[n,m,se,sw,edges[2*m],records[m*(2+2*sw)]]",
+    "record_layout": "[edge_draw,edge_slot,(wedge_draw,wedge_pick)[sw]]",
+    "edge_update": "At time t, edge_draw is uniform in [0,t^se); update iff edge_draw < t^se-(t-1)^se, then edge_slot chooses the replaced slot.",
+    "wedge_update": "On edge-reservoir replacement, remove wedges involving the evicted edge, then form N_t using the incoming edge and only the other currently resident edge slots (the evicted edge is excluded). Add N_t; tot_wedges is the current wedge count. For new_wedges>0, each wedge_draw is uniform in [0,tot_wedges); replace iff draw<new_wedges, then wedge_pick selects a uniform item in N_t. Unused tape fields must be zero.",
+    "sampling_limitation": "Following the paper's §6.1 heuristic, a sampled old wedge may remain in the wedge reservoir after its edge is evicted and it no longer belongs to current W_t; the paper calls this technically incorrect. The current tot_wedges and new-wedge probability still use current W_t.",
+    "estimates": "Q=1000000; kappa_q=floor(3*closed_count*Q/sw); triangles_q=floor(closed_count*t^2*tot_wedges*Q/(sw*se*(se-1))).",
+    "output_layout": "For each prefix: [tot_wedges,kappa_q,triangles_q], signed 64-bit little-endian.",
+    "error_precedence": "Malformed graph or invalid state-dependent random tape returns -1 before output checks; null output or insufficient byte capacity returns -2 without writes."
+  },
+  "input": {"kind":"signed_64_bit_integer_array","maximum_valid_length":340,"maximum_parseable_length":341,"vertex_count_range":[2,8],"edge_count_range":[1,28],"edge_reservoir_range":[2,4],"wedge_reservoir_range":[1,4],"invalid_result":-1,"null_input_result":-1},
+  "output": {"kind":"little_endian_signed_64_bit_array","maximum_output_elements":84,"maximum_output_bytes":672,"success_result":"24*m bytes","invalid_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "workspace": {"bytes":2048,"meaning":"At most four edge slots, four wedge slots with closure flags, 28 stream edges, and staged prefix estimates."},
+  "measurement": {"sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
+  "cases": [
+    {
+      "id":"triangle-stream-running-estimates",
+      "input_values":[3,3,2,2,0,1,1,2,0,2,0,0,0,0,0,0,0,1,0,0,0,0,5,0,0,0,0,0],
+      "input_length":28,
+      "expected_result":72,
+      "expected_output_hex":"0000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000100000000000000c0c62d000000000020aa440000000000"
+    },
+    {
+      "id":"open-wedge-no-future-closure",
+      "input_values":[4,3,2,2,0,1,1,2,2,3,0,0,0,0,0,0,0,1,0,0,0,0,5,0,0,0,0,0],
+      "input_length":28,
+      "expected_result":72,
+      "expected_output_hex":"000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000"
+    },
+    {
+      "id":"current-wedge-count-removes-evicted-edge-wedges",
+      "input_values":[5,3,2,1,0,1,1,2,3,4,0,0,0,0,0,1,0,0,0,0,0,0],
+      "input_length":22,
+      "expected_result":72,
+      "expected_output_hex":"000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id":"invalid-edge-random-range",
+      "input_values":[3,2,2,1,0,1,1,2,0,0,0,0,4,0,0,0],
+      "input_length":16,
+      "expected_result":-1,
+      "expected_output_hex":""
+    },
+    {
+      "id":"short-output-capacity",
+      "input_values":[2,1,2,1,0,1,0,0,0,0],
+      "input_length":10,
+      "output_capacity":23,
+      "expected_result":-2,
+      "expected_output_hex":""
+    }
+  ]
+}

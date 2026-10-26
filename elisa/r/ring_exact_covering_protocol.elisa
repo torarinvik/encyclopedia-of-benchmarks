@@ -1,0 +1,66 @@
+const SCALE: i64 = 16
+const MAX_N: usize = 12
+const MAX_STEPS: usize = 64
+const MAX_INPUT: usize = 79
+const MAX_OUTPUT: usize = 208
+
+def ring_exact_covering_protocol_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def ring_exact_covering_protocol(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("ring_exact_covering_protocol"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    if input[0] < 2 or input[0] > 12 or input[2] < 0 or input[2] > 64: return -1
+    n: usize = input[0].usize()
+    steps: usize = input[2].usize()
+    if length != 3 + n + steps: return -1
+    circumference: i64 = SCALE * n.i64()
+    visibility: i64 = input[1]
+    if visibility < 2 * SCALE or visibility > circumference: return -1
+    position: mutable i64[MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        position[i] <- input[3 + i]
+        if position[i] < 0 or position[i] >= circumference: return -1
+        if i > 0 and position[i - 1] >= position[i]: return -1
+        i <- i + 1
+    i <- 0
+    while i < steps:
+        if input[3 + n + i] < 0 or input[3 + n + i] >= n.i64(): return -1
+        i <- i + 1
+    moved: mutable i64 = 0
+    i <- 0
+    while i < steps:
+        sensor: usize = input[3 + n + i].usize()
+        successor: usize = (sensor + 1) % n
+        gap: i64 = (position[successor] - position[sensor] + circumference) % circumference
+        distance: i64 = 0
+        if gap > visibility: distance <- SCALE
+        elif gap > SCALE: distance <- gap - SCALE
+        if distance != 0:
+            position[sensor] <- (position[sensor] + distance) % circumference
+            moved <- moved + 1
+        i <- i + 1
+    bytes: usize = 8 * (2 + 2 * n)
+    if output.is_null() or capacity < bytes: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    ring_exact_covering_protocol_put(n.i64(), staged, 0)
+    ring_exact_covering_protocol_put(moved, staged, 8)
+    i <- 0
+    while i < n:
+        ring_exact_covering_protocol_put(position[i], staged, 8 * (2 + i))
+        i <- i + 1
+    i <- 0
+    while i < n:
+        successor: usize = (i + 1) % n
+        gap: i64 = (position[successor] - position[i] + circumference) % circumference
+        ring_exact_covering_protocol_put(gap, staged, 8 * (2 + n + i))
+        i <- i + 1
+    i <- 0
+    while i < bytes:
+        output[i] <- staged[i]
+        i <- i + 1
+    return bytes.i64()

@@ -1,0 +1,102 @@
+# Clean-room bounded global negative-cycle detection and witness extraction.
+const NEG_CYCLE_MAX_N: usize = 20
+const NEG_CYCLE_MAX_M: usize = 64
+const NEG_CYCLE_MAX_INPUT: usize = 194
+
+def negative_cycle_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def negative_cycle_detection(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("negative_cycle_detection"):
+    if input.is_null() or length < 2 or length > NEG_CYCLE_MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 0 or n64 > 20 or m64 < 0 or m64 > 64 or length != 2 + 3 * m64.usize(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    edge_from: mutable usize[64] = zeroed
+    edge_to: mutable usize[64] = zeroed
+    edge_weight: mutable i64[64] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u: i64 = input[2 + 3 * edge]
+        v: i64 = input[3 + 3 * edge]
+        weight: i64 = input[4 + 3 * edge]
+        if u < 0 or u >= n64 or v < 0 or v >= n64 or weight < -1000 or weight > 1000: return -1
+        edge_from[edge] <- u.usize()
+        edge_to[edge] <- v.usize()
+        edge_weight[edge] <- weight
+        edge <- edge + 1
+
+    # Initial zero distances are equivalent to a super-source reaching every vertex.
+    distance: mutable i64[20] = zeroed
+    predecessor: mutable i64[20] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n: predecessor[vertex] <- -1; vertex <- vertex + 1
+    changed_vertex: mutable i64 = -1
+    pass: mutable usize = 0
+    while pass < n:
+        changed_vertex <- -1
+        edge <- 0
+        while edge < m:
+            u: usize = edge_from[edge]
+            v: usize = edge_to[edge]
+            candidate: i64 = distance[u] + edge_weight[edge]
+            if candidate < distance[v]:
+                distance[v] <- candidate
+                predecessor[v] <- u.i64()
+                changed_vertex <- v.i64()
+            edge <- edge + 1
+        if changed_vertex < 0: break
+        pass <- pass + 1
+
+    record: mutable i64[22] = zeroed
+    record_length: mutable usize = 1
+    if changed_vertex >= 0:
+        vertex <- changed_vertex.usize()
+        pass <- 0
+        while pass < n:
+            if predecessor[vertex] < 0: return -1
+            vertex <- predecessor[vertex].usize()
+            pass <- pass + 1
+        start: usize = vertex
+        cycle: mutable usize[20] = zeroed
+        cycle_length: mutable usize = 0
+        while cycle_length < n:
+            if predecessor[vertex] < 0: return -1
+            cycle[cycle_length] <- vertex
+            cycle_length <- cycle_length + 1
+            vertex <- predecessor[vertex].usize()
+            if vertex == start: break
+        if vertex != start or cycle_length == 0: return -1
+        left: mutable usize = 0
+        right: mutable usize = cycle_length - 1
+        while left < right:
+            temporary: usize = cycle[left]
+            cycle[left] <- cycle[right]
+            cycle[right] <- temporary
+            left <- left + 1
+            right <- right - 1
+        minimum: mutable usize = 0
+        index: mutable usize = 1
+        while index < cycle_length:
+            if cycle[index] < cycle[minimum]: minimum <- index
+            index <- index + 1
+        record[0] <- 1
+        record[1] <- cycle_length.i64()
+        index <- 0
+        while index < cycle_length:
+            record[2 + index] <- cycle[(minimum + index) % cycle_length].i64()
+            index <- index + 1
+        record_length <- cycle_length + 2
+
+    output_bytes: usize = record_length * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < record_length:
+        negative_cycle_store_i64_le(record[index], output, 8 * index)
+        index <- index + 1
+    output_bytes.i64()

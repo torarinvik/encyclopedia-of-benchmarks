@@ -1,0 +1,98 @@
+const MAX_N: usize = 64
+const MAX_Q: usize = 16
+const MAX_INPUT: usize = 82
+const MAX_OUTPUT: usize = 16
+
+def dense_graph_bipartiteness_tester_has_edge(row: i64, vertex: usize) -> bool:
+    bits: u64 = row.u64()
+    return ((bits >> vertex) & 1) != 0
+
+def dense_graph_bipartiteness_tester_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def dense_graph_bipartiteness_tester(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("dense_graph_bipartiteness_tester"):
+    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    q64: i64 = input[1]
+    if n64 < 1 or n64 > 64 or q64 < 1 or q64 > 16: return -1
+    n: usize = n64.usize()
+    q: usize = q64.usize()
+    if q > n or length != 2 + n + q: return -1
+    row_at: usize = 2
+    i: mutable usize = 0
+    while i < n:
+        row: i64 = input[row_at + i]
+        if (n < 64 and (row < 0 or (row.u64() >> n) != 0)) or dense_graph_bipartiteness_tester_has_edge(row, i): return -1
+        j: mutable usize = i + 1
+        while j < n:
+            if dense_graph_bipartiteness_tester_has_edge(row, j) != dense_graph_bipartiteness_tester_has_edge(input[row_at + j], i): return -1
+            j <- j + 1
+        i <- i + 1
+    remaining: mutable usize[MAX_N] = zeroed
+    sample: mutable usize[MAX_Q] = zeroed
+    i <- 0
+    while i < n:
+        remaining[i] <- i
+        i <- i + 1
+    i <- 0
+    while i < q:
+        draw: i64 = input[row_at + n + i]
+        if draw < 0 or draw >= (n64 - i.i64()): return -1
+        selected: usize = i + draw.usize()
+        temp: mutable usize = remaining[i]
+        remaining[i] <- remaining[selected]
+        remaining[selected] <- temp
+        sample[i] <- remaining[i]
+        i <- i + 1
+    adjacent: mutable bool[MAX_Q * MAX_Q] = zeroed
+    i <- 0
+    while i < q:
+        j: mutable usize = i + 1
+        while j < q:
+            edge: bool = dense_graph_bipartiteness_tester_has_edge(input[row_at + sample[i]], sample[j])
+            adjacent[i * MAX_Q + j] <- edge
+            adjacent[j * MAX_Q + i] <- edge
+            j <- j + 1
+        i <- i + 1
+    color: mutable i64[MAX_Q] = zeroed
+    i <- 0
+    while i < q:
+        color[i] <- -1
+        i <- i + 1
+    accepted: mutable i64 = 1
+    start: mutable usize = 0
+    while start < q:
+        if color[start] == -1:
+            queue: mutable usize[MAX_Q] = zeroed
+            head: mutable usize = 0
+            tail: mutable usize = 1
+            queue[0] <- start
+            color[start] <- 0
+            while head < tail:
+                vertex: usize = queue[head]
+                head <- head + 1
+                neighbor: mutable usize = 0
+                while neighbor < q:
+                    if adjacent[vertex * MAX_Q + neighbor]:
+                        if color[neighbor] == -1:
+                            color[neighbor] <- color[vertex] ^ 1
+                            queue[tail] <- neighbor
+                            tail <- tail + 1
+                        elif color[neighbor] == color[vertex]:
+                            accepted <- 0
+                    neighbor <- neighbor + 1
+        start <- start + 1
+    if output.is_null() or capacity < MAX_OUTPUT: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    dense_graph_bipartiteness_tester_put(accepted, staged, 0)
+    dense_graph_bipartiteness_tester_put((q * (q - 1) / 2).i64(), staged, 8)
+    i <- 0
+    while i < MAX_OUTPUT:
+        output[i] <- staged[i]
+        i <- i + 1
+    return MAX_OUTPUT.i64()

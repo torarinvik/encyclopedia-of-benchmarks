@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-wire-sizing-i64-array-bytes-output-v1",
+  "algorithm": "wire_sizing",
+  "function_symbol": "wire_sizing",
+  "pinned_source": {
+    "title": "Wire Sizing",
+    "author": "Chris Chu",
+    "doi": "10.1007/978-1-4939-2864-4_483",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_483",
+    "summarized_original_work": "Chu and Wong, 1999, convex quadratic programming formulation for wire sizing",
+    "license": "No source-code redistribution license asserted; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,L,RD,CL,r0,h0,...,h(n-1),c0,...,c(n-1)]",
+    "n_range": [1, 6],
+    "length_range": [1, 1000],
+    "driver_resistance_range": [1, 1000],
+    "load_capacitance_range": [1, 1000],
+    "sheet_resistance_range": [1, 1000],
+    "width_range": [1, 32],
+    "unit_capacitance_range": [1, 1000],
+    "widths": "Strictly descending; each h_i is a permitted fabrication width.",
+    "unit_capacitances": "Strictly descending in the same index order, representing increasing c(h) as width increases.",
+    "maximum_valid_length": 17,
+    "invalid_result": -1
+  },
+  "contract": {
+    "objective": "D = 1/2*l^T*Phi*l + rho^T*l + RD*CL",
+    "phi": "Phi[i,j] = r0*c[max(i,j)]/h[min(i,j)]",
+    "rho": "rho[i] = RD*c[i] + CL*r0/h[i]",
+    "constraints": "sum(l_i)=L and every l_i>=0",
+    "bounded_method": "Enumerate every nonempty positive-length support; solve its KKT equality system; reject supports failing primal or inactive-variable KKT conditions; select minimum objective.",
+    "source_relation": "Exact bounded exhaustive solver for the chapter QP; not the source's iterative active-set schedule or its O(n^2) implementation.",
+    "arithmetic": "Ports calculate in binary64; exact-rational primary and independent verifier oracles determine expected values.",
+    "rounding": "Round each nonnegative objective/length value to the nearest micro-unit, with half upward."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[delay_micro,length0_micro,...,length(n-1)_micro]",
+    "maximum_bytes": 56,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed six-width matrices, KKT work arrays, support enumeration state, and staged maximum output."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "single-width-elmore-delay",
+      "input_values": [1, 10, 1, 2, 1, 2, 3],
+      "input_length": 7,
+      "output_capacity": 56,
+      "expected_result": 16,
+      "expected_output_hex": "4047946f060000008096980000000000"
+    },
+    {
+      "id": "two-active-widths",
+      "input_values": [2, 10, 1, 4, 1, 2, 1, 4, 2],
+      "input_length": 9,
+      "output_capacity": 56,
+      "expected_result": 24,
+      "expected_output_hex": "c0f8480800000000404b4c0000000000404b4c0000000000"
+    },
+    {
+      "id": "nonnegative-boundary-zero-segment",
+      "input_values": [2, 10, 1, 4, 1, 2, 1, 10, 1],
+      "input_length": 9,
+      "output_capacity": 56,
+      "expected_result": 24,
+      "expected_output_hex": "00ea32060000000000000000000000008096980000000000"
+    },
+    {
+      "id": "maximum-six-width-output",
+      "input_values": [6, 10, 1000, 1, 1, 6, 5, 4, 3, 2, 1, 6, 5, 4, 3, 2, 1],
+      "input_length": 17,
+      "output_capacity": 56,
+      "expected_result": 56,
+      "expected_output_hex": "00353a9302000000000000000000000000000000000000000000000000000000000000000000000000000000000000008096980000000000"
+    },
+    {
+      "id": "widths-must-descend",
+      "input_values": [2, 10, 1, 4, 1, 1, 2, 4, 2],
+      "input_length": 9,
+      "output_capacity": 56,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 10, 1, 2, 1, 2, 3],
+      "input_length": 7,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -15,6 +15,7 @@ The ports use the source Go implementation's direct scan in O(limit) time and O(
 - Go [`Problem6`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/project_euler/problem_6/problem6.go) accumulates the running sum and sum of squares up to its input.
 - Haskell [`Problem6.hs`](https://github.com/TheAlgorithms/Haskell/blob/9dcabef99fb8995a760ff25a9e0d659114c0b9d3/src/ProjectEuler/Problem6/Problem6.hs) computes the same difference for the fixed range 1 through 100.
 - PHP [`Problem6.php`](https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Maths/ProjectEuler/Problem6.php) accumulates the values through a configurable inclusive maximum.
+- C [`sol.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/project_euler/problem_6/sol.c) uses the same direct sum and sum-of-squares loops for the fixed 1..100 input; it aliases this package.
 
 ## Implementations
 

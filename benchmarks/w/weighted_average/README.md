@@ -12,7 +12,7 @@ Compute the weighted arithmetic mean of paired values and weights. The packed in
 
 ## Source and related algorithms
 
-The pinned [Python `weighted_average.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/weighted_average.py) sums the weights, sums each paired product, then divides the product sum by the weight sum. The [`average` benchmark](../../a/average/README.md) computes an unweighted arithmetic mean and cannot express the weighting behavior measured here.
+The pinned [Python `weighted_average.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/weighted_average.py) sums the weights, sums each paired product, then divides the product sum by the weight sum. The canonical [`arithmetic_mean` benchmark](../../a/arithmetic_mean/README.md) computes an unweighted mean; weighting changes the aggregation rule and is measured separately here.
 
 ## Workload and build
 

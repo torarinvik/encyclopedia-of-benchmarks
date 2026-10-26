@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-treewidth-exact-elimination-order-i64-array-bytes-output-v1",
+  "algorithm": "treewidth_exact_elimination_order",
+  "function_symbol": "treewidth_exact_elimination_order",
+  "pinned_source": {
+    "title": "Treewidth of Graphs",
+    "author": "Hans L. Bodlaender",
+    "doi": "10.1007/978-1-4939-2864-4_431",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_431",
+    "summarized_original_work": "The chapter defines treewidth as the minimum width over all elimination schemes and surveys exact algorithms, including Fomin–Villanger.",
+    "license": "No source-code license asserted; clean-room bounded enumeration"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,u0,v0,...] for a simple undirected graph",
+    "vertex_count_range": [
+      1,
+      8
+    ],
+    "maximum_edge_count": 28,
+    "edge_rule": "0 <= u < v < n; every edge is unique.",
+    "maximum_valid_length": 58,
+    "invalid_result": -1
+  },
+  "contract": {
+    "algorithm": "Enumerate every elimination order, fill the active neighborhood into a clique at each step, and minimize the maximum active degree.",
+    "enumeration_order": "Lexicographic permutation order.",
+    "tie_breaking": "Keep the first order attaining the minimum width.",
+    "profile_scope": "Exact exhaustive elimination-order profile for n<=8; not the cited Fomin–Villanger O(1.7549^n) implementation."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[minimum_width,lexicographically_first_optimal_order...]",
+    "maximum_bytes": 72,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed eight-vertex base and working adjacency matrices, active set, permutation buffers, and staged output."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {
+      "id": "three-vertex-path-exact-width",
+      "input_values": [
+        3,
+        2,
+        0,
+        1,
+        1,
+        2
+      ],
+      "input_length": 6,
+      "output_capacity": 72,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000000000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "four-cycle-exact-width-two",
+      "input_values": [
+        4,
+        4,
+        0,
+        1,
+        0,
+        3,
+        1,
+        2,
+        2,
+        3
+      ],
+      "input_length": 10,
+      "output_capacity": 72,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000000000000000000010000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "star-lexicographically-first-optimum",
+      "input_values": [
+        4,
+        3,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3
+      ],
+      "input_length": 8,
+      "output_capacity": 72,
+      "expected_result": 40,
+      "expected_output_hex": "01000000000000000100000000000000020000000000000000000000000000000300000000000000"
+    },
+    {
+      "id": "maximum-path-bound",
+      "input_values": [
+        8,
+        7,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4,
+        5,
+        5,
+        6,
+        6,
+        7
+      ],
+      "input_length": 16,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output_hex": "010000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000"
+    },
+    {
+      "id": "maximum-complete-graph-bound",
+      "input_values": [
+        8,
+        28,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0,
+        6,
+        0,
+        7,
+        1,
+        2,
+        1,
+        3,
+        1,
+        4,
+        1,
+        5,
+        1,
+        6,
+        1,
+        7,
+        2,
+        3,
+        2,
+        4,
+        2,
+        5,
+        2,
+        6,
+        2,
+        7,
+        3,
+        4,
+        3,
+        5,
+        3,
+        6,
+        3,
+        7,
+        4,
+        5,
+        4,
+        6,
+        4,
+        7,
+        5,
+        6,
+        5,
+        7,
+        6,
+        7
+      ],
+      "input_length": 58,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output_hex": "070000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000"
+    },
+    {
+      "id": "duplicate-edge-invalid",
+      "input_values": [
+        3,
+        2,
+        0,
+        1,
+        0,
+        1
+      ],
+      "input_length": 6,
+      "output_capacity": 72,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-buffer",
+      "input_values": [
+        3,
+        2,
+        0,
+        1,
+        1,
+        2
+      ],
+      "input_length": 6,
+      "output_capacity": 31,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

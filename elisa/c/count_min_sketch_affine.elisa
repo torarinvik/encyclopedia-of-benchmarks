@@ -1,0 +1,87 @@
+const PRIME: i64 = 2147483647
+
+def count_min_sketch_affine_put(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def count_min_sketch_affine_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 59:
+        return -1
+    d64: i64 = input[0]
+    w64: i64 = input[1]
+    ops64: i64 = input[2]
+    if d64 < 1 or d64 > 4 or w64 < 1 or w64 > 8 or ops64 < 0 or ops64 > 16:
+        return -1
+    d: usize = d64.usize()
+    w: usize = w64.usize()
+    ops: usize = ops64.usize()
+    start: usize = 3 + 2 * d
+    if length != start + 3 * ops:
+        return -1
+    a: mutable i64[4] = zeroed
+    b: mutable i64[4] = zeroed
+    row: mutable usize = 0
+    while row < d:
+        a[row] <- input[3 + 2 * row]
+        b[row] <- input[4 + 2 * row]
+        if a[row] < 1 or a[row] >= PRIME or b[row] < 0 or b[row] >= PRIME:
+            return -1
+        row <- row + 1
+    queries: mutable usize = 0
+    op: mutable usize = 0
+    while op < ops:
+        kind: i64 = input[start + 3 * op]
+        key: i64 = input[start + 3 * op + 1]
+        weight: i64 = input[start + 3 * op + 2]
+        if key < 0 or key > 1000000:
+            return -1
+        if kind == 0:
+            if weight < 1 or weight > 1000000: return -1
+        elif kind == 1:
+            if weight != 0: return -1
+            queries <- queries + 1
+        else:
+            return -1
+        op <- op + 1
+    table: mutable i64[4][8] = zeroed
+    staged: mutable i64[16] = zeroed
+    count: mutable usize = 0
+    op <- 0
+    while op < ops:
+        kind: i64 = input[start + 3 * op]
+        key: i64 = input[start + 3 * op + 1]
+        weight: i64 = input[start + 3 * op + 2]
+        slots: mutable usize[4] = zeroed
+        row <- 0
+        while row < d:
+            slots[row] <- (((a[row] * key + b[row]) % PRIME) % (w.i64())).usize()
+            row <- row + 1
+        if kind == 0:
+            row <- 0
+            while row < d:
+                table[row][slots[row]] <- table[row][slots[row]] + weight
+                row <- row + 1
+        else:
+            minimum: mutable i64 = table[0][slots[0]]
+            row <- 1
+            while row < d:
+                if table[row][slots[row]] < minimum: minimum <- table[row][slots[row]]
+                row <- row + 1
+            staged[count] <- minimum
+            count <- count + 1
+        op <- op + 1
+    required: usize = queries * 8
+    if capacity < required or (required > 0 and output.is_null()): return -2
+    op <- 0
+    while op < count:
+        count_min_sketch_affine_put(output, 8 * op, staged[op])
+        op <- op + 1
+    return required.i64()
+
+@export("count_min_sketch_affine")
+def count_min_sketch_affine(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    return count_min_sketch_affine_impl(input, length, output, capacity)

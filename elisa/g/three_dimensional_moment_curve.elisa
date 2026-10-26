@@ -1,0 +1,32 @@
+const MAX_OUTPUT: usize = 1544
+
+def three_dimensional_moment_curve_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def three_dimensional_moment_curve(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("three_dimensional_moment_curve"):
+    if input.is_null() or length != 1: return -1
+    n64: i64 = input[0]
+    if n64 < 0 or n64 > 64: return -1
+    n: usize = n64.usize()
+    bytes: usize = 8 * (1 + 3 * n)
+    if output.is_null() or capacity < bytes: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    three_dimensional_moment_curve_put(n64, staged, 0)
+    i: mutable usize = 1
+    while i <= n:
+        x: i64 = i.i64()
+        offset: usize = 8 * (1 + 3 * (i - 1))
+        three_dimensional_moment_curve_put(x, staged, offset)
+        three_dimensional_moment_curve_put(x * x, staged, offset + 8)
+        three_dimensional_moment_curve_put(x * x * x, staged, offset + 16)
+        i <- i + 1
+    i <- 0
+    while i < bytes:
+        output[i] <- staged[i]
+        i <- i + 1
+    return bytes.i64()

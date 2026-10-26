@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "domination_local_reduction",
+  "algorithm": "domination_local_reduction",
+  "function_symbol": "domination_local_reduction",
+  "comparison_model": "i64_array_bytes_output_call",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[n,m,pivot,(u,v)...]",
+    "maximum_valid_length": 135,
+    "maximum_parseable_length": 136,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "layout": "[k, surviving original IDs in ascending order, -1 gadget ID, k adjacency row masks]",
+    "maximum_output_elements": 25,
+    "maximum_output_bytes": 200,
+    "success_result": "8*(1+2*k)",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_when_nonempty_result": -2
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "fixed 12-by-12 adjacency and classification arrays, remapping, and staged output words"
+  },
+  "measurement": {"sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "cases": [
+    {
+      "id": "exit-guard-prisoner-reduction",
+      "input_values": [5, 5, 0, 0, 1, 0, 2, 0, 3, 1, 2, 1, 4],
+      "input_length": 13,
+      "expected_result": 72,
+      "expected_output_hex": "0400000000000000000000000000000001000000000000000400000000000000ffffffffffffffff0a00000000000000050000000000000002000000000000000100000000000000"
+    },
+    {
+      "id": "all-neighbors-prisoners",
+      "input_values": [3, 2, 0, 0, 1, 0, 2],
+      "input_length": 7,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000000000000000000ffffffffffffffff02000000000000000100000000000000"
+    },
+    {
+      "id": "not-applicable-empty-prisoner-set",
+      "input_values": [3, 2, 0, 0, 1, 1, 2],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-duplicate-edge",
+      "input_values": [3, 3, 0, 0, 1, 0, 1, 0, 2],
+      "input_length": 9,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [5, 5, 0, 0, 1, 0, 2, 0, 3, 1, 2, 1, 4],
+      "input_length": 13,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 71,
+      "capacity_error_result": -2
+    },
+    {
+      "id": "null-output",
+      "input_values": [3, 2, 0, 0, 1, 0, 2],
+      "input_length": 7,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true,
+      "null_output_result": -2
+    }
+  ],
+  "provenance": {
+    "chapter": "Data Reduction for Domination in Graphs",
+    "doi": "10.1007/978-1-4939-2864-4_99",
+    "algorithm_profile": "One source-defined local neighborhood reduction, applied at one explicitly selected pivot when the prisoner set is nonempty.",
+    "rights": "Clean-room implementation. Springer retains copyright to the book; no book text, code, figures, or equation images are redistributed, and attribution does not grant rights to those contents."
+  }
+}

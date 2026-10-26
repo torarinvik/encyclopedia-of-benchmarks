@@ -1,0 +1,102 @@
+// Clean-room exact Delaunay graph construction by empty circumcircles.
+const MAX_N: usize = 8
+const MAX_FIELDS: usize = 37
+def point_orient(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
+    (bx-ax)*(cy-ay)-(by-ay)*(cx-ax)
+def point_circle(ax0: i64, ay0: i64, bx0: i64, by0: i64, cx0: i64, cy0: i64, dx: i64, dy: i64) -> i64:
+    ax: i64 = ax0-dx
+    ay: i64 = ay0-dy
+    bx: i64 = bx0-dx
+    by: i64 = by0-dy
+    cx: i64 = cx0-dx
+    cy: i64 = cy0-dy
+    aa: i64 = ax*ax+ay*ay
+    bb: i64 = bx*bx+by*by
+    cc: i64 = cx*cx+cy*cy
+    aa*(bx*cy-by*cx)-bb*(ax*cy-ay*cx)+cc*(ax*by-ay*bx)
+def point_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8: output[offset+byte] <- ((bits>>(8*byte))&255).u8(); byte <- byte+1
+def voronoi_delaunay_empty_circle(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("voronoi_delaunay_empty_circle"):
+    if input.is_null() or length < 7 or length > 17 or input[0] < 3 or input[0] > MAX_N.i64(): return -1
+    n: usize = input[0].usize()
+    if length != 1+2*n: return -1
+    xs: mutable i64[MAX_N] = zeroed
+    ys: mutable i64[MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        x: i64 = input[1+2*i]
+        y: i64 = input[2+2*i]
+        if x < -50 or x > 50 or y < -50 or y > 50: return -1
+        j: mutable usize = 0
+        while j < i:
+            if xs[j] == x and ys[j] == y: return -1
+            j <- j+1
+        xs[i] <- x
+        ys[i] <- y
+        i <- i+1
+    a: mutable usize = 0
+    while a < n:
+        b: mutable usize = a+1
+        while b < n:
+            c: mutable usize = b+1
+            while c < n:
+                if point_orient(xs[a],ys[a],xs[b],ys[b],xs[c],ys[c]) == 0: return -1
+                c <- c+1
+            b <- b+1
+        a <- a+1
+    a <- 0
+    while a < n:
+        b <- a+1
+        while b < n:
+            c <- b+1
+            while c < n:
+                d: mutable usize = c+1
+                while d < n:
+                    if point_circle(xs[a],ys[a],xs[b],ys[b],xs[c],ys[c],xs[d],ys[d]) == 0: return -1
+                    d <- d+1
+                c <- c+1
+            b <- b+1
+        a <- a+1
+    edges: mutable bool[MAX_N*MAX_N] = zeroed
+    a <- 0
+    while a < n:
+        b <- a+1
+        while b < n:
+            c <- b+1
+            while c < n:
+                orientation: i64 = point_orient(xs[a],ys[a],xs[b],ys[b],xs[c],ys[c])
+                empty: mutable bool = true
+                d: mutable usize = 0
+                while d < n:
+                    if d != a and d != b and d != c:
+                        determinant: i64 = point_circle(xs[a],ys[a],xs[b],ys[b],xs[c],ys[c],xs[d],ys[d])
+                        if (orientation > 0 and determinant > 0) or (orientation < 0 and determinant < 0): empty <- false; break
+                    d <- d+1
+                if empty:
+                    edges[a*MAX_N+b] <- true
+                    edges[b*MAX_N+a] <- true
+                    edges[a*MAX_N+c] <- true
+                    edges[c*MAX_N+a] <- true
+                    edges[b*MAX_N+c] <- true
+                    edges[c*MAX_N+b] <- true
+                c <- c+1
+            b <- b+1
+        a <- a+1
+    fields: mutable i64[MAX_FIELDS] = zeroed
+    at: mutable usize = 1
+    edge_count: mutable usize = 0
+    a <- 0
+    while a < n:
+        b <- a+1
+        while b < n:
+            if edges[a*MAX_N+b]: fields[at] <- a.i64(); fields[at+1] <- b.i64(); at <- at+2; edge_count <- edge_count+1
+            b <- b+1
+        a <- a+1
+    fields[0] <- edge_count.i64()
+    bytes: usize = 8*at
+    if output.is_null() or capacity < bytes: return -2
+    i <- 0
+    while i < at: point_put(fields[i],output&,8*i); i <- i+1
+    bytes.i64()

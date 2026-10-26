@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-max-cut-sahni-gonzalez-i64-array-bytes-output-v1",
+  "algorithm": "max_cut_sahni_gonzalez",
+  "function_symbol": "max_cut_sahni_gonzalez",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded deterministic Sahni-Gonzalez half-approximation for weighted Max-Cut.",
+  "source": {
+    "title": "Max Cut",
+    "authors": ["Alantha Newman"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_219",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_219",
+    "algorithm_attribution": "Sahni-Gonzalez deterministic half-approximation",
+    "implementation_status": "clean-room; no book prose or upstream source code copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, edge_count, (u, v, weight)...]",
+    "node_count_range": [1, 16],
+    "edge_count_range": [0, 120],
+    "edge_semantics": "simple undirected graph; each edge appears once with 0 <= u < v < node_count",
+    "weight_range": [0, 10000],
+    "maximum_valid_length": 362,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[cut_weight, side labels in ascending vertex-ID order]",
+    "side_label_range": [0, 1],
+    "maximum_values": 17,
+    "maximum_bytes": 136,
+    "success_result": "8 * (node_count + 1) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 2432,
+    "meaning": "16-by-16 i64 weight matrix, duplicate-edge flags, and partition labels."
+  },
+  "contract": {
+    "vertex_order": "Increasing vertex ID.",
+    "assignment": "Choose the side maximizing the weight of newly crossing edges to previously assigned vertices.",
+    "tie_rule": "Choose side 0 when both incremental cut weights are equal.",
+    "approximation": "The returned cut has weight at least half of the input graph's total edge weight.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"equal-weight-triangle","input_values":[3,3,0,1,1,0,2,1,1,1,2,1],"input_length":12,"output_capacity":136,"expected_result":32,"expected_output_hex":"0200000000000000000000000000000001000000000000000000000000000000"},
+    {"id":"weighted-path-greedy-partition","input_values":[4,3,0,1,1,1,2,2,2,3,3],"input_length":11,"output_capacity":136,"expected_result":40,"expected_output_hex":"06000000000000000000000000000000010000000000000000000000000000000100000000000000"},
+    {"id":"edgeless-all-side-zero","input_values":[4,0],"input_length":2,"output_capacity":40,"expected_result":40,"expected_output_hex":"00000000000000000000000000000000000000000000000000000000000000000000000000000000"},
+    {"id":"zero-weight-edge-tie","input_values":[2,1,0,1,0],"input_length":5,"output_capacity":24,"expected_result":24,"expected_output_hex":"000000000000000000000000000000000000000000000000"},
+    {"id":"maximum-complete-16","input_values":[16,120,0,1,1,0,2,1,0,3,1,0,4,1,0,5,1,0,6,1,0,7,1,0,8,1,0,9,1,0,10,1,0,11,1,0,12,1,0,13,1,0,14,1,0,15,1,1,2,1,1,3,1,1,4,1,1,5,1,1,6,1,1,7,1,1,8,1,1,9,1,1,10,1,1,11,1,1,12,1,1,13,1,1,14,1,1,15,1,2,3,1,2,4,1,2,5,1,2,6,1,2,7,1,2,8,1,2,9,1,2,10,1,2,11,1,2,12,1,2,13,1,2,14,1,2,15,1,3,4,1,3,5,1,3,6,1,3,7,1,3,8,1,3,9,1,3,10,1,3,11,1,3,12,1,3,13,1,3,14,1,3,15,1,4,5,1,4,6,1,4,7,1,4,8,1,4,9,1,4,10,1,4,11,1,4,12,1,4,13,1,4,14,1,4,15,1,5,6,1,5,7,1,5,8,1,5,9,1,5,10,1,5,11,1,5,12,1,5,13,1,5,14,1,5,15,1,6,7,1,6,8,1,6,9,1,6,10,1,6,11,1,6,12,1,6,13,1,6,14,1,6,15,1,7,8,1,7,9,1,7,10,1,7,11,1,7,12,1,7,13,1,7,14,1,7,15,1,8,9,1,8,10,1,8,11,1,8,12,1,8,13,1,8,14,1,8,15,1,9,10,1,9,11,1,9,12,1,9,13,1,9,14,1,9,15,1,10,11,1,10,12,1,10,13,1,10,14,1,10,15,1,11,12,1,11,13,1,11,14,1,11,15,1,12,13,1,12,14,1,12,15,1,13,14,1,13,15,1,14,15,1],"input_length":362,"output_capacity":136,"expected_result":136,"expected_output_hex":"40000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000"},
+    {"id":"length-mismatch","input_values":[3,1,0,1,5],"input_length":5,"output_capacity":136,"expected_result":-1,"expected_output_hex":""},
+    {"id":"duplicate-edge","input_values":[3,2,0,1,1,0,1,2],"input_length":8,"output_capacity":136,"expected_result":-1,"expected_output_hex":""},
+    {"id":"duplicate-zero-weight-edge","input_values":[2,2,0,1,0,0,1,0],"input_length":8,"output_capacity":136,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative-edge-weight","input_values":[2,1,0,1,-1],"input_length":5,"output_capacity":136,"expected_result":-1,"expected_output_hex":""},
+    {"id":"weight-out-of-range","input_values":[2,1,0,1,10001],"input_length":5,"output_capacity":136,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[3,1,0,1,4],"input_length":5,"output_capacity":31,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[3,1,0,1,4],"input_length":5,"output_capacity":32,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":2,"input_is_null":true,"output_capacity":136,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

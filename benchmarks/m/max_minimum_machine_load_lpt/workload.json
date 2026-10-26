@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-max-min-machine-load-lpt-i64-array-bytes-output-v1",
+  "algorithm": "max_minimum_machine_load_lpt",
+  "function_symbol": "max_minimum_machine_load_lpt",
+  "abi": "i64_array_bytes_output",
+  "description": "Identical-machine LPT approximation for maximizing the least machine load.",
+  "source": {"title":"Maximizing the Minimum Machine Load","authors":["Csanad Imreh"],"year":2016,"reference":"Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_503","url":"https://doi.org/10.1007/978-1-4939-2864-4_503","algorithm_attribution":"LPT decreasing-size ordering with least-loaded-machine assignment","implementation_status":"clean-room bounded deterministic profile"},
+  "input": {"kind":"signed_64_bit_integer_array","encoding":"[n,m,processing_times_by_job_id...]","n_range":[1,16],"machine_count_range":[1,4],"processing_time_range":[1,100],"maximum_valid_length":18,"invalid_input_result":-1},
+  "output": {"kind":"little_endian_signed_64_bit_array","encoding":"[least_final_machine_load, assignments_by_job_id..., final_loads_by_machine_id...]","maximum_bytes":168,"success_result":"8 * (1+n+m) bytes written","invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"output_untouched_on_error":true},
+  "workspace": {"bytes":512,"meaning":"Bounded job ordering, assignments and machine loads."},
+  "contract": {"job_order":"Decreasing processing time, then lower original job ID.","machine_choice":"Lowest current load, then lower machine ID.","objective":"Return the minimum of the final machine loads along with the deterministic schedule.","invalid_input_result":-1,"output_error_result":-2},
+  "measurement": {"comparison_model":"i64_array_bytes_output_call","sample_count":8,"warmup_rounds":2,"repetitions_per_sample":100},
+  "cases": [
+    {"id":"descending-size-lpt","input_values":[5,2,8,7,6,5,4],"input_length":7,"output_capacity":168,"expected_result":64,"expected_output_hex":"0d000000000000000000000000000000010000000000000001000000000000000000000000000000000000000000000011000000000000000d00000000000000"},
+    {"id":"equal-job-tie-order","input_values":[3,2,4,4,3],"input_length":5,"output_capacity":128,"expected_result":48,"expected_output_hex":"040000000000000000000000000000000100000000000000000000000000000007000000000000000400000000000000"},
+    {"id":"invalid-machine-count","input_values":[2,5,3,2],"input_length":4,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":2,"input_is_null":true,"output_capacity":168,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[2,2,4],"input_length":3,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-capacity","input_values":[2,2,4,3],"input_length":4,"output_capacity":31,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,2,4,3],"input_length":4,"output_capacity":32,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

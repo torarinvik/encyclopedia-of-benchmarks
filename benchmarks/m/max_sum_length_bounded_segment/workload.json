@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-max-sum-length-bounded-segment-i64-array-bytes-output-v1",
+  "algorithm": "max_sum_length_bounded_segment",
+  "function_symbol": "max_sum_length_bounded_segment",
+  "abi": "i64_array_bytes_output",
+  "description": "Linear-time maximum-sum segment with inclusive lower and upper length bounds.",
+  "source": {
+    "title": "Maximum-Sum Segments",
+    "authors": ["Kun-Mao Chao"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_226",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_226",
+    "algorithm_attribution": "prefix-sum minimum deque for both length bounds",
+    "implementation_status": "clean-room; no book prose or upstream source code copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, lower_length, upper_length, values...]",
+    "n_range": [1, 32],
+    "value_range": [-10000, 10000],
+    "maximum_valid_length": 35,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[maximum_sum, zero_based_start_inclusive, end_exclusive]",
+    "maximum_bytes": 24,
+    "success_result": 24,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {"bytes": 528, "meaning": "Thirty-three i64 prefix sums and thirty-three deque indices."},
+  "contract": {
+    "length_bounds": "1 <= lower_length <= upper_length <= n",
+    "tie_rule": "Maximum sum, then earliest start, then earliest exclusive end.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 2, "repetitions_per_sample": 100},
+  "cases": [
+    {"id":"both-length-bounds","input_values":[6,2,3,2,3,-5,4,4,-10],"input_length":9,"output_capacity":24,"expected_result":24,"expected_output_hex":"080000000000000003000000000000000500000000000000"},
+    {"id":"equal-sum-earliest-start","input_values":[4,1,2,1,-1,1,-1],"input_length":7,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000000000000000000000100000000000000"},
+    {"id":"all-negative","input_values":[3,2,3,-5,-2,-2],"input_length":6,"output_capacity":24,"expected_result":24,"expected_output_hex":"fcffffffffffffff01000000000000000300000000000000"},
+    {"id":"maximum-n","input_values":[32,1,32,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000],"input_length":35,"output_capacity":24,"expected_result":24,"expected_output_hex":"00e204000000000000000000000000002000000000000000"},
+    {"id":"length-mismatch","input_values":[3,1,2,5,6],"input_length":5,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-length-range","input_values":[3,0,2,1,2,3],"input_length":6,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[3,1,2,1,2,3],"input_length":6,"output_capacity":23,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[3,1,2,1,2,3],"input_length":6,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":3,"input_is_null":true,"output_capacity":24,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,71 @@
+def ams_sketch_put(output: mutable u8&, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def ams_sketch_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > 116: return -1
+    d64: i64=input[0]
+    w64: i64=input[1]
+    k64: i64=input[2]
+    u64: i64=input[3]
+    if (d64!=1 and d64!=3 and d64!=5) or w64<1 or w64>8 or k64<1 or k64>8 or u64<0 or u64>16:return -1
+    d:usize=d64.usize()
+    w:usize=w64.usize()
+    k:usize=k64.usize()
+    u:usize=u64.usize()
+    start:usize=4+2*d*k
+    if length!=start+2*u:return -1
+    row:mutable usize=0
+    while row<d:
+        key:mutable usize=0
+        while key<k:
+            p:usize=4+2*(row*k+key)
+            if input[p]<0 or input[p]>=w64 or (input[p+1]!=-1 and input[p+1]!=1):return -1
+            key<-key+1
+        row<-row+1
+    index:mutable usize=0
+    while index<u:
+        key:i64=input[start+2*index]
+        weight:i64=input[start+2*index+1]
+        if key<0 or key>=k64 or weight< -1000 or weight>1000:return -1
+        index<-index+1
+    counters:mutable i64[5][8]=zeroed
+    estimates:mutable i64[5]=zeroed
+    index<-0
+    while index<u:
+        key:usize=input[start+2*index].usize()
+        weight:i64=input[start+2*index+1]
+        row<-0
+        while row<d:
+            p:usize=4+2*(row*k+key)
+            bucket:usize=input[p].usize()
+            counters[row][bucket]<-counters[row][bucket]+weight*input[p+1]
+            row<-row+1
+        index<-index+1
+    row<-0
+    while row<d:
+        bucket:mutable usize=0
+        while bucket<w:
+            estimates[row]<-estimates[row]+counters[row][bucket]*counters[row][bucket]
+            bucket<-bucket+1
+        row<-row+1
+    index<-1
+    while index<d:
+        value:i64=estimates[index]
+        position:mutable usize=index
+        while position>0 and estimates[position-1]>value:
+            estimates[position]<-estimates[position-1]
+            position<-position-1
+        estimates[position]<-value
+        index<-index+1
+    if capacity<8 or output.is_null():return -2
+    ams_sketch_put(output,estimates[d/2])
+    return 8
+
+@export("ams_sketch")
+def ams_sketch(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64:
+    return ams_sketch_impl(input,length,output,capacity)

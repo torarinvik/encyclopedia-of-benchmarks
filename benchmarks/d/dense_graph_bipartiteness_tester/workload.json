@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-dense-graph-bipartiteness-tester-i64-array-bytes-output-v2",
+  "algorithm": "dense_graph_bipartiteness_tester",
+  "function_symbol": "dense_graph_bipartiteness_tester",
+  "pinned_source": {
+    "title": "Testing Bipartiteness in the Dense-Graph Model",
+    "author": "Oded Goldreich and Dana Ron",
+    "doi": "10.1007/978-1-4939-2864-4_702",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_702",
+    "license": "No source-code license asserted; clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,q,rowmask_0,...,rowmask_(N-1),draw_0,...,draw_(q-1)]",
+    "vertex_count_range": [1, 64],
+    "sample_size_range": [1, 16],
+    "maximum_valid_length": 82,
+    "row_mask_rule": "Each signed-i64 slot is interpreted as an unsigned 64-bit bit pattern; rows are simple undirected adjacency masks with no bits above N-1 when N<64.",
+    "draw_rule": "At sample step i, draw_i is in [0,N-i); select remaining[i+draw_i] and swap it with remaining[i]. Independent uniform draws produce a uniform sample without replacement.",
+    "invalid_result": -1
+  },
+  "contract": {
+    "algorithm": "Sample q distinct vertices using the supplied partial Fisher-Yates draws, query every pair in the induced sample, then BFS two-color that sample and accept iff it is bipartite.",
+    "query_count": "q*(q-1)/2; all induced pairs are queried even if a conflict is found.",
+    "profile_scope": "Fixed-q reproducible tester trace; no epsilon-to-sample-size guarantee or soundness claim is made."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[accept_bit, adjacency_query_count]",
+    "maximum_bytes": 16,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 32768,
+    "meaning": "Fixed 64-row graph storage, 16-vertex sample adjacency, sampling permutation, BFS colors/queue, and staged output."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {
+      "id": "even-cycle-all-vertices",
+      "input_values": [4, 4, 10, 5, 10, 5, 0, 0, 0, 0],
+      "input_length": 10,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000600000000000000"
+    },
+    {
+      "id": "triangle-rejected",
+      "input_values": [3, 3, 6, 5, 3, 0, 0, 0],
+      "input_length": 8,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000300000000000000"
+    },
+    {
+      "id": "sampled-path-from-odd-five-cycle",
+      "input_values": [5, 3, 18, 5, 10, 20, 9, 4, 0, 0],
+      "input_length": 10,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000300000000000000"
+    },
+    {
+      "id": "sampled-triangle-in-disconnected-graph",
+      "input_values": [5, 3, 6, 5, 3, 16, 8, 0, 0, 0],
+      "input_length": 10,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000300000000000000"
+    },
+    {
+      "id": "single-vertex-zero-queries",
+      "input_values": [1, 1, 0, 0],
+      "input_length": 4,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-graph-and-sample-size",
+      "input_values": [
+        64, 16,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 82,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000007800000000000000"
+    },
+    {
+      "id": "invalid-asymmetric-adjacency-masks",
+      "input_values": [2, 1, 2, 0, 0],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1
+    }
+  ]
+}

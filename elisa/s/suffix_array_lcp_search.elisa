@@ -1,0 +1,190 @@
+const MAX_N: usize = 32
+const MAX_M: usize = 16
+const MAX_INPUT: usize = 50
+const MAX_OUTPUT: usize = 264
+
+def sa_lcp_suffix_cmp(text: i64[MAX_N], a: usize, b: usize, n: usize) -> i64:
+    k: mutable usize = 0
+    while a + k < n and b + k < n:
+        if text[a + k] < text[b + k]: return -1
+        if text[a + k] > text[b + k]: return 1
+        k <- k + 1
+    if a + k == n and b + k == n: return 0
+    if a + k == n: return -1
+    1
+
+def sa_lcp_pattern_cmp(text: i64[MAX_N], start: usize, n: usize,
+        pattern: i64[MAX_M], m: usize, offset: usize, prefix_equal: bool,
+        matched_out: mutable usize&): i64:
+    matched_out <- offset
+    while matched_out < m and start + matched_out < n and text[start + matched_out] == pattern[matched_out]:
+        matched_out <- matched_out + 1
+    if matched_out == m:
+        if prefix_equal or start + matched_out == n: return 0
+        return 1
+    if start + matched_out == n: return -1
+    if text[start + matched_out] < pattern[matched_out]: return -1
+    1
+
+def sa_lcp_build_intervals(n: usize, lcp: i64[MAX_N],
+        left_q: mutable i64[MAX_N * MAX_N]&, right_q: mutable i64[MAX_N * MAX_N]&):
+    lo_stack: mutable usize[MAX_N * 2] = zeroed
+    hi_stack: mutable usize[MAX_N * 2] = zeroed
+    top: mutable usize = 1
+    lo_stack[0] <- 0
+    hi_stack[0] <- n - 1
+    while top > 0:
+        top <- top - 1
+        lo: usize = lo_stack[top]
+        hi: usize = hi_stack[top]
+        if hi - lo < 2: continue
+        mid: usize = (lo + hi + 1) / 2
+        q: mutable i64 = (n + 1).i64()
+        k: mutable usize = lo
+        while k < mid:
+            if lcp[k] < q: q <- lcp[k]
+            k <- k + 1
+        left_q[lo * MAX_N + hi] <- q
+        q <- (n + 1).i64()
+        k <- mid
+        while k < hi:
+            if lcp[k] < q: q <- lcp[k]
+            k <- k + 1
+        right_q[lo * MAX_N + hi] <- q
+        if hi - mid >= 2:
+            lo_stack[top] <- mid
+            hi_stack[top] <- hi
+            top <- top + 1
+        if mid - lo >= 2:
+            lo_stack[top] <- lo
+            hi_stack[top] <- mid
+            top <- top + 1
+
+def sa_lcp_bound(text: i64[MAX_N], n: usize, pattern: i64[MAX_M], m: usize,
+        suffix: usize[MAX_N], left_q: i64[MAX_N * MAX_N], right_q: i64[MAX_N * MAX_N],
+        prefix_equal: bool): usize:
+    l: mutable usize = 0
+    r: mutable usize = 0
+    first: i64 = sa_lcp_pattern_cmp(text, suffix[0], n, pattern, m, 0, prefix_equal, l)
+    if first > 0 or (not prefix_equal and first == 0): return 0
+    last: i64 = sa_lcp_pattern_cmp(text, suffix[n - 1], n, pattern, m, 0, prefix_equal, r)
+    if last < 0 or (prefix_equal and last == 0): return n
+    lo: mutable usize = 0
+    hi: mutable usize = n - 1
+    while hi - lo > 1:
+        mid: usize = (lo + hi + 1) / 2
+        cmp: mutable i64 = 0
+        matched: mutable usize = 0
+        if l == r:
+            cmp <- sa_lcp_pattern_cmp(text, suffix[mid], n, pattern, m, l, prefix_equal, matched)
+            if cmp > 0 or (not prefix_equal and cmp == 0):
+                hi <- mid
+                r <- matched
+            else:
+                lo <- mid
+                l <- matched
+        else if l > r:
+            q: i64 = left_q[lo * MAX_N + hi]
+            if l.i64() < q:
+                lo <- mid
+            else if l.i64() > q:
+                hi <- mid
+                r <- q.usize()
+            else:
+                cmp <- sa_lcp_pattern_cmp(text, suffix[mid], n, pattern, m, l, prefix_equal, matched)
+                if cmp > 0 or (not prefix_equal and cmp == 0):
+                    hi <- mid
+                    r <- matched
+                else:
+                    lo <- mid
+                    l <- matched
+        else:
+            q: i64 = right_q[lo * MAX_N + hi]
+            if r.i64() < q:
+                hi <- mid
+            else if r.i64() > q:
+                lo <- mid
+                l <- q.usize()
+            else:
+                cmp <- sa_lcp_pattern_cmp(text, suffix[mid], n, pattern, m, r, prefix_equal, matched)
+                if cmp > 0 or (not prefix_equal and cmp == 0):
+                    hi <- mid
+                    r <- matched
+                else:
+                    lo <- mid
+                    l <- matched
+    hi
+
+def suffix_array_lcp_search_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if length < n + 2: return -1
+    m_value: i64 = input[n + 1]
+    if m_value < 1 or m_value > MAX_M.i64() or length != n + m_value.usize() + 2: return -1
+    m: usize = m_value.usize()
+    text: mutable i64[MAX_N] = zeroed
+    pattern: mutable i64[MAX_M] = zeroed
+    suffix: mutable usize[MAX_N] = zeroed
+    lcp: mutable i64[MAX_N] = zeroed
+    left_q: mutable i64[MAX_N * MAX_N] = zeroed
+    right_q: mutable i64[MAX_N * MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        text[i] <- input[1 + i]
+        if text[i] < 0 or text[i] > 127: return -1
+        suffix[i] <- i
+        i <- i + 1
+    i <- 0
+    while i < m:
+        pattern[i] <- input[n + 2 + i]
+        if pattern[i] < 0 or pattern[i] > 127: return -1
+        i <- i + 1
+    i <- 1
+    while i < n:
+        key: usize = suffix[i]
+        j: mutable usize = i
+        while j > 0 and sa_lcp_suffix_cmp(text, key, suffix[j - 1], n) < 0:
+            suffix[j] <- suffix[j - 1]
+            j <- j - 1
+        suffix[j] <- key
+        i <- i + 1
+    i <- 0
+    while i + 1 < n:
+        a: usize = suffix[i]
+        b: usize = suffix[i + 1]
+        k: mutable usize = 0
+        while a + k < n and b + k < n and text[a + k] == text[b + k]: k <- k + 1
+        lcp[i] <- k.i64()
+        i <- i + 1
+    sa_lcp_build_intervals(n, lcp, left_q, right_q)
+    first: usize = sa_lcp_bound(text, n, pattern, m, suffix, left_q, right_q, false)
+    last: usize = sa_lcp_bound(text, n, pattern, m, suffix, left_q, right_q, true)
+    count: usize = last - first
+    bytes: usize = 8 * (count + 1)
+    if output.is_null() or output_capacity < bytes: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    word: usize = count
+    i <- 0
+    while i < 8:
+        staged[i] <- ((word.u64() >> (i * 8)) & 255).u8()
+        i <- i + 1
+    i <- 0
+    while i < count:
+        word <- suffix[first + i]
+        j: mutable usize = 0
+        while j < 8:
+            staged[8 * (i + 1) + j] <- ((word.u64() >> (j * 8)) & 255).u8()
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < bytes:
+        output[i] <- staged[i]
+        i <- i + 1
+    bytes.i64()
+
+export fn suffix_array_lcp_search(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = suffix_array_lcp_search_impl

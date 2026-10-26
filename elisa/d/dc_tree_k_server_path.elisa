@@ -1,0 +1,45 @@
+def dc_tree_k_server_path_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for b in 0..<8: output[offset+b] <- (bits >> (8*b)).u8()
+
+def dc_tree_k_server_path_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 5 or length > 18: return -1
+    k0: i64=input[0]; q0: i64=input[1]
+    if k0<2 or k0>4 or q0<1 or q0>12: return -1
+    k: usize=k0.usize(); q: usize=q0.usize()
+    if length != 2+k+q: return -1
+    pos: mutable i64[4]=zeroed
+    for i in 0..<k:
+        pos[i] <- input[2+i]
+        if pos[i]<0 or pos[i]>15: return -1
+    for r in 0..<q: if input[2+k+r]<0 or input[2+k+r]>15: return -1
+    staged: mutable i64[60]=zeroed
+    at: mutable usize=0
+    for r in 0..<q:
+        target: i64=input[2+k+r]
+        active: mutable bool[4]=zeroed
+        active_count: mutable usize=0
+        nearest: mutable i64=9223372036854775807
+        for i in 0..<k:
+            first: mutable bool=true
+            for j in 0..<i: if pos[j]==pos[i]: first <- false
+            if first:
+                active[i] <- true
+                active_count <- active_count+1
+                delta: i64=if pos[i]>target: pos[i]-target else: target-pos[i]
+                if delta<nearest: nearest <- delta
+        staged[at] <- nearest*active_count.i64()
+        at <- at+1
+        for i in 0..<k:
+            if active[i]:
+                if pos[i]<target: pos[i] <- pos[i]+nearest
+                else if pos[i]>target: pos[i] <- pos[i]-nearest
+        for i in 0..<k:
+            staged[at] <- pos[i]
+            at <- at+1
+    bytes: usize=8*q*(k+1)
+    if output==null or capacity<bytes: return -2
+    for i in 0..<at: dc_tree_k_server_path_put_i64(output,i*8,staged[i])
+    bytes.i64()
+
+export fn dc_tree_k_server_path(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = dc_tree_k_server_path_impl

@@ -1,0 +1,72 @@
+const D:usize=8
+const MAX_INPUT:usize=132
+def put64(value:i64,output:mutable u8&,pos:usize)->void:
+    bits:u64=value.u64();j:mutable usize=0
+    while j<8:
+        output[pos+j]<-((bits>>(8*j))&255).u8()
+        j<-j+1
+def two_dimensional_string_matching(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("two_dimensional_string_matching"):
+    if input.is_null() or length<6 or length>MAX_INPUT:return -1
+    rr:i64=input[0];cc:i64=input[1];hr:i64=input[2];wc:i64=input[3]
+    if rr<1 or rr>8 or cc<1 or cc>8 or hr<1 or hr>rr or wc<1 or wc>cc:return -1
+    r:usize=rr.usize();c:usize=cc.usize();h:usize=hr.usize();w:usize=wc.usize()
+    if length!=4+r*c+h*w:return -1
+    text:mutable i64[64]=zeroed;pat:mutable i64[64]=zeroed;p:mutable usize=4;i:mutable usize=0
+    while i<r*c:
+        text[i]<-input[p];p<-p+1
+        if text[i]<0 or text[i]>3:return -1
+        i<-i+1
+    i<-0
+    while i<h*w:
+        pat[i]<-input[p];p<-p+1
+        if pat[i]<0 or pat[i]>3:return -1
+        i<-i+1
+    prefix:mutable i64[8]=zeroed;i<-1
+    while i<h:
+        q:mutable usize=prefix[i-1].usize()
+        while q>0:
+            equal:mutable bool=true;j:mutable usize=0
+            while j<w:
+                if pat[i*w+j]!=pat[q*w+j]:equal<-false
+                j<-j+1
+            if equal:break
+            q<-prefix[q-1].usize()
+        equal:mutable bool=true;j:mutable usize=0
+        while j<w:
+            if pat[i*w+j]!=pat[q*w+j]:equal<-false
+            j<-j+1
+        if equal:q<-q+1
+        prefix[i]<-q.i64();i<-i+1
+    mark:mutable i64[512]=zeroed
+    tr:mutable usize=0
+    while tr<r:
+        col:mutable usize=0
+        while col<=c-w:
+            pr:mutable usize=0
+            while pr<h:
+                equal:mutable bool=true;j:mutable usize=0
+                while j<w:
+                    if text[tr*c+col+j]!=pat[pr*w+j]:equal<-false
+                    j<-j+1
+                if equal:
+                    mark[(tr*8+col)*8+pr]<-1
+                else:
+                    mark[(tr*8+col)*8+pr]<-0
+                pr<-pr+1
+            col<-col+1
+        tr<-tr+1
+    mr:mutable i64[64]=zeroed;mc:mutable i64[64]=zeroed;count:mutable usize=0;col:mutable usize=0
+    while col<=c-w:
+        q:mutable usize=0;tr<-0
+        while tr<r:
+            while q>0 and mark[(tr*8+col)*8+q]==0:q<-prefix[q-1].usize()
+            if mark[(tr*8+col)*8+q]!=0:q<-q+1
+            if q==h:
+                mr[count]<-(tr+1-h).i64();mc[count]<-col.i64();count<-count+1;q<-prefix[h-1].usize()
+            tr<-tr+1
+        col<-col+1
+    bytes:usize=8*(1+2*count);if output.is_null() or capacity<bytes:return -2
+    put64(count.i64(),output&,0);i<-0
+    while i<count:
+        put64(mr[i],output&,8*(1+2*i));put64(mc[i],output&,8*(2+2*i));i<-i+1
+    bytes.i64()

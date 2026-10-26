@@ -1,0 +1,109 @@
+const MAX_REQUESTS: usize = 7
+const MAX_FILES: usize = 8
+const MAX_INPUT: usize = 23
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def landlord_file_caching_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    capacity_value: i64 = input[0]
+    count_value: i64 = input[1]
+    if capacity_value < 1 or capacity_value > 8 or count_value < 0 or count_value > MAX_REQUESTS or
+            length != 2 + 3 * count_value.usize(): return -1
+    known_size: mutable i64[MAX_FILES] = zeroed
+    known_cost: mutable i64[MAX_FILES] = zeroed
+    seen: mutable bool[MAX_FILES] = zeroed
+    count: usize = count_value.usize()
+    request: mutable usize = 0
+    while request < count:
+        id_value: i64 = input[2 + 3 * request]
+        size: i64 = input[3 + 3 * request]
+        cost: i64 = input[4 + 3 * request]
+        if id_value < 0 or id_value >= MAX_FILES or size < 1 or size > 4 or size > capacity_value or cost < 0 or cost > 20: return -1
+        id: usize = id_value.usize()
+        if seen[id] and (known_size[id] != size or known_cost[id] != cost): return -1
+        seen[id] <- true
+        known_size[id] <- size
+        known_cost[id] <- cost
+        request <- request + 1
+
+    ids: mutable i64[MAX_FILES] = zeroed
+    sizes: mutable i64[MAX_FILES] = zeroed
+    credits: mutable i64[MAX_FILES] = zeroed
+    resident_count: mutable usize = 0
+    misses: mutable i64 = 0
+    total_cost: mutable i64 = 0
+    hit_signature: mutable u64 = 0
+    eviction_signature: mutable u64 = 0
+    resident_mask: mutable u64 = 0
+    request <- 0
+    while request < count:
+        id: i64 = input[2 + 3 * request]
+        size: i64 = input[3 + 3 * request]
+        cost: i64 = input[4 + 3 * request]
+        position: mutable usize = 0
+        while position < resident_count and ids[position] != id: position <- position + 1
+        if position < resident_count:
+            hit_signature <- hit_signature | (1.u64() << request)
+            request <- request + 1
+            continue
+        misses <- misses + 1
+        total_cost <- total_cost + cost
+        evicted_mask: mutable u64 = 0
+        used: mutable i64 = 0
+        i: mutable usize = 0
+        while i < resident_count:
+            used <- used + sizes[i]
+            i <- i + 1
+        while used + size > capacity_value:
+            delta: mutable i64 = credits[0] / sizes[0]
+            i <- 1
+            while i < resident_count:
+                ratio: i64 = credits[i] / sizes[i]
+                if ratio < delta: delta <- ratio
+                i <- i + 1
+            kept: mutable usize = 0
+            used <- 0
+            i <- 0
+            while i < resident_count:
+                credits[i] <- credits[i] - delta * sizes[i]
+                if credits[i] == 0:
+                    evicted_mask <- evicted_mask | (1.u64() << ids[i].usize())
+                else:
+                    ids[kept] <- ids[i]
+                    sizes[kept] <- sizes[i]
+                    credits[kept] <- credits[i]
+                    used <- used + sizes[kept]
+                    kept <- kept + 1
+                i <- i + 1
+            resident_count <- kept
+        eviction_signature <- eviction_signature | (evicted_mask << (8 * request))
+        ids[resident_count] <- id
+        sizes[resident_count] <- size
+        credits[resident_count] <- cost * 12
+        resident_count <- resident_count + 1
+        request <- request + 1
+    i <- 0
+    while i < resident_count:
+        resident_mask <- resident_mask | (1.u64() << ids[i].usize())
+        i <- i + 1
+    if output.is_null() or capacity < 40: return -2
+    staged: mutable u8[40] = zeroed
+    store_i64_le(misses, staged&, 0)
+    store_i64_le(total_cost, staged&, 8)
+    store_i64_le(hit_signature.i64(), staged&, 16)
+    store_i64_le(eviction_signature.i64(), staged&, 24)
+    store_i64_le(resident_mask.i64(), staged&, 32)
+    byte: mutable usize = 0
+    while byte < 40:
+        output[byte] <- staged[byte]
+        byte <- byte + 1
+    40
+
+export fn landlord_file_caching(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = landlord_file_caching_impl

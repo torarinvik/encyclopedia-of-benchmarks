@@ -1,0 +1,93 @@
+# Deterministic p=1 k-median local search.
+const KM_N: usize = 12
+const KM_INPUT: usize = 150
+
+def km_put64(output: mutable u8&, offset: usize, value: i64): void:
+    bits: u64 = value.u64()
+    for i in 0..<8: output[offset + i] <- ((bits >> (8 * i)) & 255).u8()
+
+def km_objective(distance: i64[144]&, n: usize, centers: usize[4]&, k: usize): i64:
+    total: mutable i64 = 0
+    for i in 0..<n:
+        best: mutable i64 = 9223372036854775807
+        for j in 0..<k:
+            if distance[i * KM_N + centers[j]] < best: best <- distance[i * KM_N + centers[j]]
+        total <- total + best
+    total
+
+def km_sort(centers: mutable usize[4]&, k: usize): void:
+    for i in 1..<k:
+        x: usize = centers[i]
+        j: mutable usize = i
+        while j > 0 and centers[j - 1] > x:
+            centers[j] <- centers[j - 1]
+            j <- j - 1
+        centers[j] <- x
+
+def km_lex_less(a: usize[4]&, b: usize[4]&, k: usize): bool:
+    for i in 0..<k:
+        if a[i] != b[i]: return a[i] < b[i]
+    false
+
+def k_median_p1_local_search_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 2 or length > KM_INPUT: return -1
+    n64: i64 = input[0]
+    k64: i64 = input[1]
+    if n64 < 2 or n64 > KM_N.i64() or k64 < 1 or k64 > 4 or k64 > n64: return -1
+    n: usize = n64.usize()
+    k: usize = k64.usize()
+    if length != 2 + n * n + k: return -1
+    distance: mutable i64[144] = zeroed
+    position: mutable usize = 2
+    for i in 0..<n:
+        for j in 0..<n:
+            value: i64 = input[position]
+            if value < 0 or value > 1000: return -1
+            distance[i * KM_N + j] <- value
+            position <- position + 1
+    for i in 0..<n:
+        for j in 0..<n:
+            value: i64 = distance[i * KM_N + j]
+            if value != (if i == j: 0 else: value) or value != distance[j * KM_N + i] or (i != j and value == 0): return -1
+            for h in 0..<n:
+                if value > distance[i * KM_N + h] + distance[h * KM_N + j]: return -1
+    selected: mutable bool[12] = zeroed
+    centers: mutable usize[4] = zeroed
+    for j in 0..<k:
+        value: i64 = input[position]
+        position <- position + 1
+        if value < 0 or value >= n64: return -1
+        id: usize = value.usize()
+        if selected[id]: return -1
+        selected[id] <- true
+        centers[j] <- id
+    km_sort(centers&, k)
+    current: mutable i64 = km_objective(distance&, n, centers&, k)
+    while true:
+        best: mutable i64 = current
+        best_centers: mutable usize[4] = centers
+        have: mutable bool = false
+        for leave in 0..<k:
+            for enter in 0..<n:
+                if selected[enter]: continue
+                candidate: mutable usize[4] = centers
+                candidate[leave] <- enter
+                km_sort(candidate&, k)
+                value: i64 = km_objective(distance&, n, candidate&, k)
+                if value < current and (value < best or (value == best and (not have or km_lex_less(candidate&, best_centers&, k)))):
+                    best <- value
+                    best_centers <- candidate
+                    have <- true
+        if not have: break
+        for j in 0..<k: selected[centers[j]] <- false
+        centers <- best_centers
+        for j in 0..<k: selected[centers[j]] <- true
+        current <- best
+    bytes: usize = 8 * (2 + k)
+    if output.is_null() or capacity < bytes: return -2
+    km_put64(output&, 0, current)
+    km_put64(output&, 8, k.i64())
+    for i in 0..<k: km_put64(output&, 16 + 8 * i, centers[i].i64())
+    bytes.i64()
+
+export fn k_median_p1_local_search(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = k_median_p1_local_search_impl

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-nni-phylogeny-distance-i64-array-bytes-output-v1",
+  "algorithm": "nni_phylogeny_distance",
+  "function_symbol": "nni_phylogeny_distance",
+  "abi": "i64_array_bytes_output",
+  "description": "Exact NNI distance between bounded unrooted binary phylogenies.",
+  "source": {
+    "title": "Nearest Neighbor Interchange and Related Distances",
+    "authors": ["Bhaskar DasGupta", "Xin He", "Ming Li", "John Tromp", "Louxin Zhang"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_256",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_256",
+    "algorithm_attribution": "Exact finite-state shortest path under the chapter's nearest-neighbor-interchange operation",
+    "implementation_status": "clean-room deterministic exact profile for at most seven leaves"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[leaf_count, edge_split_masks_for_tree_A, edge_split_masks_for_tree_B]",
+    "leaf_count_range": [3, 7],
+    "split_encoding": "Each tree supplies exactly 2*n-3 distinct edge masks; the represented side excludes leaf 0.",
+    "maximum_valid_length": 23,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[minimum_number_of_NNI_operations]",
+    "maximum_bytes": 8,
+    "success_result": "8 bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 131072,
+    "meaning": "At most 945 canonical seven-leaf topologies, their bounded NNI neighbor indices, search distances, and staged output."
+  },
+  "contract": {
+    "split_normalization": "A split mask is the side of its edge bipartition that excludes leaf 0.",
+    "tree_validity": "All pendant splits are present; the n-3 internal splits form a compatible rooted-cluster hierarchy.",
+    "distance": "The minimum number of operations, each exchanging two subtrees across one internal edge, that transforms tree A into tree B.",
+    "leaf_bound_reason": "There are only 945 unrooted binary topologies at seven labeled leaves; exact finite-state search is bounded at this profile size.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"unique-three-leaf-tree","input_values":[3,2,4,6,2,4,6],"input_length":7,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"quartet-one-interchange","input_values":[4,2,4,8,14,6,2,4,8,14,10],"input_length":11,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"five-leaf-two-interchanges","input_values":[5,2,4,8,16,30,6,14,2,4,8,16,30,10,20],"input_length":15,"output_capacity":8,"expected_result":8,"expected_output_hex":"0200000000000000"},
+    {"id":"maximum-seven-leaf-profile","input_values":[7,2,4,8,16,32,64,126,6,14,30,62,2,4,8,16,32,64,126,10,14,30,62],"input_length":23,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"incompatible-internal-splits","input_values":[5,2,4,8,16,30,6,20,2,4,8,16,30,10,20],"input_length":15,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[3,2,4,6,2,4],"input_length":6,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[3,2,4,6,2,4,6],"input_length":7,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":7,"input_is_null":true,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[3,2,4,6,2,4,6],"input_length":7,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

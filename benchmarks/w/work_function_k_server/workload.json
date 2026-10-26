@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-work-function-k-server-finite-metric-i64-array-bytes-output-v1",
+  "algorithm": "work_function_k_server",
+  "function_symbol": "work_function_k_server",
+  "abi": "i64_array_bytes_output",
+  "description": "Exact online work-function actions over a bounded finite metric.",
+  "source": {
+    "title": "Work-Function Algorithm for k-Servers",
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_484",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_484",
+    "algorithm_attribution": "work-function recurrence for the online k-server problem",
+    "implementation_status": "clean-room finite-metric bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[point_count,server_count,request_count,metric[p*p row-major],initial_points[k],requests[n]]",
+    "point_count_range": [2, 6],
+    "server_count_range": [1, 3],
+    "request_count_range": [0, 8],
+    "metric": "symmetric integer metric with zero diagonal, positive off-diagonal, entries <= 1000, and triangle inequality",
+    "initial_points": "distinct zero-based point IDs",
+    "maximum_valid_length": 50,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[request_count,server_count,(sorted server point IDs after each request)...]",
+    "maximum_bytes": 208,
+    "success_result": "8 * (2 + request_count * server_count) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Bounded arrays for at most twenty k-subset configurations, work-function values, and staged output."
+  },
+  "contract": {
+    "configuration_distance": "minimum sum of metric distances over all bijections between the k distinct server positions",
+    "initial_work": "w0(X) = d(C0,X)",
+    "update": "wt(X) = min over configurations Y containing request r of (w(t-1)(Y) + d(Y,X))",
+    "online_action": "If request r is already occupied, do not move; otherwise choose the current sorted server slot minimizing w(t-1)(C-x+r) + d(x,r).",
+    "tie_rule": "lowest current sorted server slot",
+    "bounds": "At most C(6,3)=20 configurations; all distances and sums are exactly representable in signed 64-bit integers.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "two-servers-and-occupied-request-noop",
+      "input_values": [3, 2, 2, 0, 1, 2, 1, 0, 1, 2, 1, 0, 0, 1, 2, 0],
+      "input_length": 16,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "020000000000000002000000000000000000000000000000020000000000000000000000000000000200000000000000"
+    },
+    {
+      "id": "one-server-request-path",
+      "input_values": [3, 1, 3, 0, 1, 2, 1, 0, 1, 2, 1, 0, 0, 1, 2, 1],
+      "input_length": 16,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "03000000000000000100000000000000010000000000000002000000000000000100000000000000"
+    },
+    {
+      "id": "nonmetric-triangle-violation",
+      "input_values": [3, 1, 0, 0, 1, 0, 1, 0, 3, 0, 3, 0, 0],
+      "input_length": 13,
+      "output_capacity": 208,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-initial-server-position",
+      "input_values": [3, 2, 0, 0, 1, 2, 1, 0, 1, 2, 1, 0, 0, 0],
+      "input_length": 14,
+      "output_capacity": 208,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-request-point",
+      "input_values": [3, 1, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 0, 3],
+      "input_length": 14,
+      "output_capacity": 208,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input-length-mismatch",
+      "input_values": [3, 1, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 0],
+      "input_length": 13,
+      "output_capacity": 208,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [3, 2, 2, 0, 1, 2, 1, 0, 1, 2, 1, 0, 0, 1, 2, 0],
+      "input_length": 16,
+      "output_capacity": 47,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [3, 1, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 0, 2],
+      "input_length": 14,
+      "output_capacity": 24,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 3,
+      "input_is_null": true,
+      "output_capacity": 208,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

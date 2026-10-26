@@ -6,6 +6,8 @@ The pinned Java source recursively generates every balanced-parenthesis string. 
 
 Input is `[n]` with `0 <= n <= 6`. Output bytes begin with the number of generated strings as a little-endian u16, followed by each fixed-width `2n`-byte ASCII string in source traversal order. The zero-pair case contains one empty string, represented by a count of one and no following string bytes. Negative and larger inputs return `-1`.
 
+This is the canonical Catalan-family benchmark for the overlapping `generate_parentheses` implementations and the Encyclopedia's ordered rooted-tree enumeration (Chapter 726): a tree with `v` vertices maps to `v-1` parenthesis pairs. Those names use the same open-first Dyck-word recursion; only their labels, parameterization, and byte encodings differ.
+
 See [`workload.json`](workload.json) and the runtime [oracle](../../parentheses_generator_oracle.py). Pinned source: [TheAlgorithms/Java `ParenthesesGenerator.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/backtracking/ParenthesesGenerator.java).
 
 | Language | Port |

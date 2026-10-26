@@ -1,0 +1,99 @@
+const MAX_N: usize = 8
+const MAX_EDGES: usize = 28
+const MAX_INPUT: usize = 58
+const MAX_OUTPUT: usize = 72
+
+def treewidth_exact_elimination_order_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def treewidth_exact_elimination_order(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("treewidth_exact_elimination_order"):
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > MAX_N.i64() or m64 < 0 or m64 > MAX_EDGES.i64(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if m > n * (n - 1) / 2 or length != 2 + 2 * m: return -1
+    base: mutable bool[MAX_N * MAX_N] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        a64: i64 = input[2 + 2 * edge]
+        b64: i64 = input[3 + 2 * edge]
+        if a64 < 0 or b64 < 0 or a64 >= n64 or b64 >= n64 or a64 >= b64: return -1
+        a: usize = a64.usize()
+        b: usize = b64.usize()
+        if base[a * MAX_N + b]: return -1
+        base[a * MAX_N + b] <- true
+        base[b * MAX_N + a] <- true
+        edge <- edge + 1
+    permutation: mutable usize[MAX_N] = zeroed
+    best_order: mutable usize[MAX_N] = zeroed
+    index: mutable usize = 0
+    while index < n: permutation[index] <- index; index <- index + 1
+    best_width: mutable usize = MAX_N + 1
+    while true:
+        adjacent: mutable bool[MAX_N * MAX_N] = zeroed
+        index <- 0
+        while index < MAX_N * MAX_N: adjacent[index] <- base[index]; index <- index + 1
+        active: mutable bool[MAX_N] = zeroed
+        index <- 0
+        while index < n: active[index] <- true; index <- index + 1
+        width: mutable usize = 0
+        step: mutable usize = 0
+        while step < n:
+            vertex: usize = permutation[step]
+            neighbors: mutable usize[MAX_N] = zeroed
+            count: mutable usize = 0
+            other: mutable usize = 0
+            while other < n:
+                if active[other] and adjacent[vertex * MAX_N + other]: neighbors[count] <- other; count <- count + 1
+                other <- other + 1
+            if count > width: width <- count
+            i: mutable usize = 0
+            while i < count:
+                j: mutable usize = i + 1
+                while j < count:
+                    a: usize = neighbors[i]
+                    b: usize = neighbors[j]
+                    adjacent[a * MAX_N + b] <- true
+                    adjacent[b * MAX_N + a] <- true
+                    j <- j + 1
+                i <- i + 1
+            active[vertex] <- false
+            step <- step + 1
+        if width < best_width:
+            best_width <- width
+            index <- 0
+            while index < n: best_order[index] <- permutation[index]; index <- index + 1
+        pivot: mutable i64 = n.i64() - 2
+        while pivot >= 0 and permutation[pivot.usize()] >= permutation[pivot.usize() + 1]: pivot <- pivot - 1
+        if pivot < 0: break
+        successor: mutable usize = n - 1
+        while permutation[successor] <= permutation[pivot.usize()]: successor <- successor - 1
+        temp: usize = permutation[pivot.usize()]
+        permutation[pivot.usize()] <- permutation[successor]
+        permutation[successor] <- temp
+        left: mutable usize = pivot.usize() + 1
+        right: mutable usize = n - 1
+        while left < right:
+            temp <- permutation[left]
+            permutation[left] <- permutation[right]
+            permutation[right] <- temp
+            left <- left + 1
+            right <- right - 1
+    bytes: usize = 8 * (n + 1)
+    if output.is_null() or capacity < bytes: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    treewidth_exact_elimination_order_put(best_width.i64(), staged, 0)
+    index <- 0
+    while index < n:
+        treewidth_exact_elimination_order_put(best_order[index].i64(), staged, 8 * (index + 1))
+        index <- index + 1
+    index <- 0
+    while index < bytes: output[index] <- staged[index]; index <- index + 1
+    bytes.i64()

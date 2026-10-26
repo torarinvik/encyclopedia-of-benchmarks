@@ -1,0 +1,3 @@
+The Encyclopedia of Algorithms chapter “Online Interval Coloring” (DOI 10.1007/978-1-4939-2864-4_264) is copyrighted by its publisher. The chapter is cited only as a source of the algorithmic problem and mathematical description. No chapter text or source code is included in this package.
+
+The package ports and oracles are clean-room original implementations. They are provided under the repository's top-level license; this notice does not grant rights to the chapter.

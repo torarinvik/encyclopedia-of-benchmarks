@@ -1,0 +1,99 @@
+const MAX_LEAVES: usize = 8
+const MAX_EDGES: usize = 13
+const MAX_INPUT: usize = 27
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def bit_count(value: u64, n: usize) -> usize:
+    count: mutable usize = 0
+    bit: mutable usize = 0
+    while bit < n:
+        count <- count + ((value >> bit) & 1).usize()
+        bit <- bit + 1
+    count
+
+def valid_tree(input: i64&, offset: usize, n: usize, edges: usize) -> bool:
+    masks: mutable u64[MAX_EDGES] = zeroed
+    internal: mutable u64[MAX_EDGES] = zeroed
+    internal_count: mutable usize = 0
+    universe: u64 = (1.u64() << n) - 1
+    edge: mutable usize = 0
+    while edge < edges:
+        raw: i64 = input[offset + edge]
+        if raw <= 0 or raw.u64() >= universe or (raw & 1) != 0: return false
+        masks[edge] <- raw.u64()
+        earlier: mutable usize = 0
+        while earlier < edge:
+            if masks[earlier] == masks[edge]: return false
+            earlier <- earlier + 1
+        size: usize = bit_count(masks[edge], n)
+        if size == 1 or size == n - 1:
+            if size == n - 1 and masks[edge] != (universe ^ 1): return false
+        else if size >= 2 and size <= n - 2:
+            internal[internal_count] <- masks[edge]
+            internal_count <- internal_count + 1
+        else:
+            return false
+        edge <- edge + 1
+    if internal_count != n - 3: return false
+    leaf: mutable usize = 1
+    while leaf < n:
+        pendant: u64 = 1.u64() << leaf
+        found: mutable usize = 0
+        edge <- 0
+        while edge < edges:
+            if masks[edge] == pendant: found <- found + 1
+            edge <- edge + 1
+        if found != 1: return false
+        leaf <- leaf + 1
+    root_pendant: mutable usize = 0
+    edge <- 0
+    while edge < edges:
+        if masks[edge] == (universe ^ 1): root_pendant <- root_pendant + 1
+        edge <- edge + 1
+    if root_pendant != 1: return false
+    i: mutable usize = 0
+    while i < internal_count:
+        j: mutable usize = i + 1
+        while j < internal_count:
+            intersection: u64 = internal[i] & internal[j]
+            if intersection != 0 and intersection != internal[i] and intersection != internal[j]: return false
+            j <- j + 1
+        i <- i + 1
+    true
+
+def non_shared_edges_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 7 or length > MAX_INPUT: return -1
+    leaf_value: i64 = input[0]
+    if leaf_value < 3 or leaf_value > 8: return -1
+    leaves: usize = leaf_value.usize()
+    edges: usize = 2 * leaves - 3
+    if length != 1 + 2 * edges: return -1
+    second: usize = 1 + edges
+    if not valid_tree(input&, 1, leaves, edges) or not valid_tree(input&, second, leaves, edges): return -1
+    shared: mutable i64 = 0
+    left: mutable usize = 0
+    while left < edges:
+        right: mutable usize = 0
+        while right < edges:
+            if input[1 + left] == input[second + right]:
+                shared <- shared + 1
+                break
+            right <- right + 1
+        left <- left + 1
+    if output.is_null() or capacity < 8: return -2
+    staged: mutable u8[8] = zeroed
+    store_i64_le((edges.i64() - shared), staged&, 0)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[byte] <- staged[byte]
+        byte <- byte + 1
+    8
+
+export fn non_shared_edges(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = non_shared_edges_impl

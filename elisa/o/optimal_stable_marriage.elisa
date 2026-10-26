@@ -1,0 +1,104 @@
+const MAX_N: usize = 8
+const MAX_INPUT_LENGTH: usize = 129
+
+def optimal_stable_marriage_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    n_arg: i64 = input[0]
+    if n_arg < 0 or n_arg > MAX_N.i64(): return -1
+    n: usize = n_arg.usize()
+    side_size: usize = n * n
+    if length != 1 + 2 * side_size: return -1
+
+    men_preferences: mutable usize[64] = zeroed
+    women_rank: mutable usize[64] = zeroed
+    row: mutable usize = 0
+    while row < 2 * n:
+        seen: mutable bool[8] = zeroed
+        start: usize = 1 + row * n
+        if row >= n: start <- 1 + side_size + (row - n) * n
+        rank: mutable usize = 0
+        while rank < n:
+            value: i64 = input[start + rank]
+            if value < 0 or value >= n_arg or seen[value.usize()]: return -1
+            seen[value.usize()] <- true
+            if row < n: men_preferences[row * n + rank] <- value.usize()
+            else: women_rank[(row - n) * n + value.usize()] <- rank
+            rank <- rank + 1
+        row <- row + 1
+
+    output_bytes: usize = 16 * n
+    if output == null or capacity < output_bytes: return -2
+    final_partner: mutable i64[8] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        final_partner[index] <- -1
+        index <- index + 1
+    threshold: mutable usize = 0
+    while threshold < n:
+        woman_partner: mutable i64[8] = zeroed
+        man_partner: mutable i64[8] = zeroed
+        next_rank: mutable usize[8] = zeroed
+        queue: mutable usize[8] = zeroed
+        index <- 0
+        while index < n:
+            woman_partner[index] <- -1
+            man_partner[index] <- -1
+            queue[index] <- index
+            index <- index + 1
+        head: mutable usize = 0
+        tail: mutable usize = 0
+        queued: mutable usize = n
+        while queued > 0:
+            man: usize = queue[head]
+            head <- (head + 1) % n
+            queued <- queued - 1
+            while next_rank[man] < n:
+                rank: usize = next_rank[man]
+                next_rank[man] <- next_rank[man] + 1
+                woman: usize = men_preferences[man * n + rank]
+                if rank > threshold or women_rank[woman * n + man] > threshold: continue
+                incumbent: i64 = woman_partner[woman]
+                if incumbent < 0 or women_rank[woman * n + man] < women_rank[woman * n + incumbent.usize()]:
+                    woman_partner[woman] <- man.i64()
+                    man_partner[man] <- woman.i64()
+                    if incumbent >= 0:
+                        man_partner[incumbent.usize()] <- -1
+                        queue[tail] <- incumbent.usize()
+                        tail <- (tail + 1) % n
+                        queued <- queued + 1
+                    break
+                queue[tail] <- man
+                tail <- (tail + 1) % n
+                queued <- queued + 1
+                break
+        matched: mutable usize = 0
+        index <- 0
+        while index < n:
+            if man_partner[index] >= 0: matched <- matched + 1
+            index <- index + 1
+        if matched == n:
+            index <- 0
+            while index < n:
+                final_partner[index] <- man_partner[index]
+                index <- index + 1
+            break
+        threshold <- threshold + 1
+
+    man: mutable usize = 0
+    while man < n:
+        pair: mutable i64[2]
+        pair[0] <- man.i64()
+        pair[1] <- final_partner[man]
+        item: mutable usize = 0
+        while item < 2:
+            bits: mutable u64 = pair[item].u64()
+            byte: mutable usize = 0
+            while byte < 8:
+                output[(man * 2 + item) * 8 + byte] <- (bits & 255).u8()
+                bits <- bits >> 8
+                byte <- byte + 1
+            item <- item + 1
+        man <- man + 1
+    output_bytes.i64()
+
+export fn optimal_stable_marriage(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = optimal_stable_marriage_impl

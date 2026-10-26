@@ -1,0 +1,77 @@
+const MAX_K: usize = 8
+const MAX_ITEMS: usize = 64
+const MAX_INPUT: usize = 66
+
+def mg_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def misra_gries_summaries(input: i64&, length: usize,
+                          output: mutable u8&, capacity: usize) -> i64 @export("misra_gries_summaries"):
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    k64: i64 = input[0]
+    count64: i64 = input[1]
+    if k64 < 1 or k64 > 8 or count64 < 0 or count64 > 64 or length != 2 + count64.usize(): return -1
+    k: usize = k64.usize()
+    count: usize = count64.usize()
+    items: mutable i64[8] = zeroed
+    counts: mutable i64[8] = zeroed
+    slot: mutable usize = 0
+    while slot < k:
+        items[slot] <- -1
+        slot <- slot + 1
+    index: mutable usize = 0
+    while index < count:
+        item: i64 = input[index + 2]
+        if item < 0 or item > 15: return -1
+        slot <- 0
+        while slot < k and items[slot] != item:
+            slot <- slot + 1
+        if slot < k:
+            counts[slot] <- counts[slot] + 1
+        else:
+            slot <- 0
+            while slot < k and counts[slot] != 0:
+                slot <- slot + 1
+            if slot < k:
+                items[slot] <- item
+                counts[slot] <- 1
+            else:
+                slot <- 0
+                while slot < k:
+                    counts[slot] <- counts[slot] - 1
+                    if counts[slot] == 0: items[slot] <- -1
+                    slot <- slot + 1
+        index <- index + 1
+    used: mutable usize = 0
+    slot <- 0
+    while slot < k:
+        if counts[slot] > 0: used <- used + 1
+        slot <- slot + 1
+    output_bytes: usize = 8 * (1 + 2 * used)
+    if output.is_null() or capacity < output_bytes: return -2
+    ordered_items: mutable i64[8] = zeroed
+    ordered_counts: mutable i64[8] = zeroed
+    at: mutable usize = 0
+    slot <- 0
+    while slot < k:
+        if counts[slot] > 0:
+            position: mutable usize = at
+            while position > 0 and ordered_items[position - 1] > items[slot]:
+                ordered_items[position] <- ordered_items[position - 1]
+                ordered_counts[position] <- ordered_counts[position - 1]
+                position <- position - 1
+            ordered_items[position] <- items[slot]
+            ordered_counts[position] <- counts[slot]
+            at <- at + 1
+        slot <- slot + 1
+    mg_store_i64_le(used.i64(), output, 0)
+    index <- 0
+    while index < used:
+        mg_store_i64_le(ordered_items[index], output, 8 * (1 + 2 * index))
+        mg_store_i64_le(ordered_counts[index], output, 8 * (2 + 2 * index))
+        index <- index + 1
+    output_bytes.i64()

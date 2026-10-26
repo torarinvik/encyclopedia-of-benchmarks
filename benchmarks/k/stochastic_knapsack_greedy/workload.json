@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-stochastic-knapsack-greedy-i64-array-bytes-output-v1",
+  "algorithm": "stochastic_knapsack_greedy",
+  "function_symbol": "stochastic_knapsack_greedy",
+  "abi": "i64_array_bytes_output",
+  "description": "Compare the chapter's best-singleton and effective-reward-to-truncated-size nonadaptive policies using exact finite distributions.",
+  "source": {
+    "title": "Stochastic Knapsack",
+    "authors": ["Viswanath Nagarajan"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_537",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_537",
+    "algorithm_attribution": "Dean–Goemans–Vondrák nonadaptive approximation: choose the better of the maximum-effective-reward singleton and the nonincreasing w_i/mu_i order.",
+    "implementation_status": "clean-room bounded exact-distribution profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[item_count, capacity, (reward, atom_count, (size, integer_probability_weight)...)... ]",
+    "item_count_range": [1, 5],
+    "capacity_range": [1, 8],
+    "reward_range": [0, 20],
+    "atom_count_range": [1, 3],
+    "atom_size_range": [0, 9],
+    "atom_size_rule": "For each item, atom size is at most capacity+1.",
+    "atom_weight_range": [1, 3],
+    "per_item_weight_sum_maximum": 9,
+    "maximum_valid_length": 42,
+    "maximum_parseable_length": 43,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[policy_kind, item_count, item_indices..., expected_reward_numerator, probability_denominator]",
+    "maximum_bytes": 72,
+    "success_result": "serialized output byte count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Bounded outcome enumeration, per-item distributions, policy ordering, exact integer scores, and staged output."
+  },
+  "contract": {
+    "independence": "Item sizes are independent; each explicit atom weight is a positive integer and is normalized by that item's weight sum.",
+    "effective_reward": "w_i = reward_i * Pr[size_i <= capacity].",
+    "mean_truncated_size": "mu_i = E[min(size_i, capacity)]; valid items require mu_i > 0.",
+    "density_order": "Nonincreasing w_i/mu_i, compared exactly; equal ratios use increasing item index.",
+    "singleton_choice": "Maximum w_i, compared exactly; ties use increasing item index.",
+    "policy_execution": "Process the fixed order until the first item whose realized size would exceed capacity; credit no reward for that overflowing item.",
+    "policy_choice": "Choose the density order only when its exact expected reward is strictly greater than the singleton's; ties choose the singleton.",
+    "output_policy_kind": "0 for singleton, 1 for density order.",
+    "output_fraction": "Numerator is the weighted expected reward over the full joint atom product; denominator is the product of per-item weight sums; the fraction is not reduced.",
+    "error_results": "Malformed input returns -1. Null output or insufficient capacity returns -2 without writes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "Enumerate the product of all finite item-size distributions for each candidate nonadaptive policy and compare exact weighted reward numerators over the shared product denominator. The independent verifier uses a capacity-state dynamic program for the density-order policy.",
+  "cases": [
+    {"id":"one-item-singleton-tie","input_values":[1,2,5,2,1,1,3,1],"input_length":8,"output_capacity":72,"expected_result":40,"expected_output_hex":"00000000000000000100000000000000000000000000000005000000000000000200000000000000"},
+    {"id":"density-order-beats-singleton","input_values":[2,3,6,2,1,1,4,1,4,1,1,2],"input_length":12,"output_capacity":72,"expected_result":48,"expected_output_hex":"01000000000000000200000000000000010000000000000000000000000000001c000000000000000400000000000000"},
+    {"id":"singleton-beats-blocking-density-order","input_values":[2,2,10,2,2,1,4,1,3,1,1,1],"input_length":12,"output_capacity":72,"expected_result":40,"expected_output_hex":"0000000000000000010000000000000000000000000000000a000000000000000200000000000000"},
+    {"id":"maximum-input-and-output","input_values":[5,5,1,3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,1,1,1],"input_length":42,"output_capacity":72,"expected_result":72,"expected_output_hex":"0100000000000000050000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000bf04000000000000f300000000000000"},
+    {"id":"distribution-with-zero-mean","input_values":[1,3,4,1,0,2],"input_length":6,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-input-value","input_values":[1,2,5,1,1,1,99],"input_length":7,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-capacity-for-maximum-result","input_values":[5,5,1,3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,1,1,1,1,1],"input_length":42,"output_capacity":71,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,2,5,2,1,1,3,1],"input_length":8,"output_capacity":72,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,140 @@
+# Clean-room bounded active-set enumeration for the chapter's Elmore wire-sizing QP.
+extern fn double floor(double value)
+const MAX_N: usize = 6
+const MAX_FIELDS: usize = 7
+const MAX_INPUT: usize = 17
+
+def wire_sizing_abs(value: double) -> double:
+    if value < 0.0: -value else: value
+
+def wire_sizing_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def wire_sizing(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("wire_sizing"):
+    if input.is_null() or length < 7 or length > MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    l: i64 = input[1]
+    rd: i64 = input[2]
+    cl: i64 = input[3]
+    r0: i64 = input[4]
+    if l < 1 or l > 1000 or rd < 1 or rd > 1000 or cl < 1 or cl > 1000 or r0 < 1 or r0 > 1000 or length != 5 + 2 * n: return -1
+    h: mutable i64[MAX_N] = zeroed
+    c: mutable i64[MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        h[i] <- input[5 + i]
+        c[i] <- input[5 + n + i]
+        if h[i] < 1 or h[i] > 32 or c[i] < 1 or c[i] > 1000 or (i > 0 and h[i] >= h[i - 1]) or (i > 0 and c[i] >= c[i - 1]): return -1
+        i <- i + 1
+    phi: mutable double[MAX_N * MAX_N] = zeroed
+    rho: mutable double[MAX_N] = zeroed
+    i <- 0
+    while i < n:
+        rho[i] <- double(rd) * double(c[i]) + double(cl) * double(r0) / double(h[i])
+        j: mutable usize = 0
+        while j < n:
+            lo: usize = i
+            hi: usize = j
+            if j < i: lo <- j; hi <- i
+            phi[i * MAX_N + j] <- double(r0) * double(c[hi]) / double(h[lo])
+            j <- j + 1
+        i <- i + 1
+    best: mutable double = 1.0e300
+    best_l: mutable double[MAX_N] = zeroed
+    found: mutable bool = false
+    limit: usize = 1 << n
+    mask: mutable usize = 1
+    while mask < limit:
+        ids: mutable usize[MAX_N] = zeroed
+        k: mutable usize = 0
+        i <- 0
+        while i < n:
+            if (mask & (1 << i)) != 0: ids[k] <- i; k <- k + 1
+            i <- i + 1
+        a: mutable double[MAX_N + 1][MAX_N + 2] = zeroed
+        r: mutable usize = 0
+        while r < k:
+            q: mutable usize = 0
+            while q < k: a[r][q] <- phi[ids[r] * MAX_N + ids[q]]; q <- q + 1
+            a[r][k] <- 1.0
+            a[r][k + 1] <- -rho[ids[r]]
+            r <- r + 1
+        q: mutable usize = 0
+        while q < k: a[k][q] <- 1.0; q <- q + 1
+        a[k][k + 1] <- double(l)
+        okay: mutable bool = true
+        col: mutable usize = 0
+        while col <= k:
+            pivot: mutable usize = col
+            r <- col + 1
+            while r <= k:
+                if wire_sizing_abs(a[r][col]) > wire_sizing_abs(a[pivot][col]): pivot <- r
+                r <- r + 1
+            if wire_sizing_abs(a[pivot][col]) < 1.0e-12: okay <- false; break
+            if pivot != col:
+                q <- col
+                while q <= k + 1: temporary: double = a[col][q]; a[col][q] <- a[pivot][q]; a[pivot][q] <- temporary; q <- q + 1
+            divisor: double = a[col][col]
+            q <- col
+            while q <= k + 1: a[col][q] <- a[col][q] / divisor; q <- q + 1
+            r <- 0
+            while r <= k:
+                if r != col:
+                    factor: double = a[r][col]
+                    q <- col
+                    while q <= k + 1: a[r][q] <- a[r][q] - factor * a[col][q]; q <- q + 1
+                r <- r + 1
+            col <- col + 1
+        if okay:
+            x: mutable double[MAX_N] = zeroed
+            r <- 0
+            while r < k: x[ids[r]] <- a[r][k + 1]; r <- r + 1
+            lagrange: double = a[k][k + 1]
+            total: mutable double = 0.0
+            i <- 0
+            while i < n:
+                if x[i] < -1.0e-8: okay <- false
+                total <- total + x[i]
+                gradient: mutable double = rho[i] + lagrange
+                j <- 0
+                while j < n: gradient <- gradient + phi[i * MAX_N + j] * x[j]; j <- j + 1
+                if (mask & (1 << i)) == 0 and gradient < -1.0e-7: okay <- false
+                i <- i + 1
+            if wire_sizing_abs(total - double(l)) > 1.0e-7: okay <- false
+            if okay:
+                objective: mutable double = double(rd * cl)
+                i <- 0
+                while i < n:
+                    objective <- objective + rho[i] * x[i]
+                    j <- 0
+                    while j < n: objective <- objective + 0.5 * x[i] * phi[i * MAX_N + j] * x[j]; j <- j + 1
+                    i <- i + 1
+                if not found or objective < best - 1.0e-7:
+                    found <- true
+                    best <- objective
+                    i <- 0
+                    while i < n: best_l[i] <- x[i]; i <- i + 1
+        mask <- mask + 1
+    if not found: return -1
+    fields: mutable i64[MAX_FIELDS] = zeroed
+    fields[0] <- floor(best * 1000000.0 + 0.5).i64()
+    i <- 0
+    while i < n:
+        amount: double = best_l[i]
+        if amount < 0.0: amount <- 0.0
+        fields[i + 1] <- floor(amount * 1000000.0 + 0.5).i64()
+        i <- i + 1
+    bytes: usize = 8 * (n + 1)
+    if output.is_null() or capacity < bytes: return -2
+    staged: mutable u8[8 * MAX_FIELDS] = zeroed
+    i <- 0
+    while i < n + 1: wire_sizing_put(fields[i], staged, 8 * i); i <- i + 1
+    i <- 0
+    while i < bytes: output[i] <- staged[i]; i <- i + 1
+    bytes.i64()

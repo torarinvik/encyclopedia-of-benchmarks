@@ -1,0 +1,110 @@
+# Chapter 567 two-level maximal matching: insertion-only bounded profile.
+const TLM_N: usize = 9
+const TLM_Q: usize = 24
+const TLM_R: usize = 4
+
+def tlm_put64(output: mutable u8&, offset: usize, value: i64): void:
+    bits: u64 = value.u64()
+    for i in 0..<8: output[offset+i] <- ((bits >> (8*i)) & 255).u8()
+
+def tlm_owned(graph: bool[81]&, level: i64[9]&, n: usize, u: usize, list: mutable usize[9]&): usize:
+    count: mutable usize = 0
+    for v in 0..<n:
+        if graph[u*TLM_N+v] and level[u] == 0 and level[v] == 0:
+            list[count] <- v
+            count <- count + 1
+    count
+
+def tlm_repair(graph: bool[81]&, level: i64[9]&, mate: mutable i64[9]&, n: usize, u: i64): void:
+    if u < 0: return
+    id: usize = u.usize()
+    if level[id] != 0 or mate[id] >= 0: return
+    for v in 0..<n:
+        if graph[id*TLM_N+v] and level[v] == 0 and mate[v] < 0:
+            mate[id] <- v.i64()
+            mate[v] <- id.i64()
+            return
+
+def tlm_promote(graph: bool[81]&, level: mutable i64[9]&, mate: mutable i64[9]&, n: usize,
+                u: usize, tape: usize[4]&, r: usize, used: mutable usize&): bool:
+    candidates: mutable usize[9] = zeroed
+    count: usize = tlm_owned(graph&, level&, n, u, candidates&)
+    if count == 0 or used >= r or tape[used] >= count: return false
+    y: usize = candidates[tape[used]]
+    used <- used + 1
+    w: i64 = mate[u]
+    x: i64 = mate[y]
+    if w >= 0: mate[w.usize()] <- -1; mate[u] <- -1
+    if x >= 0: mate[x.usize()] <- -1; mate[y] <- -1
+    level[u] <- 1
+    level[y] <- 1
+    mate[u] <- y.i64()
+    mate[y] <- u.i64()
+    tlm_repair(graph&, level&, mate&, n, w)
+    if x != w: tlm_repair(graph&, level&, mate&, n, x)
+    true
+
+def two_level_dynamic_maximal_matching_insertions_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 3 or length > 55: return -1
+    n64: i64 = input[0]
+    q64: i64 = input[1]
+    if (n64 != 4 and n64 != 9) or q64 < 0 or q64 > TLM_Q.i64() or q64 > n64 * (n64 - 1) / 2: return -1
+    n: usize = n64.usize()
+    q: usize = q64.usize()
+    us: mutable usize[24] = zeroed
+    vs: mutable usize[24] = zeroed
+    seen: mutable bool[81] = zeroed
+    p: mutable usize = 2
+    for e in 0..<q:
+        u64: i64 = input[p]
+        v64: i64 = input[p+1]
+        p <- p + 2
+        if u64 < 0 or v64 <= u64 or v64 >= n64: return -1
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        if seen[u*TLM_N+v]: return -1
+        seen[u*TLM_N+v] <- true
+        us[e] <- u
+        vs[e] <- v
+    if p >= length: return -1
+    r64: i64 = input[p]
+    p <- p + 1
+    if r64 < 0 or r64 > TLM_R.i64() or length != p + r64.usize(): return -1
+    r: usize = r64.usize()
+    tape: mutable usize[4] = zeroed
+    for i in 0..<r:
+        value: i64 = input[p+i]
+        if value < 0 or value >= n64: return -1
+        tape[i] <- value.usize()
+    graph: mutable bool[81] = zeroed
+    level: mutable i64[9] = zeroed
+    mate: mutable i64[9] = zeroed
+    for i in 0..<n: mate[i] <- -1
+    threshold: usize = if n == 4: 2 else: 3
+    used: mutable usize = 0
+    for e in 0..<q:
+        u: usize = us[e]
+        v: usize = vs[e]
+        graph[u*TLM_N+v] <- true
+        graph[v*TLM_N+u] <- true
+        if level[u] == 1 or level[v] == 1: continue
+        if mate[u] < 0 and mate[v] < 0:
+            mate[u] <- v.i64()
+            mate[v] <- u.i64()
+        a: mutable usize[9] = zeroed
+        b: mutable usize[9] = zeroed
+        da: usize = tlm_owned(graph&, level&, n, u, a&)
+        db: usize = tlm_owned(graph&, level&, n, v, b&)
+        who: usize = if da > db or (da == db and u < v): u else: v
+        c: mutable usize[9] = zeroed
+        count: usize = tlm_owned(graph&, level&, n, who, c&)
+        if count >= threshold and not tlm_promote(graph&, level&, mate&, n, who, tape&, r, used&): return -1
+    if used != r: return -1
+    bytes: usize = 8 * (1 + 2 * n)
+    if output.is_null() or capacity < bytes: return -2
+    tlm_put64(output&, 0, n.i64())
+    for i in 0..<n: tlm_put64(output&, 8+8*i, level[i])
+    for i in 0..<n: tlm_put64(output&, 8+8*n+8*i, mate[i])
+    bytes.i64()
+
+export fn two_level_dynamic_maximal_matching_insertions(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = two_level_dynamic_maximal_matching_insertions_impl

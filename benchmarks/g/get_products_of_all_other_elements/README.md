@@ -14,7 +14,7 @@ For each input position, return the product of every other array value. This pac
 
 This follows [TheAlgorithms/Ruby `get_products_of_all_other_elements.rb`](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/data_structures/arrays/get_products_of_all_other_elements.rb) at commit `bda11bdfd83b7958e1ca98247e5e43100ca88865`. The file defines three approaches under the name `products`; Ruby uses the final definition, which returns `[]` for fewer than two values and otherwise performs the prefix pass and right-to-left suffix update. The ports preserve that final method's traversal and update order.
 
-This benchmark returns one product per original index. It is distinct from [`max_product_subarray`](../../m/max_product_subarray/README.md), which returns the maximum product of a contiguous subarray. The independent byte-output oracle is [`get_products_of_all_other_elements_oracle.py`](../../get_products_of_all_other_elements_oracle.py).
+This benchmark returns one product per original index. It is distinct from [`maximum_product_subarray`](../../m/maximum_product_subarray/README.md), which returns the maximum product of a contiguous subarray. The independent byte-output oracle is [`get_products_of_all_other_elements_oracle.py`](../../get_products_of_all_other_elements_oracle.py).
 
 ## Workload
 

@@ -1,0 +1,6 @@
+const N:usize=16;
+fn put64(o:[*]u8,p:usize,x:i64)void{const b:u64=@bitCast(x);for(0..8)|j|o[p+j]=@truncate(b>>@intCast(8*j));}
+export fn max_minimum_machine_load_lpt(input_opt:?[*]const i64,length:usize,output_opt:?[*]u8,capacity:usize)i64{
+ if(input_opt==null or length<3 or length>18)return -1;const in=input_opt.?;const nr=in[0];const mr=in[1];if(nr<1 or nr>16 or mr<1 or mr>4 or length!=2+@as(usize,@intCast(nr)))return -1;const n:usize=@intCast(nr);const m:usize=@intCast(mr);var p:[N]i64=@splat(0);var order:[N]i64=@splat(0);var assign:[N]i64=@splat(0);var loads:[4]i64=@splat(0);for(0..n)|i|{p[i]=in[2+i];if(p[i]<1 or p[i]>100)return -1;order[i]=@intCast(i);}const bytes=8*(1+n+m);if(output_opt==null or capacity<bytes)return -2;const out=output_opt.?;
+ for(1..n)|i|{const key=order[i];var j=i;while(j>0){const prev:usize=@intCast(order[j-1]);const k:usize=@intCast(key);if(p[k]>p[prev] or (p[k]==p[prev] and k<prev)){order[j]=order[j-1];j-=1;}else{break;}}order[j]=key;}for(0..n)|i|{const job:usize=@intCast(order[i]);var machine:usize=0;for(1..m)|j|{if(loads[j]<loads[machine])machine=j;}assign[job]=@intCast(machine);loads[machine]+=p[job];}var low=loads[0];for(1..m)|j|{if(loads[j]<low)low=loads[j];}put64(out,0,low);for(0..n)|i|put64(out,8*(1+i),assign[i]);for(0..m)|j|put64(out,8*(1+n+j),loads[j]);return @intCast(bytes);
+}

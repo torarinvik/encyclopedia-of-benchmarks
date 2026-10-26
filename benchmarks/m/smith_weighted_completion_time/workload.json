@@ -1,0 +1,23 @@
+{
+  "schema_version":1,
+  "id":"encyclopedia-smith-weighted-completion-time-i64-array-bytes-output-v1",
+  "algorithm":"smith_weighted_completion_time",
+  "function_symbol":"smith_weighted_completion_time",
+  "abi":"i64_array_bytes_output",
+  "description":"One-machine weighted-completion schedule ordered by Smith's ratio rule.",
+  "source":{"title":"Minimum Weighted Completion Time","authors":["V. S. Anil Kumar","Madhav Marathe","Srinivasan Parthasarathy","Aravind Srinivasan"],"year":2016,"reference":"Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_240","url":"https://doi.org/10.1007/978-1-4939-2864-4_240","algorithm_attribution":"Smith's rule for 1 || sum(w_j C_j)","implementation_status":"clean-room; no book prose or source code copied"},
+  "input":{"kind":"signed_64_bit_integer_array","encoding":"[n, (processing_time, weight)...]","n_range":[1,12],"processing_time_range":[1,10000],"weight_range":[1,10000],"maximum_valid_length":25,"invalid_input_result":-1},
+  "output":{"kind":"little_endian_signed_64_bit_array","encoding":"[weighted_completion_sum, job_ids_in_schedule_order]","maximum_bytes":104,"success_result":"8 * (n + 1) bytes written","invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"output_untouched_on_error":true},
+  "workspace":{"bytes":512,"meaning":"Twelve processing-time/weight pairs, sort order, and subset verifier state is external."},
+  "contract":{"ordering":"Decreasing weight/processing-time ratio using exact cross-products.","tie_rule":"Ascending job ID for equal ratios.","invalid_input_result":-1,"output_error_result":-2},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call","sample_count":8,"warmup_rounds":2,"repetitions_per_sample":100},
+  "cases":[
+    {"id":"smith-ratio-order","input_values":[3,3,1,4,3,2,2],"input_length":7,"output_capacity":32,"expected_result":32,"expected_output_hex":"1f00000000000000020000000000000001000000000000000000000000000000"},
+    {"id":"equal-ratio-id-tie","input_values":[3,2,1,4,2,6,3],"input_length":7,"output_capacity":32,"expected_result":32,"expected_output_hex":"3200000000000000000000000000000001000000000000000200000000000000"},
+    {"id":"zero-processing-invalid","input_values":[1,0,2],"input_length":3,"output_capacity":104,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[2,1,1],"input_length":3,"output_capacity":104,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,2,3],"input_length":3,"output_capacity":23,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,2,3],"input_length":3,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":1,"input_is_null":true,"output_capacity":104,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

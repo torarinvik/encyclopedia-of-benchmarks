@@ -1,0 +1,80 @@
+# Clean-room exact branch-and-search vertex-cover profile.
+const MAX_N: usize = 16
+const MAX_INPUT: usize = 131
+
+def vc_count_bits(value: u64) -> usize:
+    remaining: mutable u64 = value
+    count: mutable usize = 0
+    while remaining != 0:
+        count <- count + (remaining & 1).usize()
+        remaining <- remaining >> 1
+    count
+
+def vc_search(adj: mutable bool&, n: usize, active: u64) -> u64:
+    chosen: mutable usize = n
+    best_degree: mutable usize = 0
+    any_edge: mutable bool = false
+    u: mutable usize = 0
+    while u < n:
+        if (active & (1.u64() << u)) != 0:
+            degree: mutable usize = 0
+            v: mutable usize = 0
+            while v < n:
+                if (active & (1.u64() << v)) != 0 and adj[u * MAX_N + v]: degree <- degree + 1
+                v <- v + 1
+            if degree > 0:
+                any_edge <- true
+                if chosen == n or degree > best_degree:
+                    chosen <- u
+                    best_degree <- degree
+        u <- u + 1
+    if not any_edge: return 0
+    bit: u64 = 1.u64() << chosen
+    first: u64 = bit | vc_search(adj&, n, active & ~bit)
+    neighbors: mutable u64 = 0
+    v: mutable usize = 0
+    while v < n:
+        if (active & (1.u64() << v)) != 0 and adj[chosen * MAX_N + v]: neighbors <- neighbors | (1.u64() << v)
+        v <- v + 1
+    second: u64 = neighbors | vc_search(adj&, n, active & ~(neighbors | bit))
+    first_count: usize = vc_count_bits(first)
+    second_count: usize = vc_count_bits(second)
+    if first_count < second_count: return first
+    if second_count < first_count: return second
+    if first < second: return first else: return second
+
+def vc_put_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def vertex_cover_search_trees(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("vertex_cover_search_trees"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    k: i64 = input[2]
+    if n64 < 1 or n64 > 16 or m64 < 0 or m64 > 64 or k < 0 or k > n64 or length != 3 + 2 * m64.usize(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    adj: mutable bool[256] = zeroed
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    e: mutable usize = 0
+    while e < m:
+        u: i64 = input[3 + 2*e]
+        v: i64 = input[4 + 2*e]
+        if u < 0 or v <= u or v >= n64 or u < previous_u or (u == previous_u and v <= previous_v): return -1
+        adj[u.usize()*MAX_N+v.usize()] <- true
+        adj[v.usize()*MAX_N+u.usize()] <- true
+        previous_u <- u
+        previous_v <- v
+        e <- e + 1
+    if output.is_null() or capacity < 24: return -2
+    cover: u64 = vc_search(adj&, n, (1.u64() << n) - 1)
+    count: usize = vc_count_bits(cover)
+    vc_put_i64(if count <= k.usize(): 1 else: 0, output&, 0)
+    vc_put_i64(count.i64(), output&, 8)
+    vc_put_i64(cover.i64(), output&, 16)
+    24

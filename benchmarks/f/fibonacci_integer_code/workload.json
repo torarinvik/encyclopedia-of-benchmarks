@@ -1,0 +1,20 @@
+{
+  "schema_version":"1.0.0",
+  "id":"fibonacci-integer-code-v1",
+  "algorithm":"fibonacci_integer_code",
+  "function_symbol":"fibonacci_integer_code",
+  "comparison_model":"i64_array_bytes_output_call",
+  "input":{"kind":"signed_i64_array","layout":"[n,nonnegative_values[n]]","n_range":[1,32],"value_range":[0,1000000],"maximum_valid_length":33,"maximum_parseable_length":34,"invalid_result":-1},
+  "output":{"kind":"ascii_bytes","alphabet":"01","encoding":"Zeckendorf bits for value+1 from low weight to high, followed by sentinel 1; codewords concatenated","maximum_output_bytes":960,"success_result":"concatenated codeword byte count","invalid_result":-1,"insufficient_output_capacity_result":-2,"null_output_when_nonempty_result":-2},
+  "workspace":{"bytes":1024,"meaning":"Staged output for at most 32 Fibonacci codewords of at most 30 bytes each."},
+  "measurement":{"sample_count":7,"warmup_rounds":2,"repetitions_per_sample":1000},
+  "cases":[
+    {"id":"zero-codeword","input_values":[1,0],"input_length":2,"expected_result":2,"expected_output_hex":"3131"},
+    {"id":"first-four-codes","input_values":[4,0,1,2,3],"input_length":5,"expected_result":13,"expected_output_hex":"31313031313030313131303131"},
+    {"id":"larger-zeckendorf-sum","input_values":[3,4,5,8],"input_length":4,"expected_result":16,"expected_output_hex":"30303031313130303131313030303131"},
+    {"id":"invalid-negative","input_values":[2,0,-1],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-range","input_values":[1,1000001],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-shape","input_values":[2,3],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,0],"input_length":2,"expected_result":-2,"expected_output_hex":"","workspace_bytes":1,"capacity_error_result":-2}
+  ]
+}

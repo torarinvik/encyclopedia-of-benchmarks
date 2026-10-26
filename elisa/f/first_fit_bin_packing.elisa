@@ -1,0 +1,46 @@
+def first_fit_bin_packing_put(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def first_fit_bin_packing_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 65: return -1
+    n64: i64 = input[0]
+    if n64 < 0 or n64 > 64: return -1
+    n: usize = n64.usize()
+    if length != 1 + n: return -1
+    index: mutable usize = 0
+    while index < n:
+        if input[index + 1] < 1 or input[index + 1] > 1000000: return -1
+        index <- index + 1
+    loads: mutable i64[64] = zeroed
+    assignments: mutable i64[64] = zeroed
+    bins: mutable usize = 0
+    index <- 0
+    while index < n:
+        size: i64 = input[index + 1]
+        bin: mutable usize = 0
+        while bin < bins and loads[bin] + size > 1000000:
+            bin <- bin + 1
+        if bin == bins:
+            loads[bins] <- size
+            bins <- bins + 1
+        else:
+            loads[bin] <- loads[bin] + size
+        assignments[index] <- bin.i64()
+        index <- index + 1
+    required: usize = (n + 1) * 8
+    if capacity < required or output.is_null(): return -2
+    first_fit_bin_packing_put(output, 0, bins.i64())
+    index <- 0
+    while index < n:
+        first_fit_bin_packing_put(output, 8 * (index + 1), assignments[index])
+        index <- index + 1
+    return required.i64()
+
+@export("first_fit_bin_packing")
+def first_fit_bin_packing(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    return first_fit_bin_packing_impl(input, length, output, capacity)

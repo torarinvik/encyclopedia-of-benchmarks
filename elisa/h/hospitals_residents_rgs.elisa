@@ -1,0 +1,130 @@
+const MAX_R: usize = 8
+const MAX_H: usize = 8
+const MAX_INPUT: usize = 154
+const MAX_OUTPUT: usize = 64
+
+def put64(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def hospitals_residents_rgs(input: i64&, length: usize, output: mutable u8&,
+        capacity: usize) -> i64 @export("hospitals_residents_rgs"):
+    if input.is_null() or length < 5 or length > MAX_INPUT: return -1
+    r64: i64 = input[0]
+    h64: i64 = input[1]
+    if r64 < 1 or r64 > 8 or h64 < 1 or h64 > 8: return -1
+    r: usize = r64.usize()
+    h: usize = h64.usize()
+    expected: usize = 2 + 2 * h + r + 2 * r * h
+    if length != expected: return -1
+    cap_offset: usize = 2
+    rlen_offset: usize = cap_offset + h
+    rpref_offset: usize = rlen_offset + r
+    hlen_offset: usize = rpref_offset + r * h
+    hpref_offset: usize = hlen_offset + h
+    capacities: mutable i64[MAX_H] = zeroed
+    resident_length: mutable i64[MAX_R] = zeroed
+    resident_pref: mutable i64[MAX_R * MAX_H] = zeroed
+    hospital_length: mutable i64[MAX_H] = zeroed
+    hospital_rank: mutable i64[MAX_H * MAX_R] = zeroed
+    assignment: mutable i64[MAX_R] = zeroed
+    next_choice: mutable usize[MAX_R] = zeroed
+    occupancy: mutable usize[MAX_H] = zeroed
+    hospital: mutable usize = 0
+    while hospital < h:
+        capacities[hospital] <- input[cap_offset + hospital]
+        hospital_length[hospital] <- input[hlen_offset + hospital]
+        if capacities[hospital] < 1 or capacities[hospital] > r64 or
+                hospital_length[hospital] < 0 or hospital_length[hospital] > r64: return -1
+        resident: mutable usize = 0
+        while resident < r:
+            hospital_rank[hospital * MAX_R + resident] <- -1
+            resident <- resident + 1
+        hospital <- hospital + 1
+    resident: mutable usize = 0
+    while resident < r:
+        resident_length[resident] <- input[rlen_offset + resident]
+        if resident_length[resident] < 0 or resident_length[resident] > h64: return -1
+        seen: mutable bool[MAX_H] = zeroed
+        slot: mutable usize = 0
+        while slot < h:
+            value: i64 = input[rpref_offset + resident * h + slot]
+            if slot < resident_length[resident].usize():
+                if value < 0 or value >= h64 or seen[value.usize()]: return -1
+                seen[value.usize()] <- true
+                resident_pref[resident * MAX_H + slot] <- value
+            else:
+                if value != -1: return -1
+                resident_pref[resident * MAX_H + slot] <- -1
+            slot <- slot + 1
+        assignment[resident] <- -1
+        resident <- resident + 1
+    hospital <- 0
+    while hospital < h:
+        seen_h: mutable bool[MAX_R] = zeroed
+        slot <- 0
+        while slot < r:
+            value: i64 = input[hpref_offset + hospital * r + slot]
+            if slot < hospital_length[hospital].usize():
+                if value < 0 or value >= r64 or seen_h[value.usize()]: return -1
+                seen_h[value.usize()] <- true
+                hospital_rank[hospital * MAX_R + value.usize()] <- slot.i64()
+            else:
+                if value != -1: return -1
+            slot <- slot + 1
+        hospital <- hospital + 1
+    resident <- 0
+    while resident < r:
+        hospital <- 0
+        while hospital < h:
+            accepts: mutable bool = false
+            slot <- 0
+            while slot < resident_length[resident].usize():
+                if resident_pref[resident * MAX_H + slot] == hospital.i64(): accepts <- true
+                slot <- slot + 1
+            if accepts != (hospital_rank[hospital * MAX_R + resident] >= 0): return -1
+            hospital <- hospital + 1
+        resident <- resident + 1
+
+    output_bytes: usize = 8 * r
+    if output.is_null() or capacity < output_bytes: return -2
+    while true:
+        proposer: mutable usize = r
+        resident <- 0
+        while resident < r:
+            if assignment[resident] == -1 and next_choice[resident] < resident_length[resident].usize():
+                proposer <- resident
+                break
+            resident <- resident + 1
+        if proposer == r: break
+        hospital = resident_pref[proposer * MAX_R + next_choice[proposer]].usize()
+        next_choice[proposer] <- next_choice[proposer] + 1
+        if occupancy[hospital] < capacities[hospital].usize():
+            assignment[proposer] <- hospital.i64()
+            occupancy[hospital] <- occupancy[hospital] + 1
+        else:
+            worst: mutable usize = r
+            resident <- 0
+            while resident < r:
+                if assignment[resident] == hospital.i64() and
+                        (worst == r or hospital_rank[hospital * MAX_R + resident] > hospital_rank[hospital * MAX_R + worst]):
+                    worst <- resident
+                resident <- resident + 1
+            if worst == r: return -1
+            if hospital_rank[hospital * MAX_R + proposer] < hospital_rank[hospital * MAX_R + worst]:
+                assignment[worst] <- -1
+                assignment[proposer] <- hospital.i64()
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    resident <- 0
+    while resident < r:
+        put64(assignment[resident], staged&, 8 * resident)
+        resident <- resident + 1
+    resident <- 0
+    while resident < output_bytes:
+        output[resident] <- staged[resident]
+        resident <- resident + 1
+    output_bytes.i64()

@@ -25,6 +25,246 @@ import subprocess
 import sys
 
 from build_abi import ROOT, sha256_file
+from vector_scheduling_oracle import MAX_INPUT as VECTOR_SCHEDULING_MAX_INPUT
+from vector_scheduling_oracle import MAX_OUTPUT as VECTOR_SCHEDULING_MAX_OUTPUT
+from vector_scheduling_oracle import expected_output as vector_scheduling_oracle
+from vector_bin_packing_oracle import MAX_INPUT as VECTOR_BIN_PACKING_MAX_INPUT
+from vector_bin_packing_oracle import MAX_OUTPUT as VECTOR_BIN_PACKING_MAX_OUTPUT
+from vector_bin_packing_oracle import expected_output as vector_bin_packing_oracle
+from list_ranking_independent_set_contraction_oracle import MAX_INPUT as LIST_RANKING_CONTRACTION_MAX_INPUT
+from list_ranking_independent_set_contraction_oracle import expected_output as list_ranking_contraction_oracle
+from frequent_itemset_backtrack_oracle import MAX_INPUT_LENGTH as FREQUENT_ITEMSET_BACKTRACK_MAX_INPUT_LENGTH
+from frequent_itemset_backtrack_oracle import MAX_OUTPUT_BYTES as FREQUENT_ITEMSET_BACKTRACK_MAX_OUTPUT_BYTES
+from frequent_itemset_backtrack_oracle import evaluate as frequent_itemset_backtrack_core_oracle
+from ldfs_ordering_certificate_oracle import MAX_INPUT as LDFS_ORDERING_CERTIFICATE_MAX_INPUT
+from ldfs_ordering_certificate_oracle import MAX_OUTPUT as LDFS_ORDERING_CERTIFICATE_MAX_OUTPUT
+from ldfs_ordering_certificate_oracle import expected_output as ldfs_ordering_certificate_oracle
+from weighted_greedy_set_cover_oracle import MAX_INPUT as WEIGHTED_GREEDY_SET_COVER_MAX_INPUT
+from weighted_greedy_set_cover_oracle import expected_output as weighted_greedy_set_cover_oracle
+from hospitals_residents_rgs_oracle import MAX_INPUT as HOSPITALS_RESIDENTS_RGS_MAX_INPUT
+from hospitals_residents_rgs_oracle import expected_output as hospitals_residents_rgs_oracle
+from two_interval_precedence_chain_oracle import MAX_INPUT as TWO_INTERVAL_PRECEDENCE_CHAIN_MAX_INPUT
+from two_interval_precedence_chain_oracle import expected_output as two_interval_precedence_chain_oracle
+from approximate_matching_greedy_oracle import MAX_INPUT_LENGTH as APPROXIMATE_MATCHING_GREEDY_MAX_INPUT_LENGTH
+from approximate_matching_greedy_oracle import MAX_OUTPUT_BYTES as APPROXIMATE_MATCHING_GREEDY_MAX_OUTPUT_BYTES
+from approximate_matching_greedy_oracle import evaluate as approximate_matching_greedy_core_oracle
+from voronoi_delaunay_empty_circle_oracle import MAX_INPUT as VORONOI_DELAUNAY_EMPTY_CIRCLE_MAX_INPUT
+from voronoi_delaunay_empty_circle_oracle import MAX_OUTPUT as VORONOI_DELAUNAY_EMPTY_CIRCLE_MAX_OUTPUT
+from voronoi_delaunay_empty_circle_oracle import expected_output as voronoi_delaunay_empty_circle_oracle
+from approximating_diameter_bfs_oracle import MAX_INPUT_LENGTH as APPROXIMATING_DIAMETER_BFS_MAX_INPUT_LENGTH
+from approximating_diameter_bfs_oracle import MAX_OUTPUT_BYTES as APPROXIMATING_DIAMETER_BFS_MAX_OUTPUT_BYTES
+from approximating_diameter_bfs_oracle import evaluate as approximating_diameter_bfs_core_oracle
+from domination_local_reduction_oracle import MAX_INPUT_LENGTH as DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH
+from domination_local_reduction_oracle import MAX_OUTPUT_BYTES as DOMINATION_LOCAL_REDUCTION_MAX_OUTPUT_BYTES
+from domination_local_reduction_oracle import evaluate as domination_local_reduction_core_oracle
+from weighted_connected_dominating_set_oracle import MAX_INPUT as WEIGHTED_CONNECTED_DOMINATING_SET_MAX_INPUT
+from weighted_connected_dominating_set_oracle import expected_output as weighted_connected_dominating_set_oracle
+from weighted_popular_matching_oracle import MAX_INPUT as WEIGHTED_POPULAR_MATCHING_MAX_INPUT
+from weighted_popular_matching_oracle import expected_output as weighted_popular_matching_oracle
+from parameterized_pattern_matching_oracle import MAX_INPUT as PARAMETERIZED_PATTERN_MATCHING_MAX_INPUT
+from parameterized_pattern_matching_oracle import MAX_OUTPUT_BYTES as PARAMETERIZED_PATTERN_MATCHING_MAX_OUTPUT
+from parameterized_pattern_matching_oracle import expected_output as parameterized_pattern_matching_oracle
+from tsp_few_inner_points_oracle import MAX_PARSEABLE_INPUT_LENGTH as TSP_FEW_INNER_POINTS_MAX_INPUT_LENGTH
+from tsp_few_inner_points_oracle import MAX_OUTPUT_BYTES as TSP_FEW_INNER_POINTS_MAX_OUTPUT_BYTES
+from tsp_few_inner_points_oracle import expected_output as tsp_few_inner_points_oracle
+from rate_monotonic_scheduling_oracle import MAX_INPUT as RATE_MONOTONIC_SCHEDULING_MAX_INPUT
+from rate_monotonic_scheduling_oracle import MAX_OUTPUT_BYTES as RATE_MONOTONIC_SCHEDULING_MAX_OUTPUT
+from rate_monotonic_scheduling_oracle import expected_output as rate_monotonic_scheduling_oracle
+from non_shared_edges_oracle import MAX_INPUT as NON_SHARED_EDGES_MAX_INPUT
+from non_shared_edges_oracle import expected_output as non_shared_edges_oracle
+from unit_disk_graph_wspd_oracle import MAX_INPUT as UNIT_DISK_GRAPH_WSPD_MAX_INPUT
+from unit_disk_graph_wspd_oracle import MAX_OUTPUT as UNIT_DISK_GRAPH_WSPD_MAX_OUTPUT
+from unit_disk_graph_wspd_oracle import expected_output as unit_disk_graph_wspd_oracle
+from landlord_file_caching_oracle import MAX_INPUT as LANDLORD_FILE_CACHING_MAX_INPUT
+from landlord_file_caching_oracle import MAX_OUTPUT_BYTES as LANDLORD_FILE_CACHING_MAX_OUTPUT_BYTES
+from landlord_file_caching_oracle import expected_output as landlord_file_caching_oracle
+from frt_tree_metric_oracle import MAX_INPUT_LENGTH as FRT_TREE_METRIC_MAX_INPUT_LENGTH
+from frt_tree_metric_oracle import MAX_OUTPUT_BYTES as FRT_TREE_METRIC_MAX_OUTPUT_BYTES
+from frt_tree_metric_oracle import evaluate as frt_tree_metric_core_oracle
+from wire_sizing_oracle import MAX_INPUT as WIRE_SIZING_MAX_INPUT
+from wire_sizing_oracle import MAX_OUTPUT as WIRE_SIZING_MAX_OUTPUT
+from wire_sizing_oracle import expected_output as wire_sizing_oracle
+from rank_select_bitstring_oracle import MAX_INPUT as RANK_SELECT_BITSTRING_MAX_INPUT
+from rank_select_bitstring_oracle import MAX_OUTPUT_BYTES as RANK_SELECT_BITSTRING_MAX_OUTPUT_BYTES
+from rank_select_bitstring_oracle import expected_output as rank_select_bitstring_oracle
+from permutation_shortcut_index_oracle import MAX_INPUT_LENGTH as PERMUTATION_SHORTCUT_INDEX_MAX_INPUT_LENGTH
+from permutation_shortcut_index_oracle import MAX_OUTPUT_BYTES as PERMUTATION_SHORTCUT_INDEX_MAX_OUTPUT_BYTES
+from permutation_shortcut_index_oracle import expected_output as permutation_shortcut_index_oracle
+from three_dimensional_moment_curve_oracle import expected_output as three_dimensional_moment_curve_oracle
+from suffix_tree_from_sa_lcp_oracle import MAX_INPUT_LENGTH as SUFFIX_TREE_FROM_SA_LCP_MAX_INPUT_LENGTH
+from suffix_tree_from_sa_lcp_oracle import MAX_OUTPUT_BYTES as SUFFIX_TREE_FROM_SA_LCP_MAX_OUTPUT_BYTES
+from suffix_tree_from_sa_lcp_oracle import expected_output as suffix_tree_from_sa_lcp_oracle
+from technology_mapping_minimum_area_tree_cover_oracle import MAX_INPUT as TECHNOLOGY_MAPPING_MINIMUM_AREA_TREE_COVER_MAX_INPUT
+from technology_mapping_minimum_area_tree_cover_oracle import MAX_OUTPUT as TECHNOLOGY_MAPPING_MINIMUM_AREA_TREE_COVER_MAX_OUTPUT
+from technology_mapping_minimum_area_tree_cover_oracle import expected_output as technology_mapping_minimum_area_tree_cover_oracle
+from thorup_zwick_distance_oracle_oracle import MAX_INPUT_LENGTH as THORUP_ZWICK_DISTANCE_ORACLE_MAX_INPUT_LENGTH
+from thorup_zwick_distance_oracle_oracle import MAX_OUTPUT_BYTES as THORUP_ZWICK_DISTANCE_ORACLE_MAX_OUTPUT_BYTES
+from thorup_zwick_distance_oracle_oracle import expected_output as thorup_zwick_distance_oracle_oracle
+from stochastic_knapsack_greedy_oracle import MAX_INPUT_LENGTH as STOCHASTIC_KNAPSACK_GREEDY_MAX_INPUT_LENGTH
+from stochastic_knapsack_greedy_oracle import MAX_OUTPUT_BYTES as STOCHASTIC_KNAPSACK_GREEDY_MAX_OUTPUT_BYTES
+from stochastic_knapsack_greedy_oracle import expected_output as stochastic_knapsack_greedy_oracle
+from fm_index_count_oracle import MAX_INPUT_LENGTH as FM_INDEX_COUNT_MAX_INPUT_LENGTH
+from fm_index_count_oracle import MAX_OUTPUT_BYTES as FM_INDEX_COUNT_MAX_OUTPUT_BYTES
+from fm_index_count_oracle import evaluate as fm_index_count_core_oracle
+from bst_interleave_bound_oracle import MAX_INPUT_LENGTH as BST_INTERLEAVE_BOUND_MAX_INPUT_LENGTH
+from bst_interleave_bound_oracle import expected_output as bst_interleave_bound_oracle
+from ring_exact_covering_protocol_oracle import MAX_INPUT as RING_EXACT_COVERING_PROTOCOL_MAX_INPUT
+from ring_exact_covering_protocol_oracle import MAX_OUTPUT as RING_EXACT_COVERING_PROTOCOL_MAX_OUTPUT
+from ring_exact_covering_protocol_oracle import expected_output as ring_exact_covering_protocol_oracle
+from ppsz_k_sat_trace_oracle import MAX_INPUT as PPSZ_K_SAT_TRACE_MAX_INPUT
+from ppsz_k_sat_trace_oracle import MAX_OUTPUT as PPSZ_K_SAT_TRACE_MAX_OUTPUT
+from ppsz_k_sat_trace_oracle import expected_output as ppsz_k_sat_trace_oracle
+from randomized_ray_search_oracle import MAX_INPUT_LENGTH as RANDOMIZED_RAY_SEARCH_MAX_INPUT_LENGTH
+from randomized_ray_search_oracle import MAX_OUTPUT_BYTES as RANDOMIZED_RAY_SEARCH_MAX_OUTPUT_BYTES
+from randomized_ray_search_oracle import expected_output as randomized_ray_search_oracle
+from suffix_array_lcp_search_oracle import MAX_INPUT as SUFFIX_ARRAY_LCP_SEARCH_MAX_INPUT
+from suffix_array_lcp_search_oracle import MAX_OUTPUT as SUFFIX_ARRAY_LCP_SEARCH_MAX_OUTPUT
+from suffix_array_lcp_search_oracle import expected_output as suffix_array_lcp_search_oracle
+from packet_switching_sgr_multi_queue_oracle import MAX_INPUT_LENGTH as PACKET_SWITCHING_SGR_MULTI_QUEUE_MAX_INPUT_LENGTH
+from packet_switching_sgr_multi_queue_oracle import MAX_OUTPUT_BYTES as PACKET_SWITCHING_SGR_MULTI_QUEUE_MAX_OUTPUT_BYTES
+from packet_switching_sgr_multi_queue_oracle import expected_output as packet_switching_sgr_multi_queue_oracle
+from minimal_dominating_sets_interval_oracle import MAX_INPUT_LENGTH as MINIMAL_DOMINATING_SETS_INTERVAL_MAX_INPUT_LENGTH
+from minimal_dominating_sets_interval_oracle import MAX_OUTPUT_BYTES as MINIMAL_DOMINATING_SETS_INTERVAL_MAX_OUTPUT_BYTES
+from minimal_dominating_sets_interval_oracle import evaluate as minimal_dominating_sets_interval_core_oracle
+from counting_triangles_stream_reservoir_oracle import MAX_INPUT_LENGTH as COUNTING_TRIANGLES_STREAM_RESERVOIR_MAX_INPUT_LENGTH
+from counting_triangles_stream_reservoir_oracle import MAX_OUTPUT_BYTES as COUNTING_TRIANGLES_STREAM_RESERVOIR_MAX_OUTPUT_BYTES
+from counting_triangles_stream_reservoir_oracle import evaluate as counting_triangles_stream_reservoir_core_oracle
+from table_compression_optimal_contiguous_partition_oracle import MAX_INPUT as TABLE_COMPRESSION_OPTIMAL_CONTIGUOUS_PARTITION_MAX_INPUT
+from table_compression_optimal_contiguous_partition_oracle import OUTPUT_BYTES as TABLE_COMPRESSION_OPTIMAL_CONTIGUOUS_PARTITION_OUTPUT_BYTES
+from table_compression_optimal_contiguous_partition_oracle import expected_output as table_compression_optimal_contiguous_partition_oracle
+from treewidth_min_degree_elimination_oracle import MAX_INPUT as TREEWIDTH_MIN_DEGREE_ELIMINATION_MAX_INPUT
+from treewidth_min_degree_elimination_oracle import MAX_OUTPUT as TREEWIDTH_MIN_DEGREE_ELIMINATION_MAX_OUTPUT
+from treewidth_min_degree_elimination_oracle import expected_output as treewidth_min_degree_elimination_oracle
+from treewidth_min_fill_elimination_oracle import MAX_INPUT as TREEWIDTH_MIN_FILL_ELIMINATION_MAX_INPUT
+from treewidth_min_fill_elimination_oracle import MAX_OUTPUT as TREEWIDTH_MIN_FILL_ELIMINATION_MAX_OUTPUT
+from treewidth_min_fill_elimination_oracle import expected_output as treewidth_min_fill_elimination_oracle
+from treewidth_exact_elimination_order_oracle import MAX_INPUT as TREEWIDTH_EXACT_ELIMINATION_ORDER_MAX_INPUT
+from treewidth_exact_elimination_order_oracle import MAX_OUTPUT_BYTES as TREEWIDTH_EXACT_ELIMINATION_ORDER_MAX_OUTPUT_BYTES
+from treewidth_exact_elimination_order_oracle import expected_output as treewidth_exact_elimination_order_oracle
+from nni_phylogeny_distance_oracle import MAX_INPUT as NNI_PHYLOGENY_DISTANCE_MAX_INPUT
+from nni_phylogeny_distance_oracle import MAX_OUTPUT_BYTES as NNI_PHYLOGENY_DISTANCE_MAX_OUTPUT_BYTES
+from nni_phylogeny_distance_oracle import expected_output as nni_phylogeny_distance_oracle
+from streaming_triangles_oracle import MAX_INPUT_LENGTH as STREAMING_TRIANGLES_MAX_INPUT_LENGTH
+from streaming_triangles_oracle import MAX_OUTPUT_BYTES as STREAMING_TRIANGLES_MAX_OUTPUT_BYTES
+from streaming_triangles_oracle import evaluate as streaming_triangles_core_oracle
+from universal_sequencing_doubling_oracle import MAX_INPUT as UNIVERSAL_SEQUENCING_DOUBLING_MAX_INPUT
+from universal_sequencing_doubling_oracle import MAX_OUTPUT as UNIVERSAL_SEQUENCING_DOUBLING_MAX_OUTPUT
+from universal_sequencing_doubling_oracle import expected_output as universal_sequencing_doubling_oracle
+from dc_tree_k_server_path_oracle import MAX_INPUT_LENGTH as DC_TREE_K_SERVER_PATH_MAX_INPUT_LENGTH
+from dc_tree_k_server_path_oracle import MAX_OUTPUT_BYTES as DC_TREE_K_SERVER_PATH_MAX_OUTPUT_BYTES
+from dc_tree_k_server_path_oracle import evaluate as dc_tree_k_server_path_core_oracle
+from hub_labeling_pruned_oracle import MAX_INPUT as HUB_LABELING_PRUNED_MAX_INPUT
+from hub_labeling_pruned_oracle import MAX_OUTPUT_BYTES as HUB_LABELING_PRUNED_MAX_OUTPUT_BYTES
+from hub_labeling_pruned_oracle import expected_output as hub_labeling_pruned_oracle
+from dense_graph_bipartiteness_tester_oracle import MAX_INPUT as DENSE_GRAPH_BIPARTITENESS_TESTER_MAX_INPUT
+from dense_graph_bipartiteness_tester_oracle import expected_output as dense_graph_bipartiteness_tester_oracle
+from all_distances_sketch_bottom_k_oracle import MAX_INPUT_LENGTH as ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_INPUT_LENGTH
+from all_distances_sketch_bottom_k_oracle import MAX_OUTPUT_BYTES as ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_OUTPUT_BYTES
+from all_distances_sketch_bottom_k_oracle import evaluate as all_distances_sketch_bottom_k_core_oracle
+from sublinear_bipartiteness_walk_tester_oracle import MAX_INPUT as SUBLINEAR_BIPARTITENESS_WALK_TESTER_MAX_INPUT
+from sublinear_bipartiteness_walk_tester_oracle import expected_output as sublinear_bipartiteness_walk_tester_oracle
+from optimal_stable_marriage_oracle import MAX_INPUT as OPTIMAL_STABLE_MARRIAGE_MAX_INPUT
+from optimal_stable_marriage_oracle import MAX_OUTPUT_BYTES as OPTIMAL_STABLE_MARRIAGE_MAX_OUTPUT_BYTES
+from optimal_stable_marriage_oracle import expected_output as optimal_stable_marriage_oracle
+from quine_mccluskey_minimization_oracle import MAX_INPUT as QUINE_MCCLUSKEY_MINIMIZATION_MAX_INPUT
+from quine_mccluskey_minimization_oracle import MAX_OUTPUT_BYTES as QUINE_MCCLUSKEY_MINIMIZATION_MAX_OUTPUT_BYTES
+from quine_mccluskey_minimization_oracle import expected_output as quine_mccluskey_minimization_oracle
+from general_graph_maximum_matching_oracle import MAX_INPUT_LENGTH as GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_INPUT_LENGTH
+from general_graph_maximum_matching_oracle import MAX_OUTPUT_BYTES as GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_OUTPUT_BYTES
+from general_graph_maximum_matching_oracle import evaluate as general_graph_maximum_matching_core_oracle
+from orthogonal_range_reporting_2d_oracle import MAX_INPUT as ORTHOGONAL_RANGE_REPORTING_2D_MAX_INPUT
+from orthogonal_range_reporting_2d_oracle import MAX_OUTPUT_BYTES as ORTHOGONAL_RANGE_REPORTING_2D_MAX_OUTPUT_BYTES
+from orthogonal_range_reporting_2d_oracle import expected_output as orthogonal_range_reporting_2d_oracle
+from k_median_p1_local_search_oracle import MAX_INPUT_LENGTH as K_MEDIAN_P1_LOCAL_SEARCH_MAX_INPUT_LENGTH
+from k_median_p1_local_search_oracle import MAX_OUTPUT_BYTES as K_MEDIAN_P1_LOCAL_SEARCH_MAX_OUTPUT_BYTES
+from k_median_p1_local_search_oracle import evaluate as k_median_p1_local_search_core_oracle
+from two_level_dynamic_maximal_matching_insertions_oracle import MAX_INPUT_LENGTH as TWO_LEVEL_DYNAMIC_MAXIMAL_MATCHING_INSERTIONS_MAX_INPUT_LENGTH
+from two_level_dynamic_maximal_matching_insertions_oracle import MAX_OUTPUT_BYTES as TWO_LEVEL_DYNAMIC_MAXIMAL_MATCHING_INSERTIONS_MAX_OUTPUT_BYTES
+from two_level_dynamic_maximal_matching_insertions_oracle import evaluate as two_level_dynamic_maximal_matching_insertions_core_oracle
+from substring_parsimony_oracle import MAX_INPUT_LENGTH as SUBSTRING_PARSIMONY_MAX_INPUT_LENGTH
+from substring_parsimony_oracle import MAX_OUTPUT_BYTES as SUBSTRING_PARSIMONY_MAX_OUTPUT_BYTES
+from substring_parsimony_oracle import expected_output as substring_parsimony_oracle
+from fibonacci_integer_code_oracle import MAX_INPUT_LENGTH as FIBONACCI_INTEGER_CODE_MAX_INPUT_LENGTH
+from fibonacci_integer_code_oracle import MAX_OUTPUT_BYTES as FIBONACCI_INTEGER_CODE_MAX_OUTPUT_BYTES
+from fibonacci_integer_code_oracle import evaluate as fibonacci_integer_code_core_oracle
+from undirected_feedback_vertex_set_oracle import MAX_INPUT as UNDIRECTED_FEEDBACK_VERTEX_SET_MAX_INPUT
+from undirected_feedback_vertex_set_oracle import expected_output as undirected_feedback_vertex_set_oracle
+from max_minimum_machine_load_lpt_oracle import MAX_INPUT as MAX_MINIMUM_MACHINE_LOAD_LPT_MAX_INPUT
+from max_minimum_machine_load_lpt_oracle import expected_output as max_minimum_machine_load_lpt_oracle
+from min_hash_k_mins_oracle import MAX_INPUT as MIN_HASH_K_MINS_MAX_INPUT
+from min_hash_k_mins_oracle import expected_output as min_hash_k_mins_oracle
+from srpt_flow_time_oracle import MAX_INPUT_LENGTH as SRPT_FLOW_TIME_MAX_INPUT_LENGTH
+from srpt_flow_time_oracle import MAX_OUTPUT_BYTES as SRPT_FLOW_TIME_MAX_OUTPUT_BYTES
+from srpt_flow_time_oracle import expected_output as srpt_flow_time_oracle
+from concave_gap_alignment_global_oracle import MAX_INPUT as CONCAVE_GAP_ALIGNMENT_GLOBAL_MAX_INPUT
+from concave_gap_alignment_global_oracle import expected_output as concave_gap_alignment_global_oracle
+from two_dimensional_string_matching_oracle import MAX_INPUT as TWO_DIMENSIONAL_STRING_MATCHING_MAX_INPUT
+from two_dimensional_string_matching_oracle import expected_output as two_dimensional_string_matching_oracle
+from two_dimensional_scaled_pattern_matching_oracle import MAX_INPUT as TWO_DIMENSIONAL_SCALED_PATTERN_MATCHING_MAX_INPUT
+from two_dimensional_scaled_pattern_matching_oracle import MAX_OUTPUT as TWO_DIMENSIONAL_SCALED_PATTERN_MATCHING_MAX_OUTPUT
+from two_dimensional_scaled_pattern_matching_oracle import expected_output as two_dimensional_scaled_pattern_matching_oracle
+from directed_perfect_phylogeny_oracle import MAX_INPUT_LENGTH as DIRECTED_PERFECT_PHYLOGENY_MAX_INPUT_LENGTH
+from directed_perfect_phylogeny_oracle import MAX_OUTPUT_BYTES as DIRECTED_PERFECT_PHYLOGENY_MAX_OUTPUT_BYTES
+from directed_perfect_phylogeny_oracle import evaluate as directed_perfect_phylogeny_core_oracle
+from first_fit_cardinality_bin_packing_oracle import MAX_INPUT_LENGTH as FIRST_FIT_CARDINALITY_MAX_INPUT_LENGTH
+from first_fit_cardinality_bin_packing_oracle import MAX_OUTPUT_BYTES as FIRST_FIT_CARDINALITY_MAX_OUTPUT_BYTES
+from first_fit_cardinality_bin_packing_oracle import evaluate as first_fit_cardinality_core_oracle
+from vertex_cover_search_trees_oracle import MAX_INPUT as VERTEX_COVER_SEARCH_TREES_MAX_INPUT
+from vertex_cover_search_trees_oracle import expected_output as vertex_cover_search_trees_oracle
+from zdd_family_count_oracle import MAX_INPUT_LENGTH as ZDD_FAMILY_COUNT_MAX_INPUT_LENGTH
+from zdd_family_count_oracle import MAX_OUTPUT_BYTES as ZDD_FAMILY_COUNT_MAX_OUTPUT_BYTES
+from zdd_family_count_oracle import evaluate as zdd_family_count_core_oracle
+from vertex_cover_kernelization_oracle import MAX_INPUT as VERTEX_COVER_KERNELIZATION_MAX_INPUT
+from vertex_cover_kernelization_oracle import MAX_OUTPUT as VERTEX_COVER_KERNELIZATION_MAX_OUTPUT
+from vertex_cover_kernelization_oracle import expected_output as vertex_cover_kernelization_oracle
+from approximate_tandem_squares_oracle import MAX_INPUT_LENGTH as APPROXIMATE_TANDEM_SQUARES_MAX_INPUT_LENGTH
+from approximate_tandem_squares_oracle import MAX_OUTPUT_BYTES as APPROXIMATE_TANDEM_SQUARES_MAX_OUTPUT_BYTES
+from approximate_tandem_squares_oracle import evaluate as approximate_tandem_squares_core_oracle
+from binary_decision_graph_oracle import MAX_INPUT_LENGTH as BINARY_DECISION_GRAPH_MAX_INPUT_LENGTH
+from binary_decision_graph_oracle import MAX_OUTPUT_BYTES as BINARY_DECISION_GRAPH_MAX_OUTPUT_BYTES
+from binary_decision_graph_oracle import evaluate as binary_decision_graph_core_oracle
+from work_function_k_server_oracle import MAX_INPUT as WORK_FUNCTION_K_SERVER_MAX_INPUT
+from work_function_k_server_oracle import MAX_OUTPUT_BYTES as WORK_FUNCTION_K_SERVER_MAX_OUTPUT_BYTES
+from work_function_k_server_oracle import expected_output as work_function_k_server_oracle
+from ams_sketch_oracle import MAX_INPUT_LENGTH as AMS_SKETCH_MAX_INPUT_LENGTH
+from ams_sketch_oracle import evaluate as ams_sketch_core_oracle
+from approximate_regex_matching_oracle import MAX_INPUT_LENGTH as APPROXIMATE_REGEX_MATCHING_MAX_INPUT_LENGTH
+from approximate_regex_matching_oracle import evaluate as approximate_regex_matching_core_oracle
+from color_coding_k_path_oracle import MAX_INPUT_LENGTH as COLOR_CODING_K_PATH_MAX_INPUT_LENGTH
+from color_coding_k_path_oracle import evaluate as color_coding_k_path_core_oracle
+from closest_string_center_oracle import MAX_INPUT_LENGTH as CLOSEST_STRING_CENTER_MAX_INPUT_LENGTH
+from closest_string_center_oracle import evaluate as closest_string_center_core_oracle
+from closest_substring_center_oracle import MAX_INPUT_LENGTH as CLOSEST_SUBSTRING_CENTER_MAX_INPUT_LENGTH
+from closest_substring_center_oracle import evaluate as closest_substring_center_core_oracle
+from count_min_sketch_affine_oracle import MAX_INPUT_LENGTH as COUNT_MIN_SKETCH_AFFINE_MAX_INPUT_LENGTH
+from count_min_sketch_affine_oracle import evaluate as count_min_sketch_affine_core_oracle
+from deterministic_line_search_oracle import MAX_INPUT_LENGTH as DETERMINISTIC_LINE_SEARCH_MAX_INPUT_LENGTH
+from deterministic_line_search_oracle import evaluate as deterministic_line_search_core_oracle
+from exact_graph_coloring_inclusion_exclusion_oracle import MAX_INPUT_LENGTH as EXACT_GRAPH_COLORING_MAX_INPUT_LENGTH
+from exact_graph_coloring_inclusion_exclusion_oracle import evaluate as exact_graph_coloring_core_oracle
+from fast_subset_convolution_oracle import MAX_INPUT_LENGTH as FAST_SUBSET_CONVOLUTION_MAX_INPUT_LENGTH
+from fast_subset_convolution_oracle import evaluate as fast_subset_convolution_core_oracle
+from first_fit_bin_packing_oracle import MAX_INPUT_LENGTH as FIRST_FIT_BIN_PACKING_MAX_INPUT_LENGTH
+from first_fit_bin_packing_oracle import evaluate as first_fit_bin_packing_core_oracle
+from list_scheduling_oracle import MAX_INPUT as LIST_SCHEDULING_MAX_INPUT
+from list_scheduling_oracle import expected_output as list_scheduling_oracle
+from lex_bfs_oracle import expected_output as lex_bfs_oracle
+from max_cut_sahni_gonzalez_oracle import expected_output as max_cut_sahni_gonzalez_oracle
+from max_average_length_bounded_segment_oracle import MAX_INPUT as MAX_AVERAGE_SEGMENT_MAX_INPUT
+from max_average_length_bounded_segment_oracle import expected_output as max_average_length_bounded_segment_oracle
+from max_sum_length_bounded_segment_oracle import expected_output as max_sum_length_bounded_segment_oracle
+from misra_gries_summaries_oracle import expected_output as misra_gries_summaries_oracle
+from smith_weighted_completion_time_oracle import MAX_INPUT as SMITH_WEIGHTED_COMPLETION_TIME_MAX_INPUT
+from smith_weighted_completion_time_oracle import expected_output as smith_weighted_completion_time_oracle
+from negative_cycle_detection_oracle import expected_output as negative_cycle_detection_oracle
+from min_sum_set_cover_greedy_oracle import expected_output as min_sum_set_cover_greedy_oracle
+from harmonic_4_bin_packing_oracle import expected_output as harmonic_4_bin_packing_oracle
+from metric_tsp_tree_doubling_oracle import expected_output as metric_tsp_tree_doubling_oracle
+from online_interval_coloring_oracle import MAX_INPUT_LENGTH as ONLINE_INTERVAL_COLORING_MAX_INPUT_LENGTH
+from online_interval_coloring_oracle import MAX_OUTPUT_BYTES as ONLINE_INTERVAL_COLORING_MAX_OUTPUT_BYTES
+from online_interval_coloring_oracle import expected_output as online_interval_coloring_oracle
+from weighted_random_sampling_oracle import MAX_INPUT as WEIGHTED_RANDOM_SAMPLING_MAX_INPUT
+from weighted_random_sampling_oracle import expected_output as weighted_random_sampling_oracle
 from big_integer_multiply_oracle import MAX_INPUT_LENGTH as BIG_INTEGER_MULTIPLY_MAX_INPUT_LENGTH
 from big_integer_multiply_oracle import expected_output as big_integer_multiply_oracle
 from large_number_oracle import (
@@ -325,16 +565,6 @@ from skew_heap_oracle import (
     MAX_OUTPUT_VALUES as SKEW_HEAP_MAX_OUTPUT_VALUES,
     MAX_OUTPUT_BYTES as SKEW_HEAP_MAX_OUTPUT_BYTES,
     expected_output as skew_heap_oracle,
-)
-from smoothsort_oracle import (
-    INT64_MAX as SMOOTHSORT_INT64_MAX,
-    INT64_MIN as SMOOTHSORT_INT64_MIN,
-    MAX_VALUES as SMOOTHSORT_MAX_VALUES,
-    MAX_VALID_INPUT_LENGTH as SMOOTHSORT_MAX_VALID_INPUT_LENGTH,
-    MAX_PARSEABLE_INPUT_LENGTH as SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH,
-    MAX_OUTPUT_VALUES as SMOOTHSORT_MAX_OUTPUT_VALUES,
-    MAX_OUTPUT_BYTES as SMOOTHSORT_MAX_OUTPUT_BYTES,
-    expected_output as smoothsort_oracle,
 )
 from suffix_automaton_oracle import (
     INT64_MAX as SUFFIX_AUTOMATON_INT64_MAX,
@@ -709,6 +939,7 @@ from pig_latin_oracle import expected_output as pig_latin_expected_output
 from polybius_oracle import MAX_INPUT_LENGTH as MAX_POLYBIUS_INPUT_LENGTH
 from polybius_oracle import expected_output as polybius_expected_output
 from parentheses_generator_oracle import MAX_INPUT_LENGTH as MAX_PARENTHESES_GENERATOR_INPUT_LENGTH
+from parentheses_generator_oracle import MAX_OUTPUT_BYTES as MAX_PARENTHESES_GENERATOR_OUTPUT_BYTES
 from parentheses_generator_oracle import expected_output as parentheses_generator_expected_output
 from powerset_oracle import MAX_INPUT_LENGTH as MAX_POWERSET_INPUT_LENGTH
 from powerset_oracle import expected_output as powerset_expected_output
@@ -2172,11 +2403,6 @@ from key_priority_queue_oracle import MAX_OUTPUT_BYTES as KEY_PRIORITY_QUEUE_MAX
 from key_priority_queue_oracle import PRIORITY_MAX as KEY_PRIORITY_QUEUE_PRIORITY_MAX
 from key_priority_queue_oracle import PRIORITY_MIN as KEY_PRIORITY_QUEUE_PRIORITY_MIN
 from key_priority_queue_oracle import expected_output as key_priority_queue_expected_output
-from minimum_spanning_tree_kruskal_oracle import MAX_EDGES as MINIMUM_SPANNING_TREE_KRUSKAL_MAX_EDGES
-from minimum_spanning_tree_kruskal_oracle import MAX_INPUT_LENGTH as MINIMUM_SPANNING_TREE_KRUSKAL_MAX_INPUT_LENGTH
-from minimum_spanning_tree_kruskal_oracle import MAX_OUTPUT_BYTES as MINIMUM_SPANNING_TREE_KRUSKAL_MAX_OUTPUT_BYTES
-from minimum_spanning_tree_kruskal_oracle import MAX_VERTICES as MINIMUM_SPANNING_TREE_KRUSKAL_MAX_VERTICES
-from minimum_spanning_tree_kruskal_oracle import expected_output as minimum_spanning_tree_kruskal_expected_output
 from stack_using_two_queues_oracle import I32_MAX as STACK_USING_TWO_QUEUES_I32_MAX
 from stack_using_two_queues_oracle import I32_MIN as STACK_USING_TWO_QUEUES_I32_MIN
 from stack_using_two_queues_oracle import INSUFFICIENT_OUTPUT_CAPACITY as STACK_USING_TWO_QUEUES_OUTPUT_ERROR
@@ -4083,6 +4309,7 @@ RECORDER_WORKSPACE_ALGORITHMS.add('stream_vector_kernels')
 RECORDER_WORKSPACE_ALGORITHMS.add('reverse_k_group')
 RECORDER_WORKSPACE_ALGORITHMS.add('reverse_a_linked_list')
 RECORDER_WORKSPACE_ALGORITHMS.add('reverse_linked_list')
+RECORDER_WORKSPACE_ALGORITHMS.add('domination_local_reduction')
 RECORDER_WORKSPACE_ALGORITHMS.add('string_match_finite_automata')
 RECORDER_WORKSPACE_ALGORITHMS.add('string_fibonacci')
 RECORDER_WORKSPACE_ALGORITHMS.add('sequence')
@@ -4163,7 +4390,6 @@ RECORDER_WORKSPACE_ALGORITHMS.add('polynom_for_points')
 RECORDER_WORKSPACE_ALGORITHMS.add('lifocache')
 RECORDER_WORKSPACE_ALGORITHMS.add('least_recently_used')
 RECORDER_WORKSPACE_ALGORITHMS.add('lfu')
-RECORDER_WORKSPACE_ALGORITHMS.add('minimum_spanning_tree_kruskal')
 RECORDER_WORKSPACE_ALGORITHMS.add('key_priority_queue')
 RECORDER_WORKSPACE_ALGORITHMS.add('stack_using_two_queues')
 RECORDER_WORKSPACE_ALGORITHMS.add('mlfqscheduler')
@@ -4208,7 +4434,6 @@ RECORDER_WORKSPACE_ALGORITHMS.update({
     'median_heap',
     'table_heap',
     'skew_heap',
-    'smoothsort',
     'suffix_automaton',
     'lru_cache2',
     'shuffled_shift_cipher',
@@ -5342,7 +5567,176 @@ def llubenchmark_list_traversal_growth_suite_oracle(
         values, capacity, output_is_null, input_is_null, input_length)
 
 
+def _adapt_array_evaluator(evaluator, max_parseable_input_length):
+    """Add the shared byte-output ABI checks around a pure result oracle."""
+    def expected_output(values, output_capacity=None, output_is_null=False,
+                        input_is_null=False, input_length=None):
+        if input_is_null or values is None:
+            return -1, b""
+        if input_length is None:
+            input_length = len(values)
+        if (type(input_length) is not int or input_length < 0
+                or input_length > max_parseable_input_length
+                or input_length != len(values)):
+            return -1, b""
+        result, output = evaluator(values)
+        if result < 0:
+            return result, output
+        if output_is_null and result > 0:
+            return -2, b""
+        if output_capacity is not None and output_capacity < result:
+            return -2, b""
+        return result, output
+    return expected_output
+
+
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
+    "vector_scheduling": vector_scheduling_oracle,
+    "vector_bin_packing": vector_bin_packing_oracle,
+    "list_ranking_independent_set_contraction": list_ranking_contraction_oracle,
+    "frequent_itemset_backtrack": _adapt_array_evaluator(
+        frequent_itemset_backtrack_core_oracle,
+        FREQUENT_ITEMSET_BACKTRACK_MAX_INPUT_LENGTH + 1),
+    "ldfs_ordering_certificate": ldfs_ordering_certificate_oracle,
+    "weighted_greedy_set_cover": weighted_greedy_set_cover_oracle,
+    "hospitals_residents_rgs": hospitals_residents_rgs_oracle,
+    "two_interval_precedence_chain": two_interval_precedence_chain_oracle,
+    "approximate_matching_greedy": _adapt_array_evaluator(
+        approximate_matching_greedy_core_oracle,
+        APPROXIMATE_MATCHING_GREEDY_MAX_INPUT_LENGTH + 1),
+    "voronoi_delaunay_empty_circle": voronoi_delaunay_empty_circle_oracle,
+    "approximating_diameter_bfs": _adapt_array_evaluator(
+        approximating_diameter_bfs_core_oracle,
+        APPROXIMATING_DIAMETER_BFS_MAX_INPUT_LENGTH + 1),
+    "domination_local_reduction": _adapt_array_evaluator(
+        domination_local_reduction_core_oracle,
+        DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH + 1),
+    "weighted_connected_dominating_set": weighted_connected_dominating_set_oracle,
+    "weighted_popular_matching": weighted_popular_matching_oracle,
+    "parameterized_pattern_matching": parameterized_pattern_matching_oracle,
+    "tsp_few_inner_points": tsp_few_inner_points_oracle,
+    "rate_monotonic_scheduling": rate_monotonic_scheduling_oracle,
+    "non_shared_edges": non_shared_edges_oracle,
+    "unit_disk_graph_wspd": unit_disk_graph_wspd_oracle,
+    "landlord_file_caching": landlord_file_caching_oracle,
+    "frt_tree_metric": _adapt_array_evaluator(
+        frt_tree_metric_core_oracle, FRT_TREE_METRIC_MAX_INPUT_LENGTH + 1),
+    "wire_sizing": wire_sizing_oracle,
+    "rank_select_bitstring": rank_select_bitstring_oracle,
+    "permutation_shortcut_index": permutation_shortcut_index_oracle,
+    "three_dimensional_moment_curve": three_dimensional_moment_curve_oracle,
+    "suffix_tree_from_sa_lcp": suffix_tree_from_sa_lcp_oracle,
+    "technology_mapping_minimum_area_tree_cover": technology_mapping_minimum_area_tree_cover_oracle,
+    "thorup_zwick_distance_oracle": thorup_zwick_distance_oracle_oracle,
+    "stochastic_knapsack_greedy": stochastic_knapsack_greedy_oracle,
+    "fm_index_count": _adapt_array_evaluator(
+        fm_index_count_core_oracle, FM_INDEX_COUNT_MAX_INPUT_LENGTH),
+    "bst_interleave_bound": bst_interleave_bound_oracle,
+    "ring_exact_covering_protocol": ring_exact_covering_protocol_oracle,
+    "ppsz_k_sat_trace": ppsz_k_sat_trace_oracle,
+    "randomized_ray_search": randomized_ray_search_oracle,
+    "suffix_array_lcp_search": suffix_array_lcp_search_oracle,
+    "packet_switching_sgr_multi_queue": packet_switching_sgr_multi_queue_oracle,
+    "minimal_dominating_sets_interval": _adapt_array_evaluator(
+        minimal_dominating_sets_interval_core_oracle,
+        MINIMAL_DOMINATING_SETS_INTERVAL_MAX_INPUT_LENGTH),
+    "counting_triangles_stream_reservoir": _adapt_array_evaluator(
+        counting_triangles_stream_reservoir_core_oracle,
+        COUNTING_TRIANGLES_STREAM_RESERVOIR_MAX_INPUT_LENGTH + 1),
+    "table_compression_optimal_contiguous_partition": table_compression_optimal_contiguous_partition_oracle,
+    "treewidth_min_degree_elimination": treewidth_min_degree_elimination_oracle,
+    "treewidth_min_fill_elimination": treewidth_min_fill_elimination_oracle,
+    "treewidth_exact_elimination_order": treewidth_exact_elimination_order_oracle,
+    "nni_phylogeny_distance": nni_phylogeny_distance_oracle,
+    "streaming_triangles": _adapt_array_evaluator(
+        streaming_triangles_core_oracle, STREAMING_TRIANGLES_MAX_INPUT_LENGTH + 1),
+    "universal_sequencing_doubling": universal_sequencing_doubling_oracle,
+    "dc_tree_k_server_path": _adapt_array_evaluator(
+        dc_tree_k_server_path_core_oracle, DC_TREE_K_SERVER_PATH_MAX_INPUT_LENGTH + 1),
+    "hub_labeling_pruned": hub_labeling_pruned_oracle,
+    "dense_graph_bipartiteness_tester": dense_graph_bipartiteness_tester_oracle,
+    "all_distances_sketch_bottom_k": _adapt_array_evaluator(
+        all_distances_sketch_bottom_k_core_oracle,
+        ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_INPUT_LENGTH + 1),
+    "sublinear_bipartiteness_walk_tester": sublinear_bipartiteness_walk_tester_oracle,
+    "optimal_stable_marriage": optimal_stable_marriage_oracle,
+    "quine_mccluskey_minimization": quine_mccluskey_minimization_oracle,
+    "general_graph_maximum_matching": _adapt_array_evaluator(
+        general_graph_maximum_matching_core_oracle,
+        GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_INPUT_LENGTH + 1),
+    "orthogonal_range_reporting_2d": orthogonal_range_reporting_2d_oracle,
+    "k_median_p1_local_search": _adapt_array_evaluator(
+        k_median_p1_local_search_core_oracle,
+        K_MEDIAN_P1_LOCAL_SEARCH_MAX_INPUT_LENGTH + 1),
+    "two_level_dynamic_maximal_matching_insertions": _adapt_array_evaluator(
+        two_level_dynamic_maximal_matching_insertions_core_oracle,
+        TWO_LEVEL_DYNAMIC_MAXIMAL_MATCHING_INSERTIONS_MAX_INPUT_LENGTH + 1),
+    "substring_parsimony": substring_parsimony_oracle,
+    "fibonacci_integer_code": _adapt_array_evaluator(
+        fibonacci_integer_code_core_oracle,
+        FIBONACCI_INTEGER_CODE_MAX_INPUT_LENGTH + 1),
+    "undirected_feedback_vertex_set": undirected_feedback_vertex_set_oracle,
+    "max_minimum_machine_load_lpt": max_minimum_machine_load_lpt_oracle,
+    "min_hash_k_mins": min_hash_k_mins_oracle,
+    "srpt_flow_time": srpt_flow_time_oracle,
+    "concave_gap_alignment_global": concave_gap_alignment_global_oracle,
+    "two_dimensional_string_matching": two_dimensional_string_matching_oracle,
+    "two_dimensional_scaled_pattern_matching": two_dimensional_scaled_pattern_matching_oracle,
+    "first_fit_cardinality_bin_packing": _adapt_array_evaluator(
+        first_fit_cardinality_core_oracle,
+        FIRST_FIT_CARDINALITY_MAX_INPUT_LENGTH + 1),
+    "directed_perfect_phylogeny": _adapt_array_evaluator(
+        directed_perfect_phylogeny_core_oracle,
+        DIRECTED_PERFECT_PHYLOGENY_MAX_INPUT_LENGTH + 1),
+    "vertex_cover_search_trees": vertex_cover_search_trees_oracle,
+    "zdd_family_count": _adapt_array_evaluator(
+        zdd_family_count_core_oracle, ZDD_FAMILY_COUNT_MAX_INPUT_LENGTH + 1),
+    "vertex_cover_kernelization": vertex_cover_kernelization_oracle,
+    "approximate_tandem_squares": _adapt_array_evaluator(
+        approximate_tandem_squares_core_oracle,
+        APPROXIMATE_TANDEM_SQUARES_MAX_INPUT_LENGTH + 1),
+    "work_function_k_server": work_function_k_server_oracle,
+    "binary_decision_graph": _adapt_array_evaluator(
+        binary_decision_graph_core_oracle,
+        BINARY_DECISION_GRAPH_MAX_INPUT_LENGTH + 1),
+    "ams_sketch": _adapt_array_evaluator(ams_sketch_core_oracle, 117),
+    "approximate_regex_matching": _adapt_array_evaluator(
+        approximate_regex_matching_core_oracle,
+        APPROXIMATE_REGEX_MATCHING_MAX_INPUT_LENGTH + 1),
+    "color_coding_k_path": _adapt_array_evaluator(
+        color_coding_k_path_core_oracle, COLOR_CODING_K_PATH_MAX_INPUT_LENGTH + 1),
+    "closest_string_center": _adapt_array_evaluator(
+        closest_string_center_core_oracle, CLOSEST_STRING_CENTER_MAX_INPUT_LENGTH + 1),
+    "closest_substring_center": _adapt_array_evaluator(
+        closest_substring_center_core_oracle,
+        CLOSEST_SUBSTRING_CENTER_MAX_INPUT_LENGTH + 1),
+    "count_min_sketch_affine": _adapt_array_evaluator(
+        count_min_sketch_affine_core_oracle, 60),
+    "deterministic_line_search": _adapt_array_evaluator(
+        deterministic_line_search_core_oracle, 2),
+    "exact_graph_coloring_inclusion_exclusion": _adapt_array_evaluator(
+        exact_graph_coloring_core_oracle,
+        EXACT_GRAPH_COLORING_MAX_INPUT_LENGTH + 1),
+    "fast_subset_convolution": _adapt_array_evaluator(
+        fast_subset_convolution_core_oracle, 34),
+    "first_fit_bin_packing": _adapt_array_evaluator(
+        first_fit_bin_packing_core_oracle, 66),
+    "parentheses_generator": _adapt_array_evaluator(
+        parentheses_generator_expected_output,
+        MAX_PARENTHESES_GENERATOR_INPUT_LENGTH),
+    "list_scheduling": list_scheduling_oracle,
+    "lex_bfs": lex_bfs_oracle,
+    "max_cut_sahni_gonzalez": max_cut_sahni_gonzalez_oracle,
+    "max_average_length_bounded_segment": max_average_length_bounded_segment_oracle,
+    "max_sum_length_bounded_segment": max_sum_length_bounded_segment_oracle,
+    "min_sum_set_cover_greedy": min_sum_set_cover_greedy_oracle,
+    "misra_gries_summaries": misra_gries_summaries_oracle,
+    "smith_weighted_completion_time": smith_weighted_completion_time_oracle,
+    "negative_cycle_detection": negative_cycle_detection_oracle,
+    "online_interval_coloring": online_interval_coloring_oracle,
+    "weighted_random_sampling": weighted_random_sampling_oracle,
+    "harmonic_4_bin_packing": harmonic_4_bin_packing_oracle,
+    "metric_tsp_tree_doubling": metric_tsp_tree_doubling_oracle,
     "string_heap_sort": string_heap_sort_expected_output,
     "bitmap_block_allocation": bitmap_block_allocation_expected_output,
     "stream_vector_kernels": stream_vector_kernels_expected_output,
@@ -5556,6 +5950,200 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
 EXTERNAL_BYTE_OUTPUT_BOUNDS = {
+    "vector_scheduling": (VECTOR_SCHEDULING_MAX_INPUT, VECTOR_SCHEDULING_MAX_OUTPUT),
+    "vector_bin_packing": (VECTOR_BIN_PACKING_MAX_INPUT, VECTOR_BIN_PACKING_MAX_OUTPUT),
+    "list_ranking_independent_set_contraction": (
+        LIST_RANKING_CONTRACTION_MAX_INPUT, 8 * 16),
+    "frequent_itemset_backtrack": (
+        FREQUENT_ITEMSET_BACKTRACK_MAX_INPUT_LENGTH + 1,
+        FREQUENT_ITEMSET_BACKTRACK_MAX_OUTPUT_BYTES),
+    "ldfs_ordering_certificate": (
+        LDFS_ORDERING_CERTIFICATE_MAX_INPUT,
+        LDFS_ORDERING_CERTIFICATE_MAX_OUTPUT),
+    "weighted_greedy_set_cover": (WEIGHTED_GREEDY_SET_COVER_MAX_INPUT, 136),
+    "hospitals_residents_rgs": (HOSPITALS_RESIDENTS_RGS_MAX_INPUT, 64),
+    "two_interval_precedence_chain": (TWO_INTERVAL_PRECEDENCE_CHAIN_MAX_INPUT, 136),
+    "approximate_matching_greedy": (
+        APPROXIMATE_MATCHING_GREEDY_MAX_INPUT_LENGTH + 1,
+        APPROXIMATE_MATCHING_GREEDY_MAX_OUTPUT_BYTES),
+    "voronoi_delaunay_empty_circle": (
+        VORONOI_DELAUNAY_EMPTY_CIRCLE_MAX_INPUT,
+        VORONOI_DELAUNAY_EMPTY_CIRCLE_MAX_OUTPUT),
+    "approximating_diameter_bfs": (
+        APPROXIMATING_DIAMETER_BFS_MAX_INPUT_LENGTH + 1,
+        APPROXIMATING_DIAMETER_BFS_MAX_OUTPUT_BYTES),
+    "domination_local_reduction": (
+        DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH + 1,
+        DOMINATION_LOCAL_REDUCTION_MAX_OUTPUT_BYTES),
+    "weighted_connected_dominating_set": (
+        WEIGHTED_CONNECTED_DOMINATING_SET_MAX_INPUT, 16),
+    "weighted_popular_matching": (WEIGHTED_POPULAR_MATCHING_MAX_INPUT, 48),
+    "parameterized_pattern_matching": (
+        PARAMETERIZED_PATTERN_MATCHING_MAX_INPUT,
+        PARAMETERIZED_PATTERN_MATCHING_MAX_OUTPUT),
+    "tsp_few_inner_points": (
+        TSP_FEW_INNER_POINTS_MAX_INPUT_LENGTH,
+        TSP_FEW_INNER_POINTS_MAX_OUTPUT_BYTES),
+    "rate_monotonic_scheduling": (
+        RATE_MONOTONIC_SCHEDULING_MAX_INPUT,
+        RATE_MONOTONIC_SCHEDULING_MAX_OUTPUT),
+    "non_shared_edges": (NON_SHARED_EDGES_MAX_INPUT, 8),
+    "unit_disk_graph_wspd": (
+        UNIT_DISK_GRAPH_WSPD_MAX_INPUT,
+        UNIT_DISK_GRAPH_WSPD_MAX_OUTPUT),
+    "landlord_file_caching": (
+        LANDLORD_FILE_CACHING_MAX_INPUT,
+        LANDLORD_FILE_CACHING_MAX_OUTPUT_BYTES),
+    "frt_tree_metric": (
+        FRT_TREE_METRIC_MAX_INPUT_LENGTH + 1, FRT_TREE_METRIC_MAX_OUTPUT_BYTES),
+    "wire_sizing": (WIRE_SIZING_MAX_INPUT, WIRE_SIZING_MAX_OUTPUT),
+    "rank_select_bitstring": (
+        RANK_SELECT_BITSTRING_MAX_INPUT, RANK_SELECT_BITSTRING_MAX_OUTPUT_BYTES),
+    "permutation_shortcut_index": (
+        PERMUTATION_SHORTCUT_INDEX_MAX_INPUT_LENGTH,
+        PERMUTATION_SHORTCUT_INDEX_MAX_OUTPUT_BYTES),
+    "three_dimensional_moment_curve": (1, 1544),
+    "suffix_tree_from_sa_lcp": (
+        SUFFIX_TREE_FROM_SA_LCP_MAX_INPUT_LENGTH,
+        SUFFIX_TREE_FROM_SA_LCP_MAX_OUTPUT_BYTES),
+    "technology_mapping_minimum_area_tree_cover": (
+        TECHNOLOGY_MAPPING_MINIMUM_AREA_TREE_COVER_MAX_INPUT,
+        TECHNOLOGY_MAPPING_MINIMUM_AREA_TREE_COVER_MAX_OUTPUT),
+    "thorup_zwick_distance_oracle": (
+        THORUP_ZWICK_DISTANCE_ORACLE_MAX_INPUT_LENGTH,
+        THORUP_ZWICK_DISTANCE_ORACLE_MAX_OUTPUT_BYTES),
+    "stochastic_knapsack_greedy": (
+        STOCHASTIC_KNAPSACK_GREEDY_MAX_INPUT_LENGTH,
+        STOCHASTIC_KNAPSACK_GREEDY_MAX_OUTPUT_BYTES),
+    "fm_index_count": (FM_INDEX_COUNT_MAX_INPUT_LENGTH, FM_INDEX_COUNT_MAX_OUTPUT_BYTES),
+    "bst_interleave_bound": (BST_INTERLEAVE_BOUND_MAX_INPUT_LENGTH, 8),
+    "ring_exact_covering_protocol": (
+        RING_EXACT_COVERING_PROTOCOL_MAX_INPUT, RING_EXACT_COVERING_PROTOCOL_MAX_OUTPUT),
+    "ppsz_k_sat_trace": (PPSZ_K_SAT_TRACE_MAX_INPUT, PPSZ_K_SAT_TRACE_MAX_OUTPUT),
+    "randomized_ray_search": (
+        RANDOMIZED_RAY_SEARCH_MAX_INPUT_LENGTH, RANDOMIZED_RAY_SEARCH_MAX_OUTPUT_BYTES),
+    "suffix_array_lcp_search": (
+        SUFFIX_ARRAY_LCP_SEARCH_MAX_INPUT, SUFFIX_ARRAY_LCP_SEARCH_MAX_OUTPUT),
+    "packet_switching_sgr_multi_queue": (
+        PACKET_SWITCHING_SGR_MULTI_QUEUE_MAX_INPUT_LENGTH,
+        PACKET_SWITCHING_SGR_MULTI_QUEUE_MAX_OUTPUT_BYTES),
+    "minimal_dominating_sets_interval": (
+        MINIMAL_DOMINATING_SETS_INTERVAL_MAX_INPUT_LENGTH,
+        MINIMAL_DOMINATING_SETS_INTERVAL_MAX_OUTPUT_BYTES),
+    "counting_triangles_stream_reservoir": (
+        COUNTING_TRIANGLES_STREAM_RESERVOIR_MAX_INPUT_LENGTH + 1,
+        COUNTING_TRIANGLES_STREAM_RESERVOIR_MAX_OUTPUT_BYTES),
+    "table_compression_optimal_contiguous_partition": (
+        TABLE_COMPRESSION_OPTIMAL_CONTIGUOUS_PARTITION_MAX_INPUT,
+        TABLE_COMPRESSION_OPTIMAL_CONTIGUOUS_PARTITION_OUTPUT_BYTES),
+    "treewidth_min_degree_elimination": (
+        TREEWIDTH_MIN_DEGREE_ELIMINATION_MAX_INPUT,
+        TREEWIDTH_MIN_DEGREE_ELIMINATION_MAX_OUTPUT),
+    "treewidth_min_fill_elimination": (
+        TREEWIDTH_MIN_FILL_ELIMINATION_MAX_INPUT,
+        TREEWIDTH_MIN_FILL_ELIMINATION_MAX_OUTPUT),
+    "treewidth_exact_elimination_order": (
+        TREEWIDTH_EXACT_ELIMINATION_ORDER_MAX_INPUT,
+        TREEWIDTH_EXACT_ELIMINATION_ORDER_MAX_OUTPUT_BYTES),
+    "nni_phylogeny_distance": (
+        NNI_PHYLOGENY_DISTANCE_MAX_INPUT,
+        NNI_PHYLOGENY_DISTANCE_MAX_OUTPUT_BYTES),
+    "streaming_triangles": (
+        STREAMING_TRIANGLES_MAX_INPUT_LENGTH + 1, STREAMING_TRIANGLES_MAX_OUTPUT_BYTES),
+    "universal_sequencing_doubling": (
+        UNIVERSAL_SEQUENCING_DOUBLING_MAX_INPUT, UNIVERSAL_SEQUENCING_DOUBLING_MAX_OUTPUT),
+    "dc_tree_k_server_path": (
+        DC_TREE_K_SERVER_PATH_MAX_INPUT_LENGTH + 1, DC_TREE_K_SERVER_PATH_MAX_OUTPUT_BYTES),
+    "hub_labeling_pruned": (HUB_LABELING_PRUNED_MAX_INPUT, HUB_LABELING_PRUNED_MAX_OUTPUT_BYTES),
+    "dense_graph_bipartiteness_tester": (DENSE_GRAPH_BIPARTITENESS_TESTER_MAX_INPUT, 16),
+    "all_distances_sketch_bottom_k": (
+        ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_INPUT_LENGTH + 1,
+        ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_OUTPUT_BYTES),
+    "sublinear_bipartiteness_walk_tester": (SUBLINEAR_BIPARTITENESS_WALK_TESTER_MAX_INPUT, 8),
+    "optimal_stable_marriage": (
+        OPTIMAL_STABLE_MARRIAGE_MAX_INPUT, OPTIMAL_STABLE_MARRIAGE_MAX_OUTPUT_BYTES),
+    "quine_mccluskey_minimization": (
+        QUINE_MCCLUSKEY_MINIMIZATION_MAX_INPUT,
+        QUINE_MCCLUSKEY_MINIMIZATION_MAX_OUTPUT_BYTES),
+    "general_graph_maximum_matching": (
+        GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_INPUT_LENGTH + 1,
+        GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_OUTPUT_BYTES),
+    "orthogonal_range_reporting_2d": (
+        ORTHOGONAL_RANGE_REPORTING_2D_MAX_INPUT,
+        ORTHOGONAL_RANGE_REPORTING_2D_MAX_OUTPUT_BYTES),
+    "k_median_p1_local_search": (
+        K_MEDIAN_P1_LOCAL_SEARCH_MAX_INPUT_LENGTH + 1,
+        K_MEDIAN_P1_LOCAL_SEARCH_MAX_OUTPUT_BYTES),
+    "two_level_dynamic_maximal_matching_insertions": (
+        TWO_LEVEL_DYNAMIC_MAXIMAL_MATCHING_INSERTIONS_MAX_INPUT_LENGTH + 1,
+        TWO_LEVEL_DYNAMIC_MAXIMAL_MATCHING_INSERTIONS_MAX_OUTPUT_BYTES),
+    "substring_parsimony": (
+        SUBSTRING_PARSIMONY_MAX_INPUT_LENGTH,
+        SUBSTRING_PARSIMONY_MAX_OUTPUT_BYTES),
+    "fibonacci_integer_code": (
+        FIBONACCI_INTEGER_CODE_MAX_INPUT_LENGTH + 1,
+        FIBONACCI_INTEGER_CODE_MAX_OUTPUT_BYTES),
+    "undirected_feedback_vertex_set": (
+        UNDIRECTED_FEEDBACK_VERTEX_SET_MAX_INPUT, 16),
+    "max_minimum_machine_load_lpt": (MAX_MINIMUM_MACHINE_LOAD_LPT_MAX_INPUT, 168),
+    "min_hash_k_mins": (MIN_HASH_K_MINS_MAX_INPUT, 32),
+    "srpt_flow_time": (SRPT_FLOW_TIME_MAX_INPUT_LENGTH, SRPT_FLOW_TIME_MAX_OUTPUT_BYTES),
+    "concave_gap_alignment_global": (CONCAVE_GAP_ALIGNMENT_GLOBAL_MAX_INPUT, 8),
+    "two_dimensional_string_matching": (TWO_DIMENSIONAL_STRING_MATCHING_MAX_INPUT, 1032),
+    "two_dimensional_scaled_pattern_matching": (
+        TWO_DIMENSIONAL_SCALED_PATTERN_MATCHING_MAX_INPUT,
+        TWO_DIMENSIONAL_SCALED_PATTERN_MATCHING_MAX_OUTPUT),
+    "first_fit_cardinality_bin_packing": (
+        FIRST_FIT_CARDINALITY_MAX_INPUT_LENGTH + 1,
+        FIRST_FIT_CARDINALITY_MAX_OUTPUT_BYTES),
+    "directed_perfect_phylogeny": (
+        DIRECTED_PERFECT_PHYLOGENY_MAX_INPUT_LENGTH + 1,
+        DIRECTED_PERFECT_PHYLOGENY_MAX_OUTPUT_BYTES),
+    "vertex_cover_search_trees": (VERTEX_COVER_SEARCH_TREES_MAX_INPUT, 24),
+    "zdd_family_count": (
+        ZDD_FAMILY_COUNT_MAX_INPUT_LENGTH + 1,
+        ZDD_FAMILY_COUNT_MAX_OUTPUT_BYTES),
+    "vertex_cover_kernelization": (
+        VERTEX_COVER_KERNELIZATION_MAX_INPUT,
+        VERTEX_COVER_KERNELIZATION_MAX_OUTPUT),
+    "approximate_tandem_squares": (
+        APPROXIMATE_TANDEM_SQUARES_MAX_INPUT_LENGTH + 1,
+        APPROXIMATE_TANDEM_SQUARES_MAX_OUTPUT_BYTES),
+    "work_function_k_server": (
+        WORK_FUNCTION_K_SERVER_MAX_INPUT,
+        WORK_FUNCTION_K_SERVER_MAX_OUTPUT_BYTES),
+    "binary_decision_graph": (
+        BINARY_DECISION_GRAPH_MAX_INPUT_LENGTH + 1,
+        BINARY_DECISION_GRAPH_MAX_OUTPUT_BYTES),
+    "ams_sketch": (AMS_SKETCH_MAX_INPUT_LENGTH + 1, 8),
+    "approximate_regex_matching": (
+        APPROXIMATE_REGEX_MATCHING_MAX_INPUT_LENGTH + 1, 12),
+    "color_coding_k_path": (COLOR_CODING_K_PATH_MAX_INPUT_LENGTH + 1, 8),
+    "closest_string_center": (CLOSEST_STRING_CENTER_MAX_INPUT_LENGTH + 1, 72),
+    "closest_substring_center": (CLOSEST_SUBSTRING_CENTER_MAX_INPUT_LENGTH + 1, 72),
+    "count_min_sketch_affine": (COUNT_MIN_SKETCH_AFFINE_MAX_INPUT_LENGTH + 1, 128),
+    "deterministic_line_search": (DETERMINISTIC_LINE_SEARCH_MAX_INPUT_LENGTH + 1, 16),
+    "exact_graph_coloring_inclusion_exclusion": (
+        EXACT_GRAPH_COLORING_MAX_INPUT_LENGTH + 1, 8),
+    "fast_subset_convolution": (FAST_SUBSET_CONVOLUTION_MAX_INPUT_LENGTH + 1, 128),
+    "first_fit_bin_packing": (FIRST_FIT_BIN_PACKING_MAX_INPUT_LENGTH + 1, 520),
+    "list_scheduling": (LIST_SCHEDULING_MAX_INPUT, 328),
+    "lex_bfs": (243, 128),
+    "max_cut_sahni_gonzalez": (362, 136),
+    "max_average_length_bounded_segment": (MAX_AVERAGE_SEGMENT_MAX_INPUT, 32),
+    "max_sum_length_bounded_segment": (35, 24),
+    "min_sum_set_cover_greedy": (18, 104),
+    "misra_gries_summaries": (66, 136),
+    "smith_weighted_completion_time": (SMITH_WEIGHTED_COMPLETION_TIME_MAX_INPUT, 104),
+    "negative_cycle_detection": (194, 176),
+    "online_interval_coloring": (ONLINE_INTERVAL_COLORING_MAX_INPUT_LENGTH,
+                                  ONLINE_INTERVAL_COLORING_MAX_OUTPUT_BYTES),
+    "weighted_random_sampling": (WEIGHTED_RANDOM_SAMPLING_MAX_INPUT, 128),
+    "harmonic_4_bin_packing": (33, 264),
+    "metric_tsp_tree_doubling": (65, 80),
+    "parentheses_generator": (
+        MAX_PARENTHESES_GENERATOR_INPUT_LENGTH,
+        MAX_PARENTHESES_GENERATOR_OUTPUT_BYTES),
     "tsvc_s116_unrolled_product_chain": (TSVC_S116_MAX_INPUT_LENGTH, TSVC_S116_MAX_OUTPUT_BYTES),
     "tsvc_s118_triangular_convolution_recurrence": (TSVC_S118_MAX_INPUT_LENGTH, TSVC_S118_MAX_OUTPUT_BYTES),
     "tsvc_s1119_same_column_matrix_prefix": (TSVC_S1119_MAX_INPUT_LENGTH, TSVC_S1119_MAX_OUTPUT_BYTES),
@@ -5884,8 +6472,6 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return table_heap_oracle(values)
     if algorithm == "skew_heap":
         return skew_heap_oracle(values)
-    if algorithm == "smoothsort":
-        return smoothsort_oracle(values)
     if algorithm == "suffix_automaton":
         return suffix_automaton_oracle(values)
     if algorithm == "lru_cache2":
@@ -6159,8 +6745,6 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return median_search2_expected_output(values)
     if algorithm == "median_of_matrix":
         return median_of_matrix_expected_output(values)
-    if algorithm == "minimum_spanning_tree_kruskal":
-        return minimum_spanning_tree_kruskal_expected_output(values)
     if algorithm == "key_priority_queue":
         return key_priority_queue_expected_output(values)
     if algorithm == "stack_using_two_queues":
@@ -12916,9 +13500,6 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
     if algorithm == "pig_latin":
         return pig_latin_expected_output(values)
 
-    if algorithm == "parentheses_generator":
-        return parentheses_generator_expected_output(values)
-
     if algorithm == "powerset":
         return powerset_expected_output(values)
 
@@ -15030,26 +15611,6 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         encoded = b"".join(struct.pack("<iii", *triple) for triple in triples)
         return len(triples), encoded
 
-    if algorithm == "generate_parentheses":
-        if (not isinstance(values, list) or len(values) != 1
-                or type(values[0]) is not int or not 1 <= values[0] <= 6):
-            return -1, b""
-        pair_count = values[0]
-        sequences = []
-
-        def generate(partial: str, opened: int, closed: int) -> None:
-            if len(partial) == 2 * pair_count:
-                sequences.append(partial)
-                return
-            if opened < pair_count:
-                generate(partial + "(", opened + 1, closed)
-            if closed < opened:
-                generate(partial + ")", opened, closed + 1)
-
-        generate("", 0, 0)
-        encoded = "".join(sequences).encode("ascii")
-        return len(encoded), encoded
-
     if algorithm == "max_difference_pair":
         if (not isinstance(values, list) or not 1 <= len(values) <= 129
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
@@ -16404,26 +16965,6 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             else:
                 return -1, b""
         output = b"".join(struct.pack("<q", item) for item in output_values)
-        return len(output), output
-
-    if algorithm == "count_min_sketch_width_one_collision":
-        if (not isinstance(values, list) or not values
-                or any(type(value) is not int for value in values)):
-            return -1, b""
-        operation_count = values[0]
-        if not 0 <= operation_count <= 256 or len(values) != 1 + 2 * operation_count:
-            return -1, b""
-        insert_count = 0
-        query_results = []
-        for offset in range(1, len(values), 2):
-            operation, key = values[offset:offset + 2]
-            if operation not in (0, 1) or not -1_000_000 <= key <= 1_000_000:
-                return -1, b""
-            if operation == 0:
-                insert_count += 1
-            else:
-                query_results.append(insert_count)
-        output = b"".join(struct.pack("<q", result) for result in query_results)
         return len(output), output
 
     if algorithm == "autocomplete_using_trie":
@@ -20222,7 +20763,7 @@ def validate_tree_234_workload(workload: dict) -> None:
                     result != len(output) or result < 16 or result % 8 != 0
                     or len(output) > TREE_234_MAX_OUTPUT_BYTES
                     or output_is_null
-                    or len(output) // 8 < 2))
+                    or len(output) // 8 < 2)
                 or result < 0 and (result not in (
                     TREE_234_INVALID_RESULT, TREE_234_OUTPUT_ERROR) or output)):
             raise ValueError(f"tree_234 fixture mismatch: {case_id}")
@@ -28685,147 +29226,6 @@ def validate_key_priority_queue_workload(workload: dict) -> None:
         raise ValueError("key_priority_queue ABI fixtures are missing null or capacity precedence coverage")
 
 
-MINIMUM_SPANNING_TREE_KRUSKAL_CASE_IDS = frozenset({
-    "null_input_positive_length", "empty_graph", "single_vertex", "source_example_tree",
-    "source_example_cyclic", "source_example_tied_reversed_edge",
-    "disconnected_minimum_spanning_forest", "negative_weights", "equal_weight_stable_input_order",
-    "parallel_reversed_edges_keep_original_orientation", "self_loops_only",
-    "signed_i64_weight_limits", "maximum_vertex_path", "exact_output_capacity",
-    "short_output_capacity", "null_output_empty_forest", "invalid_precedes_null_output",
-    "negative_vertex_count", "negative_edge_count", "edge_count_above_bound",
-    "endpoint_out_of_range", "zero_vertices_with_edge", "packed_length_mismatch",
-})
-
-
-def validate_minimum_spanning_tree_kruskal_workload(workload: dict) -> None:
-    """Pin the stable Kruskal forest contract and byte-output fixtures."""
-    source = {
-        "repository": "TheAlgorithms/Python",
-        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
-        "path": "graphs/minimum_spanning_tree_kruskal.py",
-        "symbol": "kruskal",
-    }
-    source_url = "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/minimum_spanning_tree_kruskal.py"
-    input_spec = {
-        "kind": "signed_i64_array",
-        "layout": "[vertex_count, edge_count, (u, v, weight)*]",
-        "vertex_count_range": [0, MINIMUM_SPANNING_TREE_KRUSKAL_MAX_VERTICES],
-        "edge_count_range": [0, MINIMUM_SPANNING_TREE_KRUSKAL_MAX_EDGES],
-        "exact_length": "2 + 3 * edge_count",
-        "endpoint_domain": "each endpoint is in [0, vertex_count)",
-        "weight_domain": "signed i64",
-        "sort_rule": "stable ascending by weight only",
-        "invalid_input_result": -1,
-        "null_input_result": -1,
-    }
-    output_spec = {
-        "kind": "byte_array",
-        "encoding": "accepted original (u, v, weight) triples as little-endian signed i64, with no count header",
-        "maximum_output_bytes": MINIMUM_SPANNING_TREE_KRUSKAL_MAX_OUTPUT_BYTES,
-        "success_result": "output byte count; accepted edge count equals result / 24",
-        "empty_forest_result": 0,
-        "invalid_input_result": -1,
-        "null_output_result": -2,
-        "null_output_for_empty_forest": -2,
-        "insufficient_output_capacity_result": -2,
-        "short_capacity_writes_nothing": True,
-    }
-    measurement = {
-        "comparison_model": "i64_array_bytes_output_call",
-        "sample_count": 5,
-        "warmup_rounds": 1,
-        "repetitions_per_sample": 100,
-    }
-    case_list = workload.get("cases")
-    if not isinstance(case_list, list):
-        case_list = []
-    ids = [case.get("id") for case in case_list if isinstance(case, dict)]
-    if (workload.get("schema_version") != 1
-            or workload.get("id") != "minimum-spanning-forest-kruskal-python-stable-i64-edge-list-v1"
-            or workload.get("algorithm") != "minimum_spanning_tree_kruskal"
-            or workload.get("function_symbol") != "minimum_spanning_tree_kruskal"
-            or workload.get("pinned_source") != source
-            or workload.get("input") != input_spec
-            or workload.get("output") != output_spec
-            or workload.get("workspace") != {
-                "bytes": MINIMUM_SPANNING_TREE_KRUSKAL_MAX_OUTPUT_BYTES,
-                "meaning": "Maximum output for a forest on 64 vertices.",
-            }
-            or workload.get("measurement") != measurement
-            or MINIMUM_SPANNING_TREE_KRUSKAL_MAX_VERTICES != 64
-            or MINIMUM_SPANNING_TREE_KRUSKAL_MAX_EDGES != 4096
-            or MINIMUM_SPANNING_TREE_KRUSKAL_MAX_INPUT_LENGTH != 12290
-            or MINIMUM_SPANNING_TREE_KRUSKAL_MAX_OUTPUT_BYTES != 1512
-            or len(ids) != len(MINIMUM_SPANNING_TREE_KRUSKAL_CASE_IDS)
-            or len(ids) != len(set(ids))
-            or set(ids) != MINIMUM_SPANNING_TREE_KRUSKAL_CASE_IDS):
-        raise ValueError("minimum_spanning_tree_kruskal workload metadata does not match its reviewed contract")
-
-    readme = (ROOT / "benchmarks" / "m" / "minimum_spanning_tree_kruskal" / "README.md").read_text(
-        encoding="utf-8")
-    if source_url not in readme:
-        raise ValueError("minimum_spanning_tree_kruskal README is missing its pinned source link")
-    cases = {case["id"]: case for case in case_list}
-    maximum_case = cases["maximum_vertex_path"]
-    exact_capacity_case = cases["exact_output_capacity"]
-    short_capacity_case = cases["short_output_capacity"]
-    null_input_case = cases["null_input_positive_length"]
-    null_output_case = cases["null_output_empty_forest"]
-    invalid_null_case = cases["invalid_precedes_null_output"]
-    if (maximum_case.get("input_values", [])[:2] != [64, 63]
-            or len(maximum_case.get("input_values", [])) != 191
-            or maximum_case.get("expected_result") != MINIMUM_SPANNING_TREE_KRUSKAL_MAX_OUTPUT_BYTES
-            or len(bytes.fromhex(maximum_case.get("expected_output_hex", "")))
-                != MINIMUM_SPANNING_TREE_KRUSKAL_MAX_OUTPUT_BYTES
-            or exact_capacity_case.get("output_capacity") != 24
-            or exact_capacity_case.get("expected_result") != 24
-            or short_capacity_case.get("output_capacity") != 23
-            or short_capacity_case.get("expected_result") != -2
-            or null_input_case.get("input_is_null") is not True
-            or null_input_case.get("input_values") != []
-            or null_input_case.get("input_length") != 1
-            or null_input_case.get("expected_result") != -1
-            or null_output_case.get("output_is_null") is not True
-            or null_output_case.get("expected_result") != -2
-            or invalid_null_case.get("output_is_null") is not True
-            or invalid_null_case.get("expected_result") != -1
-            or cases["empty_graph"].get("expected_result") != 0
-            or cases["single_vertex"].get("expected_result") != 0
-            or cases["self_loops_only"].get("expected_result") != 0
-            or cases["edge_count_above_bound"].get("input_values") != [1, 4097]
-            or cases["signed_i64_weight_limits"].get("input_values", [])[4:8]
-                != [9223372036854775807, 1, 0, -9223372036854775808]):
-        raise ValueError("minimum_spanning_tree_kruskal workload is missing maximum, null, or capacity coverage")
-
-    for case in case_list:
-        values = case.get("input_values")
-        input_is_null = case.get("input_is_null", False)
-        input_length = case.get("input_length", len(values) if isinstance(values, list) else -1)
-        output_is_null = case.get("output_is_null", False)
-        capacity = case.get("output_capacity", case.get("workspace_bytes", MINIMUM_SPANNING_TREE_KRUSKAL_MAX_OUTPUT_BYTES))
-        if (not isinstance(values, list)
-                or len(values) > MINIMUM_SPANNING_TREE_KRUSKAL_MAX_INPUT_LENGTH
-                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
-                       for value in values)
-                or type(input_is_null) is not bool
-                or type(input_length) is not int
-                or type(output_is_null) is not bool
-                or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
-                or (input_is_null and (values or not 1 <= input_length <= MINIMUM_SPANNING_TREE_KRUSKAL_MAX_INPUT_LENGTH
-                                       or output_is_null))
-                or (not input_is_null and input_length != len(values))):
-            raise ValueError(f"minimum_spanning_tree_kruskal input/output framing is invalid for {case.get('id')}")
-        result, output = minimum_spanning_tree_kruskal_expected_output(
-            values, capacity, output_is_null, input_is_null, input_length)
-        if (type(case.get("expected_result")) is not int
-                or result != case.get("expected_result")
-                or output.hex() != case.get("expected_output_hex", "").lower()
-                or len(output) > MINIMUM_SPANNING_TREE_KRUSKAL_MAX_OUTPUT_BYTES
-                or (result >= 0 and (result != len(output) or result % 24 != 0))
-                or (result < 0 and (result not in (-1, -2) or output))):
-            raise ValueError(f"minimum_spanning_tree_kruskal workload mismatch: {case.get('id')}")
-
-
 PIECEWISE_LINEAR_TRANSFORM_CASE_IDS = frozenset({
     "all_gray_levels", "piecewise_boundaries", "lower_segment", "middle_segment",
     "upper_segment", "empty_input", "negative_pixel", "pixel_above_byte_range",
@@ -29776,7 +30176,7 @@ SPIRAL_PRINT_CASE_IDS = {
     "truncated_values_and_draws", "extra_input_value", "value_outside_i32",
     "initial_draw_out_of_range", "reservoir_draw_out_of_range", "null_input",
     "invalid_input_precedes_null_output",
-})
+}
 
 
 def validate_shuf_workload(workload: dict) -> None:
@@ -30856,142 +31256,6 @@ def validate_skew_heap_workload(workload: dict) -> None:
                     or case["expected_result"] != result
                     or expected_hex.lower() != output.hex()):
                 raise ValueError(f"skew_heap fixture mismatch: {case_id}")
-
-
-def validate_smoothsort_workload(workload: dict) -> None:
-    source_commit = "e1a2a8b016001309a73d5fec4818c35cca139795"
-    source = {
-        "repository": "TheAlgorithms/Python",
-        "commit": source_commit,
-        "path": "sorts/smoothsort.py",
-        "symbol": "smoothsort",
-        "url": f"https://github.com/TheAlgorithms/Python/blob/{source_commit}/sorts/smoothsort.py",
-        "role": "algorithm",
-    }
-    contract = {
-        "operation": "Return the same values in ascending signed-integer order; the pinned function mutates and returns its input list.",
-        "comparison": "Use signed numeric ordering as induced by the source comparison operator `<`; the wrapper restricts values to integers.",
-        "empty_input": "A zero-element list is valid and returns an empty result.",
-        "relationship_to_smooth_sort": "This Python Smoothsort candidate remains separate from `smooth_sort` unless exact in-place ABI parity is established.",
-        "errors": "Invalid count or malformed input returns -1 before output checks. Null output returns -2 even for an empty result; insufficient byte capacity returns -2. Errors write nothing.",
-    }
-    input_spec = {
-        "kind": "signed_i64_array",
-        "layout": "[count, value_0, ..., value_(count-1)]",
-        "count_range": [0, SMOOTHSORT_MAX_VALUES],
-        "value_range": [SMOOTHSORT_INT64_MIN, SMOOTHSORT_INT64_MAX],
-        "exact_length": "1 + count",
-        "maximum_valid_input_length": SMOOTHSORT_MAX_VALID_INPUT_LENGTH,
-        "maximum_parseable_input_length": SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH,
-        "invalid_input_result": -1,
-    }
-    output_spec = {
-        "kind": "little_endian_signed_i64_vector",
-        "meaning": "All input values sorted ascending, preserving duplicates.",
-        "maximum_output_values": SMOOTHSORT_MAX_OUTPUT_VALUES,
-        "maximum_output_bytes": SMOOTHSORT_MAX_OUTPUT_BYTES,
-        "return_value": "number of output bytes written",
-        "output_capacity_unit": "bytes",
-        "invalid_output_result": -2,
-        "null_output_result": -2,
-        "null_output_on_zero_bytes": "still returns -2",
-        "non_null_zero_capacity_on_zero_bytes": "succeeds with return value 0",
-        "no_write_on_error": True,
-        "error_precedence": "Count, input framing, and integer values are validated before output pointer or capacity checks.",
-    }
-    case_ids = {
-        "empty_list", "single_negative_value", "already_sorted_with_duplicates",
-        "reverse_order", "duplicate_negative_and_zero_values", "nearly_sorted",
-        "signed_i64_extremes", "maximum_count_and_output", "count_above_limit",
-        "negative_count", "truncated_values", "trailing_value", "missing_count",
-    }
-    abi_case_ids = {
-        "valid_input_null_output", "valid_null_output_empty_result",
-        "valid_zero_capacity_empty_result", "valid_short_output_capacity",
-        "invalid_input_precedes_null_output", "null_input_positive_length",
-        "valid_exact_output_capacity",
-    }
-    cases = workload.get("cases")
-    abi_cases = workload.get("abi_cases")
-    found_case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
-                      if isinstance(cases, list) else [])
-    found_abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
-                          if isinstance(abi_cases, list) else [])
-    if (workload.get("schema_version") != 1
-            or workload.get("id") != "thealgorithms-python-smoothsort-i64-array-bytes-output-v1"
-            or workload.get("algorithm") != "smoothsort"
-            or workload.get("function_symbol") != "smoothsort"
-            or workload.get("description") != "Sort a bounded signed-i64 array in ascending order using the pinned in-place Smoothsort source."
-            or workload.get("pinned_source") != source
-            or workload.get("contract") != contract
-            or workload.get("input") != input_spec
-            or workload.get("output") != output_spec
-            or workload.get("workspace") != {
-                "bytes": SMOOTHSORT_MAX_OUTPUT_BYTES,
-                "meaning": "Maximum sorted output vector.",
-            }
-            or workload.get("measurement") != {
-                "comparison_model": "i64_array_bytes_output_call",
-                "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000,
-            }
-            or SMOOTHSORT_MAX_VALUES != 64
-            or SMOOTHSORT_MAX_VALID_INPUT_LENGTH != 65
-            or SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH != 66
-            or SMOOTHSORT_MAX_OUTPUT_VALUES != 64
-            or SMOOTHSORT_MAX_OUTPUT_BYTES != 512
-            or SMOOTHSORT_INT64_MIN != -(1 << 63)
-            or SMOOTHSORT_INT64_MAX != (1 << 63) - 1
-            or len(found_case_ids) != len(case_ids)
-            or len(set(found_case_ids)) != len(found_case_ids)
-            or set(found_case_ids) != case_ids
-            or len(found_abi_case_ids) != len(abi_case_ids)
-            or len(set(found_abi_case_ids)) != len(found_abi_case_ids)
-            or set(found_abi_case_ids) != abi_case_ids):
-        raise ValueError("smoothsort metadata or case IDs differ from its reviewed contract")
-
-    readme = (ROOT / "benchmarks" / "s" / "smoothsort" / "README.md").read_text(encoding="utf-8")
-    normalized_readme = " ".join(readme.split())
-    if (source["url"] not in readme or source_commit not in readme
-            or "Leonardo heaps" not in normalized_readme
-            or "mutates the input list in place" not in normalized_readme
-            or "ascending order" not in normalized_readme
-            or "distinct from" not in normalized_readme
-            or "empty result" not in normalized_readme):
-        raise ValueError("smoothsort README is missing its pinned source or reviewed semantics")
-
-    for key, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
-        for case in fixture_list:
-            case_id = case["id"]
-            values = case.get("input_values")
-            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
-            input_is_null = case.get("input_is_null", False)
-            output_is_null = case.get("output_is_null", False)
-            capacity = case.get("output_capacity", SMOOTHSORT_MAX_OUTPUT_BYTES)
-            expected_hex = case.get("expected_output_hex", "")
-            if (not isinstance(values, list)
-                    or len(values) > SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH
-                    or any(type(value) is not int
-                           or not SMOOTHSORT_INT64_MIN <= value <= SMOOTHSORT_INT64_MAX
-                           for value in values)
-                    or type(input_length) is not int
-                    or not 0 <= input_length <= SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH
-                    or type(input_is_null) is not bool or type(output_is_null) is not bool
-                    or input_is_null and output_is_null
-                    or type(capacity) is not int
-                    or not 0 <= capacity <= SMOOTHSORT_MAX_OUTPUT_BYTES
-                    or (input_is_null and (values or not 1 <= input_length <= SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH))
-                    or (not input_is_null and input_length != len(values))
-                    or not isinstance(expected_hex, str)):
-                raise ValueError(f"smoothsort framing is invalid: {case_id}")
-            if key == "cases" and (input_is_null or output_is_null
-                                   or capacity != SMOOTHSORT_MAX_OUTPUT_BYTES):
-                raise ValueError(f"smoothsort semantic fixture has ABI-only framing: {case_id}")
-            result, output = smoothsort_oracle(values, capacity, output_is_null,
-                                               input_is_null, input_length)
-            if (type(case.get("expected_result")) is not int
-                    or case["expected_result"] != result
-                    or expected_hex.lower() != output.hex()):
-                raise ValueError(f"smoothsort fixture mismatch: {case_id}")
 
 
 def validate_suffix_automaton_workload(workload: dict) -> None:
@@ -40394,7 +40658,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                     "ciphertext_lengths": [8, 8, 8, 20, 28, 10],
                     "maximum_output_bytes": TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES,
                 }
-                or input_spec != {
+                or workload.get("input") != {
                     "kind": "signed_i64_array", "encoding": "[passes]",
                     "passes_range": [TRIMARAN_ENC_RC4_MIN_PASSES,
                                      TRIMARAN_ENC_RC4_MAX_PASSES],
@@ -40403,7 +40667,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                     "invalid_input_result": TRIMARAN_ENC_RC4_INVALID_RESULT,
                     "null_input_result": TRIMARAN_ENC_RC4_INVALID_RESULT,
                 }
-                or output_spec != {
+                or workload.get("output") != {
                     "kind": "byte_array",
                     "encoding": "82 raw ciphertext bytes concatenated in the source's six-vector order",
                     "success_result": TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES,
@@ -46202,20 +46466,134 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             port = ROOT / relative
             if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
                 raise ValueError(f"beebs_nettle_cast128 language port is missing its symbol: {relative}")
+    elif algorithm == "domination_local_reduction":
+        expected_provenance = {
+            "chapter": "Data Reduction for Domination in Graphs",
+            "doi": "10.1007/978-1-4939-2864-4_99",
+            "algorithm_profile": "One source-defined local neighborhood reduction, applied at one explicitly selected pivot when the prisoner set is nonempty.",
+            "rights": "Clean-room implementation. Springer retains copyright to the book; no book text, code, figures, or equation images are redistributed, and attribution does not grant rights to those contents.",
+        }
+        expected_case_ids = {
+            "exit-guard-prisoner-reduction", "all-neighbors-prisoners",
+            "not-applicable-empty-prisoner-set", "invalid-duplicate-edge",
+            "short-output-capacity", "null-output",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != algorithm
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("comparison_model") != "i64_array_bytes_output_call"
+                or input_spec != {
+                    "kind": "signed_64_bit_integer_array",
+                    "layout": "[n,m,pivot,(u,v)...]",
+                    "maximum_valid_length": DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH,
+                    "maximum_parseable_length": DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH + 1,
+                    "invalid_result": -1, "null_input_result": -1,
+                }
+                or output_spec != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "layout": "[k, surviving original IDs in ascending order, -1 gadget ID, k adjacency row masks]",
+                    "maximum_output_elements": 25,
+                    "maximum_output_bytes": DOMINATION_LOCAL_REDUCTION_MAX_OUTPUT_BYTES,
+                    "success_result": "8*(1+2*k)", "invalid_result": -1,
+                    "insufficient_output_capacity_result": -2,
+                    "null_output_when_nonempty_result": -2,
+                }
+                or workload.get("workspace") != {
+                    "bytes": 4096,
+                    "meaning": "fixed 12-by-12 adjacency and classification arrays, remapping, and staged output words",
+                }
+                or workload.get("measurement") != {
+                    "sample_count": 5, "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or workload.get("provenance") != expected_provenance
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_case_ids
+                or len(workload.get("cases", [])) != len(expected_case_ids)):
+            raise ValueError("domination_local_reduction metadata differs from its bounded Chapter 99 profile")
+        package = ROOT / "benchmarks" / "d" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "RIGHTS.md").read_text(encoding="utf-8")
+        if ("10.1007/978-1-4939-2864-4_99" not in readme
+                or "single-neighborhood reduction" not in readme
+                or "no book text" not in readme
+                or "no text, source code, images, or" not in rights):
+            raise ValueError("domination_local_reduction README or rights note is incomplete")
+        for relative in (
+                "c/d/domination_local_reduction.c", "c3/d/domination_local_reduction.c3",
+                "cpp/d/domination_local_reduction.cpp", "elisa/d/domination_local_reduction.elisa",
+                "nim/d/domination_local_reduction.nim", "odin/d/domination_local_reduction.odin",
+                "rust/d/domination_local_reduction.rs", "v/d/domination_local_reduction.v",
+                "zig/d/domination_local_reduction.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"domination_local_reduction language port is missing its symbol: {relative}")
+    elif algorithm == "tsp_few_inner_points":
+        expected_ids = {
+            "three-four-five-convex-triangle", "square-with-no-inner-points",
+            "triangle-with-one-interior-point", "square-with-one-center-point",
+            "too-few-hull-points", "insufficient-output-capacity", "null-output",
+            "null-input",
+        }
+        source = workload.get("source", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "encyclopedia-tsp-few-inner-points-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("reference") != "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_426"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("n_range") != [3, 16]
+                or input_spec.get("interior_point_count_range") != [0, 6]
+                or input_spec.get("maximum_valid_length") != TSP_FEW_INNER_POINTS_MAX_INPUT_LENGTH - 1
+                or input_spec.get("maximum_parseable_length") != TSP_FEW_INNER_POINTS_MAX_INPUT_LENGTH
+                or output_spec.get("kind") != "little_endian_signed_64_bit_integer"
+                or output_spec.get("scale") != 1000
+                or output_spec.get("maximum_bytes") != TSP_FEW_INNER_POINTS_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 2048
+                or workload.get("measurement", {}).get("comparison_model")
+                    != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsp_few_inner_points metadata differs from its bounded Chapter 426 profile")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        if ("10.1007/978-1-4939-2864-4_426" not in readme
+                or "integer square root" not in readme
+                or "does not claim an exact optimum" not in readme):
+            raise ValueError("tsp_few_inner_points README omits its source or fixed-point limitation")
+        for relative in (
+                "c/t/tsp_few_inner_points.c", "c3/t/tsp_few_inner_points.c3",
+                "cpp/t/tsp_few_inner_points.cpp", "elisa/t/tsp_few_inner_points.elisa",
+                "nim/t/tsp_few_inner_points.nim", "odin/t/tsp_few_inner_points.odin",
+                "rust/t/tsp_few_inner_points.rs", "v/t/tsp_few_inner_points.v",
+                "zig/t/tsp_few_inner_points.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"tsp_few_inner_points port is missing its symbol: {relative}")
     elif algorithm in EXTERNAL_BYTE_OUTPUT_BOUNDS:
         max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm][1]
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        workspace_bytes = workload.get("workspace", {}).get("bytes")
         if (workload.get("schema_version") != 1
-                or workload.get("algorithm") != algorithm
+                and workload.get("schema_version") != "1.0.0"):
+            raise ValueError(f"{algorithm} workload schema version is unsupported")
+        if (workload.get("algorithm") != algorithm
                 or workload.get("function_symbol") != algorithm
                 or input_spec.get("kind") not in {"signed_i64_array", "signed_64_bit_integer_array", "signed_i64_array_of_bytes",
                                                    "packed_signed_64_integer_array",
                                                    "packed_signed_64_bit_integer_array"}
                 or output_spec.get("maximum_bytes", output_spec.get("maximum_output_bytes")) != max_output
-                or workload.get("workspace", {}).get("bytes") != max_output
-                or workload.get("measurement", {}).get("comparison_model")
-                != "i64_array_bytes_output_call"):
+                or type(workspace_bytes) is not int or workspace_bytes < max_output
+                or not (workload.get("abi") == "i64_array_bytes_output"
+                        or workload.get("comparison_model") == "i64_array_bytes_output_call"
+                        or measurement.get("comparison_model") == "i64_array_bytes_output_call")):
             raise ValueError(f"{algorithm} metadata differs from its bounded byte-output contract")
     else:
         raise ValueError(f"no byte-output workload validator for {algorithm}")
@@ -46308,7 +46686,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             "bytes", workload.get("output", {}).get(
                 "maximum_bytes", workload.get("output", {}).get(
                     "maximum_output_bytes", workload.get("output", {}).get("success_result"))))
-        capacity = case.get("output_capacity", default_capacity)
+        capacity = case.get("output_capacity", case.get("workspace_bytes", default_capacity))
         output_is_null = case.get("output_is_null", False)
         input_is_null = case.get("input_is_null", False)
         if (not isinstance(case_id, str) or case_id in seen_ids
@@ -46542,8 +46920,6 @@ def main() -> int:
         validate_lifocache_workload(workload)
     elif algorithm == "least_recently_used":
         validate_least_recently_used_workload(workload)
-    elif algorithm == "minimum_spanning_tree_kruskal":
-        validate_minimum_spanning_tree_kruskal_workload(workload)
     elif algorithm == "key_priority_queue":
         validate_key_priority_queue_workload(workload)
     elif algorithm == "stack_using_two_queues":
@@ -46638,8 +47014,6 @@ def main() -> int:
         validate_table_heap_workload(workload)
     elif algorithm == "skew_heap":
         validate_skew_heap_workload(workload)
-    elif algorithm == "smoothsort":
-        validate_smoothsort_workload(workload)
     elif algorithm == "suffix_automaton":
         validate_suffix_automaton_workload(workload)
     elif algorithm == "lru_cache2":
@@ -46767,8 +47141,6 @@ def main() -> int:
                             if algorithm == "lempel_ziv_decompress" else
                             SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "suffix_automaton" else
-                            SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH
-                            if algorithm == "smoothsort" else
                             SKEW_HEAP_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "skew_heap" else
                             TABLE_HEAP_MAX_PARSEABLE_INPUT_LENGTH
@@ -47194,8 +47566,6 @@ def main() -> int:
                             MLFQSCHEDULER_MAX_INPUT_LENGTH if algorithm == "mlfqscheduler" else
                             LINKED_STACK_MAX_INPUT_LENGTH if algorithm == "linked_stack" else
                             LIST_ARRAY_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "list_array" else
-                            MINIMUM_SPANNING_TREE_KRUSKAL_MAX_INPUT_LENGTH
-                            if algorithm == "minimum_spanning_tree_kruskal" else
                             MAX_HEAPS_INPUT_LENGTH if algorithm == "heaps" else
                             MAX_HEAPS_ALGORITHM_INPUT_LENGTH if algorithm == "heaps_algorithm" else
                             MAX_RECURSIVE_SHUFFLER_INPUT_LENGTH if algorithm == "recursive_shuffler" else
@@ -47320,9 +47690,7 @@ def main() -> int:
                 "procentual_proximity",
                 "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2", "polybench_adi",
                 "particle_swarm_optimization", "convolve_1d", "convolution_fft", "median_finder", "mfcc",
-                "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "gramian", "jacobi_iteration_method", "gaussian_elimination_pivoting", "gauss_jordan", "n_body_simulation", "benchmarkgame_nbody", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work", "inverse_of_matrix"}:
-                "particle_swarm_optimization", "convolve_1d", "convolution_fft", "median_finder", "mfcc",
-                "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "gramian", "jacobi_iteration_method", "gaussian_elimination_pivoting", "gauss_jordan", "n_body_simulation", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work", "inverse_of_matrix", "sobel_filter"}:
+                "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "gramian", "jacobi_iteration_method", "gaussian_elimination_pivoting", "gauss_jordan", "n_body_simulation", "benchmarkgame_nbody", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work", "inverse_of_matrix", "sobel_filter"}:
             raise ValueError(f"unsupported float64 vector algorithm {algorithm}")
         absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0) if float64_vector else 0.0
         relative_tolerance = workload["output"].get("relative_tolerance", 0.0) if float64_vector else 0.0
@@ -47371,9 +47739,6 @@ def main() -> int:
                 values, output_capacity, output_is_null, input_is_null, input_length)
         elif algorithm == "skew_heap":
             expected_count, expected = skew_heap_oracle(
-                values, output_capacity, output_is_null, input_is_null, input_length)
-        elif algorithm == "smoothsort":
-            expected_count, expected = smoothsort_oracle(
                 values, output_capacity, output_is_null, input_is_null, input_length)
         elif algorithm == "lru_cache2":
             expected_count, expected = lru_cache2_oracle(
@@ -48027,18 +48392,6 @@ def main() -> int:
                         or null_result != PNCOUNTER_OUTPUT_ERROR
                         or required_count != len(required_output)):
                     raise ValueError(f"invalid pncounter null-output contract for {case['id']}")
-                expected_count, expected = null_result, b""
-        elif output_is_null and algorithm == "minimum_spanning_tree_kruskal":
-            if required_count < 0:
-                if required_count != -1 or required_output:
-                    raise ValueError(f"invalid minimum_spanning_tree_kruskal error precedence for {case['id']}")
-                expected_count, expected = required_count, b""
-            else:
-                null_result = workload.get("output", {}).get("null_output_result")
-                if (type(null_result) is not int
-                        or null_result != -2
-                        or required_count != len(required_output)):
-                    raise ValueError(f"invalid minimum_spanning_tree_kruskal null-output contract for {case['id']}")
                 expected_count, expected = null_result, b""
         elif output_is_null and algorithm == "key_priority_queue":
             if required_count < 0:

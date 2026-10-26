@@ -1,0 +1,39 @@
+// Layered edit-distance shortest paths over a supplied literal NFA.
+def approximate_regex_matching_impl(x: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 6 or length > 66: return -1
+    sv:i64=x[0];ev:i64=x[1];tv:i64=x[2];kv:i64=x[3];startv:i64=x[4];acceptv:i64=x[5]
+    if sv<2 or sv>8 or ev<1 or ev>16 or tv<0 or tv>12 or kv<0 or kv>3 or startv<0 or acceptv<0 or startv>=sv or acceptv>=sv or startv==acceptv:return -1
+    s:usize=sv.usize();e:usize=ev.usize();t:usize=tv.usize();k:usize=kv.usize();start:usize=startv.usize();accept:usize=acceptv.usize();ts:usize=6+3*e
+    if length!=ts+t:return -1
+    from:mutable usize[16]=zeroed;to:mutable usize[16]=zeroed;label:mutable u8[16]=zeroed
+    for i in 0..e:
+        u:i64=x[6+3*i];v:i64=x[7+3*i];ch:i64=x[8+3*i]
+        if u<0 or u>=sv or v<0 or v>=sv or ch<1 or ch>127:return -1
+        from[i]<-u.usize();to[i]<-v.usize();label[i]<-ch.u8()
+        for j in 0..i: if from[i]==from[j] and to[i]==to[j] and label[i]==label[j]:return -1
+    for i in 0..t:if x[ts+i]<1 or x[ts+i]>127:return -1
+    if capacity<t:return -2
+    inf:usize=k+1;cur:mutable usize[8]=zeroed;next:mutable usize[8]=zeroed
+    for q in 0..s:cur[q]<-inf
+    for pos in 0..t:
+        cur[start]<-0
+        for pass in 0..s-1:
+            changed:mutable bool=false
+            for i in 0..e:
+                if cur[from[i]]<inf and cur[from[i]]+1<cur[to[i]]:nextv:usize=cur[from[i]]+1;cur[to[i]]<-nextv;changed<-true
+            if not changed:break
+        for q in 0..s:next[q]<-if cur[q]<inf:cur[q]+1 else:inf
+        for i in 0..e:
+            if cur[from[i]]<inf:
+                cost:usize=cur[from[i]]+(if label[i]!=x[ts+pos].u8():1 else:0)
+                if cost<next[to[i]]:next[to[i]]<-cost
+        for pass in 0..s-1:
+            changed:mutable bool=false
+            for i in 0..e:
+                if next[from[i]]<inf and next[from[i]]+1<next[to[i]]:next[to[i]]<-next[from[i]]+1;changed<-true
+            if not changed:break
+        output[pos]<-if next[accept]<=k:1.u8() else:0.u8()
+        for q in 0..s:cur[q]<-next[q]
+    t.i64()
+
+export fn approximate_regex_matching(x:i64&,length:usize,output:mutable u8&,capacity:usize)->i64=approximate_regex_matching_impl

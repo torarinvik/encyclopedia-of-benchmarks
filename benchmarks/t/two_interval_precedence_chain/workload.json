@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-two-interval-precedence-chain-i64-array-bytes-output-v1",
+  "algorithm": "two_interval_precedence_chain",
+  "function_symbol": "two_interval_precedence_chain",
+  "abi": "i64_array_bytes_output",
+  "description": "Compute a maximum-cardinality chain in the precedence-only 2-interval compatibility model.",
+  "source": {
+    "title": "Two-Interval Pattern Problems",
+    "authors": ["Stéphane Vialette"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_445",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_445",
+    "algorithm_attribution": "maximum-cardinality compatible 2-interval subset in the precedence-only model",
+    "implementation_status": "clean-room bounded dynamic-programming profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[item_count,a_0,b_0,c_0,d_0,...] for two closed intervals [a,b] union [c,d]",
+    "item_count_range": [1, 16],
+    "endpoint_range": [0, 63],
+    "per_item_constraint": "a < b < c < d",
+    "maximum_valid_length": 65,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[chain_length,input_item_ids_in_precedence_order]",
+    "tie_break": "Lexicographically smallest input-ID sequence among maximum chains.",
+    "maximum_bytes": 136,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed arrays for at most 16 sorted items, predecessor paths, and staged output."
+  },
+  "contract": {
+    "precedence": "Item i precedes item j iff b_i < a_j and d_i < c_j.",
+    "compatibility_model": "Selected items form a precedence chain; nesting and crossing relations are excluded.",
+    "optimization": "Maximize the number of selected 2-intervals.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "precedence-chain-with-incomparable-branch",
+      "input_values": [4, 0, 1, 6, 7, 2, 3, 8, 9, 0, 2, 7, 8, 4, 5, 10, 11],
+      "input_length": 17,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0300000000000000000000000000000001000000000000000300000000000000"
+    },
+    {
+      "id": "single-2-interval",
+      "input_values": [1, 0, 1, 3, 4],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000000000000000000"
+    },
+    {
+      "id": "overlapping-component-intervals",
+      "input_values": [1, 0, 2, 1, 3],
+      "input_length": 5,
+      "output_capacity": 136,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input-length-mismatch",
+      "input_values": [2, 0, 1, 3, 4],
+      "input_length": 5,
+      "output_capacity": 136,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 0, 1, 3, 4],
+      "input_length": 5,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 0, 1, 3, 4],
+      "input_length": 5,
+      "output_capacity": 16,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 136,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

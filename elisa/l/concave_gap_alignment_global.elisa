@@ -1,0 +1,63 @@
+const D:usize=8
+const L:usize=26
+const INF:i64=1152921504606846976
+def put64(x:i64,output:mutable u8&)->void:
+    bits:u64=x.u64();j:mutable usize=0
+    while j<8:
+        output[j]<-((bits>>(8*j))&255).u8()
+        j<-j+1
+def concave_gap_alignment_global(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("concave_gap_alignment_global"):
+    if input.is_null() or length<5 or length>L:return -1
+    nr:i64=input[0];mr:i64=input[1]
+    if nr<1 or nr>8 or mr<1 or mr>8:return -1
+    n:usize=nr.usize();m:usize=mr.usize();g:mutable usize=n
+    if m>g:g<-m
+    if length!=2+n+m+g:return -1
+    x:mutable i64[8]=zeroed;y:mutable i64[8]=zeroed;w:mutable i64[8]=zeroed;p:mutable usize=2
+    i:mutable usize=0
+    while i<n:
+        x[i]<-input[p]
+        p<-p+1
+        if x[i]<0 or x[i]>3:return -1
+        i<-i+1
+    i<-0
+    while i<m:
+        y[i]<-input[p]
+        p<-p+1
+        if y[i]<0 or y[i]>3:return -1
+        i<-i+1
+    slope:mutable i64=INF;i<-0
+    while i<g:
+        w[i]<-input[p];p<-p+1
+        if w[i]<0 or w[i]>100:return -1
+        previous:i64=0
+        if i>0:previous<-w[i-1]
+        delta:i64=w[i]-previous
+        if i>0 and (w[i]<w[i-1] or delta>slope):return -1
+        slope<-delta;i<-i+1
+    if output.is_null() or capacity<8:return -2
+    dp:mutable i64[81]=zeroed;i<-0
+    while i<81:dp[i]<-INF;i<-i+1
+    dp[0]<-0;i<-0
+    while i<=n:
+        j:mutable usize=0
+        while j<=m:
+            if i!=0 or j!=0:
+                best:mutable i64=INF
+                if i>0 and j>0:
+                    cost:i64=dp[(i-1)*9+j-1]+(if x[i-1]==y[j-1]:0 else:1)
+                    if cost<best:best<-cost
+                gap:mutable usize=1
+                while gap<=i:
+                    cost:i64=dp[(i-gap)*9+j]+w[gap-1]
+                    if cost<best:best<-cost
+                    gap<-gap+1
+                gap<-1
+                while gap<=j:
+                    cost:i64=dp[i*9+j-gap]+w[gap-1]
+                    if cost<best:best<-cost
+                    gap<-gap+1
+                dp[i*9+j]<-best
+            j<-j+1
+        i<-i+1
+    put64(dp[n*9+m],output&);8

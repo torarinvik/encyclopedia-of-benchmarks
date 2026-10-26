@@ -1,0 +1,115 @@
+const MAX_PACKETS: usize = 16
+const MAX_SLOTS: usize = 8
+const MAX_INPUT: usize = 38
+const MAX_OUTPUT_BYTES: usize = 64
+const BETA: i64 = 15
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def erase_packet(ids: mutable i64&, values: mutable i64&, count: mutable usize&, index: usize) -> void:
+    position: mutable usize = index
+    while position + 1 < count:
+        ids[position] <- ids[position + 1]
+        values[position] <- values[position + 1]
+        position <- position + 1
+    count <- count - 1
+
+def packet_switching_single_buffer_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > MAX_INPUT: return -1
+    mode: i64 = input[0]
+    buffer: i64 = input[1]
+    beta: i64 = input[2]
+    slots_value: i64 = input[3]
+    count_value: i64 = input[4]
+    if mode < 0 or mode > 2 or buffer < 1 or buffer > 4 or slots_value < 1 or slots_value > 8 or
+        count_value < 0 or count_value > 16 or length != 5 + 2 * count_value.usize() or
+        (mode == 0 and beta != 0) or (mode != 0 and beta != BETA): return -1
+    slots: usize = slots_value.usize()
+    packet_count: usize = count_value.usize()
+    arrival: mutable i64[MAX_PACKETS] = zeroed
+    packet_value: mutable i64[MAX_PACKETS] = zeroed
+    previous_slot: mutable i64 = -1
+    packet: mutable usize = 0
+    while packet < packet_count:
+        arrival[packet] <- input[5 + 2 * packet]
+        packet_value[packet] <- input[6 + 2 * packet]
+        if arrival[packet] < 0 or arrival[packet] >= slots_value or arrival[packet] < previous_slot or
+            packet_value[packet] < 1 or packet_value[packet] > 100: return -1
+        previous_slot <- arrival[packet]
+        packet <- packet + 1
+    resident_id: mutable i64[MAX_PACKETS] = zeroed
+    resident_value: mutable i64[MAX_PACKETS] = zeroed
+    schedule: mutable i64[MAX_SLOTS] = zeroed
+    resident_count: mutable usize = 0
+    next_packet: mutable usize = 0
+    slot: mutable usize = 0
+    while slot < slots:
+        while next_packet < packet_count and arrival[next_packet] == slot.i64():
+            value: i64 = packet_value[next_packet]
+            preempt: mutable usize = resident_count
+            if mode == 1:
+                index: mutable usize = 0
+                while index < resident_count:
+                    if resident_value[index] * BETA <= value:
+                        preempt <- index
+                        break
+                    index <- index + 1
+            else if mode == 2:
+                index: mutable usize = 0
+                while index < resident_count:
+                    following_ok: bool = index + 1 == resident_count or resident_value[index] <= resident_value[index + 1]
+                    if resident_value[index] * BETA < value and following_ok:
+                        preempt <- index
+                        break
+                    index <- index + 1
+            if preempt < resident_count:
+                erase_packet(resident_id&, resident_value&, resident_count&, preempt)
+                resident_id[resident_count] <- next_packet.i64()
+                resident_value[resident_count] <- value
+                resident_count <- resident_count + 1
+            else if resident_count < buffer.usize():
+                resident_id[resident_count] <- next_packet.i64()
+                resident_value[resident_count] <- value
+                resident_count <- resident_count + 1
+            else:
+                smallest: mutable i64 = resident_value[0]
+                index: mutable usize = 1
+                while index < resident_count:
+                    if resident_value[index] < smallest: smallest <- resident_value[index]
+                    index <- index + 1
+                if value > smallest:
+                    evict: mutable usize = 0
+                    while resident_value[evict] != smallest: evict <- evict + 1
+                    erase_packet(resident_id&, resident_value&, resident_count&, evict)
+                    resident_id[resident_count] <- next_packet.i64()
+                    resident_value[resident_count] <- value
+                    resident_count <- resident_count + 1
+            next_packet <- next_packet + 1
+        if resident_count > 0:
+            schedule[slot] <- resident_id[0]
+            erase_packet(resident_id&, resident_value&, resident_count&, 0)
+        else:
+            schedule[slot] <- -1
+        slot <- slot + 1
+    output_bytes: usize = 8 * slots
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    slot <- 0
+    while slot < slots:
+        store_i64_le(schedule[slot], staged&, 8 * slot)
+        slot <- slot + 1
+    byte: mutable usize = 0
+    while byte < output_bytes:
+        output[byte] <- staged[byte]
+        byte <- byte + 1
+    output_bytes.i64()
+
+export fn packet_switching_single_buffer(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = packet_switching_single_buffer_impl

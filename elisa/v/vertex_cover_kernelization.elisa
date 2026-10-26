@@ -1,0 +1,147 @@
+# Clean-room high-/low-degree vertex-cover reduction profile.
+const MAX_N: usize = 16
+const MAX_M: usize = 64
+const MAX_INPUT: usize = 131
+const MAX_FIELDS: usize = 133
+
+def vc_put_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def vertex_cover_kernelization(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("vertex_cover_kernelization"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    k: mutable i64 = input[2]
+    if n64 < 1 or n64 > 16 or m64 < 0 or m64 > 64 or k < 0 or k > 16 or length != 3 + 2 * m64.usize(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    edge: mutable bool[256] = zeroed
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    e: mutable usize = 0
+    while e < m:
+        u: i64 = input[3 + 2 * e]
+        v: i64 = input[4 + 2 * e]
+        if u < 0 or v <= u or v >= n64 or u < previous_u or (u == previous_u and v <= previous_v): return -1
+        edge[u.usize() * MAX_N + v.usize()] <- true
+        edge[v.usize() * MAX_N + u.usize()] <- true
+        previous_u <- u
+        previous_v <- v
+        e <- e + 1
+    if output.is_null(): return -2
+    active: mutable bool[MAX_N] = zeroed
+    v: mutable usize = 0
+    while v < n:
+        active[v] <- true
+        v <- v + 1
+    forced: mutable u64 = 0
+    infeasible: mutable bool = false
+    while true:
+        if k < 0:
+            infeasible <- true
+            break
+        chosen: mutable usize = n
+        neighbor: mutable usize = n
+        kind: mutable usize = 0
+        v <- 0
+        while v < n:
+            if active[v]:
+                degree: mutable usize = 0
+                u: mutable usize = 0
+                while u < n:
+                    if edge[v * MAX_N + u]: degree <- degree + 1
+                    u <- u + 1
+                if degree == 0:
+                    chosen <- v
+                    kind <- 1
+                    break
+            v <- v + 1
+        if kind == 1:
+            active[chosen] <- false
+            continue
+        v <- 0
+        while v < n:
+            if active[v]:
+                degree: mutable usize = 0
+                only: mutable usize = n
+                u: mutable usize = 0
+                while u < n:
+                    if edge[v * MAX_N + u]:
+                        degree <- degree + 1
+                        only <- u
+                    u <- u + 1
+                if degree == 1:
+                    chosen <- v
+                    neighbor <- only
+                    kind <- 2
+                    break
+            v <- v + 1
+        if kind == 0:
+            v <- 0
+            while v < n:
+                if active[v]:
+                    degree: mutable usize = 0
+                    u: mutable usize = 0
+                    while u < n:
+                        if edge[v * MAX_N + u]: degree <- degree + 1
+                        u <- u + 1
+                    if degree.i64() > k:
+                        chosen <- v
+                        kind <- 3
+                        break
+                v <- v + 1
+        if kind == 0: break
+        f: usize = if kind == 2: neighbor else: chosen
+        forced <- forced | (1.u64() << f)
+        active[f] <- false
+        k <- k - 1
+        u: mutable usize = 0
+        while u < n:
+            edge[f * MAX_N + u] <- false
+            edge[u * MAX_N + f] <- false
+            u <- u + 1
+    staged: mutable i64[MAX_FIELDS] = zeroed
+    count: mutable usize = 0
+    staged[count] <- if infeasible: 0 else: 1
+    count <- count + 1
+    staged[count] <- k
+    count <- count + 1
+    staged[count] <- forced.i64()
+    count <- count + 1
+    active_mask: mutable u64 = 0
+    v <- 0
+    while v < n:
+        if active[v]: active_mask <- active_mask | (1.u64() << v)
+        v <- v + 1
+    staged[count] <- active_mask.i64()
+    count <- count + 1
+    remaining: mutable usize = 0
+    v <- 0
+    while v < n:
+        u: mutable usize = v + 1
+        while u < n:
+            if edge[v * MAX_N + u]: remaining <- remaining + 1
+            u <- u + 1
+        v <- v + 1
+    staged[count] <- remaining.i64()
+    count <- count + 1
+    v <- 0
+    while v < n:
+        u: mutable usize = v + 1
+        while u < n:
+            if edge[v * MAX_N + u]:
+                staged[count] <- v.i64()
+                staged[count + 1] <- u.i64()
+                count <- count + 2
+            u <- u + 1
+        v <- v + 1
+    if capacity < 8 * count: return -2
+    i: mutable usize = 0
+    while i < count:
+        vc_put_i64(staged[i], output&, 8 * i)
+        i <- i + 1
+    (8 * count).i64()

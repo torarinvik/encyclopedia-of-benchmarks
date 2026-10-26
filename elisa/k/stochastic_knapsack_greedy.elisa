@@ -1,0 +1,132 @@
+const MAX_ITEMS: usize = 5
+const MAX_ATOMS: usize = 3
+const MAX_INPUT: usize = 43
+const MAX_OUTPUT_WORDS: usize = 9
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def stochastic_knapsack_greedy_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n_raw: i64 = input[0]
+    bound_raw: i64 = input[1]
+    if n_raw < 1 or n_raw > MAX_ITEMS.i64() or bound_raw < 1 or bound_raw > 8: return -1
+    n: usize = n_raw.usize()
+    bound: usize = bound_raw.usize()
+    rewards: mutable i64[MAX_ITEMS] = zeroed
+    atom_counts: mutable usize[MAX_ITEMS] = zeroed
+    denominators: mutable i64[MAX_ITEMS] = zeroed
+    fits: mutable i64[MAX_ITEMS] = zeroed
+    means: mutable i64[MAX_ITEMS] = zeroed
+    sizes: mutable i64[MAX_ITEMS][MAX_ATOMS] = zeroed
+    weights: mutable i64[MAX_ITEMS][MAX_ATOMS] = zeroed
+    position: mutable usize = 2
+    item: mutable usize = 0
+    while item < n:
+        if position + 2 > length: return -1
+        reward: i64 = input[position]
+        atom_count_raw: i64 = input[position + 1]
+        position <- position + 2
+        if reward < 0 or reward > 20 or atom_count_raw < 1 or atom_count_raw > MAX_ATOMS.i64(): return -1
+        rewards[item] <- reward
+        atom_counts[item] <- atom_count_raw.usize()
+        atom: mutable usize = 0
+        while atom < atom_counts[item]:
+            if position + 2 > length: return -1
+            size: i64 = input[position]
+            weight: i64 = input[position + 1]
+            position <- position + 2
+            if size < 0 or size > bound.i64() + 1 or weight < 1 or weight > 3: return -1
+            sizes[item][atom] <- size
+            weights[item][atom] <- weight
+            denominators[item] <- denominators[item] + weight
+            if size <= bound.i64(): fits[item] <- fits[item] + weight
+            capped: i64 = if size < bound.i64() then size else bound.i64()
+            means[item] <- means[item] + capped * weight
+            atom <- atom + 1
+        if denominators[item] > 9 or means[item] == 0: return -1
+        item <- item + 1
+    if position != length: return -1
+
+    order: mutable usize[MAX_ITEMS] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        j: mutable usize = i
+        while j > 0:
+            previous: usize = order[j - 1]
+            left_score: i64 = rewards[i] * fits[i] * means[previous]
+            right_score: i64 = rewards[previous] * fits[previous] * means[i]
+            if left_score < right_score or left_score == right_score and i > previous: break
+            order[j] <- previous
+            j <- j - 1
+        order[j] <- i
+        i <- i + 1
+    best_single: mutable usize = 0
+    i <- 1
+    while i < n:
+        left_score: i64 = rewards[i] * fits[i] * denominators[best_single]
+        right_score: i64 = rewards[best_single] * fits[best_single] * denominators[i]
+        if left_score > right_score: best_single <- i
+        i <- i + 1
+
+    joint_denominator: mutable i64 = 1
+    scenario_count: mutable usize = 1
+    i <- 0
+    while i < n:
+        joint_denominator <- joint_denominator * denominators[i]
+        scenario_count <- scenario_count * atom_counts[i]
+        i <- i + 1
+    singleton_score: mutable i64 = 0
+    order_score: mutable i64 = 0
+    scenario: mutable usize = 0
+    while scenario < scenario_count:
+        digits: mutable usize = scenario
+        scenario_weight: mutable i64 = 1
+        selected_size: mutable i64[MAX_ITEMS] = zeroed
+        item <- 0
+        while item < n:
+            atom: usize = digits % atom_counts[item]
+            digits <- digits / atom_counts[item]
+            selected_size[item] <- sizes[item][atom]
+            scenario_weight <- scenario_weight * weights[item][atom]
+            item <- item + 1
+        if selected_size[best_single] <= bound.i64():
+            singleton_score <- singleton_score + scenario_weight * rewards[best_single]
+        used: mutable i64 = 0
+        earned: mutable i64 = 0
+        rank: mutable usize = 0
+        while rank < n:
+            selected: usize = order[rank]
+            if used + selected_size[selected] > bound.i64(): break
+            used <- used + selected_size[selected]
+            earned <- earned + rewards[selected]
+            rank <- rank + 1
+        order_score <- order_score + scenario_weight * earned
+        scenario <- scenario + 1
+
+    use_order: bool = order_score > singleton_score
+    output_count: usize = if use_order then n else 1
+    staged: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    staged[0] <- if use_order then 1 else 0
+    staged[1] <- output_count.i64()
+    i <- 0
+    while i < output_count:
+        staged[2 + i] <- if use_order then order[i].i64() else best_single.i64()
+        i <- i + 1
+    staged[2 + output_count] <- if use_order then order_score else singleton_score
+    staged[3 + output_count] <- joint_denominator
+    words: usize = output_count + 4
+    output_bytes: usize = words * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    i <- 0
+    while i < words:
+        store_i64_le(staged[i], output&, i * 8)
+        i <- i + 1
+    output_bytes.i64()
+
+export fn stochastic_knapsack_greedy(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = stochastic_knapsack_greedy_impl

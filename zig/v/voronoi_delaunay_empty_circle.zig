@@ -1,0 +1,10 @@
+// Clean-room exact Delaunay graph construction by empty circumcircles.
+const N:usize=8;const F:usize=37;
+const Point=struct{x:i64,y:i64};
+fn orient(a:Point,b:Point,c:Point)i64{return (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);}
+fn circle(a0:Point,b0:Point,c0:Point,d:Point)i64{const ax=a0.x-d.x;const ay=a0.y-d.y;const bx=b0.x-d.x;const by=b0.y-d.y;const cx=c0.x-d.x;const cy=c0.y-d.y;const aa=ax*ax+ay*ay;const bb=bx*bx+by*by;const cc=cx*cx+cy*cy;return aa*(bx*cy-by*cx)-bb*(ax*cy-ay*cx)+cc*(ax*by-ay*bx);}
+fn put(out:[*]u8,at:usize,x:i64)void{const bits:u64=@bitCast(x);for(0..8)|i|out[at+i]=@truncate(bits>>@intCast(8*i));}
+export fn voronoi_delaunay_empty_circle(v:[*c]const i64,n:usize,out_opt:?[*]u8,cap:usize)i64{if(v==null||n<7||n>17||v[0]<3||v[0]>8)return -1;const count:usize=@intCast(v[0]);if(n!=1+2*count)return -1;var pts:[N]Point=@splat(.{.x=0,.y=0});for(0..count)|i|{const x=v[1+2*i];const y=v[2+2*i];if(x < -50 or x>50 or y < -50 or y>50)return -1;for(0..i)|j|{if(pts[j].x==x and pts[j].y==y)return -1;}pts[i]=.{.x=x,.y=y};}
+ for(0..count)|a|{for(a+1..count)|b|{for(b+1..count)|c|{if(orient(pts[a],pts[b],pts[c])==0)return -1;}}}for(0..count)|a|{for(a+1..count)|b|{for(b+1..count)|c|{for(c+1..count)|d|{if(circle(pts[a],pts[b],pts[c],pts[d])==0)return -1;}}}}
+ var edges:[N][N]bool=@splat(@splat(false));for(0..count)|a|{for(a+1..count)|b|{for(b+1..count)|c|{const o=orient(pts[a],pts[b],pts[c]);var empty=true;for(0..count)|d|{if(d!=a and d!=b and d!=c){const z=circle(pts[a],pts[b],pts[c],pts[d]);if((o>0 and z>0) or (o<0 and z<0)){empty=false;break;}}}if(empty){edges[a][b]=true;edges[b][a]=true;edges[a][c]=true;edges[c][a]=true;edges[b][c]=true;edges[c][b]=true;}}}}
+ var fields:[F]i64=@splat(0);var at:usize=1;var m:i64=0;for(0..count)|a|{for(a+1..count)|b|{if(edges[a][b]){fields[at]=@intCast(a);fields[at+1]=@intCast(b);at+=2;m+=1;}}}fields[0]=m;const bytes=8*at;if(out_opt==null or cap<bytes)return -2;const out=out_opt.?;var staged:[F*8]u8=@splat(0);for(0..at)|i|put(&staged,8*i,fields[i]);@memcpy(out[0..bytes],staged[0..bytes]);return @intCast(bytes);}

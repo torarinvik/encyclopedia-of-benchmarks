@@ -1,0 +1,5 @@
+This package contains clean-room implementations based on the problem definition in “Negative Cycles in Weighted Digraphs,” in Ming-Yang Kao (ed.), Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_257.
+
+No book text, figures, pseudocode, or source code is reproduced here. The encyclopedia chapter and its text remain subject to the publisher's rights. The source is used only to identify the algorithmic problem and its mathematical semantics.
+
+The original code in this package is provided under the repository's top-level license.

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-randomized-ray-search-i64-array-bytes-output-v1",
+  "algorithm": "randomized_ray_search",
+  "function_symbol": "randomized_ray_search",
+  "abi": "i64_array_bytes_output",
+  "description": "Simulate the chapter's geometric ray-search strategy for a supplied permutation and valid starting-distance sample.",
+  "source": {
+    "title": "Randomized Searching on Rays or the Line",
+    "authors": ["Stephen R. Tate"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_328",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_328",
+    "algorithm_attribution": "RaySearch_r,w for a supplied fixed ray permutation and starting distance r^epsilon.",
+    "implementation_status": "clean-room deterministic supplied-sample trace; random sampling and optimal-r calculation are not implemented"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[ray_count, growth_factor, initial_distance_ticks, ray_permutation..., target_ray, target_distance_ticks]",
+    "ray_count_range": [2, 5],
+    "growth_factor_range": [2, 4],
+    "distance_tick_scale": 1000,
+    "initial_distance_rule": "1000 <= initial_distance_ticks < growth_factor*1000",
+    "target_distance_range": [1, 1000000000],
+    "maximum_valid_length": 10,
+    "maximum_parseable_length": 11,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[exploration_count, total_distance_ticks]",
+    "maximum_bytes": 16,
+    "success_result": "16 bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Fixed ray permutation, scalar distance state, and staged output."
+  },
+  "contract": {
+    "supplied_randomness": "The input permutation is a permutation of all rays. The starting distance d0 is represented in 1/1000 units and lies in [1,r), corresponding to a valid epsilon through d0=r^epsilon; the profile executes that supplied sample without generating it.",
+    "search_order": "On exploration k, visit permutation[k mod ray_count].",
+    "miss": "If the target is not crossed, travel out and return to origin for 2*d_k, then set d_(k+1)=growth_factor*d_k.",
+    "hit": "If the current ray is the target ray and target_distance_ticks <= d_k, stop after traveling target_distance_ticks outward.",
+    "total_distance": "Sum all missed round trips and the successful outward trip, in distance ticks.",
+    "error_results": "Malformed input returns -1. Null output or capacity below 16 bytes returns -2 without writes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "The primary oracle simulates each exploration. The independent verifier computes the first target-reaching distance exponent, advances to the next matching permutation phase, and sums prior round trips with a geometric-series formula.",
+  "cases": [
+    {"id":"miss-then-hit-on-next-ray","input_values":[2,2,1500,0,1,1,2500],"input_length":7,"output_capacity":16,"expected_result":16,"expected_output_hex":"02000000000000007c15000000000000"},
+    {"id":"target-on-first-exploration","input_values":[3,3,2000,2,0,1,2,1000],"input_length":8,"output_capacity":16,"expected_result":16,"expected_output_hex":"0100000000000000e803000000000000"},
+    {"id":"maximum-rays-and-target-distance","input_values":[5,4,3999,4,2,0,1,3,3,1000000000],"input_length":10,"output_capacity":16,"expected_result":16,"expected_output_hex":"0a0000000000000096bf426500000000"},
+    {"id":"invalid-duplicate-ray-in-permutation","input_values":[3,2,1500,0,0,2,1,10],"input_length":8,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"initial-distance-outside-random-range","input_values":[2,2,2000,0,1,1,1000],"input_length":7,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-value","input_values":[2,2,1500,0,1,1,2500,9],"input_length":8,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,2,1500,0,1,1,2500],"input_length":7,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,2,1500,0,1,1,2500],"input_length":7,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

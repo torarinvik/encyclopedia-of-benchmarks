@@ -1,0 +1,6 @@
+const N:usize=16;const L:usize=18;
+unsafe fn put64(o:*mut u8,p:usize,x:i64){let b=x as u64;for j in 0..8{*o.add(p+j)=(b>>(8*j)) as u8;}}
+#[no_mangle]pub unsafe extern "C" fn max_minimum_machine_load_lpt(input:*const i64,length:usize,output:*mut u8,capacity:usize)->i64{
+ if input.is_null()||length<3||length>L{return -1}let n64=*input;let m64=*input.add(1);if n64<1||n64>N as i64||m64<1||m64>4||length!=2+n64 as usize{return -1}let n=n64 as usize;let m=m64 as usize;let mut p=[0i64;N];let mut order=[0i64;N];let mut assign=[0i64;N];let mut loads=[0i64;4];for i in 0..n{p[i]=*input.add(2+i);if p[i]<1||p[i]>100{return -1}order[i]=i as i64;}let bytes=8*(1+n+m);if output.is_null()||capacity<bytes{return -2}
+ for i in 1..n{let key=order[i];let mut j=i;while j>0{let prev=order[j-1] as usize;let k=key as usize;if p[k]>p[prev]||(p[k]==p[prev]&&k<prev){order[j]=order[j-1];j-=1}else{break}}order[j]=key;}for k in 0..n{let job=order[k] as usize;let mut machine=0;for j in 1..m{if loads[j]<loads[machine]{machine=j}}assign[job]=machine as i64;loads[machine]+=p[job];}let mut low=loads[0];for j in 1..m{if loads[j]<low{low=loads[j]}}put64(output,0,low);for i in 0..n{put64(output,8*(1+i),assign[i])}for j in 0..m{put64(output,8*(1+n+j),loads[j])}bytes as i64
+}

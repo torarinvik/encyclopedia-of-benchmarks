@@ -1,0 +1,148 @@
+const MAX_VARIABLES: usize = 3
+const MAX_CUBES: usize = 27
+const MAX_STATES: usize = 256
+const MAX_INPUT_LENGTH: usize = 9
+const INF_COST: usize = 99
+
+def qm_cube_valid(care: u32, value: u32, input: i64&, size: usize) -> bool:
+    cover: mutable u32 = 0
+    minterm: mutable usize = 0
+    while minterm < size:
+        if (minterm.u32() & care) == value:
+            status: i64 = input[1 + minterm]
+            if status == 0: return false
+            if status == 1: cover <- cover | (1 << minterm)
+        minterm <- minterm + 1
+    cover != 0
+
+def qm_lex_better(candidate: u32, incumbent: u32, count: usize) -> bool:
+    index: mutable usize = 0
+    while index < count:
+        bit: u32 = 1 << index
+        left: bool = (candidate & bit) != 0
+        right: bool = (incumbent & bit) != 0
+        if left != right: return left
+        index <- index + 1
+    false
+
+def quine_mccluskey_minimization_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > MAX_VARIABLES.i64(): return -1
+    n: usize = n_value.usize()
+    size: usize = 1 << n
+    if length != 1 + size: return -1
+    minterm: mutable usize = 0
+    while minterm < size:
+        if input[1 + minterm] < 0 or input[1 + minterm] > 2: return -1
+        minterm <- minterm + 1
+
+    cares: mutable u32[MAX_CUBES] = zeroed
+    values: mutable u32[MAX_CUBES] = zeroed
+    covers: mutable u32[MAX_CUBES] = zeroed
+    literal_counts: mutable usize[MAX_CUBES] = zeroed
+    prime_count: mutable usize = 0
+    full: u32 = (size - 1).u32()
+    care: mutable u32 = 0
+    while care <= full:
+        cube_value: mutable u32 = 0
+        while cube_value <= full:
+            if (cube_value & ~care) == 0 and qm_cube_valid(care, cube_value, input&, size):
+                prime: mutable bool = true
+                variable: mutable usize = 0
+                while variable < n:
+                    bit: u32 = 1 << variable
+                    if (care & bit) != 0 and qm_cube_valid(care ^ bit, cube_value & ~bit, input&, size):
+                        prime <- false
+                        break
+                    variable <- variable + 1
+                if prime:
+                    cover: mutable u32 = 0
+                    literal_count: mutable usize = 0
+                    minterm <- 0
+                    while minterm < size:
+                        if (minterm.u32() & care) == cube_value and input[1 + minterm] == 1:
+                            cover <- cover | (1 << minterm)
+                        minterm <- minterm + 1
+                    variable <- 0
+                    while variable < n:
+                        if (care & (1 << variable)) != 0: literal_count <- literal_count + 1
+                        variable <- variable + 1
+                    cares[prime_count] <- care
+                    values[prime_count] <- cube_value
+                    covers[prime_count] <- cover
+                    literal_counts[prime_count] <- literal_count
+                    prime_count <- prime_count + 1
+            cube_value <- cube_value + 1
+        care <- care + 1
+
+    on_mask: mutable u32 = 0
+    minterm <- 0
+    while minterm < size:
+        if input[1 + minterm] == 1: on_mask <- on_mask | (1 << minterm)
+        minterm <- minterm + 1
+    state_count: usize = 1 << size
+    term_cost: mutable usize[MAX_STATES] = zeroed
+    literal_cost: mutable usize[MAX_STATES] = zeroed
+    selected: mutable u32[MAX_STATES] = zeroed
+    state: mutable usize = 0
+    while state < state_count:
+        term_cost[state] <- INF_COST
+        literal_cost[state] <- INF_COST
+        state <- state + 1
+    term_cost[0] <- 0
+    literal_cost[0] <- 0
+    index: mutable usize = 0
+    while index < prime_count:
+        prime_bit: u32 = 1 << index
+        state <- state_count
+        while state > 0:
+            state <- state - 1
+            if term_cost[state] == INF_COST: continue
+            destination: usize = state | covers[index].usize()
+            if destination == state: continue
+            new_terms: usize = term_cost[state] + 1
+            new_literals: usize = literal_cost[state] + literal_counts[index]
+            new_selected: u32 = selected[state] | prime_bit
+            better: mutable bool = new_terms < term_cost[destination]
+            if new_terms == term_cost[destination]:
+                better <- new_literals < literal_cost[destination]
+                if new_literals == literal_cost[destination]:
+                    better <- qm_lex_better(new_selected, selected[destination], prime_count)
+            if better:
+                term_cost[destination] <- new_terms
+                literal_cost[destination] <- new_literals
+                selected[destination] <- new_selected
+        index <- index + 1
+
+    chosen: u32 = selected[on_mask.usize()]
+    term_count: mutable usize = 0
+    index <- 0
+    while index < prime_count:
+        if (chosen & (1 << index)) != 0: term_count <- term_count + 1
+        index <- index + 1
+    output_bytes: usize = 8 * (1 + 2 * term_count)
+    if output == null or capacity < output_bytes: return -2
+    words: mutable i64[17] = zeroed
+    words[0] <- term_count.i64()
+    cursor: mutable usize = 1
+    index <- 0
+    while index < prime_count:
+        if (chosen & (1 << index)) != 0:
+            words[cursor] <- cares[index].i64()
+            cursor <- cursor + 1
+            words[cursor] <- values[index].i64()
+            cursor <- cursor + 1
+        index <- index + 1
+    word: mutable usize = 0
+    while word < cursor:
+        bits: mutable u64 = words[word].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[word * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        word <- word + 1
+    output_bytes.i64()
+
+export fn quine_mccluskey_minimization(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = quine_mccluskey_minimization_impl

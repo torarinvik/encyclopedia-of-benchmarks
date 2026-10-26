@@ -1,0 +1,6 @@
+// Clean-room explicit-choice profile of randomized vector scheduling.
+module vector_scheduling
+const max_n=16;const max_m=8;const max_d=4;const max_input=83;const max_fields=35
+fn put_i64(mut out &u8,at int,value i64){bits:=u64(value);for i in 0..8{unsafe{out[at+i]=u8((bits>>(8*i))&255)}}}
+@[export:'vector_scheduling']
+pub fn vector_scheduling(input &i64,length usize,mut output &u8,capacity usize)i64{unsafe{if input==nil||length<3||length>max_input{return -1};n64,m64,d64:=input[0],input[1],input[2];if n64<1||n64>16||m64<1||m64>8||d64<1||d64>4||length!=usize(3+n64+n64*d64){return -1};n,m,d:=int(n64),int(m64),int(d64);for j in 0..n{if input[3+j]<0||input[3+j]>=m64{return -1}};for i in 0..n*d{if input[3+n+i]<0||input[3+n+i]>1000{return -1}};mut loads:=[max_m*max_d]i64{};for j in 0..n{machine:=int(input[3+j]);for q in 0..d{loads[machine*max_d+q]+=input[3+n+j*d+q]}};mut span:=i64(0);for i in 0..m{for q in 0..d{if loads[i*max_d+q]>span{span=loads[i*max_d+q]}}};mut staged:=[max_fields]i64{};mut count:=0;staged[count]=m64;count++;staged[count]=d64;count++;staged[count]=span;count++;for i in 0..m{for q in 0..d{staged[count]=loads[i*max_d+q];count++}};if output==nil||capacity<usize(8*count){return -2};for i in 0..count{put_i64(mut output,8*i,staged[i])};return i64(8*count)}}

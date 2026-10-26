@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-suffix-array-lcp-search-i64-array-bytes-output-v1",
+  "algorithm": "suffix_array_lcp_search",
+  "function_symbol": "suffix_array_lcp_search",
+  "pinned_source": {
+    "title": "Text Indexing",
+    "author": "Srinivas Aluru",
+    "doi": "10.1007/978-1-4939-2864-4_422",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_422",
+    "license": "No source-code license asserted; clean-room algorithm port"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,text[n],pattern_length,pattern[pattern_length]]",
+    "text_length_range": [1, 32],
+    "pattern_length_range": [1, 16],
+    "symbol_range": [0, 127],
+    "maximum_valid_length": 50,
+    "invalid_result": -1
+  },
+  "contract": {
+    "algorithm": "Build suffix array and adjacent LCP; precompute LCP values for recursive midpoint intervals; run LCP-accelerated lower and upper bounds over the suffix array.",
+    "output": "[match_count,matching_suffix_starts_in_suffix_array_order]",
+    "suffix_order": "Lexicographic order of the finite suffixes, with a shorter equal-prefix suffix before the longer one.",
+    "profile_scope": "The search uses the chapter's endpoint/midpoint LCP cases. Bounded insertion-sort suffix-array construction and direct adjacent-LCP construction are preprocessing choices; no index-build complexity claim is made."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[match_count,start_positions...]",
+    "maximum_bytes": 264,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 264,
+    "meaning": "Maximum staged little-endian output for a match count plus at most 32 suffix starts."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {
+      "id": "banana-ana",
+      "input_values": [6, 98, 97, 110, 97, 110, 97, 3, 97, 110, 97],
+      "input_length": 11,
+      "output_capacity": 264,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000003000000000000000100000000000000"
+    },
+    {
+      "id": "overlapping-repeated-pattern",
+      "input_values": [5, 97, 97, 97, 97, 97, 2, 97, 97],
+      "input_length": 9,
+      "output_capacity": 264,
+      "expected_result": 40,
+      "expected_output_hex": "04000000000000000300000000000000020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "pattern-not-present",
+      "input_values": [6, 98, 97, 110, 97, 110, 97, 3, 120, 121, 122],
+      "input_length": 11,
+      "output_capacity": 264,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "invalid-empty-text",
+      "input_values": [0, 1, 97],
+      "input_length": 3,
+      "output_capacity": 264,
+      "expected_result": -1
+    }
+  ]
+}

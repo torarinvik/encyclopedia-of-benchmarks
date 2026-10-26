@@ -1,0 +1,36 @@
+// Exact chromatic number through independent-set inclusion-exclusion.
+def exact_graph_coloring_inclusion_exclusion_impl(x:i64&,length:usize,out:mutable u8&,cap:usize)->i64:
+    if length<2 or length>44:return -1
+    nv:i64=x[0];mv:i64=x[1]
+    if nv<1 or nv>7 or mv<0 or mv>21 or length!=2+2*mv.usize():return -1
+    n:usize=nv.usize();m:usize=mv.usize();adj:mutable bool[7][7]=zeroed
+    for e in 0..m:
+        u:i64=x[2+2*e];v:i64=x[3+2*e]
+        if u<0 or v<0 or u>=nv or v>=nv or u==v:return -1
+        a:usize=u.usize();b:usize=v.usize()
+        if adj[a][b]:return -1
+        adj[a][b]<-true;adj[b][a]<-true
+    cnt:mutable i64[128]=zeroed;cnt[0]<-1;lim:usize=1<<n
+    for mask in 1..lim:
+        bit:usize=mask & (0-mask);v:mutable usize=0
+        while (1<<v)!=bit:v<-v+1
+        rest:usize=mask^bit;allowed:mutable usize=rest
+        for u in 0..n:if adj[v][u]:allowed<-allowed & ~(1<<u)
+        cnt[mask]<-cnt[rest]+cnt[allowed]
+    chi:mutable i64=n.i64()
+    for k in 1..n+1:
+        sum:mutable i64=0
+        for mask in 0..lim:
+            term:mutable i64=1
+            base:i64=cnt[mask]-1
+            for q in 0..k:term<-term*base
+            pc:mutable usize=0;bits:mutable usize=mask
+            while bits!=0:bits<-bits & (bits-1);pc<-pc+1
+            if (n-pc)%2==0:sum<-sum+term else:sum<-sum-term
+        if sum>0:chi<-k.i64();break
+    if cap<8:return -2
+    value:u64=chi.u64()
+    for i in 0..8:out[i]<-((value>>(8*i)) & 255).u8()
+    8
+
+export fn exact_graph_coloring_inclusion_exclusion(x:i64&,length:usize,out:mutable u8&,cap:usize)->i64=exact_graph_coloring_inclusion_exclusion_impl

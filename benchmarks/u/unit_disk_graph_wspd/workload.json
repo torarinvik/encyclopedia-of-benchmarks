@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-unit-disk-graph-wspd-i64-array-bytes-output-v1",
+  "algorithm": "unit_disk_graph_wspd",
+  "function_symbol": "unit_disk_graph_wspd",
+  "pinned_source": {
+    "title": "Well Separated Pair Decomposition for Unit-Disk Graph",
+    "author": "Rolf Klein",
+    "doi": "10.1007/978-1-4939-2864-4_480",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_480",
+    "summarized_original_work": "Gao and Zhang, STOC 2003, Well-separated pair decomposition for the unit-disk graph metric and its applications",
+    "license": "No source-code redistribution license asserted; clean-room mathematical implementation"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[point_count,separation_factor,x0,y0,...,xN-1,yN-1]",
+    "point_count_range": [1, 8],
+    "separation_factor_range": [1, 8],
+    "coordinate_range": [-8, 8],
+    "duplicate_coordinates": "invalid",
+    "disconnected_unit_disk_graph": "invalid",
+    "maximum_valid_length": 18,
+    "invalid_result": -1
+  },
+  "contract": {
+    "unit_disk_edge": "distinct integer lattice points with squared Euclidean distance <= 1; every such edge has weight 1",
+    "metric": "unweighted shortest-path distance in the connected induced unit-disk graph",
+    "separation": "dist(A,B) >= c * max(diam(A),diam(B)); inclusive exact integer comparison",
+    "split_tree": "ascending original point IDs, split into floor(count/2) left IDs and remaining right IDs",
+    "pair_recursion": "visit left subtree, visit right subtree, then cross pair; if not separated, split the larger set and split the second set on ties; visit first child before second",
+    "pair_coverage": "each unordered pair of distinct vertices is covered exactly once"
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[pair_count,left_mask_0,right_mask_0,...]; mask bit i denotes original point i",
+    "pair_order": "deterministic depth-first order defined by pair_recursion",
+    "maximum_pairs": 28,
+    "maximum_bytes": 456,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Fixed distance matrix and staged maximum output for 28 mask pairs."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "two_adjacent_sites",
+      "input_values": [2, 1, 0, 0, 1, 0],
+      "input_length": 6,
+      "output_capacity": 456,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "three_sites_on_a_path",
+      "input_values": [3, 1, 0, 0, 1, 0, 2, 0],
+      "input_length": 8,
+      "output_capacity": 456,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000200000000000000040000000000000001000000000000000600000000000000"
+    },
+    {
+      "id": "four_site_unit_square",
+      "input_values": [4, 1, 0, 0, 1, 0, 1, 1, 0, 1],
+      "input_length": 10,
+      "output_capacity": 456,
+      "expected_result": 56,
+      "expected_output_hex": "0300000000000000010000000000000002000000000000000400000000000000080000000000000003000000000000000c00000000000000"
+    },
+    {
+      "id": "higher_separation_factor",
+      "input_values": [4, 2, 0, 0, 1, 0, 1, 1, 0, 1],
+      "input_length": 10,
+      "output_capacity": 456,
+      "expected_result": 104,
+      "expected_output_hex": "0600000000000000010000000000000002000000000000000400000000000000080000000000000001000000000000000400000000000000020000000000000004000000000000000100000000000000080000000000000002000000000000000800000000000000"
+    },
+    {
+      "id": "disconnected_graph_invalid",
+      "input_values": [2, 1, 0, 0, 2, 0],
+      "input_length": 6,
+      "output_capacity": 456,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate_site_invalid",
+      "input_values": [2, 1, 0, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 456,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [2, 1, 0, 0, 1, 0],
+      "input_length": 6,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

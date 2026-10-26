@@ -1,0 +1,11 @@
+module sublinear_bipartiteness_walk_tester;
+const int N=16;const int D=4;const int E=32;const int T=4;const int R=8;const int L=8;const int MAX_INPUT=330;
+fn void put_i64(char* out,long value){ulong bits=(ulong)value;for(usz i=0;i<8;i++){out[i]=(char)(bits&255);bits>>=8;}}
+fn long sublinear_bipartiteness_walk_tester(long* v,usz length,char* output,usz capacity) @export("sublinear_bipartiteness_walk_tester") {
+ if(v==null||length<8||length>MAX_INPUT||v[0]<1||v[0]>N||v[1]<3||v[1]>D||v[2]<0||v[2]>E)return -1;int n=(int)v[0],d=(int)v[1],m=(int)v[2];if(m>n*d/2)return -1;
+ bool[N][N] adjacent={};int[N][D] neighbors={};int[N] degree={};usz suffix=(usz)(3+2*m);if(length<suffix+4||v[suffix]<1||v[suffix]>T||v[suffix+1]<1||v[suffix+1]>R||v[suffix+2]<1||v[suffix+2]>L)return -1;int tc=(int)v[suffix],walks=(int)v[suffix+1],steps=(int)v[suffix+2];usz expected=suffix+3+(usz)tc+(usz)(tc*walks*steps);if(length!=expected)return -1;
+ for(int e=0;e<m;e++){long a0=v[3+2*e],b0=v[4+2*e];if(a0<0||b0<0||a0>=n||b0>=n||a0>=b0)return -1;int a=(int)a0,b=(int)b0;if(adjacent[a][b]||degree[a]>=d||degree[b]>=d)return -1;adjacent[a][b]=true;adjacent[b][a]=true;int at=degree[a];degree[a]++;while(at>0&&neighbors[a][at-1]>b){neighbors[a][at]=neighbors[a][at-1];at--;}neighbors[a][at]=b;at=degree[b];degree[b]++;while(at>0&&neighbors[b][at-1]>a){neighbors[b][at]=neighbors[b][at-1];at--;}neighbors[b][at]=a;}
+ usz starts_at=suffix+3,draws_at=starts_at+(usz)tc;for(int t=0;t<tc;t++){long s=v[starts_at+(usz)t];if(s<0||s>=n)return -1;}usz draw_count=(usz)(tc*walks*steps);for(usz i=0;i<draw_count;i++){long choice=v[draws_at+i];if(choice<0||choice>=2*d)return -1;}
+ bool accepted=true;usz draw=0;for(int t=0;t<tc;t++){if(!accepted)break;bool[N][2] seen={};int start=(int)v[starts_at+(usz)t];seen[start][0]=true;for(int walk=0;walk<walks;walk++){if(!accepted)break;int vertex=start,parity=0;for(int step=0;step<steps;step++){int choice=(int)v[draws_at+draw];draw++;if(choice<degree[vertex]){vertex=neighbors[vertex][choice];parity^=1;}seen[vertex][parity]=true;if(seen[vertex][1-parity]){accepted=false;break;}}}}
+ if(output==null||capacity<8)return -2;char[8] staged={};put_i64(staged,accepted?1:0);for(usz i=0;i<8;i++)output[i]=staged[i];return 8;
+}

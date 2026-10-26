@@ -1,0 +1,89 @@
+const MAX_QUEUES: usize = 4
+const MAX_SLOTS: usize = 8
+const MAX_INPUT: usize = 36
+const MAX_OUTPUT_BYTES: usize = 64
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def packet_switching_sgr_multi_queue_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    queue_value: i64 = input[0]
+    buffer: i64 = input[1]
+    slots_value: i64 = input[2]
+    if queue_value < 2 or queue_value > 4 or buffer < 1 or buffer > 4 or slots_value < 1 or slots_value > 8: return -1
+    queues: usize = queue_value.usize()
+    slots: usize = slots_value.usize()
+    if length != 3 + queues * slots: return -1
+    loads: mutable i64[MAX_QUEUES] = zeroed
+    peaks: mutable i64[MAX_QUEUES] = zeroed
+    schedule: mutable i64[MAX_SLOTS] = zeroed
+    slot: mutable usize = 0
+    while slot < slots:
+        queue: mutable usize = 0
+        while queue < queues:
+            arrivals: i64 = input[3 + slot * queues + queue]
+            if arrivals < 0 or arrivals > buffer: return -1
+            loads[queue] <- loads[queue] + arrivals
+            if loads[queue] > buffer: loads[queue] <- buffer
+            if loads[queue] > peaks[queue]: peaks[queue] <- loads[queue]
+            queue <- queue + 1
+        has_large: mutable bool = false
+        has_nonempty: mutable bool = false
+        has_underfull_peak: mutable bool = false
+        queue <- 0
+        while queue < queues:
+            if loads[queue] > 0:
+                has_nonempty <- true
+                if loads[queue] > buffer / 2: has_large <- true
+                if peaks[queue] < buffer: has_underfull_peak <- true
+            queue <- queue + 1
+        if not has_nonempty:
+            schedule[slot] <- -1
+            queue <- 0
+            while queue < queues:
+                peaks[queue] <- 0
+                queue <- queue + 1
+            slot <- slot + 1
+            continue
+        use_history: bool = not has_large and has_underfull_peak
+        selected: mutable usize = queues
+        queue <- 0
+        while queue < queues:
+            if loads[queue] > 0 and (not use_history or peaks[queue] < buffer):
+                if selected == queues or loads[queue] > loads[selected]: selected <- queue
+            queue <- queue + 1
+        schedule[slot] <- selected.i64()
+        loads[selected] <- loads[selected] - 1
+        any_left: mutable bool = false
+        queue <- 0
+        while queue < queues:
+            if loads[queue] > 0: any_left <- true
+            queue <- queue + 1
+        if not any_left:
+            queue <- 0
+            while queue < queues:
+                peaks[queue] <- 0
+                queue <- queue + 1
+        slot <- slot + 1
+    output_bytes: usize = 8 * slots
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    slot <- 0
+    while slot < slots:
+        store_i64_le(schedule[slot], staged&, 8 * slot)
+        slot <- slot + 1
+    byte: mutable usize = 0
+    while byte < output_bytes:
+        output[byte] <- staged[byte]
+        byte <- byte + 1
+    output_bytes.i64()
+
+export fn packet_switching_sgr_multi_queue(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = packet_switching_sgr_multi_queue_impl

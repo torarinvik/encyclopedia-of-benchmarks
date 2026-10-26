@@ -1,0 +1,23 @@
+{
+  "schema_version":1,
+  "id":"encyclopedia-min-hash-k-mins-i64-array-bytes-output-v1",
+  "algorithm":"min_hash_k_mins",
+  "function_symbol":"min_hash_k_mins",
+  "abi":"i64_array_bytes_output",
+  "description":"Select the minimum supplied rank under each of k independent MinHash rank assignments.",
+  "source":{"title":"Min-Hash Sketches","authors":["Edith Cohen"],"year":2016,"reference":"Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_573","url":"https://doi.org/10.1007/978-1-4939-2864-4_573","algorithm_attribution":"k-mins MinHash sketch structure","implementation_status":"clean-room deterministic supplied-rank profile"},
+  "input":{"kind":"signed_64_bit_integer_array","encoding":"[n,k,row_major_rank_matrix[n][k]]","n_range":[1,16],"k_range":[1,4],"rank_range":[0,1000],"maximum_valid_length":66,"invalid_input_result":-1},
+  "output":{"kind":"little_endian_signed_64_bit_array","encoding":"one selected item ID per rank function","maximum_bytes":32,"success_result":"8 * k bytes written","invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"output_untouched_on_error":true},
+  "workspace":{"bytes":256,"meaning":"Bounded supplied rank matrix and selected IDs."},
+  "contract":{"selection":"For each rank function, choose the item with minimum rank.","tie_rule":"Lower item ID wins ties.","randomness":"Rank values are supplied; this profile tests the exact k-mins ordering but does not claim the source's random-hash law.","invalid_input_result":-1,"output_error_result":-2},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call","sample_count":8,"warmup_rounds":2,"repetitions_per_sample":100},
+  "cases":[
+    {"id":"three-independent-minima","input_values":[4,3,8,2,7,1,9,3,5,4,4,1,3,0,6],"input_length":15,"output_capacity":32,"expected_result":24,"expected_output_hex":"010000000000000003000000000000000200000000000000"},
+    {"id":"ties-use-lower-id","input_values":[3,2,4,4,1,2,2,3],"input_length":8,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000100000000000000"},
+    {"id":"length-mismatch","input_values":[2,2,4,1,3],"input_length":5,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"rank-out-of-range","input_values":[1,1,1001],"input_length":3,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":2,"input_is_null":true,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-capacity","input_values":[2,2,4,1,3,0],"input_length":6,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,2,4,1,3,0],"input_length":6,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

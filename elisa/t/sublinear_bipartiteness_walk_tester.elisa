@@ -1,0 +1,106 @@
+const MAX_N: usize = 16
+const MAX_D: usize = 4
+const MAX_EDGES: usize = 32
+const MAX_T: usize = 4
+const MAX_R: usize = 8
+const MAX_L: usize = 8
+const MAX_INPUT: usize = 330
+
+def sublinear_bipartiteness_walk_tester_put(value: i64, output: mutable u8&) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def sublinear_bipartiteness_walk_tester(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("sublinear_bipartiteness_walk_tester"):
+    if input.is_null() or length < 8 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    d64: i64 = input[1]
+    m64: i64 = input[2]
+    if n64 < 1 or n64 > MAX_N.i64() or d64 < 3 or d64 > MAX_D.i64() or m64 < 0 or m64 > MAX_EDGES.i64(): return -1
+    n: usize = n64.usize()
+    d: usize = d64.usize()
+    m: usize = m64.usize()
+    if m > n * d / 2: return -1
+    adjacent: mutable bool[MAX_N * MAX_N] = zeroed
+    neighbors: mutable usize[MAX_N * MAX_D] = zeroed
+    degree: mutable usize[MAX_N] = zeroed
+    suffix: usize = 3 + 2 * m
+    if length < suffix + 4: return -1
+    t64: i64 = input[suffix]
+    r64: i64 = input[suffix + 1]
+    l64: i64 = input[suffix + 2]
+    if t64 < 1 or t64 > MAX_T.i64() or r64 < 1 or r64 > MAX_R.i64() or l64 < 1 or l64 > MAX_L.i64(): return -1
+    starts_count: usize = t64.usize()
+    walks: usize = r64.usize()
+    steps: usize = l64.usize()
+    expected: usize = suffix + 3 + starts_count + starts_count * walks * steps
+    if length != expected: return -1
+    edge: mutable usize = 0
+    while edge < m:
+        a64: i64 = input[3 + 2 * edge]
+        b64: i64 = input[4 + 2 * edge]
+        if a64 < 0 or b64 < 0 or a64 >= n64 or b64 >= n64 or a64 >= b64: return -1
+        a: usize = a64.usize()
+        b: usize = b64.usize()
+        if adjacent[a * MAX_N + b] or degree[a] >= d or degree[b] >= d: return -1
+        adjacent[a * MAX_N + b] <- true
+        adjacent[b * MAX_N + a] <- true
+        at: mutable usize = degree[a]
+        degree[a] <- degree[a] + 1
+        while at > 0 and neighbors[a * MAX_D + at - 1] > b:
+            neighbors[a * MAX_D + at] <- neighbors[a * MAX_D + at - 1]
+            at <- at - 1
+        neighbors[a * MAX_D + at] <- b
+        at <- degree[b]
+        degree[b] <- degree[b] + 1
+        while at > 0 and neighbors[b * MAX_D + at - 1] > a:
+            neighbors[b * MAX_D + at] <- neighbors[b * MAX_D + at - 1]
+            at <- at - 1
+        neighbors[b * MAX_D + at] <- a
+        edge <- edge + 1
+    starts_at: usize = suffix + 3
+    draws_at: usize = starts_at + starts_count
+    t: mutable usize = 0
+    while t < starts_count:
+        start: i64 = input[starts_at + t]
+        if start < 0 or start >= n64: return -1
+        t <- t + 1
+    draw_count: usize = starts_count * walks * steps
+    t <- 0
+    while t < draw_count:
+        choice: i64 = input[draws_at + t]
+        if choice < 0 or choice >= (2 * d).i64(): return -1
+        t <- t + 1
+
+    accepted: mutable bool = true
+    draw: mutable usize = 0
+    t <- 0
+    while t < starts_count and accepted:
+        seen: mutable bool[MAX_N * 2] = zeroed
+        start: usize = input[starts_at + t].usize()
+        seen[start * 2] <- true
+        walk: mutable usize = 0
+        while walk < walks and accepted:
+            vertex: mutable usize = start
+            parity: mutable usize = 0
+            step: mutable usize = 0
+            while step < steps:
+                choice: usize = input[draws_at + draw].usize()
+                draw <- draw + 1
+                if choice < degree[vertex]:
+                    vertex <- neighbors[vertex * MAX_D + choice]
+                    parity <- 1 - parity
+                seen[vertex * 2 + parity] <- true
+                if seen[vertex * 2 + (1 - parity)]: accepted <- false; break
+                step <- step + 1
+            walk <- walk + 1
+        t <- t + 1
+    if output.is_null() or capacity < 8: return -2
+    staged: mutable u8[8] = zeroed
+    sublinear_bipartiteness_walk_tester_put(if accepted: 1 else: 0, staged)
+    t <- 0
+    while t < 8: output[t] <- staged[t]; t <- t + 1
+    8

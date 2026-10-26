@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-min-sum-set-cover-greedy-i64-array-bytes-output-v1",
+  "algorithm": "min_sum_set_cover_greedy",
+  "function_symbol": "min_sum_set_cover_greedy",
+  "abi": "i64_array_bytes_output",
+  "description": "Greedy minimum-sum set cover ordering by largest uncovered-set count.",
+  "source": {
+    "title": "Min-Sum Set Cover and Its Generalizations",
+    "authors": ["Sungjin Im"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_806",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_806",
+    "algorithm_attribution": "greedy MSSC: choose an element hitting the most uncovered sets",
+    "implementation_status": "clean-room; no book prose or upstream source code copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[universe_size, set_count, nonempty_set_bitmasks...]",
+    "universe_size_range": [1, 12],
+    "set_count_range": [1, 16],
+    "maximum_valid_length": 18,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[sum_of_first_hit_positions, element_order...]",
+    "element_ids_range": "0 through universe_size-1",
+    "maximum_bytes": 104,
+    "success_result": "8 * (universe_size + 1) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {"bytes": 512, "meaning": "At most sixteen uncovered-set flags and twelve element/order slots."},
+  "contract": {
+    "selection": "At each 1-based slot, choose an unused element in the most not-yet-hit sets.",
+    "tie_rule": "Choose the smallest element ID.",
+    "cover_time": "The 1-based position of the first scheduled element in each set.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 2, "repetitions_per_sample": 100},
+  "cases": [
+    {"id":"overlapping-set-greedy","input_values":[4,3,3,6,12],"input_length":5,"output_capacity":40,"expected_result":40,"expected_output_hex":"04000000000000000100000000000000020000000000000000000000000000000300000000000000"},
+    {"id":"shared-first-element","input_values":[3,2,3,5],"input_length":4,"output_capacity":32,"expected_result":32,"expected_output_hex":"0200000000000000000000000000000001000000000000000200000000000000"},
+    {"id":"maximum-universe","input_values":[12,12,1,2,4,8,16,32,64,128,256,512,1024,2048],"input_length":14,"output_capacity":104,"expected_result":104,"expected_output_hex":"4e0000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b00000000000000"},
+    {"id":"empty-set-invalid","input_values":[3,1,0],"input_length":3,"output_capacity":104,"expected_result":-1,"expected_output_hex":""},
+    {"id":"mask-out-of-universe","input_values":[3,1,8],"input_length":3,"output_capacity":104,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[3,2,1],"input_length":3,"output_capacity":104,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[3,1,7],"input_length":3,"output_capacity":31,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[3,1,7],"input_length":3,"output_capacity":32,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":2,"input_is_null":true,"output_capacity":104,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

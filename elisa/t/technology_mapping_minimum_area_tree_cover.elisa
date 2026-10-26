@@ -1,0 +1,127 @@
+const MAX_N: usize = 31
+const MAX_OUTPUT: usize = 256
+const INF: i64 = 2305843009213693951
+
+def technology_mapping_minimum_area_tree_cover_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def technology_mapping_minimum_area_tree_cover(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("technology_mapping_minimum_area_tree_cover"):
+    if input.is_null() or length < 9 or length > 99: return -1
+    n64: i64 = input[0]
+    if n64 < 1 or n64 > 31: return -1
+    n: usize = n64.usize()
+    if length != 6 + 3 * n: return -1
+    costs: mutable i64[5] = zeroed
+    p: mutable usize = 0
+    while p < 5:
+        costs[p] <- input[1 + p]
+        if costs[p] != -1 and (costs[p] < 1 or costs[p] > 1000000): return -1
+        p <- p + 1
+    kind: mutable usize[MAX_N] = zeroed
+    left: mutable usize[MAX_N] = zeroed
+    right: mutable usize[MAX_N] = zeroed
+    parents: mutable usize[MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        at: usize = 6 + 3 * i
+        k: i64 = input[at]
+        l: i64 = input[at + 1]
+        r: i64 = input[at + 2]
+        if k < 0 or k > 2: return -1
+        kind[i] <- k.usize()
+        if k == 0:
+            if l != -1 or r != -1: return -1
+        elif k == 1:
+            if l <= i.i64() or l >= n64 or r != -1: return -1
+            left[i] <- l.usize()
+            parents[left[i]] <- parents[left[i]] + 1
+        else:
+            if l <= i.i64() or l >= n64 or r <= i.i64() or r >= n64 or l == r: return -1
+            left[i] <- l.usize()
+            right[i] <- r.usize()
+            parents[left[i]] <- parents[left[i]] + 1
+            parents[right[i]] <- parents[right[i]] + 1
+        i <- i + 1
+    if parents[0] != 0: return -1
+    i <- 1
+    while i < n:
+        if parents[i] != 1: return -1
+        i <- i + 1
+    best: mutable i64[MAX_N] = zeroed
+    choice: mutable i64[MAX_N] = zeroed
+    i <- 0
+    while i < MAX_N:
+        best[i] <- INF
+        choice[i] <- -1
+        i <- i + 1
+    i <- n
+    while i > 0:
+        i <- i - 1
+        if kind[i] == 0:
+            best[i] <- 0
+            continue
+        l: usize = left[i]
+        r: usize = right[i]
+        candidate: mutable i64 = 0
+        if kind[i] == 1:
+            if costs[0] >= 0:
+                candidate <- costs[0] + best[l]
+                if candidate < INF and candidate < best[i]: best[i] <- candidate; choice[i] <- 0
+        else:
+            if costs[1] >= 0:
+                candidate <- costs[1] + best[l] + best[r]
+                if candidate < INF and candidate < best[i]: best[i] <- candidate; choice[i] <- 1
+            if costs[2] >= 0 and kind[l] == 1:
+                candidate <- costs[2] + best[left[l]] + best[r]
+                if candidate < INF and candidate < best[i]: best[i] <- candidate; choice[i] <- 2
+            if costs[3] >= 0 and kind[r] == 1:
+                candidate <- costs[3] + best[l] + best[left[r]]
+                if candidate < INF and candidate < best[i]: best[i] <- candidate; choice[i] <- 3
+            if costs[4] >= 0 and kind[l] == 1 and kind[r] == 1:
+                candidate <- costs[4] + best[left[l]] + best[left[r]]
+                if candidate < INF and candidate < best[i]: best[i] <- candidate; choice[i] <- 4
+    if best[0] == INF: return -1
+    mapping: mutable i64[MAX_N] = zeroed
+    i <- 0
+    while i < n:
+        mapping[i] <- -3
+        if kind[i] == 0: mapping[i] <- -1
+        i <- i + 1
+    stack: mutable usize[2 * MAX_N] = zeroed
+    top: mutable usize = 0
+    if kind[0] != 0: stack[0] <- 0; top <- 1
+    while top > 0:
+        top <- top - 1
+        node: usize = stack[top]
+        pat: usize = choice[node].usize()
+        l: usize = left[node]
+        r: usize = right[node]
+        mapping[node] <- choice[node]
+        if pat == 0:
+            stack[top] <- l; top <- top + 1
+        elif pat == 1:
+            stack[top] <- l; top <- top + 1; stack[top] <- r; top <- top + 1
+        elif pat == 2:
+            mapping[l] <- -2; stack[top] <- left[l]; top <- top + 1; stack[top] <- r; top <- top + 1
+        elif pat == 3:
+            mapping[r] <- -2; stack[top] <- l; top <- top + 1; stack[top] <- left[r]; top <- top + 1
+        else:
+            mapping[l] <- -2; mapping[r] <- -2; stack[top] <- left[l]; top <- top + 1; stack[top] <- left[r]; top <- top + 1
+    bytes: usize = 8 * (n + 1)
+    if output.is_null() or capacity < bytes: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    technology_mapping_minimum_area_tree_cover_put(best[0], staged, 0)
+    i <- 0
+    while i < n:
+        technology_mapping_minimum_area_tree_cover_put(mapping[i], staged, 8 * (i + 1))
+        i <- i + 1
+    i <- 0
+    while i < bytes:
+        output[i] <- staged[i]
+        i <- i + 1
+    return bytes.i64()

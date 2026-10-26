@@ -1,0 +1,87 @@
+const MOD: i64 = 998244353
+
+def fast_subset_convolution_rank(mask: usize) -> usize:
+    bits: mutable usize = mask
+    count: mutable usize = 0
+    while bits > 0:
+        count <- count + (bits & 1)
+        bits <- bits >> 1
+    return count
+
+def fast_subset_convolution_put(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def fast_subset_convolution_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 33: return -1
+    n64: i64 = input[0]
+    if n64 < 0 or n64 > 4: return -1
+    n: usize = n64.usize()
+    size: usize = 1 << n
+    if length != 1 + 2 * size: return -1
+    index: mutable usize = 0
+    while index < 2 * size:
+        value: i64 = input[1 + index]
+        if value < 0 or value >= MOD: return -1
+        index <- index + 1
+    f: mutable i64[5][16] = zeroed
+    g: mutable i64[5][16] = zeroed
+    h: mutable i64[5][16] = zeroed
+    mask: mutable usize = 0
+    while mask < size:
+        rank: usize = fast_subset_convolution_rank(mask)
+        f[rank][mask] <- input[1 + mask]
+        g[rank][mask] <- input[1 + size + mask]
+        mask <- mask + 1
+    bit: mutable usize = 0
+    while bit < n:
+        mask <- 0
+        while mask < size:
+            if (mask & (1 << bit)) != 0:
+                other: usize = mask ^ (1 << bit)
+                rank: mutable usize = 0
+                while rank <= n:
+                    f[rank][mask] <- (f[rank][mask] + f[rank][other]) % MOD
+                    g[rank][mask] <- (g[rank][mask] + g[rank][other]) % MOD
+                    rank <- rank + 1
+            mask <- mask + 1
+        bit <- bit + 1
+    mask <- 0
+    while mask < size:
+        rank: mutable usize = 0
+        while rank <= n:
+            sum: mutable i64 = 0
+            i: mutable usize = 0
+            while i <= rank:
+                sum <- (sum + f[i][mask] * g[rank - i][mask]) % MOD
+                i <- i + 1
+            h[rank][mask] <- sum
+            rank <- rank + 1
+        mask <- mask + 1
+    bit <- 0
+    while bit < n:
+        mask <- 0
+        while mask < size:
+            if (mask & (1 << bit)) != 0:
+                other: usize = mask ^ (1 << bit)
+                rank: mutable usize = 0
+                while rank <= n:
+                    h[rank][mask] <- (h[rank][mask] - h[rank][other] + MOD) % MOD
+                    rank <- rank + 1
+            mask <- mask + 1
+        bit <- bit + 1
+    required: usize = size * 8
+    if capacity < required or output.is_null(): return -2
+    mask <- 0
+    while mask < size:
+        fast_subset_convolution_put(output, 8 * mask, h[fast_subset_convolution_rank(mask)][mask])
+        mask <- mask + 1
+    return required.i64()
+
+@export("fast_subset_convolution")
+def fast_subset_convolution(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    return fast_subset_convolution_impl(input, length, output, capacity)

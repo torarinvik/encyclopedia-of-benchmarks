@@ -1,0 +1,103 @@
+const TSP_FEW_INF: i64 = 2305843009213693951
+
+def tsp_few_dist(points: i64[32]&, ia: usize, ib: usize) -> i64:
+    dx: i64=points[2*ia]-points[2*ib];dy: i64=points[2*ia+1]-points[2*ib+1]
+    square: i64=(dx*dx+dy*dy)*1000000
+    low: mutable i64=0;high: mutable i64=3000000
+    while low<high:
+        middle: i64=low+(high-low+1)/2
+        if middle*middle<=square:low<-middle
+        else:high<-middle-1
+    upper: i64=low+1
+    if upper*upper-square<square-low*low:return upper
+    low
+
+def tsp_few_add(a:i64,b:i64)->i64:
+    if a>=TSP_FEW_INF:return TSP_FEW_INF
+    a+b
+
+def tsp_few_solve(outer: usize[16]&, outer_n: usize, order: usize[6]&, k: usize,
+                  points: i64[32]&) -> i64:
+    po: mutable i64[7]=zeroed;pi: mutable i64[7]=zeroed;co: mutable i64[7]=zeroed;ci: mutable i64[7]=zeroed
+    for j in 0..=k:po[j]<-TSP_FEW_INF;pi[j]<-TSP_FEW_INF
+    po[0]<-0
+    for j in 1..=k:
+        a:i64=tsp_few_add(po[j-1],tsp_few_dist(points,outer[0],order[j-1]))
+        b:mutable i64=TSP_FEW_INF
+        if j>1:b<-tsp_few_add(pi[j-1],tsp_few_dist(points,order[j-2],order[j-1]))
+        if a<b:pi[j]<-a
+        else:pi[j]<-b
+    for i in 1..<outer_n:
+        for j in 0..=k:co[j]<-TSP_FEW_INF;ci[j]<-TSP_FEW_INF
+        edge:i64=tsp_few_dist(points,outer[i-1],outer[i])
+        co[0]<-tsp_few_add(po[0],edge)
+        for j in 1..=k:
+            a:i64=tsp_few_add(po[j],edge)
+            b:i64=tsp_few_add(pi[j],tsp_few_dist(points,order[j-1],outer[i]))
+            if a<b:co[j]<-a
+            else:co[j]<-b
+        for j in 1..=k:
+            a:i64=tsp_few_add(co[j-1],tsp_few_dist(points,outer[i],order[j-1]))
+            b:mutable i64=TSP_FEW_INF
+            if j>1:b<-tsp_few_add(ci[j-1],tsp_few_dist(points,order[j-2],order[j-1]))
+            if a<b:ci[j]<-a
+            else:ci[j]<-b
+        for j in 0..=k:po[j]<-co[j];pi[j]<-ci[j]
+    best:mutable i64=tsp_few_add(po[k],tsp_few_dist(points,outer[outer_n-1],outer[0]))
+    if k>0:
+        close:i64=tsp_few_add(pi[k],tsp_few_dist(points,order[k-1],outer[0]))
+        if close<best:best<-close
+    best
+
+def tsp_few_next(order: mutable usize[6]&, k: usize) -> bool:
+    if k<2:return false
+    i:mutable i64=k.i64()-2
+    while i>=0 and order[i.usize()]>=order[i.usize()+1]:i<-i-1
+    if i<0:return false
+    j:mutable usize=k-1
+    while order[j]<=order[i.usize()]:j<-j-1
+    temp:usize=order[i.usize()];order[i.usize()]<-order[j];order[j]<-temp
+    left:mutable usize=i.usize()+1;right:mutable usize=k-1
+    while left<right:
+        temp<-order[left];order[left]<-order[right];order[right]<-temp
+        left<-left+1;right<-right-1
+    true
+
+def tsp_few_put(output: mutable u8&, value:i64)->void:
+    bits:u64=value.u64()
+    for b in 0..<8:output[b]<-(bits>>(8*b)).u8()
+
+def tsp_few_inner_points_impl(input:i64&, length:usize, output:mutable u8&, capacity:usize)->i64:
+    if input==null or length<2 or length>51:return -1
+    n0:i64=input[0];k0:i64=input[1]
+    if n0<3 or n0>16 or k0<0 or k0>6 or k0>n0-3 or length!=(2+3*n0).usize():return -1
+    n:usize=n0.usize();k:usize=k0.usize();outer_n:usize=n-k
+    outer:mutable usize[16]=zeroed;inner:mutable usize[6]=zeroed;seen:mutable bool[16]=zeroed
+    for i in 0..<outer_n:
+        id:i64=input[2+i]
+        if id<0 or id>=n0 or seen[id.usize()]:return -1
+        outer[i]<-id.usize();seen[id.usize()]<-true
+    for i in 0..<k:
+        id:i64=input[2+outer_n+i]
+        if id<0 or id>=n0 or seen[id.usize()]:return -1
+        inner[i]<-id.usize();seen[id.usize()]<-true
+    for i in 0..<n:if not seen[i]:return -1
+    points:mutable i64[32]=zeroed;offset:usize=2+n
+    for i in 0..<n:
+        x:i64=input[offset+2*i];y:i64=input[offset+2*i+1]
+        if x< -1000 or x>1000 or y< -1000 or y>1000:return -1
+        for j in 0..<i:if points[2*j]==x and points[2*j+1]==y:return -1
+        points[2*i]<-x;points[2*i+1]<-y
+    for i in 1..<k:
+        x:usize=inner[i];j:mutable usize=i
+        while j>0 and inner[j-1]>x:inner[j]<-inner[j-1];j<-j-1
+        inner[j]<-x
+    best:mutable i64=TSP_FEW_INF
+    while true:
+        value:i64=tsp_few_solve(outer,outer_n,inner,k,points)
+        if value<best:best<-value
+        if not tsp_few_next(inner,k):break
+    if output==null or capacity<8:return -2
+    tsp_few_put(output,best);8
+
+export fn tsp_few_inner_points(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 = tsp_few_inner_points_impl

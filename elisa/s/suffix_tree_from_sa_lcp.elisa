@@ -1,0 +1,175 @@
+const MAX_TEXT: usize = 8
+const MAX_INPUT: usize = 10
+const MAX_SUFFIXES: usize = 9
+const MAX_NODES: usize = 17
+const MAX_OUTPUT_WORDS: usize = 86
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def symbol_at(input: i64&, n: usize, position: usize) -> usize:
+    if position == n: return 0
+    input[position + 1].usize()
+
+def suffix_less(input: i64&, n: usize, left_start: usize, right_start: usize) -> bool:
+    left: mutable usize = left_start
+    right: mutable usize = right_start
+    total: usize = n + 1
+    while left < total and right < total:
+        a: usize = symbol_at(input&, n, left)
+        b: usize = symbol_at(input&, n, right)
+        if a != b: return a < b
+        left <- left + 1
+        right <- right + 1
+    left == total and right != total
+
+def suffix_tree_from_sa_lcp_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT: return -1
+    n_raw: i64 = input[0]
+    if n_raw < 0 or n_raw > MAX_TEXT.i64() or length != n_raw.usize() + 1: return -1
+    n: usize = n_raw.usize()
+    index: mutable usize = 0
+    while index < n:
+        if input[index + 1] < 1 or input[index + 1] > 255: return -1
+        index <- index + 1
+
+    suffix_count: usize = n + 1
+    suffix_array: mutable usize[MAX_SUFFIXES] = zeroed
+    lcp: mutable usize[MAX_SUFFIXES] = zeroed
+    index <- 0
+    while index < suffix_count:
+        suffix_array[index] <- index
+        index <- index + 1
+    index <- 1
+    while index < suffix_count:
+        value: usize = suffix_array[index]
+        j: mutable usize = index
+        while j > 0 and suffix_less(input&, n, value, suffix_array[j - 1]):
+            suffix_array[j] <- suffix_array[j - 1]
+            j <- j - 1
+        suffix_array[j] <- value
+        index <- index + 1
+    rank: mutable usize = 1
+    while rank < suffix_count:
+        left: usize = suffix_array[rank - 1]
+        right: usize = suffix_array[rank]
+        common: mutable usize = 0
+        while left + common < suffix_count and right + common < suffix_count and
+            symbol_at(input&, n, left + common) == symbol_at(input&, n, right + common):
+            common <- common + 1
+        lcp[rank] <- common
+        rank <- rank + 1
+
+    parent: mutable usize[MAX_NODES] = zeroed
+    depth: mutable usize[MAX_NODES] = zeroed
+    representative: mutable i64[MAX_NODES] = zeroed
+    leaf: mutable i64[MAX_NODES] = zeroed
+    last_child: mutable i64[MAX_NODES] = zeroed
+    stack: mutable usize[MAX_NODES] = zeroed
+    node_count: mutable usize = 1
+    stack_size: mutable usize = 1
+    representative[0] <- -1
+    leaf[0] <- -1
+    last_child[0] <- -1
+    rank <- 0
+    while rank < suffix_count:
+        if rank > 0:
+            common: usize = lcp[rank]
+            while stack_size > 1 and depth[stack[stack_size - 1]] > common:
+                stack_size <- stack_size - 1
+            top: usize = stack[stack_size - 1]
+            if depth[top] < common:
+                old_child: i64 = last_child[top]
+                if old_child < 0: return -1
+                internal: usize = node_count
+                node_count <- node_count + 1
+                parent[internal] <- top
+                depth[internal] <- common
+                representative[internal] <- representative[old_child.usize()]
+                leaf[internal] <- -1
+                last_child[internal] <- old_child
+                parent[old_child.usize()] <- internal
+                last_child[top] <- internal.i64()
+                stack[stack_size] <- internal
+                stack_size <- stack_size + 1
+        owner: usize = stack[stack_size - 1]
+        suffix_start: usize = suffix_array[rank]
+        new_leaf: usize = node_count
+        node_count <- node_count + 1
+        parent[new_leaf] <- owner
+        depth[new_leaf] <- suffix_count - suffix_start
+        representative[new_leaf] <- suffix_start.i64()
+        leaf[new_leaf] <- suffix_start.i64()
+        last_child[new_leaf] <- -1
+        last_child[owner] <- new_leaf.i64()
+        rank <- rank + 1
+
+    records: mutable i64[MAX_NODES * 5] = zeroed
+    node: mutable usize = 0
+    while node < node_count:
+        at: usize = node * 5
+        if node == 0:
+            records[at] <- -1
+            records[at + 1] <- -1
+            records[at + 2] <- -1
+            records[at + 3] <- 0
+            records[at + 4] <- -1
+        else:
+            p: usize = parent[node]
+            records[at] <- representative[p]
+            records[at + 1] <- depth[p].i64()
+            records[at + 2] <- representative[node]
+            records[at + 3] <- depth[node].i64()
+            records[at + 4] <- leaf[node]
+        node <- node + 1
+    index <- 1
+    while index < node_count:
+        value0: i64 = records[index * 5]
+        value1: i64 = records[index * 5 + 1]
+        value2: i64 = records[index * 5 + 2]
+        value3: i64 = records[index * 5 + 3]
+        value4: i64 = records[index * 5 + 4]
+        j: mutable usize = index
+        while j > 0:
+            previous: usize = (j - 1) * 5
+            before: bool = value3 < records[previous + 3] or
+                (value3 == records[previous + 3] and value2 < records[previous + 2]) or
+                (value3 == records[previous + 3] and value2 == records[previous + 2] and value4 < records[previous + 4])
+            if not before: break
+            field: mutable usize = 0
+            while field < 5:
+                records[j * 5 + field] <- records[previous + field]
+                field <- field + 1
+            j <- j - 1
+        records[j * 5] <- value0
+        records[j * 5 + 1] <- value1
+        records[j * 5 + 2] <- value2
+        records[j * 5 + 3] <- value3
+        records[j * 5 + 4] <- value4
+        index <- index + 1
+
+    staged: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    staged[0] <- node_count.i64()
+    words: mutable usize = 1
+    node <- 0
+    while node < node_count:
+        field: mutable usize = 0
+        while field < 5:
+            staged[words] <- records[node * 5 + field]
+            words <- words + 1
+            field <- field + 1
+        node <- node + 1
+    output_bytes: usize = words * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    byte: mutable usize = 0
+    while byte < output_bytes:
+        store_i64_le(staged[byte / 8], output&, byte - (byte % 8))
+        byte <- byte + 8
+    output_bytes.i64()
+
+export fn suffix_tree_from_sa_lcp(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = suffix_tree_from_sa_lcp_impl

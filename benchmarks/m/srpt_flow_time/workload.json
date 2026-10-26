@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-srpt-flow-time-i64-array-bytes-output-v1",
+  "algorithm": "srpt_flow_time",
+  "function_symbol": "srpt_flow_time",
+  "abi": "i64_array_bytes_output",
+  "description": "Preemptive shortest-remaining-processing-time scheduling on bounded identical machines.",
+  "source": {
+    "chapter_single_machine": {"title":"Minimum Flow Time","authors":["Nikhil Bansal"],"reference":"Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_235","algorithm_attribution":"Single-machine SRPT is optimal when preemption is allowed."},
+    "chapter_parallel_machines": {"title":"Flow Time Minimization","authors":["Luca Becchetti","Stefano Leonardi","Alberto Marchetti-Spaccamela","Kirk Pruhs"],"reference":"Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_146","algorithm_attribution":"SRPT is the stated best-known policy for identical parallel machines in the preemptive setting."},
+    "implementation_status":"Clean-room bounded integer-time profile; m=1 preserves the single-machine case."
+  },
+  "input": {"kind":"signed_64_bit_integer_array","encoding":"[machine_count,n,(release_time,processing_time)...]","machine_count_range":[1,4],"job_count_range":[1,12],"release_time_range":[0,50],"processing_time_range":[1,10],"maximum_valid_length":26,"maximum_parseable_length":27,"invalid_input_result":-1,"null_input_result":-1},
+  "output": {"kind":"little_endian_signed_64_bit_array","encoding":"[total_flow_time,completion_times_by_job_id...]","maximum_output_elements":13,"maximum_bytes":104,"success_result":"8 * (1+n) bytes written","invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"output_untouched_on_error":true},
+  "workspace": {"bytes":512,"meaning":"Bounded release, remaining-work, completion, selected-job, and schedule state for 12 jobs and 4 machines."},
+  "contract": {"time_model":"Integer release and processing times; preemptive scheduling decisions occur at integer boundaries.","selection":"At each time slot, run up to machine_count released unfinished jobs by smallest remaining processing time; ties use lower job ID.","idle":"Advance to the earliest unreleased job when no job is ready.","objective":"Sum completion_time minus release_time.","error_precedence":"Malformed input returns -1 before output checks; null or short output returns -2 without writes."},
+  "measurement": {"comparison_model":"i64_array_bytes_output_call","sample_count":8,"warmup_rounds":2,"repetitions_per_sample":100},
+  "cases": [
+    {"id":"single-machine-preemption-at-arrival","input_values":[1,3,0,5,0,2,1,1],"input_length":8,"output_capacity":104,"expected_result":32,"expected_output_hex":"0c00000000000000080000000000000002000000000000000300000000000000"},
+    {"id":"single-machine-equal-remaining-tie-by-id","input_values":[1,2,0,1,0,1],"input_length":6,"output_capacity":64,"expected_result":24,"expected_output_hex":"030000000000000001000000000000000200000000000000"},
+    {"id":"two-machines-shortest-remaining-selection","input_values":[2,3,0,5,0,2,1,1],"input_length":8,"output_capacity":64,"expected_result":32,"expected_output_hex":"0900000000000000060000000000000002000000000000000200000000000000"},
+    {"id":"three-machines-with-later-release","input_values":[3,2,0,3,1,1],"input_length":6,"output_capacity":64,"expected_result":24,"expected_output_hex":"040000000000000003000000000000000200000000000000"},
+    {"id":"invalid-machine-count","input_values":[0,1,0,1],"input_length":4,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative-release","input_values":[1,1,-1,2],"input_length":4,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[1,2,0,1],"input_length":3,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":1,"input_is_null":true,"output_capacity":104,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-capacity","input_values":[1,1,2,3],"input_length":4,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,2,3],"input_length":4,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

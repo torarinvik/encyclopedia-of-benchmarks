@@ -768,10 +768,6 @@ from modular_exponentiation_oracle import I32_MAX as MODULAR_EXPONENTIATION_I32_
 from modular_exponentiation_oracle import I32_MIN as MODULAR_EXPONENTIATION_I32_MIN
 from modular_exponentiation_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MODULAR_EXPONENTIATION_INPUT_LENGTH
 from modular_exponentiation_oracle import expected_result as modular_exponentiation_oracle
-from modpow_oracle import MAX_COMPONENT as MAX_MODPOW_COMPONENT
-from modpow_oracle import MAX_EXPONENT as MAX_MODPOW_EXPONENT
-from modpow_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MODPOW_INPUT_LENGTH
-from modpow_oracle import expected_result as modpow_oracle
 from divisors_oracle import MAX_INPUT_LENGTH as MAX_DIVISORS_INPUT_LENGTH
 from divisors_oracle import MAX_N as MAX_DIVISORS_N
 from divisors_oracle import expected_result as divisors_oracle
@@ -933,11 +929,9 @@ from run_i64_array_scalar import validate_sparse_matrix_workload
 from run_i64_array_scalar import validate_mrucache_workload
 from run_i64_array_scalar import validate_lww_element_set_workload
 from run_i64_array_scalar import validate_smallest_prime_factor_workload
-from run_i64_array_scalar import validate_kruskal_mst_workload
 from run_i64_array_scalar import validate_mos_algorithm_workload
 from run_i64_array_scalar import validate_persistent_seg_tree_lazy_prop_workload
 from run_i64_array_scalar import validate_euler_problem_4_workload
-from run_i64_array_scalar import validate_euler_problem_6_workload
 from run_i64_array_scalar import validate_euler_problem_7_workload
 from run_i64_array_scalar import validate_sparse_table_workload
 from run_i64_array_scalar import validate_merge_find_set_workload
@@ -947,7 +941,6 @@ from run_i64_array_scalar import validate_sorted_list_workload
 from run_i64_array_scalar import validate_sorted_table_workload
 from run_i64_array_scalar import validate_radix_tree_workload
 from run_i64_array_scalar import validate_kdtree_workload
-from run_i64_array_scalar import validate_lcabinary_lifting_workload
 from run_i64_array_scalar import validate_segment_tree2_d_workload
 from run_i64_array_scalar import validate_segment_tree_apply_workload
 from run_i64_array_scalar import validate_smooth_sort_workload
@@ -1522,13 +1515,6 @@ from lamport_signature_oracle import (
     SIGNATURE_BYTES as LAMPORT_SIGNATURE_SIGNATURE_BYTES,
     expected_result as lamport_signature_oracle,
 )
-from kruskal_mst_oracle import MAX_EDGES as KRUSKAL_MST_MAX_EDGES
-from kruskal_mst_oracle import MAX_PARSEABLE_INPUT_LENGTH as KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH
-from kruskal_mst_oracle import MAX_VALID_INPUT_LENGTH as KRUSKAL_MST_MAX_VALID_INPUT_LENGTH
-from kruskal_mst_oracle import MAX_VERTICES as KRUSKAL_MST_MAX_VERTICES
-from kruskal_mst_oracle import WEIGHT_MAX as KRUSKAL_MST_WEIGHT_MAX
-from kruskal_mst_oracle import WEIGHT_MIN as KRUSKAL_MST_WEIGHT_MIN
-from kruskal_mst_oracle import expected_result as kruskal_mst_oracle
 from mos_algorithm_oracle import FNV_OFFSET as MOS_ALGORITHM_FNV_OFFSET
 from mos_algorithm_oracle import FNV_PRIME as MOS_ALGORITHM_FNV_PRIME
 from mos_algorithm_oracle import MAX_INPUT_LENGTH as MOS_ALGORITHM_MAX_INPUT_LENGTH
@@ -1546,9 +1532,6 @@ from persistent_seg_tree_lazy_prop_oracle import expected_result as persistent_s
 from euler_problem_4_oracle import MAX_DIGITS as EULER_PROBLEM_4_MAX_DIGITS
 from euler_problem_4_oracle import MAX_PARSEABLE_INPUT_LENGTH as EULER_PROBLEM_4_MAX_PARSEABLE_INPUT_LENGTH
 from euler_problem_4_oracle import expected_result as euler_problem_4_oracle
-from euler_problem_6_oracle import MAX_N as EULER_PROBLEM_6_MAX_N
-from euler_problem_6_oracle import MAX_PARSEABLE_INPUT_LENGTH as EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH
-from euler_problem_6_oracle import expected_result as euler_problem_6_oracle
 from euler_problem_7_oracle import MAX_ORDINAL as EULER_PROBLEM_7_MAX_ORDINAL
 from euler_problem_7_oracle import MAX_PARSEABLE_INPUT_LENGTH as EULER_PROBLEM_7_MAX_PARSEABLE_INPUT_LENGTH
 from euler_problem_7_oracle import expected_result as euler_problem_7_oracle
@@ -1603,12 +1586,6 @@ from kdtree_oracle import MAX_PARSEABLE_INPUT_VALUES as KDTREE_MAX_PARSEABLE_INP
 from kdtree_oracle import MAX_POINTS as KDTREE_MAX_POINTS
 from kdtree_oracle import MIN_COORDINATE as KDTREE_MIN_COORDINATE
 from kdtree_oracle import expected_result as kdtree_oracle
-from lcabinary_lifting_oracle import INVALID_RESULT as LCABINARY_LIFTING_INVALID_RESULT
-from lcabinary_lifting_oracle import MAX_NODES as LCABINARY_LIFTING_MAX_NODES
-from lcabinary_lifting_oracle import MAX_PARSEABLE_INPUT_VALUES as LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES
-from lcabinary_lifting_oracle import MAX_QUERIES as LCABINARY_LIFTING_MAX_QUERIES
-from lcabinary_lifting_oracle import MAX_VALID_INPUT_VALUES as LCABINARY_LIFTING_MAX_VALID_INPUT_VALUES
-from lcabinary_lifting_oracle import expected_result as lcabinary_lifting_oracle
 from segment_tree2_d_oracle import CHECKSUM_OFFSET as SEGMENT_TREE2_D_CHECKSUM_OFFSET
 from segment_tree2_d_oracle import INVALID_RESULT as SEGMENT_TREE2_D_INVALID_RESULT
 from segment_tree2_d_oracle import MAX_CELL_VALUE as SEGMENT_TREE2_D_MAX_CELL_VALUE
@@ -1672,7 +1649,7 @@ from knapsack_zero_one_tabulation_oracle import MAX_VALUE as KNAPSACK_ZERO_ONE_T
 from knapsack_zero_one_tabulation_oracle import MAX_WEIGHT as KNAPSACK_ZERO_ONE_TABULATION_MAX_WEIGHT
 from knapsack_zero_one_tabulation_oracle import expected_result as knapsack_zero_one_tabulation_oracle
 
-ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "frequency_finder", "multiply_digit", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "edmonds_karp", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "modpow", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
+ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "frequency_finder", "multiply_digit", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "edmonds_karp", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
 ALGORITHMS += ("trimaran_netbench_url_internet_checksum",)
 ALGORITHMS += ("trimaran_enc_pc1",)
 ALGORITHMS += ("mccat_08_main",)
@@ -1867,10 +1844,9 @@ ALGORITHMS += ("logistic_regression_predict",)
 ALGORITHMS += ("time_simulation",)
 ALGORITHMS += ("rotting_oranges",)
 ALGORITHMS += ("mrucache",)
-ALGORITHMS += ("kruskal_mst", "mos_algorithm")
+ALGORITHMS += ("mos_algorithm",)
 ALGORITHMS += ("persistent_seg_tree_lazy_prop",)
 ALGORITHMS += ("euler_problem_4",)
-ALGORITHMS += ("euler_problem_6",)
 ALGORITHMS += ("euler_problem_7",)
 ALGORITHMS += ("sparse_table",)
 ALGORITHMS += ("merge_find_set",)
@@ -1880,7 +1856,6 @@ ALGORITHMS += ("sorted_list",)
 ALGORITHMS += ("sorted_table",)
 ALGORITHMS += ("radix_tree",)
 ALGORITHMS += ("kdtree",)
-ALGORITHMS += ("lcabinary_lifting",)
 ALGORITHMS += ("segment_tree2_d",)
 ALGORITHMS += ("segment_tree_apply",)
 ALGORITHMS += ("smooth_sort",)
@@ -3512,16 +3487,12 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return kmeans_rust_oracle(values)
     if algorithm == "lamport_signature":
         return lamport_signature_oracle(values)
-    if algorithm == "kruskal_mst":
-        return kruskal_mst_oracle(values)
     if algorithm == "mos_algorithm":
         return mos_algorithm_oracle(values)
     if algorithm == "persistent_seg_tree_lazy_prop":
         return persistent_seg_tree_lazy_prop_oracle(values)
     if algorithm == "euler_problem_4":
         return euler_problem_4_oracle(values)
-    if algorithm == "euler_problem_6":
-        return euler_problem_6_oracle(values)
     if algorithm == "euler_problem_7":
         return euler_problem_7_oracle(values)
     if algorithm == "sparse_table":
@@ -3540,13 +3511,10 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return radix_tree_oracle(values)
     if algorithm == "kdtree":
         return kdtree_oracle(values)
-    if algorithm == "lcabinary_lifting":
-        return lcabinary_lifting_oracle(values)
     if algorithm == "segment_tree2_d":
         return segment_tree2_d_oracle(values)
     if algorithm == "segment_tree_apply":
         return segment_tree_apply_oracle(values)
-    if algorithm == "smooth_sort":
         return smooth_sort_oracle(values)
     if algorithm == "tim_sorter":
         return tim_sorter_oracle(values)
@@ -4267,8 +4235,6 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return divisors_oracle(values)
     if algorithm == "modular_exponentiation":
         return modular_exponentiation_oracle(values)
-    if algorithm == "modpow":
-        return modpow_oracle(values)
     if algorithm == "mode":
         if (not 1 <= len(values) <= 4096
                 or any(type(value) is not int or not 0 <= value <= 255 for value in values)):
@@ -4587,16 +4553,12 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_smallest_prime_factor_workload(workload)
     elif algorithm == "permutation_count":
         validate_permutation_count_workload(workload)
-    elif algorithm == "kruskal_mst":
-        validate_kruskal_mst_workload(workload)
     elif algorithm == "mos_algorithm":
         validate_mos_algorithm_workload(workload)
     elif algorithm == "persistent_seg_tree_lazy_prop":
         validate_persistent_seg_tree_lazy_prop_workload(workload)
     elif algorithm == "euler_problem_4":
         validate_euler_problem_4_workload(workload)
-    elif algorithm == "euler_problem_6":
-        validate_euler_problem_6_workload(workload)
     elif algorithm == "euler_problem_7":
         validate_euler_problem_7_workload(workload)
     elif algorithm == "sparse_table":
@@ -4615,13 +4577,10 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_radix_tree_workload(workload)
     elif algorithm == "kdtree":
         validate_kdtree_workload(workload)
-    elif algorithm == "lcabinary_lifting":
-        validate_lcabinary_lifting_workload(workload)
     elif algorithm == "segment_tree2_d":
         validate_segment_tree2_d_workload(workload)
     elif algorithm == "segment_tree_apply":
         validate_segment_tree_apply_workload(workload)
-    elif algorithm == "smooth_sort":
         validate_smooth_sort_workload(workload)
     elif algorithm == "tim_sorter":
         validate_tim_sorter_workload(workload)
@@ -14277,28 +14236,6 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             if len(values) <= MAX_MODULAR_EXPONENTIATION_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
-    elif algorithm == "modpow":
-        for base in (0, 1, 2, MAX_MODPOW_COMPONENT // 2, MAX_MODPOW_COMPONENT):
-            for exponent in range(MAX_MODPOW_EXPONENT + 1):
-                for modulus in (1, 2, 7, MAX_MODPOW_COMPONENT - 1,
-                                MAX_MODPOW_COMPONENT):
-                    values = (base, exponent, modulus)
-                    cases[values] = oracle(algorithm, list(values))
-        for _ in range(512):
-            values = (rng.randint(0, MAX_MODPOW_COMPONENT),
-                      rng.randint(0, MAX_MODPOW_EXPONENT),
-                      rng.randint(1, MAX_MODPOW_COMPONENT))
-            cases[values] = oracle(algorithm, list(values))
-        malformed = (
-            (), (1,), (1, 2), (1, 2, 3, 4),
-            (-1, 1, 7), (MAX_MODPOW_COMPONENT + 1, 1, 7),
-            (1, -1, 7), (1, MAX_MODPOW_EXPONENT + 1, 7),
-            (1, 1, 0), (1, 1, MAX_MODPOW_COMPONENT + 1),
-            (0, 0, 1), (I64_MIN, 1, 7), (I64_MAX, 1, 7),
-        )
-        for values in malformed:
-            if len(values) <= MAX_MODPOW_INPUT_LENGTH:
-                cases[values] = oracle(algorithm, list(values))
     elif algorithm == "egg_dropping":
         for eggs in range(1, 13):
             for floors in range(1, 129, 7):
@@ -16322,59 +16259,6 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             add_mrucache_case(tuple(values))
         special_records.append("NULL 1 -1\n")
-    if algorithm == "kruskal_mst":
-        def add_kruskal_mst_case(values: tuple[int, ...]) -> None:
-            if (len(values) > KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH
-                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
-                raise ValueError("kruskal_mst generated input exceeds its signed-i64 framing bounds")
-            result = kruskal_mst_oracle(values)
-            if result != -1 and not 0 <= result <= (1 << 63) - 1:
-                raise ValueError("kruskal_mst oracle returned a result outside its signed-63-bit contract")
-            cases[values] = result
-
-        rng_kruskal_mst = random.Random(20261017)
-        for _ in range(96):
-            vertex_count = rng_kruskal_mst.randint(1, KRUSKAL_MST_MAX_VERTICES)
-            if vertex_count == 1:
-                add_kruskal_mst_case((1, 0))
-                continue
-            pairs = [(left, right) for left in range(vertex_count)
-                     for right in range(left + 1, vertex_count)]
-            tree = [(rng_kruskal_mst.randrange(vertex), vertex)
-                    for vertex in range(1, vertex_count)]
-            tree_pairs = {(min(left, right), max(left, right)) for left, right in tree}
-            edge_count = rng_kruskal_mst.randint(vertex_count - 1, len(pairs))
-            extra = rng_kruskal_mst.sample([pair for pair in pairs if pair not in tree_pairs],
-                                           edge_count - (vertex_count - 1))
-            chosen = tree + extra
-            weights = rng_kruskal_mst.sample(
-                range(KRUSKAL_MST_WEIGHT_MIN, KRUSKAL_MST_WEIGHT_MAX + 1), edge_count)
-            edges = []
-            for (left, right), weight in zip(chosen, weights):
-                if rng_kruskal_mst.randrange(2):
-                    left, right = right, left
-                edges.append((left, right, weight))
-            rng_kruskal_mst.shuffle(edges)
-            values = (vertex_count, edge_count,
-                      *(field for edge in edges for field in edge))
-            add_kruskal_mst_case(values)
-
-        malformed_kruskal = (
-            (), (0, 0), (KRUSKAL_MST_MAX_VERTICES + 1, 0), (2, -1),
-            (2, 1, 0, 1), (1, 0, 0), (3, 2, 0, 1, 1, 1, 2, 2),
-            (4, 3, 0, 1, 1, 0, 2, 2, 1, 2, 3),
-            (2, 1, 0, 2, 1), (2, 1, 0, 0, 1),
-            (2, 2, 0, 1, 1, 1, 0, 2),
-            (3, 2, 0, 1, 1, 1, 2, 1),
-            (2, 1, 0, 1, KRUSKAL_MST_WEIGHT_MIN - 1),
-            (2, 1, 0, 1, KRUSKAL_MST_WEIGHT_MAX + 1),
-            (1, 1, 0, 0, 0),
-            (KRUSKAL_MST_MAX_VERTICES, KRUSKAL_MST_MAX_EDGES,
-             *([0] * (KRUSKAL_MST_MAX_VALID_INPUT_LENGTH - 1))),
-        )
-        for malformed in malformed_kruskal:
-            add_kruskal_mst_case(tuple(malformed))
-
     if algorithm == "mos_algorithm":
         def add_mos_algorithm_case(values: tuple[int, ...]) -> None:
             if (len(values) > MOS_ALGORITHM_MAX_INPUT_LENGTH
@@ -16499,25 +16383,6 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for malformed in malformed_euler_problem_4:
             add_euler_problem_4_case(tuple(malformed))
-    if algorithm == "euler_problem_6":
-        def add_euler_problem_6_case(values: tuple[int, ...]) -> None:
-            if (len(values) > EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH
-                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
-                raise ValueError("euler_problem_6 input exceeds its signed-i64 framing bounds")
-            result = euler_problem_6_oracle(values)
-            if result != -1 and not 0 <= result <= (1 << 63) - 1:
-                raise ValueError("euler_problem_6 oracle returned a result outside its signed-63-bit contract")
-            cases[values] = result
-
-        for n in range(1, EULER_PROBLEM_6_MAX_N + 1):
-            add_euler_problem_6_case((n,))
-
-        malformed_euler_problem_6 = (
-            (), (0,), (-1,), (EULER_PROBLEM_6_MAX_N + 1,),
-            (I64_MIN,), (I64_MAX,), (100, 0),
-        )
-        for malformed in malformed_euler_problem_6:
-            add_euler_problem_6_case(tuple(malformed))
     if algorithm == "euler_problem_7":
         def add_euler_problem_7_case(values: tuple[int, ...]) -> None:
             if (len(values) > EULER_PROBLEM_7_MAX_PARSEABLE_INPUT_LENGTH
@@ -16954,7 +16819,6 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for malformed in malformed_radix_tree:
             add_radix_tree_case(tuple(malformed))
-    if algorithm == "smooth_sort":
         def add_smooth_sort_case(values: tuple[int, ...]) -> None:
             if (len(values) > SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH + 1
                     or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
@@ -17046,56 +16910,6 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for malformed in malformed_kdtree:
             add_kdtree_case(tuple(malformed))
-    if algorithm == "lcabinary_lifting":
-        def add_lcabinary_lifting_case(values: tuple[int, ...]) -> None:
-            if (len(values) > LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES + 1
-                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
-                raise ValueError("lcabinary_lifting input exceeds its signed-i64 framing bounds")
-            result = lcabinary_lifting_oracle(values)
-            if result != LCABINARY_LIFTING_INVALID_RESULT and not 0 <= result <= I64_MAX:
-                raise ValueError("lcabinary_lifting oracle returned a checksum outside its signed scalar contract")
-            cases[values] = result
-
-        rng_lcabinary_lifting = random.Random(20261017)
-        for _ in range(96):
-            node_count = rng_lcabinary_lifting.randint(2, LCABINARY_LIFTING_MAX_NODES)
-            root = rng_lcabinary_lifting.randrange(node_count)
-            edges = []
-            for node in range(1, node_count):
-                edges.extend((node, rng_lcabinary_lifting.randrange(node)))
-            query_count = rng_lcabinary_lifting.randint(0, 64)
-            trace = [node_count, root, node_count - 1, *edges, query_count]
-            for _ in range(query_count):
-                trace.extend((rng_lcabinary_lifting.randrange(node_count),
-                              rng_lcabinary_lifting.randrange(node_count)))
-            add_lcabinary_lifting_case(tuple(trace))
-
-        maximum_node_count = LCABINARY_LIFTING_MAX_NODES
-        maximum_trace = [maximum_node_count, 0, maximum_node_count - 1]
-        for node in range(1, maximum_node_count):
-            maximum_trace.extend((node - 1, node))
-        maximum_trace.append(LCABINARY_LIFTING_MAX_QUERIES)
-        for query_index in range(LCABINARY_LIFTING_MAX_QUERIES):
-            maximum_trace.extend((query_index % maximum_node_count,
-                                  (query_index * 37 + 7) % maximum_node_count))
-        if len(maximum_trace) != LCABINARY_LIFTING_MAX_VALID_INPUT_VALUES:
-            raise ValueError("lcabinary_lifting maximum trace does not match its reviewed input bound")
-        add_lcabinary_lifting_case(tuple(maximum_trace))
-
-        malformed_lcabinary_lifting = (
-            (), (2, 0, 1), (1, 0, 0, 0),
-            (LCABINARY_LIFTING_MAX_NODES + 1, 0, LCABINARY_LIFTING_MAX_NODES, 0),
-            (2, 2, 1, 0, 1, 0), (3, 0, 1, 0, 1, 0),
-            (2, 0, 1, 0, 0, 0), (3, 0, 2, 0, 1, 1, 0, 0),
-            (4, 0, 3, 0, 1, 1, 2, 2, 0, 0), (2, 0, 1, 0),
-            (2, 0, 1, 0, 1, LCABINARY_LIFTING_MAX_QUERIES + 1),
-            (2, 0, 1, 0, 1, 0, 1), (2, 0, 1, 0, 1, 1, 0, 2),
-            (2, 0, 1, 0, 1, 0, 7), (2, 0, 1, -1, 1, 0),
-            tuple([0] * LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES),
-            tuple([0] * (LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES + 1)),
-        )
-        for malformed in malformed_lcabinary_lifting:
-            add_lcabinary_lifting_case(tuple(malformed))
     if algorithm == "segment_tree2_d":
         def add_segment_tree2_d_case(values: tuple[int, ...]) -> None:
             if (len(values) > SEGMENT_TREE2_D_MAX_PARSEABLE_INPUT_VALUES + 1

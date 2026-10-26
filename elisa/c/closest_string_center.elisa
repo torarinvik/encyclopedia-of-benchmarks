@@ -1,0 +1,32 @@
+// Bounded exact closest-string center by lexicographic exhaustive search.
+def closest_string_center_impl(x:i64&,length:usize,out:mutable u8&,cap:usize)->i64:
+    if length<3 or length>51:return -1
+    nv:i64=x[0];mv:i64=x[1];qv:i64=x[2]
+    if nv<1 or nv>6 or mv<1 or mv>8 or (qv!=2 and qv!=3) or length!=3+(nv*mv).usize():return -1
+    n:usize=nv.usize();m:usize=mv.usize();q:usize=qv.usize()
+    for i in 3..length:if x[i]<0 or x[i]>=qv:return -1
+    total:mutable usize=1
+    for _ in 0..m:total<-total*q
+    best:mutable usize=m+1;bestc:mutable usize[8]=zeroed;candidate:mutable usize[8]=zeroed
+    for code in 0..total:
+        v:mutable usize=code
+        for p0 in 0..m:
+            p:usize=m-1-p0;candidate[p]<-v%q;v<-v/q
+        radius:mutable usize=0
+        for row in 0..n:
+            d:mutable usize=0
+            for col in 0..m:if candidate[col].i64()!=x[3+row*m+col]:d<-d+1
+            if d>radius:radius<-d
+        if radius<best:
+            best<-radius
+            for j in 0..m:bestc[j]<-candidate[j]
+    bytes:usize=8*(m+1)
+    if cap<bytes:return -2
+    value:u64=best.u64()
+    for b in 0..8:out[b]<-((value>>(8*b)) & 255).u8()
+    for j in 0..m:
+        value<-bestc[j].u64()
+        for b in 0..8:out[8*(j+1)+b]<-((value>>(8*b)) & 255).u8()
+    bytes.i64()
+
+export fn closest_string_center(x:i64&,length:usize,out:mutable u8&,cap:usize)->i64=closest_string_center_impl

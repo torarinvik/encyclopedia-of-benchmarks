@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0.0",
+  "id": "first-fit-bin-packing-millionths-v1",
+  "algorithm": "first_fit_bin_packing",
+  "function_symbol": "first_fit_bin_packing",
+  "comparison_model": "i64_array_bytes_output_call",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[item_count,size_0,...,size_(n-1)]",
+    "item_count_range": [0, 64],
+    "capacity_units": 1000000,
+    "item_size_range": [1, 1000000],
+    "size_encoding": "integer millionths of unit bin capacity",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_i64_array",
+    "description": "[bin_count, zero-based bin ID for each item in input order].",
+    "maximum_output_bytes": 520,
+    "maximum_output_elements": 65,
+    "success_result": "8 * (item_count + 1)",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_when_nonempty_result": -2
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Up to 64 signed-i64 bin loads and 64 staged bin assignments."
+  },
+  "measurement": {
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "first-fit-in-input-order",
+      "input_values": [4,600000,400000,500000,500000],
+      "input_length": 5,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000000000000000000000000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "first-eligible-bin-not-best-fit",
+      "input_values": [4,400000,400000,600000,600000],
+      "input_length": 5,
+      "expected_result": 40,
+      "expected_output_hex": "03000000000000000000000000000000000000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "empty-input",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "declared-count-mismatch",
+      "input_values": [2,500000],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-size-item-invalid",
+      "input_values": [1,0],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "item-larger-than-bin-invalid",
+      "input_values": [1,1000001],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-capacity",
+      "input_values": [1,500000],
+      "input_length": 2,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 7,
+      "capacity_error_result": -2
+    }
+  ]
+}

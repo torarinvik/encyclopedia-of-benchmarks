@@ -1,0 +1,25 @@
+{
+  "schema_version":1,
+  "id":"encyclopedia-max-average-length-bounded-segment-i64-array-bytes-output-v1",
+  "algorithm":"max_average_length_bounded_segment",
+  "function_symbol":"max_average_length_bounded_segment",
+  "abi":"i64_array_bytes_output",
+  "description":"Exact maximum-average interval under lower and upper length bounds.",
+  "source":{"title":"Maximum-Average Segments","authors":["Kun-Mao Chao"],"year":2016,"reference":"Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_224","url":"https://doi.org/10.1007/978-1-4939-2864-4_224","algorithm_attribution":"bounded maximum-density segment problem","implementation_status":"clean-room exact bounded scan; no source code copied"},
+  "input":{"kind":"signed_64_bit_integer_array","encoding":"[n, lower_length, upper_length, values...]","n_range":[1,32],"value_range":[-10000,10000],"maximum_valid_length":35,"invalid_input_result":-1},
+  "output":{"kind":"little_endian_signed_64_bit_array","encoding":"[segment_sum, segment_length, zero_based_start, end_exclusive]","maximum_bytes":32,"success_result":32,"invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"output_untouched_on_error":true},
+  "workspace":{"bytes":32,"meaning":"Four staged signed 64-bit result values."},
+  "contract":{"ratio_comparison":"Compare sums by cross multiplication; no floating-point arithmetic.","tie_rule":"Shorter segment, then earlier start, then earlier end.","invalid_input_result":-1,"output_error_result":-2},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call","sample_count":8,"warmup_rounds":2,"repetitions_per_sample":100},
+  "cases":[
+    {"id":"bounded-maximum-density","input_values":[6,2,4,1,-1,5,2,-3,4],"input_length":9,"output_capacity":32,"expected_result":32,"expected_output_hex":"0700000000000000020000000000000002000000000000000400000000000000"},
+    {"id":"equal-average-earliest","input_values":[4,1,2,1,2,2,1],"input_length":7,"output_capacity":32,"expected_result":32,"expected_output_hex":"0200000000000000010000000000000001000000000000000200000000000000"},
+    {"id":"shorter-segment-tie","input_values":[2,1,2,2,2],"input_length":5,"output_capacity":32,"expected_result":32,"expected_output_hex":"0200000000000000010000000000000000000000000000000100000000000000"},
+    {"id":"all-negative","input_values":[3,1,2,-3,-2,-1],"input_length":6,"output_capacity":32,"expected_result":32,"expected_output_hex":"ffffffffffffffff010000000000000002000000000000000300000000000000"},
+    {"id":"length-mismatch","input_values":[3,1,2,1,2],"input_length":5,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-range","input_values":[3,0,2,1,2,3],"input_length":6,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,1,2,1,2],"input_length":5,"output_capacity":31,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,1,2,1,2],"input_length":5,"output_capacity":32,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":3,"input_is_null":true,"output_capacity":32,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

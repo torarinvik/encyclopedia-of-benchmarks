@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-permutation-shortcut-index-i64-array-bytes-output-v1",
+  "algorithm": "permutation_shortcut_index",
+  "function_symbol": "permutation_shortcut_index",
+  "abi": "i64_array_bytes_output",
+  "description": "Shortcut-index queries for a bounded permutation and its inverse.",
+  "source": {
+    "title": "Succinct and Compressed Data Structures for Permutations and Integer Functions",
+    "authors": ["Jérémy Barbay"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_411",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_411",
+    "algorithm_attribution": "Theorem 1 shortcut index for permutation application and inverse queries using cycle back pointers and a rank/select bit vector",
+    "implementation_status": "clean-room bounded profile for n<=16 and at most 16 queries"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,stride,permutation_1_to_n...,query_count,(operation,index)*]",
+    "n_range": [1, 16],
+    "stride_range": [1, 16],
+    "query_count_range": [0, 16],
+    "operations": {"0": "permutation(index)", "1": "inverse_permutation(index)"},
+    "query_index_range": "1..n",
+    "permutation_requirement": "Each value in 1..n appears exactly once.",
+    "maximum_valid_length": 51,
+    "maximum_parseable_length": 52,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "One query answer per supplied operation, in query order.",
+    "maximum_bytes": 128,
+    "zero_query_result": "Success with zero bytes written, provided output is non-null.",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Permutation cycles, shortcut bitmap and predecessor pointers, and staged query answers."
+  },
+  "contract": {
+    "cycle_order": "Start each unvisited cycle at its smallest numbered member and follow the permutation.",
+    "shortcut_layout": "For each cycle of length at least stride, mark cycle offsets 0,stride,2*stride,... and store the stride-step predecessor at each marked vertex. Shortcut records are ordered by vertex number; bitmap rank maps a marker to its record.",
+    "inverse_query": "Scan forward from the target to a marker; jump to its stored stride-step predecessor; follow permutation edges to the target and return the preceding vertex. Cycles shorter than stride are traversed directly.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "identity-no-short-cycle",
+      "input_values": [4,2,1,2,3,4,4,0,1,1,1,0,4,1,4],
+      "input_length": 15,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000010000000000000004000000000000000400000000000000"
+    },
+    {
+      "id": "four-cycle-shortcut-inverse",
+      "input_values": [4,2,2,3,4,1,4,1,1,0,1,1,3,0,4],
+      "input_length": 15,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0400000000000000020000000000000002000000000000000100000000000000"
+    },
+    {
+      "id": "cycles-shorter-than-stride",
+      "input_values": [5,4,2,3,1,5,4,3,1,1,1,4,0,3],
+      "input_length": 14,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "030000000000000005000000000000000100000000000000"
+    },
+    {
+      "id": "zero-queries",
+      "input_values": [4,2,1,2,3,4,0],
+      "input_length": 7,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-sixteen-element-cycle",
+      "input_values": [16,3,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,1,16,1,1,1,2,1,3,1,4,1,5,1,6,1,7,1,8,1,9,1,10,1,11,1,12,1,13,1,14,1,15,1,16],
+      "input_length": 51,
+      "output_capacity": 128,
+      "expected_result": 128,
+      "expected_output_hex": "10000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f00000000000000"
+    },
+    {
+      "id": "trailing-value",
+      "input_values": [16,3,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,1,16,1,1,1,2,1,3,1,4,1,5,1,6,1,7,1,8,1,9,1,10,1,11,1,12,1,13,1,14,1,15,1,16,0],
+      "input_length": 52,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-duplicate-permutation-value",
+      "input_values": [3,1,2,2,1,0],
+      "input_length": 6,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-query-operation",
+      "input_values": [3,1,2,3,1,1,7,1],
+      "input_length": 8,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [4,2,2,3,4,1,4,1,1,0,1,1,3,0,4],
+      "input_length": 15,
+      "output_capacity": 31,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 15,
+      "input_is_null": true,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [4,2,2,3,4,1,4,1,1,0,1,1,3,0,4],
+      "input_length": 15,
+      "output_capacity": 32,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

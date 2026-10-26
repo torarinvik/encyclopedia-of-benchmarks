@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "chapter-705-uniform-edge-reservoir-i64-array-bytes-v1",
+  "algorithm": "counting_triangles_stream_reservoir",
+  "function_symbol": "counting_triangles_stream_reservoir",
+  "comparison_model": "i64_array_bytes_output_call",
+  "source": {
+    "chapter": "Counting Triangles in Graph Streams",
+    "doi": "10.1007/978-1-4939-2864-4_705",
+    "author": "Madhav Jha",
+    "scope": "Uniform edge reservoir primitive only; closed-wedge sampling and the downstream triangle/transitivity estimator are excluded."
+  },
+  "contract": {
+    "operation": "Maintain two independent uniform edge reservoirs in one pass, updating each slot at each stream position from its explicit discrete random draw.",
+    "input_layout": "[n,m,(u,v)[m],draw[2*m]]",
+    "draw_rule": "At 1-based stream position t, each slot draw is in [0,t-1]; zero replaces that slot with the current edge and other values retain its contents.",
+    "output_layout": "For every prefix, slot 0 then slot 1 as signed 64-bit (u,v) pairs; little-endian.",
+    "validation": "Simple undirected graph stream with canonical 0<=u<v<n edges; no repeated edge; draw bounds checked per time step.",
+    "error_precedence": "Malformed input returns -1 before output checks. Null output or insufficient byte capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 114,
+    "maximum_parseable_length": 115,
+    "vertex_count_range": [2,8],
+    "edge_count_range": [1,28],
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 112,
+    "maximum_output_bytes": 448,
+    "success_result": "16*m bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Two resident edge slots and staged prefix output for at most 28 streamed edges."
+  },
+  "measurement": {"sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
+  "cases": [
+    {
+      "id":"triangle-stream-replace-and-retain",
+      "input_values":[3,3,0,1,1,2,0,2,0,0,1,0,0,2],
+      "input_length":14,
+      "expected_result":96,
+      "expected_output_hex":"000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000010000000000000002000000000000000000000000000000020000000000000001000000000000000200000000000000"
+    },
+    {
+      "id":"retain-last-edge",
+      "input_values":[3,2,0,1,1,2,0,0,1,1],
+      "input_length":10,
+      "expected_result":64,
+      "expected_output_hex":"000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000"
+    },
+    {
+      "id":"repeated-edge",
+      "input_values":[3,2,0,1,0,1,0,0,1,0],
+      "input_length":10,
+      "expected_result":-1,
+      "expected_output_hex":""
+    },
+    {
+      "id":"draw-out-of-range",
+      "input_values":[3,2,0,1,1,2,0,0,2,0],
+      "input_length":10,
+      "expected_result":-1,
+      "expected_output_hex":""
+    },
+    {
+      "id":"short-output-capacity",
+      "input_values":[2,1,0,1,0,0],
+      "input_length":6,
+      "output_capacity":15,
+      "expected_result":-2,
+      "expected_output_hex":""
+    }
+  ]
+}

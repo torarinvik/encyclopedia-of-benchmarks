@@ -1,0 +1,103 @@
+// Clean-room Lexicographic Depth-First Search with 4-vertex certificates.
+const MAX_N: usize = 8
+const MAX_FIELDS: usize = 234
+def ldfs_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset+byte] <- ((bits >> (8*byte)) & 255).u8()
+        byte <- byte+1
+def ldfs_ordering_certificate(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("ldfs_ordering_certificate"):
+    if input.is_null() or length < 3 or length > 10: return -1
+    n64: i64 = input[0]
+    if n64 < 1 or n64 > MAX_N.i64(): return -1
+    n: usize = n64.usize()
+    start64: i64 = input[1]
+    if length != n+2 or start64 < 0 or start64 >= n64: return -1
+    all: u64 = (1.u64() << n)-1
+    adjacency: mutable u64[MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        raw: i64 = input[2+i]
+        if raw < 0 or raw.u64() > all or (raw.u64() & (1.u64() << i)) != 0: return -1
+        adjacency[i] <- raw.u64()
+        i <- i+1
+    i <- 0
+    while i < n:
+        j: mutable usize = 0
+        while j < n:
+            if ((adjacency[i] >> j) & 1) != ((adjacency[j] >> i) & 1): return -1
+            j <- j+1
+        i <- i+1
+    reached: mutable u64 = 1.u64() << start64.usize()
+    pass: mutable usize = 0
+    while pass < n:
+        before: u64 = reached
+        i <- 0
+        while i < n:
+            if ((reached >> i) & 1) != 0: reached <- reached | adjacency[i]
+            i <- i+1
+        if reached == before: break
+        pass <- pass+1
+    if reached != all: return -1
+    order: mutable usize[MAX_N] = zeroed
+    order[0] <- start64.usize()
+    used: mutable usize = 1
+    visited: mutable u64 = 1.u64() << start64.usize()
+    while used < n:
+        chosen: mutable usize = n
+        candidate: mutable usize = 0
+        while candidate < n:
+            if ((visited >> candidate) & 1) == 0:
+                wins: mutable bool = chosen == n
+                if not wins:
+                    k: mutable usize = used
+                    while k > 0:
+                        k <- k-1
+                        u: usize = order[k]
+                        xb: u64 = (adjacency[candidate] >> u) & 1
+                        yb: u64 = (adjacency[chosen] >> u) & 1
+                        if xb != yb: wins <- xb > yb; break
+                        if k == 0: wins <- candidate < chosen
+                if wins: chosen <- candidate
+            candidate <- candidate+1
+        order[used] <- chosen
+        used <- used+1
+        visited <- visited | (1.u64() << chosen)
+    fields: mutable i64[MAX_FIELDS] = zeroed
+    fields[0] <- n.i64()
+    i <- 0
+    while i < n: fields[1+i] <- order[i].i64(); i <- i+1
+    certs: mutable usize = 0
+    at: mutable usize = n+2
+    i <- 0
+    while i < n:
+        j: mutable usize = i+1
+        while j < n:
+            k: mutable usize = j+1
+            while k < n:
+                a: usize = order[i]
+                b: usize = order[j]
+                c: usize = order[k]
+                if ((adjacency[a] >> c) & 1) != 0 and ((adjacency[a] >> b) & 1) == 0:
+                    witness: mutable i64 = -1
+                    t: mutable usize = i+1
+                    while t < j:
+                        d: usize = order[t]
+                        if ((adjacency[d] >> b) & 1) != 0 and ((adjacency[d] >> c) & 1) == 0: witness <- d.i64(); break
+                        t <- t+1
+                    fields[at] <- a.i64()
+                    fields[at+1] <- b.i64()
+                    fields[at+2] <- c.i64()
+                    fields[at+3] <- witness
+                    at <- at+4
+                    certs <- certs+1
+                k <- k+1
+            j <- j+1
+        i <- i+1
+    fields[n+1] <- certs.i64()
+    bytes: usize = 8*at
+    if output.is_null() or capacity < bytes: return -2
+    i <- 0
+    while i < at: ldfs_put(fields[i], output&, 8*i); i <- i+1
+    bytes.i64()

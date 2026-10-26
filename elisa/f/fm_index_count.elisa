@@ -1,0 +1,103 @@
+# Clean-room bounded FM-index count via BWT backward search.
+def fm_suffix_less(s: i64&, n: usize, a0: usize, b0: usize) -> bool:
+    while a < n |a: mutable usize = a0, b: mutable usize = b0|:
+        if s[a] < s[b]:
+            return true
+        if s[a] > s[b]:
+            return false
+        a <- a + 1
+        b <- b + 1
+    a == n and b != n
+
+def fm_index_count_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 4 or length > 42 or input[0] < 1 or input[0] > 32:
+        return -1
+    n: usize = input[0].usize()
+    if length < n + 3:
+        return -1
+    m_at: usize = n + 1
+    if input[m_at] < 1 or input[m_at] > 8:
+        return -1
+    m: usize = input[m_at].usize()
+    if length != n + m + 2:
+        return -1
+    s: mutable i64[33] = zeroed
+    pattern: mutable i64[8] = zeroed
+    while i < n |i: mutable usize = 0, s| -> s:
+        if input[1 + i] < 1 or input[1 + i] > 4:
+            return -1
+        s[i] <- input[1 + i]
+        i <- i + 1
+        s
+    while i < m |i: mutable usize = 0, pattern| -> pattern:
+        if input[m_at + 1 + i] < 1 or input[m_at + 1 + i] > 4:
+            return -1
+        pattern[i] <- input[m_at + 1 + i]
+        i <- i + 1
+        pattern
+    s[n] <- 0
+    if output_capacity < 8:
+        return -2
+    total: usize = n + 1
+    sa: mutable usize[33] = zeroed
+    while i < total |i: mutable usize = 0, sa| -> sa:
+        sa[i] <- i
+        i <- i + 1
+        sa
+    while i < total |i: mutable usize = 1, sa| -> sa:
+        key: usize = sa[i]
+        position: mutable usize = i
+        while position > 0 |position: mutable usize = i, sa| -> sa:
+            if fm_suffix_less(s, total, key, sa[position - 1]):
+                sa[position] <- sa[position - 1]
+                position <- position - 1
+            else:
+                break
+            sa
+        sa[i] <- key
+        i <- i + 1
+        sa
+    bwt: mutable usize[33] = zeroed
+    freq: mutable usize[5] = zeroed
+    while i < total |i: mutable usize = 0, bwt, freq, sa| -> bwt, freq:
+        preceding: usize = (sa[i] + total - 1) % total
+        bwt[i] <- s[preceding].usize()
+        freq[bwt[i]] <- freq[bwt[i]] + 1
+        i <- i + 1
+        bwt, freq
+    cumulative: mutable usize[5] = zeroed
+    sum: mutable usize = 0
+    while c < 5 |c: mutable usize = 0, cumulative, sum, freq| -> cumulative, sum:
+        cumulative[c] <- sum
+        sum <- sum + freq[c]
+        c <- c + 1
+        cumulative, sum
+    left: mutable usize = 0
+    right: mutable usize = total
+    while k < m |k: mutable usize = 0, left, right, cumulative, bwt, pattern| -> left, right:
+        symbol: usize = pattern[m - 1 - k].usize()
+        rank_left: mutable usize = 0
+        rank_right: mutable usize = 0
+        while j < left |j: mutable usize = 0, rank_left, bwt| -> rank_left:
+            if bwt[j] == symbol:
+                rank_left <- rank_left + 1
+            j <- j + 1
+            rank_left
+        while j < right |j: mutable usize = 0, rank_right, bwt| -> rank_right:
+            if bwt[j] == symbol:
+                rank_right <- rank_right + 1
+            j <- j + 1
+            rank_right
+        left <- cumulative[symbol] + rank_left
+        right <- cumulative[symbol] + rank_right
+        if left == right:
+            k <- m
+        else:
+            k <- k + 1
+        left, right
+    count: u64 = (right - left).u64()
+    for byte in 0..<8 |byte, output, count|:
+        output[byte] <- ((count >> (byte * 8)) & 255.u64()).u8()
+    8
+
+export fn fm_index_count(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = fm_index_count_impl

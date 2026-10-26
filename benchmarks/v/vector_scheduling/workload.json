@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-vector-scheduling-explicit-random-assignment-i64-array-bytes-output-v1",
+  "algorithm": "vector_scheduling",
+  "function_symbol": "vector_scheduling",
+  "abi": "i64_array_bytes_output",
+  "description": "Compute machine loads for a supplied outcome of the chapter's uniform-random job assignment algorithm.",
+  "source": {
+    "title": "Vector Scheduling Problems",
+    "authors": ["Tjark Vredeveld"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_504",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_504",
+    "algorithm_attribution": "uniform random assignment of each job to one identical machine",
+    "implementation_status": "clean-room explicit-choice deterministic profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[job_count,machine_count,dimension_count,machine_choice[n],job_vectors[n*d] row-major]",
+    "job_count_range": [1, 16],
+    "machine_count_range": [1, 8],
+    "dimension_count_range": [1, 4],
+    "machine_choice_range": "0 through machine_count-1 for each job",
+    "vector_coordinate_range": [0, 1000],
+    "coordinate_scale": "input 1000 represents resource usage 1.0; common scale preserves exact makespan ordering",
+    "maximum_valid_length": 83,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[machine_count,dimension_count,makespan,(machine-major coordinate loads)...]",
+    "maximum_bytes": 280,
+    "success_result": "8 * (3 + machine_count * dimension_count) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Fixed at most 8 by 4 machine-coordinate load totals and staged result."
+  },
+  "contract": {
+    "assignment": "caller supplies one machine choice per job as the explicit random draw outcome",
+    "load": "sum assigned job coordinates independently per machine and dimension",
+    "makespan": "maximum coordinate load across all machines",
+    "randomness_scope": "conditional deterministic profile; no probability estimate or RNG stream is computed",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "two-dimensional-explicit-machine-draws",
+      "input_values": [3, 2, 2, 0, 1, 0, 1000, 0, 0, 0, 1000, 500, 500],
+      "input_length": 13,
+      "output_capacity": 56,
+      "expected_result": 56,
+      "expected_output_hex": "02000000000000000200000000000000dc05000000000000dc05000000000000f4010000000000000000000000000000e803000000000000"
+    },
+    {
+      "id": "one-dimensional-loads",
+      "input_values": [2, 2, 1, 0, 1, 1000, 700],
+      "input_length": 7,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000100000000000000e803000000000000e803000000000000bc02000000000000"
+    },
+    {
+      "id": "machine-choice-out-of-range",
+      "input_values": [1, 1, 1, 1, 1000],
+      "input_length": 5,
+      "output_capacity": 280,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coordinate-out-of-range",
+      "input_values": [1, 1, 1, 0, 1001],
+      "input_length": 5,
+      "output_capacity": 280,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input-length-mismatch",
+      "input_values": [1, 1, 2, 0, 1000],
+      "input_length": 5,
+      "output_capacity": 280,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [3, 2, 2, 0, 1, 0, 1000, 0, 0, 0, 1000, 500, 500],
+      "input_length": 13,
+      "output_capacity": 55,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 2, 1, 0, 1, 1000, 700],
+      "input_length": 7,
+      "output_capacity": 40,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 3,
+      "input_is_null": true,
+      "output_capacity": 280,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

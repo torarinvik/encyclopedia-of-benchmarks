@@ -11,7 +11,7 @@ Return the largest product obtainable by choosing any three values from the inpu
 
 ## Source and related algorithms
 
-This follows the pinned JavaScript [`MaxProductOfThree.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/MaxProductOfThree.js). It updates the top-three and bottom-two extrema in input order, computes `max1 * max2 * max3` followed by `max1 * min1 * min2`, and returns their maximum. [`max_product_subarray`](../max_product_subarray/README.md) instead finds a contiguous subarray of arbitrary length; this package always selects exactly three positions, which need not be adjacent.
+This follows the pinned JavaScript [`MaxProductOfThree.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/MaxProductOfThree.js). It updates the top-three and bottom-two extrema in input order, computes `max1 * max2 * max3` followed by `max1 * min1 * min2`, and returns their maximum. [`maximum_product_subarray`](../maximum_product_subarray/README.md) instead finds a contiguous subarray of arbitrary length; this package always selects exactly three positions, which need not be adjacent.
 
 [`workload.json`](workload.json) covers positive, negative, duplicate, zero, and mixed-sign arrays, plus malformed and source-throwing inputs. All outputs are exact integers under the bounded contract. The source-backed expected-value check is in [`benchmarks/run_i64_array_scalar.py`](../../run_i64_array_scalar.py).
 

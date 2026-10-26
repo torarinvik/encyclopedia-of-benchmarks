@@ -645,8 +645,6 @@ from quadratic_residue_oracle import MAX_INPUT_LENGTH as MAX_QUADRATIC_RESIDUE_I
 from quadratic_residue_oracle import expected_result as quadratic_residue_expected
 from dijkstras_two_stack_algorithm_oracle import MAX_INPUT_LENGTH as MAX_DIJKSTRAS_TWO_STACK_INPUT_LENGTH
 from dijkstras_two_stack_algorithm_oracle import expected_result as dijkstras_two_stack_expected
-from naive_pattern_search_oracle import MAX_INPUT_LENGTH as MAX_NAIVE_PATTERN_SEARCH_INPUT_LENGTH
-from naive_pattern_search_oracle import expected_result as naive_pattern_search_expected
 from unbias_01_oracle import MAX_INPUT_LENGTH as MAX_UNBIAS_01_INPUT_LENGTH
 from unbias_01_oracle import expected_result as unbias_01_expected
 from tilingproblem_oracle import MAX_INPUT_LENGTH as MAX_TILINGPROBLEM_INPUT_LENGTH
@@ -1023,13 +1021,6 @@ from kmeans_rust_oracle import (
     MIN_POINTS as KMEANS_RUST_MIN_POINTS,
     expected_result as kmeans_rust_expected,
 )
-from kruskal_mst_oracle import MAX_PARSEABLE_INPUT_LENGTH as KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH
-from kruskal_mst_oracle import MAX_VALID_INPUT_LENGTH as KRUSKAL_MST_MAX_VALID_INPUT_LENGTH
-from kruskal_mst_oracle import MAX_VERTICES as KRUSKAL_MST_MAX_VERTICES
-from kruskal_mst_oracle import MAX_EDGES as KRUSKAL_MST_MAX_EDGES
-from kruskal_mst_oracle import WEIGHT_MIN as KRUSKAL_MST_WEIGHT_MIN
-from kruskal_mst_oracle import WEIGHT_MAX as KRUSKAL_MST_WEIGHT_MAX
-from kruskal_mst_oracle import expected_result as kruskal_mst_expected
 from mos_algorithm_oracle import MAX_INPUT_LENGTH as MOS_ALGORITHM_MAX_INPUT_LENGTH
 from mos_algorithm_oracle import MAX_N as MOS_ALGORITHM_MAX_N
 from mos_algorithm_oracle import MAX_Q as MOS_ALGORITHM_MAX_Q
@@ -1049,9 +1040,6 @@ from persistent_seg_tree_lazy_prop_oracle import expected_result as persistent_s
 from euler_problem_4_oracle import MAX_DIGITS as EULER_PROBLEM_4_MAX_DIGITS
 from euler_problem_4_oracle import MAX_PARSEABLE_INPUT_LENGTH as EULER_PROBLEM_4_MAX_PARSEABLE_INPUT_LENGTH
 from euler_problem_4_oracle import expected_result as euler_problem_4_expected
-from euler_problem_6_oracle import MAX_N as EULER_PROBLEM_6_MAX_N
-from euler_problem_6_oracle import MAX_PARSEABLE_INPUT_LENGTH as EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH
-from euler_problem_6_oracle import expected_result as euler_problem_6_expected
 from euler_problem_7_oracle import MAX_ORDINAL as EULER_PROBLEM_7_MAX_ORDINAL
 from euler_problem_7_oracle import MAX_PARSEABLE_INPUT_LENGTH as EULER_PROBLEM_7_MAX_PARSEABLE_INPUT_LENGTH
 from euler_problem_7_oracle import expected_result as euler_problem_7_expected
@@ -1110,12 +1098,6 @@ from kdtree_oracle import MAX_POINTS as KDTREE_MAX_POINTS
 from kdtree_oracle import MAX_VALID_INPUT_VALUES as KDTREE_MAX_VALID_INPUT_VALUES
 from kdtree_oracle import MIN_COORDINATE as KDTREE_MIN_COORDINATE
 from kdtree_oracle import expected_result as kdtree_expected
-from lcabinary_lifting_oracle import INVALID_RESULT as LCABINARY_LIFTING_INVALID_RESULT
-from lcabinary_lifting_oracle import MAX_NODES as LCABINARY_LIFTING_MAX_NODES
-from lcabinary_lifting_oracle import MAX_PARSEABLE_INPUT_VALUES as LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES
-from lcabinary_lifting_oracle import MAX_QUERIES as LCABINARY_LIFTING_MAX_QUERIES
-from lcabinary_lifting_oracle import MAX_VALID_INPUT_VALUES as LCABINARY_LIFTING_MAX_VALID_INPUT_VALUES
-from lcabinary_lifting_oracle import expected_result as lcabinary_lifting_expected
 from segment_tree2_d_oracle import CHECKSUM_OFFSET as SEGMENT_TREE2_D_CHECKSUM_OFFSET
 from segment_tree2_d_oracle import INVALID_RESULT as SEGMENT_TREE2_D_INVALID_RESULT
 from segment_tree2_d_oracle import MAX_CELL_VALUE as SEGMENT_TREE2_D_MAX_CELL_VALUE
@@ -1471,8 +1453,6 @@ from postfix_evaluator_oracle import MAX_INPUT_LENGTH as POSTFIX_EVALUATOR_MAX_I
 from postfix_evaluator_oracle import expected_result as postfix_evaluator_expected
 from minimum_element_of_array_oracle import MAX_INPUT_LENGTH as MAXIMUM_ELEMENT_OF_ARRAY_INPUT_LENGTH
 from minimum_element_of_array_oracle import expected_result as minimum_element_of_array_expected
-from modpow_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MODPOW_INPUT_LENGTH
-from modpow_oracle import expected_result as modpow_expected
 from divisors_oracle import MAX_INPUT_LENGTH as MAX_DIVISORS_INPUT_LENGTH
 from divisors_oracle import expected_result as divisors_expected
 from xor_search_missing_number_oracle import MAX_INPUT_LENGTH as MAX_XOR_SEARCH_MISSING_NUMBER_INPUT_LENGTH
@@ -3820,20 +3800,6 @@ def validate_mrucache_workload(workload: dict) -> None:
             raise ValueError(f"mrucache workload mismatch: {case.get('id')}")
 
 
-KRUSKAL_MST_CASE_IDS = frozenset({
-    "single_vertex", "two_vertex_negative_edge", "four_vertex_reference_graph", "negative_weights",
-    "tree_input", "input_edge_order_and_orientation_invariant", "weight_boundaries",
-    "same_vertex_count_other_mst", "maximum_vertex_sparse_path", "dense_unique_weight_graph",
-    "invalid_empty_packet", "invalid_vertex_count_zero", "invalid_vertex_count_above_limit",
-    "invalid_negative_edge_count", "invalid_length_short", "invalid_trailing_word",
-    "invalid_too_few_edges", "invalid_too_many_edges_for_three_vertices",
-    "invalid_disconnected_with_enough_edges", "invalid_self_loop", "invalid_endpoint",
-    "invalid_repeated_pair_reversed", "invalid_repeated_weight", "invalid_weight_below_bound",
-    "invalid_weight_above_bound", "invalid_one_vertex_with_edge",
-    "maximum_dense_graph_and_input_length", "maximum_parseable_packet_with_trailing_word_invalid",
-})
-
-
 def validate_lww_element_set_workload(workload: dict) -> None:
     source = {
         "repository": "TheAlgorithms/Java",
@@ -3987,116 +3953,6 @@ def validate_lww_element_set_workload(workload: dict) -> None:
             or len(indexed_cases["maximum_operation_count_with_absent_lookups"]["input_values"])
                 != LWW_ELEMENT_SET_MAX_VALID_INPUT_LENGTH):
         raise ValueError("lww_element_set fixtures do not pin merge and framing semantics")
-
-
-def validate_kruskal_mst_workload(workload: dict) -> None:
-    sources = [
-        {
-            "repository": "TheAlgorithms/JavaScript",
-            "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
-            "path": "Graphs/KruskalMST.js",
-            "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Graphs/KruskalMST.js",
-            "role": "algorithm",
-        },
-        {
-            "repository": "TheAlgorithms/R",
-            "commit": "f65344fabeea0ae33c1ca321af709447c1a8a4c2",
-            "path": "Desktop/open-source/R/graph_algorithms/kruskal_mst.r",
-            "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/Desktop/open-source/R/graph_algorithms/kruskal_mst.r",
-            "role": "algorithm",
-        },
-    ]
-    contract = {
-        "operation": "Return a deterministic hash encoding the normalized MST edges and their total weight.",
-        "input_layout": "[vertex_count,edge_count,(u,v,weight)*]",
-        "vertex_count_range": [1, 64],
-        "edge_count": "0 for a one-vertex graph; otherwise vertex_count-1 through vertex_count*(vertex_count-1)/2",
-        "vertex_ids": "zero-based contiguous integers in [0,vertex_count)",
-        "graph": "connected, undirected, and simple; no self-loops or repeated unordered endpoint pair",
-        "weight_range": [-1_000_000, 1_000_000],
-        "weight_uniqueness": "all edge weights are distinct",
-        "edge_orientation_and_input_order": "do not affect the normalized MST result",
-        "output": "low 63 bits of FNV-1a-64 over vertex_count:u16, mst_edge_count:u16, normalized (u:u16,v:u16,weight:i32) records in ascending weight order, then total_weight:i64; all fields little-endian",
-        "fnv1a_offset_basis": 14695981039346656037,
-        "fnv1a_prime": 1099511628211,
-        "invalid_input_result": -1,
-    }
-    input_spec = {
-        "kind": "signed_i64_array",
-        "encoding": "[vertex_count, edge_count, (u, v, weight)*edge_count]",
-        "vertex_count_range": [1, KRUSKAL_MST_MAX_VERTICES],
-        "edge_count_range": "0 when vertex_count=1; otherwise vertex_count-1 through vertex_count*(vertex_count-1)/2",
-        "vertex_id_range": "0..vertex_count-1",
-        "self_loops_allowed": False,
-        "parallel_edges_allowed": False,
-        "connected_graph_required": True,
-        "unique_weights_required": True,
-        "weight_range": [KRUSKAL_MST_WEIGHT_MIN, KRUSKAL_MST_WEIGHT_MAX],
-        "maximum_edge_records": KRUSKAL_MST_MAX_EDGES,
-        "exact_length": "2+3*edge_count",
-        "maximum_valid_input_length": KRUSKAL_MST_MAX_VALID_INPUT_LENGTH,
-        "maximum_parseable_input_length": KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH,
-        "invalid_result": -1,
-    }
-    output_spec = {
-        "kind": "signed_i64_scalar_fnv1a64",
-        "encoding": "vertex_count:u16le, mst_edge_count:u16le, each normalized (u:u16le,v:u16le,weight:i32le) sorted by weight, total_weight:i64le",
-        "fnv1a_offset_basis": 14695981039346656037,
-        "fnv1a_prime": 1099511628211,
-        "returned_bits": "low 63 bits of FNV-1a-64",
-        "invalid_result": -1,
-    }
-    measurement = {
-        "comparison_model": "i64_array_scalar_call",
-        "sample_count": 7,
-        "warmup_rounds": 1,
-        "repetitions_per_sample": 8,
-    }
-    cases = workload.get("cases")
-    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
-                if isinstance(cases, list) else [])
-    if (workload.get("schema_version") != 1
-            or workload.get("id") != "thealgorithms-cross-source-kruskal-mst-i64-array-scalar-v1"
-            or workload.get("algorithm") != "kruskal_mst"
-            or workload.get("function_symbol") != "kruskal_mst"
-            or workload.get("description") != "Compute the normalized unique-weight MST of a connected undirected simple graph."
-            or workload.get("pinned_sources") != sources
-            or workload.get("contract") != contract
-            or workload.get("input") != input_spec
-            or workload.get("output") != output_spec
-            or workload.get("measurement") != measurement
-            or "workspace" in workload
-            or KRUSKAL_MST_MAX_VERTICES != 64
-            or KRUSKAL_MST_MAX_EDGES != 2016
-            or KRUSKAL_MST_MAX_VALID_INPUT_LENGTH != 6050
-            or KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH != 6051
-            or len(case_ids) != len(KRUSKAL_MST_CASE_IDS)
-            or len(case_ids) != len(set(case_ids))
-            or set(case_ids) != KRUSKAL_MST_CASE_IDS):
-        raise ValueError("kruskal_mst metadata or fixture IDs differ from its reviewed contract")
-
-    readme = (ROOT / "benchmarks" / "k" / "kruskal_mst" / "README.md").read_text(encoding="utf-8")
-    normalized_readme = " ".join(readme.split())
-    if (any(source["url"] not in readme for source in sources)
-            or "unique-weight restriction" not in normalized_readme
-            or "connected graphs" not in normalized_readme
-            or "low 63 bits of FNV-1a-64" not in normalized_readme
-            or "independent oracle uses Prim's algorithm" not in normalized_readme):
-        raise ValueError("kruskal_mst README is missing its pinned sources or reviewed contract")
-
-    for case in cases:
-        values = case.get("input_values")
-        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
-        if (not isinstance(values, list)
-                or len(values) > KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH
-                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
-                       for value in values)
-                or type(input_length) is not int or input_length != len(values)
-                or type(case.get("expected_result")) is not int):
-            raise ValueError(f"kruskal_mst input framing is invalid: {case.get('id')}")
-        expected = kruskal_mst_expected(values)
-        if case["expected_result"] != expected:
-            raise ValueError(f"kruskal_mst workload mismatch: {case.get('id')}")
 
 
 MOS_ALGORITHM_CASE_IDS = frozenset({
@@ -4399,86 +4255,6 @@ EULER_PROBLEM_6_CASE_IDS = frozenset({
     "source_exact_bound", "zero_invalid", "negative_invalid", "above_bound_invalid",
     "missing_input_invalid", "trailing_word_invalid",
 })
-
-
-def validate_euler_problem_6_workload(workload: dict) -> None:
-    source = {
-        "repository": "TheAlgorithms/C",
-        "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
-        "path": "project_euler/problem_6/sol.c",
-        "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/project_euler/problem_6/sol.c",
-        "role": "algorithm",
-    }
-    contract = {
-        "operation": "Return the square of the sum of integers 1 through n minus the sum of their squares.",
-        "input_layout": "[n]",
-        "n_range": [1, EULER_PROBLEM_6_MAX_N],
-        "source_exact_case": "n=100 runs the source loop from 1 through 100 inclusive.",
-        "invalid_input_result": -1,
-    }
-    input_spec = {
-        "kind": "signed_i64_array",
-        "encoding": "[n]",
-        "n_range": [1, EULER_PROBLEM_6_MAX_N],
-        "maximum_valid_input_length": 1,
-        "maximum_parseable_input_length": EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH,
-        "invalid_result": -1,
-    }
-    output_spec = {
-        "kind": "signed_i64_scalar",
-        "meaning": "(1 + ... + n)^2 - (1^2 + ... + n^2)",
-        "source_exact_result": 25164150,
-        "invalid_result": -1,
-    }
-    measurement = {
-        "comparison_model": "i64_array_scalar_call",
-        "sample_count": 7,
-        "warmup_rounds": 1,
-        "repetitions_per_sample": 8,
-    }
-    cases = workload.get("cases")
-    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
-                if isinstance(cases, list) else [])
-    if (workload.get("schema_version") != 1
-            or workload.get("id") != "thealgorithms-c-euler-problem-6-i64-array-scalar-v1"
-            or workload.get("algorithm") != "euler_problem_6"
-            or workload.get("function_symbol") != "euler_problem_6"
-            or workload.get("description") != "Compute square-of-sum minus sum-of-squares for integers 1 through n, with n=100 reproducing the pinned source."
-            or workload.get("pinned_sources") != [source]
-            or workload.get("contract") != contract
-            or workload.get("input") != input_spec
-            or workload.get("output") != output_spec
-            or workload.get("measurement") != measurement
-            or "workspace" in workload
-            or EULER_PROBLEM_6_MAX_N != 100
-            or EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH != 2
-            or not isinstance(cases, list)
-            or len(case_ids) != len(EULER_PROBLEM_6_CASE_IDS)
-            or len(case_ids) != len(set(case_ids))
-            or set(case_ids) != EULER_PROBLEM_6_CASE_IDS):
-        raise ValueError("euler_problem_6 metadata or fixture IDs differ from its reviewed contract")
-
-    readme = (ROOT / "benchmarks" / "e" / "euler_problem_6" / "README.md").read_text(encoding="utf-8")
-    normalized_readme = " ".join(readme.split())
-    if (source["url"] not in readme
-            or "n=100 reproduces the source loop exactly" not in normalized_readme
-            or "25164150" not in normalized_readme
-            or "closed-form identity" not in normalized_readme):
-        raise ValueError("euler_problem_6 README is missing its pinned source or reviewed semantics")
-
-    for case in cases:
-        values = case.get("input_values")
-        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
-        if (not isinstance(values, list)
-                or len(values) > EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH
-                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
-                       for value in values)
-                or type(input_length) is not int or input_length != len(values)
-                or type(case.get("expected_result")) is not int):
-            raise ValueError(f"euler_problem_6 input framing is invalid: {case.get('id')}")
-        expected = euler_problem_6_expected(values)
-        if case["expected_result"] != expected:
-            raise ValueError(f"euler_problem_6 workload mismatch: {case.get('id')}")
 
 
 EULER_PROBLEM_7_CASE_IDS = frozenset({
@@ -5733,110 +5509,6 @@ LCABINARY_LIFTING_CASE_IDS = frozenset({
 })
 
 
-def validate_lcabinary_lifting_workload(workload: dict) -> None:
-    sources = [
-        {
-            "repository": "TheAlgorithms/JavaScript",
-            "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
-            "path": "Graphs/LCABinaryLifting.js",
-            "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Graphs/LCABinaryLifting.js",
-            "role": "algorithm",
-        },
-        {
-            "repository": "TheAlgorithms/JavaScript",
-            "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
-            "path": "Graphs/BinaryLifting.js",
-            "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Graphs/BinaryLifting.js",
-            "role": "support",
-        },
-    ]
-    input_spec = {
-        "kind": "packed_i64_array",
-        "encoding": "[node_count, root, edge_count, (u,v)*edge_count, query_count, (u,v)*query_count]",
-        "node_id_range": "0 through node_count-1",
-        "node_count_range": [2, LCABINARY_LIFTING_MAX_NODES],
-        "edge_count_rule": "node_count-1 unique undirected edges that form one connected tree",
-        "maximum_queries": LCABINARY_LIFTING_MAX_QUERIES,
-        "maximum_valid_input_values": LCABINARY_LIFTING_MAX_VALID_INPUT_VALUES,
-        "maximum_parseable_input_values": LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES,
-        "invalid_result": LCABINARY_LIFTING_INVALID_RESULT,
-        "checksum": "for each LCA a at zero-based query position i, add (i+1)*(a+1)",
-    }
-    output_spec = {
-        "kind": "signed_i64_scalar",
-        "meaning": "weighted checksum of lowest common ancestor node IDs",
-        "invalid_result": LCABINARY_LIFTING_INVALID_RESULT,
-    }
-    measurement = {
-        "comparison_model": "i64_array_scalar_call",
-        "sample_count": 7,
-        "warmup_rounds": 1,
-        "repetitions_per_sample": 8,
-    }
-    cases = workload.get("cases")
-    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
-                if isinstance(cases, list) else [])
-    if (workload.get("schema_version") != 1
-            or workload.get("id") != "thealgorithms-javascript-lca-binary-lifting-i64-query-trace-v1"
-            or workload.get("algorithm") != "lcabinary_lifting"
-            or workload.get("function_symbol") != "lca_binary_lifting_benchmark"
-            or workload.get("description") != "Preprocess a bounded rooted tree by binary lifting, answer lowest-common-ancestor queries, and checksum node IDs."
-            or workload.get("pinned_sources") != sources
-            or workload.get("input") != input_spec
-            or workload.get("output") != output_spec
-            or workload.get("measurement") != measurement
-            or "workspace" in workload
-            or LCABINARY_LIFTING_MAX_NODES != 128
-            or LCABINARY_LIFTING_MAX_QUERIES != 256
-            or LCABINARY_LIFTING_MAX_VALID_INPUT_VALUES != 770
-            or LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES != 771
-            or LCABINARY_LIFTING_INVALID_RESULT != -1
-            or len(case_ids) != len(LCABINARY_LIFTING_CASE_IDS)
-            or len(case_ids) != len(set(case_ids))
-            or set(case_ids) != LCABINARY_LIFTING_CASE_IDS
-            or not isinstance(cases, list)
-            or len(cases) != len(case_ids)):
-        raise ValueError("lcabinary_lifting metadata or fixture IDs differ from its reviewed contract")
-
-    readme = (ROOT / "benchmarks" / "l" / "lcabinary_lifting" / "README.md").read_text(encoding="utf-8")
-    normalized_readme = " ".join(readme.split())
-    if (any(source["url"] not in readme for source in sources)
-            or "maximum valid frame contains 770 integers" not in normalized_readme
-            or "maximum parseable frame contains 771" not in normalized_readme
-            or "sets the root's immediate parent to itself" not in normalized_readme
-            or "ceil(log2(node_count))" not in normalized_readme
-            or "must form one connected tree" not in normalized_readme
-            or "disconnected or cyclic edge sets" not in normalized_readme):
-        raise ValueError("lcabinary_lifting README is missing its pinned sources or reviewed semantics")
-
-    indexed_cases = {case.get("id"): case for case in cases}
-    for case in cases:
-        values = case.get("input_values")
-        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
-        if (not isinstance(values, list)
-                or len(values) > LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES + 1
-                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
-                       for value in values)
-                or type(input_length) is not int or input_length != len(values)
-                or type(case.get("expected_result")) is not int):
-            raise ValueError(f"lcabinary_lifting input framing is invalid: {case.get('id')}")
-        expected = lcabinary_lifting_expected(values)
-        if case["expected_result"] != expected:
-            raise ValueError(f"lcabinary_lifting workload mismatch: {case.get('id')}")
-
-    if (len(indexed_cases["maximum_tree_and_query_count"].get("input_values", []))
-            != LCABINARY_LIFTING_MAX_VALID_INPUT_VALUES
-            or len(indexed_cases["at_parseable_length_trailing_value"].get("input_values", []))
-            != LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES
-            or indexed_cases["at_parseable_length_trailing_value"].get("expected_result")
-            != LCABINARY_LIFTING_INVALID_RESULT
-            or len(indexed_cases["above_parseable_input_length"].get("input_values", []))
-            != LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES + 1
-            or indexed_cases["above_parseable_input_length"].get("expected_result")
-            != LCABINARY_LIFTING_INVALID_RESULT):
-        raise ValueError("lcabinary_lifting workload is missing its frame-boundary cases")
-
-
 SEGMENT_TREE2_D_CASE_IDS = frozenset({
     "zero_grid_no_operations", "single_cell_assignment_and_queries", "assignment_overwrites_previous_value",
     "mixed_signed_submatrix_sums", "non_power_dimensions_and_last_cell", "single_row_and_single_column",
@@ -6592,7 +6264,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_PRIMITIVE_ROOT_INPUT_LENGTH if algorithm == "primitive_root"
                         else MAX_QUADRATIC_RESIDUE_INPUT_LENGTH if algorithm == "quadratic_residue"
                         else MAX_DIJKSTRAS_TWO_STACK_INPUT_LENGTH if algorithm == "dijkstras_two_stack_algorithm"
-                        else MAX_NAIVE_PATTERN_SEARCH_INPUT_LENGTH if algorithm == "naive_pattern_search"
                         else MAX_UNBIAS_01_INPUT_LENGTH if algorithm == "unbias_01"
                         else MAX_TILINGPROBLEM_INPUT_LENGTH if algorithm == "tilingproblem"
                         else MAX_TWO_POINTER_INPUT_LENGTH if algorithm == "two_pointer"
@@ -6875,7 +6546,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "product_sum"
                         else POSTFIX_EVALUATOR_MAX_INPUT_LENGTH
                         if algorithm == "postfix_evaluator"
-                        else MAX_MODPOW_INPUT_LENGTH if algorithm == "modpow"
                         else MAX_STRING_PREFIX_SUFFIX_INPUT_LENGTH
                         if algorithm == "string_prefix_suffix"
                         else 100002 if algorithm == "is_valid_email_address"
@@ -6969,14 +6639,11 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MRUCACHE_MAX_INPUT_LENGTH if algorithm == "mrucache"
                         else LWW_ELEMENT_SET_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "lww_element_set"
-                        else KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kruskal_mst"
                         else MOS_ALGORITHM_MAX_INPUT_LENGTH if algorithm == "mos_algorithm"
                         else PERSISTENT_SEG_TREE_LAZY_PROP_MAX_INPUT_LENGTH
                         if algorithm == "persistent_seg_tree_lazy_prop"
                         else EULER_PROBLEM_4_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "euler_problem_4"
-                        else EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH
-                        if algorithm == "euler_problem_6"
                         else EULER_PROBLEM_7_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "euler_problem_7"
                         else SPARSE_TABLE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "sparse_table"
@@ -6989,13 +6656,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else SORTED_TABLE_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "sorted_table"
                         else RADIX_TREE_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "radix_tree"
                         else KDTREE_MAX_PARSEABLE_INPUT_VALUES + 1 if algorithm == "kdtree"
-                        else LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES + 1
-                        if algorithm == "lcabinary_lifting"
                         else SEGMENT_TREE2_D_MAX_PARSEABLE_INPUT_VALUES + 1
                         if algorithm == "segment_tree2_d"
                         else SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_VALUES + 1
                         if algorithm == "segment_tree_apply"
-                        else SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "smooth_sort"
                         else TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES + 1 if algorithm == "tim_sorter"
                         else CLOJURE_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "clojure_persistent_list_queue"
@@ -7835,10 +7499,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = int(table[first_length][second_length])
         if expected != expected_from_source:
             raise ValueError("interleavingstrings expected_result must match the order-preserving interleaving DP")
-    elif algorithm == "naive_pattern_search":
-        expected_from_source = naive_pattern_search_expected(values)
-        if expected != expected_from_source:
-            raise ValueError("naive_pattern_search expected_result must match the first zero-based exact-match position")
     elif algorithm == "unbias_01":
         expected_from_source = unbias_01_expected(values)
         if expected != expected_from_source:
@@ -8331,10 +7991,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = minimum_element_of_array_expected(values)
         if expected != expected_from_source:
             raise ValueError("minimum_element_of_array expected_result must match seeded recursive quickselect")
-    elif algorithm == "modpow":
-        expected_from_source = modpow_expected(values)
-        if expected != expected_from_source:
-            raise ValueError("modpow expected_result must match the bounded Lua modular-power recurrence")
     elif algorithm == "how_many_times_rotated":
         expected_from_source = how_many_times_rotated_expected(values)
         if expected != expected_from_source:
@@ -10241,21 +9897,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                                     int(len(str(barcode)) == 13 and barcode % 10 == check_digit))
         if expected != expected_from_source:
             raise ValueError("barcode_validator expected_result must match the alternating 3/1 checksum")
-    elif algorithm == "max_product_subarray":
-        valid = len(values) <= 9 and all(-10 <= value <= 10 for value in values)
-        if not valid:
-            expected_from_source = I64_MIN
-        elif not values:
-            expected_from_source = 0
-        else:
-            maximum_ending = minimum_ending = best = values[0]
-            for value in values[1:]:
-                candidates = (value, maximum_ending * value, minimum_ending * value)
-                maximum_ending, minimum_ending = max(candidates), min(candidates)
-                best = max(best, maximum_ending)
-            expected_from_source = best
-        if expected != expected_from_source:
-            raise ValueError("max_product_subarray expected_result must match the bounded max/min recurrence")
     elif algorithm == "prefix_sum2_d":
         invalid = I64_MIN
         if len(values) < 7 or not (1 <= values[0] <= 16 and 1 <= values[1] <= 16):
@@ -12348,10 +11989,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             values, case.get("input_length", len(values)), case.get("input_is_null", False))
         if expected != expected_from_source:
             raise ValueError("lww_element_set expected_result must match the bounded two-replica LWW operation trace")
-    elif algorithm == "kruskal_mst":
-        expected_from_source = kruskal_mst_expected(values)
-        if expected != expected_from_source:
-            raise ValueError("kruskal_mst expected_result must match the connected unique-weight MST fingerprint")
     elif algorithm == "mos_algorithm":
         expected_from_source = mos_algorithm_expected(values)
         if expected != expected_from_source:
@@ -12364,10 +12001,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = euler_problem_4_expected(values)
         if expected != expected_from_source:
             raise ValueError("euler_problem_4 expected_result must match the bounded largest-palindrome search")
-    elif algorithm == "euler_problem_6":
-        expected_from_source = euler_problem_6_expected(values)
-        if expected != expected_from_source:
-            raise ValueError("euler_problem_6 expected_result must match the independent closed-form sum-square difference")
     elif algorithm == "euler_problem_7":
         expected_from_source = euler_problem_7_expected(values)
         if expected != expected_from_source:
@@ -13663,7 +13296,7 @@ def validate_simulated_annealing_workload(workload: dict) -> None:
                 SIMULATED_ANNEALING_INVALID_RESULT)
                 != (frozenset((0, 999_999)), -16, 16, 1, 4,
                     1_000_000, 10_000_000, 100_000, 500_000,
-                    1_000_000, 9_999_999, 22, 176, 365, 366, 1_000_000, 33, 16, -1):
+                    1_000_000, 9_999_999, 22, 176, 365, 366, 1_000_000, 33, 16, -1)):
         raise ValueError("simulated_annealing metadata or fixture IDs differ from its pinned contract")
 
     readme = (ROOT / "benchmarks" / "s" / "simulated_annealing" / "README.md").read_text(
@@ -21217,16 +20850,12 @@ def main() -> int:
         validate_traveling_salesman_workload(workload)
     elif algorithm == "smith_waterman_java":
         validate_smith_waterman_java_workload(workload)
-    elif algorithm == "kruskal_mst":
-        validate_kruskal_mst_workload(workload)
     elif algorithm == "mos_algorithm":
         validate_mos_algorithm_workload(workload)
     elif algorithm == "persistent_seg_tree_lazy_prop":
         validate_persistent_seg_tree_lazy_prop_workload(workload)
     elif algorithm == "euler_problem_4":
         validate_euler_problem_4_workload(workload)
-    elif algorithm == "euler_problem_6":
-        validate_euler_problem_6_workload(workload)
     elif algorithm == "euler_problem_7":
         validate_euler_problem_7_workload(workload)
     elif algorithm == "sparse_table":
@@ -21245,13 +20874,10 @@ def main() -> int:
         validate_radix_tree_workload(workload)
     elif algorithm == "kdtree":
         validate_kdtree_workload(workload)
-    elif algorithm == "lcabinary_lifting":
-        validate_lcabinary_lifting_workload(workload)
     elif algorithm == "segment_tree2_d":
         validate_segment_tree2_d_workload(workload)
     elif algorithm == "segment_tree_apply":
         validate_segment_tree_apply_workload(workload)
-    elif algorithm == "smooth_sort":
         validate_smooth_sort_workload(workload)
     elif algorithm == "tim_sorter":
         validate_tim_sorter_workload(workload)

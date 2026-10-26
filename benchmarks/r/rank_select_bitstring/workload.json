@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-rank-select-bitstring-i64-array-bytes-output-v1",
+  "algorithm": "rank_select_bitstring",
+  "function_symbol": "rank_select_bitstring",
+  "abi": "i64_array_bytes_output",
+  "description": "One-based rank1 and select1 queries over a bounded packed bit string.",
+  "source": {
+    "title": "Rank and Select Operations on Bit Strings",
+    "authors": ["Rajeev Raman"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_332",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_332",
+    "algorithm_attribution": "Static bit-vector rank1/select1 with block prefix counts",
+    "implementation_status": "clean-room deterministic bounded index profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[bit_length,packed_bits,query_count,(opcode,index)*]",
+    "bit_length_range": [1, 63],
+    "packed_bits_range": "0 <= packed_bits < 2^bit_length; bit 0 stores bit-string position 1",
+    "query_count_range": [0, 16],
+    "opcodes": {"rank1": 0, "select1": 1},
+    "query_index_range": {"rank1": "1 <= index <= bit_length", "select1": "1 <= index <= 64"},
+    "maximum_valid_length": 35,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "one rank or select answer per query",
+    "select_missing_result": -1,
+    "maximum_bytes": 128,
+    "success_result": "8 * query_count bytes written",
+    "zero_query_result": 0,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Nine block-prefix counters, at most sixteen staged query answers, and fixed output bytes."
+  },
+  "contract": {
+    "rank1": "Number of 1s in one-based positions 1 through index, inclusive.",
+    "select1": "One-based position of the index-th 1, or -1 when absent.",
+    "block_width_bits": 8,
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"rank-select-mixed","input_values":[8,178,4,0,5,1,3,0,1,1,9],"input_length":11,"output_capacity":128,"expected_result":32,"expected_output_hex":"020000000000000006000000000000000000000000000000ffffffffffffffff"},
+    {"id":"highest-bit-boundary","input_values":[63,4611686018427387905,4,0,63,1,2,0,1,1,1],"input_length":11,"output_capacity":128,"expected_result":32,"expected_output_hex":"02000000000000003f0000000000000001000000000000000100000000000000"},
+    {"id":"empty-one-set","input_values":[5,0,2,0,5,1,1],"input_length":7,"output_capacity":128,"expected_result":16,"expected_output_hex":"0000000000000000ffffffffffffffff"},
+    {"id":"maximum-query-count","input_values":[63,0,16,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"input_length":35,"output_capacity":128,"expected_result":128,"expected_output_hex":"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"},
+    {"id":"out-of-range-packed-bits","input_values":[3,8,0],"input_length":3,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-opcode","input_values":[3,1,1,2,1],"input_length":5,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"select-index-over-bound","input_values":[3,1,1,1,65],"input_length":5,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[3,1,1,0,2,1],"input_length":6,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[3,1,1,0,3],"input_length":5,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"zero-query-empty-output","input_values":[1,0,0],"input_length":3,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":3,"input_is_null":true,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,0,0],"input_length":3,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

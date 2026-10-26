@@ -1,0 +1,25 @@
+{
+  "schema_version":1,
+  "id":"encyclopedia-maximum-matching-general-graph-i64-array-bytes-v1",
+  "algorithm":"general_graph_maximum_matching",
+  "function_symbol":"general_graph_maximum_matching",
+  "comparison_model":"i64_array_bytes_output_call",
+  "source":{"chapter":"Maximum Matching","doi":"10.1007/978-1-4939-2864-4_225","author":"Marcin Mucha","profile":"Deterministic bounded Edmonds augmenting-path/blossom maximum-cardinality matching; algebraic randomized results excluded."},
+  "contract":{"operation":"Compute maximum matching cardinality of a simple undirected general graph using ascending vertex/neighbor scan order.","input_layout":"[n,m,(u,v)[m]]","edge_rule":"Each undirected edge appears once with u<v; self-loops and duplicates are invalid.","output_layout":"One signed 64-bit matching cardinality in little-endian form; witness edges are not serialized.","error_precedence":"Malformed input returns -1 before output checks; null output or capacity below 8 bytes returns -2 without writes."},
+  "input":{"kind":"signed_64_bit_integer_array","maximum_valid_length":134,"maximum_parseable_length":135,"vertex_count_range":[2,12],"edge_count_range":[0,66],"invalid_result":-1,"null_input_result":-1},
+  "output":{"kind":"little_endian_signed_64_bit_array","maximum_output_elements":1,"maximum_output_bytes":8,"success_result":"8 bytes","invalid_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "workspace":{"bytes":4096,"meaning":"Adjacency matrix, blossom bases, parent/matching arrays, queue, and staged cardinality."},
+  "measurement":{"sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
+  "cases":[
+    {"id":"four-vertex-path","input_values":[4,3,0,1,1,2,2,3],"input_length":8,"expected_result":8,"expected_output_hex":"0200000000000000"},
+    {"id":"odd-cycle-five","input_values":[5,5,0,1,0,4,1,2,2,3,3,4],"input_length":12,"expected_result":8,"expected_output_hex":"0200000000000000"},
+    {"id":"five-vertex-star","input_values":[5,4,0,1,0,2,0,3,0,4],"input_length":10,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"complete-four","input_values":[4,6,0,1,0,2,0,3,1,2,1,3,2,3],"input_length":14,"expected_result":8,"expected_output_hex":"0200000000000000"},
+    {"id":"edgeless-graph","input_values":[4,0],"input_length":2,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"duplicate-edge","input_values":[3,2,0,1,0,1],"input_length":6,"expected_result":-1,"expected_output_hex":""},
+    {"id":"noncanonical-edge-endpoints","input_values":[3,1,2,1],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[4,3,0,1,1,2,2,3],"input_length":8,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":1,"input_is_null":true,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[4,3,0,1,1,2,2,3],"input_length":8,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

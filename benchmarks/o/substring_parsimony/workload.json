@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-substring-parsimony-i64-array-bytes-output-v1",
+  "algorithm": "substring_parsimony",
+  "function_symbol": "substring_parsimony",
+  "abi": "i64_array_bytes_output",
+  "description": "Minimum parsimony labeling of a bounded rooted tree over a supplied finite metric.",
+  "source": {
+    "title": "Substring Parsimony",
+    "authors": ["Mathieu Blanchette"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_409",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_409",
+    "algorithm_attribution": "Finite-metric tree dynamic programming with W_u[s] subtree scores and X_(u,v)[s] edge-transition minima",
+    "implementation_status": "clean-room deterministic profile with three leaves and at most four metric states"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[q,threshold,root_child_a,root_child_b,inner_child_a,inner_child_b,leaf_2_mask,leaf_3_mask,leaf_4_mask,distance_matrix_row_major]",
+    "vertex_layout": "0=root, 1=its internal child, 2..4=leaves; root children are 1 and one leaf, and vertex 1 has the other two leaves",
+    "state_count_range": [1, 4],
+    "threshold_range": [0, 36],
+    "leaf_mask_range": "nonempty subset mask over states 0..q-1",
+    "distance_matrix": "q by q symmetric integer metric with zero diagonal and positive off-diagonal entries in 1..9",
+    "maximum_valid_length": 25,
+    "maximum_parseable_length": 26,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[minimum_score,optimal_labeling_count,(label_for_vertex_0,...,label_for_vertex_4)*count]",
+    "label_order": "All minimum-score assignments, sorted lexicographically by vertex ID; count is zero and there are no rows when minimum_score exceeds threshold.",
+    "maximum_bytes": 40976,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 65536,
+    "meaning": "Five-node subtree score table, bounded optimal labelings, and staged output."
+  },
+  "contract": {
+    "objective": "Minimize the sum of the metric distances over all four parent-child edges, subject to each leaf label belonging to its supplied set.",
+    "threshold": "Emit optimal labeling rows only when the minimum score is at most threshold.",
+    "canonical_output": "Sort optimal label rows lexicographically by labels in vertex order 0,1,2,3,4.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "unanimous-leaf-state",
+      "input_values": [3,0,1,2,3,4,1,1,1,0,1,2,1,0,1,2,1,0],
+      "input_length": 18,
+      "output_capacity": 56,
+      "expected_result": 56,
+      "expected_output_hex": "0000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "two-optimal-labelings",
+      "input_values": [3,2,1,2,3,4,1,2,4,0,1,2,1,0,1,2,1,0],
+      "input_length": 18,
+      "output_capacity": 96,
+      "expected_result": 96,
+      "expected_output_hex": "020000000000000002000000000000000000000000000000010000000000000000000000000000000100000000000000020000000000000001000000000000000100000000000000000000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "threshold-excludes-optima",
+      "input_values": [3,1,1,2,3,4,1,2,4,0,1,2,1,0,1,2,1,0],
+      "input_length": 18,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-state-domain",
+      "input_values": [4,0,1,2,3,4,4,4,4,0,1,2,3,1,0,1,2,2,1,0,1,3,2,1,0],
+      "input_length": 25,
+      "output_capacity": 56,
+      "expected_result": 56,
+      "expected_output_hex": "0000000000000000010000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000"
+    },
+    {
+      "id": "duplicate-child-invalid-tree",
+      "input_values": [3,2,1,2,3,3,1,2,4,0,1,2,1,0,1,2,1,0],
+      "input_length": 18,
+      "output_capacity": 56,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonmetric-distance-matrix",
+      "input_values": [3,2,1,2,3,4,1,2,4,0,1,3,1,0,1,3,1,0],
+      "input_length": 18,
+      "output_capacity": 96,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-input",
+      "input_values": [3,2,1,2,3,4,1,2,4,0,1,2,1,0,1,2,1],
+      "input_length": 17,
+      "output_capacity": 96,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [3,0,1,2,3,4,1,1,1,0,1,2,1,0,1,2,1,0],
+      "input_length": 18,
+      "output_capacity": 55,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 18,
+      "input_is_null": true,
+      "output_capacity": 56,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [3,0,1,2,3,4,1,1,1,0,1,2,1,0,1,2,1,0],
+      "input_length": 18,
+      "output_capacity": 56,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

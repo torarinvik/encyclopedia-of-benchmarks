@@ -1,0 +1,113 @@
+def substring_parsimony_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 10 or length > 26:
+        return -1
+    q0: i64 = input[0]
+    threshold: i64 = input[1]
+    if q0 < 1 or q0 > 4 or threshold < 0 or threshold > 36:
+        return -1
+    q: usize = q0.usize()
+    if length != 9 + q * q:
+        return -1
+    child: mutable i64[2][2] = zeroed
+    child[0][0] <- input[2]
+    child[0][1] <- input[3]
+    child[1][0] <- input[4]
+    child[1][1] <- input[5]
+    for node in 0..<2:
+        if child[node][0] < 1 or child[node][0] > 4 or child[node][1] < 1 or child[node][1] > 4 or child[node][0] == child[node][1]:
+            return -1
+    root_leaf: mutable i64 = -1
+    if child[0][0] == 1:
+        root_leaf <- child[0][1]
+    else if child[0][1] == 1:
+        root_leaf <- child[0][0]
+    if root_leaf < 2 or root_leaf > 4:
+        return -1
+    if child[1][0] < 2 or child[1][0] > 4 or child[1][1] < 2 or child[1][1] > 4 or child[1][0] == child[1][1] or child[1][0] == root_leaf or child[1][1] == root_leaf:
+        return -1
+    for leaf in 2..<5:
+        if leaf.i64() != root_leaf and child[1][0] != leaf.i64() and child[1][1] != leaf.i64():
+            return -1
+    masks: mutable i64[3] = zeroed
+    universe: u64 = (1.u64() << q) - 1
+    for leaf in 0..<3:
+        masks[leaf] <- input[6 + leaf]
+        if masks[leaf] <= 0 or masks[leaf].u64() > universe:
+            return -1
+    distance: mutable i64[4][4] = zeroed
+    for i in 0..<q:
+        for j in 0..<q:
+            value: i64 = input[9 + i * q + j]
+            if value < 0 or value > 9 or (i == j and value != 0) or (i != j and value == 0):
+                return -1
+            distance[i][j] <- value
+            if value != input[9 + j * q + i]:
+                return -1
+    for i in 0..<q:
+        for j in 0..<q:
+            for k in 0..<q:
+                if distance[i][k] > distance[i][j] + distance[j][k]:
+                    return -1
+    dp: mutable i64[5][4] = zeroed
+    for node in 0..<5:
+        for state in 0..<q:
+            dp[node][state] <- 1000000
+    for leaf in 2..<5:
+        for state in 0..<q:
+            if (masks[leaf - 2].u64() & (1.u64() << state)) != 0:
+                dp[leaf][state] <- 0
+    for node in 0..2:
+        if node > 1:
+            continue
+        for state in 0..<q:
+            total: mutable i64 = 0
+            for slot in 0..<2:
+                descendant: usize = child[node][slot].usize()
+                best: mutable i64 = 1000000
+                for other in 0..<q:
+                    candidate: i64 = dp[descendant][other] + distance[state][other]
+                    if candidate < best:
+                        best <- candidate
+                total <- total + best
+            dp[node][state] <- total
+    optimum: mutable i64 = 1000000
+    for state in 0..<q:
+        if dp[0][state] < optimum:
+            optimum <- dp[0][state]
+    if optimum >= 1000000:
+        return -1
+    staged: mutable i64[5122] = zeroed
+    staged[0] <- optimum
+    words: mutable usize = 2
+    if optimum <= threshold:
+        for x0 in 0..<q:
+            for x1 in 0..<q:
+                for x2 in 0..<q:
+                    if (masks[0].u64() & (1.u64() << x2)) == 0:
+                        continue
+                    for x3 in 0..<q:
+                        if (masks[1].u64() & (1.u64() << x3)) == 0:
+                            continue
+                        for x4 in 0..<q:
+                            if (masks[2].u64() & (1.u64() << x4)) == 0:
+                                continue
+                            labels: usize[5] = {x0, x1, x2, x3, x4}
+                            score: mutable i64 = 0
+                            for node in 0..<2:
+                                for slot in 0..<2:
+                                    score <- score + distance[labels[node]][child[node][slot].usize()]
+                            if score == optimum:
+                                for node in 0..<5:
+                                    staged[words] <- labels[node].i64()
+                                    words <- words + 1
+    staged[1] <- ((words - 2) / 5).i64()
+    bytes: usize = words * 8
+    if output == null or capacity < bytes:
+        return -2
+    for word in 0..<words:
+        bits: u64 = staged[word].u64()
+        for byte in 0..<8:
+            output[word * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+    bytes.i64()
+
+export fn substring_parsimony(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = substring_parsimony_impl

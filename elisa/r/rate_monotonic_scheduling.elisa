@@ -1,0 +1,93 @@
+const MAX_TASKS: usize = 8
+const MAX_INPUT: usize = 17
+const MAX_OUTPUT_BYTES: usize = 80
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def rate_monotonic_scheduling_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    count_value: i64 = input[0]
+    if count_value < 1 or count_value > 8 or length != 1 + 2 * count_value.usize(): return -1
+    count: usize = count_value.usize()
+    execution: mutable i64[MAX_TASKS] = zeroed
+    period: mutable i64[MAX_TASKS] = zeroed
+    order: mutable usize[MAX_TASKS] = zeroed
+    response: mutable i64[MAX_TASKS] = zeroed
+    task: mutable usize = 0
+    while task < count:
+        execution[task] <- input[1 + 2 * task]
+        period[task] <- input[2 + 2 * task]
+        if execution[task] < 1 or execution[task] > 16 or period[task] < 1 or period[task] > 32: return -1
+        order[task] <- task
+        response[task] <- -1
+        task <- task + 1
+    index: mutable usize = 1
+    while index < count:
+        key: usize = order[index]
+        position: mutable usize = index
+        while position > 0 and (period[order[position - 1]] > period[key] or
+                (period[order[position - 1]] == period[key] and order[position - 1] > key)):
+            order[position] <- order[position - 1]
+            position <- position - 1
+        order[position] <- key
+        index <- index + 1
+
+    schedulable: mutable i64 = 1
+    failed_task: mutable i64 = -1
+    rank: mutable usize = 0
+    while rank < count:
+        target: usize = order[rank]
+        remaining_target: mutable i64 = execution[target]
+        active: mutable i64[MAX_TASKS] = zeroed
+        elapsed: mutable i64 = 0
+        while remaining_target > 0 and elapsed < period[target]:
+            higher_rank: mutable usize = 0
+            while higher_rank < rank:
+                higher: usize = order[higher_rank]
+                if elapsed % period[higher] == 0:
+                    active[higher] <- active[higher] + execution[higher]
+                higher_rank <- higher_rank + 1
+            selected: mutable usize = MAX_TASKS
+            higher_rank <- 0
+            while higher_rank < rank:
+                higher <- order[higher_rank]
+                if active[higher] > 0:
+                    selected <- higher
+                    break
+                higher_rank <- higher_rank + 1
+            if selected < MAX_TASKS:
+                active[selected] <- active[selected] - 1
+            else:
+                remaining_target <- remaining_target - 1
+            elapsed <- elapsed + 1
+        if remaining_target > 0:
+            schedulable <- 0
+            failed_task <- target.i64()
+            break
+        response[target] <- elapsed
+        rank <- rank + 1
+
+    output_bytes: usize = 8 * (count + 2)
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    store_i64_le(schedulable, staged&, 0)
+    store_i64_le(failed_task, staged&, 8)
+    task <- 0
+    while task < count:
+        store_i64_le(response[task], staged&, 8 * (task + 2))
+        task <- task + 1
+    task <- 0
+    while task < output_bytes:
+        output[task] <- staged[task]
+        task <- task + 1
+    output_bytes.i64()
+
+export fn rate_monotonic_scheduling(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = rate_monotonic_scheduling_impl

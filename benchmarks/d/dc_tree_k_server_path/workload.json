@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "chapter-7-dc-tree-k-server-path-i64-array-bytes-v1",
+  "algorithm": "dc_tree_k_server_path",
+  "function_symbol": "dc_tree_k_server_path",
+  "comparison_model": "i64_array_bytes_output_call",
+  "source": {"chapter":"Algorithm DC-Tree for k-Servers on Trees","doi":"10.1007/978-1-4939-2864-4_7","author":"Marek Chrobak","scope":"Path-tree restriction of DC-Tree simultaneous equal-speed movement; no competitive-ratio measurement."},
+  "contract": {
+    "operation":"For every request, move all active servers toward it at unit speed until the first active server reaches it; lowest server index is active among servers sharing a location.",
+    "input_layout":"[k,q,initial_positions[k],requests[q]]",
+    "movement_cost":"Sum of the distances traveled by active servers for that request.",
+    "output_layout":"For each request: [movement_cost,all server positions in index order], signed 64-bit little-endian.",
+    "error_precedence":"Malformed or out-of-range input returns -1 before output checks; null output or insufficient byte capacity returns -2 without writes."
+  },
+  "input":{"kind":"signed_64_bit_integer_array","maximum_valid_length":18,"maximum_parseable_length":19,"server_count_range":[2,4],"request_count_range":[1,12],"coordinate_range":[0,15],"invalid_result":-1,"null_input_result":-1},
+  "output":{"kind":"little_endian_signed_64_bit_array","maximum_output_elements":60,"maximum_output_bytes":480,"success_result":"8*q*(k+1) bytes","invalid_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "workspace":{"bytes":1024,"meaning":"At most four server positions and twelve staged request records."},
+  "measurement":{"sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
+  "cases":[
+    {"id":"two-servers-collide-then-reseparate","input_values":[2,3,0,10,6,5,0],"input_length":7,"expected_result":72,"expected_output_hex":"080000000000000004000000000000000600000000000000020000000000000005000000000000000500000000000000050000000000000000000000000000000500000000000000"},
+    {"id":"three-server-tie-at-request","input_values":[3,1,0,4,10,7],"input_length":6,"expected_result":32,"expected_output_hex":"0900000000000000030000000000000007000000000000000700000000000000"},
+    {"id":"coordinate-out-of-range","input_values":[2,1,0,16,4],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,1,0,2,1],"input_length":5,"output_capacity":23,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

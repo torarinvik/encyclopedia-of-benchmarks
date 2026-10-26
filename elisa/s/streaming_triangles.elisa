@@ -1,0 +1,117 @@
+def streaming_triangles_power(base: i64, exponent: usize) -> i64:
+    result: mutable i64 = 1
+    for i in 0..<exponent: result <- result * base
+    result
+
+def streaming_triangles_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8: output[offset + byte] <- (bits >> (byte * 8)).u8()
+
+def streaming_triangles_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 10 or length > 340: return -1
+    n0: i64 = input[0]
+    m0: i64 = input[1]
+    se0: i64 = input[2]
+    sw0: i64 = input[3]
+    if n0 < 2 or n0 > 8 or m0 < 1 or m0 > 28 or se0 < 2 or se0 > 4 or sw0 < 1 or sw0 > 4: return -1
+    m: usize = m0.usize()
+    se: usize = se0.usize()
+    sw: usize = sw0.usize()
+    stride: usize = 2 + 2 * sw
+    if length != 4 + 2 * m + m * stride: return -1
+    seen: mutable bool[64] = zeroed
+    edge_u: mutable i64[28] = zeroed
+    edge_v: mutable i64[28] = zeroed
+    for i in 0..<m:
+        u: i64 = input[4 + 2 * i]
+        v: i64 = input[5 + 2 * i]
+        if u < 0 or v <= u or v >= n0 or seen[(u * 8 + v).usize()]: return -1
+        seen[(u * 8 + v).usize()] <- true
+        seen[(v * 8 + u).usize()] <- true
+        edge_u[i] <- u
+        edge_v[i] <- v
+    edge_ids: mutable i64[4] = zeroed
+    for i in 0..<4: edge_ids[i] <- -1
+    wedge_u: mutable i64[4] = zeroed
+    wedge_v: mutable i64[4] = zeroed
+    wedge_valid: mutable bool[4] = zeroed
+    closed: mutable bool[4] = zeroed
+    total: mutable i64 = 0
+    staged: mutable i64[84] = zeroed
+    at: mutable usize = 0
+    tape: usize = 4 + 2 * m
+    for ti in 0..<m:
+        t: usize = ti + 1
+        rec: usize = tape + ti * stride
+        for s in 0..<sw:
+            if wedge_valid[s] and wedge_u[s] == edge_u[ti] and wedge_v[s] == edge_v[ti]: closed[s] <- true
+        draw: i64 = input[rec]
+        slot0: i64 = input[rec + 1]
+        limit: i64 = streaming_triangles_power(t.i64(), se)
+        threshold: i64 = limit - streaming_triangles_power((t - 1).i64(), se)
+        if draw < 0 or draw >= limit: return -1
+        update: bool = draw < threshold
+        fresh_u: mutable i64[4] = zeroed
+        fresh_v: mutable i64[4] = zeroed
+        fresh_count: mutable usize = 0
+        removed_count: mutable usize = 0
+        if update:
+            if slot0 < 0 or slot0 >= se.i64(): return -1
+            slot: usize = slot0.usize()
+            old_id: i64 = edge_ids[slot]
+            if old_id >= 0:
+                for j in 0..<se:
+                    if j != slot and edge_ids[j] >= 0:
+                        old: usize = edge_ids[j].usize()
+                        common_old: mutable i64 = -1
+                        if edge_u[old_id.usize()] == edge_u[old] or edge_u[old_id.usize()] == edge_v[old]: common_old <- edge_u[old_id.usize()]
+                        if edge_v[old_id.usize()] == edge_u[old] or edge_v[old_id.usize()] == edge_v[old]: common_old <- edge_v[old_id.usize()]
+                        if common_old >= 0:
+                            old_x: i64 = if edge_u[old_id.usize()] == common_old: edge_v[old_id.usize()] else: edge_u[old_id.usize()]
+                            old_y: i64 = if edge_u[old] == common_old: edge_v[old] else: edge_u[old]
+                            if old_x != old_y: removed_count <- removed_count + 1
+            edge_ids[slot] <- ti.i64()
+            for j in 0..<se:
+                if j != slot and edge_ids[j] >= 0:
+                    old: usize = edge_ids[j].usize()
+                    common: mutable i64 = -1
+                    if edge_u[ti] == edge_u[old] or edge_u[ti] == edge_v[old]: common <- edge_u[ti]
+                    if edge_v[ti] == edge_u[old] or edge_v[ti] == edge_v[old]: common <- edge_v[ti]
+                    if common >= 0:
+                        x: i64 = if edge_u[ti] == common: edge_v[ti] else: edge_u[ti]
+                        y: i64 = if edge_u[old] == common: edge_v[old] else: edge_u[old]
+                        if x != y:
+                            if x > y: swap(x, y)
+                            fresh_u[fresh_count] <- x
+                            fresh_v[fresh_count] <- y
+                            fresh_count <- fresh_count + 1
+        else:
+            if slot0 != 0: return -1
+        total <- total + fresh_count.i64() - removed_count.i64()
+        if total < 0: return -1
+        for s in 0..<sw:
+            wd: i64 = input[rec + 2 + 2 * s]
+            pick: i64 = input[rec + 3 + 2 * s]
+            if fresh_count > 0:
+                if wd < 0 or wd >= total: return -1
+                if wd < fresh_count.i64():
+                    if pick < 0 or pick >= fresh_count.i64(): return -1
+                    wedge_u[s] <- fresh_u[pick.usize()]
+                    wedge_v[s] <- fresh_v[pick.usize()]
+                    wedge_valid[s] <- true
+                    closed[s] <- false
+                elif pick != 0: return -1
+            elif wd != 0 or pick != 0: return -1
+        hits: mutable i64 = 0
+        for s in 0..<sw:
+            if closed[s]: hits <- hits + 1
+        staged[at] <- total
+        staged[at + 1] <- (3 * hits * 1000000) / sw.i64()
+        staged[at + 2] <- (hits * t.i64() * t.i64() * total * 1000000) / (sw * se * (se - 1)).i64()
+        at <- at + 3
+    bytes: usize = 24 * m
+    if output == null or capacity < bytes: return -2
+    for i in 0..<at: streaming_triangles_put_i64(output, i * 8, staged[i])
+    bytes.i64()
+
+export fn streaming_triangles(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = streaming_triangles_impl

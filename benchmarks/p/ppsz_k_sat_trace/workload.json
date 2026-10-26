@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-ppsz-k-sat-trace-i64-array-bytes-output-v1",
+  "algorithm": "ppsz_k_sat_trace",
+  "function_symbol": "ppsz_k_sat_trace",
+  "pinned_source": {
+    "title": "Unique k-SAT and General k-SAT",
+    "author": "Timon Hertli",
+    "doi": "10.1007/978-1-4939-2864-4_680",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_680",
+    "license": "No source-code license asserted; clean-room mathematical algorithm"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,3*m signed literal IDs,permutation[n],guess_bits[n]]",
+    "variable_count_range": [3, 8],
+    "clause_count_range": [0, 12],
+    "maximum_valid_length": 54,
+    "invalid_result": -1
+  },
+  "contract": {
+    "formula": "3-CNF with exactly three literals over distinct variables in each clause; positive v means x_(v-1), negative -v means its negation.",
+    "randomness_projection": "The uniform assignment beta and uniform variable permutation are supplied explicitly; one trace is deterministic.",
+    "implication": "A currently unassigned variable is t-implied when some nonempty subset of at most t=floor(log2(n)) clauses has at least one satisfying completion under the current partial assignment and every satisfying completion fixes that variable to the same bit.",
+    "tie_breaking": "Choose the lowest-index forced variable, then the lowest numeric clause-subset bitmask that implies it. Repeat before each permutation variable; use beta only when the current variable remains unset.",
+    "output": "[satisfiable_bit,complete_assignment_bits[n]]",
+    "profile_scope": "Bounded deterministic PPSZ trace; no randomized success-probability or unique-solution guarantee is claimed."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[satisfiable_bit,assignment_bits[n]]",
+    "maximum_bytes": 72,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Fixed clause arrays, partial assignment, and staged output for n<=8 and m<=12."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {
+      "id": "last-variable-forced-after-two-guesses",
+      "input_values": [3, 1, 1, 2, 3, 0, 1, 2, 0, 0, 0],
+      "input_length": 11,
+      "output_capacity": 72,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000000000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "wrong-first-guess-makes-formula-unsatisfiable",
+      "input_values": [3, 4, 1, 2, 3, 1, 2, -3, 1, -2, 3, 1, -2, -3, 0, 1, 2, 0, 0, 0],
+      "input_length": 20,
+      "output_capacity": 72,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "invalid-permutation",
+      "input_values": [3, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 8,
+      "output_capacity": 72,
+      "expected_result": -1
+    }
+  ]
+}

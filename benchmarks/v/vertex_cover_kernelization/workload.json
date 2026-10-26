@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-vertex-cover-degree-kernel-i64-array-bytes-output-v1",
+  "algorithm": "vertex_cover_kernelization",
+  "function_symbol": "vertex_cover_kernelization",
+  "abi": "i64_array_bytes_output",
+  "description": "Deterministic degree-based preprocessing for parameterized vertex cover.",
+  "source": {
+    "title": "Vertex Cover Kernelization",
+    "authors": ["Jianer Chen"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_460",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_460",
+    "algorithm_attribution": "high-degree forced selection and low-degree preprocessing",
+    "implementation_status": "clean-room bounded degree-reduction stage"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[vertex_count,edge_count,parameter,(u,v) canonical sorted edges...]",
+    "vertex_count_range": [1, 16],
+    "edge_count_range": [0, 64],
+    "parameter_range": [0, 16],
+    "edge_constraints": "simple undirected graph; each edge appears once with u<v; pairs are strictly increasing",
+    "maximum_valid_length": 131,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[status,remaining_k,forced_vertex_mask,active_vertex_mask,edge_count,(u,v residual edges...)]",
+    "maximum_bytes": 1064,
+    "success_result": "8 * (5 + 2 * residual_edge_count) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Fixed adjacency matrix, active/forced vertex state, and staged bounded result."
+  },
+  "contract": {
+    "rule_order": "remove the lowest-ID isolated vertex; else force the unique neighbor of the lowest-ID degree-one vertex; else force the lowest-ID active vertex of degree greater than k; repeat until no rule applies or k becomes negative",
+    "degree_one_rule": "choose the only neighbor; replacing a leaf by its neighbor preserves a vertex cover without increasing its size",
+    "high_degree_rule": "a vertex of degree greater than k is mandatory in every cover of size at most k",
+    "status": "1 means the reduced instance remains feasible under the parameter; 0 means forced choices made k negative",
+    "vertex_masks": "bit i denotes original vertex ID i; active mask excludes forced and removed isolated vertices",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "star-leaf-forces-center",
+      "input_values": [4, 3, 1, 0, 1, 0, 2, 0, 3],
+      "input_length": 9,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "01000000000000000000000000000000010000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "triangle-remains-as-reduced-instance",
+      "input_values": [3, 3, 2, 0, 1, 0, 2, 1, 2],
+      "input_length": 9,
+      "output_capacity": 88,
+      "expected_result": 88,
+      "expected_output_hex": "01000000000000000200000000000000000000000000000007000000000000000300000000000000000000000000000001000000000000000000000000000000020000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "triangle-exceeds-parameter",
+      "input_values": [3, 3, 1, 0, 1, 0, 2, 1, 2],
+      "input_length": 9,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "0000000000000000ffffffffffffffff050000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "reversed-edge-endpoints",
+      "input_values": [3, 1, 1, 2, 0],
+      "input_length": 5,
+      "output_capacity": 1064,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-edge",
+      "input_values": [3, 2, 2, 0, 1, 0, 1],
+      "input_length": 7,
+      "output_capacity": 1064,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [4, 3, 1, 0, 1, 0, 2, 0, 3],
+      "input_length": 9,
+      "output_capacity": 39,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [4, 3, 1, 0, 1, 0, 2, 0, 3],
+      "input_length": 9,
+      "output_capacity": 40,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 3,
+      "input_is_null": true,
+      "output_capacity": 1064,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

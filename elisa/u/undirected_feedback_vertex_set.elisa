@@ -1,0 +1,111 @@
+# Clean-room bounded iterative-compression feedback vertex set profile.
+const MAX_N: usize = 8
+const MAX_INPUT: usize = 59
+const FVS_FAILURE: u64 = 0xffffffffffffffff.u64()
+
+def fvs_bits(value: u64) -> usize:
+    remaining: mutable u64 = value
+    count: mutable usize = 0
+    while remaining != 0:
+        count <- count + (remaining & 1).usize()
+        remaining <- remaining >> 1
+    count
+
+def fvs_root(parent: mutable usize&, value: usize) -> usize:
+    current: mutable usize = value
+    while parent[current] != current:
+        parent[current] <- parent[parent[current]]
+        current <- parent[current]
+    current
+
+def fvs_is_forest(adj: mutable bool&, n: usize, vertices: u64) -> bool:
+    parent: mutable usize[8] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        parent[i] <- i
+        i <- i + 1
+    u: mutable usize = 0
+    while u < n:
+        if (vertices & (1.u64() << u)) != 0:
+            v: mutable usize = u + 1
+            while v < n:
+                if (vertices & (1.u64() << v)) != 0 and adj[u * MAX_N + v]:
+                    left: usize = fvs_root(parent&, u)
+                    right: usize = fvs_root(parent&, v)
+                    if left == right: return false
+                    parent[left] <- right
+                v <- v + 1
+        u <- u + 1
+    true
+
+def fvs_compress(adj: mutable bool&, n: usize, prefix: u64, budget: usize, current: u64) -> u64:
+    x: mutable u64 = current
+    while true:
+        x_count: usize = fvs_bits(x)
+        excluded: u64 = current & ~x
+        if x_count <= budget and fvs_is_forest(adj&, n, excluded):
+            eligible: u64 = prefix & ~current
+            subset: mutable u64 = eligible
+            while true:
+                if fvs_bits(subset) <= budget - x_count and fvs_is_forest(adj&, n, prefix & ~(x | subset)):
+                    return x | subset
+                if subset == 0: break
+                subset <- (subset - 1) & eligible
+        if x == 0: break
+        x <- (x - 1) & current
+    FVS_FAILURE
+
+def fvs_solve_budget(adj: mutable bool&, n: usize, budget: usize) -> u64:
+    fvs: mutable u64 = 0
+    i: mutable usize = 0
+    while i < n:
+        prefix: u64 = (1.u64() << (i + 1)) - 1
+        candidate: u64 = fvs | (1.u64() << i)
+        if fvs_bits(candidate) <= budget:
+            fvs <- candidate
+        else:
+            fvs <- fvs_compress(adj&, n, prefix, budget, candidate)
+            if fvs == FVS_FAILURE: return FVS_FAILURE
+        i <- i + 1
+    fvs
+
+def fvs_minimum(adj: mutable bool&, n: usize, limit: usize) -> i64:
+    budget: mutable usize = 0
+    while budget <= limit:
+        if fvs_solve_budget(adj&, n, budget) != FVS_FAILURE: return budget.i64()
+        budget <- budget + 1
+    -1
+
+def fvs_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def undirected_feedback_vertex_set(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("undirected_feedback_vertex_set"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    limit: i64 = input[2]
+    if n64 < 1 or n64 > 8 or m64 < 0 or m64 > 28 or limit < 0 or limit > 4 or length != 3 + 2*m64.usize(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    adj: mutable bool[64] = zeroed
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    edge: mutable usize = 0
+    while edge < m:
+        u: i64 = input[3 + 2*edge]
+        v: i64 = input[4 + 2*edge]
+        if u < 0 or v <= u or v >= n64 or u < previous_u or (u == previous_u and v <= previous_v): return -1
+        adj[u.usize()*MAX_N+v.usize()] <- true
+        adj[v.usize()*MAX_N+u.usize()] <- true
+        previous_u <- u
+        previous_v <- v
+        edge <- edge + 1
+    if output.is_null() or capacity < 16: return -2
+    minimum: i64 = fvs_minimum(adj&, n, limit.usize())
+    fvs_put(if minimum < 0: 0 else: 1, output&, 0)
+    fvs_put(minimum, output&, 8)
+    16

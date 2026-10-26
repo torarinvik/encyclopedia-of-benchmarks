@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-bst-interleave-bound-i64-array-bytes-output-v1",
+  "algorithm": "bst_interleave_bound",
+  "function_symbol": "bst_interleave_bound",
+  "abi": "i64_array_bytes_output",
+  "description": "Compute Wilber's interleave lower bound for a supplied static BST and access sequence.",
+  "source": {
+    "title": "O(log log n)-Competitive Binary Search Tree",
+    "authors": ["Chengwen Chris Wang", "Daniel Sleator"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_263",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_263",
+    "algorithm_attribution": "Wilber's interleave lower bound over a static reference BST.",
+    "implementation_status": "clean-room bounded exact metric; Tango-tree construction is not covered"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, root, (left_child, right_child) for each key rank, access_count, access_keys...]",
+    "node_count_range": [1, 8],
+    "maximum_accesses": 16,
+    "maximum_valid_length": 35,
+    "maximum_parseable_length": 36,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[interleave_bound]",
+    "maximum_bytes": 8,
+    "success_result": "8 bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Fixed child/parent arrays, visited flags, subtree masks, and staged scalar output."
+  },
+  "contract": {
+    "keys": "Nodes are keys 0..n-1; left and right child indices are -1 or a valid node index.",
+    "tree_validity": "The root has no parent, every other node has exactly one parent, all nodes are reachable once, and each left/right subtree obeys strict BST key order.",
+    "subtree_membership": "An access belongs to pivot y's subtree when its key is y or a descendant of y.",
+    "side_label": "An access is labeled left when key <= pivot and right when key > pivot.",
+    "interleave_bound": "For each pivot, count side-label changes in the access sequence after filtering to that pivot's subtree; sum all pivot counts.",
+    "error_results": "Malformed input returns -1. Null output or capacity below 8 bytes returns -2 without writes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "The primary oracle builds subtree key masks and filters accesses per pivot. The independent verifier checks ancestry by following parent links from each access key.",
+  "cases": [
+    {"id":"three-node-alternating-left-right","input_values":[3,1,-1,-1,0,2,-1,-1,4,0,2,0,2],"input_length":13,"output_capacity":8,"expected_result":8,"expected_output_hex":"0300000000000000"},
+    {"id":"empty-access-sequence","input_values":[1,0,-1,-1,0],"input_length":5,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"maximum-tree-and-access-sequence","input_values":[8,3,-1,-1,0,2,-1,-1,1,5,-1,-1,4,6,-1,7,-1,-1,16,0,7,0,7,0,7,0,7,0,7,0,7,0,7],"input_length":35,"output_capacity":8,"expected_result":8,"expected_output_hex":"0f00000000000000"},
+    {"id":"invalid-bst-order","input_values":[2,0,1,-1,-1,-1,0],"input_length":7,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[1,0,-1,-1,1],"input_length":5,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,0,-1,-1,0],"input_length":5,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,0,-1,-1,0],"input_length":5,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

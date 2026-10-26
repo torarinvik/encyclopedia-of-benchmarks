@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-list-scheduling-i64-array-bytes-output-v1",
+  "algorithm": "list_scheduling",
+  "function_symbol": "list_scheduling",
+  "abi": "i64_array_bytes_output",
+  "description": "Graham's online least-loaded-machine scheduling rule.",
+  "source": {"title":"List Scheduling","authors":["Leah Epstein"],"year":2016,"reference":"Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_205","url":"https://doi.org/10.1007/978-1-4939-2864-4_205","algorithm_attribution":"Graham list scheduling","implementation_status":"clean-room; no book prose or source code copied"},
+  "input": {"kind":"signed_64_bit_integer_array","encoding":"[machine_count, job_count, processing_times...]","machine_count_range":[1,8],"job_count_range":[1,32],"processing_time_range":[1,10000],"maximum_valid_length":34,"invalid_input_result":-1},
+  "output": {"kind":"little_endian_signed_64_bit_array","encoding":"[makespan, machine_per_job_in_arrival_order, final_machine_loads_in_id_order]","maximum_bytes":328,"success_result":"8 * (1 + job_count + machine_count) bytes written","invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"output_untouched_on_error":true},
+  "workspace":{"bytes":648,"meaning":"At most thirty-two job assignments, eight machine loads, and the staged 328-byte maximum output."},
+  "contract":{"job_order":"Input order; each assignment is irrevocable.","machine_choice":"Minimum current load.","tie_rule":"Lowest machine ID.","invalid_input_result":-1,"output_error_result":-2},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call","sample_count":8,"warmup_rounds":2,"repetitions_per_sample":100},
+  "cases":[
+    {"id":"online-arrival-order","input_values":[2,5,3,2,7,5,1],"input_length":7,"output_capacity":64,"expected_result":64,"expected_output_hex":"09000000000000000000000000000000010000000000000001000000000000000000000000000000000000000000000009000000000000000900000000000000"},
+    {"id":"machine-load-ties","input_values":[3,4,4,4,4,4],"input_length":6,"output_capacity":64,"expected_result":64,"expected_output_hex":"08000000000000000000000000000000010000000000000002000000000000000000000000000000080000000000000004000000000000000400000000000000"},
+    {"id":"length-mismatch","input_values":[2,3,1,2],"input_length":4,"output_capacity":328,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-job-size","input_values":[2,1,0],"input_length":3,"output_capacity":328,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,1,5],"input_length":3,"output_capacity":23,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,5],"input_length":3,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":2,"input_is_null":true,"output_capacity":328,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

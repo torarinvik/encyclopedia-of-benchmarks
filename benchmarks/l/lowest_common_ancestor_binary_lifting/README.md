@@ -11,6 +11,7 @@ Build a rooted view of an undirected tree, then answer a batch of lowest-common-
 - Implementations root the tree, fill binary ancestors, and answer each query in `O(log n)` after `O(n log n)` preprocessing. Auxiliary space is `O(n log n)`.
 
 The batched edge-list contract is shared with [`lowest_common_ancestor_tarjan`](../lowest_common_ancestor_tarjan/README.md), which answers the same queries with Tarjan's offline DSU algorithm. The existing [`lowest_common_ancestor`](../lowest_common_ancestor/README.md) benchmark instead compares root-to-target paths in an indexed binary tree.
+The JavaScript `LCABinaryLifting` source uses the same binary-lifting query algorithm; its weighted checksum is a projection of the answer sequence and is tracked as an alias.
 
 ## Workload
 

@@ -9,6 +9,8 @@ Compute the arithmetic mean of a nonempty integer sequence.
 - The source sums the integer values and divides by list length using true division. It raises on empty/non-list input; invalid lengths and values map to -1e300 in this ABI.
 - The result follows the source operation: `sum(values) / length`.
 
+The broader `average` source group uses the same arithmetic-mean algorithm and is mapped here on the shared bounded domain.
+
 ## Source semantics
 
 This follows [TheAlgorithms Python `arithmetic.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/series/arithmetic.py) and the `arithmeticMean` function in the pinned [Haskell `Center.hs`](https://github.com/TheAlgorithms/Haskell/blob/9dcabef99fb8995a760ff25a9e0d659114c0b9d3/src/Statistics/Center.hs); both sum the values and divide by their count. The Python file also contains the separately benchmarked routine `is_arithmetic_series`. These ports implement the bounded integer-list subset.

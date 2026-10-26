@@ -1,0 +1,54 @@
+def fp_backtrack_enumerate(rows: i64&, row_count: usize, item_count: usize, start_item: usize,
+        prefix: i64, minimum: i64, words: mutable i64&, records: mutable usize&) -> void:
+    for item in start_item..<item_count:
+        bit: i64 = 1.i64() << item
+        projected: mutable i64[16] = zeroed
+        projected_count: mutable usize = 0
+        for row in 0..<row_count:
+            if (rows[row] & bit) != 0:
+                projected[projected_count] <- rows[row]
+                projected_count <- projected_count + 1
+        if projected_count.i64() < minimum:
+            continue
+        mask: i64 = prefix | bit
+        at: usize = 1 + 2 * records
+        words[at] <- mask
+        words[at + 1] <- projected_count.i64()
+        records <- records + 1
+        fp_backtrack_enumerate(projected[0], projected_count, item_count, item + 1, mask, minimum, words, records)
+
+def fp_backtrack_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[word * 8 + byte] <- (bits >> (byte * 8)).u8()
+
+def frequent_itemset_backtrack_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or length > 19:
+        return -1
+    item_count0: i64 = input[0]
+    row_count0: i64 = input[1]
+    minimum: i64 = input[2]
+    if item_count0 < 1 or item_count0 > 8 or row_count0 < 1 or row_count0 > 16 or minimum < 1 or minimum > row_count0 or length != (3 + row_count0).usize():
+        return -1
+    item_count: usize = item_count0.usize()
+    row_count: usize = row_count0.usize()
+    limit: i64 = 1.i64() << item_count
+    rows: mutable i64[16] = zeroed
+    for i in 0..<row_count:
+        mask: i64 = input[3 + i]
+        if mask < 0 or mask >= limit:
+            return -1
+        rows[i] <- mask
+    words: mutable i64[511] = zeroed
+    records: mutable usize = 0
+    fp_backtrack_enumerate(rows[0], row_count, item_count, 0, 0, minimum, words[0], records)
+    words[0] <- records.i64()
+    word_count: usize = 1 + 2 * records
+    bytes: usize = 8 * word_count
+    if output == null or capacity < bytes:
+        return -2
+    for i in 0..<word_count:
+        fp_backtrack_put_i64(output, i, words[i])
+    bytes.i64()
+
+export fn frequent_itemset_backtrack(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = frequent_itemset_backtrack_impl

@@ -1,0 +1,185 @@
+const MAX_POINTS: usize = 8
+const MAX_QUERIES: usize = 8
+const MAX_INPUT_LENGTH: usize = 50
+const BASE: usize = 8
+const MAX_OUTPUT_WORDS: usize = 73
+
+def orthogonal_range_reporting_2d_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_POINTS.i64() or q_value < 1 or q_value > MAX_QUERIES.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 2 + 2 * n + 4 * q: return -1
+
+    xs: mutable i64[8] = zeroed
+    ys: mutable i64[8] = zeroed
+    point: mutable usize = 0
+    while point < n:
+        xs[point] <- input[2 + 2 * point]
+        ys[point] <- input[3 + 2 * point]
+        if xs[point] < 0 or xs[point] > 15 or ys[point] < 0 or ys[point] > 15: return -1
+        earlier: mutable usize = 0
+        while earlier < point:
+            if xs[earlier] == xs[point] and ys[earlier] == ys[point]: return -1
+            earlier <- earlier + 1
+        point <- point + 1
+
+    queries: mutable i64[32] = zeroed
+    start: usize = 2 + 2 * n
+    query: mutable usize = 0
+    while query < q:
+        item: mutable usize = 0
+        while item < 4:
+            queries[query * 4 + item] <- input[start + query * 4 + item]
+            item <- item + 1
+        if queries[query * 4] < 0 or queries[query * 4] > queries[query * 4 + 1] or queries[query * 4 + 1] > 15 or
+            queries[query * 4 + 2] < 0 or queries[query * 4 + 2] > queries[query * 4 + 3] or queries[query * 4 + 3] > 15: return -1
+        query <- query + 1
+
+    order: mutable usize[8] = zeroed
+    point <- 0
+    while point < n:
+        order[point] <- point
+        point <- point + 1
+    index: mutable usize = 1
+    while index < n:
+        value: usize = order[index]
+        position: mutable usize = index
+        while position > 0:
+            previous: usize = order[position - 1]
+            before: bool = xs[value] < xs[previous] or (xs[value] == xs[previous] and
+                (ys[value] < ys[previous] or (ys[value] == ys[previous] and value < previous)))
+            if not before: break
+            order[position] <- previous
+            position <- position - 1
+        order[position] <- value
+        index <- index + 1
+
+    tree_ids: mutable usize[128] = zeroed
+    tree_size: mutable usize[16] = zeroed
+    rank: mutable usize = 0
+    while rank < n:
+        tree_ids[(BASE + rank) * MAX_POINTS] <- order[rank]
+        tree_size[BASE + rank] <- 1
+        rank <- rank + 1
+    node: mutable usize = BASE - 1
+    while node > 0:
+        left: mutable usize = 0
+        right: mutable usize = 0
+        left_node: usize = node * 2
+        right_node: usize = node * 2 + 1
+        while left < tree_size[left_node] or right < tree_size[right_node]:
+            take_left: mutable bool = right >= tree_size[right_node]
+            if not take_left and left < tree_size[left_node]:
+                left_id: usize = tree_ids[left_node * MAX_POINTS + left]
+                right_id: usize = tree_ids[right_node * MAX_POINTS + right]
+                take_left <- ys[left_id] < ys[right_id] or (ys[left_id] == ys[right_id] and left_id < right_id)
+            chosen: usize = 0
+            if take_left:
+                chosen <- tree_ids[left_node * MAX_POINTS + left]
+                left <- left + 1
+            else:
+                chosen <- tree_ids[right_node * MAX_POINTS + right]
+                right <- right + 1
+            tree_ids[node * MAX_POINTS + tree_size[node]] <- chosen
+            tree_size[node] <- tree_size[node] + 1
+        node <- node - 1
+
+    words: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    cursor: mutable usize = 0
+    words[cursor] <- q.i64()
+    cursor <- cursor + 1
+    query <- 0
+    while query < q:
+        low: mutable usize = 0
+        high: mutable usize = n
+        while low < high:
+            middle: usize = low + (high - low) / 2
+            if xs[order[middle]] < queries[query * 4]: low <- middle + 1
+            else: high <- middle
+        left: usize = low + BASE
+        low <- 0
+        high <- n
+        while low < high:
+            middle: usize = low + (high - low) / 2
+            if xs[order[middle]] <= queries[query * 4 + 1]: low <- middle + 1
+            else: high <- middle
+        right: usize = low + BASE
+        hits: mutable usize[8] = zeroed
+        hit_count: mutable usize = 0
+        while left < right:
+            if (left & 1) != 0:
+                node <- left
+                low <- 0
+                high <- tree_size[node]
+                while low < high:
+                    middle: usize = low + (high - low) / 2
+                    if ys[tree_ids[node * MAX_POINTS + middle]] < queries[query * 4 + 2]: low <- middle + 1
+                    else: high <- middle
+                first: usize = low
+                high <- tree_size[node]
+                while low < high:
+                    middle <- low + (high - low) / 2
+                    if ys[tree_ids[node * MAX_POINTS + middle]] <= queries[query * 4 + 3]: low <- middle + 1
+                    else: high <- middle
+                index <- first
+                while index < low:
+                    hits[hit_count] <- tree_ids[node * MAX_POINTS + index]
+                    hit_count <- hit_count + 1
+                    index <- index + 1
+                left <- left + 1
+            if (right & 1) != 0:
+                right <- right - 1
+                node <- right
+                low <- 0
+                high <- tree_size[node]
+                while low < high:
+                    middle <- low + (high - low) / 2
+                    if ys[tree_ids[node * MAX_POINTS + middle]] < queries[query * 4 + 2]: low <- middle + 1
+                    else: high <- middle
+                first <- low
+                high <- tree_size[node]
+                while low < high:
+                    middle <- low + (high - low) / 2
+                    if ys[tree_ids[node * MAX_POINTS + middle]] <= queries[query * 4 + 3]: low <- middle + 1
+                    else: high <- middle
+                index <- first
+                while index < low:
+                    hits[hit_count] <- tree_ids[node * MAX_POINTS + index]
+                    hit_count <- hit_count + 1
+                    index <- index + 1
+            left <- left / 2
+            right <- right / 2
+        index <- 1
+        while index < hit_count:
+            value <- hits[index]
+            position <- index
+            while position > 0 and hits[position - 1] > value:
+                hits[position] <- hits[position - 1]
+                position <- position - 1
+            hits[position] <- value
+            index <- index + 1
+        words[cursor] <- hit_count.i64()
+        cursor <- cursor + 1
+        index <- 0
+        while index < hit_count:
+            words[cursor] <- hits[index].i64()
+            cursor <- cursor + 1
+            index <- index + 1
+        query <- query + 1
+    output_bytes: usize = 8 * cursor
+    if output == null or capacity < output_bytes: return -2
+    word: mutable usize = 0
+    while word < cursor:
+        bits: mutable u64 = words[word].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[word * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        word <- word + 1
+    output_bytes.i64()
+
+export fn orthogonal_range_reporting_2d(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = orthogonal_range_reporting_2d_impl

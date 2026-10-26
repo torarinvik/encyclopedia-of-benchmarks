@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi568-thorup-zwick-k2-i64-array-bytes-output-v1",
+  "algorithm": "thorup_zwick_distance_oracle",
+  "function_symbol": "thorup_zwick_distance_oracle",
+  "description": "Preprocess a deterministic k=2 Thorup-Zwick hierarchy from an explicit sample mask and answer bounded approximate distance queries.",
+  "pinned_sources": [
+    {
+      "repository": "Encyclopedia of Algorithms EPUB supplied by the user",
+      "chapter": "Approximate Distance Oracles with Improved Query Time",
+      "doi": "10.1007/978-1-4939-2864-4_568",
+      "path": "OEBPS/AChap568.html",
+      "role": "algorithm description"
+    },
+    {
+      "repository": "Encyclopedia of Algorithms EPUB supplied by the user",
+      "chapter": "Distance Oracles for Sparse Graphs",
+      "doi": "10.1007/978-1-4939-2864-4_571",
+      "path": "OEBPS/AChap571.html",
+      "role": "Thorup-Zwick hierarchy description"
+    }
+  ],
+  "contract": {
+    "operation": "Build A0=V, A1 from the supplied nonempty bit mask, A2=empty; preprocess each vertex bunch and answer queries using the alternating k=2 Thorup-Zwick rule.",
+    "input_layout": "[n, m, A1_mask, (u, v, weight)[m], q, (source, target)[q]]",
+    "sample_profile": "The A1 membership mask is supplied explicitly. It is a deterministic sample realization; no expected-stretch claim is made for one run.",
+    "graph": "Simple connected undirected graph; each edge has 0 <= u < v < n and integer weight 1..1000.",
+    "tie_rule": "Nearest sample is the minimum by (integer shortest-path distance, vertex ID).",
+    "bunch_rule": "Include every A1 vertex and each non-A1 x with d(u,x) strictly less than d(u,A1).",
+    "query_rule": "At level i test p_i(target) in B_source; if absent swap endpoints and increment i; on success return d(source,p_i(target))+d(target,p_i(target)).",
+    "bounds": {"vertices": [1, 12], "edges": [0, 66], "queries": [0, 32], "edge_weight": [1, 1000]},
+    "invalid_input_result": -1,
+    "no_write_on_error": true,
+    "error_precedence": "Input validation precedes output-null and output-capacity checks."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_valid_input_length": 266,
+    "maximum_parseable_input_length": 266,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_array",
+    "encoding": "[q, estimate_0, ..., estimate_(q-1)]",
+    "maximum_bytes": 264,
+    "success_result": "output byte length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Fixed storage for the 12 by 12 signed-i64 distance table, bunch membership, nearest-sample metadata, and staged maximum output."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-edge-query",
+      "input_values": [2, 1, 1, 0, 1, 5, 1, 0, 1],
+      "input_length": 9,
+      "output_capacity": 264,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000500000000000000"
+    },
+    {
+      "id": "sampled-line-multiple-queries",
+      "input_values": [4, 3, 9, 0, 1, 2, 1, 2, 2, 2, 3, 2, 3, 0, 3, 0, 2, 1, 3],
+      "input_length": 19,
+      "output_capacity": 264,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": 32,
+      "expected_output_hex": "0300000000000000060000000000000004000000000000000400000000000000"
+    },
+    {
+      "id": "zero-query-empty-estimate-list",
+      "input_values": [1, 0, 1, 0],
+      "input_length": 4,
+      "output_capacity": 8,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "disconnected-graph-invalid-before-capacity",
+      "input_values": [3, 1, 1, 0, 1, 1, 0],
+      "input_length": 7,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "input_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty-sample-invalid",
+      "input_values": [1, 0, 0, 0],
+      "input_length": 4,
+      "output_capacity": 264,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-valid-input",
+      "input_values": [2, 1, 1, 0, 1, 5, 1, 0, 1],
+      "input_length": 9,
+      "output_capacity": 264,
+      "output_is_null": true,
+      "input_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-valid-input",
+      "input_values": [2, 1, 1, 0, 1, 5, 1, 0, 1],
+      "input_length": 9,
+      "output_capacity": 15,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "length-mismatch-invalid",
+      "input_values": [1, 0, 1, 0, 7],
+      "input_length": 5,
+      "output_capacity": 264,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+// Clean-room fixed-rational-scale geometric 2D pattern matching profile.
+const MAX_H: usize = 12
+const MAX_W: usize = 12
+const MAX_PATTERN: usize = 6
+const MAX_FIELDS: usize = 289
+const MAX_INPUT: usize = 186
+def scaled_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset+byte] <- ((bits >> (8*byte)) & 255).u8()
+        byte <- byte+1
+def two_dimensional_scaled_pattern_matching(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("two_dimensional_scaled_pattern_matching"):
+    if input.is_null() or length < 6 or length > MAX_INPUT: return -1
+    h0: i64 = input[0]
+    w0: i64 = input[1]
+    ph0: i64 = input[2]
+    pw0: i64 = input[3]
+    p: i64 = input[4]
+    q: i64 = input[5]
+    if h0 < 1 or h0 > MAX_H.i64() or w0 < 1 or w0 > MAX_W.i64() or ph0 < 1 or ph0 > MAX_PATTERN.i64() or pw0 < 1 or pw0 > MAX_PATTERN.i64() or q < 1 or q > 8 or p < q or p > 2*q: return -1
+    h: usize = h0.usize()
+    w: usize = w0.usize()
+    ph: usize = ph0.usize()
+    pw: usize = pw0.usize()
+    if length != 6+h*w+ph*pw: return -1
+    index: mutable usize = 0
+    while index < h*w+ph*pw:
+        value: i64 = input[6+index]
+        if value < 0 or value > 255: return -1
+        index <- index+1
+    fields: mutable i64[MAX_FIELDS] = zeroed
+    count: mutable usize = 1
+    row: mutable usize = 0
+    while row < h:
+        column: mutable usize = 0
+        while column < w:
+            if p*ph0 > q*(h-row).i64() or p*pw0 > q*(w-column).i64(): column <- column+1; continue
+            matched: mutable bool = true
+            y: mutable usize = 0
+            while y < h-row and matched:
+                if (2*y.i64()+1)*q < 2*p*ph0:
+                    py: usize = (((2*y.i64()+1)*q)/(2*p)).usize()
+                    x: mutable usize = 0
+                    while x < w-column:
+                        if (2*x.i64()+1)*q < 2*p*pw0:
+                            px: usize = (((2*x.i64()+1)*q)/(2*p)).usize()
+                            if input[6+(row+y)*w+column+x] != input[6+h*w+py*pw+px]: matched <- false; break
+                        x <- x+1
+                y <- y+1
+            if matched:
+                fields[count] <- row.i64()
+                fields[count+1] <- column.i64()
+                count <- count+2
+            column <- column+1
+        row <- row+1
+    fields[0] <- ((count-1)/2).i64()
+    bytes: usize = 8*count
+    if output.is_null() or capacity < bytes: return -2
+    index <- 0
+    while index < count:
+        scaled_put(fields[index], output&, 8*index)
+        index <- index+1
+    bytes.i64()

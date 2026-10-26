@@ -1,0 +1,109 @@
+const MAX_N: usize = 12
+const MAX_WEIGHT: usize = 32
+const MAX_LEVELS: usize = 6
+const MAX_INPUT: usize = 25
+const MAX_OUTPUT: usize = 104
+
+def universal_sequencing_doubling_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def universal_sequencing_doubling(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("universal_sequencing_doubling"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    if n64 < 1 or n64 > MAX_N.i64() or length != 1 + 2 * n64.usize(): return -1
+    n: usize = n64.usize()
+    processing: mutable i64[MAX_N] = zeroed
+    weight: mutable usize[MAX_N] = zeroed
+    total_weight: mutable usize = 0
+    job: mutable usize = 0
+    while job < n:
+        p: i64 = input[1 + 2 * job]
+        w: i64 = input[2 + 2 * job]
+        if p < 1 or p > 255 or w < 1 or w > MAX_WEIGHT.i64(): return -1
+        processing[job] <- p
+        weight[job] <- w.usize()
+        total_weight <- total_weight + w.usize()
+        job <- job + 1
+    if total_weight > MAX_WEIGHT: return -1
+    power: mutable usize = 1
+    while power < total_weight: power <- power * 2
+    if power != total_weight: return -1
+
+    level_sets: mutable u64[MAX_LEVELS] = zeroed
+    levels: mutable usize = 0
+    bound: mutable usize = 1
+    while bound <= total_weight:
+        best: mutable i64[MAX_WEIGHT + 1] = zeroed
+        masks: mutable u64[MAX_WEIGHT + 1] = zeroed
+        reachable: mutable bool[MAX_WEIGHT + 1] = zeroed
+        reachable[0] <- true
+        job <- 0
+        while job < n:
+            used: mutable usize = bound
+            while used >= weight[job]:
+                if reachable[used - weight[job]]:
+                    candidate: i64 = best[used - weight[job]] + processing[job]
+                    candidate_mask: u64 = masks[used - weight[job]] | (1 << job)
+                    if not reachable[used] or candidate > best[used] or
+                        (candidate == best[used] and candidate_mask < masks[used]):
+                        reachable[used] <- true
+                        best[used] <- candidate
+                        masks[used] <- candidate_mask
+                if used == 0: break
+                used <- used - 1
+            job <- job + 1
+        maximum: mutable i64 = -1
+        selected: mutable u64 = 0
+        used: mutable usize = 0
+        while used <= bound:
+            if reachable[used] and (best[used] > maximum or
+                (best[used] == maximum and masks[used] < selected)):
+                maximum <- best[used]
+                selected <- masks[used]
+            used <- used + 1
+        level_sets[levels] <- selected
+        levels <- levels + 1
+        bound <- bound * 2
+
+    rank: mutable i64[MAX_N] = zeroed
+    job <- 0
+    while job < n:
+        rank[job] <- -1
+        level: mutable usize = 0
+        while level < levels:
+            if (level_sets[level] & (1 << job)) != 0:
+                rank[job] <- level.i64()
+                break
+            level <- level + 1
+        if rank[job] < 0: return -1
+        job <- job + 1
+
+    words: mutable i64[MAX_N + 1] = zeroed
+    words[0] <- n.i64()
+    count: mutable usize = 1
+    level: mutable i64 = levels.i64() - 1
+    while level >= 0:
+        job <- 0
+        while job < n:
+            if rank[job] == level:
+                words[count] <- job.i64()
+                count <- count + 1
+            job <- job + 1
+        level <- level - 1
+    bytes: usize = 8 * count
+    if output.is_null() or capacity < bytes: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        universal_sequencing_doubling_put(words[index], staged, 8 * index)
+        index <- index + 1
+    index <- 0
+    while index < bytes:
+        output[index] <- staged[index]
+        index <- index + 1
+    bytes.i64()

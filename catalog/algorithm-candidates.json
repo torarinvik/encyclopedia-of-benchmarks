@@ -5119,10 +5119,8 @@
       "source_repositories": [
         "Rust"
       ],
-      "local_source_folders": [
-        "rust"
-      ],
-      "review_status": "reviewed_algorithm_semantics",
+      "local_source_folders": [],
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Rust",
@@ -5518,9 +5516,7 @@
         "Java",
         "Rust"
       ],
-      "local_source_folders": [
-        "rust"
-      ],
+      "local_source_folders": [],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -8465,7 +8461,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Dart",
@@ -8500,12 +8496,13 @@
           "language": "Rust",
           "path": "src/math/average.rs",
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/average.rs",
-          "local_folder_source": "rust"
+          "local_folder_source": null
         }
       ],
-      "benchmark_name": "average",
-      "review_notes": "The pinned sources compute the arithmetic mean as sum divided by element count. The shared contract returns a binary64 result over signed integers in ±1,000,000,000, with a bounded exact i64 sum and a finite sentinel for empty or invalid input. Fractional means are retained; Go `arithmeticmean` is a distinct two-value midpoint.",
-      "benchmark_contract": "benchmarks/a/average/README.md"
+      "benchmark_name": "arithmetic_mean",
+      "review_notes": "This source computes sum(values) divided by the element count, the same arithmetic-mean algorithm as the canonical `arithmetic_mean` benchmark. Its wider input bounds and source-specific empty behavior are contract details.",
+      "benchmark_contract": "benchmarks/a/arithmetic_mean/README.md",
+      "alias_of": "arithmetic_mean"
     },
     {
       "candidate_id": "average_absolute_deviation",
@@ -8591,7 +8588,7 @@
         "Solidity"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -8636,9 +8633,10 @@
           "local_folder_source": null
         }
       ],
-      "alias_of": "average",
+      "alias_of": "arithmetic_mean",
       "review_notes": "The pinned average_mean sources compute the same sum-over-count arithmetic mean as the canonical average benchmark. Their empty-input and integer-overload behavior varies; the shared contract standardizes a binary64 result and a finite invalid sentinel.",
-      "benchmark_contract": "benchmarks/a/average/README.md"
+      "benchmark_contract": "benchmarks/a/arithmetic_mean/README.md",
+      "benchmark_name": "arithmetic_mean"
     },
     {
       "candidate_id": "average_median",
@@ -16562,7 +16560,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "TypeScript",
@@ -16572,9 +16570,10 @@
           "local_folder_source": null
         }
       ],
-      "alias_of": "average",
+      "alias_of": "arithmetic_mean",
       "review_notes": "The pinned TypeScript calculate_mean source computes the arithmetic mean and maps to the canonical binary64 average contract.",
-      "benchmark_contract": "benchmarks/a/average/README.md"
+      "benchmark_contract": "benchmarks/a/arithmetic_mean/README.md",
+      "benchmark_name": "arithmetic_mean"
     },
     {
       "candidate_id": "calculate_median",
@@ -21929,9 +21928,10 @@
           "local_folder_source": "rust"
         }
       ],
-      "benchmark_name": "count_min_sketch_width_one_collision",
-      "benchmark_contract": "benchmarks/c/count_min_sketch_width_one_collision/README.md",
-      "review_notes": "C# and Rust use different hashers and cannot share exact slot results at general widths. At width 1 and depth 3, all keys collide in every row, so unit inserts followed by estimates (including unseen keys) deterministically return the total insert count. Keep keys and counts bounded to avoid C# integer overflow and exclude zero dimensions."
+      "benchmark_name": "count_min_sketch_affine",
+      "benchmark_contract": "benchmarks/c/count_min_sketch_affine/README.md",
+      "alias_of": "count_min_sketch_affine",
+      "review_notes": "The pinned C# and Rust implementations use different internal hashers, so their slots are not compared directly. Both implement the Count-Min update-and-minimum-query algorithm and alias the canonical bounded affine-hash profile; the source-specific width-one collision trace is a special case of that contract."
     },
     {
       "candidate_id": "count_negative_numbers_in_sorted_matrix",
@@ -36472,7 +36472,7 @@
         "Ruby"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Ruby",
@@ -36482,9 +36482,9 @@
           "local_folder_source": null
         }
       ],
-      "alias_of": "generate_parentheses",
-      "review_notes": "The pinned Ruby backtracking routine adds an opening parenthesis while fewer than n are used and a closing parenthesis while it does not exceed the opening count. Its traversal emits the same lexicographic sequence order as the canonical contract on the shared n=1..6 domain; the misspelled filename is retained as an alias.",
-      "benchmark_contract": "benchmarks/g/generate_parentheses/README.md"
+      "alias_of": "parentheses_generator",
+      "review_notes": "The pinned Ruby backtracking routine adds an opening parenthesis while fewer than n are used and a closing parenthesis while it does not exceed the opening count. Its traversal emits the same lexicographic sequence order as the canonical zero-through-six-pair contract; the misspelled filename is retained as an alias.",
+      "benchmark_contract": "benchmarks/p/parentheses_generator/README.md"
     },
     {
       "candidate_id": "generate_parentheses",
@@ -36494,17 +36494,15 @@
         "JavaScript",
         "Python"
       ],
-      "local_source_folders": [
-        "cpp"
-      ],
-      "review_status": "reviewed_algorithm_semantics",
+      "local_source_folders": [],
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
           "language": "C++",
           "path": "backtracking/generate_parentheses.cpp",
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/backtracking/generate_parentheses.cpp",
-          "local_folder_source": "cpp"
+          "local_folder_source": null
         },
         {
           "repository": "JavaScript",
@@ -36521,8 +36519,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_contract": "benchmarks/g/generate_parentheses/README.md",
-      "review_notes": "The pinned C++, JavaScript, and Python sources enumerate the same balanced-parenthesis set in different traversal orders. The benchmark canonicalizes the result to lexicographic order with `(` before `)` and concatenates the fixed-length strings."
+      "benchmark_contract": "benchmarks/p/parentheses_generator/README.md",
+      "review_notes": "The pinned C++, JavaScript, and Python sources enumerate the same balanced-parenthesis family as Java and Rust. Their outputs map to the canonical zero-through-six-pair open-first profile; only the byte encoding differs.",
+      "alias_of": "parentheses_generator"
     },
     {
       "candidate_id": "generate_parentheses_iterative",
@@ -36541,9 +36540,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_contract": "benchmarks/g/generate_parentheses/README.md",
-      "review_notes": "The pinned Python iterative traversal enumerates the same balanced-parenthesis set as the canonical recursive implementations. The shared benchmark sorts the results before encoding, so traversal order does not change the contract.",
-      "alias_of": "generate_parentheses"
+      "benchmark_contract": "benchmarks/p/parentheses_generator/README.md",
+      "review_notes": "The pinned Python iterative traversal enumerates the same balanced-parenthesis family as the canonical recursive implementations. Its result maps to the zero-through-six-pair open-first profile.",
+      "alias_of": "parentheses_generator"
     },
     {
       "candidate_id": "generate_permutations",
@@ -36694,9 +36693,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_contract": "benchmarks/g/generate_parentheses/README.md",
-      "review_notes": "The pinned Go and TypeScript backtracking sources enumerate the same balanced-parenthesis set as the canonical implementations. The shared benchmark sorts the results before encoding, so traversal order does not change the contract.",
-      "alias_of": "generate_parentheses"
+      "benchmark_contract": "benchmarks/p/parentheses_generator/README.md",
+      "review_notes": "The pinned Go and TypeScript backtracking sources enumerate the same balanced-parenthesis family as the canonical implementations. Their outputs map to the zero-through-six-pair open-first profile.",
+      "alias_of": "parentheses_generator"
     },
     {
       "candidate_id": "generator",
@@ -49798,7 +49797,7 @@
         "R"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -49815,9 +49814,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "kruskal_mst",
-      "benchmark_contract": "benchmarks/k/kruskal_mst/README.md",
-      "review_notes": "The pinned source implements Kruskal with disjoint sets on connected undirected simple weighted graphs. Require unique bounded integer weights to avoid tie-order ambiguity; return MST edges and total weight, normalizing edge orientation/order. Connectedness is required because the JavaScript source assumes it."
+      "benchmark_name": "kruskal",
+      "benchmark_contract": "benchmarks/k/kruskal/README.md",
+      "review_notes": "The pinned JavaScript and R sources use Kruskal edge sorting with disjoint sets. This source candidate aliases the canonical `kruskal` benchmark at the algorithm level; its fingerprint output projection and connected-graph restrictions do not define a different algorithm.",
+      "alias_of": "kruskal"
     },
     {
       "candidate_id": "kruskals_minimum_spanning_tree",
@@ -50690,7 +50690,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -50700,9 +50700,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "lcabinary_lifting",
-      "benchmark_contract": "benchmarks/l/lcabinary_lifting/README.md",
-      "review_notes": "The pinned source implements LCA using binary lifting, a distinct preprocessing/query strategy from other LCA implementations. The bounded scalar trace uses a connected rooted tree and batched queries, preserving the source's binary-lifting LCA results."
+      "benchmark_name": "lowest_common_ancestor_binary_lifting",
+      "benchmark_contract": "benchmarks/l/lowest_common_ancestor_binary_lifting/README.md",
+      "review_notes": "The pinned JavaScript source builds binary ancestors and answers lowest-common-ancestor queries by lifting vertices to equal depth, then lifting both until their parents match. This is the same binary-lifting algorithm as the canonical `lowest_common_ancestor_binary_lifting` benchmark; the weighted checksum is an output projection.",
+      "alias_of": "lowest_common_ancestor_binary_lifting"
     },
     {
       "candidate_id": "lcm",
@@ -57295,7 +57296,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Python",
@@ -57305,9 +57306,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "max_product_subarray",
-      "benchmark_contract": "benchmarks/m/max_product_subarray/README.md",
-      "review_notes": "The pinned Python routine returns 0 for empty input and otherwise tracks maximum and minimum products ending at each position, swapping their roles for negative values. The bounded ports preserve the recurrence; the Java/Ruby maximum_product_subarray source is a separate contract."
+      "benchmark_name": "maximum_product_subarray",
+      "benchmark_contract": "benchmarks/m/maximum_product_subarray/README.md",
+      "review_notes": "The pinned Python source tracks the maximum and minimum products ending at each position and swaps their roles for a negative value. This is the same maximum-product-subarray recurrence as `maximum_product_subarray`; its empty-input result is a source-contract detail.",
+      "alias_of": "maximum_product_subarray"
     },
     {
       "candidate_id": "max_subarray",
@@ -57583,7 +57585,8 @@
         }
       ],
       "review_notes": "The pinned Java and Ruby sources find the greatest product of a nonempty contiguous subarray, tracking both maximum and minimum products ending at each position because a negative factor can swap their roles. The shared contract bounds length and values so every product fits signed 32-bit arithmetic; null and empty inputs use the benchmark adapter sentinel.",
-      "benchmark_contract": "benchmarks/m/maximum_product_subarray/README.md"
+      "benchmark_contract": "benchmarks/m/maximum_product_subarray/README.md",
+      "benchmark_name": "maximum_product_subarray"
     },
     {
       "candidate_id": "maximum_sliding_window",
@@ -57948,7 +57951,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "C",
@@ -57972,9 +57975,10 @@
           "local_folder_source": null
         }
       ],
-      "alias_of": "average",
+      "alias_of": "arithmetic_mean",
       "review_notes": "The pinned C, Go, and PHP mean sources compute sum divided by count and map to the canonical average benchmark. The shared contract makes fractional output binary64 and bounds the signed-i64 sum.",
-      "benchmark_contract": "benchmarks/a/average/README.md"
+      "benchmark_contract": "benchmarks/a/arithmetic_mean/README.md",
+      "benchmark_name": "arithmetic_mean"
     },
     {
       "candidate_id": "mean_absolute_deviation",
@@ -60677,7 +60681,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Python",
@@ -60687,9 +60691,10 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python `kruskal(num_nodes, edges)` stable-sorts edge triples by weight, uses path-compressed disjoint sets, and returns accepted original edge triples in sorted scan order. It does not stop after `num_nodes-1` edges, so disconnected inputs produce a minimum spanning forest; self-loops are ignored by the component check, parallel/reversed edges are retained as candidates, and equal-weight ordering follows input order. Endpoints are expected to index the parent array; invalid IDs raise source indexing errors. The computed cost is unused and not returned.",
-      "benchmark_name": "minimum_spanning_tree_kruskal",
-      "benchmark_contract": "benchmarks/m/minimum_spanning_tree_kruskal/README.md"
+      "review_notes": "The pinned Python source stable-sorts weighted edges and uses disjoint sets. This is a Kruskal alias of the canonical `kruskal` benchmark; returning ordered forest edges and preserving source tie behavior are output and input-profile differences, not a different algorithm.",
+      "benchmark_name": "kruskal",
+      "benchmark_contract": "benchmarks/k/kruskal/README.md",
+      "alias_of": "kruskal"
     },
     {
       "candidate_id": "minimum_spanning_tree_kruskal2",
@@ -60698,7 +60703,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Python",
@@ -60708,9 +60713,10 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python GraphUndirectedWeighted.kruskal pre-adds node IDs in ascending order, inserts undirected edges in input order into neighbor maps, scans nodes ascending and neighbors in insertion order, stable-sorts by weight, and returns accepted original endpoint triples in that order. The benchmark restricts inputs to canonical unique edges and connected graphs (or one vertex with no edges) with signed-i32 weights. This preserves stable tie order and avoids duplicate-edge overwrites and the source's disconnected-graph IndexError. This is a distinct source implementation/API from the other Kruskal candidate.",
-      "benchmark_name": "minimum_spanning_tree_kruskal2",
-      "benchmark_contract": "benchmarks/m/minimum_spanning_tree_kruskal2/README.md"
+      "review_notes": "The pinned Python source scans and sorts weighted edges, then uses disjoint sets. This is a Kruskal alias of the canonical `kruskal` benchmark; its edge-list output and source-specific graph restrictions do not define a different algorithm.",
+      "benchmark_name": "kruskal",
+      "benchmark_contract": "benchmarks/k/kruskal/README.md",
+      "alias_of": "kruskal"
     },
     {
       "candidate_id": "minimum_spanning_tree_prims",
@@ -60719,7 +60725,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Python",
@@ -60729,9 +60735,10 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python `prisms_algorithm` (source spelling) runs Prim from vertex 0 using a custom indexed min-heap. Its adjacency list is indexed by dense vertex IDs 0..n-1; it returns oriented parent-to-child tree edges in extraction order. Restrict benchmark inputs to connected graphs because the implementation does not handle unreachable vertices as a separate forest. This edge-list output and start-node behavior distinguish it from the second Prim implementation.",
-      "benchmark_name": "minimum_spanning_tree_prims",
-      "benchmark_contract": "benchmarks/m/minimum_spanning_tree_prims/README.md"
+      "review_notes": "The pinned Python source runs Prim from vertex zero with an indexed heap. This aliases the canonical `prim` benchmark at the algorithm level; edge-list output and heap tie rules are source-profile details.",
+      "benchmark_name": "prim",
+      "benchmark_contract": "benchmarks/p/prim/README.md",
+      "alias_of": "prim"
     },
     {
       "candidate_id": "minimum_spanning_tree_prims2",
@@ -61322,7 +61329,7 @@
         "Lua"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Lua",
@@ -61332,9 +61339,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_contract": "benchmarks/m/modpow/README.md",
-      "benchmark_name": "modpow",
-      "review_notes": "The pinned Lua source applies modulo after each multiplication while performing repeated squaring, asserts against base zero at exponent zero, and relies on exact Lua 5.1 number products. The contract preserves the 0^0 rejection and bounds components so every intermediate product remains exactly representable."
+      "benchmark_contract": "benchmarks/m/modular_exponentiation/README.md",
+      "benchmark_name": "modular_exponentiation",
+      "review_notes": "The pinned Lua source uses binary repeated squaring and modular reductions, the same modular exponentiation algorithm as the canonical `modular_exponentiation` benchmark. Its zero-base assertion and numeric bounds are source-contract details.",
+      "alias_of": "modular_exponentiation"
     },
     {
       "candidate_id": "modular_arithmetic",
@@ -63229,7 +63237,7 @@
         "Julia"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Julia",
@@ -63239,8 +63247,10 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Julia function scans candidate windows from left to right, compares pattern characters in order, and returns the first matching pattern with a zero-based index; it returns No matches found when there is no match, including for an empty pattern. Its inclusive range has an off-by-one end and may index past the text on some no-match inputs; the benchmark ports the conventional final valid start and documents this source defect. Inputs are bounded to ASCII bytes because the source combines a zero-based start with Julia string indexes. The benchmark returns the match index as a scalar projection of the source formatted string.",
-      "benchmark_contract": "benchmarks/n/naive_pattern_search/README.md"
+      "review_notes": "The pinned Julia source scans candidate windows with direct character comparisons, the same brute-force substring-search algorithm as `naive_search`. Returning the first match rather than every match is an output projection, not a different algorithm.",
+      "benchmark_contract": "benchmarks/n/naive_search/README.md",
+      "alias_of": "naive_search",
+      "benchmark_name": "naive_search"
     },
     {
       "candidate_id": "naive_search",
@@ -83272,17 +83282,15 @@
         "C-Plus-Plus-1",
         "Fortran"
       ],
-      "local_source_folders": [
-        "cpp"
-      ],
-      "review_status": "reviewed_algorithm_semantics",
+      "local_source_folders": [],
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
           "language": "C++",
           "path": "sorting/recursive_bubble_sort.cpp",
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/recursive_bubble_sort.cpp",
-          "local_folder_source": "cpp"
+          "local_folder_source": null
         },
         {
           "repository": "C-Plus-Plus-1",
@@ -83299,7 +83307,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_contract": "benchmarks/r/recursive_bubble_sort/README.md"
+      "benchmark_contract": "benchmarks/b/bubble_sort_recursive/README.md",
+      "alias_of": "bubble_sort_recursive",
+      "benchmark_name": "bubble_sort_recursive",
+      "review_notes": "The pinned C++ and Fortran sources make an adjacent-swap pass and recurse on the shorter prefix. They use the same recursive bubble-sort recurrence as `bubble_sort_recursive`; omitting an early-exit check is a stopping optimization, not a distinct algorithm."
     },
     {
       "candidate_id": "recursive_digit_sum",
@@ -91581,7 +91592,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Python",
@@ -91591,9 +91602,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "smoothsort",
-      "benchmark_contract": "benchmarks/s/smoothsort/README.md",
-      "review_notes": "The pinned source implements ascending in-place Smoothsort. Keep this candidate separate from smooth_sort unless exact in-place ABI behavior parity is established."
+      "benchmark_name": "smooth_sort",
+      "benchmark_contract": "benchmarks/s/smooth_sort/README.md",
+      "review_notes": "The pinned Python source builds Leonardo heaps and extracts maxima using Smoothsort, the same algorithm as the canonical `smooth_sort` benchmark. The different ABI and checksum wrapper are output-profile details.",
+      "alias_of": "smooth_sort"
     },
     {
       "candidate_id": "snail",
@@ -91934,11 +91946,11 @@
       ],
       "benchmark_name": "euler_problem_4",
       "additional_benchmark_names": [
-        "euler_problem_6",
+        "problem6",
         "euler_problem_7"
       ],
       "benchmark_contract": "benchmarks/e/euler_problem_4/README.md",
-      "review_notes": "The pinned C sources are three distinct Project Euler contracts, never one umbrella sol algorithm: Problem 4 searches products of three-digit values for the largest palindrome; Problem 6 computes the fixed sum-square difference over 1..100; Problem 7 sieves for the 10001st prime. These map to euler_problem_4, euler_problem_6, and euler_problem_7 separately."
+      "review_notes": "The pinned C sources are three distinct Project Euler contracts, never one umbrella sol algorithm: Problem 4 searches products of three-digit values for the largest palindrome; Problem 6 computes the fixed sum-square difference over 1..100 and aliases the canonical `problem6` benchmark; Problem 7 sieves for the 10001st prime."
     },
     {
       "candidate_id": "solution",
@@ -93341,7 +93353,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Java",
@@ -93351,9 +93363,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "square_root_with_babylonian_method",
-      "review_notes": "The pinned Java method uses float iterates a=num and b=1, repeatedly sets a=(a+b)/2 and b=num/a while a-b>1e-6, then returns a. The bounded benchmark covers finite inputs in [1,1,000,000] and preserves the source’s f32 iteration sequence before widening the result. The source does not validate its inputs; the benchmark rejects values outside the finite positive domain. This is distinct from binary64 Newton, bisection, and integer floor-square-root benchmarks.",
-      "benchmark_contract": "benchmarks/s/square_root_with_babylonian_method/README.md"
+      "benchmark_name": "babylonian_sqrt",
+      "review_notes": "The pinned Java source uses the same two-estimate Babylonian/Newton iteration as the canonical `babylonian_sqrt` benchmark. Its binary32 precision, initial estimate, and stopping condition are source-profile details of that same square-root algorithm.",
+      "benchmark_contract": "benchmarks/b/babylonian_sqrt/README.md",
+      "alias_of": "babylonian_sqrt"
     },
     {
       "candidate_id": "square_root_with_newton_raphson_method",

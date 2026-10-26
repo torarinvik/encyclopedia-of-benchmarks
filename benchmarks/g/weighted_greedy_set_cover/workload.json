@@ -1,0 +1,284 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-weighted-greedy-set-cover-i64-array-bytes-output-v1",
+  "algorithm": "weighted_greedy_set_cover",
+  "function_symbol": "weighted_greedy_set_cover",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded weighted set cover by exact Chvatal greedy ratios and lowest-ID tie breaking.",
+  "source": {
+    "title": "Greedy Set-Cover Algorithms",
+    "authors": [
+      "Neal E. Young"
+    ],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_175",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_175",
+    "algorithm_attribution": "Weighted greedy set cover: choose minimum weight divided by newly covered elements",
+    "implementation_status": "clean-room bounded profile; no book prose or source code copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[universe_size, set_count, set_weights_by_id..., element_masks_by_id...]",
+    "universe_size_range": [
+      1,
+      16
+    ],
+    "set_count_range": [
+      1,
+      16
+    ],
+    "set_weight_range": [
+      0,
+      10000
+    ],
+    "mask_semantics": "Bit i denotes universe element i; masks may be empty or duplicate, but their union must cover the universe.",
+    "maximum_valid_length": 34,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[selected_set_count, selected_set_ids in greedy selection order]",
+    "maximum_values": 17,
+    "maximum_bytes": 136,
+    "success_result": "8 * (selected_set_count + 1) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Fixed arrays for sixteen set masks, weights, gains, selected IDs, and staged maximum output."
+  },
+  "contract": {
+    "selection": "Repeatedly select an unselected set with positive uncovered gain minimizing weight/gain; compare ratios by integer cross-products.",
+    "tie_rule": "Lowest set ID among equal ratios.",
+    "termination": "Stop when every universe element is covered; invalid input if the supplied sets do not cover the universe.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "weighted-ratio-after-first-pick",
+      "input_values": [
+        4,
+        4,
+        3,
+        5,
+        2,
+        1,
+        3,
+        14,
+        5,
+        8
+      ],
+      "input_length": 10,
+      "output_capacity": 136,
+      "expected_result": 32,
+      "expected_output_hex": "0300000000000000020000000000000003000000000000000000000000000000"
+    },
+    {
+      "id": "weighted-cost-selection",
+      "input_values": [
+        3,
+        3,
+        4,
+        1,
+        3,
+        3,
+        4,
+        6
+      ],
+      "input_length": 8,
+      "output_capacity": 136,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "zero-cost-set",
+      "input_values": [
+        2,
+        2,
+        0,
+        2,
+        1,
+        3
+      ],
+      "input_length": 6,
+      "output_capacity": 136,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "ratio-tie-lowest-set-id",
+      "input_values": [
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        5,
+        6
+      ],
+      "input_length": 8,
+      "output_capacity": 136,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "maximum-universe-and-sets",
+      "input_values": [
+        16,
+        16,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024,
+        2048,
+        4096,
+        8192,
+        16384,
+        32768
+      ],
+      "input_length": 34,
+      "output_capacity": 136,
+      "expected_result": 136,
+      "expected_output_hex": "100000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f00000000000000"
+    },
+    {
+      "id": "uncoverable-universe",
+      "input_values": [
+        3,
+        2,
+        1,
+        1,
+        1,
+        2
+      ],
+      "input_length": 6,
+      "output_capacity": 136,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "mask-outside-universe",
+      "input_values": [
+        3,
+        1,
+        1,
+        8
+      ],
+      "input_length": 4,
+      "output_capacity": 136,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-set-weight",
+      "input_values": [
+        2,
+        2,
+        -1,
+        1,
+        1,
+        2
+      ],
+      "input_length": 6,
+      "output_capacity": 136,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "length-mismatch",
+      "input_values": [
+        2,
+        2,
+        1,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "output_capacity": 136,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [
+        4,
+        4,
+        3,
+        5,
+        2,
+        1,
+        3,
+        14,
+        5,
+        8
+      ],
+      "input_length": 10,
+      "output_capacity": 31,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [
+        4,
+        4,
+        3,
+        5,
+        2,
+        1,
+        3,
+        14,
+        5,
+        8
+      ],
+      "input_length": 10,
+      "output_capacity": 136,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 136,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

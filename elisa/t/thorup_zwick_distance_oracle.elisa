@@ -1,0 +1,88 @@
+const MAX_N: usize = 12
+const MAX_M: usize = 66
+const MAX_Q: usize = 32
+const INF: i64 = 0x3fffffffffffffff
+
+def put_i64(output: mutable u8&, offset: usize, value: i64):
+    bits: u64 = value as u64
+    for byte in 0..<8 |output|:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255) as u8
+
+def thorup_zwick_distance_oracle_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > 266: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    mask: i64 = input[2]
+    if n64 < 1 or n64 > 12 or m64 < 0 or m64 > 66 or mask <= 0: return -1
+    n: usize = n64 as usize
+    m: usize = m64 as usize
+    if (mask >> n) != 0: return -1
+    q_at: usize = 3 + 3 * m
+    if q_at >= length or input[q_at] < 0 or input[q_at] > 32: return -1
+    q: usize = input[q_at] as usize
+    if length != q_at + 1 + 2 * q: return -1
+    distance: mutable i64[MAX_N * MAX_N] = zeroed
+    for i in 0..<n |distance|:
+        for j in 0..<n |distance|:
+            distance[i * MAX_N + j] <- if i == j: 0 else: INF
+    for e in 0..<m |distance|:
+        u64: i64 = input[3 + 3 * e]
+        v64: i64 = input[4 + 3 * e]
+        weight: i64 = input[5 + 3 * e]
+        if u64 < 0 or v64 <= u64 or v64 >= n64 or weight < 1 or weight > 1000: return -1
+        u: usize = u64 as usize
+        v: usize = v64 as usize
+        if distance[u * MAX_N + v] != INF: return -1
+        distance[u * MAX_N + v] <- weight
+        distance[v * MAX_N + u] <- weight
+    for k in 0..<n |distance|:
+        for i in 0..<n |distance|:
+            for j in 0..<n |distance|:
+                left: i64 = distance[i * MAX_N + k]
+                right: i64 = distance[k * MAX_N + j]
+                if left != INF and right != INF and left + right < distance[i * MAX_N + j]:
+                    distance[i * MAX_N + j] <- left + right
+    for i in 0..<n |distance|:
+        for j in 0..<n |distance|:
+            if distance[i * MAX_N + j] == INF: return -1
+    nearest: mutable i64[MAX_N] = zeroed
+    nearest_distance: mutable i64[MAX_N] = zeroed
+    for v in 0..<n |nearest, nearest_distance|:
+        nearest[v] <- -1
+        nearest_distance[v] <- INF
+        for a in 0..<n |nearest, nearest_distance|:
+            if ((mask >> a) & 1) != 0:
+                d: i64 = distance[v * MAX_N + a]
+                if d < nearest_distance[v] or (d == nearest_distance[v] and (nearest[v] < 0 or a < nearest[v])):
+                    nearest[v] <- a
+                    nearest_distance[v] <- d
+    bunch: mutable u8[MAX_N * MAX_N] = zeroed
+    for u in 0..<n |bunch|:
+        for x in 0..<n |bunch|:
+            if ((mask >> x) & 1) != 0 or distance[u * MAX_N + x] < nearest_distance[u]:
+                bunch[u * MAX_N + x] <- 1
+    staged: mutable i64[MAX_Q + 1] = zeroed
+    staged[0] <- q as i64
+    for index in 0..<q |staged|:
+        source: i64 = input[q_at + 1 + 2 * index]
+        target: i64 = input[q_at + 2 + 2 * index]
+        if source < 0 or source >= n64 or target < 0 or target >= n64: return -1
+        u: usize = source as usize
+        v: usize = target as usize
+        found: bool = false
+        for level in 0..<2 |staged|:
+            pivot: usize = if level == 0: v else: nearest[v] as usize
+            if bunch[u * MAX_N + pivot] != 0:
+                staged[index + 1] <- distance[u * MAX_N + pivot] + distance[v * MAX_N + pivot]
+                found = true
+                break
+            old_u: usize = u
+            u = v
+            v = old_u
+        if not found: return -1
+    bytes: usize = 8 * (q + 1)
+    if output.is_null() or capacity < bytes: return -2
+    for i in 0..<q + 1 |staged, output|: put_i64(output, i * 8, staged[i])
+    bytes as i64
+
+export fn thorup_zwick_distance_oracle(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = thorup_zwick_distance_oracle_impl

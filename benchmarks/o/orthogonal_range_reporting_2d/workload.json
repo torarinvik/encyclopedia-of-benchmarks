@@ -1,0 +1,286 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-2d-orthogonal-range-reporting-range-tree-i64-array-bytes-output-v1",
+  "algorithm": "orthogonal_range_reporting_2d",
+  "function_symbol": "orthogonal_range_reporting_2d",
+  "abi": "i64_array_bytes_output",
+  "description": "Build a bounded 2D range tree and report IDs of points in closed rectangles.",
+  "source": {
+    "title": "Orthogonal Range Searching on Discrete Grids",
+    "authors": [
+      "Yakov Nekrich"
+    ],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_631",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_631",
+    "algorithm_attribution": "Two-dimensional orthogonal range reporting with a primary x-order and secondary y-ordered catalogs",
+    "implementation_status": "clean-room bounded static range-tree profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[point_count, query_count, x0,y0,...,xN-1,yN-1, x_low,x_high,y_low,y_high for each query]",
+    "point_count_range": [
+      1,
+      8
+    ],
+    "query_count_range": [
+      1,
+      8
+    ],
+    "coordinate_range": [
+      0,
+      15
+    ],
+    "query_bounds": "Closed inclusive intervals; each low bound must be no greater than its high bound.",
+    "points": "Coordinates must be unique.",
+    "maximum_valid_length": 50,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_bytes",
+    "encoding": "[query_count, hit_count_0, point_id_0,..., hit_count_1,...]; IDs are ascending within each query",
+    "maximum_bytes": 584,
+    "success_result": "8 bytes times encoded word count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "contract": {
+    "data_structure": "A balanced segment tree over x-sorted point ranks; each node stores its point IDs sorted by (y,id).",
+    "query": "Decompose the x-rank interval into canonical nodes, binary-search each node's y catalog for the closed interval, then sort reported IDs.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "A 16-node segment tree with at most eight point IDs per node, sort/query arrays, and staged output."
+  },
+  "cases": [
+    {
+      "id": "mixed_rectangles_and_empty_result",
+      "input_values": [
+        4,
+        3,
+        0,
+        0,
+        1,
+        2,
+        2,
+        1,
+        3,
+        3,
+        0,
+        3,
+        0,
+        3,
+        1,
+        2,
+        1,
+        2,
+        4,
+        6,
+        0,
+        15
+      ],
+      "input_length": 22,
+      "output_capacity": 584,
+      "expected_result": 80,
+      "expected_output_hex": "0300000000000000040000000000000000000000000000000100000000000000020000000000000003000000000000000200000000000000010000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "single_point_closed_boundary",
+      "input_values": [
+        1,
+        1,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "input_length": 8,
+      "output_capacity": 584,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "maximum_points_and_queries",
+      "input_values": [
+        8,
+        8,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4,
+        5,
+        5,
+        6,
+        6,
+        7,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7,
+        0,
+        7
+      ],
+      "input_length": 50,
+      "output_capacity": 584,
+      "expected_result": 584,
+      "expected_output_hex": "0800000000000000080000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000"
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        1,
+        1,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "input_length": 8,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate_point_rejected",
+      "input_values": [
+        2,
+        1,
+        4,
+        1,
+        4,
+        0,
+        2,
+        0,
+        2
+      ],
+      "input_length": 9,
+      "output_capacity": 584,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coordinate_above_grid",
+      "input_values": [
+        1,
+        1,
+        16,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "input_length": 8,
+      "output_capacity": 584,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reversed_rectangle",
+      "input_values": [
+        1,
+        1,
+        1,
+        1,
+        2,
+        0,
+        1,
+        0
+      ],
+      "input_length": 8,
+      "output_capacity": 584,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "length_mismatch",
+      "input_values": [
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1
+      ],
+      "input_length": 7,
+      "output_capacity": 584,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 584,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_is_null": true
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        2,
+        2
+      ],
+      "input_length": 8,
+      "output_capacity": 584,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

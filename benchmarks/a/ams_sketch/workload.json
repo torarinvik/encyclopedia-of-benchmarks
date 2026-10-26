@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0.0",
+  "id": "ams-fast-f2-bounded-v1",
+  "algorithm": "ams_sketch",
+  "function_symbol": "ams_sketch",
+  "comparison_model": "i64_array_bytes_output_call",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[depth,width,key_count,update_count,(bucket,sign)*(depth*key_count),(key,weight)*update_count]",
+    "depth_allowed": [1, 3, 5],
+    "width_range": [1, 8],
+    "key_count_range": [1, 8],
+    "update_count_range": [0, 16],
+    "sign_values": [-1, 1],
+    "update_weight_range": [-1000, 1000],
+    "maximum_valid_length": 116,
+    "maximum_parseable_length": 117,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_i64_array",
+    "description": "Single median-of-row-squared-norms F2 estimate.",
+    "maximum_output_bytes": 8,
+    "maximum_output_elements": 1,
+    "success_result": 8,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_when_nonempty_result": -2
+  },
+  "workspace": {
+    "bytes": 384,
+    "meaning": "Five rows of eight signed-i64 counters, row estimates, and staged scalar output."
+  },
+  "measurement": {
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "fast-ams-weighted-turnstile-estimate",
+      "input_values": [3,2,2,3,0,1,1,1,0,1,0,-1,1,1,0,1,0,2,1,1,0,-1],
+      "input_length": 22,
+      "expected_result": 8,
+      "expected_output_hex": "0200000000000000"
+    },
+    {
+      "id": "empty-stream-zero-estimate",
+      "input_values": [1,3,1,0,2,1],
+      "input_length": 6,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "invalid-even-depth",
+      "input_values": [2,2,1,0,0,1,0,1],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-sign-zero",
+      "input_values": [1,2,1,0,0,0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1,2,1,0,0,1],
+      "input_length": 6,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 7,
+      "capacity_error_result": -2
+    }
+  ]
+}

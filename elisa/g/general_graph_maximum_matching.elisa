@@ -1,0 +1,111 @@
+# Deterministic Edmonds blossom maximum-cardinality matching, n <= 12.
+const GGM_N: usize = 12
+const GGM_INPUT: usize = 134
+
+def ggm_put64(output: mutable u8&, value: i64): void:
+    bits: u64 = value.u64()
+    for i in 0..<8:
+        output[i] <- ((bits >> (8 * i)) & 255).u8()
+
+def ggm_lca(match: i32[12]&, parent: i32[12]&, base: i32[12]&, a0: usize, b0: usize): usize:
+    seen: mutable bool[12] = zeroed
+    a: mutable usize = a0
+    b: mutable usize = b0
+    while true:
+        a <- base[a].usize()
+        seen[a] <- true
+        if match[a] < 0: break
+        a <- parent[match[a].usize()].usize()
+    while true:
+        b <- base[b].usize()
+        if seen[b]: return b
+        b <- parent[match[b].usize()].usize()
+
+def ggm_mark_path(match: i32[12]&, parent: mutable i32[12]&, base: i32[12]&, blossom: mutable bool[12]&, v0: usize, root: usize, child0: usize): void:
+    v: mutable usize = v0
+    child: mutable usize = child0
+    while base[v].usize() != root:
+        blossom[base[v].usize()] <- true
+        blossom[base[match[v].usize()].usize()] <- true
+        parent[v] <- child.i32()
+        child <- match[v].usize()
+        v <- parent[match[v].usize()].usize()
+
+def ggm_find_path(n: usize, adjacent: bool[144]&, match: mutable i32[12]&, parent: mutable i32[12]&, base: mutable i32[12]&, root: usize): bool:
+    used: mutable bool[12] = zeroed
+    queue: mutable usize[12] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    for i in 0..<n:
+        parent[i] <- -1
+        base[i] <- i.i32()
+    queue[tail] <- root
+    tail <- tail + 1
+    used[root] <- true
+    while head < tail:
+        v: usize = queue[head]
+        head <- head + 1
+        for u in 0..<n:
+            if not adjacent[v * GGM_N + u] or base[v] == base[u].i32() or match[v] == u.i32(): continue
+            if u == root or (match[u] >= 0 and parent[match[u].usize()] >= 0):
+                cur: usize = ggm_lca(match&, parent&, base&, v, u)
+                blossom: mutable bool[12] = zeroed
+                ggm_mark_path(match&, parent&, base&, blossom&, v, cur, u)
+                ggm_mark_path(match&, parent&, base&, blossom&, u, cur, v)
+                for i in 0..<n:
+                    if blossom[base[i].usize()]:
+                        base[i] <- cur.i32()
+                        if not used[i]:
+                            used[i] <- true
+                            queue[tail] <- i
+                            tail <- tail + 1
+            else if parent[u] < 0:
+                parent[u] <- v.i32()
+                if match[u] < 0:
+                    x: mutable i32 = u.i32()
+                    while x >= 0:
+                        pv: i32 = parent[x.usize()]
+                        next: i32 = if pv >= 0: match[pv.usize()] else: -1
+                        if pv >= 0:
+                            match[x.usize()] <- pv
+                            match[pv.usize()] <- x
+                        x <- next
+                    return true
+                mate: usize = match[u].usize()
+                used[mate] <- true
+                queue[tail] <- mate
+                tail <- tail + 1
+    false
+
+def general_graph_maximum_matching_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 2 or length > GGM_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 2 or n64 > GGM_N.i64() or m64 < 0 or m64 > n64 * (n64 - 1) / 2: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if length != 2 + 2 * m: return -1
+    adjacent: mutable bool[144] = zeroed
+    for edge in 0..<m:
+        u64: i64 = input[2 + 2 * edge]
+        v64: i64 = input[3 + 2 * edge]
+        if u64 < 0 or v64 <= u64 or v64 >= n64: return -1
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        if adjacent[u * GGM_N + v]: return -1
+        adjacent[u * GGM_N + v] <- true
+        adjacent[v * GGM_N + u] <- true
+    match: mutable i32[12] = zeroed
+    parent: mutable i32[12] = zeroed
+    base: mutable i32[12] = zeroed
+    for i in 0..<n: match[i] <- -1
+    for i in 0..<n:
+        if match[i] < 0: _ = ggm_find_path(n, adjacent&, match&, parent&, base&, i)
+    cardinality: mutable i64 = 0
+    for i in 0..<n:
+        if match[i] > i.i32(): cardinality <- cardinality + 1
+    if output.is_null() or capacity < 8: return -2
+    ggm_put64(output&, cardinality)
+    8
+
+export fn general_graph_maximum_matching(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = general_graph_maximum_matching_impl

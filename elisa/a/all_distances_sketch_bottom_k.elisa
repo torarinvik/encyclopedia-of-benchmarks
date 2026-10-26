@@ -1,0 +1,38 @@
+def all_distances_sketch_bottom_k_put_i64(output: mutable u8&, offset: usize, x: i64) -> void:
+    bits: u64=x.u64()
+    for b in 0..<8: output[offset+b] <- (bits>>(8*b)).u8()
+
+def all_distances_sketch_bottom_k_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input==null or length<6 or length>104: return -1
+    n0:i64=input[0];m0:i64=input[1];k0:i64=input[2];s0:i64=input[3]
+    if n0<2 or n0>10 or m0<0 or m0>n0*(n0-1) or k0<1 or k0>n0 or s0<0 or s0>=n0:return -1
+    n:usize=n0.usize();m:usize=m0.usize();k:usize=k0.usize();source:usize=s0.usize()
+    if length!=4+n+2*m:return -1
+    rank:mutable i64[10]=zeroed;used:mutable bool[10]=zeroed
+    for i in 0..<n:
+        r:i64=input[4+i]
+        if r<0 or r>=n0 or used[r.usize()]:return -1
+        used[r.usize()]<-true;rank[i]<-r
+    adj:mutable bool[100]=zeroed
+    for e in 0..<m:
+        u0:i64=input[4+n+2*e];v0:i64=input[5+n+2*e]
+        if u0<0 or u0>=n0 or v0<0 or v0>=n0 or u0==v0:return -1
+        u:usize=u0.usize();v:usize=v0.usize();if adj[u*10+v]:return -1;adj[u*10+v]<-true
+    dist:mutable i64[10]=zeroed;for i in 0..<n:dist[i]<- -1
+    queue:mutable usize[10]=zeroed;head:mutable usize=0;tail:mutable usize=0;dist[source]<-0;queue[tail]<-source;tail<-tail+1
+    while head<tail:
+        u:usize=queue[head];head<-head+1
+        for v in 0..<n:if adj[u*10+v] and dist[v]<0:dist[v]<-dist[u]+1;queue[tail]<-v;tail<-tail+1
+    staged:mutable i64[21]=zeroed;count:mutable usize=0
+    for d in 0..<n:
+        for v in 0..<n:
+            if dist[v]!=d.i64():continue
+            less:mutable usize=0
+            for x in 0..<n:if dist[x]>=0 and (dist[x]<dist[v] or (dist[x]==dist[v] and x<=v)) and rank[x]<rank[v]:less<-less+1
+            if less<k:staged[1+2*count]<-v.i64();staged[2+2*count]<-dist[v];count<-count+1
+    staged[0]<-count.i64();words:usize=1+2*count;bytes:usize=8*words
+    if output==null or capacity<bytes:return -2
+    for i in 0..<words:all_distances_sketch_bottom_k_put_i64(output,8*i,staged[i])
+    bytes.i64()
+
+export fn all_distances_sketch_bottom_k(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = all_distances_sketch_bottom_k_impl

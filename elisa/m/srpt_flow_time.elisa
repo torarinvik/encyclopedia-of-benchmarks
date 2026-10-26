@@ -1,0 +1,40 @@
+def srpt_flow_time_put64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits:u64=value.u64()
+    for j in 0..<8:output[offset+j] <- (bits>>(8*j)).u8()
+
+def srpt_flow_time_impl(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64:
+    if input==null or length<4 or length>26:return -1
+    machines0:i64=input[0];n0:i64=input[1]
+    if machines0<1 or machines0>4 or n0<1 or n0>12 or length!=2+2*n0.usize():return -1
+    machines:usize=machines0.usize();n:usize=n0.usize()
+    release:mutable i64[12]=zeroed;remaining:mutable i64[12]=zeroed;completion:mutable i64[12]=zeroed
+    for i in 0..<n:
+        release[i] <- input[2+2*i];remaining[i] <- input[3+2*i]
+        if release[i]<0 or release[i]>50 or remaining[i]<1 or remaining[i]>10:return -1
+    bytes:usize=8*(1+n)
+    if output==null or capacity<bytes:return -2
+    time:mutable i64=0;finished:mutable usize=0
+    while finished<n:
+        chosen:mutable bool[12]=zeroed;selected:mutable usize[12]=zeroed;count:mutable usize=0
+        for machine in 0..<machines:
+            best:mutable usize=n
+            for i in 0..<n:
+                if not chosen[i] and remaining[i]>0 and release[i]<=time and (best==n or remaining[i]<remaining[best] or (remaining[i]==remaining[best] and i<best)):best <- i
+            if best==n:break
+            chosen[best] <- true;selected[count] <- best;count <- count+1
+        if count==0:
+            next:mutable i64=51
+            for i in 0..<n:if remaining[i]>0 and release[i]<next:next <- release[i]
+            time <- next
+        else:
+            time <- time+1
+            for j in 0..<count:
+                i:usize=selected[j];remaining[i] <- remaining[i]-1
+                if remaining[i]==0:completion[i] <- time;finished <- finished+1
+    total:mutable i64=0
+    for i in 0..<n:total <- total+completion[i]-release[i]
+    srpt_flow_time_put64(output,0,total)
+    for i in 0..<n:srpt_flow_time_put64(output,8*(1+i),completion[i])
+    bytes.i64()
+
+export fn srpt_flow_time(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 = srpt_flow_time_impl

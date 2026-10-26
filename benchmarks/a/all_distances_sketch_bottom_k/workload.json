@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "chapter-574-bottom-k-ads-i64-array-bytes-v1",
+  "algorithm": "all_distances_sketch_bottom_k",
+  "function_symbol": "all_distances_sketch_bottom_k",
+  "comparison_model": "i64_array_bytes_output_call",
+  "source": {"chapter":"All-Distances Sketches","doi":"10.1007/978-1-4939-2864-4_574","author":"Edith Cohen","profile":"One explicit deterministic realization of the chapter's bottom-k ADS."},
+  "contract": {
+    "operation":"For one source, compute directed unit-edge distances and retain each reachable vertex whose supplied permutation rank is among the k smallest ranks in the ordered distance prefix ending at that vertex.",
+    "input_layout":"[n,m,k,source,rank[n],edge_pairs[2*m]]",
+    "tie_order":"(distance, vertex_id)",
+    "output_layout":"[count,(vertex_id,distance)[count]], signed 64-bit little-endian",
+    "error_precedence":"Malformed input returns -1 before output checks; null output or insufficient capacity returns -2 without writes.",
+    "scope_limit":"One deterministic bottom-k ADS realization; does not test randomized concentration or construct sketches for all sources."
+  },
+  "input":{"kind":"signed_64_bit_integer_array","maximum_valid_length":104,"maximum_parseable_length":105,"vertex_count_range":[2,10],"edge_count_range":[0,90],"invalid_result":-1,"null_input_result":-1},
+  "output":{"kind":"little_endian_signed_64_bit_array","maximum_output_elements":21,"maximum_output_bytes":168,"success_result":"8*(1+2*count) bytes","invalid_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "workspace":{"bytes":2048,"meaning":"Directed adjacency matrix, single-source BFS distances, sorted-prefix rank state, and staged output."},
+  "measurement":{"sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
+  "cases":[
+    {"id":"bottom-k-prefix-with-equal-distance-ties","input_values":[5,6,2,0,3,1,4,0,0,1,0,2,1,3,2,3,3,4,0,4],"input_length":20,"expected_result":72,"expected_output_hex":"040000000000000000000000000000000000000000000000010000000000000001000000000000000400000000000000010000000000000003000000000000000200000000000000"},
+    {"id":"unreachable-node-omitted","input_values":[3,1,1,0,2,0,1,0,1],"input_length":9,"expected_result":40,"expected_output_hex":"02000000000000000000000000000000000000000000000001000000000000000100000000000000"},
+    {"id":"rank-array-is-not-permutation","input_values":[3,1,1,0,0,0,2,0,1],"input_length":9,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[3,1,1,0,2,0,1,0,1],"input_length":9,"output_capacity":39,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

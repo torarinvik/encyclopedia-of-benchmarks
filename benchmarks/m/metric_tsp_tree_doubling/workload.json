@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-metric-tsp-tree-doubling-i64-array-bytes-output-v1",
+  "algorithm": "metric_tsp_tree_doubling",
+  "function_symbol": "metric_tsp_tree_doubling",
+  "abi": "i64_array_bytes_output",
+  "description": "Metric-TSP two-approximation from an MST, doubled traversal and shortcutting.",
+  "source": {
+    "title": "Metric TSP",
+    "authors": ["Markus Bläser"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_230",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_230",
+    "algorithm_attribution": "tree-doubling 2-approximation",
+    "implementation_status": "clean-room; no book prose or upstream source code copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, row-major complete distance matrix]",
+    "n_range": [1, 8],
+    "distance_range": [0, 10000],
+    "distance_constraints": "zero diagonal, symmetric, satisfies triangle inequality",
+    "maximum_valid_length": 65,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[tour_cost, vertex_0, preorder..., vertex_0]",
+    "maximum_bytes": 80,
+    "success_result": "8 * (n + 2) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {"bytes": 1024, "meaning": "At most eight vertices, twenty-eight canonical edges, and a fixed distance matrix."},
+  "contract": {
+    "mst_tie_rule": "Kruskal edge order by weight, then lower endpoint, then upper endpoint.",
+    "traversal": "Depth-first preorder from vertex 0, visiting tree neighbors in ascending ID order.",
+    "shortcutting": "Visit each vertex once in preorder and return directly to vertex 0.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 2, "repetitions_per_sample": 100},
+  "cases": [
+    {"id":"line-metric-tree-doubling","input_values":[4,0,1,2,3,1,0,1,2,2,1,0,1,3,2,1,0],"input_length":17,"output_capacity":48,"expected_result":48,"expected_output_hex":"060000000000000000000000000000000100000000000000020000000000000003000000000000000000000000000000"},
+    {"id":"equal-distance-metric","input_values":[4,0,1,1,1,1,0,1,1,1,1,0,1,1,1,1,0],"input_length":17,"output_capacity":48,"expected_result":48,"expected_output_hex":"040000000000000000000000000000000100000000000000020000000000000003000000000000000000000000000000"},
+    {"id":"single-vertex","input_values":[1,0],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output_hex":"000000000000000000000000000000000000000000000000"},
+    {"id":"asymmetric-matrix","input_values":[2,0,2,1,0],"input_length":5,"output_capacity":80,"expected_result":-1,"expected_output_hex":""},
+    {"id":"triangle-inequality-violation","input_values":[3,0,1,3,1,0,1,3,1,0],"input_length":10,"output_capacity":80,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[2,0,1,1],"input_length":4,"output_capacity":80,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,0,1,1,0],"input_length":5,"output_capacity":31,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,0,1,1,0],"input_length":5,"output_capacity":32,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":1,"input_is_null":true,"output_capacity":80,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

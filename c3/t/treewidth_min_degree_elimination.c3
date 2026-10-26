@@ -1,0 +1,10 @@
+module treewidth_min_degree_elimination;
+const int N=16;const int MAX_EDGES=120;const int MAX_INPUT=242;const int OUTPUT=2064;
+fn void put_i64(char* out,usz at,long value){ulong bits=(ulong)value;for(usz i=0;i<8;i++){out[at+i]=(char)(bits&255);bits>>=8;}}
+fn long treewidth_min_degree_elimination(long* values,usz length,char* output,usz capacity) @export("treewidth_min_degree_elimination"){
+ if(values==null||length<2||length>MAX_INPUT||values[0]<1||values[0]>N||values[1]<0||values[1]>MAX_EDGES)return -1;int n=(int)values[0],m=(int)values[1];if(m>n*(n-1)/2||length!=(usz)(2+2*m))return -1;
+ bool[N][N] adjacent={};for(int edge=0;edge<m;edge++){long a0=values[2+2*edge],b0=values[3+2*edge];if(a0<0||b0<0||a0>=n||b0>=n||a0>=b0)return -1;int a=(int)a0,b=(int)b0;if(adjacent[a][b])return -1;adjacent[a][b]=true;adjacent[b][a]=true;}
+ bool[N] active={};long[N] order={};long[MAX_EDGES] fill_u={};long[MAX_EDGES] fill_v={};for(int i=0;i<n;i++)active[i]=true;int width=0,fill_count=0;
+ for(int step=0;step<n;step++){int chosen=-1,chosen_degree=N+1;for(int vertex=0;vertex<n;vertex++)if(active[vertex]){int degree=0;for(int other=0;other<n;other++)if(active[other]&&adjacent[vertex][other])degree++;if(degree<chosen_degree){chosen=vertex;chosen_degree=degree;}}order[step]=chosen;if(chosen_degree>width)width=chosen_degree;int[N] neighbors={};int count=0;for(int other=0;other<n;other++)if(active[other]&&adjacent[chosen][other]){neighbors[count]=other;count++;}for(int i=0;i<count;i++)for(int j=i+1;j<count;j++){int a=neighbors[i],b=neighbors[j];if(!adjacent[a][b]){adjacent[a][b]=true;adjacent[b][a]=true;fill_u[fill_count]=a;fill_v[fill_count]=b;fill_count++;}}active[chosen]=false;}
+ usz bytes=8*(usz)(n+2+2*fill_count);char[OUTPUT] staged={};put_i64(staged,0,width);for(int i=0;i<n;i++)put_i64(staged,8*(usz)(i+1),order[i]);put_i64(staged,8*(usz)(n+1),fill_count);for(int i=0;i<fill_count;i++){put_i64(staged,8*(usz)(n+2+2*i),fill_u[i]);put_i64(staged,8*(usz)(n+3+2*i),fill_v[i]);}if(output==null||capacity<bytes)return -2;for(usz i=0;i<bytes;i++)output[i]=staged[i];return (long)bytes;
+}

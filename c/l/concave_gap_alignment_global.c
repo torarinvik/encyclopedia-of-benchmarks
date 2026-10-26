@@ -1,0 +1,6 @@
+#include <stddef.h>
+#include <stdint.h>
+#define D 8
+#define L 26
+static void put64(uint8_t*o,int64_t x){uint64_t b=(uint64_t)x;for(size_t j=0;j<8;j++){o[j]=(uint8_t)(b&255U);b>>=8;}}
+int64_t concave_gap_alignment_global(const int64_t*in,size_t len,uint8_t*out,size_t cap){if(!in||len<5||len>L)return -1;int64_t nr=in[0],mr=in[1];if(nr<1||nr>D||mr<1||mr>D)return -1;size_t n=(size_t)nr,m=(size_t)mr,g=n>m?n:m;if(len!=2+n+m+g)return -1;int64_t x[D],y[D],w[D];size_t p=2;for(size_t i=0;i<n;i++){x[i]=in[p++];if(x[i]<0||x[i]>3)return -1;}for(size_t j=0;j<m;j++){y[j]=in[p++];if(y[j]<0||y[j]>3)return -1;}int64_t slope=INT64_MAX;for(size_t k=0;k<g;k++){w[k]=in[p++];if(w[k]<0||w[k]>100)return -1;int64_t d=w[k]-(k?w[k-1]:0);if(k&&w[k]<w[k-1])return -1;if(k&&d>slope)return -1;slope=d;}if(!out||cap<8)return -2;int64_t dp[D+1][D+1];for(size_t i=0;i<=n;i++)for(size_t j=0;j<=m;j++)dp[i][j]=INT64_MAX/4;dp[0][0]=0;for(size_t i=0;i<=n;i++)for(size_t j=0;j<=m;j++){if(i==0&&j==0)continue;int64_t best=INT64_MAX/4;if(i&&j){int64_t z=dp[i-1][j-1]+(x[i-1]!=y[j-1]);if(z<best)best=z;}for(size_t z=1;z<=i;z++){int64_t c=dp[i-z][j]+w[z-1];if(c<best)best=c;}for(size_t z=1;z<=j;z++){int64_t c=dp[i][j-z]+w[z-1];if(c<best)best=c;}dp[i][j]=best;}put64(out,dp[n][m]);return 8;}

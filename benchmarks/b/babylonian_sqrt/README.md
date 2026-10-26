@@ -9,6 +9,8 @@ Approximate a nonnegative value's square root with the pinned Julia implementati
 - The algorithm returns its approximation when the squared residual is below the source tolerance. The benchmark compares the exact iterative result with relative and absolute tolerances of `1e-12` to accommodate small binary64 rounding differences between ports.
 - The fixed iteration count is bounded on the supported input range; auxiliary space is constant.
 
+The pinned Java `SquareRootWithBabylonianMethod` source uses the same Babylonian/Newton recurrence; its binary32 state, initial estimate, and stopping condition are source-profile details and are tracked as an alias.
+
 [`workload.json`](workload.json) covers zero, tiny positive values where the source tolerance affects the result, source examples, a non-square irrational result, the upper bound, and invalid inputs.
 
 ```sh

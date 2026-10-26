@@ -26,16 +26,6 @@ from steinhaus_johnson_trotter_oracle import MAX_PARSEABLE_INPUT_LENGTH as SJT_M
 from steinhaus_johnson_trotter_oracle import MIN_LENGTH as SJT_MIN_LENGTH
 from steinhaus_johnson_trotter_oracle import OUTPUT_ERROR_RESULT as SJT_OUTPUT_ERROR_RESULT
 from steinhaus_johnson_trotter_oracle import expected_output as sjt_oracle
-from minimum_spanning_tree_kruskal2_oracle import I32_MAX as KRUSKAL2_I32_MAX
-from minimum_spanning_tree_kruskal2_oracle import I32_MIN as KRUSKAL2_I32_MIN
-from minimum_spanning_tree_kruskal2_oracle import INVALID_RESULT as KRUSKAL2_INVALID_RESULT
-from minimum_spanning_tree_kruskal2_oracle import MAX_EDGE_COUNT as KRUSKAL2_MAX_EDGE_COUNT
-from minimum_spanning_tree_kruskal2_oracle import MAX_INPUT_LENGTH as KRUSKAL2_MAX_INPUT_LENGTH
-from minimum_spanning_tree_kruskal2_oracle import MAX_OUTPUT_BYTES as KRUSKAL2_MAX_OUTPUT_BYTES
-from minimum_spanning_tree_kruskal2_oracle import MAX_VERTEX_COUNT as KRUSKAL2_MAX_VERTEX_COUNT
-from minimum_spanning_tree_kruskal2_oracle import MIN_VERTEX_COUNT as KRUSKAL2_MIN_VERTEX_COUNT
-from minimum_spanning_tree_kruskal2_oracle import OUTPUT_ERROR as KRUSKAL2_OUTPUT_ERROR
-from minimum_spanning_tree_kruskal2_oracle import expected_output as kruskal2_oracle
 from scan_scheduling_oracle import I32_MAX as SCAN_I32_MAX
 from scan_scheduling_oracle import I32_MIN as SCAN_I32_MIN
 from scan_scheduling_oracle import INVALID_RESULT as SCAN_INVALID_RESULT
@@ -104,17 +94,6 @@ from rat_maze_oracle import MAX_SIZE as RAT_MAZE_MAX_SIZE
 from rat_maze_oracle import MIN_SIZE as RAT_MAZE_MIN_SIZE
 from rat_maze_oracle import OUTPUT_ERROR as RAT_MAZE_OUTPUT_ERROR
 from rat_maze_oracle import expected_output as rat_maze_oracle
-from minimum_spanning_tree_prims_oracle import I32_MAX as PRIMS_I32_MAX
-from minimum_spanning_tree_prims_oracle import I32_MIN as PRIMS_I32_MIN
-from minimum_spanning_tree_prims_oracle import INVALID_RESULT as PRIMS_INVALID_RESULT
-from minimum_spanning_tree_prims_oracle import MAX_EDGE_COUNT as PRIMS_MAX_EDGE_COUNT
-from minimum_spanning_tree_prims_oracle import MAX_INPUT_LENGTH as PRIMS_MAX_INPUT_LENGTH
-from minimum_spanning_tree_prims_oracle import MAX_OUTPUT_BYTES as PRIMS_MAX_OUTPUT_BYTES
-from minimum_spanning_tree_prims_oracle import MAX_PARSEABLE_INPUT_LENGTH as PRIMS_MAX_PARSEABLE_INPUT_LENGTH
-from minimum_spanning_tree_prims_oracle import MAX_VERTEX_COUNT as PRIMS_MAX_VERTEX_COUNT
-from minimum_spanning_tree_prims_oracle import MIN_VERTEX_COUNT as PRIMS_MIN_VERTEX_COUNT
-from minimum_spanning_tree_prims_oracle import OUTPUT_ERROR as PRIMS_OUTPUT_ERROR
-from minimum_spanning_tree_prims_oracle import expected_output as prims_oracle
 from mo_oracle import I32_MAX as MO_I32_MAX
 from mo_oracle import I32_MIN as MO_I32_MIN
 from mo_oracle import INVALID_RESULT as MO_INVALID_RESULT
@@ -194,9 +173,9 @@ from snail_oracle import MAX_ROWS as SNAIL_MAX_ROWS
 from snail_oracle import MAX_VALID_INPUT_LENGTH as SNAIL_MAX_VALID_INPUT_LENGTH
 from snail_oracle import OUTPUT_ERROR as SNAIL_OUTPUT_ERROR
 from run_i32_array_bytes_output import (
-    validate_kruskal2_workload, validate_mlfq_workload,
+    validate_mlfq_workload,
     validate_max_pooling_workload, validate_multikey_workload,
-    validate_minimum_spanning_tree_prims_workload, validate_preemptive_workload,
+    validate_preemptive_workload,
     validate_hungarian_algorithm_workload, validate_mo_workload, validate_rat_maze_workload,
     validate_affine_image_rotation_workload,
     validate_median_of_running_array_byte_workload,
@@ -207,9 +186,8 @@ from run_i32_array_bytes_output import (
     validate_sjfscheduling_workload,
 )
 
-ALGORITHMS = ("salsa", "steinhaus_johnson_trotter", "minimum_spanning_tree_kruskal2",
+ALGORITHMS = ("salsa", "steinhaus_johnson_trotter",
               "scan_scheduling", "multi_level_feedback_queue", "rat_maze",
-              "minimum_spanning_tree_prims",
               "mo",
               "preemptive_priority_scheduling",
               "multikey_quick_sort", "max_pooling", "hungarian_algorithm",
@@ -581,98 +559,6 @@ def sjt_corpus(workload: dict) -> tuple[str, int]:
         encoded = output.hex() if output else "-"
         values_text = "" if not values else " " + " ".join(map(str, values))
         lines.append(f"{len(values)} {result} {len(output)} {capacity} "
-                     f"{int(input_is_null)} {int(output_is_null)}{values_text} {encoded}\n")
-    return "".join(lines), len(records)
-
-
-def kruskal2_corpus(workload: dict) -> tuple[str, int]:
-    validate_kruskal2_workload(workload)
-    default_capacity = KRUSKAL2_MAX_OUTPUT_BYTES
-    cases: dict[tuple[tuple[int, ...], int, int, bool, bool], tuple[int, bytes]] = {}
-
-    def add(values: tuple[int, ...], capacity: int = default_capacity,
-            output_is_null: bool = False, input_is_null: bool = False,
-            input_length: int | None = None) -> None:
-        if input_length is None:
-            input_length = len(values)
-        if len(values) > KRUSKAL2_MAX_INPUT_LENGTH:
-            raise ValueError("minimum_spanning_tree_kruskal2 payload exceeds its 194-word bound")
-        if (type(input_length) is not int or not 0 <= input_length <= KRUSKAL2_MAX_INPUT_LENGTH
-                or type(capacity) is not int or not 0 <= capacity <= KRUSKAL2_MAX_OUTPUT_BYTES):
-            raise ValueError("minimum_spanning_tree_kruskal2 input length or output capacity is out of range")
-        if (type(input_is_null) is not bool or type(output_is_null) is not bool
-                or input_is_null and output_is_null
-                or any(type(value) is not int or not KRUSKAL2_I32_MIN <= value <= KRUSKAL2_I32_MAX
-                       for value in values)):
-            raise ValueError("minimum_spanning_tree_kruskal2 input or pointer framing is invalid")
-        result, output = kruskal2_oracle(
-            values, capacity, output_is_null, input_is_null, input_length)
-        if result >= 0:
-            if (result != len(output) or result > KRUSKAL2_MAX_OUTPUT_BYTES
-                    or result < 4 or result % 4 != 0):
-                raise ValueError("minimum_spanning_tree_kruskal2 success violates its output bound")
-        elif result not in (KRUSKAL2_INVALID_RESULT, KRUSKAL2_OUTPUT_ERROR) or output:
-            raise ValueError("minimum_spanning_tree_kruskal2 errors must not write output")
-        key = (values, input_length, capacity, output_is_null, input_is_null)
-        if key in cases and cases[key] != (result, output):
-            raise ValueError("minimum_spanning_tree_kruskal2 probe collides with a distinct output call")
-        cases[key] = result, output
-
-    for case in workload["cases"]:
-        add(tuple(case["input_values"]), case["output_capacity"],
-            case["output_is_null"], case["input_is_null"], case["input_length"])
-
-    maximum = next(case for case in workload["cases"]
-                   if case["id"] == "maximum_input_and_output_64_edges")
-    maximum_values = tuple(maximum["input_values"])
-    maximum_result, _ = kruskal2_oracle(maximum_values)
-    for capacity in (0, maximum_result - 1, maximum_result):
-        add(maximum_values, capacity)
-    add(maximum_values, default_capacity, output_is_null=True)
-    one_vertex = (1, 0)
-    one_vertex_result, _ = kruskal2_oracle(one_vertex)
-    for capacity in (0, one_vertex_result - 1, one_vertex_result):
-        add(one_vertex, capacity)
-    add(one_vertex, default_capacity, output_is_null=True)
-
-    add((), default_capacity, input_is_null=True, input_length=2)
-    disconnected = (3, 1, 0, 1, 1)
-    add(disconnected, 0, output_is_null=True)
-    add(disconnected, default_capacity)
-
-    rng = random.Random(20261017)
-    for index in range(128):
-        vertex_count = rng.randint(KRUSKAL2_MIN_VERTEX_COUNT, KRUSKAL2_MAX_VERTEX_COUNT)
-        edges: list[tuple[int, int, int]] = []
-        seen: set[tuple[int, int]] = set()
-        for vertex in range(1, vertex_count):
-            parent = rng.randrange(vertex)
-            u, v = sorted((parent, vertex))
-            weight = rng.choice((KRUSKAL2_I32_MIN, -2, -1, 0, 0, 1, 2, KRUSKAL2_I32_MAX))
-            edges.append((u, v, weight))
-            seen.add((u, v))
-        possible = [(u, v) for u in range(vertex_count) for v in range(u + 1, vertex_count)
-                    if (u, v) not in seen]
-        extra_count = rng.randint(0, min(KRUSKAL2_MAX_EDGE_COUNT - len(edges), len(possible)))
-        for u, v in rng.sample(possible, extra_count):
-            weight = rng.choice((KRUSKAL2_I32_MIN, -1, 0, 0, 1, KRUSKAL2_I32_MAX))
-            edges.append((u, v, weight))
-        rng.shuffle(edges)
-        values = (vertex_count, len(edges), *(value for edge in edges for value in edge))
-        result, _ = kruskal2_oracle(values)
-        for capacity in (0, max(0, result - 1), result, default_capacity):
-            add(values, capacity)
-        if index % 16 == 0:
-            add(values, default_capacity, output_is_null=True)
-
-    records = []
-    for (values, input_length, capacity, output_is_null, input_is_null), (result, output) in sorted(cases.items()):
-        records.append((values, input_length, result, output, capacity, input_is_null, output_is_null))
-    lines = [str(len(records)) + "\n", "separate_input_length\n"]
-    for values, input_length, result, output, capacity, input_is_null, output_is_null in records:
-        encoded = output.hex() if output else "-"
-        values_text = "" if not values else " " + " ".join(map(str, values))
-        lines.append(f"{len(values)} {input_length} {result} {len(output)} {capacity} "
                      f"{int(input_is_null)} {int(output_is_null)}{values_text} {encoded}\n")
     return "".join(lines), len(records)
 
@@ -1070,87 +956,6 @@ def rat_maze_corpus(workload: dict) -> tuple[str, int]:
     for values in malformed:
         add(values)
     add((1, 1), default_capacity, input_length=1)
-    return separate_length_corpus(cases)
-
-
-def minimum_spanning_tree_prims_corpus(workload: dict) -> tuple[str, int]:
-    validate_minimum_spanning_tree_prims_workload(workload)
-    default_capacity = PRIMS_MAX_OUTPUT_BYTES
-    cases: dict[tuple[tuple[int, ...], int, int, bool, bool], tuple[int, bytes]] = {}
-
-    def add(values: tuple[int, ...], capacity: int = default_capacity,
-            output_is_null: bool = False, input_is_null: bool = False,
-            input_length: int | None = None) -> None:
-        if input_length is None:
-            input_length = len(values)
-        if (len(values) > PRIMS_MAX_PARSEABLE_INPUT_LENGTH
-                or type(input_length) is not int
-                or not 0 <= input_length <= PRIMS_MAX_PARSEABLE_INPUT_LENGTH
-                or type(capacity) is not int or not 0 <= capacity <= PRIMS_MAX_OUTPUT_BYTES):
-            raise ValueError("minimum_spanning_tree_prims input length or output capacity is out of range")
-        if (type(input_is_null) is not bool or type(output_is_null) is not bool
-                or input_is_null and output_is_null
-                or any(type(value) is not int or not PRIMS_I32_MIN <= value <= PRIMS_I32_MAX
-                       for value in values)):
-            raise ValueError("minimum_spanning_tree_prims input or pointer framing is invalid")
-        result, output = prims_oracle(
-            values, capacity, output_is_null, input_is_null, input_length)
-        if result >= 0:
-            if result != len(output) or result < 4 or result > PRIMS_MAX_OUTPUT_BYTES or result % 4 != 0:
-                raise ValueError("minimum_spanning_tree_prims success violates its byte-output bound")
-        elif result not in (PRIMS_INVALID_RESULT, PRIMS_OUTPUT_ERROR) or output:
-            raise ValueError("minimum_spanning_tree_prims errors must not write output")
-        key = (values, input_length, capacity, output_is_null, input_is_null)
-        if key in cases and cases[key] != (result, output):
-            raise ValueError("minimum_spanning_tree_prims probe collides with a distinct output call")
-        cases[key] = result, output
-
-    for case in workload["cases"]:
-        add(tuple(case["input_values"]), case["output_capacity"],
-            case["output_is_null"], case["input_is_null"], case["input_length"])
-
-    maximum = next(case for case in workload["cases"]
-                   if case["id"] == "maximum_input_and_output_64_edges")
-    maximum_values = tuple(maximum["input_values"])
-    maximum_result, _ = prims_oracle(maximum_values)
-    for capacity in (0, maximum_result - 1, maximum_result):
-        add(maximum_values, capacity)
-    add(maximum_values, default_capacity, output_is_null=True)
-    add((), default_capacity, input_is_null=True, input_length=2)
-
-    rng = random.Random(20261017)
-    boundary_weights = (PRIMS_I32_MIN, PRIMS_I32_MAX, -1, 0, 1)
-    for index in range(128):
-        vertex_count = rng.randint(PRIMS_MIN_VERTEX_COUNT, PRIMS_MAX_VERTEX_COUNT)
-        edge_set = {(rng.randrange(vertex), vertex) for vertex in range(1, vertex_count)}
-        possible_edges = [(left, right) for left in range(vertex_count)
-                          for right in range(left + 1, vertex_count)
-                          if (left, right) not in edge_set]
-        rng.shuffle(possible_edges)
-        extra_limit = min(PRIMS_MAX_EDGE_COUNT - len(edge_set), len(possible_edges))
-        extra_count = rng.randint(0, extra_limit)
-        edge_set.update(possible_edges[:extra_count])
-        edges = [(left, right,
-                  rng.choice(boundary_weights + (rng.randint(-1000, 1000),)))
-                 for left, right in edge_set]
-        rng.shuffle(edges)
-        values = (vertex_count, len(edges), *(word for edge in edges for word in edge))
-        result, _ = prims_oracle(values)
-        for capacity in (0, max(0, result - 1), result, default_capacity):
-            add(values, capacity)
-        if index % 16 == 0:
-            add(values, default_capacity, output_is_null=True)
-
-    malformed = (
-        (), (0, 0), (PRIMS_MAX_VERTEX_COUNT + 1, 0), (1,), (2, 0),
-        (2, 1, 0, 1), (2, 0, 0), (2, 1, 0, 0, 1),
-        (2, 1, 1, 0, 1), (2, 1, 0, 2, 1),
-        (3, 3, 0, 1, 1, 0, 2, 1, 0, 1, 2),
-        (1, 1, 0, 0, 1), (2, -1),
-    )
-    for values in malformed:
-        add(values)
-    add((1, 0), default_capacity, input_length=1)
     return separate_length_corpus(cases)
 
 
@@ -2028,8 +1833,6 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         return salsa_corpus(workload)
     if algorithm == "steinhaus_johnson_trotter":
         return sjt_corpus(workload)
-    if algorithm == "minimum_spanning_tree_kruskal2":
-        return kruskal2_corpus(workload)
     if algorithm == "scan_scheduling":
         return scan_scheduling_corpus(workload)
     if algorithm == "multi_level_feedback_queue":
@@ -2042,8 +1845,6 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         return max_pooling_corpus(workload)
     if algorithm == "rat_maze":
         return rat_maze_corpus(workload)
-    if algorithm == "minimum_spanning_tree_prims":
-        return minimum_spanning_tree_prims_corpus(workload)
     if algorithm == "mo":
         return mo_corpus(workload)
     if algorithm == "hungarian_algorithm":

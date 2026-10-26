@@ -1,0 +1,120 @@
+const MAX_NODES: usize = 8
+const MAX_ACCESSES: usize = 16
+const MAX_INPUT: usize = 36
+const NONE: usize = 8
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def bst_interleave_bound_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    n_raw: i64 = input[0]
+    root_raw: i64 = input[1]
+    if n_raw < 1 or n_raw > MAX_NODES.i64() or root_raw < 0 or root_raw >= n_raw: return -1
+    n: usize = n_raw.usize()
+    root: usize = root_raw.usize()
+    left: mutable usize[MAX_NODES] = zeroed
+    right: mutable usize[MAX_NODES] = zeroed
+    parent: mutable usize[MAX_NODES] = zeroed
+    parent_count: mutable usize[MAX_NODES] = zeroed
+    node: mutable usize = 0
+    while node < MAX_NODES:
+        left[node] <- NONE
+        right[node] <- NONE
+        parent[node] <- NONE
+        node <- node + 1
+    position: mutable usize = 2
+    node <- 0
+    while node < n:
+        if position + 2 > length: return -1
+        l: i64 = input[position]
+        r: i64 = input[position + 1]
+        position <- position + 2
+        if l < -1 or l >= n.i64() or r < -1 or r >= n.i64() or l == node.i64() or r == node.i64() or l >= 0 and l == r: return -1
+        if l >= 0:
+            left[node] <- l.usize()
+            parent_count[l.usize()] <- parent_count[l.usize()] + 1
+            parent[l.usize()] <- node
+        if r >= 0:
+            right[node] <- r.usize()
+            parent_count[r.usize()] <- parent_count[r.usize()] + 1
+            parent[r.usize()] <- node
+        node <- node + 1
+    if parent_count[root] != 0: return -1
+    node <- 0
+    while node < n:
+        if node != root and parent_count[node] != 1: return -1
+        node <- node + 1
+    if position >= length: return -1
+    m_raw: i64 = input[position]
+    position <- position + 1
+    if m_raw < 0 or m_raw > MAX_ACCESSES.i64() or length != position + m_raw.usize(): return -1
+    m: usize = m_raw.usize()
+    accesses: mutable usize[MAX_ACCESSES] = zeroed
+    index: mutable usize = 0
+    while index < m:
+        key: i64 = input[position]
+        position <- position + 1
+        if key < 0 or key >= n.i64(): return -1
+        accesses[index] <- key.usize()
+        index <- index + 1
+
+    stack_node: mutable usize[MAX_NODES] = zeroed
+    stack_low: mutable i64[MAX_NODES] = zeroed
+    stack_high: mutable i64[MAX_NODES] = zeroed
+    visited: mutable bool[MAX_NODES] = zeroed
+    stack_size: mutable usize = 1
+    visited_count: mutable usize = 0
+    stack_node[0] <- root
+    stack_low[0] <- -1
+    stack_high[0] <- n.i64()
+    while stack_size > 0:
+        stack_size <- stack_size - 1
+        current: usize = stack_node[stack_size]
+        low: i64 = stack_low[stack_size]
+        high: i64 = stack_high[stack_size]
+        if visited[current] or current.i64() <= low or current.i64() >= high: return -1
+        visited[current] <- true
+        visited_count <- visited_count + 1
+        if left[current] != NONE:
+            stack_node[stack_size] <- left[current]
+            stack_low[stack_size] <- low
+            stack_high[stack_size] <- current.i64()
+            stack_size <- stack_size + 1
+        if right[current] != NONE:
+            stack_node[stack_size] <- right[current]
+            stack_low[stack_size] <- current.i64()
+            stack_high[stack_size] <- high
+            stack_size <- stack_size + 1
+    if visited_count != n: return -1
+
+    bound: mutable i64 = 0
+    pivot: mutable usize = 0
+    while pivot < n:
+        previous: mutable i64 = -1
+        index <- 0
+        while index < m:
+            key: usize = accesses[index]
+            ancestor: usize = key
+            while ancestor != NONE and ancestor != pivot: ancestor <- parent[ancestor]
+            if ancestor == pivot:
+                side: i64 = if key <= pivot then 0 else 1
+                if previous >= 0 and side != previous: bound <- bound + 1
+                previous <- side
+            index <- index + 1
+        pivot <- pivot + 1
+    if output.is_null() or capacity < 8: return -2
+    staged: mutable u8[8] = zeroed
+    store_i64_le(bound, staged&, 0)
+    index <- 0
+    while index < 8:
+        output[index] <- staged[index]
+        index <- index + 1
+    8
+
+export fn bst_interleave_bound(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = bst_interleave_bound_impl

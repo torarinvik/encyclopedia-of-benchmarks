@@ -1,0 +1,113 @@
+const MAX_N: usize = 16
+const MAX_EDGES: usize = 120
+const MAX_INPUT: usize = 242
+const MAX_OUTPUT: usize = 2064
+
+def treewidth_min_fill_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def treewidth_min_fill_elimination(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("treewidth_min_fill_elimination"):
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > MAX_N.i64() or m64 < 0 or m64 > MAX_EDGES.i64(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if m > n * (n - 1) / 2 or length != 2 + 2 * m: return -1
+    adjacent: mutable bool[MAX_N * MAX_N] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        a64: i64 = input[2 + 2 * edge]
+        b64: i64 = input[3 + 2 * edge]
+        if a64 < 0 or b64 < 0 or a64 >= n64 or b64 >= n64 or a64 >= b64: return -1
+        a: usize = a64.usize()
+        b: usize = b64.usize()
+        if adjacent[a * MAX_N + b]: return -1
+        adjacent[a * MAX_N + b] <- true
+        adjacent[b * MAX_N + a] <- true
+        edge <- edge + 1
+
+    active: mutable bool[MAX_N] = zeroed
+    order: mutable i64[MAX_N] = zeroed
+    fill_u: mutable i64[MAX_EDGES] = zeroed
+    fill_v: mutable i64[MAX_EDGES] = zeroed
+    index: mutable usize = 0
+    while index < n: active[index] <- true; index <- index + 1
+    width: mutable usize = 0
+    fill_count: mutable usize = 0
+    step: mutable usize = 0
+    while step < n:
+        chosen: mutable usize = 0
+        chosen_fill: mutable usize = MAX_EDGES + 1
+        chosen_degree: mutable usize = 0
+        vertex: mutable usize = 0
+        while vertex < n:
+            if active[vertex]:
+                neighbors: mutable usize[MAX_N] = zeroed
+                neighbor_count: mutable usize = 0
+                other: mutable usize = 0
+                while other < n:
+                    if active[other] and adjacent[vertex * MAX_N + other]:
+                        neighbors[neighbor_count] <- other
+                        neighbor_count <- neighbor_count + 1
+                    other <- other + 1
+                missing: mutable usize = 0
+                i: mutable usize = 0
+                while i < neighbor_count:
+                    j: mutable usize = i + 1
+                    while j < neighbor_count:
+                        if not adjacent[neighbors[i] * MAX_N + neighbors[j]]: missing <- missing + 1
+                        j <- j + 1
+                    i <- i + 1
+                if missing < chosen_fill:
+                    chosen <- vertex
+                    chosen_fill <- missing
+                    chosen_degree <- neighbor_count
+            vertex <- vertex + 1
+        order[step] <- chosen.i64()
+        if chosen_degree > width: width <- chosen_degree
+        neighbors: mutable usize[MAX_N] = zeroed
+        neighbor_count: mutable usize = 0
+        other <- 0
+        while other < n:
+            if active[other] and adjacent[chosen * MAX_N + other]:
+                neighbors[neighbor_count] <- other
+                neighbor_count <- neighbor_count + 1
+            other <- other + 1
+        i <- 0
+        while i < neighbor_count:
+            j: mutable usize = i + 1
+            while j < neighbor_count:
+                a: usize = neighbors[i]
+                b: usize = neighbors[j]
+                if not adjacent[a * MAX_N + b]:
+                    adjacent[a * MAX_N + b] <- true
+                    adjacent[b * MAX_N + a] <- true
+                    fill_u[fill_count] <- a.i64()
+                    fill_v[fill_count] <- b.i64()
+                    fill_count <- fill_count + 1
+                j <- j + 1
+            i <- i + 1
+        active[chosen] <- false
+        step <- step + 1
+
+    bytes: usize = 8 * (n + 2 + 2 * fill_count)
+    if output.is_null() or capacity < bytes or bytes > MAX_OUTPUT: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    treewidth_min_fill_put(width.i64(), staged, 0)
+    index <- 0
+    while index < n: treewidth_min_fill_put(order[index], staged, 8 * (index + 1)); index <- index + 1
+    treewidth_min_fill_put(fill_count.i64(), staged, 8 * (n + 1))
+    index <- 0
+    while index < fill_count:
+        treewidth_min_fill_put(fill_u[index], staged, 8 * (n + 2 + 2 * index))
+        treewidth_min_fill_put(fill_v[index], staged, 8 * (n + 3 + 2 * index))
+        index <- index + 1
+    index <- 0
+    while index < bytes: output[index] <- staged[index]; index <- index + 1
+    bytes.i64()

@@ -1,0 +1,33 @@
+def deterministic_line_search_put(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def deterministic_line_search_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 1: return -1
+    target: i64 = input[0]
+    if target == 0 or target < -50000 or target > 50000: return -1
+    distance: i64 = target
+    if distance < 0: distance <- -distance
+    traveled: mutable i64 = 0
+    leg: mutable i64 = 0
+    depth: mutable i64 = 1
+    while true:
+        negative: bool = (leg % 2) == 0
+        if (target < 0) == negative and distance <= depth:
+            traveled <- traveled + distance
+            break
+        traveled <- traveled + 2 * depth
+        depth <- depth * 2
+        leg <- leg + 1
+    if capacity < 16 or output.is_null(): return -2
+    deterministic_line_search_put(output, 0, traveled)
+    deterministic_line_search_put(output, 8, leg)
+    return 16
+
+@export("deterministic_line_search")
+def deterministic_line_search(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    return deterministic_line_search_impl(input, length, output, capacity)

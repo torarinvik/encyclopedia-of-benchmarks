@@ -1,0 +1,57 @@
+const MAX_RAYS: usize = 5
+const MAX_ROUNDS: usize = 32
+const MAX_INPUT: usize = 11
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def randomized_ray_search_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > MAX_INPUT: return -1
+    rays_raw: i64 = input[0]
+    growth: i64 = input[1]
+    initial: i64 = input[2]
+    if rays_raw < 2 or rays_raw > MAX_RAYS.i64() or growth < 2 or growth > 4 or initial < 1000 or
+        initial >= growth * 1000 or length != rays_raw.usize() + 5: return -1
+    rays: usize = rays_raw.usize()
+    permutation: mutable usize[MAX_RAYS] = zeroed
+    seen: mutable bool[MAX_RAYS] = zeroed
+    index: mutable usize = 0
+    while index < rays:
+        ray: i64 = input[3 + index]
+        if ray < 0 or ray >= rays_raw: return -1
+        ray_index: usize = ray.usize()
+        if seen[ray_index]: return -1
+        seen[ray_index] <- true
+        permutation[index] <- ray_index
+        index <- index + 1
+    target: i64 = input[3 + rays]
+    target_distance: i64 = input[4 + rays]
+    if target < 0 or target >= rays_raw or target_distance < 1 or target_distance > 1000000000: return -1
+
+    distance: mutable i64 = initial
+    total: mutable i64 = 0
+    attempts: mutable i64 = 0
+    found: mutable bool = false
+    round: mutable usize = 0
+    while round < MAX_ROUNDS:
+        ray: usize = permutation[round % rays]
+        attempts <- attempts + 1
+        if ray.i64() == target and target_distance <= distance:
+            total <- total + target_distance
+            found <- true
+            break
+        total <- total + 2 * distance
+        distance <- distance * growth
+        round <- round + 1
+    if not found: return -1
+    if output.is_null() or capacity < 16: return -2
+    store_i64_le(attempts, output&, 0)
+    store_i64_le(total, output&, 8)
+    16
+
+export fn randomized_ray_search(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = randomized_ray_search_impl

@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "id": "chapter-570-greedy-weighted-matching-i64-array-bytes-v1",
+  "algorithm": "approximate_matching_greedy",
+  "function_symbol": "approximate_matching_greedy",
+  "comparison_model": "i64_array_bytes_output_call",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[vertex_count,edge_count,(u,v,weight)...]",
+    "vertex_count_range": [1, 12],
+    "edge_count_range": [0, 32],
+    "edge_domain": "simple undirected graph; endpoints may be listed in either order; no self-loops or parallel edges",
+    "weight_range": [1, 100],
+    "tie_rule": "descending weight, then original edge index ascending",
+    "maximum_valid_length": 98,
+    "maximum_parseable_length": 99,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "layout": "[matching_total_weight,selected_edge_mask]",
+    "selected_edge_mask": "bit i is 1 exactly when input edge i is selected",
+    "maximum_output_elements": 2,
+    "maximum_output_bytes": 16,
+    "success_result": 16,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_when_nonempty_result": -2
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Edge validation state, used-edge order, and matched-vertex flags; output is staged until capacity is checked."
+  },
+  "measurement": {"sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "cases": [
+    {
+      "id": "weighted-greedy-selection",
+      "input_values": [5, 5, 0, 1, 10, 1, 2, 9, 2, 3, 8, 3, 4, 7, 0, 4, 6],
+      "input_length": 17,
+      "expected_result": 16,
+      "expected_output_hex": "12000000000000000500000000000000"
+    },
+    {
+      "id": "equal-weight-stable-input-tie",
+      "input_values": [4, 3, 0, 1, 5, 2, 3, 5, 1, 2, 5],
+      "input_length": 11,
+      "expected_result": 16,
+      "expected_output_hex": "0a000000000000000300000000000000"
+    },
+    {
+      "id": "triangle-greedy-half-approximation-example",
+      "input_values": [3, 3, 0, 1, 9, 1, 2, 8, 0, 2, 8],
+      "input_length": 11,
+      "expected_result": 16,
+      "expected_output_hex": "09000000000000000100000000000000"
+    },
+    {
+      "id": "empty-edge-set",
+      "input_values": [3, 0],
+      "input_length": 2,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "one-edge",
+      "input_values": [3, 1, 0, 2, 100],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "64000000000000000100000000000000"
+    },
+    {
+      "id": "invalid-parallel-edge",
+      "input_values": [3, 2, 0, 1, 5, 1, 0, 4],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-zero-weight",
+      "input_values": [2, 1, 0, 1, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-frame-length",
+      "input_values": [3, 1, 0, 1],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 1, 0, 1, 1],
+      "input_length": 5,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 8,
+      "capacity_error_result": -2
+    }
+  ],
+  "provenance": {
+    "chapter": "Approximate Matching",
+    "doi": "10.1007/978-1-4939-2864-4_570",
+    "algorithm_profile": "Iteratively select the highest-weight edge with no incident previously selected edge; stable input order resolves equal weights."
+  }
+}

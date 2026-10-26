@@ -1,0 +1,99 @@
+# Clean-room interval-graph minimal-dominating-set count via pair-state DAG.
+def interval_intersects(s: i64&, e: i64&, a: usize, b: usize) -> bool:
+    s[a] <= e[b] and s[b] <= e[a]
+
+def minimal_dominating_sets_interval_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 3 or length > 25 or input[0] < 1 or input[0] > 12:
+        return -1
+    n: usize = input[0].usize()
+    if length != 1 + 2 * n:
+        return -1
+    s: mutable i64[12] = zeroed
+    e: mutable i64[12] = zeroed
+    min_end: mutable i64 = 0
+    max_start: mutable i64 = 0
+    while i < n |i: mutable usize = 0, s, e, min_end, max_start| -> s, e, min_end, max_start:
+        s[i] <- input[1 + 2 * i]
+        e[i] <- input[2 + 2 * i]
+        if s[i] < -100 or s[i] > 100 or e[i] < -100 or e[i] > 100 or s[i] >= e[i]:
+            return -1
+        if i > 0 and s[i - 1] >= s[i]:
+            return -1
+        if i == 0 or e[i] < min_end: min_end <- e[i]
+        if i == 0 or s[i] > max_start: max_start <- s[i]
+        while j < i |j: mutable usize = 0, s, e|:
+            if s[i] == s[j] or s[i] == e[j] or e[i] == s[j] or e[i] == e[j]:
+                return -1
+            j <- j + 1
+        i <- i + 1
+        s, e, min_end, max_start
+    if output_capacity < 8:
+        return -2
+    has_next: mutable bool[12] = zeroed
+    ncs: mutable i64[12] = zeroed
+    nce: mutable i64[12] = zeroed
+    p_single: mutable i64[12] = zeroed
+    while i < n |i: mutable usize = 0, s, e, has_next, ncs, nce, p_single| -> has_next, ncs, nce, p_single:
+        p_single[i] <- 0x7fffffffffffffff.i64()
+        while z < n |z: mutable usize = 0, s, e, has_next, ncs, nce, p_single| -> has_next, ncs, nce, p_single:
+            if interval_intersects(s, e, i, z) and e[z] < p_single[i]:
+                p_single[i] <- e[z]
+            if s[z] > e[i]:
+                if not has_next[i] or s[z] < ncs[i]: ncs[i] <- s[z]
+                if not has_next[i] or e[z] < nce[i]: nce[i] <- e[z]
+                has_next[i] <- true
+            z <- z + 1
+            has_next, ncs, nce, p_single
+        i <- i + 1
+        has_next, ncs, nce, p_single
+    valid: mutable bool[12][12] = zeroed
+    p_pair: mutable i64[12][12] = zeroed
+    while i < n |i: mutable usize = 0, s, e, has_next, ncs, nce, p_single, valid, p_pair| -> valid, p_pair:
+        j: mutable usize = i + 1
+        while j < n |j, s, e, p_single, ncs, nce, has_next, valid, p_pair| -> valid, p_pair:
+            p_pair[i][j] <- 0x7fffffffffffffff.i64()
+            while z < n |z: mutable usize = 0, s, e, p_pair| -> p_pair:
+                if interval_intersects(s, e, j, z) and not interval_intersects(s, e, i, z) and e[z] < p_pair[i][j]:
+                    p_pair[i][j] <- e[z]
+                z <- z + 1
+                p_pair
+            valid[i][j] <- has_next[i] and p_single[i] < s[j] and s[j] <= nce[i] and e[j] >= ncs[i]
+            j <- j + 1
+            valid, p_pair
+        i <- i + 1
+        valid, p_pair
+    ways: mutable i64[12][12] = zeroed
+    while j < n |j: mutable usize = 1, i: mutable usize = 0, s, e, min_end, ncs, nce, valid, p_pair, ways| -> ways:
+        i <- 0
+        while i < j |i, j, s, e, min_end, ncs, nce, valid, p_pair, ways| -> ways:
+            if valid[i][j]:
+                if s[i] <= min_end: ways[i][j] <- ways[i][j] + 1
+                k: mutable usize = j + 1
+                while k < n |k, j, s, e, nce, valid, p_pair, ways| -> ways:
+                    if valid[j][k] and p_pair[i][j] < s[k] and s[k] <= nce[j]:
+                        ways[j][k] <- ways[j][k] + ways[i][j]
+                    k <- k + 1
+                    ways
+            i <- i + 1
+            ways
+        j <- j + 1
+        ways
+    count: mutable i64 = 0
+    while i < n |i: mutable usize = 0, s, e, min_end, max_start, count| -> count:
+        if s[i] <= min_end and e[i] >= max_start: count <- count + 1
+        i <- i + 1
+        count
+    while i < n |i: mutable usize = 0, e, max_start, ways, count| -> count:
+        j: mutable usize = i + 1
+        while j < n |j, e, max_start, ways, count| -> count:
+            if e[j] >= max_start: count <- count + ways[i][j]
+            j <- j + 1
+            count
+        i <- i + 1
+        count
+    bits: u64 = count.u64()
+    for byte in 0..<8 |byte, output, bits|:
+        output[byte] <- ((bits >> (byte * 8)) & 255.u64()).u8()
+    8
+
+export fn minimal_dominating_sets_interval(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = minimal_dominating_sets_interval_impl

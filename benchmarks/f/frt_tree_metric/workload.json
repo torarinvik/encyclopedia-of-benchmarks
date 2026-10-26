@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "id": "chapter-25-frt-tree-metric-i64-array-bytes-v1",
+  "algorithm": "frt_tree_metric",
+  "function_symbol": "frt_tree_metric",
+  "comparison_model": "i64_array_bytes_output_call",
+  "source": {
+    "chapter": "Approximating Metric Spaces by Tree Metrics",
+    "doi": "10.1007/978-1-4939-2864-4_25",
+    "authors": ["Jittat Fakcharoenphol", "Satish Rao", "Kunal Talwar"],
+    "profile": "One explicit FRT/CKR hierarchical-partition realization; expected-stretch properties are distributional and are not claimed for this single sample."
+  },
+  "contract": {
+    "operation": "Refine metric clusters by permutation-ordered beta-scaled balls from coarse to fine and return the induced 2-HST leaf-distance matrix.",
+    "input_layout": "[n,beta_q,permutation[n],distance_matrix[n*n] row-major]",
+    "beta": "beta_q/1024 with integer beta_q in [1024,2047]",
+    "levels": "H=ceil(log2(max_distance)), then H down through -10 inclusive",
+    "partition_rule": "Within each current cluster, visit centers in the supplied permutation; each still-unassigned center creates a child containing all still-unassigned vertices within beta*2^level.",
+    "tree_distance": "Pairs first separated at level ell have distance 2^(ell+3); serialized values are multiplied by 1024.",
+    "output_layout": "n*n signed 64-bit tree distances, row-major, little-endian",
+    "validation": "Input must be a symmetric integer metric with zero diagonal, positive off-diagonal values <=255, and a unique permutation.",
+    "error_precedence": "Malformed input returns -1 before null-output/capacity checks. Valid input with null output or insufficient byte capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 74,
+    "maximum_parseable_length": 75,
+    "n_range": [2,8],
+    "beta_q_range": [1024,2047],
+    "distance_range": [0,255],
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_bytes": 512,
+    "maximum_output_elements": 64,
+    "success_result": "8*n*n bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Bounded current/next cluster lists, membership masks, metric matrix, and staged output for at most eight points."
+  },
+  "measurement": {"sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
+  "cases": [
+    {
+      "id":"line-three-beta-one",
+      "input_values":[3,1024,0,1,2,0,1,3,1,0,2,3,2,0],
+      "input_length":14,
+      "expected_result":72,
+      "expected_output_hex":"000000000000000000100000000000000040000000000000001000000000000000000000000000000040000000000000004000000000000000400000000000000000000000000000"
+    },
+    {
+      "id":"line-three-high-beta",
+      "input_values":[3,2047,0,1,2,0,1,3,1,0,2,3,2,0],
+      "input_length":14,
+      "expected_result":72,
+      "expected_output_hex":"000000000000000000100000000000000020000000000000001000000000000000000000000000000020000000000000002000000000000000200000000000000000000000000000"
+    },
+    {
+      "id":"bad-triangle-inequality",
+      "input_values":[3,1024,0,1,2,0,1,4,1,0,1,4,4,0],
+      "input_length":14,
+      "expected_result":-1,
+      "expected_output_hex":""
+    },
+    {
+      "id":"duplicate-permutation-id",
+      "input_values":[3,1024,0,0,2,0,1,3,1,0,2,3,2,0],
+      "input_length":14,
+      "expected_result":-1,
+      "expected_output_hex":""
+    },
+    {
+      "id":"short-capacity",
+      "input_values":[2,1024,0,1,0,1,1,0],
+      "input_length":8,
+      "output_capacity":31,
+      "expected_result":-2,
+      "expected_output_hex":""
+    }
+  ]
+}

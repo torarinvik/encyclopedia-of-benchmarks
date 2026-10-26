@@ -1,0 +1,53 @@
+const N:usize=16
+const L:usize=18
+def put64(x:i64,o:mutable u8&,p:usize)->void:
+    b:u64=x.u64();j:mutable usize=0
+    while j<8:
+        o[p+j]<-((b>>(8*j))&255).u8()
+        j<-j+1
+def max_minimum_machine_load_lpt(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("max_minimum_machine_load_lpt"):
+    if input.is_null() or length<3 or length>L:return -1
+    nr:i64=input[0];mr:i64=input[1]
+    if nr<1 or nr>16 or mr<1 or mr>4 or length!=2+nr.usize():return -1
+    n:usize=nr.usize();m:usize=mr.usize()
+    p:mutable i64[16]=zeroed;order:mutable i64[16]=zeroed;assign:mutable i64[16]=zeroed;loads:mutable i64[4]=zeroed
+    i:mutable usize=0
+    while i<n:
+        p[i]<-input[2+i]
+        if p[i]<1 or p[i]>100:return -1
+        order[i]<-i.i64()
+        i<-i+1
+    bytes:usize=8*(1+n+m);if output.is_null() or capacity<bytes:return -2
+    i<-1
+    while i<n:
+        key:i64=order[i];j:mutable usize=i
+        while j>0:
+            prev:usize=order[j-1].usize()
+            if p[key.usize()]>p[prev] or (p[key.usize()]==p[prev] and key<prev.i64()):
+                order[j]<-order[j-1]
+                j<-j-1
+            else:
+                break
+        order[j]<-key;i<-i+1
+    i<-0
+    while i<n:
+        job:usize=order[i].usize();machine:mutable usize=0;j:mutable usize=1
+        while j<m:
+            if loads[j]<loads[machine]:machine<-j
+            j<-j+1
+        assign[job]<-machine.i64()
+        loads[machine]<-loads[machine]+p[job]
+        i<-i+1
+    low:i64=loads[0];i<-1
+    while i<m:
+        if loads[i]<low:low<-loads[i]
+        i<-i+1
+    put64(low,output&,0);i<-0
+    while i<n:
+        put64(assign[i],output&,8*(1+i))
+        i<-i+1
+    i<-0
+    while i<m:
+        put64(loads[i],output&,8*(1+n+i))
+        i<-i+1
+    bytes.i64()

@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0.0",
+  "id": "color-coding-k-path-v1",
+  "algorithm": "color_coding_k_path",
+  "function_symbol": "color_coding_k_path",
+  "comparison_model": "i64_array_bytes_output_call",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n,m,k,colors[n],edge_pairs[2*m]]",
+    "vertex_count_range": [1, 12],
+    "edge_count_range": [0, 66],
+    "k_range": [1, 6],
+    "color_range": "[0,k)",
+    "simple_undirected_graph": true,
+    "maximum_valid_length": 147,
+    "maximum_parseable_length": 148,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_i64_array",
+    "description": "One value: 1 if a colorful simple path of exactly k vertices exists, else 0.",
+    "maximum_output_bytes": 8,
+    "maximum_output_elements": 1,
+    "success_result": 8,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_when_nonempty_result": -2
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "12-vertex adjacency masks and 64 by 12 Boolean subset/endpoint states."
+  },
+  "measurement": {
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "colored-path-spans-four-distinct-colors",
+      "input_values": [4,3,4,0,1,2,3,0,1,1,2,2,3],
+      "input_length": 13,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "repeated-color-prevents-full-path",
+      "input_values": [3,3,3,0,0,1,0,1,1,2,2,0,2],
+      "input_length": 13,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "single-vertex-path",
+      "input_values": [1,0,1,0],
+      "input_length": 4,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "duplicate-undirected-edge-invalid",
+      "input_values": [2,2,2,0,1,0,1,1,0],
+      "input_length": 9,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "color-out-of-range-invalid",
+      "input_values": [2,1,2,0,2,0,1],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1,0,1,0],
+      "input_length": 4,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 7,
+      "capacity_error_result": -2
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version":"1.0.0",
+  "id":"directed-perfect-phylogeny-binary-v1",
+  "algorithm":"directed_perfect_phylogeny",
+  "function_symbol":"directed_perfect_phylogeny",
+  "comparison_model":"i64_array_bytes_output_call",
+  "input":{"kind":"signed_i64_array","layout":"[taxa_count,character_count,row_major_binary_matrix]","taxa_range":[1,12],"character_range":[1,12],"cell_values":[0,1],"maximum_valid_length":146,"maximum_parseable_length":147,"invalid_result":-1},
+  "output":{"kind":"little_endian_i64_array","layout":"[feasible_flag]","flag_values":[0,1],"maximum_output_elements":1,"maximum_output_bytes":8,"success_result":8,"invalid_result":-1,"insufficient_output_capacity_result":-2,"null_output_when_nonempty_result":-2},
+  "workspace":{"bytes":256,"meaning":"Twelve character taxon masks for pairwise compatibility checks."},
+  "measurement":{"sample_count":7,"warmup_rounds":2,"repetitions_per_sample":1000},
+  "cases":[
+    {"id":"single-character-single-taxon","input_values":[1,1,1],"input_length":3,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"nested-character-sets","input_values":[3,2,1,1,1,0,0,0],"input_length":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"disjoint-character-sets","input_values":[3,2,1,0,0,1,0,0],"input_length":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"crossing-character-sets","input_values":[3,2,1,1,1,0,0,1],"input_length":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"duplicate-character-sets","input_values":[3,2,1,1,0,0,1,1],"input_length":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"invalid-matrix-value","input_values":[2,2,1,0,1,2],"input_length":6,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-frame-shape","input_values":[2,2,1,0,0],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-or-short-output","input_values":[2,2,1,0,1,0],"input_length":6,"expected_result":-2,"expected_output_hex":"","workspace_bytes":7,"capacity_error_result":-2}
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "id": "chapter-566-diameter-bfs-2approx-i64-array-bytes-v1",
+  "algorithm": "approximating_diameter_bfs",
+  "function_symbol": "approximating_diameter_bfs",
+  "comparison_model": "i64_array_bytes_output_call",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[vertex_count,edge_count,(u,v)...]",
+    "vertex_count_range": [1, 16],
+    "edge_count_range": [0, 120],
+    "graph": "connected simple undirected unweighted graph; each edge is canonical 0 <= u < v < vertex_count and appears once",
+    "root": 0,
+    "maximum_valid_length": 242,
+    "maximum_parseable_length": 243,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "layout": "[eccentricity_of_vertex_0]",
+    "interpretation": "deterministic diameter estimate within factor 2 for a connected undirected unweighted graph",
+    "maximum_output_elements": 1,
+    "maximum_output_bytes": 8,
+    "success_result": 8,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_when_nonempty_result": -2
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Sixteen-by-sixteen adjacency and distance state plus a bounded BFS queue; output is written only after graph validation and connectivity check."
+  },
+  "measurement": {"sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "cases": [
+    {
+      "id": "path-five-root-eccentricity-is-diameter",
+      "input_values": [5, 4, 0, 1, 1, 2, 2, 3, 3, 4],
+      "input_length": 10,
+      "expected_result": 8,
+      "expected_output_hex": "0400000000000000"
+    },
+    {
+      "id": "star-center-root-two-approx-boundary",
+      "input_values": [5, 4, 0, 1, 0, 2, 0, 3, 0, 4],
+      "input_length": 10,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "cycle-four",
+      "input_values": [4, 4, 0, 1, 1, 2, 2, 3, 0, 3],
+      "input_length": 10,
+      "expected_result": 8,
+      "expected_output_hex": "0200000000000000"
+    },
+    {
+      "id": "singleton",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "complete-four",
+      "input_values": [4, 6, 0, 1, 0, 2, 0, 3, 1, 2, 1, 3, 2, 3],
+      "input_length": 14,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "disconnected-graph",
+      "input_values": [3, 1, 0, 1],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "noncanonical-edge",
+      "input_values": [2, 1, 1, 0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 1, 0, 1],
+      "input_length": 4,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 7,
+      "capacity_error_result": -2
+    }
+  ],
+  "provenance": {
+    "chapter": "Approximating the Diameter",
+    "doi": "10.1007/978-1-4939-2864-4_566",
+    "algorithm_profile": "The chapter states that BFS from an arbitrary vertex gives a 2-approximation to the diameter of an undirected graph; this bounded profile fixes the arbitrary root to vertex zero."
+  }
+}

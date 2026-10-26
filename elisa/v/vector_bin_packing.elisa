@@ -1,0 +1,72 @@
+# Clean-room generalized vector First Fit bin-packing profile.
+const MAX_N: usize = 32
+const MAX_D: usize = 4
+const MAX_INPUT: usize = 130
+const MAX_FIELDS: usize = 161
+
+def vector_bin_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def vector_bin_packing(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("vector_bin_packing"):
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    d64: i64 = input[1]
+    if n64 < 1 or n64 > 32 or d64 < 1 or d64 > 4 or length != 2 + (n64*d64).usize(): return -1
+    n: usize = n64.usize()
+    d: usize = d64.usize()
+    coordinate: mutable usize = 0
+    while coordinate < n*d:
+        value: i64 = input[2 + coordinate]
+        if value < 0 or value > 1000: return -1
+        coordinate <- coordinate + 1
+    loads: mutable i64[MAX_N * MAX_D] = zeroed
+    assignment: mutable usize[MAX_N] = zeroed
+    bins: mutable usize = 0
+    item: mutable usize = 0
+    while item < n:
+        chosen: mutable usize = bins
+        bin: mutable usize = 0
+        while bin < bins:
+            fits: mutable bool = true
+            dimension: mutable usize = 0
+            while dimension < d:
+                if loads[bin*MAX_D+dimension] + input[2+item*d+dimension] > 1000: fits <- false
+                dimension <- dimension + 1
+            if fits:
+                chosen <- bin
+                break
+            bin <- bin + 1
+        if chosen == bins: bins <- bins + 1
+        assignment[item] <- chosen
+        dimension <- 0
+        while dimension < d:
+            loads[chosen*MAX_D+dimension] <- loads[chosen*MAX_D+dimension] + input[2+item*d+dimension]
+            dimension <- dimension + 1
+        item <- item + 1
+    staged: mutable i64[MAX_FIELDS] = zeroed
+    count: mutable usize = 0
+    staged[count] <- bins.i64()
+    count <- count + 1
+    item <- 0
+    while item < n:
+        staged[count] <- assignment[item].i64()
+        count <- count + 1
+        item <- item + 1
+    bin <- 0
+    while bin < bins:
+        dimension <- 0
+        while dimension < d:
+            staged[count] <- loads[bin*MAX_D+dimension]
+            count <- count + 1
+            dimension <- dimension + 1
+        bin <- bin + 1
+    if output.is_null() or capacity < 8*count: return -2
+    coordinate <- 0
+    while coordinate < count:
+        vector_bin_put(staged[coordinate], output&, 8*coordinate)
+        coordinate <- coordinate + 1
+    (8*count).i64()

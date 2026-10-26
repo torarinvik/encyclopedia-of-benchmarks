@@ -21,16 +21,6 @@ from salsa_oracle import expected_output as salsa_expected_output
 from steinhaus_johnson_trotter_oracle import MAX_OUTPUT_BYTES as SJT_MAX_OUTPUT_BYTES
 from steinhaus_johnson_trotter_oracle import MAX_PARSEABLE_INPUT_LENGTH as SJT_MAX_PARSEABLE_INPUT_LENGTH
 from steinhaus_johnson_trotter_oracle import expected_output as sjt_expected_output
-from minimum_spanning_tree_kruskal2_oracle import I32_MAX as KRUSKAL2_I32_MAX
-from minimum_spanning_tree_kruskal2_oracle import I32_MIN as KRUSKAL2_I32_MIN
-from minimum_spanning_tree_kruskal2_oracle import INVALID_RESULT as KRUSKAL2_INVALID_RESULT
-from minimum_spanning_tree_kruskal2_oracle import MAX_EDGE_COUNT as KRUSKAL2_MAX_EDGE_COUNT
-from minimum_spanning_tree_kruskal2_oracle import MAX_INPUT_LENGTH as KRUSKAL2_MAX_INPUT_LENGTH
-from minimum_spanning_tree_kruskal2_oracle import MAX_OUTPUT_BYTES as KRUSKAL2_MAX_OUTPUT_BYTES
-from minimum_spanning_tree_kruskal2_oracle import MAX_VERTEX_COUNT as KRUSKAL2_MAX_VERTEX_COUNT
-from minimum_spanning_tree_kruskal2_oracle import MIN_VERTEX_COUNT as KRUSKAL2_MIN_VERTEX_COUNT
-from minimum_spanning_tree_kruskal2_oracle import OUTPUT_ERROR as KRUSKAL2_OUTPUT_ERROR
-from minimum_spanning_tree_kruskal2_oracle import expected_output as kruskal2_expected_output
 from scan_scheduling_oracle import I32_MAX as SCAN_I32_MAX
 from scan_scheduling_oracle import I32_MIN as SCAN_I32_MIN
 from scan_scheduling_oracle import INVALID_RESULT as SCAN_INVALID_RESULT
@@ -100,18 +90,6 @@ from rat_maze_oracle import MAX_SIZE as RAT_MAZE_MAX_SIZE
 from rat_maze_oracle import MIN_SIZE as RAT_MAZE_MIN_SIZE
 from rat_maze_oracle import OUTPUT_ERROR as RAT_MAZE_OUTPUT_ERROR
 from rat_maze_oracle import expected_output as rat_maze_expected_output
-from minimum_spanning_tree_prims_oracle import I32_MAX as PRIMS_I32_MAX
-from minimum_spanning_tree_prims_oracle import I32_MIN as PRIMS_I32_MIN
-from minimum_spanning_tree_prims_oracle import INVALID_RESULT as PRIMS_INVALID_RESULT
-from minimum_spanning_tree_prims_oracle import MAX_EDGE_COUNT as PRIMS_MAX_EDGE_COUNT
-from minimum_spanning_tree_prims_oracle import MAX_INPUT_LENGTH as PRIMS_MAX_INPUT_LENGTH
-from minimum_spanning_tree_prims_oracle import MAX_OUTPUT_BYTES as PRIMS_MAX_OUTPUT_BYTES
-from minimum_spanning_tree_prims_oracle import MAX_PARSEABLE_INPUT_LENGTH as PRIMS_MAX_PARSEABLE_INPUT_LENGTH
-from minimum_spanning_tree_prims_oracle import MAX_VERTEX_COUNT as PRIMS_MAX_VERTEX_COUNT
-from minimum_spanning_tree_prims_oracle import MIN_VERTEX_COUNT as PRIMS_MIN_VERTEX_COUNT
-from minimum_spanning_tree_prims_oracle import OUTPUT_ERROR as PRIMS_OUTPUT_ERROR
-from minimum_spanning_tree_prims_oracle import SOURCE_HEAP_SENTINEL as PRIMS_SOURCE_HEAP_SENTINEL
-from minimum_spanning_tree_prims_oracle import expected_output as prims_expected_output
 from mo_oracle import I32_MAX as MO_I32_MAX
 from mo_oracle import I32_MIN as MO_I32_MIN
 from mo_oracle import INVALID_RESULT as MO_INVALID_RESULT
@@ -211,9 +189,8 @@ from sjfscheduling_oracle import OUTPUT_ERROR as SJFSCHEDULING_OUTPUT_ERROR
 from sjfscheduling_oracle import expected_output as sjfscheduling_expected_output
 
 MAX_OUTPUT_CAPACITY = 400004
-ALGORITHMS = ("salsa", "steinhaus_johnson_trotter", "minimum_spanning_tree_kruskal2",
+ALGORITHMS = ("salsa", "steinhaus_johnson_trotter",
               "scan_scheduling", "multi_level_feedback_queue", "rat_maze",
-              "minimum_spanning_tree_prims",
               "mo",
               "preemptive_priority_scheduling", "multikey_quick_sort", "max_pooling",
               "hungarian_algorithm", "merge_sort_no_extra_space", "reverse_singly_linked_list",
@@ -228,9 +205,6 @@ def oracle_for(values: list[int], algorithm: str, output_capacity: int,
         return salsa_expected_output(values, output_capacity, output_is_null, input_is_null)
     if algorithm == "steinhaus_johnson_trotter":
         return sjt_expected_output(values, output_capacity, output_is_null, input_is_null)
-    if algorithm == "minimum_spanning_tree_kruskal2":
-        return kruskal2_expected_output(
-            values, output_capacity, output_is_null, input_is_null, input_length)
     if algorithm == "scan_scheduling":
         return scan_scheduling_expected_output(
             values, output_capacity, output_is_null, input_is_null, input_length)
@@ -248,9 +222,6 @@ def oracle_for(values: list[int], algorithm: str, output_capacity: int,
             values, output_capacity, output_is_null, input_is_null, input_length)
     if algorithm == "rat_maze":
         return rat_maze_expected_output(
-            values, output_capacity, output_is_null, input_is_null, input_length)
-    if algorithm == "minimum_spanning_tree_prims":
-        return prims_expected_output(
             values, output_capacity, output_is_null, input_is_null, input_length)
     if algorithm == "mo":
         return mo_expected_output(
@@ -287,8 +258,6 @@ def max_parseable_input_length(algorithm: str) -> int:
         return SALSA_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "steinhaus_johnson_trotter":
         return SJT_MAX_PARSEABLE_INPUT_LENGTH
-    if algorithm == "minimum_spanning_tree_kruskal2":
-        return KRUSKAL2_MAX_INPUT_LENGTH
     if algorithm == "scan_scheduling":
         return SCAN_MAX_INPUT_LENGTH
     if algorithm == "multi_level_feedback_queue":
@@ -301,8 +270,6 @@ def max_parseable_input_length(algorithm: str) -> int:
         return MAX_POOLING_MAX_INPUT_LENGTH
     if algorithm == "rat_maze":
         return RAT_MAZE_MAX_INPUT_LENGTH
-    if algorithm == "minimum_spanning_tree_prims":
-        return PRIMS_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "mo":
         return MO_MAX_INPUT_LENGTH
     if algorithm == "hungarian_algorithm":
@@ -329,8 +296,6 @@ def max_output_bytes(algorithm: str) -> int:
         return SALSA_MAX_OUTPUT_BYTES
     if algorithm == "steinhaus_johnson_trotter":
         return SJT_MAX_OUTPUT_BYTES
-    if algorithm == "minimum_spanning_tree_kruskal2":
-        return KRUSKAL2_MAX_OUTPUT_BYTES
     if algorithm == "scan_scheduling":
         return SCAN_MAX_OUTPUT_BYTES
     if algorithm == "multi_level_feedback_queue":
@@ -343,8 +308,6 @@ def max_output_bytes(algorithm: str) -> int:
         return MAX_POOLING_MAX_OUTPUT_BYTES
     if algorithm == "rat_maze":
         return RAT_MAZE_MAX_OUTPUT_BYTES
-    if algorithm == "minimum_spanning_tree_prims":
-        return PRIMS_MAX_OUTPUT_BYTES
     if algorithm == "mo":
         return MO_MAX_OUTPUT_BYTES
     if algorithm == "hungarian_algorithm":
@@ -364,129 +327,6 @@ def max_output_bytes(algorithm: str) -> int:
     if algorithm == "sjfscheduling":
         return SJFSCHEDULING_MAX_OUTPUT_BYTES
     raise ValueError(f"no i32 byte-output size bound for {algorithm}")
-
-
-KRUSKAL2_CASE_IDS = frozenset({
-    "single_vertex_empty_graph", "two_vertex_single_edge", "triangle_distinct_weights",
-    "stable_tie_source_node_neighbor_order", "stable_tie_input_order_within_node",
-    "negative_weight_mst", "signed_i32_weight_edges", "maximum_input_and_output_64_edges",
-    "disconnected_two_vertices", "disconnected_three_vertices", "vertex_count_zero",
-    "vertex_count_above_bound", "negative_edge_count", "edge_count_above_bound",
-    "truncated_edge_record", "trailing_edge_record", "self_edge", "reversed_endpoint_order",
-    "endpoint_out_of_range", "duplicate_edge", "input_length_mismatch",
-    "null_input_positive_length", "null_output_single_vertex", "short_output_single_vertex",
-    "exact_output_single_vertex", "null_output_connected_graph", "short_output_connected_graph",
-    "exact_output_connected_graph", "invalid_graph_precedes_null_output", "one_vertex_rejects_edges",
-})
-
-
-def validate_kruskal2_workload(workload: dict) -> None:
-    source = {
-        "repository": "TheAlgorithms/Python",
-        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
-        "path": "graphs/minimum_spanning_tree_kruskal2.py",
-        "symbol": "GraphUndirectedWeighted.kruskal",
-        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/minimum_spanning_tree_kruskal2.py",
-    }
-    input_spec = {
-        "kind": "signed_i32_array",
-        "encoding": "[vertex_count, edge_count, (u, v, weight)...]",
-        "vertex_count_range": [KRUSKAL2_MIN_VERTEX_COUNT, KRUSKAL2_MAX_VERTEX_COUNT],
-        "edge_count_range": [0, KRUSKAL2_MAX_EDGE_COUNT],
-        "weight_range": [KRUSKAL2_I32_MIN, KRUSKAL2_I32_MAX],
-        "endpoint_rule": "Each edge uses canonical endpoints 0 <= u < v < vertex_count.",
-        "edge_uniqueness": "Each undirected edge appears at most once.",
-        "connectedness": "The graph must be connected when vertex_count > 1; vertex_count=1 requires edge_count=0.",
-        "maximum_valid_input_length": KRUSKAL2_MAX_INPUT_LENGTH,
-        "maximum_parseable_input_length": KRUSKAL2_MAX_INPUT_LENGTH,
-        "exact_packed_shape": "Exactly 2 + 3 * edge_count signed-i32 words.",
-        "invalid_input_result": KRUSKAL2_INVALID_RESULT,
-        "null_input_result": KRUSKAL2_INVALID_RESULT,
-    }
-    output_spec = {
-        "kind": "little_endian_signed_i32_array",
-        "encoding": "[edge_count, (u, v, weight)...] in Kruskal accepted-edge order.",
-        "edge_count_for_connected_graph": "vertex_count - 1",
-        "single_vertex_output": [0],
-        "valid_output_bytes_range": [4, KRUSKAL2_MAX_OUTPUT_BYTES],
-        "maximum_output_bytes": KRUSKAL2_MAX_OUTPUT_BYTES,
-        "success_result": "output byte length",
-        "invalid_input_result": KRUSKAL2_INVALID_RESULT,
-        "null_output_result": KRUSKAL2_OUTPUT_ERROR,
-        "insufficient_output_capacity_result": KRUSKAL2_OUTPUT_ERROR,
-        "no_write_on_error": True,
-        "error_precedence": "Invalid or disconnected input is rejected before output pointer or capacity checks.",
-    }
-    case_ids = [case.get("id") for case in workload.get("cases", [])]
-    null_input_cases = [case for case in workload.get("cases", [])
-                        if case.get("input_is_null", False)]
-    null_output_cases = [case for case in workload.get("cases", [])
-                         if case.get("output_is_null", False)]
-    if (workload.get("schema_version") != 1
-            or workload.get("id") != "thealgorithms-python-minimum-spanning-tree-kruskal2-i32-array-bytes-output-v1"
-            or workload.get("algorithm") != "minimum_spanning_tree_kruskal2"
-            or workload.get("function_symbol") != "minimum_spanning_tree_kruskal2"
-            or workload.get("pinned_source") != source
-            or workload.get("input") != input_spec
-            or workload.get("output") != output_spec
-            or workload.get("workspace") != {
-                "bytes": KRUSKAL2_MAX_OUTPUT_BYTES,
-                "meaning": "One count word and up to 15 accepted edge triplets.",
-            }
-            or workload.get("measurement") != {
-                "comparison_model": "i32_array_bytes_output_call",
-                "sample_count": 5,
-                "warmup_rounds": 1,
-                "repetitions_per_sample": 100,
-            }
-            or KRUSKAL2_MIN_VERTEX_COUNT != 1 or KRUSKAL2_MAX_VERTEX_COUNT != 16
-            or KRUSKAL2_MAX_EDGE_COUNT != 64 or KRUSKAL2_MAX_INPUT_LENGTH != 194
-            or KRUSKAL2_MAX_OUTPUT_BYTES != 184
-            or KRUSKAL2_INVALID_RESULT != -1 or KRUSKAL2_OUTPUT_ERROR != -2
-            or len(case_ids) != len(KRUSKAL2_CASE_IDS)
-            or len(case_ids) != len(set(case_ids))
-            or set(case_ids) != KRUSKAL2_CASE_IDS
-            or len(null_input_cases) != 1
-            or null_input_cases[0].get("id") != "null_input_positive_length"
-            or null_input_cases[0].get("input_values") != []
-            or null_input_cases[0].get("input_length") != 2
-            or null_input_cases[0].get("expected_result") != KRUSKAL2_INVALID_RESULT
-            or {case.get("id"): case.get("expected_result") for case in null_output_cases} != {
-                "null_output_single_vertex": KRUSKAL2_OUTPUT_ERROR,
-                "null_output_connected_graph": KRUSKAL2_OUTPUT_ERROR,
-                "invalid_graph_precedes_null_output": KRUSKAL2_INVALID_RESULT,
-            }):
-        raise ValueError("minimum_spanning_tree_kruskal2 workload metadata does not match its reviewed contract")
-
-    readme = (ROOT / "benchmarks" / "m" / "minimum_spanning_tree_kruskal2" / "README.md").read_text(
-        encoding="utf-8")
-    if (source["url"] not in readme or "stable ascending sort by weight" not in readme
-            or "disconnected" not in readme):
-        raise ValueError("minimum_spanning_tree_kruskal2 README is missing its pinned source or semantics")
-    for case in workload["cases"]:
-        values = case.get("input_values")
-        input_length = case.get("input_length")
-        capacity = case.get("output_capacity")
-        input_is_null = case.get("input_is_null", False)
-        output_is_null = case.get("output_is_null", False)
-        if (not isinstance(values, list)
-                or any(type(value) is not int or not KRUSKAL2_I32_MIN <= value <= KRUSKAL2_I32_MAX
-                       for value in values)
-                or type(input_length) is not int or not 0 <= input_length <= KRUSKAL2_MAX_INPUT_LENGTH
-                or type(input_is_null) is not bool or type(output_is_null) is not bool
-                or input_is_null and output_is_null
-                or type(capacity) is not int or not 0 <= capacity <= KRUSKAL2_MAX_OUTPUT_BYTES):
-            raise ValueError(f"minimum_spanning_tree_kruskal2 workload framing is invalid: {case.get('id')}")
-        result, output = kruskal2_expected_output(
-            values, capacity, output_is_null, input_is_null, input_length)
-        if (case.get("expected_result") != result
-                or case.get("expected_output_hex", "").lower() != output.hex()):
-            raise ValueError(f"minimum_spanning_tree_kruskal2 workload mismatch: {case.get('id')}")
-    length_mismatch = next(case for case in workload["cases"]
-                           if case.get("id") == "input_length_mismatch")
-    if (len(length_mismatch["input_values"]) == length_mismatch["input_length"]
-            or length_mismatch["expected_result"] != KRUSKAL2_INVALID_RESULT):
-        raise ValueError("minimum_spanning_tree_kruskal2 is missing its input-length mismatch fixture")
 
 
 SCAN_CASE_IDS = frozenset({
@@ -1198,132 +1038,6 @@ def validate_rat_maze_workload(workload: dict) -> None:
                 or case["expected_result"] != result
                 or case.get("expected_output_hex", "").lower() != output.hex()):
             raise ValueError(f"rat_maze workload mismatch: {case.get('id')}")
-
-
-PRIMS_CASE_IDS = frozenset({
-    "single_vertex_empty_graph_exact_output", "two_vertex_negative_edge",
-    "triangle_distinct_weights", "equal_initial_keys_choose_right_child",
-    "equal_candidate_keeps_first_parent", "decrease_key_updates_parent",
-    "adjacency_input_order_tie_a", "adjacency_input_order_tie_b", "all_equal_weight_cycle",
-    "negative_weight_graph", "signed_i32_boundary_weights", "source_documentation_graph",
-    "edge_input_order_changes_tie_resolution", "maximum_input_and_output_64_edges",
-    "valid_short_output", "valid_null_output", "connected_graph_short_output",
-    "connected_graph_exact_output", "connected_graph_null_output", "zero_vertex_count",
-    "vertex_count_above_bound", "negative_edge_count", "edge_count_above_bound",
-    "disconnected_two_vertices", "disconnected_three_vertices", "truncated_edge_record",
-    "trailing_edge_record", "self_edge", "reversed_endpoint_order", "endpoint_out_of_range",
-    "duplicate_edge", "single_vertex_rejects_edges", "declared_input_length_short",
-    "declared_input_length_long", "maximum_parseable_length_trailing_data",
-    "null_input_positive_length", "invalid_graph_precedes_null_output",
-})
-
-
-def validate_minimum_spanning_tree_prims_workload(workload: dict) -> None:
-    source = {
-        "repository": "TheAlgorithms/Python",
-        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
-        "path": "graphs/minimum_spanning_tree_prims.py",
-        "symbol": "prisms_algorithm",
-        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/minimum_spanning_tree_prims.py",
-    }
-    input_spec = {
-        "kind": "signed_i32_array",
-        "encoding": "[vertex_count, edge_count, (u, v, weight)...]",
-        "vertex_count_range": [PRIMS_MIN_VERTEX_COUNT, PRIMS_MAX_VERTEX_COUNT],
-        "edge_count_range": [0, PRIMS_MAX_EDGE_COUNT],
-        "weight_range": [PRIMS_I32_MIN, PRIMS_I32_MAX],
-        "endpoint_rule": "Each edge has canonical endpoints 0 <= u < v < vertex_count.",
-        "edge_uniqueness": "Each undirected edge appears at most once.",
-        "connectedness": "The graph is connected for vertex_count > 1; vertex_count=1 requires edge_count=0.",
-        "adjacency_order": "Append each edge to u and then v in input order.",
-        "root_vertex": 0,
-        "maximum_valid_input_length": PRIMS_MAX_INPUT_LENGTH,
-        "maximum_parseable_input_length": PRIMS_MAX_PARSEABLE_INPUT_LENGTH,
-        "exact_packed_shape": "Exactly 2 + 3 * edge_count signed-i32 words.",
-        "invalid_input_result": PRIMS_INVALID_RESULT,
-        "null_input_result": PRIMS_INVALID_RESULT,
-        "source_runtime_assumption": "The pinned source's sys.maxsize heap sentinel is fixed to 2^63-1 (64-bit Python runtime); every signed-i32 edge weight is strictly smaller.",
-    }
-    output_spec = {
-        "kind": "little_endian_signed_i32_array",
-        "encoding": "[n-1, (parent, child)...] in extraction order; weights are omitted.",
-        "single_vertex_output": [0],
-        "valid_output_bytes_range": [4, PRIMS_MAX_OUTPUT_BYTES],
-        "maximum_output_bytes": PRIMS_MAX_OUTPUT_BYTES,
-        "success_result": "output byte length",
-        "invalid_input_result": PRIMS_INVALID_RESULT,
-        "null_output_result": PRIMS_OUTPUT_ERROR,
-        "insufficient_output_capacity_result": PRIMS_OUTPUT_ERROR,
-        "no_write_on_error": True,
-        "error_precedence": "Malformed or disconnected input is rejected before output pointer or capacity checks.",
-    }
-    case_ids = [case.get("id") for case in workload.get("cases", [])]
-    null_input_cases = [case for case in workload.get("cases", [])
-                        if case.get("input_is_null", False)]
-    null_output_cases = [case for case in workload.get("cases", [])
-                         if case.get("output_is_null", False)]
-    if (workload.get("schema_version") != 1
-            or workload.get("id") != "thealgorithms-python-minimum-spanning-tree-prims-i32-array-bytes-output-v1"
-            or workload.get("algorithm") != "minimum_spanning_tree_prims"
-            or workload.get("function_symbol") != "minimum_spanning_tree_prims"
-            or workload.get("pinned_source") != source
-            or workload.get("input") != input_spec
-            or workload.get("output") != output_spec
-            or workload.get("workspace") != {
-                "bytes": PRIMS_MAX_OUTPUT_BYTES,
-                "meaning": "One edge-count word and up to 15 parent-child pairs.",
-            }
-            or workload.get("measurement") != {
-                "comparison_model": "i32_array_bytes_output_call",
-                "sample_count": 5,
-                "warmup_rounds": 1,
-                "repetitions_per_sample": 100,
-            }
-            or PRIMS_MIN_VERTEX_COUNT != 1 or PRIMS_MAX_VERTEX_COUNT != 16
-            or PRIMS_MAX_EDGE_COUNT != 64 or PRIMS_MAX_INPUT_LENGTH != 194
-            or PRIMS_MAX_PARSEABLE_INPUT_LENGTH != 195 or PRIMS_MAX_OUTPUT_BYTES != 124
-            or PRIMS_SOURCE_HEAP_SENTINEL != (1 << 63) - 1
-            or PRIMS_INVALID_RESULT != -1 or PRIMS_OUTPUT_ERROR != -2
-            or len(case_ids) != len(PRIMS_CASE_IDS)
-            or len(case_ids) != len(set(case_ids))
-            or set(case_ids) != PRIMS_CASE_IDS
-            or len(null_input_cases) != 1
-            or null_input_cases[0].get("id") != "null_input_positive_length"
-            or null_input_cases[0].get("input_values") != []
-            or null_input_cases[0].get("input_length") != 2
-            or null_input_cases[0].get("expected_result") != PRIMS_INVALID_RESULT
-            or {case.get("id"): case.get("expected_result") for case in null_output_cases} != {
-                "valid_null_output": PRIMS_OUTPUT_ERROR,
-                "connected_graph_null_output": PRIMS_OUTPUT_ERROR,
-                "invalid_graph_precedes_null_output": PRIMS_INVALID_RESULT,
-            }):
-        raise ValueError("minimum_spanning_tree_prims workload metadata does not match its reviewed contract")
-
-    readme = (ROOT / "benchmarks" / "m" / "minimum_spanning_tree_prims" / "README.md").read_text(
-        encoding="utf-8")
-    if (source["url"] not in readme or "sys.maxsize" not in readme
-            or "right child when child keys tie" not in readme):
-        raise ValueError("minimum_spanning_tree_prims README is missing its pinned source or heap semantics")
-    for case in workload["cases"]:
-        values = case.get("input_values")
-        input_length = case.get("input_length")
-        capacity = case.get("output_capacity")
-        input_is_null = case.get("input_is_null", False)
-        output_is_null = case.get("output_is_null", False)
-        if (not isinstance(values, list)
-                or any(type(value) is not int or not PRIMS_I32_MIN <= value <= PRIMS_I32_MAX
-                       for value in values)
-                or type(input_length) is not int or not 0 <= input_length <= PRIMS_MAX_PARSEABLE_INPUT_LENGTH
-                or type(input_is_null) is not bool or type(output_is_null) is not bool
-                or input_is_null and output_is_null
-                or type(capacity) is not int or not 0 <= capacity <= PRIMS_MAX_OUTPUT_BYTES):
-            raise ValueError(f"minimum_spanning_tree_prims workload framing is invalid: {case.get('id')}")
-        result, output = prims_expected_output(
-            values, capacity, output_is_null, input_is_null, input_length)
-        if (type(case.get("expected_result")) is not int
-                or case["expected_result"] != result
-                or case.get("expected_output_hex", "").lower() != output.hex()):
-            raise ValueError(f"minimum_spanning_tree_prims workload mismatch: {case.get('id')}")
 
 
 MO_CASE_IDS = frozenset({
@@ -2570,9 +2284,7 @@ def main() -> int:
             or workload.get("measurement", {}).get("comparison_model")
             != "i32_array_bytes_output_call"):
         parser.error("workload does not match the built i32 byte-output algorithm")
-    if algorithm == "minimum_spanning_tree_kruskal2":
-        validate_kruskal2_workload(workload)
-    elif algorithm == "scan_scheduling":
+    if algorithm == "scan_scheduling":
         validate_scan_scheduling_workload(workload)
     elif algorithm == "multi_level_feedback_queue":
         validate_mlfq_workload(workload)
@@ -2584,8 +2296,6 @@ def main() -> int:
         validate_max_pooling_workload(workload)
     elif algorithm == "rat_maze":
         validate_rat_maze_workload(workload)
-    elif algorithm == "minimum_spanning_tree_prims":
-        validate_minimum_spanning_tree_prims_workload(workload)
     elif algorithm == "mo":
         validate_mo_workload(workload)
     elif algorithm == "hungarian_algorithm":

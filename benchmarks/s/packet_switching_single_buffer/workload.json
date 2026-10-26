@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-packet-switching-single-buffer-i64-array-bytes-output-v1",
+  "algorithm": "packet_switching_single_buffer",
+  "function_symbol": "packet_switching_single_buffer",
+  "abi": "i64_array_bytes_output",
+  "description": "Simulate Natural Greedy, Preemptive Greedy, or Modified Preemptive Greedy in a bounded FIFO packet buffer.",
+  "source": {
+    "title": "Packet Switching in Single Buffer",
+    "authors": ["Rob van Stee"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_275",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_275",
+    "algorithm_attribution": "Natural Greedy, PG with beta=15, and the figure-defined MPG replacement rule.",
+    "implementation_status": "clean-room bounded FIFO arrival-trace simulator"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[policy, buffer_capacity, beta, slot_count, packet_count, (arrival_slot, packet_value)...]",
+    "policy_codes": {"0":"Natural Greedy","1":"Preemptive Greedy","2":"Modified Preemptive Greedy"},
+    "beta_rule": "beta=0 for Natural Greedy and beta=15 for PG/MPG",
+    "buffer_capacity_range": [1, 4],
+    "slot_count_range": [1, 8],
+    "packet_count_range": [0, 16],
+    "packet_value_range": [1, 100],
+    "arrival_slots": "nondecreasing values in [0, slot_count-1]",
+    "maximum_valid_length": 37,
+    "maximum_parseable_length": 38,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[transmitted_packet_id_per_slot, using -1 for idle]",
+    "maximum_bytes": 64,
+    "success_result": "8*slot_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "At most four FIFO residents, sixteen packet records, and staged slot trace."
+  },
+  "contract": {
+    "arrival_order": "Process each slot's arrivals in supplied order before transmitting. Packet ID is its zero-based position in the input arrival list.",
+    "fifo_service": "At slot end, transmit and remove the oldest resident packet, if any.",
+    "natural_greedy": "Accept if there is room. If full, reject the new packet when its value is at most the resident minimum; otherwise evict the oldest resident tied for minimum and accept the new packet.",
+    "preemptive_greedy": "Before Natural Greedy, evict the earliest resident with beta*resident_value <= incoming_value and accept the incoming packet if such a resident exists.",
+    "modified_preemptive_greedy": "Before Natural Greedy, evict the earliest resident whose beta*resident_value < incoming_value and whose value is <= the following resident value, if a following resident exists; if none follows, the condition is satisfied.",
+    "tie_and_parameter_rules": "Natural Greedy ties drop the incoming packet; ties among resident minima evict the oldest. Beta is fixed at 15 for PG/MPG, the chapter's stated profile with competitive ratio 1.983 for PG.",
+    "error_results": "Malformed input returns -1. Null output or capacity below 8*slot_count returns -2 without writes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "The primary oracle directly simulates arrival processing and FIFO transmission. The independent verifier uses a separate event parser and earliest-candidate searches for PG/MPG preemption.",
+  "cases": [
+    {"id":"natural-greedy-equal-minimum-rejects-new-packet","input_values":[0,2,0,2,3,0,5,0,5,0,5],"input_length":11,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000100000000000000"},
+    {"id":"pg-preempts-first-low-value-fifo-resident","input_values":[1,2,15,1,3,0,1,0,20,0,30],"input_length":11,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"mpg-skips-nonlocal-first-threshold-candidate","input_values":[2,3,15,1,4,0,2,0,1,0,4,0,45],"input_length":13,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"maximum-packets-capacity-and-slots","input_values":[0,4,0,8,16,0,5,0,5,1,5,1,5,2,5,2,5,3,5,3,5,4,5,4,5,5,5,5,5,6,5,6,5,7,5,7,5],"input_length":37,"output_capacity":64,"expected_result":64,"expected_output_hex":"00000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000008000000000000000900000000000000"},
+    {"id":"unsorted-arrival-slots","input_values":[0,2,0,3,3,0,5,2,6,1,7],"input_length":11,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-value-or-parameter","input_values":[1,2,14,1,1,0,7],"input_length":7,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-arrival-data","input_values":[0,2,0,1,0,0,5,9],"input_length":8,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[0,2,0,2,3,0,5,0,5,0,5],"input_length":11,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[0,2,0,2,3,0,5,0,5,0,5],"input_length":11,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

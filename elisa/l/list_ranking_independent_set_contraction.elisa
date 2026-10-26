@@ -1,0 +1,105 @@
+const MAX_N: usize = 16
+const MAX_INPUT: usize = 34
+const MAX_OUTPUT: usize = 128
+
+def put64(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def list_ranking_independent_set_contraction(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("list_ranking_independent_set_contraction"):
+    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    head_value: i64 = input[1]
+    if n_value < 1 or n_value > 16 or length != 2 + 2 * n_value.usize() or
+            head_value < 0 or head_value >= n_value: return -1
+    n: usize = n_value.usize()
+    head: usize = head_value.usize()
+    weight: mutable i64[MAX_N] = zeroed
+    successor: mutable i64[MAX_N] = zeroed
+    indegree: mutable usize[MAX_N] = zeroed
+    tail_count: mutable usize = 0
+    node: mutable usize = 0
+    while node < n:
+        weight[node] <- input[2 + node]
+        successor[node] <- input[2 + n + node]
+        if weight[node] < 1 or weight[node] > 10000 or successor[node] < -1 or
+                successor[node] >= n_value: return -1
+        if successor[node] == -1:
+            tail_count <- tail_count + 1
+        else:
+            next: usize = successor[node].usize()
+            indegree[next] <- indegree[next] + 1
+            if indegree[next] > 1: return -1
+        node <- node + 1
+    if tail_count != 1 or indegree[head] != 0: return -1
+
+    path: mutable usize[MAX_N] = zeroed
+    seen: mutable bool[MAX_N] = zeroed
+    path_length: mutable usize = 0
+    current: mutable i64 = head_value
+    while current != -1:
+        index: usize = current.usize()
+        if seen[index] or path_length == n: return -1
+        seen[index] <- true
+        path[path_length] <- index
+        path_length <- path_length + 1
+        current <- successor[index]
+    if path_length != n: return -1
+    output_bytes: usize = 8 * n
+    if output.is_null() or capacity < output_bytes: return -2
+
+    removed_node: mutable usize[MAX_N] = zeroed
+    removed_successor: mutable usize[MAX_N] = zeroed
+    old_successor_weight: mutable i64[MAX_N] = zeroed
+    removed_count: mutable usize = 0
+    while path_length > 1:
+        counts: mutable usize[3] = zeroed
+        position: mutable usize = 0
+        while position + 1 < path_length:
+            counts[position % 3] <- counts[position % 3] + 1
+            position <- position + 1
+        color: mutable usize = 0
+        candidate: mutable usize = 1
+        while candidate < 3:
+            if counts[candidate] > counts[color]: color <- candidate
+            candidate <- candidate + 1
+        write: mutable usize = 0
+        position <- 0
+        while position < path_length:
+            current_node: usize = path[position]
+            if position + 1 < path_length and position % 3 == color:
+                next_node: usize = path[position + 1]
+                removed_node[removed_count] <- current_node
+                removed_successor[removed_count] <- next_node
+                old_successor_weight[removed_count] <- weight[next_node]
+                removed_count <- removed_count + 1
+                weight[next_node] <- weight[next_node] + weight[current_node]
+            else:
+                path[write] <- current_node
+                write <- write + 1
+            position <- position + 1
+        if write == path_length: return -1
+        path_length <- write
+
+    rank: mutable i64[MAX_N] = zeroed
+    rank[path[0]] <- weight[path[0]]
+    while removed_count > 0:
+        removed_count <- removed_count - 1
+        current_node: usize = removed_node[removed_count]
+        next_node: usize = removed_successor[removed_count]
+        rank[current_node] <- rank[next_node] - old_successor_weight[removed_count]
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    node <- 0
+    while node < n:
+        put64(rank[node], staged&, 8 * node)
+        node <- node + 1
+    node <- 0
+    while node < output_bytes:
+        output[node] <- staged[node]
+        node <- node + 1
+    output_bytes.i64()

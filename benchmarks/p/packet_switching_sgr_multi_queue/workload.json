@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-packet-switching-sgr-multi-queue-i64-array-bytes-output-v1",
+  "algorithm": "packet_switching_sgr_multi_queue",
+  "function_symbol": "packet_switching_sgr_multi_queue",
+  "abi": "i64_array_bytes_output",
+  "description": "Simulate the chapter's deterministic SGR policy for unit-value packets in a bounded multi-queue switch.",
+  "source": {
+    "title": "Packet Switching in Multi-queue Switches",
+    "authors": ["Markus Schmidt"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_274",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_274",
+    "algorithm_attribution": "SGR (Semi-Greedy), unit-value case, with smallest-index queue tie-breaking.",
+    "implementation_status": "clean-room bounded finite arrival trace"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[queue_count, queue_capacity, slot_count, per_slot_arrival_count_for_each_queue...] (slot-major)",
+    "queue_count_range": [2, 4],
+    "queue_capacity_range": [1, 4],
+    "slot_count_range": [1, 8],
+    "per_queue_arrivals_range": [0, 4],
+    "maximum_valid_length": 35,
+    "maximum_parseable_length": 36,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[transmitted_queue_index_per_slot, using -1 for idle]",
+    "maximum_bytes": 64,
+    "success_result": "8*slot_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Bounded queue loads, historical peaks, and staged slot trace."
+  },
+  "contract": {
+    "arrival_and_capacity": "At each slot, per-queue arrivals are admitted up to the queue capacity; excess unit-value packets are dropped. This is equivalent to retaining any subset under the chapter's unit-value overflow rule.",
+    "historical_peak": "After admission, record the maximum load observed for each queue during the current busy period, including the current slot.",
+    "rule_1": "If any queue load exceeds floor(queue_capacity/2), transmit from a queue of maximum current load.",
+    "rule_2": "Otherwise, if any nonempty queue has historical peak below queue_capacity, transmit from the maximum-load queue in that subset.",
+    "rule_3": "Otherwise transmit from a maximum-load queue overall.",
+    "ties_and_idle": "Break ties by smallest queue index. Record -1 when all queues are empty. Reset all historical peaks when the switch becomes empty.",
+    "scope": "Unit packet values only. General QoS values, randomized RS, and competitive-ratio analysis are not implemented.",
+    "error_results": "Malformed input returns -1. Null output or capacity below 8*slot_count returns -2 without writes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "The primary oracle simulates queue loads and SGR rules directly. The independent verifier derives an active candidate set and selects the lexicographically highest (load, -queue_index) priority.",
+  "cases": [
+    {"id":"sgr-rules-and-historical-eligibility","input_values":[3,2,4,1,1,0,0,1,1,2,0,0,0,0,0],"input_length":15,"output_capacity":32,"expected_result":32,"expected_output_hex":"0000000000000000010000000000000000000000000000000200000000000000"},
+    {"id":"fallback-after-a-queue-has-reached-capacity","input_values":[2,2,3,2,0,0,0,0,0],"input_length":9,"output_capacity":24,"expected_result":24,"expected_output_hex":"00000000000000000000000000000000ffffffffffffffff"},
+    {"id":"maximum-queue-capacity-and-slots","input_values":[4,4,8,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],"input_length":35,"output_capacity":64,"expected_result":64,"expected_output_hex":"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"},
+    {"id":"arrival-exceeds-queue-capacity","input_values":[2,2,1,3,0],"input_length":5,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-arrival-count","input_values":[2,2,1,1,0,1],"input_length":6,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[3,2,4,1,1,0,0,1,1,2,0,0,0,0,0],"input_length":15,"output_capacity":31,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,2,1,1,0],"input_length":5,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,6 @@
+// Clean-room generalized vector First Fit bin-packing profile.
+module vector_bin_packing
+const max_n=32;const max_d=4;const max_input=130;const max_fields=161
+fn put_i64(mut out &u8,at int,value i64){bits:=u64(value);for i in 0..8{unsafe{out[at+i]=u8((bits>>(8*i))&255)}}}
+@[export:'vector_bin_packing']
+pub fn vector_bin_packing(input &i64,length usize,mut output &u8,capacity usize)i64{unsafe{if input==nil||length<2||length>max_input{return -1};n64,d64:=input[0],input[1];if n64<1||n64>32||d64<1||d64>4||length!=usize(2+n64*d64){return -1};n,d:=int(n64),int(d64);for i in 0..n*d{if input[2+i]<0||input[2+i]>1000{return -1}};mut loads:=[max_n*max_d]i64{};mut assignment:=[max_n]int{};mut bins:=0;for item in 0..n{mut chosen:=bins;for b in 0..bins{mut fits:=true;for q in 0..d{if loads[b*max_d+q]+input[2+item*d+q]>1000{fits=false}};if fits{chosen=b;break}};if chosen==bins{bins++};assignment[item]=chosen;for q in 0..d{loads[chosen*max_d+q]+=input[2+item*d+q]}};mut staged:=[max_fields]i64{};mut count:=0;staged[count]=i64(bins);count++;for i in 0..n{staged[count]=i64(assignment[i]);count++};for b in 0..bins{for q in 0..d{staged[count]=loads[b*max_d+q];count++}};if output==nil||capacity<usize(8*count){return -2};for i in 0..count{put_i64(mut output,8*i,staged[i])};return i64(8*count)}}

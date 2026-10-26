@@ -1,0 +1,11 @@
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+enum { NMAX=9,QMAX=24,RMAX=4,IMAX=55 };
+static void put64(uint8_t*out,int at,int64_t x){uint64_t b=(uint64_t)x;for(int i=0;i<8;i++)out[at+i]=(uint8_t)(b>>(8*i));}
+static int owned(bool g[9][9],int level[9],int n,int u,int list[9]){int z=0;for(int v=0;v<n;v++)if(g[u][v]&&level[u]==0&&level[v]==0)list[z++]=v;return z;}
+static void repair(bool g[9][9],int level[9],int mate[9],int n,int u){if(u<0||level[u]!=0||mate[u]>=0)return;for(int v=0;v<n;v++)if(g[u][v]&&level[v]==0&&mate[v]<0){mate[u]=v;mate[v]=u;return;}}
+static int promote(bool g[9][9],int level[9],int mate[9],int n,int u,int *tape,int r,int *used){int list[9],count=owned(g,level,n,u,list);if(!count||*used>=r||tape[*used]>=count)return 0;int y=list[tape[(*used)++]],w=mate[u],x=mate[y];if(w>=0){mate[w]=-1;mate[u]=-1;}if(x>=0){mate[x]=-1;mate[y]=-1;}level[u]=level[y]=1;mate[u]=y;mate[y]=u;if(w>=0)repair(g,level,mate,n,w);if(x>=0&&x!=w)repair(g,level,mate,n,x);return 1;}
+int64_t two_level_dynamic_maximal_matching_insertions(const int64_t*in,size_t len,uint8_t*out,size_t cap){if(!in||len<3||len>IMAX)return -1;int64_t n0=in[0],q0=in[1];if((n0!=4&&n0!=9)||q0<0||q0>QMAX||q0>n0*(n0-1)/2)return -1;int n=(int)n0,q=(int)q0;size_t p=2;int uu[QMAX],vv[QMAX];bool seen[9][9]={{0}};for(int i=0;i<q;i++){int64_t u=in[p++],v=in[p++];if(u<0||v<=u||v>=n0||seen[u][v])return -1;seen[u][v]=true;uu[i]=(int)u;vv[i]=(int)v;}if(p>=len)return -1;int64_t r0=in[p++];if(r0<0||r0>RMAX||len!=p+(size_t)r0)return -1;int r=(int)r0,tape[RMAX];for(int i=0;i<r;i++){int64_t x=in[p++];if(x<0||x>=n0)return -1;tape[i]=(int)x;}bool graph[9][9]={{0}};int level[9]={0},mate[9];for(int i=0;i<n;i++)mate[i]=-1;int consumed=0,t=(n==4?2:3);
+ for(int e=0;e<q;e++){int u=uu[e],v=vv[e];graph[u][v]=graph[v][u]=true;if(level[u]==1||level[v]==1)continue;if(mate[u]<0&&mate[v]<0){mate[u]=v;mate[v]=u;}int a[9],b[9],da=owned(graph,level,n,u,a),db=owned(graph,level,n,v,b);int who=(da>db||(da==db&&u<v))?u:v;int c[9],dc=owned(graph,level,n,who,c);if(dc>=t&&!promote(graph,level,mate,n,who,tape,r,&consumed))return -1;}
+ if(consumed!=r)return -1;size_t bytes=8*(size_t)(1+2*n);if(!out||cap<bytes)return -2;put64(out,0,n);for(int i=0;i<n;i++)put64(out,8+8*i,level[i]);for(int i=0;i<n;i++)put64(out,8+8*n+8*i,mate[i]);return (int64_t)bytes;}

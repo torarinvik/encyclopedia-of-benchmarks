@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-voronoi-delaunay-empty-circle-i64-array-bytes-output-v1",
+  "algorithm": "voronoi_delaunay_empty_circle",
+  "function_symbol": "voronoi_delaunay_empty_circle",
+  "abi": "i64_array_bytes_output",
+  "description": "Construct the bounded general-position Delaunay graph using exact empty-circle tests.",
+  "source": {
+    "title": "Voronoi Diagrams and Delaunay Triangulations",
+    "authors": ["Rolf Klein"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_507",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_507",
+    "algorithm_attribution": "Delaunay graph by the empty circumcircle characterization",
+    "implementation_status": "clean-room bounded exact-integer profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[point_count,x_0,y_0,...]",
+    "point_count_range": [3, 8],
+    "coordinate_range": [-50, 50],
+    "general_position": "No duplicates, no collinear triples, no cocircular quadruples.",
+    "maximum_valid_length": 17,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[edge_count,sorted_undirected_endpoint_pairs]",
+    "maximum_bytes": 296,
+    "success_result": "8 * (1 + 2 * edge_count) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed arrays for eight sites, an 8 by 8 edge relation, and staged output."
+  },
+  "contract": {
+    "triangle": "A triple is Delaunay when its circumcircle contains no other site in its interior.",
+    "edge_set": "Union the three undirected edges from every empty-circle triangle, then sort endpoint pairs lexicographically.",
+    "arithmetic": "Orientation and incircle tests use exact signed integer determinants; stated coordinate bounds keep all intermediates in i64.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "three-site-triangle",
+      "input_values": [3, 0, 0, 4, 0, 1, 3],
+      "input_length": 7,
+      "output_capacity": 56,
+      "expected_result": 56,
+      "expected_output_hex": "0300000000000000000000000000000001000000000000000000000000000000020000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "collinear-triple-rejected",
+      "input_values": [3, 0, 0, 1, 1, 2, 2],
+      "input_length": 7,
+      "output_capacity": 296,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-site-rejected",
+      "input_values": [3, 0, 0, 4, 0, 0, 0],
+      "input_length": 7,
+      "output_capacity": 296,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "cocircular-four-sites-rejected",
+      "input_values": [4, 0, 0, 2, 0, 2, 2, 0, 2],
+      "input_length": 9,
+      "output_capacity": 296,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [3, 0, 0, 4, 0, 1, 3],
+      "input_length": 7,
+      "output_capacity": 55,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [3, 0, 0, 4, 0, 1, 3],
+      "input_length": 7,
+      "output_capacity": 56,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 7,
+      "input_is_null": true,
+      "output_capacity": 296,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

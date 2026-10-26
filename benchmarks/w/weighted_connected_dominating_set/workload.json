@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-weighted-connected-dominating-set-exact-i64-array-bytes-output-v1",
+  "algorithm": "weighted_connected_dominating_set",
+  "function_symbol": "weighted_connected_dominating_set",
+  "abi": "i64_array_bytes_output",
+  "description": "Find a minimum-weight connected dominating set on a bounded undirected graph.",
+  "source": {
+    "title": "Weighted Connected Dominating Set",
+    "authors": ["Yu Wang", "Weizhao Wang", "Xiang-Yang Li"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_476",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_476",
+    "algorithm_attribution": "minimum weighted connected dominating set objective",
+    "implementation_status": "clean-room exact bounded subset profile; not the chapter's distributed approximation"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[vertex_count,adjacency_masks[vertex_count],positive_weights[vertex_count]]",
+    "vertex_count_range": [1, 16],
+    "weight_range": [1, 1000],
+    "graph_constraints": "simple undirected graph; masks are symmetric and exclude self bits",
+    "maximum_valid_length": 33,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[minimum_total_weight,selected_vertex_mask]",
+    "no_solution": "[-1,0]",
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Adjacency masks and bounded subset/connectivity state for at most 16 vertices."
+  },
+  "contract": {
+    "domination": "Every graph vertex is selected or adjacent to at least one selected vertex.",
+    "connectivity": "The induced subgraph on selected vertices is connected.",
+    "objective": "Minimize the sum of selected positive vertex weights; tie-break by minimum numeric vertex mask.",
+    "profile_boundary": "This is an exact objective profile; the chapter's distributed clustering/connector approximation is not simulated.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "weighted-path-four",
+      "input_values": [4, 2, 5, 10, 4, 5, 1, 1, 5],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000000600000000000000"
+    },
+    {
+      "id": "weighted-star-center",
+      "input_values": [4, 14, 1, 1, 1, 10, 1, 1, 1],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "0a000000000000000100000000000000"
+    },
+    {
+      "id": "disconnected-no-solution",
+      "input_values": [2, 0, 0, 1, 1],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "ffffffffffffffff0000000000000000"
+    },
+    {
+      "id": "asymmetric-adjacency",
+      "input_values": [2, 2, 0, 1, 1],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [4, 2, 5, 10, 4, 5, 1, 1, 5],
+      "input_length": 9,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [4, 2, 5, 10, 4, 5, 1, 1, 5],
+      "input_length": 9,
+      "output_capacity": 16,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 3,
+      "input_is_null": true,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

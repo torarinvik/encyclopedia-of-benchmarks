@@ -1,6 +1,6 @@
 # Encyclopedia of Benchmarks
 
-A cross-platform collection for comparing algorithm implementations across programming languages. TheAlgorithms repositories are the initial discovery source. When an algorithm has no implementation in one of our target languages, we will write one and record it as a port.
+A cross-platform collection for comparing algorithm implementations across programming languages. TheAlgorithms repositories are an initial discovery source; the supplied *Encyclopedia of Algorithms* is another. Its chapter-by-chapter coverage and the disposition of distinct candidates are tracked in the [Encyclopedia crosswalk](benchmarks/ENCYCLOPEDIA_COVERAGE.md). When an algorithm has no implementation in one of our target languages, we will write one and record it as a port.
 
 ## Goals
 
@@ -61,7 +61,7 @@ The Rust `finance_ratios` module maps to four all-language scalar benchmarks: [r
 
 [Negative log-likelihood](benchmarks/n/negative_log_likelihood/README.md) ports the pinned Rust binary loss function to all nine languages with ordered averaging and a finite fixed-point probability domain.
 
-[Naive pattern search](benchmarks/n/naive_pattern_search/README.md) ports the pinned Julia first-match window scan to all nine target languages with a bounded ASCII byte contract.
+The pinned Julia naive-pattern-search source aliases [naive search](benchmarks/n/naive_search/README.md), which uses the same brute-force window scan and returns the full match list.
 
 [Meter to feet conversion](benchmarks/m/meter_to_feet_conversion/README.md) ports both conversions from the pinned JavaScript module to all nine target languages using bounded milliunit inputs.
 

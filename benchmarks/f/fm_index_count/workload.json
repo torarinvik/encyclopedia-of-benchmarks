@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi82-83-fm-index-count-i64-array-bytes-output-v1",
+  "algorithm": "fm_index_count",
+  "function_symbol": "fm_index_count",
+  "pinned_sources": [
+    {"repository":"Encyclopedia of Algorithms EPUB supplied by the user","chapter":"Compressed Suffix Array","doi":"10.1007/978-1-4939-2864-4_82","path":"OEBPS/AChap82.html","role":"FM-index BWT/rank/count description"},
+    {"repository":"Encyclopedia of Algorithms EPUB supplied by the user","chapter":"Compressed Text Indexing","doi":"10.1007/978-1-4939-2864-4_83","path":"OEBPS/AChap83.html","role":"count(P) query scope"}
+  ],
+  "contract": {
+    "operation":"Build BWT for text plus a unique smallest sentinel and count one pattern by FM-index backward search.",
+    "input_layout":"[n, text_symbol[n], m, pattern_symbol[m]]",
+    "alphabet":"Text and pattern symbols are integers 1..4; sentinel 0 is appended internally.",
+    "bounds":{"text_length":[1,32],"pattern_length":[1,8]},
+    "tie_rule":"Suffixes are ordered lexicographically; the unique sentinel makes all suffixes distinct.",
+    "output":"One signed-i64 count in eight little-endian bytes; overlapping occurrences count separately.",
+    "limitations":"Only FM-index count(P) is represented. Locate samples, display, entropy bounds, and constant-time rank are excluded; rank is a bounded direct prefix scan.",
+    "invalid_input_result":-1,
+    "null_output_result":-2,
+    "insufficient_output_capacity_result":-2,
+    "no_write_on_error":true,
+    "error_precedence":"Input framing and alphabet validation precede output-null/capacity checks."
+  },
+  "input":{"kind":"signed_i64_array","maximum_valid_input_length":42,"maximum_parseable_input_length":42,"invalid_result":-1},
+  "output":{"kind":"little_endian_signed_i64_scalar","maximum_bytes":8,"success_result":8,"invalid_input_result":-1,"null_output_result":-2,"insufficient_output_capacity_result":-2,"no_write_on_error":true},
+  "workspace":{"bytes":1024,"meaning":"Fixed arrays for 33 sentinel-terminated symbols, 33 suffix positions, BWT, symbol counts, and staged search interval."},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
+  "cases":[
+    {"id":"banana-ana-overlap-profile","input_values":[6,2,1,3,1,3,1,3,1,3,1],"input_length":11,"output_capacity":8,"output_is_null":false,"input_is_null":false,"expected_result":8,"expected_output_hex":"0200000000000000"},
+    {"id":"repeated-symbol-overlapping","input_values":[4,1,1,1,1,2,1,1],"input_length":8,"output_capacity":8,"output_is_null":false,"input_is_null":false,"expected_result":8,"expected_output_hex":"0300000000000000"},
+    {"id":"absent-symbol","input_values":[4,1,2,3,1,1,4],"input_length":7,"output_capacity":8,"output_is_null":false,"input_is_null":false,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"whole-text-match","input_values":[3,3,1,2,3,3,1,2],"input_length":8,"output_capacity":8,"output_is_null":false,"input_is_null":false,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"pattern-longer-than-text","input_values":[2,1,2,3,1,2,1],"input_length":7,"output_capacity":8,"output_is_null":false,"input_is_null":false,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"maximum-text-repeated-overlap","input_values":[32,
+      1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+      8,1,1,1,1,1,1,1,1],"input_length":42,"output_capacity":8,"output_is_null":false,"input_is_null":false,"expected_result":8,"expected_output_hex":"1900000000000000"},
+    {"id":"reserved-sentinel-symbol-invalid","input_values":[2,0,1,1,1],"input_length":5,"output_capacity":8,"output_is_null":false,"input_is_null":false,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch-invalid","input_values":[2,1,2,2,1],"input_length":5,"output_capacity":8,"output_is_null":false,"input_is_null":false,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output-valid-input","input_values":[4,1,1,1,1,2,1,1],"input_length":8,"output_capacity":8,"output_is_null":true,"input_is_null":false,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-capacity-valid-input","input_values":[4,1,1,1,1,2,1,1],"input_length":8,"output_capacity":7,"output_is_null":false,"input_is_null":false,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

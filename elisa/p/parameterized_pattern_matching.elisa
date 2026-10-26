@@ -1,0 +1,76 @@
+const MAX_TEXT: usize = 24
+const MAX_PATTERN: usize = 8
+const MAX_INPUT: usize = 34
+const MAX_OUTPUT_BYTES: usize = 200
+const ALPHABET: usize = 16
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def predecessor_code(input: i64&, offset: usize, count: usize,
+        code: mutable i64&) -> void:
+    last: mutable i64[ALPHABET] = zeroed
+    symbol: mutable usize = 0
+    while symbol < ALPHABET:
+        last[symbol] <- -1
+        symbol <- symbol + 1
+    index: mutable usize = 0
+    while index < count:
+        current: usize = input[offset + index].usize()
+        code[index] <- if last[current] < 0: 0 else: index.i64() - last[current]
+        last[current] <- index.i64()
+        index <- index + 1
+
+def parameterized_pattern_matching_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    text_length_value: i64 = input[0]
+    pattern_length_value: i64 = input[1]
+    if text_length_value < 0 or text_length_value > 24 or
+            pattern_length_value < 1 or pattern_length_value > 8: return -1
+    text_length: usize = text_length_value.usize()
+    pattern_length: usize = pattern_length_value.usize()
+    if length != 2 + text_length + pattern_length: return -1
+    index: mutable usize = 2
+    while index < length:
+        if input[index] < 0 or input[index] >= 16: return -1
+        index <- index + 1
+
+    pattern_code: mutable i64[MAX_PATTERN] = zeroed
+    predecessor_code(input, 2 + text_length, pattern_length, &pattern_code[0])
+    matches: mutable usize[MAX_TEXT] = zeroed
+    match_count: mutable usize = 0
+    if pattern_length <= text_length:
+        start: mutable usize = 0
+        while start <= text_length - pattern_length:
+            window_code: mutable i64[MAX_PATTERN] = zeroed
+            predecessor_code(input, 2 + start, pattern_length, &window_code[0])
+            index <- 0
+            while index < pattern_length and pattern_code[index] == window_code[index]:
+                index <- index + 1
+            if index == pattern_length:
+                matches[match_count] <- start
+                match_count <- match_count + 1
+            start <- start + 1
+
+    output_bytes: usize = 8 * (match_count + 1)
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    store_i64_le(match_count.i64(), staged&, 0)
+    index <- 0
+    while index < match_count:
+        store_i64_le(matches[index].i64(), staged&, 8 * (index + 1))
+        index <- index + 1
+    index <- 0
+    while index < output_bytes:
+        output[index] <- staged[index]
+        index <- index + 1
+    output_bytes.i64()
+
+export fn parameterized_pattern_matching(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = parameterized_pattern_matching_impl

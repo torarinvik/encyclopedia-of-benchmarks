@@ -1080,11 +1080,6 @@ from list_array_oracle import MAX_VALID_INPUT_LENGTH as LIST_ARRAY_MAX_VALID_INP
 from list_array_oracle import MAX_OUTPUT_BYTES as LIST_ARRAY_MAX_OUTPUT_BYTES
 from list_array_oracle import OUTPUT_ERROR as LIST_ARRAY_OUTPUT_ERROR
 from list_array_oracle import expected_output as list_array_oracle
-from minimum_spanning_tree_kruskal_oracle import MAX_EDGES as MINIMUM_SPANNING_TREE_KRUSKAL_MAX_EDGES
-from minimum_spanning_tree_kruskal_oracle import MAX_INPUT_LENGTH as MINIMUM_SPANNING_TREE_KRUSKAL_MAX_INPUT_LENGTH
-from minimum_spanning_tree_kruskal_oracle import MAX_OUTPUT_BYTES as MINIMUM_SPANNING_TREE_KRUSKAL_MAX_OUTPUT_BYTES
-from minimum_spanning_tree_kruskal_oracle import MAX_VERTICES as MINIMUM_SPANNING_TREE_KRUSKAL_MAX_VERTICES
-from minimum_spanning_tree_kruskal_oracle import expected_output as minimum_spanning_tree_kruskal_oracle
 from polynom_for_points_oracle import INVALID_RESULT as POLYNOM_FOR_POINTS_INVALID_RESULT
 from polynom_for_points_oracle import INSUFFICIENT_CAPACITY_RESULT as POLYNOM_FOR_POINTS_OUTPUT_ERROR
 from polynom_for_points_oracle import MAX_INPUT_LENGTH as POLYNOM_FOR_POINTS_MAX_INPUT_LENGTH
@@ -2306,7 +2301,6 @@ from run_i64_array_bytes_output import validate_median_of_running_array_long_wor
 from run_i64_array_bytes_output import validate_median_heap_workload
 from run_i64_array_bytes_output import validate_table_heap_workload
 from run_i64_array_bytes_output import validate_skew_heap_workload
-from run_i64_array_bytes_output import validate_smoothsort_workload
 from run_i64_array_bytes_output import validate_suffix_automaton_workload
 from run_i64_array_bytes_output import validate_lru_cache2_workload
 from run_i64_array_bytes_output import validate_memoize_workload
@@ -2360,16 +2354,6 @@ from skew_heap_oracle import (
     MAX_OUTPUT_VALUES as SKEW_HEAP_MAX_OUTPUT_VALUES,
     MAX_OUTPUT_BYTES as SKEW_HEAP_MAX_OUTPUT_BYTES,
     expected_output as skew_heap_oracle,
-)
-from smoothsort_oracle import (
-    INT64_MAX as SMOOTHSORT_INT64_MAX,
-    INT64_MIN as SMOOTHSORT_INT64_MIN,
-    MAX_VALUES as SMOOTHSORT_MAX_VALUES,
-    MAX_VALID_INPUT_LENGTH as SMOOTHSORT_MAX_VALID_INPUT_LENGTH,
-    MAX_PARSEABLE_INPUT_LENGTH as SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH,
-    MAX_OUTPUT_VALUES as SMOOTHSORT_MAX_OUTPUT_VALUES,
-    MAX_OUTPUT_BYTES as SMOOTHSORT_MAX_OUTPUT_BYTES,
-    expected_output as smoothsort_oracle,
 )
 from suffix_automaton_oracle import (
     INT64_MAX as SUFFIX_AUTOMATON_INT64_MAX,
@@ -2720,7 +2704,6 @@ from spiral_print_oracle import MIN_COLUMNS as SPIRAL_PRINT_MIN_COLUMNS
 from spiral_print_oracle import MIN_ROWS as SPIRAL_PRINT_MIN_ROWS
 from spiral_print_oracle import OUTPUT_ERROR as SPIRAL_PRINT_OUTPUT_ERROR
 from run_i64_array_bytes_output import KEY_PRIORITY_QUEUE_MAX_VALID_INPUT_LENGTH
-from run_i64_array_bytes_output import validate_minimum_spanning_tree_kruskal_workload
 from common_characters_frequency_quotient_oracle import expected_output as common_characters_frequency_quotient_oracle
 from remove_duplicate_characters_oracle import MAX_INPUT_LENGTH as MAX_REMOVE_DUPLICATE_CHARACTERS_INPUT_LENGTH
 from remove_duplicate_characters_oracle import expected_output as remove_duplicate_characters_oracle
@@ -3467,6 +3450,126 @@ from uudecode_verifier_oracle import (
 from uint_fixed_width_oracle import U32_MAX as UINT_FIXED_WIDTH_U32_MAX
 from uint_fixed_width_oracle import INVALID_RESULT as UINT_FIXED_WIDTH_INVALID_RESULT
 from uint_fixed_width_oracle import OUTPUT_ERROR as UINT_FIXED_WIDTH_OUTPUT_ERROR
+from approximate_tandem_squares_oracle import MAX_INPUT_LENGTH as APPROXIMATE_TANDEM_SQUARES_MAX_INPUT_LENGTH
+from approximate_tandem_squares_verifier_oracle import verify as approximate_tandem_squares_independent_check
+from binary_decision_graph_oracle import MAX_INPUT_LENGTH as BINARY_DECISION_GRAPH_MAX_INPUT_LENGTH
+from binary_decision_graph_verifier_oracle import verify as binary_decision_graph_independent_check
+from vertex_cover_kernelization_verifier_oracle import expected_output as vertex_cover_kernelization_independent_oracle
+from vertex_cover_search_trees_verifier_oracle import expected_output as vertex_cover_search_trees_independent_oracle
+from directed_perfect_phylogeny_oracle import MAX_INPUT_LENGTH as DIRECTED_PERFECT_PHYLOGENY_MAX_INPUT_LENGTH
+from directed_perfect_phylogeny_verifier_oracle import verify as directed_perfect_phylogeny_independent_check
+from first_fit_cardinality_bin_packing_oracle import MAX_INPUT_LENGTH as FIRST_FIT_CARDINALITY_MAX_INPUT_LENGTH
+from first_fit_cardinality_bin_packing_verifier_oracle import verify as first_fit_cardinality_independent_check
+from zdd_family_count_oracle import MAX_INPUT_LENGTH as ZDD_FAMILY_COUNT_MAX_INPUT_LENGTH
+from zdd_family_count_verifier_oracle import verify as zdd_family_count_independent_check
+from max_minimum_machine_load_lpt_verifier_oracle import expected_output as max_minimum_machine_load_lpt_independent_oracle
+from vector_scheduling_verifier_oracle import expected_output as vector_scheduling_independent_oracle
+from vector_bin_packing_verifier_oracle import expected_output as vector_bin_packing_independent_oracle
+from list_ranking_independent_set_contraction_verifier_oracle import expected_output as list_ranking_contraction_independent_oracle
+from frequent_itemset_backtrack_oracle import MAX_INPUT_LENGTH as FREQUENT_ITEMSET_BACKTRACK_MAX_INPUT_LENGTH
+from frequent_itemset_backtrack_verifier_oracle import verify as frequent_itemset_backtrack_independent_check
+from ldfs_ordering_certificate_verifier_oracle import expected_output as ldfs_ordering_certificate_independent_oracle
+from weighted_greedy_set_cover_verifier_oracle import expected_output as weighted_greedy_set_cover_independent_oracle
+from hospitals_residents_rgs_verifier_oracle import expected_output as hospitals_residents_rgs_independent_oracle
+from two_interval_precedence_chain_verifier_oracle import expected_output as two_interval_precedence_chain_independent_oracle
+from approximate_matching_greedy_oracle import MAX_INPUT_LENGTH as APPROXIMATE_MATCHING_GREEDY_MAX_INPUT_LENGTH
+from approximate_matching_greedy_verifier_oracle import verify as approximate_matching_greedy_independent_check
+from parentheses_generator_oracle import MAX_INPUT_LENGTH as PARENTHESES_GENERATOR_MAX_INPUT_LENGTH
+from parentheses_generator_verifier_oracle import verify as parentheses_generator_independent_check
+from approximating_diameter_bfs_oracle import MAX_INPUT_LENGTH as APPROXIMATING_DIAMETER_BFS_MAX_INPUT_LENGTH
+from approximating_diameter_bfs_verifier_oracle import verify as approximating_diameter_bfs_independent_check
+from domination_local_reduction_oracle import MAX_INPUT_LENGTH as DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH
+from domination_local_reduction_oracle import MAX_OUTPUT_BYTES as DOMINATION_LOCAL_REDUCTION_MAX_OUTPUT_BYTES
+from domination_local_reduction_verifier_oracle import verify as domination_local_reduction_independent_check
+from tsp_few_inner_points_verifier_oracle import expected_output as tsp_few_inner_points_independent_oracle
+from rate_monotonic_scheduling_verifier_oracle import expected_output as rate_monotonic_scheduling_independent_oracle
+from non_shared_edges_verifier_oracle import expected_output as non_shared_edges_independent_oracle
+from unit_disk_graph_wspd_verifier_oracle import expected_output as unit_disk_graph_wspd_independent_oracle
+from landlord_file_caching_verifier_oracle import expected_output as landlord_file_caching_independent_oracle
+from frt_tree_metric_oracle import MAX_INPUT_LENGTH as FRT_TREE_METRIC_MAX_INPUT_LENGTH
+from frt_tree_metric_verifier_oracle import verify as frt_tree_metric_independent_check
+from wire_sizing_verifier_oracle import expected_output as wire_sizing_independent_oracle
+from rank_select_bitstring_verifier_oracle import expected_output as rank_select_bitstring_independent_oracle
+from permutation_shortcut_index_verifier_oracle import expected_output as permutation_shortcut_index_independent_oracle
+from three_dimensional_moment_curve_verifier_oracle import expected_output as three_dimensional_moment_curve_independent_oracle
+from suffix_tree_from_sa_lcp_verifier_oracle import expected_output as suffix_tree_from_sa_lcp_independent_oracle
+from technology_mapping_minimum_area_tree_cover_verifier_oracle import expected_output as technology_mapping_minimum_area_tree_cover_independent_oracle
+from thorup_zwick_distance_verifier_oracle import expected_output as thorup_zwick_distance_oracle_independent_oracle
+from stochastic_knapsack_greedy_verifier_oracle import expected_output as stochastic_knapsack_greedy_independent_oracle
+from fm_index_count_oracle import MAX_INPUT_LENGTH as FM_INDEX_COUNT_MAX_INPUT_LENGTH
+from fm_index_count_verifier_oracle import evaluate as fm_index_count_independent_check
+from bst_interleave_bound_verifier_oracle import expected_output as bst_interleave_bound_independent_oracle
+from ring_exact_covering_protocol_oracle import expected_output as ring_exact_covering_protocol_independent_oracle
+from ppsz_k_sat_trace_verifier_oracle import expected_output as ppsz_k_sat_trace_independent_oracle
+from randomized_ray_search_verifier_oracle import expected_output as randomized_ray_search_independent_oracle
+from suffix_array_lcp_search_verifier_oracle import expected_output as suffix_array_lcp_search_independent_oracle
+from packet_switching_sgr_multi_queue_verifier_oracle import expected_output as packet_switching_sgr_multi_queue_independent_oracle
+from minimal_dominating_sets_interval_oracle import MAX_INPUT_LENGTH as MINIMAL_DOMINATING_SETS_INTERVAL_MAX_INPUT_LENGTH
+from minimal_dominating_sets_interval_verifier_oracle import evaluate as minimal_dominating_sets_interval_independent_check
+from counting_triangles_stream_reservoir_oracle import MAX_INPUT_LENGTH as COUNTING_TRIANGLES_STREAM_RESERVOIR_MAX_INPUT_LENGTH
+from counting_triangles_stream_reservoir_verifier_oracle import verify as counting_triangles_stream_reservoir_independent_check
+from table_compression_optimal_contiguous_partition_verifier_oracle import expected_output as table_compression_optimal_contiguous_partition_independent_oracle
+from treewidth_min_degree_elimination_verifier_oracle import expected_output as treewidth_min_degree_elimination_independent_oracle
+from treewidth_min_fill_elimination_verifier_oracle import expected_output as treewidth_min_fill_elimination_independent_oracle
+from treewidth_exact_elimination_order_verifier_oracle import expected_output as treewidth_exact_elimination_order_independent_oracle
+from nni_phylogeny_distance_verifier_oracle import expected_output as nni_phylogeny_distance_independent_oracle
+from streaming_triangles_oracle import MAX_INPUT_LENGTH as STREAMING_TRIANGLES_MAX_INPUT_LENGTH
+from streaming_triangles_verifier_oracle import verify as streaming_triangles_independent_check
+from universal_sequencing_doubling_verifier_oracle import expected_output as universal_sequencing_doubling_independent_oracle
+from dc_tree_k_server_path_oracle import MAX_INPUT_LENGTH as DC_TREE_K_SERVER_PATH_MAX_INPUT_LENGTH
+from dc_tree_k_server_path_verifier_oracle import verify as dc_tree_k_server_path_independent_check
+from hub_labeling_pruned_verifier_oracle import expected_output as hub_labeling_pruned_independent_oracle
+from dense_graph_bipartiteness_tester_verifier_oracle import expected_output as dense_graph_bipartiteness_tester_independent_oracle
+from all_distances_sketch_bottom_k_oracle import MAX_INPUT_LENGTH as ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_INPUT_LENGTH
+from all_distances_sketch_bottom_k_verifier_oracle import verify as all_distances_sketch_bottom_k_independent_check
+from sublinear_bipartiteness_walk_tester_verifier_oracle import expected_output as sublinear_bipartiteness_walk_tester_independent_oracle
+from optimal_stable_marriage_verifier_oracle import expected_output as optimal_stable_marriage_independent_oracle
+from quine_mccluskey_minimization_verifier_oracle import expected_output as quine_mccluskey_minimization_independent_oracle
+from general_graph_maximum_matching_oracle import MAX_INPUT_LENGTH as GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_INPUT_LENGTH
+from general_graph_maximum_matching_verifier_oracle import verify as general_graph_maximum_matching_independent_check
+from orthogonal_range_reporting_2d_verifier_oracle import expected_output as orthogonal_range_reporting_2d_independent_oracle
+from k_median_p1_local_search_oracle import MAX_INPUT_LENGTH as K_MEDIAN_P1_LOCAL_SEARCH_MAX_INPUT_LENGTH
+from k_median_p1_local_search_verifier_oracle import expected_output as k_median_p1_local_search_independent_oracle
+from two_level_dynamic_maximal_matching_insertions_oracle import MAX_INPUT_LENGTH as TWO_LEVEL_DYNAMIC_MAXIMAL_MATCHING_INSERTIONS_MAX_INPUT_LENGTH
+from two_level_dynamic_maximal_matching_insertions_verifier_oracle import expected_output as two_level_dynamic_maximal_matching_insertions_independent_oracle
+from substring_parsimony_verifier_oracle import expected_output as substring_parsimony_independent_oracle
+from weighted_connected_dominating_set_verifier_oracle import expected_output as weighted_connected_dominating_set_independent_oracle
+from weighted_popular_matching_verifier_oracle import expected_output as weighted_popular_matching_independent_oracle
+from parameterized_pattern_matching_verifier_oracle import expected_output as parameterized_pattern_matching_independent_oracle
+from voronoi_delaunay_empty_circle_verifier_oracle import expected_output as voronoi_delaunay_empty_circle_independent_oracle
+from fibonacci_integer_code_oracle import MAX_INPUT_LENGTH as FIBONACCI_INTEGER_CODE_MAX_INPUT_LENGTH
+from fibonacci_integer_code_verifier_oracle import verify as fibonacci_integer_code_independent_check
+from undirected_feedback_vertex_set_verifier_oracle import expected_output as undirected_feedback_vertex_set_independent_oracle
+from min_hash_k_mins_verifier_oracle import expected_output as min_hash_k_mins_independent_oracle
+from srpt_flow_time_verifier_oracle import expected_output as srpt_flow_time_independent_oracle
+from concave_gap_alignment_global_verifier_oracle import expected_output as concave_gap_alignment_global_independent_oracle
+from two_dimensional_string_matching_verifier_oracle import expected_output as two_dimensional_string_matching_independent_oracle
+from two_dimensional_scaled_pattern_matching_verifier_oracle import expected_output as two_dimensional_scaled_pattern_matching_independent_oracle
+from work_function_k_server_verifier_oracle import expected_output as work_function_k_server_independent_oracle
+from ams_sketch_verifier_oracle import verify as ams_sketch_independent_oracle
+from approximate_regex_matching_verifier_oracle import verify as approximate_regex_matching_independent_oracle
+from color_coding_k_path_verifier_oracle import verify as color_coding_k_path_independent_oracle
+from closest_string_center_verifier_oracle import verify as closest_string_center_independent_oracle
+from closest_substring_center_verifier_oracle import verify as closest_substring_center_independent_oracle
+from count_min_sketch_affine_verifier_oracle import verify as count_min_sketch_affine_independent_oracle
+from deterministic_line_search_verifier_oracle import verify as deterministic_line_search_independent_oracle
+from exact_graph_coloring_inclusion_exclusion_verifier_oracle import verify as exact_graph_coloring_independent_oracle
+from fast_subset_convolution_verifier_oracle import verify as fast_subset_convolution_independent_oracle
+from first_fit_bin_packing_verifier_oracle import verify as first_fit_bin_packing_independent_oracle
+from list_scheduling_verifier_oracle import expected_output as list_scheduling_independent_oracle
+from lex_bfs_verifier_oracle import expected_output as lex_bfs_independent_oracle
+from max_cut_sahni_gonzalez_verifier_oracle import expected_output as max_cut_sahni_gonzalez_independent_oracle
+from max_average_length_bounded_segment_verifier_oracle import expected_output as max_average_length_bounded_segment_independent_oracle
+from max_sum_length_bounded_segment_verifier_oracle import expected_output as max_sum_length_bounded_segment_independent_oracle
+from misra_gries_summaries_verifier_oracle import expected_output as misra_gries_summaries_independent_oracle
+from smith_weighted_completion_time_verifier_oracle import expected_output as smith_weighted_completion_time_independent_oracle
+from negative_cycle_detection_oracle import expected_output as negative_cycle_detection_reference_oracle
+from negative_cycle_detection_verifier_oracle import verify_output as negative_cycle_detection_independent_check
+from min_sum_set_cover_greedy_verifier_oracle import expected_output as min_sum_set_cover_greedy_independent_oracle
+from harmonic_4_bin_packing_verifier_oracle import expected_output as harmonic_4_bin_packing_independent_oracle
+from metric_tsp_tree_doubling_verifier_oracle import expected_output as metric_tsp_tree_doubling_independent_oracle
+from online_interval_coloring_verifier_oracle import expected_output as online_interval_coloring_independent_oracle
+from weighted_random_sampling_verifier_oracle import expected_output as weighted_random_sampling_independent_oracle
 
 ALGORITHMS = ("letter_combinations_of_phone_number", "blake2b", "charoccurrence", "swap_case", "binary_and_operator", "entropy", "rna_transcription", "reverse_words", "string_switch_case", "reverse_complement", "reverse_string", "reverse_letters", "bresenham_line", "check_polygon", "red_black_tree_insert_search", "unique_permutation", "infix_to_prefix", "inverse_fast_fourier_transform", "naive_search", "next_permutation", "gronsfeld_cipher", "a5_cipher", "a5_key_stream_generator", "aatree", "title_case_conversion", "change_brightness", "change_contrast",
               "chaos_machine", "convert_to_negative", "canny", "red_black_tree_unique_key_ops", "weight_conversions", "brainfuck", "p_series",
@@ -3726,7 +3829,6 @@ ALGORITHMS = (*ALGORITHMS, "stock_span_problem")
 ALGORITHMS = (*ALGORITHMS, "polynom_for_points")
 ALGORITHMS = (*ALGORITHMS, "lifocache")
 ALGORITHMS = (*ALGORITHMS, "least_recently_used")
-ALGORITHMS = (*ALGORITHMS, "minimum_spanning_tree_kruskal")
 ALGORITHMS = (*ALGORITHMS, "key_priority_queue")
 ALGORITHMS = (*ALGORITHMS, "stack_using_two_queues")
 ALGORITHMS = (*ALGORITHMS, "mlfqscheduler")
@@ -4057,7 +4159,6 @@ WORKSPACE_ALGORITHMS.add("stock_span_problem")
 WORKSPACE_ALGORITHMS.add("polynom_for_points")
 WORKSPACE_ALGORITHMS.add("lifocache")
 WORKSPACE_ALGORITHMS.add("least_recently_used")
-WORKSPACE_ALGORITHMS.add("minimum_spanning_tree_kruskal")
 WORKSPACE_ALGORITHMS.add("key_priority_queue")
 WORKSPACE_ALGORITHMS.add("stack_using_two_queues")
 WORKSPACE_ALGORITHMS.add("mlfqscheduler")
@@ -4117,11 +4218,10 @@ WORKSPACE_ALGORITHMS.update({
     "median_heap",
     "table_heap",
     "skew_heap",
-    "smoothsort",
     "suffix_automaton",
 })
 ALGORITHMS = (*ALGORITHMS, "fixed_priority_queue_using_list", "element_priority_queue_using_list",
-              "median_of_running_array_long", "median_heap", "table_heap", "skew_heap", "smoothsort",
+              "median_of_running_array_long", "median_heap", "table_heap", "skew_heap",
               "suffix_automaton", "lru_cache2", "shuffled_shift_cipher", "quadratic_probing",
               "lempel_ziv_decompress", "lempel_ziv", "singlylinkedlist", "large_number",
               "suffix_tree")
@@ -4234,6 +4334,165 @@ ALGORITHMS = (*ALGORITHMS, "edn_lattice_synthesis", "edn_vec_mpy1", "edn_iir_cas
 ALGORITHMS = (*ALGORITHMS, "beebs_nettle_cast128")
 ALGORITHMS = (*ALGORITHMS, "beebs_fasta")
 ALGORITHMS = (*ALGORITHMS, "beebs_lcdnum")
+ALGORITHMS = (*ALGORITHMS, "ams_sketch", "count_min_sketch_affine",
+              "color_coding_k_path",
+              "deterministic_line_search", "fast_subset_convolution",
+              "first_fit_bin_packing", "lex_bfs", "max_cut_sahni_gonzalez",
+              "max_sum_length_bounded_segment", "misra_gries_summaries",
+              "negative_cycle_detection")
+ALGORITHMS = (*ALGORITHMS, "min_sum_set_cover_greedy",
+              "harmonic_4_bin_packing", "metric_tsp_tree_doubling")
+ALGORITHMS = (*ALGORITHMS, "online_interval_coloring")
+ALGORITHMS = (*ALGORITHMS, "approximate_regex_matching")
+ALGORITHMS = (*ALGORITHMS, "exact_graph_coloring_inclusion_exclusion")
+ALGORITHMS = (*ALGORITHMS, "list_scheduling",
+              "smith_weighted_completion_time",
+              "max_average_length_bounded_segment")
+ALGORITHMS = (*ALGORITHMS, "closest_string_center")
+ALGORITHMS = (*ALGORITHMS, "closest_substring_center")
+ALGORITHMS = (*ALGORITHMS, "weighted_random_sampling")
+ALGORITHMS = (*ALGORITHMS, "binary_decision_graph", "work_function_k_server")
+ALGORITHMS = (*ALGORITHMS, "approximate_tandem_squares")
+ALGORITHMS = (*ALGORITHMS, "vertex_cover_kernelization")
+ALGORITHMS = (*ALGORITHMS, "zdd_family_count")
+ALGORITHMS = (*ALGORITHMS, "vertex_cover_search_trees")
+ALGORITHMS = (*ALGORITHMS, "first_fit_cardinality_bin_packing", "directed_perfect_phylogeny")
+ALGORITHMS = (*ALGORITHMS, "max_minimum_machine_load_lpt", "min_hash_k_mins",
+              "srpt_flow_time", "concave_gap_alignment_global",
+              "two_dimensional_string_matching")
+ALGORITHMS = (*ALGORITHMS, "fibonacci_integer_code", "undirected_feedback_vertex_set")
+ALGORITHMS = (*ALGORITHMS, "vector_scheduling")
+ALGORITHMS = (*ALGORITHMS, "vector_bin_packing", "list_ranking_independent_set_contraction")
+ALGORITHMS = (*ALGORITHMS, "two_dimensional_scaled_pattern_matching")
+ALGORITHMS = (*ALGORITHMS, "frequent_itemset_backtrack")
+ALGORITHMS = (*ALGORITHMS, "ldfs_ordering_certificate")
+ALGORITHMS = (*ALGORITHMS, "weighted_greedy_set_cover", "hospitals_residents_rgs")
+ALGORITHMS = (*ALGORITHMS, "two_interval_precedence_chain")
+ALGORITHMS = (*ALGORITHMS, "approximate_matching_greedy")
+ALGORITHMS = (*ALGORITHMS, "voronoi_delaunay_empty_circle")
+ALGORITHMS = (*ALGORITHMS, "parentheses_generator")
+ALGORITHMS = (*ALGORITHMS, "approximating_diameter_bfs", "weighted_connected_dominating_set")
+ALGORITHMS = (*ALGORITHMS, "domination_local_reduction")
+ALGORITHMS = (*ALGORITHMS, "weighted_popular_matching")
+ALGORITHMS = (*ALGORITHMS, "parameterized_pattern_matching")
+ALGORITHMS = (*ALGORITHMS, "tsp_few_inner_points")
+ALGORITHMS = (*ALGORITHMS, "rate_monotonic_scheduling", "non_shared_edges", "unit_disk_graph_wspd")
+ALGORITHMS = (*ALGORITHMS, "landlord_file_caching")
+ALGORITHMS = (*ALGORITHMS, "frt_tree_metric", "wire_sizing", "rank_select_bitstring")
+ALGORITHMS = (*ALGORITHMS, "permutation_shortcut_index")
+ALGORITHMS = (*ALGORITHMS, "three_dimensional_moment_curve")
+ALGORITHMS = (*ALGORITHMS, "suffix_tree_from_sa_lcp")
+ALGORITHMS = (*ALGORITHMS, "technology_mapping_minimum_area_tree_cover")
+ALGORITHMS = (*ALGORITHMS, "thorup_zwick_distance_oracle")
+ALGORITHMS = (*ALGORITHMS, "stochastic_knapsack_greedy")
+ALGORITHMS = (*ALGORITHMS, "fm_index_count")
+ALGORITHMS = (*ALGORITHMS, "bst_interleave_bound", "ring_exact_covering_protocol",
+              "ppsz_k_sat_trace")
+ALGORITHMS = (*ALGORITHMS, "randomized_ray_search")
+ALGORITHMS = (*ALGORITHMS, "suffix_array_lcp_search")
+ALGORITHMS = (*ALGORITHMS, "packet_switching_sgr_multi_queue")
+ALGORITHMS = (*ALGORITHMS, "minimal_dominating_sets_interval")
+WORKSPACE_ALGORITHMS.add("permutation_shortcut_index")
+WORKSPACE_ALGORITHMS.add("three_dimensional_moment_curve")
+WORKSPACE_ALGORITHMS.add("suffix_tree_from_sa_lcp")
+WORKSPACE_ALGORITHMS.add("technology_mapping_minimum_area_tree_cover")
+WORKSPACE_ALGORITHMS.add("thorup_zwick_distance_oracle")
+WORKSPACE_ALGORITHMS.add("stochastic_knapsack_greedy")
+WORKSPACE_ALGORITHMS.add("fm_index_count")
+WORKSPACE_ALGORITHMS.update({
+    "bst_interleave_bound", "ring_exact_covering_protocol", "ppsz_k_sat_trace",
+    "randomized_ray_search",
+    "suffix_array_lcp_search",
+    "packet_switching_sgr_multi_queue",
+    "minimal_dominating_sets_interval",
+})
+ALGORITHMS = (*ALGORITHMS, "counting_triangles_stream_reservoir")
+ALGORITHMS = (*ALGORITHMS, "table_compression_optimal_contiguous_partition")
+ALGORITHMS = (*ALGORITHMS, "treewidth_min_degree_elimination")
+ALGORITHMS = (*ALGORITHMS, "treewidth_min_fill_elimination", "nni_phylogeny_distance")
+ALGORITHMS = (*ALGORITHMS, "treewidth_exact_elimination_order")
+ALGORITHMS = (*ALGORITHMS, "streaming_triangles")
+ALGORITHMS = (*ALGORITHMS, "universal_sequencing_doubling")
+ALGORITHMS = (*ALGORITHMS, "dc_tree_k_server_path")
+ALGORITHMS = (*ALGORITHMS, "hub_labeling_pruned", "dense_graph_bipartiteness_tester")
+ALGORITHMS = (*ALGORITHMS, "all_distances_sketch_bottom_k")
+ALGORITHMS = (*ALGORITHMS, "sublinear_bipartiteness_walk_tester")
+ALGORITHMS = (*ALGORITHMS, "optimal_stable_marriage")
+ALGORITHMS = (*ALGORITHMS, "quine_mccluskey_minimization")
+ALGORITHMS = (*ALGORITHMS, "general_graph_maximum_matching")
+ALGORITHMS = (*ALGORITHMS, "orthogonal_range_reporting_2d")
+ALGORITHMS = (*ALGORITHMS, "k_median_p1_local_search")
+ALGORITHMS = (*ALGORITHMS, "two_level_dynamic_maximal_matching_insertions")
+ALGORITHMS = (*ALGORITHMS, "substring_parsimony")
+WORKSPACE_ALGORITHMS.update({
+    "ams_sketch", "count_min_sketch_affine", "deterministic_line_search",
+    "color_coding_k_path",
+    "fast_subset_convolution", "first_fit_bin_packing", "lex_bfs",
+    "max_cut_sahni_gonzalez", "max_sum_length_bounded_segment",
+    "misra_gries_summaries", "negative_cycle_detection",
+    "min_sum_set_cover_greedy", "harmonic_4_bin_packing",
+    "metric_tsp_tree_doubling",
+    "online_interval_coloring",
+    "approximate_regex_matching",
+    "exact_graph_coloring_inclusion_exclusion",
+    "list_scheduling", "smith_weighted_completion_time",
+    "max_average_length_bounded_segment",
+    "closest_string_center",
+    "closest_substring_center",
+    "weighted_random_sampling",
+    "binary_decision_graph", "work_function_k_server",
+    "approximate_tandem_squares",
+    "vertex_cover_kernelization",
+    "zdd_family_count",
+    "vertex_cover_search_trees",
+    "first_fit_cardinality_bin_packing", "directed_perfect_phylogeny",
+    "max_minimum_machine_load_lpt", "min_hash_k_mins",
+    "srpt_flow_time", "concave_gap_alignment_global",
+    "two_dimensional_string_matching",
+    "fibonacci_integer_code", "undirected_feedback_vertex_set",
+    "vector_scheduling",
+    "vector_bin_packing", "list_ranking_independent_set_contraction",
+    "two_dimensional_scaled_pattern_matching",
+    "frequent_itemset_backtrack",
+    "ldfs_ordering_certificate",
+    "weighted_greedy_set_cover", "hospitals_residents_rgs",
+    "two_interval_precedence_chain",
+    "approximate_matching_greedy",
+    "voronoi_delaunay_empty_circle",
+    "parentheses_generator",
+    "approximating_diameter_bfs", "weighted_connected_dominating_set",
+    "domination_local_reduction",
+    "weighted_popular_matching",
+    "parameterized_pattern_matching",
+    "tsp_few_inner_points",
+    "rate_monotonic_scheduling",
+    "non_shared_edges",
+    "unit_disk_graph_wspd",
+    "landlord_file_caching",
+    "frt_tree_metric",
+    "wire_sizing",
+    "rank_select_bitstring",
+    "counting_triangles_stream_reservoir",
+    "table_compression_optimal_contiguous_partition",
+    "treewidth_min_degree_elimination",
+    "treewidth_min_fill_elimination",
+    "treewidth_exact_elimination_order",
+    "nni_phylogeny_distance",
+    "streaming_triangles",
+    "universal_sequencing_doubling",
+    "dc_tree_k_server_path",
+    "hub_labeling_pruned",
+    "dense_graph_bipartiteness_tester",
+    "all_distances_sketch_bottom_k",
+    "sublinear_bipartiteness_walk_tester",
+    "optimal_stable_marriage",
+    "quine_mccluskey_minimization",
+    "general_graph_maximum_matching",
+    "orthogonal_range_reporting_2d",
+    "k_median_p1_local_search",
+    "two_level_dynamic_maximal_matching_insertions",
+    "substring_parsimony",
+})
 WORKSPACE_ALGORITHMS.update({"min_cost_max_flow", "morton_sort", "number_theoretic_transform",
                              "relaxed_convolution", "seam_carving", "sqrt_tree", "beta_skeleton",
                              "schoenhage_strassen_multiply", "wspd", "batch_dynamic_kd_tree",
@@ -10592,7 +10851,189 @@ def rodinia_heartwall_template_match_verifier_suite_oracle(
     return result, output
 
 
+def _adapt_array_verifier(verifier, max_parseable_input_length):
+    """Add shared null-pointer and output-capacity behavior to a pure verifier."""
+    def expected_output(values, capacity=None, output_is_null=False,
+                        input_is_null=False, input_length=None):
+        if input_is_null or values is None:
+            return -1, b""
+        if input_length is None:
+            input_length = len(values)
+        if (type(input_length) is not int or input_length < 0
+                or input_length > max_parseable_input_length
+                or input_length != len(values)):
+            return -1, b""
+        result, output = verifier(values)
+        if result < 0:
+            return result, output
+        if output_is_null and result > 0:
+            return -2, b""
+        if capacity is not None and capacity < result:
+            return -2, b""
+        return result, output
+    return expected_output
+
+
+def _negative_cycle_detection_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    result, output = negative_cycle_detection_reference_oracle(
+        values, capacity, output_is_null, input_is_null, input_length)
+    if (result >= 0 and not negative_cycle_detection_independent_check(
+            None if input_is_null else values, result, output, input_is_null)):
+        raise ValueError("negative-cycle witness failed the independent all-pairs check")
+    return result, output
+
+
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
+    "vector_scheduling": vector_scheduling_independent_oracle,
+    "vector_bin_packing": vector_bin_packing_independent_oracle,
+    "list_ranking_independent_set_contraction": list_ranking_contraction_independent_oracle,
+    "fibonacci_integer_code": _adapt_array_verifier(
+        fibonacci_integer_code_independent_check,
+        FIBONACCI_INTEGER_CODE_MAX_INPUT_LENGTH + 1),
+    "undirected_feedback_vertex_set": undirected_feedback_vertex_set_independent_oracle,
+    "max_minimum_machine_load_lpt": max_minimum_machine_load_lpt_independent_oracle,
+    "min_hash_k_mins": min_hash_k_mins_independent_oracle,
+    "srpt_flow_time": srpt_flow_time_independent_oracle,
+    "concave_gap_alignment_global": concave_gap_alignment_global_independent_oracle,
+    "two_dimensional_string_matching": two_dimensional_string_matching_independent_oracle,
+    "two_dimensional_scaled_pattern_matching": two_dimensional_scaled_pattern_matching_independent_oracle,
+    "frequent_itemset_backtrack": _adapt_array_verifier(
+        frequent_itemset_backtrack_independent_check,
+        FREQUENT_ITEMSET_BACKTRACK_MAX_INPUT_LENGTH + 1),
+    "ldfs_ordering_certificate": ldfs_ordering_certificate_independent_oracle,
+    "weighted_greedy_set_cover": weighted_greedy_set_cover_independent_oracle,
+    "hospitals_residents_rgs": hospitals_residents_rgs_independent_oracle,
+    "two_interval_precedence_chain": two_interval_precedence_chain_independent_oracle,
+    "approximate_matching_greedy": _adapt_array_verifier(
+        approximate_matching_greedy_independent_check,
+        APPROXIMATE_MATCHING_GREEDY_MAX_INPUT_LENGTH + 1),
+    "voronoi_delaunay_empty_circle": voronoi_delaunay_empty_circle_independent_oracle,
+    "parentheses_generator": _adapt_array_verifier(
+        parentheses_generator_independent_check,
+        PARENTHESES_GENERATOR_MAX_INPUT_LENGTH),
+    "approximating_diameter_bfs": _adapt_array_verifier(
+        approximating_diameter_bfs_independent_check,
+        APPROXIMATING_DIAMETER_BFS_MAX_INPUT_LENGTH + 1),
+    "domination_local_reduction": _adapt_array_verifier(
+        domination_local_reduction_independent_check,
+        DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH + 1),
+    "weighted_connected_dominating_set": weighted_connected_dominating_set_independent_oracle,
+    "weighted_popular_matching": weighted_popular_matching_independent_oracle,
+    "parameterized_pattern_matching": parameterized_pattern_matching_independent_oracle,
+    "tsp_few_inner_points": tsp_few_inner_points_independent_oracle,
+    "rate_monotonic_scheduling": rate_monotonic_scheduling_independent_oracle,
+    "non_shared_edges": non_shared_edges_independent_oracle,
+    "unit_disk_graph_wspd": unit_disk_graph_wspd_independent_oracle,
+    "landlord_file_caching": landlord_file_caching_independent_oracle,
+    "frt_tree_metric": _adapt_array_verifier(
+        frt_tree_metric_independent_check,
+        FRT_TREE_METRIC_MAX_INPUT_LENGTH + 1),
+    "wire_sizing": wire_sizing_independent_oracle,
+    "rank_select_bitstring": rank_select_bitstring_independent_oracle,
+    "permutation_shortcut_index": permutation_shortcut_index_independent_oracle,
+    "three_dimensional_moment_curve": three_dimensional_moment_curve_independent_oracle,
+    "suffix_tree_from_sa_lcp": suffix_tree_from_sa_lcp_independent_oracle,
+    "technology_mapping_minimum_area_tree_cover": technology_mapping_minimum_area_tree_cover_independent_oracle,
+    "thorup_zwick_distance_oracle": thorup_zwick_distance_oracle_independent_oracle,
+    "stochastic_knapsack_greedy": stochastic_knapsack_greedy_independent_oracle,
+    "fm_index_count": _adapt_array_verifier(
+        fm_index_count_independent_check, FM_INDEX_COUNT_MAX_INPUT_LENGTH),
+    "bst_interleave_bound": bst_interleave_bound_independent_oracle,
+    "ring_exact_covering_protocol": ring_exact_covering_protocol_independent_oracle,
+    "ppsz_k_sat_trace": ppsz_k_sat_trace_independent_oracle,
+    "randomized_ray_search": randomized_ray_search_independent_oracle,
+    "suffix_array_lcp_search": suffix_array_lcp_search_independent_oracle,
+    "packet_switching_sgr_multi_queue": packet_switching_sgr_multi_queue_independent_oracle,
+    "minimal_dominating_sets_interval": _adapt_array_verifier(
+        minimal_dominating_sets_interval_independent_check,
+        MINIMAL_DOMINATING_SETS_INTERVAL_MAX_INPUT_LENGTH),
+    "counting_triangles_stream_reservoir": _adapt_array_verifier(
+        counting_triangles_stream_reservoir_independent_check,
+        COUNTING_TRIANGLES_STREAM_RESERVOIR_MAX_INPUT_LENGTH + 1),
+    "table_compression_optimal_contiguous_partition":
+        table_compression_optimal_contiguous_partition_independent_oracle,
+    "treewidth_min_degree_elimination": treewidth_min_degree_elimination_independent_oracle,
+    "treewidth_min_fill_elimination": treewidth_min_fill_elimination_independent_oracle,
+    "treewidth_exact_elimination_order": treewidth_exact_elimination_order_independent_oracle,
+    "nni_phylogeny_distance": nni_phylogeny_distance_independent_oracle,
+    "streaming_triangles": _adapt_array_verifier(
+        streaming_triangles_independent_check,
+        STREAMING_TRIANGLES_MAX_INPUT_LENGTH + 1),
+    "universal_sequencing_doubling": universal_sequencing_doubling_independent_oracle,
+    "dc_tree_k_server_path": _adapt_array_verifier(
+        dc_tree_k_server_path_independent_check,
+        DC_TREE_K_SERVER_PATH_MAX_INPUT_LENGTH + 1),
+    "hub_labeling_pruned": hub_labeling_pruned_independent_oracle,
+    "dense_graph_bipartiteness_tester": dense_graph_bipartiteness_tester_independent_oracle,
+    "all_distances_sketch_bottom_k": _adapt_array_verifier(
+        all_distances_sketch_bottom_k_independent_check,
+        ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_INPUT_LENGTH + 1),
+    "sublinear_bipartiteness_walk_tester": sublinear_bipartiteness_walk_tester_independent_oracle,
+    "optimal_stable_marriage": optimal_stable_marriage_independent_oracle,
+    "quine_mccluskey_minimization": quine_mccluskey_minimization_independent_oracle,
+    "general_graph_maximum_matching": _adapt_array_verifier(
+        general_graph_maximum_matching_independent_check,
+        GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_INPUT_LENGTH + 1),
+    "orthogonal_range_reporting_2d": orthogonal_range_reporting_2d_independent_oracle,
+    "k_median_p1_local_search": _adapt_array_verifier(
+        k_median_p1_local_search_independent_oracle,
+        K_MEDIAN_P1_LOCAL_SEARCH_MAX_INPUT_LENGTH + 1),
+    "two_level_dynamic_maximal_matching_insertions": _adapt_array_verifier(
+        two_level_dynamic_maximal_matching_insertions_independent_oracle,
+        TWO_LEVEL_DYNAMIC_MAXIMAL_MATCHING_INSERTIONS_MAX_INPUT_LENGTH + 1),
+    "substring_parsimony": substring_parsimony_independent_oracle,
+    "first_fit_cardinality_bin_packing": _adapt_array_verifier(
+        first_fit_cardinality_independent_check,
+        FIRST_FIT_CARDINALITY_MAX_INPUT_LENGTH + 1),
+    "directed_perfect_phylogeny": _adapt_array_verifier(
+        directed_perfect_phylogeny_independent_check,
+        DIRECTED_PERFECT_PHYLOGENY_MAX_INPUT_LENGTH + 1),
+    "vertex_cover_search_trees": vertex_cover_search_trees_independent_oracle,
+    "zdd_family_count": _adapt_array_verifier(
+        zdd_family_count_independent_check,
+        ZDD_FAMILY_COUNT_MAX_INPUT_LENGTH + 1),
+    "vertex_cover_kernelization": vertex_cover_kernelization_independent_oracle,
+    "approximate_tandem_squares": _adapt_array_verifier(
+        approximate_tandem_squares_independent_check,
+        APPROXIMATE_TANDEM_SQUARES_MAX_INPUT_LENGTH + 1),
+    "work_function_k_server": work_function_k_server_independent_oracle,
+    "binary_decision_graph": _adapt_array_verifier(
+        binary_decision_graph_independent_check,
+        BINARY_DECISION_GRAPH_MAX_INPUT_LENGTH + 1),
+    "ams_sketch": _adapt_array_verifier(ams_sketch_independent_oracle, 117),
+    "approximate_regex_matching": _adapt_array_verifier(
+        approximate_regex_matching_independent_oracle, 67),
+    "color_coding_k_path": _adapt_array_verifier(
+        color_coding_k_path_independent_oracle, 148),
+    "closest_string_center": _adapt_array_verifier(
+        closest_string_center_independent_oracle, 52),
+    "closest_substring_center": _adapt_array_verifier(
+        closest_substring_center_independent_oracle, 45),
+    "count_min_sketch_affine": _adapt_array_verifier(
+        count_min_sketch_affine_independent_oracle, 60),
+    "deterministic_line_search": _adapt_array_verifier(
+        deterministic_line_search_independent_oracle, 2),
+    "exact_graph_coloring_inclusion_exclusion": _adapt_array_verifier(
+        exact_graph_coloring_independent_oracle, 45),
+    "fast_subset_convolution": _adapt_array_verifier(
+        fast_subset_convolution_independent_oracle, 34),
+    "first_fit_bin_packing": _adapt_array_verifier(
+        first_fit_bin_packing_independent_oracle, 66),
+    "list_scheduling": list_scheduling_independent_oracle,
+    "lex_bfs": lex_bfs_independent_oracle,
+    "max_cut_sahni_gonzalez": max_cut_sahni_gonzalez_independent_oracle,
+    "max_average_length_bounded_segment": max_average_length_bounded_segment_independent_oracle,
+    "max_sum_length_bounded_segment": max_sum_length_bounded_segment_independent_oracle,
+    "misra_gries_summaries": misra_gries_summaries_independent_oracle,
+    "smith_weighted_completion_time": smith_weighted_completion_time_independent_oracle,
+    "negative_cycle_detection": _negative_cycle_detection_independent_oracle,
+    "min_sum_set_cover_greedy": min_sum_set_cover_greedy_independent_oracle,
+    "harmonic_4_bin_packing": harmonic_4_bin_packing_independent_oracle,
+    "metric_tsp_tree_doubling": metric_tsp_tree_doubling_independent_oracle,
+    "online_interval_coloring": online_interval_coloring_independent_oracle,
+    "weighted_random_sampling": weighted_random_sampling_independent_oracle,
     "ansibench_dhrystone": ansibench_dhrystone_oracle,
     "stream_vector_kernels": stream_vector_kernels_oracle,
     "string_heap_sort": string_heap_sort_oracle,
@@ -19038,7 +19479,49 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     add(values, 0)
                     add(values, result - 1)
                 add(values, output_is_null=True)
-        if algorithm == "saga_incremental_analytics":
+        if algorithm == "domination_local_reduction":
+            if (max_input != DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH + 1
+                    or max_output != DOMINATION_LOCAL_REDUCTION_MAX_OUTPUT_BYTES
+                    or workspace_bytes != 4096):
+                raise ValueError("domination_local_reduction bounds or workspace differ from its contract")
+            edges = [(0, 1), (0, 2)]
+            edges.extend((1, vertex) for vertex in range(3, 12))
+            edges.extend((left, right) for left in range(3, 12)
+                         for right in range(left + 1, 12))
+            maximum = (12, len(edges), 0,
+                       *(vertex for edge in edges for vertex in edge))
+            result, output = add(maximum)
+            if (len(maximum) > DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH + 1
+                    or result != DOMINATION_LOCAL_REDUCTION_MAX_OUTPUT_BYTES
+                    or len(output) != DOMINATION_LOCAL_REDUCTION_MAX_OUTPUT_BYTES):
+                raise ValueError("domination_local_reduction maximum profile has invalid framing")
+            for capacity in (0, result - 1, result, workspace_bytes):
+                add(maximum, capacity)
+            add(maximum, output_is_null=True)
+            complete_edges = tuple(
+                vertex for left in range(12) for right in range(left + 1, 12)
+                for vertex in (left, right))
+            full_length = (12, 66, 0, *complete_edges)
+            full_result, full_output = add(full_length)
+            if (len(full_length) != DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH
+                    or full_result != 40 or len(full_output) != 40):
+                raise ValueError("domination_local_reduction maximum input shape has invalid framing")
+            for capacity in (0, full_result - 1, full_result, workspace_bytes):
+                add(full_length, capacity)
+            add(full_length, output_is_null=True)
+            malformed = (
+                (), (1, 0), (13, 0, 0), (12, 67, 0), (3, 2, 3, 0, 1, 0, 2),
+                (3, 1, 0, 1, 0), (3, 2, 0, 0, 1, 0, 1),
+                (3, 2, 0, 0, 1, 1, 2), tuple([0] * max_input),
+                (I64_MIN,), (I64_MAX,),
+            )
+            for values in malformed:
+                result, output = add(values)
+                if result != -1 or output:
+                    raise ValueError("domination_local_reduction accepted malformed or inapplicable input")
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=max_input)
+        elif algorithm == "saga_incremental_analytics":
             generated_states = (
                 (1, 3, 1, 1, 0, 0, 1, -1, 0, 1, 1, 1, 2, 1),
                 (2, 3, 1, 1, 0, 0, 2, 1_000_000_000, 0, 1, 2, 1, 2, 3),
@@ -22548,7 +23031,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             raise ValueError("priority_queues workload is missing source or boundary fixtures")
         for case in workload["cases"]:
             values = tuple(case["input_values"])
-            capacity = case.get("output_capacity", default_capacity)
+            capacity = case.get("output_capacity", case.get("workspace_bytes", default_capacity))
             output_is_null = case.get("output_is_null", False)
             if (type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
                     or type(output_is_null) is not bool):
@@ -50213,110 +50696,6 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                         input_is_null, input_length)
                        for (values, capacity, output_is_null, input_is_null, input_length),
                            (result, output) in sorted(cases.items()))
-    elif algorithm == "minimum_spanning_tree_kruskal":
-        validate_minimum_spanning_tree_kruskal_workload(workload)
-        default_capacity = workload.get("workspace", {}).get("bytes")
-        if default_capacity != MINIMUM_SPANNING_TREE_KRUSKAL_MAX_OUTPUT_BYTES:
-            raise ValueError("minimum_spanning_tree_kruskal workspace does not match its maximum forest")
-
-        cases: dict[tuple[tuple[int, ...], int, bool, bool, int], tuple[int, bytes]] = {}
-
-        def add_minimum_spanning_tree_kruskal_case(
-                values: tuple[int, ...], capacity: int = default_capacity,
-                output_is_null: bool = False, input_is_null: bool = False,
-                input_length: int | None = None) -> None:
-            values = tuple(values)
-            if input_length is None:
-                input_length = len(values)
-            if (len(values) > MINIMUM_SPANNING_TREE_KRUSKAL_MAX_INPUT_LENGTH
-                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
-                           for value in values)
-                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
-                    or type(output_is_null) is not bool or type(input_is_null) is not bool
-                    or type(input_length) is not int
-                    or (input_is_null and (values or not 1 <= input_length <= MINIMUM_SPANNING_TREE_KRUSKAL_MAX_INPUT_LENGTH
-                                           or output_is_null))
-                    or (not input_is_null and input_length != len(values))):
-                raise ValueError("minimum_spanning_tree_kruskal generated input/output framing is out of range")
-            result, output = minimum_spanning_tree_kruskal_oracle(
-                values, capacity, output_is_null, input_is_null, input_length)
-            if result >= 0:
-                if (result != len(output) or result % 24 != 0
-                        or len(output) > MINIMUM_SPANNING_TREE_KRUSKAL_MAX_OUTPUT_BYTES):
-                    raise ValueError("minimum_spanning_tree_kruskal success exceeds its forest output bound")
-            elif result not in (-1, -2) or output:
-                raise ValueError("minimum_spanning_tree_kruskal errors must not write output")
-            key = (values, capacity, output_is_null, input_is_null, input_length)
-            value = (result, output)
-            if key in cases and cases[key] != value:
-                raise ValueError("minimum_spanning_tree_kruskal probe collides with a distinct output call")
-            cases[key] = value
-
-        for case in workload["cases"]:
-            values = tuple(case["input_values"])
-            capacity = case.get("output_capacity", case.get("workspace_bytes", default_capacity))
-            output_is_null = case.get("output_is_null", False)
-            input_is_null = case.get("input_is_null", False)
-            input_length = case.get("input_length", len(values))
-            result, output = minimum_spanning_tree_kruskal_oracle(
-                values, capacity, output_is_null, input_is_null, input_length)
-            if (result != case["expected_result"]
-                    or output.hex() != case.get("expected_output_hex", "").lower()):
-                raise ValueError(f"minimum_spanning_tree_kruskal workload mismatch: {case['id']}")
-            add_minimum_spanning_tree_kruskal_case(
-                values, capacity, output_is_null, input_is_null, input_length)
-
-        rng_kruskal = random.Random(20261017)
-        for _ in range(96):
-            vertex_count = rng_kruskal.randint(0, MINIMUM_SPANNING_TREE_KRUSKAL_MAX_VERTICES)
-            edge_count = (0 if vertex_count == 0 else rng_kruskal.randint(0, min(256, MINIMUM_SPANNING_TREE_KRUSKAL_MAX_EDGES)))
-            values = [vertex_count, edge_count]
-            for _edge in range(edge_count):
-                values.extend((rng_kruskal.randrange(vertex_count),
-                               rng_kruskal.randrange(vertex_count),
-                               rng_kruskal.randint(-(1 << 63), (1 << 63) - 1)))
-            add_minimum_spanning_tree_kruskal_case(tuple(values))
-
-        maximum_input = [MINIMUM_SPANNING_TREE_KRUSKAL_MAX_VERTICES,
-                         MINIMUM_SPANNING_TREE_KRUSKAL_MAX_EDGES]
-        for vertex in range(MINIMUM_SPANNING_TREE_KRUSKAL_MAX_VERTICES - 1):
-            maximum_input.extend((vertex, vertex + 1, vertex))
-        for index in range(MINIMUM_SPANNING_TREE_KRUSKAL_MAX_EDGES
-                           - (MINIMUM_SPANNING_TREE_KRUSKAL_MAX_VERTICES - 1)):
-            vertex = index % MINIMUM_SPANNING_TREE_KRUSKAL_MAX_VERTICES
-            maximum_input.extend((vertex, vertex, MINIMUM_SPANNING_TREE_KRUSKAL_MAX_VERTICES + index))
-        if len(maximum_input) != MINIMUM_SPANNING_TREE_KRUSKAL_MAX_INPUT_LENGTH:
-            raise ValueError("minimum_spanning_tree_kruskal maximum input does not reach its bound")
-        add_minimum_spanning_tree_kruskal_case(tuple(maximum_input))
-
-        capacity_probe = (2, 1, 0, 1, 5)
-        for capacity in (0, 23, 24, 25, default_capacity):
-            add_minimum_spanning_tree_kruskal_case(capacity_probe, capacity)
-        workload_cases = {case["id"]: case for case in workload["cases"]}
-        maximum_values = tuple(workload_cases["maximum_vertex_path"]["input_values"])
-        for capacity in (MINIMUM_SPANNING_TREE_KRUSKAL_MAX_OUTPUT_BYTES - 1,
-                         MINIMUM_SPANNING_TREE_KRUSKAL_MAX_OUTPUT_BYTES):
-            add_minimum_spanning_tree_kruskal_case(maximum_values, capacity)
-        add_minimum_spanning_tree_kruskal_case(capacity_probe, 0, output_is_null=True)
-        empty_graph = (0, 0)
-        add_minimum_spanning_tree_kruskal_case(empty_graph, 0)
-        add_minimum_spanning_tree_kruskal_case(empty_graph, 0, output_is_null=True)
-        add_minimum_spanning_tree_kruskal_case((1, 0), 0, output_is_null=True)
-        add_minimum_spanning_tree_kruskal_case((), default_capacity,
-                                                input_is_null=True, input_length=1)
-        add_minimum_spanning_tree_kruskal_case((2, 1, 0, 2, 5), 0, output_is_null=True)
-        malformed = (
-            (), (0,), (-1, 0), (MINIMUM_SPANNING_TREE_KRUSKAL_MAX_VERTICES + 1, 0),
-            (2, -1), (2, MINIMUM_SPANNING_TREE_KRUSKAL_MAX_EDGES + 1),
-            (2, 0, 5), (2, 1, 0, 2, 5), (0, 1, 0, 0, 5),
-        )
-        for values in malformed:
-            add_minimum_spanning_tree_kruskal_case(values)
-
-        records.extend((values, result, output, capacity, output_is_null,
-                        input_is_null, input_length)
-                       for (values, capacity, output_is_null, input_is_null, input_length),
-                           (result, output) in sorted(cases.items()))
     elif algorithm == "key_priority_queue":
         validate_key_priority_queue_workload(workload)
         default_capacity = workload.get("workspace", {}).get("bytes")
@@ -51612,83 +51991,6 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add_skew_heap_case((0,), input_length=1)
         add_skew_heap_case((0,), output_is_null=True)
         add_skew_heap_case((), input_is_null=True, input_length=1)
-    elif algorithm == "smoothsort":
-        validate_smoothsort_workload(workload)
-        capacity_limit = SMOOTHSORT_MAX_OUTPUT_BYTES
-
-        def add_smoothsort_case(values: tuple[int, ...], capacity: int = capacity_limit,
-                                *, output_is_null: bool = False,
-                                input_is_null: bool = False,
-                                input_length: int | None = None) -> None:
-            effective_input_length = len(values) if input_length is None else input_length
-            if (len(values) > SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH
-                    or any(type(value) is not int
-                           or not SMOOTHSORT_INT64_MIN <= value <= SMOOTHSORT_INT64_MAX
-                           for value in values)
-                    or type(capacity) is not int
-                    or not 0 <= capacity <= SMOOTHSORT_MAX_OUTPUT_BYTES
-                    or type(output_is_null) is not bool or type(input_is_null) is not bool
-                    or type(effective_input_length) is not int
-                    or not 0 <= effective_input_length <= SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH
-                    or (input_is_null and (values or effective_input_length <= 0 or output_is_null))
-                    or (not input_is_null and effective_input_length != len(values))):
-                raise ValueError("smoothsort generated framing is invalid")
-            result, output = smoothsort_oracle(
-                values, capacity, output_is_null, input_is_null, effective_input_length)
-            if (result >= 0 and (result != len(output) or len(output) > SMOOTHSORT_MAX_OUTPUT_BYTES)
-                    or result < 0 and (result not in (-1, -2) or output)):
-                raise ValueError("smoothsort oracle returned inconsistent byte framing")
-            records.append((values, result, output, capacity, output_is_null,
-                            input_is_null, effective_input_length))
-
-        for fixture in (*workload["cases"], *workload["abi_cases"]):
-            values = tuple(fixture["input_values"])
-            capacity = fixture.get("output_capacity", capacity_limit)
-            output_is_null = fixture.get("output_is_null", False)
-            input_is_null = fixture.get("input_is_null", False)
-            input_length = fixture.get("input_length", len(values))
-            result, output = smoothsort_oracle(
-                values, capacity, output_is_null, input_is_null, input_length)
-            if (result != fixture["expected_result"]
-                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
-                raise ValueError(f"smoothsort fixture mismatch: {fixture['id']}")
-            add_smoothsort_case(values, capacity, output_is_null=output_is_null,
-                                input_is_null=input_is_null, input_length=input_length)
-
-        maximum_output_probe = (
-            SMOOTHSORT_MAX_VALUES,
-            *(SMOOTHSORT_MAX_VALUES - 1 - i for i in range(SMOOTHSORT_MAX_VALUES)),
-        )
-        for capacity in (0, SMOOTHSORT_MAX_OUTPUT_BYTES - 1, SMOOTHSORT_MAX_OUTPUT_BYTES):
-            add_smoothsort_case(maximum_output_probe, capacity)
-        add_smoothsort_case(maximum_output_probe, output_is_null=True)
-
-        rng_smoothsort = random.Random(20261025)
-        value_boundaries = (SMOOTHSORT_INT64_MIN, SMOOTHSORT_INT64_MAX, -1, 0, 1)
-        for trace_index in range(128):
-            value_count = rng_smoothsort.randint(0, SMOOTHSORT_MAX_VALUES)
-            values = (value_count, *(
-                rng_smoothsort.choice(value_boundaries) if trace_index % 4 == 0
-                else rng_smoothsort.randint(SMOOTHSORT_INT64_MIN, SMOOTHSORT_INT64_MAX)
-                for _ in range(value_count)
-            ))
-            result, _output = smoothsort_oracle(values)
-            add_smoothsort_case(values)
-            if result > 0:
-                add_smoothsort_case(values, result - 1)
-                if trace_index % 16 == 0:
-                    add_smoothsort_case(values, output_is_null=True)
-
-        maximum_parseable_trailing_value = (0, *([0] * SMOOTHSORT_MAX_VALID_INPUT_LENGTH))
-        malformed = (
-            (), (SMOOTHSORT_MAX_VALUES + 1,), (-1,), (2, 1), (0, 0),
-            maximum_parseable_trailing_value,
-        )
-        for values in malformed:
-            add_smoothsort_case(values)
-        add_smoothsort_case((0,), capacity=0)
-        add_smoothsort_case((0,), capacity=0, output_is_null=True)
-        add_smoothsort_case((), input_is_null=True, input_length=1)
     elif algorithm == "suffix_automaton":
         validate_suffix_automaton_workload(workload)
         capacity_limit = SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES

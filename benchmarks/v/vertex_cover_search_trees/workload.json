@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-vertex-cover-search-tree-i64-array-bytes-output-v1",
+  "algorithm": "vertex_cover_search_trees",
+  "function_symbol": "vertex_cover_search_trees",
+  "abi": "i64_array_bytes_output",
+  "description": "Exact branch-and-search minimum vertex cover on a bounded simple graph.",
+  "source": {
+    "title": "Vertex Cover Search Trees",
+    "authors": ["Jianer Chen"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_462",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_462",
+    "algorithm_attribution": "maximum-degree branch-and-search for vertex cover",
+    "implementation_status": "clean-room bounded exact profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[vertex_count,edge_count,parameter,(u,v) canonical sorted edges...]",
+    "vertex_count_range": [1, 16],
+    "edge_count_range": [0, 64],
+    "parameter_range": "0 through vertex_count",
+    "edge_constraints": "simple undirected graph; each edge once with u<v; pairs strictly increasing",
+    "maximum_valid_length": 131,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "three little-endian signed 64-bit integers",
+    "encoding": "[has_cover_of_size_at_most_k,minimum_cover_size,minimum_cover_vertex_mask]",
+    "maximum_bytes": 24,
+    "success_result": 24,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Bounded adjacency matrix and recursion state over at most sixteen vertices."
+  },
+  "contract": {
+    "branch_vertex": "highest current degree; tie goes to the lowest vertex ID",
+    "branches": "include the branch vertex, or exclude it and include all its active neighbors",
+    "result": "minimum-size vertex-cover mask; among equal-size masks, choose the numerically lowest mask",
+    "decision": "first output is 1 exactly when minimum size <= input k",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "star-single-center-cover",
+      "input_values": [4, 3, 1, 0, 1, 0, 2, 0, 3],
+      "input_length": 9,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "triangle-parameter-too-small",
+      "input_values": [3, 3, 1, 0, 1, 0, 2, 1, 2],
+      "input_length": 9,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "triangle-parameter-sufficient",
+      "input_values": [3, 3, 2, 0, 1, 0, 2, 1, 2],
+      "input_length": 9,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "empty-graph",
+      "input_values": [3, 0, 0],
+      "input_length": 3,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "unsorted-edge-list",
+      "input_values": [3, 2, 1, 0, 2, 0, 1],
+      "input_length": 7,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-edge",
+      "input_values": [3, 2, 1, 0, 1, 0, 1],
+      "input_length": 7,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [4, 3, 1, 0, 1, 0, 2, 0, 3],
+      "input_length": 9,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [3, 3, 2, 0, 1, 0, 2, 1, 2],
+      "input_length": 9,
+      "output_capacity": 24,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 3,
+      "input_is_null": true,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

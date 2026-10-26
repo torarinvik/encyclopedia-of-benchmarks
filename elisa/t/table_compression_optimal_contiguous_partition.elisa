@@ -1,0 +1,75 @@
+const MAX_ROWS: usize = 8
+const MAX_COLS: usize = 8
+const MAX_INPUT: usize = 66
+const OUTPUT_BYTES: usize = 24
+
+def table_compression_interval_cost(input: i64&, rows: usize, cols: usize,
+                                   begin_col: usize, end_col: usize) -> i64:
+    runs: mutable i64 = 0
+    have_previous: mutable bool = false
+    previous: mutable i64 = 0
+    row: mutable usize = 0
+    while row < rows:
+        col: mutable usize = begin_col
+        while col < end_col:
+            value: i64 = input[2 + row * cols + col]
+            if not have_previous or value != previous: runs <- runs + 1
+            previous <- value
+            have_previous <- true
+            col <- col + 1
+        row <- row + 1
+    runs * 2
+
+def table_compression_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def table_compression_optimal_contiguous_partition(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("table_compression_optimal_contiguous_partition"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    rows64: i64 = input[0]
+    cols64: i64 = input[1]
+    if rows64 < 1 or rows64 > MAX_ROWS.i64() or cols64 < 1 or cols64 > MAX_COLS.i64(): return -1
+    rows: usize = rows64.usize()
+    cols: usize = cols64.usize()
+    if length != 2 + rows * cols: return -1
+    index: mutable usize = 0
+    while index < rows * cols:
+        if input[2 + index] < 0 or input[2 + index] > 15: return -1
+        index <- index + 1
+
+    costs: mutable i64[MAX_COLS + 1] = zeroed
+    previous: mutable usize[MAX_COLS + 1] = zeroed
+    finish: mutable usize = 1
+    while finish <= cols:
+        costs[finish] <- 0x3fffffff.i64()
+        start: mutable usize = 0
+        while start < finish:
+            candidate: i64 = costs[start] + table_compression_interval_cost(input, rows, cols, start, finish)
+            if candidate < costs[finish]:
+                costs[finish] <- candidate
+                previous[finish] <- start
+            start <- start + 1
+        finish <- finish + 1
+
+    groups: mutable i64 = 0
+    cuts: mutable u64 = 0
+    finish <- cols
+    while finish > 0:
+        start: usize = previous[finish]
+        if start > 0: cuts <- cuts | (1.u64() << (start - 1))
+        groups <- groups + 1
+        finish <- start
+    if output.is_null() or capacity < OUTPUT_BYTES: return -2
+    staged: mutable u8[OUTPUT_BYTES] = zeroed
+    table_compression_put(costs[cols], staged, 0)
+    table_compression_put(groups, staged, 8)
+    table_compression_put(cuts.i64(), staged, 16)
+    index <- 0
+    while index < OUTPUT_BYTES:
+        output[index] <- staged[index]
+        index <- index + 1
+    OUTPUT_BYTES.i64()

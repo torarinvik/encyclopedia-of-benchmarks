@@ -1,0 +1,63 @@
+const MAX_N: usize = 12
+const MAX_M: usize = 16
+const MAX_INPUT: usize = 18
+
+def min_sum_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def min_sum_set_cover_greedy(input: i64&, length: usize,
+                             output: mutable u8&, capacity: usize) -> i64 @export("min_sum_set_cover_greedy"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > 12 or m64 < 1 or m64 > 16 or length != 2 + m64.usize(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    masks: mutable u64[16] = zeroed
+    set: mutable usize = 0
+    while set < m:
+        raw: i64 = input[2 + set]
+        if raw <= 0 or raw.u64() >= (1u64 << n): return -1
+        masks[set] <- raw.u64()
+        set <- set + 1
+    output_bytes: usize = 8 * (n + 1)
+    if output.is_null() or capacity < output_bytes: return -2
+    covered: mutable bool[16] = zeroed
+    used: mutable bool[12] = zeroed
+    order: mutable i64[12] = zeroed
+    total_time: mutable i64 = 0
+    slot: mutable usize = 1
+    while slot <= n:
+        chosen: mutable usize = 0
+        best_count: mutable i64 = -1
+        element: mutable usize = 0
+        while element < n:
+            if not used[element]:
+                count: mutable i64 = 0
+                set <- 0
+                while set < m:
+                    if not covered[set] and (masks[set] & (1u64 << element)) != 0: count <- count + 1
+                    set <- set + 1
+                if count > best_count:
+                    best_count <- count
+                    chosen <- element
+            element <- element + 1
+        used[chosen] <- true
+        order[slot - 1] <- chosen.i64()
+        set <- 0
+        while set < m:
+            if not covered[set] and (masks[set] & (1u64 << chosen)) != 0:
+                covered[set] <- true
+                total_time <- total_time + slot.i64()
+            set <- set + 1
+        slot <- slot + 1
+    min_sum_store_i64_le(total_time, output, 0)
+    slot <- 0
+    while slot < n:
+        min_sum_store_i64_le(order[slot], output, 8 * (slot + 1))
+        slot <- slot + 1
+    output_bytes.i64()
