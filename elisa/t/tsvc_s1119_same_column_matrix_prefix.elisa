@@ -1,0 +1,23 @@
+# Clean-room TSVC s1119 profile; see package rights note.
+const MAX_INPUT_LENGTH:usize=130
+def put64(v:i64,out:mutable u8&,off:usize)->void:
+ bits:u64=v.u64();k:mutable usize=0
+ while k<8:out[off+k]<-((bits>>(8*k))&255).u8();k<-k+1
+def tsvc_s1119_same_column_matrix_prefix_impl(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64:
+ if input.is_null() or length<10 or length>MAX_INPUT_LENGTH:return -1
+ nr:i64=input[0];passes:i64=input[1];if nr<2 or nr>8 or passes<1 or passes>4:return -1
+ n:usize=nr.usize();nn:usize=n*n;if length!=2+2*nn:return -1
+ a:mutable i64[64]=zeroed;b:mutable i64[64]=zeroed;i:mutable usize=0
+ while i<nn:x:i64=input[2+i];y:i64=input[2+nn+i];if x< -1 or x>1 or y< -1 or y>1:return -1;a[i]<-x;b[i]<-y;i<-i+1
+ if out.is_null() or cap<8*nn:return -2
+ p:mutable usize=0
+ while p<passes.usize():
+  i<-1
+  while i<n:
+   j:mutable usize=0
+   while j<n:a[i*n+j]<-a[(i-1)*n+j]+b[i*n+j];j<-j+1
+   i<-i+1
+  p<-p+1
+ i<-0;while i<nn:put64(a[i],out,8*i);i<-i+1
+ nn.i64()
+export fn tsvc_s1119_same_column_matrix_prefix(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64=tsvc_s1119_same_column_matrix_prefix_impl

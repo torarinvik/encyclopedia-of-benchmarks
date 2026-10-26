@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "id": "prolangs-c-simulator-shiftr-24-v1",
+  "algorithm": "prolangs_c_simulator_shiftr",
+  "function_symbol": "prolangs_c_simulator_shiftr",
+  "description": "SIC/XE simulator SHIFTR_P: sign-extending 24-bit register shift by the format-2 low nibble plus one.",
+  "source": {
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "revision": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["Prolangs-C/simulator/instruct2.c", "Prolangs-C/simulator/format.c", "Prolangs-C/simulator/machine.c"],
+    "symbols": ["SHIFTR_P", "FORMAT2", "BYTES_TO_BITS", "BITS_TO_BYTE"],
+    "launcher": "Prolangs-C/simulator/info.sh",
+    "rights": "(c) William Landi 1991. Permission to use this code is granted as long as the copyright notice remains in place. The notice is preserved in LICENSE.txt and all nine ports."
+  },
+  "input": {
+    "kind": "format2_operand_and_u24_i64_array",
+    "length": 2,
+    "fields": ["format-2 second-byte: high nibble register index 0..9, low nibble shift-count-minus-one 0..15", "24-bit unsigned register bit pattern 0..16777215"],
+    "invalid_result": -1
+  },
+  "output": {"kind": "u24_arithmetic_right_shift_result", "range": [0, 16777215], "invalid_result": -1},
+  "workspace": {"bytes": 0, "meaning": "24-bit word and format-2 field extraction only."},
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000},
+  "cases": [
+    {"id": "one-bit-shift-sign-fill", "input_values": [16, 8388608], "expected_result": 12582912},
+    {"id": "four-bit-positive-shift", "input_values": [19, 8388607], "expected_result": 524287},
+    {"id": "sixteen-bit-negative-shift", "input_values": [15, 8388609], "expected_result": 16777088},
+    {"id": "sixteen-bit-all-sign-bits", "input_values": [15, 16777215], "expected_result": 16777215},
+    {"id": "register-nine-and-shift-four", "input_values": [147, 8388608], "expected_result": 16252928},
+    {"id": "zero-value", "input_values": [0, 0], "expected_result": 0},
+    {"id": "invalid-register-nibble", "input_values": [160, 8388608], "expected_result": -1},
+    {"id": "invalid-word-range", "input_values": [16, 16777216], "expected_result": -1},
+    {"id": "invalid-frame", "input_values": [16], "expected_result": -1}
+  ]
+}

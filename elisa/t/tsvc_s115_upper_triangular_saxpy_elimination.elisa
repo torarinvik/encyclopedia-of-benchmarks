@@ -1,0 +1,26 @@
+# Clean-room TSVC s115 profile; see package rights note.
+const MAX_INPUT_LENGTH:usize=74
+def put64(v:i64,out:mutable u8&,off:usize)->void:
+ bits:u64=v.u64();k:mutable usize=0
+ while k<8:out[off+k]<-((bits>>(8*k))&255).u8();k<-k+1
+def tsvc_s115_upper_triangular_saxpy_elimination_impl(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64:
+ if input.is_null() or length<8 or length>MAX_INPUT_LENGTH:return -1
+ nr:i64=input[0];pr:i64=input[1];if nr<2 or nr>7 or pr<1 or pr>3:return -1
+ n:usize=nr.usize();passes:usize=pr.usize();if length!=2+n+n*n:return -1
+ a:mutable i64[8]=zeroed;m:mutable i64[64]=zeroed;i:mutable usize=0
+ while i<n:x:i64=input[2+i];if x< -1 or x>1:return -1;a[i]<-x;i<-i+1
+ i<-0
+ while i<n*n:x:i64=input[2+n+i];if x< -1 or x>1:return -1;m[i]<-x;i<-i+1
+ if out.is_null() or cap<8*n:return -2
+ p:mutable usize=0
+ while p<passes:
+  j:mutable usize=0
+  while j<n:
+   i<-j+1
+   while i<n:a[i]<-a[i]-m[j*n+i]*a[j];i<-i+1
+   j<-j+1
+  p<-p+1
+ i<-0
+ while i<n:put64(a[i],out,8*i);i<-i+1
+ n.i64()
+export fn tsvc_s115_upper_triangular_saxpy_elimination(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64=tsvc_s115_upper_triangular_saxpy_elimination_impl

@@ -1,0 +1,125 @@
+const MAX_N: usize = 16
+const MAX_M: usize = 64
+const MAX_INPUT: usize = 130
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def similarity_parts(u: usize, v: usize, adjacent: bool[256]&, degree: usize[16]&,
+                     numerator: mutable usize&, denominator_sq: mutable usize&) -> void:
+    shared: mutable usize = 0
+    w: mutable usize = 0
+    while w < MAX_N:
+        if adjacent[u * MAX_N + w] and adjacent[v * MAX_N + w]:
+            shared <- shared + 1
+        w <- w + 1
+    numerator <- shared + 2
+    denominator_sq <- (degree[u] + 1) * (degree[v] + 1)
+
+def epsilon_similar(numerator: usize, denominator_sq: usize) -> bool:
+    4 * numerator * numerator >= denominator_sq
+
+def gbbs_scan_structural_clustering_impl(input: i64&, length: usize,
+                                          output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > 16 or m64 < 0 or m64 > 64: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if length != 2 + 2 * m: return -1
+    adjacent: mutable bool[256] = zeroed
+    degree: mutable usize[16] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u64: i64 = input[2 + 2 * edge]
+        v64: i64 = input[3 + 2 * edge]
+        if u64 < 0 or v64 <= u64 or v64 >= n64: return -1
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        if adjacent[u * MAX_N + v]: return -1
+        adjacent[u * MAX_N + v] <- true
+        adjacent[v * MAX_N + u] <- true
+        degree[u] <- degree[u] + 1
+        degree[v] <- degree[v] + 1
+        edge <- edge + 1
+    output_bytes: usize = 8 * n
+    if output.is_null() or capacity < output_bytes: return -2
+
+    core: mutable bool[16] = zeroed
+    labels: mutable i64[16] = zeroed
+    u: mutable usize = 0
+    while u < n:
+        similar_count: mutable usize = 0
+        v: mutable usize = 0
+        while v < n:
+            if adjacent[u * MAX_N + v]:
+                numerator: mutable usize = 0
+                denominator_sq: mutable usize = 1
+                similarity_parts(u, v, adjacent, degree, numerator, denominator_sq)
+                if epsilon_similar(numerator, denominator_sq):
+                    similar_count <- similar_count + 1
+            v <- v + 1
+        core[u] <- similar_count >= 2
+        labels[u] <- -1
+        u <- u + 1
+
+    root: mutable usize = 0
+    while root < n:
+        if core[root] and labels[root] == -1:
+            queue: mutable usize[16] = zeroed
+            head: mutable usize = 0
+            tail: mutable usize = 1
+            labels[root] <- root.i64()
+            queue[0] <- root
+            while head < tail:
+                node: usize = queue[head]
+                head <- head + 1
+                neighbor: mutable usize = 0
+                while neighbor < n:
+                    if core[neighbor] and labels[neighbor] == -1 and adjacent[node * MAX_N + neighbor]:
+                        numerator: mutable usize = 0
+                        denominator_sq: mutable usize = 1
+                        similarity_parts(node, neighbor, adjacent, degree, numerator, denominator_sq)
+                        if epsilon_similar(numerator, denominator_sq):
+                            labels[neighbor] <- root.i64()
+                            queue[tail] <- neighbor
+                            tail <- tail + 1
+                    neighbor <- neighbor + 1
+        root <- root + 1
+
+    u <- 0
+    while u < n:
+        if not core[u]:
+            best_core: mutable usize = MAX_N
+            best_num: mutable usize = 0
+            best_den: mutable usize = 1
+            v <- 0
+            while v < n:
+                if core[v] and adjacent[u * MAX_N + v]:
+                    numerator: mutable usize = 0
+                    denominator_sq: mutable usize = 1
+                    similarity_parts(u, v, adjacent, degree, numerator, denominator_sq)
+                    if epsilon_similar(numerator, denominator_sq):
+                        left: usize = numerator * numerator * best_den
+                        right: usize = best_num * best_num * denominator_sq
+                        if best_core == MAX_N or left > right or (left == right and v < best_core):
+                            best_core <- v
+                            best_num <- numerator
+                            best_den <- denominator_sq
+                v <- v + 1
+            if best_core != MAX_N:
+                labels[u] <- labels[best_core]
+        u <- u + 1
+    v: mutable usize = 0
+    while v < n:
+        store_i64_le(labels[v], output, 8 * v)
+        v <- v + 1
+    output_bytes.i64()
+
+export fn gbbs_scan_structural_clustering(input: i64&, length: usize,
+                                           output: mutable u8&, capacity: usize) -> i64 = gbbs_scan_structural_clustering_impl

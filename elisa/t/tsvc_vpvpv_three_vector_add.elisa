@@ -1,0 +1,27 @@
+# Clean-room implementation of TSVC vpvpv; see package rights note.
+const TSVC_VTV_MAX_N: usize = 32
+const TSVC_VTV_MAX_INPUT_LENGTH: usize = 98
+def tsvc_vtv_store_i64_le(value:i64,out:mutable u8&,offset:usize)->void:
+ bits:u64=value.u64();j:mutable usize=0
+ while j<8: out[offset+j]<-((bits>>(8*j))&255).u8();j<-j+1
+def tsvc_vpvpv_three_vector_add_impl(input:i64&,length:usize,out:mutable u8&,capacity:usize)->i64:
+ if input.is_null() or length<5 or length>TSVC_VTV_MAX_INPUT_LENGTH:return -1
+ n_value:i64=input[0];passes_value:i64=input[1]
+ if n_value<1 or n_value>TSVC_VTV_MAX_N or passes_value<1 or passes_value>4 or length!=2+3*n_value.usize():return -1
+ n:usize=n_value.usize();passes:usize=passes_value.usize();a:mutable f64[32]=zeroed;b:mutable f64[32]=zeroed;c:mutable f64[32]=zeroed
+ i:mutable usize=0
+ while i<n:
+  av:i64=input[2+i];bv:i64=input[2+n+i];cv:i64=input[2+2*n+i]
+  if av< -2 or av>2 or bv< -2 or bv>2 or cv< -2 or cv>2:return -1
+  a[i]<-av.f64();b[i]<-bv.f64();c[i]<-cv.f64();i<-i+1
+ output_bytes:usize=8*n
+ if out.is_null() or capacity<output_bytes:return -2
+ p:mutable usize=0
+ while p<passes:
+  i<-0
+  while i<n:a[i]<-a[i]+b[i]+c[i];i<-i+1
+  p<-p+1
+ i<-0
+ while i<n:tsvc_vtv_store_i64_le(a[i].i64(),out,8*i);i<-i+1
+ output_bytes.i64()
+export fn tsvc_vpvpv_three_vector_add(input:i64&,length:usize,out:mutable u8&,capacity:usize)->i64=tsvc_vpvpv_three_vector_add_impl

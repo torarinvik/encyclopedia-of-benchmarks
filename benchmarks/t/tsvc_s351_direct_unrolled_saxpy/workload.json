@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s351-f64-slice-v1",
+  "algorithm": "tsvc_s351_direct_unrolled_saxpy",
+  "function_symbol": "tsvc_s351_direct_unrolled_saxpy",
+  "abi": "float64_slice_io",
+  "description": "Bounded one-pass profile of TSVC s351's five-way direct-index SAXPY.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s351",
+    "source_lines": {"kernel_start": 4071, "kernel_end": 4098},
+    "launcher_paths": ["TSVC/LoopRerolling-dbl/info.sh", "TSVC/LoopRerolling-flt/info.sh"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC",
+    "attribution": "TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit modification or redistribution grant was found in reviewed pinned materials; ports are clean-room."
+  },
+  "contract": {
+    "operation": "In ascending groups of five, execute A[i+k] = A[i+k] + alpha*B[i+k] for k=0..4.",
+    "input_layout": "[n,alpha,A[n],B[n]]",
+    "output_layout": "final A[n]",
+    "n_range": [5, 40],
+    "n_multiple": 5,
+    "value_range": [-1, 1],
+    "exact_length": "2+2*n",
+    "arithmetic": "Integer-valued binary64; each product and result is exactly representable in binary32 and binary64.",
+    "passes": 1,
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "input_modified": false
+  },
+  "input": {"kind": "float64_slice", "maximum_valid_length": 82, "maximum_parseable_length": 82, "n_range": [5, 40], "n_multiple": 5, "null_input_result": -1},
+  "output": {"kind": "float64_slice", "maximum_elements": 40, "no_write_on_error": true, "null_output_result": -2, "short_capacity_result": -2},
+  "workspace": {"elements": 40, "bytes": 320, "meaning": "Staged final A vector."},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 100, "absolute_tolerance": 0, "relative_tolerance": 0},
+  "cases": [
+    {"id": "source-shaped-default", "input_values": [5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], "input_length": 12, "expected_result": 5, "expected_output": [2, 2, 2, 2, 2]},
+    {"id": "signed-direct-update", "input_values": [5, -1, -1, 1, 0, -1, 1, 1, -1, 0, 1, -1], "input_length": 12, "expected_result": 5, "expected_output": [-2, 2, 0, -2, 2]},
+    {"id": "two-unrolled-groups", "input_values": [10, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1], "input_length": 22, "expected_result": 10, "expected_output": [1, 0, 1, 0, 1, 0, 1, 0, 1, 0]},
+    {"id": "invalid-n-not-multiple-five", "input_values": [6], "input_length": 1, "expected_result": -1, "expected_output": []},
+    {"id": "truncated", "input_values": [5, 1, 0, 0], "input_length": 4, "expected_result": -1, "expected_output": []},
+    {"id": "fractional", "input_values": [5, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 12, "expected_result": -1, "expected_output": []},
+    {"id": "short-capacity", "input_values": [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 12, "expected_result": -2, "expected_output": [], "output_capacity": 4},
+    {"id": "null-output", "input_values": [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 12, "expected_result": -2, "expected_output": [], "output_is_null": true}
+  ]
+}

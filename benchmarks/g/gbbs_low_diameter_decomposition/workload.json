@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "gbbs-low-diameter-decomposition-i64-array-bytes-output-v1",
+  "algorithm": "gbbs_low_diameter_decomposition",
+  "function_symbol": "gbbs_low_diameter_decomposition",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded MPX low-diameter partition with exponential center batches and deterministic frontier ties.",
+  "source": {
+    "repository": "ParAlg/gbbs",
+    "commit": "dbd1dcad582c0a316c5ba0d5524319d596dd82da",
+    "path": "benchmarks/LowDiameterDecomposition/MPX13/LowDiameterDecomposition.h",
+    "symbols": ["generate_shifts", "LDD_F", "LDD_impl", "LDD"],
+    "url": "https://github.com/ParAlg/gbbs/blob/dbd1dcad582c0a316c5ba0d5524319d596dd82da/benchmarks/LowDiameterDecomposition/MPX13/LowDiameterDecomposition.h",
+    "related_paths": ["benchmarks/LowDiameterDecomposition/MPX13/LowDiameterDecomposition.cc"],
+    "launcher_path": "benchmarks/LowDiameterDecomposition/MPX13/LowDiameterDecomposition.cc",
+    "launcher_symbol": "LDD_runner",
+    "license_path": "LICENSE",
+    "license": "MIT"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, edge_count, (u, v)...]",
+    "node_count_range": [1, 12],
+    "edge_count_range": [0, 24],
+    "edge_semantics": "simple undirected graph; each edge appears once with 0 <= u < v < node_count",
+    "maximum_valid_length": 50,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "One cluster-center vertex ID byte per vertex, in vertex-ID order.",
+    "maximum_values": 12,
+    "maximum_bytes": 12,
+    "success_result": "node_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 768,
+    "meaning": "Fixed bounded adjacency matrix, center labels, candidate-batch state, and two frontiers."
+  },
+  "contract": {
+    "operation": "Partition vertices by MPX-style exponentially scheduled center release and one-edge-per-round multi-source frontier growth; return the center ID assigned to each vertex.",
+    "launcher_profile": "The launcher defaults beta to 0.2 and enables random permutation only when -permute is set. The bounded profile fixes beta=0.2 and uses the default no-permutation mode.",
+    "source_profile": "Candidate vertices are considered in ascending ID order in batches of floor(exp(round*beta)); unassigned candidates become centers. Each round expands the current frontier one edge, assigning unassigned neighbors from their frontier center.",
+    "projection": "The bounded batch table is [1,1,1,1,2,2,3,4,4,6,7,9,11]. Candidate batches are clipped to node_count. When multiple frontier centers reach a vertex in one round, the smallest center ID wins. This deterministic tie rule and bounded clipping project away parallel scheduling while retaining source center batches and frontier growth.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"singleton-isolated","input_values":[1,0],"input_length":2,"output_capacity":12,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"four-isolated-centers","input_values":[4,0],"input_length":2,"output_capacity":12,"expected_result":4,"expected_output_hex":"00010203"},
+    {"id":"center-reaches-star","input_values":[5,4,0,1,0,2,0,3,0,4],"input_length":10,"output_capacity":12,"expected_result":5,"expected_output_hex":"0000000000"},
+    {"id":"frontier-center-tie","input_values":[6,5,0,5,1,2,2,3,3,4,4,5],"input_length":12,"output_capacity":12,"expected_result":6,"expected_output_hex":"000101000000"},
+    {"id":"two-components","input_values":[5,3,0,1,1,2,3,4],"input_length":8,"output_capacity":12,"expected_result":5,"expected_output_hex":"0000000303"},
+    {"id":"maximum-node-and-edge-count","input_values":[12,24,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,1,2,1,3,1,4,1,5,1,6,1,7,1,8,1,9,1,10,1,11,2,3,2,4,2,5],"input_length":50,"output_capacity":12,"expected_result":12,"expected_output_hex":"000000000000000000000000"},
+    {"id":"maximum-node-count-isolates","input_values":[12,0],"input_length":2,"output_capacity":12,"expected_result":12,"expected_output_hex":"000102030405060708090a0b"},
+    {"id":"self-loop-invalid","input_values":[2,1,0,0],"input_length":4,"output_capacity":12,"expected_result":-1,"expected_output_hex":""},
+    {"id":"noncanonical-edge-invalid","input_values":[2,1,1,0],"input_length":4,"output_capacity":12,"expected_result":-1,"expected_output_hex":""},
+    {"id":"duplicate-edge-invalid","input_values":[3,2,0,1,0,1],"input_length":6,"output_capacity":12,"expected_result":-1,"expected_output_hex":""},
+    {"id":"endpoint-out-of-range","input_values":[2,1,0,2],"input_length":4,"output_capacity":12,"expected_result":-1,"expected_output_hex":""},
+    {"id":"node-count-out-of-range","input_values":[13,0],"input_length":2,"output_capacity":12,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[3,1,0,1],"input_length":4,"output_capacity":12,"expected_result":-1,"expected_output_hex":""},
+    {"id":"insufficient-output-capacity","input_values":[2,1,0,1],"input_length":4,"output_capacity":1,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,1,0,1],"input_length":4,"output_capacity":12,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"output_capacity":12,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

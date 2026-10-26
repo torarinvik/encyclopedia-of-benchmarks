@@ -1,0 +1,98 @@
+const PANNOTIA_COLOR_MAX_N: usize = 16
+const PANNOTIA_COLOR_MAX_M: usize = 64
+const PANNOTIA_COLOR_MAX_INPUT: usize = 147
+const PANNOTIA_COLOR_MAX_PRIORITY: i64 = 99999998
+
+def pannotia_color_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def pannotia_priority_coloring(input: i64&, length: usize,
+                               output: mutable u8&, capacity: usize) -> i64 @export("pannotia_priority_coloring"):
+    if input.is_null() or length < 3 or length > PANNOTIA_COLOR_MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    mode64: i64 = input[2]
+    if n64 < 1 or n64 > 16 or m64 < 0 or m64 > 64 or (mode64 != 0 and mode64 != 1) or length != 3 + n64.usize() + 2 * m64.usize(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    mode: usize = mode64.usize()
+    adjacency: mutable u64[16] = zeroed
+    degree: mutable usize[16] = zeroed
+    priority: mutable i64[16] = zeroed
+    color: mutable i64[16] = zeroed
+    active: mutable bool[16] = zeroed
+    v: mutable usize = 0
+    while v < n:
+        priority[v] <- input[3 + v]
+        if priority[v] < 0 or priority[v] > PANNOTIA_COLOR_MAX_PRIORITY: return -1
+        prior: mutable usize = 0
+        while prior < v:
+            if priority[prior] == priority[v]: return -1
+            prior <- prior + 1
+        color[v] <- -1
+        active[v] <- true
+        v <- v + 1
+    edge: mutable usize = 0
+    while edge < m:
+        u64_value: i64 = input[3 + n + 2 * edge]
+        v64_value: i64 = input[4 + n + 2 * edge]
+        if u64_value < 0 or v64_value <= u64_value or v64_value >= n64: return -1
+        u: usize = u64_value.usize()
+        w: usize = v64_value.usize()
+        bit: u64 = 1 << w
+        if (adjacency[u] & bit) != 0: return -1
+        adjacency[u] <- adjacency[u] | bit
+        adjacency[w] <- adjacency[w] | (1 << u)
+        degree[u] <- degree[u] + 1
+        degree[w] <- degree[w] + 1
+        edge <- edge + 1
+    v <- 0
+    while v < n:
+        if degree[v] == 1: return -1
+        v <- v + 1
+    output_bytes: usize = 8 * n
+    if output.is_null() or capacity < output_bytes: return -2
+    current_color: mutable i64 = 1
+    while true:
+        chosen: mutable bool[16] = zeroed
+        chosen_count: mutable usize = 0
+        v <- 0
+        while v < n:
+            if active[v]:
+                maximum: mutable i64 = -1
+                minimum: mutable i64 = 99999999
+                u: mutable usize = 0
+                while u < n:
+                    if active[u] and (adjacency[v] & (1 << u)) != 0:
+                        if priority[u] > maximum: maximum <- priority[u]
+                        if priority[u] < minimum: minimum <- priority[u]
+                    u <- u + 1
+                if priority[v] > maximum:
+                    color[v] <- current_color
+                    chosen[v] <- true
+                if mode == 1 and priority[v] < minimum:
+                    color[v] <- current_color + 1
+                    chosen[v] <- true
+                if chosen[v]: chosen_count <- chosen_count + 1
+            v <- v + 1
+        if chosen_count == 0: return -1
+        v <- 0
+        while v < n:
+            if chosen[v]: active[v] <- false
+            v <- v + 1
+        remaining: mutable bool = false
+        v <- 0
+        while v < n:
+            remaining <- remaining or active[v]
+            v <- v + 1
+        if not remaining: break
+        if mode == 1: current_color <- current_color + 2 else: current_color <- current_color + 1
+    v <- 0
+    while v < n:
+        pannotia_color_store_i64_le(color[v], output, 8 * v)
+        v <- v + 1
+    output_bytes.i64()

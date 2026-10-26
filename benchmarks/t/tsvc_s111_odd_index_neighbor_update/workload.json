@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s111-odd-index-neighbor-update-float64-slice-io-v1",
+  "algorithm": "tsvc_s111_odd_index_neighbor_update",
+  "function_symbol": "tsvc_s111_odd_index_neighbor_update",
+  "abi": "float64_slice_io",
+  "description": "Bounded source-order TSVC s111 odd-index neighbor update.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s111",
+    "source_lines": {"kernel_start": 845, "kernel_end": 869},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc",
+    "launcher_paths": ["TSVC/LinearDependence-dbl/info.sh", "TSVC/LinearDependence-flt/info.sh"],
+    "launcher_options": {"LinearDependence-dbl": "3570 14", "LinearDependence-flt": "3570 5"},
+    "attribution": "TSVC source comments attribute its non-four-digit loops to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit redistribution grant was found in the pinned TSVC source or repository material reviewed. These are clean-room implementations; no upstream code/comments, license, or endorsement is claimed."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[n, A values, B values]",
+    "n_range": [1, 64],
+    "value_range": [-1000, 1000],
+    "value_domain": "integer-valued finite numbers",
+    "maximum_valid_input_length": 129,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "updated A values; only odd indices are overwritten",
+    "maximum_elements": 64,
+    "success_result": "n",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 0,
+    "relative_tolerance": 0
+  },
+  "workspace": {"elements": 64},
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 0,
+    "relative_tolerance": 0
+  },
+  "cases": [
+    {"id":"odd-destinations","input_values":[4,2,3,-4,5,10,7,8,-2],"input_length":9,"output_capacity":4,"expected_result":4,"expected_output":[2,9,-4,-6]},
+    {"id":"even-length-unchanged-even-cells","input_values":[5,-1,4,0,2,7,100,-5,12,9,3],"input_length":11,"output_capacity":5,"expected_result":5,"expected_output":[-1,-6,0,9,7]},
+    {"id":"one-element-no-update","input_values":[1,-17,22],"input_length":3,"output_capacity":1,"expected_result":1,"expected_output":[-17]},
+    {"id":"invalid-size","input_values":[0],"input_length":1,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-fractional-input","input_values":[1,1.5,2],"input_length":3,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"short-capacity","input_values":[1,2,3],"input_length":3,"output_capacity":0,"expected_result":-2,"expected_output":[]},
+    {"id":"null-output","input_values":[1,2,3],"input_length":3,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output":[]}
+  ]
+}

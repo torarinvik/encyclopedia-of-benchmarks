@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "id": "prolangs-c-gnugo-suicide-v1",
+  "algorithm": "prolangs_c_gnugo_suicide",
+  "function_symbol": "prolangs_c_gnugo_suicide",
+  "description": "Bounded source-derived GNU Go suicide move predicate, including its single-stone ko-takeback condition.",
+  "source": {
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "revision": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["Prolangs-C/gnugo/suicide.c", "Prolangs-C/gnugo/eval.c", "Prolangs-C/gnugo/countlib.c", "Prolangs-C/gnugo/count.c"],
+    "symbols": ["suicide", "eval", "countlib", "count"],
+    "launcher": "Prolangs-C/gnugo/info.sh",
+    "rights": "The pinned headers explicitly grant modification and redistribution under GNU General Public License version 1. Ports are derivative implementations licensed under GNU GPL version 1. Attribution: GNU Go 1.1, Copyright (C) Free Software Foundation, Inc.; written by Man L. Li, modified by Wayne Iba, documented by Bob Webber."
+  },
+  "input": {
+    "kind": "sparse_go_move_i64_array",
+    "length_formula": "6 + 2*k",
+    "minimum_length": 6,
+    "maximum_length": 246,
+    "fields": ["candidate row 0..18", "candidate column 0..18", "own color 1 or 2", "opponent move color 1 or 2, distinct from own", "ko point row-major index -1 for none or 0..360", "existing stone count k 0..120", "k row-major index/color pairs"],
+    "board": "19x19; omitted cells are empty; candidate location must be empty before the move",
+    "duplicate_indices": "invalid",
+    "invalid_result": -1
+  },
+  "output": {"kind": "source_suicide_status", "values": {"0": "source accepts the move", "1": "source rejects suicide or the specified single-stone ko recapture"}, "invalid_result": -1},
+  "workspace": {"bytes": 2527, "meaning": "Fixed board, visited/liberty state, and bounded traversal storage; implementations may use equivalent fixed storage. The 120-stone bound keeps every connected group’s maximum possible liberty count below the source's unsigned-byte l[][] wrap boundary."},
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000},
+  "cases": [
+    {"id": "adjacent-liberty-accepts", "input_values": [9, 9, 1, 2, -1, 1, 181, 2], "expected_result": 0},
+    {"id": "no-liberty-but-no-own-stone-lost", "input_values": [9, 9, 1, 2, -1, 4, 161, 1, 179, 1, 181, 1, 199, 1], "expected_result": 1},
+    {"id": "one-own-stone-lost-outside-ko-accepted", "input_values": [9, 9, 1, 2, -1, 7, 179, 1, 161, 1, 199, 1, 181, 1, 160, 2, 198, 2, 178, 2], "expected_result": 0},
+    {"id": "single-stone-ko-takeback-rejected", "input_values": [9, 9, 1, 2, 180, 7, 179, 1, 161, 1, 199, 1, 181, 1, 160, 2, 198, 2, 178, 2], "expected_result": 1},
+    {"id": "occupied-candidate-invalid", "input_values": [9, 9, 1, 2, -1, 1, 180, 1], "expected_result": -1},
+    {"id": "same-color-fields-invalid", "input_values": [9, 9, 1, 1, -1, 0], "expected_result": -1},
+    {"id": "invalid-ko-index", "input_values": [9, 9, 1, 2, 361, 0], "expected_result": -1},
+    {"id": "invalid-duplicate-stone", "input_values": [9, 9, 1, 2, -1, 2, 180, 1, 180, 2], "expected_result": -1}
+  ]
+}

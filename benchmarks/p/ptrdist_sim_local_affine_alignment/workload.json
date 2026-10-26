@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-ptrdist-sim-local-affine-alignment-v1",
+  "algorithm": "ptrdist_sim_local_affine_alignment",
+  "function_symbol": "ptrdist_sim_local_affine_alignment",
+  "abi": "i64_array_scalar",
+  "description": "Return the first-best local alignment score using SIM's default affine-gap scoring profile.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "sim/sim.c",
+    "symbols": ["main", "SIM", "big_pass", "gap"],
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/sim/sim.c",
+    "launcher": "sim/info.sh",
+    "launcher_options": "8 tob.38-44 liv.42-48",
+    "copyright": "Copyright (c) 1990 Xiaoqiu Huang and Webb Miller",
+    "license_status": "No explicit redistribution grant found in pinned source; clean-room ports only."
+  },
+  "contract": {
+    "input": "[left_length, left_ascii..., right_length, right_ascii...]",
+    "alphabet": "uppercase A/C/G/T only",
+    "scoring_integer_tenths": {
+      "match": 10,
+      "transition_mismatch": -10,
+      "transversion_mismatch": -10,
+      "gap_open_q": 60,
+      "gap_extend_r": 2,
+      "gap_length_k_cost": "q + r*k"
+    },
+    "operation": "Local affine-gap dynamic programming; report the maximum cell score from the initial full pass.",
+    "output": "maximum local similarity score in integer tenths; zero if all alignments score nonpositive",
+    "invalid_result": -1,
+    "max_sequence_length": 64,
+    "max_input_length": 130,
+    "source_scope_excluded": "The launcher requests eight nonintersecting alignments. This bounded profile implements only the first-best score and omits iterative recomputation, traceback/display, and file handling."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 131,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "minimum_success_value": 0,
+    "maximum_success_value": 640
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {"id": "source-default-scoring-exact-match", "input_values": [4, 65, 67, 71, 84, 4, 65, 67, 71, 84], "expected_result": 40},
+    {"id": "best-local-substring-after-mismatch", "input_values": [4, 65, 67, 71, 84, 4, 65, 71, 71, 84], "expected_result": 20},
+    {"id": "no-positive-match", "input_values": [4, 65, 65, 65, 65, 4, 67, 67, 67, 67], "expected_result": 0},
+{"id":"one-symbol-affine-gap","input_values":[16,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,24,65,65,65,65,65,65,65,65,67,67,67,67,67,67,67,67,65,65,65,65,65,65,65,65],"expected_result":84},
+{"id":"two-symbol-affine-gap","input_values":[16,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,25,65,65,65,65,65,65,65,65,67,67,67,67,67,67,67,67,67,65,65,65,65,65,65,65,65],"expected_result":82},
+    {"id": "maximum-identical-sequences", "input_values": [64, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 64, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65], "expected_result": 640},
+    {"id": "invalid-bad-symbol", "input_values": [1, 78, 1, 65], "expected_result": -1},
+    {"id": "invalid-length-mismatch", "input_values": [2, 65, 67, 2, 65], "expected_result": -1},
+    {"id": "invalid-truncated-header", "input_values": [2, 65, 67], "expected_result": -1}
+  ]
+}

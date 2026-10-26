@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "gardenia-sequential-mf-sgd-bounded-f64-slice-io-v1",
+  "algorithm": "gardenia_sgd",
+  "function_symbol": "gardenia_sgd",
+  "abi": "float64_slice_io",
+  "description": "Bounded sequential per-rating in-place matrix-factorization SGD from GARDENIA's verifier.",
+  "source": {
+    "repository": "chenxuhao/gardenia",
+    "commit": "5894df11cf47f8839945edadff43dc79e260216d",
+    "path": "src/sgd/verifier.cc",
+    "symbols": ["SGDVerifier"],
+    "url": "https://github.com/chenxuhao/gardenia/blob/5894df11cf47f8839945edadff43dc79e260216d/src/sgd/verifier.cc",
+    "additional_source_paths": ["src/sgd/sgd.h", "src/sgd/main.cc", "include/common.h"],
+    "license_path": "LICENSE",
+    "license": "MIT"
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[users, items, ratings, factors, rowptr[users+1], item_id[ratings], rating[ratings], latent[(users+items)*factors]]",
+    "users_range": [1, 7],
+    "items_range": [1, 7],
+    "total_vertex_maximum": 8,
+    "rating_count_range": [1, 24],
+    "factor_count_range": [1, 4],
+    "maximum_input_length": 92,
+    "rating_range": [-4, 4],
+    "initial_factor_range": [0, 0.1],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "encoding": "user factors followed by item factors, row-major by vertex and factor",
+    "maximum_elements": 32,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "operation": "Perform sequential SGD ratings in user-ID/CSR order, updating the user and item factors immediately after each residual calculation; repeat until RMSE is strictly below 0.1 or three iterations have completed.",
+    "source_parameters": {"regularization": 0.001, "step": 0.00000035, "epsilon": 0.1, "maximum_iterations": 3},
+    "numeric_profile": "binary64 projection of pinned default binary32 ScoreT and LatentT",
+    "initialization_projection": "caller-supplied factors replace the source host's default_random_engine initialization",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "workspace": {"elements": 32, "meaning": "Staged concatenated user/item latent factors at maximum bounds."},
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single-rating-one-converged-pass","input_values":[1,1,1,1,0,1,0,0.1,0.1,0.1],"input_length":10,"output_capacity":2,"expected_result":2,"expected_output":[0.100000003115,0.100000003115]},
+    {"id":"bad-row-pointer-end","input_values":[1,1,1,1,0,0,0,0.1,0.1,0.1],"input_length":10,"output_capacity":2,"expected_result":-1,"expected_output":[]},
+    {"id":"short-output","input_values":[1,1,1,1,0,1,0,0.1,0.1,0.1],"input_length":10,"output_capacity":1,"expected_result":-2,"expected_output":[]}
+  ]
+}

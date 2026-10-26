@@ -76,6 +76,36 @@ from rodinia_myocyte_cam_rhs_oracle import (
     INVALID_RESULT as RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT,
     expected_result as rodinia_myocyte_cam_rhs_expected,
 )
+from rodinia_leukocyte_gicov_oracle import (
+    ELLIPSE_COUNT as RODINIA_LEUKOCYTE_GICOV_ELLIPSE_COUNT,
+    INVALID_RESULT as RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT,
+    MAX_INPUT_LENGTH as RODINIA_LEUKOCYTE_GICOV_MAX_INPUT_LENGTH,
+    MAX_POINTS as RODINIA_LEUKOCYTE_GICOV_MAX_POINTS,
+    MIN_POINTS as RODINIA_LEUKOCYTE_GICOV_MIN_POINTS,
+    SAMPLE_SCALE as RODINIA_LEUKOCYTE_GICOV_SAMPLE_SCALE,
+    expected_result as rodinia_leukocyte_gicov_expected,
+)
+from gbbs_charikar_densest_subgraph_oracle import (
+    INVALID_RESULT as GBBS_CHARIKAR_INVALID_RESULT,
+    MAX_INPUT_LENGTH as GBBS_CHARIKAR_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GBBS_CHARIKAR_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as gbbs_charikar_densest_subgraph_expected,
+)
+from gbbs_bkv12_densest_subgraph_oracle import (
+    INVALID_RESULT as GBBS_BKV12_INVALID_RESULT,
+    MAX_INPUT_LENGTH as GBBS_BKV12_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GBBS_BKV12_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as gbbs_bkv12_densest_subgraph_expected,
+)
+from gbbs_greedy_plus_plus_densest_subgraph_oracle import (
+    INVALID_RESULT as GBBS_GREEDY_PP_INVALID_RESULT,
+    MIN_NODES as GBBS_GREEDY_PP_MIN_NODES,
+    MAX_NODES as GBBS_GREEDY_PP_MAX_NODES,
+    MAX_EDGES as GBBS_GREEDY_PP_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_GREEDY_PP_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GBBS_GREEDY_PP_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as gbbs_greedy_plus_plus_densest_subgraph_expected,
+)
 from traveling_salesman_solver_oracle import (
     INVALID_RESULT as TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
     MAX_BRUTE_FORCE_INPUT_LENGTH as TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_INPUT_LENGTH,
@@ -669,6 +699,95 @@ def validate_rodinia_myocyte_cam_rhs_workload(workload: dict) -> None:
             "zig/m/rodinia_myocyte_cam_rhs.zig"):
         if not (ROOT / relative).is_file():
             raise ValueError(f"rodinia_myocyte_cam_rhs language port is missing: {relative}")
+
+
+def validate_rodinia_leukocyte_gicov_workload(workload: dict) -> None:
+    """Validate the bounded seven-row GICOV kernel and its source rights."""
+    expected_source = {
+        "repository": "utcs-scea/rodinia",
+        "commit": "f30e63663cfb114939a15c7ffc4ae112055ae6a8",
+        "paths": ["cuda/leukocyte/CUDA/find_ellipse_kernel.cu", "LICENSE"],
+        "url": "https://github.com/utcs-scea/rodinia/tree/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/leukocyte",
+        "license": "University of Virginia BSD-3-Clause; full terms and citation list in LICENSE.txt.",
+    }
+    expected_ids = {
+        "two-point-source-row-order-score-4p5", "invalid-zero-variance-row",
+        "invalid-short-rows", "invalid-sample-bound", "null-input-pointer",
+    }
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    arithmetic = workload.get("arithmetic", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "description", "pinned_source", "input", "output", "arithmetic",
+                          "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "rodinia-leukocyte-gicov-f32-bounded-v1"
+            or workload.get("algorithm") != "rodinia_leukocyte_gicov"
+            or workload.get("function_symbol") != "rodinia_leukocyte_gicov"
+            or workload.get("pinned_source") != expected_source
+            or input_spec.get("kind") != "signed_i64_array"
+            or input_spec.get("maximum_length") != RODINIA_LEUKOCYTE_GICOV_MAX_INPUT_LENGTH
+            or input_spec.get("layout") != [
+                "point_count", "7 consecutive rows of point_count projected gradient samples"]
+            or input_spec.get("point_count_bounds") != [
+                RODINIA_LEUKOCYTE_GICOV_MIN_POINTS, RODINIA_LEUKOCYTE_GICOV_MAX_POINTS]
+            or input_spec.get("sample_integer_bounds") != [
+                -RODINIA_LEUKOCYTE_GICOV_SAMPLE_SCALE, RODINIA_LEUKOCYTE_GICOV_SAMPLE_SCALE]
+            or input_spec.get("sample_scale") != RODINIA_LEUKOCYTE_GICOV_SAMPLE_SCALE
+            or input_spec.get("exact_length") != "1 + 7*point_count"
+            or input_spec.get("invalid_input_result") != RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+            or output_spec.get("kind") != "binary64"
+            or output_spec.get("meaning") != "Maximum source-order binary32 GICOV score across the seven ellipse rows, promoted to binary64."
+            or output_spec.get("invalid_input_result") != RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+            or output_spec.get("zero_variance") != "Outside the finite profile domain; return invalid sentinel."
+            or arithmetic.get("precision") != "Binary32 at each source float accumulation/update and score operation; returned score is promoted to binary64."
+            or arithmetic.get("ordering") != "Seven ellipses ascending; within each row, points ascending; add to sum, then Welford delta, mean update, and M2 update. Replace mean with sum/N before variance and score."
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("relative_tolerance") != 1e-7
+            or measurement.get("absolute_tolerance") != 1e-7
+            or not isinstance(cases, list)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+            or len(cases) != len(expected_ids)):
+        raise ValueError("rodinia_leukocyte_gicov workload differs from its pinned bounded contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        expected = case.get("expected_result")
+        if (not isinstance(values, list)
+                or type(input_is_null) is not bool
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or len(values) > RODINIA_LEUKOCYTE_GICOV_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or input_is_null and values
+                or type(expected) not in (int, float) or not math.isfinite(expected)):
+            raise ValueError(f"rodinia_leukocyte_gicov fixture framing is invalid: {case.get('id')}")
+        result = rodinia_leukocyte_gicov_expected(values)
+        if (result == RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+                and expected != RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+                or result != RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+                and (expected == RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+                     or not math.isclose(expected, result, rel_tol=1e-7, abs_tol=1e-7))):
+            raise ValueError(f"rodinia_leukocyte_gicov fixture differs from its source-order oracle: {case.get('id')}")
+
+    package = ROOT / "benchmarks" / "r" / "rodinia_leukocyte_gicov"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("find_ellipse_kernel.cu" not in readme or "clean-room implementations" not in readme
+            or "University of Virginia" not in license_text
+            or "All rights reserved." not in license_text
+            or "cite the most relevant" not in license_text):
+        raise ValueError("rodinia_leukocyte_gicov source attribution or full license is incomplete")
+    for relative in (
+            "c/r/rodinia_leukocyte_gicov.c", "c3/r/rodinia_leukocyte_gicov.c3",
+            "cpp/r/rodinia_leukocyte_gicov.cpp", "elisa/r/rodinia_leukocyte_gicov.elisa",
+            "nim/r/rodinia_leukocyte_gicov.nim", "odin/r/rodinia_leukocyte_gicov.odin",
+            "rust/r/rodinia_leukocyte_gicov.rs", "v/r/rodinia_leukocyte_gicov.v",
+            "zig/r/rodinia_leukocyte_gicov.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"rodinia_leukocyte_gicov language port is missing: {relative}")
 
 
 def validate_monte_carlo_integration_workload(workload: dict, algorithm: str) -> None:
@@ -3239,9 +3358,324 @@ def validate_polybench_ludcmp_workload(workload: dict) -> None:
             raise ValueError(f"polybench_ludcmp fixture differs from its source-order oracle: {case.get('id')}")
 
 
+def validate_gbbs_charikar_densest_subgraph_workload(workload: dict) -> None:
+    pinned = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
+    expected_source = {
+        "repository": "ParAlg/gbbs", "commit": pinned,
+        "path": "benchmarks/ApproximateDensestSubgraph/GreedyCharikar/DensestSubgraph.h",
+        "symbol": "CharikarAppxDensestSubgraph",
+        "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/ApproximateDensestSubgraph/GreedyCharikar/DensestSubgraph.h",
+        "related_paths": ["benchmarks/KCore/JulienneDBS17/KCore.h"],
+        "related_symbols": ["DegeneracyOrder"],
+        "license": "MIT", "license_file": "LICENSE.txt",
+    }
+    expected_contract = {
+        "operation": "Return the maximum average degree over induced suffixes of a deterministic degeneracy order.",
+        "input_encoding": "[node_count, edge_count, (u, v)...]",
+        "bounds": {"nodes": [1, 16], "edges": [0, 64]},
+        "edge_semantics": "simple undirected graph; every edge appears once with 0 <= u < v < node_count",
+        "source_profile": "Remove all vertices in the current minimum residual-degree shell, clamp each surviving degree to at least that shell degree, and append each shell in ascending vertex-ID order. For each suffix compute 2*induced_edge_count/suffix_vertex_count and return the maximum.",
+        "output_meaning": "Maximum source-style average-degree score, a Charikar 2-approximation to maximum induced-subgraph average degree.",
+        "tie_rule": "Vertices in each shell are ordered by ascending ID; this deterministic order refines the source bucket order.",
+        "invalid_result": GBBS_CHARIKAR_INVALID_RESULT,
+    }
+    expected_cases = {
+        "triangle-with-isolate", "four-vertex-path", "four-vertex-star", "triangle", "edgeless",
+        "maximum-nodes-and-edges", "too-short", "node-count-out-of-range",
+        "edge-count-out-of-range", "length-mismatch", "self-loop", "noncanonical-edge",
+        "duplicate-edge", "endpoint-out-of-range", "null-input",
+    }
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "contract", "input", "output",
+                          "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "gbbs-charikar-densest-subgraph-i64-array-float64-v1"
+            or workload.get("algorithm") != "gbbs_charikar_densest_subgraph"
+            or workload.get("function_symbol") != "gbbs_charikar_densest_subgraph"
+            or workload.get("abi") != "i64_array_float64"
+            or workload.get("pinned_source") != expected_source
+            or workload.get("contract") != expected_contract
+            or workload.get("input") != {
+                "kind": "signed_64_bit_integer_array",
+                "encoding": "[node_count, edge_count, (u, v)...]",
+                "node_count_range": [1, 16], "edge_count_range": [0, 64],
+                "edge_semantics": expected_contract["edge_semantics"],
+                "maximum_valid_input_length": GBBS_CHARIKAR_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": GBBS_CHARIKAR_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_input_result": GBBS_CHARIKAR_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "float64_scalar", "absolute_tolerance": 1e-12,
+                "relative_tolerance": 1e-12,
+                "invalid_result": GBBS_CHARIKAR_INVALID_RESULT,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_float64_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }
+            or {case.get("id") for case in workload.get("cases", [])
+                if isinstance(case, dict)} != expected_cases
+            or not isinstance(workload.get("cases"), list)
+            or len(workload["cases"]) != len(expected_cases)):
+        raise ValueError("GBBS Charikar workload metadata differs from the pinned bounded profile")
+
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or input_is_null and (values or input_length != 0)
+                or not input_is_null and input_length != len(values)):
+            raise ValueError(f"GBBS Charikar fixture framing is invalid: {case.get('id')}")
+        expected = gbbs_charikar_densest_subgraph_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        actual = case.get("expected_result")
+        if (type(actual) not in (int, float) or not math.isfinite(actual)
+                or not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=1e-12)):
+            raise ValueError(f"GBBS Charikar fixture differs from its shell-order oracle: {case.get('id')}")
+
+    package = ROOT / "benchmarks" / "g" / "gbbs_charikar_densest_subgraph"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (pinned not in readme or expected_source["path"] not in readme
+            or "MIT License" not in license_text
+            or "Copyright (c) 2018 Laxman Dhulipala, Guy Blelloch, and Julian Shun" not in license_text
+            or "Permission is hereby granted" not in license_text):
+        raise ValueError("GBBS Charikar README or full MIT notice is incomplete")
+    for relative in (
+            "c/g/gbbs_charikar_densest_subgraph.c",
+            "c3/g/gbbs_charikar_densest_subgraph.c3",
+            "cpp/g/gbbs_charikar_densest_subgraph.cpp",
+            "elisa/g/gbbs_charikar_densest_subgraph.elisa",
+            "nim/g/gbbs_charikar_densest_subgraph.nim",
+            "odin/g/gbbs_charikar_densest_subgraph.odin",
+            "rust/g/gbbs_charikar_densest_subgraph.rs",
+            "v/g/gbbs_charikar_densest_subgraph.v",
+            "zig/g/gbbs_charikar_densest_subgraph.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "gbbs_charikar_densest_subgraph" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"GBBS Charikar port is missing its exported symbol: {relative}")
+
+
+def validate_gbbs_bkv12_densest_subgraph_workload(workload: dict) -> None:
+    pinned = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
+    expected_source = {
+        "repository": "ParAlg/gbbs", "commit": pinned,
+        "path": "benchmarks/ApproximateDensestSubgraph/ApproxPeelingBKV12/DensestSubgraph.h",
+        "symbol": "WorkEfficientDensestSubgraph",
+        "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/ApproximateDensestSubgraph/ApproxPeelingBKV12/DensestSubgraph.h",
+        "launcher_path": "benchmarks/ApproximateDensestSubgraph/ApproxPeelingBKV12/DensestSubgraph.cc",
+        "launcher_symbol": "DensestSubgraph_runner",
+        "license": "MIT", "license_file": "LICENSE.txt",
+    }
+    expected_contract = {
+        "operation": "Return the maximum induced average degree at the beginning of a BKV12 density-threshold round.",
+        "input_encoding": "[node_count, edge_count, (u, v)...]",
+        "bounds": {"nodes": [1, 16], "edges": [0, 64]},
+        "edge_semantics": "simple undirected graph; each edge appears once with 0 <= u < v < node_count",
+        "epsilon": 0.001,
+        "source_profile": "At each round measure sum of current degrees divided by remaining vertex count, update the maximum, remove every vertex with degree <= 1.001 times that average, and decrement surviving neighbors' degrees. Use exact integer comparison for the decimal threshold.",
+        "output_meaning": "Maximum source-style average-degree score; not the exact maximum induced density.",
+        "invalid_result": GBBS_BKV12_INVALID_RESULT,
+    }
+    expected_cases = {
+        "triangle-with-isolate", "four-vertex-path", "four-vertex-star",
+        "complete-four-graph", "edgeless", "maximum-nodes-and-edges", "too-short",
+        "node-count-out-of-range", "edge-count-out-of-range", "length-mismatch",
+        "self-loop", "noncanonical-edge", "duplicate-edge", "endpoint-out-of-range",
+        "null-input",
+    }
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "contract", "input", "output",
+                          "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "gbbs-bkv12-densest-subgraph-i64-array-float64-v1"
+            or workload.get("algorithm") != "gbbs_bkv12_densest_subgraph"
+            or workload.get("function_symbol") != "gbbs_bkv12_densest_subgraph"
+            or workload.get("abi") != "i64_array_float64"
+            or workload.get("description") != "Bounded BKV12 density-threshold peeling profile with epsilon 0.001."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("contract") != expected_contract
+            or workload.get("input") != {
+                "kind": "signed_64_bit_integer_array",
+                "encoding": "[node_count, edge_count, (u, v)...]",
+                "node_count_range": [1, 16], "edge_count_range": [0, 64],
+                "maximum_valid_input_length": GBBS_BKV12_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": GBBS_BKV12_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_input_result": GBBS_BKV12_INVALID_RESULT,
+                "edge_semantics": expected_contract["edge_semantics"],
+            }
+            or workload.get("output") != {
+                "kind": "float64_scalar", "absolute_tolerance": 1e-12,
+                "relative_tolerance": 1e-12, "invalid_result": GBBS_BKV12_INVALID_RESULT,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_float64_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }
+            or {case.get("id") for case in workload.get("cases", [])
+                if isinstance(case, dict)} != expected_cases
+            or not isinstance(workload.get("cases"), list)
+            or len(workload.get("cases", [])) != len(expected_cases)):
+        raise ValueError("GBBS BKV12 workload metadata differs from its pinned bounded profile")
+
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or input_is_null and (values or input_length != 0)
+                or not input_is_null and input_length != len(values)):
+            raise ValueError(f"GBBS BKV12 fixture framing is invalid: {case.get('id')}")
+        expected = gbbs_bkv12_densest_subgraph_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        actual = case.get("expected_result")
+        if (type(actual) not in (int, float) or not math.isfinite(actual)
+                or not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=1e-12)):
+            raise ValueError(f"GBBS BKV12 fixture differs from its source-stage oracle: {case.get('id')}")
+
+    package = ROOT / "benchmarks" / "g" / "gbbs_bkv12_densest_subgraph"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (pinned not in readme or expected_source["path"] not in readme
+            or "MIT License" not in license_text
+            or "Copyright (c) 2018 Laxman Dhulipala, Guy Blelloch, and Julian Shun" not in license_text
+            or "Permission is hereby granted" not in license_text
+            or 'THE SOFTWARE IS PROVIDED "AS IS"' not in license_text):
+        raise ValueError("GBBS BKV12 README or full MIT notice is incomplete")
+    for relative in (
+            "c/g/gbbs_bkv12_densest_subgraph.c",
+            "c3/g/gbbs_bkv12_densest_subgraph.c3",
+            "cpp/g/gbbs_bkv12_densest_subgraph.cpp",
+            "elisa/g/gbbs_bkv12_densest_subgraph.elisa",
+            "nim/g/gbbs_bkv12_densest_subgraph.nim",
+            "odin/g/gbbs_bkv12_densest_subgraph.odin",
+            "rust/g/gbbs_bkv12_densest_subgraph.rs",
+            "v/g/gbbs_bkv12_densest_subgraph.v",
+            "zig/g/gbbs_bkv12_densest_subgraph.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "gbbs_bkv12_densest_subgraph" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"GBBS BKV12 port is missing its exported symbol: {relative}")
+
+
+def validate_gbbs_greedy_plus_plus_densest_subgraph_workload(workload: dict) -> None:
+    pinned = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
+    expected_source = {
+        "repository": "ParAlg/gbbs", "commit": pinned,
+        "path": "benchmarks/ApproximateDensestSubgraph/GreedyPlusPlus/DensestSubgraph.h",
+        "symbol": "GreedyPlusPlusDensestSubgraph",
+        "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/ApproximateDensestSubgraph/GreedyPlusPlus/DensestSubgraph.h",
+        "related_paths": ["benchmarks/KCore/JulienneDBS17/KCore.h"],
+        "related_symbols": ["DegeneracyOrderWithLoad"],
+        "launcher_path": "benchmarks/ApproximateDensestSubgraph/GreedyPlusPlus/DensestSubgraph.cc",
+        "launcher_symbol": "DensestSubgraph_runner",
+        "license": "MIT", "license_file": "LICENSE.txt",
+    }
+    expected_contract = {
+        "operation": "Run 20 adaptive-load degeneracy sweeps and return the maximum average degree over their induced suffixes.",
+        "input_encoding": "[node_count, edge_count, (u, v)...]",
+        "bounds": {"nodes": [GBBS_GREEDY_PP_MIN_NODES, GBBS_GREEDY_PP_MAX_NODES],
+                   "edges": [0, GBBS_GREEDY_PP_MAX_EDGES]},
+        "edge_semantics": "simple undirected graph; each edge appears once with 0 <= u < v < node_count",
+        "source_profile": "Initialize load to degree. In each of 20 rounds, peel exact minimum-load shells, clamp decremented surviving loads to the shell level, add each vertex's later-neighbor count to its persistent load, then score all suffixes using the reverse prefix of doubled later-neighbor counts.",
+        "tie_rule": "Ascending vertex ID within each equal-load shell.",
+        "source_bound_note": "The pinned runner prints D[0] through D[9]; this contract requires at least 10 vertices.",
+        "invalid_result": GBBS_GREEDY_PP_INVALID_RESULT,
+    }
+    expected_cases = {
+        "edgeless-ten", "one-edge-with-isolates", "ten-cycle", "complete-ten",
+        "maximum-node-and-edge-count", "node-count-too-small", "node-count-too-large",
+        "edge-count-too-large", "length-mismatch", "self-loop", "noncanonical-edge",
+        "duplicate-edge", "endpoint-out-of-range", "null-input",
+    }
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "contract", "input", "output",
+                          "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "gbbs-greedy-plus-plus-densest-subgraph-i64-array-float64-v1"
+            or workload.get("algorithm") != "gbbs_greedy_plus_plus_densest_subgraph"
+            or workload.get("function_symbol") != "gbbs_greedy_plus_plus_densest_subgraph"
+            or workload.get("abi") != "i64_array_float64"
+            or workload.get("description") != "Twenty-pass source-shaped adaptive-load densest-subgraph profile."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("contract") != expected_contract
+            or workload.get("input") != {
+                "kind": "signed_64_bit_integer_array",
+                "encoding": "[node_count, edge_count, (u, v)...]",
+                "node_count_range": [GBBS_GREEDY_PP_MIN_NODES, GBBS_GREEDY_PP_MAX_NODES],
+                "edge_count_range": [0, GBBS_GREEDY_PP_MAX_EDGES],
+                "maximum_valid_input_length": GBBS_GREEDY_PP_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": GBBS_GREEDY_PP_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_input_result": GBBS_GREEDY_PP_INVALID_RESULT,
+                "edge_semantics": expected_contract["edge_semantics"],
+            }
+            or workload.get("output") != {
+                "kind": "float64_scalar", "absolute_tolerance": 1e-12,
+                "relative_tolerance": 1e-12,
+                "invalid_result": GBBS_GREEDY_PP_INVALID_RESULT,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_float64_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }
+            or {case.get("id") for case in workload.get("cases", [])
+                if isinstance(case, dict)} != expected_cases
+            or not isinstance(workload.get("cases"), list)
+            or len(workload.get("cases", [])) != len(expected_cases)):
+        raise ValueError("GBBS Greedy++ workload metadata differs from its pinned 20-round profile")
+
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or input_is_null and (values or input_length != 0)
+                or not input_is_null and input_length != len(values)):
+            raise ValueError(f"GBBS Greedy++ fixture framing is invalid: {case.get('id')}")
+        expected = gbbs_greedy_plus_plus_densest_subgraph_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        actual = case.get("expected_result")
+        if (type(actual) not in (int, float) or not math.isfinite(actual)
+                or not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=1e-12)):
+            raise ValueError(f"GBBS Greedy++ fixture differs from its 20-round oracle: {case.get('id')}")
+
+    package = ROOT / "benchmarks" / "g" / "gbbs_greedy_plus_plus_densest_subgraph"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (pinned not in readme or expected_source["path"] not in readme
+            or "20 iterations" not in readme
+            or "MIT License" not in license_text
+            or "Copyright (c) 2018 Laxman Dhulipala, Guy Blelloch, and Julian Shun" not in license_text
+            or "Permission is hereby granted" not in license_text
+            or 'THE SOFTWARE IS PROVIDED "AS IS"' not in license_text):
+        raise ValueError("GBBS Greedy++ README or full MIT notice is incomplete")
+    for relative in (
+            "c/g/gbbs_greedy_plus_plus_densest_subgraph.c",
+            "c3/g/gbbs_greedy_plus_plus_densest_subgraph.c3",
+            "cpp/g/gbbs_greedy_plus_plus_densest_subgraph.cpp",
+            "elisa/g/gbbs_greedy_plus_plus_densest_subgraph.elisa",
+            "nim/g/gbbs_greedy_plus_plus_densest_subgraph.nim",
+            "odin/g/gbbs_greedy_plus_plus_densest_subgraph.odin",
+            "rust/g/gbbs_greedy_plus_plus_densest_subgraph.rs",
+            "v/g/gbbs_greedy_plus_plus_densest_subgraph.v",
+            "zig/g/gbbs_greedy_plus_plus_densest_subgraph.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "gbbs_greedy_plus_plus_densest_subgraph" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"GBBS Greedy++ port is missing its exported symbol: {relative}")
+
+
 def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    max_input_length = (MONTE_CARLO_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "monte_carlo_integration" else
+    max_input_length = (GBBS_CHARIKAR_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "gbbs_charikar_densest_subgraph" else
+                        GBBS_BKV12_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "gbbs_bkv12_densest_subgraph" else
+                        GBBS_GREEDY_PP_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "gbbs_greedy_plus_plus_densest_subgraph" else
+                        MONTE_CARLO_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "monte_carlo_integration" else
                         MONTE_CARLO_INTEGRATION_INDEPENDENT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "monte_carlo_integration_independent" else
                         MAX_LINEAR_REGRESSION_COST_INPUT_LENGTH if algorithm == "linear_regression_cost" else
                         MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH if algorithm == "sparse_categorical_cross_entropy" else
@@ -3420,6 +3854,8 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "doe_miniamr_stencil_average" else
                         RODINIA_MYOCYTE_CAM_RHS_INPUT_LENGTH
                         if algorithm == "rodinia_myocyte_cam_rhs" else
+                        RODINIA_LEUKOCYTE_GICOV_MAX_INPUT_LENGTH
+                        if algorithm == "rodinia_leukocyte_gicov" else
                         MAX_INPUT_LENGTH)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
@@ -3517,6 +3953,15 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                      or not math.isclose(expected, source_result,
                                          rel_tol=1e-10, abs_tol=1e-10))):
             raise ValueError("rodinia_myocyte_cam_rhs expected_result must match the source-order binary32 model")
+    if algorithm == "rodinia_leukocyte_gicov":
+        source_result = rodinia_leukocyte_gicov_expected(values)
+        if (source_result == RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+                and expected != RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+                or source_result != RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+                and (expected == RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+                     or not math.isclose(expected, source_result,
+                                         rel_tol=1e-7, abs_tol=1e-7))):
+            raise ValueError("rodinia_leukocyte_gicov expected_result must match the seven-row binary32 score")
     if algorithm == "ansibench_whetstone":
         source_result = ansibench_whetstone_expected(
             values,
@@ -5898,6 +6343,12 @@ def main() -> int:
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if algorithm == "temperature_conversions":
         validate_temperature_conversions_workload(workload)
+    elif algorithm == "gbbs_charikar_densest_subgraph":
+        validate_gbbs_charikar_densest_subgraph_workload(workload)
+    elif algorithm == "gbbs_bkv12_densest_subgraph":
+        validate_gbbs_bkv12_densest_subgraph_workload(workload)
+    elif algorithm == "gbbs_greedy_plus_plus_densest_subgraph":
+        validate_gbbs_greedy_plus_plus_densest_subgraph_workload(workload)
     elif algorithm == "kmeans_raw_r":
         validate_kmeans_raw_r_workload(workload)
     elif algorithm in {"monte_carlo_integration", "monte_carlo_integration_independent"}:
@@ -5955,6 +6406,8 @@ def main() -> int:
         validate_doe_miniamr_stencil_average_workload(workload)
     elif algorithm == "rodinia_myocyte_cam_rhs":
         validate_rodinia_myocyte_cam_rhs_workload(workload)
+    elif algorithm == "rodinia_leukocyte_gicov":
+        validate_rodinia_leukocyte_gicov_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"):
         parser.error("workload does not match the built i64-array float64 algorithm")
@@ -6000,7 +6453,10 @@ def main() -> int:
                                  "doe_miniamr_stencil_average",
                                  "rodinia_myocyte_cam_rhs"} and input_length == 0
                 or algorithm in {"monte_carlo_integration",
-                                 "monte_carlo_integration_independent"} and input_length == 3)
+                                 "monte_carlo_integration_independent"} and input_length == 3
+                or algorithm in {"gbbs_charikar_densest_subgraph",
+                                 "gbbs_bkv12_densest_subgraph",
+                                 "gbbs_greedy_plus_plus_densest_subgraph"} and input_length == 0)
             if not supported_null_input or values:
                 raise ValueError(f"unsupported null-pointer input for {case['id']}")
         elif input_length != len(values):

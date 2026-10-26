@@ -1,0 +1,4 @@
+// Clean-room TSVC s233/s2233 profiles; see package rights note.
+module tsvc_s233_s2233_matrix_prefix;
+fn void put64(&usz o,usz p,long v){usz b=(usz)v;for(usz k=0;k<8;k++){o[k]=(u8)(b&255);b>>=8;}}
+fn long tsvc_s233_s2233_matrix_prefix(&long in,usz len,&u8 out,usz cap){if(in==null||len<14||len>194)return -1;long nr=in[0],mode=in[1];if(nr<2||nr>8||(mode!=0&&mode!=1))return -1;usz n=(usz)nr,nn=n*n;if(len!=2+3*nn)return -1;long a[64],b[64],c[64];for(usz k=0;k<nn;k++){long x=in[2+k],y=in[2+nn+k],z=in[2+2*nn+k];if(x< -1||x>1||y< -1||y>1||z< -1||z>1)return -1;a[k]=x;b[k]=y;c[k]=z;}if(out==null||cap<16*nn)return -2;for(usz i=1;i<n;i++)for(usz j=1;j<n;j++)a[j*n+i]=a[(j-1)*n+i]+c[j*n+i];if(mode==0){for(usz i=1;i<n;i++)for(usz j=1;j<n;j++)b[j*n+i]=b[j*n+i-1]+c[j*n+i];}else{for(usz i=1;i<n;i++)for(usz j=1;j<n;j++)b[i*n+j]=b[(i-1)*n+j]+c[i*n+j];}for(usz k=0;k<nn;k++){put64(out+8*k,a[k]);put64(out+8*(nn+k),b[k]);}return (2*nn).long();}

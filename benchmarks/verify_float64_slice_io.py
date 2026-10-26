@@ -14,6 +14,32 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from graphai_gcn_aggregation_verifier_oracle import (
+    N_LIMIT as GRAPHAI_GCN_N_LIMIT,
+    M_LIMIT as GRAPHAI_GCN_M_LIMIT,
+    D_LIMIT as GRAPHAI_GCN_D_LIMIT,
+    INPUT_LIMIT as GRAPHAI_GCN_INPUT_LIMIT,
+    OUTPUT_LIMIT as GRAPHAI_GCN_OUTPUT_LIMIT,
+    expected_output as graphai_gcn_verifier_oracle,
+)
+from graphai_sage_aggregation_verifier_oracle import (
+    expected_output as graphai_sage_verifier_oracle,
+)
+from graphai_gat_aggregation_verifier_oracle import (
+    expected_output as graphai_gat_verifier_oracle,
+)
+from graphai_frontier_sampler_verifier_oracle import (
+    expected_output as graphai_frontier_sampler_verifier_oracle,
+)
+from graphai_cf_sgd_sweep_verifier_oracle import (
+    expected_output as graphai_cf_sgd_sweep_verifier_oracle,
+)
+from gardenia_symgs_verifier_oracle import (
+    expected_output as gardenia_symgs_verifier_oracle,
+)
+from gardenia_sgd_verifier_oracle import (
+    expected_output as gardenia_sgd_verifier_oracle,
+)
 from jacobi_1d_oracle import MAX_N as JACOBI_1D_MAX_N, MAX_TSTEPS as JACOBI_1D_MAX_TSTEPS
 from jacobi_2d_oracle import MAX_N as JACOBI_2D_MAX_N, MAX_TSTEPS as JACOBI_2D_MAX_TSTEPS
 from syr2k_oracle import MAX_M as SYR2K_MAX_M, MAX_N as SYR2K_MAX_N
@@ -32,6 +58,11 @@ from heat_3d_oracle import (
     MAX_OUTPUT_ELEMENTS as HEAT_3D_MAX_OUTPUT_ELEMENTS,
     MAX_TSTEPS as HEAT_3D_MAX_TSTEPS,
     OUTPUT_ERROR as HEAT_3D_OUTPUT_ERROR,
+)
+from asci_purple_smg2000_residual_oracle import (
+    MAX_INPUT_LENGTH as ASCI_PURPLE_SMG2000_MAX_INPUT_LENGTH,
+    MAX_CELLS as ASCI_PURPLE_SMG2000_MAX_CELLS,
+    MAX_ABS_FIELD as ASCI_PURPLE_SMG2000_MAX_ABS_FIELD,
 )
 from himenobmtxpa_oracle import (
     INPUT_LENGTH as HIMENO_INPUT_LENGTH,
@@ -57,6 +88,15 @@ from olden_bh_oracle import expected_output as olden_bh_verifier_expected_output
 from olden_em3d_oracle import MAX_DEGREE as OLDEN_EM3D_MAX_DEGREE
 from olden_em3d_oracle import MAX_NODES as OLDEN_EM3D_MAX_NODES
 from olden_em3d_oracle import expected_output as olden_em3d_verifier_expected_output
+from cbench_rsynth_impulsive_glottal_oracle import (
+    MIN_OPEN as CBENCH_RSYNTH_IMPULSIVE_MIN_OPEN,
+    MAX_OPEN as CBENCH_RSYNTH_IMPULSIVE_MAX_OPEN,
+    MAX_SAMPLE_INDEX as CBENCH_RSYNTH_IMPULSIVE_MAX_SAMPLE_INDEX,
+    MAX_INPUT_LENGTH as CBENCH_RSYNTH_IMPULSIVE_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CBENCH_RSYNTH_IMPULSIVE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as CBENCH_RSYNTH_IMPULSIVE_MAX_OUTPUT_ELEMENTS,
+    SAMPLE_RATE as CBENCH_RSYNTH_IMPULSIVE_SAMPLE_RATE,
+)
 from run_float64_slice_io import (
     _decode_linear_discriminant_analysis_abi_values,
     validate_linear_discriminant_analysis_workload,
@@ -84,15 +124,27 @@ from run_float64_slice_io import (
     validate_trmm_workload,
     validate_fdtd_2d_workload,
     validate_heat_3d_workload,
+    validate_parboil_stencil_laplacian_workload,
+                                  validate_graphai_gcn_aggregation_workload,
+                                  validate_graphai_sage_aggregation_workload,
+                                  validate_graphai_gat_aggregation_workload,
+                                  validate_graphai_frontier_sampler_workload,
+                                  validate_graphai_cf_sgd_sweep_workload,
+                                  validate_gardenia_workload,
+                                  validate_asci_purple_smg2000_residual_workload,
+    validate_mafft_falign_fft_lag_correlation_workload,
     validate_himenobmtxpa_workload,
+    validate_polybench_gramschmidt_workload,
     validate_polybench_lu_workload,
     validate_polybench_correlation_workload,
     validate_polybench_seidel_2d_workload,
     validate_mibench_automotive_basicmath_cubic_workload,
     validate_mibench_lame_mdct_long_workload,
     validate_cbench_consumer_mad_imdct36_workload,
+    validate_cbench_consumer_lame_mdct_short_workload,
     validate_cbench_lame_mid_side_workload,
     validate_cbench_rsynth_natural_glottal_workload,
+    validate_cbench_rsynth_impulsive_glottal_workload,
 )
 from pca_oracle import (
     MAX_OUTPUT_ELEMENTS as PCA_MAX_OUTPUT_ELEMENTS,
@@ -223,6 +275,24 @@ from linear_discriminant_analysis_oracle import (
 )
 from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
                                   _format_output, _output_token, encode_case, tolerances,
+                                  validate_tsvc_s111_odd_index_neighbor_update_workload,
+                                  validate_tsvc_vtvtv_triple_product_map_workload,
+                                  validate_tsvc_s451_sincos_vector_map_workload,
+                                  validate_tsvc_s221_partial_recursive_fused_update_workload,
+                                  validate_tsvc_s222_interleaved_square_recurrence_workload,
+                                  validate_tsvc_s2251_carried_scalar_expansion_workload,
+                                  validate_tsvc_s1251_per_element_dual_update_workload,
+                                  validate_tsvc_s3251_forward_shifted_array_expansion_workload,
+                                  validate_tsvc_s2712_comparison_gated_axpy_workload,
+                                  validate_tsvc_s2710_nested_scalar_vector_branch_update_workload,
+                                  validate_tsvc_s1279_nested_conditional_accumulation_workload,
+                                  validate_tsvc_s2275_matrix_vector_axpy_interleave_workload,
+                                  validate_tsvc_s482_break_after_update_workload,
+                                  validate_tsvc_s441_s443_d_sign_branch_updates_workload,
+                                  validate_tsvc_s242_fused_prefix_update_workload,
+                                  validate_tsvc_s351_direct_unrolled_saxpy_workload,
+                                  validate_tsvc_s275_column_conditional_axpy_recurrence_workload,
+                                  validate_tsvc_s313_dot_product_reduction_workload,
                                   validate_versabench_beamformer_workload,
                                   validate_rader_fft_workload,
                                   validate_smallest_enclosing_ball_3d_workload,
@@ -602,6 +672,642 @@ from perceptron_rust_oracle import (
 ALGORITHMS = tuple(ORACLES)
 
 
+def tsvc_s313_verifier_oracle(values, capacity=1, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    """Independent direct dot-product reference for the bounded TSVC s313 profile."""
+    if (input_is_null or not isinstance(values, (list, tuple))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 3 or len(values) > 129):
+        return -1, []
+    n_value = values[0]
+    if (type(n_value) not in (int, float) or not math.isfinite(float(n_value))
+            or float(n_value).is_integer() is False or not 1 <= n_value <= 64):
+        return -1, []
+    n = int(n_value)
+    if len(values) != 1 + 2 * n:
+        return -1, []
+    if any(type(value) not in (int, float) or not math.isfinite(float(value))
+           or not float(value).is_integer() or abs(float(value)) > 1000
+           for value in values[1:]):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < 1:
+        return -2, []
+    first = values[1:1 + n]
+    second = values[1 + n:]
+    result = 0.0
+    for left, right in zip(first, second):
+        result = result + float(left) * float(right)
+    return 1, [result]
+
+
+def tsvc_s275_verifier_oracle(values, capacity=64, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    """Independent bounded model of s275's guarded column-wise recurrence."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 2 or len(values) > 193):
+        return -1, []
+    n_value = values[0]
+    if (type(n_value) not in (int, float) or not math.isfinite(float(n_value))
+            or not float(n_value).is_integer() or not 1 <= n_value <= 8):
+        return -1, []
+    n = int(n_value)
+    cell_count = n * n
+    if len(values) != 1 + 3 * cell_count:
+        return -1, []
+    operands = values[1:]
+    if any(type(value) not in (int, float) or not math.isfinite(float(value))
+           or not float(value).is_integer() or abs(float(value)) > 16 for value in operands):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < cell_count:
+        return -2, []
+    a = [float(value) for value in operands[:cell_count]]
+    b = operands[cell_count:2 * cell_count]
+    c = operands[2 * cell_count:]
+    # Build each column's row recurrence explicitly from the prior row value.
+    for column in range(n):
+        guard = a[column]
+        if guard <= 0:
+            continue
+        previous = guard
+        for row in range(1, n):
+            index = row * n + column
+            current = previous + float(b[index]) * float(c[index])
+            a[index] = current
+            previous = current
+    return cell_count, a
+
+
+def tsvc_s111_verifier_oracle(values, capacity=64, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    """Independent direct model of s111's odd-position writes."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 3 or len(values) > 129):
+        return -1, []
+    n_value = values[0]
+    if (type(n_value) not in (int, float) or not math.isfinite(float(n_value))
+            or not float(n_value).is_integer() or not 1 <= n_value <= 64):
+        return -1, []
+    n = int(n_value)
+    if len(values) != 1 + 2 * n:
+        return -1, []
+    data = values[1:]
+    if any(type(value) not in (int, float) or not math.isfinite(float(value))
+           or not float(value).is_integer() or abs(float(value)) > 1000 for value in data):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < n:
+        return -2, []
+    result = [float(value) for value in data[:n]]
+    b = data[n:]
+    for destination in range(1, n, 2):
+        result[destination] = float(data[destination - 1]) + float(b[destination])
+    return n, result
+
+
+def tsvc_s2251_verifier_oracle(values, capacity=128, output_is_null=False,
+                               input_is_null=False, input_length=None):
+    """Independent recurrence model of TSVC s2251's carried scalar."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 6 or len(values) > 321):
+        return -1, []
+    raw_n = values[0]
+    if (type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 1 <= raw_n <= 64):
+        return -1, []
+    n = int(raw_n)
+    if len(values) != 1 + 5*n:
+        return -1, []
+    data = values[1:]
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or not float(v).is_integer() or abs(float(v)) > 1 for v in data):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < 2*n:
+        return -2, []
+    _, old_b, c_values, d_values, e_values = (data[i*n:(i+1)*n] for i in range(5))
+    final_a = []
+    final_b = []
+    scalar = 0.0
+    for i in range(n):
+        current_a = scalar * float(e_values[i])
+        scalar = float(old_b[i]) + float(c_values[i])
+        current_b = current_a + float(d_values[i])
+        final_a.append(current_a)
+        final_b.append(current_b)
+        old_b[i] = current_b
+    return 2*n, final_a + final_b
+
+
+def tsvc_s1251_verifier_oracle(values, capacity=128, output_is_null=False,
+                               input_is_null=False, input_length=None):
+    """Independent per-position model of s1251's saved sum and dual update."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 6 or len(values) > 321):
+        return -1, []
+    raw_n = values[0]
+    if (type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 1 <= raw_n <= 64):
+        return -1, []
+    n = int(raw_n)
+    if len(values) != 1 + 5*n:
+        return -1, []
+    data = values[1:]
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or not float(v).is_integer() or abs(float(v)) > 1 for v in data):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < 2*n:
+        return -2, []
+    a, b, c_values, d_values, e_values = ([float(v) for v in data[i*n:(i+1)*n]
+                                           ] for i in range(5))
+    for i in range(n):
+        old_sum = b[i] + c_values[i]
+        replacement_b = a[i] + d_values[i]
+        replacement_a = old_sum * e_values[i]
+        b[i] = replacement_b
+        a[i] = replacement_a
+    return 2*n, a + b
+
+
+def tsvc_s3251_verifier_oracle(values, capacity=192, output_is_null=False,
+                               input_is_null=False, input_length=None):
+    """Independent forward-dependency model of Expansion s3251."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 6 or len(values) > 321):
+        return -1, []
+    raw_n = values[0]
+    if (type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 1 <= raw_n <= 64):
+        return -1, []
+    n = int(raw_n)
+    if len(values) != 1 + 5*n:
+        return -1, []
+    data = values[1:]
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or not float(v).is_integer() or abs(float(v)) > 1 for v in data):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < 3*n:
+        return -2, []
+    block = [[float(v) for v in data[j*n:(j+1)*n]] for j in range(5)]
+    aa, bb, cc, dd, ee = block
+    for index in range(n-1):
+        next_a = bb[index] + cc[index]
+        aa[index+1] = next_a
+        bb[index] = cc[index] * ee[index]
+        dd[index] = aa[index] * ee[index]
+    return 3*n, aa + bb + dd
+
+
+def tsvc_s2712_verifier_oracle(values, capacity=64, output_is_null=False,
+                               input_is_null=False, input_length=None):
+    """Independent repeated thresholded update model of TSVC s2712."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 5 or len(values) > 194):
+        return -1, []
+    n_raw, pass_raw = values[0], values[1]
+    if (type(n_raw) not in (int, float) or not math.isfinite(float(n_raw))
+            or not float(n_raw).is_integer() or not 1 <= n_raw <= 64
+            or type(pass_raw) not in (int, float) or not math.isfinite(float(pass_raw))
+            or not float(pass_raw).is_integer() or not 1 <= pass_raw <= 8):
+        return -1, []
+    n, passes = int(n_raw), int(pass_raw)
+    if len(values) != 2 + 3*n:
+        return -1, []
+    data = values[2:]
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or not float(v).is_integer() or abs(float(v)) > 2 for v in data):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < n:
+        return -2, []
+    a = [float(v) for v in data[:n]]
+    b = [float(v) for v in data[n:2*n]]
+    c = [float(v) for v in data[2*n:]]
+    for _ in range(passes):
+        for i in range(n):
+            if a[i] > b[i]:
+                a[i] = a[i] + b[i]*c[i]
+    return n, a
+
+
+def tsvc_s2710_verifier_oracle(values, capacity=192, output_is_null=False,
+                               input_is_null=False, input_length=None):
+    """Independent model of s2710's vector comparison and scalar C branch."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 58 or len(values) > 323):
+        return -1, []
+    raw_n, raw_passes, raw_scalar = values[:3]
+    if (type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 11 <= raw_n <= 64
+            or type(raw_passes) not in (int, float) or not math.isfinite(float(raw_passes))
+            or not float(raw_passes).is_integer() or not 1 <= raw_passes <= 8
+            or type(raw_scalar) not in (int, float) or not math.isfinite(float(raw_scalar))
+            or not float(raw_scalar).is_integer() or abs(float(raw_scalar)) > 1):
+        return -1, []
+    n, passes, scalar = int(raw_n), int(raw_passes), float(raw_scalar)
+    if len(values) != 3 + 5*n:
+        return -1, []
+    body = values[3:]
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or not float(v).is_integer() or abs(float(v)) > 1 for v in body):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < 3*n:
+        return -2, []
+    arrays = [[float(v) for v in body[j*n:(j+1)*n]] for j in range(5)]
+    a, b, c, d, e = arrays
+    for _ in range(passes):
+        for index in range(n):
+            if a[index] > b[index]:
+                a[index] = a[index] + b[index]*d[index]
+                c[index] = c[index] + d[index]*d[index]
+            else:
+                b[index] = a[index] + e[index]*e[index]
+                if scalar > 0:
+                    c[index] = a[index] + d[index]*d[index]
+                else:
+                    c[index] = c[index] + e[index]*e[index]
+    return 3*n, a + b + c
+
+
+def tsvc_s1279_verifier_oracle(values, capacity=64, output_is_null=False,
+                               input_is_null=False, input_length=None):
+    """Independent s1279 model, retaining both strict nested predicates."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 7 or len(values) > 322):
+        return -1, []
+    raw_n, raw_passes = values[:2]
+    if (type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 1 <= raw_n <= 64
+            or type(raw_passes) not in (int, float) or not math.isfinite(float(raw_passes))
+            or not float(raw_passes).is_integer() or not 1 <= raw_passes <= 8):
+        return -1, []
+    n, passes = int(raw_n), int(raw_passes)
+    if len(values) != 2 + 5*n:
+        return -1, []
+    payload = values[2:]
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or not float(v).is_integer() or abs(float(v)) > 1 for v in payload):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < n:
+        return -2, []
+    a = [float(v) for v in payload[:n]]
+    b = [float(v) for v in payload[n:2*n]]
+    c = [float(v) for v in payload[2*n:3*n]]
+    d = [float(v) for v in payload[3*n:4*n]]
+    e = [float(v) for v in payload[4*n:5*n]]
+    for _ in range(passes):
+        for i in range(n):
+            if a[i] < 0:
+                if b[i] > a[i]:
+                    c[i] += d[i] * e[i]
+    return n, c
+
+
+def tsvc_s2275_verifier_oracle(values, capacity=72, output_is_null=False,
+                               input_is_null=False, input_length=None):
+    """Independent model of s2275's matrix column sweep and vector overwrite."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 9 or len(values) > 226):
+        return -1, []
+    raw_n, raw_passes = values[:2]
+    if (type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 1 <= raw_n <= 8
+            or type(raw_passes) not in (int, float) or not math.isfinite(float(raw_passes))
+            or not float(raw_passes).is_integer() or not 1 <= raw_passes <= 8):
+        return -1, []
+    n, passes = int(raw_n), int(raw_passes)
+    if len(values) != 2 + 3*n*n + 4*n:
+        return -1, []
+    payload = values[2:]
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or not float(v).is_integer() or abs(float(v)) > 1 for v in payload):
+        return -1, []
+    out_count = n*n+n
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < out_count:
+        return -2, []
+    mat = n*n
+    aa = [float(v) for v in payload[:mat]]
+    bb = [float(v) for v in payload[mat:2*mat]]
+    cc = [float(v) for v in payload[2*mat:3*mat]]
+    pos = 3*mat
+    a = [float(v) for v in payload[pos:pos+n]]
+    b = [float(v) for v in payload[pos+n:pos+2*n]]
+    c = [float(v) for v in payload[pos+2*n:pos+3*n]]
+    d = [float(v) for v in payload[pos+3*n:pos+4*n]]
+    for _ in range(passes):
+        for col in range(n):
+            for row in range(n):
+                cell = row*n+col
+                aa[cell] = aa[cell] + bb[cell]*cc[cell]
+            a[col] = b[col] + c[col]*d[col]
+    return out_count, aa+a
+
+
+def tsvc_s482_verifier_oracle(values, capacity=64, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    """Independent model of s482's update-before-strict-break control flow."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 5 or len(values) > 194):
+        return -1, []
+    raw_n, raw_passes = values[:2]
+    if (type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 1 <= raw_n <= 64
+            or type(raw_passes) not in (int, float) or not math.isfinite(float(raw_passes))
+            or not float(raw_passes).is_integer() or not 1 <= raw_passes <= 8):
+        return -1, []
+    n, passes = int(raw_n), int(raw_passes)
+    if len(values) != 2 + 3*n:
+        return -1, []
+    payload = values[2:]
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or not float(v).is_integer() or abs(float(v)) > 1 for v in payload):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < n:
+        return -2, []
+    a = [float(v) for v in payload[:n]]
+    b = [float(v) for v in payload[n:2*n]]
+    c = [float(v) for v in payload[2*n:3*n]]
+    for _ in range(passes):
+        for index in range(n):
+            a[index] = a[index] + b[index]*c[index]
+            if c[index] > b[index]:
+                break
+    return n, a
+
+
+def tsvc_s441_s443_verifier_oracle(values, capacity=64, output_is_null=False,
+                                   input_is_null=False, input_length=None):
+    """Independent mode model for the D-sign branch formulas in s441/s443."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 7 or len(values) > 259):
+        return -1, []
+    raw_mode, raw_n, raw_passes = values[:3]
+    if (type(raw_mode) not in (int, float) or not math.isfinite(float(raw_mode))
+            or not float(raw_mode).is_integer() or raw_mode not in (0, 1)
+            or type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 1 <= raw_n <= 64
+            or type(raw_passes) not in (int, float) or not math.isfinite(float(raw_passes))
+            or not float(raw_passes).is_integer() or not 1 <= raw_passes <= 8):
+        return -1, []
+    mode, n, passes = int(raw_mode), int(raw_n), int(raw_passes)
+    if len(values) != 3 + 4*n:
+        return -1, []
+    data = values[3:]
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or not float(v).is_integer() or abs(float(v)) > 1 for v in data):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < n:
+        return -2, []
+    a = [float(v) for v in data[:n]]
+    b = [float(v) for v in data[n:2*n]]
+    c = [float(v) for v in data[2*n:3*n]]
+    d = [float(v) for v in data[3*n:4*n]]
+    for _ in range(passes):
+        for i in range(n):
+            if mode == 0:
+                if d[i] < 0.0:
+                    a[i] = a[i] + b[i]*c[i]
+                elif d[i] == 0.0:
+                    a[i] = a[i] + b[i]*b[i]
+                else:
+                    a[i] = a[i] + c[i]*c[i]
+            else:
+                if d[i] <= 0.0:
+                    a[i] = a[i] + b[i]*c[i]
+                else:
+                    a[i] = a[i] + b[i]*b[i]
+    return n, a
+
+
+def tsvc_s242_verifier_oracle(values, capacity=64, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    """Independent left-to-right model of s242's fused prefix recurrence."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 7 or len(values) > 259):
+        return -1, []
+    raw_n = values[0]
+    if (type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 1 <= raw_n <= 64):
+        return -1, []
+    n = int(raw_n)
+    if len(values) != 3 + 4*n:
+        return -1, []
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or not float(v).is_integer() or abs(float(v)) > 1 for v in values[1:]):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < n:
+        return -2, []
+    s1, s2 = float(values[1]), float(values[2])
+    a = [float(v) for v in values[3:3+n]]
+    b = values[3+n:3+2*n]
+    c = values[3+2*n:3+3*n]
+    d = values[3+3*n:3+4*n]
+    for i in range(1, n):
+        accumulated = a[i-1] + s1
+        accumulated += s2
+        accumulated += float(b[i])
+        accumulated += float(c[i])
+        accumulated += float(d[i])
+        a[i] = accumulated
+    return n, a
+
+
+def tsvc_s351_verifier_oracle(values, capacity=40, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    """Independent model of the five-lane direct SAXPY update order."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 12 or len(values) > 82):
+        return -1, []
+    raw_n = values[0]
+    if (type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 5 <= raw_n <= 40):
+        return -1, []
+    n = int(raw_n)
+    if n % 5 or len(values) != 2 + 2*n:
+        return -1, []
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or not float(v).is_integer() or abs(float(v)) > 1 for v in values[1:]):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < n:
+        return -2, []
+    alpha = float(values[1])
+    a = [float(v) for v in values[2:2+n]]
+    b = values[2+n:]
+    for start in range(0, n, 5):
+        lanes = range(start, start + 5)
+        for i in lanes:
+            contribution = alpha * float(b[i])
+            a[i] += contribution
+    return n, a
+
+
+def tsvc_vtvtv_verifier_oracle(values, capacity=64, output_is_null=False,
+                               input_is_null=False, input_length=None):
+    """Independent bounded model of the left-associative TSVC vtvtv map."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 4 or len(values) > 193):
+        return -1, []
+    raw_n = values[0]
+    if (type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 1 <= raw_n <= 64):
+        return -1, []
+    n = int(raw_n)
+    if len(values) != 1 + 3*n:
+        return -1, []
+    data = values[1:]
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or not float(v).is_integer() or abs(float(v)) > 2 for v in data):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < n:
+        return -2, []
+    a, b, c = data[:n], data[n:2*n], data[2*n:]
+    result = []
+    for i in range(n):
+        first_product = float(a[i]) * float(b[i])
+        result.append(first_product * float(c[i]))
+    return n, result
+
+
+def tsvc_s451_verifier_oracle(values, capacity=64, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    """Independent binary64 model of s451's pointwise sin-plus-cos operation."""
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 3 or len(values) > 129):
+        return -1, []
+    raw_n = values[0]
+    if (type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 1 <= raw_n <= 64):
+        return -1, []
+    n = int(raw_n)
+    if len(values) != 1 + 2*n:
+        return -1, []
+    operands = values[1:]
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or abs(float(v)) > 10 for v in operands):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    if output_is_null or capacity < n:
+        return -2, []
+    b, c = operands[:n], operands[n:]
+    result = []
+    for i in range(n):
+        sine_value = math.sin(float(b[i]))
+        cosine_value = math.cos(float(c[i]))
+        result.append(sine_value + cosine_value)
+    return n, result
+
+
+def tsvc_s221_verifier_oracle(values, capacity=128, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    """Independent source-order model of s221's A update and B recurrence."""
+    if (input_is_null or not isinstance(values, (list, tuple))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 5 or len(values) > 257):
+        return -1, []
+    raw_n = values[0]
+    if (type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 1 <= raw_n <= 64):
+        return -1, []
+    n = int(raw_n)
+    if len(values) != 1 + 4*n:
+        return -1, []
+    operands = values[1:]
+    if any(type(v) not in (int, float) or not math.isfinite(float(v))
+           or not float(v).is_integer() or abs(float(v)) > 2 for v in operands):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    required = 2*n
+    if output_is_null or capacity < required:
+        return -2, []
+    a = [float(v) for v in operands[:n]]
+    b = [float(v) for v in operands[n:2*n]]
+    c = operands[2*n:3*n]
+    d = operands[3*n:]
+    for i in range(1, n):
+        updated_a = a[i] + float(c[i]) * float(d[i])
+        a[i] = updated_a
+        updated_b = b[i-1] + updated_a
+        b[i] = updated_b + float(d[i])
+    return required, a + b
+
+
+def tsvc_s222_verifier_oracle(values, capacity=128, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    """Independently evaluate the s222 interleaved statements and E recurrence."""
+    if (input_is_null or not isinstance(values, (list, tuple))
+            or input_length is not None and input_length != len(values)
+            or len(values) < 5 or len(values) > 257):
+        return -1, []
+    raw_n=values[0]
+    if (type(raw_n) not in (int, float) or not math.isfinite(float(raw_n))
+            or not float(raw_n).is_integer() or not 1 <= raw_n <= 64):
+        return -1, []
+    n=int(raw_n)
+    if len(values) != 1+4*n:
+        return -1, []
+    a=[float(x) for x in values[1:1+n]]
+    b=[float(x) for x in values[1+n:1+2*n]]
+    c=[float(x) for x in values[1+2*n:1+3*n]]
+    e=[float(x) for x in values[1+3*n:]]
+    if (any(not math.isfinite(x) or not x.is_integer() or abs(x)>2 for x in a+b+c)
+            or any(not math.isfinite(x) or x not in {-1.0,-0.5,0.0,0.5,1.0} for x in e)):
+        return -1, []
+    if type(capacity) is not int or capacity < 0:
+        return -1, []
+    required=2*n
+    if output_is_null or capacity<required:
+        return -2, []
+    for i in range(1,n):
+        t=b[i]*c[i]
+        a[i]=a[i]+t
+        e[i]=e[i-1]*e[i-1]
+        a[i]=a[i]-t
+    return required,a+e
+
+
 def trmm_verifier_oracle(values, capacity=None, output_is_null=False,
                          input_is_null=False, input_length=None):
     """Independent source-order reference for bounded PolyBench TRMM."""
@@ -749,6 +1455,188 @@ def heat_3d_verifier_oracle(values, capacity=None, output_is_null=False,
     return len(output), output
 
 
+def _parboil_stencil_f32(value):
+    return struct.unpack("<f", struct.pack("<f", float(value)))[0]
+
+
+def parboil_stencil_laplacian_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independent source-order binary32 reference for Parboil's 7-point stencil."""
+    max_input = 129
+    if (not isinstance(values, (list, tuple)) or len(values) > max_input
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or len(values) < 4:
+        return -1, []
+    header = values[:4]
+    if any(float(value) != math.trunc(float(value)) for value in header):
+        return -1, []
+    nx, ny, nz, steps = (int(value) for value in header)
+    if not (3 <= nx <= 5 and 3 <= ny <= 5 and 3 <= nz <= 5 and 1 <= steps <= 4):
+        return -1, []
+    cell_count = nx * ny * nz
+    if len(values) != 4 + cell_count:
+        return -1, []
+    initial = []
+    for value in values[4:]:
+        number = float(value)
+        if not -8.0 <= number <= 8.0:
+            return -1, []
+        initial.append(_parboil_stencil_f32(number))
+    if output_is_null or capacity is not None and capacity < cell_count:
+        return -2, []
+
+    def index(x, y, z):
+        return x + nx * (y + ny * z)
+
+    current = initial[:]
+    next_grid = initial[:]
+    c0 = _parboil_stencil_f32(_parboil_stencil_f32(1.0) / _parboil_stencil_f32(6.0))
+    c1 = _parboil_stencil_f32(
+        _parboil_stencil_f32(_parboil_stencil_f32(1.0) / _parboil_stencil_f32(6.0))
+        / _parboil_stencil_f32(6.0))
+    for _ in range(steps):
+        for x in range(1, nx - 1):
+            for y in range(1, ny - 1):
+                for z in range(1, nz - 1):
+                    q = index(x, y, z)
+                    total = _parboil_stencil_f32(
+                        current[index(x, y, z + 1)] + current[index(x, y, z - 1)])
+                    total = _parboil_stencil_f32(total + current[index(x, y + 1, z)])
+                    total = _parboil_stencil_f32(total + current[index(x, y - 1, z)])
+                    total = _parboil_stencil_f32(total + current[index(x + 1, y, z)])
+                    total = _parboil_stencil_f32(total + current[index(x - 1, y, z)])
+                    neighbor_term = _parboil_stencil_f32(total * c1)
+                    center_term = _parboil_stencil_f32(current[q] * c0)
+                    next_grid[q] = _parboil_stencil_f32(neighbor_term - center_term)
+        current, next_grid = next_grid, current
+    return cell_count, [float(value) for value in current]
+
+
+def asci_purple_smg2000_residual_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently evaluate the launcher-profiled anisotropic residual."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) > ASCI_PURPLE_SMG2000_MAX_INPUT_LENGTH
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   or float(value) != math.trunc(float(value)) for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or input_is_null
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, []
+    if len(values) < 3:
+        return -1, []
+    nx, ny, nz = (int(value) for value in values[:3])
+    if any(side < 2 or side > 5 for side in (nx, ny, nz)):
+        return -1, []
+    cells = nx * ny * nz
+    if len(values) != 3 + 2 * cells:
+        return -1, []
+    fields = [int(value) for value in values[3:]]
+    if any(abs(field) > ASCI_PURPLE_SMG2000_MAX_ABS_FIELD for field in fields):
+        return -1, []
+    solution, rhs = fields[:cells], fields[cells:]
+    output = []
+    for i in range(nx):
+        for j in range(ny):
+            for k in range(nz):
+                index = i * ny * nz + j * nz + k
+                scaled_operator = 222 * solution[index]
+                if i > 0:
+                    scaled_operator -= solution[index - ny * nz]
+                if i + 1 < nx:
+                    scaled_operator -= solution[index + ny * nz]
+                if j > 0:
+                    scaled_operator -= 10 * solution[index - nz]
+                if j + 1 < ny:
+                    scaled_operator -= 10 * solution[index + nz]
+                if k > 0:
+                    scaled_operator -= 100 * solution[index - 1]
+                if k + 1 < nz:
+                    scaled_operator -= 100 * solution[index + 1]
+                output.append((10 * rhs[index] - scaled_operator) / 10.0)
+    if output_is_null or capacity is not None and capacity < cells:
+        return -2, []
+    return cells, output
+
+
+_MAFFT_V_ALPHABET = "ARNDCQEGHILKMFPSTWYV"
+_MAFFT_V_POLARITY = (8.1, 10.5, 11.6, 13.0, 5.5, 10.5, 12.3, 9.0, 10.4, 5.2,
+                    4.9, 11.3, 5.7, 5.2, 8.0, 9.2, 8.6, 5.4, 6.2, 5.9)
+_MAFFT_V_VOLUME = (31.0, 124.0, 56.0, 54.0, 55.0, 85.0, 83.0, 3.0, 96.0, 111.0,
+                   111.0, 119.0, 105.0, 132.0, 32.5, 32.0, 61.0, 170.0, 136.0, 84.0)
+_MAFFT_V_CODE_TO_INDEX = {ord(letter): index for index, letter in enumerate(_MAFFT_V_ALPHABET)}
+
+
+def mafft_falign_fft_lag_correlation_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Compute the launcher-default complex feature profile with direct sums."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) > 66
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   or float(value) != math.trunc(float(value)) for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or input_is_null
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, []
+    if len(values) < 4:
+        return -1, []
+    first_length, second_length = int(values[0]), int(values[1])
+    if (not 1 <= first_length <= 32 or not 1 <= second_length <= 32
+            or len(values) != 2 + first_length + second_length):
+        return -1, []
+    codes = [int(value) for value in values[2:]]
+    if any(code not in _MAFFT_V_CODE_TO_INDEX for code in codes):
+        return -1, []
+    n = 2
+    while n <= max(first_length, second_length):
+        n *= 2
+    if output_is_null or capacity is not None and capacity < n:
+        return -2, []
+
+    polarity_center = sum(_MAFFT_V_POLARITY) / len(_MAFFT_V_POLARITY)
+    volume_center = sum(_MAFFT_V_VOLUME) / len(_MAFFT_V_VOLUME)
+    polarity_scale = math.sqrt(sum((item - polarity_center) ** 2
+                                   for item in _MAFFT_V_POLARITY)
+                               / len(_MAFFT_V_POLARITY))
+    volume_scale = math.sqrt(sum((item - volume_center) ** 2
+                                 for item in _MAFFT_V_VOLUME)
+                             / len(_MAFFT_V_VOLUME))
+    feature_vectors = [
+        ((polarity - polarity_center) / polarity_scale,
+         (volume - volume_center) / volume_scale)
+        for polarity, volume in zip(_MAFFT_V_POLARITY, _MAFFT_V_VOLUME)
+    ]
+    first = [feature_vectors[_MAFFT_V_CODE_TO_INDEX[code]]
+             for code in codes[:first_length]]
+    second = [feature_vectors[_MAFFT_V_CODE_TO_INDEX[code]]
+              for code in codes[first_length:]]
+    profile = []
+    for output_index in range(n):
+        lag = output_index - n // 2
+        accumulator = 0.0
+        for first_index in range(first_length):
+            second_index = (first_index + lag) % n
+            if second_index < second_length:
+                real_a, imaginary_a = first[first_index]
+                real_b, imaginary_b = second[second_index]
+                accumulator += real_a * real_b + imaginary_a * imaginary_b
+        profile.append(accumulator / n)
+    return n, profile
+
+
 def himenobmtxpa_verifier_oracle(values, capacity=None, output_is_null=False,
                                 input_is_null=False, input_length=None):
     """Independent binary32 model of the bounded 3D Poisson relaxation."""
@@ -857,6 +1745,50 @@ def polybench_lu_verifier_oracle(values, capacity=None, output_is_null=False,
 
     output = [factor[i][j] for i in range(n) for j in range(n)]
     if output_is_null or (capacity is not None and capacity < len(output)):
+        return -2, []
+    return len(output), output
+
+
+def polybench_gramschmidt_verifier_oracle(values, capacity=None, output_is_null=False,
+                                          input_is_null=False, input_length=None):
+    """Independent verifier for the bounded modified Gram-Schmidt QR source."""
+    if (not isinstance(values, (list, tuple)) or len(values) > 2
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or len(values) != 2:
+        return -1, []
+    m_value, n_value = (float(value) for value in values)
+    if (m_value != math.trunc(m_value) or n_value != math.trunc(n_value)
+            or not 1 <= n_value <= m_value <= 6):
+        return -1, []
+    m, n = int(m_value), int(n_value)
+    matrix = [[(((row * column) % m) / float(m) * 100.0) + 10.0
+               for column in range(n)] for row in range(m)]
+    q_matrix = [[0.0 for _column in range(n)] for _row in range(m)]
+    r_matrix = [[0.0 for _column in range(n)] for _row in range(n)]
+    for column in range(n):
+        squared_length = sum(matrix[row][column] * matrix[row][column]
+                             for row in range(m))
+        r_matrix[column][column] = math.sqrt(squared_length)
+        if r_matrix[column][column] == 0.0 or not math.isfinite(r_matrix[column][column]):
+            return -1, []
+        for row in range(m):
+            q_matrix[row][column] = matrix[row][column] / r_matrix[column][column]
+        for later_column in range(column + 1, n):
+            projection = 0.0
+            for row in range(m):
+                projection += q_matrix[row][column] * matrix[row][later_column]
+            r_matrix[column][later_column] = projection
+            for row in range(m):
+                matrix[row][later_column] -= q_matrix[row][column] * projection
+    output = ([r_matrix[row][column] for row in range(n) for column in range(n)]
+              + [q_matrix[row][column] for row in range(m) for column in range(n)])
+    if output_is_null or capacity is not None and capacity < len(output):
         return -2, []
     return len(output), output
 
@@ -1006,6 +1938,40 @@ def cbench_consumer_mad_imdct36_verifier_oracle(
     return 36, output
 
 
+def cbench_consumer_lame_mdct_short_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independent cosine-sum reference for LAME's three short MDCT windows."""
+    if (not isinstance(values, (list, tuple)) or len(values) > 19
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   or not -32768.0 <= float(value) <= 32768.0 for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and (values or input_length not in (None, 0)))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or len(values) != 18:
+        return -1, []
+    if output_is_null or capacity is not None and capacity < 18:
+        return -2, []
+    output = [0.0] * 18
+    for window in range(3):
+        base = 6 * window
+        for m in range(6):
+            products = []
+            for coefficient in range(6):
+                i = coefficient if coefficient < 3 else coefficient - 3
+                window_scale = (math.cos(math.pi * (i + 0.5) / 12.0)
+                                * 0.030526638 / 32768.0 * (4.0 / 12.0))
+                angle = math.pi * (2 * m + 1) / 48.0
+                offset = 14 if coefficient < 3 else 38
+                transform_coefficient = window_scale * math.cos(angle * (4 * i + offset))
+                products.append(float(values[base + coefficient]) * transform_coefficient)
+            output[3 * m + window] = math.fsum(products)
+    return 18, output
+
+
 def cbench_lame_mid_side_verifier_oracle(
         values, capacity=None, output_is_null=False,
         input_is_null=False, input_length=None):
@@ -1083,6 +2049,63 @@ def cbench_rsynth_natural_glottal_verifier_oracle(
     return 1, [result]
 
 
+def cbench_rsynth_impulsive_glottal_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Replay the binary32 impulse and second-order resonator recurrence."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) > CBENCH_RSYNTH_IMPULSIVE_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and (values or input_length not in (None, 0)))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or len(values) != 2:
+        return -1, []
+    nopen_value, sample_value = (float(value) for value in values)
+    if (nopen_value != math.trunc(nopen_value)
+            or sample_value != math.trunc(sample_value)
+            or not CBENCH_RSYNTH_IMPULSIVE_MIN_OPEN <= nopen_value <= CBENCH_RSYNTH_IMPULSIVE_MAX_OPEN
+            or not 0 <= sample_value <= CBENCH_RSYNTH_IMPULSIVE_MAX_SAMPLE_INDEX):
+        return -1, []
+    if output_is_null or capacity is not None and capacity < CBENCH_RSYNTH_IMPULSIVE_MAX_OUTPUT_ELEMENTS:
+        return -2, []
+
+    nopen = int(nopen_value)
+    sample_index = int(sample_value)
+    bandwidth = CBENCH_RSYNTH_IMPULSIVE_SAMPLE_RATE // nopen
+    minus_pi_t = _cbench_rsynth_f32(-math.pi / CBENCH_RSYNTH_IMPULSIVE_SAMPLE_RATE)
+    two_pi_t = _cbench_rsynth_f32(-2.0 * minus_pi_t)
+    radius = _cbench_rsynth_f32(math.exp(float(minus_pi_t) * bandwidth))
+    coefficient_c = _cbench_rsynth_f32(-(radius * radius))
+    coefficient_b = _cbench_rsynth_f32(
+        float(radius) * math.cos(float(two_pi_t) * 0.0) * 2.0)
+    coefficient_a = _cbench_rsynth_f32(
+        1.0 - float(coefficient_b) - float(coefficient_c))
+    gain = _cbench_rsynth_f32(float(nopen) * 0.00833)
+    coefficient_a = _cbench_rsynth_f32(
+        coefficient_a * _cbench_rsynth_f32(gain * gain))
+    previous_1 = _cbench_rsynth_f32(0.0)
+    previous_2 = _cbench_rsynth_f32(0.0)
+    sample = _cbench_rsynth_f32(0.0)
+    for index in range(sample_index + 1):
+        if index == 1:
+            impulse = _cbench_rsynth_f32(13_000_000.0)
+        elif index == 2:
+            impulse = _cbench_rsynth_f32(-13_000_000.0)
+        else:
+            impulse = _cbench_rsynth_f32(0.0)
+        sample = _cbench_rsynth_f32(
+            _cbench_rsynth_f32(_cbench_rsynth_f32(coefficient_a * impulse)
+                               + _cbench_rsynth_f32(coefficient_b * previous_1))
+            + _cbench_rsynth_f32(coefficient_c * previous_2))
+        previous_2, previous_1 = previous_1, sample
+    return 1, [sample]
+
+
 def mibench_automotive_basicmath_cubic_verifier_oracle(
         values, capacity=None, output_is_null=False,
         input_is_null=False, input_length=None):
@@ -1134,7 +2157,43 @@ def mibench_automotive_basicmath_cubic_verifier_oracle(
 
 
 def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
-    if algorithm == "versabench_beamformer":
+    if algorithm == "tsvc_s111_odd_index_neighbor_update":
+        validate_tsvc_s111_odd_index_neighbor_update_workload(workload)
+    elif algorithm == "tsvc_vtvtv_triple_product_map":
+        validate_tsvc_vtvtv_triple_product_map_workload(workload)
+    elif algorithm == "tsvc_s451_sincos_vector_map":
+        validate_tsvc_s451_sincos_vector_map_workload(workload)
+    elif algorithm == "tsvc_s221_partial_recursive_fused_update":
+        validate_tsvc_s221_partial_recursive_fused_update_workload(workload)
+    elif algorithm == "tsvc_s222_interleaved_square_recurrence":
+        validate_tsvc_s222_interleaved_square_recurrence_workload(workload)
+    elif algorithm == "tsvc_s2251_carried_scalar_expansion":
+        validate_tsvc_s2251_carried_scalar_expansion_workload(workload)
+    elif algorithm == "tsvc_s1251_per_element_dual_update":
+        validate_tsvc_s1251_per_element_dual_update_workload(workload)
+    elif algorithm == "tsvc_s3251_forward_shifted_array_expansion":
+        validate_tsvc_s3251_forward_shifted_array_expansion_workload(workload)
+    elif algorithm == "tsvc_s2712_comparison_gated_axpy":
+        validate_tsvc_s2712_comparison_gated_axpy_workload(workload)
+    elif algorithm == "tsvc_s2710_nested_scalar_vector_branch_update":
+        validate_tsvc_s2710_nested_scalar_vector_branch_update_workload(workload)
+    elif algorithm == "tsvc_s1279_nested_conditional_accumulation":
+        validate_tsvc_s1279_nested_conditional_accumulation_workload(workload)
+    elif algorithm == "tsvc_s2275_matrix_vector_axpy_interleave":
+        validate_tsvc_s2275_matrix_vector_axpy_interleave_workload(workload)
+    elif algorithm == "tsvc_s482_break_after_update":
+        validate_tsvc_s482_break_after_update_workload(workload)
+    elif algorithm == "tsvc_s441_s443_d_sign_branch_updates":
+        validate_tsvc_s441_s443_d_sign_branch_updates_workload(workload)
+    elif algorithm == "tsvc_s242_fused_prefix_update":
+        validate_tsvc_s242_fused_prefix_update_workload(workload)
+    elif algorithm == "tsvc_s351_direct_unrolled_saxpy":
+        validate_tsvc_s351_direct_unrolled_saxpy_workload(workload)
+    elif algorithm == "tsvc_s275_column_conditional_axpy_recurrence":
+        validate_tsvc_s275_column_conditional_axpy_recurrence_workload(workload)
+    elif algorithm == "tsvc_s313_dot_product_reduction":
+        validate_tsvc_s313_dot_product_reduction_workload(workload)
+    elif algorithm == "versabench_beamformer":
         validate_versabench_beamformer_workload(workload)
     elif algorithm == "rader_fft":
         validate_rader_fft_workload(workload)
@@ -1166,8 +2225,28 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_fdtd_2d_workload(workload)
     elif algorithm == "heat_3d":
         validate_heat_3d_workload(workload)
+    elif algorithm == "parboil_stencil_laplacian":
+        validate_parboil_stencil_laplacian_workload(workload)
+    elif algorithm == "graphai_gcn_aggregation":
+        validate_graphai_gcn_aggregation_workload(workload)
+    elif algorithm == "graphai_sage_aggregation":
+        validate_graphai_sage_aggregation_workload(workload)
+    elif algorithm == "graphai_gat_aggregation":
+        validate_graphai_gat_aggregation_workload(workload)
+    elif algorithm == "graphai_frontier_sampler":
+        validate_graphai_frontier_sampler_workload(workload)
+    elif algorithm == "graphai_cf_sgd_sweep":
+        validate_graphai_cf_sgd_sweep_workload(workload)
+    elif algorithm in {"gardenia_symgs", "gardenia_sgd"}:
+        validate_gardenia_workload(workload, algorithm)
+    elif algorithm == "asci_purple_smg2000_residual":
+        validate_asci_purple_smg2000_residual_workload(workload)
+    elif algorithm == "mafft_falign_fft_lag_correlation":
+        validate_mafft_falign_fft_lag_correlation_workload(workload)
     elif algorithm == "himenobmtxpa":
         validate_himenobmtxpa_workload(workload)
+    elif algorithm == "polybench_gramschmidt":
+        validate_polybench_gramschmidt_workload(workload)
     elif algorithm == "polybench_lu":
         validate_polybench_lu_workload(workload)
     elif algorithm == "polybench_correlation":
@@ -1180,10 +2259,14 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_mibench_lame_mdct_long_workload(workload)
     elif algorithm == "cbench_consumer_mad_imdct36":
         validate_cbench_consumer_mad_imdct36_workload(workload)
+    elif algorithm == "cbench_consumer_lame_mdct_short":
+        validate_cbench_consumer_lame_mdct_short_workload(workload)
     elif algorithm == "cbench_lame_mid_side":
         validate_cbench_lame_mid_side_workload(workload)
     elif algorithm == "cbench_rsynth_natural_glottal_sample":
         validate_cbench_rsynth_natural_glottal_workload(workload)
+    elif algorithm == "cbench_rsynth_impulsive_glottal_sample":
+        validate_cbench_rsynth_impulsive_glottal_workload(workload)
     elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":
@@ -1285,7 +2368,169 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
     for case in workload.get("cases", []):
         values, expected_result, expected_output = encode_case(
             case, algorithm, absolute_tolerance, relative_tolerance)
-        if algorithm == "trmm":
+        if algorithm == "tsvc_s111_odd_index_neighbor_update":
+            independent_result, independent_output = tsvc_s111_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s111 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_vtvtv_triple_product_map":
+            independent_result, independent_output = tsvc_vtvtv_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC vtvtv fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s451_sincos_vector_map":
+            independent_result, independent_output = tsvc_s451_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s451 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s221_partial_recursive_fused_update":
+            independent_result, independent_output = tsvc_s221_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s221 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s222_interleaved_square_recurrence":
+            independent_result, independent_output = tsvc_s222_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s222 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s2251_carried_scalar_expansion":
+            independent_result, independent_output = tsvc_s2251_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s2251 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s1251_per_element_dual_update":
+            independent_result, independent_output = tsvc_s1251_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s1251 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s3251_forward_shifted_array_expansion":
+            independent_result, independent_output = tsvc_s3251_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s3251 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s2712_comparison_gated_axpy":
+            independent_result, independent_output = tsvc_s2712_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s2712 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s2710_nested_scalar_vector_branch_update":
+            independent_result, independent_output = tsvc_s2710_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s2710 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s1279_nested_conditional_accumulation":
+            independent_result, independent_output = tsvc_s1279_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s1279 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s2275_matrix_vector_axpy_interleave":
+            independent_result, independent_output = tsvc_s2275_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s2275 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s482_break_after_update":
+            independent_result, independent_output = tsvc_s482_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s482 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s441_s443_d_sign_branch_updates":
+            independent_result, independent_output = tsvc_s441_s443_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s441/s443 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s242_fused_prefix_update":
+            independent_result, independent_output = tsvc_s242_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s242 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s351_direct_unrolled_saxpy":
+            independent_result, independent_output = tsvc_s351_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s351 fixture differs from independent verifier oracle")
+        elif algorithm == "tsvc_s275_column_conditional_axpy_recurrence":
+            independent_result, independent_output = tsvc_s275_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s275 fixture differs from independent recurrence oracle")
+        elif algorithm == "tsvc_s313_dot_product_reduction":
+            independent_result, independent_output = tsvc_s313_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: TSVC s313 fixture differs from independent dot-product oracle")
+        elif algorithm == "trmm":
             independent_result, independent_output = trmm_verifier_oracle(
                 values, case.get("output_capacity", workspace),
                 case.get("output_is_null", False), case.get("input_is_null", False),
@@ -1318,6 +2563,98 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                            + relative_tolerance * abs(expected)
                            for actual, expected in zip(independent_output, expected_output))):
                 raise ValueError(f"{case.get('id')}: heat_3d fixture differs from the independent verifier oracle")
+        elif algorithm == "parboil_stencil_laplacian":
+            independent_result, independent_output = parboil_stencil_laplacian_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: Parboil stencil fixture differs from the independent verifier oracle"
+                )
+        elif algorithm == "graphai_gcn_aggregation":
+            independent_result, independent_output = graphai_gcn_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: GraphAIBench GCN fixture differs from the independent oracle")
+        elif algorithm == "graphai_sage_aggregation":
+            independent_result, independent_output = graphai_sage_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: GraphAIBench GraphSAGE fixture differs from the independent oracle")
+        elif algorithm == "graphai_gat_aggregation":
+            independent_result, independent_output = graphai_gat_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: GraphAIBench GAT fixture differs from the independent oracle")
+        elif algorithm == "graphai_frontier_sampler":
+            independent_result, independent_output = graphai_frontier_sampler_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: GraphAIBench sampler fixture differs from the independent oracle")
+        elif algorithm == "graphai_cf_sgd_sweep":
+            independent_result, independent_output = graphai_cf_sgd_sweep_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: GraphAIBench CF fixture differs from the independent oracle")
+        elif algorithm == "gardenia_symgs":
+            independent_result, independent_output = gardenia_symgs_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: GARDENIA SymGS fixture differs from the dense-row verifier")
+        elif algorithm == "gardenia_sgd":
+            independent_result, independent_output = gardenia_sgd_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: GARDENIA SGD fixture differs from the matrix verifier")
+        elif algorithm == "asci_purple_smg2000_residual":
+            independent_result, independent_output = asci_purple_smg2000_residual_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: ASCI-Purple residual differs from independent oracle")
+        elif algorithm == "mafft_falign_fft_lag_correlation":
+            independent_result, independent_output = mafft_falign_fft_lag_correlation_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: MAFFT lag profile differs from the direct verifier oracle")
         elif algorithm == "himenobmtxpa":
             independent_result, independent_output = himenobmtxpa_verifier_oracle(
                 values, case.get("output_capacity", workspace),
@@ -1340,6 +2677,17 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                            + relative_tolerance * abs(expected)
                            for actual, expected in zip(independent_output, expected_output))):
                 raise ValueError(f"{case.get('id')}: polybench_lu fixture differs from the independent verifier oracle")
+        elif algorithm == "polybench_gramschmidt":
+            independent_result, independent_output = polybench_gramschmidt_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or len(independent_output) != len(expected_output)
+                    or any(abs(actual - expected) > absolute_tolerance
+                           + relative_tolerance * abs(expected)
+                           for actual, expected in zip(independent_output, expected_output))):
+                raise ValueError(f"{case.get('id')}: PolyBench QR differs from the independent verifier oracle")
         elif algorithm == "polybench_correlation":
             independent_result, independent_output = polybench_correlation_verifier_oracle(
                 values, case.get("output_capacity", workspace),
@@ -1397,6 +2745,17 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                 raise ValueError(
                     f"{case.get('id')}: consumer_mad IMDCT36 fixture differs from the independent verifier oracle"
                 )
+        elif algorithm == "cbench_consumer_lame_mdct_short":
+            independent_result, independent_output = cbench_consumer_lame_mdct_short_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: consumer_lame short MDCT fixture differs from the independent verifier oracle"
+                )
         elif algorithm == "cbench_lame_mid_side":
             independent_result, independent_output = cbench_lame_mid_side_verifier_oracle(
                 values, case.get("output_capacity", workspace),
@@ -1418,6 +2777,17 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                                            absolute_tolerance, relative_tolerance)):
                 raise ValueError(
                     f"{case.get('id')}: RSynth natural-source fixture differs from the independent verifier oracle"
+                )
+        elif algorithm == "cbench_rsynth_impulsive_glottal_sample":
+            independent_result, independent_output = cbench_rsynth_impulsive_glottal_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: RSynth impulsive-source fixture differs from the independent verifier oracle"
                 )
         elif algorithm == "misc_dt":
             independent_result, independent_output = misc_dt_verifier_expected_output(values)
@@ -1462,12 +2832,192 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
     values, result_count, _ = valid_case
     records.append((values, -2, [], result_count - 1, 0, 0))
     records.append((values, -2, [], workspace, 0, 1))
+    if algorithm == "tsvc_s313_dot_product_reduction":
+        maximum_input = [64.0, *([1000.0] * 64), *([1000.0] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s313_verifier_oracle(maximum_input)
+        if result != 1 or output != (64_000_000.0,) or (result, list(output)) != (independent_result, independent_output):
+            raise ValueError("TSVC s313 maximum-length workload disagrees with the independent oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s242_fused_prefix_update":
+        maximum_input = [64.0, 1.0, -1.0, *([1.0] * 64), *([1.0] * 64),
+                         *([-1.0] * 64), *([1.0] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s242_verifier_oracle(maximum_input)
+        if (result != 64 or len(output) != 64
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s242 maximum profile differs from independent recurrence oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s351_direct_unrolled_saxpy":
+        n = 40
+        maximum_input = [float(n), 1.0, *([-1.0] * n), *([1.0] * n)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s351_verifier_oracle(maximum_input)
+        if (result != 40 or len(output) != 40
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s351 maximum profile differs from independent SAXPY oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s275_column_conditional_axpy_recurrence":
+        n = 8
+        matrix_a = [1.0] * (n * n)
+        matrix_b = [1.0] * (n * n)
+        matrix_c = [1.0] * (n * n)
+        maximum_input = [float(n), *matrix_a, *matrix_b, *matrix_c]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s275_verifier_oracle(maximum_input)
+        if (result != n * n or len(output) != result
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s275 maximum-size profile differs from independent recurrence oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s111_odd_index_neighbor_update":
+        maximum_input = [64.0, *([1000.0] * 64), *([1000.0] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s111_verifier_oracle(maximum_input)
+        if (result != 64 or len(output) != 64
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s111 maximum-length profile differs from independent oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_vtvtv_triple_product_map":
+        maximum_input = [64.0, *([2.0] * 64), *([-2.0] * 64), *([1.0] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_vtvtv_verifier_oracle(maximum_input)
+        if (result != 64 or len(output) != 64
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC vtvtv maximum-size profile differs from independent oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s451_sincos_vector_map":
+        maximum_input = [64.0, *([0.0] * 64), *([0.0] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s451_verifier_oracle(maximum_input)
+        if (result != 64 or len(output) != 64
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s451 maximum-size profile differs from independent oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s221_partial_recursive_fused_update":
+        maximum_input = [64.0, *([2.0] * 64), *([2.0] * 64),
+                         *([2.0] * 64), *([2.0] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s221_verifier_oracle(maximum_input)
+        if (result != 128 or len(output) != 128
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s221 maximum-size profile differs from independent oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s222_interleaved_square_recurrence":
+        maximum_input = [64.0, *([2.0] * 64), *([2.0] * 64),
+                         *([2.0] * 64), *([0.5] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s222_verifier_oracle(maximum_input)
+        if (result != 128 or len(output) != 128
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s222 maximum-size profile differs from independent oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s2251_carried_scalar_expansion":
+        maximum_input = [64.0, *([1.0] * 64), *([1.0] * 64),
+                         *([1.0] * 64), *([-1.0] * 64), *([1.0] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s2251_verifier_oracle(maximum_input)
+        if (result != 128 or len(output) != 128
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s2251 maximum profile differs from independent recurrence oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s1251_per_element_dual_update":
+        maximum_input = [64.0, *([1.0] * 64), *([-1.0] * 64),
+                         *([1.0] * 64), *([-1.0] * 64), *([1.0] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s1251_verifier_oracle(maximum_input)
+        if (result != 128 or len(output) != 128
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s1251 maximum profile differs from independent recurrence oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s3251_forward_shifted_array_expansion":
+        maximum_input = [64.0, *([1.0] * 64), *([-1.0] * 64),
+                         *([1.0] * 64), *([-1.0] * 64), *([1.0] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s3251_verifier_oracle(maximum_input)
+        if (result != 192 or len(output) != 192
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s3251 maximum profile differs from independent recurrence oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s2712_comparison_gated_axpy":
+        maximum_input = [64.0, 8.0, *([2.0] * 64), *([-2.0] * 64), *([-2.0] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s2712_verifier_oracle(maximum_input)
+        if (result != 64 or len(output) != 64
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s2712 maximum profile differs from independent recurrence oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s2710_nested_scalar_vector_branch_update":
+        maximum_input = [64.0, 8.0, 1.0, *([1.0] * 64), *([0.0] * 64),
+                         *([0.0] * 64), *([1.0] * 64), *([0.0] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s2710_verifier_oracle(maximum_input)
+        if (result != 192 or len(output) != 192
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s2710 maximum profile differs from independent branch oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s1279_nested_conditional_accumulation":
+        maximum_input = [64.0, 8.0, *([-1.0] * 64), *([0.0] * 64),
+                         *([0.0] * 64), *([1.0] * 64), *([1.0] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s1279_verifier_oracle(maximum_input)
+        if (result != 64 or len(output) != 64
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s1279 maximum profile differs from independent nested-predicate oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s2275_matrix_vector_axpy_interleave":
+        maximum_input = [8.0, 8.0, *([1.0] * 64), *([1.0] * 64),
+                         *([1.0] * 64), *([1.0] * 8), *([1.0] * 8),
+                         *([1.0] * 8), *([1.0] * 8)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s2275_verifier_oracle(maximum_input)
+        if (result != 72 or len(output) != 72
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s2275 maximum profile differs from independent matrix/vector oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s482_break_after_update":
+        maximum_input = [64.0, 8.0, *([1.0] * 64), *([0.0] * 64), *([0.0] * 64)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = tsvc_s482_verifier_oracle(maximum_input)
+        if (result != 64 or len(output) != 64
+                or (result, list(output)) != (independent_result, independent_output)):
+            raise ValueError("TSVC s482 maximum profile differs from independent break-sweep oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "tsvc_s441_s443_d_sign_branch_updates":
+        for mode in (0.0, 1.0):
+            maximum_input = [mode, 64.0, 8.0, *([1.0] * 64), *([1.0] * 64),
+                             *([-1.0] * 64), *([0.0] * 64)]
+            result, output = ORACLES[algorithm](maximum_input)
+            independent_result, independent_output = tsvc_s441_s443_verifier_oracle(maximum_input)
+            if (result != 64 or len(output) != 64
+                    or (result, list(output)) != (independent_result, independent_output)):
+                raise ValueError("TSVC s441/s443 maximum profile differs from independent D-sign oracle")
+            records.append((maximum_input, result, [_output_token(value) for value in output],
+                            workspace, 0, 0))
     for invalid_length in (4, 6):
         invalid_input = [0.0] * invalid_length
         oracle_result = ORACLES[algorithm](invalid_input)
         invalid = (oracle_result[0] < 0
-                   if algorithm in {"versabench_beamformer", "olden_bh", "olden_em3d", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+                   if algorithm in {"versabench_beamformer", "olden_bh", "olden_em3d", "joint_probability_distribution", "shreedharacharya", "rotation_matrix", "tsvc_s313_dot_product_reduction", "tsvc_s275_column_conditional_axpy_recurrence", "tsvc_s111_odd_index_neighbor_update", "tsvc_vtvtv_triple_product_map", "tsvc_s451_sincos_vector_map", "tsvc_s221_partial_recursive_fused_update", "tsvc_s222_interleaved_square_recurrence", "tsvc_s2251_carried_scalar_expansion", "tsvc_s1251_per_element_dual_update", "tsvc_s3251_forward_shifted_array_expansion", "tsvc_s2712_comparison_gated_axpy", "tsvc_s2710_nested_scalar_vector_branch_update", "tsvc_s1279_nested_conditional_accumulation", "tsvc_s2275_matrix_vector_axpy_interleave", "tsvc_s482_break_after_update", "tsvc_s441_s443_d_sign_branch_updates", "tsvc_s242_fused_prefix_update", "tsvc_s351_direct_unrolled_saxpy",
                                     "trmm",
+                                    "parboil_stencil_laplacian",
+                                    "mafft_falign_fft_lag_correlation",
                                     "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                                     "median_of_running_array_double", "median_of_running_array_float",
                                     "mean_shift", "k_means_clust", "lu_decompose",
@@ -1487,6 +3037,21 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                    else oracle_result is None)
         if invalid:
             records.append((invalid_input, -1, [], workspace, 0, 0))
+    if algorithm == "mafft_falign_fft_lag_correlation":
+        sequence_a = [ord(letter) for letter in _MAFFT_V_ALPHABET + _MAFFT_V_ALPHABET[:12]]
+        sequence_b = [ord(letter) for letter in (_MAFFT_V_ALPHABET[::-1] + _MAFFT_V_ALPHABET[:12])]
+        maximum_input = [32.0, 32.0, *(float(code) for code in sequence_a),
+                         *(float(code) for code in sequence_b)]
+        result, output = ORACLES[algorithm](maximum_input)
+        independent_result, independent_output = mafft_falign_fft_lag_correlation_verifier_oracle(
+            maximum_input, workspace, False, False, len(maximum_input))
+        if (result != 64 or len(output) != 64 or independent_result != result
+                or not _matches_output(output, independent_output,
+                                       absolute_tolerance, relative_tolerance)):
+            raise ValueError("MAFFT maximum-length feature traces disagree with the direct oracle")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+        records.append(([], -1, [], workspace, 1, 0))
     if algorithm == "misc_dt":
         for iterations, size in ((1, 1), (8, 2), (32, 16), (128, 64)):
             inputs = [float(iterations), float(size)]
@@ -1650,6 +3215,30 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         if null_result != -2 or null_output:
             raise ValueError("polybench_lu null-output oracle returned an invalid result")
         records.append((maximum_input, null_result, [], result, 0, 1))
+    elif algorithm == "polybench_gramschmidt":
+        maximum_input = [6.0, 6.0]
+        result, output = polybench_gramschmidt_verifier_oracle(maximum_input, workspace)
+        if (result != 72 or len(output) != result
+                or any(not math.isfinite(value) for value in output)):
+            raise ValueError("PolyBench QR verifier returned an invalid maximum profile")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        result, 0, 0))
+        for capacity in (0, result - 1):
+            error_result, error_output = polybench_gramschmidt_verifier_oracle(
+                maximum_input, capacity)
+            if error_result != -2 or error_output:
+                raise ValueError("PolyBench QR capacity oracle returned an invalid result")
+            records.append((maximum_input, error_result, [], capacity, 0, 0))
+        null_result, null_output = polybench_gramschmidt_verifier_oracle(
+            maximum_input, result, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("PolyBench QR null-output oracle returned an invalid result")
+        records.append((maximum_input, null_result, [], result, 0, 1))
+        null_input_result, null_input_output = polybench_gramschmidt_verifier_oracle(
+            [], workspace, input_is_null=True, input_length=0)
+        if null_input_result != -1 or null_input_output:
+            raise ValueError("PolyBench QR null-input oracle returned an invalid result")
+        records.append(([], null_input_result, [], workspace, 1, 0))
     elif algorithm == "polybench_correlation":
         maximum_input = [6.0, 6.0]
         result, output = polybench_correlation_verifier_oracle(maximum_input, workspace)
@@ -1743,6 +3332,363 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         if null_result != -1 or null_output:
             raise ValueError("consumer_mad IMDCT36 null-input verifier returned an invalid result")
         records.append((null_input, null_result, [], workspace, 1, 0))
+    elif algorithm == "cbench_consumer_lame_mdct_short":
+        rng_short_mdct = random.Random(0x5A48)
+        for _case_index in range(32):
+            generated_input = [rng_short_mdct.uniform(-32768.0, 32768.0) for _ in range(18)]
+            result, output = cbench_consumer_lame_mdct_short_verifier_oracle(
+                generated_input, workspace)
+            if (result != 18 or len(output) != result
+                    or any(not math.isfinite(value) for value in output)):
+                raise ValueError("consumer_lame short MDCT verifier rejected a bounded work vector")
+            records.append((generated_input, result, [_output_token(value) for value in output],
+                            workspace, 0, 0))
+        for boundary_value in (-32768.0, 32768.0):
+            boundary_input = [boundary_value] * 18
+            result, output = cbench_consumer_lame_mdct_short_verifier_oracle(
+                boundary_input, workspace)
+            if result != 18 or len(output) != 18:
+                raise ValueError("consumer_lame short MDCT verifier rejected an inclusive input bound")
+            records.append((boundary_input, result, [_output_token(value) for value in output],
+                            workspace, 0, 0))
+        malformed_cases = (
+            ([0.0, 0.0], 2, -1),
+            ([32768.5] + [0.0] * 17, 18, -1),
+        )
+        for malformed_input, malformed_length, expected_error in malformed_cases:
+            error_result, error_output = cbench_consumer_lame_mdct_short_verifier_oracle(
+                malformed_input, workspace, input_length=malformed_length)
+            if error_result != expected_error or error_output:
+                raise ValueError("consumer_lame short MDCT verifier returned an invalid malformed-input result")
+            records.append((malformed_input, error_result, [], workspace, 0, 0))
+        valid_input = [1.0] + [0.0] * 17
+        for capacity in (0, 17):
+            error_result, error_output = cbench_consumer_lame_mdct_short_verifier_oracle(
+                valid_input, capacity)
+            if error_result != -2 or error_output:
+                raise ValueError("consumer_lame short MDCT capacity oracle returned an invalid result")
+            records.append((valid_input, error_result, [], capacity, 0, 0))
+        null_result, null_output = cbench_consumer_lame_mdct_short_verifier_oracle(
+            valid_input, 18, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("consumer_lame short MDCT null-output oracle returned an invalid result")
+        records.append((valid_input, null_result, [], 18, 0, 1))
+        null_input = [0.0] * 18
+        null_result, null_output = cbench_consumer_lame_mdct_short_verifier_oracle(
+            null_input, workspace, input_is_null=True, input_length=18)
+        if null_result != -1 or null_output:
+            raise ValueError("consumer_lame short MDCT null-input oracle returned an invalid result")
+        records.append((null_input, null_result, [], workspace, 1, 0))
+    elif algorithm == "graphai_gcn_aggregation":
+        n, m, d = GRAPHAI_GCN_N_LIMIT, GRAPHAI_GCN_M_LIMIT, GRAPHAI_GCN_D_LIMIT
+        maximum_rowptr = [3 * row for row in range(n + 1)]
+        maximum_edges = [neighbor for src in range(n)
+                         for neighbor in ((src + 1) % n, (src + 3) % n, (src + 5) % n)]
+        maximum_left = [(-1) ** vertex for vertex in range(n)]
+        maximum_right = [1 + (vertex % 3) for vertex in range(n)]
+        maximum_features = [((vertex + feature) % 5) - 2
+                            for vertex in range(n) for feature in range(d)]
+        maximum_input = ([float(n), float(m), float(d)] + list(map(float, maximum_rowptr))
+                         + list(map(float, maximum_edges)) + list(map(float, maximum_left))
+                         + list(map(float, maximum_right)) + list(map(float, maximum_features)))
+        maximum_result, maximum_output = graphai_gcn_verifier_oracle(maximum_input, workspace)
+        if (len(maximum_input) != GRAPHAI_GCN_INPUT_LIMIT
+                or maximum_result != GRAPHAI_GCN_OUTPUT_LIMIT
+                or len(maximum_output) != maximum_result
+                or any(not math.isfinite(value) for value in maximum_output)):
+            raise ValueError("GraphAIBench GCN oracle rejected the maximum bounded graph")
+        records.append((maximum_input, maximum_result,
+                        [_output_token(value) for value in maximum_output], workspace, 0, 0))
+        short_result, short_output = graphai_gcn_verifier_oracle(maximum_input, workspace - 1)
+        if short_result != -2 or short_output:
+            raise ValueError("GraphAIBench GCN oracle returned an invalid short-capacity result")
+        records.append((maximum_input, short_result, [], workspace - 1, 0, 0))
+        null_result, null_output = graphai_gcn_verifier_oracle(
+            maximum_input, workspace, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("GraphAIBench GCN oracle returned an invalid null-output result")
+        records.append((maximum_input, null_result, [], workspace, 0, 1))
+        invalid_input = list(maximum_input)
+        invalid_input[3 + n + 1] = float(n)
+        invalid_result, invalid_output = graphai_gcn_verifier_oracle(invalid_input, workspace)
+        if invalid_result != -1 or invalid_output:
+            raise ValueError("GraphAIBench GCN oracle accepted an out-of-range neighbor")
+        records.append((invalid_input, invalid_result, [], workspace, 0, 0))
+        null_input_result, null_input_output = graphai_gcn_verifier_oracle(
+            [], workspace, input_is_null=True, input_length=0)
+        if null_input_result != -1 or null_input_output:
+            raise ValueError("GraphAIBench GCN oracle returned an invalid null-input result")
+        records.append(([], null_input_result, [], workspace, 1, 0))
+    elif algorithm == "graphai_sage_aggregation":
+        n, m, d = 8, 24, 4
+        rows = [3 * row for row in range(n + 1)]
+        cols = [neighbor for src in range(n)
+                for neighbor in ((src + 1) % n, (src + 3) % n, (src + 5) % n)]
+        features = [((vertex + feature) % 7) - 3
+                    for vertex in range(n) for feature in range(d)]
+        maximum_input = ([float(n), float(m), float(d)] + list(map(float, rows))
+                         + list(map(float, cols)) + list(map(float, features)))
+        result, output = graphai_sage_verifier_oracle(maximum_input, workspace)
+        if len(maximum_input) != 68 or result != 32 or len(output) != result:
+            raise ValueError("GraphAIBench GraphSAGE oracle rejected the maximum bounded graph")
+        records.append((maximum_input, result, [_output_token(x) for x in output], workspace, 0, 0))
+        short_result, short_output = graphai_sage_verifier_oracle(maximum_input, workspace - 1)
+        if short_result != -2 or short_output:
+            raise ValueError("GraphAIBench GraphSAGE oracle returned an invalid short-capacity result")
+        records.append((maximum_input, short_result, [], workspace - 1, 0, 0))
+        null_result, null_output = graphai_sage_verifier_oracle(
+            maximum_input, workspace, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("GraphAIBench GraphSAGE oracle returned an invalid null-output result")
+        records.append((maximum_input, null_result, [], workspace, 0, 1))
+        invalid_input = list(maximum_input)
+        invalid_input[3 + n + 1] = float(n)
+        invalid_result, invalid_output = graphai_sage_verifier_oracle(invalid_input, workspace)
+        if invalid_result != -1 or invalid_output:
+            raise ValueError("GraphAIBench GraphSAGE oracle accepted an out-of-range neighbor")
+        records.append((invalid_input, invalid_result, [], workspace, 0, 0))
+        null_input_result, null_input_output = graphai_sage_verifier_oracle(
+            [], workspace, input_is_null=True, input_length=0)
+        if null_input_result != -1 or null_input_output:
+            raise ValueError("GraphAIBench GraphSAGE oracle returned an invalid null-input result")
+        records.append(([], null_input_result, [], workspace, 1, 0))
+    elif algorithm == "graphai_gat_aggregation":
+        n, m, d = 8, 24, 4
+        rows = [3 * row for row in range(n + 1)]
+        cols = [neighbor for src in range(n)
+                for neighbor in ((src + 1) % n, (src + 3) % n, (src + 5) % n)]
+        alpha_left = [(-1) ** k for k in range(d)]
+        alpha_right = [((k % 3) - 1) for k in range(d)]
+        features = [((vertex + feature) % 5) - 2
+                    for vertex in range(n) for feature in range(d)]
+        maximum_input = ([float(n), float(m), float(d)] + list(map(float, rows))
+                         + list(map(float, cols)) + list(map(float, alpha_left))
+                         + list(map(float, alpha_right)) + list(map(float, features)))
+        result, output = graphai_gat_verifier_oracle(maximum_input, workspace)
+        if len(maximum_input) != 76 or result != 32 or len(output) != result:
+            raise ValueError("GraphAIBench GAT oracle rejected the maximum bounded graph")
+        records.append((maximum_input, result, [_output_token(x) for x in output], workspace, 0, 0))
+        short_result, short_output = graphai_gat_verifier_oracle(maximum_input, workspace - 1)
+        if short_result != -2 or short_output:
+            raise ValueError("GraphAIBench GAT oracle returned an invalid short-capacity result")
+        records.append((maximum_input, short_result, [], workspace - 1, 0, 0))
+        null_result, null_output = graphai_gat_verifier_oracle(
+            maximum_input, workspace, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("GraphAIBench GAT oracle returned an invalid null-output result")
+        records.append((maximum_input, null_result, [], workspace, 0, 1))
+        invalid_input = list(maximum_input)
+        invalid_input[3 + n + 1] = float(n)
+        invalid_result, invalid_output = graphai_gat_verifier_oracle(invalid_input, workspace)
+        if invalid_result != -1 or invalid_output:
+            raise ValueError("GraphAIBench GAT oracle accepted an out-of-range neighbor")
+        records.append((invalid_input, invalid_result, [], workspace, 0, 0))
+        null_input_result, null_input_output = graphai_gat_verifier_oracle(
+            [], workspace, input_is_null=True, input_length=0)
+        if null_input_result != -1 or null_input_output:
+            raise ValueError("GraphAIBench GAT oracle returned an invalid null-input result")
+        records.append(([], null_input_result, [], workspace, 1, 0))
+    elif algorithm == "graphai_frontier_sampler":
+        n, m, roots_count = 8, 24, 4
+        rows = [3 * row for row in range(n + 1)]
+        cols = [neighbor for src in range(n)
+                for neighbor in ((src + 1) % n, (src + 3) % n, (src + 5) % n)]
+        roots = list(range(roots_count))
+        choices = [0] * (21 * roots_count)
+        maximum_input = ([float(n), float(m), float(roots_count)]
+                         + list(map(float, roots)) + list(map(float, rows))
+                         + list(map(float, cols)) + list(map(float, choices)))
+        result, output = graphai_frontier_sampler_verifier_oracle(maximum_input, workspace)
+        if len(maximum_input) != 124 or result != 88 or len(output) != result:
+            raise ValueError("GraphAIBench sampler oracle rejected the maximum bounded graph")
+        records.append((maximum_input, result, [_output_token(x) for x in output], workspace, 0, 0))
+        short_result, short_output = graphai_frontier_sampler_verifier_oracle(maximum_input, workspace - 1)
+        if short_result != -2 or short_output:
+            raise ValueError("GraphAIBench sampler oracle returned an invalid short-capacity result")
+        records.append((maximum_input, short_result, [], workspace - 1, 0, 0))
+        null_result, null_output = graphai_frontier_sampler_verifier_oracle(
+            maximum_input, workspace, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("GraphAIBench sampler oracle returned an invalid null-output result")
+        records.append((maximum_input, null_result, [], workspace, 0, 1))
+        invalid_input = list(maximum_input)
+        invalid_input[3 + roots_count + n + 1 + m] = 3.0
+        invalid_result, invalid_output = graphai_frontier_sampler_verifier_oracle(invalid_input, workspace)
+        if invalid_result != -1 or invalid_output:
+            raise ValueError("GraphAIBench sampler oracle accepted an out-of-range edge choice")
+        records.append((invalid_input, invalid_result, [], workspace, 0, 0))
+        null_input_result, null_input_output = graphai_frontier_sampler_verifier_oracle(
+            [], workspace, input_is_null=True, input_length=0)
+        if null_input_result != -1 or null_input_output:
+            raise ValueError("GraphAIBench sampler oracle returned an invalid null-input result")
+        records.append(([], null_input_result, [], workspace, 1, 0))
+    elif algorithm == "graphai_cf_sgd_sweep":
+        users, items, m, k = 4, 4, 24, 4
+        n = users+items
+        rows = [6*user for user in range(users+1)] + [m]*items
+        cols = [users+((user+edge)%items) for user in range(users) for edge in range(6)]
+        ratings = [((user+edge)%7)-3 for user in range(users) for edge in range(6)]
+        latents = [(((vertex+factor)%5)-2)/2.0
+                   for vertex in range(n) for factor in range(k)]
+        maximum_input = ([float(users), float(items), float(m), float(k), 0.001, 0.00000035]
+                         + list(map(float, rows)) + list(map(float, cols))
+                         + list(map(float, ratings)) + latents)
+        result, output = graphai_cf_sgd_sweep_verifier_oracle(maximum_input, workspace)
+        if len(maximum_input) != 95 or result != 32 or len(output) != result:
+            raise ValueError("GraphAIBench CF oracle rejected the maximum bounded one-sweep graph")
+        records.append((maximum_input, result, [_output_token(x) for x in output], workspace, 0, 0))
+        short_result, short_output = graphai_cf_sgd_sweep_verifier_oracle(maximum_input, workspace-1)
+        if short_result != -2 or short_output:
+            raise ValueError("GraphAIBench CF oracle returned an invalid short-capacity result")
+        records.append((maximum_input, short_result, [], workspace-1, 0, 0))
+        null_result, null_output = graphai_cf_sgd_sweep_verifier_oracle(
+            maximum_input, workspace, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("GraphAIBench CF oracle returned an invalid null-output result")
+        records.append((maximum_input, null_result, [], workspace, 0, 1))
+        invalid_input = list(maximum_input)
+        invalid_input[6+n+1] = 0.0
+        invalid_result, invalid_output = graphai_cf_sgd_sweep_verifier_oracle(invalid_input, workspace)
+        if invalid_result != -1 or invalid_output:
+            raise ValueError("GraphAIBench CF oracle accepted a user-to-user rating edge")
+        records.append((invalid_input, invalid_result, [], workspace, 0, 0))
+        null_input_result, null_input_output = graphai_cf_sgd_sweep_verifier_oracle(
+            [], workspace, input_is_null=True, input_length=0)
+        if null_input_result != -1 or null_input_output:
+            raise ValueError("GraphAIBench CF oracle returned an invalid null-input result")
+        records.append(([], null_input_result, [], workspace, 1, 0))
+    elif algorithm == "gardenia_symgs":
+        n, colors = 8, 8
+        order = list(range(n))
+        offsets = list(range(n + 1))
+        rows = list(range(0, (n + 1) * n, n))
+        columns = [v for _u in range(n) for v in range(n)]
+        matrix = [4.0 if u == v else -0.25 for u in range(n) for v in range(n)]
+        maximum_input = ([float(n), float(n*n), float(colors)]
+                         + list(map(float, order)) + list(map(float, offsets))
+                         + list(map(float, rows)) + list(map(float, columns))
+                         + matrix + [0.0] * n + [1.0] * n)
+        result, output = gardenia_symgs_verifier_oracle(maximum_input, workspace)
+        if len(maximum_input) != 173 or result != n or len(output) != n:
+            raise ValueError("GARDENIA SymGS verifier rejected the maximum bounded CSR profile")
+        records.append((maximum_input, result, [_output_token(x) for x in output], workspace, 0, 0))
+        short_result, short_output = gardenia_symgs_verifier_oracle(maximum_input, workspace-1)
+        if short_result != -2 or short_output:
+            raise ValueError("GARDENIA SymGS verifier returned an invalid short-capacity result")
+        records.append((maximum_input, short_result, [], workspace-1, 0, 0))
+        null_result, null_output = gardenia_symgs_verifier_oracle(maximum_input, workspace, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("GARDENIA SymGS verifier returned an invalid null-output result")
+        records.append((maximum_input, null_result, [], workspace, 0, 1))
+        invalid_input = list(maximum_input)
+        invalid_input[3+n] = 1.0
+        invalid_result, invalid_output = gardenia_symgs_verifier_oracle(invalid_input, workspace)
+        if invalid_result != -1 or invalid_output:
+            raise ValueError("GARDENIA SymGS verifier accepted malformed color offsets")
+        records.append((invalid_input, invalid_result, [], workspace, 0, 0))
+        null_input_result, null_input_output = gardenia_symgs_verifier_oracle(
+            [], workspace, input_is_null=True, input_length=0)
+        if null_input_result != -1 or null_input_output:
+            raise ValueError("GARDENIA SymGS verifier returned an invalid null-input result")
+        records.append(([], null_input_result, [], workspace, 1, 0))
+    elif algorithm == "gardenia_sgd":
+        users, items, m, k = 7, 1, 24, 4
+        rows = [0, 4, 8, 12, 16, 20, 22, 24]
+        columns = [0] * m
+        ratings = [1.0] * m
+        factors = [0.05] * ((users+items)*k)
+        maximum_input = ([float(users), float(items), float(m), float(k)]
+                         + list(map(float, rows)) + list(map(float, columns))
+                         + ratings + factors)
+        result, output = gardenia_sgd_verifier_oracle(maximum_input, workspace)
+        if len(maximum_input) != 92 or result != 32 or len(output) != result:
+            raise ValueError("GARDENIA SGD verifier rejected the maximum bounded rating matrix")
+        records.append((maximum_input, result, [_output_token(x) for x in output], workspace, 0, 0))
+        short_result, short_output = gardenia_sgd_verifier_oracle(maximum_input, workspace-1)
+        if short_result != -2 or short_output:
+            raise ValueError("GARDENIA SGD verifier returned an invalid short-capacity result")
+        records.append((maximum_input, short_result, [], workspace-1, 0, 0))
+        null_result, null_output = gardenia_sgd_verifier_oracle(maximum_input, workspace, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("GARDENIA SGD verifier returned an invalid null-output result")
+        records.append((maximum_input, null_result, [], workspace, 0, 1))
+        invalid_input = list(maximum_input)
+        invalid_input[12] = 1.0
+        invalid_result, invalid_output = gardenia_sgd_verifier_oracle(invalid_input, workspace)
+        if invalid_result != -1 or invalid_output:
+            raise ValueError("GARDENIA SGD verifier accepted an out-of-range item ID")
+        records.append((invalid_input, invalid_result, [], workspace, 0, 0))
+        null_input_result, null_input_output = gardenia_sgd_verifier_oracle(
+            [], workspace, input_is_null=True, input_length=0)
+        if null_input_result != -1 or null_input_output:
+            raise ValueError("GARDENIA SGD verifier returned an invalid null-input result")
+        records.append(([], null_input_result, [], workspace, 1, 0))
+    elif algorithm == "parboil_stencil_laplacian":
+        rng_stencil = random.Random(0x57E11)
+        for _case_index in range(32):
+            nx, ny, nz = (rng_stencil.randint(3, 5) for _ in range(3))
+            steps = rng_stencil.randint(1, 4)
+            generated_input = [float(nx), float(ny), float(nz), float(steps)] + [
+                rng_stencil.uniform(-8.0, 8.0) for _ in range(nx * ny * nz)]
+            result, output = parboil_stencil_laplacian_verifier_oracle(generated_input, workspace)
+            if result != nx * ny * nz or len(output) != result:
+                raise ValueError("Parboil stencil verifier rejected a bounded generated grid")
+            records.append((generated_input, result, [_output_token(value) for value in output],
+                            workspace, 0, 0))
+
+        maximum_input = [5.0, 5.0, 5.0, 4.0] + [
+            float(((index * 13) % 17) - 8) for index in range(125)]
+        maximum_result, maximum_output = parboil_stencil_laplacian_verifier_oracle(
+            maximum_input, workspace)
+        if maximum_result != 125 or len(maximum_output) != 125:
+            raise ValueError("Parboil stencil verifier rejected the maximum-size profile")
+        records.append((maximum_input, maximum_result,
+                        [_output_token(value) for value in maximum_output], workspace, 0, 0))
+        maximum_short_result, maximum_short_output = parboil_stencil_laplacian_verifier_oracle(
+            maximum_input, 124)
+        if maximum_short_result != -2 or maximum_short_output:
+            raise ValueError("Parboil stencil verifier returned an invalid maximum-grid capacity result")
+        records.append((maximum_input, maximum_short_result, [], 124, 0, 0))
+
+        for boundary_value in (-8.0, 8.0):
+            boundary_input = [3.0, 3.0, 3.0, 4.0] + [boundary_value] * 27
+            boundary_result, boundary_output = parboil_stencil_laplacian_verifier_oracle(
+                boundary_input, workspace)
+            if boundary_result != 27 or len(boundary_output) != 27:
+                raise ValueError("Parboil stencil verifier rejected an inclusive grid-value bound")
+            records.append((boundary_input, boundary_result,
+                            [_output_token(value) for value in boundary_output], workspace, 0, 0))
+
+        malformed_cases = (
+            ([2.0, 3.0, 3.0, 1.0] + [0.0] * 27, 31),
+            ([3.0, 3.0, 3.0, 1.0] + [0.0] * 26, 30),
+            ([3.0, 3.0, 3.0, 1.0, 8.5] + [0.0] * 26, 31),
+            ([3.5, 3.0, 3.0, 1.0] + [0.0] * 27, 31),
+        )
+        for malformed_input, malformed_length in malformed_cases:
+            error_result, error_output = parboil_stencil_laplacian_verifier_oracle(
+                malformed_input, workspace, input_length=malformed_length)
+            if error_result != -1 or error_output:
+                raise ValueError("Parboil stencil verifier returned an invalid malformed-input result")
+            records.append((malformed_input, error_result, [], workspace, 0, 0))
+
+        valid_input = [3.0, 3.0, 3.0, 2.0] + [0.0] * 27
+        for capacity in (0, 26):
+            error_result, error_output = parboil_stencil_laplacian_verifier_oracle(
+                valid_input, capacity)
+            if error_result != -2 or error_output:
+                raise ValueError("Parboil stencil capacity oracle returned an invalid result")
+            records.append((valid_input, error_result, [], capacity, 0, 0))
+        null_result, null_output = parboil_stencil_laplacian_verifier_oracle(
+            valid_input, 27, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("Parboil stencil null-output oracle returned an invalid result")
+        records.append((valid_input, null_result, [], 27, 0, 1))
+        null_result, null_output = parboil_stencil_laplacian_verifier_oracle(
+            valid_input, workspace, input_is_null=True, input_length=len(valid_input))
+        if null_result != -1 or null_output:
+            raise ValueError("Parboil stencil null-input oracle returned an invalid result")
+        records.append((valid_input, null_result, [], workspace, 1, 0))
     elif algorithm == "cbench_lame_mid_side":
         generated_inputs = []
         for count in range(1, 33):
@@ -1793,6 +3739,40 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         if result != 1 or output != [0.0]:
             raise ValueError("RSynth verifier failed the maximum closed-phase sample")
         records.append((maximum_input, result, [_output_token(output[0])], workspace, 0, 0))
+    elif algorithm == "cbench_rsynth_impulsive_glottal_sample":
+        for nopen in (CBENCH_RSYNTH_IMPULSIVE_MIN_OPEN,
+                      CBENCH_RSYNTH_IMPULSIVE_MIN_OPEN + 1,
+                      CBENCH_RSYNTH_IMPULSIVE_MAX_OPEN):
+            for sample_index in (0, 1, 2, 3, 100,
+                                 CBENCH_RSYNTH_IMPULSIVE_MAX_SAMPLE_INDEX):
+                generated_input = [float(nopen), float(sample_index)]
+                result, output = cbench_rsynth_impulsive_glottal_verifier_oracle(
+                    generated_input, workspace)
+                if result != 1 or len(output) != 1 or not math.isfinite(output[0]):
+                    raise ValueError("RSynth impulsive verifier rejected a bounded resonator sample")
+                records.append((generated_input, result, [_output_token(output[0])],
+                                workspace, 0, 0))
+        invalid_inputs = (
+            [], [39.0, 1.0], [264.0, 1.0], [40.0, -1.0],
+            [40.0, 300.0], [40.0, 1.0, 0.0], [40.5, 1.0], [40.0],
+        )
+        for invalid_input in invalid_inputs:
+            result, output = cbench_rsynth_impulsive_glottal_verifier_oracle(
+                invalid_input, workspace)
+            if result != -1 or output:
+                raise ValueError("RSynth impulsive verifier accepted malformed input")
+            records.append((invalid_input, result, [], workspace, 0, 0))
+        valid_input = [40.0, 1.0]
+        short_result, short_output = cbench_rsynth_impulsive_glottal_verifier_oracle(
+            valid_input, 0)
+        if short_result != -2 or short_output:
+            raise ValueError("RSynth impulsive verifier returned an invalid short-capacity result")
+        records.append((valid_input, short_result, [], 0, 0, 0))
+        null_result, null_output = cbench_rsynth_impulsive_glottal_verifier_oracle(
+            valid_input, workspace, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("RSynth impulsive verifier returned an invalid null-output result")
+        records.append((valid_input, null_result, [], workspace, 0, 1))
     records.append((values, -1, [], workspace, 1, 0))
     if algorithm != "md2_digest":
         records.append(([], -1, [], workspace, 0, 0))
@@ -6581,16 +8561,64 @@ def main() -> int:
     if args.jobs < 1 or len(set(args.languages)) != len(args.languages):
         parser.error("jobs must be positive and language selections must be unique")
     algorithm = args.algorithm
-    package_dir = {"polybench_lu": "l", "polybench_correlation": "c",
+    package_dir = {"polybench_lu": "l", "polybench_gramschmidt": "p", "polybench_correlation": "c",
                    "polybench_seidel_2d": "s",
                    "cbench_consumer_mad_imdct36": "m",
+                   "cbench_consumer_lame_mdct_short": "m",
                    "cbench_lame_mid_side": "m",
-                   "cbench_rsynth_natural_glottal_sample": "m"}.get(algorithm, algorithm[0])
+                   "cbench_rsynth_natural_glottal_sample": "m",
+                   "tsvc_s2251_carried_scalar_expansion": "t",
+                   "tsvc_s1251_per_element_dual_update": "t",
+                   "tsvc_s3251_forward_shifted_array_expansion": "t",
+                   "tsvc_s2712_comparison_gated_axpy": "t",
+                   "tsvc_s2710_nested_scalar_vector_branch_update": "t",
+                   "tsvc_s1279_nested_conditional_accumulation": "t",
+                   "tsvc_s2275_matrix_vector_axpy_interleave": "t",
+                   "tsvc_s482_break_after_update": "t",
+                   "tsvc_s441_s443_d_sign_branch_updates": "t",
+                   "tsvc_s242_fused_prefix_update": "t",
+                   "tsvc_s351_direct_unrolled_saxpy": "t"}.get(algorithm, algorithm[0])
     workload_path = ROOT / "benchmarks" / package_dir / algorithm / "workload.json"
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if workload.get("algorithm") != algorithm:
         parser.error("workload algorithm does not match the requested algorithm")
-    if algorithm == "versabench_beamformer":
+    if algorithm == "tsvc_s111_odd_index_neighbor_update":
+        validate_tsvc_s111_odd_index_neighbor_update_workload(workload)
+    elif algorithm == "tsvc_vtvtv_triple_product_map":
+        validate_tsvc_vtvtv_triple_product_map_workload(workload)
+    elif algorithm == "tsvc_s451_sincos_vector_map":
+        validate_tsvc_s451_sincos_vector_map_workload(workload)
+    elif algorithm == "tsvc_s221_partial_recursive_fused_update":
+        validate_tsvc_s221_partial_recursive_fused_update_workload(workload)
+    elif algorithm == "tsvc_s222_interleaved_square_recurrence":
+        validate_tsvc_s222_interleaved_square_recurrence_workload(workload)
+    elif algorithm == "tsvc_s2251_carried_scalar_expansion":
+        validate_tsvc_s2251_carried_scalar_expansion_workload(workload)
+    elif algorithm == "tsvc_s1251_per_element_dual_update":
+        validate_tsvc_s1251_per_element_dual_update_workload(workload)
+    elif algorithm == "tsvc_s3251_forward_shifted_array_expansion":
+        validate_tsvc_s3251_forward_shifted_array_expansion_workload(workload)
+    elif algorithm == "tsvc_s2712_comparison_gated_axpy":
+        validate_tsvc_s2712_comparison_gated_axpy_workload(workload)
+    elif algorithm == "tsvc_s2710_nested_scalar_vector_branch_update":
+        validate_tsvc_s2710_nested_scalar_vector_branch_update_workload(workload)
+    elif algorithm == "tsvc_s1279_nested_conditional_accumulation":
+        validate_tsvc_s1279_nested_conditional_accumulation_workload(workload)
+    elif algorithm == "tsvc_s2275_matrix_vector_axpy_interleave":
+        validate_tsvc_s2275_matrix_vector_axpy_interleave_workload(workload)
+    elif algorithm == "tsvc_s482_break_after_update":
+        validate_tsvc_s482_break_after_update_workload(workload)
+    elif algorithm == "tsvc_s441_s443_d_sign_branch_updates":
+        validate_tsvc_s441_s443_d_sign_branch_updates_workload(workload)
+    elif algorithm == "tsvc_s242_fused_prefix_update":
+        validate_tsvc_s242_fused_prefix_update_workload(workload)
+    elif algorithm == "tsvc_s351_direct_unrolled_saxpy":
+        validate_tsvc_s351_direct_unrolled_saxpy_workload(workload)
+    elif algorithm == "tsvc_s275_column_conditional_axpy_recurrence":
+        validate_tsvc_s275_column_conditional_axpy_recurrence_workload(workload)
+    elif algorithm == "tsvc_s313_dot_product_reduction":
+        validate_tsvc_s313_dot_product_reduction_workload(workload)
+    elif algorithm == "versabench_beamformer":
         validate_versabench_beamformer_workload(workload)
     elif algorithm == "matmul_f64_4x4":
         validate_matmul_f64_4x4_workload(workload)

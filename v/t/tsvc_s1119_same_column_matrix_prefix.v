@@ -1,0 +1,4 @@
+// Clean-room TSVC s1119 profile; see package rights note.
+fn put64(out &u8,p int,v i64){mut b:=u64(v);for j in 0..8{unsafe{out[p+j]=u8(b&255)};b>>=8}}
+@[export:'tsvc_s1119_same_column_matrix_prefix']
+pub fn tsvc_s1119_same_column_matrix_prefix(input &i64,length usize,output &u8,capacity usize)i64{if unsafe{input==nil}||length<10||length>130{return -1};nr:=unsafe{input[0]};passes:=unsafe{input[1]};if nr<2||nr>8||passes<1||passes>4{return -1};n:=int(nr);nn:=n*n;if int(length)!=2+2*nn{return -1};mut a:=[64]i64{};mut b:=[64]i64{};for i in 0..nn{x:=unsafe{input[2+i]};y:=unsafe{input[2+nn+i]};if x< -1||x>1||y< -1||y>1{return -1};a[i]=x;b[i]=y};if unsafe{output==nil}||capacity<usize(8*nn){return -2};for _ in 0..int(passes){for i in 1..n{for j in 0..n{a[i*n+j]=a[(i-1)*n+j]+b[i*n+j]}}};for i in 0..nn{put64(output,8*i,a[i])};return i64(nn)}

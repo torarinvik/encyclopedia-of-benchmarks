@@ -11,6 +11,7 @@ import math
 from pathlib import Path
 import platform
 import random
+import struct
 import subprocess
 import sys
 
@@ -70,6 +71,35 @@ from rodinia_myocyte_cam_rhs_oracle import (
     INVALID_RESULT as RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT,
     expected_result as rodinia_myocyte_cam_rhs_oracle,
 )
+from rodinia_leukocyte_gicov_oracle import (
+    INVALID_RESULT as RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT,
+    MAX_INPUT_LENGTH as RODINIA_LEUKOCYTE_GICOV_MAX_INPUT_LENGTH,
+    MAX_POINTS as RODINIA_LEUKOCYTE_GICOV_MAX_POINTS,
+    MIN_POINTS as RODINIA_LEUKOCYTE_GICOV_MIN_POINTS,
+    SAMPLE_SCALE as RODINIA_LEUKOCYTE_GICOV_SAMPLE_SCALE,
+)
+from gbbs_charikar_densest_subgraph_verifier_oracle import (
+    INVALID_RESULT as GBBS_CHARIKAR_INVALID_RESULT,
+    MAX_INPUT_LENGTH as GBBS_CHARIKAR_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GBBS_CHARIKAR_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as gbbs_charikar_densest_subgraph_verifier_oracle,
+)
+from gbbs_bkv12_densest_subgraph_verifier_oracle import (
+    INVALID_RESULT as GBBS_BKV12_INVALID_RESULT,
+    MAX_NODES as GBBS_BKV12_MAX_NODES,
+    MAX_EDGES as GBBS_BKV12_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_BKV12_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GBBS_BKV12_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as gbbs_bkv12_densest_subgraph_verifier_oracle,
+)
+from gbbs_greedy_plus_plus_densest_subgraph_verifier_oracle import (
+    INVALID_RESULT as GBBS_GREEDY_PP_INVALID_RESULT,
+    MIN_NODES as GBBS_GREEDY_PP_MIN_NODES,
+    MAX_NODES as GBBS_GREEDY_PP_MAX_NODES,
+    MAX_EDGES as GBBS_GREEDY_PP_MAX_EDGES,
+    MAX_PARSEABLE_INPUT_LENGTH as GBBS_GREEDY_PP_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as gbbs_greedy_plus_plus_densest_subgraph_verifier_oracle,
+)
 from run_i64_array_float64 import (
     MAX_KMEANS_RAW_R_WORKLOAD_INPUT_LENGTH,
     encode_case, resolve_tolerances, result_matches,
@@ -100,6 +130,10 @@ from run_i64_array_float64 import (
     validate_doe_minigmg_restriction_workload,
     validate_doe_miniamr_stencil_average_workload,
     validate_rodinia_myocyte_cam_rhs_workload,
+    validate_rodinia_leukocyte_gicov_workload,
+    validate_gbbs_charikar_densest_subgraph_workload,
+    validate_gbbs_bkv12_densest_subgraph_workload,
+    validate_gbbs_greedy_plus_plus_densest_subgraph_workload,
 )
 from traveling_salesman_solver_oracle import (
     INVALID_RESULT as TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
@@ -659,6 +693,9 @@ ALGORITHMS += ("connectionist_temporal_classification_loss",)
 ALGORITHMS += ("kullback_leibler_divergence",)
 ALGORITHMS += ("kl_divergence_loss",)
 ALGORITHMS += ("mean_absolute_error",)
+ALGORITHMS += ("gbbs_charikar_densest_subgraph",)
+ALGORITHMS += ("gbbs_bkv12_densest_subgraph",)
+ALGORITHMS += ("gbbs_greedy_plus_plus_densest_subgraph",)
 ALGORITHMS += ("smooth_l1_loss",)
 ALGORITHMS += ("relativity",)
 ALGORITHMS += ("binary_cross_entropy",)
@@ -701,6 +738,7 @@ ALGORITHMS += ("doe_xsbench_unionized_macro_xs",)
 ALGORITHMS += ("doe_minigmg_restriction",)
 ALGORITHMS += ("doe_miniamr_stencil_average",)
 ALGORITHMS += ("rodinia_myocyte_cam_rhs",)
+ALGORITHMS += ("rodinia_leukocyte_gicov",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH = 32
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES = 32
@@ -897,6 +935,52 @@ def polybench_ludcmp_verifier_oracle(values: list[int]) -> float:
     return total
 
 
+def rodinia_leukocyte_gicov_verifier_oracle(values: list[int]) -> float:
+    """Recompute the seven GICOV rows with an independent binary32 replay."""
+    if (not isinstance(values, list)
+            or not 1 <= len(values) <= RODINIA_LEUKOCYTE_GICOV_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                   for value in values)):
+        return RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+    point_count = values[0]
+    if (not RODINIA_LEUKOCYTE_GICOV_MIN_POINTS <= point_count
+            <= RODINIA_LEUKOCYTE_GICOV_MAX_POINTS
+            or len(values) != 1 + 7 * point_count
+            or any(abs(value) > RODINIA_LEUKOCYTE_GICOV_SAMPLE_SCALE
+                   for value in values[1:])):
+        return RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+
+    def f32(value: float) -> float:
+        return struct.unpack("<f", struct.pack("<f", value))[0]
+
+    scale = f32(RODINIA_LEUKOCYTE_GICOV_SAMPLE_SCALE)
+    best = f32(0.0)
+    for ellipse in range(7):
+        running_sum = f32(0.0)
+        running_mean = f32(0.0)
+        squared_deviation_sum = f32(0.0)
+        row_start = 1 + ellipse * point_count
+        for point in range(point_count):
+            sample = f32(f32(float(values[row_start + point])) / scale)
+            running_sum = f32(running_sum + sample)
+            delta = f32(sample - running_mean)
+            running_mean = f32(running_mean + f32(delta / f32(point + 1)))
+            residual = f32(sample - running_mean)
+            squared_deviation_sum = f32(
+                squared_deviation_sum + f32(delta * residual))
+
+        mean = f32(running_sum / f32(point_count))
+        variance = f32(squared_deviation_sum / f32(point_count - 1))
+        if not variance > 0.0 or not math.isfinite(variance):
+            return RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+        score = f32(f32(mean * mean) / variance)
+        if not math.isfinite(score):
+            return RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+        if score > best:
+            best = score
+    return float(best)
+
+
 def sharpe_ratio_verifier_oracle(values: list[int]) -> float:
     """Independently evaluate the bounded non-annualized Sharpe ratio."""
     if (not isinstance(values, list)
@@ -985,6 +1069,15 @@ def logistic_regression_csharp_binary_gd_oracle(values: list[int]) -> float:
 
 def oracle(algorithm: str, values: list[int], *, input_is_null: bool = False,
            input_length: int | None = None) -> float:
+    if algorithm == "gbbs_charikar_densest_subgraph":
+        return gbbs_charikar_densest_subgraph_verifier_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
+    if algorithm == "gbbs_bkv12_densest_subgraph":
+        return gbbs_bkv12_densest_subgraph_verifier_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
+    if algorithm == "gbbs_greedy_plus_plus_densest_subgraph":
+        return gbbs_greedy_plus_plus_densest_subgraph_verifier_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
     if algorithm == "ansibench_whetstone":
         return ansibench_whetstone_oracle(
             values, input_is_null=input_is_null, input_length=input_length)
@@ -1017,6 +1110,8 @@ def oracle(algorithm: str, values: list[int], *, input_is_null: bool = False,
             values, input_is_null=input_is_null, input_length=input_length)
     if algorithm == "rodinia_myocyte_cam_rhs":
         return rodinia_myocyte_cam_rhs_oracle(values)
+    if algorithm == "rodinia_leukocyte_gicov":
+        return rodinia_leukocyte_gicov_verifier_oracle(values)
     if algorithm == "mvt":
         return mvt_oracle(values)
     if algorithm == "atax":
@@ -1265,7 +1360,13 @@ def oracle(algorithm: str, values: list[int], *, input_is_null: bool = False,
 
 
 def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
-    if algorithm == "temperature_conversions":
+    if algorithm == "gbbs_charikar_densest_subgraph":
+        validate_gbbs_charikar_densest_subgraph_workload(workload)
+    elif algorithm == "gbbs_bkv12_densest_subgraph":
+        validate_gbbs_bkv12_densest_subgraph_workload(workload)
+    elif algorithm == "gbbs_greedy_plus_plus_densest_subgraph":
+        validate_gbbs_greedy_plus_plus_densest_subgraph_workload(workload)
+    elif algorithm == "temperature_conversions":
         validate_temperature_conversions_workload(workload)
     elif algorithm == "simpson_integration":
         validate_simpson_integration_workload(workload)
@@ -1324,6 +1425,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         validate_doe_miniamr_stencil_average_workload(workload)
     elif algorithm == "rodinia_myocyte_cam_rhs":
         validate_rodinia_myocyte_cam_rhs_workload(workload)
+    elif algorithm == "rodinia_leukocyte_gicov":
+        validate_rodinia_leukocyte_gicov_workload(workload)
     absolute_tolerance, relative_tolerance = resolve_tolerances(workload)
     if (not math.isfinite(absolute_tolerance) or absolute_tolerance < 0.0
             or not math.isfinite(relative_tolerance) or relative_tolerance < 0.0):
@@ -6372,6 +6475,78 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             if result != RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT:
                 raise ValueError("Myocyte accepted a generated malformed or out-of-range state")
             cases[values] = result
+    elif algorithm == "rodinia_leukocyte_gicov":
+        source_case = tuple(workload["cases"][0]["input_values"])
+        cases[source_case] = oracle(algorithm, list(source_case))
+        maximum_count = 16
+        maximum = (maximum_count, *(
+            ((ellipse * 101 + point * 37) % 201 - 100) * 10_000
+            for ellipse in range(7) for point in range(maximum_count)))
+        if len(maximum) == RODINIA_LEUKOCYTE_GICOV_MAX_INPUT_LENGTH:
+            maximum_result = oracle(algorithm, list(maximum))
+            if not math.isfinite(maximum_result) or maximum_result == RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT:
+                raise ValueError("GICOV maximum-sized generated input was rejected")
+            cases[maximum] = maximum_result
+        constant_row = (2, 500_000, 500_000, *([0] * 12))
+        malformed = (
+            (), (1, *([0] * 7)), (17,),
+            (2, *([0] * 13)), (2, 1_000_001, *([0] * 13)),
+            constant_row, (*source_case, 0),
+        )
+        for values in malformed:
+            result = oracle(algorithm, list(values))
+            if result != RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT:
+                raise ValueError("GICOV accepted a generated malformed, out-of-range, or zero-variance input")
+            cases[values] = result
+    elif algorithm == "gbbs_charikar_densest_subgraph":
+        maximum = tuple(next(case["input_values"] for case in workload["cases"]
+                             if case["id"] == "maximum-nodes-and-edges"))
+        if len(maximum) != GBBS_CHARIKAR_MAX_INPUT_LENGTH:
+            raise ValueError("GBBS Charikar maximum fixture does not reach the valid input bound")
+        cases[maximum] = oracle(algorithm, list(maximum))
+        malformed = (
+            (), (0, 0), (17, 0), (2, 65), (2, 1, 0), (2, 1, 0, 0),
+            (2, 1, 1, 0), (2, 2, 0, 1, 0, 1), (2, 1, 0, 2),
+            tuple([0] * GBBS_CHARIKAR_MAX_PARSEABLE_INPUT_LENGTH),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "gbbs_bkv12_densest_subgraph":
+        maximum = tuple(next(case["input_values"] for case in workload["cases"]
+                             if case["id"] == "maximum-nodes-and-edges"))
+        if len(maximum) != GBBS_BKV12_MAX_INPUT_LENGTH:
+            raise ValueError("GBBS BKV12 maximum fixture does not reach the valid input bound")
+        cases[maximum] = oracle(algorithm, list(maximum))
+        malformed = (
+            (), (1,), (0, 0), (GBBS_BKV12_MAX_NODES + 1, 0),
+            (2, GBBS_BKV12_MAX_EDGES + 1), (2, 1, 0),
+            (2, 1, 0, 0), (2, 1, 1, 0), (2, 2, 0, 1, 0, 1),
+            (2, 1, 0, 2), tuple([0] * GBBS_BKV12_MAX_PARSEABLE_INPUT_LENGTH),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "gbbs_greedy_plus_plus_densest_subgraph":
+        maximum = tuple(next(case["input_values"] for case in workload["cases"]
+                             if case["id"] == "maximum-node-and-edge-count"))
+        if len(maximum) != 2 + 2 * GBBS_GREEDY_PP_MAX_EDGES:
+            raise ValueError("GBBS Greedy++ maximum fixture does not reach the input bound")
+        cases[maximum] = oracle(algorithm, list(maximum))
+        malformed = (
+            (), (1,), (0, 0), (GBBS_GREEDY_PP_MIN_NODES - 1, 0),
+            (GBBS_GREEDY_PP_MAX_NODES + 1, 0),
+            (GBBS_GREEDY_PP_MIN_NODES, GBBS_GREEDY_PP_MAX_EDGES + 1),
+            (GBBS_GREEDY_PP_MIN_NODES, 1, 0),
+            (GBBS_GREEDY_PP_MIN_NODES, 1, 0, 0),
+            (GBBS_GREEDY_PP_MIN_NODES, 1, 1, 0),
+            (GBBS_GREEDY_PP_MIN_NODES, 2, 0, 1, 0, 1),
+            (GBBS_GREEDY_PP_MIN_NODES, 1, 0, GBBS_GREEDY_PP_MIN_NODES),
+            tuple([0] * GBBS_GREEDY_PP_MAX_PARSEABLE_INPUT_LENGTH),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
     else:
         raise ValueError(f"no corpus for {algorithm}")
 
@@ -6480,7 +6655,11 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "doe_xsbench_unionized_macro_xs": 0,
                     "doe_minigmg_restriction": 0,
                     "doe_miniamr_stencil_average": 0,
-                    "rodinia_myocyte_cam_rhs": 0}
+                    "rodinia_myocyte_cam_rhs": 0,
+                    "rodinia_leukocyte_gicov": 0,
+                    "gbbs_charikar_densest_subgraph": 0,
+                    "gbbs_bkv12_densest_subgraph": 0,
+                    "gbbs_greedy_plus_plus_densest_subgraph": 0}
     null_lengths["doitgen"] = 3
     null_lengths["2mm"] = 4
     null_lengths["3mm"] = 5
@@ -6491,7 +6670,13 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     null_lengths["laplace_transformation"] = 3
     null_lengths["relativity"] = 3
     null_length = null_lengths[algorithm]
-    null_result = (DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT
+    null_result = (GBBS_CHARIKAR_INVALID_RESULT
+                   if algorithm == "gbbs_charikar_densest_subgraph" else
+                   GBBS_BKV12_INVALID_RESULT
+                   if algorithm == "gbbs_bkv12_densest_subgraph" else
+                   GBBS_GREEDY_PP_INVALID_RESULT
+                   if algorithm == "gbbs_greedy_plus_plus_densest_subgraph" else
+                   DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT
                    if algorithm == "doe_rsbench_doppler_xs" else
                    DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT
                    if algorithm == "doe_simplemoc_quadratic_attenuation" else
@@ -6501,6 +6686,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    if algorithm == "doe_miniamr_stencil_average" else
                    RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT
                    if algorithm == "rodinia_myocyte_cam_rhs" else
+                   RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
+                   if algorithm == "rodinia_leukocyte_gicov" else
                    MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
                    if algorithm == "mean_bias_deviation_percent" else
                    ANSIBENCH_WHETSTONE_INVALID_RESULT

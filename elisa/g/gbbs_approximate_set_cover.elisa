@@ -1,0 +1,105 @@
+# Clean-room bounded GBBS approximate set-cover profile; see package MIT notice.
+def gbbs_approximate_set_cover_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def gbbs_approximate_set_cover(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("gbbs_approximate_set_cover"):
+    if input.is_null() or length < 2 or length > 10: return -1
+    ns64: i64 = input[0]
+    if ns64 < 1 or ns64 > 8: return -1
+    ns: usize = ns64.usize()
+    ne: usize = ns
+    if length != 1 + ns: return -1
+    valid: u64 = (u64(1) << ne) - 1
+    sets: mutable u64[8] = zeroed
+    s: mutable usize = 0
+    while s < ns:
+        value: i64 = input[1 + s]
+        if value < 0 or (value.u64() & ~valid) != 0: return -1
+        if (value.u64() & (u64(1) << s)) != 0: return -1
+        sets[s] <- value.u64()
+        s <- s + 1
+    s <- 0
+    while s < ns:
+        other: mutable usize = 0
+        while other < ns:
+            if ((sets[s] >> other) & 1) != ((sets[other] >> s) & 1): return -1
+            other <- other + 1
+        s <- s + 1
+    if output.is_null() or capacity < 16: return -2
+    uncovered: mutable u64 = valid
+    selected: mutable u64 = 0
+    bucket: mutable usize[8] = zeroed
+    s <- 0
+    while s < ns:
+        bits: mutable u64 = sets[s]
+        while bits != 0:
+            bits <- bits & (bits - 1)
+            bucket[s] <- bucket[s] + 1
+        s <- s + 1
+    round: mutable usize = 0
+    while uncovered != 0:
+        degree: mutable usize[8] = zeroed
+        top: mutable usize = 0
+        s <- 0
+        while s < ns:
+            if bucket[s] > top: top <- bucket[s]
+            s <- s + 1
+        if top == 0: break
+        eligible: mutable bool[8] = zeroed
+        eligible_count: mutable usize = 0
+        s <- 0
+        while s < ns:
+            if bucket[s] == top:
+                bits: mutable u64 = sets[s] & uncovered
+                while bits != 0:
+                    bits <- bits & (bits - 1)
+                    degree[s] <- degree[s] + 1
+                bucket[s] <- degree[s]
+                eligible[s] <- degree[s] >= top
+                if eligible[s]: eligible_count <- eligible_count + 1
+            s <- s + 1
+        priority: mutable usize[8] = zeroed
+        priority_count: mutable usize = 0
+        r: mutable usize = 0
+        while r < ns:
+            candidate: usize = (round + r) % ns
+            if eligible[candidate]:
+                priority[priority_count] <- candidate
+                priority_count <- priority_count + 1
+            r <- r + 1
+        wins: mutable usize[8] = zeroed
+        e: mutable usize = 0
+        while e < ne:
+            bit: u64 = u64(1) << e
+            if (uncovered & bit) != 0:
+                r <- 0
+                while r < ns:
+                    if r >= priority_count: break
+                    candidate: usize = priority[r]
+                    if (sets[candidate] & bit) != 0:
+                        wins[candidate] <- wins[candidate] + 1
+                        break
+                    r <- r + 1
+            e <- e + 1
+        round_cover: mutable u64 = 0
+        s <- 0
+        while s < ns:
+            if eligible[s] and wins[s] >= top: round_cover <- round_cover | (u64(1) << s)
+            s <- s + 1
+        if round_cover == 0 and eligible_count != 0: return -1
+        selected <- selected | round_cover
+        covered: mutable u64 = 0
+        s <- 0
+        while s < ns:
+            if (round_cover & (u64(1) << s)) != 0: covered <- covered | sets[s]
+            if (round_cover & (u64(1) << s)) != 0: bucket[s] <- 0
+            s <- s + 1
+        uncovered <- uncovered & ~covered
+        round <- round + 1
+    gbbs_approximate_set_cover_store(selected.i64(), output, 0)
+    gbbs_approximate_set_cover_store(uncovered.i64(), output, 8)
+    16

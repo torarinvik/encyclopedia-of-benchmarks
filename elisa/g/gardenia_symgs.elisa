@@ -1,0 +1,79 @@
+// Clean-room bounded GARDENIA SymGS profile.
+extern trunc(value: f64) -> f64
+const NMAX: usize = 8
+const MMAX: usize = 64
+
+def gardenia_symgs_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 173: return -1
+    for q in 0..<length:
+        if input[q] != input[q] or input[q] > 1.0e300 or input[q] < -1.0e300: return -1
+    nd: f64 = input[0]; md: f64 = input[1]; cd: f64 = input[2]
+    if trunc(nd) != nd or trunc(md) != md or trunc(cd) != cd: return -1
+    if nd < 1.0 or nd > 8.0 or md < 1.0 or md > 64.0 or cd < 1.0 or cd > nd: return -1
+    n: usize = nd.usize(); m: usize = md.usize(); colors: usize = cd.usize()
+    if length != 5 + 4*n + colors + 2*m: return -1
+    oa: usize = 3; fa: usize = oa+n; ra: usize = fa+colors+1; ca: usize = ra+n+1
+    va: usize = ca+m; xa: usize = va+m; ba: usize = xa+n
+    order: mutable usize[8] = zeroed; offsets: mutable usize[9] = zeroed
+    rows: mutable usize[9] = zeroed; cols: mutable usize[64] = zeroed
+    group: mutable usize[8] = zeroed; seen: mutable bool[8] = zeroed
+    mat: mutable f64[64] = zeroed; x: mutable f64[8] = zeroed
+    rhs: mutable f64[8] = zeroed; staged: mutable f64[8] = zeroed
+    for i in 0..<n:
+        z: f64 = input[oa+i]
+        if trunc(z) != z or z < 0.0 or z >= nd or seen[z.usize()]: return -1
+        order[i] <- z.usize(); seen[order[i]] <- true
+    for k in 0..=colors:
+        z: f64 = input[fa+k]
+        if trunc(z) != z or z < 0.0 or z > nd: return -1
+        offsets[k] <- z.usize()
+    if offsets[0] != 0 or offsets[colors] != n: return -1
+    for k in 0..<colors:
+        if offsets[k] >= offsets[k+1]: return -1
+        for p in offsets[k]..<offsets[k+1]: group[order[p]] <- k
+    for i in 0..=n:
+        z: f64 = input[ra+i]
+        if trunc(z) != z or z < 0.0 or z > md: return -1
+        rows[i] <- z.usize()
+        if i > 0 and rows[i] < rows[i-1]: return -1
+    if rows[0] != 0 or rows[n] != m: return -1
+    for u in 0..<n:
+        diag: usize = 0; d: f64 = 0.0; offsum: f64 = 0.0; prev: usize = 0
+        for e in rows[u]..<rows[u+1]:
+            z: f64 = input[ca+e]
+            if trunc(z) != z or z < 0.0 or z >= nd: return -1
+            cols[e] <- z.usize()
+            if e > rows[u] and cols[e] <= prev: return -1
+            prev = cols[e]; mat[e] <- input[va+e]
+            if mat[e] < -4.0 or mat[e] > 4.0: return -1
+            if cols[e] == u:
+                diag += 1; d = mat[e]
+            else:
+                if group[u] == group[cols[e]]: return -1
+                if mat[e] < 0.0: offsum -= mat[e] else: offsum += mat[e]
+        if diag != 1 or d <= offsum: return -1
+        for e in rows[u]..<rows[u+1]:
+            v: usize = cols[e]; found: bool = false
+            for f in rows[v]..<rows[v+1]:
+                if cols[f] == u:
+                    if mat[f] != mat[e]: return -1
+                    found = true; break
+            if not found: return -1
+    for i in 0..<n:
+        x[i] <- input[xa+i]; rhs[i] <- input[ba+i]
+        if x[i] < -4.0 or x[i] > 4.0 or rhs[i] < -4.0 or rhs[i] > 4.0: return -1
+    if output.is_null() or capacity < n: return -2
+    for pass in 0..<2:
+        for step in 0..<colors:
+            k: usize = if pass == 0: step else: colors-1-step
+            for p in offsets[k]..<offsets[k+1]:
+                u: usize = order[p]; sum: f64 = 0.0; diag: f64 = 0.0
+                for e in rows[u]..<rows[u+1]:
+                    v: usize = cols[e]
+                    if v == u: diag = mat[e] else: sum += x[v] * mat[e]
+                if diag != 0.0: x[u] <- (rhs[u]-sum)/diag
+    for i in 0..<n: staged[i] <- x[i]
+    for i in 0..<n: output[i] <- staged[i]
+    n.i64()
+
+export fn gardenia_symgs(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = gardenia_symgs_impl

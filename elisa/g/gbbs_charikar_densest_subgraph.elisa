@@ -1,0 +1,89 @@
+const MAX_N: usize = 16
+const MAX_M: usize = 64
+const INVALID_RESULT: f64 = -1.0e300
+
+def gbbs_charikar_densest_subgraph(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 2 or length > 130: return INVALID_RESULT
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > 16 or m64 < 0 or m64 > 64 or length != 2 + 2 * m64.usize(): return INVALID_RESULT
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    adjacent: mutable u8[MAX_N * MAX_N] = zeroed
+    degree: mutable i64[MAX_N] = zeroed
+    edge: usize = 0
+    while edge < m:
+        u64: i64 = input[2 + 2 * edge]
+        v64: i64 = input[3 + 2 * edge]
+        if u64 < 0 or u64 >= v64 or v64 >= n64: return INVALID_RESULT
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        if adjacent[u * MAX_N + v] != 0: return INVALID_RESULT
+        adjacent[u * MAX_N + v] <- 1
+        adjacent[v * MAX_N + u] <- 1
+        degree[u] <- degree[u] + 1
+        degree[v] <- degree[v] + 1
+        edge <- edge + 1
+    alive: mutable bool[MAX_N] = zeroed
+    order: mutable usize[MAX_N] = zeroed
+    position: mutable usize[MAX_N] = zeroed
+    vertex: usize = 0
+    while vertex < n:
+        alive[vertex] <- true
+        vertex <- vertex + 1
+    used: mutable usize = 0
+    while used < n:
+        level: mutable i64 = 64
+        vertex <- 0
+        while vertex < n:
+            if alive[vertex] and degree[vertex] < level: level <- degree[vertex]
+            vertex <- vertex + 1
+        while true:
+            shell: mutable usize[MAX_N] = zeroed
+            count: mutable usize = 0
+            vertex <- 0
+            while vertex < n:
+                if alive[vertex] and degree[vertex] == level:
+                    shell[count] <- vertex
+                    count <- count + 1
+                vertex <- vertex + 1
+            if count == 0: break
+            index: usize = 0
+            while index < count:
+                alive[shell[index]] <- false
+                order[used] <- shell[index]
+                used <- used + 1
+                index <- index + 1
+            vertex <- 0
+            while vertex < n:
+                if alive[vertex]:
+                    removed: mutable i64 = 0
+                    index <- 0
+                    while index < count:
+                        if adjacent[vertex * MAX_N + shell[index]] != 0: removed <- removed + 1
+                        index <- index + 1
+                    next_degree: i64 = degree[vertex] - removed
+                    degree[vertex] <- if next_degree < level then level else next_degree
+                vertex <- vertex + 1
+    index: usize = 0
+    while index < n:
+        position[order[index]] <- index
+        index <- index + 1
+    best: mutable f64 = 0.0
+    start: usize = 0
+    while start < n:
+        edges: mutable usize = 0
+        u: usize = 0
+        while u < n:
+            if position[u] >= start:
+                v: usize = u + 1
+                while v < n:
+                    if position[v] >= start and adjacent[u * MAX_N + v] != 0: edges <- edges + 1
+                    v <- v + 1
+            u <- u + 1
+        score: f64 = 2.0 * edges.f64() / (n - start).f64()
+        if score > best: best <- score
+        start <- start + 1
+    best
+
+export fn gbbs_charikar_densest_subgraph(input: i64&, length: usize) -> f64

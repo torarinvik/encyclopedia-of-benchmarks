@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s222-interleaved-square-recurrence-float64-slice-io-v1",
+  "algorithm": "tsvc_s222_interleaved_square_recurrence",
+  "function_symbol": "tsvc_s222_interleaved_square_recurrence",
+  "abi": "float64_slice_io",
+  "description": "One bounded source-order pass of TSVC s222's cancellation-interleaved square recurrence.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s222",
+    "source_lines": {"kernel_start": 1961, "kernel_end": 1985},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc",
+    "launcher_paths": ["TSVC/StatementReordering-dbl/info.sh", "TSVC/StatementReordering-flt/info.sh"],
+    "launcher_options": {"double": [20000, 14], "float": [20000, 5]},
+    "attribution": "The TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit redistribution grant was found in the pinned TSVC source or repository material reviewed. These are clean-room ports; no upstream code/comments or license/endorsement claim is included."
+  },
+  "contract": {
+    "input_layout": "[n, A[n], B[n], C[n], E[n]]",
+    "n_range": [1, 64],
+    "a_b_c_value_range": [-2, 2],
+    "e_value_set": [-1, -0.5, 0, 0.5, 1],
+    "exact_length": "1 + 4*n",
+    "operation": "For i=1..n-1 ascending, compute p=B[i]*C[i], A[i]=A[i]+p, E[i]=E[i-1]*E[i-1], then A[i]=A[i]-p. A[0] and E[0] are unchanged.",
+    "source_profile": "One source-loop pass; timing repetitions and dummy calls are excluded. The pinned static-zero E initializer is replaced by a caller-provided seed so the square recurrence is observable.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "input_modified": false
+  },
+  "input": {"kind": "finite_binary64_array", "maximum_valid_length": 257, "maximum_parseable_length": 257, "null_input_result": -1},
+  "output": {"kind": "finite_binary64_array", "maximum_elements": 128, "success_elements": "2*n", "null_output_result": -2, "short_capacity_result": -2, "no_write_on_error": true},
+  "workspace": {"elements": 128, "meaning": "Staged final A and E vectors."},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 100, "absolute_tolerance": 0, "relative_tolerance": 0},
+  "cases": [
+    {"id": "minimum-size-no-loop", "input_values": [1, -2, 2, -2, 0.5], "input_length": 5, "output_capacity": 2, "expected_result": 2, "expected_output": [-2, 0.5]},
+    {"id": "fractional-seed-square-recurrence", "input_values": [4, 1, -1, 2, 0, 1, 2, -2, 1, 2, -1, 2, 2, 0.5, 0, -1, 1], "input_length": 17, "output_capacity": 8, "expected_result": 8, "expected_output": [1, -1, 2, 0, 0.5, 0.25, 0.0625, 0.00390625]},
+    {"id": "negative-unit-seed", "input_values": [3, 0, 2, -2, 1, 1, 2, 1, -1, -1, 1, -1, 0], "input_length": 13, "output_capacity": 6, "expected_result": 6, "expected_output": [0, 2, -2, -1, 1, 1]},
+    {"id": "invalid-dimension", "input_values": [0], "input_length": 1, "output_capacity": 0, "expected_result": -1, "expected_output": []},
+    {"id": "truncated-frame", "input_values": [2, 0, 0, 1, 1, 1, 1], "input_length": 7, "output_capacity": 4, "expected_result": -1, "expected_output": []},
+    {"id": "fractional-arithmetic-input", "input_values": [1, 0.5, 1, 1, 0], "input_length": 5, "output_capacity": 2, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-recurrence-seed", "input_values": [1, 0, 1, 1, 0.25], "input_length": 5, "output_capacity": 2, "expected_result": -1, "expected_output": []},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "output_capacity": 128, "expected_result": -1, "expected_output": []},
+    {"id": "short-capacity", "input_values": [1, 1, 1, 1, 0], "input_length": 5, "output_capacity": 1, "expected_result": -2, "expected_output": []},
+    {"id": "null-output", "input_values": [1, 1, 1, 1, 0], "input_length": 5, "output_capacity": 2, "output_is_null": true, "expected_result": -2, "expected_output": []}
+  ]
+}

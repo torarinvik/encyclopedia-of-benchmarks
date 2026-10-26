@@ -1,0 +1,10 @@
+TSVC source attribution and rights note
+
+The upstream source is lac-dcc/Benchmarks, pinned to commit
+5d7b75df749241efa7a6e6f5be613d3fcc5cce38. TSVC comments attribute the
+non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine.
+
+No explicit modification or redistribution license grant was found in the
+reviewed pinned materials. This package is a clean-room implementation of the
+published loop behavior and does not copy upstream code or comments. No
+upstream license or endorsement is claimed.

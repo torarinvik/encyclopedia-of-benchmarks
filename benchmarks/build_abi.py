@@ -88,7 +88,23 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
                          ROOT / language / algorithm / source_name)
     source = next((candidate for candidate in source_candidates if candidate.is_file()),
                   source_candidates[0])
-    workload_letter = "d" if algorithm.startswith("versabench_dbms_") else letter
+    workload_letters = {
+        "gapbs_afforest_components": "a",
+        "gapbs_shiloach_vishkin_components": "a",
+        "gapbs_betweenness_centrality": "b",
+        "gapbs_ordered_triangle_count": "t",
+        "gapbs_delta_step_sssp": "d",
+        "gapbs_pagerank_pull_gs": "p",
+        "gbbs_ss_widest_path": "w",
+        "cbench_consumer_jpeg_h2v2_fancy_upsample": "m",
+        "cbench_consumer_mad_alias_reduce": "m",
+        "cbench_consumer_lame_mdct_short": "m",
+        "cbench_consumer_lame_window_subband": "m",
+        "mediabench_gsm_rpe_grid_positioning": "m",
+        "beebs_lcdnum": "l",
+    }
+    workload_letter = workload_letters.get(
+        algorithm, "d" if algorithm.startswith("versabench_dbms_") else letter)
     workload = ROOT / "benchmarks" / workload_letter / algorithm / "workload.json"
     if not source.is_file():
         guide = workload.with_name("README.md")

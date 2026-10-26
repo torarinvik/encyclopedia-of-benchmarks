@@ -1,0 +1,26 @@
+# Clean-room TSVC s1111 profile; see package rights note.
+const MAX_N:usize=32
+const MAX_INPUT_LENGTH:usize=161
+def put64(v:i64,out:mutable u8&,off:usize)->void:
+ bits:u64=v.u64();j:mutable usize=0
+ while j<8:out[off+j]<-((bits>>(8*j))&255).u8();j<-j+1
+def tsvc_s1111_stride_two_polynomial_map_impl(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64:
+ if input.is_null() or length<6 or length>MAX_INPUT_LENGTH:return -1
+ nr:i64=input[0];if nr<1 or nr>MAX_N:return -1
+ n:usize=nr.usize();if length!=1+5*n:return -1
+ a:mutable i64[64]=zeroed;b:mutable i64[32]=zeroed;c:mutable i64[32]=zeroed;d:mutable i64[32]=zeroed
+ i:mutable usize=0
+ while i<2*n: x:i64=input[1+i];if x< -2 or x>2:return -1;a[i]<-x;i<-i+1
+ off:usize=1+2*n;i<-0
+ while i<n:x:i64=input[off+i];if x< -2 or x>2:return -1;b[i]<-x;i<-i+1
+ off<-off+n;i<-0
+ while i<n:x:i64=input[off+i];if x< -2 or x>2:return -1;c[i]<-x;i<-i+1
+ off<-off+n;i<-0
+ while i<n:x:i64=input[off+i];if x< -2 or x>2:return -1;d[i]<-x;i<-i+1
+ bytes:usize=16*n;if out.is_null() or cap<bytes:return -2
+ i<-0
+ while i<n:a[2*i]<-c[i]*b[i]+d[i]*b[i]+c[i]*c[i]+d[i]*b[i]+d[i]*c[i];i<-i+1
+ i<-0
+ while i<2*n:put64(a[i],out,8*i);i<-i+1
+ (2*n).i64()
+export fn tsvc_s1111_stride_two_polynomial_map(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64=tsvc_s1111_stride_two_polynomial_map_impl

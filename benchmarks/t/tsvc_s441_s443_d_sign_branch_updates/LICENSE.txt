@@ -1,0 +1,6 @@
+TSVC source attribution: David Callahan, Jack Dongarra, and David Levine.
+
+The pinned TSVC materials reviewed for this package do not contain an explicit
+modification or redistribution grant. The nine ports are clean-room
+implementations of the documented operations and do not copy upstream code or
+comments. This notice records provenance and does not assert a license grant.

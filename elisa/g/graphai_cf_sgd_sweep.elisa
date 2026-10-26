@@ -1,0 +1,65 @@
+extern trunc(value: f64) -> f64
+const MAX_INPUT: usize = 95
+
+def graphai_cf_sgd_sweep_impl(input: f64&, length: usize,
+                              output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 6 or length > MAX_INPUT: return -1
+    users_value: f64 = input[0]
+    items_value: f64 = input[1]
+    edges_value: f64 = input[2]
+    factors_value: f64 = input[3]
+    if trunc(users_value) != users_value or trunc(items_value) != items_value or trunc(edges_value) != edges_value or trunc(factors_value) != factors_value: return -1
+    if users_value < 1.0 or users_value > 7.0 or items_value < 1.0 or items_value > 7.0 or edges_value < 0.0 or edges_value > 24.0 or factors_value < 1.0 or factors_value > 4.0: return -1
+    users: usize = users_value.usize()
+    items: usize = items_value.usize()
+    m: usize = edges_value.usize()
+    k: usize = factors_value.usize()
+    n: usize = users+items
+    lambda: f64 = input[4]
+    step: f64 = input[5]
+    if n > 8 or lambda < 0.0 or lambda > 1.0 or step < 0.0 or step > 0.01: return -1
+    if length != 7+n+2*m+n*k: return -1
+    rowptr_at: usize = 6
+    colind_at: usize = rowptr_at+n+1
+    rating_at: usize = colind_at+m
+    latent_at: usize = rating_at+m
+    if input[rowptr_at] != 0.0 or input[colind_at-1] != m.f64(): return -1
+    rowptr: mutable usize[9] = zeroed
+    colind: mutable usize[24] = zeroed
+    for i in 0..=n:
+        value: f64 = input[rowptr_at+i]
+        if trunc(value) != value or value < 0.0 or value > m.f64(): return -1
+        rowptr[i] <- value.usize()
+        if i > 0 and rowptr[i] < rowptr[i-1]: return -1
+    for u in users..<n:
+        if rowptr[u] != rowptr[u+1]: return -1
+    for e in 0..<m:
+        value: f64 = input[colind_at+e]
+        if trunc(value) != value or value < users.f64() or value >= n.f64(): return -1
+        colind[e] <- value.usize()
+    for e in 0..<m:
+        value: f64 = input[rating_at+e]
+        if value < -4.0 or value > 4.0: return -1
+    for q in 0..<(n*k):
+        value: f64 = input[latent_at+q]
+        if value < -2.0 or value > 2.0: return -1
+    required: usize = n*k
+    if output.is_null() or capacity < required: return -2
+    errors: mutable f64[32] = zeroed
+    staged: mutable f64[32] = zeroed
+    for u in 0..<users:
+        for edge in rowptr[u]..<rowptr[u+1]:
+            v: usize = colind[edge]
+            estimate: f64 = 0.0
+            for j in 0..<k: estimate <- estimate+input[latent_at+u*k+j]*input[latent_at+v*k+j]
+            delta: f64 = input[rating_at+edge]-estimate
+            for j in 0..<k: errors[u*k+j] <- errors[u*k+j]+input[latent_at+v*k+j]*delta
+    for v in 0..<n:
+        for j in 0..<k:
+            q: usize = v*k+j
+            staged[q] <- input[latent_at+q]+step*(-lambda*input[latent_at+q]+errors[q])
+    for q in 0..<required: output[q] <- staged[q]
+    required.i64()
+
+export fn graphai_cf_sgd_sweep(input: f64&, length: usize,
+                               output: mutable f64&, capacity: usize) -> i64 = graphai_cf_sgd_sweep_impl

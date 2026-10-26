@@ -1,0 +1,57 @@
+# Clean-room bounded port of TSVC s2711; see package README for provenance.
+
+const TSVC_S2711_MAX_N: usize = 64
+const TSVC_S2711_MAX_PASSES: usize = 8
+const TSVC_S2711_MAX_INPUT_LENGTH: usize = 194
+
+def tsvc_s2711_nonzero_branch_axpy_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def tsvc_s2711_nonzero_branch_axpy_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > TSVC_S2711_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    passes_value: i64 = input[1]
+    if n_value < 1 or n_value > 64 or passes_value < 1 or passes_value > 8:
+        return -1
+    n: usize = n_value.usize()
+    passes: usize = passes_value.usize()
+    if length != 2 + 3 * n:
+        return -1
+    i: mutable usize = 2
+    while i < length:
+        if input[i] < -2 or input[i] > 2:
+            return -1
+        i <- i + 1
+    if output.is_null() or output_capacity < 8 * n:
+        return -2
+
+    a_start: usize = 2
+    b_start: usize = a_start + n
+    c_start: usize = b_start + n
+    a: mutable i64[64] = zeroed
+    i <- 0
+    while i < n:
+        a[i] <- input[a_start + i]
+        i <- i + 1
+    pass: mutable usize = 0
+    while pass < passes:
+        i <- 0
+        while i < n:
+            if input[b_start + i] != 0:
+                a[i] <- a[i] + input[b_start + i] * input[c_start + i]
+            i <- i + 1
+        pass <- pass + 1
+    i <- 0
+    while i < n:
+        tsvc_s2711_nonzero_branch_axpy_store_i64(a[i], output, 8 * i)
+        i <- i + 1
+    (n).i64()
+
+export fn tsvc_s2711_nonzero_branch_axpy(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = tsvc_s2711_nonzero_branch_axpy_impl

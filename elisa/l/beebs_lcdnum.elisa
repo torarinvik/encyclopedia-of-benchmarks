@@ -1,0 +1,16 @@
+# Clean-room bounded digit-to-segment profile for the BEEBS lcdnum source.
+const INPUT_BYTES: usize = 5
+const SEGMENT_MASKS: u8[16] = [0,36,93,109,46,93,123,37,127,111,63,122,83,124,91,27]
+
+def beebs_lcdnum_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values == null or length != INPUT_BYTES: return -1
+    for index in 0..<INPUT_BYTES:
+        value: i64 = values[index]
+        if value < 0 or value > 255: return -1
+    if output.is_null() or capacity < INPUT_BYTES: return -2
+    for index in 0..<INPUT_BYTES:
+        value: i64 = values[index]
+        output[index] <- SEGMENT_MASKS[(value & 0x0F).usize()]
+    INPUT_BYTES.i64()
+
+export fn beebs_lcdnum(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = beebs_lcdnum_impl

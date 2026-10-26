@@ -1,0 +1,232 @@
+# Clean-room bounded SAGA-Bench incremental analytics profile; see package LICENSE.txt.
+const MAX_N: usize = 8
+const MAX_E: usize = 28
+const MAX_INPUT: usize = 97
+const INF_VALUE: i64 = 1000000000
+
+def push_once(vertex: usize, queue: mutable usize&, count: mutable usize&, seen: mutable bool&) -> void:
+    if not seen[vertex]:
+        seen[vertex] <- true
+        queue[count] <- vertex
+        count <- count + 1
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def saga_incremental_analytics(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("saga_incremental_analytics"):
+    if input.is_null() or length < 5 or length > MAX_INPUT: return -1
+    mode64: i64 = input[0]
+    n64: i64 = input[1]
+    base64: i64 = input[2]
+    added64: i64 = input[3]
+    source64: i64 = input[4]
+    if mode64 < 1 or mode64 > 6 or n64 < 2 or n64 > 8 or base64 < 0 or added64 < 1 or
+        base64 + added64 > 28 or length != 5 + n64.usize() + 3 * (base64 + added64).usize(): return -1
+    mode: usize = mode64.usize()
+    n: usize = n64.usize()
+    base_edges: usize = base64.usize()
+    edge_count: usize = (base64 + added64).usize()
+    if mode == 1 or mode == 2 or mode == 5:
+        if source64 < 0 or source64 >= n64: return -1
+    else if source64 != -1: return -1
+
+    property: mutable i64[8] = zeroed
+    v: mutable usize = 0
+    while v < n:
+        value: i64 = input[5 + v]
+        if mode == 1 and (value < -1 or value >= n64): return -1
+        if (mode == 2 or mode == 5) and (value < -1 or value > INF_VALUE): return -1
+        if mode == 3 and (value < -1 or value > 1000000): return -1
+        if (mode == 4 or mode == 6) and (value < -1 or value >= n64): return -1
+        property[v] <- value
+        v <- v + 1
+    neighbors: mutable usize[64] = zeroed
+    weights: mutable i64[64] = zeroed
+    degree: mutable usize[8] = zeroed
+    edge_seen: mutable bool[64] = zeroed
+    affected: mutable bool[8] = zeroed
+    edge_start: usize = 5 + n
+    edge: mutable usize = 0
+    while edge < edge_count:
+        pos: usize = edge_start + 3 * edge
+        u64: i64 = input[pos]
+        v64: i64 = input[pos + 1]
+        w: i64 = input[pos + 2]
+        if u64 < 0 or v64 <= u64 or v64 >= n64 or w < 1 or w > 9: return -1
+        u: usize = u64.usize()
+        vv: usize = v64.usize()
+        if edge_seen[u * 8 + vv]: return -1
+        edge_seen[u * 8 + vv] <- true
+        edge_seen[vv * 8 + u] <- true
+        neighbors[u * 8 + degree[u]] <- vv
+        weights[u * 8 + degree[u]] <- w
+        degree[u] <- degree[u] + 1
+        neighbors[vv * 8 + degree[vv]] <- u
+        weights[vv * 8 + degree[vv]] <- w
+        degree[vv] <- degree[vv] + 1
+        if edge >= base_edges:
+            affected[u] <- true
+            affected[vv] <- true
+        edge <- edge + 1
+    if mode == 3:
+        v <- 0
+        while v < n:
+            if degree[v] == 0: return -1
+            v <- v + 1
+    output_bytes: usize = 8 * n
+    if output.is_null() or capacity < output_bytes: return -2
+
+    if mode == 1 and property[source64.usize()] == -1: property[source64.usize()] <- 0
+    if mode == 2 or mode == 5:
+        v <- 0
+        while v < n:
+            if property[v] == -1:
+                if v == source64.usize(): property[v] <- if mode == 2: 0 else: INF_VALUE
+                else: property[v] <- if mode == 2: INF_VALUE else: 0
+            v <- v + 1
+    if mode == 4 or mode == 6:
+        v <- 0
+        while v < n:
+            if property[v] == -1: property[v] <- v.i64()
+            v <- v + 1
+
+    if mode == 3:
+        damping: f32 = 0.85
+        base_score: f32 = (1.0 - damping) / n.f32()
+        rank: mutable f32[8] = zeroed
+        contribution: mutable f32[8] = zeroed
+        v <- 0
+        while v < n:
+            rank[v] <- if property[v] == -1: 1.0 / n.f32() else: property[v].f32() / 1000000.0
+            contribution[v] <- rank[v] / degree[v].f32()
+            v <- v + 1
+        queue: mutable usize[8] = zeroed
+        count: mutable usize = 0
+        seen: mutable bool[8] = zeroed
+        v <- 0
+        while v < n:
+            if affected[v]:
+                incoming: mutable f32 = 0.0
+                j: mutable usize = 0
+                while j < degree[v]:
+                    incoming <- incoming + contribution[neighbors[v * 8 + j]]
+                    j <- j + 1
+                old: f32 = rank[v]
+                rank[v] <- base_score + damping * incoming
+                difference: f32 = rank[v] - old
+                if difference < 0.0: difference <- 0.0 - difference
+                if difference > 1.0e-7:
+                    j <- 0
+                    while j < degree[v]:
+                        push_once(neighbors[v * 8 + j], queue, count, seen)
+                        j <- j + 1
+            v <- v + 1
+        rounds: mutable usize = 0
+        while count != 0:
+            rounds <- rounds + 1
+            if rounds > 256: return -1
+            v <- 0
+            while v < n:
+                contribution[v] <- rank[v] / degree[v].f32()
+                v <- v + 1
+            current: mutable usize[8] = zeroed
+            q: mutable usize = 0
+            while q < count: current[q] <- queue[q]; q <- q + 1
+            current_count: usize = count
+            count <- 0
+            seen <- zeroed
+            q <- 0
+            while q < current_count:
+                v <- current[q]
+                incoming: mutable f32 = 0.0
+                j <- 0
+                while j < degree[v]: incoming <- incoming + contribution[neighbors[v * 8 + j]]; j <- j + 1
+                old: f32 = rank[v]
+                rank[v] <- base_score + damping * incoming
+                difference <- rank[v] - old
+                if difference < 0.0: difference <- 0.0 - difference
+                if difference > 1.0e-7:
+                    j <- 0
+                    while j < degree[v]: push_once(neighbors[v * 8 + j], queue, count, seen); j <- j + 1
+                q <- q + 1
+        v <- 0
+        while v < n:
+            property[v] <- (rank[v] * 1000000.0 + 0.5).i64()
+            v <- v + 1
+    else:
+        active: mutable usize[8] = zeroed
+        active_count: mutable usize = 0
+        v <- 0
+        while v < n:
+            if affected[v]: active[active_count] <- v; active_count <- active_count + 1
+            v <- v + 1
+        first: mutable bool = true
+        rounds: mutable usize = 0
+        while active_count != 0:
+            rounds <- rounds + 1
+            if rounds > 256: return -1
+            next: mutable usize[8] = zeroed
+            next_count: mutable usize = 0
+            next_seen: mutable bool[8] = zeroed
+            a: mutable usize = 0
+            while a < active_count:
+                v <- active[a]
+                old: i64 = property[v]
+                candidate: mutable i64 = if mode == 1 or mode == 2 or mode == 4: INF_VALUE else: 0
+                j: mutable usize = 0
+                if mode == 1:
+                    while j < degree[v]:
+                        p: i64 = property[neighbors[v * 8 + j]]
+                        if p != -1 and p + 1 < candidate: candidate <- p + 1
+                        j <- j + 1
+                else if mode == 2:
+                    while j < degree[v]:
+                        p: i64 = property[neighbors[v * 8 + j]] + weights[v * 8 + j]
+                        if p < candidate: candidate <- p
+                        j <- j + 1
+                else if mode == 4:
+                    candidate <- old
+                    while j < degree[v]:
+                        candidate <- min(candidate, property[neighbors[v * 8 + j]])
+                        j <- j + 1
+                else if mode == 5:
+                    while j < degree[v]:
+                        candidate <- max(candidate, min(property[neighbors[v * 8 + j]], weights[v * 8 + j]))
+                        j <- j + 1
+                else:
+                    candidate <- old
+                    while j < degree[v]: candidate <- max(candidate, property[neighbors[v * 8 + j]]); j <- j + 1
+                changed: bool = if mode == 1: candidate != INF_VALUE and (old == -1 or candidate < old)
+                    else if mode == 2: candidate < old and candidate != INF_VALUE
+                    else if mode == 4: candidate < old or (first and old == v.i64())
+                    else if mode == 5: candidate > old
+                    else: candidate > old or (first and old == v.i64())
+                if changed:
+                    property[v] <- candidate
+                    if mode == 1:
+                        j <- 0
+                        while j < degree[v]:
+                            neighbor <- neighbors[v * 8 + j]
+                            update <- property[v] + 1
+                            if property[neighbor] == -1 or update < property[neighbor]:
+                                property[neighbor] <- update
+                                push_once(neighbor, next, next_count, next_seen)
+                            j <- j + 1
+                    else:
+                        j <- 0
+                        while j < degree[v]:
+                            push_once(neighbors[v * 8 + j], next, next_count, next_seen)
+                            j <- j + 1
+                a <- a + 1
+            active <- next
+            active_count <- next_count
+            first <- false
+    v <- 0
+    while v < n:
+        store_i64_le(property[v], output, 8 * v)
+        v <- v + 1
+    return output_bytes.i64()

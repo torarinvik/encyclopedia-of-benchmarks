@@ -1,0 +1,57 @@
+# Clean-room bounded port of GAPBS OrderedCount; see package LICENSE.txt.
+const GAPBS_ORDERED_TRIANGLE_MAX_N: usize = 16
+
+def gapbs_ordered_triangle_count(input: i64&, length: usize) -> i64 @export("gapbs_ordered_triangle_count"):
+    if input.is_null() or length < 2 or length > 257: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > 16: return -1
+    n: usize = n_value.usize()
+    if length != 1 + n * n: return -1
+    adjacency: mutable i64[256] = zeroed
+    neighbors: mutable i64[256] = zeroed
+    degree: mutable i64[16] = zeroed
+    u: mutable usize = 0
+    while u < n:
+        v: mutable usize = 0
+        while v < n:
+            edge: i64 = input[1 + u * n + v]
+            if (edge != 0 and edge != 1) or (u == v and edge != 0): return -1
+            adjacency[u * 16 + v] <- edge
+            v <- v + 1
+        u <- u + 1
+    u <- 0
+    while u < n:
+        v: mutable usize = u + 1
+        while v < n:
+            if adjacency[u * 16 + v] != adjacency[v * 16 + u]: return -1
+            v <- v + 1
+        u <- u + 1
+    u <- 0
+    while u < n:
+        v: mutable usize = 0
+        while v < n:
+            if adjacency[u * 16 + v] != 0:
+                neighbors[u * 16 + degree[u].usize()] <- v.i64()
+                degree[u] <- degree[u] + 1
+            v <- v + 1
+        u <- u + 1
+    triangles: mutable i64 = 0
+    u <- 0
+    while u < n:
+        vi: mutable usize = 0
+        while vi < degree[u].usize():
+            v: usize = neighbors[u * 16 + vi].usize()
+            if v > u: break
+            edge_pos: mutable usize = 0
+            wi: mutable usize = 0
+            while wi < degree[u].usize():
+                w: usize = neighbors[u * 16 + wi].usize()
+                if w > v: break
+                while edge_pos < degree[v].usize() and neighbors[v * 16 + edge_pos] < w.i64():
+                    edge_pos <- edge_pos + 1
+                if edge_pos < degree[v].usize() and neighbors[v * 16 + edge_pos] == w.i64():
+                    triangles <- triangles + 1
+                wi <- wi + 1
+            vi <- vi + 1
+        u <- u + 1
+    triangles

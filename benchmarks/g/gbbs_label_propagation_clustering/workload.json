@@ -1,0 +1,428 @@
+{
+  "schema_version": 1,
+  "id": "gbbs-label-propagation-clustering-i64-array-bytes-output-v1",
+  "algorithm": "gbbs_label_propagation_clustering",
+  "function_symbol": "gbbs_label_propagation_clustering",
+  "abi": "i64_array_bytes_output",
+  "description": "One deterministic asynchronous label-propagation sweep on a simple unweighted graph.",
+  "source": {
+    "repository": "ParAlg/gbbs",
+    "commit": "dbd1dcad582c0a316c5ba0d5524319d596dd82da",
+    "path": "benchmarks/Clustering/LabelPropagation/LabelPropagation.h",
+    "symbols": [
+      "LabelPropagation",
+      "internal::compute_new_color"
+    ],
+    "url": "https://github.com/ParAlg/gbbs/blob/dbd1dcad582c0a316c5ba0d5524319d596dd82da/benchmarks/Clustering/LabelPropagation/LabelPropagation.h",
+    "related_paths": [
+      "benchmarks/Clustering/LabelPropagation/LabelPropagation.cc"
+    ],
+    "launcher_path": "benchmarks/Clustering/LabelPropagation/LabelPropagation.cc",
+    "launcher_symbol": "LabelPropagation_runner",
+    "license_path": "LICENSE",
+    "license": "MIT"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, edge_count, (u, v)...]",
+    "node_count_range": [
+      1,
+      16
+    ],
+    "edge_count_range": [
+      0,
+      64
+    ],
+    "edge_semantics": "simple undirected unweighted graph, each edge supplied once with 0 <= u < v < node_count",
+    "maximum_valid_length": 130,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "One current label per vertex in ascending vertex order after one sweep.",
+    "maximum_values": 16,
+    "maximum_bytes": 128,
+    "success_result": "8 * node_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Staged label vector; caller output is written after full graph validation and capacity checks."
+  },
+  "contract": {
+    "operation": "Initialize each vertex label to its ID, then visit vertices once in ascending ID order. Replace each non-isolated vertex label with the most frequent current neighboring label; keep the largest label on frequency ties. Updates are immediately visible to later vertices in the same sweep.",
+    "launcher_profile": "Use the source's unweighted graph mode and initial labels 0..n-1. The bounded profile sets max_iters=1 and use_async=true with an explicit ascending serial schedule.",
+    "source_profile": "For an unweighted graph every incident edge contributes weight one. The source sorts (label, weight) pairs, sums weight by label, then sorts (total_weight, label) descending, which selects the greatest label on ties. Isolated vertices retain their current labels.",
+    "projection": "The source launcher defaults to asynchronous execution with up to 100 iterations. This deterministic projection fixes the async schedule to one ascending-ID sweep; it preserves immediate in-sweep updates and tie ordering. Weighted graphs, graph-coloring mode, parallel scheduling, and later convergence sweeps are excluded.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "complete-four-one-async-sweep",
+      "input_values": [
+        4,
+        6,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        1,
+        2,
+        1,
+        3,
+        2,
+        3
+      ],
+      "input_length": 14,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0300000000000000030000000000000003000000000000000300000000000000"
+    },
+    {
+      "id": "path-four-one-async-sweep",
+      "input_values": [
+        4,
+        3,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "input_length": 8,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000020000000000000003000000000000000300000000000000"
+    },
+    {
+      "id": "two-disjoint-edges",
+      "input_values": [
+        4,
+        2,
+        0,
+        1,
+        2,
+        3
+      ],
+      "input_length": 6,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000010000000000000003000000000000000300000000000000"
+    },
+    {
+      "id": "five-vertex-star",
+      "input_values": [
+        5,
+        4,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4
+      ],
+      "input_length": 10,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "04000000000000000400000000000000040000000000000004000000000000000400000000000000"
+    },
+    {
+      "id": "isolated-vertex-retains-label",
+      "input_values": [
+        3,
+        1,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "maximum-node-count-empty-graph",
+      "input_values": [
+        16,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 128,
+      "expected_result": 128,
+      "expected_output_hex": "00000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f00000000000000"
+    },
+    {
+      "id": "maximum-edge-count-bipartite-graph",
+      "input_values": [
+        16,
+        64,
+        0,
+        8,
+        0,
+        9,
+        0,
+        10,
+        0,
+        11,
+        0,
+        12,
+        0,
+        13,
+        0,
+        14,
+        0,
+        15,
+        1,
+        8,
+        1,
+        9,
+        1,
+        10,
+        1,
+        11,
+        1,
+        12,
+        1,
+        13,
+        1,
+        14,
+        1,
+        15,
+        2,
+        8,
+        2,
+        9,
+        2,
+        10,
+        2,
+        11,
+        2,
+        12,
+        2,
+        13,
+        2,
+        14,
+        2,
+        15,
+        3,
+        8,
+        3,
+        9,
+        3,
+        10,
+        3,
+        11,
+        3,
+        12,
+        3,
+        13,
+        3,
+        14,
+        3,
+        15,
+        4,
+        8,
+        4,
+        9,
+        4,
+        10,
+        4,
+        11,
+        4,
+        12,
+        4,
+        13,
+        4,
+        14,
+        4,
+        15,
+        5,
+        8,
+        5,
+        9,
+        5,
+        10,
+        5,
+        11,
+        5,
+        12,
+        5,
+        13,
+        5,
+        14,
+        5,
+        15,
+        6,
+        8,
+        6,
+        9,
+        6,
+        10,
+        6,
+        11,
+        6,
+        12,
+        6,
+        13,
+        6,
+        14,
+        6,
+        15,
+        7,
+        8,
+        7,
+        9,
+        7,
+        10,
+        7,
+        11,
+        7,
+        12,
+        7,
+        13,
+        7,
+        14,
+        7,
+        15
+      ],
+      "input_length": 130,
+      "output_capacity": 128,
+      "expected_result": 128,
+      "expected_output_hex": "0f000000000000000f000000000000000f000000000000000f000000000000000f000000000000000f000000000000000f000000000000000f000000000000000f000000000000000f000000000000000f000000000000000f000000000000000f000000000000000f000000000000000f000000000000000f00000000000000"
+    },
+    {
+      "id": "length-mismatch",
+      "input_values": [
+        2,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "node-count-out-of-range",
+      "input_values": [
+        17,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "edge-count-out-of-range",
+      "input_values": [
+        3,
+        65
+      ],
+      "input_length": 2,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "self-loop-invalid",
+      "input_values": [
+        2,
+        1,
+        1,
+        1
+      ],
+      "input_length": 4,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "noncanonical-edge-invalid",
+      "input_values": [
+        2,
+        1,
+        1,
+        0
+      ],
+      "input_length": 4,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-edge-invalid",
+      "input_values": [
+        3,
+        2,
+        0,
+        1,
+        0,
+        1
+      ],
+      "input_length": 6,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "endpoint-out-of-range",
+      "input_values": [
+        2,
+        1,
+        0,
+        2
+      ],
+      "input_length": 4,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 130,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

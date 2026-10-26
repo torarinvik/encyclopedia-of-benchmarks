@@ -1,0 +1,9 @@
+The pinned GSM `rpe.c::RPE_grid_positioning` source is distributed under the
+notice-based terms in `COPYRIGHT.txt`: any use is permitted if the complete
+notice remains, and the authors and Technische Universitaet Berlin make no
+suitability representations and accept no responsibility for defects. The
+source disclaims all warranties. The requested courtesy notice asks users to
+inform the authors about uses, bugs, and generally useful improvements.
+
+The nine local ports are independent implementations of the bounded operation
+and retain the complete notice in each source file.

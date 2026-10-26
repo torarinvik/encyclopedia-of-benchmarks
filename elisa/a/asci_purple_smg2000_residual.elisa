@@ -1,0 +1,37 @@
+# Clean-room bounded residual profile; see package README and RIGHTS.md.
+extern trunc(value: f64) -> f64
+const MAX_SIDE: usize = 5
+
+def asci_purple_smg2000_residual_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 19 or length > 253: return -1
+    for q in 0..<3:
+        value: f64 = input[q]
+        if value != value or trunc(value) != value or value < 2.0 or value > MAX_SIDE.f64(): return -1
+    nx: usize = input[0].usize()
+    ny: usize = input[1].usize()
+    nz: usize = input[2].usize()
+    cells: usize = nx * ny * nz
+    if length != 3 + 2 * cells: return -1
+    for q in 3..<length:
+        value: f64 = input[q]
+        if value != value or trunc(value) != value or value < -1000.0 or value > 1000.0: return -1
+    if output.is_null() or capacity < cells: return -2
+    stride_i: usize = ny * nz
+    stride_j: usize = nz
+    for i in 0..<nx:
+        for j in 0..<ny:
+            for k in 0..<nz:
+                q: usize = i * stride_i + j * stride_j + k
+                x: i64 = input[3 + q].i64()
+                ax: i64 = 222 * x
+                if i > 0: ax -= input[3 + q - stride_i].i64()
+                if i + 1 < nx: ax -= input[3 + q + stride_i].i64()
+                if j > 0: ax -= 10 * input[3 + q - stride_j].i64()
+                if j + 1 < ny: ax -= 10 * input[3 + q + stride_j].i64()
+                if k > 0: ax -= 100 * input[3 + q - 1].i64()
+                if k + 1 < nz: ax -= 100 * input[3 + q + 1].i64()
+                b: i64 = input[3 + cells + q].i64()
+                output[q] <- (10 * b - ax).f64() / 10.0
+    cells.i64()
+
+export fn asci_purple_smg2000_residual(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = asci_purple_smg2000_residual_impl

@@ -1,0 +1,3 @@
+#include <cmath>
+#include <cstddef>
+extern "C" long long tsvc_s242_fused_prefix_update(const double*x,std::size_t l,double*y,std::size_t cap){if(!x||l<7||l>259)return -1;double r=x[0];if(!std::isfinite(r)||std::trunc(r)!=r||r<1||r>64)return -1;auto n=(std::size_t)r;if(l!=3+4*n)return -1;for(std::size_t i=1;i<l;i++)if(!std::isfinite(x[i])||std::trunc(x[i])!=x[i]||std::abs(x[i])>1)return -1;if(!y||cap<n)return -2;double a[64];for(std::size_t i=0;i<n;i++)a[i]=x[3+i];for(std::size_t i=1;i<n;i++){double v=a[i-1]+x[1];v=v+x[2];v=v+x[3+2*n+i];v=v+x[3+3*n+i];v=v+x[3+4*n+i];a[i]=v;}for(std::size_t i=0;i<n;i++)y[i]=a[i];return n;}

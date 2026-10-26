@@ -1,0 +1,27 @@
+const MAX_N: usize = 8
+extern trunc(value: f64) -> f64
+extern fabs(value: f64) -> f64
+
+def tsvc_s275_column_conditional_axpy_recurrence_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 193: return -1
+    raw_n: f64 = input[0]
+    if trunc(raw_n) != raw_n or raw_n < 1.0 or raw_n > 8.0: return -1
+    n: usize = raw_n.usize()
+    cells: usize = n * n
+    if length != 1 + 3 * cells: return -1
+    for i in 1..length:
+        if trunc(input[i]) != input[i] or fabs(input[i]) > 16.0: return -1
+    if output.is_null() or capacity < cells: return -2
+    a: mutable f64[MAX_N * MAX_N] = zeroed
+    for i in 0..cells: a[i] <- input[1 + i]
+    bs: usize = 1 + cells
+    cs: usize = 1 + 2 * cells
+    for col in 0..n:
+        if a[col] > 0.0:
+            for row in 1..n:
+                index: usize = row * n + col
+                a[index] <- a[index - n] + input[bs + index] * input[cs + index]
+    for i in 0..cells: output[i] <- a[i]
+    cells.i64()
+
+export fn tsvc_s275_column_conditional_axpy_recurrence(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = tsvc_s275_column_conditional_axpy_recurrence_impl

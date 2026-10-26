@@ -1,0 +1,15 @@
+Prolangs-C simulator source permission notice
+
+The pinned upstream `instruct2.c`, `format.c`, and `machine.c` headers state:
+
+    (c) William Landi 1991
+    Permission to use this code is granted as long as the copyright
+    notice remains in place.
+
+This notice is reproduced here and in every port. The ports are independent,
+bounded implementations of the described operation and do not contain copied
+upstream source text.
+
+Revision: 5d7b75df749241efa7a6e6f5be613d3fcc5cce38
+Sources: Prolangs-C/simulator/instruct2.c, format.c, machine.c
+Launcher: Prolangs-C/simulator/info.sh

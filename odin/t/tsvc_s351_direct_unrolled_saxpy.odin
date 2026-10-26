@@ -1,0 +1,4 @@
+package tsvc_s351_direct_unrolled_saxpy
+import "core:c"
+import "core:math"
+@(export) tsvc_s351_direct_unrolled_saxpy :: proc "c"(x:[^]f64,l:c.size_t,y:[^]f64,cap:c.size_t)->i64{if x==nil||l<12||l>82 do return -1;rd:=x[0];if rd!=rd||math.trunc(rd)!=rd||rd<5||rd>40 do return -1;n:=int(rd);if n%5!=0||l!=c.size_t(2+2*n) do return -1;for i:=1;i<int(l);i+=1{if x[i]!=x[i]||math.trunc(x[i])!=x[i]||math.abs(x[i])>1 do return -1};if y==nil||cap<c.size_t(n) do return -2;var a:[40]f64;for i:=0;i<n;i+=1{a[i]=x[2+i]};alpha:=x[1];for base:=0;base<n;base+=5{p0:=alpha*x[2+n+base];a[base]=a[base]+p0;p1:=alpha*x[2+n+base+1];a[base+1]=a[base+1]+p1;p2:=alpha*x[2+n+base+2];a[base+2]=a[base+2]+p2;p3:=alpha*x[2+n+base+3];a[base+3]=a[base+3]+p3;p4:=alpha*x[2+n+base+4];a[base+4]=a[base+4]+p4};for i:=0;i<n;i+=1{y[i]=a[i]};return i64(n)}

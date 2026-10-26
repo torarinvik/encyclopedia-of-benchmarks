@@ -1,0 +1,4 @@
+// Clean-room TSVC s1213 profile; see package rights note.
+fn put64(out &u8,p int,v i64){mut b:=u64(v);for j in 0..8{unsafe{out[p+j]=u8(b&255)};b>>=8}}
+@[export:'tsvc_s1213_ordered_neighbor_array_map']
+pub fn tsvc_s1213_ordered_neighbor_array_map(input &i64,length usize,output &u8,capacity usize)i64{if unsafe{input==nil}||length<13||length>129{return -1};nr:=unsafe{input[0]};if nr<3||nr>32{return -1};n:=int(nr);if int(length)!=1+4*n{return -1};mut a:=[32]i64{};mut b:=[32]i64{};mut c:=[32]i64{};mut d:=[32]i64{};for i in 0..n{x:=unsafe{input[1+i]};y:=unsafe{input[1+n+i]};z:=unsafe{input[1+2*n+i]};w:=unsafe{input[1+3*n+i]};if x< -1||x>1||y< -1||y>1||z< -1||z>1||w< -1||w>1{return -1};a[i]=x;b[i]=y;c[i]=z;d[i]=w};if unsafe{output==nil}||capacity<usize(16*n){return -2};for i in 1..n-1{a[i]=b[i-1]+c[i];b[i]=a[i+1]*d[i]};for i in 0..n{put64(output,8*i,a[i]);put64(output,8*(n+i),b[i])};return i64(2*n)}

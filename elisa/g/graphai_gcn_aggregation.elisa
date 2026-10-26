@@ -1,0 +1,61 @@
+extern trunc(value: f64) -> f64
+const MAX_N: usize = 8
+const MAX_M: usize = 24
+const MAX_D: usize = 4
+const MAX_INPUT: usize = 84
+
+def graphai_gcn_aggregation_impl(input: f64&, length: usize,
+                                 output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 7 or length > MAX_INPUT: return -1
+    n_value: f64 = input[0]
+    m_value: f64 = input[1]
+    d_value: f64 = input[2]
+    if n_value != n_value or m_value != m_value or d_value != d_value: return -1
+    if trunc(n_value) != n_value or trunc(m_value) != m_value or trunc(d_value) != d_value: return -1
+    if n_value < 1.0 or n_value > 8.0 or m_value < 0.0 or m_value > 24.0 or d_value < 1.0 or d_value > 4.0: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    d: usize = d_value.usize()
+    if length != 4 + 3*n + m + n*d: return -1
+    offsets_at: usize = 3
+    edges_at: usize = offsets_at + n + 1
+    left_at: usize = edges_at + m
+    right_at: usize = left_at + n
+    features_at: usize = right_at + n
+    for q in 0..<length:
+        value: f64 = input[q]
+        if value != value: return -1
+        if q >= left_at and q < right_at and (value < -4.0 or value > 4.0): return -1
+        if q >= right_at and q < features_at and (value < -4.0 or value > 4.0): return -1
+        if q >= features_at and (value < -8.0 or value > 8.0): return -1
+    if input[offsets_at] != 0.0 or input[edges_at - 1] != m.f64(): return -1
+    rowptr: mutable usize[9] = zeroed
+    colind: mutable usize[24] = zeroed
+    for i in 0..=n:
+        value: f64 = input[offsets_at + i]
+        if trunc(value) != value or value < 0.0 or value > m.f64(): return -1
+        rowptr[i] <- value.usize()
+        if i > 0 and rowptr[i] < rowptr[i - 1]: return -1
+    for e in 0..<m:
+        value: f64 = input[edges_at + e]
+        if trunc(value) != value or value < 0.0 or value >= n.f64(): return -1
+        colind[e] <- value.usize()
+    for i in 0..<n:
+        if input[left_at + i] < -4.0 or input[left_at + i] > 4.0: return -1
+        if input[right_at + i] < -4.0 or input[right_at + i] > 4.0: return -1
+    for q in 0..<(n * d):
+        if input[features_at + q] < -8.0 or input[features_at + q] > 8.0: return -1
+    required: usize = n * d
+    if output.is_null() or capacity < required: return -2
+    staged: mutable f64[32] = zeroed
+    for src in 0..<n:
+        for e in rowptr[src]..<rowptr[src + 1]:
+            dst: usize = colind[e]
+            weight: f64 = input[left_at + src] * input[right_at + dst]
+            for k in 0..<d:
+                staged[src * d + k] <- staged[src * d + k] + weight * input[features_at + dst * d + k]
+    for q in 0..<required: output[q] <- staged[q]
+    required.i64()
+
+export fn graphai_gcn_aggregation(input: f64&, length: usize,
+                                  output: mutable f64&, capacity: usize) -> i64 = graphai_gcn_aggregation_impl

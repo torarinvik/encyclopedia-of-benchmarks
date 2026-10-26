@@ -1,0 +1,18 @@
+Copyright (C) 2008 Matt Mahoney, Serge Osnach, Alexander Ratushnyak,
+Bill Pettis, Przemyslaw Skibinski, Matthew Fite, wowtiger, Andrew Paterson,
+Jan Ondrus, Andreas Morphis, Pavel L. Holoborodko, KZ.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of the License, or (at your
+option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details at <https://www.gnu.org/licenses/>.
+
+The source PAQ8p header states that a copy of the GNU GPL is supplied with
+the program. This package follows the stated GPL-2.0-or-later terms. The
+ports are modified clean-room implementations of the Mixer behavior; they
+do not contain copied PAQ8p source text.

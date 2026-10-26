@@ -28,3 +28,7 @@ Build an implementation with the shared `i64_array_float64` ABI and pass its man
 python3 benchmarks/build_abi.py --family i64_array_float64 --algorithm gesummv --language c
 python3 benchmarks/run_i64_array_float64.py --build-manifest build/i64_array_float64/g/gesummv/c/build.json
 ```
+
+## Upstream license
+
+The pinned PolyBench/C repository includes the Ohio State University Software Distribution License at its repository root. The complete notice and redistribution conditions are reproduced in this package's [`LICENSE.txt`](LICENSE.txt).

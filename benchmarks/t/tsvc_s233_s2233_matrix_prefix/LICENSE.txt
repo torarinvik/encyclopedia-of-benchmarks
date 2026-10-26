@@ -1,0 +1,8 @@
+TSVC source attribution and rights note
+
+The upstream TSVC source attributes the suite to David Callahan, Jack Dongarra,
+and David Levine. The pinned repository material reviewed for this profile does
+not state an explicit redistribution or modification license. These benchmark
+ports are independently written clean-room implementations of the described
+bounded operations; no upstream source code or comments are copied, and no
+license grant or endorsement is claimed.

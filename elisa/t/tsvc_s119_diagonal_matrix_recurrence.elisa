@@ -1,0 +1,32 @@
+# Clean-room TSVC s119 profile; see package rights note.
+const MAX_SIDE: usize = 8
+const MAX_CELLS: usize = 64
+const MAX_INPUT_LENGTH: usize = 130
+def put64(v:i64,out:mutable u8&,off:usize)->void:
+ bits:u64=v.u64();j:mutable usize=0
+ while j<8:out[off+j]<-((bits>>(8*j))&255).u8();j<-j+1
+def tsvc_s119_diagonal_matrix_recurrence_impl(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64:
+ if input.is_null() or length<10 or length>MAX_INPUT_LENGTH:return -1
+ sr:i64=input[0];pr:i64=input[1]
+ if sr<2 or sr>8 or pr<1 or pr>4:return -1
+ n:usize=sr.usize();passes:usize=pr.usize();cells:usize=n*n
+ if length!=2+2*cells:return -1
+ a:mutable i64[64]=zeroed;b:mutable i64[64]=zeroed
+ i:mutable usize=0
+ while i<cells:
+  av:i64=input[2+i];bv:i64=input[2+cells+i]
+  if av< -2 or av>2 or bv< -2 or bv>2:return -1
+  a[i]<-av;b[i]<-bv;i<-i+1
+ bytes:usize=8*cells;if out.is_null() or cap<bytes:return -2
+ p:mutable usize=0
+ while p<passes:
+  i<-1
+  while i<n:
+   j:mutable usize=1
+   while j<n:a[i*n+j]<-a[(i-1)*n+j-1]+b[i*n+j];j<-j+1
+   i<-i+1
+  p<-p+1
+ i<-0
+ while i<cells:put64(a[i],out,8*i);i<-i+1
+ cells.i64()
+export fn tsvc_s119_diagonal_matrix_recurrence(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64=tsvc_s119_diagonal_matrix_recurrence_impl

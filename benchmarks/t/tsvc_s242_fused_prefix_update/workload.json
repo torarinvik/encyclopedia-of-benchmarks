@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s242-f64-slice-v1",
+  "algorithm": "tsvc_s242_fused_prefix_update",
+  "function_symbol": "tsvc_s242_fused_prefix_update",
+  "abi": "float64_slice_io",
+  "description": "One bounded source-order pass of the TSVC s242 fused prefix recurrence.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "TSVC/NodeSplitting-dbl/info.sh",
+      "TSVC/NodeSplitting-dbl/tsc.c",
+      "TSVC/NodeSplitting-flt/info.sh",
+      "TSVC/NodeSplitting-flt/tsc.c",
+      "TSVC/tsc.inc",
+      "TSVC/tests.h"
+    ],
+    "path": "TSVC/tsc.inc",
+    "symbol": "s242",
+    "source_lines": {
+      "kernel_start": 2184,
+      "kernel_end": 2205
+    },
+    "launcher_paths": [
+      "TSVC/NodeSplitting-dbl/info.sh",
+      "TSVC/NodeSplitting-flt/info.sh"
+    ],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC",
+    "attribution": "TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit modification or redistribution grant was found in reviewed pinned materials; ports are clean-room."
+  },
+  "contract": {
+    "operation": "Leave A[0] unchanged; for i ascending from 1, update A[i] with left-associative A[i-1]+s1+s2+B[i]+C[i]+D[i].",
+    "input_layout": "[n,s1,s2,A[n],B[n],C[n],D[n]]",
+    "output_layout": "final A[n]",
+    "n_range": [
+      1,
+      64
+    ],
+    "value_range": [
+      -1,
+      1
+    ],
+    "exact_length": "3+4*n",
+    "arithmetic": "Integer-valued binary64; outputs remain bounded by 1+5*(n-1) and exact in binary32/binary64.",
+    "passes": 1,
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "input_modified": false
+  },
+  "input": {
+    "kind": "float64_slice",
+    "maximum_valid_length": 259,
+    "maximum_parseable_length": 259,
+    "n_range": [
+      1,
+      64
+    ],
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_slice",
+    "maximum_elements": 64,
+    "no_write_on_error": true,
+    "null_output_result": -2,
+    "short_capacity_result": -2
+  },
+  "workspace": {
+    "elements": 64,
+    "bytes": 512,
+    "meaning": "Staged final A vector."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 0,
+    "relative_tolerance": 0
+  },
+  "cases": [
+    {
+      "id": "seed-only",
+      "input_values": [
+        1,
+        1,
+        -1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": 1,
+      "expected_output": [
+        1.0
+      ]
+    },
+    {
+      "id": "fused-recurrence",
+      "input_values": [
+        4,
+        1,
+        -1,
+        0,
+        1,
+        -1,
+        1,
+        0,
+        1,
+        -1,
+        1,
+        1,
+        -1,
+        0,
+        -1,
+        1,
+        1,
+        0,
+        1
+      ],
+      "input_length": 19,
+      "expected_result": 4,
+      "expected_output": [
+        0.0,
+        1.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "id": "negative-scalars",
+      "input_values": [
+        3,
+        -1,
+        -1,
+        -1,
+        1,
+        0,
+        1,
+        -1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0
+      ],
+      "input_length": 15,
+      "expected_result": 3,
+      "expected_output": [
+        -1.0,
+        -3.0,
+        -3.0
+      ]
+    },
+    {
+      "id": "invalid-n",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated",
+      "input_values": [
+        2,
+        1,
+        1,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional",
+      "input_values": [
+        1,
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short-capacity",
+      "input_values": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -2,
+      "expected_output": [],
+      "output_capacity": 0
+    },
+    {
+      "id": "null-output",
+      "input_values": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -2,
+      "expected_output": [],
+      "output_is_null": true
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "id": "gapbs-shiloach-vishkin-components-i64-array-bytes-output-v1",
+  "algorithm": "gapbs_shiloach_vishkin_components",
+  "function_symbol": "gapbs_shiloach_vishkin_components",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded deterministic min-max hooking and pointer compression for undirected connected components.",
+  "source": {
+    "repository": "sbeamer/gapbs",
+    "commit": "b5e3e19c2845f22fb338f4a4bc4b1ccee861d026",
+    "path": "src/cc_sv.cc",
+    "symbols": ["ShiloachVishkin"],
+    "url": "https://github.com/sbeamer/gapbs/blob/b5e3e19c2845f22fb338f4a4bc4b1ccee861d026/src/cc_sv.cc",
+    "source_header_copyright": "Copyright (c) 2015, The Regents of the University of California (Regents)",
+    "license_path": "LICENSE.txt",
+    "license": "BSD-3-Clause"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, edge_count, (u,v)...]",
+    "node_count_range": [1, 16],
+    "edge_count_range": [0, 64],
+    "edge_rule": "Simple undirected graph with canonical 0 <= u < v < node_count pairs; duplicate edges are invalid.",
+    "adjacency_order": "Ascending neighbor vertex ID; source rows are visited in ascending vertex ID.",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 131,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "One minimum-vertex component representative per vertex, in vertex-ID order.",
+    "maximum_values": 16,
+    "maximum_bytes": 128,
+    "success_result": "8 * node_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Staged maximum-sized label output so invalid input and output errors leave caller memory untouched."
+  },
+  "contract": {
+    "operation": "Initialize one parent label per vertex; repeatedly scan undirected adjacency entries, hook the higher current component ID to the lower when the higher is a root, and compress parent paths until a sweep makes no changes.",
+    "hooking": "For each edge, read the current labels of its endpoints, compute high=max(label_u,label_v) and low=min(label_u,label_v), and assign parent[high]=low only when parent[high]==high.",
+    "compression": "After each complete row-major edge sweep, replace each label by its grandparent until its parent points to itself.",
+    "deterministic_profile": "The pinned source uses parallel in-place hooking. This bounded profile fixes vertex and neighbor scan order to ascending IDs and uses a single worker; it preserves the min-max hooking and compression mechanics while avoiding scheduler-dependent races.",
+    "round_limit": "At most node_count squared plus one sweeps; the guard exceeds the number of possible strict root-label decreases in the bounded graph.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-vertex",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "two-components",
+      "input_values": [5, 3, 0, 1, 1, 2, 3, 4],
+      "input_length": 8,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000003000000000000000300000000000000"
+    },
+    {
+      "id": "long-chain-hooks-to-minimum",
+      "input_values": [6, 5, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5],
+      "input_length": 12,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "duplicate-edge-invalid",
+      "input_values": [2, 2, 0, 1, 0, 1],
+      "input_length": 6,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reversed-edge-invalid",
+      "input_values": [2, 1, 1, 0],
+      "input_length": 4,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 1, 0, 1],
+      "input_length": 4,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

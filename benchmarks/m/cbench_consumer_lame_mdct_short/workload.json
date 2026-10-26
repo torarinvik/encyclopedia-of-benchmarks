@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-consumer-lame-mdct-short-float64-slice-io-v1",
+  "algorithm": "cbench_consumer_lame_mdct_short",
+  "function_symbol": "cbench_consumer_lame_mdct_short",
+  "abi": "float64_slice_io",
+  "description": "Bounded binary64 profile of LAME's three-window 6-point short-block MDCT helper.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/consumer_lame/src/newmdct.c",
+    "symbols": ["mdct_short", "mdct_init48", "enwindow"],
+    "source_links": {
+      "kernel": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/consumer_lame/src/newmdct.c",
+      "launcher": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/consumer_lame/src/info.sh"
+    },
+    "license": "GNU Library General Public License version 2 or later",
+    "copyright": "Copyright (c) 1999 Takehiro TOMINAGA",
+    "license_file": "LICENSE.txt"
+  },
+  "contract": {
+    "operation": "Apply three source-defined short-window 6-to-3 coefficient transforms to three consecutive six-value input groups, storing six bins per window side by side.",
+    "input": "exactly 18 finite binary64 work values in [-32768,32768]",
+    "output": "18 binary64 values at source indices 3*m+l, m=0..5 and l=0..2",
+    "coefficient_initialization": "max=enwindow[248]=0.030526638; scale=4/12; for i=0..2, w2=cos(pi/12*(i+0.5))*max/32768*scale; coefficient[m][i]=w2*cos((pi/48)*(2*m+1)*(4*i+14)); coefficient[m][i+3]=w2*cos((pi/48)*(2*m+1)*(4*i+38))",
+    "arithmetic": "Binary64; six products and additions follow source coefficient order. This stateless profile recomputes mdct_init48's short coefficient table on each call.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {"kind": "finite_float64_array", "length_exact": 18, "maximum_input_length": 19, "range": [-32768, 32768], "invalid_result": -1},
+  "output": {"kind": "float64_array", "length": 18, "null_or_short_result": -2, "success_result": 18, "no_write_on_error": true, "absolute_tolerance": 1e-10, "relative_tolerance": 1e-10},
+  "workspace": {"elements": 54, "meaning": "36 short cosine coefficients plus 18 staged output values."},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 20, "absolute_tolerance": 1e-10, "relative_tolerance": 1e-10},
+  "cases": [
+    {"id": "zero", "input_values": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 18, "expected_result": 18},
+    {"id": "first-input-impulse", "input_values": [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 18, "expected_result": 18},
+    {"id": "last-input-impulse", "input_values": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1], "input_length": 18, "expected_result": 18},
+    {"id": "source-order-alternating", "input_values": [1,-1,2,-2,3,-3,4,-4,5,-5,6,-6,7,-7,8,-8,9,-9], "input_length": 18, "expected_result": 18},
+    {"id": "invalid-length", "input_values": [0,0], "input_length": 2, "expected_result": -1},
+    {"id": "invalid-out-of-range", "input_values": [32768.5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 18, "expected_result": -1},
+    {"id": "short-output-capacity", "input_values": [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 18, "output_capacity": 17, "expected_result": -2},
+    {"id": "null-output", "input_values": [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 18, "output_capacity": 18, "output_is_null": true, "expected_result": -2}
+  ]
+}

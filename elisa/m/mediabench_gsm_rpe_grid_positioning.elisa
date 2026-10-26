@@ -1,0 +1,55 @@
+/*
+ * Independent bounded port of GSM RPE grid positioning.
+ * Copyright 1992, 1993, 1994 by Jutta Degener and Carsten Bormann,
+ * Technische Universitaet Berlin
+ *
+ * Any use of this software is permitted provided that this notice is not
+ * removed and that neither the authors nor the Technische Universitaet Berlin
+ * are deemed to have made any representations as to the suitability of this
+ * software for any purpose nor are held responsible for any defects of this
+ * software. THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
+ * As a matter of courtesy, the authors request to be informed about uses
+ * this software has found, about bugs in this software, and about any
+ * improvements that may be of general interest.
+ *
+ * Berlin, 28.11.1994
+ * Jutta Degener
+ * Carsten Bormann
+ */
+const MEDIABENCH_GSM_RPE_INPUT_COUNT: usize = 14
+const MEDIABENCH_GSM_RPE_MAX_INPUT: usize = 15
+const MEDIABENCH_GSM_RPE_OUTPUT_COUNT: usize = 40
+const MEDIABENCH_GSM_RPE_OUTPUT_BYTES: usize = 80
+
+def mediabench_gsm_rpe_store_i16_le(output: mutable u8&, offset: usize, value: i64):
+    bits: mutable u64 = value.u64()
+    output[offset] <- (bits & 255).u8()
+    output[offset + 1] <- ((bits >> 8) & 255).u8()
+
+def mediabench_gsm_rpe_impl(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MEDIABENCH_GSM_RPE_MAX_INPUT:
+        return -1
+    if input_length != MEDIABENCH_GSM_RPE_INPUT_COUNT or input[0] < 0 or input[0] > 3:
+        return -1
+    index: mutable usize = 1
+    while index < MEDIABENCH_GSM_RPE_INPUT_COUNT:
+        if input[index] < -32768 or input[index] > 32767: return -1
+        index <- index + 1
+
+    staged: mutable i64[40] = zeroed
+    grid: usize = input[0].usize()
+    index <- 0
+    while index < 13:
+        staged[grid + 3 * index] <- input[index + 1]
+        index <- index + 1
+    if output.is_null() or output_capacity < MEDIABENCH_GSM_RPE_OUTPUT_BYTES:
+        return -2
+    index <- 0
+    while index < MEDIABENCH_GSM_RPE_OUTPUT_COUNT:
+        mediabench_gsm_rpe_store_i16_le(output, 2 * index, staged[index])
+        index <- index + 1
+    MEDIABENCH_GSM_RPE_OUTPUT_BYTES.i64()
+
+export fn mediabench_gsm_rpe_grid_positioning(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = mediabench_gsm_rpe_impl

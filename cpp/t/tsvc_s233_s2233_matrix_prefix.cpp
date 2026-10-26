@@ -1,0 +1,5 @@
+// Clean-room TSVC s233/s2233 profiles; see package rights note.
+#include <cstddef>
+#include <cstdint>
+static void put64(std::uint8_t*o,std::size_t p,std::int64_t v){auto b=static_cast<std::uint64_t>(v);for(std::size_t k=0;k<8;++k){o[p+k]=static_cast<std::uint8_t>(b);b>>=8;}}
+extern "C" std::int64_t tsvc_s233_s2233_matrix_prefix(const std::int64_t*in,std::size_t len,std::uint8_t*out,std::size_t cap){if(!in||len<14||len>194)return -1;auto nr=in[0],mode=in[1];if(nr<2||nr>8||(mode!=0&&mode!=1))return -1;auto n=static_cast<std::size_t>(nr),nn=n*n;if(len!=2+3*nn)return -1;std::int64_t a[64],b[64],c[64];for(std::size_t i=0;i<nn;++i){auto x=in[2+i],y=in[2+nn+i],z=in[2+2*nn+i];if(x< -1||x>1||y< -1||y>1||z< -1||z>1)return -1;a[i]=x;b[i]=y;c[i]=z;}if(!out||cap<16*nn)return -2;for(std::size_t i=1;i<n;++i)for(std::size_t j=1;j<n;++j)a[j*n+i]=a[(j-1)*n+i]+c[j*n+i];if(mode==0){for(std::size_t i=1;i<n;++i)for(std::size_t j=1;j<n;++j)b[j*n+i]=b[j*n+i-1]+c[j*n+i];}else{for(std::size_t i=1;i<n;++i)for(std::size_t j=1;j<n;++j)b[i*n+j]=b[(i-1)*n+j]+c[i*n+j];}for(std::size_t i=0;i<nn;++i){put64(out,8*i,a[i]);put64(out,8*(nn+i),b[i]);}return static_cast<std::int64_t>(2*nn);}

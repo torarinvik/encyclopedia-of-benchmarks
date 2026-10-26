@@ -1,0 +1,71 @@
+extern trunc(value: f64) -> f64
+const MAX_INPUT: usize = 124
+
+def graphai_frontier_sampler_impl(input: f64&, length: usize,
+                                  output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    for q in 0..<length:
+        value: f64 = input[q]
+        if value != value or value > 1.7976931348623157e308 or value < -1.7976931348623157e308: return -1
+    nv: f64 = input[0]
+    mv: f64 = input[1]
+    rv: f64 = input[2]
+    if trunc(nv) != nv or trunc(mv) != mv or trunc(rv) != rv: return -1
+    if nv < 1.0 or nv > 8.0 or mv < 0.0 or mv > 24.0 or rv < 1.0 or rv > 4.0: return -1
+    n: usize = nv.usize()
+    m: usize = mv.usize()
+    r: usize = rv.usize()
+    required: usize = 22*r
+    if length != 4+n+m+22*r: return -1
+    root_at: usize = 3
+    row_at: usize = root_at+r
+    col_at: usize = row_at+n+1
+    choice_at: usize = col_at+m
+    rowptr: mutable usize[9] = zeroed
+    colind: mutable usize[24] = zeroed
+    front: mutable usize[48] = zeroed
+    next: mutable usize[48] = zeroed
+    staged: mutable f64[88] = zeroed
+    for i in 0..<r:
+        value: f64 = input[root_at+i]
+        if trunc(value) != value or value < 0.0 or value >= n.f64(): return -1
+        front[i] <- value.usize()
+        staged[i] <- value
+    if input[row_at] != 0.0 or input[col_at-1] != m.f64(): return -1
+    for i in 0..=n:
+        value: f64 = input[row_at+i]
+        if trunc(value) != value or value < 0.0 or value > m.f64(): return -1
+        rowptr[i] <- value.usize()
+        if i > 0 and rowptr[i] < rowptr[i-1]: return -1
+    for e in 0..<m:
+        value: f64 = input[col_at+e]
+        if trunc(value) != value or value < 0.0 or value >= n.f64(): return -1
+        colind[e] <- value.usize()
+    if output.is_null() or capacity < required: return -2
+    fanouts: usize[3] = [3,2,2]
+    front_size: usize = r
+    choice: usize = 0
+    out_at: usize = r
+    for round in 0..<3:
+        next_size: usize = front_size*fanouts[round]
+        for i in 0..<front_size:
+            parent: usize = front[i]
+            begin: usize = rowptr[parent]
+            degree: usize = rowptr[parent+1]-begin
+            if degree == 0: return -1
+            for j in 0..<fanouts[round]:
+                value: f64 = input[choice_at+choice]
+                choice <- choice+1
+                if trunc(value) != value or value < 0.0 or value >= degree.f64(): return -1
+                vertex: usize = colind[begin+value.usize()]
+                next[i*fanouts[round]+j] <- vertex
+                staged[out_at] <- vertex.f64()
+                out_at <- out_at+1
+        for i in 0..<next_size: front[i] <- next[i]
+        front_size <- next_size
+    if choice != 21*r or out_at != required: return -1
+    for q in 0..<required: output[q] <- staged[q]
+    required.i64()
+
+export fn graphai_frontier_sampler(input: f64&, length: usize,
+                                   output: mutable f64&, capacity: usize) -> i64 = graphai_frontier_sampler_impl

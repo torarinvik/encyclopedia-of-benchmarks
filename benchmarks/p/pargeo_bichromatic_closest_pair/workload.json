@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "id": "pargeo-bichromatic-closest-pair-2d-i64-array-bytes-output-v1",
+  "algorithm": "pargeo_bichromatic_closest_pair",
+  "function_symbol": "pargeo_bichromatic_closest_pair",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded two-color 2D closest pair with separate KD-trees and recursive AABB branch-and-bound.",
+  "pinned_source": {
+    "repository": "ParAlg/ParGeo",
+    "commit": "4911408762c46b7c262f6d617d7adcb0cb0f219b",
+    "paths": [
+      "include/kdTree/bccpImpl.h",
+      "include/kdTree/treeImpl.h",
+      "include/kdTree/nodeImpl.h",
+      "include/pargeo/point.h",
+      "LICENSE"
+    ],
+    "symbols": ["bichromaticClosestPair", "bcpHelper", "constructSerial", "nodeDistance"],
+    "source_links": {
+      "bcp": "https://github.com/ParAlg/ParGeo/blob/4911408762c46b7c262f6d617d7adcb0cb0f219b/include/kdTree/bccpImpl.h",
+      "tree": "https://github.com/ParAlg/ParGeo/blob/4911408762c46b7c262f6d617d7adcb0cb0f219b/include/kdTree/treeImpl.h",
+      "node": "https://github.com/ParAlg/ParGeo/blob/4911408762c46b7c262f6d617d7adcb0cb0f219b/include/kdTree/nodeImpl.h",
+      "point": "https://github.com/ParAlg/ParGeo/blob/4911408762c46b7c262f6d617d7adcb0cb0f219b/include/pargeo/point.h",
+      "license": "https://github.com/ParAlg/ParGeo/blob/4911408762c46b7c262f6d617d7adcb0cb0f219b/LICENSE"
+    },
+    "license": "MIT; complete repository license reproduced in LICENSE.txt. The source header names Yiqiu Wang, Shangdi Yu, Laxman Dhulipala, Yan Gu, and Julian Shun."
+  },
+  "contract": {
+    "operation": "Build one bounded KD-tree per point set, then recursively search pairs of nodes using squared AABB distance lower bounds and prune node pairs whose lower bound exceeds the best cross-set point distance.",
+    "input_layout": "[nA, nB, ax0, ay0, ..., bx0, by0, ...]",
+    "point_count_range_per_set": [2, 8],
+    "coordinate_range": [-1000000, 1000000],
+    "leaf_capacity": 2,
+    "tree_build": "Choose the widest bounding-box axis (x only when its span is strictly greater; y wins ties), partition at the coordinate-range midpoint with lower coordinates on the left, and use a balanced ceil-half split when the midpoint partition is empty.",
+    "search_order": "At a leaf/internal pair, visit the closer child first and visit the right child first on a tie. For two internal nodes, sort their four child pairs by squared AABB distance using stable insertion order for equal distances.",
+    "distance": "Exact integer squared Euclidean distance; coordinate bounds keep all calculations within signed 64-bit range.",
+    "output_encoding": "One signed 64-bit little-endian minimum squared distance across A x B.",
+    "output_bytes": 8,
+    "maximum_valid_input_length": 34,
+    "success_result": 8,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "Two point counts followed by all A coordinates then all B coordinates, with x,y pairs.",
+    "maximum_length": 34,
+    "maximum_valid_length": 34,
+    "maximum_parseable_length": 34,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Signed i64 little-endian squared distance.",
+    "maximum_bytes": 8,
+    "capacity_unit": "bytes",
+    "success_result": 8,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed local arrays for two point sets, their KD-tree nodes, and recursive pair traversal."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "unique-nearest-cross-pair",
+      "input_values": [2, 2, 0, 0, 10, 10, 1, 0, 6, 10],
+      "input_length": 10,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "equal-distance-cross-pairs",
+      "input_values": [2, 2, 0, 0, 4, 0, 2, 0, 8, 0],
+      "input_length": 10,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0400000000000000"
+    },
+    {
+      "id": "duplicate-point-across-colors",
+      "input_values": [2, 2, 2, 3, 0, 0, 2, 3, 5, 0],
+      "input_length": 10,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "negative-coordinates",
+      "input_values": [2, 2, -5, -4, -3, 1, -4, -4, 8, 8],
+      "input_length": 10,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "tree-branches-and-box-pruning",
+      "input_values": [4, 4, -10, 0, -5, 10, 0, 0, 5, 10, -9, 0, -4, 11, 1, 0, 6, 11],
+      "input_length": 18,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "invalid-too-few-points",
+      "input_values": [1, 2, 0, 0, 1, 1, 2, 2, 3, 3],
+      "input_length": 10,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-truncated-coordinate-frame",
+      "input_values": [2, 2, 0, 0, 1, 1, 2, 2, 3],
+      "input_length": 9,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-coordinate-range",
+      "input_values": [2, 2, 1000001, 0, 1, 0, 2, 0, 3, 0],
+      "input_length": 10,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-buffer",
+      "input_values": [2, 2, 0, 0, 10, 10, 1, 0, 6, 10],
+      "input_length": 10,
+      "input_is_null": false,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-buffer",
+      "input_values": [2, 2, 0, 0, 10, 10, 1, 0, 6, 10],
+      "input_length": 10,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

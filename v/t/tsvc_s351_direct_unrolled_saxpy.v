@@ -1,0 +1,4 @@
+module tsvc_s351_direct_unrolled_saxpy
+import math
+@[export:'tsvc_s351_direct_unrolled_saxpy']
+pub fn tsvc_s351_direct_unrolled_saxpy(x &f64,l usize,mut y &f64,cap usize)i64{if unsafe{x==nil}||l<12||l>82{return -1};unsafe{rd:=x[0];if !rd.is_finite()||math.trunc(rd)!=rd||rd<5||rd>40{return -1};n:=int(rd);if n%5!=0||l!=usize(2+2*n){return -1};for i in 1..int(l){if !x[i].is_finite()||math.trunc(x[i])!=x[i]||math.abs(x[i])>1{return -1}};if y==nil||cap<usize(n){return -2};mut a:=[40]f64{};for i in 0..n{a[i]=x[2+i]};alpha:=x[1];for base:=0;base<n;base+=5{p0:=alpha*x[2+n+base];a[base]=a[base]+p0;p1:=alpha*x[2+n+base+1];a[base+1]=a[base+1]+p1;p2:=alpha*x[2+n+base+2];a[base+2]=a[base+2]+p2;p3:=alpha*x[2+n+base+3];a[base+3]=a[base+3]+p3;p4:=alpha*x[2+n+base+4];a[base+4]=a[base+4]+p4};for i in 0..n{y[i]=a[i]};return i64(n)}}

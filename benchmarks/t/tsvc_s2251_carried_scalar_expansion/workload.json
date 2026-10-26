@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s2251-f64-slice-v1",
+  "algorithm": "tsvc_s2251_carried_scalar_expansion",
+  "function_symbol": "tsvc_s2251_carried_scalar_expansion",
+  "abi": "float64_slice_io",
+  "description": "One source-order s2251 sweep; returns final A then B.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "TSVC/Expansion-dbl/info.sh",
+      "TSVC/Expansion-dbl/tsc.c",
+      "TSVC/Expansion-flt/info.sh",
+      "TSVC/Expansion-flt/tsc.c",
+      "TSVC/tsc.inc",
+      "TSVC/tests.h"
+    ],
+    "symbol": "s2251",
+    "source_lines": {
+      "codelet_start": 2369,
+      "codelet_end": 2394
+    },
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC",
+    "launcher_family": "Expansion-dbl and Expansion-flt",
+    "attribution": "TSVC source comments attribute codelets to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit modification or redistribution grant was found in reviewed pinned materials; these are clean-room ports.",
+    "path": "TSVC/tsc.inc",
+    "launcher_paths": [
+      "TSVC/Expansion-dbl/info.sh",
+      "TSVC/Expansion-flt/info.sh"
+    ]
+  },
+  "contract": {
+    "operation": "s starts at zero; ascending i: A[i]=s*E[i], s=B[i]+C[i] from pre-update B, then B[i]=A[i]+D[i].",
+    "input_layout": "[n,A[n],B[n],C[n],D[n],E[n]]",
+    "output_layout": "final A[n] followed by final B[n]",
+    "n_range": [
+      1,
+      64
+    ],
+    "value_range": [
+      -1,
+      1
+    ],
+    "exact_length": "1+5*n",
+    "arithmetic": "Inputs are integers in [-1,1]; each carried scalar is a sum of one original B and C value and stays in [-2,2], with A in [-2,2] and final B in [-3,3], exactly representable in binary32/binary64.",
+    "passes": 1,
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "input_modified": false
+  },
+  "input": {
+    "maximum_valid_length": 321,
+    "maximum_parseable_length": 321,
+    "n_range": [
+      1,
+      64
+    ],
+    "null_input_result": -1
+  },
+  "output": {
+    "maximum_elements": 128,
+    "no_write_on_error": true,
+    "null_output_result": -2,
+    "short_capacity_result": -2
+  },
+  "workspace": {
+    "elements": 128,
+    "bytes": 1024,
+    "meaning": "Staged final A/B output arrays."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 0,
+    "relative_tolerance": 0
+  },
+  "cases": [
+    {
+      "id": "one-element",
+      "input_values": [
+        1,
+        0,
+        1,
+        -1,
+        1,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": 2,
+      "expected_output": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "id": "carried-state",
+      "input_values": [
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        -1,
+        1,
+        1,
+        0,
+        1,
+        -1,
+        1
+      ],
+      "input_length": 21,
+      "expected_result": 8,
+      "expected_output": [
+        0.0,
+        1.0,
+        -2.0,
+        0.0,
+        1.0,
+        0.0,
+        -1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "negative-multiplier",
+      "input_values": [
+        3,
+        1,
+        1,
+        -1,
+        0,
+        1,
+        1,
+        1,
+        -1,
+        1,
+        0,
+        1,
+        1,
+        -1,
+        1,
+        1
+      ],
+      "input_length": 16,
+      "expected_result": 6,
+      "expected_output": [
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        2.0,
+        1.0
+      ]
+    },
+    {
+      "id": "invalid-n",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated",
+      "input_values": [
+        2,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-bound",
+      "input_values": [
+        1,
+        0,
+        2,
+        0,
+        0,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short-capacity",
+      "input_values": [
+        1,
+        0,
+        1,
+        -1,
+        1,
+        1
+      ],
+      "input_length": 6,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-output",
+      "input_values": [
+        1,
+        0,
+        1,
+        -1,
+        1,
+        1
+      ],
+      "input_length": 6,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

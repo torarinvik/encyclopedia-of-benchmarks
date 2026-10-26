@@ -1,0 +1,17 @@
+# Clean-room TSVC s1213 profile; see package rights note.
+const MAX_INPUT_LENGTH:usize=129
+def put64(v:i64,out:mutable u8&,off:usize)->void:
+ bits:u64=v.u64();k:mutable usize=0
+ while k<8:out[off+k]<-((bits>>(8*k))&255).u8();k<-k+1
+def tsvc_s1213_ordered_neighbor_array_map_impl(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64:
+ if input.is_null() or length<13 or length>MAX_INPUT_LENGTH:return -1
+ nr:i64=input[0];if nr<3 or nr>32:return -1
+ n:usize=nr.usize();if length!=1+4*n:return -1
+ a:mutable i64[32]=zeroed;b:mutable i64[32]=zeroed;c:mutable i64[32]=zeroed;d:mutable i64[32]=zeroed;i:mutable usize=0
+ while i<n:x:i64=input[1+i];y:i64=input[1+n+i];z:i64=input[1+2*n+i];w:i64=input[1+3*n+i];if x< -1 or x>1 or y< -1 or y>1 or z< -1 or z>1 or w< -1 or w>1:return -1;a[i]<-x;b[i]<-y;c[i]<-z;d[i]<-w;i<-i+1
+ if out.is_null() or cap<16*n:return -2
+ i<-1
+ while i<n-1:a[i]<-b[i-1]+c[i];b[i]<-a[i+1]*d[i];i<-i+1
+ i<-0;while i<n:put64(a[i],out,8*i);put64(b[i],out,8*(n+i));i<-i+1
+ (2*n).i64()
+export fn tsvc_s1213_ordered_neighbor_array_map(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64=tsvc_s1213_ordered_neighbor_array_map_impl

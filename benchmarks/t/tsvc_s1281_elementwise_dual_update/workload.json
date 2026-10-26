@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s1281-elementwise-dual-update-i64-array-bytes-v1",
+  "algorithm": "tsvc_s1281_elementwise_dual_update",
+  "function_symbol": "tsvc_s1281_elementwise_dual_update",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded clean-room profile of TSVC CrossingThresholds s1281's elementwise affine update with two observable outputs.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s1281",
+    "source_lines": [3264, 3291],
+    "initializer_call": "init(\"s281 \")",
+    "launcher_paths": ["TSVC/CrossingThresholds-dbl/info.sh", "TSVC/CrossingThresholds-flt/info.sh"],
+    "attribution": "TSVC comments attribute the non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit modification or redistribution grant was found in the pinned materials reviewed; these are clean-room ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "info_path": "TSVC/CrossingThresholds-dbl/info.sh",
+    "bench_name": "CrossingThresholds-dbl",
+    "source_files": ["dummy.c", "tsc.c"],
+    "compile_flags": ["-std=gnu99", "-lm"],
+    "run_options": ["5880", "14"]
+  },
+  "contract": {
+    "operation": "For each pass and ascending i, evaluate x=(B[i]*C[i]+A[i]*D[i])+E[i], then store A[i]=x-1 followed by B[i]=x.",
+    "input_layout": "[n,passes,A[n],B[n],C[n],D[n],E[n]]",
+    "n_range": [1, 16],
+    "passes_range": [1, 8],
+    "value_range": [-1, 1],
+    "exact_length": "2+5*n",
+    "output_encoding": "Final A followed by final B as little-endian signed i64 values.",
+    "success_result": "16*n bytes",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "input_modified": false,
+    "arithmetic": "The source declares TYPE double/float by launcher. Inputs are small integers and all bounded intermediates are exactly representable in binary32 and binary64; the explicit expression grouping is preserved."
+  },
+  "input": {"kind":"signed_i64_array","maximum_valid_length":82,"maximum_parseable_length":82,"invalid_input_result":-1,"null_input_result":-1},
+  "output": {"kind":"byte_array","encoding":"Little-endian signed i64; A then B","maximum_bytes":256,"success_result":"16*n bytes","null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "workspace": {"bytes":256,"meaning":"Staging for final A and B arrays."},
+  "measurement": {"comparison_model":"i64_array_bytes_output_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
+  "cases": [
+    {"id":"multi-pass-two-output","input_values":[2,2,1,-1,1,0,1,-1,1,1,1,-1],"input_length":12,"output_capacity":256,"expected_result":32,"expected_output_hex":"0500000000000000fdffffffffffffff0600000000000000feffffffffffffff"},
+    {"id":"single-element","input_values":[1,1,0,1,-1,1,0],"input_length":7,"output_capacity":16,"expected_result":16,"expected_output_hex":"feffffffffffffffffffffffffffffff"},
+    {"id":"zero-size","input_values":[0,1],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-passes","input_values":[1,0,0,0,0,0,0],"input_length":7,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated","input_values":[1,1,0,0],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-value","input_values":[1,1,0,0,0,0,0,0],"input_length":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"input-out-of-range","input_values":[1,1,0,0,2,0,0],"input_length":7,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,0,0,0,0,0],"input_length":7,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-capacity","input_values":[1,1,0,0,0,0,0],"input_length":7,"output_capacity":15,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

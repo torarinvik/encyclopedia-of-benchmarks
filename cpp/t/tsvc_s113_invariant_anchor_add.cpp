@@ -1,0 +1,5 @@
+// Clean-room TSVC s113 profile; see package rights note.
+#include <cstddef>
+#include <cstdint>
+static void put64(std::uint8_t*o,std::size_t p,std::int64_t v){auto b=static_cast<std::uint64_t>(v);for(std::size_t j=0;j<8;++j){o[p+j]=static_cast<std::uint8_t>(b);b>>=8;}}
+extern "C" std::int64_t tsvc_s113_invariant_anchor_add(const std::int64_t*in,std::size_t len,std::uint8_t*out,std::size_t cap){if(!in||len<3||len>129)return -1;if(in[0]<1||in[0]>64)return -1;auto n=static_cast<std::size_t>(in[0]);if(len!=1+2*n)return -1;std::int64_t a[64],b[64];for(std::size_t i=0;i<n;++i){auto x=in[1+i],y=in[1+n+i];if(x< -2||x>2||y< -2||y>2)return -1;a[i]=x;b[i]=y;}if(!out||cap<8*n)return -2;const auto anchor=a[0];for(std::size_t i=1;i<n;++i)a[i]=anchor+b[i];for(std::size_t i=0;i<n;++i)put64(out,8*i,a[i]);return static_cast<std::int64_t>(n);}

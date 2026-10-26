@@ -1,0 +1,196 @@
+const PB_MAX_POINTS: usize = 8
+const PB_MAX_NODES: usize = 15
+const PB_LEAF_SIZE: i64 = 2
+
+struct PBPoint:
+    x: i64
+    y: i64
+struct PBNode:
+    left: i64
+    right: i64
+    start: i64
+    count: i64
+    min_x: i64
+    min_y: i64
+    max_x: i64
+    max_y: i64
+struct PBTree:
+    points: PBPoint[8]
+    order: i64[8]
+    scratch: i64[8]
+    nodes: PBNode[15]
+    used: i64
+
+def pb_build(tree: mutable PBTree&, start: i64, count: i64) -> i64:
+    id: mutable i64 = tree.used
+    tree.used <- tree.used + 1
+    first: PBPoint = tree.points[tree.order[(start).usize()].usize()]
+    node: mutable PBNode = PBNode{left: -1, right: -1, start: start, count: count,
+                                  min_x: first.x, min_y: first.y, max_x: first.x, max_y: first.y}
+    i: mutable i64 = 1
+    while i < count:
+        p: PBPoint = tree.points[tree.order[(start + i).usize()].usize()]
+        if p.x < node.min_x: node.min_x <- p.x
+        if p.x > node.max_x: node.max_x <- p.x
+        if p.y < node.min_y: node.min_y <- p.y
+        if p.y > node.max_y: node.max_y <- p.y
+        i <- i + 1
+    if count <= PB_LEAF_SIZE:
+        tree.nodes[id.usize()] <- node
+        return id
+    axis_x: bool = (node.max_x - node.min_x) > (node.max_y - node.min_y)
+    midpoint_twice: i64 = if axis_x: node.min_x + node.max_x else: node.min_y + node.max_y
+    left_count: mutable i64 = 0
+    i <- 0
+    while i < count:
+        p <- tree.points[tree.order[(start + i).usize()].usize()]
+        coordinate: i64 = if axis_x: p.x else: p.y
+        if 2 * coordinate < midpoint_twice: left_count <- left_count + 1
+        i <- i + 1
+    if left_count == 0 or left_count == count:
+        left_count <- (count + 1) / 2
+        i <- 0
+        while i < count:
+            tree.scratch[i.usize()] <- tree.order[(start + i).usize()]
+            i <- i + 1
+    else:
+        l: mutable i64 = 0
+        r: mutable i64 = left_count
+        i <- 0
+        while i < count:
+            index: i64 = tree.order[(start + i).usize()]
+            p <- tree.points[index.usize()]
+            coordinate <- if axis_x: p.x else: p.y
+            if 2 * coordinate < midpoint_twice:
+                tree.scratch[l.usize()] <- index
+                l <- l + 1
+            else:
+                tree.scratch[r.usize()] <- index
+                r <- r + 1
+            i <- i + 1
+    i <- 0
+    while i < count:
+        tree.order[(start + i).usize()] <- tree.scratch[i.usize()]
+        i <- i + 1
+    node.left <- pb_build(tree, start, left_count)
+    node.right <- pb_build(tree, start + left_count, count - left_count)
+    node.count <- 0
+    tree.nodes[id.usize()] <- node
+    id
+
+def pb_box_distance(a: PBNode, b: PBNode) -> i64:
+    dx: mutable i64 = 0
+    dy: mutable i64 = 0
+    if a.max_x < b.min_x: dx <- b.min_x - a.max_x
+    else if b.max_x < a.min_x: dx <- a.min_x - b.max_x
+    if a.max_y < b.min_y: dy <- b.min_y - a.max_y
+    else if b.max_y < a.min_y: dy <- a.min_y - b.max_y
+    dx * dx + dy * dy
+
+def pb_search(a: PBTree&, ai: i64, b: PBTree&, bi: i64, best: mutable i64&) -> void:
+    na: PBNode = a.nodes[ai.usize()]
+    nb: PBNode = b.nodes[bi.usize()]
+    if pb_box_distance(na, nb) > best: return
+    a_leaf: bool = na.left < 0
+    b_leaf: bool = nb.left < 0
+    if a_leaf and b_leaf:
+        i: mutable i64 = 0
+        while i < na.count:
+            p: PBPoint = a.points[a.order[(na.start + i).usize()].usize()]
+            j: mutable i64 = 0
+            while j < nb.count:
+                q: PBPoint = b.points[b.order[(nb.start + j).usize()].usize()]
+                dx: i64 = p.x - q.x
+                dy: i64 = p.y - q.y
+                distance: i64 = dx * dx + dy * dy
+                if distance < best: best <- distance
+                j <- j + 1
+            i <- i + 1
+    else if a_leaf:
+        l: i64 = nb.left
+        r: i64 = nb.right
+        if pb_box_distance(na, b.nodes[l.usize()]) < pb_box_distance(na, b.nodes[r.usize()]):
+            pb_search(a, ai, b, l, best)
+            pb_search(a, ai, b, r, best)
+        else:
+            pb_search(a, ai, b, r, best)
+            pb_search(a, ai, b, l, best)
+    else if b_leaf:
+        l: i64 = na.left
+        r: i64 = na.right
+        if pb_box_distance(nb, a.nodes[l.usize()]) < pb_box_distance(nb, a.nodes[r.usize()]):
+            pb_search(a, l, b, bi, best)
+            pb_search(a, r, b, bi, best)
+        else:
+            pb_search(a, r, b, bi, best)
+            pb_search(a, l, b, bi, best)
+    else:
+        pairs: mutable i64[8] = zeroed
+        pairs[0] <- na.left; pairs[1] <- nb.left
+        pairs[2] <- na.left; pairs[3] <- nb.right
+        pairs[4] <- na.right; pairs[5] <- nb.left
+        pairs[6] <- na.right; pairs[7] <- nb.right
+        distances: mutable i64[4] = zeroed
+        i <- 0
+        while i < 4:
+            distances[i.usize()] <- pb_box_distance(a.nodes[pairs[(2 * i).usize()].usize()], b.nodes[pairs[(2 * i + 1).usize()].usize()])
+            i <- i + 1
+        i <- 1
+        while i < 4:
+            p0: i64 = pairs[(2 * i).usize()]
+            p1: i64 = pairs[(2 * i + 1).usize()]
+            d: i64 = distances[i.usize()]
+            j: mutable i64 = i
+            while j > 0 and d < distances[(j - 1).usize()]:
+                pairs[(2 * j).usize()] <- pairs[(2 * (j - 1)).usize()]
+                pairs[(2 * j + 1).usize()] <- pairs[(2 * (j - 1) + 1).usize()]
+                distances[j.usize()] <- distances[(j - 1).usize()]
+                j <- j - 1
+            pairs[(2 * j).usize()] <- p0; pairs[(2 * j + 1).usize()] <- p1; distances[j.usize()] <- d
+            i <- i + 1
+        i <- 0
+        while i < 4:
+            pb_search(a, pairs[(2 * i).usize()], b, pairs[(2 * i + 1).usize()], best)
+            i <- i + 1
+
+def pb_write_i64(output: mutable u8&, value: i64) -> void:
+    bits: u64 = value.u64()
+    i: mutable usize = 0
+    while i < 8:
+        output[i] <- (bits >> (8 * i)).u8()
+        i <- i + 1
+
+def pargeo_bichromatic_closest_pair_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 10 or length > 34: return -1
+    if input[0] < 2 or input[0] > 8 or input[1] < 2 or input[1] > 8: return -1
+    na: i64 = input[0]
+    nb: i64 = input[1]
+    if length != (2 + 2 * (na + nb)).usize(): return -1
+    i: mutable usize = 2
+    while i < length:
+        if input[i] < -1000000 or input[i] > 1000000: return -1
+        i <- i + 1
+    if output == null or capacity < 8: return -2
+    a: mutable PBTree = zeroed
+    b: mutable PBTree = zeroed
+    i <- 0
+    while i < na.usize():
+        a.points[i] <- PBPoint{x: input[2 + 2 * i], y: input[3 + 2 * i]}
+        a.order[i] <- i.i64()
+        i <- i + 1
+    offset: usize = 2 + 2 * na.usize()
+    i <- 0
+    while i < nb.usize():
+        b.points[i] <- PBPoint{x: input[offset + 2 * i], y: input[offset + 2 * i + 1]}
+        b.order[i] <- i.i64()
+        i <- i + 1
+    ra: i64 = pb_build(a, 0, na)
+    rb: i64 = pb_build(b, 0, nb)
+    best: mutable i64 = 9223372036854775807
+    pb_search(a, ra, b, rb, best)
+    pb_write_i64(output, best)
+    8
+
+export fn pargeo_bichromatic_closest_pair(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = pargeo_bichromatic_closest_pair_impl

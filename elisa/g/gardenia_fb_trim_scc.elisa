@@ -1,0 +1,74 @@
+# Clean-room bounded GARDENIA Forward-Backward-Trim SCC profile.
+def gardenia_fb_trim_scc_reach(active: u64, pivot: usize, adjacent: bool[256]&, reverse: bool, n: usize) -> u64:
+    seen: mutable u64 = 1.u64() << pivot
+    while true:
+        expanded: mutable u64 = seen
+        for u in 0..<n:
+            ub: u64 = 1.u64() << u
+            if (seen & ub)==0 or (active & ub)==0: continue
+            for v in 0..<n:
+                vb: u64 = 1.u64() << v
+                edge: bool = if reverse: adjacent[v*16+u] else: adjacent[u*16+v]
+                if (active & vb)!=0 and edge: expanded <- expanded | vb
+        if expanded==seen: return seen
+        seen <- expanded
+
+def gardenia_fb_trim_scc_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset+byte] <- ((bits >> (8*byte)) & 255.u64()).u8()
+
+def gardenia_fb_trim_scc(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("gardenia_fb_trim_scc"):
+    if input.is_null() or length<2 or length>130: return -1
+    n64: i64=input[0]; m64: i64=input[1]
+    if n64<1 or n64>16 or m64<0 or m64>64 or length!=2+2*m64.usize(): return -1
+    n: usize=n64.usize(); m: usize=m64.usize()
+    adjacent: mutable bool[256]=zeroed
+    for e in 0..<m:
+        u64: i64=input[2+2*e]; v64: i64=input[3+2*e]
+        if u64<0 or u64>=n64 or v64<0 or v64>=n64: return -1
+        u: usize=u64.usize(); v: usize=v64.usize()
+        if adjacent[u*16+v]: return -1
+        adjacent[u*16+v] <- true
+    output_bytes: usize=8*n
+    if output.is_null() or capacity<output_bytes: return -2
+    labels: mutable i64[16]=zeroed
+    tasks: mutable u64[34]=zeroed
+    task_count: mutable usize=1
+    tasks[0] <- (1.u64()<<n)-1
+    while task_count>0:
+        task_count <- task_count-1
+        active: mutable u64=tasks[task_count]
+        while active!=0:
+            trimmed: mutable u64=0
+            for u in 0..<n:
+                ub: u64=1.u64()<<u
+                if (active & ub)==0: continue
+                has_in: mutable bool=false; has_out: mutable bool=false
+                for v in 0..<n:
+                    if (active & (1.u64()<<v))==0: continue
+                    has_out <- has_out or adjacent[u*16+v]
+                    has_in <- has_in or adjacent[v*16+u]
+                if not has_in or not has_out: trimmed <- trimmed | ub
+            if trimmed==0: break
+            for u in 0..<n:
+                if (trimmed & (1.u64()<<u))!=0: labels[u] <- u.i64()
+            active <- active & ~trimmed
+        if active==0: continue
+        pivot: mutable usize=0
+        while (active & (1.u64()<<pivot))==0: pivot <- pivot+1
+        forward: u64=gardenia_fb_trim_scc_reach(active,pivot,adjacent&,false,n)
+        backward: u64=gardenia_fb_trim_scc_reach(active,pivot,adjacent&,true,n)
+        component: u64=forward & backward
+        representative: mutable usize=0
+        while (component & (1.u64()<<representative))==0: representative <- representative+1
+        for u in 0..<n:
+            if (component & (1.u64()<<u))!=0: labels[u] <- representative.i64()
+        children: u64[3]={active & ~(forward | backward),forward & ~backward,backward & ~forward}
+        for child in 0..<3:
+            if children[child]!=0:
+                if task_count>=34: return -1
+                tasks[task_count] <- children[child]
+                task_count <- task_count+1
+    for u in 0..<n: gardenia_fb_trim_scc_store(labels[u],output&,8*u)
+    output_bytes.i64()

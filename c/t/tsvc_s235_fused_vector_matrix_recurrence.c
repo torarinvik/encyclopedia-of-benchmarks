@@ -1,0 +1,5 @@
+/* Clean-room TSVC s235 profile; see package rights note. */
+#include <stddef.h>
+#include <stdint.h>
+static void put64(uint8_t*o,size_t p,int64_t v){uint64_t b=(uint64_t)v;for(size_t k=0;k<8;k++){o[p+k]=(uint8_t)b;b>>=8;}}
+int64_t tsvc_s235_fused_vector_matrix_recurrence(const int64_t*in,size_t len,uint8_t*out,size_t cap){if(!in||len<15||len>153)return -1;int64_t nr=in[0];if(nr<2||nr>8)return -1;size_t n=(size_t)nr,nn=n*n;if(len!=1+3*n+2*nn)return -1;int64_t a[8],b[8],c[8],aa[64],bb[64];size_t p=1;for(size_t i=0;i<n;i++){int64_t x=in[p++];if(x< -1||x>1)return -1;a[i]=x;}for(size_t i=0;i<n;i++){int64_t x=in[p++];if(x< -1||x>1)return -1;b[i]=x;}for(size_t i=0;i<n;i++){int64_t x=in[p++];if(x< -1||x>1)return -1;c[i]=x;}for(size_t i=0;i<nn;i++){int64_t x=in[p++];if(x< -1||x>1)return -1;aa[i]=x;}for(size_t i=0;i<nn;i++){int64_t x=in[p++];if(x< -1||x>1)return -1;bb[i]=x;}if(!out||cap<8*(n+nn))return -2;for(size_t col=0;col<n;col++){a[col]+=b[col]*c[col];for(size_t row=1;row<n;row++){size_t k=row*n+col;aa[k]=aa[k-n]+bb[k]*a[col];}}for(size_t i=0;i<n;i++)put64(out,8*i,a[i]);for(size_t i=0;i<nn;i++)put64(out,8*(n+i),aa[i]);return (int64_t)(n+nn);}

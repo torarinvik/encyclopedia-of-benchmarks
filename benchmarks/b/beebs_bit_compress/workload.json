@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "beebs-masked-bit-compress-i64-array-scalar-v1",
+  "algorithm": "beebs_bit_compress",
+  "function_symbol": "beebs_bit_compress",
+  "description": "Extract the data bits selected by a 32-bit mask and pack them in low-to-high source-bit order.",
+  "pinned_source": {
+    "repository": "mageec/beebs",
+    "commit": "049ded9f3aeb5591f553879d3a0376b8614e9422",
+    "path": "src/aha-compress/compress_test.c",
+    "symbols": ["compress1", "compress2", "compress3", "compress4"],
+    "url": "https://github.com/mageec/beebs/blob/049ded9f3aeb5591f553879d3a0376b8614e9422/src/aha-compress/compress_test.c",
+    "spdx": "GPL-3.0-or-later",
+    "rights_note": "The pinned benchmark file declares GPL-3.0-or-later. The nine ports are independently written from the bit-compress operation and the published test vectors; no source implementation text or comments are copied. The source comment does not identify a separate license for its GLS attribution."
+  },
+  "contract": {
+    "operation": "For each bit position j whose mask bit is 1, copy data bit j into the next result bit, beginning at bit 0 and visiting source positions from low to high.",
+    "input_layout": "[data_u32, mask_u32]",
+    "input_length": 2,
+    "input_value_range": [0, 4294967295],
+    "invalid_result": -1,
+    "algorithm_scope": "The 32-bit bit-compress primitive only. BEEBS compress1 through compress4 are alternate implementations of the same operation; the benchmark repeat loop and harness are excluded."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "exact_length": 2,
+    "maximum_length": 2,
+    "maximum_parseable_length": 3,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "32-bit result containing the selected data bits compacted from bit 0 upward",
+    "range": "0 through 4294967295",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"source_vector_01","input_values":[4294967295,2147483648],"input_length":2,"expected_result":1},
+    {"id":"source_vector_02","input_values":[4294967295,1050698],"input_length":2,"expected_result":31},
+    {"id":"source_vector_03","input_values":[4294967295,1431655765],"input_length":2,"expected_result":65535},
+    {"id":"source_vector_04","input_values":[4294967295,2296385365],"input_length":2,"expected_result":8191},
+    {"id":"source_vector_05","input_values":[19088743,65535],"input_length":2,"expected_result":17767},
+    {"id":"source_vector_06","input_values":[19088743,4294901760],"input_length":2,"expected_result":291},
+    {"id":"source_vector_07","input_values":[4294967295,4294967295],"input_length":2,"expected_result":4294967295},
+    {"id":"source_vector_08","input_values":[0,0],"input_length":2,"expected_result":0},
+    {"id":"source_vector_09","input_values":[0,4294967295],"input_length":2,"expected_result":0},
+    {"id":"source_vector_10","input_values":[4294967295,0],"input_length":2,"expected_result":0},
+    {"id":"source_vector_11","input_values":[2147483648,2147483648],"input_length":2,"expected_result":1},
+    {"id":"source_vector_12","input_values":[1431655765,1431655765],"input_length":2,"expected_result":65535},
+    {"id":"source_vector_13","input_values":[1431655765,2863311530],"input_length":2,"expected_result":0},
+    {"id":"source_vector_14","input_values":[2023406814,252645135],"input_length":2,"expected_result":35534},
+    {"id":"source_vector_15","input_values":[2023406814,4042322160],"input_length":2,"expected_result":31165},
+    {"id":"source_vector_16","input_values":[2452903544,2147483648],"input_length":2,"expected_result":1},
+    {"id":"source_vector_17","input_values":[305419896,4026750293],"input_length":2,"expected_result":1260},
+    {"id":"source_vector_18","input_values":[2147483648,4026750293],"input_length":2,"expected_result":8192},
+    {"id":"all_data_bits_selected","input_values":[305419896,4294967295],"input_length":2,"expected_result":305419896},
+    {"id":"high_source_bit_compacts_after_low","input_values":[2147483648,2147483651],"input_length":2,"expected_result":4},
+    {"id":"negative_data_rejected","input_values":[-1,1],"input_length":2,"expected_result":-1},
+    {"id":"oversized_mask_rejected","input_values":[0,4294967296],"input_length":2,"expected_result":-1},
+    {"id":"short_frame_rejected","input_values":[7],"input_length":1,"expected_result":-1},
+    {"id":"long_frame_rejected","input_values":[7,3,1],"input_length":3,"expected_result":-1}
+  ]
+}

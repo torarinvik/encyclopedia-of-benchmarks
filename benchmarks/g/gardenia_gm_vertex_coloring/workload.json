@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "gardenia-gm-vertex-coloring-i64-array-bytes-output-v1",
+  "algorithm": "gardenia_gm_vertex_coloring",
+  "function_symbol": "gardenia_gm_vertex_coloring",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded speculative first-fit graph coloring with iterative conflict requeueing.",
+  "source": {
+    "repository": "chenxuhao/gardenia",
+    "commit": "5894df11cf47f8839945edadff43dc79e260216d",
+    "path": "src/vc/linear_base.cu",
+    "symbols": ["first_fit", "conflict_resolve", "VCSolver"],
+    "url": "https://github.com/chenxuhao/gardenia/blob/5894df11cf47f8839945edadff43dc79e260216d/src/vc/linear_base.cu",
+    "related_paths": ["src/vc/vc.h", "src/vc/main.cc", "src/vc/verifier.cc"],
+    "license_path": "LICENSE",
+    "license": "MIT"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, undirected_edge_count, (u, v)...]",
+    "node_count_range": [1, 16],
+    "edge_count_range": [0, 64],
+    "maximum_valid_length": 130,
+    "edge_semantics": "Simple undirected graph with canonical 0 <= u < v < node_count pairs.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "One zero-based color ID per vertex in ascending vertex order.",
+    "maximum_values": 16,
+    "maximum_bytes": 128,
+    "success_result": "8 * node_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Staged maximum-sized color vector; output is written only after complete validation and capacity checks."
+  },
+  "contract": {
+    "operation": "Initialize all vertices uncolored. In each worklist round, each pending vertex picks the lowest color not used by already-colored neighbors from the start-of-round snapshot. The conflict phase requeues the lower-ID endpoint of each same-color edge and resets only that endpoint to the uncolored sentinel.",
+    "round_order": "Vertices and adjacency rows use ascending ID order; first-fit assignments read the prior-round color snapshot, then conflicts are resolved after all assignments.",
+    "max_color": 128,
+    "profile_projection": "The source's linear CUDA first-fit/conflict worklist phases are preserved with deterministic single-worker ordering. The OpenMP path's uncolored-sentinel indexing is avoided by following the linear CUDA variant's explicit sentinel check.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"three-vertex-path","input_values":[3,2,0,1,1,2],"input_length":6,"output_capacity":24,"expected_result":24,"expected_output_hex":"000000000000000001000000000000000000000000000000"},
+    {"id":"triangle-recolors-lower-endpoints","input_values":[3,3,0,1,0,2,1,2],"input_length":8,"output_capacity":24,"expected_result":24,"expected_output_hex":"020000000000000001000000000000000000000000000000"},
+    {"id":"four-cycle","input_values":[4,4,0,1,1,2,2,3,0,3],"input_length":10,"output_capacity":32,"expected_result":32,"expected_output_hex":"0100000000000000000000000000000001000000000000000000000000000000"},
+    {"id":"isolated-vertices","input_values":[4,0],"input_length":2,"output_capacity":32,"expected_result":32,"expected_output_hex":"0000000000000000000000000000000000000000000000000000000000000000"},
+    {"id":"maximum-complete-bipartite-graph","input_values":[16,64,0,8,0,9,0,10,0,11,0,12,0,13,0,14,0,15,1,8,1,9,1,10,1,11,1,12,1,13,1,14,1,15,2,8,2,9,2,10,2,11,2,12,2,13,2,14,2,15,3,8,3,9,3,10,3,11,3,12,3,13,3,14,3,15,4,8,4,9,4,10,4,11,4,12,4,13,4,14,4,15,5,8,5,9,5,10,5,11,5,12,5,13,5,14,5,15,6,8,6,9,6,10,6,11,6,12,6,13,6,14,6,15,7,8,7,9,7,10,7,11,7,12,7,13,7,14,7,15],"input_length":130,"output_capacity":128,"expected_result":128,"expected_output_hex":"01000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"},
+    {"id":"duplicate-edge-invalid","input_values":[2,2,0,1,0,1],"input_length":6,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"reversed-edge-invalid","input_values":[2,1,1,0],"input_length":4,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[2,1,0],"input_length":3,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,0],"input_length":2,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,0],"input_length":2,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":128,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

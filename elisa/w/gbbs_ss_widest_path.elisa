@@ -1,0 +1,67 @@
+# Clean-room bounded GBBS widest-path profile; see package LICENSE.txt.
+const GBBS_WIDEST_MAX_N: usize = 16
+const GBBS_WIDEST_MAX_M: usize = 64
+const GBBS_WIDEST_MAX_INPUT: usize = 195
+const GBBS_WIDEST_SOURCE_INFINITY: i64 = 2147483647
+
+def gbbs_widest_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def gbbs_ss_widest_path(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("gbbs_ss_widest_path"):
+    if input.is_null() or length < 3 or length > GBBS_WIDEST_MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    source64: i64 = input[2]
+    if n64 < 1 or n64 > 16 or m64 < 0 or m64 > 64 or source64 < 0 or source64 >= n64:
+        return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    source: usize = source64.usize()
+    if length != 3 + 3 * m: return -1
+    edge_from: mutable usize[64] = zeroed
+    edge_to: mutable usize[64] = zeroed
+    edge_capacity: mutable i64[64] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        from: i64 = input[3 + 3 * edge]
+        to: i64 = input[4 + 3 * edge]
+        edge_width: i64 = input[5 + 3 * edge]
+        if from < 0 or from >= n64 or to < 0 or to >= n64 or edge_width < 1 or edge_width > 32: return -1
+        edge_from[edge] <- from.usize()
+        edge_to[edge] <- to.usize()
+        edge_capacity[edge] <- edge_width
+        edge <- edge + 1
+    output_bytes: usize = 8 * n
+    if output.is_null() or capacity < output_bytes: return -2
+
+    width: mutable i64[16] = zeroed
+    settled: mutable bool[16] = zeroed
+    width[source] <- GBBS_WIDEST_SOURCE_INFINITY
+    step: mutable usize = 0
+    while step < n:
+        u: mutable usize = n
+        vertex: mutable usize = 0
+        while vertex < n:
+            if !settled[vertex] and (u == n or width[vertex] > width[u]): u <- vertex
+            vertex <- vertex + 1
+        if u == n or width[u] == 0: break
+        settled[u] <- true
+        edge <- 0
+        while edge < m:
+            if edge_from[edge] == u:
+                v: usize = edge_to[edge]
+                if !settled[v]:
+                    candidate: mutable i64 = width[u]
+                    if edge_capacity[edge] < candidate: candidate <- edge_capacity[edge]
+                    if candidate > width[v]: width[v] <- candidate
+            edge <- edge + 1
+        step <- step + 1
+    vertex <- 0
+    while vertex < n:
+        gbbs_widest_store_i64_le(width[vertex], output, 8 * vertex)
+        vertex <- vertex + 1
+    output_bytes.i64()

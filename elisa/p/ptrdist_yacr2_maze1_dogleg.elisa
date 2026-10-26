@@ -1,0 +1,59 @@
+# Clean-room bounded YACR2 Maze1 profile; rights status is documented in package README.
+const MAX_COLUMNS: usize = 16
+const MAX_TRACKS: usize = 16
+
+def free_vertical(input: i64&, plane: usize, columns: usize, x: usize, y1: usize, y2: usize) -> bool:
+    low: usize = if y1 < y2: y1 else: y2
+    high: usize = if y1 < y2: y2 else: y1
+    y: mutable usize = low
+    while y <= high:
+        if input[plane + y * columns + x - 1] != 0: return false
+        y <- y + 1
+    true
+
+def free_horizontal(input: i64&, plane: usize, columns: usize, x1: usize, x2: usize, y: usize) -> bool:
+    low: usize = if x1 < x2: x1 else: x2
+    high: usize = if x1 < x2: x2 else: x1
+    x: mutable usize = low
+    while x <= high:
+        if input[plane + y * columns + x - 1] != 0: return false
+        x <- x + 1
+    true
+
+def try_dogleg(input: i64&, plane: usize, vcv: usize, columns: usize, tracks: usize,
+               column: usize, bottom: usize, top: usize, dx: i64, upper: bool) -> bool:
+    neighbor: usize = (column.i64() + dx).usize()
+    if upper:
+        jog: usize = bottom - 1
+        return free_vertical(input, plane, columns, column, tracks + 1, bottom) and
+            free_vertical(input, plane, columns, column, 0, jog) and
+            free_horizontal(input, plane, columns, column, neighbor, jog) and
+            free_vertical(input, plane, columns, neighbor, jog, top) and input[vcv + neighbor - 1] == 0
+    jog: usize = top + 1
+    free_vertical(input, plane, columns, column, 0, top) and
+        free_vertical(input, plane, columns, column, tracks + 1, jog) and
+        free_horizontal(input, plane, columns, column, neighbor, jog) and
+        free_vertical(input, plane, columns, neighbor, jog, bottom) and input[vcv + neighbor - 1] == 0
+
+def ptrdist_yacr2_maze1_dogleg_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 5: return -1
+    if input[0] < 2 or input[0] > 16 or input[1] < 2 or input[1] > 16: return -1
+    columns: usize = input[0].usize(); tracks: usize = input[1].usize()
+    if input[2] < 1 or input[2] > columns.i64() or input[3] < 1 or input[3] >= input[4] or input[4] > tracks.i64(): return -1
+    column: usize = input[2].usize(); bottom: usize = input[3].usize(); top: usize = input[4].usize()
+    if length != 5 + columns + columns * (tracks + 2): return -1
+    vcv: usize = 5; plane: usize = vcv + columns
+    i: mutable usize = vcv
+    while i < plane:
+        if input[i] != 0 and input[i] != 1: return -1
+        i <- i + 1
+    while i < length:
+        if input[i] != 0 and input[i] != 1: return -1
+        i <- i + 1
+    if bottom > 1 and column > 1 and try_dogleg(input, plane, vcv, columns, tracks, column, bottom, top, -1, true): return 1
+    if bottom > 1 and column < columns and try_dogleg(input, plane, vcv, columns, tracks, column, bottom, top, 1, true): return 2
+    if top < tracks and column > 1 and try_dogleg(input, plane, vcv, columns, tracks, column, bottom, top, -1, false): return 3
+    if top < tracks and column < columns and try_dogleg(input, plane, vcv, columns, tracks, column, bottom, top, 1, false): return 4
+    0
+
+export fn ptrdist_yacr2_maze1_dogleg(input: i64&, length: usize) -> i64 = ptrdist_yacr2_maze1_dogleg_impl

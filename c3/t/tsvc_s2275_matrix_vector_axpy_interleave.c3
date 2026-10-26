@@ -1,0 +1,13 @@
+module tsvc_s2275_matrix_vector_axpy_interleave;
+extern fn double trunc(double x);
+extern fn double fabs(double x);
+fn long long tsvc_s2275_matrix_vector_axpy_interleave(double* x,usz l,double* y,usz cap) @export("tsvc_s2275_matrix_vector_axpy_interleave"){
+ if(x==null||l<9||l>226)return -1;double rn=x[0];double rp=x[1];
+ if(rn!=rn||trunc(rn)!=rn||rn<1||rn>8||rp!=rp||trunc(rp)!=rp||rp<1||rp>8)return -1;
+ usz n=(usz)rn;usz passes=(usz)rp;usz ms=n*n;usz out_count=ms+n;if(l!=2+3*ms+4*n)return -1;
+ for(usz i=2;i<l;i++)if(x[i]!=x[i]||trunc(x[i])!=x[i]||fabs(x[i])>1)return -1;
+ if(y==null||cap<out_count)return -2;double[64] aa;double[8] a;usz bb=2+ms;usz cc=2+2*ms;usz vec=2+3*ms;
+ for(usz i=0;i<ms;i++)aa[i]=x[2+i];for(usz i=0;i<n;i++)a[i]=x[vec+i];
+ for(usz pass=0;pass<passes;pass++)for(usz i=0;i<n;i++){for(usz j=0;j<n;j++){usz k=j*n+i;aa[k]=aa[k]+x[bb+k]*x[cc+k];}a[i]=x[vec+n+i]+x[vec+2*n+i]*x[vec+3*n+i];}
+ for(usz i=0;i<ms;i++)y[i]=aa[i];for(usz i=0;i<n;i++)y[ms+i]=a[i];return (long long)out_count
+}

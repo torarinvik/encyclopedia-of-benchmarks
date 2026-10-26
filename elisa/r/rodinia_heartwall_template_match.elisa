@@ -1,0 +1,51 @@
+extern sqrt(value: f64) -> f64
+
+def rodinia_heartwall_template_match_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for b in 0..<8: output[offset + b] <- ((bits >> (8 * b)) & 255).u8()
+
+def rodinia_heartwall_template_match_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > 85: return -1
+    ir0: i64 = input[0]; ic0: i64 = input[1]; tr0: i64 = input[2]; tc0: i64 = input[3]; mask: i64 = input[4]
+    if ir0 < 2 or ir0 > 8 or ic0 < 2 or ic0 > 8 or tr0 < 2 or tr0 > 4 or tc0 < 2 or tc0 > 4 or tr0 > ir0 or tc0 > ic0 or mask < 0: return -1
+    ir: usize = ir0.usize(); ic: usize = ic0.usize(); tr: usize = tr0.usize(); tc: usize = tc0.usize()
+    nr: usize = ir - tr + 1; nc: usize = ic - tc + 1; count: usize = nr * nc
+    if (mask.u64() >> count) != 0 or length != 5 + tr * tc + ir * ic: return -1
+    for i in 5..<length:
+        if input[i] < 0 or input[i] > 255: return -1
+    nn: usize = tr * tc; ibase: usize = 5 + nn
+    tsum: mutable f32 = 0.0; tsq: mutable f32 = 0.0
+    for c in 0..<tc:
+        for r in 0..<tr:
+            x: f32 = input[5 + c * tr + r].f32()
+            tsum <- tsum + x; tsq <- tsq + x * x
+    nf: f32 = nn.f32(); tm: f32 = tsum / nf; tv: f32 = tsq / nf - tm * tm
+    if not (tv > 0.0): return -1
+    best: mutable f32 = 0.0; besti: mutable usize = 0; k: mutable usize = 0
+    for c0 in 0..<nc:
+        for r0 in 0..<nr:
+            if ((mask.u64() >> k) & 1) != 0:
+                ps: mutable f32 = 0.0; pq: mutable f32 = 0.0; dot: mutable f32 = 0.0
+                for c in 0..<tc:
+                    for r in 0..<tr:
+                        x: f32 = input[5 + c * tr + r].f32()
+                        y: f32 = input[ibase + (c0 + c) * ir + r0 + r].f32()
+                        ps <- ps + y; pq <- pq + y * y; dot <- dot + x * y
+                centered: mutable f32 = pq - ps * ps / nf
+                if centered < 0.0: centered <- 0.0
+                if not (centered > 0.0): return -1
+                numerator: f32 = dot - ps * tsum / nf
+                denom_t: f32 = sqrt((nn - 1).f32().f64()).f32() * sqrt(tv.f64()).f32()
+                denominator: f32 = sqrt(centered.f64()).f32() * denom_t
+                score: f32 = numerator / denominator
+                magnitude: f32 = if score < 0.0: -score else: score
+                if magnitude != magnitude: return -1
+                if magnitude > best: best <- magnitude; besti <- k
+            k <- k + 1
+    if output.is_null() or capacity < 8: return -2
+    rodinia_heartwall_template_match_put(besti.i64(), output, 0)
+    8
+
+export fn rodinia_heartwall_template_match(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = rodinia_heartwall_template_match_impl

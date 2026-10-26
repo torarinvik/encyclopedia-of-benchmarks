@@ -4,7 +4,7 @@ This package ports the `PolyBench/linear-algebra/kernels/bicg/bicg.c` kernel fro
 
 The `bicg` slug accepts signed 64-bit input `[m, n]`, with each dimension bounded to 1–64. The kernel zeroes `s`, then processes rows `i` in ascending order. For every row, it sets `q[i]` to zero and visits columns `j` in ascending order, first updating `s[j]` with `r[i] * A[i][j]`, then updating `q[i]` with `A[i][j] * p[j]`. The scalar result adds final `s` elements in ascending order followed by final `q` elements in ascending order, matching the order in which the source prints its live-out arrays. Invalid inputs return `-1e300`.
 
-The upstream launcher selects `EXTRALARGE_DATASET` (`m=27000`, `n=33000`) and runs without arguments; this bounded profile caps both dimensions at 64. Ports are provided in C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig. See [`workload.json`](workload.json) for source and launcher details, bounds, and cases. The upstream source has no explicit license notice; these are independently written ports of the published kernel.
+The upstream launcher selects `EXTRALARGE_DATASET` (`m=27000`, `n=33000`) and runs without arguments; this bounded profile caps both dimensions at 64. Ports are provided in C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig. See [`workload.json`](workload.json) for source and launcher details, bounds, and cases. The kernel file has no inline license header; the PolyBench repository-level Ohio State Software Distribution License is reproduced in this package's [`LICENSE.txt`](LICENSE.txt).
 
 Build and run a port with the shared ABI commands:
 

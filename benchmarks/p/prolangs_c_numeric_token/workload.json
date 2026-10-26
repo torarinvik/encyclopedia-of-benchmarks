@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "id": "prolangs-c-number-token-binary32-v1",
+  "algorithm": "prolangs_c_numeric_token",
+  "function_symbol": "prolangs_c_numeric_token",
+  "description": "Bounded clean-room profile of Prolangs-C compiler lexer Number tokenization and binary32 attributes.",
+  "source": {
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "revision": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Prolangs-C/compiler/lexer.c",
+    "symbol": "Number",
+    "launcher": "Prolangs-C/compiler/info.sh",
+    "rights": "No explicit license or redistribution grant is present in the pinned source directory; ports are clean-room and redistribute no upstream code."
+  },
+  "input": {
+    "kind": "ascii_numeric_lexeme_i64_array",
+    "minimum_length": 1,
+    "maximum_length": 24,
+    "byte_range": [32, 127],
+    "grammar": "unsigned decimal integer, or decimal real containing a dot and/or exponent; exponent may have a sign; integer part <= 2147483647; at most six fractional digits; exponent in [-6,6]",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "three_i32_words_le",
+    "length_bytes": 12,
+    "fields": ["token code (NUM=256, RNUM=2001)", "integer attribute", "signed word containing raw binary32 real-attribute bits"],
+    "success_result": 12,
+    "invalid_result": -1,
+    "short_or_null_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 0,
+    "meaning": "Bounded lexeme scan and scalar conversion only; ports use fixed local scalar state."
+  },
+  "numeric_profile": {
+    "binary_format": "IEEE-754 binary32",
+    "fraction_order": "convert fractional digits to binary32 integer; divide by 10 while >=1; divide by 10 once per leading fractional zero; add integer part",
+    "exponent_order": "multiply or divide by binary32 10 one iteration at a time",
+    "bare_dot": "accepted as RNUM with zero value, matching the pinned routine's behavior"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "integer-token", "input_values": [52, 50], "input_length": 2, "expected_output_hex": "000100002a00000000000000"},
+    {"id": "fraction-exact", "input_values": [51, 46, 49, 50, 53], "input_length": 5, "expected_output_hex": "d10700000300000000004840"},
+    {"id": "leading-fraction-dot", "input_values": [46, 53], "input_length": 2, "expected_output_hex": "d1070000000000000000003f"},
+    {"id": "decimal-trailing-dot", "input_values": [55, 46], "input_length": 2, "expected_output_hex": "d1070000070000000000e040"},
+    {"id": "positive-exponent", "input_values": [49, 50, 46, 53, 101, 49], "input_length": 6, "expected_output_hex": "d10700000c0000000000fa42"},
+    {"id": "negative-exponent", "input_values": [49, 50, 53, 101, 45, 49], "input_length": 6, "expected_output_hex": "d10700007d00000000004841"},
+    {"id": "bare-dot-source-quirk", "input_values": [46], "input_length": 1, "expected_output_hex": "d10700000000000000000000"},
+    {"id": "invalid-trailing-letter", "input_values": [49, 50, 120], "input_length": 3, "expected_result": -1},
+    {"id": "invalid-exponent-without-digits", "input_values": [49, 101], "input_length": 2, "expected_result": -1},
+    {"id": "invalid-leading-sign", "input_values": [45, 49], "input_length": 2, "expected_result": -1}
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "polybench-gramschmidt-modified-qr-float64-slice-io-v1",
+  "algorithm": "polybench_gramschmidt",
+  "function_symbol": "polybench_gramschmidt",
+  "description": "Run the bounded PolyBench modified Gram-Schmidt QR recurrence and emit R then Q.",
+  "pinned_sources": [
+    {"repository":"ferrandi/PolyBenchC","version":"4.2.1-beta","path":"linear-algebra/solvers/gramschmidt/gramschmidt.c","symbols":["init_array","kernel_gramschmidt","print_array"],"url":"https://github.com/ferrandi/PolyBenchC/blob/main/linear-algebra/solvers/gramschmidt/gramschmidt.c","role":"algorithm-and-initialization"},
+    {"repository":"ferrandi/PolyBenchC","version":"4.2.1-beta","path":"linear-algebra/solvers/gramschmidt/gramschmidt.h","symbols":["M","N","DATA_TYPE_IS_DOUBLE"],"url":"https://github.com/ferrandi/PolyBenchC/blob/main/linear-algebra/solvers/gramschmidt/gramschmidt.h","role":"dataset-and-type"},
+    {"repository":"ferrandi/PolyBenchC","version":"4.2.1-beta","path":"LICENSE.txt","symbols":["Ohio State University Software Distribution License"],"url":"https://github.com/ferrandi/PolyBenchC/blob/main/LICENSE.txt","role":"license"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/linear-algebra/solvers/gramschmidt/gramschmidt.c","symbols":["kernel_gramschmidt"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/solvers/gramschmidt/gramschmidt.c","role":"reproducibility-pin"}
+  ],
+  "source_bound": {
+    "official_version": "PolyBench/C 4.2.1 beta, source stamp May 10 2016",
+    "launcher_dataset": {"m":1000,"n":1200},
+    "suite_bounds": {"m":[1,6],"n":[1,6],"n_le_m":true},
+    "initialization": "A[i][j] = ((((i*j) mod m) / m) * 100) + 10 in binary64; Q and R start at zero.",
+    "kernel": "Modified Gram-Schmidt QR in k,i,j order: norm current A column; normalize Q; for each later j form R[k,j] then subtract Q[:,k]*R[k,j] from A[:,j].",
+    "output_order": "R row-major, then Q row-major."
+  },
+  "input": {"kind":"finite_float64_array","encoding":"[m,n] as exact integral binary64 values","input_length":2,"maximum_input_length":2,"dimension_ranges":{"m":[1,6],"n":[1,6]},"constraint":"n <= m","invalid_input_result":-1,"null_input_result":-1},
+  "contract": {"operation":"Compute the source-initialized modified Gram-Schmidt QR profile; return R followed by Q.","source_order":["initialize A row-major and zero Q,R","for k ascending accumulate squared current A column in i order","write R[k,k]=sqrt(norm_squared)","normalize Q[i,k] in ascending i","for j from k+1 ascending, accumulate R[k,j] in ascending i","update A[i,j] = A[i,j] - Q[i,k]*R[k,j] in ascending i"],"invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "output": {"kind":"float64_array","encoding":"n*n R values followed by m*n Q values, row-major within each matrix","maximum_elements":72,"success_result":"n*n + m*n output elements","absolute_tolerance":1e-12,"relative_tolerance":1e-12,"no_write_on_error":true},
+  "workspace": {"elements":72,"meaning":"Maximum output capacity for the concatenated R and Q matrices."},
+  "measurement": {"comparison_model":"float64_slice_io_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100,"absolute_tolerance":1e-12,"relative_tolerance":1e-12},
+  "cases": [
+    {"id":"one_column","input_values":[1,1],"input_length":2,"output_capacity":2,"expected_result":2,"expected_output":[10.0,1.0]},
+    {"id":"two_by_two_source_shaped","input_values":[2,2],"input_length":2,"output_capacity":8,"expected_result":8,"expected_output":[14.142135623730951,49.49747468305833,0.0,35.35533905932738,0.7071067811865475,0.7071067811865475,-0.7071067811865475,0.7071067811865475]},
+    {"id":"empty_invalid","input_values":[],"input_length":0,"expected_result":-1,"expected_output":[]},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output":[]},
+    {"id":"too_few_rows","input_values":[1,2],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"fractional_dimension","input_values":[2.5,2],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"first_unsupported_dimension","input_values":[7,1],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"short_output","input_values":[2,2],"input_length":2,"output_capacity":7,"expected_result":-2,"expected_output":[]}
+  ]
+}

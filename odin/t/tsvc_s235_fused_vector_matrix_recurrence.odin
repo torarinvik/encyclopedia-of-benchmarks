@@ -1,0 +1,6 @@
+// Clean-room TSVC s235 profile; see package rights note.
+package tsvc_s235_fused_vector_matrix_recurrence
+import "core:c"
+put64 :: proc "contextless"(o:[^]u8,p:int,v:i64){b:=u64(v);for k:=0;k<8;k+=1{o[p+k]=u8(b&255);b>>=8}}
+@(export)
+tsvc_s235_fused_vector_matrix_recurrence :: proc "c"(input:[^]i64,length:c.size_t,output:[^]u8,capacity:c.size_t)->i64{if input==nil||length<15||length>153 do return -1;nr:=input[0];if nr<2||nr>8 do return -1;n:=int(nr);nn:=n*n;if int(length)!=1+3*n+2*nn do return -1;var a:[8]i64;var b:[8]i64;var cvec:[8]i64;var aa:[64]i64;var bb:[64]i64;p:=1;for i:=0;i<n;i+=1{x:=input[p];p+=1;if x< -1||x>1 do return -1;a[i]=x};for i:=0;i<n;i+=1{x:=input[p];p+=1;if x< -1||x>1 do return -1;b[i]=x};for i:=0;i<n;i+=1{x:=input[p];p+=1;if x< -1||x>1 do return -1;cvec[i]=x};for i:=0;i<nn;i+=1{x:=input[p];p+=1;if x< -1||x>1 do return -1;aa[i]=x};for i:=0;i<nn;i+=1{x:=input[p];p+=1;if x< -1||x>1 do return -1;bb[i]=x};if output==nil||capacity<c.size_t(8*(n+nn)) do return -2;for col:=0;col<n;col+=1{a[col]+=b[col]*cvec[col];for row:=1;row<n;row+=1{k:=row*n+col;aa[k]=aa[k-n]+bb[k]*a[col]}};for i:=0;i<n;i+=1{put64(output,8*i,a[i])};for i:=0;i<nn;i+=1{put64(output,8*(n+i),aa[i])};return i64(n+nn)}

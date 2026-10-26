@@ -1,0 +1,3 @@
+// Clean-room TSVC s113 profile; see package rights note.
+#[no_mangle]
+pub unsafe extern "C" fn tsvc_s113_invariant_anchor_add(input:*const i64,length:usize,output:*mut u8,capacity:usize)->i64{if input.is_null()||length<3||length>129{return -1;}let v=core::slice::from_raw_parts(input,length);if v[0]<1||v[0]>64{return -1;}let n=v[0]as usize;if length!=1+2*n{return -1;}let mut a=[0i64;64];let mut b=[0i64;64];for i in 0..n{let x=v[1+i];let y=v[1+n+i];if !(-2..=2).contains(&x)||!(-2..=2).contains(&y){return -1;}a[i]=x;b[i]=y;}if output.is_null()||capacity<8*n{return -2;}let anchor=a[0];for i in 1..n{a[i]=anchor+b[i];}for i in 0..n{let bits=a[i]as u64;for j in 0..8{output.add(8*i+j).write((bits>>(8*j))as u8);}}n as i64}

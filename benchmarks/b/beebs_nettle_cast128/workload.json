@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "id": "beebs-nettle-cast128-one-block-i64-array-bytes-output-v1",
+  "algorithm": "beebs_nettle_cast128",
+  "function_symbol": "beebs_nettle_cast128",
+  "description": "Encrypt one 64-bit block in CAST-128 ECB mode using a 128-bit key.",
+  "pinned_source": {
+    "repository": "mageec/beebs",
+    "commit": "049ded9f3aeb5591f553879d3a0376b8614e9422",
+    "path": "src/nettle-cast128/cast128.c",
+    "symbols": ["cast128_set_key", "cast128_encrypt", "initialise_benchmark", "benchmark", "verify_benchmark"],
+    "url": "https://github.com/mageec/beebs/blob/049ded9f3aeb5591f553879d3a0376b8614e9422/src/nettle-cast128/cast128.c",
+    "spdx": "GPL-3.0-or-later",
+    "rights_note": "The per-file header declares GPL-3.0-or-later and copyrights Niels Möller (2001, 2010, 2014) and Embecosm Limited and the University of Bristol (2014). Nettle documentation credits the underlying CAST128 implementation to Steve Reid and describes it as public domain. The package ports were independently written from RFC 2144's algorithm and S-box tables, without copying BEEBS or Nettle implementation text. RFC 2144 section 3 states that the cipher is available royalty-free for commercial and non-commercial uses."
+  },
+  "contract": {
+    "mode": "ECB, exactly one 64-bit block, no padding or chaining",
+    "key_size_bytes": 16,
+    "block_size_bytes": 8,
+    "operation": "Apply RFC 2144 CAST-128 key expansion and the 16-round 128-bit-key encryption transform to the input block.",
+    "input_layout": "[key[16], plaintext_block[8]]",
+    "input_value_range": [0, 255],
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "algorithm_scope": "One block of encryption only. The pinned BEEBS timed function encrypts and decrypts two blocks; this bounded profile uses its first plaintext block and reports ciphertext."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "exact_length": 24,
+    "maximum_valid_input_length": 24,
+    "maximum_parseable_input_length": 25,
+    "byte_range": [0, 255],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "raw_bytes",
+    "layout": "Eight CAST-128 ciphertext bytes in network byte order.",
+    "success_result": 8,
+    "maximum_output_bytes": 8,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 8,
+    "meaning": "One 64-bit ciphertext block. Key-schedule state and round keys are bounded stack-local state."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "beebs_first_block",
+      "input_values": [15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0,0,1,2,3,4,5,6,7],
+      "input_length": 24,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "dd5cfb989b4ef1d8"
+    },
+    {
+      "id": "rfc2144_128_bit_known_answer",
+      "input_values": [1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205,239],
+      "input_length": 24,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "238b4fe5847e44b2"
+    },
+    {
+      "id": "negative_key_byte",
+      "input_values": [-1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205,239],
+      "input_length": 24,
+      "output_capacity": 8,
+      "expected_result": -1
+    },
+    {
+      "id": "byte_above_range",
+      "input_values": [1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205,256],
+      "input_length": 24,
+      "output_capacity": 8,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_frame",
+      "input_values": [1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205],
+      "input_length": 23,
+      "output_capacity": 8,
+      "expected_result": -1
+    },
+    {
+      "id": "extra_trailing_byte",
+      "input_values": [1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205,239,0],
+      "input_length": 25,
+      "output_capacity": 8,
+      "expected_result": -1
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 8,
+      "expected_result": -1
+    },
+    {
+      "id": "null_output",
+      "input_values": [1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205,239],
+      "input_length": 24,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205,239],
+      "input_length": 24,
+      "output_capacity": 7,
+      "expected_result": -2
+    }
+  ]
+}

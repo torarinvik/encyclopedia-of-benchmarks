@@ -1,0 +1,13 @@
+TSVC source attribution and rights note
+
+The behavior reference is the `s451` codelet in lac-dcc/Benchmarks,
+`TSVC/tsc.inc`, pinned at commit 5d7b75df749241efa7a6e6f5be613d3fcc5cce38.
+The TSVC source comments attribute its non-four-digit codelets to David
+Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing
+Compilers.
+
+No explicit license grant was found in the pinned source or repository
+material reviewed. These ports independently implement the bounded operation
+documented in README.md; they reuse no upstream source code or comments. No
+upstream license or endorsement is claimed. This note is not a license grant
+for upstream TSVC materials.

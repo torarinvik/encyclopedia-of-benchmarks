@@ -1,0 +1,4 @@
+// Clean-room TSVC s116 profile; see package rights note.
+fn put64(out &u8,p int,v i64){mut b:=u64(v);for j in 0..8{unsafe{out[p+j]=u8(b&255)};b>>=8}}
+@[export:'tsvc_s116_unrolled_product_chain']
+pub fn tsvc_s116_unrolled_product_chain(input &i64,length usize,output &u8,capacity usize)i64{if unsafe{input==nil}||length<8||length>23{return -1};nr:=unsafe{input[0]};pr:=unsafe{input[1]};if nr<6||nr>21||(nr-1)%5!=0||pr<1||pr>4{return -1};n:=int(nr);if int(length)!=2+n{return -1};mut a:=[21]i64{};for k in 0..n{x:=unsafe{input[2+k]};if x != -1&&x != 1{return -1};a[k]=x};if unsafe{output==nil}||capacity<usize(8*n){return -2};for _ in 0..int(pr){mut i:=0;for i<n-5{a[i]=a[i+1]*a[i];a[i+1]=a[i+2]*a[i+1];a[i+2]=a[i+3]*a[i+2];a[i+3]=a[i+4]*a[i+3];a[i+4]=a[i+5]*a[i+4];i+=5}};for k in 0..n{put64(output,8*k,a[k])};return i64(n)}

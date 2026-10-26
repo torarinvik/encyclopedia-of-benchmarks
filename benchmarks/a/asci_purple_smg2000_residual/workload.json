@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-asci-purple-smg2000-residual-float64-slice-io-v1",
+  "algorithm": "asci_purple_smg2000_residual",
+  "function_symbol": "asci_purple_smg2000_residual",
+  "description": "Bounded structured anisotropic 3D 7-point residual vector r=b-A*x.",
+  "pinned_sources": [
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"ASCI_Purple/smg2000.c","symbols":["main"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/ASCI_Purple/smg2000.c","role":"structured-stencil-and-coefficient-setup"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"ASCI_Purple/smg_residual.c","symbols":["hypre_SMGResidual"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/ASCI_Purple/smg_residual.c","role":"residual-kernel"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"ASCI_Purple/info.sh","symbols":["RUN_OPTIONS","source_files"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/ASCI_Purple/info.sh","role":"launcher"}
+  ],
+  "pinned_launcher": {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"ASCI_Purple/info.sh","bench_name":"smg2000","run_options":"-n 100 40 100 -c 0.1 1.0 10.0"},
+  "source_bound": {
+    "operation":"r=b-A*x",
+    "dimension":"3D structured 7-point Laplacian",
+    "coefficient_profile":{"cx":0.1,"cy":1.0,"cz":10.0,"diagonal":22.2},
+    "grid_layout":"row-major [i,j,k], k contiguous",
+    "boundary":"omit out-of-domain axial neighbors; retain diagonal coefficient",
+    "solver_scope":"residual kernel only; no multigrid hierarchy, communication, or solve loop"
+  },
+  "input": {"kind":"finite_float64_array","encoding":"[nx,ny,nz,x[cells],b[cells]]; all values exact integers","input_length":"3+2*nx*ny*nz","maximum_input_length":253,"dimension_ranges":{"nx":[2,5],"ny":[2,5],"nz":[2,5]},"field_range":[-1000,1000],"invalid_input_result":-1},
+  "contract": {"operation":"Return the full row-major residual vector for the fixed anisotropic structured Laplacian.","invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "output": {"kind":"float64_array","encoding":"nx*ny*nz residual values in row-major [i,j,k] order","maximum_elements":125,"success_result":"nx*ny*nz output elements","absolute_tolerance":1e-12,"relative_tolerance":1e-12,"no_write_on_error":true},
+  "rights_note":"The pinned files carry Regents of the University of California copyright and refer to a missing COPYRIGHT_and_DISCLAIMER; no explicit grant was located. The package is clean-room and includes no upstream code.",
+  "measurement":{"comparison_model":"float64_slice_io_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100,"absolute_tolerance":1e-12,"relative_tolerance":1e-12},
+  "cases":[
+    {"id":"two-cube-zero-x-unit-rhs","input_values":[2,2,2,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1],"input_length":19,"output_capacity":8,"expected_result":8,"expected_output":[1,1,1,1,1,1,1,1]},
+    {"id":"two-cube-isolated-origin-impulse","input_values":[2,2,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":19,"output_capacity":8,"expected_result":8,"expected_output":[-22.2,10,1,0,0,0.1,0,0]},
+    {"id":"two-cube-constant-field","input_values":[2,2,2,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],"input_length":19,"output_capacity":8,"expected_result":8,"expected_output":[-11.1,-11.1,-11.1,-11.1,-11.1,-11.1,-11.1,-11.1]},
+    {"id":"missing-z-cell","input_values":[2,2,2,0,0,0,0,0,0,0,0],"input_length":11,"output_capacity":8,"expected_result":-1,"expected_output":[]},
+    {"id":"fractional-dimension","input_values":[2,2,2.5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":19,"expected_result":-1,"expected_output":[]},
+    {"id":"field-out-of-range","input_values":[2,2,2,1001,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":19,"expected_result":-1,"expected_output":[]},
+    {"id":"side-too-small","input_values":[1,2,2,0,0,0,0,0,0,0,0],"input_length":11,"expected_result":-1,"expected_output":[]},
+    {"id":"short-output","input_values":[2,2,2,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1],"input_length":19,"output_capacity":7,"expected_result":-2,"expected_output":[]}
+  ]
+}

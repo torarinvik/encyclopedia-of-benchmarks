@@ -1,0 +1,8 @@
+The pinned TSVC source attributes non-four-digit codelets to David Callahan,
+Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.
+
+No explicit license grant was found in the pinned repository material reviewed.
+This package is an independent, clean-room implementation of a bounded
+mathematical contract. It reuses no upstream source code or comments and does
+not claim an upstream license, endorsement, or permission to redistribute the
+upstream source.

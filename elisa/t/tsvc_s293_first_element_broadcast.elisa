@@ -1,0 +1,41 @@
+# Clean-room implementation of TSVC s293; see package rights note.
+const TSVC_S293_MAX_N: usize = 32
+const TSVC_S293_MAX_INPUT_LENGTH: usize = 33
+
+def tsvc_s293_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def tsvc_s293_first_element_broadcast_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > TSVC_S293_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > TSVC_S293_MAX_N or length != 1 + n_value.usize():
+        return -1
+    n: usize = n_value.usize()
+    i: mutable usize = 1
+    while i < n + 1:
+        if input[i] < -8 or input[i] > 8:
+            return -1
+        i <- i + 1
+    output_bytes: usize = 8 * n
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    staged: mutable i64[32] = zeroed
+    first: i64 = input[1]
+    i <- 0
+    while i < n:
+        staged[i] <- first
+        i <- i + 1
+    i <- 0
+    while i < n:
+        tsvc_s293_store_i64_le(staged[i], output, 8 * i)
+        i <- i + 1
+    output_bytes.i64()
+
+export fn tsvc_s293_first_element_broadcast(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s293_first_element_broadcast_impl

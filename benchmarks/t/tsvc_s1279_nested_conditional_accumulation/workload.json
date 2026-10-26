@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s1279-f64-slice-v1",
+  "algorithm": "tsvc_s1279_nested_conditional_accumulation",
+  "function_symbol": "tsvc_s1279_nested_conditional_accumulation",
+  "abi": "float64_slice_io",
+  "description": "Bounded multi-pass profile of TSVC s1279's nested negative-A and B-greater-than-A predicates.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s1279",
+    "source_lines": {"kernel_start": 3102, "kernel_end": 3129},
+    "initializer_symbol": "s279 ",
+    "initializer_lines": {"start": 533, "end": 540},
+    "launcher_paths": ["TSVC/ControlFlow-dbl/info.sh", "TSVC/ControlFlow-flt/info.sh"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC",
+    "attribution": "TSVC source comments attribute codelets to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit modification or redistribution grant was found in reviewed pinned materials; ports are clean-room."
+  },
+  "contract": {
+    "operation": "For each pass and ascending index, add D[i]*E[i] to C[i] only if A[i]<0 and B[i]>A[i].",
+    "input_layout": "[n,passes,A[n],B[n],C[n],D[n],E[n]]",
+    "output_layout": "C_final[n]",
+    "n_range": [1, 64],
+    "passes_range": [1, 8],
+    "value_range": [-1, 1],
+    "exact_length": "2+5*n",
+    "arithmetic": "Integer-valued binary64; outputs remain within [-9,9] and are exactly representable in binary32 and binary64.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "input_modified": false
+  },
+  "input": {"kind": "float64_slice", "maximum_valid_length": 322, "maximum_parseable_length": 322, "n_range": [1, 64], "passes_range": [1, 8], "null_input_result": -1},
+  "output": {"kind": "float64_slice", "maximum_elements": 64, "no_write_on_error": true, "null_output_result": -2, "short_capacity_result": -2},
+  "workspace": {"elements": 64, "bytes": 512, "meaning": "Staged final C vector."},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 100, "absolute_tolerance": 0, "relative_tolerance": 0},
+  "cases": [
+    {"id": "outer-inner-taken-and-repeated", "input_values": [3, 2, -1, -1, 0, 0, -2, 1, 0, 1, -1, 1, -1, 1, 1, 1, 1], "input_length": 17, "expected_result": 3, "expected_output": [2, 1, -1]},
+    {"id": "outer-predicate-false", "input_values": [2, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1], "input_length": 12, "expected_result": 2, "expected_output": [0, 1]},
+    {"id": "outer-true-inner-false-and-equality", "input_values": [3, 1, -1, -1, -1, -1, 0, -2, 1, 0, 1, 1, -1, 1, 1, 1, -1], "input_length": 17, "expected_result": 3, "expected_output": [1, -1, 1]},
+    {"id": "invalid-n", "input_values": [0, 1], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "truncated", "input_values": [2, 1, -1, 0, 0], "input_length": 5, "expected_result": -1, "expected_output": []},
+    {"id": "fractional-array-value", "input_values": [1, 1, -0.5, 0, 0, 0, 0], "input_length": 7, "expected_result": -1, "expected_output": []},
+    {"id": "array-value-out-of-range", "input_values": [1, 1, -1, 0, 0, 2, 0], "input_length": 7, "expected_result": -1, "expected_output": []},
+    {"id": "short-capacity", "input_values": [1, 1, -1, 0, 0, 1, 1], "input_length": 7, "expected_result": -2, "expected_output": [], "output_capacity": 0},
+    {"id": "null-output", "input_values": [1, 1, -1, 0, 0, 1, 1], "input_length": 7, "expected_result": -2, "expected_output": [], "output_is_null": true}
+  ]
+}

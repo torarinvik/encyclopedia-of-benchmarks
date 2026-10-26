@@ -1,0 +1,3 @@
+Rights note
+
+The pinned TSVC source attributes its codelets to David Callahan, Jack Dongarra, and David Levine. No explicit modification or redistribution grant was found in the reviewed pinned materials. These ports are clean-room bounded implementations and reuse no upstream implementation text or comments; no upstream license or endorsement is claimed.

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s2710-f64-slice-v1",
+  "algorithm": "tsvc_s2710_nested_scalar_vector_branch_update",
+  "function_symbol": "tsvc_s2710_nested_scalar_vector_branch_update",
+  "abi": "float64_slice_io",
+  "description": "Bounded multi-pass profile of TSVC s2710's nested A/B comparison and scalar-controlled C updates.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s2710",
+    "source_lines": {"kernel_start": 2991, "kernel_end": 3026},
+    "initializer_symbol": "s2710",
+    "initializer_lines": {"start": 525, "end": 530},
+    "launcher_paths": ["TSVC/ControlFlow-dbl/info.sh", "TSVC/ControlFlow-flt/info.sh"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC",
+    "attribution": "TSVC source comments attribute codelets to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit modification or redistribution grant was found in reviewed pinned materials; ports are clean-room."
+  },
+  "contract": {
+    "operation": "For each pass and index ascending: if A[i]>B[i], update A[i]+=B[i]*D[i] and C[i]+=D[i]*D[i]; otherwise set B[i]=A[i]+E[i]*E[i], then if x>0 set C[i]=A[i]+D[i]*D[i], else C[i]+=E[i]*E[i].",
+    "input_layout": "[n,passes,x,A[n],B[n],C[n],D[n],E[n]]",
+    "output_layout": "[A_final[n],B_final[n],C_final[n]]",
+    "n_range": [11, 64],
+    "passes_range": [1, 8],
+    "value_range": [-1, 1],
+    "exact_length": "3+5*n",
+    "arithmetic": "Integer-valued binary64; all results are exactly representable in binary32 and binary64 and stay within [-512,512].",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "input_modified": false
+  },
+  "input": {"kind": "float64_slice", "maximum_valid_length": 323, "maximum_parseable_length": 323, "n_range": [11, 64], "passes_range": [1, 8], "null_input_result": -1},
+  "output": {"kind": "float64_slice", "maximum_elements": 192, "no_write_on_error": true, "null_output_result": -2, "short_capacity_result": -2},
+  "workspace": {"elements": 192, "bytes": 1536, "meaning": "Staged final A, B, and C vectors."},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 100, "absolute_tolerance": 0, "relative_tolerance": 0},
+  "cases": [
+    {
+      "id": "comparison-and-positive-scalar-branches",
+      "input_values": [11, 2, 1,
+        2, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 58,
+      "expected_result": 33,
+      "expected_output": [4, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0,
+        2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      "id": "nonpositive-scalar-accumulates-e-square",
+      "input_values": [11, 1, -1,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      "input_length": 58,
+      "expected_result": 33,
+      "expected_output": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "id": "gapbs-delta-step-sssp-i64-array-bytes-output-v1",
+  "algorithm": "gapbs_delta_step_sssp",
+  "function_symbol": "gapbs_delta_step_sssp",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded single-worker GAPBS delta-stepping profile returning all source distances.",
+  "source": {
+    "repository": "sbeamer/gapbs",
+    "commit": "b5e3e19c2845f22fb338f4a4bc4b1ccee861d026",
+    "path": "src/sssp.cc",
+    "symbols": ["RelaxEdges", "DeltaStep"],
+    "url": "https://github.com/sbeamer/gapbs/blob/b5e3e19c2845f22fb338f4a4bc4b1ccee861d026/src/sssp.cc",
+    "type_path": "src/benchmark.h",
+    "weight_type": "int32_t",
+    "license_path": "LICENSE",
+    "license": "BSD-3-Clause"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, edge_count, source, delta, (from, to, weight)...]",
+    "node_count_range": [1, 16],
+    "edge_count_range": [0, 64],
+    "source_range": "0 <= source < node_count",
+    "delta_range": [1, 16],
+    "endpoint_range": "0 <= from,to < node_count",
+    "edge_weight_range": [0, 32],
+    "edge_semantics": "directed; parallel edges and self-loops are allowed",
+    "maximum_valid_length": 196,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "One source distance per vertex, in ascending vertex order.",
+    "unreachable_value": 1073741823,
+    "maximum_values": 16,
+    "maximum_bytes": 128,
+    "success_result": "8 * node_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "contract": {
+    "operation": "Compute single-source shortest-path distances with the GAPBS DeltaStep bucket relaxation.",
+    "source_profile": "Use source WeightT semantics (int32_t distances and INF=INT32_MAX/2), with bounded nonnegative integer weights. The deterministic single-worker projection drains the current delta bucket, relaxes outgoing edges, queues strict distance improvements in floor(distance/delta), and skips stale entries when distance[u] < delta*bucket. It preserves same-bucket repeated relaxation and bucket-order processing while omitting OpenMP, atomics, timing, logging, and the 1000-entry parallel bucket-fusion threshold.",
+    "maximum_finite_distance": 480,
+    "maximum_successful_updates_per_vertex": 481,
+    "maximum_queue_entries": 8192,
+    "infinity_sentinel": 1073741823,
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-vertex-zero-edge-graph",
+      "input_values": [1, 0, 0, 1],
+      "input_length": 4,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "same-bucket-relaxation-chain",
+      "input_values": [4, 3, 0, 5, 0, 1, 1, 1, 2, 1, 2, 3, 1],
+      "input_length": 13,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000010000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "shorter-route-requeues-and-stales-an-entry",
+      "input_values": [5, 6, 0, 3, 0, 1, 4, 0, 2, 1, 2, 1, 1, 1, 3, 3, 2, 3, 10, 3, 4, 2],
+      "input_length": 22,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "00000000000000000200000000000000010000000000000005000000000000000700000000000000"
+    },
+    {
+      "id": "delta-bucket-boundary-and-equal-relaxation",
+      "input_values": [4, 3, 0, 5, 0, 1, 4, 0, 2, 5, 1, 2, 1],
+      "input_length": 13,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "000000000000000004000000000000000500000000000000ffffff3f00000000"
+    },
+    {
+      "id": "zero-weight-cycle",
+      "input_values": [4, 4, 0, 2, 0, 1, 0, 1, 2, 0, 2, 1, 0, 2, 3, 2],
+      "input_length": 16,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000200000000000000"
+    },
+    {
+      "id": "directed-unreachable-vertex",
+      "input_values": [4, 2, 0, 2, 0, 1, 3, 1, 2, 0],
+      "input_length": 10,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "000000000000000003000000000000000300000000000000ffffff3f00000000"
+    },
+    {
+      "id": "parallel-edges-select-shorter-weight",
+      "input_values": [3, 3, 0, 3, 0, 1, 6, 0, 1, 2, 1, 2, 3],
+      "input_length": 13,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000002000000000000000500000000000000"
+    },
+    {
+      "id": "maximum-node-chain-and-output",
+      "input_values": [16, 15, 0, 1, 0, 1, 32, 1, 2, 32, 2, 3, 32, 3, 4, 32, 4, 5, 32, 5, 6, 32, 6, 7, 32, 7, 8, 32, 8, 9, 32, 9, 10, 32, 10, 11, 32, 11, 12, 32, 12, 13, 32, 13, 14, 32, 14, 15, 32],
+      "input_length": 49,
+      "output_capacity": 128,
+      "expected_result": 128,
+      "expected_output_hex": "00000000000000002000000000000000400000000000000060000000000000008000000000000000a000000000000000c00000000000000e00000000000000000010000000000002001000000000000400100000000000060010000000000008001000000000000a001000000000000c001000000000000e001000000000000"
+    },
+    {
+      "id": "length-mismatch",
+      "input_values": [2, 1, 0, 1, 0, 1],
+      "input_length": 6,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "source-out-of-range",
+      "input_values": [2, 0, 2, 1],
+      "input_length": 4,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-delta-invalid",
+      "input_values": [1, 0, 0, 0],
+      "input_length": 4,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-weight-invalid",
+      "input_values": [2, 1, 0, 1, 0, 1, -1],
+      "input_length": 7,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out-of-range-endpoint-invalid",
+      "input_values": [2, 1, 0, 1, 0, 2, 1],
+      "input_length": 7,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [1, 0, 0, 1],
+      "input_length": 4,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 0, 0, 1],
+      "input_length": 4,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -14,12 +14,118 @@ import shlex
 import subprocess
 
 from build_abi import ROOT, sha256_file
+from graphai_gcn_aggregation_oracle import (
+    MAX_INPUT_LENGTH as GRAPHAI_GCN_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as GRAPHAI_GCN_MAX_OUTPUT_ELEMENTS,
+    expected_output as graphai_gcn_aggregation_oracle,
+)
+from graphai_sage_aggregation_oracle import (
+    MAX_INPUT_LENGTH as GRAPHAI_SAGE_MAX_INPUT_LENGTH,
+    expected_output as graphai_sage_aggregation_oracle,
+)
+from graphai_gat_aggregation_oracle import (
+    MAX_INPUT_LENGTH as GRAPHAI_GAT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as GRAPHAI_GAT_MAX_OUTPUT_ELEMENTS,
+    expected_output as graphai_gat_aggregation_oracle,
+)
+from graphai_frontier_sampler_oracle import (
+    MAX_INPUT_LENGTH as GRAPHAI_FRONTIER_SAMPLER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as GRAPHAI_FRONTIER_SAMPLER_MAX_OUTPUT_ELEMENTS,
+    expected_output as graphai_frontier_sampler_oracle,
+)
+from graphai_cf_sgd_sweep_oracle import (
+    MAX_INPUT_LENGTH as GRAPHAI_CF_SGD_SWEEP_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as GRAPHAI_CF_SGD_SWEEP_MAX_OUTPUT_ELEMENTS,
+    expected_output as graphai_cf_sgd_sweep_oracle,
+)
+from gardenia_symgs_oracle import (
+    MAX_INPUT_LENGTH as GARDENIA_SYMGS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as GARDENIA_SYMGS_MAX_OUTPUT_ELEMENTS,
+    expected_output as gardenia_symgs_oracle,
+)
+from gardenia_sgd_oracle import (
+    MAX_INPUT_LENGTH as GARDENIA_SGD_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as GARDENIA_SGD_MAX_OUTPUT_ELEMENTS,
+    expected_output as gardenia_sgd_oracle,
+)
 from vector3_axis_rotation_oracle import expected_result as vector3_axis_rotation_oracle
 from vector3_perspective_projection_oracle import expected_result as vector3_perspective_projection_oracle
 from vector2_oracle import expected_result as vector2_oracle
 from vectors_3d_oracle import expected_result as vectors_3d_oracle
 from partialsums_oracle import expected_output as partialsums_oracle
 from durbin_oracle import expected_output as durbin_oracle
+from tsvc_s313_dot_product_reduction_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S313_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s313_dot_product_reduction_oracle,
+)
+from tsvc_s275_column_conditional_axpy_recurrence_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S275_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s275_column_conditional_axpy_recurrence_oracle,
+)
+from tsvc_s111_odd_index_neighbor_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S111_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s111_odd_index_neighbor_update_oracle,
+)
+from tsvc_vtvtv_triple_product_map_oracle import (
+    MAX_INPUT_LENGTH as TSVC_VTVTV_MAX_INPUT_LENGTH,
+    expected_output as tsvc_vtvtv_triple_product_map_oracle,
+)
+from tsvc_s451_sincos_vector_map_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S451_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s451_sincos_vector_map_oracle,
+)
+from tsvc_s221_partial_recursive_fused_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S221_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s221_partial_recursive_fused_update_oracle,
+)
+from tsvc_s222_interleaved_square_recurrence_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S222_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s222_interleaved_square_recurrence_oracle,
+)
+from tsvc_s2251_carried_scalar_expansion_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S2251_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s2251_carried_scalar_expansion_oracle,
+)
+from tsvc_s1251_per_element_dual_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S1251_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s1251_per_element_dual_update_oracle,
+)
+from tsvc_s3251_forward_shifted_array_expansion_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S3251_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s3251_forward_shifted_array_expansion_oracle,
+)
+from tsvc_s2712_comparison_gated_axpy_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S2712_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s2712_comparison_gated_axpy_oracle,
+)
+from tsvc_s2710_nested_scalar_vector_branch_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S2710_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s2710_nested_scalar_vector_branch_update_oracle,
+)
+from tsvc_s1279_nested_conditional_accumulation_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S1279_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s1279_nested_conditional_accumulation_oracle,
+)
+from tsvc_s2275_matrix_vector_axpy_interleave_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S2275_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s2275_matrix_vector_axpy_interleave_oracle,
+)
+from tsvc_s482_break_after_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S482_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s482_break_after_update_oracle,
+)
+from tsvc_s441_s443_d_sign_branch_updates_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S441_443_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s441_s443_d_sign_branch_updates_oracle,
+)
+from tsvc_s242_fused_prefix_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S242_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s242_fused_prefix_update_oracle,
+)
+from tsvc_s351_direct_unrolled_saxpy_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S351_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s351_direct_unrolled_saxpy_oracle,
+)
 from mibench_automotive_basicmath_cubic_oracle import (
     COEFFICIENT_COUNT as MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_MAX_INPUT_LENGTH,
     INVALID_RESULT as MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_INVALID_RESULT,
@@ -41,6 +147,14 @@ from cbench_consumer_mad_imdct36_oracle import (
     RELATIVE_TOLERANCE as CBENCH_CONSUMER_MAD_IMDCT36_RELATIVE_TOLERANCE,
     expected_output as cbench_consumer_mad_imdct36_expected_output,
 )
+from cbench_consumer_lame_mdct_short_oracle import (
+    INPUT_COUNT as CBENCH_CONSUMER_LAME_MDCT_SHORT_INPUT_COUNT,
+    MAX_INPUT_LENGTH as CBENCH_CONSUMER_LAME_MDCT_SHORT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as CBENCH_CONSUMER_LAME_MDCT_SHORT_MAX_OUTPUT_ELEMENTS,
+    ABSOLUTE_TOLERANCE as CBENCH_CONSUMER_LAME_MDCT_SHORT_ABSOLUTE_TOLERANCE,
+    RELATIVE_TOLERANCE as CBENCH_CONSUMER_LAME_MDCT_SHORT_RELATIVE_TOLERANCE,
+    expected_output as cbench_consumer_lame_mdct_short_expected_output,
+)
 from cbench_lame_mid_side_oracle import (
     MAX_CHANNEL_SAMPLES as CBENCH_LAME_MID_SIDE_MAX_CHANNEL_SAMPLES,
     MAX_INPUT_LENGTH as CBENCH_LAME_MID_SIDE_MAX_INPUT_LENGTH,
@@ -56,6 +170,16 @@ from cbench_rsynth_natural_glottal_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as CBENCH_RSYNTH_MAX_PARSEABLE_INPUT_LENGTH,
     MAX_OUTPUT_ELEMENTS as CBENCH_RSYNTH_MAX_OUTPUT_ELEMENTS,
     expected_output as cbench_rsynth_natural_glottal_expected_output,
+)
+from cbench_rsynth_impulsive_glottal_oracle import (
+    MIN_OPEN as CBENCH_RSYNTH_IMPULSIVE_MIN_OPEN,
+    MAX_OPEN as CBENCH_RSYNTH_IMPULSIVE_MAX_OPEN,
+    MAX_SAMPLE_INDEX as CBENCH_RSYNTH_IMPULSIVE_MAX_SAMPLE_INDEX,
+    MAX_INPUT_LENGTH as CBENCH_RSYNTH_IMPULSIVE_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CBENCH_RSYNTH_IMPULSIVE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as CBENCH_RSYNTH_IMPULSIVE_MAX_OUTPUT_ELEMENTS,
+    SAMPLE_RATE as CBENCH_RSYNTH_IMPULSIVE_SAMPLE_RATE,
+    expected_output as cbench_rsynth_impulsive_glottal_expected_output,
 )
 from versabench_beamformer_oracle import (
     CHANNELS as VERSABENCH_BEAMFORMER_CHANNELS,
@@ -174,6 +298,26 @@ from heat_3d_oracle import (
     OUTPUT_ERROR as HEAT_3D_OUTPUT_ERROR,
     expected_output as heat_3d_expected_output,
 )
+from parboil_stencil_laplacian_oracle import (
+    MAX_INPUT_LENGTH as PARBOIL_STENCIL_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as PARBOIL_STENCIL_MAX_OUTPUT_ELEMENTS,
+    WORKSPACE_ELEMENTS as PARBOIL_STENCIL_WORKSPACE_ELEMENTS,
+    ABSOLUTE_TOLERANCE as PARBOIL_STENCIL_ABSOLUTE_TOLERANCE,
+    RELATIVE_TOLERANCE as PARBOIL_STENCIL_RELATIVE_TOLERANCE,
+    abi_expected_output as parboil_stencil_laplacian_abi_expected_output,
+)
+from asci_purple_smg2000_residual_oracle import (
+    INVALID_RESULT as ASCI_PURPLE_SMG2000_INVALID_RESULT,
+    MAX_INPUT_LENGTH as ASCI_PURPLE_SMG2000_MAX_INPUT_LENGTH,
+    MAX_CELLS as ASCI_PURPLE_SMG2000_MAX_OUTPUT_ELEMENTS,
+    OUTPUT_ERROR as ASCI_PURPLE_SMG2000_OUTPUT_ERROR,
+    expected_output as asci_purple_smg2000_expected_output,
+)
+from mafft_falign_fft_lag_correlation_oracle import (
+    MAX_INPUT_LENGTH as MAFFT_FALIGN_MAX_INPUT_LENGTH,
+    expected_output as mafft_falign_fft_lag_correlation_expected_output,
+)
+MAFFT_FALIGN_MAX_OUTPUT_ELEMENTS = 64
 from himenobmtxpa_oracle import (
     INPUT_LENGTH as HIMENO_INPUT_LENGTH,
     INVALID_RESULT as HIMENO_INVALID_RESULT,
@@ -189,6 +333,15 @@ from himenobmtxpa_oracle import (
 from polybench_lu_oracle import (
     MAX_N as POLYBENCH_LU_MAX_N,
     expected_output as polybench_lu_expected_output,
+)
+from polybench_gramschmidt_oracle import (
+    MAX_M as POLYBENCH_GRAMSCHMIDT_MAX_M,
+    MAX_N as POLYBENCH_GRAMSCHMIDT_MAX_N,
+    MAX_INPUT_LENGTH as POLYBENCH_GRAMSCHMIDT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as POLYBENCH_GRAMSCHMIDT_MAX_OUTPUT_ELEMENTS,
+    INVALID_RESULT as POLYBENCH_GRAMSCHMIDT_INVALID_RESULT,
+    OUTPUT_ERROR as POLYBENCH_GRAMSCHMIDT_OUTPUT_ERROR,
+    expected_output as polybench_gramschmidt_expected_output,
 )
 from polybench_correlation_oracle import (
     MAX_N as POLYBENCH_CORRELATION_MAX_N,
@@ -1313,6 +1466,54 @@ def heat_3d_oracle(values):
     return output if result >= 0 else None
 
 
+def asci_purple_smg2000_residual_abi_oracle(values, output_capacity=None,
+                                            output_is_null=False,
+                                            input_is_null=False,
+                                            input_length=None):
+    if (input_is_null or not isinstance(values, (list, tuple))
+            or len(values) > ASCI_PURPLE_SMG2000_MAX_INPUT_LENGTH
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))):
+        return ASCI_PURPLE_SMG2000_INVALID_RESULT, []
+    output = asci_purple_smg2000_expected_output(values)
+    if output is None:
+        return ASCI_PURPLE_SMG2000_INVALID_RESULT, []
+    if (type(output_is_null) is not bool
+            or output_capacity is not None
+            and (type(output_capacity) is not int or output_capacity < 0)):
+        return ASCI_PURPLE_SMG2000_OUTPUT_ERROR, []
+    if output_is_null or (output_capacity is not None and output_capacity < len(output)):
+        return ASCI_PURPLE_SMG2000_OUTPUT_ERROR, []
+    return len(output), output
+
+
+def asci_purple_smg2000_residual_oracle(values):
+    result, output = asci_purple_smg2000_residual_abi_oracle(values)
+    return output if result >= 0 else None
+
+
+def mafft_falign_fft_lag_correlation_abi_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    if (input_is_null or not isinstance(values, (list, tuple))
+            or len(values) > MAFFT_FALIGN_MAX_INPUT_LENGTH
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))):
+        return -1, []
+    output = mafft_falign_fft_lag_correlation_expected_output(values)
+    if output is None:
+        return -1, []
+    if (type(output_is_null) is not bool
+            or output_capacity is not None
+            and (type(output_capacity) is not int or output_capacity < 0)):
+        return -2, []
+    if output_is_null or (output_capacity is not None and output_capacity < len(output)):
+        return -2, []
+    return len(output), output
+
+
 def himenobmtxpa_abi_oracle(values, output_capacity=None, output_is_null=False,
                             input_is_null=False, input_length=None):
     if (input_is_null
@@ -1343,6 +1544,29 @@ POLYBENCH_LU_MAX_INPUT_LENGTH = 1
 POLYBENCH_LU_MAX_OUTPUT_ELEMENTS = POLYBENCH_LU_MAX_N * POLYBENCH_LU_MAX_N
 POLYBENCH_LU_INVALID_RESULT = -1
 POLYBENCH_LU_OUTPUT_ERROR = -2
+
+
+def polybench_gramschmidt_abi_oracle(values, output_capacity=None, output_is_null=False,
+                                     input_is_null=False, input_length=None):
+    if (input_is_null
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))):
+        return POLYBENCH_GRAMSCHMIDT_INVALID_RESULT, []
+    result, output = polybench_gramschmidt_expected_output(values)
+    if result < 0:
+        return result, []
+    if (type(output_is_null) is not bool
+            or output_capacity is not None
+            and (type(output_capacity) is not int or output_capacity < 0)):
+        return POLYBENCH_GRAMSCHMIDT_OUTPUT_ERROR, []
+    if output_is_null or output_capacity is not None and output_capacity < result:
+        return POLYBENCH_GRAMSCHMIDT_OUTPUT_ERROR, []
+    return result, output
+
+
+def polybench_gramschmidt_oracle(values):
+    result, output = polybench_gramschmidt_abi_oracle(values)
+    return output if result >= 0 else None
 
 
 def polybench_lu_abi_oracle(values, output_capacity=None, output_is_null=False,
@@ -1492,11 +1716,31 @@ def olden_em3d_abi_oracle(values, output_capacity=None, output_is_null=False,
 ORACLES = {
     "partialsums": partialsums_oracle,
     "durbin": durbin_oracle,
+    "tsvc_s313_dot_product_reduction": tsvc_s313_dot_product_reduction_oracle,
+    "tsvc_s275_column_conditional_axpy_recurrence": tsvc_s275_column_conditional_axpy_recurrence_oracle,
+    "tsvc_s111_odd_index_neighbor_update": tsvc_s111_odd_index_neighbor_update_oracle,
+    "tsvc_vtvtv_triple_product_map": tsvc_vtvtv_triple_product_map_oracle,
+    "tsvc_s451_sincos_vector_map": tsvc_s451_sincos_vector_map_oracle,
+    "tsvc_s221_partial_recursive_fused_update": tsvc_s221_partial_recursive_fused_update_oracle,
+    "tsvc_s222_interleaved_square_recurrence": tsvc_s222_interleaved_square_recurrence_oracle,
+    "tsvc_s2251_carried_scalar_expansion": tsvc_s2251_carried_scalar_expansion_oracle,
+    "tsvc_s1251_per_element_dual_update": tsvc_s1251_per_element_dual_update_oracle,
+    "tsvc_s3251_forward_shifted_array_expansion": tsvc_s3251_forward_shifted_array_expansion_oracle,
+    "tsvc_s2712_comparison_gated_axpy": tsvc_s2712_comparison_gated_axpy_oracle,
+    "tsvc_s2710_nested_scalar_vector_branch_update": tsvc_s2710_nested_scalar_vector_branch_update_oracle,
+    "tsvc_s1279_nested_conditional_accumulation": tsvc_s1279_nested_conditional_accumulation_oracle,
+    "tsvc_s2275_matrix_vector_axpy_interleave": tsvc_s2275_matrix_vector_axpy_interleave_oracle,
+    "tsvc_s482_break_after_update": tsvc_s482_break_after_update_oracle,
+    "tsvc_s441_s443_d_sign_branch_updates": tsvc_s441_s443_d_sign_branch_updates_oracle,
+    "tsvc_s242_fused_prefix_update": tsvc_s242_fused_prefix_update_oracle,
+    "tsvc_s351_direct_unrolled_saxpy": tsvc_s351_direct_unrolled_saxpy_oracle,
     "mibench_automotive_basicmath_cubic": mibench_automotive_basicmath_cubic_oracle,
     "mibench_lame_mdct_long": mibench_lame_mdct_long_expected_output,
     "cbench_consumer_mad_imdct36": cbench_consumer_mad_imdct36_expected_output,
+    "cbench_consumer_lame_mdct_short": cbench_consumer_lame_mdct_short_expected_output,
     "cbench_lame_mid_side": cbench_lame_mid_side_expected_output,
     "cbench_rsynth_natural_glottal_sample": cbench_rsynth_natural_glottal_expected_output,
+    "cbench_rsynth_impulsive_glottal_sample": cbench_rsynth_impulsive_glottal_expected_output,
     "versabench_beamformer": versabench_beamformer_abi_oracle,
     "syrk": syrk_oracle,
     "matmul_f64_4x4": matmul_f64_4x4_oracle,
@@ -1511,8 +1755,19 @@ ORACLES = {
     "trmm": trmm_abi_oracle,
     "fdtd_2d": fdtd_2d_oracle,
     "heat_3d": heat_3d_oracle,
+    "parboil_stencil_laplacian": parboil_stencil_laplacian_abi_expected_output,
+    "graphai_gcn_aggregation": graphai_gcn_aggregation_oracle,
+    "graphai_sage_aggregation": graphai_sage_aggregation_oracle,
+    "graphai_gat_aggregation": graphai_gat_aggregation_oracle,
+    "graphai_frontier_sampler": graphai_frontier_sampler_oracle,
+    "graphai_cf_sgd_sweep": graphai_cf_sgd_sweep_oracle,
+    "gardenia_symgs": gardenia_symgs_oracle,
+    "gardenia_sgd": gardenia_sgd_oracle,
+    "asci_purple_smg2000_residual": asci_purple_smg2000_residual_oracle,
+    "mafft_falign_fft_lag_correlation": mafft_falign_fft_lag_correlation_abi_oracle,
     "himenobmtxpa": himenobmtxpa_oracle,
     "polybench_lu": polybench_lu_oracle,
+    "polybench_gramschmidt": polybench_gramschmidt_oracle,
     "polybench_correlation": polybench_correlation_oracle,
     "polybench_seidel_2d": polybench_seidel_2d_oracle,
     "vector3_axis_rotation": vector3_axis_rotation_oracle,
@@ -4257,20 +4512,32 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         TRMM_MAX_INPUT_LENGTH if algorithm == "trmm" else
                         FDTD_2D_MAX_INPUT_LENGTH if algorithm == "fdtd_2d" else
                         HEAT_3D_MAX_INPUT_LENGTH if algorithm == "heat_3d" else
+                        PARBOIL_STENCIL_MAX_INPUT_LENGTH if algorithm == "parboil_stencil_laplacian" else
+                        ASCI_PURPLE_SMG2000_MAX_INPUT_LENGTH
+                        if algorithm == "asci_purple_smg2000_residual" else
+                        MAFFT_FALIGN_MAX_INPUT_LENGTH
+                        if algorithm == "mafft_falign_fft_lag_correlation" else
                         HIMENO_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "himenobmtxpa" else
+                        POLYBENCH_GRAMSCHMIDT_MAX_INPUT_LENGTH if algorithm == "polybench_gramschmidt" else
                         POLYBENCH_LU_MAX_INPUT_LENGTH if algorithm == "polybench_lu" else
                         POLYBENCH_CORRELATION_MAX_INPUT_LENGTH if algorithm == "polybench_correlation" else
                         POLYBENCH_SEIDEL_2D_MAX_INPUT_LENGTH if algorithm == "polybench_seidel_2d" else
+                        GARDENIA_SYMGS_MAX_INPUT_LENGTH if algorithm == "gardenia_symgs" else
+                        GARDENIA_SGD_MAX_INPUT_LENGTH if algorithm == "gardenia_sgd" else
                         MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_MAX_INPUT_LENGTH
                         if algorithm == "mibench_automotive_basicmath_cubic" else
                         MIBENCH_LAME_MDCT_LONG_MAX_INPUT_LENGTH
                         if algorithm == "mibench_lame_mdct_long" else
                         CBENCH_CONSUMER_MAD_IMDCT36_MAX_INPUT_LENGTH
                         if algorithm == "cbench_consumer_mad_imdct36" else
+                        CBENCH_CONSUMER_LAME_MDCT_SHORT_MAX_INPUT_LENGTH
+                        if algorithm == "cbench_consumer_lame_mdct_short" else
                         CBENCH_LAME_MID_SIDE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "cbench_lame_mid_side" else
                         CBENCH_RSYNTH_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "cbench_rsynth_natural_glottal_sample" else
+                        CBENCH_RSYNTH_IMPULSIVE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "cbench_rsynth_impulsive_glottal_sample" else
                         SIR_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "sir" else
                         DECISION_TREE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "decision_tree_python_regression" else
@@ -4353,6 +4620,18 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         max_input_length = MONTECARLOPI_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "monte_carlo_simulation":
         max_input_length = MONTE_CARLO_SIMULATION_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "parboil_stencil_laplacian":
+        max_input_length = PARBOIL_STENCIL_MAX_INPUT_LENGTH
+    if algorithm == "graphai_gcn_aggregation":
+        max_input_length = GRAPHAI_GCN_MAX_INPUT_LENGTH
+    if algorithm == "graphai_sage_aggregation":
+        max_input_length = GRAPHAI_SAGE_MAX_INPUT_LENGTH
+    if algorithm == "graphai_gat_aggregation":
+        max_input_length = GRAPHAI_GAT_MAX_INPUT_LENGTH
+    if algorithm == "graphai_frontier_sampler":
+        max_input_length = GRAPHAI_FRONTIER_SAMPLER_MAX_INPUT_LENGTH
+    if algorithm == "graphai_cf_sgd_sweep":
+        max_input_length = GRAPHAI_CF_SGD_SWEEP_MAX_INPUT_LENGTH
     if algorithm == "mini_batch_gradient_descent":
         max_input_length = MINI_BATCH_GRADIENT_DESCENT_MAX_INPUT_LENGTH
     if algorithm == "pi_monte_carlo_estimation":
@@ -4395,19 +4674,65 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         max_input_length = MUON_OPTIMIZER_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm in RISK_METRICS_ALGORITHM_NAMES:
         max_input_length = RISK_METRICS_MAX_PARSEABLE_INPUT_LENGTH_BY_ALGORITHM[algorithm]
+    if algorithm == "tsvc_s313_dot_product_reduction":
+        max_input_length = TSVC_S313_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s275_column_conditional_axpy_recurrence":
+        max_input_length = TSVC_S275_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s111_odd_index_neighbor_update":
+        max_input_length = TSVC_S111_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_vtvtv_triple_product_map":
+        max_input_length = TSVC_VTVTV_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s451_sincos_vector_map":
+        max_input_length = TSVC_S451_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s221_partial_recursive_fused_update":
+        max_input_length = TSVC_S221_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s222_interleaved_square_recurrence":
+        max_input_length = TSVC_S222_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s2251_carried_scalar_expansion":
+        max_input_length = TSVC_S2251_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s1251_per_element_dual_update":
+        max_input_length = TSVC_S1251_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s3251_forward_shifted_array_expansion":
+        max_input_length = TSVC_S3251_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s2712_comparison_gated_axpy":
+        max_input_length = TSVC_S2712_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s2710_nested_scalar_vector_branch_update":
+        max_input_length = TSVC_S2710_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s1279_nested_conditional_accumulation":
+        max_input_length = TSVC_S1279_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s2275_matrix_vector_axpy_interleave":
+        max_input_length = TSVC_S2275_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s482_break_after_update":
+        max_input_length = TSVC_S482_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s441_s443_d_sign_branch_updates":
+        max_input_length = TSVC_S441_443_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s242_fused_prefix_update":
+        max_input_length = TSVC_S242_MAX_INPUT_LENGTH
+    if algorithm == "tsvc_s351_direct_unrolled_saxpy":
+        max_input_length = TSVC_S351_MAX_INPUT_LENGTH
     if (not isinstance(raw_values, list) or case.get("input_length") != len(raw_values)
             or (not raw_values and algorithm not in {"md2_digest", "kalman_filter_r_two_state_simulation",
                                                       "matmul_f64_4x4", "misc_fp_convert", "trisolv",
                                                       "jacobi_1d", "jacobi_2d", "fdtd_2d", "heat_3d",
+                                                      "parboil_stencil_laplacian",
+                                                      "graphai_gcn_aggregation",
+                                                      "graphai_sage_aggregation",
+                                                      "graphai_gat_aggregation",
+                                                      "graphai_frontier_sampler",
+                                                      "graphai_cf_sgd_sweep",
                                                       "himenobmtxpa",
+                                                      "polybench_gramschmidt",
                                                       "polybench_lu", "polybench_correlation",
                                                       "polybench_seidel_2d",
                                                       "olden_bh", "olden_em3d",
                                                       "mibench_automotive_basicmath_cubic",
                                                       "mibench_lame_mdct_long",
                                                       "cbench_consumer_mad_imdct36",
+                                                      "cbench_consumer_lame_mdct_short",
                                                       "cbench_lame_mid_side",
-                                                      "cbench_rsynth_natural_glottal_sample"}
+                                                      "cbench_rsynth_natural_glottal_sample",
+                                                      "cbench_rsynth_impulsive_glottal_sample",
+                                                      "tsvc_s222_interleaved_square_recurrence"}
                 and not (allow_nonfinite and case.get("input_is_null") is True
                          and case.get("input_length") == 0))
             or len(raw_values) > max_input_length
@@ -4416,7 +4741,18 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
     values = [float(value) for value in raw_values]
-    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "misc_dt", "olden_bh", "olden_em3d", "trisolv", "jacobi_1d", "jacobi_2d", "syr2k", "trmm", "fdtd_2d", "heat_3d", "himenobmtxpa", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_automotive_basicmath_cubic", "mibench_lame_mdct_long", "cbench_consumer_mad_imdct36", "cbench_lame_mid_side", "cbench_rsynth_natural_glottal_sample", "smallest_enclosing_ball_3d", "euclidean_t_spanner", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "misc_dt", "olden_bh", "olden_em3d", "trisolv", "jacobi_1d", "jacobi_2d", "syrk", "syr2k", "trmm", "fdtd_2d", "heat_3d", "parboil_stencil_laplacian", "graphai_gcn_aggregation", "graphai_sage_aggregation", "graphai_gat_aggregation", "graphai_frontier_sampler", "graphai_cf_sgd_sweep", "asci_purple_smg2000_residual", "mafft_falign_fft_lag_correlation", "himenobmtxpa", "polybench_gramschmidt", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_automotive_basicmath_cubic", "mibench_lame_mdct_long", "cbench_consumer_mad_imdct36", "cbench_consumer_lame_mdct_short", "cbench_lame_mid_side", "cbench_rsynth_natural_glottal_sample", "smallest_enclosing_ball_3d", "euclidean_t_spanner", "joint_probability_distribution", "shreedharacharya", "rotation_matrix", "tsvc_s313_dot_product_reduction", "tsvc_s275_column_conditional_axpy_recurrence", "tsvc_s111_odd_index_neighbor_update",
+                     "tsvc_vtvtv_triple_product_map", "tsvc_s451_sincos_vector_map",
+                     "tsvc_s221_partial_recursive_fused_update",
+                     "tsvc_s222_interleaved_square_recurrence",
+                     "tsvc_s2251_carried_scalar_expansion", "tsvc_s1251_per_element_dual_update",
+                     "tsvc_s3251_forward_shifted_array_expansion", "tsvc_s2712_comparison_gated_axpy",
+                     "tsvc_s2710_nested_scalar_vector_branch_update",
+                     "tsvc_s1279_nested_conditional_accumulation",
+                     "tsvc_s2275_matrix_vector_axpy_interleave",
+                     "tsvc_s482_break_after_update",
+                     "tsvc_s441_s443_d_sign_branch_updates",
+                     "tsvc_s242_fused_prefix_update", "tsvc_s351_direct_unrolled_saxpy",
                      "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                      "median_of_running_array_double", "median_of_running_array_float",
                      "mean_shift", "k_means_clust", "lu_decompose", "lu_elimination",
@@ -4432,7 +4768,133 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                      "single_indeterminate_operations", "montecarlopi",
                      "local_weighted_learning", "muon_optimizer", "pseudo_inverse", "tdigest",
                      *RISK_METRICS_ALGORITHM_NAMES, *TRAVELLING_SALESMAN_PYTHON_ALGORITHMS}:
-        if algorithm == "versabench_beamformer":
+        if algorithm == "tsvc_s111_odd_index_neighbor_update":
+            expected_result, oracle_values = tsvc_s111_odd_index_neighbor_update_oracle(
+                values, capacity=case.get("output_capacity", 64),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_vtvtv_triple_product_map":
+            expected_result, oracle_values = tsvc_vtvtv_triple_product_map_oracle(
+                values, capacity=case.get("output_capacity", 64),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s451_sincos_vector_map":
+            expected_result, oracle_values = tsvc_s451_sincos_vector_map_oracle(
+                values, capacity=case.get("output_capacity", 64),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s221_partial_recursive_fused_update":
+            expected_result, oracle_values = tsvc_s221_partial_recursive_fused_update_oracle(
+                values, capacity=case.get("output_capacity", 128),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s222_interleaved_square_recurrence":
+            expected_result, oracle_values = tsvc_s222_interleaved_square_recurrence_oracle(
+                values, capacity=case.get("output_capacity", 128),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s2251_carried_scalar_expansion":
+            expected_result, oracle_values = tsvc_s2251_carried_scalar_expansion_oracle(
+                values, capacity=case.get("output_capacity", 128),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s1251_per_element_dual_update":
+            expected_result, oracle_values = tsvc_s1251_per_element_dual_update_oracle(
+                values, capacity=case.get("output_capacity", 128),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s3251_forward_shifted_array_expansion":
+            expected_result, oracle_values = tsvc_s3251_forward_shifted_array_expansion_oracle(
+                values, capacity=case.get("output_capacity", 192),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s2712_comparison_gated_axpy":
+            expected_result, oracle_values = tsvc_s2712_comparison_gated_axpy_oracle(
+                values, capacity=case.get("output_capacity", 64),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s2710_nested_scalar_vector_branch_update":
+            expected_result, oracle_values = tsvc_s2710_nested_scalar_vector_branch_update_oracle(
+                values, capacity=case.get("output_capacity", 192),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s1279_nested_conditional_accumulation":
+            expected_result, oracle_values = tsvc_s1279_nested_conditional_accumulation_oracle(
+                values, capacity=case.get("output_capacity", 64),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s2275_matrix_vector_axpy_interleave":
+            expected_result, oracle_values = tsvc_s2275_matrix_vector_axpy_interleave_oracle(
+                values, capacity=case.get("output_capacity", 72),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s482_break_after_update":
+            expected_result, oracle_values = tsvc_s482_break_after_update_oracle(
+                values, capacity=case.get("output_capacity", 64),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s441_s443_d_sign_branch_updates":
+            expected_result, oracle_values = tsvc_s441_s443_d_sign_branch_updates_oracle(
+                values, capacity=case.get("output_capacity", 64),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s242_fused_prefix_update":
+            expected_result, oracle_values = tsvc_s242_fused_prefix_update_oracle(
+                values, capacity=case.get("output_capacity", 64),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s351_direct_unrolled_saxpy":
+            expected_result, oracle_values = tsvc_s351_direct_unrolled_saxpy_oracle(
+                values, capacity=case.get("output_capacity", 64),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s275_column_conditional_axpy_recurrence":
+            expected_result, oracle_values = tsvc_s275_column_conditional_axpy_recurrence_oracle(
+                values, capacity=case.get("output_capacity", 64),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tsvc_s313_dot_product_reduction":
+            expected_result, oracle_values = tsvc_s313_dot_product_reduction_oracle(
+                values, capacity=case.get("output_capacity", 1),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "versabench_beamformer":
             expected_result, oracle_values = versabench_beamformer_abi_oracle(
                 values, output_capacity=case.get("output_capacity"),
                 output_is_null=case.get("output_is_null", False),
@@ -4523,6 +4985,76 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                 input_is_null=case.get("input_is_null", False),
                 input_length=case.get("input_length"))
             oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "parboil_stencil_laplacian":
+            expected_result, oracle_values = parboil_stencil_laplacian_abi_expected_output(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "graphai_gcn_aggregation":
+            expected_result, oracle_values = graphai_gcn_aggregation_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "graphai_sage_aggregation":
+            expected_result, oracle_values = graphai_sage_aggregation_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "graphai_gat_aggregation":
+            expected_result, oracle_values = graphai_gat_aggregation_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "graphai_frontier_sampler":
+            expected_result, oracle_values = graphai_frontier_sampler_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "graphai_cf_sgd_sweep":
+            expected_result, oracle_values = graphai_cf_sgd_sweep_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "gardenia_symgs":
+            expected_result, oracle_values = gardenia_symgs_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "gardenia_sgd":
+            expected_result, oracle_values = gardenia_sgd_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "asci_purple_smg2000_residual":
+            expected_result, oracle_values = asci_purple_smg2000_residual_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "mafft_falign_fft_lag_correlation":
+            expected_result, oracle_values = mafft_falign_fft_lag_correlation_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "himenobmtxpa":
             expected_result, oracle_values = himenobmtxpa_abi_oracle(
                 values, output_capacity=case.get("output_capacity"),
@@ -4532,6 +5064,13 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
             oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "polybench_lu":
             expected_result, oracle_values = polybench_lu_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "polybench_gramschmidt":
+            expected_result, oracle_values = polybench_gramschmidt_abi_oracle(
                 values, output_capacity=case.get("output_capacity"),
                 output_is_null=case.get("output_is_null", False),
                 input_is_null=case.get("input_is_null", False),
@@ -4572,6 +5111,13 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                 input_is_null=case.get("input_is_null", False),
                 input_length=case.get("input_length"))
             oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "cbench_consumer_lame_mdct_short":
+            expected_result, oracle_values = cbench_consumer_lame_mdct_short_expected_output(
+                values, capacity=case.get("output_capacity", CBENCH_CONSUMER_LAME_MDCT_SHORT_MAX_OUTPUT_ELEMENTS),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "cbench_lame_mid_side":
             expected_result, oracle_values = cbench_lame_mid_side_expected_output(
                 values, output_capacity=case.get("output_capacity", CBENCH_LAME_MID_SIDE_MAX_OUTPUT_ELEMENTS),
@@ -4582,6 +5128,13 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         elif algorithm == "cbench_rsynth_natural_glottal_sample":
             expected_result, oracle_values = cbench_rsynth_natural_glottal_expected_output(
                 values, output_capacity=case.get("output_capacity", CBENCH_RSYNTH_MAX_OUTPUT_ELEMENTS),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "cbench_rsynth_impulsive_glottal_sample":
+            expected_result, oracle_values = cbench_rsynth_impulsive_glottal_expected_output(
+                values, output_capacity=case.get("output_capacity", CBENCH_RSYNTH_IMPULSIVE_MAX_OUTPUT_ELEMENTS),
                 output_is_null=case.get("output_is_null", False),
                 input_is_null=case.get("input_is_null", False),
                 input_length=case.get("input_length"))
@@ -4639,7 +5192,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                                                 "olden_bh", "olden_em3d",
                                                 *TRAVELLING_SALESMAN_PYTHON_ALGORITHMS}
         and expected_result < 0 else None)
-    if algorithm in {"mibench_lame_mdct_long", "cbench_consumer_mad_imdct36", "cbench_lame_mid_side", "cbench_rsynth_natural_glottal_sample"} and raw_expected is None:
+    if algorithm in {"mibench_lame_mdct_long", "cbench_consumer_mad_imdct36", "cbench_consumer_lame_mdct_short", "cbench_lame_mid_side", "cbench_rsynth_natural_glottal_sample", "cbench_rsynth_impulsive_glottal_sample", "parboil_stencil_laplacian"} and raw_expected is None:
         raw_expected = expected_output
     if algorithm == "mini_batch_gradient_descent" and expected_result < 0 and raw_expected is None:
         raw_expected = []
@@ -4665,6 +5218,1230 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         if abs(actual_number - expected_number) > allowed:
             raise ValueError(f"{case.get('id')}: expected_output disagrees with the independent oracle")
     return values, expected_result, actual_output
+
+
+def validate_tsvc_s313_dot_product_reduction_workload(workload: dict) -> None:
+    """Validate the source-pinned bounded TSVC s313 reduction profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s313_dot_product_reduction"
+    if (workload.get("algorithm") != "tsvc_s313_dot_product_reduction"
+            or workload.get("function_symbol") != "tsvc_s313_dot_product_reduction"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("pinned_source", {}).get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or workload.get("pinned_source", {}).get("path") != "TSVC/tsc.inc"
+            or workload.get("pinned_source", {}).get("symbol") != "s313"
+            or workload.get("pinned_source", {}).get("launcher_paths") != [
+                "TSVC/Reductions-dbl/info.sh", "TSVC/Reductions-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_input_length") != TSVC_S313_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 64]
+            or workload.get("input", {}).get("value_range") != [-1000, 1000]
+            or workload.get("output", {}).get("elements") != 1
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 1
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s313 workload metadata differs from the pinned reduction contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("No explicit redistribution grant" not in readme or "s313" not in readme
+            or "No explicit license grant was found" not in rights):
+        raise ValueError("TSVC s313 README must document provenance and the rights status")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s313_dot_product_reduction.{extension}"
+        if not port.is_file():
+            raise ValueError(f"TSVC s313 port is missing: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"unit-dot", "cancellation", "zero-vector", "invalid-length",
+                    "invalid-fractional-value", "short-capacity", "null-output"}
+    if (not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids):
+        raise ValueError("TSVC s313 workload requires fixtures")
+    for case in cases:
+        encode_case(case, "tsvc_s313_dot_product_reduction", 0.0, 0.0)
+
+
+def validate_graphai_gcn_aggregation_workload(workload: dict) -> None:
+    """Pin the bounded GraphAIBench GCN CSR aggregation ABI and source notice."""
+    package = ROOT / "benchmarks" / "g" / "graphai_gcn_aggregation"
+    source_url = ("https://github.com/chenxuhao/GraphAIBench/blob/"
+                  "17834cb29b7c542481c2e3740dc9664841b72f59/"
+                  "src/gnn/gconv/gcn_aggregator.cpp")
+    source = {
+        "repository": "chenxuhao/GraphAIBench",
+        "commit": "17834cb29b7c542481c2e3740dc9664841b72f59",
+        "path": "src/gnn/gconv/gcn_aggregator.cpp",
+        "symbol": "GCN_Aggregator::update_all",
+        "url": source_url,
+        "normalization_path": "include/gnn/graph_operations.h",
+        "license": "MIT License",
+        "copyright": "Copyright (c) 2022 Xuhao Chen",
+        "license_file": "LICENSE.txt",
+    }
+    contract = {
+        "operation": "For each CSR row u and feature k, accumulate left[u]*right[v]*X[v,k] over outgoing neighbors v in CSR order.",
+        "input_encoding": "[n,m,d,rowptr[n+1],colind[m],left[n],right[n],X[n*d]]",
+        "exact_input_length": "4+3*n+m+n*d",
+        "output_encoding": "Y[n*d] in vertex-major then feature-major order",
+        "arithmetic": "Finite binary64 multiplications and additions in source CSR edge order; factors are supplied normalization values.",
+        "bounds": {"n": [1, 8], "m": [0, 24], "d": [1, 4], "left_right": [-4, 4], "features": [-8, 8]},
+        "invalid_input_result": -1,
+        "output_error_result": -2,
+        "no_write_on_error": True,
+    }
+    expected = {
+        "schema_version": 1,
+        "id": "graph-aibench-gcn-normalized-neighbor-aggregation-float64-slice-v1",
+        "algorithm": "graphai_gcn_aggregation",
+        "function_symbol": "graphai_gcn_aggregation",
+        "abi": "float64_slice_io",
+        "description": "Bounded CSR normalized-neighbor feature aggregation from GraphAIBench GCN.",
+        "pinned_source": source,
+        "contract": contract,
+        "input": {"kind": "finite_float64_array", "maximum_input_length": 84,
+                  "invalid_result": -1},
+        "output": {"kind": "float64_array", "maximum_elements": 32,
+                   "success_result": "n*d output elements", "null_or_short_result": -2,
+                   "no_write_on_error": True, "absolute_tolerance": 0,
+                   "relative_tolerance": 0},
+        "workspace": {"elements": 32,
+                      "meaning": "Fixed CSR index and staged output arrays at the declared maximum bounds."},
+        "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5,
+                        "warmup_rounds": 1, "repetitions_per_sample": 100,
+                        "absolute_tolerance": 0, "relative_tolerance": 0},
+    }
+    if (not isinstance(workload, dict)
+            or any(workload.get(key) != value for key, value in expected.items())
+            or set(workload) != set(expected) | {"cases"}):
+        raise ValueError("graphai_gcn_aggregation metadata differs from its pinned bounded profile")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source_url not in readme or source["commit"] not in readme
+            or "MIT License" not in license_text
+            or "Copyright (c) 2022 Xuhao Chen" not in license_text
+            or "Permission is hereby granted" not in license_text
+            or "THE SOFTWARE IS PROVIDED \"AS IS\"" not in license_text):
+        raise ValueError("graphai_gcn_aggregation source attribution or MIT notice is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                  "nim": "nim", "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        port = ROOT / language / "g" / f"graphai_gcn_aggregation.{extension}"
+        if not port.is_file():
+            raise ValueError(f"graphai_gcn_aggregation port is missing: {port}")
+    cases = workload.get("cases")
+    ids = {"weighted-two-edge-row", "all-isolated-vertices", "invalid-neighbor-index",
+           "invalid-row-pointer-order", "short-output-capacity", "null-output", "null-input"}
+    if not isinstance(cases, list) or len(cases) != len(ids) or {
+            case.get("id") for case in cases if isinstance(case, dict)} != ids:
+        raise ValueError("graphai_gcn_aggregation fixtures differ from the frozen profile")
+    for case in cases:
+        expected_fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+        if case["id"] in {"short-output-capacity", "null-output"}:
+            expected_fields.add("output_capacity")
+        if case["id"] == "null-output":
+            expected_fields.add("output_is_null")
+        if case["id"] == "null-input":
+            expected_fields.add("input_is_null")
+        if (set(case) != expected_fields
+                or type(case["input_length"]) is not int
+                or case["input_length"] != len(case["input_values"])):
+            raise ValueError(f"graphai_gcn_aggregation fixture framing is invalid: {case.get('id')}")
+        encode_case(case, "graphai_gcn_aggregation", 0.0, 0.0)
+
+
+def validate_graphai_sage_aggregation_workload(workload: dict) -> None:
+    """Pin the bounded GraphAIBench GraphSAGE mean aggregation profile."""
+    package = ROOT / "benchmarks" / "g" / "graphai_sage_aggregation"
+    commit = "17834cb29b7c542481c2e3740dc9664841b72f59"
+    source_url = f"https://github.com/chenxuhao/GraphAIBench/blob/{commit}/src/gnn/gconv/sage_aggregator.cpp"
+    source = {"repository": "chenxuhao/GraphAIBench", "commit": commit,
+              "path": "src/gnn/gconv/sage_aggregator.cpp",
+              "symbol": "SAGE_Aggregator::aggregate", "url": source_url,
+              "license": "MIT License", "copyright": "Copyright (c) 2022 Xuhao Chen",
+              "license_file": "LICENSE.txt"}
+    contract = {
+        "operation": "For each CSR row u, sum each outgoing-neighbor feature vector in CSR order, scaled by the reciprocal of the row degree.",
+        "input_encoding": "[n,m,d,rowptr[n+1],colind[m],X[n*d]]",
+        "exact_input_length": "4+n+m+n*d",
+        "output_encoding": "Y[n*d] in vertex-major then feature-major order",
+        "arithmetic": "Finite binary64 products and additions; each row uses one 1/degree scale, and an empty row emits zeros.",
+        "bounds": {"n": [1, 8], "m": [0, 24], "d": [1, 4], "features": [-8, 8]},
+        "invalid_input_result": -1, "output_error_result": -2, "no_write_on_error": True,
+    }
+    expected = {
+        "schema_version": 1,
+        "id": "graph-aibench-graphsage-mean-neighbor-aggregation-float64-slice-v1",
+        "algorithm": "graphai_sage_aggregation",
+        "function_symbol": "graphai_sage_aggregation",
+        "abi": "float64_slice_io",
+        "description": "Bounded CSR mean-neighbor feature aggregation from GraphAIBench GraphSAGE.",
+        "pinned_source": source, "contract": contract,
+        "input": {"kind": "finite_float64_array", "maximum_input_length": 68,
+                  "invalid_result": -1},
+        "output": {"kind": "float64_array", "maximum_elements": 32,
+                   "success_result": "n*d output elements", "null_or_short_result": -2,
+                   "no_write_on_error": True, "absolute_tolerance": 1e-12,
+                   "relative_tolerance": 1e-12},
+        "workspace": {"elements": 32,
+                      "meaning": "Fixed CSR index arrays and staged output at the declared bounds."},
+        "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5,
+                        "warmup_rounds": 1, "repetitions_per_sample": 100,
+                        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12},
+    }
+    if (not isinstance(workload, dict)
+            or any(workload.get(key) != value for key, value in expected.items())
+            or set(workload) != set(expected) | {"cases"}):
+        raise ValueError("graphai_sage_aggregation metadata differs from its pinned bounded profile")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source_url not in readme or commit not in readme or "MIT License" not in license_text
+            or "Copyright (c) 2022 Xuhao Chen" not in license_text
+            or "Permission is hereby granted" not in license_text
+            or "THE SOFTWARE IS PROVIDED \"AS IS\"" not in license_text):
+        raise ValueError("graphai_sage_aggregation attribution or MIT notice is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                  "nim": "nim", "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        port = ROOT / language / "g" / f"graphai_sage_aggregation.{extension}"
+        if not port.is_file():
+            raise ValueError(f"graphai_sage_aggregation port is missing: {port}")
+    cases = workload.get("cases")
+    ids = {"two-neighbor-mean", "isolated-vertices", "invalid-neighbor",
+           "invalid-row-pointer", "short-capacity", "null-output", "null-input"}
+    if not isinstance(cases, list) or len(cases) != len(ids) or {
+            case.get("id") for case in cases if isinstance(case, dict)} != ids:
+        raise ValueError("graphai_sage_aggregation fixtures differ from the frozen profile")
+    for case in cases:
+        fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+        if case["id"] in {"short-capacity", "null-output"}: fields.add("output_capacity")
+        if case["id"] == "null-output": fields.add("output_is_null")
+        if case["id"] == "null-input": fields.add("input_is_null")
+        if (not isinstance(case, dict) or set(case) != fields
+                or type(case.get("input_length")) is not int
+                or case.get("input_length") != len(case.get("input_values", []))):
+            raise ValueError(f"graphai_sage_aggregation fixture framing is invalid: {case.get('id')}")
+        encode_case(case, "graphai_sage_aggregation", 1e-12, 1e-12)
+
+
+def validate_graphai_gat_aggregation_workload(workload: dict) -> None:
+    """Validate the pinned GraphAIBench GAT forward attention profile."""
+    package = ROOT / "benchmarks" / "g" / "graphai_gat_aggregation"
+    commit = "17834cb29b7c542481c2e3740dc9664841b72f59"
+    source_url = f"https://github.com/chenxuhao/GraphAIBench/blob/{commit}/src/gnn/gconv/gat_aggregator.cpp"
+    expected = {
+        "schema_version": 1,
+        "id": "graph-aibench-gat-attention-aggregation-float64-slice-v1",
+        "algorithm": "graphai_gat_aggregation",
+        "function_symbol": "graphai_gat_aggregation",
+        "abi": "float64_slice_io",
+        "description": "Bounded CSR GAT attention scoring, row softmax, and neighbor aggregation.",
+        "pinned_source": {"repository": "chenxuhao/GraphAIBench", "commit": commit,
+                          "path": "src/gnn/gconv/gat_aggregator.cpp",
+                          "symbol": "GAT_Aggregator::aggregate, update_all", "url": source_url,
+                          "license": "MIT License", "copyright": "Copyright (c) 2022 Xuhao Chen",
+                          "license_file": "LICENSE.txt"},
+        "contract": {"operation": "For each CSR edge u->v, compute leaky_relu(dot(alpha_l,X[u])+dot(alpha_r,X[v]),0.2), softmax the row scores, and sum weighted destination feature vectors.",
+                     "input_encoding": "[n,m,d,rowptr[n+1],colind[m],alpha_l[d],alpha_r[d],X[n*d]]",
+                     "exact_input_length": "4+n+m+2*d+n*d",
+                     "output_encoding": "Y[n*d] in vertex-major then feature-major order",
+                     "arithmetic": "Finite binary64; edge scores and weighted-vector accumulation follow CSR order; softmax subtracts the row maximum; empty rows emit zeros.",
+                     "bounds": {"n": [1, 8], "m": [0, 24], "d": [1, 4], "coefficients_and_features": [-8, 8]},
+                     "invalid_input_result": -1, "output_error_result": -2, "no_write_on_error": True},
+        "input": {"kind": "finite_float64_array", "maximum_input_length": GRAPHAI_GAT_MAX_INPUT_LENGTH,
+                  "invalid_result": -1},
+        "output": {"kind": "float64_array", "maximum_elements": GRAPHAI_GAT_MAX_OUTPUT_ELEMENTS,
+                   "success_result": "n*d output elements", "null_or_short_result": -2,
+                   "no_write_on_error": True, "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12},
+        "workspace": {"elements": GRAPHAI_GAT_MAX_OUTPUT_ELEMENTS,
+                      "meaning": "Fixed CSR and score arrays plus staged output at declared bounds."},
+        "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5,
+                        "warmup_rounds": 1, "repetitions_per_sample": 100,
+                        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12},
+    }
+    if (not isinstance(workload, dict)
+            or any(workload.get(key) != value for key, value in expected.items())
+            or set(workload) != set(expected) | {"cases"}):
+        raise ValueError("graphai_gat_aggregation metadata differs from its pinned profile")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source_url not in readme or commit not in readme or "MIT License" not in license_text
+            or "Copyright (c) 2022 Xuhao Chen" not in license_text
+            or "Permission is hereby granted" not in license_text
+            or "THE SOFTWARE IS PROVIDED \"AS IS\"" not in license_text):
+        raise ValueError("graphai_gat_aggregation attribution or MIT notice is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                  "nim": "nim", "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        if not (ROOT / language / "g" / f"graphai_gat_aggregation.{extension}").is_file():
+            raise ValueError(f"graphai_gat_aggregation port missing for {language}")
+    cases = workload.get("cases")
+    ids = {"two-edge-attention", "empty-rows", "invalid-neighbor", "short-capacity", "null-output", "null-input"}
+    if not isinstance(cases, list) or len(cases) != len(ids) or {
+            case.get("id") for case in cases if isinstance(case, dict)} != ids:
+        raise ValueError("graphai_gat_aggregation workload fixtures are incomplete")
+    for case in cases:
+        fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+        if case["id"] in {"short-capacity", "null-output"}: fields.add("output_capacity")
+        if case["id"] == "null-output": fields.add("output_is_null")
+        if case["id"] == "null-input": fields.add("input_is_null")
+        if set(case) != fields or case["input_length"] != len(case["input_values"]):
+            raise ValueError(f"graphai_gat_aggregation fixture framing invalid: {case.get('id')}")
+        encode_case(case, "graphai_gat_aggregation", 1e-12, 1e-12)
+
+
+def validate_graphai_frontier_sampler_workload(workload: dict) -> None:
+    """Validate the deterministic, bounded GraphAIBench three-round sampler."""
+    package = ROOT / "benchmarks" / "g" / "graphai_frontier_sampler"
+    commit = "17834cb29b7c542481c2e3740dc9664841b72f59"
+    source_url = f"https://github.com/chenxuhao/GraphAIBench/blob/{commit}/src/sampling/omp_base.cc"
+    expected = {
+        "schema_version": 1,
+        "id": "graph-aibench-three-round-frontier-sampler-float64-slice-v1",
+        "algorithm": "graphai_frontier_sampler",
+        "function_symbol": "graphai_frontier_sampler",
+        "abi": "float64_slice_io",
+        "description": "Three-round deterministic-choice branching frontier sampler with bounded 3/2/2 fanouts.",
+        "pinned_source": {"repository": "chenxuhao/GraphAIBench", "commit": commit,
+                          "path": "src/sampling/omp_base.cc", "symbol": "sample", "url": source_url,
+                          "license": "MIT License", "copyright": "Source comment: Copyright 2020 MIT; Authors: Xuhao Chen",
+                          "license_file": "LICENSE.txt"},
+        "contract": {"operation": "Expand caller roots through three CSR rounds, selecting a supplied zero-based edge ordinal for each child draw with replacement.",
+                     "input_encoding": "[n,m,r,roots[r],rowptr[n+1],colind[m],edge_choice[21*r]]",
+                     "exact_input_length": "4+n+m+22*r",
+                     "output_encoding": "roots || hop1 || hop2 || hop3, preserving frontier and child order; layer sizes are r,3r,6r,12r",
+                     "fanouts": [3, 2, 2], "source_fanouts": [15, 10, 10],
+                     "choice_order": "round, frontier parent order, then child order; each choice is an edge ordinal in that parent's CSR row",
+                     "bounds": {"n": [1, 8], "m": [0, 24], "roots": [1, 4]},
+                     "expanded_zero_degree_vertex": "invalid input", "invalid_input_result": -1,
+                     "output_error_result": -2, "no_write_on_error": True},
+        "input": {"kind": "integer-valued_float64_array", "maximum_input_length": GRAPHAI_FRONTIER_SAMPLER_MAX_INPUT_LENGTH,
+                  "invalid_result": -1},
+        "output": {"kind": "integer-valued_float64_array", "maximum_elements": GRAPHAI_FRONTIER_SAMPLER_MAX_OUTPUT_ELEMENTS,
+                   "success_result": "22*r ordered vertex IDs", "null_or_short_result": -2,
+                   "no_write_on_error": True, "absolute_tolerance": 0, "relative_tolerance": 0},
+        "workspace": {"elements": GRAPHAI_FRONTIER_SAMPLER_MAX_OUTPUT_ELEMENTS,
+                      "meaning": "Fixed staged output for four bounded frontiers at r<=4."},
+        "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5,
+                        "warmup_rounds": 1, "repetitions_per_sample": 100,
+                        "absolute_tolerance": 0, "relative_tolerance": 0},
+    }
+    if (not isinstance(workload, dict)
+            or any(workload.get(key) != value for key, value in expected.items())
+            or set(workload) != set(expected) | {"cases"}):
+        raise ValueError("graphai_frontier_sampler metadata differs from its bounded source profile")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source_url not in readme or commit not in readme or "3,2,2" not in readme
+            or "15,10,10" not in readme or "MIT License" not in license_text
+            or "Permission is hereby granted" not in license_text):
+        raise ValueError("graphai_frontier_sampler attribution, projection, or MIT notice is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                  "nim": "nim", "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        if not (ROOT / language / "g" / f"graphai_frontier_sampler.{extension}").is_file():
+            raise ValueError(f"graphai_frontier_sampler port missing for {language}")
+    cases = workload.get("cases")
+    ids = {"branch-choice-order", "one-root-cycle", "invalid-choice", "short-capacity", "null-output", "null-input"}
+    if not isinstance(cases, list) or len(cases) != len(ids) or {
+            case.get("id") for case in cases if isinstance(case, dict)} != ids:
+        raise ValueError("graphai_frontier_sampler workload fixtures are incomplete")
+    for case in cases:
+        fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+        if case["id"] in {"short-capacity", "null-output"}: fields.add("output_capacity")
+        if case["id"] == "null-output": fields.add("output_is_null")
+        if case["id"] == "null-input": fields.add("input_is_null")
+        if set(case) != fields or case["input_length"] != len(case["input_values"]):
+            raise ValueError(f"graphai_frontier_sampler fixture framing invalid: {case.get('id')}")
+        encode_case(case, "graphai_frontier_sampler", 0, 0)
+
+
+def validate_graphai_cf_sgd_sweep_workload(workload: dict) -> None:
+    """Validate a bounded single sweep of GraphAIBench's CF factor update."""
+    package = ROOT / "benchmarks" / "g" / "graphai_cf_sgd_sweep"
+    commit = "17834cb29b7c542481c2e3740dc9664841b72f59"
+    source_root = f"https://github.com/chenxuhao/GraphAIBench/tree/{commit}/src/embedding"
+    expected = {
+        "schema_version": 1,
+        "id": "graph-aibench-collaborative-filtering-sgd-one-sweep-float64-slice-v1",
+        "algorithm": "graphai_cf_sgd_sweep",
+        "function_symbol": "graphai_cf_sgd_sweep",
+        "abi": "float64_slice_io",
+        "description": "One deterministic user-to-item latent-factor residual and update sweep from GraphAIBench CF.",
+        "pinned_source": {"repository": "chenxuhao/GraphAIBench", "commit": commit,
+                          "path": ["src/embedding/omp_base.cc", "src/embedding/main.cc"],
+                          "symbol": "SGDSolver, Initialize", "url": source_root,
+                          "license": "MIT License", "copyright": "Copyright 2022 MIT; Authors: Xuhao Chen",
+                          "license_file": "LICENSE.txt"},
+        "contract": {"operation": "Accumulate per-user residual factor errors over rating edges in CSR order, then update every factor once with step*(-lambda*latent+error) from the original factor matrix.",
+                     "input_encoding": "[users,items,m,k,lambda,step,rowptr[users+items+1],colind[m],rating[m],latent[(users+items)*k]]",
+                     "exact_input_length": "7+n+2*m+n*k, n=users+items",
+                     "output_encoding": "updated latent factors in vertex-major then factor-major order",
+                     "arithmetic": "Finite binary64 projection; dot products and edge residual updates preserve factor and CSR order; all vertex updates use the pre-sweep latent matrix.",
+                     "bounds": {"users": [1, 7], "items": [1, 7], "vertices": [2, 8], "m": [0, 24], "k": [1, 4], "lambda": [0, 1], "step": [0, 0.01], "ratings": [-4, 4], "latent": [-2, 2]},
+                     "graph_shape": "directed user-to-item CSR; item rows must be empty",
+                     "invalid_input_result": -1, "output_error_result": -2, "no_write_on_error": True},
+        "input": {"kind": "finite_float64_array", "maximum_input_length": GRAPHAI_CF_SGD_SWEEP_MAX_INPUT_LENGTH,
+                  "invalid_result": -1},
+        "output": {"kind": "float64_array", "maximum_elements": GRAPHAI_CF_SGD_SWEEP_MAX_OUTPUT_ELEMENTS,
+                   "success_result": "(users+items)*k updated factors", "null_or_short_result": -2,
+                   "no_write_on_error": True, "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12},
+        "workspace": {"elements": GRAPHAI_CF_SGD_SWEEP_MAX_OUTPUT_ELEMENTS,
+                      "meaning": "Fixed edge indices and staged latent/error vectors at declared bounds."},
+        "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5,
+                        "warmup_rounds": 1, "repetitions_per_sample": 100,
+                        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12},
+    }
+    if (not isinstance(workload, dict)
+            or any(workload.get(key) != value for key, value in expected.items())
+            or set(workload) != set(expected) | {"cases"}):
+        raise ValueError("graphai_cf_sgd_sweep metadata differs from its pinned one-sweep contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (commit not in readme or "src/embedding/omp_base.cc" not in readme
+            or "src/embedding/main.cc" not in readme or "MIT License" not in license_text
+            or "Copyright (c) 2022 Xuhao Chen" not in license_text
+            or "Permission is hereby granted" not in license_text
+            or "THE SOFTWARE IS PROVIDED \"AS IS\"" not in license_text):
+        raise ValueError("graphai_cf_sgd_sweep attribution or MIT notice is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                  "nim": "nim", "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        if not (ROOT / language / "g" / f"graphai_cf_sgd_sweep.{extension}").is_file():
+            raise ValueError(f"graphai_cf_sgd_sweep port missing for {language}")
+    cases = workload.get("cases")
+    ids = {"single-rating-update", "regularization-only-items", "invalid-item-destination",
+           "short-capacity", "null-output", "null-input"}
+    if not isinstance(cases, list) or len(cases) != len(ids) or {
+            case.get("id") for case in cases if isinstance(case, dict)} != ids:
+        raise ValueError("graphai_cf_sgd_sweep workload fixtures are incomplete")
+    for case in cases:
+        fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+        if case["id"] in {"short-capacity", "null-output"}: fields.add("output_capacity")
+        if case["id"] == "null-output": fields.add("output_is_null")
+        if case["id"] == "null-input": fields.add("input_is_null")
+        if set(case) != fields or case["input_length"] != len(case["input_values"]):
+            raise ValueError(f"graphai_cf_sgd_sweep fixture framing invalid: {case.get('id')}")
+        encode_case(case, "graphai_cf_sgd_sweep", 1e-12, 1e-12)
+
+
+def validate_gardenia_workload(workload: dict, algorithm: str) -> None:
+    """Check the pinned Gardenia profiles, rights notice, ports, and fixtures."""
+    definitions = {
+        "gardenia_symgs": {
+            "maximum_input": GARDENIA_SYMGS_MAX_INPUT_LENGTH,
+            "maximum_output": GARDENIA_SYMGS_MAX_OUTPUT_ELEMENTS,
+            "source_path": "src/symgs/omp_base.cc",
+            "source_symbol": "gauss_seidel, SymGSSolver",
+            "source_url": "https://github.com/chenxuhao/gardenia/blob/5894df11cf47f8839945edadff43dc79e260216d/src/symgs/omp_base.cc",
+            "case_ids": {"two-by-two-forward-backward", "three-row-path-colored-sweep",
+                         "bad-color-offsets", "short-output"},
+        },
+        "gardenia_sgd": {
+            "maximum_input": GARDENIA_SGD_MAX_INPUT_LENGTH,
+            "maximum_output": GARDENIA_SGD_MAX_OUTPUT_ELEMENTS,
+            "source_path": "src/sgd/verifier.cc",
+            "source_symbol": "SGDVerifier",
+            "source_url": "https://github.com/chenxuhao/gardenia/blob/5894df11cf47f8839945edadff43dc79e260216d/src/sgd/verifier.cc",
+            "case_ids": {"single-rating-one-converged-pass", "bad-row-pointer-end", "short-output"},
+        },
+    }
+    if algorithm not in definitions:
+        raise ValueError(f"unsupported GARDENIA workload: {algorithm}")
+    spec = definitions[algorithm]
+    source = workload.get("source", {})
+    if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+            or workload.get("function_symbol") != algorithm or workload.get("abi") != "float64_slice_io"
+            or source.get("repository") != "chenxuhao/gardenia"
+            or source.get("commit") != "5894df11cf47f8839945edadff43dc79e260216d"
+            or source.get("path") != spec["source_path"]
+            or source.get("symbols") != spec["source_symbol"].split(", ")
+            or source.get("url") != spec["source_url"]
+            or source.get("license") != "MIT"
+            or workload.get("input", {}).get("maximum_input_length") != spec["maximum_input"]
+            or workload.get("output", {}).get("maximum_elements") != spec["maximum_output"]
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") not in (None, 1e-12)
+            or workload.get("measurement", {}).get("relative_tolerance") not in (None, 1e-12)):
+        raise ValueError(f"{algorithm} workload metadata differs from its pinned source profile")
+    package = ROOT / "benchmarks" / "g" / algorithm
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (spec["source_url"] not in readme or "5894df11cf47f8839945edadff43dc79e260216d" not in readme
+            or "MIT License" not in license_text or "Copyright (c) 2022 Xuhao Chen" not in license_text
+            or "Permission is hereby granted" not in license_text):
+        raise ValueError(f"{algorithm} source attribution or MIT notice is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                  "nim": "nim", "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        if not (ROOT / language / "g" / f"{algorithm}.{extension}").is_file():
+            raise ValueError(f"{algorithm} port is missing for {language}")
+    cases = workload.get("cases")
+    if (not isinstance(cases, list) or {case.get("id") for case in cases if isinstance(case, dict)}
+            != spec["case_ids"]):
+        raise ValueError(f"{algorithm} workload fixtures are incomplete")
+    for case in cases:
+        if case.get("input_length") != len(case.get("input_values", [])):
+            raise ValueError(f"{algorithm} fixture framing is invalid: {case.get('id')}")
+        encode_case(case, algorithm, 1e-12, 1e-12)
+
+
+def validate_tsvc_s275_column_conditional_axpy_recurrence_workload(workload: dict) -> None:
+    """Validate the source-pinned bounded TSVC s275 recurrence profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s275_column_conditional_axpy_recurrence"
+    if (workload.get("algorithm") != "tsvc_s275_column_conditional_axpy_recurrence"
+            or workload.get("function_symbol") != "tsvc_s275_column_conditional_axpy_recurrence"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("pinned_source", {}).get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or workload.get("pinned_source", {}).get("path") != "TSVC/tsc.inc"
+            or workload.get("pinned_source", {}).get("symbol") != "s275"
+            or workload.get("pinned_source", {}).get("launcher_paths") != [
+                "TSVC/ControlFlow-dbl/info.sh", "TSVC/ControlFlow-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_input_length") != TSVC_S275_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 8]
+            or workload.get("output", {}).get("maximum_elements") != 64
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 64
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s275 workload metadata differs from the pinned recurrence contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if "No explicit redistribution grant" not in readme or "No explicit license grant was found" not in rights:
+        raise ValueError("TSVC s275 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s275_column_conditional_axpy_recurrence.{extension}"
+        if not port.is_file():
+            raise ValueError(f"TSVC s275 port is missing: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"positive-guarded-columns", "three-row-dependent-chains", "all-guards-disabled",
+                    "one-row-no-recurrence", "invalid-size", "invalid-fractional-entry",
+                    "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s275 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s275_column_conditional_axpy_recurrence", 0.0, 0.0)
+
+
+def validate_tsvc_s111_odd_index_neighbor_update_workload(workload: dict) -> None:
+    """Validate the pinned bounded TSVC s111 profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s111_odd_index_neighbor_update"
+    if (workload.get("algorithm") != "tsvc_s111_odd_index_neighbor_update"
+            or workload.get("function_symbol") != "tsvc_s111_odd_index_neighbor_update"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("pinned_source", {}).get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or workload.get("pinned_source", {}).get("path") != "TSVC/tsc.inc"
+            or workload.get("pinned_source", {}).get("symbol") != "s111"
+            or workload.get("pinned_source", {}).get("launcher_paths") != [
+                "TSVC/LinearDependence-dbl/info.sh", "TSVC/LinearDependence-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_input_length") != TSVC_S111_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 64]
+            or workload.get("output", {}).get("maximum_elements") != 64
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 64
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s111 workload metadata differs from its pinned bounded contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if "No explicit redistribution grant" not in readme or "No explicit license grant was found" not in rights:
+        raise ValueError("TSVC s111 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s111_odd_index_neighbor_update.{extension}"
+        if not port.is_file():
+            raise ValueError(f"TSVC s111 port is missing: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"odd-destinations", "even-length-unchanged-even-cells", "one-element-no-update",
+                    "invalid-size", "invalid-fractional-input", "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s111 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s111_odd_index_neighbor_update", 0.0, 0.0)
+
+
+def validate_tsvc_vtvtv_triple_product_map_workload(workload: dict) -> None:
+    """Validate the pinned bounded TSVC ControlLoops vtvtv profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_vtvtv_triple_product_map"
+    if (workload.get("algorithm") != "tsvc_vtvtv_triple_product_map"
+            or workload.get("function_symbol") != "tsvc_vtvtv_triple_product_map"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("pinned_source", {}).get("repository") != "lac-dcc/Benchmarks"
+            or workload.get("pinned_source", {}).get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or workload.get("pinned_source", {}).get("path") != "TSVC/tsc.inc"
+            or workload.get("pinned_source", {}).get("symbol") != "vtvtv"
+            or workload.get("pinned_source", {}).get("source_lines") != {
+                "kernel_start": 5411, "kernel_end": 5434}
+            or workload.get("pinned_source", {}).get("launcher_paths") != [
+                "TSVC/ControlLoops-dbl/info.sh", "TSVC/ControlLoops-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_input_length") != TSVC_VTVTV_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_input_length") != TSVC_VTVTV_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 64]
+            or workload.get("contract", {}).get("input_layout") != "[n, A[n], B[n], C[n]]"
+            or workload.get("contract", {}).get("exact_length") != "1 + 3*n"
+            or workload.get("contract", {}).get("operation") != "In ascending index order, assign A[i] = (A[i] * B[i]) * C[i] using left-associative binary64 operations; emit final A."
+            or workload.get("output", {}).get("maximum_elements") != 64
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 64
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC vtvtv workload metadata differs from its pinned bounded contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if "No explicit redistribution grant" not in readme or "No explicit license grant was found" not in rights:
+        raise ValueError("TSVC vtvtv README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_vtvtv_triple_product_map.{extension}"
+        if not port.is_file():
+            raise ValueError(f"TSVC vtvtv port is missing: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"triple-product-and-signs", "zero-factor-and-single-element",
+                    "identity-factors", "invalid-size", "truncated-vector",
+                    "fractional-value", "capacity-too-short", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC vtvtv workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_vtvtv_triple_product_map", 0.0, 0.0)
+
+
+def validate_tsvc_s451_sincos_vector_map_workload(workload: dict) -> None:
+    """Validate the pinned bounded binary64 TSVC s451 profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s451_sincos_vector_map"
+    if (workload.get("algorithm") != "tsvc_s451_sincos_vector_map"
+            or workload.get("function_symbol") != "tsvc_s451_sincos_vector_map"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("pinned_source", {}).get("repository") != "lac-dcc/Benchmarks"
+            or workload.get("pinned_source", {}).get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or workload.get("pinned_source", {}).get("path") != "TSVC/tsc.inc"
+            or workload.get("pinned_source", {}).get("symbol") != "s451"
+            or workload.get("pinned_source", {}).get("source_lines") != {
+                "kernel_start": 4724, "kernel_end": 4751}
+            or workload.get("pinned_source", {}).get("launcher_paths") != [
+                "TSVC/GlobalDataFlow-dbl/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_input_length") != TSVC_S451_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_input_length") != TSVC_S451_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 64]
+            or workload.get("contract", {}).get("input_layout") != "[n, B[n], C[n]]"
+            or workload.get("contract", {}).get("exact_length") != "1 + 2*n"
+            or workload.get("contract", {}).get("operation") != "For each i in ascending order, emit sin(B[i]) + cos(C[i]) using binary64 math functions."
+            or workload.get("contract", {}).get("float_launcher_scope") != "The float launcher uses sinf/cosf and is outside this binary64-only profile."
+            or workload.get("output", {}).get("maximum_elements") != 64
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 64
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 1e-14
+            or workload.get("measurement", {}).get("relative_tolerance") != 1e-14):
+        raise ValueError("TSVC s451 workload metadata differs from its pinned binary64 contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if "No explicit redistribution grant" not in readme or "No explicit license grant was found" not in rights:
+        raise ValueError("TSVC s451 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s451_sincos_vector_map.{extension}"
+        if not port.is_file():
+            raise ValueError(f"TSVC s451 port is missing: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"zero-angles", "cardinal-angles", "invalid-zero-size",
+                    "truncated-second-array", "angle-out-of-range", "short-capacity",
+                    "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s451 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s451_sincos_vector_map", 1e-14, 1e-14)
+
+
+def validate_tsvc_s221_partial_recursive_fused_update_workload(workload: dict) -> None:
+    """Validate the pinned bounded TSVC s221 recurrence profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s221_partial_recursive_fused_update"
+    if (workload.get("algorithm") != "tsvc_s221_partial_recursive_fused_update"
+            or workload.get("function_symbol") != "tsvc_s221_partial_recursive_fused_update"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("pinned_source", {}).get("repository") != "lac-dcc/Benchmarks"
+            or workload.get("pinned_source", {}).get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or workload.get("pinned_source", {}).get("path") != "TSVC/tsc.inc"
+            or workload.get("pinned_source", {}).get("symbol") != "s221"
+            or workload.get("pinned_source", {}).get("source_lines") != {
+                "kernel_start": 1992, "kernel_end": 2016}
+            or workload.get("pinned_source", {}).get("launcher_paths") != [
+                "TSVC/LoopRestructuring-dbl/info.sh", "TSVC/LoopRestructuring-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_input_length") != TSVC_S221_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_input_length") != TSVC_S221_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 64]
+            or workload.get("contract", {}).get("input_layout") != "[n, A[n], B[n], C[n], D[n]]"
+            or workload.get("contract", {}).get("exact_length") != "1 + 4*n"
+            or workload.get("contract", {}).get("operation") != "Leave A[0],B[0] unchanged; for i=1..n-1 ascending, apply A[i]=A[i]+C[i]*D[i], then B[i]=(B[i-1]+A[i])+D[i]."
+            or workload.get("output", {}).get("maximum_elements") != 128
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 128
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s221 workload metadata differs from its pinned bounded contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if "No explicit redistribution grant" not in readme or "No explicit license grant was found" not in rights:
+        raise ValueError("TSVC s221 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s221_partial_recursive_fused_update.{extension}"
+        if not port.is_file():
+            raise ValueError(f"TSVC s221 port is missing: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"fused-update-and-b-chain", "minimum-size-no-loop", "zero-product-chain",
+                    "invalid-dimension", "truncated-array", "fractional-value",
+                    "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s221 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s221_partial_recursive_fused_update", 0.0, 0.0)
+
+
+def validate_tsvc_s222_interleaved_square_recurrence_workload(workload: dict) -> None:
+    """Validate the pinned bounded TSVC s222 source-order profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s222_interleaved_square_recurrence"
+    source = workload.get("pinned_source", {})
+    if (workload.get("algorithm") != "tsvc_s222_interleaved_square_recurrence"
+            or workload.get("function_symbol") != "tsvc_s222_interleaved_square_recurrence"
+            or workload.get("abi") != "float64_slice_io"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "TSVC/tsc.inc" or source.get("symbol") != "s222"
+            or source.get("source_lines") != {"kernel_start": 1961, "kernel_end": 1985}
+            or source.get("launcher_paths") != [
+                "TSVC/StatementReordering-dbl/info.sh", "TSVC/StatementReordering-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_length") != TSVC_S222_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S222_MAX_INPUT_LENGTH
+            or workload.get("contract", {}).get("input_layout") != "[n, A[n], B[n], C[n], E[n]]"
+            or workload.get("contract", {}).get("exact_length") != "1 + 4*n"
+            or workload.get("contract", {}).get("n_range") != [1, 64]
+            or workload.get("output", {}).get("maximum_elements") != 128
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 128
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s222 workload metadata differs from its pinned contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if "No explicit redistribution grant" not in readme or "No explicit license grant was found" not in rights:
+        raise ValueError("TSVC s222 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s222_interleaved_square_recurrence.{extension}"
+        if not port.is_file() or "tsvc_s222_interleaved_square_recurrence" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"TSVC s222 port is missing its exported symbol: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"minimum-size-no-loop", "fractional-seed-square-recurrence",
+                    "negative-unit-seed", "invalid-dimension", "truncated-frame",
+                    "fractional-arithmetic-input", "invalid-recurrence-seed",
+                    "null-input", "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s222 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s222_interleaved_square_recurrence", 0.0, 0.0)
+
+
+def validate_tsvc_s2251_carried_scalar_expansion_workload(workload: dict) -> None:
+    """Validate the bounded, source-order TSVC Expansion s2251 profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s2251_carried_scalar_expansion"
+    source = workload.get("pinned_source", {})
+    if (workload.get("algorithm") != "tsvc_s2251_carried_scalar_expansion"
+            or workload.get("function_symbol") != "tsvc_s2251_carried_scalar_expansion"
+            or workload.get("abi") != "float64_slice_io"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "TSVC/tsc.inc" or source.get("symbol") != "s2251"
+            or source.get("launcher_paths") != [
+                "TSVC/Expansion-dbl/info.sh", "TSVC/Expansion-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_length") != TSVC_S2251_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 64]
+            or workload.get("contract", {}).get("input_layout") != "[n,A[n],B[n],C[n],D[n],E[n]]"
+            or workload.get("contract", {}).get("output_layout") != "final A[n] followed by final B[n]"
+            or workload.get("output", {}).get("maximum_elements") != 128
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 128
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s2251 workload metadata differs from its pinned contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if "No explicit license grant" not in readme or "no explicit modification or redistribution grant" not in rights:
+        raise ValueError("TSVC s2251 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s2251_carried_scalar_expansion.{extension}"
+        if not port.is_file() or "tsvc_s2251_carried_scalar_expansion" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"TSVC s2251 port is missing its exported symbol: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"one-element", "carried-state", "negative-multiplier", "invalid-n",
+                    "truncated", "invalid-bound", "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s2251 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s2251_carried_scalar_expansion", 0.0, 0.0)
+
+
+def validate_tsvc_s1251_per_element_dual_update_workload(workload: dict) -> None:
+    """Validate the bounded, source-order TSVC Expansion s1251 profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s1251_per_element_dual_update"
+    source = workload.get("pinned_source", {})
+    if (workload.get("algorithm") != "tsvc_s1251_per_element_dual_update"
+            or workload.get("function_symbol") != "tsvc_s1251_per_element_dual_update"
+            or workload.get("abi") != "float64_slice_io"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "TSVC/tsc.inc" or source.get("symbol") != "s1251"
+            or source.get("launcher_paths") != [
+                "TSVC/Expansion-dbl/info.sh", "TSVC/Expansion-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_length") != TSVC_S1251_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 64]
+            or workload.get("contract", {}).get("input_layout") != "[n,A[n],B[n],C[n],D[n],E[n]]"
+            or workload.get("contract", {}).get("output_layout") != "[A_final[n],B_final[n]]"
+            or workload.get("output", {}).get("maximum_elements") != 128
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 128
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s1251 workload metadata differs from its pinned contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if "No explicit license grant" not in readme or "no explicit modification or redistribution grant" not in rights:
+        raise ValueError("TSVC s1251 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s1251_per_element_dual_update.{extension}"
+        if not port.is_file() or "tsvc_s1251_per_element_dual_update" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"TSVC s1251 port is missing its exported symbol: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"single-source-shaped-position", "saved-temporary-and-dual-write",
+                    "invalid-n", "truncated", "fractional", "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s1251 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s1251_per_element_dual_update", 0.0, 0.0)
+
+
+def validate_tsvc_s3251_forward_shifted_array_expansion_workload(workload: dict) -> None:
+    """Validate the bounded, source-order TSVC Expansion s3251 profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s3251_forward_shifted_array_expansion"
+    source = workload.get("pinned_source", {})
+    if (workload.get("algorithm") != "tsvc_s3251_forward_shifted_array_expansion"
+            or workload.get("function_symbol") != "tsvc_s3251_forward_shifted_array_expansion"
+            or workload.get("abi") != "float64_slice_io"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "TSVC/tsc.inc" or source.get("symbol") != "s3251"
+            or source.get("initializer_symbol") != "s251"
+            or source.get("launcher_paths") != [
+                "TSVC/Expansion-dbl/info.sh", "TSVC/Expansion-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_length") != TSVC_S3251_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 64]
+            or workload.get("contract", {}).get("input_layout") != "[n,A[n],B[n],C[n],D[n],E[n]]"
+            or workload.get("contract", {}).get("output_layout") != "[A_final[n],B_final[n],D_final[n]]"
+            or workload.get("output", {}).get("maximum_elements") != 192
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 192
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s3251 workload metadata differs from its pinned contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("No explicit modification or redistribution grant" not in readme
+            or "No explicit modification or redistribution grant" not in rights):
+        raise ValueError("TSVC s3251 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s3251_forward_shifted_array_expansion.{extension}"
+        if not port.is_file() or "tsvc_s3251_forward_shifted_array_expansion" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"TSVC s3251 port is missing its exported symbol: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"n1-no-loop", "forward-dependency-and-source-order", "invalid-n",
+                    "truncated", "fractional", "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s3251 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s3251_forward_shifted_array_expansion", 0.0, 0.0)
+
+
+def validate_tsvc_s2712_comparison_gated_axpy_workload(workload: dict) -> None:
+    """Validate the bounded ControlFlow s2712 profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s2712_comparison_gated_axpy"
+    source = workload.get("pinned_source", {})
+    if (workload.get("algorithm") != "tsvc_s2712_comparison_gated_axpy"
+            or workload.get("function_symbol") != "tsvc_s2712_comparison_gated_axpy"
+            or workload.get("abi") != "float64_slice_io"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "TSVC/tsc.inc" or source.get("symbol") != "s2712"
+            or source.get("launcher_paths") != [
+                "TSVC/ControlFlow-dbl/info.sh", "TSVC/ControlFlow-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_length") != TSVC_S2712_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 64]
+            or workload.get("input", {}).get("passes_range") != [1, 8]
+            or workload.get("contract", {}).get("input_layout") != "[n,passes,A[n],B[n],C[n]]"
+            or workload.get("contract", {}).get("output_layout") != "A_final[n]"
+            or workload.get("output", {}).get("maximum_elements") != 64
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 64
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s2712 workload metadata differs from its pinned contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("No explicit modification or redistribution grant" not in readme
+            or "No explicit modification or redistribution grant" not in rights):
+        raise ValueError("TSVC s2712 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s2712_comparison_gated_axpy.{extension}"
+        if not port.is_file() or "tsvc_s2712_comparison_gated_axpy" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"TSVC s2712 port is missing its exported symbol: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"predicate-changes-after-update", "strict-boundary-and-negative-values",
+                    "invalid-n", "invalid-pass-count", "truncated", "fractional",
+                    "array-value-out-of-range", "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s2712 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s2712_comparison_gated_axpy", 0.0, 0.0)
+
+
+def validate_tsvc_s2710_nested_scalar_vector_branch_update_workload(workload: dict) -> None:
+    """Validate the bounded nested-branch ControlFlow s2710 profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s2710_nested_scalar_vector_branch_update"
+    source = workload.get("pinned_source", {})
+    if (workload.get("algorithm") != "tsvc_s2710_nested_scalar_vector_branch_update"
+            or workload.get("function_symbol") != "tsvc_s2710_nested_scalar_vector_branch_update"
+            or workload.get("abi") != "float64_slice_io"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "TSVC/tsc.inc" or source.get("symbol") != "s2710"
+            or source.get("initializer_symbol") != "s2710"
+            or source.get("launcher_paths") != [
+                "TSVC/ControlFlow-dbl/info.sh", "TSVC/ControlFlow-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_length") != TSVC_S2710_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [11, 64]
+            or workload.get("input", {}).get("passes_range") != [1, 8]
+            or workload.get("contract", {}).get("input_layout") != "[n,passes,x,A[n],B[n],C[n],D[n],E[n]]"
+            or workload.get("contract", {}).get("output_layout") != "[A_final[n],B_final[n],C_final[n]]"
+            or workload.get("output", {}).get("maximum_elements") != 192
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 192
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s2710 workload metadata differs from its pinned contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("No explicit modification or redistribution grant" not in readme
+            or "No explicit modification or redistribution grant" not in rights):
+        raise ValueError("TSVC s2710 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s2710_nested_scalar_vector_branch_update.{extension}"
+        if not port.is_file() or "tsvc_s2710_nested_scalar_vector_branch_update" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"TSVC s2710 port is missing its exported symbol: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"comparison-and-positive-scalar-branches",
+                    "nonpositive-scalar-accumulates-e-square"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s2710 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s2710_nested_scalar_vector_branch_update", 0.0, 0.0)
+
+
+def validate_tsvc_s1279_nested_conditional_accumulation_workload(workload: dict) -> None:
+    """Validate the bounded nested-predicate ControlFlow s1279 profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s1279_nested_conditional_accumulation"
+    source = workload.get("pinned_source", {})
+    if (workload.get("algorithm") != "tsvc_s1279_nested_conditional_accumulation"
+            or workload.get("function_symbol") != "tsvc_s1279_nested_conditional_accumulation"
+            or workload.get("abi") != "float64_slice_io"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "TSVC/tsc.inc" or source.get("symbol") != "s1279"
+            or source.get("initializer_symbol") != "s279 "
+            or source.get("launcher_paths") != [
+                "TSVC/ControlFlow-dbl/info.sh", "TSVC/ControlFlow-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_length") != TSVC_S1279_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 64]
+            or workload.get("input", {}).get("passes_range") != [1, 8]
+            or workload.get("contract", {}).get("input_layout") != "[n,passes,A[n],B[n],C[n],D[n],E[n]]"
+            or workload.get("contract", {}).get("output_layout") != "C_final[n]"
+            or workload.get("output", {}).get("maximum_elements") != 64
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 64
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s1279 workload metadata differs from its pinned contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("No explicit modification or redistribution grant" not in readme
+            or "No explicit modification or redistribution grant" not in rights):
+        raise ValueError("TSVC s1279 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s1279_nested_conditional_accumulation.{extension}"
+        if not port.is_file() or "tsvc_s1279_nested_conditional_accumulation" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"TSVC s1279 port is missing its exported symbol: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"outer-inner-taken-and-repeated", "outer-predicate-false",
+                    "outer-true-inner-false-and-equality", "invalid-n", "truncated",
+                    "fractional-array-value", "array-value-out-of-range",
+                    "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s1279 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s1279_nested_conditional_accumulation", 0.0, 0.0)
+
+
+def validate_tsvc_s2275_matrix_vector_axpy_interleave_workload(workload: dict) -> None:
+    """Validate the bounded matrix/vector loop-order profile for s2275."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s2275_matrix_vector_axpy_interleave"
+    source = workload.get("pinned_source", {})
+    if (workload.get("algorithm") != "tsvc_s2275_matrix_vector_axpy_interleave"
+            or workload.get("function_symbol") != "tsvc_s2275_matrix_vector_axpy_interleave"
+            or workload.get("abi") != "float64_slice_io"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "TSVC/tsc.inc" or source.get("symbol") != "s2275"
+            or source.get("initializer_symbol") != "s275 "
+            or source.get("launcher_paths") != [
+                "TSVC/ControlFlow-dbl/info.sh", "TSVC/ControlFlow-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_length") != TSVC_S2275_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 8]
+            or workload.get("input", {}).get("passes_range") != [1, 8]
+            or workload.get("contract", {}).get("input_layout") != "[n,passes,AA[n*n],BB[n*n],CC[n*n],A[n],B[n],C[n],D[n]]"
+            or workload.get("contract", {}).get("output_layout") != "[AA_final[n*n] row-major,A_final[n]]"
+            or workload.get("output", {}).get("maximum_elements") != 72
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 72
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s2275 workload metadata differs from its pinned contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("No explicit modification or redistribution grant" not in readme
+            or "No explicit modification or redistribution grant" not in rights):
+        raise ValueError("TSVC s2275 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s2275_matrix_vector_axpy_interleave.{extension}"
+        if not port.is_file() or "tsvc_s2275_matrix_vector_axpy_interleave" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"TSVC s2275 port is missing its exported symbol: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"column-major-sweep-and-vector-overwrite", "single-cell-negative-vector",
+                    "invalid-n", "truncated", "fractional-matrix-value",
+                    "array-value-out-of-range", "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s2275 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s2275_matrix_vector_axpy_interleave", 0.0, 0.0)
+
+
+def validate_tsvc_s482_break_after_update_workload(workload: dict) -> None:
+    """Validate the bounded update-then-break ControlFlow s482 profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s482_break_after_update"
+    source = workload.get("pinned_source", {})
+    if (workload.get("algorithm") != "tsvc_s482_break_after_update"
+            or workload.get("function_symbol") != "tsvc_s482_break_after_update"
+            or workload.get("abi") != "float64_slice_io"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "TSVC/tsc.inc" or source.get("symbol") != "s482"
+            or source.get("initializer_symbol") != "s482 "
+            or source.get("launcher_paths") != [
+                "TSVC/ControlFlow-dbl/info.sh", "TSVC/ControlFlow-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_length") != TSVC_S482_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 64]
+            or workload.get("input", {}).get("passes_range") != [1, 8]
+            or workload.get("contract", {}).get("input_layout") != "[n,passes,A[n],B[n],C[n]]"
+            or workload.get("contract", {}).get("output_layout") != "A_final[n]"
+            or workload.get("output", {}).get("maximum_elements") != 64
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 64
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s482 workload metadata differs from its pinned contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("No explicit modification or redistribution grant" not in readme
+            or "No explicit modification or redistribution grant" not in rights):
+        raise ValueError("TSVC s482 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s482_break_after_update.{extension}"
+        if not port.is_file() or "tsvc_s482_break_after_update" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"TSVC s482 port is missing its exported symbol: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"break-at-last-and-repeat", "break-after-second-update",
+                    "strict-equality-does-not-break", "invalid-n", "truncated",
+                    "fractional-array-value", "array-value-out-of-range",
+                    "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s482 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s482_break_after_update", 0.0, 0.0)
+
+
+def validate_tsvc_s441_s443_d_sign_branch_updates_workload(workload: dict) -> None:
+    """Validate the bounded s441/s443 mode-dispatched D-sign branches."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s441_s443_d_sign_branch_updates"
+    source = workload.get("pinned_source", {})
+    if (workload.get("algorithm") != "tsvc_s441_s443_d_sign_branch_updates"
+            or workload.get("function_symbol") != "tsvc_s441_s443_d_sign_branch_updates"
+            or workload.get("abi") != "float64_slice_io"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "TSVC/tsc.inc"
+            or source.get("symbols") != ["s441", "s443"]
+            or source.get("initializer_symbols") != ["s441 ", "s443 "]
+            or source.get("launcher_paths") != [
+                "TSVC/ControlFlow-dbl/info.sh", "TSVC/ControlFlow-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_length") != TSVC_S441_443_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 64]
+            or workload.get("input", {}).get("passes_range") != [1, 8]
+            or workload.get("contract", {}).get("input_layout") != "[mode,n,passes,A[n],B[n],C[n],D[n]]"
+            or workload.get("contract", {}).get("output_layout") != "A_final[n]"
+            or workload.get("contract", {}).get("mode_map") != {"0": "s441", "1": "s443"}
+            or workload.get("output", {}).get("maximum_elements") != 64
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 64
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s441/s443 workload metadata differs from its pinned contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("No explicit modification or redistribution grant" not in readme
+            or "No explicit modification or redistribution grant" not in rights):
+        raise ValueError("TSVC s441/s443 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s441_s443_d_sign_branch_updates.{extension}"
+        if not port.is_file() or "tsvc_s441_s443_d_sign_branch_updates" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"TSVC s441/s443 port is missing its exported symbol: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"s441-negative-zero-positive", "s443-zero-shares-negative-arm",
+                    "invalid-mode", "truncated", "fractional-vector-value",
+                    "array-value-out-of-range", "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s441/s443 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s441_s443_d_sign_branch_updates", 0.0, 0.0)
+
+
+def validate_tsvc_s242_fused_prefix_update_workload(workload: dict) -> None:
+    """Validate the bounded NodeSplitting s242 fused scan profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s242_fused_prefix_update"
+    source = workload.get("pinned_source", {})
+    if (workload.get("algorithm") != "tsvc_s242_fused_prefix_update"
+            or workload.get("function_symbol") != "tsvc_s242_fused_prefix_update"
+            or workload.get("abi") != "float64_slice_io"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "TSVC/tsc.inc" or source.get("symbol") != "s242"
+            or source.get("launcher_paths") != [
+                "TSVC/NodeSplitting-dbl/info.sh", "TSVC/NodeSplitting-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_length") != TSVC_S242_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [1, 64]
+            or workload.get("contract", {}).get("input_layout") != "[n,s1,s2,A[n],B[n],C[n],D[n]]"
+            or workload.get("contract", {}).get("exact_length") != "3+4*n"
+            or workload.get("output", {}).get("maximum_elements") != 64
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 64
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s242 workload metadata differs from its pinned contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if "No explicit modification or redistribution grant" not in readme or "no explicit modification or redistribution grant" not in rights:
+        raise ValueError("TSVC s242 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s242_fused_prefix_update.{extension}"
+        if not port.is_file() or "tsvc_s242_fused_prefix_update" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"TSVC s242 port is missing its exported symbol: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"seed-only", "fused-recurrence", "negative-scalars", "invalid-n",
+                    "truncated", "fractional", "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s242 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s242_fused_prefix_update", 0.0, 0.0)
+
+
+def validate_tsvc_s351_direct_unrolled_saxpy_workload(workload: dict) -> None:
+    """Validate the bounded LoopRerolling s351 direct-index profile."""
+    package = ROOT / "benchmarks" / "t" / "tsvc_s351_direct_unrolled_saxpy"
+    source = workload.get("pinned_source", {})
+    if (workload.get("algorithm") != "tsvc_s351_direct_unrolled_saxpy"
+            or workload.get("function_symbol") != "tsvc_s351_direct_unrolled_saxpy"
+            or workload.get("abi") != "float64_slice_io"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "TSVC/tsc.inc" or source.get("symbol") != "s351"
+            or source.get("launcher_paths") != [
+                "TSVC/LoopRerolling-dbl/info.sh", "TSVC/LoopRerolling-flt/info.sh"]
+            or workload.get("input", {}).get("maximum_valid_length") != TSVC_S351_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("n_range") != [5, 40]
+            or workload.get("input", {}).get("n_multiple") != 5
+            or workload.get("contract", {}).get("input_layout") != "[n,alpha,A[n],B[n]]"
+            or workload.get("contract", {}).get("exact_length") != "2+2*n"
+            or workload.get("output", {}).get("maximum_elements") != 40
+            or workload.get("output", {}).get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 40
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0):
+        raise ValueError("TSVC s351 workload metadata differs from its pinned contract")
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if "No explicit upstream modification or redistribution grant" not in readme or "no explicit modification or redistribution grant" not in rights:
+        raise ValueError("TSVC s351 README or rights note is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "t" / f"tsvc_s351_direct_unrolled_saxpy.{extension}"
+        if not port.is_file() or "tsvc_s351_direct_unrolled_saxpy" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"TSVC s351 port is missing its exported symbol: {port}")
+    cases = workload.get("cases")
+    expected_ids = {"source-shaped-default", "signed-direct-update", "two-unrolled-groups",
+                    "invalid-n-not-multiple-five", "truncated", "fractional",
+                    "short-capacity", "null-output"}
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_ids:
+        raise ValueError("TSVC s351 workload fixtures differ from the frozen profile")
+    for case in cases:
+        encode_case(case, "tsvc_s351_direct_unrolled_saxpy", 0.0, 0.0)
 
 
 def validate_versabench_beamformer_workload(workload: dict) -> None:
@@ -6454,6 +8231,100 @@ def validate_polybench_lu_workload(workload: dict) -> None:
             raise ValueError(f"polybench_lu fixture differs from its source-order oracle: {case_id}")
 
 
+def validate_polybench_gramschmidt_workload(workload: dict) -> None:
+    """Validate the official bounded modified Gram-Schmidt QR profile."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_base = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/PolyBench/linear-algebra/solvers/gramschmidt/"
+    expected_sources = [
+        {"repository": "ferrandi/PolyBenchC", "version": "4.2.1-beta",
+         "path": "linear-algebra/solvers/gramschmidt/gramschmidt.c",
+         "symbols": ["init_array", "kernel_gramschmidt", "print_array"],
+         "url": "https://github.com/ferrandi/PolyBenchC/blob/main/linear-algebra/solvers/gramschmidt/gramschmidt.c",
+         "role": "algorithm-and-initialization"},
+        {"repository": "ferrandi/PolyBenchC", "version": "4.2.1-beta",
+         "path": "linear-algebra/solvers/gramschmidt/gramschmidt.h",
+         "symbols": ["M", "N", "DATA_TYPE_IS_DOUBLE"],
+         "url": "https://github.com/ferrandi/PolyBenchC/blob/main/linear-algebra/solvers/gramschmidt/gramschmidt.h",
+         "role": "dataset-and-type"},
+        {"repository": "ferrandi/PolyBenchC", "version": "4.2.1-beta",
+         "path": "LICENSE.txt", "symbols": ["Ohio State University Software Distribution License"],
+         "url": "https://github.com/ferrandi/PolyBenchC/blob/main/LICENSE.txt", "role": "license"},
+        {"repository": "lac-dcc/Benchmarks", "commit": commit,
+         "path": "PolyBench/linear-algebra/solvers/gramschmidt/gramschmidt.c",
+         "symbols": ["kernel_gramschmidt"], "url": source_base + "gramschmidt.c",
+         "role": "reproducibility-pin"},
+    ]
+    expected_input = {
+        "kind": "finite_float64_array", "encoding": "[m,n] as exact integral binary64",
+        "input_length": 2, "maximum_input_length": 2,
+        "dimension_ranges": {"m": [1, 6], "n": [1, 6]}, "constraint": "n <= m",
+        "invalid_input_result": -1, "null_input_result": -1,
+    }
+    expected_cases = {"one_column", "two_by_two_source_shaped", "empty_invalid", "null_input",
+                      "too_few_rows", "fractional_dimension", "first_unsupported_dimension",
+                      "short_output"}
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_sources", "source_bound", "input", "contract", "output",
+                          "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "polybench-gramschmidt-modified-qr-float64-slice-io-v1"
+            or workload.get("algorithm") != "polybench_gramschmidt"
+            or workload.get("function_symbol") != "polybench_gramschmidt"
+            or workload.get("pinned_sources") != expected_sources
+            or workload.get("input") != expected_input
+            or workload.get("source_bound", {}).get("suite_bounds") != {"m": [1, 6], "n": [1, 6], "n_le_m": True}
+            or workload.get("source_bound", {}).get("output_order") != "R row-major, then Q row-major."
+            or workload.get("contract", {}).get("invalid_input_result") != -1
+            or workload.get("contract", {}).get("null_output_result") != -2
+            or workload.get("contract", {}).get("insufficient_capacity_result") != -2
+            or workload.get("contract", {}).get("no_write_on_error") is not True
+            or workload.get("output") != {
+                "kind": "float64_array",
+                "encoding": "n*n R values followed by m*n Q values, row-major within each matrix",
+                "maximum_elements": POLYBENCH_GRAMSCHMIDT_MAX_OUTPUT_ELEMENTS,
+                "success_result": "n*n + m*n output elements",
+                "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+                "no_write_on_error": True,
+            }
+            or workload.get("workspace") != {
+                "elements": 72,
+                "meaning": "Maximum output capacity for the concatenated R and Q matrices.",
+            }
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or not isinstance(cases, list) or len(case_ids) != len(expected_cases)
+            or len(case_ids) != len(set(case_ids)) or set(case_ids) != expected_cases):
+        raise ValueError("polybench_gramschmidt metadata differs from its bounded QR contract")
+    package = ROOT / "benchmarks" / "p" / "polybench_gramschmidt"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (any(source["url"] not in readme for source in expected_sources[:3])
+            or "Ohio State University Software Distribution License" not in readme
+            or "OHIO STATE UNIVERSITY SOFTWARE DISTRIBUTION LICENSE" not in license_text
+            or "Copyright (c) 2010-2016, Ohio State University" not in license_text
+            or "INDEMNIFY, DEFEND AND HOLD HARMLESS" not in license_text):
+        raise ValueError("polybench_gramschmidt source attribution or license is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        if not (ROOT / language / "p" / f"polybench_gramschmidt.{extension}").is_file():
+            raise ValueError(f"polybench_gramschmidt {language} port is missing")
+    for case in cases:
+        if (not isinstance(case, dict) or type(case.get("input_length")) is not int
+                or case["input_length"] != len(case.get("input_values", []))
+                or type(case.get("expected_result")) is not int):
+            raise ValueError("polybench_gramschmidt fixture framing is invalid")
+        if (case.get("input_is_null", False) != (case.get("id") == "null_input")
+                or type(case.get("input_is_null", False)) is not bool):
+            raise ValueError(f"polybench_gramschmidt null-input framing is invalid: {case.get('id')}")
+        _values, result, output = encode_case(case, "polybench_gramschmidt", 1e-12, 1e-12)
+        if result != case["expected_result"] or not _matches_output(
+                case.get("expected_output"), output, 1e-12, 1e-12):
+            raise ValueError(f"polybench_gramschmidt fixture differs from its oracle: {case['id']}")
+
+
 def _validate_polybench_simple_matrix_workload(workload: dict, algorithm: str) -> None:
     """Validate source metadata and checked fixtures for correlation or Seidel 2D."""
     commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
@@ -6868,6 +8739,272 @@ def validate_cbench_consumer_mad_imdct36_workload(workload: dict) -> None:
             raise ValueError(f"cbench_consumer_mad_imdct36 fixture differs from its oracle: {case_id}")
 
 
+def validate_parboil_stencil_laplacian_workload(workload: dict) -> None:
+    """Validate the pinned bounded Parboil seven-point Laplacian profile."""
+    commit = "ccf3d3126f1754ca85528722f4ced5894ccb852b"
+    base = f"https://github.com/yuhc/gpu-parboil/blob/{commit}/"
+    source = {
+        "repository": "yuhc/gpu-parboil", "commit": commit,
+        "files": [
+            {"path": "benchmarks/stencil/src/cpu/kernels.c", "symbols": ["cpu_stencil"], "source_lines": [11, 33]},
+            {"path": "benchmarks/stencil/src/cpu/main.c", "symbols": ["c0", "c1", "iteration", "pointer swap"], "source_lines": [52, 110]},
+            {"path": "benchmarks/stencil/src/cpu/common.h", "symbols": ["Index3D"], "source_lines": [9, 12]},
+            {"path": "LICENSE", "symbols": ["Illinois Open Source License"]},
+        ],
+        "license": "Illinois Open Source License",
+        "copyright": "Copyright 2007-2011 The Board of Trustees of the University of Illinois",
+        "license_file": "LICENSE.txt",
+    }
+    contract = {
+        "operation": "Repeat the CPU source's 3D seven-point discrete Laplacian update while keeping all boundary cells fixed.",
+        "input": "[nx,ny,nz,steps,grid...] as finite binary64 values; dimensions and steps are exact integers, grid values are in [-8,8] and are converted to binary32 on entry.",
+        "layout": "Grid cells use x-fast Index3D order q=x+nx*(y+ny*z).",
+        "update": "f32(f32(left-to-right sum of the six axis neighbors)*c1 - f32(center*c0)); c0=f32(1/6), c1=f32(f32(1/6)/6).",
+        "source_order": "For each iteration, visit interior i=x, then j=y, then k=z; evaluate neighbor order z+, z-, y+, y-, x+, x-.",
+        "arithmetic_profile": "IEEE binary32 values and source-ordered binary32 operations; no fused multiply-add. Results are promoted to binary64 at the slice ABI boundary.",
+        "bounds": {"each_dimension": [3, 5], "steps": [1, 4], "grid_value": [-8, 8]},
+        "invalid_input_result": -1, "output_error_result": -2,
+        "no_write_on_error": True,
+        "absolute_tolerance": PARBOIL_STENCIL_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": PARBOIL_STENCIL_RELATIVE_TOLERANCE,
+    }
+    expected_vectors = {
+        "zero-grid": [3, 3, 3, 1] + [0] * 27,
+        "center-impulse": [3, 3, 3, 1] + [0] * 13 + [1] + [0] * 13,
+        "six-neighbor-sum": [3, 3, 3, 1] + [0, 0, 0, 0, 1, 0, 0, 0, 0,
+            0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+        "invalid-grid-length": [3, 3, 3, 1],
+        "invalid-dimension": [2, 3, 3, 1],
+        "out-of-range-cell": [3, 3, 3, 1, 8.5] + [0] * 26,
+        "short-output": [3, 3, 3, 1] + [0] * 27,
+        "null-output": [3, 3, 3, 1] + [0] * 27,
+    }
+    expected_ids = set(expected_vectors)
+    cases = workload.get("cases")
+    if (set(workload) != {
+            "schema_version", "id", "algorithm", "function_symbol", "abi", "description",
+            "pinned_source", "contract", "input", "output", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "parboil-stencil-seven-point-laplacian-f32-float64-slice-v1"
+            or workload.get("algorithm") != "parboil_stencil_laplacian"
+            or workload.get("function_symbol") != "parboil_stencil_laplacian"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("description") != "Bounded source-ordered Parboil 3D seven-point discrete Laplacian recurrence."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != {
+                "kind": "finite_float64_array",
+                "encoding": "[nx,ny,nz,steps] followed by nx*ny*nz x-fast grid values",
+                "dimension_ranges": {"nx": [3, 5], "ny": [3, 5], "nz": [3, 5]},
+                "steps_range": [1, 4], "grid_value_range": [-8, 8],
+                "maximum_input_length": PARBOIL_STENCIL_MAX_INPUT_LENGTH, "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "float64_array", "encoding": "complete final x-fast grid after binary32 computation",
+                "maximum_elements": PARBOIL_STENCIL_MAX_OUTPUT_ELEMENTS,
+                "null_or_short_result": -2, "success_result": "nx*ny*nz output elements",
+                "no_write_on_error": True,
+                "absolute_tolerance": PARBOIL_STENCIL_ABSOLUTE_TOLERANCE,
+                "relative_tolerance": PARBOIL_STENCIL_RELATIVE_TOLERANCE,
+            }
+            or workload.get("workspace") != {
+                "elements": PARBOIL_STENCIL_WORKSPACE_ELEMENTS,
+                "meaning": "Two binary32 grid buffers and one staged ABI output buffer at the 5x5x5 bound.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "float64_slice_io_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 20,
+                "absolute_tolerance": PARBOIL_STENCIL_ABSOLUTE_TOLERANCE,
+                "relative_tolerance": PARBOIL_STENCIL_RELATIVE_TOLERANCE,
+            }
+            or not isinstance(cases, list)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+            or len(cases) != len(expected_ids)):
+        raise ValueError("parboil_stencil_laplacian metadata differs from its pinned bounded profile")
+
+    package = ROOT / "benchmarks" / "p" / "parboil_stencil_laplacian"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    source_url = base + "benchmarks/stencil/src/cpu/kernels.c"
+    main_url = base + "benchmarks/stencil/src/cpu/main.c"
+    common_url = base + "benchmarks/stencil/src/cpu/common.h"
+    if (any(url not in readme for url in (source_url, main_url, common_url))
+            or commit not in readme
+            or "Illinois Open Source License" not in license_text
+            or "Copyright 2007-2011 The Board of Trustees of the University of Illinois" not in license_text):
+        raise ValueError("parboil_stencil_laplacian attribution or Illinois license notice is incomplete")
+    for relative in (
+            "c/p/parboil_stencil_laplacian.c", "c3/p/parboil_stencil_laplacian.c3",
+            "cpp/p/parboil_stencil_laplacian.cpp", "elisa/p/parboil_stencil_laplacian.elisa",
+            "nim/p/parboil_stencil_laplacian.nim", "odin/p/parboil_stencil_laplacian.odin",
+            "rust/p/parboil_stencil_laplacian.rs", "v/p/parboil_stencil_laplacian.v",
+            "zig/p/parboil_stencil_laplacian.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"parboil_stencil_laplacian port is missing: {relative}")
+
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        values = case.get("input_values") if isinstance(case, dict) else None
+        if not isinstance(case, dict) or values != expected_vectors.get(case_id):
+            raise ValueError(f"parboil_stencil_laplacian fixture framing is invalid: {case_id}")
+        expected_result = (27 if case_id in {"zero-grid", "center-impulse", "six-neighbor-sum"}
+                           else -2 if case_id in {"short-output", "null-output"} else -1)
+        fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+        if case_id in {"short-output", "null-output"}:
+            fields.add("output_capacity")
+        if case_id == "null-output":
+            fields.add("output_is_null")
+        if (set(case) != fields or type(case.get("input_length")) is not int
+                or case.get("input_length") != len(values)
+                or type(case.get("expected_result")) is not int
+                or case.get("expected_result") != expected_result
+                or case_id in {"short-output", "null-output"}
+                and type(case.get("output_capacity")) is not int
+                or case_id == "short-output" and case.get("output_capacity") != 26
+                or case_id == "null-output" and (case.get("output_capacity") != 27
+                                                   or type(case.get("output_is_null")) is not bool
+                                                   or case.get("output_is_null") is not True)):
+            raise ValueError(f"parboil_stencil_laplacian fixture framing is invalid: {case_id}")
+        result, output = parboil_stencil_laplacian_abi_expected_output(
+            values, output_capacity=case.get("output_capacity"),
+            output_is_null=case.get("output_is_null", False), input_length=case["input_length"])
+        expected_output = case.get("expected_output")
+        if (result != expected_result or not isinstance(expected_output, list)
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       for value in expected_output)
+                or len(output) != len(expected_output)
+                or any(abs(float(actual) - float(expected)) > PARBOIL_STENCIL_ABSOLUTE_TOLERANCE
+                       + PARBOIL_STENCIL_RELATIVE_TOLERANCE * abs(float(expected))
+                       for actual, expected in zip(output, expected_output))):
+            raise ValueError(f"parboil_stencil_laplacian fixture differs from its oracle: {case_id}")
+
+
+def validate_cbench_consumer_lame_mdct_short_workload(workload: dict) -> None:
+    """Validate the bounded binary64 three-window LAME short MDCT profile."""
+    commit = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    source_path = "cBench/consumer_lame/src/newmdct.c"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/{source_path}"
+    launcher_path = "cBench/consumer_lame/src/info.sh"
+    launcher_url = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/{launcher_path}"
+    source = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": source_path, "symbols": ["mdct_short", "mdct_init48", "enwindow"],
+        "source_links": {"kernel": source_url, "launcher": launcher_url},
+        "license": "GNU Library General Public License version 2 or later",
+        "copyright": "Copyright (c) 1999 Takehiro TOMINAGA",
+        "license_file": "LICENSE.txt",
+    }
+    contract = {
+        "operation": "Apply three source-defined short-window 6-to-3 coefficient transforms to three consecutive six-value input groups, storing six bins per window side by side.",
+        "input": "exactly 18 finite binary64 work values in [-32768,32768]",
+        "output": "18 binary64 values at source indices 3*m+l, m=0..5 and l=0..2",
+        "coefficient_initialization": "max=enwindow[248]=0.030526638; scale=4/12; for i=0..2, w2=cos(pi/12*(i+0.5))*max/32768*scale; coefficient[m][i]=w2*cos((pi/48)*(2*m+1)*(4*i+14)); coefficient[m][i+3]=w2*cos((pi/48)*(2*m+1)*(4*i+38))",
+        "arithmetic": "Binary64; six products and additions follow source coefficient order. This stateless profile recomputes mdct_init48's short coefficient table on each call.",
+        "invalid_input_result": -1, "output_error_result": -2,
+        "no_write_on_error": True,
+        "absolute_tolerance": CBENCH_CONSUMER_LAME_MDCT_SHORT_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": CBENCH_CONSUMER_LAME_MDCT_SHORT_RELATIVE_TOLERANCE,
+    }
+    expected_ids = {
+        "zero", "first-input-impulse", "last-input-impulse", "source-order-alternating",
+        "invalid-length", "invalid-out-of-range", "short-output-capacity", "null-output",
+    }
+    cases = workload.get("cases")
+    if (set(workload) != {
+                "schema_version", "id", "algorithm", "function_symbol", "abi", "description",
+                "pinned_source", "contract", "input", "output", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-consumer-lame-mdct-short-float64-slice-io-v1"
+            or workload.get("algorithm") != "cbench_consumer_lame_mdct_short"
+            or workload.get("function_symbol") != "cbench_consumer_lame_mdct_short"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("description") != "Bounded binary64 profile of LAME's three-window 6-point short-block MDCT helper."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != {
+                "kind": "finite_float64_array",
+                "length_exact": CBENCH_CONSUMER_LAME_MDCT_SHORT_INPUT_COUNT,
+                "maximum_input_length": CBENCH_CONSUMER_LAME_MDCT_SHORT_MAX_INPUT_LENGTH,
+                "range": [-32768, 32768], "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "float64_array",
+                "length": CBENCH_CONSUMER_LAME_MDCT_SHORT_MAX_OUTPUT_ELEMENTS,
+                "null_or_short_result": -2,
+                "success_result": CBENCH_CONSUMER_LAME_MDCT_SHORT_MAX_OUTPUT_ELEMENTS,
+                "no_write_on_error": True,
+                "absolute_tolerance": CBENCH_CONSUMER_LAME_MDCT_SHORT_ABSOLUTE_TOLERANCE,
+                "relative_tolerance": CBENCH_CONSUMER_LAME_MDCT_SHORT_RELATIVE_TOLERANCE,
+            }
+            or workload.get("workspace") != {
+                "elements": 54,
+                "meaning": "36 short cosine coefficients plus 18 staged output values.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "float64_slice_io_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 20,
+                "absolute_tolerance": CBENCH_CONSUMER_LAME_MDCT_SHORT_ABSOLUTE_TOLERANCE,
+                "relative_tolerance": CBENCH_CONSUMER_LAME_MDCT_SHORT_RELATIVE_TOLERANCE,
+            }
+            or not isinstance(cases, list)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+            or len(cases) != len(expected_ids)):
+        raise ValueError("cbench_consumer_lame_mdct_short metadata differs from its bounded source profile")
+
+    package = ROOT / "benchmarks" / "m" / "cbench_consumer_lame_mdct_short"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source_url not in readme or launcher_url not in readme or commit not in readme
+            or "LGPL-2.0-or-later" not in readme
+            or "GNU Library General Public License" not in license_text
+            or "Copyright (c) 1999 Takehiro TOMINAGA" not in license_text):
+        raise ValueError("cbench_consumer_lame_mdct_short source attribution or LGPL notice is incomplete")
+    for relative in (
+            "c/m/cbench_consumer_lame_mdct_short.c", "c3/m/cbench_consumer_lame_mdct_short.c3",
+            "cpp/m/cbench_consumer_lame_mdct_short.cpp", "elisa/m/cbench_consumer_lame_mdct_short.elisa",
+            "nim/m/cbench_consumer_lame_mdct_short.nim", "odin/m/cbench_consumer_lame_mdct_short.odin",
+            "rust/m/cbench_consumer_lame_mdct_short.rs", "v/m/cbench_consumer_lame_mdct_short.v",
+            "zig/m/cbench_consumer_lame_mdct_short.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"cbench_consumer_lame_mdct_short port is missing: {relative}")
+
+    expected_vectors = {
+        "zero": [0] * 18,
+        "first-input-impulse": [1] + [0] * 17,
+        "last-input-impulse": [0] * 17 + [1],
+        "source-order-alternating": [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8, 9, -9],
+        "invalid-length": [0, 0],
+        "invalid-out-of-range": [32768.5] + [0] * 17,
+        "short-output-capacity": [1] + [0] * 17,
+        "null-output": [1] + [0] * 17,
+    }
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        values = case.get("input_values") if isinstance(case, dict) else None
+        expected_result = (
+            18 if case_id in {"zero", "first-input-impulse", "last-input-impulse", "source-order-alternating"}
+            else -2 if case_id in {"short-output-capacity", "null-output"} else -1
+        )
+        expected_case_fields = {"id", "input_values", "input_length", "expected_result"}
+        if case_id in {"short-output-capacity", "null-output"}:
+            expected_case_fields.add("output_capacity")
+        if case_id == "null-output":
+            expected_case_fields.add("output_is_null")
+        if (not isinstance(case, dict) or set(case) != expected_case_fields
+                or values != expected_vectors.get(case_id)
+                or case.get("input_length") != len(values)
+                or case.get("expected_result") != expected_result
+                or case_id == "short-output-capacity" and case.get("output_capacity") != 17
+                or case_id == "null-output" and (case.get("output_capacity") != 18
+                                                  or case.get("output_is_null") is not True)):
+            raise ValueError(f"cbench_consumer_lame_mdct_short fixture framing is invalid: {case_id}")
+        result, output = cbench_consumer_lame_mdct_short_expected_output(
+            values, capacity=case.get("output_capacity", CBENCH_CONSUMER_LAME_MDCT_SHORT_MAX_OUTPUT_ELEMENTS),
+            output_is_null=case.get("output_is_null", False), input_length=case["input_length"])
+        if result != expected_result or result >= 0 and len(output) != result:
+            raise ValueError(f"cbench_consumer_lame_mdct_short fixture differs from its oracle: {case_id}")
+
+
 def validate_cbench_lame_mid_side_workload(workload: dict) -> None:
     """Validate the pinned, bounded LAME stereo mid-side transform profile."""
     commit = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
@@ -7101,6 +9238,115 @@ def validate_cbench_rsynth_natural_glottal_workload(workload: dict) -> None:
                        + relative_tolerance * abs(reference)
                        for actual, reference in zip(expected_output, output))):
             raise ValueError(f"cbench_rsynth natural-source fixture differs from its oracle: {case_id}")
+
+
+def validate_cbench_rsynth_impulsive_glottal_workload(workload: dict) -> None:
+    """Validate the bounded RSynth impulsive-source resonator trace."""
+    commit = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "cBench/office_rsynth/src/nsynth.c",
+        "launcher_path": "cBench/office_rsynth/src/info.sh",
+        "symbols": ["impulsive_source", "pitch_synch_par_reset", "setabc", "resonator"],
+        "supporting_paths": ["cBench/office_rsynth/src/linuxplay.c", "cBench/office_rsynth/LICENSE"],
+        "rights_status": "CMU public-domain notice; separate dictionary restrictions are retained and all dictionary/speech data are excluded.",
+    }
+    expected_contract = {
+        "input_layout": "[nopen,sample_index]", "input_values_integral": True,
+        "nopen_range": [CBENCH_RSYNTH_IMPULSIVE_MIN_OPEN, CBENCH_RSYNTH_IMPULSIVE_MAX_OPEN],
+        "sample_index_range": [0, CBENCH_RSYNTH_IMPULSIVE_MAX_SAMPLE_INDEX],
+        "input_elements": CBENCH_RSYNTH_IMPULSIVE_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_elements": CBENCH_RSYNTH_IMPULSIVE_MAX_PARSEABLE_INPUT_LENGTH,
+        "sample_rate_hz": CBENCH_RSYNTH_IMPULSIVE_SAMPLE_RATE,
+        "output": "one source-f32 impulsive resonator output promoted to binary64",
+        "maximum_output_elements": CBENCH_RSYNTH_IMPULSIVE_MAX_OUTPUT_ELEMENTS,
+        "invalid_result": -1, "output_error_result": -2,
+    }
+    expected_profile = {
+        "coefficient_bandwidth": "integer division 8000/nopen",
+        "source_coefficients": "minus_pi_t=f32(-pi/8000); two_pi_t=f32(-2*minus_pi_t); r=f32(exp(minus_pi_t*bw)); c=f32(-(r*r)); b=f32(r*cos(two_pi_t*0)*2); a=f32(1-b-c); temp1=f32(nopen*0.00833); a=f32(a*f32(temp1*temp1))",
+        "impulse": [0, 13_000_000, -13_000_000],
+        "input_after_sample_2": 0,
+        "resonator_recurrence": "x=f32(f32(f32(a*input)+f32(b*p1))+f32(c*p2)); p2=p1; p1=x",
+        "initial_state": [0, 0],
+        "intermediate_precision": "IEEE binary32 at source float assignment/operation boundaries; selected output promoted to binary64",
+        "excluded_data": ["beep dictionary", "phone lists", "speech input"],
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+        "absolute_tolerance": 10.0, "relative_tolerance": 0.0000001,
+    }
+    expected_ids = {
+        "zero-input-first-sample", "nonzero-doublet-phase", "invalid-open-bound",
+        "invalid-sample-index", "extra-input", "short-output", "null-output",
+    }
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "source",
+                          "contract", "profile", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-office-rsynth-impulsive-glottal-float64-slice-v1"
+            or workload.get("algorithm") != "cbench_rsynth_impulsive_glottal_sample"
+            or workload.get("function_symbol") != "cbench_rsynth_impulsive_glottal_sample"
+            or workload.get("source") != expected_source
+            or workload.get("contract") != expected_contract
+            or workload.get("profile") != expected_profile
+            or workload.get("workspace") != {"elements": CBENCH_RSYNTH_IMPULSIVE_MAX_OUTPUT_ELEMENTS}
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+            or len(cases) != len(expected_ids)):
+        raise ValueError("cbench_rsynth_impulsive_glottal_sample metadata differs from its bounded contract")
+
+    package = ROOT / "benchmarks" / "m" / "cbench_rsynth_impulsive_glottal"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("nsynth.c" not in readme or "linuxplay.c" not in readme
+            or "clean-room" not in readme.lower()
+            or "Public Domain Software (from Carnegie Mellon University)" not in license_text
+            or "Certain dictionaries have special copyright restrictions" not in license_text):
+        raise ValueError("cbench_rsynth impulsive-source provenance or rights scope is incomplete")
+    for relative in (
+            "c/m/cbench_rsynth_impulsive_glottal.c", "c3/m/cbench_rsynth_impulsive_glottal.c3",
+            "cpp/m/cbench_rsynth_impulsive_glottal.cpp", "elisa/m/cbench_rsynth_impulsive_glottal.elisa",
+            "nim/m/cbench_rsynth_impulsive_glottal.nim", "odin/m/cbench_rsynth_impulsive_glottal.odin",
+            "rust/m/cbench_rsynth_impulsive_glottal.rs", "v/m/cbench_rsynth_impulsive_glottal.v",
+            "zig/m/cbench_rsynth_impulsive_glottal.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"cbench_rsynth impulsive-source port is missing: {relative}")
+
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        values = case.get("input_values") if isinstance(case, dict) else None
+        if (not isinstance(case, dict)
+                or set(case) - {"id", "input_values", "input_length", "output_capacity",
+                                "output_is_null", "expected_result", "expected_output"}
+                or not isinstance(values, list)
+                or len(values) > CBENCH_RSYNTH_IMPULSIVE_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       for value in values)
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or type(case.get("output_capacity")) is not int
+                or not 0 <= case["output_capacity"] <= CBENCH_RSYNTH_IMPULSIVE_MAX_OUTPUT_ELEMENTS
+                or "output_is_null" in case and type(case["output_is_null"]) is not bool
+                or type(case.get("expected_result")) is not int
+                or not isinstance(case.get("expected_output"), list)):
+            raise ValueError(f"cbench_rsynth impulsive-source fixture framing is invalid: {case_id}")
+        result, output = cbench_rsynth_impulsive_glottal_expected_output(
+            values, output_capacity=case["output_capacity"],
+            output_is_null=case.get("output_is_null", False),
+            input_is_null=case.get("input_is_null", False), input_length=case["input_length"])
+        expected_output = case["expected_output"]
+        if (result != case["expected_result"] or len(output) != len(expected_output)
+                or result < 0 and expected_output
+                or any(type(actual) not in (int, float)
+                       or not math.isfinite(float(actual))
+                       or abs(float(actual) - reference) > absolute_tolerance
+                       + relative_tolerance * abs(reference)
+                       for actual, reference in zip(expected_output, output))):
+            raise ValueError(f"cbench_rsynth impulsive-source fixture differs from its oracle: {case_id}")
 
 
 def validate_mibench_automotive_basicmath_cubic_workload(workload: dict) -> None:
@@ -14151,6 +16397,142 @@ def validate_travelling_salesman_python_workload(workload: dict, algorithm: str)
             raise ValueError(f"{algorithm} fixture differs from its independent oracle: {case_id}")
 
 
+def validate_asci_purple_smg2000_residual_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    sources = workload.get("pinned_sources", [])
+    cases = workload.get("cases")
+    expected_ids = {
+        "two-cube-zero-x-unit-rhs", "two-cube-isolated-origin-impulse",
+        "two-cube-constant-field", "missing-z-cell", "fractional-dimension",
+        "field-out-of-range", "side-too-small", "short-output",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-asci-purple-smg2000-residual-float64-slice-io-v1"
+            or workload.get("algorithm") != "asci_purple_smg2000_residual"
+            or workload.get("function_symbol") != "asci_purple_smg2000_residual"
+            or len(sources) != 3
+            or any(not isinstance(source, dict)
+                   or source.get("repository") != "lac-dcc/Benchmarks"
+                   or source.get("commit") != pinned for source in sources)
+            or {source.get("path") for source in sources if isinstance(source, dict)}
+            != {"ASCI_Purple/smg2000.c", "ASCI_Purple/smg_residual.c", "ASCI_Purple/info.sh"}
+            or workload.get("pinned_launcher", {}).get("path") != "ASCI_Purple/info.sh"
+            or workload.get("pinned_launcher", {}).get("run_options") != "-n 100 40 100 -c 0.1 1.0 10.0"
+            or workload.get("source_bound", {}).get("operation") != "r=b-A*x"
+            or workload.get("source_bound", {}).get("coefficient_profile")
+            != {"cx": 0.1, "cy": 1.0, "cz": 10.0, "diagonal": 22.2}
+            or workload.get("input", {}).get("maximum_input_length")
+            != ASCI_PURPLE_SMG2000_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("dimension_ranges") != {
+                "nx": [2, 5], "ny": [2, 5], "nz": [2, 5]}
+            or workload.get("contract", {}).get("null_output_result") != -2
+            or workload.get("contract", {}).get("insufficient_capacity_result") != -2
+            or workload.get("contract", {}).get("no_write_on_error") is not True
+            or workload.get("output", {}).get("maximum_elements")
+            != ASCI_PURPLE_SMG2000_MAX_OUTPUT_ELEMENTS
+            or workload.get("output", {}).get("success_result") != "nx*ny*nz output elements"
+            or workload.get("workspace", {}).get("elements")
+            != ASCI_PURPLE_SMG2000_MAX_OUTPUT_ELEMENTS
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 1e-12
+            or workload.get("measurement", {}).get("relative_tolerance") != 1e-12
+            or not isinstance(cases, list)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+            or len(cases) != len(expected_ids)):
+        raise ValueError("asci_purple_smg2000_residual metadata differs from its pinned bounded stencil contract")
+    readme = (ROOT / "benchmarks" / "a" / "asci_purple_smg2000_residual" / "README.md").read_text(
+        encoding="utf-8")
+    rights = (ROOT / "benchmarks" / "a" / "asci_purple_smg2000_residual" / "RIGHTS.md").read_text(
+        encoding="utf-8")
+    if (any(source.get("url") not in readme for source in sources)
+            or "no explicit grant" not in rights.lower()
+            or "clean-room" not in readme.lower()):
+        raise ValueError("asci_purple_smg2000_residual README or rights note is incomplete")
+    for case in cases:
+        values, result, output = encode_case(case, "asci_purple_smg2000_residual", 1e-12, 1e-12)
+        if (type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != result
+                or not _matches_output(case.get("expected_output"), output, 1e-12, 1e-12)):
+            raise ValueError(f"asci_purple_smg2000_residual fixture mismatch: {case.get('id')}")
+
+
+def validate_mafft_falign_fft_lag_correlation_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    sources = workload.get("pinned_sources", [])
+    cases = workload.get("cases")
+    expected_ids = {
+        "single-residue-self-correlation", "two-residue-self-correlation",
+        "mismatched-packed-length", "unsupported-residue", "empty-sequence",
+        "short-output",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-mafft-falign-fft-lag-correlation-float64-slice-io-v1"
+            or workload.get("algorithm") != "mafft_falign_fft_lag_correlation"
+            or workload.get("function_symbol") != "mafft_falign_fft_lag_correlation"
+            or len(sources) != 8
+            or any(not isinstance(source, dict)
+                   or source.get("repository") != "lac-dcc/Benchmarks"
+                   or source.get("commit") != pinned for source in sources)
+            or {source.get("path") for source in sources if isinstance(source, dict)}
+            != {"mafft/Falign.c", "mafft/pairlocalalign.c", "mafft/fft.c",
+                "mafft/fftFunctions.c", "mafft/miyata.h", "mafft/constants.c",
+                "mafft/license", "mafft/info.sh"}
+            or workload.get("pinned_launcher", {}).get("path") != "mafft/info.sh"
+            or "-e" in workload.get("pinned_launcher", {}).get("run_options", "")
+            or workload.get("source_bound", {}).get("alphabet_order") != "ARNDCQEGHILKMFPSTWYV"
+            or workload.get("source_bound", {}).get("channels") != 1
+            or workload.get("source_bound", {}).get("complex_feature") != {
+                "real": "population-standardized Miyata polarity",
+                "imaginary": "population-standardized Miyata volume",
+            }
+            or workload.get("source_bound", {}).get("weights")
+            != "unit sequence weights for two single-sequence clusters"
+            or workload.get("source_bound", {}).get("transform")
+            != "radix-2 forward FFT normalized by padded length; first spectrum times conjugate of second; unnormalized inverse; source soukan lag reorder"
+            or "launcher-default fftscore=1" not in workload.get("source_bound", {}).get("scope", "")
+            or workload.get("input", {}).get("maximum_input_length") != MAFFT_FALIGN_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("sequence_length_range") != [1, 32]
+            or workload.get("input", {}).get("alphabet") != "ARNDCQEGHILKMFPSTWYV"
+            or workload.get("input", {}).get("invalid_input_result") != -1
+            or workload.get("contract", {}).get("null_output_result") != -2
+            or workload.get("contract", {}).get("insufficient_capacity_result") != -2
+            or workload.get("contract", {}).get("no_write_on_error") is not True
+            or workload.get("output", {}).get("maximum_elements") != MAFFT_FALIGN_MAX_OUTPUT_ELEMENTS
+            or workload.get("output", {}).get("success_result") != "n output elements"
+            or workload.get("workspace", {}).get("elements") != MAFFT_FALIGN_MAX_OUTPUT_ELEMENTS
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 1e-12
+            or workload.get("measurement", {}).get("relative_tolerance") != 1e-12
+            or not isinstance(cases, list)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("mafft_falign_fft_lag_correlation metadata differs from its pinned source contract")
+    package = ROOT / "benchmarks" / "m" / "mafft_falign_fft_lag_correlation"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (any(source.get("url") not in readme for source in sources)
+            or "BSD" not in workload.get("license", "")
+            or "Copyright (c) 2007 Kazutaka Katoh" not in license_text
+            or "Redistribution and use in source and binary forms" not in license_text
+            or "THE AUTHOR BE LIABLE" not in license_text):
+        raise ValueError("mafft_falign_fft_lag_correlation README or BSD notice is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source_path = ROOT / language / "m" / f"mafft_falign_fft_lag_correlation.{extension}"
+        if not source_path.is_file():
+            raise ValueError(f"mafft_falign_fft_lag_correlation port is missing: {source_path}")
+    for case in cases:
+        values, result, output = encode_case(case, "mafft_falign_fft_lag_correlation", 1e-12, 1e-12)
+        if (type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != result
+                or not _matches_output(case.get("expected_output"), output, 1e-12, 1e-12)):
+            raise ValueError(f"mafft_falign_fft_lag_correlation fixture mismatch: {case.get('id')}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -14176,11 +16558,13 @@ def main() -> int:
             or sha256_file(runner_source) != runner_binary["harness_sha256"]):
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
 
-    letter = {"polybench_lu": "l", "polybench_correlation": "c",
+    letter = {"polybench_lu": "l", "polybench_gramschmidt": "p", "polybench_correlation": "c",
               "polybench_seidel_2d": "s",
               "cbench_consumer_mad_imdct36": "m",
+              "cbench_consumer_lame_mdct_short": "m",
               "cbench_lame_mid_side": "m",
-              "cbench_rsynth_natural_glottal_sample": "m"}.get(algorithm, algorithm[0])
+              "cbench_rsynth_natural_glottal_sample": "m",
+              "cbench_rsynth_impulsive_glottal_sample": "m"}.get(algorithm, algorithm[0])
     workload_path = args.workload or ROOT / "benchmarks" / letter / algorithm / "workload.json"
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if (workload.get("algorithm") != algorithm
@@ -14218,10 +16602,30 @@ def main() -> int:
         validate_fdtd_2d_workload(workload)
     elif algorithm == "heat_3d":
         validate_heat_3d_workload(workload)
+    elif algorithm == "parboil_stencil_laplacian":
+        validate_parboil_stencil_laplacian_workload(workload)
+    elif algorithm == "graphai_gcn_aggregation":
+        validate_graphai_gcn_aggregation_workload(workload)
+    elif algorithm == "graphai_sage_aggregation":
+        validate_graphai_sage_aggregation_workload(workload)
+    elif algorithm == "graphai_gat_aggregation":
+        validate_graphai_gat_aggregation_workload(workload)
+    elif algorithm == "graphai_frontier_sampler":
+        validate_graphai_frontier_sampler_workload(workload)
+    elif algorithm == "graphai_cf_sgd_sweep":
+        validate_graphai_cf_sgd_sweep_workload(workload)
+    elif algorithm in {"gardenia_symgs", "gardenia_sgd"}:
+        validate_gardenia_workload(workload, algorithm)
+    elif algorithm == "asci_purple_smg2000_residual":
+        validate_asci_purple_smg2000_residual_workload(workload)
+    elif algorithm == "mafft_falign_fft_lag_correlation":
+        validate_mafft_falign_fft_lag_correlation_workload(workload)
     elif algorithm == "himenobmtxpa":
         validate_himenobmtxpa_workload(workload)
     elif algorithm == "polybench_lu":
         validate_polybench_lu_workload(workload)
+    elif algorithm == "polybench_gramschmidt":
+        validate_polybench_gramschmidt_workload(workload)
     elif algorithm == "polybench_correlation":
         validate_polybench_correlation_workload(workload)
     elif algorithm == "polybench_seidel_2d":
@@ -14232,10 +16636,48 @@ def main() -> int:
         validate_mibench_lame_mdct_long_workload(workload)
     elif algorithm == "cbench_consumer_mad_imdct36":
         validate_cbench_consumer_mad_imdct36_workload(workload)
+    elif algorithm == "cbench_consumer_lame_mdct_short":
+        validate_cbench_consumer_lame_mdct_short_workload(workload)
     elif algorithm == "cbench_lame_mid_side":
         validate_cbench_lame_mid_side_workload(workload)
     elif algorithm == "cbench_rsynth_natural_glottal_sample":
         validate_cbench_rsynth_natural_glottal_workload(workload)
+    elif algorithm == "cbench_rsynth_impulsive_glottal_sample":
+        validate_cbench_rsynth_impulsive_glottal_workload(workload)
+    elif algorithm == "tsvc_s313_dot_product_reduction":
+        validate_tsvc_s313_dot_product_reduction_workload(workload)
+    elif algorithm == "tsvc_s275_column_conditional_axpy_recurrence":
+        validate_tsvc_s275_column_conditional_axpy_recurrence_workload(workload)
+    elif algorithm == "tsvc_s111_odd_index_neighbor_update":
+        validate_tsvc_s111_odd_index_neighbor_update_workload(workload)
+    elif algorithm == "tsvc_vtvtv_triple_product_map":
+        validate_tsvc_vtvtv_triple_product_map_workload(workload)
+    elif algorithm == "tsvc_s451_sincos_vector_map":
+        validate_tsvc_s451_sincos_vector_map_workload(workload)
+    elif algorithm == "tsvc_s221_partial_recursive_fused_update":
+        validate_tsvc_s221_partial_recursive_fused_update_workload(workload)
+    elif algorithm == "tsvc_s222_interleaved_square_recurrence":
+        validate_tsvc_s222_interleaved_square_recurrence_workload(workload)
+    elif algorithm == "tsvc_s2251_carried_scalar_expansion":
+        validate_tsvc_s2251_carried_scalar_expansion_workload(workload)
+    elif algorithm == "tsvc_s1251_per_element_dual_update":
+        validate_tsvc_s1251_per_element_dual_update_workload(workload)
+    elif algorithm == "tsvc_s3251_forward_shifted_array_expansion":
+        validate_tsvc_s3251_forward_shifted_array_expansion_workload(workload)
+    elif algorithm == "tsvc_s2712_comparison_gated_axpy":
+        validate_tsvc_s2712_comparison_gated_axpy_workload(workload)
+    elif algorithm == "tsvc_s2710_nested_scalar_vector_branch_update":
+        validate_tsvc_s2710_nested_scalar_vector_branch_update_workload(workload)
+    elif algorithm == "tsvc_s1279_nested_conditional_accumulation":
+        validate_tsvc_s1279_nested_conditional_accumulation_workload(workload)
+    elif algorithm == "tsvc_s2275_matrix_vector_axpy_interleave":
+        validate_tsvc_s2275_matrix_vector_axpy_interleave_workload(workload)
+    elif algorithm == "tsvc_s482_break_after_update":
+        validate_tsvc_s482_break_after_update_workload(workload)
+    elif algorithm == "tsvc_s441_s443_d_sign_branch_updates":
+        validate_tsvc_s441_s443_d_sign_branch_updates_workload(workload)
+    elif algorithm == "tsvc_s351_direct_unrolled_saxpy":
+        validate_tsvc_s351_direct_unrolled_saxpy_workload(workload)
     elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":

@@ -1,0 +1,16 @@
+BEEBS source attribution
+========================
+
+Source: src/lcdnum/liblcdnum.c
+Repository: https://github.com/mageec/beebs
+Commit: 049ded9f3aeb5591f553879d3a0376b8614e9422
+SPDX-License-Identifier: GPL-3.0-or-later
+
+Copyright (C) 2014 Embecosm Limited and University of Bristol.
+Contributors include James Pallister.
+
+The source file declares GPL-3.0-or-later. The clean-room ports in this
+package implement the documented bounded digit-to-segment lookup profile.
+They do not copy or translate the upstream implementation text. The original
+benchmark's volatile port scans and missing output verifier are excluded from
+the observable profile.

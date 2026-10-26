@@ -1,0 +1,20 @@
+def beebs_bit_compress_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length != 2:
+        return -1
+    data: mutable i64 = values[0]
+    mask: mutable i64 = values[1]
+    if data < 0 or data > 4294967295 or mask < 0 or mask > 4294967295:
+        return -1
+
+    packed: mutable i64 = 0
+    output_bit: mutable i64 = 1
+    while mask > 0:
+        if mask % 2 == 1:
+            if data % 2 == 1:
+                packed <- packed + output_bit
+            output_bit <- output_bit * 2
+        data <- data / 2
+        mask <- mask / 2
+    packed
+
+export fn beebs_bit_compress(values: i64&, length: usize) -> i64 = beebs_bit_compress_impl

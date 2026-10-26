@@ -40,3 +40,7 @@ python3 benchmarks/build_abi.py --family float64_slice_io --algorithm jacobi_1d 
 python3 benchmarks/run_float64_slice_io.py --build-manifest build/float64_slice_io/j/jacobi_1d/c/build.json
 python3 benchmarks/verify_float64_slice_io.py --algorithm jacobi_1d --languages c
 ```
+
+## Upstream license
+
+The pinned PolyBench/C repository includes the Ohio State University Software Distribution License at its repository root. The complete notice and redistribution conditions are reproduced in this package's [`LICENSE.txt`](LICENSE.txt).

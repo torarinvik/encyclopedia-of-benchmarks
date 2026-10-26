@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "gbbs-shiloach-vishkin-spanning-forest-i64-array-bytes-output-v1",
+  "algorithm": "gbbs_shiloach_vishkin_spanning_forest",
+  "function_symbol": "gbbs_shiloach_vishkin_spanning_forest",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded unweighted spanning-forest edge generation by min-root hooking and parent compression.",
+  "source": {
+    "repository": "ParAlg/gbbs",
+    "commit": "dbd1dcad582c0a316c5ba0d5524319d596dd82da",
+    "path": "benchmarks/SpanningForest/ShiloachVishkin/SpanningForest.h",
+    "symbols": ["SVAlgorithm::compute_spanning_forest", "shiloachvishkin_sf::SpanningForest"],
+    "url": "https://github.com/ParAlg/gbbs/blob/dbd1dcad582c0a316c5ba0d5524319d596dd82da/benchmarks/SpanningForest/ShiloachVishkin/SpanningForest.h",
+    "related_paths": ["benchmarks/SpanningForest/ShiloachVishkin/SpanningForest.cc", "benchmarks/SpanningForest/common.h"],
+    "launcher_path": "benchmarks/SpanningForest/ShiloachVishkin/SpanningForest.cc",
+    "launcher_symbol": "SpanningForest_runner",
+    "license_path": "LICENSE",
+    "license": "MIT"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, edge_count, (u, v)...]",
+    "node_count_range": [1, 12],
+    "edge_count_range": [0, 24],
+    "edge_semantics": "simple undirected graph; each edge appears once in canonical form 0 <= u < v < node_count",
+    "maximum_valid_length": 50,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "One byte per input edge in input order: 1 if the edge is selected by the hook forest, otherwise 0.",
+    "maximum_values": 24,
+    "maximum_bytes": 24,
+    "success_result": "edge_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Fixed bounded adjacency, parent snapshots, hook candidates, chosen-edge mask, and compressed roots."
+  },
+  "contract": {
+    "operation": "Compute a spanning forest by repeatedly hooking each component root to its smallest lower-ID adjacent component root and emitting one original edge witness per hook.",
+    "launcher_profile": "The source runner requires symmetric graph input. The profile uses a canonical undirected edge list and deterministic single-worker scan order.",
+    "source_profile": "Initialize each vertex as its own parent. In each round, inspect old parent labels on edges, write-min each higher root's parent to the lowest adjacent lower root, record an edge witness for each successful root hook, then compress parent paths. Stop when no root is hooked.",
+    "projection": "The source uses parallel compare-and-swap to choose one edge witness per root hook. This profile chooses the lowest input-edge ordinal connecting the two old-round components, returns membership bytes in input order, and ignores timing and optional statistics.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single-edge","input_values":[2,1,0,1],"input_length":4,"output_capacity":24,"expected_result":1,"expected_output_hex":"01"},
+    {"id":"path-four","input_values":[4,3,0,1,1,2,2,3],"input_length":8,"output_capacity":24,"expected_result":3,"expected_output_hex":"010101"},
+    {"id":"two-round-hook-chain","input_values":[3,2,0,2,1,2],"input_length":6,"output_capacity":24,"expected_result":2,"expected_output_hex":"0101"},
+    {"id":"triangle-minimum-hook-edges","input_values":[3,3,0,1,0,2,1,2],"input_length":8,"output_capacity":24,"expected_result":3,"expected_output_hex":"010100"},
+    {"id":"disconnected-triangle-and-edge","input_values":[5,4,0,1,0,2,1,2,3,4],"input_length":10,"output_capacity":24,"expected_result":4,"expected_output_hex":"01010001"},
+    {"id":"maximum-node-and-edge-count","input_values":[12,24,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,1,2,1,3,1,4,1,5,1,6,1,7,1,8,1,9,1,10,1,11,2,3,2,4,2,5],"input_length":50,"output_capacity":24,"expected_result":24,"expected_output_hex":"010101010101010101010100000000000000000000000000"},
+    {"id":"maximum-node-count-isolates","input_values":[12,0],"input_length":2,"output_capacity":24,"expected_result":0,"expected_output_hex":""},
+    {"id":"self-loop-invalid","input_values":[2,1,0,0],"input_length":4,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"noncanonical-edge-invalid","input_values":[2,1,1,0],"input_length":4,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"duplicate-edge-invalid","input_values":[3,2,0,1,0,1],"input_length":6,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"endpoint-out-of-range","input_values":[2,1,0,2],"input_length":4,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"node-count-out-of-range","input_values":[13,0],"input_length":2,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[3,1,0,1],"input_length":4,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"insufficient-output-capacity","input_values":[4,3,0,1,1,2,2,3],"input_length":8,"output_capacity":2,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,1,0,1],"input_length":4,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"output_capacity":24,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

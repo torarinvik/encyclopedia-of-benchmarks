@@ -1,0 +1,132 @@
+// Clean-room bounded GBBS Barenboim-Elkin degeneracy-order profile.
+const GBBS_BE_MAX_N: usize = 20
+const GBBS_BE_MAX_M: usize = 190
+const GBBS_BE_MAX_INPUT: usize = 382
+
+def gbbs_be_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def gbbs_barenboim_elkin_degeneracy_order(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("gbbs_barenboim_elkin_degeneracy_order"):
+    if input.is_null() or length < 2 or length > GBBS_BE_MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > 20 or m64 < 0 or m64 > 190: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if length != 2 + 2 * m: return -1
+    adjacent: mutable bool[400] = zeroed
+    initial_degree: mutable i64[20] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u64: i64 = input[2 + 2 * edge]
+        v64: i64 = input[3 + 2 * edge]
+        if u64 < 0 or u64 >= v64 or v64 >= n64: return -1
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        if adjacent[u * 20 + v]: return -1
+        adjacent[u * 20 + v] <- true
+        adjacent[v * 20 + u] <- true
+        initial_degree[u] <- initial_degree[u] + 1
+        initial_degree[v] <- initial_degree[v] + 1
+        edge <- edge + 1
+    if output.is_null() or capacity < 8 * n: return -2
+    degree: mutable i64[20] = zeroed
+    alive: mutable bool[20] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        degree[vertex] <- initial_degree[vertex]
+        alive[vertex] <- true
+        vertex <- vertex + 1
+    remaining: mutable usize = n
+    best_num: mutable i64 = 0
+    best_den: mutable i64 = 1
+    while remaining > 0:
+        total: mutable i64 = 0
+        vertex <- 0
+        while vertex < n:
+            if alive[vertex]: total <- total + degree[vertex]
+            vertex <- vertex + 1
+        if total * best_den > best_num * remaining.i64():
+            best_num <- total
+            best_den <- remaining.i64()
+        removed: mutable bool[20] = zeroed
+        count: mutable usize = 0
+        vertex <- 0
+        while vertex < n:
+            if alive[vertex] and 10 * degree[vertex] * remaining.i64() <= 11 * total:
+                removed[vertex] <- true
+                count <- count + 1
+            vertex <- vertex + 1
+        if count == 0: return -1
+        vertex <- 0
+        while vertex < n:
+            if removed[vertex]: alive[vertex] <- false
+            vertex <- vertex + 1
+        remaining <- remaining - count
+        vertex <- 0
+        while vertex < n:
+            if alive[vertex]:
+                decrement: mutable i64 = 0
+                neighbor: mutable usize = 0
+                while neighbor < n:
+                    if removed[neighbor] and adjacent[vertex * 20 + neighbor]: decrement <- decrement + 1
+                    neighbor <- neighbor + 1
+                degree[vertex] <- degree[vertex] - decrement
+            vertex <- vertex + 1
+    cutoff: mutable i64 = (best_num + 10 * best_den - 1) / (10 * best_den)
+    if cutoff < 1: cutoff <- 1
+    vertex <- 0
+    while vertex < n:
+        degree[vertex] <- initial_degree[vertex]
+        alive[vertex] <- true
+        vertex <- vertex + 1
+    order: mutable usize[20] = zeroed
+    used: mutable usize = 0
+    while used < n:
+        shell: mutable usize[20] = zeroed
+        count <- 0
+        vertex <- 0
+        while vertex < n:
+            if alive[vertex] and degree[vertex] < cutoff:
+                shell[count] <- vertex
+                count <- count + 1
+            vertex <- vertex + 1
+        if count == 0:
+            vertex <- 0
+            while vertex < n:
+                if alive[vertex]:
+                    shell[count] <- vertex
+                    count <- count + 1
+                    break
+                vertex <- vertex + 1
+        index: mutable usize = 0
+        while index < count:
+            alive[shell[index]] <- false
+            order[used] <- shell[index]
+            used <- used + 1
+            index <- index + 1
+        vertex <- 0
+        while vertex < n:
+            if alive[vertex]:
+                decrement: mutable i64 = 0
+                index <- 0
+                while index < count:
+                    if adjacent[vertex * 20 + shell[index]]: decrement <- decrement + 1
+                    index <- index + 1
+                degree[vertex] <- degree[vertex] - decrement
+            vertex <- vertex + 1
+    rank: mutable i64[20] = zeroed
+    index <- 0
+    while index < n:
+        rank[order[index]] <- index.i64()
+        index <- index + 1
+    vertex <- 0
+    while vertex < n:
+        gbbs_be_store_i64_le(rank[vertex], output, 8 * vertex)
+        vertex <- vertex + 1
+    return (8 * n).i64()

@@ -1,0 +1,1 @@
+No license or explicit redistribution grant was found in the pinned Prolangs-C/compiler source directory at revision 5d7b75df749241efa7a6e6f5be613d3fcc5cce38. This package contains clean-room implementations and no copied upstream source code. This notice does not grant rights to the upstream compiler or its source files.

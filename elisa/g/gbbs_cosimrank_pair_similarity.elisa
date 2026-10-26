@@ -1,0 +1,81 @@
+# Clean-room exact dyadic CoSimRank profile; see package LICENSE.txt.
+def gbbs_cosimrank_store_binary64(output: mutable u8&, numerator: u32) -> void:
+    bits: mutable u64 = 0
+    if numerator != 0:
+        high: mutable usize = 0
+        while (numerator >> (high + 1)) != 0: high <- high + 1
+        exponent: u64 = (1003 + high).u64()
+        significand: u64 = numerator.u64() << (52 - high)
+        bits <- (exponent << 52) | (significand & ((1.u64() << 52) - 1))
+    byte: mutable usize = 0
+    while byte < 8:
+        output[byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+export fn gbbs_cosimrank_pair_similarity(input: i64&, input_length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 5 or input_length > 53: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    u64: i64 = input[2]
+    v64: i64 = input[3]
+    iterations64: i64 = input[4]
+    if n64 < 1 or n64 > 8 or m64 < 0 or m64 > 24 or u64 < 0 or u64 >= n64 or v64 < 0 or v64 >= n64 or iterations64 < 1 or iterations64 > 4: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if input_length != 5 + 2 * m: return -1
+    edge_from: mutable usize[24] = zeroed
+    edge_to: mutable usize[24] = zeroed
+    degree: mutable usize[8] = zeroed
+    seen: mutable bool[64] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        from64: i64 = input[5 + 2 * edge]
+        to64: i64 = input[6 + 2 * edge]
+        if from64 < 0 or from64 >= n64 or to64 < 0 or to64 >= n64 or from64 == to64: return -1
+        from: usize = from64.usize()
+        to: usize = to64.usize()
+        if seen[from * 8 + to]: return -1
+        seen[from * 8 + to] <- true
+        edge_from[edge] <- from
+        edge_to[edge] <- to
+        degree[from] <- degree[from] + 1
+        edge <- edge + 1
+    vertex: mutable usize = 0
+    while vertex < n:
+        if degree[vertex] != 0 and degree[vertex] != 1 and degree[vertex] != 2 and degree[vertex] != 4: return -1
+        vertex <- vertex + 1
+    if output.is_null() or output_capacity < 8: return -2
+    current_u: mutable u32[8] = zeroed
+    current_v: mutable u32[8] = zeroed
+    next_u: mutable u32[8] = zeroed
+    next_v: mutable u32[8] = zeroed
+    current_u[u64.usize()] <- 256
+    current_v[v64.usize()] <- 256
+    numerator: mutable u32 = if u64 == v64: (1.u32() << 20) else: 0
+    step: mutable usize = 0
+    while step < iterations64.usize():
+        edge <- 0
+        while edge < m:
+            from <- edge_from[edge]
+            to <- edge_to[edge]
+            next_u[to] <- next_u[to] + current_u[from] / degree[from].u32()
+            next_v[to] <- next_v[to] + current_v[from] / degree[from].u32()
+            edge <- edge + 1
+        dot: mutable u32 = 0
+        vertex <- 0
+        while vertex < n:
+            dot <- dot + next_u[vertex] * next_v[vertex]
+            vertex <- vertex + 1
+        numerator <- numerator + (dot << (3 - step))
+        vertex <- 0
+        while vertex < n:
+            current_u[vertex] <- next_u[vertex]
+            current_v[vertex] <- next_v[vertex]
+            next_u[vertex] <- 0
+            next_v[vertex] <- 0
+            vertex <- vertex + 1
+        step <- step + 1
+    gbbs_cosimrank_store_binary64(output, numerator)
+    8

@@ -4,7 +4,7 @@ This package ports the `PolyBench/linear-algebra/blas/gemver/gemver.c` kernel fr
 
 The `gemver` slug accepts signed 64-bit input `[n]`, with `n` bounded to 1–64. It preserves the source's four passes: update `A` in row-major order; update each `x[i]` from `A[j][i]` and `y[j]` in increasing `j`; add `z` to `x`; then update each `w[i]` from `A[i][j]` and `x[j]` in increasing `j`. The scalar result sums final `w[i]` in ascending order. Invalid inputs return `-1e300`.
 
-The upstream launcher selects `EXTRALARGE_DATASET` (`N=20000`); this suite profile uses bounded dimensions. Ports are provided in C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig. The upstream source has no explicit license notice; these are independently written ports of the published kernel.
+The upstream launcher selects `EXTRALARGE_DATASET` (`N=20000`); this suite profile uses bounded dimensions. Ports are provided in C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig. The kernel file has no inline license header; the PolyBench repository-level Ohio State Software Distribution License is reproduced in this package's [`LICENSE.txt`](LICENSE.txt).
 
 Build and run a port with the shared ABI commands:
 

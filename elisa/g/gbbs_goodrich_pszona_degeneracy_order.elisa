@@ -1,0 +1,64 @@
+// Clean-room bounded GBBS Goodrich-Pszona degeneracy-order profile.
+const GBBS_GOODRICH_MAX_N: usize = 20
+const GBBS_GOODRICH_MAX_M: usize = 190
+const GBBS_GOODRICH_MAX_INPUT: usize = 382
+
+def gbbs_goodrich_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def gbbs_goodrich_pszona_degeneracy_order(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("gbbs_goodrich_pszona_degeneracy_order"):
+    if input.is_null() or length < 2 or length > GBBS_GOODRICH_MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > 20 or m64 < 0 or m64 > 190: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if length != 2 + 2 * m: return -1
+    adjacent: mutable bool[400] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u64: i64 = input[2 + 2 * edge]
+        v64: i64 = input[3 + 2 * edge]
+        if u64 < 0 or v64 <= u64 or v64 >= n64: return -1
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        if adjacent[u * 20 + v]: return -1
+        adjacent[u * 20 + v] <- true
+        adjacent[v * 20 + u] <- true
+        edge <- edge + 1
+    if output.is_null() or capacity < 8 * n: return -2
+    degree: mutable usize[20] = zeroed
+    remaining: mutable bool[20] = zeroed
+    rank: mutable i64[20] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        remaining[vertex] <- true
+        neighbor: mutable usize = 0
+        while neighbor < n:
+            if adjacent[vertex * 20 + neighbor]: degree[vertex] <- degree[vertex] + 1
+            neighbor <- neighbor + 1
+        vertex <- vertex + 1
+    position: mutable usize = 0
+    while position < n:
+        chosen: mutable usize = n
+        vertex <- 0
+        while vertex < n:
+            if remaining[vertex] and (chosen == n or degree[vertex] < degree[chosen]): chosen <- vertex
+            vertex <- vertex + 1
+        rank[chosen] <- position.i64()
+        remaining[chosen] <- false
+        neighbor <- 0
+        while neighbor < n:
+            if remaining[neighbor] and adjacent[chosen * 20 + neighbor]: degree[neighbor] <- degree[neighbor] - 1
+            neighbor <- neighbor + 1
+        position <- position + 1
+    vertex <- 0
+    while vertex < n:
+        gbbs_goodrich_store_i64_le(rank[vertex], output, 8 * vertex)
+        vertex <- vertex + 1
+    return (8 * n).i64()

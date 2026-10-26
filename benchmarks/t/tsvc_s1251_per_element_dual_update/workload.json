@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s1251-f64-slice-v1",
+  "algorithm": "tsvc_s1251_per_element_dual_update",
+  "function_symbol": "tsvc_s1251_per_element_dual_update",
+  "abi": "float64_slice_io",
+  "description": "Bounded one-pass profile of TSVC s1251's source-ordered per-element A/B update.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s1251",
+    "source_lines": {"kernel_start": 2342, "kernel_end": 2367},
+    "launcher_paths": ["TSVC/Expansion-dbl/info.sh", "TSVC/Expansion-flt/info.sh"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC",
+    "attribution": "TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit modification or redistribution grant was found in reviewed pinned materials; ports are clean-room."
+  },
+  "contract": {
+    "operation": "For each i ascending, save B[i]+C[i], then write B[i]=A[i]+D[i], then A[i]=(saved_sum)*E[i].",
+    "input_layout": "[n,A[n],B[n],C[n],D[n],E[n]]",
+    "output_layout": "[A_final[n],B_final[n]]",
+    "n_range": [1, 64],
+    "value_range": [-1, 1],
+    "exact_length": "1+5*n",
+    "arithmetic": "Integer-valued binary64; outputs stay in [-2,2] and are exactly representable in binary32 and binary64.",
+    "passes": 1,
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "input_modified": false
+  },
+  "input": {"kind": "float64_slice", "maximum_valid_length": 321, "maximum_parseable_length": 321, "n_range": [1, 64], "null_input_result": -1},
+  "output": {"kind": "float64_slice", "maximum_elements": 128, "no_write_on_error": true, "null_output_result": -2, "short_capacity_result": -2},
+  "workspace": {"elements": 128, "bytes": 1024, "meaning": "Staged concatenation of final A and B vectors."},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 100, "absolute_tolerance": 0, "relative_tolerance": 0},
+  "cases": [
+    {"id": "single-source-shaped-position", "input_values": [1, 0, 1, 1, 1, 1], "input_length": 6, "expected_result": 2, "expected_output": [2, 1]},
+    {"id": "saved-temporary-and-dual-write", "input_values": [2, 1, -1, 0, 1, -1, 1, 1, -1, 0, 1], "input_length": 11, "expected_result": 4, "expected_output": [0, 2, 2, -2]},
+    {"id": "invalid-n", "input_values": [0], "input_length": 1, "expected_result": -1, "expected_output": []},
+    {"id": "truncated", "input_values": [2, 1, 0], "input_length": 3, "expected_result": -1, "expected_output": []},
+    {"id": "fractional", "input_values": [1, 0.5, 0, 0, 0, 0], "input_length": 6, "expected_result": -1, "expected_output": []},
+    {"id": "short-capacity", "input_values": [1, 0, 0, 0, 0, 0], "input_length": 6, "expected_result": -2, "expected_output": [], "output_capacity": 1},
+    {"id": "null-output", "input_values": [1, 0, 0, 0, 0, 0], "input_length": 6, "expected_result": -2, "expected_output": [], "output_is_null": true}
+  ]
+}

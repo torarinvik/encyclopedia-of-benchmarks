@@ -31,3 +31,7 @@ python3 benchmarks/build_abi.py --family float64_slice_io --algorithm syrk --lan
 python3 benchmarks/run_float64_slice_io.py --build-manifest build/float64_slice_io/s/syrk/c/build.json
 python3 benchmarks/verify_float64_slice_io.py --algorithm syrk --languages c
 ~~~
+
+## Upstream license
+
+The pinned PolyBench/C repository includes the Ohio State University Software Distribution License at its repository root. The complete notice and redistribution conditions are reproduced in this package's [`LICENSE.txt`](LICENSE.txt).

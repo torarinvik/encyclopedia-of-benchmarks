@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s313-dot-product-reduction-float64-slice-io-v1",
+  "algorithm": "tsvc_s313_dot_product_reduction",
+  "function_symbol": "tsvc_s313_dot_product_reduction",
+  "abi": "float64_slice_io",
+  "description": "Bounded source-order TSVC s313 dot-product reduction.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s313",
+    "source_lines": {"kernel_start": 3582, "kernel_end": 3608},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc",
+    "launcher_families": ["TSVC/Reductions-dbl", "TSVC/Reductions-flt"],
+    "launcher_paths": ["TSVC/Reductions-dbl/info.sh", "TSVC/Reductions-flt/info.sh"],
+    "attribution": "TSVC source comments attribute its non-four-digit loops to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit redistribution grant was found in the pinned TSVC source or repository material reviewed. These are clean-room implementations; no upstream code/comments, license, or endorsement is claimed."
+  },
+  "input": {
+    "kind": "float64_array",
+    "argument_order": ["n", "A values", "B values"],
+    "n_range": [1, 64],
+    "value_range": [-1000, 1000],
+    "value_domain": "finite integer-valued numbers",
+    "maximum_valid_input_length": 129,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "elements": 1,
+    "value": "left-to-right sum of A[i] * B[i]",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {"elements": 1},
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 0,
+    "relative_tolerance": 0
+  },
+  "cases": [
+    {"id":"unit-dot","input_values":[3,1,2,3,4,5,6],"input_length":7,"output_capacity":1,"expected_result":1,"expected_output":[32.0]},
+    {"id":"cancellation","input_values":[4,1,-2,3,-4,4,3,2,1],"input_length":9,"output_capacity":1,"expected_result":1,"expected_output":[0.0]},
+    {"id":"zero-vector","input_values":[2,0,0,8,-9],"input_length":5,"output_capacity":1,"expected_result":1,"expected_output":[0.0]},
+    {"id":"invalid-length","input_values":[2,1,2],"input_length":3,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-fractional-value","input_values":[1,1.5,3],"input_length":3,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"short-capacity","input_values":[1,7,-3],"input_length":3,"output_capacity":0,"expected_result":-2,"expected_output":[]},
+    {"id":"null-output","input_values":[1,7,-3],"input_length":3,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output":[]}
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s2275-f64-slice-v1",
+  "algorithm": "tsvc_s2275_matrix_vector_axpy_interleave",
+  "function_symbol": "tsvc_s2275_matrix_vector_axpy_interleave",
+  "abi": "float64_slice_io",
+  "description": "Bounded repeated s2275 matrix AXPY sweep interleaved with vector overwrite updates.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s2275",
+    "source_lines": {"kernel_start": 2933, "kernel_end": 2958},
+    "initializer_symbol": "s275 ",
+    "initializer_lines": {"start": 510, "end": 513},
+    "launcher_paths": ["TSVC/ControlFlow-dbl/info.sh", "TSVC/ControlFlow-flt/info.sh"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC",
+    "attribution": "TSVC source comments attribute codelets to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit modification or redistribution grant was found in reviewed pinned materials; ports are clean-room."
+  },
+  "contract": {
+    "operation": "For each pass and ascending i, update AA[j][i] += BB[j][i]*CC[j][i] for ascending j, then overwrite A[i]=B[i]+C[i]*D[i].",
+    "input_layout": "[n,passes,AA[n*n],BB[n*n],CC[n*n],A[n],B[n],C[n],D[n]]",
+    "matrix_layout": "row-major; source traversal is columns by ascending i, then j",
+    "output_layout": "[AA_final[n*n] row-major,A_final[n]]",
+    "n_range": [1, 8],
+    "passes_range": [1, 8],
+    "value_range": [-1, 1],
+    "exact_length": "2+3*n*n+4*n",
+    "arithmetic": "Integer-valued binary64; matrix outputs remain within [-9,9] and vector outputs within [-2,2].",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "input_modified": false
+  },
+  "input": {"kind": "float64_slice", "maximum_valid_length": 226, "maximum_parseable_length": 226, "n_range": [1, 8], "passes_range": [1, 8], "null_input_result": -1},
+  "output": {"kind": "float64_slice", "maximum_elements": 72, "no_write_on_error": true, "null_output_result": -2, "short_capacity_result": -2},
+  "workspace": {"elements": 72, "bytes": 576, "meaning": "Staged final matrix AA and vector A."},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 100, "absolute_tolerance": 0, "relative_tolerance": 0},
+  "cases": [
+    {"id": "column-major-sweep-and-vector-overwrite", "input_values": [2, 2, 1, 2, 3, 4, 1, -1, 0, 1, 1, 1, 1, 1, 9, 8, 1, 2, 2, -1, 1, 2], "input_length": 22, "expected_result": 6, "expected_output": [3, 0, 3, 6, 3, 0]},
+    {"id": "single-cell-negative-vector", "input_values": [1, 1, 0, -1, 1, 0, -1, 1, -1], "input_length": 9, "expected_result": 2, "expected_output": [-1, -2]},
+    {"id": "invalid-n", "input_values": [0, 1], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "truncated", "input_values": [1, 1, 0], "input_length": 3, "expected_result": -1, "expected_output": []},
+    {"id": "fractional-matrix-value", "input_values": [1, 1, 0.5, 1, 1, 0, 0, 0, 0], "input_length": 9, "expected_result": -1, "expected_output": []},
+    {"id": "array-value-out-of-range", "input_values": [1, 1, 0, 2, 1, 0, 0, 0, 0], "input_length": 9, "expected_result": -1, "expected_output": []},
+    {"id": "short-capacity", "input_values": [1, 1, 0, 0, 0, 0, 0, 0, 0], "input_length": 9, "expected_result": -2, "expected_output": [], "output_capacity": 1},
+    {"id": "null-output", "input_values": [1, 1, 0, 0, 0, 0, 0, 0, 0], "input_length": 9, "expected_result": -2, "expected_output": [], "output_is_null": true}
+  ]
+}

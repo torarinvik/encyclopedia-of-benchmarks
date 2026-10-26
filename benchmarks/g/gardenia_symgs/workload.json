@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "gardenia-symgs-bounded-f64-slice-io-v1",
+  "algorithm": "gardenia_symgs",
+  "function_symbol": "gardenia_symgs",
+  "abi": "float64_slice_io",
+  "description": "Bounded sparse symmetric Gauss-Seidel sweep over explicit graph-color classes.",
+  "source": {
+    "repository": "chenxuhao/gardenia",
+    "commit": "5894df11cf47f8839945edadff43dc79e260216d",
+    "path": "src/symgs/omp_base.cc",
+    "symbols": ["gauss_seidel", "SymGSSolver"],
+    "url": "https://github.com/chenxuhao/gardenia/blob/5894df11cf47f8839945edadff43dc79e260216d/src/symgs/omp_base.cc",
+    "additional_source_paths": ["src/symgs/verifier.cc", "src/symgs/main.cc", "include/common.h"],
+    "license_path": "LICENSE",
+    "license": "MIT"
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[n, nnz, color_count, order[n], color_offsets[color_count+1], rowptr[n+1], colind[nnz], values[nnz], x0[n], b[n]]",
+    "node_count_range": [1, 8],
+    "nonzero_count_range": [1, 64],
+    "color_count_range": [1, 8],
+    "maximum_input_length": 173,
+    "matrix_semantics": "exactly symmetric, strictly row-diagonally-dominant CSR matrix with one positive diagonal per row",
+    "color_semantics": "order is a permutation, offsets define nonempty contiguous classes, and no off-diagonal CSR edge has endpoints in one class",
+    "data_range": [-4, 4],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "encoding": "n final x values after one forward and one backward color-class sweep",
+    "maximum_elements": 8,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "operation": "For each color class in ascending order, then descending order, update each row in its supplied class order using its stored CSR order. Accumulate off-diagonal x[column]*value terms left-to-right and assign (b[row]-sum)/diagonal.",
+    "numeric_profile": "binary64 projection of the pinned default binary32 ValueT recurrence",
+    "source_host_note": "The pinned host's random matrix-weight initialization is commented out; the profile supplies matrix and vectors explicitly.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "workspace": {"elements": 8, "meaning": "Staged final x vector at the declared maximum node count."},
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"two-by-two-forward-backward","input_values":[2,4,2,0,1,0,1,2,0,2,4,0,2,0,1,0,1,4,-1,-1,3,0,0,1,2],"input_length":23,"output_capacity":2,"expected_result":2,"expected_output":[0.4375,0.75]},
+    {"id":"three-row-path-colored-sweep","input_values":[3,7,2,0,2,1,0,2,3,0,2,5,7,0,1,0,1,2,1,2,4,-1,-1,4,-1,-1,4,0,0,0,1,0,1],"input_length":33,"output_capacity":3,"expected_result":3,"expected_output":[0.28125,0.125,0.28125]},
+    {"id":"bad-color-offsets","input_values":[1,1,1,0,0,0,0,1,0,2,0,1],"input_length":12,"output_capacity":8,"expected_result":-1,"expected_output":[]},
+    {"id":"short-output","input_values":[1,1,1,0,0,1,0,1,0,2,0,1],"input_length":12,"output_capacity":0,"expected_result":-2,"expected_output":[]}
+  ]
+}

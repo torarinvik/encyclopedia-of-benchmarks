@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s293-first-element-broadcast-i64-array-bytes-v1",
+  "algorithm": "tsvc_s293_first_element_broadcast",
+  "function_symbol": "tsvc_s293_first_element_broadcast",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded clean-room profile of TSVC s293's ascending A[i]=A[0] broadcast loop.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s293",
+    "source_lines": [3358, 3380],
+    "initializer_symbol": "s293 ",
+    "launcher_paths": ["TSVC/CrossingThresholds-dbl/info.sh", "TSVC/CrossingThresholds-flt/info.sh"],
+    "attribution": "TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit modification or redistribution grant was found in the pinned materials reviewed; these are clean-room ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "info_path": "TSVC/CrossingThresholds-dbl/info.sh",
+    "bench_name": "CrossingThresholds-dbl",
+    "source_files": ["dummy.c", "tsc.c"],
+    "compile_flags": ["-std=gnu99", "-lm"],
+    "run_options": ["5880", "14"]
+  },
+  "contract": {
+    "operation": "Read the original A[0], then in ascending i store A[i]=A[0]; expose the resulting array.",
+    "input_layout": "[n,A[n]]",
+    "n_range": [1, 32],
+    "value_range": [-8, 8],
+    "exact_length": "1+n",
+    "output_encoding": "n repetitions of original A[0], as little-endian signed i64.",
+    "success_result": "8*n bytes",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "input_modified": false,
+    "source_scope": "Profiles the s293 loop body with an explicit bounded input frame; does not reproduce the launcher's initialized global arrays or timing wrapper."
+  },
+  "input": {"kind":"signed_i64_array","maximum_valid_length":33,"maximum_parseable_length":33,"invalid_input_result":-1,"null_input_result":-1},
+  "output": {"kind":"byte_array","encoding":"Little-endian signed i64 broadcast array","maximum_bytes":256,"success_result":"8*n bytes","null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "workspace": {"bytes":256,"meaning":"Staging for at most 32 broadcast i64 values."},
+  "measurement": {"comparison_model":"i64_array_bytes_output_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
+  "cases": [
+    {"id":"multi-element-broadcast","input_values":[4,8,-2,0,5],"input_length":5,"output_capacity":256,"expected_result":32,"expected_output_hex":"0800000000000000080000000000000008000000000000000800000000000000"},
+    {"id":"single-element-preserved","input_values":[1,-3],"input_length":2,"output_capacity":8,"expected_result":8,"expected_output_hex":"fdffffffffffffff"},
+    {"id":"zero-size","input_values":[0],"input_length":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated","input_values":[2,1],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-value","input_values":[1,2,3],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"value-out-of-range","input_values":[1,9],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,2],"input_length":2,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-capacity","input_values":[1,2],"input_length":2,"output_capacity":7,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

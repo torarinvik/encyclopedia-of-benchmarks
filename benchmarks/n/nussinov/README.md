@@ -12,3 +12,7 @@ Build a language implementation with the `i64_array_scalar` ABI family, for exam
 python3 benchmarks/build_abi.py --family i64_array_scalar --algorithm nussinov --language rust
 python3 benchmarks/run_i64_array_scalar.py --build-manifest build/i64_array_scalar/n/nussinov/rust/build.json
 ```
+
+## Upstream license
+
+The pinned PolyBench/C repository includes the Ohio State University Software Distribution License at its repository root. The complete notice and redistribution conditions are reproduced in this package's [`LICENSE.txt`](LICENSE.txt).

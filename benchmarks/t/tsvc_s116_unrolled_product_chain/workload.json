@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s116-unrolled-product-chain-i64-le-v1",
+  "algorithm": "tsvc_s116_unrolled_product_chain",
+  "function_symbol": "tsvc_s116_unrolled_product_chain",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded source-order in-place five-product chain from TSVC s116.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s116",
+    "source_lines": {"kernel_start": 1091, "kernel_end": 1117, "loop_start": 1102, "loop_end": 1109},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc",
+    "launcher_family": "TSVC/LinearDependence-dbl",
+    "launcher_source": "LinearDependence-dbl/info.sh uses RUN_OPTIONS 3570 14; the float family selects the same codelet with RUN_OPTIONS 3570 5.",
+    "attribution": "TSVC source attributes the collection to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit redistribution/modification grant was found in the pinned TSVC materials reviewed; these are clean-room ports and upstream code/comments are not copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "argument_order": ["n", "passes", "A[n]"],
+    "n_rule": "n = 5*blocks + 1, blocks in [1,4]",
+    "n_values": [6, 11, 16, 21],
+    "passes_range": [1, 4],
+    "exact_length": "2+n",
+    "maximum_valid_input_length": 23,
+    "value_set": [-1, 1],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "final A vector",
+    "successful_result": "Number of output elements, n.",
+    "required_capacity": "8*n bytes",
+    "maximum_elements": 21,
+    "maximum_bytes": 168,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {"bytes": 168, "meaning": "Staged maximum A vector; caller output is written only after complete input validation and recurrence evaluation."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 1},
+  "cases": [
+    {"id": "one-five-step-block", "input_values": [6, 1, 1, -1, 1, -1, 1, -1], "input_length": 8, "output_capacity": 48, "expected_result": 6, "expected_output_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"},
+    {"id": "two-blocks-preserve-final-sentinel", "input_values": [11, 1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1], "input_length": 13, "output_capacity": 88, "expected_result": 11, "expected_output_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0100000000000000"},
+    {"id": "invalid-n-does-not-fit-unroll", "input_values": [7, 1, 1, 1, 1, 1, 1, 1, 1], "input_length": 9, "output_capacity": 56, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-value", "input_values": [6, 1, 1, 1, 1, 1, 1, 0], "input_length": 8, "output_capacity": 48, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short-capacity", "input_values": [6, 1, 1, -1, 1, -1, 1, -1], "input_length": 8, "output_capacity": 47, "expected_result": -2, "expected_output_hex": ""}
+  ]
+}

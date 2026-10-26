@@ -1,0 +1,96 @@
+# Clean-room bounded GAPBS delta-stepping profile; see package LICENSE.txt.
+const GAPBS_DELTA_STEP_MAX_N: usize = 16
+const GAPBS_DELTA_STEP_MAX_M: usize = 64
+const GAPBS_DELTA_STEP_BUCKETS: usize = 481
+const GAPBS_DELTA_STEP_EVENTS: usize = 8192
+const GAPBS_DELTA_STEP_INF: i64 = 1073741823
+
+def gapbs_delta_step_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def gapbs_delta_step_sssp(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("gapbs_delta_step_sssp"):
+    if input.is_null() or length < 4 or length > 196: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    source64: i64 = input[2]
+    delta: i64 = input[3]
+    if n64 < 1 or n64 > 16 or m64 < 0 or m64 > 64 or source64 < 0 or source64 >= n64 or delta < 1 or delta > 16:
+        return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    source: usize = source64.usize()
+    if length != 4 + 3 * m: return -1
+    edge_from: mutable usize[64] = zeroed
+    edge_to: mutable usize[64] = zeroed
+    edge_weight: mutable i64[64] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        from: i64 = input[4 + 3 * edge]
+        to: i64 = input[5 + 3 * edge]
+        weight: i64 = input[6 + 3 * edge]
+        if from < 0 or from >= n64 or to < 0 or to >= n64 or weight < 0 or weight > 32: return -1
+        edge_from[edge] <- from.usize()
+        edge_to[edge] <- to.usize()
+        edge_weight[edge] <- weight
+        edge <- edge + 1
+    output_bytes: usize = 8 * n
+    if output.is_null() or capacity < output_bytes: return -2
+
+    distance: mutable i64[16] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        distance[vertex] <- GAPBS_DELTA_STEP_INF
+        vertex <- vertex + 1
+    distance[source] <- 0
+    heads: mutable i64[481] = zeroed
+    tails: mutable i64[481] = zeroed
+    bucket: mutable usize = 0
+    while bucket < GAPBS_DELTA_STEP_BUCKETS:
+        heads[bucket] <- -1
+        tails[bucket] <- -1
+        bucket <- bucket + 1
+    event_vertex: mutable i64[8192] = zeroed
+    event_next: mutable i64[8192] = zeroed
+    used: mutable usize = 0
+    heads[0] <- 0
+    tails[0] <- 0
+    event_vertex[0] <- source.i64()
+    event_next[0] <- -1
+    used <- 1
+
+    bucket <- 0
+    while bucket < GAPBS_DELTA_STEP_BUCKETS:
+        while heads[bucket] >= 0:
+            event: usize = heads[bucket].usize()
+            heads[bucket] <- event_next[event]
+            if heads[bucket] < 0: tails[bucket] <- -1
+            u: usize = event_vertex[event].usize()
+            if distance[u] >= delta * bucket.i64():
+                edge <- 0
+                while edge < m:
+                    if edge_from[edge] == u:
+                        v: usize = edge_to[edge]
+                        candidate: i64 = distance[u] + edge_weight[edge]
+                        if candidate < distance[v]:
+                            destination: usize = (candidate / delta).usize()
+                            if used >= GAPBS_DELTA_STEP_EVENTS or destination >= GAPBS_DELTA_STEP_BUCKETS: return -1
+                            event_next[used] <- -1
+                            event_vertex[used] <- v.i64()
+                            if heads[destination] < 0:
+                                heads[destination] <- used.i64()
+                            else:
+                                event_next[tails[destination].usize()] <- used.i64()
+                            tails[destination] <- used.i64()
+                            used <- used + 1
+                            distance[v] <- candidate
+                    edge <- edge + 1
+        bucket <- bucket + 1
+    vertex <- 0
+    while vertex < n:
+        gapbs_delta_step_store_i64_le(distance[vertex], output, 8 * vertex)
+        vertex <- vertex + 1
+    output_bytes.i64()

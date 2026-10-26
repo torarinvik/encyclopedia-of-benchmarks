@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "graph-aibench-gat-attention-aggregation-float64-slice-v1",
+  "algorithm": "graphai_gat_aggregation",
+  "function_symbol": "graphai_gat_aggregation",
+  "abi": "float64_slice_io",
+  "description": "Bounded CSR GAT attention scoring, row softmax, and neighbor aggregation.",
+  "pinned_source": {
+    "repository": "chenxuhao/GraphAIBench",
+    "commit": "17834cb29b7c542481c2e3740dc9664841b72f59",
+    "path": "src/gnn/gconv/gat_aggregator.cpp",
+    "symbol": "GAT_Aggregator::aggregate, update_all",
+    "url": "https://github.com/chenxuhao/GraphAIBench/blob/17834cb29b7c542481c2e3740dc9664841b72f59/src/gnn/gconv/gat_aggregator.cpp",
+    "license": "MIT License",
+    "copyright": "Copyright (c) 2022 Xuhao Chen",
+    "license_file": "LICENSE.txt"
+  },
+  "contract": {
+    "operation": "For each CSR edge u->v, compute leaky_relu(dot(alpha_l,X[u])+dot(alpha_r,X[v]),0.2), softmax the row scores, and sum weighted destination feature vectors.",
+    "input_encoding": "[n,m,d,rowptr[n+1],colind[m],alpha_l[d],alpha_r[d],X[n*d]]",
+    "exact_input_length": "4+n+m+2*d+n*d",
+    "output_encoding": "Y[n*d] in vertex-major then feature-major order",
+    "arithmetic": "Finite binary64; edge scores and weighted-vector accumulation follow CSR order; softmax subtracts the row maximum; empty rows emit zeros.",
+    "bounds": {"n": [1, 8], "m": [0, 24], "d": [1, 4], "coefficients_and_features": [-8, 8]},
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {"kind": "finite_float64_array", "maximum_input_length": 76, "invalid_result": -1},
+  "output": {"kind": "float64_array", "maximum_elements": 32, "success_result": "n*d output elements", "null_or_short_result": -2, "no_write_on_error": true, "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12},
+  "workspace": {"elements": 32, "meaning": "Fixed CSR and score arrays plus staged output at declared bounds."},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100, "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12},
+  "cases": [
+    {"id": "two-edge-attention", "input_values": [3,2,1,0,2,2,2,1,2,0,1,0,0,1], "input_length": 14, "expected_result": 3, "expected_output": [0.7310585786300049,0,0]},
+    {"id": "empty-rows", "input_values": [2,0,2,0,0,0,0,0,0,0,1,2,3,4], "input_length": 14, "expected_result": 4, "expected_output": [0,0,0,0]},
+    {"id": "invalid-neighbor", "input_values": [2,1,1,0,1,1,2,0,0,0,0], "input_length": 11, "expected_result": -1, "expected_output": []},
+    {"id": "short-capacity", "input_values": [3,2,1,0,2,2,2,1,2,0,1,0,0,1], "input_length": 14, "output_capacity": 2, "expected_result": -2, "expected_output": []},
+    {"id": "null-output", "input_values": [3,2,1,0,2,2,2,1,2,0,1,0,0,1], "input_length": 14, "output_capacity": 3, "output_is_null": true, "expected_result": -2, "expected_output": []},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output": []}
+  ]
+}

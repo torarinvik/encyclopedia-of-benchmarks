@@ -1,0 +1,104 @@
+const MAX_STEPS: usize = 16
+
+## Copyright (C) 2008 Matt Mahoney, Serge Osnach, Alexander Ratushnyak, Bill Pettis, Przemyslaw Skibinski, Matthew Fite, wowtiger, Andrew Paterson, Jan Ondrus, Andreas Morphis, Pavel L. Holoborodko, KZ. GPL-2.0-or-later.
+## This program is free software; redistribute and/or modify it under the GNU
+## General Public License as published by the Free Software Foundation, either
+## version 2 or (at your option) any later version. It is provided without any
+## warranty, including merchantability or fitness for a particular purpose.
+## See https://www.gnu.org/licenses/ for details.
+const ST: i32[33] = [1, 2, 3, 6, 10, 16, 27, 45, 73, 120, 194, 310, 488, 747, 1101, 1546, 2047, 2549, 2994, 3348, 3607, 3785, 3901, 3975, 4022, 4050, 4068, 4079, 4085, 4089, 4092, 4093, 4094]
+
+def squash(value0: i32) -> i32:
+    if value0 > 2047: return 4095
+    if value0 < -2047: return 0
+    weight: i32 = value0 & 127
+    index: i32 = (value0 >> 7) + 16
+    ((ST[index.usize()] * (128 - weight) + ST[(index + 1).usize()] * weight + 64) >> 7)
+
+def make_stretch(table: mutable i32&) -> void:
+    next_index: mutable usize = 0
+    value: mutable i32 = -2047
+    while value <= 2047:
+        end_index: usize = squash(value).usize()
+        index: mutable usize = next_index
+        while index <= end_index:
+            table[index] <- value
+            index <- index + 1
+        next_index <- end_index + 1
+        value <- value + 1
+    table[4095] <- 2047
+
+def dot8(inputs: i32&, input_base: usize, weights: i32&, weight_base: usize) -> i32:
+    total: mutable i32 = 0
+    index: mutable usize = 0
+    while index < 8:
+        total <- total + ((inputs[input_base + index] * weights[weight_base + index] + inputs[input_base + index + 1] * weights[weight_base + index + 1]) >> 8)
+        index <- index + 2
+    total
+
+def train8(inputs: i32&, input_base: usize, weights: mutable i32&, weight_base: usize, error: i32) -> void:
+    for index in 0..<8:
+        value: mutable i32 = weights[weight_base + index] + (((inputs[input_base + index] * error * 2 >> 16) + 1) >> 1)
+        if value < -32768: value <- -32768
+        if value > 32767: value <- 32767
+        weights[weight_base + index] <- value
+
+def store_prediction(value: i32, output: mutable u8&, position: usize) -> void:
+    output[position] <- (value & 255).u8()
+    output[position + 1] <- ((value >> 8) & 255).u8()
+
+def paq8p_context_mixer_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 12 or length > 177: return -1
+    count_value: i64 = input[0]
+    if count_value < 1 or count_value > MAX_STEPS.i64() or length != 1 + count_value.usize() * 11: return -1
+    count: usize = count_value.usize()
+    features: mutable i32[128]
+    contexts0: mutable i32[16]
+    contexts1: mutable i32[16]
+    targets: mutable i32[16]
+    position: mutable usize = 1
+    for step in 0..<count:
+        if input[position] < 0 or input[position] > 1 or input[position + 1] < 0 or input[position + 1] > 1 or input[position + 2] < 0 or input[position + 2] > 1: return -1
+        contexts0[step] <- input[position].i32()
+        contexts1[step] <- input[position + 1].i32()
+        targets[step] <- input[position + 2].i32()
+        position <- position + 3
+        for j in 0..<8:
+            if input[position] < -2047 or input[position] > 2047: return -1
+            features[step * 8 + j] <- input[position].i32()
+            position <- position + 1
+    needed: usize = count * 2
+    if output == null or capacity < needed: return -2
+    stretch: mutable i32[4096]
+    make_stretch(stretch&)
+    outer: mutable i32[32]
+    inner: mutable i32[8]
+    for index in 0..<8: inner[index] <- 32767
+    previous_inner: mutable i32[8]
+    previous_prediction: mutable i32 = 2048
+    previous_target: mutable i32 = 0
+    for step in 0..<count:
+        if step > 0:
+            inner_error: i32 = ((previous_target << 12) - previous_prediction) * 7
+            train8(previous_inner&, 0, inner&, 0, inner_error)
+        context0: usize = contexts0[step].usize()
+        context1: usize = 2 + contexts1[step].usize()
+        input_base: usize = step * 8
+        model0: i32 = squash(dot8(features&, input_base, outer&, context0 * 8) >> 5)
+        model1: i32 = squash(dot8(features&, input_base, outer&, context1 * 8) >> 5)
+        inner_inputs: mutable i32[8]
+        inner_inputs[0] <- stretch[model0.usize()]
+        inner_inputs[1] <- stretch[model1.usize()]
+        for j in 2..<8: inner_inputs[j] <- 0
+        prediction: i32 = squash(dot8(inner_inputs&, 0, inner&, 0) >> 8)
+        store_prediction(prediction, output, step * 2)
+        error0: i32 = ((targets[step] << 12) - model0) * 7
+        error1: i32 = ((targets[step] << 12) - model1) * 7
+        train8(features&, input_base, outer&, context0 * 8, error0)
+        train8(features&, input_base, outer&, context1 * 8, error1)
+        for j in 0..<8: previous_inner[j] <- inner_inputs[j]
+        previous_prediction <- prediction
+        previous_target <- targets[step]
+    needed.i64()
+
+export fn paq8p_context_mixer(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = paq8p_context_mixer_impl

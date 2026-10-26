@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s441-s443-f64-slice-v1",
+  "algorithm": "tsvc_s441_s443_d_sign_branch_updates",
+  "function_symbol": "tsvc_s441_s443_d_sign_branch_updates",
+  "abi": "float64_slice_io",
+  "description": "Bounded source-specific profiles for the three-way s441 and two-way s443 D-sign arithmetic branches.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbols": ["s441", "s443"],
+    "source_lines": {"s441": [4604, 4633], "s443": [4682, 4716]},
+    "initializer_symbols": ["s441 ", "s443 "],
+    "initializer_lines": {"s441": [690, 696], "s443": [703, 706]},
+    "launcher_paths": ["TSVC/ControlFlow-dbl/info.sh", "TSVC/ControlFlow-flt/info.sh"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC",
+    "attribution": "TSVC source comments attribute codelets to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit modification or redistribution grant was found in reviewed pinned materials; ports are clean-room."
+  },
+  "contract": {
+    "operation": "Mode 0 is s441: D<0 selects B*C, D==0 selects B*B, D>0 selects C*C; mode 1 is s443: D<=0 selects B*C, otherwise B*B. Each selected product is added to A.",
+    "input_layout": "[mode,n,passes,A[n],B[n],C[n],D[n]]",
+    "output_layout": "A_final[n]",
+    "mode_map": {"0": "s441", "1": "s443"},
+    "n_range": [1, 64],
+    "passes_range": [1, 8],
+    "value_range": [-1, 1],
+    "exact_length": "3+4*n",
+    "arithmetic": "Integer-valued binary64; A remains within [-9,9] and is exactly representable in binary32 and binary64.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "input_modified": false
+  },
+  "input": {"kind": "float64_slice", "maximum_valid_length": 259, "maximum_parseable_length": 259, "n_range": [1, 64], "passes_range": [1, 8], "null_input_result": -1},
+  "output": {"kind": "float64_slice", "maximum_elements": 64, "no_write_on_error": true, "null_output_result": -2, "short_capacity_result": -2},
+  "workspace": {"elements": 64, "bytes": 512, "meaning": "Staged final A vector."},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 100, "absolute_tolerance": 0, "relative_tolerance": 0},
+  "cases": [
+    {"id": "s441-negative-zero-positive", "input_values": [0, 3, 2, 0, 0, 0, 1, 1, 1, -1, 1, 1, -1, 0, 1], "input_length": 15, "expected_result": 3, "expected_output": [-2, 2, 2]},
+    {"id": "s443-zero-shares-negative-arm", "input_values": [1, 3, 1, 0, 0, 0, 1, 1, 1, -1, 1, 1, -1, 0, 1], "input_length": 15, "expected_result": 3, "expected_output": [-1, 1, 1]},
+    {"id": "invalid-mode", "input_values": [2, 1, 1, 0, 0, 0, 0], "input_length": 7, "expected_result": -1, "expected_output": []},
+    {"id": "truncated", "input_values": [0, 1, 1, 0, 0], "input_length": 5, "expected_result": -1, "expected_output": []},
+    {"id": "fractional-vector-value", "input_values": [0, 1, 1, 0.5, 0, 0, 0], "input_length": 7, "expected_result": -1, "expected_output": []},
+    {"id": "array-value-out-of-range", "input_values": [1, 1, 1, 0, 0, 0, 2], "input_length": 7, "expected_result": -1, "expected_output": []},
+    {"id": "short-capacity", "input_values": [0, 1, 1, 0, 0, 0, 0], "input_length": 7, "expected_result": -2, "expected_output": [], "output_capacity": 0},
+    {"id": "null-output", "input_values": [1, 1, 1, 0, 0, 0, 0], "input_length": 7, "expected_result": -2, "expected_output": [], "output_is_null": true}
+  ]
+}

@@ -1,0 +1,3 @@
+// Clean-room TSVC s1112 profile; see package rights note.
+fn put64(out:[*]u8,p:usize,v:i64)void{const b=@as(u64,@bitCast(v));for(0..8)|j|out[p+j]=@truncate(b>>(8*j));}
+pub export fn tsvc_s1112_reverse_constant_offset_map(input:?[*]const i64,length:usize,output:?[*]u8,capacity:usize)i64{if(input==null or length<3 or length>129)return -1;const v=input.?[0..length];if(v[0]<1 or v[0]>64)return -1;const n:usize=@intCast(v[0]);if(length!=1+2*n)return -1;var a=[_]i64{0}**64;var b=[_]i64{0}**64;for(0..n)|i|{const x=v[1+i];const y=v[1+n+i];if(x< -2 or x>2 or y< -2 or y>2)return -1;a[i]=x;b[i]=y;}if(output==null or capacity<8*n)return -2;var i=n;while(i>0){i-=1;a[i]=b[i]+1;}for(0..n)|j|put64(output.?,8*j,a[j]);return @intCast(n);}

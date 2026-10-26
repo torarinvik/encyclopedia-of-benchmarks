@@ -1,0 +1,14 @@
+## (c) William Landi 1991. Permission to use this code is granted as long as the copyright notice remains in place.
+def prolangs_c_simulator_shiftr_impl(v: i64&, n: usize) -> i64:
+    if v.is_null() or n != 2: return -1
+    operand: i64 = v[0]
+    raw: i64 = v[1]
+    if operand < 0 or operand > 255 or raw < 0 or raw > 16777215 or (operand >> 4) >= 10: return -1
+    shift: u32 = (operand & 15).u32() + 1
+    value: u32 = raw.u32()
+    result: mutable u32 = value >> shift
+    if (value & 8388608) != 0:
+        result <- result | (((1 << shift) - 1) << (24 - shift))
+    (result & 16777215).i64()
+
+export fn prolangs_c_simulator_shiftr(v: i64&, n: usize) -> i64 = prolangs_c_simulator_shiftr_impl

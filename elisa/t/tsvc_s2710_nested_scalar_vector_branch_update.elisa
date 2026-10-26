@@ -1,0 +1,13 @@
+extern trunc(value:f64)->f64
+extern fabs(value:f64)->f64
+fn long tsvc_s2710_nested_scalar_vector_branch_update(double* x,usz l,double* y,usz cap) @export("tsvc_s2710_nested_scalar_vector_branch_update"){
+ if(x==null||l<58||l>323)return -1
+ double rn=x[0];double rp=x[1];double scalar=x[2];if(rn!=rn||trunc(rn)!=rn||rn<11||rn>64||rp!=rp||trunc(rp)!=rp||rp<1||rp>8||scalar!=scalar||trunc(scalar)!=scalar||fabs(scalar)>1)return -1
+ usz n=(usz)rn;usz passes=(usz)rp;if(l!=3+5*n)return -1
+ for(usz i=3;i<l;i++)if(x[i]!=x[i]||trunc(x[i])!=x[i]||fabs(x[i])>1)return -1
+ if(y==null||cap<3*n)return -2
+ double[64] a;double[64] b;double[64] c;for(usz i=0;i<n;i++){a[i]=x[3+i];b[i]=x[3+n+i];c[i]=x[3+2*n+i];}
+ for(usz pass=0;pass<passes;pass++)for(usz i=0;i<n;i++){double d=x[3+3*n+i];double e=x[3+4*n+i];if(a[i]>b[i]){a[i]+=b[i]*d;c[i]+=d*d;}else{b[i]=a[i]+e*e;if(scalar>0)c[i]=a[i]+d*d;else c[i]+=e*e;}}
+ for(usz i=0;i<n;i++){y[i]<-a[i];y[n+i]<-b[i];y[2*n+i]<-c[i];}
+ return (long)(3*n)
+}

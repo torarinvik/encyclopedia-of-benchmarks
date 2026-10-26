@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "saga-incremental-analytics-i64-array-bytes-output-v1",
+  "algorithm": "saga_incremental_analytics",
+  "function_symbol": "saga_incremental_analytics",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded stateful SAGA-Bench incremental analytics for six graph-update recurrences.",
+  "source": {
+    "repository": "abasak24/SAGA-Bench",
+    "commit": "de61f442b39ffecd8630adc4cb1e39569d0d90cc",
+    "files": [
+      {"path": "src/dynamic/dyn_bfs.h", "symbols": ["BFSIter0", "dynBFSAlg"]},
+      {"path": "src/dynamic/dyn_sssp.h", "symbols": ["SSSPIter0", "dynSSSPAlg"]},
+      {"path": "src/dynamic/dyn_pr.h", "symbols": ["PRIter0", "dynPRAlg"]},
+      {"path": "src/dynamic/dyn_cc.h", "symbols": ["CCIter0", "dynCCAlg"]},
+      {"path": "src/dynamic/dyn_sswp.h", "symbols": ["SSWPIter0", "dynSSWPAlg"]},
+      {"path": "src/dynamic/dyn_mc.h", "symbols": ["MCIter0", "dynMCAlg"]},
+      {"path": "src/dynamic/adListShared.h", "symbols": ["processMetaData"]},
+      {"path": "LICENSE.txt", "symbols": ["Simplified BSD 2-Clause License"]}
+    ],
+    "license": "Simplified BSD 2-Clause",
+    "license_path": "LICENSE.txt"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[mode,n,base_edge_count,added_edge_count,source,property[n],then base and added (u,v,weight) triples]",
+    "mode_range": [1, 6],
+    "node_count_range": [2, 8],
+    "base_edge_count_range": [0, 27],
+    "added_edge_count_range": [1, 28],
+    "total_edge_count_range": [1, 28],
+    "edge_rule": "Simple undirected edges use 0 <= u < v < n, no duplicate across the base/update sets, and weight 1..9.",
+    "source_rule": "A vertex ID for modes 1, 2, and 5; -1 for modes 3, 4, and 6.",
+    "property_rule": "Required pre-state: either a mode-valid state for the base graph or, only when base_edge_count is zero, a vector whose entries are all -1 for fresh-state initialization. BFS unreachable is -1; weighted SSSP unreachable is 1000000000; widest unreachable is 0 and source is 1000000000; CC/MC labels are component extrema; PageRank entries are nonnegative millionths. Other mixed initialized/uninitialized states are outside the contract. Ports range-check values but rely on callers to satisfy this graph-state invariant.",
+    "maximum_valid_length": 97,
+    "maximum_parseable_length": 98,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "Final property vector in vertex-ID order; PageRank entries are binary32 ranks rounded to millionths, half upward.",
+    "maximum_values": 8,
+    "maximum_bytes": 64,
+    "success_result": "8*n bytes",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 64,
+    "meaning": "Maximum result buffer for eight little-endian i64 properties; graph and frontier scratch arrays are bounded stack-local state."
+  },
+  "contract": {
+    "batch": "Insert the complete added-edge batch into the base graph; mark both endpoints of every added edge affected.",
+    "pre_state": "The property vector must be a valid mode-specific state for the base graph, or all entries must be -1 to request fresh-state initialization when base_edge_count is zero. BFS may use individual -1 values for unreachable vertices; other mixed initialized/uninitialized states are outside the contract. This graph-state invariant is a caller precondition; the ABI ports validate numeric ranges but do not recompute the base-graph state.",
+    "schedule": "Process affected vertices in ascending ID order, then FIFO frontier waves; suppress duplicate vertices within each wave. Use adjacency insertion order.",
+    "mode_1_bfs": "Repair minimum hop distances; source starts at zero if uninitialized. The first affected pass immediately relaxes neighbors from an improved vertex, as in BFSIter0.",
+    "mode_2_sssp": "Repair positive weighted shortest paths by strict min-plus decreases; uninitialized non-source vertices start at 1,000,000,000.",
+    "mode_3_pagerank": "Binary32 damping 0.85, base ((1.0f-0.85f)/n), affected ranks then FIFO propagation while absolute rank delta exceeds 1e-7. Contributions are snapshotted at each wave. New ranks begin at 1/n; final values round to millionths, half upward.",
+    "mode_4_cc": "Repair minimum vertex labels across the undirected connected component.",
+    "mode_5_widest": "Repair single-source max-min path values; source starts at 1,000,000,000 and uninitialized non-source vertices at zero.",
+    "mode_6_max": "Repair maximum vertex labels across the undirected connected component; related to mode 4 with the opposite extremum.",
+    "pagerank_domain": "Every vertex must have nonzero degree after insertion; this avoids the source's unguarded division by zero.",
+    "frontier_limit": 256,
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 2, "repetitions_per_sample": 100},
+  "cases": [
+    {"id": "incremental-bfs-shortcut", "input_values": [1,4,3,1,0,0,1,2,3,0,1,1,1,2,1,2,3,1,0,3,1], "input_length": 21, "output_capacity": 32, "expected_result": 32, "expected_output_hex": "0000000000000000010000000000000002000000000000000100000000000000"},
+    {"id": "incremental-sssp-shortcut", "input_values": [2,4,3,1,0,0,3,7,12,0,1,3,1,2,4,2,3,5,0,3,1], "input_length": 21, "output_capacity": 32, "expected_result": 32, "expected_output_hex": "0000000000000000030000000000000006000000000000000100000000000000"},
+    {"id": "incremental-pagerank-new-pair", "input_values": [3,2,0,1,-1,-1,-1,0,1,1], "input_length": 10, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "20a107000000000020a1070000000000"},
+    {"id": "incremental-component-min", "input_values": [4,4,1,1,-1,0,0,2,3,0,1,1,1,2,1], "input_length": 15, "output_capacity": 32, "expected_result": 32, "expected_output_hex": "0000000000000000000000000000000000000000000000000300000000000000"},
+    {"id": "incremental-widest-path", "input_values": [5,4,3,1,0,1000000000,5,4,3,0,1,5,1,2,4,2,3,3,0,3,7], "input_length": 21, "output_capacity": 32, "expected_result": 32, "expected_output_hex": "00ca9a3b00000000050000000000000004000000000000000700000000000000"},
+    {"id": "incremental-component-max", "input_values": [6,4,1,1,-1,1,1,2,3,0,1,1,1,2,1], "input_length": 15, "output_capacity": 32, "expected_result": 32, "expected_output_hex": "0200000000000000020000000000000002000000000000000300000000000000"},
+    {"id": "invalid-truncated-edge-frame", "input_values": [1,2,0,1,0,0,-1], "input_length": 7, "output_capacity": 64, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short-output", "input_values": [1,4,3,1,0,0,1,2,3,0,1,1,1,2,1,2,3,1,0,3,1], "input_length": 21, "output_capacity": 31, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1,4,3,1,0,0,1,2,3,0,1,1,1,2,1,2,3,1,0,3,1], "input_length": 21, "output_capacity": 32, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

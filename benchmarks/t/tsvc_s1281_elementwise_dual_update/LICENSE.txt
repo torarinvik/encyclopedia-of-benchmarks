@@ -1,0 +1,12 @@
+TSVC source attribution and rights note
+
+The upstream TSVC repository is lac-dcc/Benchmarks, pinned here to commit
+5d7b75df749241efa7a6e6f5be613d3fcc5cce38. Its source comments attribute the
+non-four-digit loops to David Callahan, Jack Dongarra, and David Levine.
+
+No explicit modification or redistribution license grant was found in the
+pinned source or repository materials reviewed. This package is a clean-room
+implementation of the published algorithmic behavior and does not copy
+upstream source code or comments. No upstream license or endorsement is
+claimed. The local package files remain subject to the repository's applicable
+terms; this note does not grant additional rights to upstream material.

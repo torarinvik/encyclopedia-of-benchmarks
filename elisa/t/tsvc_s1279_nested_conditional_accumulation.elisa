@@ -1,0 +1,14 @@
+module tsvc_s1279_nested_conditional_accumulation;
+extern trunc(value:f64)->f64
+extern fabs(value:f64)->f64
+fn long tsvc_s1279_nested_conditional_accumulation(double* x,usz l,double* y,usz cap) @export("tsvc_s1279_nested_conditional_accumulation"){
+ if(x==null||l<7||l>322)return -1
+ double rn=x[0];double rp=x[1];if(rn!=rn||trunc(rn)!=rn||rn<1||rn>64||rp!=rp||trunc(rp)!=rp||rp<1||rp>8)return -1
+ usz n=(usz)rn;usz passes=(usz)rp;if(l!=2+5*n)return -1
+ for(usz i=2;i<l;i++)if(x[i]!=x[i]||trunc(x[i])!=x[i]||fabs(x[i])>1)return -1
+ if(y==null||cap<n)return -2
+ double[64] c;for(usz i=0;i<n;i++)c[i]=x[2+2*n+i]
+ for(usz pass=0;pass<passes;pass++)for(usz i=0;i<n;i++){double a=x[2+i];double b=x[2+n+i];if(a<0){if(b>a)c[i]+=x[2+3*n+i]*x[2+4*n+i]}}
+ for(usz i=0;i<n;i++)y[i]<-c[i]
+ return (long)n
+}

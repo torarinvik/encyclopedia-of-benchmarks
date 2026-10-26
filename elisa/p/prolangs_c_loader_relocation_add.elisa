@@ -1,0 +1,38 @@
+const MAX_INPUT_LENGTH: usize = 5
+
+## Copyright (c) William Landi 1991. Permission to use this code is granted as long as the copyright notice remains in place.
+def store_u8(value: u8, output: mutable u8&, position: usize) -> void:
+    output[position] <- value
+
+def prolangs_c_loader_relocation_add_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    half_bytes: i64 = input[0]
+    delta: i64 = input[1]
+    if half_bytes < 1 or half_bytes > 6 or delta < -65535 or delta > 65535:
+        return -1
+    width: usize = (half_bytes + 1).usize() / 2
+    if length != 2 + width:
+        return -1
+    field: mutable u32 = 0
+    for index in 0..<width:
+        byte: i64 = input[2 + index]
+        if byte < 0 or byte > 255:
+            return -1
+        field <- field * 256 + byte.u32()
+    adjusted: i64 = field.i64() + delta
+    if adjusted < 0:
+        return -1
+    if output == null or capacity < width:
+        return -2
+    result: mutable u32 = adjusted.u32()
+    index: mutable usize = width
+    while index > 0:
+        index <- index - 1
+        store_u8((result & 255).u8(), output, index)
+        result <- result >> 8
+    width.i64()
+
+export fn prolangs_c_loader_relocation_add(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = prolangs_c_loader_relocation_add_impl

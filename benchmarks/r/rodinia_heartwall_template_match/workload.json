@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "rodinia-heartwall-template-match-f32-v1",
+  "algorithm": "rodinia_heartwall_template_match",
+  "function_symbol": "rodinia_heartwall_template_match",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded binary32 normalized template matching and maximum-absolute-score selection from Rodinia Heartwall.",
+  "source": {
+    "repository": "utcs-scea/rodinia",
+    "commit": "f30e63663cfb114939a15c7ffc4ae112055ae6a8",
+    "path": "cuda/heartwall/kernel.cu",
+    "symbols": ["kernel"],
+    "url": "https://github.com/utcs-scea/rodinia/blob/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/heartwall/kernel.cu",
+    "license_path": "LICENSE",
+    "license": "University of Virginia BSD-3-Clause"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[image_rows, image_cols, template_rows, template_cols, candidate_mask, template_column_major, image_column_major]",
+    "image_dimension_range": [2, 8],
+    "template_dimension_range": [2, 4],
+    "pixel_value_range": [0, 255],
+    "maximum_valid_length": 85,
+    "maximum_parseable_length": 85,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_candidate_position",
+    "encoding": "column-major linear index of the first enabled candidate with maximum absolute normalized score",
+    "maximum_bytes": 8,
+    "success_result": 8,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Bounded template/image, integral image and squared-integral image buffers, plus one staged output word."
+  },
+  "contract": {
+    "arithmetic": "binary32 operations in the declared direct-accumulation order; upstream CUDA uses 2D prefix buffers for patch statistics, so intermediate rounding may differ",
+    "correlation": "Source rotates the template for convolution; the resulting valid-placement numerator is sum(T*P)-sum(P)*sum(T)/N. Dot products and direct window statistics accumulate column-major with row varying fastest.",
+    "normalization": "denomT=sqrt(N-1)*sqrt(sum(T^2)/N-(sum(T)/N)^2); score=(sum(T*P)-sum(P)*sum(T)/N)/(sqrt(max(0,sum(P^2)-sum(P)^2/N))*denomT)",
+    "candidate_mask": "One bit per valid top-left placement, column-major; disabled placements score zero.",
+    "tie_rule": "Scan candidates column-major and replace only on a strictly greater absolute score, retaining the first tie.",
+    "zero_variance": "Template variance and every enabled patch centered-square sum must be positive; otherwise malformed input returns -1.",
+    "launcher_exclusions": "Video/image I/O, initial template extraction, frame tracking, template adaptation, CUDA scheduling and host output are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"match-versus-reversed-candidate","input_values":[2,4,2,2,5,0,2,1,4,0,2,1,4,4,1,2,0],"input_length":17,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"masked-reversed-candidate","input_values":[2,4,2,2,4,0,2,1,4,0,2,1,4,4,1,2,0],"input_length":17,"output_capacity":8,"expected_result":8,"expected_output_hex":"0200000000000000"},
+    {"id":"equal-score-first-column-major","input_values":[2,5,2,2,9,0,2,1,4,0,2,1,4,7,7,0,2,1,4],"input_length":19,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"empty-candidate-mask","input_values":[2,3,2,2,0,0,2,1,4,0,2,1,4],"input_length":13,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"constant-template-invalid","input_values":[2,2,2,2,1,1,1,1,1,0,1,2,3],"input_length":13,"output_capacity":8,"expected_result":-1},
+    {"id":"zero-variance-candidate-invalid","input_values":[2,2,2,2,1,0,2,1,4,7,7,7,7],"input_length":13,"output_capacity":8,"expected_result":-1},
+    {"id":"candidate-mask-out-of-range","input_values":[2,2,2,2,2,0,2,1,4,0,2,1,4],"input_length":13,"output_capacity":8,"expected_result":-1},
+    {"id":"short-output","input_values":[2,2,2,2,1,0,2,1,4,0,2,1,4],"input_length":13,"output_capacity":7,"expected_result":-2},
+    {"id":"null-output","input_values":[2,2,2,2,1,0,2,1,4,0,2,1,4],"input_length":13,"output_capacity":8,"output_is_null":true,"expected_result":-2},
+    {"id":"null-input","input_values":[2,2,2,2,1,0,2,1,4,0,2,1,4],"input_length":13,"output_capacity":8,"input_is_null":true,"expected_result":-1}
+  ]
+}

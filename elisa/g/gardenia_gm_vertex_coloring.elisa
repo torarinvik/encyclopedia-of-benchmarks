@@ -1,0 +1,51 @@
+# Clean-room bounded GARDENIA Gebremedhin-Manne coloring profile.
+def gardenia_gm_vertex_coloring_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64=value.u64()
+    for byte in 0..<8: output[offset+byte] <- ((bits>>(8*byte)) & 255.u64()).u8()
+
+def gardenia_gm_vertex_coloring(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("gardenia_gm_vertex_coloring"):
+    if input.is_null() or length<2 or length>130: return -1
+    n64: i64=input[0]; m64: i64=input[1]
+    if n64<1 or n64>16 or m64<0 or m64>64 or length!=2+2*m64.usize(): return -1
+    n: usize=n64.usize(); m: usize=m64.usize()
+    adjacent: mutable bool[256]=zeroed
+    for e in 0..<m:
+        u64: i64=input[2+2*e]; v64: i64=input[3+2*e]
+        if u64<0 or v64<=u64 or v64>=n64: return -1
+        u: usize=u64.usize(); v: usize=v64.usize()
+        if adjacent[u*16+v]: return -1
+        adjacent[u*16+v] <- true; adjacent[v*16+u] <- true
+    output_bytes: usize=8*n
+    if output.is_null() or capacity<output_bytes: return -2
+    colors: mutable usize[16]=zeroed; prior: mutable usize[16]=zeroed
+    pending: mutable usize[16]=zeroed; next_pending: mutable usize[16]=zeroed
+    pending_count: mutable usize=n
+    for u in 0..<n: colors[u] <- 128; pending[u] <- u
+    rounds: mutable usize=0
+    while pending_count>0:
+        rounds <- rounds+1
+        if rounds>n+1: return -1
+        for u in 0..<n: prior[u] <- colors[u]
+        for item in 0..<pending_count:
+            u: usize=pending[item]
+            forbidden: mutable bool[16]=zeroed
+            for v in 0..<n:
+                if adjacent[u*16+v] and prior[v]!=128: forbidden[prior[v]] <- true
+            color: mutable usize=0
+            while color<128 and forbidden[color]: color <- color+1
+            if color>=128: return -1
+            colors[u] <- color
+        next_count: mutable usize=0
+        for item in 0..<pending_count:
+            u: usize=pending[item]
+            conflict: mutable bool=false
+            for v in u+1..<n:
+                if adjacent[u*16+v] and colors[u]==colors[v]: conflict <- true; break
+            if conflict:
+                colors[u] <- 128
+                next_pending[next_count] <- u
+                next_count <- next_count+1
+        pending_count <- next_count
+        for item in 0..<pending_count: pending[item] <- next_pending[item]
+    for u in 0..<n: gardenia_gm_vertex_coloring_store(colors[u].i64(),output&,8*u)
+    output_bytes.i64()

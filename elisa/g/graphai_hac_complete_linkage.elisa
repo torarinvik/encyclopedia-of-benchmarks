@@ -1,0 +1,127 @@
+# Clean-room bounded GraphAIBench complete-linkage HAC; see package LICENSE.txt.
+const GRAPH_HAC_MAX_N: usize = 8
+const GRAPH_HAC_MAX_M: usize = 24
+const GRAPH_HAC_MAX_INPUT: usize = 74
+const GRAPH_HAC_MAX_NODES: usize = 15
+const GRAPH_HAC_ROOT_PARENT: i64 = 4294967295
+
+def graph_hac_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def graphai_hac_complete_linkage(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("graphai_hac_complete_linkage"):
+    if input.is_null() or length < 2 or length > GRAPH_HAC_MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > 8 or m64 < 0 or m64 > 24: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if length != 2 + 3 * m: return -1
+    adjacent: mutable usize[64] = zeroed
+    used_weight: mutable bool[33] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u_value: i64 = input[2 + 3 * edge]
+        v_value: i64 = input[3 + 3 * edge]
+        w_value: i64 = input[4 + 3 * edge]
+        if u_value < 0 or v_value <= u_value or v_value >= n64 or w_value < 1 or w_value > 32: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        w: usize = w_value.usize()
+        if adjacent[u * 8 + v] != 0 or used_weight[w]: return -1
+        adjacent[u * 8 + v] <- w
+        adjacent[v * 8 + u] <- w
+        used_weight[w] <- true
+        edge <- edge + 1
+    reached: mutable bool[8] = zeroed
+    queue: mutable usize[8] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    reached[0] <- true
+    queue[0] <- 0
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        v: mutable usize = 0
+        while v < n:
+            if adjacent[u * 8 + v] != 0 and not reached[v]:
+                reached[v] <- true
+                queue[tail] <- v
+                tail <- tail + 1
+            v <- v + 1
+    for v in 0..n:
+        if not reached[v]: return -1
+    node_count: usize = 2 * n - 1
+    output_bytes: usize = 16 * node_count
+    if output.is_null() or capacity < output_bytes: return -2
+
+    active: mutable bool[8] = zeroed
+    current_id: mutable usize[8] = zeroed
+    parent: mutable i64[15] = zeroed
+    merge_weight: mutable i64[15] = zeroed
+    node: mutable usize = 0
+    while node < 15:
+        parent[node] <- GRAPH_HAC_ROOT_PARENT
+        node <- node + 1
+    u: mutable usize = 0
+    while u < n:
+        active[u] <- true
+        current_id[u] <- u
+        u <- u + 1
+    merge: mutable usize = 0
+    while merge < n - 1:
+        best_weight: mutable usize = 0
+        best_u: mutable usize = n
+        best_v: mutable usize = n
+        u <- 0
+        while u < n:
+            if active[u]:
+                v: mutable usize = u + 1
+                while v < n:
+                    if active[v] and adjacent[u * 8 + v] > best_weight:
+                        best_weight <- adjacent[u * 8 + v]
+                        best_u <- u
+                        best_v <- v
+                    v <- v + 1
+            u <- u + 1
+        if best_u == n: return -1
+        degree_u: mutable usize = 0
+        degree_v: mutable usize = 0
+        for z in 0..n:
+            if active[z] and adjacent[best_u * 8 + z] != 0: degree_u <- degree_u + 1
+            if active[z] and adjacent[best_v * 8 + z] != 0: degree_v <- degree_v + 1
+        larger: usize = if degree_u < degree_v: best_v else: best_u
+        smaller: usize = if larger == best_u: best_v else: best_u
+        new_id: usize = n + merge
+        parent[current_id[best_u]] <- new_id.i64()
+        parent[current_id[best_v]] <- new_id.i64()
+        merge_weight[current_id[best_u]] <- best_weight.i64()
+        merge_weight[current_id[best_v]] <- best_weight.i64()
+        merged_weight: mutable usize[8] = zeroed
+        for z in 0..n:
+            if active[z] and z != best_u and z != best_v:
+                a: usize = adjacent[best_u * 8 + z]
+                b: usize = adjacent[best_v * 8 + z]
+                if a != 0 or b != 0:
+                    merged_weight[z] <- if a != 0 and b != 0: (if a < b: a else: b) else: (if a != 0: a else: b)
+        for z in 0..n:
+            adjacent[best_u * 8 + z] <- 0
+            adjacent[z * 8 + best_u] <- 0
+            adjacent[best_v * 8 + z] <- 0
+            adjacent[z * 8 + best_v] <- 0
+        active[smaller] <- false
+        for z in 0..n:
+            if active[z] and z != larger and merged_weight[z] != 0:
+                adjacent[larger * 8 + z] <- merged_weight[z]
+                adjacent[z * 8 + larger] <- merged_weight[z]
+        current_id[larger] <- new_id
+        merge <- merge + 1
+    node <- 0
+    while node < node_count:
+        graph_hac_store_i64_le(parent[node], output, 16 * node)
+        graph_hac_store_i64_le(merge_weight[node], output, 16 * node + 8)
+        node <- node + 1
+    output_bytes.i64()

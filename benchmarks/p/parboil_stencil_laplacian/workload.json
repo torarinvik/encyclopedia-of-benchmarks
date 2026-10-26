@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "parboil-stencil-seven-point-laplacian-f32-float64-slice-v1",
+  "algorithm": "parboil_stencil_laplacian",
+  "function_symbol": "parboil_stencil_laplacian",
+  "abi": "float64_slice_io",
+  "description": "Bounded source-ordered Parboil 3D seven-point discrete Laplacian recurrence.",
+  "pinned_source": {
+    "repository": "yuhc/gpu-parboil",
+    "commit": "ccf3d3126f1754ca85528722f4ced5894ccb852b",
+    "files": [
+      {"path": "benchmarks/stencil/src/cpu/kernels.c", "symbols": ["cpu_stencil"], "source_lines": [11, 33]},
+      {"path": "benchmarks/stencil/src/cpu/main.c", "symbols": ["c0", "c1", "iteration", "pointer swap"], "source_lines": [52, 110]},
+      {"path": "benchmarks/stencil/src/cpu/common.h", "symbols": ["Index3D"], "source_lines": [9, 12]},
+      {"path": "LICENSE", "symbols": ["Illinois Open Source License"]}
+    ],
+    "license": "Illinois Open Source License",
+    "copyright": "Copyright 2007-2011 The Board of Trustees of the University of Illinois",
+    "license_file": "LICENSE.txt"
+  },
+  "contract": {
+    "operation": "Repeat the CPU source's 3D seven-point discrete Laplacian update while keeping all boundary cells fixed.",
+    "input": "[nx,ny,nz,steps,grid...] as finite binary64 values; dimensions and steps are exact integers, grid values are in [-8,8] and are converted to binary32 on entry.",
+    "layout": "Grid cells use x-fast Index3D order q=x+nx*(y+ny*z).",
+    "update": "f32(f32(left-to-right sum of the six axis neighbors)*c1 - f32(center*c0)); c0=f32(1/6), c1=f32(f32(1/6)/6).",
+    "source_order": "For each iteration, visit interior i=x, then j=y, then k=z; evaluate neighbor order z+, z-, y+, y-, x+, x-.",
+    "arithmetic_profile": "IEEE binary32 values and source-ordered binary32 operations; no fused multiply-add. Results are promoted to binary64 at the slice ABI boundary.",
+    "bounds": {"each_dimension": [3, 5], "steps": [1, 4], "grid_value": [-8, 8]},
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-6,
+    "relative_tolerance": 1e-6
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[nx,ny,nz,steps] followed by nx*ny*nz x-fast grid values",
+    "dimension_ranges": {"nx": [3, 5], "ny": [3, 5], "nz": [3, 5]},
+    "steps_range": [1, 4],
+    "grid_value_range": [-8, 8],
+    "maximum_input_length": 129,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "complete final x-fast grid after binary32 computation",
+    "maximum_elements": 125,
+    "null_or_short_result": -2,
+    "success_result": "nx*ny*nz output elements",
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-6,
+    "relative_tolerance": 1e-6
+  },
+  "workspace": {"elements": 375, "meaning": "Two binary32 grid buffers and one staged ABI output buffer at the 5x5x5 bound."},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 20, "absolute_tolerance": 1e-6, "relative_tolerance": 1e-6},
+  "cases": [
+    {"id": "zero-grid", "input_values": [3,3,3,1, 0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0], "input_length": 31, "expected_result": 27, "expected_output": [0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0]},
+    {"id": "center-impulse", "input_values": [3,3,3,1, 0,0,0,0,0,0,0,0,0, 0,0,0,0,1,0,0,0,0, 0,0,0,0,0,0,0,0,0], "input_length": 31, "expected_result": 27, "expected_output": [0,0,0,0,0,0,0,0,0, 0,0,0,0,-0.1666666716337204,0,0,0,0, 0,0,0,0,0,0,0,0,0]},
+    {"id": "six-neighbor-sum", "input_values": [3,3,3,1, 0,0,0,0,1,0,0,0,0, 0,1,0,1,0,1,0,1,0, 0,0,0,0,1,0,0,0,0], "input_length": 31, "expected_result": 27, "expected_output": [0,0,0,0,1,0,0,0,0, 0,1,0,1,0.1666666716337204,1,0,1,0, 0,0,0,0,1,0,0,0,0]},
+    {"id": "invalid-grid-length", "input_values": [3,3,3,1], "input_length": 4, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-dimension", "input_values": [2,3,3,1], "input_length": 4, "expected_result": -1, "expected_output": []},
+    {"id": "out-of-range-cell", "input_values": [3,3,3,1,8.5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 31, "expected_result": -1, "expected_output": []},
+    {"id": "short-output", "input_values": [3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 31, "output_capacity": 26, "expected_result": -2, "expected_output": []},
+    {"id": "null-output", "input_values": [3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 31, "output_capacity": 27, "output_is_null": true, "expected_result": -2, "expected_output": []}
+  ]
+}

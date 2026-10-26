@@ -1,0 +1,20 @@
+# Clean-room TSVC s232 profile; see package rights note.
+const MAX_INPUT_LENGTH:usize=51
+def put64(v:i64,out:mutable u8&,off:usize)->void:
+ bits:u64=v.u64();k:mutable usize=0
+ while k<8:out[off+k]<-((bits>>(8*k))&255).u8();k<-k+1
+def tsvc_s232_triangular_row_square_recurrence_impl(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64:
+ if input.is_null() or length<9 or length>MAX_INPUT_LENGTH:return -1
+ nr:i64=input[0];if nr<2 or nr>5:return -1
+ n:usize=nr.usize();nn:usize=n*n;if length!=1+2*nn:return -1
+ a:mutable i64[25]=zeroed;b:mutable i64[25]=zeroed;i:mutable usize=0
+ while i<nn:x:i64=input[1+i];y:i64=input[1+nn+i];if x< -1 or x>1 or y< -1 or y>1:return -1;a[i]<-x;b[i]<-y;i<-i+1
+ if out.is_null() or cap<8*nn:return -2
+ j:mutable usize=1
+ while j<n:
+  i<-1
+  while i<=j:x:i64=a[j*n+i-1];a[j*n+i]<-x*x+b[j*n+i];i<-i+1
+  j<-j+1
+ i<-0;while i<nn:put64(a[i],out,8*i);i<-i+1
+ nn.i64()
+export fn tsvc_s232_triangular_row_square_recurrence(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64=tsvc_s232_triangular_row_square_recurrence_impl

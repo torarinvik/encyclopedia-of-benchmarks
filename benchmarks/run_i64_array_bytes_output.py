@@ -574,6 +574,31 @@ from tsvc_s281_reverse_coupled_update_oracle import (
     MAX_OUTPUT_BYTES as TSVC_S281_REVERSE_MAX_OUTPUT_BYTES,
     expected_output as tsvc_s281_reverse_coupled_update_expected_output,
 )
+from tsvc_s1281_elementwise_dual_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S1281_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S1281_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s1281_elementwise_dual_update_expected_output,
+)
+from tsvc_s293_first_element_broadcast_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S293_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S293_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s293_first_element_broadcast_expected_output,
+)
+from tsvc_vtv_elementwise_product_oracle import (
+    MAX_INPUT_LENGTH as TSVC_VTV_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_VTV_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_vtv_elementwise_product_expected_output,
+)
+from tsvc_vpvpv_three_vector_add_oracle import (
+    MAX_INPUT_LENGTH as TSVC_VPVPV_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_VPVPV_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_vpvpv_three_vector_add_expected_output,
+)
+from tsvc_s471_ordered_two_vector_map_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S471_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S471_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s471_ordered_two_vector_map_expected_output,
+)
 from cbench_tiffdither_oracle import (
     MAX_INPUT_LENGTH as CBENCH_TIFFDITHER_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as CBENCH_TIFFDITHER_MAX_OUTPUT_BYTES,
@@ -993,6 +1018,11 @@ from rodinia_dwt2d_oracle import (
     expected_output as rodinia_dwt2d_expected_output,
     expected_result as rodinia_dwt2d_expected_result,
 )
+from rodinia_heartwall_template_match_oracle import (
+    MAX_INPUT_LENGTH as RODINIA_HEARTWALL_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RODINIA_HEARTWALL_MAX_OUTPUT_BYTES,
+    expected_bytes as rodinia_heartwall_template_match_expected_bytes,
+)
 from edn_lattice_synthesis_oracle import (
     MAX_ORDER as EDN_LATTICE_MAX_ORDER,
     MAX_OUTPUT_BYTES as EDN_LATTICE_MAX_OUTPUT_BYTES,
@@ -1053,6 +1083,18 @@ from mediabench_gsm_rpe_grid_selection_oracle import (
     MAX_OUTPUT_BYTES as MEDIABENCH_GSM_RPE_MAX_OUTPUT_BYTES,
     expected_output as mediabench_gsm_rpe_grid_selection_oracle,
 )
+from mediabench_gsm_rpe_grid_positioning_oracle import (
+    INPUT_COUNT as MEDIABENCH_GSM_RPE_POSITIONING_INPUT_COUNT,
+    MAX_INPUT_LENGTH as MEDIABENCH_GSM_RPE_POSITIONING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEDIABENCH_GSM_RPE_POSITIONING_MAX_OUTPUT_BYTES,
+    expected_output as mediabench_gsm_rpe_grid_positioning_oracle,
+)
+from cbench_consumer_lame_window_subband_oracle import (
+    INPUT_COUNT as CBENCH_LAME_WINDOW_SUBBAND_INPUT_COUNT,
+    MAX_INPUT_LENGTH as CBENCH_LAME_WINDOW_SUBBAND_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CBENCH_LAME_WINDOW_SUBBAND_MAX_OUTPUT_BYTES,
+    expected_output as cbench_consumer_lame_window_subband_oracle,
+)
 from rodinia_hybridsort_oracle import (
     MAX_INPUT_LENGTH as RODINIA_HYBRIDSORT_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as RODINIA_HYBRIDSORT_MAX_OUTPUT_BYTES,
@@ -1072,6 +1114,11 @@ from rodinia_streamcluster_pgain_oracle import (
     MAX_POINTS as RODINIA_STREAMCLUSTER_PGAIN_MAX_POINTS,
     MAX_DIMENSION as RODINIA_STREAMCLUSTER_PGAIN_MAX_DIMENSION,
     expected_output as rodinia_streamcluster_pgain_expected_output,
+)
+from saga_incremental_analytics_oracle import (
+    MAX_INPUT_LENGTH as SAGA_INCREMENTAL_ANALYTICS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SAGA_INCREMENTAL_ANALYTICS_MAX_OUTPUT_BYTES,
+    expected_output as saga_incremental_analytics_expected_output,
 )
 from tsvc_indexed_gather_scatter_oracle import (
     MAX_INPUT_LENGTH as TSVC_INDEXED_GATHER_SCATTER_MAX_INPUT_LENGTH,
@@ -1156,6 +1203,37 @@ from tsvc_s279_nested_branch_recompute_oracle import (
     MAX_PASSES as TSVC_S279_MAX_PASSES,
     MAX_VALUE as TSVC_S279_MAX_VALUE,
     expected_output as tsvc_s279_nested_branch_recompute_expected_output,
+)
+from tsvc_s115_upper_triangular_saxpy_elimination_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S115_MAX_INPUT_LENGTH,MAX_N as TSVC_S115_MAX_N,MAX_OUTPUT_BYTES as TSVC_S115_MAX_OUTPUT_BYTES,MAX_PASSES as TSVC_S115_MAX_PASSES,
+    expected_output as tsvc_s115_upper_triangular_saxpy_elimination_expected_output,
+)
+from tsvc_s1113_feedback_anchor_add_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S1113_MAX_INPUT_LENGTH, MAX_N as TSVC_S1113_MAX_N, MAX_OUTPUT_BYTES as TSVC_S1113_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s1113_feedback_anchor_add_expected_output,
+)
+from tsvc_s113_invariant_anchor_add_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S113_MAX_INPUT_LENGTH, MAX_N as TSVC_S113_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S113_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s113_invariant_anchor_add_expected_output,
+)
+from tsvc_s1112_reverse_constant_offset_map_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S1112_MAX_INPUT_LENGTH, MAX_N as TSVC_S1112_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S1112_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s1112_reverse_constant_offset_map_expected_output,
+)
+from tsvc_s1111_stride_two_polynomial_map_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S1111_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S1111_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S1111_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s1111_stride_two_polynomial_map_expected_output,
+)
+from tsvc_s119_diagonal_matrix_recurrence_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S119_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S119_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S119_MAX_PASSES,
+    MAX_SIDE as TSVC_S119_MAX_SIDE,
+    expected_output as tsvc_s119_diagonal_matrix_recurrence_expected_output,
 )
 from tsvc_s2111_wavefront_add_recurrence_oracle import (
     MAX_INPUT_LENGTH as TSVC_S2111_MAX_INPUT_LENGTH,
@@ -1431,6 +1509,41 @@ from tsvc_s261_shifted_cross_array_update_oracle import (
     expected_output as tsvc_s261_shifted_cross_array_update_expected_output,
 )
 TSVC_S261_MAX_OUTPUT_BYTES = 16 * TSVC_S261_MAX_N
+from tsvc_s116_unrolled_product_chain_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S116_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S116_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s116_unrolled_product_chain_expected_output,
+)
+from tsvc_s118_triangular_convolution_recurrence_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S118_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S118_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s118_triangular_convolution_recurrence_expected_output,
+)
+from tsvc_s1119_same_column_matrix_prefix_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S1119_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S1119_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s1119_same_column_matrix_prefix_expected_output,
+)
+from tsvc_s232_triangular_row_square_recurrence_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S232_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S232_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s232_triangular_row_square_recurrence_expected_output,
+)
+from tsvc_s1213_ordered_neighbor_array_map_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S1213_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S1213_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s1213_ordered_neighbor_array_map_expected_output,
+)
+from tsvc_s233_s2233_matrix_prefix_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S233_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S233_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s233_s2233_matrix_prefix_expected_output,
+)
+from tsvc_s235_fused_vector_matrix_recurrence_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S235_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S235_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s235_fused_vector_matrix_recurrence_expected_output,
+)
 from mediabench_mpeg2_motion_vector_component_oracle import (
     MAX_INPUT_LENGTH as MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES,
@@ -1784,6 +1897,31 @@ from minesweeper_oracle import MAX_INPUT_LENGTH as MINESWEEPER_MAX_INPUT_LENGTH
 from minesweeper_oracle import expected_output as minesweeper_expected_output
 from rc4_oracle import MAX_INPUT_LENGTH as RC4_MAX_INPUT_LENGTH
 from rc4_oracle import expected_output as rc4_expected_output
+from beebs_nettle_cast128_oracle import (
+    INVALID_RESULT as BEEBS_NETTLE_CAST128_INVALID_RESULT,
+    KEY_BYTES as BEEBS_NETTLE_CAST128_KEY_BYTES,
+    BLOCK_BYTES as BEEBS_NETTLE_CAST128_BLOCK_BYTES,
+    MAX_VALID_INPUT_LENGTH as BEEBS_NETTLE_CAST128_MAX_VALID_INPUT_LENGTH,
+    MAX_INPUT_LENGTH as BEEBS_NETTLE_CAST128_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES,
+    OUTPUT_ERROR as BEEBS_NETTLE_CAST128_OUTPUT_ERROR,
+    expected_output as beebs_nettle_cast128_expected_output,
+)
+from beebs_fasta_oracle import (
+    INVALID_RESULT as BEEBS_FASTA_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as BEEBS_FASTA_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BEEBS_FASTA_MAX_OUTPUT_BYTES,
+    OUTPUT_ERROR as BEEBS_FASTA_OUTPUT_ERROR,
+    expected_output as beebs_fasta_expected_output,
+)
+from beebs_lcdnum_oracle import (
+    INVALID_RESULT as BEEBS_LCDNUM_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as BEEBS_LCDNUM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BEEBS_LCDNUM_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BEEBS_LCDNUM_MAX_OUTPUT_BYTES,
+    OUTPUT_ERROR as BEEBS_LCDNUM_OUTPUT_ERROR,
+    expected_output as beebs_lcdnum_expected_output,
+)
 from resize_oracle import MAX_INPUT_LENGTH as RESIZE_MAX_INPUT_LENGTH
 from resize_oracle import expected_output as resize_expected_output
 from proof_of_work_oracle import MAX_INPUT_LENGTH as PROOF_OF_WORK_MAX_INPUT_LENGTH
@@ -2311,6 +2449,191 @@ from prolangs_c_allroots_oracle import expected_output as prolangs_c_allroots_or
 from prolangs_c_cdecl_oracle import MAX_INPUT as PROLANGS_C_CDECL_MAX_INPUT
 from prolangs_c_cdecl_oracle import MAX_OUTPUT as PROLANGS_C_CDECL_MAX_OUTPUT
 from prolangs_c_cdecl_oracle import expected_output as prolangs_c_cdecl_oracle
+from prolangs_c_numeric_token_oracle import (
+    MAX_INPUT_LENGTH as PROLANGS_C_NUMERIC_TOKEN_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PROLANGS_C_NUMERIC_TOKEN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PROLANGS_C_NUMERIC_TOKEN_MAX_OUTPUT_BYTES,
+    expected_output as prolangs_c_numeric_token_oracle,
+)
+from prolangs_c_loader_relocation_add_oracle import (
+    MAX_INPUT_LENGTH as PROLANGS_C_LOADER_RELOCATION_ADD_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PROLANGS_C_LOADER_RELOCATION_ADD_MAX_OUTPUT_BYTES,
+    expected_output as prolangs_c_loader_relocation_add_oracle,
+)
+from paq8p_context_mixer_oracle import (
+    MAX_INPUT_LENGTH as PAQ8P_CONTEXT_MIXER_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PAQ8P_CONTEXT_MIXER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PAQ8P_CONTEXT_MIXER_MAX_OUTPUT_BYTES,
+    expected_output as paq8p_context_mixer_oracle,
+)
+from pargeo_bichromatic_closest_pair_oracle import (
+    MAX_INPUT_LENGTH as PARGEO_BCP_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PARGEO_BCP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PARGEO_BCP_MAX_OUTPUT_BYTES,
+    expected_output as pargeo_bichromatic_closest_pair_oracle,
+)
+from mediabench_jpeg_optimal_huffman_table_oracle import (
+    MAX_INPUT_LENGTH as MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_OUTPUT_BYTES,
+    expected_output as mediabench_jpeg_optimal_huffman_table_oracle,
+)
+from gapbs_delta_step_sssp_oracle import (
+    MAX_INPUT_LENGTH as GAPBS_DELTA_STEP_SSSP_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GAPBS_DELTA_STEP_SSSP_MAX_OUTPUT_BYTES,
+    expected_output as gapbs_delta_step_sssp_oracle,
+)
+from gapbs_afforest_components_oracle import (
+    MAX_INPUT_LENGTH as GAPBS_AFFOREST_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GAPBS_AFFOREST_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GAPBS_AFFOREST_MAX_OUTPUT_BYTES,
+    expected_output as gapbs_afforest_components_oracle,
+)
+from gapbs_shiloach_vishkin_components_oracle import (
+    MAX_INPUT_LENGTH as GAPBS_SV_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GAPBS_SV_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GAPBS_SV_MAX_OUTPUT_BYTES,
+    expected_output as gapbs_shiloach_vishkin_components_oracle,
+)
+from gbbs_ss_widest_path_oracle import (
+    MAX_INPUT_LENGTH as GBBS_WIDEST_PATH_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_WIDEST_PATH_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_ss_widest_path_oracle,
+)
+from gbbs_k_core_decomposition_oracle import (
+    MAX_INPUT_LENGTH as GBBS_KCORE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_KCORE_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_k_core_decomposition_oracle,
+)
+from gbbs_k_clique_count_oracle import (
+    MAX_INPUT_LENGTH as GBBS_KCLIQUE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_KCLIQUE_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_k_clique_count_oracle,
+)
+from gbbs_label_propagation_clustering_oracle import (
+    MAX_INPUT_LENGTH as GBBS_LABEL_PROP_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_LABEL_PROP_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_label_propagation_clustering_oracle,
+)
+from gbbs_five_cycle_count_oracle import (
+    MAX_INPUT_LENGTH as GBBS_FIVE_CYCLE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_FIVE_CYCLE_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_five_cycle_count_oracle,
+)
+from gbbs_cosimrank_pair_similarity_oracle import (
+    MAX_INPUT_LENGTH as GBBS_COSIMRANK_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_COSIMRANK_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_cosimrank_pair_similarity_oracle,
+)
+from gbbs_yoshida_query_mis_oracle import (
+    MAX_INPUT_LENGTH as GBBS_YOSHIDA_MIS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_YOSHIDA_MIS_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_yoshida_query_mis_oracle,
+)
+from gbbs_goodrich_pszona_degeneracy_order_oracle import (
+    MAX_INPUT_LENGTH as GBBS_GOODRICH_PSZONA_MAX_INPUT_LENGTH,
+    MAX_NODES as GBBS_GOODRICH_PSZONA_MAX_NODES,
+    MAX_EDGES as GBBS_GOODRICH_PSZONA_MAX_EDGES,
+    MAX_OUTPUT_BYTES as GBBS_GOODRICH_PSZONA_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_goodrich_pszona_degeneracy_order_oracle,
+)
+from gbbs_barenboim_elkin_degeneracy_order_oracle import (
+    MAX_INPUT_LENGTH as GBBS_BARENBOIM_ELKIN_MAX_INPUT_LENGTH,
+    MAX_NODES as GBBS_BARENBOIM_ELKIN_MAX_NODES,
+    MAX_EDGES as GBBS_BARENBOIM_ELKIN_MAX_EDGES,
+    MAX_OUTPUT_BYTES as GBBS_BARENBOIM_ELKIN_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_barenboim_elkin_degeneracy_order_oracle,
+)
+from graphai_hac_complete_linkage_oracle import (
+    MAX_INPUT_LENGTH as GRAPH_HAC_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GRAPH_HAC_MAX_OUTPUT_BYTES,
+    expected_output as graphai_hac_complete_linkage_oracle,
+)
+from pannotia_local_minimum_mis_oracle import (
+    MAX_INPUT_LENGTH as PANNOTIA_MIS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PANNOTIA_MIS_MAX_OUTPUT_BYTES,
+    expected_output as pannotia_local_minimum_mis_oracle,
+)
+from pannotia_priority_coloring_oracle import (
+    MAX_INPUT_LENGTH as PANNOTIA_COLORING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PANNOTIA_COLORING_MAX_OUTPUT_BYTES,
+    expected_output as pannotia_priority_coloring_oracle,
+)
+from gardenia_fb_trim_scc_oracle import (
+    MAX_NODES as GARDENIA_FB_TRIM_SCC_MAX_NODES,
+    MAX_EDGES as GARDENIA_FB_TRIM_SCC_MAX_EDGES,
+    MAX_INPUT_LENGTH as GARDENIA_FB_TRIM_SCC_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GARDENIA_FB_TRIM_SCC_MAX_OUTPUT_BYTES,
+    expected_output as gardenia_fb_trim_scc_oracle,
+)
+from gardenia_gm_vertex_coloring_oracle import (
+    MAX_NODES as GARDENIA_GM_COLORING_MAX_NODES,
+    MAX_EDGES as GARDENIA_GM_COLORING_MAX_EDGES,
+    MAX_INPUT_LENGTH as GARDENIA_GM_COLORING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GARDENIA_GM_COLORING_MAX_OUTPUT_BYTES,
+    expected_output as gardenia_gm_vertex_coloring_oracle,
+)
+from gbbs_scan_structural_clustering_oracle import (
+    MAX_NODES as GBBS_SCAN_MAX_NODES,
+    MAX_EDGES as GBBS_SCAN_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_SCAN_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_SCAN_MAX_OUTPUT_BYTES,
+    INVALID_RESULT as GBBS_SCAN_INVALID_RESULT,
+    OUTPUT_ERROR as GBBS_SCAN_OUTPUT_ERROR,
+    expected_output as gbbs_scan_structural_clustering_oracle,
+)
+from gbbs_maximal_matching_oracle import (
+    MAX_NODES as GBBS_MAXIMAL_MATCHING_MAX_NODES,
+    MAX_EDGES as GBBS_MAXIMAL_MATCHING_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_MAXIMAL_MATCHING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_MAXIMAL_MATCHING_MAX_OUTPUT_BYTES,
+    INVALID_RESULT as GBBS_MAXIMAL_MATCHING_INVALID_RESULT,
+    OUTPUT_ERROR as GBBS_MAXIMAL_MATCHING_OUTPUT_ERROR,
+    expected_output as gbbs_maximal_matching_oracle,
+)
+from gbbs_biconnectivity_oracle import (
+    MAX_NODES as GBBS_BICONNECTIVITY_MAX_NODES,
+    MAX_EDGES as GBBS_BICONNECTIVITY_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_BICONNECTIVITY_MAX_INPUT_LENGTH,
+    INVALID_RESULT as GBBS_BICONNECTIVITY_INVALID_RESULT,
+    OUTPUT_ERROR as GBBS_BICONNECTIVITY_OUTPUT_ERROR,
+    expected_output as gbbs_biconnectivity_oracle,
+)
+GBBS_BICONNECTIVITY_MAX_OUTPUT_BYTES = GBBS_BICONNECTIVITY_MAX_EDGES
+from gbbs_approximate_set_cover_oracle import (
+    MAX_SETS as GBBS_SET_COVER_MAX_SETS,
+    MAX_INPUT_LENGTH as GBBS_SET_COVER_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_LENGTH as GBBS_SET_COVER_MAX_PARSEABLE_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_SET_COVER_MAX_OUTPUT_BYTES,
+    INVALID_RESULT as GBBS_SET_COVER_INVALID_RESULT,
+    OUTPUT_ERROR as GBBS_SET_COVER_OUTPUT_ERROR,
+    expected_output as gbbs_approximate_set_cover_oracle,
+)
+from gbbs_low_diameter_decomposition_oracle import (
+    MAX_NODES as GBBS_LDD_MAX_NODES,
+    MAX_EDGES as GBBS_LDD_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_LDD_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_LDD_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_low_diameter_decomposition_oracle,
+)
+from gbbs_shiloach_vishkin_spanning_forest_oracle import (
+    MAX_NODES as GBBS_SV_FOREST_MAX_NODES,
+    MAX_EDGES as GBBS_SV_FOREST_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_SV_FOREST_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_SV_FOREST_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_shiloach_vishkin_spanning_forest_oracle,
+)
+from tsvc_s2711_nonzero_branch_axpy_oracle import (
+    MAX_N as TSVC_S2711_NONZERO_MAX_N,
+    MAX_PASSES as TSVC_S2711_NONZERO_MAX_PASSES,
+    MAX_INPUT_LENGTH as TSVC_S2711_NONZERO_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s2711_nonzero_branch_axpy_oracle,
+)
+TSVC_S2711_NONZERO_MAX_OUTPUT_BYTES = 8 * TSVC_S2711_NONZERO_MAX_N
+from cbench_consumer_mad_alias_reduce_oracle import (
+    MAX_INPUT_LENGTH as CBENCH_MAD_ALIAS_REDUCE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CBENCH_MAD_ALIAS_REDUCE_MAX_OUTPUT_BYTES,
+    expected_output as cbench_consumer_mad_alias_reduce_oracle,
+)
 PROLANGS_C_ALLROOTS_MAX_PARSEABLE_INPUT_LENGTH = 5
 from cbench_automotive_qsort1_oracle import MAX_INPUT_VALUES as CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES
 from cbench_automotive_qsort1_oracle import MAX_OUTPUT_BYTES as CBENCH_AUTOMOTIVE_QSORT1_MAX_OUTPUT_BYTES
@@ -4039,6 +4362,58 @@ def statemate_suite_oracle(values, output_capacity=None, output_is_null=False,
                                      input_is_null, input_length)
 
 
+def beebs_nettle_cast128_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (output_capacity is not None
+                and (type(output_capacity) is not int or output_capacity < 0))
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= BEEBS_NETTLE_CAST128_MAX_INPUT_LENGTH))):
+        return BEEBS_NETTLE_CAST128_INVALID_RESULT, b""
+    if input_is_null:
+        return BEEBS_NETTLE_CAST128_INVALID_RESULT, b""
+    if (not isinstance(values, (list, tuple))
+            or (input_length is not None and input_length != len(values))):
+        return BEEBS_NETTLE_CAST128_INVALID_RESULT, b""
+    return beebs_nettle_cast128_expected_output(
+        values,
+        BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity,
+        output_is_null)
+
+
+def beebs_fasta_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (output_capacity is not None
+                and (type(output_capacity) is not int or output_capacity < 0))
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= BEEBS_FASTA_MAX_PARSEABLE_INPUT_LENGTH))):
+        return BEEBS_FASTA_INVALID_RESULT, b""
+    return beebs_fasta_expected_output(
+        values,
+        BEEBS_FASTA_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity,
+        output_is_null, input_is_null, input_length)
+
+
+def beebs_lcdnum_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (output_capacity is not None
+                and (type(output_capacity) is not int or output_capacity < 0))
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= BEEBS_LCDNUM_MAX_PARSEABLE_INPUT_LENGTH))):
+        return BEEBS_LCDNUM_INVALID_RESULT, b""
+    return beebs_lcdnum_expected_output(
+        values,
+        BEEBS_LCDNUM_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity,
+        output_is_null, input_is_null, input_length)
+
+
 def trimaran_enc_rc4_suite_oracle(
         values: list[int] | tuple[int, ...], capacity: int | None = None,
         output_is_null: bool = False, input_is_null: bool = False,
@@ -4167,6 +4542,32 @@ def rodinia_dwt2d_suite_oracle(values, output_capacity=None, output_is_null=Fals
     return (result, output) if output is not None and len(output) == result else (-1, b"")
 
 
+def rodinia_heartwall_template_match_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or output_capacity is not None and
+            (type(output_capacity) is not int or output_capacity < 0)
+            or input_length is not None and
+            (type(input_length) is not int
+             or not 0 <= input_length <= RODINIA_HEARTWALL_MAX_INPUT_LENGTH)
+            or not isinstance(values, (list, tuple))
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or input_is_null and values
+            or not input_is_null and input_length is not None and input_length != len(values)):
+        return -1, b""
+    if input_is_null:
+        return -1, b""
+    result, output = rodinia_heartwall_template_match_expected_bytes(values)
+    if result < 0:
+        return -1, b""
+    if output_is_null or (output_capacity is not None
+                          and output_capacity < RODINIA_HEARTWALL_MAX_OUTPUT_BYTES):
+        return -2, b""
+    return result, output
+
+
 def edn_suite_oracle(values, output_capacity=None, output_is_null=False,
                      input_is_null=False, input_length=None, *, algorithm):
     specs = {
@@ -4236,6 +4637,30 @@ def mediabench_gsm_rpe_grid_selection_suite_oracle(
     if result < 0:
         return result, b""
     return result, struct.pack("<14q", *words)
+
+
+def mediabench_gsm_rpe_grid_positioning_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = (MEDIABENCH_GSM_RPE_POSITIONING_MAX_OUTPUT_BYTES
+                if output_capacity is None else output_capacity)
+    result, words = mediabench_gsm_rpe_grid_positioning_oracle(
+        values, capacity, output_is_null, input_is_null, input_length)
+    if result < 0:
+        return result, b""
+    return result, struct.pack("<40h", *words)
+
+
+def cbench_consumer_lame_window_subband_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = (CBENCH_LAME_WINDOW_SUBBAND_MAX_OUTPUT_BYTES
+                if output_capacity is None else output_capacity)
+    result, bands = cbench_consumer_lame_window_subband_oracle(
+        values, capacity, output_is_null, input_is_null, input_length)
+    if result < 0:
+        return result, b""
+    return result, struct.pack("<32q", *bands)
 
 
 def rodinia_hybridsort_suite_oracle(values, output_capacity=None, output_is_null=False,
@@ -4390,6 +4815,43 @@ def tsvc_s279_nested_branch_recompute_suite_oracle(
         input_is_null=False, input_length=None):
     capacity = TSVC_S279_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
     return tsvc_s279_nested_branch_recompute_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s115_upper_triangular_saxpy_elimination_suite_oracle(values,output_capacity=None,output_is_null=False,input_is_null=False,input_length=None):
+    capacity=TSVC_S115_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s115_upper_triangular_saxpy_elimination_expected_output(values,capacity,output_is_null,input_is_null,input_length)
+
+
+def tsvc_s1113_feedback_anchor_add_suite_oracle(values,output_capacity=None,output_is_null=False,input_is_null=False,input_length=None):
+    capacity=TSVC_S1113_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s1113_feedback_anchor_add_expected_output(values,capacity,output_is_null,input_is_null,input_length)
+
+
+def tsvc_s113_invariant_anchor_add_suite_oracle(values,output_capacity=None,output_is_null=False,input_is_null=False,input_length=None):
+    capacity=TSVC_S113_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s113_invariant_anchor_add_expected_output(values,capacity,output_is_null,input_is_null,input_length)
+
+
+def tsvc_s1112_reverse_constant_offset_map_suite_oracle(values, output_capacity=None,
+        output_is_null=False,input_is_null=False,input_length=None):
+    capacity=TSVC_S1112_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s1112_reverse_constant_offset_map_expected_output(values,capacity,output_is_null,input_is_null,input_length)
+
+
+def tsvc_s1111_stride_two_polynomial_map_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S1111_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s1111_stride_two_polynomial_map_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s119_diagonal_matrix_recurrence_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S119_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s119_diagonal_matrix_recurrence_expected_output(
         values, capacity, output_is_null, input_is_null, input_length)
 
 
@@ -4893,6 +5355,37 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "tripforce_tripcode": tripforce_tripcode_expected_output,
     "embedded_list_stress": embedded_list_stress_expected_output,
     "numeric_token_state_machine": numeric_token_state_machine_expected_output,
+    "prolangs_c_numeric_token": prolangs_c_numeric_token_oracle,
+    "prolangs_c_loader_relocation_add": prolangs_c_loader_relocation_add_oracle,
+    "paq8p_context_mixer": paq8p_context_mixer_oracle,
+    "pargeo_bichromatic_closest_pair": pargeo_bichromatic_closest_pair_oracle,
+    "mediabench_jpeg_optimal_huffman_table": mediabench_jpeg_optimal_huffman_table_oracle,
+    "gapbs_delta_step_sssp": gapbs_delta_step_sssp_oracle,
+    "gapbs_afforest_components": gapbs_afforest_components_oracle,
+    "gapbs_shiloach_vishkin_components": gapbs_shiloach_vishkin_components_oracle,
+    "gbbs_ss_widest_path": gbbs_ss_widest_path_oracle,
+    "gbbs_k_core_decomposition": gbbs_k_core_decomposition_oracle,
+    "gbbs_k_clique_count": gbbs_k_clique_count_oracle,
+    "gbbs_label_propagation_clustering": gbbs_label_propagation_clustering_oracle,
+    "gbbs_five_cycle_count": gbbs_five_cycle_count_oracle,
+    "gbbs_cosimrank_pair_similarity": gbbs_cosimrank_pair_similarity_oracle,
+    "gbbs_yoshida_query_mis": gbbs_yoshida_query_mis_oracle,
+    "gbbs_goodrich_pszona_degeneracy_order": gbbs_goodrich_pszona_degeneracy_order_oracle,
+    "gbbs_barenboim_elkin_degeneracy_order": gbbs_barenboim_elkin_degeneracy_order_oracle,
+    "graphai_hac_complete_linkage": graphai_hac_complete_linkage_oracle,
+    "pannotia_local_minimum_mis": pannotia_local_minimum_mis_oracle,
+    "pannotia_priority_coloring": pannotia_priority_coloring_oracle,
+    "gardenia_fb_trim_scc": gardenia_fb_trim_scc_oracle,
+    "gardenia_gm_vertex_coloring": gardenia_gm_vertex_coloring_oracle,
+    "gbbs_scan_structural_clustering": gbbs_scan_structural_clustering_oracle,
+    "gbbs_maximal_matching": gbbs_maximal_matching_oracle,
+    "gbbs_biconnectivity": gbbs_biconnectivity_oracle,
+    "gbbs_approximate_set_cover": gbbs_approximate_set_cover_oracle,
+    "gbbs_low_diameter_decomposition": gbbs_low_diameter_decomposition_oracle,
+    "gbbs_shiloach_vishkin_spanning_forest": gbbs_shiloach_vishkin_spanning_forest_oracle,
+    "rodinia_heartwall_template_match": rodinia_heartwall_template_match_suite_oracle,
+    "tsvc_s2711_nonzero_branch_axpy": tsvc_s2711_nonzero_branch_axpy_oracle,
+    "cbench_consumer_mad_alias_reduce": cbench_consumer_mad_alias_reduce_oracle,
     "hint_area_bound_refinement": hint_area_bound_refinement_expected_output,
     "nbench_huffman_compression": nbench_huffman_compression_expected_output,
     "nbench_resource_assignment": nbench_resource_assignment_expected_output,
@@ -4930,9 +5423,12 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "mccat_bintr": mccat_bintr_oracle,
     "mediabench_g721_encode": mediabench_g721_encode_oracle,
     "mediabench_gsm_rpe_grid_selection": mediabench_gsm_rpe_grid_selection_suite_oracle,
+    "mediabench_gsm_rpe_grid_positioning": mediabench_gsm_rpe_grid_positioning_suite_oracle,
+    "cbench_consumer_lame_window_subband": cbench_consumer_lame_window_subband_suite_oracle,
     "rodinia_hybridsort": rodinia_hybridsort_suite_oracle,
     "rodinia_mummergpu": rodinia_mummergpu_suite_oracle,
     "rodinia_streamcluster_pgain": rodinia_streamcluster_pgain_suite_oracle,
+    "saga_incremental_analytics": saga_incremental_analytics_expected_output,
     "tsvc_indexed_gather_scatter": tsvc_indexed_gather_scatter_suite_oracle,
     "tsvc_s141_packed_symmetric_update": tsvc_s141_packed_symmetric_update_suite_oracle,
     "tsvc_s131_forward_neighbor_update": tsvc_s131_forward_neighbor_update_suite_oracle,
@@ -4946,6 +5442,12 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "tsvc_s278_branch_recompute": tsvc_s278_branch_recompute_suite_oracle,
     "tsvc_s279_nested_branch_recompute": tsvc_s279_nested_branch_recompute_suite_oracle,
     "tsvc_s2111_wavefront_add_recurrence": tsvc_s2111_wavefront_add_recurrence_suite_oracle,
+    "tsvc_s119_diagonal_matrix_recurrence": tsvc_s119_diagonal_matrix_recurrence_suite_oracle,
+    "tsvc_s1111_stride_two_polynomial_map": tsvc_s1111_stride_two_polynomial_map_suite_oracle,
+    "tsvc_s1112_reverse_constant_offset_map": tsvc_s1112_reverse_constant_offset_map_suite_oracle,
+    "tsvc_s113_invariant_anchor_add": tsvc_s113_invariant_anchor_add_suite_oracle,
+    "tsvc_s1113_feedback_anchor_add": tsvc_s1113_feedback_anchor_add_suite_oracle,
+    "tsvc_s115_upper_triangular_saxpy_elimination": tsvc_s115_upper_triangular_saxpy_elimination_suite_oracle,
     "tsvc_s353_unrolled_sparse_saxpy": tsvc_s353_unrolled_sparse_saxpy_suite_oracle,
     "tsvc_s452_index_weighted_vector_map": tsvc_s452_index_weighted_vector_map_suite_oracle,
     "tsvc_s126_matrix_column_recurrence": tsvc_s126_matrix_column_recurrence_suite_oracle,
@@ -4983,6 +5485,13 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "tsvc_s2102_identity_matrix_initialize": tsvc_s2102_identity_matrix_initialize_suite_oracle,
     "tsvc_vag_indexed_gather_copy": tsvc_vag_indexed_gather_copy_suite_oracle,
     "tsvc_s332_first_above_threshold": tsvc_s332_first_above_threshold_suite_oracle,
+    "tsvc_s116_unrolled_product_chain": tsvc_s116_unrolled_product_chain_expected_output,
+    "tsvc_s118_triangular_convolution_recurrence": tsvc_s118_triangular_convolution_recurrence_expected_output,
+    "tsvc_s1119_same_column_matrix_prefix": tsvc_s1119_same_column_matrix_prefix_expected_output,
+    "tsvc_s232_triangular_row_square_recurrence": tsvc_s232_triangular_row_square_recurrence_expected_output,
+    "tsvc_s1213_ordered_neighbor_array_map": tsvc_s1213_ordered_neighbor_array_map_expected_output,
+    "tsvc_s233_s2233_matrix_prefix": tsvc_s233_s2233_matrix_prefix_expected_output,
+    "tsvc_s235_fused_vector_matrix_recurrence": tsvc_s235_fused_vector_matrix_recurrence_expected_output,
     "tsvc_s261_shifted_cross_array_update": tsvc_s261_shifted_cross_array_update_suite_oracle,
     "mediabench_mpeg2_motion_vector_component": mediabench_mpeg2_motion_vector_component_suite_oracle,
     "mibench_jpeg_ycbcr_to_rgb": mibench_jpeg_ycbcr_to_rgb_suite_oracle,
@@ -5024,6 +5533,11 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "fortune_voronoi": fortune_voronoi_expected_output,
     "tsvc_s343_column_major_compaction": tsvc_s343_column_major_compaction_expected_output,
     "tsvc_s281_reverse_coupled_update": tsvc_s281_reverse_coupled_update_expected_output,
+    "tsvc_s1281_elementwise_dual_update": tsvc_s1281_elementwise_dual_update_expected_output,
+    "tsvc_s293_first_element_broadcast": tsvc_s293_first_element_broadcast_expected_output,
+    "tsvc_vtv_elementwise_product": tsvc_vtv_elementwise_product_expected_output,
+    "tsvc_vpvpv_three_vector_add": tsvc_vpvpv_three_vector_add_expected_output,
+    "tsvc_s471_ordered_two_vector_map": tsvc_s471_ordered_two_vector_map_expected_output,
     "cbench_tiffdither": cbench_tiffdither_expected_output,
     "cbench_consumer_tiffmedian": cbench_consumer_tiffmedian_expected_output,
     "cbench_consumer_tiff2bw": cbench_consumer_tiff2bw_expected_output,
@@ -5035,12 +5549,88 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "edn_iir_cascade": edn_iir_cascade_suite_oracle,
     "edn_jpeg_dct": edn_jpeg_dct_suite_oracle,
     "nsichneu": nsichneu_expected_output,
+    "beebs_nettle_cast128": beebs_nettle_cast128_suite_oracle,
+    "beebs_fasta": beebs_fasta_suite_oracle,
+    "beebs_lcdnum": beebs_lcdnum_suite_oracle,
 }
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
 EXTERNAL_BYTE_OUTPUT_BOUNDS = {
+    "tsvc_s116_unrolled_product_chain": (TSVC_S116_MAX_INPUT_LENGTH, TSVC_S116_MAX_OUTPUT_BYTES),
+    "tsvc_s118_triangular_convolution_recurrence": (TSVC_S118_MAX_INPUT_LENGTH, TSVC_S118_MAX_OUTPUT_BYTES),
+    "tsvc_s1119_same_column_matrix_prefix": (TSVC_S1119_MAX_INPUT_LENGTH, TSVC_S1119_MAX_OUTPUT_BYTES),
+    "tsvc_s232_triangular_row_square_recurrence": (TSVC_S232_MAX_INPUT_LENGTH, TSVC_S232_MAX_OUTPUT_BYTES),
+    "tsvc_s1213_ordered_neighbor_array_map": (TSVC_S1213_MAX_INPUT_LENGTH, TSVC_S1213_MAX_OUTPUT_BYTES),
+    "tsvc_s233_s2233_matrix_prefix": (TSVC_S233_MAX_INPUT_LENGTH, TSVC_S233_MAX_OUTPUT_BYTES),
+    "tsvc_s235_fused_vector_matrix_recurrence": (TSVC_S235_MAX_INPUT_LENGTH, TSVC_S235_MAX_OUTPUT_BYTES),
+    "cbench_consumer_mad_alias_reduce": (
+        CBENCH_MAD_ALIAS_REDUCE_MAX_INPUT_LENGTH,
+        CBENCH_MAD_ALIAS_REDUCE_MAX_OUTPUT_BYTES),
+    "gapbs_delta_step_sssp": (
+        GAPBS_DELTA_STEP_SSSP_MAX_INPUT_LENGTH,
+        GAPBS_DELTA_STEP_SSSP_MAX_OUTPUT_BYTES),
+    "gapbs_afforest_components": (
+        GAPBS_AFFOREST_MAX_PARSEABLE_INPUT_LENGTH,
+        GAPBS_AFFOREST_MAX_OUTPUT_BYTES),
+    "gapbs_shiloach_vishkin_components": (
+        GAPBS_SV_MAX_PARSEABLE_INPUT_LENGTH, GAPBS_SV_MAX_OUTPUT_BYTES),
+    "gbbs_ss_widest_path": (GBBS_WIDEST_PATH_MAX_INPUT_LENGTH,
+                             GBBS_WIDEST_PATH_MAX_OUTPUT_BYTES),
+    "gbbs_k_core_decomposition": (GBBS_KCORE_MAX_INPUT_LENGTH,
+                                    GBBS_KCORE_MAX_OUTPUT_BYTES),
+    "gbbs_k_clique_count": (GBBS_KCLIQUE_MAX_INPUT_LENGTH,
+                             GBBS_KCLIQUE_MAX_OUTPUT_BYTES),
+    "gbbs_label_propagation_clustering": (GBBS_LABEL_PROP_MAX_INPUT_LENGTH,
+                                            GBBS_LABEL_PROP_MAX_OUTPUT_BYTES),
+    "gbbs_five_cycle_count": (GBBS_FIVE_CYCLE_MAX_INPUT_LENGTH,
+                               GBBS_FIVE_CYCLE_MAX_OUTPUT_BYTES),
+    "gbbs_cosimrank_pair_similarity": (GBBS_COSIMRANK_MAX_INPUT_LENGTH,
+                                       GBBS_COSIMRANK_MAX_OUTPUT_BYTES),
+    "gbbs_yoshida_query_mis": (GBBS_YOSHIDA_MIS_MAX_INPUT_LENGTH,
+                                GBBS_YOSHIDA_MIS_MAX_OUTPUT_BYTES),
+    "gbbs_goodrich_pszona_degeneracy_order": (
+        GBBS_GOODRICH_PSZONA_MAX_INPUT_LENGTH,
+        GBBS_GOODRICH_PSZONA_MAX_OUTPUT_BYTES),
+    "gbbs_barenboim_elkin_degeneracy_order": (
+        GBBS_BARENBOIM_ELKIN_MAX_INPUT_LENGTH,
+        GBBS_BARENBOIM_ELKIN_MAX_OUTPUT_BYTES),
+    "graphai_hac_complete_linkage": (GRAPH_HAC_MAX_INPUT_LENGTH,
+                                      GRAPH_HAC_MAX_OUTPUT_BYTES),
+    "pannotia_local_minimum_mis": (PANNOTIA_MIS_MAX_INPUT_LENGTH,
+                                     PANNOTIA_MIS_MAX_OUTPUT_BYTES),
+    "pannotia_priority_coloring": (PANNOTIA_COLORING_MAX_INPUT_LENGTH,
+                                    PANNOTIA_COLORING_MAX_OUTPUT_BYTES),
+    "gardenia_fb_trim_scc": (GARDENIA_FB_TRIM_SCC_MAX_INPUT_LENGTH,
+                               GARDENIA_FB_TRIM_SCC_MAX_OUTPUT_BYTES),
+    "gardenia_gm_vertex_coloring": (GARDENIA_GM_COLORING_MAX_INPUT_LENGTH,
+                                     GARDENIA_GM_COLORING_MAX_OUTPUT_BYTES),
+    "gbbs_scan_structural_clustering": (GBBS_SCAN_MAX_INPUT_LENGTH,
+                                        GBBS_SCAN_MAX_OUTPUT_BYTES),
+    "gbbs_maximal_matching": (GBBS_MAXIMAL_MATCHING_MAX_INPUT_LENGTH,
+                               GBBS_MAXIMAL_MATCHING_MAX_OUTPUT_BYTES),
+    "gbbs_biconnectivity": (GBBS_BICONNECTIVITY_MAX_INPUT_LENGTH,
+                              GBBS_BICONNECTIVITY_MAX_OUTPUT_BYTES),
+    "gbbs_approximate_set_cover": (GBBS_SET_COVER_MAX_PARSEABLE_LENGTH,
+                                    GBBS_SET_COVER_MAX_OUTPUT_BYTES),
+    "gbbs_low_diameter_decomposition": (GBBS_LDD_MAX_INPUT_LENGTH,
+                                        GBBS_LDD_MAX_OUTPUT_BYTES),
+    "gbbs_shiloach_vishkin_spanning_forest": (
+        GBBS_SV_FOREST_MAX_INPUT_LENGTH, GBBS_SV_FOREST_MAX_OUTPUT_BYTES),
+    "rodinia_heartwall_template_match": (RODINIA_HEARTWALL_MAX_INPUT_LENGTH,
+                                         RODINIA_HEARTWALL_MAX_OUTPUT_BYTES),
+    "tsvc_s2711_nonzero_branch_axpy": (TSVC_S2711_NONZERO_MAX_INPUT_LENGTH,
+                                       TSVC_S2711_NONZERO_MAX_OUTPUT_BYTES),
+    "mediabench_jpeg_optimal_huffman_table": (
+        MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_INPUT_LENGTH,
+        MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_OUTPUT_BYTES),
     "qrduino": (QRDUINO_MAX_MESSAGE_LENGTH + 2, QRDUINO_OUTPUT_BYTES),
     "picojpeg": (PICOJPEG_MAX_INPUT_LENGTH, PICOJPEG_MAX_OUTPUT_BYTES),
+    "beebs_nettle_cast128": (BEEBS_NETTLE_CAST128_MAX_INPUT_LENGTH,
+                              BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES),
+    "beebs_fasta": (BEEBS_FASTA_MAX_PARSEABLE_INPUT_LENGTH,
+                     BEEBS_FASTA_MAX_OUTPUT_BYTES),
+    "beebs_lcdnum": (BEEBS_LCDNUM_MAX_PARSEABLE_INPUT_LENGTH,
+                      BEEBS_LCDNUM_MAX_OUTPUT_BYTES),
     "cbench_consumer_jpeg_h2v2_fancy_upsample": (
         CBENCH_JPEG_H2V2_MAX_PARSEABLE_INPUT_LENGTH,
         CBENCH_JPEG_H2V2_MAX_OUTPUT_BYTES),
@@ -5071,6 +5661,16 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
                                           TSVC_S343_MAX_OUTPUT_BYTES),
     "tsvc_s281_reverse_coupled_update": (TSVC_S281_REVERSE_MAX_INPUT_LENGTH,
                                          TSVC_S281_REVERSE_MAX_OUTPUT_BYTES),
+    "tsvc_s1281_elementwise_dual_update": (TSVC_S1281_MAX_INPUT_LENGTH,
+                                            TSVC_S1281_MAX_OUTPUT_BYTES),
+    "tsvc_s293_first_element_broadcast": (TSVC_S293_MAX_INPUT_LENGTH,
+                                           TSVC_S293_MAX_OUTPUT_BYTES),
+    "tsvc_vtv_elementwise_product": (TSVC_VTV_MAX_INPUT_LENGTH,
+                                      TSVC_VTV_MAX_OUTPUT_BYTES),
+    "tsvc_vpvpv_three_vector_add": (TSVC_VPVPV_MAX_INPUT_LENGTH,
+                                    TSVC_VPVPV_MAX_OUTPUT_BYTES),
+    "tsvc_s471_ordered_two_vector_map": (TSVC_S471_MAX_INPUT_LENGTH,
+                                         TSVC_S471_MAX_OUTPUT_BYTES),
     "cbench_tiffdither": (CBENCH_TIFFDITHER_MAX_INPUT_LENGTH,
                           CBENCH_TIFFDITHER_MAX_OUTPUT_BYTES),
     "cbench_consumer_tiffmedian": (CBENCH_TIFFMEDIAN_MAX_INPUT_LENGTH,
@@ -5093,12 +5693,20 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
                                 MEDIABENCH_G721_MAX_OUTPUT_BYTES),
     "mediabench_gsm_rpe_grid_selection": (MEDIABENCH_GSM_RPE_MAX_INPUT_LENGTH,
                                            MEDIABENCH_GSM_RPE_MAX_OUTPUT_BYTES),
+    "mediabench_gsm_rpe_grid_positioning": (
+        MEDIABENCH_GSM_RPE_POSITIONING_MAX_INPUT_LENGTH,
+        MEDIABENCH_GSM_RPE_POSITIONING_MAX_OUTPUT_BYTES),
+    "cbench_consumer_lame_window_subband": (
+        CBENCH_LAME_WINDOW_SUBBAND_MAX_INPUT_LENGTH,
+        CBENCH_LAME_WINDOW_SUBBAND_MAX_OUTPUT_BYTES),
     "rodinia_hybridsort": (RODINIA_HYBRIDSORT_MAX_INPUT_LENGTH,
                             RODINIA_HYBRIDSORT_MAX_OUTPUT_BYTES),
     "rodinia_mummergpu": (RODINIA_MUMMERGPU_MAX_INPUT_LENGTH,
                           RODINIA_MUMMERGPU_MAX_OUTPUT_BYTES),
     "rodinia_streamcluster_pgain": (RODINIA_STREAMCLUSTER_PGAIN_MAX_PARSEABLE_INPUT_LENGTH,
                                      RODINIA_STREAMCLUSTER_PGAIN_MAX_OUTPUT_BYTES),
+    "saga_incremental_analytics": (SAGA_INCREMENTAL_ANALYTICS_MAX_INPUT_LENGTH + 1,
+                                    SAGA_INCREMENTAL_ANALYTICS_MAX_OUTPUT_BYTES),
     "tsvc_indexed_gather_scatter": (TSVC_INDEXED_GATHER_SCATTER_MAX_INPUT_LENGTH,
                                     TSVC_INDEXED_GATHER_SCATTER_MAX_OUTPUT_BYTES),
     "tsvc_s141_packed_symmetric_update": (TSVC_S141_MAX_INPUT_LENGTH,
@@ -5125,6 +5733,15 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
                                             TSVC_S279_MAX_OUTPUT_BYTES),
     "tsvc_s2111_wavefront_add_recurrence": (TSVC_S2111_MAX_INPUT_LENGTH,
                                               TSVC_S2111_MAX_OUTPUT_BYTES),
+    "tsvc_s119_diagonal_matrix_recurrence": (TSVC_S119_MAX_INPUT_LENGTH,
+                                               TSVC_S119_MAX_OUTPUT_BYTES),
+    "tsvc_s1111_stride_two_polynomial_map": (TSVC_S1111_MAX_INPUT_LENGTH,
+                                                TSVC_S1111_MAX_OUTPUT_BYTES),
+    "tsvc_s1112_reverse_constant_offset_map": (TSVC_S1112_MAX_INPUT_LENGTH,
+                                                  TSVC_S1112_MAX_OUTPUT_BYTES),
+    "tsvc_s113_invariant_anchor_add": (TSVC_S113_MAX_INPUT_LENGTH,TSVC_S113_MAX_OUTPUT_BYTES),
+    "tsvc_s1113_feedback_anchor_add": (TSVC_S1113_MAX_INPUT_LENGTH,TSVC_S1113_MAX_OUTPUT_BYTES),
+    "tsvc_s115_upper_triangular_saxpy_elimination": (TSVC_S115_MAX_INPUT_LENGTH,TSVC_S115_MAX_OUTPUT_BYTES),
     "tsvc_s353_unrolled_sparse_saxpy": (TSVC_S353_MAX_INPUT_LENGTH,
                                           TSVC_S353_MAX_OUTPUT_BYTES),
     "tsvc_s452_index_weighted_vector_map": (TSVC_S452_MAX_INPUT_LENGTH,
@@ -34947,10 +35564,1618 @@ def validate_tabu_search_workload(workload: dict) -> None:
             raise ValueError(f"tabu_search fixture differs from its pinned oracle: {case_id}")
 
 
+def _saga_base_state_is_valid(values: list[int]) -> bool:
+    mode, n, base_count, _added_count, source = values[:5]
+    state = values[5:5 + n]
+    if all(value == -1 for value in state):
+        return base_count == 0
+    if mode == 3:
+        # This workload uses the source's explicit fresh-state path for PageRank.
+        # Nonempty-base PageRank fixtures need a separately derived converged-state fixture.
+        return False
+
+    adjacency: list[list[tuple[int, int]]] = [[] for _ in range(n)]
+    edge_start = 5 + n
+    for index in range(base_count):
+        u, v, weight = values[edge_start + 3 * index:edge_start + 3 * index + 3]
+        adjacency[u].append((v, weight))
+        adjacency[v].append((u, weight))
+
+    if mode == 1:
+        expected = [-1] * n
+        expected[source] = 0
+        queue = deque([source])
+        while queue:
+            vertex = queue.popleft()
+            for neighbor, _weight in adjacency[vertex]:
+                if expected[neighbor] == -1:
+                    expected[neighbor] = expected[vertex] + 1
+                    queue.append(neighbor)
+        return state == expected
+    if mode == 2:
+        expected = [1_000_000_000] * n
+        expected[source] = 0
+        queue = [(0, source)]
+        while queue:
+            distance, vertex = heapq.heappop(queue)
+            if distance != expected[vertex]:
+                continue
+            for neighbor, weight in adjacency[vertex]:
+                candidate = distance + weight
+                if candidate < expected[neighbor]:
+                    expected[neighbor] = candidate
+                    heapq.heappush(queue, (candidate, neighbor))
+        return state == expected
+    if mode == 5:
+        expected = [0] * n
+        expected[source] = 1_000_000_000
+        queue = [(-expected[source], source)]
+        while queue:
+            negative_capacity, vertex = heapq.heappop(queue)
+            capacity = -negative_capacity
+            if capacity != expected[vertex]:
+                continue
+            for neighbor, weight in adjacency[vertex]:
+                candidate = min(capacity, weight)
+                if candidate > expected[neighbor]:
+                    expected[neighbor] = candidate
+                    heapq.heappush(queue, (-candidate, neighbor))
+        return state == expected
+
+    expected = [-1] * n
+    for start in range(n):
+        if expected[start] != -1:
+            continue
+        component: list[int] = []
+        queue = [start]
+        expected[start] = start
+        while queue:
+            vertex = queue.pop()
+            component.append(vertex)
+            for neighbor, _weight in adjacency[vertex]:
+                if expected[neighbor] == -1:
+                    expected[neighbor] = start
+                    queue.append(neighbor)
+        label = min(component) if mode == 4 else max(component)
+        for vertex in component:
+            expected[vertex] = label
+    return state == expected
+
+
 def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     if not isinstance(workload.get("cases"), list) or not workload["cases"]:
         raise ValueError(f"{algorithm} workload must contain fixture cases")
-    if algorithm == "statemate":
+    if algorithm == "gbbs_shiloach_vishkin_spanning_forest":
+        pinned = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
+        source = workload.get("source", {})
+        if (workload.get("id") != "gbbs-shiloach-vishkin-spanning-forest-i64-array-bytes-output-v1"
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "ParAlg/gbbs" or source.get("commit") != pinned
+                or source.get("path") != "benchmarks/SpanningForest/ShiloachVishkin/SpanningForest.h"
+                or source.get("license_path") != "LICENSE" or source.get("license") != "MIT"
+                or workload.get("input", {}).get("node_count_range") != [1, GBBS_SV_FOREST_MAX_NODES]
+                or workload.get("input", {}).get("edge_count_range") != [0, GBBS_SV_FOREST_MAX_EDGES]
+                or workload.get("input", {}).get("maximum_valid_length") != GBBS_SV_FOREST_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != GBBS_SV_FOREST_MAX_OUTPUT_BYTES
+                or workload.get("output", {}).get("success_result") != "edge_count bytes written"
+                or workload.get("workspace", {}).get("bytes") != 1024
+                or workload.get("contract", {}).get("operation") != "Compute a spanning forest by repeatedly hooking each component root to its smallest lower-ID adjacent component root and emitting one original edge witness per hook."):
+            raise ValueError("GBBS Shiloach–Vishkin metadata differs from its pinned profile")
+        package = ROOT / "benchmarks" / "g" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or source["path"] not in readme or "MIT License" not in license_text
+                or "Copyright (c) 2018 Laxman Dhulipala, Guy Blelloch, and Julian Shun" not in license_text
+                or "Permission is hereby granted" not in license_text
+                or 'THE SOFTWARE IS PROVIDED "AS IS"' not in license_text):
+            raise ValueError("GBBS Shiloach–Vishkin README or MIT notice is incomplete")
+        for relative in (
+                "c/g/gbbs_shiloach_vishkin_spanning_forest.c", "c3/g/gbbs_shiloach_vishkin_spanning_forest.c3",
+                "cpp/g/gbbs_shiloach_vishkin_spanning_forest.cpp", "elisa/g/gbbs_shiloach_vishkin_spanning_forest.elisa",
+                "nim/g/gbbs_shiloach_vishkin_spanning_forest.nim", "odin/g/gbbs_shiloach_vishkin_spanning_forest.odin",
+                "rust/g/gbbs_shiloach_vishkin_spanning_forest.rs", "v/g/gbbs_shiloach_vishkin_spanning_forest.v",
+                "zig/g/gbbs_shiloach_vishkin_spanning_forest.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"GBBS spanning-forest port is missing its symbol: {relative}")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            if not isinstance(values, list) or case.get("input_length") != len(values):
+                raise ValueError(f"GBBS spanning-forest fixture framing is invalid: {case.get('id')}")
+            result, output = gbbs_shiloach_vishkin_spanning_forest_oracle(
+                values, case.get("output_capacity", GBBS_SV_FOREST_MAX_OUTPUT_BYTES),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case["input_length"])
+            if case.get("expected_result") != result or case.get("expected_output_hex", "").lower() != output.hex():
+                raise ValueError(f"GBBS spanning-forest fixture mismatch: {case.get('id')}")
+        return
+    if algorithm == "rodinia_heartwall_template_match":
+        pinned = "f30e63663cfb114939a15c7ffc4ae112055ae6a8"
+        expected_source = {
+            "repository": "utcs-scea/rodinia", "commit": pinned,
+            "path": "cuda/heartwall/kernel.cu", "symbols": ["kernel"],
+            "url": f"https://github.com/utcs-scea/rodinia/blob/{pinned}/cuda/heartwall/kernel.cu",
+            "license_path": "LICENSE", "license": "University of Virginia BSD-3-Clause",
+        }
+        expected_input = {
+            "kind": "signed_i64_array",
+            "encoding": "[image_rows, image_cols, template_rows, template_cols, candidate_mask, template_column_major, image_column_major]",
+            "image_dimension_range": [2, 8], "template_dimension_range": [2, 4],
+            "pixel_value_range": [0, 255],
+            "maximum_valid_length": RODINIA_HEARTWALL_MAX_INPUT_LENGTH,
+            "maximum_parseable_length": RODINIA_HEARTWALL_MAX_INPUT_LENGTH,
+            "invalid_input_result": -1,
+        }
+        expected_output = {
+            "kind": "little_endian_signed_i64_candidate_position",
+            "encoding": "column-major linear index of the first enabled candidate with maximum absolute normalized score",
+            "maximum_bytes": RODINIA_HEARTWALL_MAX_OUTPUT_BYTES,
+            "success_result": RODINIA_HEARTWALL_MAX_OUTPUT_BYTES,
+            "invalid_input_result": -1, "null_output_result": -2,
+            "insufficient_capacity_result": -2, "output_untouched_on_error": True,
+        }
+        expected_contract = {
+            "arithmetic": "binary32 at each source operation boundary",
+            "correlation": "Source rotates the template for convolution; the resulting valid-placement numerator is sum(T*P)-sum(P)*sum(T)/N, with column-major accumulation.",
+            "normalization": "sqrt(max(0,sum(P^2)-sum(P)^2/N))*sqrt(N-1)*sqrt(sum(T^2)/N-(sum(T)/N)^2)",
+            "candidate_mask": "One bit per valid top-left placement, column-major; disabled placements score zero.",
+            "tie_rule": "Scan candidates column-major and replace only on a strictly greater absolute score, retaining the first tie.",
+            "zero_variance": "Template variance and every enabled patch centered-square sum must be positive; otherwise malformed input returns -1.",
+            "launcher_exclusions": "Video/image I/O, initial template extraction, frame tracking, template adaptation, CUDA scheduling and host output are excluded.",
+        }
+        expected_ids = {
+            "match-versus-reversed-candidate", "masked-reversed-candidate",
+            "equal-score-first-column-major", "empty-candidate-mask",
+            "constant-template-invalid", "zero-variance-candidate-invalid",
+            "candidate-mask-out-of-range", "short-output", "null-output", "null-input",
+        }
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "source", "input", "output", "workspace",
+                              "contract", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "rodinia-heartwall-template-match-f32-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded binary32 normalized template matching and maximum-absolute-score selection from Rodinia Heartwall."
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("workspace") != {
+                    "bytes": 4096,
+                    "meaning": "Bounded template/image, integral image and squared-integral image buffers, plus one staged output word.",
+                }
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 8, "warmup_rounds": 2,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("Rodinia Heartwall metadata differs from its pinned contract")
+        package = ROOT / "benchmarks" / "r" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or expected_source["path"] not in readme
+                or "Copyright (c)2008-2011 University of Virginia" not in license_text
+                or "Redistribution and use in source and binary forms" not in license_text
+                or "Neither the name of the University of Virginia" not in license_text
+                or "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS" not in license_text
+                or "All rights reserved." not in license_text):
+            raise ValueError("Rodinia Heartwall README or BSD-3-Clause notice is incomplete")
+        for relative in (
+                "c/r/rodinia_heartwall_template_match.c", "c3/r/rodinia_heartwall_template_match.c3",
+                "cpp/r/rodinia_heartwall_template_match.cpp", "elisa/r/rodinia_heartwall_template_match.elisa",
+                "nim/r/rodinia_heartwall_template_match.nim", "odin/r/rodinia_heartwall_template_match.odin",
+                "rust/r/rodinia_heartwall_template_match.rs", "v/r/rodinia_heartwall_template_match.v",
+                "zig/r/rodinia_heartwall_template_match.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"Rodinia Heartwall port is missing its symbol: {relative}")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            if not isinstance(values, list) or case.get("input_length") != len(values):
+                raise ValueError(f"Rodinia Heartwall fixture framing is invalid: {case.get('id')}")
+            result, output = rodinia_heartwall_template_match_suite_oracle(
+                values, case.get("output_capacity", RODINIA_HEARTWALL_MAX_OUTPUT_BYTES),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case["input_length"])
+            if case.get("expected_result") != result or case.get("expected_output_hex", "").lower() != output.hex():
+                raise ValueError(f"Rodinia Heartwall fixture mismatch: {case.get('id')}")
+        return
+    if algorithm in {"gbbs_approximate_set_cover", "gbbs_low_diameter_decomposition",
+                    "tsvc_s2711_nonzero_branch_axpy"}:
+        pinned_gbbs = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
+        pinned_tsvc = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        if algorithm == "gbbs_approximate_set_cover":
+            pinned = pinned_gbbs
+            expected_id = "gbbs-approximate-set-cover-deterministic-profile-v1"
+            expected_source = {
+                "repository": "ParAlg/gbbs", "commit": pinned,
+                "path": "benchmarks/ApproximateSetCover/MANISBPT11/ApproximateSetCover.h",
+                "symbol": "SetCover",
+                "launcher_path": "benchmarks/ApproximateSetCover/MANISBPT11/ApproximateSetCover.cc",
+                "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/ApproximateSetCover/MANISBPT11/ApproximateSetCover.h",
+                "license_path": "LICENSE", "license": "MIT",
+            }
+            expected_input = {
+                "kind": "signed_64_bit_integer_array",
+                "encoding": "[vertex_count, neighbor_mask_0, ..., neighbor_mask_(vertex_count-1)]",
+                "vertex_count_range": [1, GBBS_SET_COVER_MAX_SETS],
+                "maximum_valid_length": GBBS_SET_COVER_MAX_INPUT_LENGTH,
+                "maximum_parseable_length": GBBS_SET_COVER_MAX_PARSEABLE_LENGTH,
+                "invalid_input_result": GBBS_SET_COVER_INVALID_RESULT,
+                "mask_semantics": "Each vertex is a candidate set containing its neighbors; bits outside vertex_count are invalid. Masks must be symmetric and loop-free.",
+            }
+            expected_output = {
+                "kind": "two_little_endian_signed_64_bit_values",
+                "encoding": "[selected_set_bitmask, uncovered_element_bitmask]",
+                "maximum_bytes": GBBS_SET_COVER_MAX_OUTPUT_BYTES,
+                "success_result": GBBS_SET_COVER_MAX_OUTPUT_BYTES,
+                "invalid_input_result": GBBS_SET_COVER_INVALID_RESULT,
+                "null_output_result": GBBS_SET_COVER_OUTPUT_ERROR,
+                "insufficient_capacity_result": GBBS_SET_COVER_OUTPUT_ERROR,
+                "output_untouched_on_error": True,
+            }
+            expected_workspace = {
+                "bytes": 512,
+                "meaning": "Maximum fixed scratch for eight adjacency masks, source-bucket state, per-round degrees/priorities/win counts, and staged two-word output.",
+            }
+            expected_contract = {
+                "epsilon": 0.01,
+                "bucket_order": "Retain assigned buckets between rounds; process the highest stored bucket, recompute uncovered degree only for vertices in that bucket, and reassign those vertices. For integer degrees 1 through 8, source thresholds ceil((1+epsilon)^bucket) and ceil((1+epsilon)^(bucket-1)) equal that degree.",
+                "priority_refinement": "Replace the source's random permutation in each round by cyclic set-ID priority beginning at set_id = round mod set_count; lowest cyclic rank wins each uncovered element among currently maximum-bucket sets.",
+                "selection_rule": "A contender enters the cover when it wins at least the current bucket's low threshold, which equals its current degree in this bounded profile.",
+                "coverage_update": "Only elements adjacent to selected sets become covered; elements won by unselected contenders remain uncovered and are reconsidered after rebucketing.",
+                "overlap_note": "Distinct from greedy minimum vertex cover: this input is a set-element incidence system and the operation is GBBS's bucket/priority acquisition heuristic, not maximum-current-degree vertex selection.",
+                "launcher_exclusions": "Parallel edge maps, bucketing data structures, graph file parsing, timing, CLI reporting, and the random-number stream are excluded.",
+            }
+            expected_description = "Bounded deterministic priority refinement of GBBS MANISBPT11 approximate set cover."
+            expected_case_ids = {
+                "one-undirected-edge", "path-rebucket", "star-neighborhood-cover",
+                "two-disjoint-edges", "maximum-complete-eight", "edgeless-elements-uncovered",
+                "asymmetric-invalid", "self-loop-invalid", "mask-out-of-range",
+                "count-length-mismatch", "short-capacity", "null-output", "null-input",
+            }
+            maximum_output = GBBS_SET_COVER_MAX_OUTPUT_BYTES
+            ports = [
+                "c/g/gbbs_approximate_set_cover.c", "c3/g/gbbs_approximate_set_cover.c3",
+                "cpp/g/gbbs_approximate_set_cover.cpp", "elisa/g/gbbs_approximate_set_cover.elisa",
+                "nim/g/gbbs_approximate_set_cover.nim", "odin/g/gbbs_approximate_set_cover.odin",
+                "rust/g/gbbs_approximate_set_cover.rs", "v/g/gbbs_approximate_set_cover.v",
+                "zig/g/gbbs_approximate_set_cover.zig",
+            ]
+        elif algorithm == "gbbs_low_diameter_decomposition":
+            pinned = pinned_gbbs
+            expected_id = "gbbs-low-diameter-decomposition-i64-array-bytes-output-v1"
+            expected_source = {
+                "repository": "ParAlg/gbbs", "commit": pinned,
+                "path": "benchmarks/LowDiameterDecomposition/MPX13/LowDiameterDecomposition.h",
+                "symbols": ["generate_shifts", "LDD_F", "LDD_impl", "LDD"],
+                "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/LowDiameterDecomposition/MPX13/LowDiameterDecomposition.h",
+                "related_paths": ["benchmarks/LowDiameterDecomposition/MPX13/LowDiameterDecomposition.cc"],
+                "launcher_path": "benchmarks/LowDiameterDecomposition/MPX13/LowDiameterDecomposition.cc",
+                "launcher_symbol": "LDD_runner", "license_path": "LICENSE", "license": "MIT",
+            }
+            expected_input = {
+                "kind": "signed_64_bit_integer_array",
+                "encoding": "[node_count, edge_count, (u, v)...]",
+                "node_count_range": [1, GBBS_LDD_MAX_NODES],
+                "edge_count_range": [0, GBBS_LDD_MAX_EDGES],
+                "edge_semantics": "simple undirected graph; each edge appears once with 0 <= u < v < node_count",
+                "maximum_valid_length": GBBS_LDD_MAX_INPUT_LENGTH,
+                "invalid_input_result": -1,
+            }
+            expected_output = {
+                "kind": "byte_array",
+                "encoding": "One cluster-center vertex ID byte per vertex, in vertex-ID order.",
+                "maximum_values": GBBS_LDD_MAX_NODES,
+                "maximum_bytes": GBBS_LDD_MAX_OUTPUT_BYTES,
+                "success_result": "node_count bytes written",
+                "invalid_input_result": -1, "null_output_result": -2,
+                "insufficient_capacity_result": -2, "output_untouched_on_error": True,
+            }
+            expected_workspace = {
+                "bytes": 768,
+                "meaning": "Fixed bounded adjacency matrix, center labels, candidate-batch state, and two frontiers.",
+            }
+            expected_contract = {
+                "operation": "Partition vertices by MPX-style exponentially scheduled center release and one-edge-per-round multi-source frontier growth; return the center ID assigned to each vertex.",
+                "launcher_profile": "The launcher defaults beta to 0.2 and enables random permutation only when -permute is set. The bounded profile fixes beta=0.2 and uses the default no-permutation mode.",
+                "source_profile": "Candidate vertices are considered in ascending ID order in batches of floor(exp(round*beta)); unassigned candidates become centers. Each round expands the current frontier one edge, assigning unassigned neighbors from their frontier center.",
+                "projection": "The bounded batch table is [1,1,1,1,2,2,3,4,4,6,7,9,11]. Candidate batches are clipped to node_count. When multiple frontier centers reach a vertex in one round, the smallest center ID wins. This deterministic tie rule and bounded clipping project away parallel scheduling while retaining source center batches and frontier growth.",
+                "invalid_input_result": -1, "output_error_result": -2,
+            }
+            expected_description = "Bounded MPX low-diameter partition with exponential center batches and deterministic frontier ties."
+            expected_case_ids = {
+                "singleton-isolated", "four-isolated-centers", "center-reaches-star",
+                "frontier-center-tie", "two-components", "maximum-node-and-edge-count",
+                "maximum-node-count-isolates", "self-loop-invalid", "noncanonical-edge-invalid",
+                "duplicate-edge-invalid", "endpoint-out-of-range", "node-count-out-of-range",
+                "length-mismatch", "insufficient-output-capacity", "null-output", "null-input",
+            }
+            maximum_output = GBBS_LDD_MAX_OUTPUT_BYTES
+            ports = [
+                "c/g/gbbs_low_diameter_decomposition.c", "c3/g/gbbs_low_diameter_decomposition.c3",
+                "cpp/g/gbbs_low_diameter_decomposition.cpp", "elisa/g/gbbs_low_diameter_decomposition.elisa",
+                "nim/g/gbbs_low_diameter_decomposition.nim", "odin/g/gbbs_low_diameter_decomposition.odin",
+                "rust/g/gbbs_low_diameter_decomposition.rs", "v/g/gbbs_low_diameter_decomposition.v",
+                "zig/g/gbbs_low_diameter_decomposition.zig",
+            ]
+        else:
+            pinned = pinned_tsvc
+            expected_id = "lac-dcc-tsvc-s2711-nonzero-branch-axpy-i64-le-v1"
+            expected_source = {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "TSVC/tsc.inc", "symbol": "s2711",
+                "source_lines": {"kernel_start": 3174, "kernel_end": 3195,
+                                 "loop_start": 3185, "loop_end": 3192},
+                "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc#L3174",
+                "launchers": [
+                    {"family": "TSVC/ControlFlow-dbl", "type": "double", "run_options": "2325 14"},
+                    {"family": "TSVC/ControlFlow-flt", "type": "float", "run_options": "2325 5"},
+                ],
+                "attribution": "TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+                "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. The ports independently implement this bounded operation and reuse no upstream code or comments; no upstream license or endorsement is claimed.",
+            }
+            expected_input = {
+                "kind": "signed_64_bit_integer_array",
+                "argument_order": ["n", "passes", "A[n]", "B[n]", "C[n]"],
+                "n_range": [1, TSVC_S2711_NONZERO_MAX_N],
+                "passes_range": [1, TSVC_S2711_NONZERO_MAX_PASSES],
+                "exact_length": "2 + 3*n",
+                "maximum_valid_input_length": TSVC_S2711_NONZERO_MAX_INPUT_LENGTH,
+                "array_value_range": [-2, 2], "invalid_input_result": -1,
+            }
+            expected_output = {
+                "kind": "little_endian_signed_64_bit_array", "encoding": "A_final[n]",
+                "success_result": "Number of output elements, n.",
+                "required_capacity": "8*n bytes", "maximum_elements": TSVC_S2711_NONZERO_MAX_N,
+                "maximum_bytes": 8 * TSVC_S2711_NONZERO_MAX_N,
+                "invalid_input_result": -1, "insufficient_output_capacity_result": -2,
+            }
+            expected_workspace = None
+            expected_contract = None
+            expected_description = "Bounded nonzero-B branch and in-place A += B*C update based on TSVC s2711."
+            expected_case_ids = {
+                "negative-nonzero-and-zero-branch", "repeated-negative-and-positive-branches",
+                "zero-skip-and-repeated-negative-update", "truncated-frame",
+                "array-value-out-of-range", "pass-count-out-of-range", "short-output-capacity",
+                "null-output", "null-input",
+            }
+            maximum_output = 8 * TSVC_S2711_NONZERO_MAX_N
+            ports = [
+                "c/t/tsvc_s2711_nonzero_branch_axpy.c", "c3/t/tsvc_s2711_nonzero_branch_axpy.c3",
+                "cpp/t/tsvc_s2711_nonzero_branch_axpy.cpp", "elisa/t/tsvc_s2711_nonzero_branch_axpy.elisa",
+                "nim/t/tsvc_s2711_nonzero_branch_axpy.nim", "odin/t/tsvc_s2711_nonzero_branch_axpy.odin",
+                "rust/t/tsvc_s2711_nonzero_branch_axpy.rs", "v/t/tsvc_s2711_nonzero_branch_axpy.v",
+                "zig/t/tsvc_s2711_nonzero_branch_axpy.zig",
+            ]
+        expected_keys = {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                         "description", "source", "input", "output", "measurement", "cases"}
+        if algorithm != "tsvc_s2711_nonzero_branch_axpy":
+            expected_keys.update({"workspace", "contract"})
+        if (set(workload) != expected_keys or workload.get("schema_version") != 1
+                or workload.get("id") != expected_id
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != expected_description
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or (expected_workspace is not None and workload.get("workspace") != expected_workspace)
+                or (expected_contract is not None and workload.get("contract") != expected_contract)
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 8 if algorithm != "tsvc_s2711_nonzero_branch_axpy" else 5,
+                    "warmup_rounds": 2 if algorithm != "tsvc_s2711_nonzero_branch_axpy" else 1,
+                    "repetitions_per_sample": 100 if algorithm != "tsvc_s2711_nonzero_branch_axpy" else 1,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_case_ids
+                or len(workload.get("cases", [])) != len(expected_case_ids)):
+            raise ValueError(f"{algorithm} workload metadata differs from its pinned profile")
+        package = ROOT / "benchmarks" / ("t" if algorithm.startswith("tsvc_") else "g") / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if algorithm.startswith("gbbs_"):
+            if (expected_source["url"] not in readme or pinned not in readme
+                    or "MIT License" not in license_text
+                    or "Copyright (c) 2018 Laxman Dhulipala, Guy Blelloch, and Julian Shun" not in license_text
+                    or "Permission is hereby granted" not in license_text
+                    or 'THE SOFTWARE IS PROVIDED "AS IS"' not in license_text):
+                raise ValueError(f"{algorithm} README or full GBBS MIT notice is incomplete")
+        elif (pinned not in readme or "No explicit license grant was found" not in readme
+              or "No explicit license grant was found" not in license_text):
+            raise ValueError("TSVC s2711 source attribution or rights note is incomplete")
+        for relative in ports:
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"{algorithm} language port is missing its exported symbol: {relative}")
+        oracle = BYTE_OUTPUT_ALGORITHM_ORACLES[algorithm]
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            if (not isinstance(values, list) or type(case.get("input_length")) is not int
+                    or case["input_length"] != len(values)):
+                raise ValueError(f"{algorithm} fixture framing is invalid: {case.get('id')}")
+            capacity = case.get("output_capacity", maximum_output)
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            if (type(capacity) is not int or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool):
+                raise ValueError(f"{algorithm} fixture flags are invalid: {case.get('id')}")
+            result, output = oracle(values, capacity, output_is_null, input_is_null,
+                                    case["input_length"])
+            if (case.get("expected_result") != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"{algorithm} fixture differs from its package oracle: {case.get('id')}")
+        return
+    if algorithm in {"gbbs_k_clique_count", "gbbs_label_propagation_clustering",
+                     "gbbs_five_cycle_count", "gbbs_cosimrank_pair_similarity",
+                     "gbbs_yoshida_query_mis"}:
+        pinned = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
+        definitions = {
+            "gbbs_k_clique_count": {
+                "source_path": "benchmarks/CliqueCounting/Clique.h",
+                "source_symbols": ["Clique", "induced_intersection::CountCliques", "KCliqueDir_fast_rec"],
+                "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/CliqueCounting/Clique.h",
+                "related_paths": ["benchmarks/CliqueCounting/Clique.cc", "benchmarks/CliqueCounting/induced_intersection.h"],
+                "launcher_path": "benchmarks/CliqueCounting/Clique.cc",
+                "launcher_symbol": "AppKCore_runner",
+                "description": "Bounded fixed-four-clique count using GBBS's source-supported original vertex ordering.",
+                "n_range": [1, 24], "m_range": [0, 64], "max_input": GBBS_KCLIQUE_MAX_INPUT_LENGTH,
+                "edge_semantics": "simple undirected graph, each edge supplied once with 0 <= u < v < node_count",
+                "output_kind": "little_endian_signed_64_bit_array", "encoding": "One signed 64-bit integer: the exact number of four-vertex cliques.",
+                "max_values": 1, "max_output": GBBS_KCLIQUE_MAX_OUTPUT_BYTES,
+                "success": "8 bytes written", "workspace_meaning": "One staged count value is encoded only after graph validation and output-capacity checks.",
+                "operation": "Count each unordered four-vertex set whose six undirected edges are present exactly once.",
+                "launcher_profile": "Use the supported fixed-k option -k 4 and --directType ORIGINAL (source ordering enum 4).",
+                "source_profile": "Direct edges from lower vertex ID to higher ID, filter endpoints whose original degree is below k-1, then recursively intersect outgoing neighborhoods and count the terminal directed edge.",
+                "projection": "The bounded profile retains exact integer counting and the source's ORIGINAL rank ordering; it replaces recursive induced scratch structures with bounded nested neighborhood intersections. Parallel scheduling, per-vertex counts, peeling, approximate counting, sparsification, and other ordering modes are excluded.",
+                "case_ids": {"complete-four-vertex-graph", "two-disjoint-four-cliques", "four-clique-missing-one-edge", "triangle-with-bridge", "maximum-edge-count-bipartite-graph", "maximum-node-count-empty-graph", "length-mismatch", "node-count-out-of-range", "edge-count-out-of-range", "self-loop-invalid", "noncanonical-edge-invalid", "duplicate-edge-invalid", "endpoint-out-of-range", "insufficient-output-capacity", "null-output", "null-input"},
+                "ports": [f"{lang}/g/gbbs_k_clique_count.{ext}" for lang, ext in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"), ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig"))],
+            },
+            "gbbs_label_propagation_clustering": {
+                "source_path": "benchmarks/Clustering/LabelPropagation/LabelPropagation.h",
+                "source_symbols": ["LabelPropagation", "internal::compute_new_color"],
+                "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/Clustering/LabelPropagation/LabelPropagation.h",
+                "related_paths": ["benchmarks/Clustering/LabelPropagation/LabelPropagation.cc"],
+                "launcher_path": "benchmarks/Clustering/LabelPropagation/LabelPropagation.cc",
+                "launcher_symbol": "LabelPropagation_runner",
+                "description": "One deterministic asynchronous label-propagation sweep on a simple unweighted graph.",
+                "n_range": [1, 16], "m_range": [0, 64], "max_input": GBBS_LABEL_PROP_MAX_INPUT_LENGTH,
+                "edge_semantics": "simple undirected unweighted graph, each edge supplied once with 0 <= u < v < node_count",
+                "output_kind": "little_endian_signed_64_bit_array", "encoding": "One current label per vertex in ascending vertex order after one sweep.",
+                "max_values": 16, "max_output": GBBS_LABEL_PROP_MAX_OUTPUT_BYTES,
+                "success": "8 * node_count bytes written", "workspace_meaning": "Staged label vector; caller output is written after full graph validation and capacity checks.",
+                "operation": "Initialize each vertex label to its ID, then visit vertices once in ascending ID order. Replace each non-isolated vertex label with the most frequent current neighboring label; keep the largest label on frequency ties. Updates are immediately visible to later vertices in the same sweep.",
+                "launcher_profile": "Use the source's unweighted graph mode and initial labels 0..n-1. The bounded profile sets max_iters=1 and use_async=true with an explicit ascending serial schedule.",
+                "source_profile": "For an unweighted graph every incident edge contributes weight one. The source sorts (label, weight) pairs, sums weight by label, then sorts (total_weight, label) descending, which selects the greatest label on ties. Isolated vertices retain their current labels.",
+                "projection": "The source launcher defaults to asynchronous execution with up to 100 iterations. This deterministic projection fixes the async schedule to one ascending-ID sweep; it preserves immediate in-sweep updates and tie ordering. Weighted graphs, graph-coloring mode, parallel scheduling, and later convergence sweeps are excluded.",
+                "case_ids": {"complete-four-one-async-sweep", "path-four-one-async-sweep", "two-disjoint-edges", "five-vertex-star", "isolated-vertex-retains-label", "maximum-node-count-empty-graph", "maximum-edge-count-bipartite-graph", "length-mismatch", "node-count-out-of-range", "edge-count-out-of-range", "self-loop-invalid", "noncanonical-edge-invalid", "duplicate-edge-invalid", "endpoint-out-of-range", "insufficient-output-capacity", "null-output", "null-input"},
+                "ports": [f"{lang}/g/gbbs_label_propagation_clustering.{ext}" for lang, ext in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"), ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig"))],
+            },
+            "gbbs_five_cycle_count": {
+                "source_path": "benchmarks/CycleCounting/Parallel5Cycle/FiveCycle.h",
+                "source_symbols": ["Count5Cycle", "Count5CycleVertex"],
+                "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/CycleCounting/Parallel5Cycle/FiveCycle.h",
+                "related_paths": ["benchmarks/CycleCounting/Parallel5Cycle/FiveCycle.cc"],
+                "launcher_path": "benchmarks/CycleCounting/Parallel5Cycle/FiveCycle.cc",
+                "launcher_symbol": "Count5Cycle_runner",
+                "description": "Bounded exact count of simple undirected cycles of length five.",
+                "n_range": [1, 16], "m_range": [0, 64], "max_input": GBBS_FIVE_CYCLE_MAX_INPUT_LENGTH,
+                "edge_semantics": "simple undirected unweighted graph; each edge supplied once with 0 <= u < v < node_count",
+                "output_kind": "little_endian_signed_64_bit_array", "encoding": "One signed 64-bit integer: the number of undirected simple cycles with five distinct vertices, counted once up to rotation and reversal.",
+                "max_values": 1, "max_output": GBBS_FIVE_CYCLE_MAX_OUTPUT_BYTES,
+                "success": "8 bytes written", "workspace_meaning": "One staged cycle count is encoded only after graph validation and output-capacity checks.",
+                "operation": "Count every simple undirected 5-cycle exactly once.",
+                "launcher_profile": "Use the exact, unsparsified Kowalik five-cycle count path on a symmetric unweighted graph; use its deterministic serial counting mode.",
+                "source_profile": "The source degree-relabels and directs the graph using a degeneracy ordering, then counts length-five cycles through oriented neighborhood intersections. The exact count is invariant to the directing order.",
+                "projection": "The bounded ports replace the source relabeling, parallel scheduler, and scratch reset structure with canonical cycle enumeration. Each cycle is rooted at its minimum vertex and only the orientation whose first endpoint is smaller than the last is counted. Random sparsification and the ESCAPE/experiment alternatives are excluded.",
+                "case_ids": {"single-undirected-five-cycle", "complete-five-vertex-graph", "six-cycle-has-no-five-cycle", "two-cycles-sharing-a-vertex", "maximum-edge-count-bipartite-graph", "maximum-node-count-empty-graph", "length-mismatch", "node-count-out-of-range", "edge-count-out-of-range", "self-loop-invalid", "noncanonical-edge-invalid", "duplicate-edge-invalid", "endpoint-out-of-range", "insufficient-output-capacity", "null-output", "null-input"},
+                "ports": [f"{lang}/g/gbbs_five_cycle_count.{ext}" for lang, ext in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"), ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig"))],
+            },
+            "gbbs_cosimrank_pair_similarity": {
+                "source_path": "benchmarks/CoSimRank/CoSimRank.h",
+                "source_symbols": ["CoSimRank", "CoSimRank::operator()", "CoSimRank::PageRank"],
+                "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/CoSimRank/CoSimRank.h",
+                "related_paths": ["benchmarks/CoSimRank/CoSimRank.cc"],
+                "launcher_path": "benchmarks/CoSimRank/CoSimRank.cc",
+                "launcher_symbol": "CoSimRank_runner",
+                "description": "Exact bounded directed CoSimRank similarity for one source pair with four or fewer dyadic iterations.",
+                "n_range": [1, 8], "m_range": [0, 24], "max_input": GBBS_COSIMRANK_MAX_INPUT_LENGTH,
+                "edge_semantics": "directed simple graph without self-loops; every nonzero outdegree is 1, 2, or 4",
+                "output_kind": "little_endian_ieee754_binary64_bytes", "encoding": "One binary64 CoSimRank score in IEEE-754 bit representation.",
+                "max_values": 1, "max_output": GBBS_COSIMRANK_MAX_OUTPUT_BYTES,
+                "success": "8 bytes written", "workspace_meaning": "One staged binary64 result; the output is written only after validation and capacity checks.",
+                "operation": "Initialize probability vectors at source_u and source_v. For each requested round, apply one directed uniform random-walk transition to each vector and add 0.5^round times the vectors' inner product to the score.",
+                "launcher_profile": "Fix -u and -v from the input, set -iters to the input iteration count, -cons 0.5, and -eps 0 so the exact requested number of rounds is performed.",
+                "source_profile": "The source begins with score 1 when the source vertices match and 0 otherwise, propagates the two unit page vectors, then adds the discounted inner product after each round.",
+                "projection": "The source's floating recurrence is restricted to a dyadic discount and outdegrees 1, 2, or 4, with at most four iterations. Ports use exact integer numerators on a 2^8 vector scale and encode the exact score as binary64. Parallel execution, tolerance stopping, weighted graphs, and arbitrary outdegrees are excluded.",
+                "case_ids": {"same-source-two-cycle-four-rounds", "different-sources-two-cycle", "distinct-sources-shared-successor", "same-source-two-way-fork-one-round", "maximum-edge-count-sink-pair"},
+                "ports": [f"{lang}/g/gbbs_cosimrank_pair_similarity.{ext}" for lang, ext in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"), ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig"))],
+            },
+            "gbbs_yoshida_query_mis": {
+                "source_path": "benchmarks/MaximalIndependentSet/Yoshida/MaximalIndependentSet.h",
+                "source_symbols": ["get_vertex_pri", "mis_query", "MaximalIndependentSet"],
+                "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/MaximalIndependentSet/Yoshida/MaximalIndependentSet.h",
+                "related_paths": ["benchmarks/MaximalIndependentSet/Yoshida/reorder.h", "benchmarks/MaximalIndependentSet/Yoshida/MaximalIndependentSet.cc"],
+                "launcher_path": "benchmarks/MaximalIndependentSet/Yoshida/MaximalIndependentSet.cc",
+                "launcher_symbol": "MaximalIndependentSet_runner",
+                "description": "One bounded recursive hash64-priority MIS query with a finite work cutoff.",
+                "n_range": [1, 12], "m_range": [0, 24], "max_input": GBBS_YOSHIDA_MIS_MAX_INPUT_LENGTH,
+                "edge_semantics": "simple undirected graph; each edge appears once with 0 <= u < v < node_count",
+                "output_kind": "little_endian_signed_64_bit_array",
+                "encoding": "[query_status, neighbor_visit_work], where status is 1 for in, 0 for out, and -1 for unknown.",
+                "max_values": 2, "max_output": GBBS_YOSHIDA_MIS_MAX_OUTPUT_BYTES,
+                "success": "16 bytes written", "workspace_meaning": "Two staged signed 64-bit output values are written only after graph validation and capacity checks.",
+                "operation": "Run one recursive mis_query for query_vertex, using hash64(vertex) priorities and neighbor order by priority then vertex ID. Count each inspected neighbor in the query's cumulative work value and propagate in, out, or unknown exactly as the source helper does.",
+                "launcher_profile": "The source launcher requires a symmetric graph and defaults -query_cutoff to SIZE_MAX. The bounded single-query projection exposes query_vertex directly and uses a finite cutoff in [0,128].",
+                "source_profile": "For each vertex, scan neighbors in ascending hash64 priority order. Stop scanning when the current vertex has lower priority than the neighbor (or equal priority and smaller ID); otherwise recursively query the neighbor. A neighbor status in makes the current vertex out; unknown propagates; exhausting the scan makes the current vertex in.",
+                "projection": "The bounded ABI exposes one query result and work count rather than the launcher-wide maximum-work, total-work, and fraction-covered summary. Parallel per-vertex queries, graph I/O, timing, and unlimited cutoff are excluded.",
+                "dependency": {"repository": "ParAlg/parlaylib", "commit": "352f5367a6b3bd2f0c6f05882cdd02e978e349ea", "path": "include/parlay/utilities.h", "symbol": "parlay::hash64", "license_path": "LICENSE", "license": "MIT"},
+                "case_ids": {"isolated-query-at-zero-cutoff", "isolated-root-with-separate-edge", "nonisolated-zero-cutoff-is-unknown", "maximum-bounded-graph-zero-cutoff", "self-loop-invalid", "duplicate-undirected-edge-invalid", "root-out-of-range", "cutoff-out-of-range", "length-mismatch", "insufficient-output-capacity", "null-output", "null-input"},
+                "ports": [f"{lang}/g/gbbs_yoshida_query_mis.{ext}" for lang, ext in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"), ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig"))],
+            },
+        }
+        spec = definitions[algorithm]
+        source = workload.get("source", {})
+        expected_source = {"repository": "ParAlg/gbbs", "commit": pinned,
+                           "path": spec["source_path"], "symbols": spec["source_symbols"],
+                           "url": spec["url"], "related_paths": spec["related_paths"],
+                           "launcher_path": spec["launcher_path"],
+                           "launcher_symbol": spec["launcher_symbol"],
+                           "license_path": "LICENSE", "license": "MIT"}
+        if "dependency" in spec:
+            expected_source["dependency"] = spec["dependency"]
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        contract = workload.get("contract", {})
+        case_ids = {case.get("id") for case in workload["cases"] if isinstance(case, dict)}
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != f"{algorithm.replace('_', '-')}-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != spec["description"]
+                or source != expected_source
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("node_count_range") != spec["n_range"]
+                or input_spec.get("edge_count_range") != spec["m_range"]
+                or input_spec.get("maximum_valid_length") != spec["max_input"]
+                or input_spec.get("edge_semantics") != spec["edge_semantics"]
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != spec["output_kind"]
+                or output_spec.get("encoding") != spec["encoding"]
+                or output_spec.get("maximum_values") != spec["max_values"]
+                or output_spec.get("maximum_bytes") != spec["max_output"]
+                or output_spec.get("success_result") != spec["success"]
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("output_untouched_on_error") is not True
+                or workload.get("workspace") != {"bytes": spec["max_output"], "meaning": spec["workspace_meaning"]}
+                or contract.get("operation") != spec["operation"]
+                or contract.get("launcher_profile") != spec["launcher_profile"]
+                or contract.get("source_profile") != spec["source_profile"]
+                or contract.get("projection") != spec["projection"]
+                or contract.get("invalid_input_result") != -1
+                or contract.get("output_error_result") != -2
+                or workload.get("measurement") != {"comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 8, "warmup_rounds": 2, "repetitions_per_sample": 100}
+                or algorithm == "gbbs_cosimrank_pair_similarity"
+                   and (input_spec.get("iterations_range") != [1, 4]
+                        or contract.get("discount") != 0.5
+                        or contract.get("epsilon") != 0
+                        or contract.get("output_error_result") != -2)
+                or algorithm == "gbbs_yoshida_query_mis"
+                   and input_spec.get("query_cutoff_range") != [0, 128]
+                or case_ids != spec["case_ids"] or len(workload["cases"]) != len(spec["case_ids"])):
+            raise ValueError(f"{algorithm} metadata differs from its pinned GBBS contract")
+        package = ROOT / "benchmarks" / "g" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (spec["url"] not in readme or pinned not in readme
+                or "MIT License" not in license_text or "Laxman Dhulipala" not in license_text):
+            raise ValueError(f"{algorithm} README or MIT notice is incomplete")
+        if algorithm == "gbbs_yoshida_query_mis" and (
+                "ParlayLib hash64" not in readme
+                or "Copyright (c) 2020-present Guy Blelloch" not in license_text):
+            raise ValueError("gbbs_yoshida_query_mis ParlayLib dependency attribution is incomplete")
+        for relative in spec["ports"]:
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"{algorithm} port is missing its symbol: {relative}")
+        oracle = BYTE_OUTPUT_ALGORITHM_ORACLES[algorithm]
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("output_capacity", spec["max_output"])
+            is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(values))
+            result, output = oracle(values, capacity, is_null, input_is_null, input_length)
+            if (case.get("expected_result") != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"{algorithm} fixture mismatch: {case.get('id')}")
+        return
+    if algorithm == "gbbs_goodrich_pszona_degeneracy_order":
+        pinned = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
+        source = workload.get("source", {})
+        contract = workload.get("contract", {})
+        expected_source = {
+            "repository": "ParAlg/gbbs", "commit": pinned,
+            "path": "benchmarks/DegeneracyOrder/GoodrichPszona11/DegeneracyOrder.h",
+            "symbol": "DegeneracyOrder_intsort",
+            "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/DegeneracyOrder/GoodrichPszona11/DegeneracyOrder.h",
+            "launcher_path": "benchmarks/DegeneracyOrder/GoodrichPszona11/DegeneracyOrder.cc",
+            "license_path": "LICENSE", "license": "MIT",
+        }
+        expected_contract = {
+            "epsilon": 0.001,
+            "ns_formula": "max(ceil(node_count * epsilon / (2 + epsilon)), 1)",
+            "bounded_ns": 1,
+            "operation": "Repeatedly remove one remaining vertex of minimum current induced degree, decrementing each remaining neighbor degree; return inverse permutation ranks.",
+            "tie_rule": "Choose the lowest vertex ID among equal current degrees; this deterministic refinement makes source sorting ties reproducible.",
+            "source_projection": "For node_count <= 20 and the pinned source default epsilon=0.001, ns is always one after the minimum-one clamp. The package retains the source's per-round residual-degree sort-and-peel semantics as repeated minimum selection.",
+            "launcher_exclusions": "Parallel integer sorting, parallel edge maps, graph parsing, timing, and output reporting are excluded.",
+            "invalid_input_result": -1, "output_error_result": -2,
+        }
+        expected_ids = {
+            "path-four-tie-refinement", "triangle-with-tail",
+            "star-low-id-tie-after-two-leaves", "complete-four-vertex-tie",
+            "maximum-complete-20", "edgeless-tie-order", "length-mismatch",
+            "duplicate-edge", "noncanonical-edge", "short-capacity", "null-output",
+            "null-input", "node-count-out-of-range", "edge-count-out-of-range", "self-loop",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "gbbs-goodrich-pszona-degeneracy-order-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded deterministic sequential projection of the GBBS Goodrich–Pszona degeneracy-order kernel."
+                or source != expected_source
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_integer_array",
+                    "encoding": "[node_count, edge_count, (u, v)...]",
+                    "node_count_range": [1, GBBS_GOODRICH_PSZONA_MAX_NODES],
+                    "edge_count_range": [0, GBBS_GOODRICH_PSZONA_MAX_EDGES],
+                    "edge_semantics": "simple undirected graph; each edge is listed once with 0 <= u < v < node_count",
+                    "maximum_valid_length": GBBS_GOODRICH_PSZONA_MAX_INPUT_LENGTH,
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "encoding": "One removal-order rank per vertex, in ascending vertex-ID order.",
+                    "maximum_values": GBBS_GOODRICH_PSZONA_MAX_NODES,
+                    "maximum_bytes": GBBS_GOODRICH_PSZONA_MAX_OUTPUT_BYTES,
+                    "success_result": "8 * node_count bytes written",
+                    "invalid_input_result": -1,
+                    "null_output_result": -2,
+                    "insufficient_capacity_result": -2,
+                    "output_untouched_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": GBBS_GOODRICH_PSZONA_MAX_OUTPUT_BYTES,
+                    "meaning": "Staged maximum output; validation and complete ordering finish before caller output is written.",
+                }
+                or contract != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 8, "warmup_rounds": 2,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("gbbs_goodrich_pszona_degeneracy_order metadata differs from its pinned profile")
+        package = ROOT / "benchmarks/g/gbbs_goodrich_pszona_degeneracy_order"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme or pinned not in readme
+                or "MIT License" not in license_text
+                or "Laxman Dhulipala" not in license_text):
+            raise ValueError("gbbs_goodrich_pszona_degeneracy_order README or MIT notice is incomplete")
+        for relative in (
+                "c/g/gbbs_goodrich_pszona_degeneracy_order.c",
+                "c3/g/gbbs_goodrich_pszona_degeneracy_order.c3",
+                "cpp/g/gbbs_goodrich_pszona_degeneracy_order.cpp",
+                "elisa/g/gbbs_goodrich_pszona_degeneracy_order.elisa",
+                "nim/g/gbbs_goodrich_pszona_degeneracy_order.nim",
+                "odin/g/gbbs_goodrich_pszona_degeneracy_order.odin",
+                "rust/g/gbbs_goodrich_pszona_degeneracy_order.rs",
+                "v/g/gbbs_goodrich_pszona_degeneracy_order.v",
+                "zig/g/gbbs_goodrich_pszona_degeneracy_order.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"degeneracy-order port is missing its symbol: {relative}")
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            result, output = gbbs_goodrich_pszona_degeneracy_order_oracle(
+                values, case.get("output_capacity", GBBS_GOODRICH_PSZONA_MAX_OUTPUT_BYTES),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length", len(values)))
+            if (case.get("expected_result") != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"degeneracy-order workload mismatch: {case.get('id')}")
+        return
+    if algorithm == "gbbs_barenboim_elkin_degeneracy_order":
+        pinned = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
+        expected_source = {
+            "repository": "ParAlg/gbbs", "commit": pinned,
+            "path": "benchmarks/DegeneracyOrder/BarenboimElkin08/DegeneracyOrder.h",
+            "symbol": "barenboimelkin_degen::DegeneracyOrder",
+            "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/DegeneracyOrder/BarenboimElkin08/DegeneracyOrder.h",
+            "related_paths": ["benchmarks/ApproximateDensestSubgraph/ApproxPeelingBKV12/DensestSubgraph.h"],
+            "related_symbols": ["WorkEfficientDensestSubgraph"],
+            "launcher_path": "benchmarks/DegeneracyOrder/BarenboimElkin08/DegeneracyOrder.cc",
+            "launcher_symbol": "DegeneracyOrder_runner",
+            "license": "MIT", "license_file": "LICENSE.txt",
+        }
+        expected_contract = {
+            "operation": "Estimate the source BKV12 density alpha at epsilon 0.1, derive max(ceil(alpha*0.1),1), peel all remaining vertices below that current-degree cutoff, and force one lowest-ID removal when no low-degree batch exists.",
+            "tie_rule": "Ascending IDs within each low-degree batch and in the forced one-vertex step.",
+            "source_projection": "The BKV12 density estimator and the Barenboim-Elkin degree-threshold order are preserved with exact rational comparisons for decimal epsilon 0.1.",
+            "output_error_result": -2,
+        }
+        expected_ids = {
+            "path-four-forced-lowest", "star-center-first", "edgeless-batch",
+            "dense-graph-threshold-two", "maximum-complete-20", "length-mismatch",
+            "duplicate-edge", "short-capacity", "null-output", "null-input",
+            "node-count-out-of-range", "edge-count-out-of-range",
+        }
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "abi", "description", "pinned_source", "input", "output",
+                              "workspace", "contract", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "gbbs-barenboim-elkin-degeneracy-order-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded Barenboim-Elkin density-threshold ordering with epsilon 0.1."
+                or workload.get("pinned_source") != expected_source
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_integer_array",
+                    "encoding": "[node_count, edge_count, (u, v)...]",
+                    "node_count_range": [1, GBBS_BARENBOIM_ELKIN_MAX_NODES],
+                    "edge_count_range": [0, GBBS_BARENBOIM_ELKIN_MAX_EDGES],
+                    "edge_semantics": "simple undirected graph; every edge appears once with 0 <= u < v < node_count",
+                    "maximum_valid_length": GBBS_BARENBOIM_ELKIN_MAX_INPUT_LENGTH,
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "encoding": "One inverse removal rank per vertex in ascending vertex-ID order.",
+                    "maximum_values": GBBS_BARENBOIM_ELKIN_MAX_NODES,
+                    "maximum_bytes": GBBS_BARENBOIM_ELKIN_MAX_OUTPUT_BYTES,
+                    "success_result": "8 * node_count bytes written",
+                    "invalid_input_result": -1,
+                    "null_output_result": -2,
+                    "insufficient_capacity_result": -2,
+                    "output_untouched_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": GBBS_BARENBOIM_ELKIN_MAX_OUTPUT_BYTES,
+                    "meaning": "Staged rank output plus bounded BKV density and residual-degree state.",
+                }
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 8, "warmup_rounds": 2,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("GBBS Barenboim-Elkin metadata differs from its pinned profile")
+        package = ROOT / "benchmarks/g/gbbs_barenboim_elkin_degeneracy_order"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme or pinned not in readme
+                or "MIT License" not in license_text
+                or "Copyright (c) 2018 Laxman Dhulipala, Guy Blelloch, and Julian Shun" not in license_text
+                or "Permission is hereby granted" not in license_text
+                or 'THE SOFTWARE IS PROVIDED "AS IS"' not in license_text):
+            raise ValueError("GBBS Barenboim-Elkin README or MIT notice is incomplete")
+        for relative in (
+                "c/g/gbbs_barenboim_elkin_degeneracy_order.c",
+                "c3/g/gbbs_barenboim_elkin_degeneracy_order.c3",
+                "cpp/g/gbbs_barenboim_elkin_degeneracy_order.cpp",
+                "elisa/g/gbbs_barenboim_elkin_degeneracy_order.elisa",
+                "nim/g/gbbs_barenboim_elkin_degeneracy_order.nim",
+                "odin/g/gbbs_barenboim_elkin_degeneracy_order.odin",
+                "rust/g/gbbs_barenboim_elkin_degeneracy_order.rs",
+                "v/g/gbbs_barenboim_elkin_degeneracy_order.v",
+                "zig/g/gbbs_barenboim_elkin_degeneracy_order.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"Barenboim-Elkin port is missing its symbol: {relative}")
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            result, output = gbbs_barenboim_elkin_degeneracy_order_oracle(
+                values, case.get("output_capacity", GBBS_BARENBOIM_ELKIN_MAX_OUTPUT_BYTES),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length", len(values)))
+            if (case.get("expected_result") != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"Barenboim-Elkin workload mismatch: {case.get('id')}")
+        return
+    if algorithm in {"pannotia_local_minimum_mis", "pannotia_priority_coloring"}:
+        pinned = "16c1f0964516babc13a60f21c74644e28f3651b1"
+        definitions = {
+            "pannotia_local_minimum_mis": {
+                "maximum_input": PANNOTIA_MIS_MAX_INPUT_LENGTH,
+                "maximum_output": PANNOTIA_MIS_MAX_OUTPUT_BYTES,
+                "source_path": "graph_app/mis/kernel/kernel.cl",
+                "symbols": ["mis1", "mis2", "mis3"],
+                "url": f"https://github.com/pannotia/pannotia/blob/{pinned}/graph_app/mis/kernel/kernel.cl",
+                "case_ids": {
+                    "single-edge-low-priority-endpoint", "path-priority-rounds",
+                    "triangle-selects-unique-minimum", "disconnected-pairs",
+                    "isolated-vertices-all-selected", "maximum-bipartite-graph",
+                    "duplicate-priority-invalid", "self-loop-invalid",
+                    "reversed-edge-invalid", "duplicate-undirected-edge-invalid",
+                    "endpoint-invalid", "length-mismatch",
+                    "insufficient-output-capacity", "null-output", "null-input",
+                },
+            },
+            "pannotia_priority_coloring": {
+                "maximum_input": PANNOTIA_COLORING_MAX_INPUT_LENGTH,
+                "maximum_output": PANNOTIA_COLORING_MAX_OUTPUT_BYTES,
+                "source_path": "graph_app/color/kernel/kernel_maxmin.cl",
+                "symbols": ["color", "color2", "ini"],
+                "url": f"https://github.com/pannotia/pannotia/blob/{pinned}/graph_app/color/kernel/kernel_maxmin.cl",
+                "case_ids": {
+                    "triangle-max-only", "triangle-maxmin-two-colors-per-round",
+                    "cycle-four-max-only", "cycle-four-maxmin",
+                    "isolated-max-only", "isolated-maxmin-source-overwrite",
+                    "maximum-complete-bipartite-graph", "duplicate-priority-invalid",
+                    "degree-one-source-guard-invalid", "invalid-mode", "length-mismatch",
+                    "insufficient-output-capacity", "null-output", "null-input",
+                },
+            },
+        }
+        spec = definitions[algorithm]
+        source = workload.get("source", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        case_ids = {case.get("id") for case in workload["cases"]
+                    if isinstance(case, dict)}
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != f"{algorithm.replace('_', '-')}-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "pannotia/pannotia"
+                or source.get("commit") != pinned
+                or source.get("path") != spec["source_path"]
+                or source.get("symbols") != spec["symbols"]
+                or source.get("url") != spec["url"]
+                or source.get("license_path") != "license"
+                or source.get("license") != "AMD permissive BSD-style license with export restrictions"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("maximum_valid_length") != spec["maximum_input"]
+                or input_spec.get("node_count_range") != [1, 16]
+                or input_spec.get("edge_count_range") != [0, 64]
+                or input_spec.get("priority_range") != [0, 99_999_998]
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "little_endian_signed_64_bit_array"
+                or output_spec.get("maximum_values") != 16
+                or output_spec.get("maximum_bytes") != spec["maximum_output"]
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != spec["maximum_output"]
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or case_ids != spec["case_ids"]
+                or len(workload["cases"]) != len(spec["case_ids"])):
+            raise ValueError(f"{algorithm} metadata differs from its pinned Pannotia profile")
+        package = ROOT / "benchmarks" / "p" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (spec["url"] not in readme or pinned not in readme
+                or "Copyright © 2014 Advanced Micro Devices, Inc." not in license_text
+                or "Redistribution and use in source and binary forms" not in license_text
+                or "EAR" not in license_text):
+            raise ValueError(f"{algorithm} README or full AMD license notice is incomplete")
+        for relative in (
+                f"c/p/{algorithm}.c", f"c3/p/{algorithm}.c3", f"cpp/p/{algorithm}.cpp",
+                f"elisa/p/{algorithm}.elisa", f"nim/p/{algorithm}.nim",
+                f"odin/p/{algorithm}.odin", f"rust/p/{algorithm}.rs",
+                f"v/p/{algorithm}.v", f"zig/p/{algorithm}.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"{algorithm} port is missing its symbol: {relative}")
+    elif algorithm in {"gardenia_fb_trim_scc", "gardenia_gm_vertex_coloring"}:
+        pinned = "5894df11cf47f8839945edadff43dc79e260216d"
+        definitions = {
+            "gardenia_fb_trim_scc": {
+                "maximum_input": GARDENIA_FB_TRIM_SCC_MAX_INPUT_LENGTH,
+                "maximum_output": GARDENIA_FB_TRIM_SCC_MAX_OUTPUT_BYTES,
+                "source_path": "src/scc/base.cu",
+                "symbols": ["SCCSolver", "iterative_trim", "fw_reach", "bw_reach", "update"],
+                "url": f"https://github.com/chenxuhao/gardenia/blob/{pinned}/src/scc/base.cu",
+                "related_paths": ["src/scc/scc.h", "src/scc/main.cc"],
+                "case_ids": {
+                    "two-cycles-linked-by-one-way-arc", "directed-chain-trims-to-singletons",
+                    "cycle-and-outside-singletons", "maximum-four-strongly-connected-blocks",
+                    "duplicate-arc-invalid", "endpoint-out-of-range", "length-mismatch",
+                    "short-output-capacity", "null-output", "null-input",
+                },
+                "edge_semantics": "Directed simple graph; self-loops are allowed, repeated arcs are invalid.",
+                "operation": "Iteratively trim zero-in-degree or zero-out-degree active vertices as singleton SCCs, choose the lowest-ID pivot in each remaining subgraph, intersect its forward and backward reachable sets, and recurse on forward-only, backward-only, and neither-reachable vertex sets.",
+            },
+            "gardenia_gm_vertex_coloring": {
+                "maximum_input": GARDENIA_GM_COLORING_MAX_INPUT_LENGTH,
+                "maximum_output": GARDENIA_GM_COLORING_MAX_OUTPUT_BYTES,
+                "source_path": "src/vc/linear_base.cu",
+                "symbols": ["first_fit", "conflict_resolve", "VCSolver"],
+                "url": f"https://github.com/chenxuhao/gardenia/blob/{pinned}/src/vc/linear_base.cu",
+                "related_paths": ["src/vc/vc.h", "src/vc/main.cc", "src/vc/verifier.cc"],
+                "case_ids": {
+                    "three-vertex-path", "triangle-recolors-lower-endpoints", "four-cycle",
+                    "isolated-vertices", "maximum-complete-bipartite-graph",
+                    "duplicate-edge-invalid", "reversed-edge-invalid", "length-mismatch",
+                    "short-output-capacity", "null-output", "null-input",
+                },
+                "edge_semantics": "Simple undirected graph with canonical 0 <= u < v < node_count pairs.",
+                "operation": "Initialize all vertices uncolored. In each worklist round, each pending vertex picks the lowest color not used by already-colored neighbors from the start-of-round snapshot. The conflict phase requeues the lower-ID endpoint of each same-color edge and resets only that endpoint to the uncolored sentinel.",
+            },
+        }
+        spec = definitions[algorithm]
+        source = workload.get("source", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        contract = workload.get("contract", {})
+        case_ids = {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)}
+        expected_source = {
+            "repository": "chenxuhao/gardenia", "commit": pinned,
+            "path": spec["source_path"], "symbols": spec["symbols"],
+            "url": spec["url"], "related_paths": spec["related_paths"],
+            "license_path": "LICENSE", "license": "MIT",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != f"{algorithm.replace('_', '-')}-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source != expected_source
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("node_count_range") != [1, 16]
+                or input_spec.get("edge_count_range") != [0, 64]
+                or input_spec.get("maximum_valid_length") != spec["maximum_input"]
+                or input_spec.get("edge_semantics") != spec["edge_semantics"]
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "little_endian_signed_64_bit_array"
+                or output_spec.get("maximum_values") != 16
+                or output_spec.get("maximum_bytes") != spec["maximum_output"]
+                or output_spec.get("success_result") != "8 * node_count bytes written"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("output_untouched_on_error") is not True
+                or workload.get("workspace", {}).get("bytes") != spec["maximum_output"]
+                or contract.get("operation") != spec["operation"]
+                or contract.get("invalid_input_result") != -1
+                or contract.get("output_error_result") != -2
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 8, "warmup_rounds": 2,
+                    "repetitions_per_sample": 100,
+                }
+                or case_ids != spec["case_ids"]
+                or not isinstance(workload.get("cases"), list)
+                or len(workload["cases"]) != len(spec["case_ids"])):
+            raise ValueError(f"{algorithm} metadata differs from its pinned GARDENIA profile")
+        package = ROOT / "benchmarks" / "g" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or spec["source_path"] not in readme
+                or "MIT License" not in license_text
+                or "Copyright (c) 2022 Xuhao Chen" not in license_text
+                or "Permission is hereby granted" not in license_text):
+            raise ValueError(f"{algorithm} README or MIT notice is incomplete")
+        for relative in (
+                f"c/g/{algorithm}.c", f"c3/g/{algorithm}.c3", f"cpp/g/{algorithm}.cpp",
+                f"elisa/g/{algorithm}.elisa", f"nim/g/{algorithm}.nim",
+                f"odin/g/{algorithm}.odin", f"rust/g/{algorithm}.rs",
+                f"v/g/{algorithm}.v", f"zig/g/{algorithm}.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"{algorithm} port is missing its symbol: {relative}")
+    elif algorithm == "gbbs_scan_structural_clustering":
+        pinned = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
+        expected_source = {
+            "repository": "ParAlg/gbbs", "commit": pinned,
+            "path": "benchmarks/SCAN/IndexBased/scan.cc",
+            "symbols": ["Index::Cluster", "ClusterCores", "AttachNoncoresToClustersDeterministic"],
+            "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/SCAN/IndexBased/scan.cc",
+            "related_paths": [
+                "benchmarks/SCAN/IndexBased/scan.h",
+                "benchmarks/SCAN/IndexBased/scan_helpers.h",
+                "benchmarks/SCAN/IndexBased/similarity_measure.h",
+                "benchmarks/SCAN/Naive/scan.h",
+                "benchmarks/SCAN/Naive/scan_helpers.h",
+            ],
+            "license_path": "LICENSE", "license": "MIT",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "encoding": "[node_count, edge_count, (u, v)...]",
+            "node_count_range": [1, GBBS_SCAN_MAX_NODES],
+            "edge_count_range": [0, GBBS_SCAN_MAX_EDGES],
+            "maximum_valid_length": GBBS_SCAN_MAX_INPUT_LENGTH,
+            "edge_semantics": "simple undirected unweighted graph, each edge supplied once with 0 <= u < v < node_count",
+            "invalid_input_result": GBBS_SCAN_INVALID_RESULT,
+        }
+        expected_output = {
+            "kind": "little_endian_signed_64_bit_array",
+            "encoding": "One canonical core-component label per vertex, or -1 when unclustered.",
+            "maximum_values": GBBS_SCAN_MAX_NODES,
+            "maximum_bytes": GBBS_SCAN_MAX_OUTPUT_BYTES,
+            "success_result": "8 * node_count bytes written",
+            "invalid_input_result": GBBS_SCAN_INVALID_RESULT,
+            "null_output_result": GBBS_SCAN_OUTPUT_ERROR,
+            "insufficient_capacity_result": GBBS_SCAN_OUTPUT_ERROR,
+            "output_untouched_on_error": True,
+        }
+        expected_contract = {
+            "operation": "Use closed-neighborhood cosine similarity, mark a vertex core when at least two adjacent vertices have similarity >= 0.5, compute connected components induced by similar core edges, then attach each non-core to its most similar adjacent core with ties resolved by lowest core ID.",
+            "mu": 3,
+            "epsilon": 0.5,
+            "similarity": "(common open neighbors + 2) / sqrt((degree(u) + 1) * (degree(v) + 1))",
+            "similarity_threshold_integer_rule": "4 * numerator^2 >= denominator_squared, where numerator = common open neighbors + 2 and denominator_squared = (degree(u) + 1) * (degree(v) + 1)",
+            "component_label_rule": "minimum vertex ID among core vertices in the component",
+            "unclustered_label": -1,
+            "profile_projection": "The source float threshold is fixed to 1/2 and evaluated exactly by squaring positive integers; union-find roots are projected to each component's minimum core ID. The source's deterministic non-core maximum-similarity then minimum-core-ID rule is retained.",
+            "invalid_input_result": GBBS_SCAN_INVALID_RESULT,
+            "output_error_result": GBBS_SCAN_OUTPUT_ERROR,
+        }
+        expected_case_ids = {
+            "four-cycle-single-core-component", "two-core-cliques-weak-bridge",
+            "triangle-with-noncore-leaf-attachment", "epsilon-equality-joins-core-components",
+            "single-edge-with-no-core", "maximum-node-and-edge-bounds-two-cliques",
+            "maximum-edge-count-invalid", "length-mismatch", "self-loop-invalid",
+            "reversed-edge-invalid", "duplicate-edge-invalid", "endpoint-out-of-range",
+            "short-output-capacity", "null-output", "null-input",
+        }
+        if (set(workload) != {
+                    "schema_version", "id", "algorithm", "function_symbol", "abi",
+                    "description", "source", "input", "output", "workspace",
+                    "contract", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "gbbs-scan-structural-clustering-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded deterministic index-based SCAN structural clustering with cosine similarity."
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("workspace") != {
+                    "bytes": GBBS_SCAN_MAX_OUTPUT_BYTES,
+                    "meaning": "Staged maximum-sized label vector; caller output is written only after input and capacity validation.",
+                }
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 8, "warmup_rounds": 2,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_case_ids
+                or not isinstance(workload.get("cases"), list)
+                or len(workload["cases"]) != len(expected_case_ids)):
+            raise ValueError("GBBS SCAN metadata differs from its pinned deterministic profile")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            if (not isinstance(values, list)
+                    or type(case.get("input_length")) is not int
+                    or case["input_length"] != len(values)):
+                raise ValueError(f"GBBS SCAN fixture framing is invalid: {case.get('id')}")
+            capacity = case.get("output_capacity", GBBS_SCAN_MAX_OUTPUT_BYTES)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            if (type(capacity) is not int or type(input_is_null) is not bool
+                    or type(output_is_null) is not bool):
+                raise ValueError(f"GBBS SCAN fixture flags are invalid: {case.get('id')}")
+            result, output = gbbs_scan_structural_clustering_oracle(
+                values, capacity, output_is_null, input_is_null, case["input_length"])
+            if (case.get("expected_result") != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"GBBS SCAN fixture differs from its package oracle: {case.get('id')}")
+
+        package = ROOT / "benchmarks" / "g" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or expected_source["path"] not in readme
+                or "MIT License" not in license_text
+                or "Copyright (c) 2018 Laxman Dhulipala, Guy Blelloch, and Julian Shun" not in license_text
+                or "Permission is hereby granted" not in license_text):
+            raise ValueError("GBBS SCAN README or full MIT notice is incomplete")
+        for relative in (
+                "c/g/gbbs_scan_structural_clustering.c",
+                "c3/g/gbbs_scan_structural_clustering.c3",
+                "cpp/g/gbbs_scan_structural_clustering.cpp",
+                "elisa/g/gbbs_scan_structural_clustering.elisa",
+                "nim/g/gbbs_scan_structural_clustering.nim",
+                "odin/g/gbbs_scan_structural_clustering.odin",
+                "rust/g/gbbs_scan_structural_clustering.rs",
+                "v/g/gbbs_scan_structural_clustering.v",
+                "zig/g/gbbs_scan_structural_clustering.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"GBBS SCAN port is missing its exported symbol: {relative}")
+    elif algorithm == "gbbs_maximal_matching":
+        pinned = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
+        expected_source = {
+            "repository": "ParAlg/gbbs", "commit": pinned,
+            "path": "benchmarks/MaximalMatching/RandomGreedy/MaximalMatching.h",
+            "symbol": "gbbs::MaximalMatching",
+            "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/MaximalMatching/RandomGreedy/MaximalMatching.h",
+            "license_path": "LICENSE", "license": "MIT",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "encoding": "[node_count, edge_count, edge_priority_ranks..., (u, v)...]",
+            "node_count_range": [1, GBBS_MAXIMAL_MATCHING_MAX_NODES],
+            "edge_count_range": [0, GBBS_MAXIMAL_MATCHING_MAX_EDGES],
+            "edge_semantics": "simple undirected graph; every edge listed once in canonical form 0 <= u < v < node_count",
+            "priority_semantics": "The next edge_count values assign a unique rank to each input edge; ranks are a permutation of 0..edge_count-1, with rank 0 having highest priority.",
+            "maximum_valid_length": GBBS_MAXIMAL_MATCHING_MAX_INPUT_LENGTH,
+            "invalid_input_result": GBBS_MAXIMAL_MATCHING_INVALID_RESULT,
+        }
+        expected_output = {
+            "kind": "little_endian_signed_64_bit_array",
+            "encoding": "One value per input edge in input order: 1 if selected in the maximal matching, otherwise 0.",
+            "maximum_values": GBBS_MAXIMAL_MATCHING_MAX_EDGES,
+            "maximum_bytes": GBBS_MAXIMAL_MATCHING_MAX_OUTPUT_BYTES,
+            "success_result": "8 * edge_count bytes written",
+            "invalid_input_result": GBBS_MAXIMAL_MATCHING_INVALID_RESULT,
+            "null_output_result": GBBS_MAXIMAL_MATCHING_OUTPUT_ERROR,
+            "insufficient_capacity_result": GBBS_MAXIMAL_MATCHING_OUTPUT_ERROR,
+            "output_untouched_on_error": True,
+        }
+        expected_contract = {
+            "operation": "Process edges in increasing rank order and select an edge if neither endpoint has been matched.",
+            "tie_rule": "All edge ranks are unique; rank zero is processed first, matching the source's minimum-index endpoint reservation.",
+            "source_projection": "The pinned source repeatedly commits local-minimum live edges. Under a total edge-rank order, this yields the same matching as a sequential ascending-rank greedy scan.",
+            "launcher_exclusions": "Random sampling, prefix filtering, parallel reservation scheduling, graph loading, timing, and output reporting are excluded.",
+            "invalid_input_result": GBBS_MAXIMAL_MATCHING_INVALID_RESULT,
+            "output_error_result": GBBS_MAXIMAL_MATCHING_OUTPUT_ERROR,
+        }
+        expected_case_ids = {
+            "path-rank-order", "triangle-lowest-rank", "square-alternating-priorities",
+            "disjoint-edges", "star-rank-zero-claims-center", "edgeless",
+            "maximum-node-and-edge-bounds", "rank-out-of-range", "duplicate-rank",
+            "duplicate-edge", "reversed-edge", "self-loop", "endpoint-out-of-range",
+            "length-mismatch", "node-count-out-of-range", "edge-count-out-of-range",
+            "short-output-capacity", "null-output", "null-input",
+        }
+        if (set(workload) != {
+                    "schema_version", "id", "algorithm", "function_symbol", "abi",
+                    "description", "source", "input", "output", "workspace",
+                    "contract", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "gbbs-maximal-matching-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded deterministic edge-priority projection of the GBBS randomized-greedy maximal-matching kernel."
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("workspace") != {
+                    "bytes": GBBS_MAXIMAL_MATCHING_MAX_OUTPUT_BYTES,
+                    "meaning": "Staged maximum edge-selection vector; validation and matching finish before caller output is written.",
+                }
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 8, "warmup_rounds": 2,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_case_ids
+                or not isinstance(workload.get("cases"), list)
+                or len(workload["cases"]) != len(expected_case_ids)):
+            raise ValueError("GBBS maximal matching metadata differs from its pinned profile")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            if (not isinstance(values, list)
+                    or type(case.get("input_length")) is not int
+                    or case["input_length"] != len(values)):
+                raise ValueError(f"GBBS maximal matching fixture framing is invalid: {case.get('id')}")
+            capacity = case.get("output_capacity", GBBS_MAXIMAL_MATCHING_MAX_OUTPUT_BYTES)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            if (type(capacity) is not int or type(input_is_null) is not bool
+                    or type(output_is_null) is not bool):
+                raise ValueError(f"GBBS maximal matching fixture flags are invalid: {case.get('id')}")
+            result, output = gbbs_maximal_matching_oracle(
+                values, capacity, output_is_null, input_is_null, case["input_length"])
+            if (case.get("expected_result") != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"GBBS maximal matching fixture differs from its package oracle: {case.get('id')}")
+
+        package = ROOT / "benchmarks" / "g" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or expected_source["path"] not in readme
+                or "MIT License" not in license_text
+                or "Copyright (c) 2018 Laxman Dhulipala, Guy Blelloch, and Julian Shun" not in license_text
+                or "Permission is hereby granted" not in license_text):
+            raise ValueError("GBBS maximal matching README or full MIT notice is incomplete")
+        for relative in (
+                "c/g/gbbs_maximal_matching.c", "c3/g/gbbs_maximal_matching.c3",
+                "cpp/g/gbbs_maximal_matching.cpp", "elisa/g/gbbs_maximal_matching.elisa",
+                "nim/g/gbbs_maximal_matching.nim", "odin/g/gbbs_maximal_matching.odin",
+                "rust/g/gbbs_maximal_matching.rs", "v/g/gbbs_maximal_matching.v",
+                "zig/g/gbbs_maximal_matching.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"GBBS maximal matching port is missing its exported symbol: {relative}")
+    elif algorithm == "gbbs_biconnectivity":
+        pinned = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
+        expected_source = {
+            "repository": "ParAlg/gbbs", "commit": pinned,
+            "path": "benchmarks/Biconnectivity/TarjanVishkin/Biconnectivity.h",
+            "symbols": ["deterministic_multi_bfs", "preorder_number", "critical_connectivity", "Biconnectivity"],
+            "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/Biconnectivity/TarjanVishkin/Biconnectivity.h",
+            "related_paths": ["benchmarks/Biconnectivity/TarjanVishkin/Biconnectivity.cc"],
+            "launcher_path": "benchmarks/Biconnectivity/TarjanVishkin/Biconnectivity.cc",
+            "launcher_symbol": "Biconnectivity_runner",
+            "license_path": "LICENSE", "license": "MIT",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "encoding": "[node_count, edge_count, (u, v)...]",
+            "node_count_range": [1, GBBS_BICONNECTIVITY_MAX_NODES],
+            "edge_count_range": [0, GBBS_BICONNECTIVITY_MAX_EDGES],
+            "edge_semantics": "simple undirected graph; each edge appears once with 0 <= u < v < node_count",
+            "maximum_valid_length": GBBS_BICONNECTIVITY_MAX_INPUT_LENGTH,
+            "invalid_input_result": GBBS_BICONNECTIVITY_INVALID_RESULT,
+        }
+        expected_output = {
+            "kind": "byte_array",
+            "encoding": "One canonical biconnected edge-block label byte per supplied edge, in input order. The label is the zero-based ordinal of the first supplied edge in that block.",
+            "maximum_values": GBBS_BICONNECTIVITY_MAX_EDGES,
+            "maximum_bytes": GBBS_BICONNECTIVITY_MAX_OUTPUT_BYTES,
+            "success_result": "edge_count bytes written",
+            "invalid_input_result": GBBS_BICONNECTIVITY_INVALID_RESULT,
+            "null_output_result": GBBS_BICONNECTIVITY_OUTPUT_ERROR,
+            "insufficient_capacity_result": GBBS_BICONNECTIVITY_OUTPUT_ERROR,
+            "output_untouched_on_error": True,
+        }
+        expected_contract = {
+            "operation": "Compute the Tarjan-Vishkin biconnected edge-block partition. Emit the canonical block label for each input edge in input order.",
+            "launcher_profile": "The source launcher requires a symmetric graph. The bounded profile uses the deterministic multi_bfs helper, selects the smallest vertex as each component root, and starts each tree preorder at zero.",
+            "source_profile": "Build a BFS forest, assign a child-ID ordered tree preorder and subtree sizes, propagate low/high reachable preorder values from non-tree edges, mark critical tree edges, remove those edges, and label the remaining connected components. A critical tree edge receives the component label on its child side.",
+            "projection": "Internal component IDs are canonicalized to the smallest input-edge ordinal in each block, which uniquely labels distinct blocks even when they share an articulation vertex. Parallel scheduling, graph-file I/O, top-component sampling, and timing output are excluded. Isolated vertices have no edge label.",
+            "invalid_input_result": GBBS_BICONNECTIVITY_INVALID_RESULT,
+            "output_error_result": GBBS_BICONNECTIVITY_OUTPUT_ERROR,
+        }
+        expected_case_ids = {
+            "single-triangle-block", "two-triangles-sharing-articulation",
+            "two-bridge-path", "disconnected-bridge-edges",
+            "maximum-node-count-no-edges", "maximum-edge-count-one-block",
+            "self-loop-invalid", "noncanonical-edge-invalid", "duplicate-edge-invalid",
+            "endpoint-out-of-range", "node-count-out-of-range", "length-mismatch",
+            "insufficient-output-capacity", "null-output", "null-input",
+        }
+        if (set(workload) != {
+                    "schema_version", "id", "algorithm", "function_symbol", "abi",
+                    "description", "source", "input", "output", "workspace",
+                    "contract", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "gbbs-biconnectivity-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded Tarjan-Vishkin edge-biconnected block partition with canonical byte labels."
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("workspace") != {
+                    "bytes": 1024,
+                    "meaning": "Fixed bounded adjacency, BFS forest, preorder interval, critical-edge, component, and staged edge-label arrays.",
+                }
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 8, "warmup_rounds": 2,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_case_ids
+                or not isinstance(workload.get("cases"), list)
+                or len(workload["cases"]) != len(expected_case_ids)):
+            raise ValueError("GBBS biconnectivity metadata differs from its pinned profile")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            if (not isinstance(values, list)
+                    or type(case.get("input_length")) is not int
+                    or case["input_length"] != len(values)):
+                raise ValueError(f"GBBS biconnectivity fixture framing is invalid: {case.get('id')}")
+            capacity = case.get("output_capacity", 1024)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            if (type(capacity) is not int or type(input_is_null) is not bool
+                    or type(output_is_null) is not bool):
+                raise ValueError(f"GBBS biconnectivity fixture flags are invalid: {case.get('id')}")
+            result, output = gbbs_biconnectivity_oracle(
+                values, capacity, output_is_null, input_is_null, case["input_length"])
+            if (case.get("expected_result") != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"GBBS biconnectivity fixture differs from its package oracle: {case.get('id')}")
+
+        package = ROOT / "benchmarks" / "g" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or expected_source["path"] not in readme
+                or "MIT License" not in license_text
+                or "Copyright (c) 2018 Laxman Dhulipala, Guy Blelloch, and Julian Shun" not in license_text
+                or "Permission is hereby granted" not in license_text):
+            raise ValueError("GBBS biconnectivity README or full MIT notice is incomplete")
+        for relative in (
+                "c/g/gbbs_biconnectivity.c", "c3/g/gbbs_biconnectivity.c3",
+                "cpp/g/gbbs_biconnectivity.cpp", "elisa/g/gbbs_biconnectivity.elisa",
+                "nim/g/gbbs_biconnectivity.nim", "odin/g/gbbs_biconnectivity.odin",
+                "rust/g/gbbs_biconnectivity.rs", "v/g/gbbs_biconnectivity.v",
+                "zig/g/gbbs_biconnectivity.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"GBBS biconnectivity port is missing its exported symbol: {relative}")
+    elif algorithm == "saga_incremental_analytics":
+        pinned = "de61f442b39ffecd8630adc4cb1e39569d0d90cc"
+        expected_ids = {
+            "incremental-bfs-shortcut", "incremental-sssp-shortcut",
+            "incremental-pagerank-new-pair", "incremental-component-min",
+            "incremental-widest-path", "incremental-component-max",
+            "invalid-truncated-edge-frame", "short-output", "null-output", "null-input",
+        }
+        source = workload.get("source", {})
+        contract = workload.get("contract", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "source", "input", "output", "workspace",
+                              "contract", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "saga-incremental-analytics-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "abasak24/SAGA-Bench"
+                or source.get("commit") != pinned
+                or source.get("license") != "Simplified BSD 2-Clause"
+                or source.get("license_path") != "LICENSE.txt"
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("maximum_valid_length") != SAGA_INCREMENTAL_ANALYTICS_MAX_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != SAGA_INCREMENTAL_ANALYTICS_MAX_INPUT_LENGTH + 1
+                or "Required pre-state" not in input_spec.get("property_rule", "")
+                or output_spec.get("kind") != "little_endian_signed_64_bit_array"
+                or output_spec.get("maximum_bytes") != SAGA_INCREMENTAL_ANALYTICS_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != SAGA_INCREMENTAL_ANALYTICS_MAX_OUTPUT_BYTES
+                or contract.get("pre_state") != (
+                    "The property vector must be a valid mode-specific state for the base graph, "
+                    "or all entries must be -1 to request fresh-state initialization when "
+                    "base_edge_count is zero. BFS may use individual -1 values for unreachable "
+                    "vertices; other mixed initialized/uninitialized states are outside the "
+                    "contract. This graph-state invariant is a caller precondition; the ABI "
+                    "ports validate numeric ranges but do not recompute the base-graph state.")
+                or contract.get("frontier_limit") != 256
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("SAGA incremental analytics metadata differs from its bounded update contract")
+        package = ROOT / "benchmarks" / "s" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "all-`-1` fresh-state vector" not in readme
+                or "caller precondition" not in readme
+                or "Simplified BSD 2-clause license" not in license_text
+                or "Copyright (c) 2019-2022 Regents of the University of Calfornia" not in license_text
+                or "Redistribution and use in source and binary forms" not in license_text):
+            raise ValueError("SAGA incremental analytics README or BSD attribution is incomplete")
+        for relative in (
+                "c/s/saga_incremental_analytics.c", "c3/s/saga_incremental_analytics.c3",
+                "cpp/s/saga_incremental_analytics.cpp", "elisa/s/saga_incremental_analytics.elisa",
+                "nim/s/saga_incremental_analytics.nim", "odin/s/saga_incremental_analytics.odin",
+                "rust/s/saga_incremental_analytics.rs", "v/s/saga_incremental_analytics.v",
+                "zig/s/saga_incremental_analytics.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"SAGA incremental analytics port is missing its symbol: {relative}")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            if not isinstance(values, list):
+                continue
+            full_result, _ = saga_incremental_analytics_expected_output(
+                values, SAGA_INCREMENTAL_ANALYTICS_MAX_OUTPUT_BYTES)
+            if full_result >= 0 and not _saga_base_state_is_valid(values):
+                raise ValueError(f"SAGA fixture has an invalid pre-state: {case.get('id')}")
+    elif algorithm == "beebs_fasta":
+        pinned = "049ded9f3aeb5591f553879d3a0376b8614e9422"
+        expected_ids = {
+            "one_record_seed_42", "zero_count_rejected", "count_above_bound_rejected",
+            "negative_seed_rejected", "seed_at_modulus_rejected", "trailing_input_rejected",
+            "short_output_capacity", "null_output", "null_input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "beebs-fasta-weighted-sequence-generation-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source != {
+                    "repository": "mageec/beebs", "commit": pinned,
+                    "path": "src/fasta/libfasta.c",
+                    "symbols": ["myrandom", "accumulate_probabilities", "repeat_fasta",
+                                "random_fasta", "benchmark", "verify_benchmark"],
+                    "url": f"https://github.com/mageec/beebs/blob/{pinned}/src/fasta/libfasta.c",
+                    "spdx": "GPL-3.0-or-later",
+                    "embedded_notice": "Benchmark Game Revised BSD license, Copyright 2004-2009 Brent Fulgham; retained in NOTICE.txt.",
+                    "rights_note": "The pinned BEEBS source declares GPL-3.0-or-later and reproduces a Benchmark Game Revised BSD notice. The ports are clean-room implementations; LICENSE.txt and NOTICE.txt preserve both notices.",
+                }
+                or workload.get("contract") != {
+                    "operation": "Generate the source-intended ALU, IUB, and Homo sapiens FASTA records using the source repeat and weighted-selection rules.",
+                    "input_layout": "[n, initial_lcg_state]",
+                    "count_range": [1, 1000],
+                    "initial_lcg_state_range": [0, 139967],
+                    "source_default_lcg_state": 42,
+                    "lcg": "state = (state * 3877 + 29573) mod 139968; random ratio uses binary32 arithmetic.",
+                    "record_lengths": ["2*n ALU symbols", "3*n IUB symbols", "5*n human-frequency symbols"],
+                    "line_width": 60,
+                    "output_encoding": "ASCII FASTA headers and body lines, each terminated by LF.",
+                    "invalid_result": BEEBS_FASTA_INVALID_RESULT,
+                    "output_error_result": BEEBS_FASTA_OUTPUT_ERROR,
+                    "no_write_on_error": True,
+                    "profile_projection": "The pinned BEEBS source comments out header and body writes and does not reset its static LCG between calls. This profile materializes the intended byte stream and accepts an explicit initial state reset for each call.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array", "encoding": "[n, initial_lcg_state]",
+                    "exact_length": 2, "maximum_valid_input_length": 2,
+                    "maximum_parseable_input_length": BEEBS_FASTA_MAX_PARSEABLE_INPUT_LENGTH,
+                    "n_range": [1, 1000], "initial_lcg_state_range": [0, 139967],
+                    "invalid_input_result": BEEBS_FASTA_INVALID_RESULT,
+                    "null_input_result": BEEBS_FASTA_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "ASCII FASTA stream with source headers and 60-symbol wrapped records.",
+                    "maximum_bytes": BEEBS_FASTA_MAX_OUTPUT_BYTES,
+                    "success_result": "number of bytes written",
+                    "invalid_input_result": BEEBS_FASTA_INVALID_RESULT,
+                    "null_output_result": BEEBS_FASTA_OUTPUT_ERROR,
+                    "insufficient_capacity_result": BEEBS_FASTA_OUTPUT_ERROR,
+                    "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": BEEBS_FASTA_MAX_OUTPUT_BYTES,
+                    "meaning": "Maximum FASTA output buffer; generator state and probability accumulators are bounded local scalars/arrays.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 100,
+                }
+                or len(workload["cases"]) != len(expected_ids)
+                or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
+            raise ValueError("beebs_fasta metadata differs from its bounded generator profile")
+        package = ROOT / "benchmarks" / "f" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        notice_text = (package / "NOTICE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "GPL-3.0-or-later" not in readme
+                or "GNU GENERAL PUBLIC LICENSE" not in license_text
+                or "Copyright (C) 2014 Embecosm Limited and University of Bristol" not in notice_text
+                or "Copyright 2004-2009 Brent Fulgham" not in notice_text
+                or "Redistributions in binary form" not in notice_text):
+            raise ValueError("beebs_fasta source attribution or license notices are incomplete")
+        for relative in (
+                "c/f/beebs_fasta.c", "c3/f/beebs_fasta.c3", "cpp/f/beebs_fasta.cpp",
+                "elisa/f/beebs_fasta.elisa", "nim/f/beebs_fasta.nim", "odin/f/beebs_fasta.odin",
+                "rust/f/beebs_fasta.rs", "v/f/beebs_fasta.v", "zig/f/beebs_fasta.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"beebs_fasta language port is missing its symbol: {relative}")
+    elif algorithm == "beebs_lcdnum":
+        pinned = "049ded9f3aeb5591f553879d3a0376b8614e9422"
+        expected_ids = {
+            "nibbles_zero_through_four", "nibbles_five_through_nine",
+            "nibbles_ten_through_fourteen", "high_byte_values_use_low_nibbles",
+            "high_bits_are_ignored", "short_input_rejected", "trailing_input_rejected",
+            "negative_byte_rejected", "byte_above_range_rejected", "short_output_capacity",
+            "null_output", "null_input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "beebs-lcdnum-digit-to-segment-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Map five source-profiled low nibbles to their seven-segment masks."
+                or source != {
+                    "repository": "mageec/beebs", "commit": pinned,
+                    "path": "src/lcdnum/liblcdnum.c",
+                    "symbols": ["num_to_lcd", "benchmark", "verify_benchmark"],
+                    "url": f"https://github.com/mageec/beebs/blob/{pinned}/src/lcdnum/liblcdnum.c",
+                    "spdx": "GPL-3.0-or-later",
+                    "rights_note": "The pinned source declares GPL-3.0-or-later and attributes copyright to Embecosm Limited and the University of Bristol, with James Pallister as a contributor. The ports are clean-room implementations; LICENSE.txt and NOTICE.txt retain the source license and attribution.",
+                }
+                or workload.get("contract") != {
+                    "operation": "For each of five input bytes, mask with 0x0f and map through the source-ordered 16-entry seven-segment lookup table.",
+                    "input_layout": "five raw byte values in signed-i64 words",
+                    "input_length": BEEBS_LCDNUM_MAX_VALID_INPUT_LENGTH,
+                    "input_byte_range": [0, 255],
+                    "low_nibble_mask": "0x0f",
+                    "segment_mask_table_hex": ["00", "24", "5d", "6d", "2e", "5d", "7b", "25", "7f", "6f", "3f", "7a", "53", "7c", "5b", "1b"],
+                    "output_length": BEEBS_LCDNUM_MAX_OUTPUT_BYTES,
+                    "invalid_result": BEEBS_LCDNUM_INVALID_RESULT,
+                    "output_error_result": BEEBS_LCDNUM_OUTPUT_ERROR,
+                    "no_write_on_error": True,
+                    "profile_projection": "The source benchmark scans volatile input/output ports ten times, but only converts and writes the first five values. This profile exposes those five masks as output bytes; port scans, the five ignored scans, and the absent source output verifier are harness exclusions.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array", "encoding": "five raw byte values",
+                    "exact_length": BEEBS_LCDNUM_MAX_VALID_INPUT_LENGTH,
+                    "maximum_valid_input_length": BEEBS_LCDNUM_MAX_VALID_INPUT_LENGTH,
+                    "maximum_parseable_input_length": BEEBS_LCDNUM_MAX_PARSEABLE_INPUT_LENGTH,
+                    "byte_range": [0, 255],
+                    "invalid_input_result": BEEBS_LCDNUM_INVALID_RESULT,
+                    "null_input_result": BEEBS_LCDNUM_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "five seven-segment masks in source lookup order",
+                    "maximum_bytes": BEEBS_LCDNUM_MAX_OUTPUT_BYTES,
+                    "success_result": "number of bytes written",
+                    "invalid_input_result": BEEBS_LCDNUM_INVALID_RESULT,
+                    "null_output_result": BEEBS_LCDNUM_OUTPUT_ERROR,
+                    "insufficient_capacity_result": BEEBS_LCDNUM_OUTPUT_ERROR,
+                    "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": BEEBS_LCDNUM_MAX_OUTPUT_BYTES,
+                    "meaning": "Five output masks; the 16-entry lookup table is fixed package data.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 100,
+                }
+                or len(workload["cases"]) != len(expected_ids)
+                or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
+            raise ValueError("beebs_lcdnum metadata differs from its bounded lookup profile")
+        package = ROOT / "benchmarks" / "l" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        notice_text = (package / "NOTICE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "GPL-3.0-or-later" not in readme
+                or "GNU GENERAL PUBLIC LICENSE" not in license_text
+                or "Copyright (C) 2014 Embecosm Limited and University of Bristol" not in notice_text
+                or "James Pallister" not in notice_text):
+            raise ValueError("beebs_lcdnum source attribution or license notices are incomplete")
+        for relative in (
+                "c/l/beebs_lcdnum.c", "c3/l/beebs_lcdnum.c3", "cpp/l/beebs_lcdnum.cpp",
+                "elisa/l/beebs_lcdnum.elisa", "nim/l/beebs_lcdnum.nim", "odin/l/beebs_lcdnum.odin",
+                "rust/l/beebs_lcdnum.rs", "v/l/beebs_lcdnum.v", "zig/l/beebs_lcdnum.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"beebs_lcdnum language port is missing its symbol: {relative}")
+    elif algorithm == "statemate":
         pinned = "de24bdf561f4eaad7f37685641fa301f2b8b4bc3"
         expected_ids = {
             "one_source_default_settlement", "repeated_reset_and_settlement",
@@ -36401,6 +38626,876 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("numeric_token_state_machine metadata differs from its pinned byte-output contract")
+    elif algorithm == "prolangs_c_numeric_token":
+        source = workload.get("source", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {
+            "integer-token", "fraction-exact", "leading-fraction-dot",
+            "decimal-trailing-dot", "positive-exponent", "negative-exponent",
+            "bare-dot-source-quirk", "invalid-trailing-letter",
+            "invalid-exponent-without-digits", "invalid-leading-sign",
+        }
+        if (workload.get("schema_version") != "1.0.0"
+                or workload.get("id") != "prolangs-c-number-token-binary32-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "https://github.com/lac-dcc/Benchmarks"
+                or source.get("revision") != "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+                or source.get("path") != "Prolangs-C/compiler/lexer.c"
+                or source.get("symbol") != "Number"
+                or "No explicit license" not in source.get("rights", "")
+                or input_spec.get("kind") != "ascii_numeric_lexeme_i64_array"
+                or input_spec.get("maximum_length") != PROLANGS_C_NUMERIC_TOKEN_MAX_INPUT_LENGTH
+                or input_spec.get("byte_range") != [32, 127]
+                or input_spec.get("invalid_result") != -1
+                or output_spec.get("kind") != "three_i32_words_le"
+                or output_spec.get("length_bytes") != PROLANGS_C_NUMERIC_TOKEN_MAX_OUTPUT_BYTES
+                or output_spec.get("success_result") != PROLANGS_C_NUMERIC_TOKEN_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("short_or_null_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != PROLANGS_C_NUMERIC_TOKEN_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("prolangs_c_numeric_token metadata differs from its bounded lexer contract")
+        readme = (ROOT / "benchmarks" / "p" / algorithm / "README.md").read_text(encoding="utf-8")
+        if ("Prolangs-C/compiler/lexer.c" not in readme
+                or "No explicit license" not in readme
+                or "clean-room" not in readme):
+            raise ValueError("prolangs_c_numeric_token README is missing source or rights notes")
+    elif algorithm == "prolangs_c_loader_relocation_add":
+        source = workload.get("source", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {
+            "one-byte-positive-delta", "odd-width-rounds-to-two-bytes",
+            "odd-five-half-byte-width-negative-delta", "field-width-overflow-truncates-high-carry",
+            "three-byte-relocation-subtract", "invalid-zero-half-byte-width",
+            "invalid-byte-range", "invalid-negative-adjusted-value", "invalid-framing",
+        }
+        if (workload.get("schema_version") != "1.0.0"
+                or workload.get("id") != "prolangs-c-loader-relocation-field-add-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "https://github.com/lac-dcc/Benchmarks"
+                or source.get("revision") != "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+                or source.get("paths") != ["Prolangs-C/loader/memory.c", "Prolangs-C/loader/convert.c"]
+                or source.get("symbols") != ["ADD_INT_TO_LOC", "NUM_TO_STR", "STR_TO_NUM"]
+                or "Permission to use this code is granted" not in source.get("rights", "")
+                or input_spec.get("maximum_length") != 5
+                or input_spec.get("invalid_result") != -1
+                or output_spec.get("kind") != "modified_big_endian_field_bytes"
+                or output_spec.get("maximum_bytes") != PROLANGS_C_LOADER_RELOCATION_ADD_MAX_OUTPUT_BYTES
+                or output_spec.get("short_or_null_output_result") != -2
+                or output_spec.get("invalid_result") != -1
+                or workload.get("workspace", {}).get("bytes") != PROLANGS_C_LOADER_RELOCATION_ADD_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("prolangs_c_loader_relocation_add metadata differs from its bounded relocation contract")
+        readme = (ROOT / "benchmarks" / "p" / algorithm / "README.md").read_text(encoding="utf-8")
+        if ("Prolangs-C/loader/memory.c" not in readme
+                or "William Landi" not in readme or "permission to use" not in readme.lower()):
+            raise ValueError("prolangs_c_loader_relocation_add README is missing source or permission details")
+    elif algorithm == "paq8p_context_mixer":
+        source = workload.get("source", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {
+            "neutral-one-step", "trained-expert-two-step", "invalid-context",
+            "invalid-target", "invalid-feature-range", "invalid-step-count",
+            "invalid-trailing-word",
+        }
+        if (workload.get("schema_version") != "1.0.0"
+                or workload.get("id") != "paq8p-bounded-context-mixer-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "https://github.com/lac-dcc/Benchmarks"
+                or source.get("revision") != "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+                or source.get("path") != "PAQ8p/paq8p.cpp"
+                or source.get("symbols") != ["squash", "Stretch", "dot_product", "train", "Mixer"]
+                or "GNU GPL version 2 or later" not in source.get("rights", "")
+                or input_spec.get("kind") != "bounded_mixer_step_trace_i64_array"
+                or input_spec.get("maximum_valid_length") != PAQ8P_CONTEXT_MIXER_MAX_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != PAQ8P_CONTEXT_MIXER_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("context_selector_range") != [0, 1]
+                or input_spec.get("target_bit_range") != [0, 1]
+                or input_spec.get("stretched_feature_range") != [-2047, 2047]
+                or output_spec.get("kind") != "little_endian_u16_predictions"
+                or output_spec.get("maximum_bytes") != PAQ8P_CONTEXT_MIXER_MAX_OUTPUT_BYTES
+                or output_spec.get("success_result") != "2 * steps"
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("null_or_short_output_result") != -2
+                or workload.get("workspace", {}).get("bytes") != 17408
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("paq8p_context_mixer metadata differs from its bounded adaptive mixer contract")
+        package = ROOT / "benchmarks" / "p" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("PAQ8p/paq8p.cpp" not in readme
+                or "not a PAQ8p compressor benchmark" not in readme
+                or "GNU GENERAL PUBLIC LICENSE" not in license_text
+                or "version 2" not in license_text):
+            raise ValueError("paq8p_context_mixer README or GPL notice is incomplete")
+        for relative in (
+                "c/p/paq8p_context_mixer.c", "c3/p/paq8p_context_mixer.c3",
+                "cpp/p/paq8p_context_mixer.cpp", "elisa/p/paq8p_context_mixer.elisa",
+                "nim/p/paq8p_context_mixer.nim", "odin/p/paq8p_context_mixer.odin",
+                "rust/p/paq8p_context_mixer.rs", "v/p/paq8p_context_mixer.v",
+                "zig/p/paq8p_context_mixer.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"paq8p_context_mixer port is missing: {relative}")
+    elif algorithm == "pargeo_bichromatic_closest_pair":
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {
+            "unique-nearest-cross-pair", "equal-distance-cross-pairs",
+            "duplicate-point-across-colors", "negative-coordinates",
+            "tree-branches-and-box-pruning", "invalid-too-few-points",
+            "invalid-truncated-coordinate-frame", "invalid-coordinate-range",
+            "null-input", "short-output-buffer", "null-output-buffer",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "pargeo-bichromatic-closest-pair-2d-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "ParAlg/ParGeo"
+                or source.get("commit") != "4911408762c46b7c262f6d617d7adcb0cb0f219b"
+                or source.get("paths") != ["include/kdTree/bccpImpl.h", "include/kdTree/treeImpl.h",
+                                            "include/kdTree/nodeImpl.h", "include/pargeo/point.h", "LICENSE"]
+                or source.get("symbols") != ["bichromaticClosestPair", "bcpHelper", "constructSerial", "nodeDistance"]
+                or "MIT" not in source.get("license", "")
+                or contract.get("input_layout") != "[nA, nB, ax0, ay0, ..., bx0, by0, ...]"
+                or contract.get("point_count_range_per_set") != [2, 8]
+                or contract.get("coordinate_range") != [-1000000, 1000000]
+                or contract.get("maximum_valid_input_length") != PARGEO_BCP_MAX_INPUT_LENGTH
+                or contract.get("output_bytes") != PARGEO_BCP_MAX_OUTPUT_BYTES
+                or input_spec.get("maximum_valid_length") != PARGEO_BCP_MAX_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != PARGEO_BCP_MAX_PARSEABLE_INPUT_LENGTH
+                or output_spec.get("maximum_bytes") != PARGEO_BCP_MAX_OUTPUT_BYTES
+                or output_spec.get("success_result") != PARGEO_BCP_MAX_OUTPUT_BYTES
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != 4096
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("pargeo_bichromatic_closest_pair metadata differs from its bounded KD-tree contract")
+        package = ROOT / "benchmarks" / "p" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("bichromaticClosestPair" not in readme
+                or "4911408762c46b7c262f6d617d7adcb0cb0f219b" not in readme
+                or "MIT License" not in license_text
+                or "Yiqiu Wang, Shangdi Yu, Laxman Dhulipala, Yan Gu, Julian Shun" not in license_text):
+            raise ValueError("pargeo_bichromatic_closest_pair README or MIT notice is incomplete")
+        for relative in (
+                "c/p/pargeo_bichromatic_closest_pair.c", "c3/p/pargeo_bichromatic_closest_pair.c3",
+                "cpp/p/pargeo_bichromatic_closest_pair.cpp", "elisa/p/pargeo_bichromatic_closest_pair.elisa",
+                "nim/p/pargeo_bichromatic_closest_pair.nim", "odin/p/pargeo_bichromatic_closest_pair.odin",
+                "rust/p/pargeo_bichromatic_closest_pair.rs", "v/p/pargeo_bichromatic_closest_pair.v",
+                "zig/p/pargeo_bichromatic_closest_pair.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"pargeo_bichromatic_closest_pair port is missing: {relative}")
+    elif algorithm == "cbench_consumer_mad_alias_reduce":
+        max_input, max_output = (CBENCH_MAD_ALIAS_REDUCE_MAX_INPUT_LENGTH,
+                                 CBENCH_MAD_ALIAS_REDUCE_MAX_OUTPUT_BYTES)
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        source = workload.get("pinned_source", {})
+        expected_ids = {
+            "zero-one-boundary", "first-pair-a-impulse", "invalid-truncated-boundary",
+            "invalid-out-of-profile-range", "null-input", "short-output-capacity",
+            "null-output",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-cbench-consumer-mad-alias-reduce-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded FPM_DEFAULT fixed-point profile of libmad's Layer III eight-pair alias-reduction stage."
+                or source != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "paths": ["cBench/consumer_mad/src/layer3.c", "cBench/consumer_mad/src/fixed.h",
+                              "cBench/consumer_mad/src/info.sh"],
+                    "symbols": ["III_aliasreduce", "cs", "ca", "mad_f_mul"],
+                    "source_links": {
+                        "kernel": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/consumer_mad/src/layer3.c",
+                        "fixed_point": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/consumer_mad/src/fixed.h",
+                        "launcher": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/consumer_mad/src/info.sh",
+                    },
+                    "launcher_flags": ["-DFPM_DEFAULT"],
+                    "license": "GNU GPL version 2 or (at your option) any later version",
+                    "copyright": "Copyright (C) 2000-2001 Robert Leslie",
+                    "license_file": "LICENSE.txt",
+                }
+                or workload.get("contract") != {
+                    "operation": "At each adjacent 18-line subband boundary, transform eight pairs using the pinned cs/ca alias-reduction coefficients.",
+                    "input_layout": "[boundary_count, (a0,b0,...,a7,b7) per boundary]",
+                    "boundary_count_range": [1, 4], "input_values_per_boundary": 16,
+                    "input_value_range": [-100000000, 100000000],
+                    "input_interpretation": "Signed Q28 mad_fixed_t values.",
+                    "left_output": "mad_f_mul(a, cs[i]) + mad_f_mul(-b, ca[i])",
+                    "right_output": "mad_f_mul(b, cs[i]) + mad_f_mul(a, ca[i])",
+                    "fpm_default_multiply": "floor((x+2048)/4096) * floor((y+32768)/65536), with floor division for negative values",
+                    "output_encoding": "Signed 32-bit little-endian Q28 values, boundary-major and pair-major, left then right.",
+                    "output_bytes": "64 * boundary_count", "maximum_valid_input_length": max_input,
+                    "maximum_output_bytes": max_output, "invalid_result": -1,
+                    "output_error_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array",
+                    "encoding": "Boundary count followed by sixteen signed Q28 values per boundary.",
+                    "maximum_length": max_input, "maximum_valid_length": max_input,
+                    "maximum_parseable_length": max_input, "null_input_result": -1,
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "Signed little-endian Q28 i32 values, two values for each of eight pairs at each boundary.",
+                    "maximum_bytes": max_output, "capacity_unit": "bytes",
+                    "success_result": "64 * boundary_count", "null_output_result": -2,
+                    "insufficient_capacity_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": max_output,
+                    "meaning": "Staged maximum output, preserving no-write-on-error behavior.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 2, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("cbench_consumer_mad_alias_reduce metadata differs from its pinned fixed-point profile")
+        package = ROOT / "benchmarks" / "m" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["source_links"]["kernel"] not in readme
+                or "FPM_DEFAULT" not in readme
+                or "Robert Leslie" not in license_text
+                or "GNU GENERAL PUBLIC LICENSE" not in license_text
+                or "Version 2, June 1991" not in license_text):
+            raise ValueError("cbench_consumer_mad_alias_reduce README or GPL notice is incomplete")
+        for relative in (
+                "c/m/cbench_consumer_mad_alias_reduce.c", "c3/m/cbench_consumer_mad_alias_reduce.c3",
+                "cpp/m/cbench_consumer_mad_alias_reduce.cpp", "elisa/m/cbench_consumer_mad_alias_reduce.elisa",
+                "nim/m/cbench_consumer_mad_alias_reduce.nim", "odin/m/cbench_consumer_mad_alias_reduce.odin",
+                "rust/m/cbench_consumer_mad_alias_reduce.rs", "v/m/cbench_consumer_mad_alias_reduce.v",
+                "zig/m/cbench_consumer_mad_alias_reduce.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"cbench_consumer_mad_alias_reduce port is missing: {relative}")
+    elif algorithm == "gapbs_afforest_components":
+        max_input, max_output = (GAPBS_AFFOREST_MAX_INPUT_LENGTH,
+                                 GAPBS_AFFOREST_MAX_OUTPUT_BYTES)
+        pinned = "b5e3e19c2845f22fb338f4a4bc4b1ccee861d026"
+        expected_ids = {
+            "single-vertex", "sampled-triangle-and-isolate", "two-disconnected-edges",
+            "unsampled-bridge-disables-skip", "path-connected-after-neighbor-sampling",
+            "sample-count-upper-bound", "length-mismatch", "sample-out-of-range",
+            "duplicate-edge-invalid", "edge-order-invalid", "short-output-capacity",
+            "null-output", "null-input",
+        }
+        expected_source = {
+            "repository": "sbeamer/gapbs", "commit": pinned, "path": "src/cc.cc",
+            "symbols": ["Link", "Compress", "SampleFrequentElement", "Afforest"],
+            "url": f"https://github.com/sbeamer/gapbs/blob/{pinned}/src/cc.cc",
+            "source_header_copyright": "Copyright (c) 2018 The Hebrew University of Jerusalem (HUJI, A. Barak)",
+            "license_path": "LICENSE", "license": "BSD-3-Clause",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "encoding": "[node_count, edge_count, sample_count, sample_vertex..., (u,v)...]",
+            "node_count_range": [1, 16], "edge_count_range": [0, 64],
+            "sample_count_range": [1, 64],
+            "sample_vertex_range": "0 <= sample < node_count",
+            "edge_rule": "simple undirected edge with 0 <= u < v < node_count; duplicate edges are invalid",
+            "adjacency_order": "ascending neighbor vertex ID",
+            "maximum_valid_length": max_input,
+            "maximum_parseable_length": GAPBS_AFFOREST_MAX_PARSEABLE_INPUT_LENGTH,
+            "invalid_input_result": -1,
+        }
+        expected_output = {
+            "kind": "little_endian_signed_64_bit_array",
+            "encoding": "One minimum-vertex component representative per vertex, in vertex-ID order.",
+            "maximum_values": 16, "maximum_bytes": max_output,
+            "success_result": "8 * node_count bytes written",
+            "invalid_input_result": -1, "null_output_result": -2,
+            "insufficient_capacity_result": -2, "output_untouched_on_error": True,
+        }
+        expected_workspace = {
+            "bytes": max_output,
+            "meaning": "Staged maximum-sized label output so invalid input and output errors leave caller memory untouched.",
+        }
+        expected_contract = {
+            "operation": "Label undirected connected components using Afforest's sampled neighbor linking, pointer compression, and final edge linking.",
+            "neighbor_rounds": 2,
+            "sample_profile": "The caller supplies an explicit deterministic list of sample vertex IDs. Count the components of those samples after two neighbor rounds; ties select the smallest current label.",
+            "skip_profile": "Skip the selected sampled component in the final pass only if every unsampled adjacency entry of each of its vertices already has the same component label. Otherwise process all remaining edges; this guard keeps the bounded profile exact for every valid graph.",
+            "source_profile": "Use lower-root Link, Compress after each of two sampled-neighbor rounds, sample-frequency selection, and the remaining-neighbor pass. The source's random 1024-sample generator is represented by explicit caller samples; OpenMP, atomics, logging, timing, and parallel scheduling are omitted.",
+            "invalid_input_result": -1, "output_error_result": -2,
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "gapbs-afforest-components-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded deterministic GAPBS Afforest connectivity profile returning component representatives."
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("workspace") != expected_workspace
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 8,
+                    "warmup_rounds": 2, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("gapbs_afforest_components metadata differs from its pinned Afforest profile")
+        package = ROOT / "benchmarks" / "a" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "BSD-3-Clause" not in readme
+                or "BSD 3-Clause License" not in license_text
+                or "The Regents of the University of California" not in license_text
+                or "The Hebrew University of Jerusalem" not in readme):
+            raise ValueError("gapbs_afforest_components README or BSD notice is incomplete")
+        for relative in (
+                "c/a/gapbs_afforest_components.c", "c3/a/gapbs_afforest_components.c3",
+                "cpp/a/gapbs_afforest_components.cpp", "elisa/a/gapbs_afforest_components.elisa",
+                "nim/a/gapbs_afforest_components.nim", "odin/a/gapbs_afforest_components.odin",
+                "rust/a/gapbs_afforest_components.rs", "v/a/gapbs_afforest_components.v",
+                "zig/a/gapbs_afforest_components.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"gapbs_afforest_components port is missing: {relative}")
+    elif algorithm == "gapbs_shiloach_vishkin_components":
+        max_input, max_output = (GAPBS_SV_MAX_INPUT_LENGTH, GAPBS_SV_MAX_OUTPUT_BYTES)
+        pinned = "b5e3e19c2845f22fb338f4a4bc4b1ccee861d026"
+        expected_ids = {
+            "single-vertex", "two-components", "long-chain-hooks-to-minimum",
+            "duplicate-edge-invalid", "reversed-edge-invalid", "short-output-capacity",
+            "null-output", "null-input",
+        }
+        expected_source = {
+            "repository": "sbeamer/gapbs", "commit": pinned, "path": "src/cc_sv.cc",
+            "symbols": ["ShiloachVishkin"],
+            "url": f"https://github.com/sbeamer/gapbs/blob/{pinned}/src/cc_sv.cc",
+            "source_header_copyright": "Copyright (c) 2015, The Regents of the University of California (Regents)",
+            "license_path": "LICENSE.txt", "license": "BSD-3-Clause",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "encoding": "[node_count, edge_count, (u,v)...]",
+            "node_count_range": [1, 16], "edge_count_range": [0, 64],
+            "edge_rule": "Simple undirected graph with canonical 0 <= u < v < node_count pairs; duplicate edges are invalid.",
+            "adjacency_order": "Ascending neighbor vertex ID; source rows are visited in ascending vertex ID.",
+            "maximum_valid_length": max_input,
+            "maximum_parseable_length": GAPBS_SV_MAX_PARSEABLE_INPUT_LENGTH,
+            "invalid_input_result": -1,
+        }
+        expected_output = {
+            "kind": "little_endian_signed_64_bit_array",
+            "encoding": "One minimum-vertex component representative per vertex, in vertex-ID order.",
+            "maximum_values": 16, "maximum_bytes": max_output,
+            "success_result": "8 * node_count bytes written",
+            "invalid_input_result": -1, "null_output_result": -2,
+            "insufficient_capacity_result": -2, "output_untouched_on_error": True,
+        }
+        expected_contract = {
+            "operation": "Initialize one parent label per vertex; repeatedly scan undirected adjacency entries, hook the higher current component ID to the lower when the higher is a root, and compress parent paths until a sweep makes no changes.",
+            "hooking": "For each edge, read the current labels of its endpoints, compute high=max(label_u,label_v) and low=min(label_u,label_v), and assign parent[high]=low only when parent[high]==high.",
+            "compression": "After each complete row-major edge sweep, replace each label by its grandparent until its parent points to itself.",
+            "deterministic_profile": "The pinned source uses parallel in-place hooking. This bounded profile fixes vertex and neighbor scan order to ascending IDs and uses a single worker; it preserves the min-max hooking and compression mechanics while avoiding scheduler-dependent races.",
+            "round_limit": "At most node_count squared plus one sweeps; the guard exceeds the number of possible strict root-label decreases in the bounded graph.",
+            "invalid_input_result": -1, "output_error_result": -2,
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "gapbs-shiloach-vishkin-components-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded deterministic min-max hooking and pointer compression for undirected connected components."
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("workspace") != {
+                    "bytes": max_output,
+                    "meaning": "Staged maximum-sized label output so invalid input and output errors leave caller memory untouched.",
+                }
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 2, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("gapbs_shiloach_vishkin_components metadata differs from its pinned contract")
+        package = ROOT / "benchmarks" / "a" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "BSD-3-Clause" not in readme
+                or "BSD 3-Clause License" not in license_text
+                or "The Regents of the University of California" not in license_text):
+            raise ValueError("gapbs_shiloach_vishkin_components README or BSD notice is incomplete")
+        for relative in (
+                "c/a/gapbs_shiloach_vishkin_components.c",
+                "c3/a/gapbs_shiloach_vishkin_components.c3",
+                "cpp/a/gapbs_shiloach_vishkin_components.cpp",
+                "elisa/a/gapbs_shiloach_vishkin_components.elisa",
+                "nim/a/gapbs_shiloach_vishkin_components.nim",
+                "odin/a/gapbs_shiloach_vishkin_components.odin",
+                "rust/a/gapbs_shiloach_vishkin_components.rs",
+                "v/a/gapbs_shiloach_vishkin_components.v",
+                "zig/a/gapbs_shiloach_vishkin_components.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"gapbs_shiloach_vishkin_components port is missing: {relative}")
+    elif algorithm == "gbbs_k_core_decomposition":
+        max_input, max_output = (GBBS_KCORE_MAX_INPUT_LENGTH,
+                                 GBBS_KCORE_MAX_OUTPUT_BYTES)
+        pinned = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
+        expected_ids = {
+            "triangle-with-two-vertex-tail", "complete-four-vertex-core-and-isolate",
+            "four-cycle", "edgeless-vertices", "maximum-input-and-output",
+            "length-mismatch", "node-count-out-of-range", "edge-count-out-of-range",
+            "self-loop-invalid", "noncanonical-edge-orientation-invalid",
+            "duplicate-edge-invalid", "endpoint-out-of-range",
+            "insufficient-output-capacity", "null-output", "null-input",
+        }
+        expected_source = {
+            "repository": "ParAlg/gbbs", "commit": pinned,
+            "path": "benchmarks/KCore/JulienneDBS17/KCore.h",
+            "symbols": ["KCore"],
+            "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/KCore/JulienneDBS17/KCore.h",
+            "launcher_path": "benchmarks/KCore/JulienneDBS17/KCore.cc",
+            "launcher_symbol": "KCore_runner",
+            "license_path": "LICENSE", "license": "MIT",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "encoding": "[node_count, edge_count, (u, v)...]",
+            "node_count_range": [1, 16], "edge_count_range": [0, 64],
+            "edge_semantics": "simple undirected graph, each edge supplied once with 0 <= u < v < node_count",
+            "maximum_valid_length": max_input, "invalid_input_result": -1,
+        }
+        expected_output = {
+            "kind": "little_endian_signed_64_bit_array",
+            "encoding": "One vertex core number per vertex in ascending vertex order.",
+            "maximum_values": 16, "maximum_bytes": max_output,
+            "success_result": "8 * node_count bytes written",
+            "invalid_input_result": -1, "null_output_result": -2,
+            "insufficient_capacity_result": -2, "output_untouched_on_error": True,
+        }
+        expected_workspace = {
+            "bytes": max_output,
+            "meaning": "Staged maximum output; caller memory is written only after complete input validation and capacity checks.",
+        }
+        expected_contract = {
+            "operation": "For every vertex, return the largest k for which it belongs to a subgraph of minimum degree at least k.",
+            "launcher_profile": "Use the default bucketed KCore path selected by KCore_runner; the optional -fa implementation is excluded.",
+            "source_profile": "The deterministic projection repeatedly removes all remaining vertices in the current minimum-degree shell k. For each surviving vertex v, update its degree to max(degree(v)-removed_neighbors(v),k), matching KCore's shell clamp. Return the final degree/core number per vertex.",
+            "tie_rule": "All vertices at the same minimum residual degree are removed as one shell; their output values are identical regardless of vertex order.",
+            "input_projection": "Each undirected simple edge appears once as u<v and is expanded to both directions internally; loops and repeated edges are invalid.",
+            "invalid_input_result": -1, "output_error_result": -2,
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "gbbs-k-core-decomposition-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded deterministic degree-shell peeling returning one core number per vertex."
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("workspace") != expected_workspace
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 8,
+                    "warmup_rounds": 2, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("gbbs_k_core_decomposition metadata differs from its pinned core-number contract")
+        package = ROOT / "benchmarks" / "g" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "MIT" not in readme
+                or "MIT License" not in license_text
+                or "Laxman Dhulipala" not in license_text):
+            raise ValueError("gbbs_k_core_decomposition README or MIT notice is incomplete")
+        for relative in (
+                "c/k/gbbs_k_core_decomposition.c", "c3/k/gbbs_k_core_decomposition.c3",
+                "cpp/k/gbbs_k_core_decomposition.cpp", "elisa/k/gbbs_k_core_decomposition.elisa",
+                "nim/k/gbbs_k_core_decomposition.nim", "odin/k/gbbs_k_core_decomposition.odin",
+                "rust/k/gbbs_k_core_decomposition.rs", "v/k/gbbs_k_core_decomposition.v",
+                "zig/k/gbbs_k_core_decomposition.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"gbbs_k_core_decomposition port is missing: {relative}")
+    elif algorithm == "graphai_hac_complete_linkage":
+        max_input, max_output = (GRAPH_HAC_MAX_INPUT_LENGTH,
+                                 GRAPH_HAC_MAX_OUTPUT_BYTES)
+        pinned = "17834cb29b7c542481c2e3740dc9664841b72f59"
+        expected_ids = {
+            "complete-four-vertex-linkage", "path-linkage-merge-order",
+            "single-edge-two-leaf-tree", "single-vertex-root",
+            "maximum-dendrogram-output", "length-mismatch",
+            "node-count-out-of-range", "edge-count-out-of-range",
+            "self-loop-invalid", "duplicate-edge-invalid",
+            "duplicate-weight-invalid", "weight-out-of-range",
+            "disconnected-graph-invalid", "insufficient-output-capacity",
+            "null-output", "null-input",
+        }
+        expected_source = {
+            "repository": "chenxuhao/GraphAIBench", "commit": pinned,
+            "path": "src/clustering/HeapBased.h",
+            "symbols": ["heap_based::HAC", "clustered_graph::unite"],
+            "url": f"https://github.com/chenxuhao/GraphAIBench/blob/{pinned}/src/clustering/HeapBased.h",
+            "related_paths": ["src/clustering/ClusteredGraph.h",
+                              "src/clustering/HAC_configuration.h",
+                              "src/clustering/main.cc"],
+            "launcher_symbol": "main", "license_path": "LICENSE",
+            "license": "MIT",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "encoding": "[node_count, edge_count, (u, v, weight)...]",
+            "node_count_range": [1, 8], "edge_count_range": [0, 24],
+            "edge_semantics": "connected simple undirected weighted graph; each edge is supplied once with u<v",
+            "weight_range": [1, 32],
+            "weight_rule": "all initial edge weights are distinct",
+            "maximum_valid_length": max_input, "invalid_input_result": -1,
+        }
+        expected_output = {
+            "kind": "little_endian_signed_64_bit_array",
+            "encoding": "For each source dendrogram node ID, parent_id then merge_similarity; UINT32_MAX denotes the root parent.",
+            "maximum_values": 30, "maximum_bytes": max_output,
+            "success_result": "16 * (2 * node_count - 1) bytes written",
+            "invalid_input_result": -1, "null_output_result": -2,
+            "insufficient_capacity_result": -2,
+            "output_untouched_on_error": True,
+        }
+        expected_workspace = {
+            "bytes": max_output,
+            "meaning": "Staged maximum dendrogram bytes; caller memory is written only after full validation and capacity checks.",
+        }
+        expected_contract = {
+            "operation": "Repeatedly merge the adjacent cluster pair with maximum current similarity; when both clusters connect to a neighbor, the merged similarity is the minimum of the two edge similarities.",
+            "launcher_profile": "Use src/clustering/main.cc defaults: heap_based=true, linkage=complete, SimilarityClustering with ActualWeight.",
+            "source_profile": "Initial edge similarities are exact positive integers. The quotient graph preserves one-sided edges and combines shared-neighbor edges with min; select the globally maximum active edge until one cluster remains. Return all 2*n-1 source parent-pointer records.",
+            "tie_rule": "Initial edge weights are pairwise distinct; min-linkage updates preserve distinct active edge scores, avoiding ambiguous source tie resolution.",
+            "projection": "A deterministic full edge scan replaces the source augmented heap. Connected graphs avoid the source's disconnected dendrogram fallback; input weights are narrowed to [1,32] exact integers.",
+            "root_parent": 4294967295,
+            "invalid_input_result": -1, "output_error_result": -2,
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "graphai-hac-complete-linkage-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded heap-based complete-linkage graph HAC returning the source-shaped dendrogram."
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("workspace") != expected_workspace
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 8, "warmup_rounds": 2,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("graphai_hac_complete_linkage metadata differs from its pinned contract")
+        package = ROOT / "benchmarks" / "g" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "MIT" not in readme
+                or "MIT License" not in license_text
+                or "Laxman Dhulipala" not in license_text):
+            raise ValueError("graphai_hac_complete_linkage README or MIT notice is incomplete")
+        for relative in (
+                "c/g/graphai_hac_complete_linkage.c",
+                "c3/g/graphai_hac_complete_linkage.c3",
+                "cpp/g/graphai_hac_complete_linkage.cpp",
+                "elisa/g/graphai_hac_complete_linkage.elisa",
+                "nim/g/graphai_hac_complete_linkage.nim",
+                "odin/g/graphai_hac_complete_linkage.odin",
+                "rust/g/graphai_hac_complete_linkage.rs",
+                "v/g/graphai_hac_complete_linkage.v",
+                "zig/g/graphai_hac_complete_linkage.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"graphai_hac_complete_linkage port is missing: {relative}")
+    elif algorithm == "gbbs_ss_widest_path":
+        max_input, max_output = (GBBS_WIDEST_PATH_MAX_INPUT_LENGTH,
+                                 GBBS_WIDEST_PATH_MAX_OUTPUT_BYTES)
+        pinned = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
+        expected_ids = {
+            "single-source-only", "directed-bottleneck-alternative",
+            "parallel-edges-choose-greatest-capacity", "cycle-and-self-loop",
+            "directed-unreachable-and-zero-edge-graph", "maximum-node-count-output",
+            "length-mismatch", "source-out-of-range", "zero-capacity-invalid-profile",
+            "endpoint-out-of-range", "insufficient-output-capacity", "null-output",
+            "null-input",
+        }
+        expected_source = {
+            "repository": "ParAlg/gbbs", "commit": pinned,
+            "path": "benchmarks/SSWidestPath/JulienneDBS17/SSWidestPath.h",
+            "symbols": ["widestpath::Visit_F", "SSWidestPath"],
+            "url": f"https://github.com/ParAlg/gbbs/blob/{pinned}/benchmarks/SSWidestPath/JulienneDBS17/SSWidestPath.h",
+            "launcher_path": "benchmarks/SSWidestPath/JulienneDBS17/SSWidestPath.cc",
+            "license_path": "LICENSE", "license": "MIT",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "encoding": "[node_count, edge_count, source, (from, to, capacity)...]",
+            "node_count_range": [1, 16], "edge_count_range": [0, 64],
+            "source_range": "0 <= source < node_count",
+            "endpoint_range": "0 <= from,to < node_count",
+            "edge_capacity_range": [1, 32],
+            "edge_semantics": "directed; parallel edges and self-loops are allowed",
+            "maximum_valid_length": max_input, "invalid_input_result": -1,
+        }
+        expected_output = {
+            "kind": "little_endian_signed_64_bit_array",
+            "encoding": "One widest-path bottleneck capacity per vertex in ascending vertex order; source is INT32_MAX and unreachable vertices are zero.",
+            "maximum_values": 16, "maximum_bytes": max_output,
+            "success_result": "8 * node_count bytes written",
+            "invalid_input_result": -1, "null_output_result": -2,
+            "insufficient_capacity_result": -2, "output_untouched_on_error": True,
+        }
+        expected_workspace = {
+            "bytes": max_output,
+            "meaning": "Staged maximum output; caller memory is written only after complete input validation and capacity checks.",
+        }
+        expected_contract = {
+            "operation": "For each vertex, maximize the minimum edge capacity over all directed paths from source.",
+            "source_width": 2147483647, "unreachable_width": 0,
+            "launcher_profile": "Use the launcher default SSWidestPath path without -bf; the optional SSWidestPathBF branch is outside this profile.",
+            "source_profile": "Use positive integer capacities and source width INT32_MAX. The deterministic single-worker projection repeatedly selects the unsettled vertex with greatest known width, then relaxes its outgoing edges with candidate=min(width[u], capacity), accepting strict increases. This preserves the width update and monotone priority order of the source ring-bucket traversal while omitting parallel scheduling and bucket-ring mechanics.",
+            "duplicate_edge_rule": "All parallel edges are considered in input order; only a strict width improvement changes state.",
+            "invalid_input_result": -1, "output_error_result": -2,
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "gbbs-single-source-widest-path-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded single-worker GBBS max-min path-width profile returning every source bottleneck width."
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("workspace") != expected_workspace
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 8,
+                    "warmup_rounds": 2, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("gbbs_ss_widest_path metadata differs from its pinned max-min contract")
+        package = ROOT / "benchmarks" / "w" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "MIT" not in readme
+                or "The MIT License (MIT)" not in license_text
+                or "Laxman Dhulipala" not in license_text):
+            raise ValueError("gbbs_ss_widest_path README or MIT notice is incomplete")
+        for relative in (
+                "c/w/gbbs_ss_widest_path.c", "c3/w/gbbs_ss_widest_path.c3",
+                "cpp/w/gbbs_ss_widest_path.cpp", "elisa/w/gbbs_ss_widest_path.elisa",
+                "nim/w/gbbs_ss_widest_path.nim", "odin/w/gbbs_ss_widest_path.odin",
+                "rust/w/gbbs_ss_widest_path.rs", "v/w/gbbs_ss_widest_path.v",
+                "zig/w/gbbs_ss_widest_path.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"gbbs_ss_widest_path port is missing: {relative}")
+    elif algorithm == "gapbs_delta_step_sssp":
+        max_input, max_output = (GAPBS_DELTA_STEP_SSSP_MAX_INPUT_LENGTH,
+                                 GAPBS_DELTA_STEP_SSSP_MAX_OUTPUT_BYTES)
+        pinned = "b5e3e19c2845f22fb338f4a4bc4b1ccee861d026"
+        expected_ids = {
+            "single-vertex-zero-edge-graph", "same-bucket-relaxation-chain",
+            "shorter-route-requeues-and-stales-an-entry",
+            "delta-bucket-boundary-and-equal-relaxation", "zero-weight-cycle",
+            "directed-unreachable-vertex", "parallel-edges-select-shorter-weight",
+            "maximum-node-chain-and-output", "length-mismatch", "source-out-of-range",
+            "zero-delta-invalid", "negative-weight-invalid",
+            "out-of-range-endpoint-invalid", "insufficient-output-capacity",
+            "null-output", "null-input",
+        }
+        expected_source = {
+            "repository": "sbeamer/gapbs", "commit": pinned, "path": "src/sssp.cc",
+            "symbols": ["RelaxEdges", "DeltaStep"],
+            "url": f"https://github.com/sbeamer/gapbs/blob/{pinned}/src/sssp.cc",
+            "type_path": "src/benchmark.h", "weight_type": "int32_t",
+            "license_path": "LICENSE", "license": "BSD-3-Clause",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "encoding": "[node_count, edge_count, source, delta, (from, to, weight)...]",
+            "node_count_range": [1, 16], "edge_count_range": [0, 64],
+            "source_range": "0 <= source < node_count", "delta_range": [1, 16],
+            "endpoint_range": "0 <= from,to < node_count", "edge_weight_range": [0, 32],
+            "edge_semantics": "directed; parallel edges and self-loops are allowed",
+            "maximum_valid_length": max_input, "invalid_input_result": -1,
+        }
+        expected_output = {
+            "kind": "little_endian_signed_64_bit_array",
+            "encoding": "One source distance per vertex, in ascending vertex order.",
+            "unreachable_value": 1073741823, "maximum_values": 16,
+            "maximum_bytes": max_output, "success_result": "8 * node_count bytes written",
+            "invalid_input_result": -1, "null_output_result": -2,
+            "insufficient_capacity_result": -2, "output_untouched_on_error": True,
+        }
+        expected_contract = {
+            "operation": "Compute single-source shortest-path distances with the GAPBS DeltaStep bucket relaxation.",
+            "source_profile": "Use source WeightT semantics (int32_t distances and INF=INT32_MAX/2), with bounded nonnegative integer weights. The deterministic single-worker projection drains the current delta bucket, relaxes outgoing edges, queues strict distance improvements in floor(distance/delta), and skips stale entries when distance[u] < delta*bucket. It preserves same-bucket repeated relaxation and bucket-order processing while omitting OpenMP, atomics, timing, logging, and the 1000-entry parallel bucket-fusion threshold.",
+            "maximum_finite_distance": 480, "maximum_successful_updates_per_vertex": 481,
+            "maximum_queue_entries": 8192, "infinity_sentinel": 1073741823,
+            "invalid_input_result": -1, "output_error_result": -2,
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "gapbs-delta-step-sssp-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded single-worker GAPBS delta-stepping profile returning all source distances."
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 8,
+                    "warmup_rounds": 2, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("gapbs_delta_step_sssp metadata differs from its pinned bucket-relaxation contract")
+        package = ROOT / "benchmarks" / "d" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "BSD-3-Clause" not in readme
+                or "BSD 3-Clause License" not in license_text):
+            raise ValueError("gapbs_delta_step_sssp README or BSD notice is incomplete")
+        for relative in (
+                "c/d/gapbs_delta_step_sssp.c", "c3/d/gapbs_delta_step_sssp.c3",
+                "cpp/d/gapbs_delta_step_sssp.cpp", "elisa/d/gapbs_delta_step_sssp.elisa",
+                "nim/d/gapbs_delta_step_sssp.nim", "odin/d/gapbs_delta_step_sssp.odin",
+                "rust/d/gapbs_delta_step_sssp.rs", "v/d/gapbs_delta_step_sssp.v",
+                "zig/d/gapbs_delta_step_sssp.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"gapbs_delta_step_sssp port is missing: {relative}")
+    elif algorithm == "mediabench_jpeg_optimal_huffman_table":
+        max_input, max_output = (MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_INPUT_LENGTH,
+                                 MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_OUTPUT_BYTES)
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "single-real-symbol-and-pseudo-symbol", "equal-frequency-source-tie-order",
+            "three-symbol-source-merge-order", "invalid-duplicate-symbol",
+            "invalid-zero-frequency", "invalid-truncated-frame", "null-input",
+            "short-output-buffer", "null-output-buffer",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "mediabench-jpeg-optimal-huffman-table-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded IJG JPEG optimal Huffman code-length and symbol-table generation from a sparse frequency map."
+                or source != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "paths": [
+                        "mediabench/jpeg/jpeg-6a/info.sh",
+                        "mediabench/jpeg/jpeg-6a/jchuff.c",
+                        "mediabench/jpeg/jpeg-6a/README",
+                    ],
+                    "symbols": ["jpeg_gen_optimal_table", "finish_pass_gather"],
+                    "source_links": {
+                        "launcher": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/mediabench/jpeg/jpeg-6a/info.sh",
+                        "kernel": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/mediabench/jpeg/jpeg-6a/jchuff.c",
+                        "license": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/mediabench/jpeg/jpeg-6a/README",
+                    },
+                    "license": "Independent JPEG Group JPEG 6a distribution terms, including attribution and warranty disclaimer; notice reproduced in LICENSE.txt.",
+                }
+                or contract != {
+                    "operation": "Build one length-limited canonical JPEG Huffman table from positive frequencies for sparse byte symbols, using IJG's pseudo-symbol 256, root-symbol tie order, 16-bit length redistribution, pseudo-symbol removal, and source-order huffval emission.",
+                    "input_layout": "[symbol_count, (symbol, frequency)*symbol_count]",
+                    "symbol_count_range": [1, 20], "symbol_range": [0, 255],
+                    "frequency_range": [1, 1000000], "duplicate_symbols": "Invalid.",
+                    "tie_rule": "Among equal nonzero frequencies, choose the larger current root symbol ID first, then the larger remaining root ID; merged trees retain the first root ID.",
+                    "maximum_code_length": 16,
+                    "output_encoding": "Byte sequence [symbol_count, bits[1]..bits[16], huffval...].",
+                    "output_bytes": "17 + symbol_count", "maximum_valid_input_length": max_input,
+                    "maximum_output_bytes": max_output, "success_result": "17 + symbol_count",
+                    "invalid_result": -1, "output_error_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array",
+                    "encoding": "symbol count followed by distinct byte-symbol and positive-frequency pairs",
+                    "maximum_length": max_input, "maximum_valid_length": max_input,
+                    "maximum_parseable_length": max_input, "null_input_result": -1,
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "Table symbol count, sixteen code-length counts, then huffval symbols.",
+                    "maximum_bytes": max_output, "capacity_unit": "bytes",
+                    "success_result": "17 + symbol_count", "null_output_result": -2,
+                    "insufficient_capacity_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": 8192,
+                    "meaning": "Fixed 257-entry frequency, tree-size, branch-link, and output work arrays.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 2, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("mediabench_jpeg_optimal_huffman_table metadata differs from its bounded IJG contract")
+        package = ROOT / "benchmarks" / "m" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        kernel_url = source["source_links"]["kernel"]
+        if (kernel_url not in readme or "cjpeg -dct int -progressive -opt" not in readme
+                or "Independent JPEG Group" not in license_text
+                or "Thomas G. Lane" not in license_text
+                or "NO WARRANTY" not in license_text):
+            raise ValueError("mediabench_jpeg_optimal_huffman_table README or IJG terms are incomplete")
+        for relative in (
+                "c/m/mediabench_jpeg_optimal_huffman_table.c",
+                "c3/m/mediabench_jpeg_optimal_huffman_table.c3",
+                "cpp/m/mediabench_jpeg_optimal_huffman_table.cpp",
+                "elisa/m/mediabench_jpeg_optimal_huffman_table.elisa",
+                "nim/m/mediabench_jpeg_optimal_huffman_table.nim",
+                "odin/m/mediabench_jpeg_optimal_huffman_table.odin",
+                "rust/m/mediabench_jpeg_optimal_huffman_table.rs",
+                "v/m/mediabench_jpeg_optimal_huffman_table.v",
+                "zig/m/mediabench_jpeg_optimal_huffman_table.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"mediabench_jpeg_optimal_huffman_table port is missing: {relative}")
     elif algorithm == "hint_area_bound_refinement":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -37963,6 +41058,59 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                     or case["expected_result"] != result
                     or case.get("expected_output_hex", "").lower() != output.hex()):
                 raise ValueError(f"simplify_fraction ABI fixture differs from its oracle: {case.get('id')}")
+    elif algorithm in {
+            "tsvc_s116_unrolled_product_chain",
+            "tsvc_s118_triangular_convolution_recurrence",
+            "tsvc_s1119_same_column_matrix_prefix",
+            "tsvc_s232_triangular_row_square_recurrence",
+            "tsvc_s1213_ordered_neighbor_array_map",
+            "tsvc_s233_s2233_matrix_prefix",
+            "tsvc_s235_fused_vector_matrix_recurrence"}:
+        tsvc_specs = {
+            "tsvc_s116_unrolled_product_chain": ("s116", 2 + 21, 168, "LinearDependence-dbl"),
+            "tsvc_s118_triangular_convolution_recurrence": ("s118", 2 + 8 + 64, 64, "LinearDependence-dbl"),
+            "tsvc_s1119_same_column_matrix_prefix": ("s1119", 2 + 2 * 64, 512, "LinearDependence-dbl"),
+            "tsvc_s232_triangular_row_square_recurrence": ("s232", 1 + 2 * 25, 200, "LoopRestructuring-dbl"),
+            "tsvc_s1213_ordered_neighbor_array_map": ("s1213", 1 + 4 * 32, 512, "StatementReordering-dbl"),
+            "tsvc_s233_s2233_matrix_prefix": (("s233", "s2233"), 2 + 3 * 64, 1024, "LoopRestructuring-dbl"),
+            "tsvc_s235_fused_vector_matrix_recurrence": ("s235", 1 + 3 * 8 + 2 * 64, 576, "LoopRestructuring-dbl"),
+        }
+        source = workload.get("pinned_source", {})
+        symbols, max_input, max_output, family = tsvc_specs[algorithm]
+        expected_symbols = list(symbols) if isinstance(symbols, tuple) else [symbols]
+        seen_symbols = source.get("symbols", [source.get("symbol")])
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        expected_source_path = "TSVC/tsc.inc"
+        cases = workload.get("cases")
+        if (workload.get("schema_version") != 1
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != expected_source_path
+                or seen_symbols != expected_symbols
+                or source.get("launcher_family") != f"TSVC/{family}"
+                or workload.get("input", {}).get("kind") != "signed_64_bit_integer_array"
+                or workload.get("input", {}).get("maximum_valid_input_length") != max_input
+                or workload.get("output", {}).get("maximum_bytes") != max_output
+                or workload.get("workspace", {}).get("bytes") != max_output
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or not isinstance(cases, list) or not cases
+                or f"5d7b75df749241efa7a6e6f5be613d3fcc5cce38" not in readme
+                or "clean-room" not in readme.lower()
+                or "does not state an explicit redistribution or modification license" not in rights):
+            raise ValueError(f"{algorithm} metadata or TSVC attribution is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"{algorithm} language port is missing: {relative}")
     elif algorithm == "tsvc_s343_column_major_compaction":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
         expected_ids = {
@@ -38463,6 +41611,246 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or "No explicit license grant was found" not in rights
                 or "does not reuse upstream source code or comments" not in rights):
             raise ValueError("tsvc_s281_reverse_coupled_update README or rights note is missing source scope")
+    elif algorithm == "tsvc_s1281_elementwise_dual_update":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {"multi-pass-two-output", "single-element", "zero-size",
+                        "zero-passes", "truncated", "trailing-value",
+                        "input-out-of-range", "null-input", "null-output", "short-capacity"}
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                             "abi", "description", "pinned_source", "pinned_launcher",
+                             "contract", "input", "output", "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s1281-elementwise-dual-update-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("pinned_source", {}).get("commit") != pinned
+                or workload.get("pinned_source", {}).get("path") != "TSVC/tsc.inc"
+                or workload.get("pinned_source", {}).get("symbol") != "s1281"
+                or workload.get("pinned_source", {}).get("source_lines") != [3264, 3291]
+                or workload.get("pinned_source", {}).get("initializer_call") != 'init("s281 ")'
+                or workload.get("pinned_source", {}).get("license_note", "").find("No explicit") != 0
+                or workload.get("pinned_launcher", {}).get("info_path") != "TSVC/CrossingThresholds-dbl/info.sh"
+                or workload.get("pinned_launcher", {}).get("run_options") != ["5880", "14"]
+                or workload.get("contract", {}).get("input_layout") != "[n,passes,A[n],B[n],C[n],D[n],E[n]]"
+                or workload.get("contract", {}).get("exact_length") != "2+5*n"
+                or workload.get("contract", {}).get("n_range") != [1, 16]
+                or workload.get("contract", {}).get("passes_range") != [1, 8]
+                or workload.get("contract", {}).get("value_range") != [-1, 1]
+                or workload.get("input") != {"kind": "signed_i64_array", "maximum_valid_length": TSVC_S1281_MAX_INPUT_LENGTH,
+                                               "maximum_parseable_length": TSVC_S1281_MAX_INPUT_LENGTH,
+                                               "invalid_input_result": -1, "null_input_result": -1}
+                or workload.get("output") != {"kind": "byte_array", "encoding": "Little-endian signed i64; A then B",
+                                               "maximum_bytes": TSVC_S1281_MAX_OUTPUT_BYTES,
+                                               "success_result": "16*n bytes", "null_output_result": -2,
+                                               "insufficient_capacity_result": -2, "no_write_on_error": True}
+                or workload.get("workspace") != {"bytes": TSVC_S1281_MAX_OUTPUT_BYTES,
+                                                   "meaning": "Staging for final A and B arrays."}
+                or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s1281_elementwise_dual_update metadata differs from its bounded source contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (f"{pinned}/TSVC/tsc.inc" not in readme
+                or 'init("s281 ")' not in readme
+                or "No explicit modification or redistribution grant" not in readme
+                or "No explicit modification or redistribution grant" not in rights):
+            raise ValueError("tsvc_s1281_elementwise_dual_update README or rights note is incomplete")
+        for relative in (
+                "c/t/tsvc_s1281_elementwise_dual_update.c", "c3/t/tsvc_s1281_elementwise_dual_update.c3",
+                "cpp/t/tsvc_s1281_elementwise_dual_update.cpp", "elisa/t/tsvc_s1281_elementwise_dual_update.elisa",
+                "nim/t/tsvc_s1281_elementwise_dual_update.nim", "odin/t/tsvc_s1281_elementwise_dual_update.odin",
+                "rust/t/tsvc_s1281_elementwise_dual_update.rs", "v/t/tsvc_s1281_elementwise_dual_update.v",
+                "zig/t/tsvc_s1281_elementwise_dual_update.zig"):
+            port_text = (ROOT / relative).read_text(encoding="utf-8")
+            if "tsvc_s1281_elementwise_dual_update" not in port_text:
+                raise ValueError(f"s1281 port export missing: {relative}")
+    elif algorithm == "tsvc_s293_first_element_broadcast":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        case_ids = {"multi-element-broadcast", "single-element-preserved", "zero-size",
+                    "truncated", "trailing-value", "value-out-of-range", "null-input",
+                    "null-output", "short-capacity"}
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                             "description", "pinned_source", "pinned_launcher", "contract",
+                             "input", "output", "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s293-first-element-broadcast-i64-array-bytes-v1"
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s293" or source.get("source_lines") != [3358, 3380]
+                or source.get("initializer_symbol") != "s293 "
+                or launcher.get("info_path") != "TSVC/CrossingThresholds-dbl/info.sh"
+                or launcher.get("run_options") != ["5880", "14"]
+                or contract.get("operation") != "Read the original A[0], then in ascending i store A[i]=A[0]; expose the resulting array."
+                or contract.get("input_layout") != "[n,A[n]]"
+                or contract.get("n_range") != [1, 32]
+                or contract.get("value_range") != [-8, 8]
+                or workload.get("input") != {"kind": "signed_i64_array", "maximum_valid_length": TSVC_S293_MAX_INPUT_LENGTH,
+                                               "maximum_parseable_length": TSVC_S293_MAX_INPUT_LENGTH,
+                                               "invalid_input_result": -1, "null_input_result": -1}
+                or workload.get("output") != {"kind": "byte_array", "encoding": "Little-endian signed i64 broadcast array",
+                                               "maximum_bytes": TSVC_S293_MAX_OUTPUT_BYTES,
+                                               "success_result": "8*n bytes", "null_output_result": -2,
+                                               "insufficient_capacity_result": -2, "no_write_on_error": True}
+                or workload.get("workspace") != {"bytes": TSVC_S293_MAX_OUTPUT_BYTES,
+                                                   "meaning": "Staging for at most 32 broadcast i64 values."}
+                or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != case_ids
+                or len(workload.get("cases", [])) != len(case_ids)):
+            raise ValueError("tsvc_s293_first_element_broadcast workload differs from its pinned source contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (f"{pinned}/TSVC/tsc.inc" not in readme
+                or "No explicit modification or redistribution grant" not in readme
+                or "No explicit modification or redistribution grant" not in rights):
+            raise ValueError("s293 README or rights note is missing source scope")
+        for relative in (
+                "c/t/tsvc_s293_first_element_broadcast.c", "c3/t/tsvc_s293_first_element_broadcast.c3",
+                "cpp/t/tsvc_s293_first_element_broadcast.cpp", "elisa/t/tsvc_s293_first_element_broadcast.elisa",
+                "nim/t/tsvc_s293_first_element_broadcast.nim", "odin/t/tsvc_s293_first_element_broadcast.odin",
+                "rust/t/tsvc_s293_first_element_broadcast.rs", "v/t/tsvc_s293_first_element_broadcast.v",
+                "zig/t/tsvc_s293_first_element_broadcast.zig"):
+            if "tsvc_s293_first_element_broadcast" not in (ROOT / relative).read_text(encoding="utf-8"):
+                raise ValueError(f"s293 port export missing: {relative}")
+    elif algorithm == "tsvc_vtv_elementwise_product":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        case_ids = {"two-passes-vector-product", "single-product", "zero-size", "zero-passes",
+                    "truncated", "trailing-value", "out-of-range", "null-input", "null-output", "short-capacity"}
+        source, launcher, contract = workload.get("pinned_source", {}), workload.get("pinned_launcher", {}), workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi", "description",
+                             "pinned_source", "pinned_launcher", "contract", "input", "output", "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-vtv-elementwise-product-i64-array-bytes-v1"
+                or workload.get("function_symbol") != algorithm or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("commit") != pinned or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "vtv" or source.get("source_lines") != [5302, 5328]
+                or source.get("initializer_symbol") != "vtv  "
+                or launcher.get("info_path") != "TSVC/ControlLoops-dbl/info.sh"
+                or launcher.get("run_options") != ["1640", "14"]
+                or contract.get("input_layout") != "[n,passes,A[n],B[n]]"
+                or contract.get("operation") != "For each pass and ascending i, update A[i] = A[i] * B[i]."
+                or contract.get("n_range") != [1, 32] or contract.get("passes_range") != [1, 8]
+                or contract.get("value_range") != [-2, 2]
+                or workload.get("input") != {"kind": "signed_i64_array", "maximum_valid_length": TSVC_VTV_MAX_INPUT_LENGTH,
+                                               "maximum_parseable_length": TSVC_VTV_MAX_INPUT_LENGTH,
+                                               "invalid_input_result": -1, "null_input_result": -1}
+                or workload.get("output") != {"kind": "byte_array", "encoding": "Little-endian signed i64 final A vector",
+                                               "maximum_bytes": TSVC_VTV_MAX_OUTPUT_BYTES,
+                                               "success_result": "8*n bytes", "null_output_result": -2,
+                                               "insufficient_capacity_result": -2, "no_write_on_error": True}
+                or workload.get("workspace") != {"bytes": TSVC_VTV_MAX_OUTPUT_BYTES,
+                                                   "meaning": "Staging for at most 32 final A values."}
+                or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != case_ids
+                or len(workload.get("cases", [])) != len(case_ids)):
+            raise ValueError("TSVC vtv workload differs from its pinned bounded contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (f"{pinned}/TSVC/tsc.inc" not in readme
+                or "No explicit modification or redistribution grant" not in readme
+                or "No explicit modification or redistribution grant" not in rights):
+            raise ValueError("TSVC vtv README or rights evidence is incomplete")
+        for relative in (
+                "c/t/tsvc_vtv_elementwise_product.c", "c3/t/tsvc_vtv_elementwise_product.c3",
+                "cpp/t/tsvc_vtv_elementwise_product.cpp", "elisa/t/tsvc_vtv_elementwise_product.elisa",
+                "nim/t/tsvc_vtv_elementwise_product.nim", "odin/t/tsvc_vtv_elementwise_product.odin",
+                "rust/t/tsvc_vtv_elementwise_product.rs", "v/t/tsvc_vtv_elementwise_product.v",
+                "zig/t/tsvc_vtv_elementwise_product.zig"):
+            if "tsvc_vtv_elementwise_product" not in (ROOT / relative).read_text(encoding="utf-8"):
+                raise ValueError(f"TSVC vtv port export missing: {relative}")
+    elif algorithm == "tsvc_vpvpv_three_vector_add":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        case_ids = {"two-pass-three-vector-add", "single-element-add", "invalid-pass-limit",
+                    "truncated", "trailing-value", "out-of-range", "null-input", "null-output", "short-capacity"}
+        source, launcher, contract = workload.get("pinned_source", {}), workload.get("pinned_launcher", {}), workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi", "description",
+                             "pinned_source", "pinned_launcher", "contract", "input", "output", "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-vpvpv-three-vector-add-i64-array-bytes-v1"
+                or workload.get("function_symbol") != algorithm or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("commit") != pinned or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "vpvpv" or source.get("source_lines") != [5384, 5409]
+                or launcher.get("info_path") != "TSVC/ControlLoops-dbl/info.sh"
+                or launcher.get("run_options") != ["1640", "14"]
+                or contract.get("input_layout") != "[n,passes,A[n],B[n],C[n]]"
+                or contract.get("operation") != "For each pass and ascending i, update A[i] = A[i] + B[i] + C[i]."
+                or contract.get("n_range") != [1, 32] or contract.get("passes_range") != [1, 4]
+                or contract.get("value_range") != [-2, 2]
+                or workload.get("input") != {"kind": "signed_i64_array", "maximum_valid_length": TSVC_VPVPV_MAX_INPUT_LENGTH,
+                                               "maximum_parseable_length": TSVC_VPVPV_MAX_INPUT_LENGTH,
+                                               "invalid_input_result": -1, "null_input_result": -1}
+                or workload.get("output") != {"kind": "byte_array", "encoding": "Little-endian signed i64 final A vector",
+                                               "maximum_bytes": TSVC_VPVPV_MAX_OUTPUT_BYTES, "success_result": "8*n bytes",
+                                               "null_output_result": -2, "insufficient_capacity_result": -2,
+                                               "no_write_on_error": True}
+                or workload.get("workspace") != {"bytes": TSVC_VPVPV_MAX_OUTPUT_BYTES, "meaning": "Staging for at most 32 final A values."}
+                or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != case_ids
+                or len(workload.get("cases", [])) != len(case_ids)):
+            raise ValueError("TSVC vpvpv workload differs from its pinned bounded contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (f"{pinned}/TSVC/tsc.inc" not in readme
+                or "No explicit TSVC" not in readme
+                or "No explicit modification or redistribution grant" not in rights):
+            raise ValueError("TSVC vpvpv README or rights evidence is incomplete")
+        for relative in ("c/t/tsvc_vpvpv_three_vector_add.c", "c3/t/tsvc_vpvpv_three_vector_add.c3",
+                         "cpp/t/tsvc_vpvpv_three_vector_add.cpp", "elisa/t/tsvc_vpvpv_three_vector_add.elisa",
+                         "nim/t/tsvc_vpvpv_three_vector_add.nim", "odin/t/tsvc_vpvpv_three_vector_add.odin",
+                         "rust/t/tsvc_vpvpv_three_vector_add.rs", "v/t/tsvc_vpvpv_three_vector_add.v",
+                         "zig/t/tsvc_vpvpv_three_vector_add.zig"):
+            if "tsvc_vpvpv_three_vector_add" not in (ROOT / relative).read_text(encoding="utf-8"):
+                raise ValueError(f"TSVC vpvpv port export missing: {relative}")
+    elif algorithm == "tsvc_s471_ordered_two_vector_map":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        case_ids = {"two-pass-retained-x-and-updated-b", "single-element-source-order", "invalid-pass-limit",
+                    "truncated", "trailing-value", "out-of-range", "null-input", "null-output", "short-capacity"}
+        source, launcher, contract = workload.get("pinned_source", {}), workload.get("pinned_launcher", {}), workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi", "description",
+                             "pinned_source", "pinned_launcher", "contract", "input", "output", "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s471-ordered-two-vector-map-i64-array-bytes-v1"
+                or workload.get("function_symbol") != algorithm or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("commit") != pinned or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s471" or source.get("source_lines") != [4819, 4848]
+                or launcher.get("info_path") != "TSVC/GlobalDataFlow-dbl/info.sh"
+                or launcher.get("run_options") != ["3450", "14"]
+                or contract.get("input_layout") != "[n,passes,B[n],C[n],D[n],E[n]]"
+                or contract.get("operation") != "For each pass and ascending i, write X[i]=B[i]+D[i]*D[i], then B[i]=C[i]+D[i]*E[i]."
+                or contract.get("n_range") != [1, 32] or contract.get("passes_range") != [1, 4]
+                or contract.get("value_range") != [-2, 2]
+                or workload.get("input") != {"kind": "signed_i64_array", "maximum_valid_length": TSVC_S471_MAX_INPUT_LENGTH,
+                                               "maximum_parseable_length": TSVC_S471_MAX_INPUT_LENGTH,
+                                               "invalid_input_result": -1, "null_input_result": -1}
+                or workload.get("output") != {"kind": "byte_array", "encoding": "Little-endian signed i64 X vector followed by B vector",
+                                               "maximum_bytes": TSVC_S471_MAX_OUTPUT_BYTES, "success_result": "16*n bytes",
+                                               "null_output_result": -2, "insufficient_capacity_result": -2,
+                                               "no_write_on_error": True}
+                or workload.get("workspace") != {"bytes": TSVC_S471_MAX_OUTPUT_BYTES,
+                                                   "meaning": "Staging for final X and B vectors of at most 32 values each."}
+                or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != case_ids
+                or len(workload.get("cases", [])) != len(case_ids)):
+            raise ValueError("TSVC s471 workload differs from its pinned bounded contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (f"{pinned}/TSVC/tsc.inc" not in readme
+                or "No explicit TSVC" not in readme
+                or "No explicit modification or redistribution grant" not in rights):
+            raise ValueError("TSVC s471 README or rights evidence is incomplete")
+        for relative in ("c/t/tsvc_s471_ordered_two_vector_map.c", "c3/t/tsvc_s471_ordered_two_vector_map.c3",
+                         "cpp/t/tsvc_s471_ordered_two_vector_map.cpp", "elisa/t/tsvc_s471_ordered_two_vector_map.elisa",
+                         "nim/t/tsvc_s471_ordered_two_vector_map.nim", "odin/t/tsvc_s471_ordered_two_vector_map.odin",
+                         "rust/t/tsvc_s471_ordered_two_vector_map.rs", "v/t/tsvc_s471_ordered_two_vector_map.v",
+                         "zig/t/tsvc_s471_ordered_two_vector_map.zig"):
+            if "tsvc_s471_ordered_two_vector_map" not in (ROOT / relative).read_text(encoding="utf-8"):
+                raise ValueError(f"TSVC s471 port export missing: {relative}")
     elif algorithm == "cbench_blowfish_cbc":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
         expected_ids = {
@@ -38573,6 +41961,98 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                     or "THIS SOFTWARE IS PROVIDED BY ERIC YOUNG" not in source_text
                     or "cannot simply be copied and put under another distribution licence" not in source_text):
                 raise ValueError(f"cbench_blowfish_cbc port is missing its complete license notice: {relative}")
+    elif algorithm == "mediabench_gsm_rpe_grid_positioning":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "zero_residual_grid_zero", "grid_one_inserts_at_indices_one_through_thirty_seven",
+            "grid_two_signed_samples", "grid_three_word_minimum_and_neighboring_values",
+            "invalid_grid", "invalid_word_range", "invalid_short_input", "invalid_null_input",
+            "short_output_no_write", "null_output_no_write",
+        }
+        expected_source = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "path": "mediabench/gsm/toast/rpe.c", "symbol": "RPE_grid_positioning",
+            "lines": "363-398",
+            "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/mediabench/gsm/toast/rpe.c",
+            "license_path": "mediabench/gsm/toast/COPYRIGHT",
+            "license": "Use permitted with notice retention; warranty disclaimer",
+            "launcher": "mediabench/gsm/toast/info.sh",
+        }
+        expected_contract = {
+            "input": "[grid, xMp[0], ..., xMp[12]]; grid is 0..3 and samples are signed 16-bit words",
+            "operation": "initialize ep[0..39] to zero, then set ep[grid + 3*i] = xMp[i] for i=0..12",
+            "output": "40 signed 16-bit little-endian values",
+            "invalid_result": -1, "output_error_result": -2,
+            "success_result": 80, "no_write_on_error": True,
+        }
+        if (set(workload) != {
+                    "schema_version", "id", "algorithm", "function_symbol", "description",
+                    "pinned_source", "contract", "input", "output", "workspace",
+                    "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mediabench-gsm-rpe-grid-positioning-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Scatter thirteen decoded GSM RPE samples onto one of four 40-sample grids."
+                or workload.get("pinned_source") != expected_source
+                or workload.get("contract") != expected_contract
+                or workload.get("input") != {
+                    "kind": "signed_i64_array", "length_exact": MEDIABENCH_GSM_RPE_POSITIONING_INPUT_COUNT,
+                    "grid_range": [0, 3], "sample_range": [-32768, 32767],
+                    "maximum_valid_input_length": MEDIABENCH_GSM_RPE_POSITIONING_INPUT_COUNT,
+                    "maximum_parseable_input_length": MEDIABENCH_GSM_RPE_POSITIONING_MAX_INPUT_LENGTH,
+                    "invalid_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array", "encoding": "40 signed i16 little-endian values",
+                    "maximum_bytes": MEDIABENCH_GSM_RPE_POSITIONING_MAX_OUTPUT_BYTES,
+                    "null_or_short_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "elements": 40,
+                    "meaning": "Staged 40-sample reconstructed residual before output-capacity validation and serialization.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 20,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("mediabench_gsm_rpe_grid_positioning metadata differs from its pinned scatter contract")
+        package = ROOT / "benchmarks" / "m" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        copyright_text = (package / "COPYRIGHT.txt").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme or pinned not in readme
+                or "Any use of this software is permitted" not in copyright_text
+                or "no warranty" not in license_text.lower()):
+            raise ValueError("mediabench_gsm_rpe_grid_positioning README or rights notice is incomplete")
+        for relative in (
+                "c/m/mediabench_gsm_rpe_grid_positioning.c",
+                "c3/m/mediabench_gsm_rpe_grid_positioning.c3",
+                "cpp/m/mediabench_gsm_rpe_grid_positioning.cpp",
+                "elisa/m/mediabench_gsm_rpe_grid_positioning.elisa",
+                "nim/m/mediabench_gsm_rpe_grid_positioning.nim",
+                "odin/m/mediabench_gsm_rpe_grid_positioning.odin",
+                "rust/m/mediabench_gsm_rpe_grid_positioning.rs",
+                "v/m/mediabench_gsm_rpe_grid_positioning.v",
+                "zig/m/mediabench_gsm_rpe_grid_positioning.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"mediabench_gsm_rpe_grid_positioning port is missing: {relative}")
+        for case in workload["cases"]:
+            expected_values = case.get("expected_values")
+            if (set(case) - {"id", "input_values", "input_length", "expected_result",
+                             "expected_values", "output_capacity", "output_is_null", "input_is_null"}
+                    or not {"id", "input_values", "input_length", "expected_result"} <= set(case)
+                    or type(case["input_length"]) is not int
+                    or type(case["expected_result"]) is not int
+                    or (case["expected_result"] == MEDIABENCH_GSM_RPE_POSITIONING_MAX_OUTPUT_BYTES
+                        and (not isinstance(expected_values, list) or len(expected_values) != 40
+                             or any(type(value) is not int or not -32768 <= value <= 32767
+                                    for value in expected_values)))
+                    or (case["expected_result"] < 0 and "expected_values" in case)):
+                raise ValueError(f"mediabench_gsm_rpe_grid_positioning fixture shape is invalid: {case.get('id')}")
     elif algorithm == "mediabench_gsm_rpe_grid_selection":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
         expected_ids = {
@@ -39311,6 +42791,166 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
             if not (ROOT / relative).is_file():
                 raise ValueError(f"tsvc_s279 language port is missing: {relative}")
+    elif algorithm == "tsvc_s115_upper_triangular_saxpy_elimination":
+        pinned="5d7b75df749241efa7a6e6f5be613d3fcc5cce38";expected_ids={"one-pass-triangular-saxpy","two-passes-retain-order","invalid-short-frame","invalid-coefficient","short-capacity"}
+        source=workload.get("pinned_source",{});cases=workload.get("cases",[])
+        if (set(workload)!={"schema_version","id","algorithm","function_symbol","abi","description","pinned_source","input","output","measurement","cases"}
+            or workload.get("schema_version")!=1 or workload.get("id")!="lac-dcc-tsvc-s115-upper-triangular-saxpy-elimination-i64-le-v1" or workload.get("algorithm")!=algorithm or workload.get("function_symbol")!=algorithm or workload.get("abi")!="i64_array_bytes_output"
+            or source.get("repository")!="lac-dcc/Benchmarks" or source.get("commit")!=pinned or source.get("path")!="TSVC/tsc.inc" or source.get("symbol")!="s115" or source.get("source_lines")!={"kernel_start":1035,"kernel_end":1060,"loop_start":1047,"loop_end":1054}
+            or source.get("url")!=f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc" or source.get("launcher_family")!="TSVC/LinearDependence-dbl" or "No explicit redistribution grant" not in source.get("license_note","")
+            or workload.get("input")!={"kind":"signed_64_bit_integer_array","argument_order":["n","passes","A[n]","U[n*n] row-major"],"n_range":[2,TSVC_S115_MAX_N],"passes_range":[1,TSVC_S115_MAX_PASSES],"exact_length":"2 + n + n*n","maximum_valid_input_length":TSVC_S115_MAX_INPUT_LENGTH,"value_range":[-1,1],"invalid_input_result":-1}
+            or workload.get("output")!={"kind":"little_endian_signed_64_bit_array","encoding":"final A vector","successful_result":"Number of output elements, n.","required_capacity":"8*n bytes.","maximum_elements":TSVC_S115_MAX_N,"maximum_bytes":TSVC_S115_MAX_OUTPUT_BYTES,"invalid_input_result":-1,"insufficient_output_capacity_result":-2}
+            or workload.get("measurement")!={"comparison_model":"i64_array_bytes_output_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":1} or {c.get("id") for c in cases if isinstance(c,dict)}!=expected_ids or len(cases)!=len(expected_ids)):
+            raise ValueError("tsvc_s115 metadata differs from its bounded triangular update contract")
+        package=ROOT/"benchmarks"/"t"/algorithm;readme=(package/"README.md").read_text(encoding="utf-8");rights=(package/"LICENSE.txt").read_text(encoding="utf-8")
+        if pinned not in readme or "TSVC/tsc.inc" not in readme or "clean-room" not in readme.lower() or "No explicit license grant" not in rights:raise ValueError("tsvc_s115 attribution or rights note is incomplete")
+        for relative in (f"c/t/{algorithm}.c",f"c3/t/{algorithm}.c3",f"cpp/t/{algorithm}.cpp",f"elisa/t/{algorithm}.elisa",f"nim/t/{algorithm}.nim",f"odin/t/{algorithm}.odin",f"rust/t/{algorithm}.rs",f"v/t/{algorithm}.v",f"zig/t/{algorithm}.zig"):
+            if not (ROOT/relative).is_file():raise ValueError(f"tsvc_s115 language port is missing: {relative}")
+    elif algorithm == "tsvc_s1113_feedback_anchor_add":
+        pinned="5d7b75df749241efa7a6e6f5be613d3fcc5cce38";expected_ids={"midpoint-feedback-visible","odd-length-anchor","invalid-short-frame","invalid-value","short-capacity"}
+        source=workload.get("pinned_source",{});cases=workload.get("cases",[])
+        if (set(workload)!={"schema_version","id","algorithm","function_symbol","abi","description","pinned_source","input","output","measurement","cases"}
+            or workload.get("schema_version")!=1 or workload.get("id")!="lac-dcc-tsvc-s1113-feedback-anchor-add-i64-le-v1" or workload.get("algorithm")!=algorithm or workload.get("function_symbol")!=algorithm or workload.get("abi")!="i64_array_bytes_output"
+            or source.get("repository")!="lac-dcc/Benchmarks" or source.get("commit")!=pinned or source.get("path")!="TSVC/tsc.inc" or source.get("symbol")!="s1113"
+            or source.get("source_lines")!={"kernel_start":977,"kernel_end":1000,"loop_start":989,"loop_end":994} or source.get("url")!=f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc" or source.get("launcher_family")!="TSVC/LinearDependence-dbl"
+            or "No explicit redistribution grant" not in source.get("license_note","")
+            or workload.get("input")!={"kind":"signed_64_bit_integer_array","argument_order":["n","A[n]","B[n]"],"n_range":[1,TSVC_S1113_MAX_N],"exact_length":"1 + 2*n","maximum_valid_input_length":TSVC_S1113_MAX_INPUT_LENGTH,"value_range":[-2,2],"invalid_input_result":-1}
+            or workload.get("output")!={"kind":"little_endian_signed_64_bit_array","encoding":"complete final A vector","successful_result":"Number of output elements, n.","required_capacity":"8*n bytes.","maximum_elements":64,"maximum_bytes":TSVC_S1113_MAX_OUTPUT_BYTES,"invalid_input_result":-1,"insufficient_output_capacity_result":-2}
+            or workload.get("measurement")!={"comparison_model":"i64_array_bytes_output_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":1} or {c.get("id") for c in cases if isinstance(c,dict)}!=expected_ids or len(cases)!=len(expected_ids)):
+            raise ValueError("tsvc_s1113 metadata differs from its pinned feedback-anchor contract")
+        package=ROOT/"benchmarks"/"t"/algorithm;readme=(package/"README.md").read_text(encoding="utf-8");rights=(package/"LICENSE.txt").read_text(encoding="utf-8")
+        if pinned not in readme or "TSVC/tsc.inc" not in readme or "clean-room" not in readme.lower() or "No explicit license grant" not in rights:raise ValueError("tsvc_s1113 attribution or rights note is incomplete")
+        for relative in (f"c/t/{algorithm}.c",f"c3/t/{algorithm}.c3",f"cpp/t/{algorithm}.cpp",f"elisa/t/{algorithm}.elisa",f"nim/t/{algorithm}.nim",f"odin/t/{algorithm}.odin",f"rust/t/{algorithm}.rs",f"v/t/{algorithm}.v",f"zig/t/{algorithm}.zig"):
+            if not (ROOT/relative).is_file():raise ValueError(f"tsvc_s1113 language port is missing: {relative}")
+    elif algorithm == "tsvc_s113_invariant_anchor_add":
+        pinned="5d7b75df749241efa7a6e6f5be613d3fcc5cce38";expected_ids={"three-element-fixed-anchor","one-element-no-loop","invalid-short-frame","invalid-value","short-capacity"}
+        source=workload.get("pinned_source",{});cases=workload.get("cases",[])
+        if (set(workload)!={"schema_version","id","algorithm","function_symbol","abi","description","pinned_source","input","output","measurement","cases"}
+            or workload.get("schema_version")!=1 or workload.get("id")!="lac-dcc-tsvc-s113-invariant-anchor-add-i64-le-v1" or workload.get("algorithm")!=algorithm or workload.get("function_symbol")!=algorithm or workload.get("abi")!="i64_array_bytes_output"
+            or source.get("repository")!="lac-dcc/Benchmarks" or source.get("commit")!=pinned or source.get("path")!="TSVC/tsc.inc" or source.get("symbol")!="s113"
+            or source.get("source_lines")!={"kernel_start":952,"kernel_end":975,"loop_start":964,"loop_end":969} or source.get("url")!=f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc" or source.get("launcher_family")!="TSVC/LinearDependence-dbl"
+            or "No explicit redistribution grant" not in source.get("license_note","")
+            or workload.get("input")!={"kind":"signed_64_bit_integer_array","argument_order":["n","A[n]","B[n]"],"n_range":[1,TSVC_S113_MAX_N],"exact_length":"1 + 2*n","maximum_valid_input_length":TSVC_S113_MAX_INPUT_LENGTH,"value_range":[-2,2],"invalid_input_result":-1}
+            or workload.get("output")!={"kind":"little_endian_signed_64_bit_array","encoding":"complete final A vector","successful_result":"Number of output elements, n.","required_capacity":"8*n bytes.","maximum_elements":64,"maximum_bytes":TSVC_S113_MAX_OUTPUT_BYTES,"invalid_input_result":-1,"insufficient_output_capacity_result":-2}
+            or workload.get("measurement")!={"comparison_model":"i64_array_bytes_output_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":1} or {c.get("id") for c in cases if isinstance(c,dict)}!=expected_ids or len(cases)!=len(expected_ids)):
+            raise ValueError("tsvc_s113 metadata differs from its pinned anchor-add contract")
+        package=ROOT/"benchmarks"/"t"/algorithm;readme=(package/"README.md").read_text(encoding="utf-8");rights=(package/"LICENSE.txt").read_text(encoding="utf-8")
+        if pinned not in readme or "TSVC/tsc.inc" not in readme or "clean-room" not in readme.lower() or "No explicit license grant" not in rights:raise ValueError("tsvc_s113 attribution or rights note is incomplete")
+        for relative in (f"c/t/{algorithm}.c",f"c3/t/{algorithm}.c3",f"cpp/t/{algorithm}.cpp",f"elisa/t/{algorithm}.elisa",f"nim/t/{algorithm}.nim",f"odin/t/{algorithm}.odin",f"rust/t/{algorithm}.rs",f"v/t/{algorithm}.v",f"zig/t/{algorithm}.zig"):
+            if not (ROOT/relative).is_file():raise ValueError(f"tsvc_s113 language port is missing: {relative}")
+    elif algorithm == "tsvc_s1112_reverse_constant_offset_map":
+        pinned="5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids={"three-element-reverse-map","single-element","invalid-short-frame","invalid-value","short-capacity"}
+        source=workload.get("pinned_source",{});cases=workload.get("cases",[])
+        if (set(workload)!={"schema_version","id","algorithm","function_symbol","abi","description","pinned_source","input","output","measurement","cases"}
+            or workload.get("schema_version")!=1 or workload.get("id")!="lac-dcc-tsvc-s1112-reverse-constant-offset-map-i64-le-v1"
+            or workload.get("algorithm")!=algorithm or workload.get("function_symbol")!=algorithm or workload.get("abi")!="i64_array_bytes_output"
+            or source.get("repository")!="lac-dcc/Benchmarks" or source.get("commit")!=pinned or source.get("path")!="TSVC/tsc.inc" or source.get("symbol")!="s1112"
+            or source.get("source_lines")!={"kernel_start":924,"kernel_end":948,"loop_start":936,"loop_end":940}
+            or source.get("url")!=f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc" or source.get("launcher_family")!="TSVC/LinearDependence-dbl"
+            or "No explicit redistribution grant" not in source.get("license_note","")
+            or workload.get("input")!={"kind":"signed_64_bit_integer_array","argument_order":["n","A[n]","B[n]"],"n_range":[1,TSVC_S1112_MAX_N],"exact_length":"1 + 2*n","maximum_valid_input_length":TSVC_S1112_MAX_INPUT_LENGTH,"value_range":[-2,2],"invalid_input_result":-1}
+            or workload.get("output")!={"kind":"little_endian_signed_64_bit_array","encoding":"complete final A vector","successful_result":"Number of output elements, n.","required_capacity":"8*n bytes.","maximum_elements":64,"maximum_bytes":TSVC_S1112_MAX_OUTPUT_BYTES,"invalid_input_result":-1,"insufficient_output_capacity_result":-2}
+            or workload.get("measurement")!={"comparison_model":"i64_array_bytes_output_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":1}
+            or {case.get("id") for case in cases if isinstance(case,dict)}!=expected_ids or len(cases)!=len(expected_ids)):
+            raise ValueError("tsvc_s1112 metadata differs from its pinned reverse constant-map contract")
+        package=ROOT/"benchmarks"/"t"/algorithm;readme=(package/"README.md").read_text(encoding="utf-8");rights=(package/"LICENSE.txt").read_text(encoding="utf-8")
+        if pinned not in readme or "TSVC/tsc.inc" not in readme or "clean-room" not in readme.lower() or "No explicit license grant" not in rights:raise ValueError("tsvc_s1112 attribution or rights note is incomplete")
+        for relative in (f"c/t/{algorithm}.c",f"c3/t/{algorithm}.c3",f"cpp/t/{algorithm}.cpp",f"elisa/t/{algorithm}.elisa",f"nim/t/{algorithm}.nim",f"odin/t/{algorithm}.odin",f"rust/t/{algorithm}.rs",f"v/t/{algorithm}.v",f"zig/t/{algorithm}.zig"):
+            if not (ROOT/relative).is_file():raise ValueError(f"tsvc_s1112 language port is missing: {relative}")
+    elif algorithm == "tsvc_s1111_stride_two_polynomial_map":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {"single-polynomial-destination", "two-destinations-source-expression-order",
+                        "invalid-short-frame", "invalid-vector-value", "invalid-n", "short-output-capacity"}
+        source = workload.get("pinned_source", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version","id","algorithm","function_symbol","abi","description",
+                              "pinned_source","input","output","measurement","cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s1111-stride-two-polynomial-map-i64-le-v1"
+                or workload.get("algorithm") != algorithm or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks" or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc" or source.get("symbol") != "s1111"
+                or source.get("source_lines") != {"kernel_start":871,"kernel_end":893,"loop_start":881,"loop_end":885}
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or source.get("launcher_family") != "TSVC/LinearDependence-dbl"
+                or "No explicit redistribution grant" not in source.get("license_note", "")
+                or workload.get("input") != {"kind":"signed_64_bit_integer_array",
+                    "argument_order":["n","A[2*n]","B[n]","C[n]","D[n]"],"n_range":[1,TSVC_S1111_MAX_N],
+                    "exact_length":"1 + 5*n","maximum_valid_input_length":TSVC_S1111_MAX_INPUT_LENGTH,
+                    "value_range":[-2,2],"invalid_input_result":-1}
+                or workload.get("output") != {"kind":"little_endian_signed_64_bit_array",
+                    "encoding":"complete final A vector","successful_result":"Number of output elements, 2*n.",
+                    "required_capacity":"16*n bytes.","maximum_elements":64,
+                    "maximum_bytes":TSVC_S1111_MAX_OUTPUT_BYTES,"invalid_input_result":-1,
+                    "insufficient_output_capacity_result":-2}
+                or workload.get("measurement") != {"comparison_model":"i64_array_bytes_output_call",
+                    "sample_count":5,"warmup_rounds":1,"repetitions_per_sample":1}
+                or {case.get("id") for case in cases if isinstance(case,dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s1111 metadata differs from its pinned polynomial map contract")
+        package=ROOT/"benchmarks"/"t"/algorithm
+        readme=(package/"README.md").read_text(encoding="utf-8")
+        rights=(package/"LICENSE.txt").read_text(encoding="utf-8")
+        if pinned not in readme or "TSVC/tsc.inc" not in readme or "clean-room" not in readme.lower() or "No explicit license grant" not in rights:
+            raise ValueError("tsvc_s1111 source attribution or rights note is incomplete")
+        for relative in (f"c/t/{algorithm}.c",f"c3/t/{algorithm}.c3",f"cpp/t/{algorithm}.cpp",
+                         f"elisa/t/{algorithm}.elisa",f"nim/t/{algorithm}.nim",f"odin/t/{algorithm}.odin",
+                         f"rust/t/{algorithm}.rs",f"v/t/{algorithm}.v",f"zig/t/{algorithm}.zig"):
+            if not (ROOT/relative).is_file(): raise ValueError(f"tsvc_s1111 language port is missing: {relative}")
+    elif algorithm == "tsvc_s119_diagonal_matrix_recurrence":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {"two-by-two-single-update", "three-by-three-diagonal-prefix",
+                        "repeat-pass-is-idempotent", "malformed-short-frame",
+                        "invalid-seed", "invalid-side", "short-output-capacity"}
+        source = workload.get("pinned_source", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s119-diagonal-matrix-recurrence-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s119"
+                or source.get("source_lines") != {"kernel_start":1150,"kernel_end":1177,"loop_start":1162,"loop_end":1169}
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or source.get("launcher_family") != "TSVC/LinearDependence-dbl"
+                or "No explicit redistribution grant" not in source.get("license_note", "")
+                or workload.get("input") != {
+                    "kind":"signed_64_bit_integer_array",
+                    "argument_order":["side","passes","A[side*side] row-major","B[side*side] row-major"],
+                    "side_range":[2,TSVC_S119_MAX_SIDE],"passes_range":[1,TSVC_S119_MAX_PASSES],
+                    "exact_length":"2 + 2*side*side","maximum_valid_input_length":TSVC_S119_MAX_INPUT_LENGTH,
+                    "matrix_value_range":[-2,2],"invalid_input_result":-1}
+                or workload.get("output") != {
+                    "kind":"little_endian_signed_64_bit_array",
+                    "encoding":"complete final A matrix in row-major order",
+                    "successful_result":"Number of output elements, side*side.",
+                    "required_capacity":"8*side*side bytes.","maximum_elements":64,
+                    "maximum_bytes":TSVC_S119_MAX_OUTPUT_BYTES,"invalid_input_result":-1,
+                    "insufficient_output_capacity_result":-2}
+                or workload.get("measurement") != {"comparison_model":"i64_array_bytes_output_call",
+                    "sample_count":5,"warmup_rounds":1,"repetitions_per_sample":1}
+                or {case.get("id") for case in cases if isinstance(case,dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s119 metadata differs from its pinned diagonal recurrence contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s119 source attribution or rights note is incomplete")
+        for relative in (f"c/t/{algorithm}.c",f"c3/t/{algorithm}.c3",f"cpp/t/{algorithm}.cpp",
+                         f"elisa/t/{algorithm}.elisa",f"nim/t/{algorithm}.nim",f"odin/t/{algorithm}.odin",
+                         f"rust/t/{algorithm}.rs",f"v/t/{algorithm}.v",f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s119 language port is missing: {relative}")
     elif algorithm == "tsvc_s2111_wavefront_add_recurrence":
         pinned = "5d7b75df749241efa7a6f5be613d3fcc5cce38"
         expected_ids = {
@@ -42472,6 +46112,96 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             if (type(case.get("expected_result")) is not int
                     or expected[0] != case["expected_result"] or expected[1] != expected_output):
                 raise ValueError(f"Parboil histogram fixture differs from its oracle: {case.get('id')}")
+    elif algorithm == "beebs_nettle_cast128":
+        pinned = "049ded9f3aeb5591f553879d3a0376b8614e9422"
+        expected_ids = {
+            "beebs_first_block", "rfc2144_128_bit_known_answer", "negative_key_byte",
+            "byte_above_range", "truncated_frame", "extra_trailing_byte", "null_input",
+            "null_output", "short_output_capacity",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "beebs-nettle-cast128-one-block-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description")
+                != "Encrypt one 64-bit block in CAST-128 ECB mode using a 128-bit key."
+                or source.get("repository") != "mageec/beebs"
+                or source.get("commit") != pinned
+                or source.get("path") != "src/nettle-cast128/cast128.c"
+                or source.get("symbols") != ["cast128_set_key", "cast128_encrypt",
+                                               "initialise_benchmark", "benchmark", "verify_benchmark"]
+                or source.get("url") != (
+                    f"https://github.com/mageec/beebs/blob/{pinned}/src/nettle-cast128/cast128.c")
+                or source.get("spdx") != "GPL-3.0-or-later"
+                or "Niels Möller" not in source.get("rights_note", "")
+                or "Embecosm Limited" not in source.get("rights_note", "")
+                or "University of Bristol" not in source.get("rights_note", "")
+                or workload.get("contract") != {
+                    "mode": "ECB, exactly one 64-bit block, no padding or chaining",
+                    "key_size_bytes": BEEBS_NETTLE_CAST128_KEY_BYTES,
+                    "block_size_bytes": BEEBS_NETTLE_CAST128_BLOCK_BYTES,
+                    "operation": "Apply RFC 2144 CAST-128 key expansion and the 16-round 128-bit-key encryption transform to the input block.",
+                    "input_layout": "[key[16], plaintext_block[8]]",
+                    "input_value_range": [0, 255],
+                    "invalid_result": BEEBS_NETTLE_CAST128_INVALID_RESULT,
+                    "output_error_result": BEEBS_NETTLE_CAST128_OUTPUT_ERROR,
+                    "algorithm_scope": "One block of encryption only. The pinned BEEBS timed function encrypts and decrypts two blocks; this bounded profile uses its first plaintext block and reports ciphertext.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_integer_array",
+                    "exact_length": BEEBS_NETTLE_CAST128_MAX_VALID_INPUT_LENGTH,
+                    "maximum_valid_input_length": BEEBS_NETTLE_CAST128_MAX_VALID_INPUT_LENGTH,
+                    "maximum_parseable_input_length": BEEBS_NETTLE_CAST128_MAX_INPUT_LENGTH,
+                    "byte_range": [0, 255],
+                    "invalid_input_result": BEEBS_NETTLE_CAST128_INVALID_RESULT,
+                    "null_input_result": BEEBS_NETTLE_CAST128_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "raw_bytes",
+                    "layout": "Eight CAST-128 ciphertext bytes in network byte order.",
+                    "success_result": BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES,
+                    "maximum_output_bytes": BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES,
+                    "invalid_input_result": BEEBS_NETTLE_CAST128_INVALID_RESULT,
+                    "null_output_result": BEEBS_NETTLE_CAST128_OUTPUT_ERROR,
+                    "insufficient_output_capacity_result": BEEBS_NETTLE_CAST128_OUTPUT_ERROR,
+                    "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES,
+                    "meaning": "One 64-bit ciphertext block. Key-schedule state and round keys are bounded stack-local state.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 100,
+                }
+                or not isinstance(workload.get("cases"), list)
+                or len(workload["cases"]) != len(expected_ids)
+                or {case.get("id") for case in workload["cases"] if isinstance(case, dict)}
+                    != expected_ids):
+            raise ValueError("beebs_nettle_cast128 metadata differs from its pinned one-block contract")
+        package = ROOT / "benchmarks" / "b" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "GPL-3.0-or-later" not in readme
+                or "Niels Möller" not in license_text
+                or "Embecosm Limited" not in license_text
+                or "University of Bristol" not in license_text
+                or "GNU GENERAL PUBLIC LICENSE" not in license_text):
+            raise ValueError("beebs_nettle_cast128 README or GPL attribution is incomplete")
+        for relative in (
+                "c/b/beebs_nettle_cast128.c", "c3/b/beebs_nettle_cast128.c3",
+                "cpp/b/beebs_nettle_cast128.cpp", "elisa/b/beebs_nettle_cast128.elisa",
+                "nim/b/beebs_nettle_cast128.nim", "odin/b/beebs_nettle_cast128.odin",
+                "rust/b/beebs_nettle_cast128.rs", "v/b/beebs_nettle_cast128.v",
+                "zig/b/beebs_nettle_cast128.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"beebs_nettle_cast128 language port is missing its symbol: {relative}")
     elif algorithm in EXTERNAL_BYTE_OUTPUT_BOUNDS:
         max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm][1]
         input_spec = workload.get("input", {})
@@ -42479,7 +46209,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         if (workload.get("schema_version") != 1
                 or workload.get("algorithm") != algorithm
                 or workload.get("function_symbol") != algorithm
-                or input_spec.get("kind") not in {"signed_i64_array", "signed_i64_array_of_bytes",
+                or input_spec.get("kind") not in {"signed_i64_array", "signed_64_bit_integer_array", "signed_i64_array_of_bytes",
                                                    "packed_signed_64_integer_array",
                                                    "packed_signed_64_bit_integer_array"}
                 or output_spec.get("maximum_bytes", output_spec.get("maximum_output_bytes")) != max_output
@@ -42554,6 +46284,14 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      if algorithm == "prolangs_c_allroots" else
                      PROLANGS_C_CDECL_MAX_INPUT
                      if algorithm == "prolangs_c_cdecl" else
+                     PROLANGS_C_NUMERIC_TOKEN_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "prolangs_c_numeric_token" else
+                     PROLANGS_C_LOADER_RELOCATION_ADD_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "prolangs_c_loader_relocation_add" else
+                     PAQ8P_CONTEXT_MIXER_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "paq8p_context_mixer" else
+                     PARGEO_BCP_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "pargeo_bichromatic_closest_pair" else
                      CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES if algorithm == "cbench_automotive_qsort1" else
                      VERSABENCH_8B10B_MAX_PARSEABLE_WORDS if algorithm == "8b10b" else
                      UINT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "uint" else
@@ -42586,11 +46324,29 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         seen_ids.add(case_id)
         result, output = oracle(values, capacity, output_is_null, input_is_null, input_length)
         expected_hex = case.get("expected_output_hex", "")
-        if algorithm == "mediabench_gsm_rpe_grid_selection":
+        if algorithm == "beebs_fasta":
+            expected_text = case.get("expected_output_text")
+            output_matches_fixture = (isinstance(expected_text, str)
+                                      and output == expected_text.encode("ascii"))
+        elif algorithm == "mediabench_gsm_rpe_grid_selection":
             expected_values = case.get("expected_values")
             output_matches_fixture = (
                 isinstance(expected_values, list) and len(output) == MEDIABENCH_GSM_RPE_MAX_OUTPUT_BYTES
                 and struct.unpack("<14q", output) == tuple(expected_values)
+                if result >= 0 else "expected_values" not in case and not output)
+        elif algorithm == "mediabench_gsm_rpe_grid_positioning":
+            expected_values = case.get("expected_values")
+            output_matches_fixture = (
+                isinstance(expected_values, list)
+                and len(output) == MEDIABENCH_GSM_RPE_POSITIONING_MAX_OUTPUT_BYTES
+                and struct.unpack("<40h", output) == tuple(expected_values)
+                if result >= 0 else "expected_values" not in case and not output)
+        elif algorithm == "cbench_consumer_lame_window_subband":
+            expected_values = case.get("expected_values")
+            output_matches_fixture = (
+                isinstance(expected_values, list) and len(expected_values) == 32
+                and len(output) == CBENCH_LAME_WINDOW_SUBBAND_MAX_OUTPUT_BYTES
+                and struct.unpack("<32q", output) == tuple(expected_values)
                 if result >= 0 else "expected_values" not in case and not output)
         else:
             output_matches_fixture = isinstance(expected_hex, str) and expected_hex.lower() == output.hex()
@@ -42662,6 +46418,20 @@ def main() -> int:
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
     workload_path = args.workload or (
+        ROOT / "benchmarks" / "a" / algorithm / "workload.json"
+        if algorithm in {"gapbs_afforest_components",
+                         "gapbs_shiloach_vishkin_components"} else
+        ROOT / "benchmarks" / "w" / algorithm / "workload.json"
+        if algorithm == "gbbs_ss_widest_path" else
+        ROOT / "benchmarks" / "l" / algorithm / "workload.json"
+        if algorithm == "beebs_lcdnum" else
+        ROOT / "benchmarks" / "d" / algorithm / "workload.json"
+        if algorithm == "gapbs_delta_step_sssp" else
+        ROOT / "benchmarks" / "m" / algorithm / "workload.json"
+        if algorithm in {"cbench_consumer_jpeg_h2v2_fancy_upsample",
+                         "cbench_consumer_mad_alias_reduce",
+                         "mediabench_gsm_rpe_grid_positioning",
+                         "cbench_consumer_lame_window_subband"} else
         ROOT / "benchmarks" / "d" / algorithm / "workload.json"
         if algorithm == "versabench_dbms_keys_union" else
         ROOT / "benchmarks" / "merge_sort_linked_list" / "workload.json"
@@ -43139,6 +46909,10 @@ def main() -> int:
                             TRIPFORCE_TRIPCODE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "tripforce_tripcode" else
                             EMBEDDED_LIST_STRESS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "embedded_list_stress" else
                             NUMERIC_TOKEN_STATE_MACHINE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "numeric_token_state_machine" else
+                            PROLANGS_C_NUMERIC_TOKEN_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "prolangs_c_numeric_token" else
+                            PROLANGS_C_LOADER_RELOCATION_ADD_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "prolangs_c_loader_relocation_add" else
+                            PAQ8P_CONTEXT_MIXER_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "paq8p_context_mixer" else
+                            PARGEO_BCP_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "pargeo_bichromatic_closest_pair" else
                             HINT_AREA_BOUND_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "hint_area_bound_refinement" else
                             NBENCH_HUFFMAN_COMPRESSION_MAX_PARSEABLE_INPUT_LENGTH

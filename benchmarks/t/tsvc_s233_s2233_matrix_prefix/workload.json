@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s233-s2233-matrix-prefix-i64-le-v1",
+  "algorithm": "tsvc_s233_s2233_matrix_prefix",
+  "function_symbol": "tsvc_s233_s2233_matrix_prefix",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded mode-dispatched source-order paired matrix prefix recurrences from TSVC s233 and s2233.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbols": [
+      "s233",
+      "s2233"
+    ],
+    "source_lines": {
+      "s233": [
+        2157,
+        2185
+      ],
+      "s2233": [
+        2187,
+        2215
+      ]
+    },
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc",
+    "launcher_family": "TSVC/LoopRestructuring-dbl",
+    "launcher_source": "LoopRestructuring-dbl/info.sh uses RUN_OPTIONS 4350 14; both symbols are selected by main.",
+    "attribution": "TSVC source attributes the collection to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit redistribution/modification grant was found in pinned TSVC materials; ports are clean-room and do not copy upstream code/comments."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "argument_order": [
+      "n",
+      "mode (0=s233, 1=s2233)",
+      "A[n*n] row-major",
+      "B[n*n] row-major",
+      "C[n*n] row-major"
+    ],
+    "n_range": [
+      2,
+      8
+    ],
+    "mode_values": [
+      0,
+      1
+    ],
+    "exact_length": "2+3*n*n",
+    "maximum_valid_input_length": 194,
+    "value_range": [
+      -1,
+      1
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "final A row-major followed by final B row-major",
+    "successful_result": "Number of output elements, 2*n*n.",
+    "required_capacity": "16*n*n bytes",
+    "maximum_elements": 128,
+    "maximum_bytes": 1024,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {"bytes": 1024, "meaning": "Staged maximum row-major A and B matrices; caller output is written only after complete input validation and recurrence evaluation."},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "s233-horizontal-b-prefix",
+      "input_values": [
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        -1,
+        0,
+        1
+      ],
+      "input_length": 29,
+      "output_capacity": 144,
+      "expected_result": 18,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000100000000000000000000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "s2233-vertical-b-prefix",
+      "input_values": [
+        3,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        -1,
+        0,
+        1
+      ],
+      "input_length": 29,
+      "output_capacity": 144,
+      "expected_result": 18,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "invalid-mode",
+      "input_values": [
+        2,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 14,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-short-frame",
+      "input_values": [
+        2,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-capacity",
+      "input_values": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 14,
+      "output_capacity": 63,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "id": "prolangs-c-simulator-format3-4-address-v1",
+  "algorithm": "prolangs_c_simulator_format3_4",
+  "function_symbol": "prolangs_c_simulator_format3_4",
+  "description": "Address-demand SIC/XE FORMAT3/FORMAT4 operand decoder derived from Prolangs-C simulator FORMAT3_4.",
+  "source": {
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "revision": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Prolangs-C/simulator/format.c",
+    "symbol": "FORMAT3_4",
+    "supporting_path": "Prolangs-C/simulator/constants.h",
+    "launcher": "Prolangs-C/simulator/info.sh",
+    "rights": "Source header: (c) William Landi 1991. Permission to use this code is granted as long as the copyright notice remains in place. This notice is retained in all package ports and LICENSE.txt."
+  },
+  "input": {
+    "kind": "sicxe_address_demand_i64_array",
+    "length": 7,
+    "fields": ["pc 0..1048572", "X register 0..16777215", "B register 0..16777215", "instruction byte 0", "instruction byte 1", "instruction byte 2", "instruction byte 3"],
+    "byte_range": [0, 255],
+    "supported_modes": ["plane-SIC n=i=0 source fallback", "format-3 simple/direct", "format-3 immediate", "format-3 indexed", "format-3 base-relative", "format-3 PC-relative", "format-4 simple/direct", "format-4 immediate", "format-4 indexed"],
+    "unsupported_modes": ["indirect mode (requires memory pointer dereference)", "value demand (requires operand memory read)"],
+    "address_bound": "negative decoded addresses are invalid in this profile so -1 remains an unambiguous error result",
+    "invalid_result": -1
+  },
+  "output": {"kind": "decoded_operand_address_i64", "invalid_result": -1},
+  "workspace": {"bytes": 0, "meaning": "Fixed seven-word instruction/register frame and scalar flag/address extraction."},
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000},
+  "cases": [
+    {"id": "plane-sic-source-fallback-zero", "input_values": [100, 5, 9, 0, 26, 188, 0], "expected_result": 0},
+    {"id": "format3-simple-direct", "input_values": [100, 0, 0, 3, 1, 35, 0], "expected_result": 291},
+    {"id": "format3-indexed", "input_values": [100, 10, 0, 3, 129, 35, 0], "expected_result": 301},
+    {"id": "format3-base-relative", "input_values": [100, 0, 1000, 3, 65, 35, 0], "expected_result": 1291},
+    {"id": "format3-pc-relative-negative-offset", "input_values": [100, 0, 0, 3, 47, 254, 0], "expected_result": 101},
+    {"id": "format3-pc-relative-positive-offset", "input_values": [100, 0, 0, 3, 32, 16, 0], "expected_result": 119},
+    {"id": "format4-immediate", "input_values": [200, 0, 0, 1, 26, 188, 222], "expected_result": 703710},
+    {"id": "format4-indexed", "input_values": [200, 10, 0, 3, 154, 188, 222], "expected_result": 703720},
+    {"id": "invalid-format3-base-and-pc", "input_values": [100, 0, 0, 3, 96, 0, 0], "expected_result": -1},
+    {"id": "invalid-format4-base-flag", "input_values": [100, 0, 10, 3, 80, 0, 0], "expected_result": -1},
+    {"id": "unsupported-indirect-mode", "input_values": [100, 0, 0, 2, 0, 1, 0], "expected_result": -1},
+    {"id": "invalid-pc-range", "input_values": [1048573, 0, 0, 3, 0, 0, 0], "expected_result": -1},
+    {"id": "negative-relative-address-outside-profile", "input_values": [0, 0, 0, 3, 47, 252, 0], "expected_result": -1},
+    {"id": "trailing-input-word-invalid", "input_values": [0, 0, 0, 3, 1, 0, 0, 0], "expected_result": -1}
+  ]
+}

@@ -1,0 +1,27 @@
+# Clean-room TSVC s471 profile; see package rights note.
+const MAX_N: usize = 32
+const MAX_INPUT_LENGTH: usize = 130
+def put64(v:i64,out:mutable u8&,offset:usize)->void:
+ bits:u64=v.u64();j:mutable usize=0
+ while j<8:out[offset+j]<-((bits>>(8*j))&255).u8();j<-j+1
+def tsvc_s471_ordered_two_vector_map_impl(input:i64&,length:usize,out:mutable u8&,capacity:usize)->i64:
+ if input.is_null() or length<6 or length>MAX_INPUT_LENGTH:return -1
+ nv:i64=input[0];pv:i64=input[1]
+ if nv<1 or nv>MAX_N.i64() or pv<1 or pv>4 or length!=2+4*nv.usize():return -1
+ n:usize=nv.usize();passes:usize=pv.usize();x:mutable f64[32]=zeroed;b:mutable f64[32]=zeroed;c:mutable f64[32]=zeroed;d:mutable f64[32]=zeroed;e:mutable f64[32]=zeroed
+ i:mutable usize=0
+ while i<n:
+  bv:i64=input[2+i];cv:i64=input[2+n+i];dv:i64=input[2+2*n+i];ev:i64=input[2+3*n+i]
+  if bv< -2 or bv>2 or cv< -2 or cv>2 or dv< -2 or dv>2 or ev< -2 or ev>2:return -1
+  b[i]<-bv.f64();c[i]<-cv.f64();d[i]<-dv.f64();e[i]<-ev.f64();i<-i+1
+ bytes:usize=16*n
+ if out.is_null() or capacity<bytes:return -2
+ p:mutable usize=0
+ while p<passes:
+  i<-0
+  while i<n:x[i]<-b[i]+d[i]*d[i];b[i]<-c[i]+d[i]*e[i];i<-i+1
+  p<-p+1
+ i<-0
+ while i<n:put64(x[i].i64(),out,8*i);put64(b[i].i64(),out,8*(n+i));i<-i+1
+ bytes.i64()
+export fn tsvc_s471_ordered_two_vector_map(input:i64&,length:usize,out:mutable u8&,capacity:usize)->i64=tsvc_s471_ordered_two_vector_map_impl

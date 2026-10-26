@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "gbbs-single-source-widest-path-i64-array-bytes-output-v1",
+  "algorithm": "gbbs_ss_widest_path",
+  "function_symbol": "gbbs_ss_widest_path",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded single-worker GBBS max-min path-width profile returning every source bottleneck width.",
+  "source": {
+    "repository": "ParAlg/gbbs",
+    "commit": "dbd1dcad582c0a316c5ba0d5524319d596dd82da",
+    "path": "benchmarks/SSWidestPath/JulienneDBS17/SSWidestPath.h",
+    "symbols": ["widestpath::Visit_F", "SSWidestPath"],
+    "url": "https://github.com/ParAlg/gbbs/blob/dbd1dcad582c0a316c5ba0d5524319d596dd82da/benchmarks/SSWidestPath/JulienneDBS17/SSWidestPath.h",
+    "launcher_path": "benchmarks/SSWidestPath/JulienneDBS17/SSWidestPath.cc",
+    "license_path": "LICENSE",
+    "license": "MIT"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, edge_count, source, (from, to, capacity)...]",
+    "node_count_range": [1, 16],
+    "edge_count_range": [0, 64],
+    "source_range": "0 <= source < node_count",
+    "endpoint_range": "0 <= from,to < node_count",
+    "edge_capacity_range": [1, 32],
+    "edge_semantics": "directed; parallel edges and self-loops are allowed",
+    "maximum_valid_length": 195,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "One widest-path bottleneck capacity per vertex in ascending vertex order; source is INT32_MAX and unreachable vertices are zero.",
+    "maximum_values": 16,
+    "maximum_bytes": 128,
+    "success_result": "8 * node_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Staged maximum output; caller memory is written only after complete input validation and capacity checks."
+  },
+  "contract": {
+    "operation": "For each vertex, maximize the minimum edge capacity over all directed paths from source.",
+    "source_width": 2147483647,
+    "unreachable_width": 0,
+    "launcher_profile": "Use the launcher default SSWidestPath path without -bf; the optional SSWidestPathBF branch is outside this profile.",
+    "source_profile": "Use positive integer capacities and source width INT32_MAX. The deterministic single-worker projection repeatedly selects the unsettled vertex with greatest known width, then relaxes its outgoing edges with candidate=min(width[u], capacity), accepting strict increases. This preserves the width update and monotone priority order of the source ring-bucket traversal while omitting parallel scheduling and bucket-ring mechanics.",
+    "duplicate_edge_rule": "All parallel edges are considered in input order; only a strict width improvement changes state.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single-source-only","input_values":[1,0,0],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"ffffff7f00000000"},
+    {"id":"directed-bottleneck-alternative","input_values":[4,5,0,0,1,10,0,2,5,1,2,7,1,3,4,2,3,6],"input_length":18,"output_capacity":32,"expected_result":32,"expected_output_hex":"ffffff7f000000000a0000000000000007000000000000000600000000000000"},
+    {"id":"parallel-edges-choose-greatest-capacity","input_values":[3,3,0,0,1,4,0,1,9,1,2,7],"input_length":12,"output_capacity":24,"expected_result":24,"expected_output_hex":"ffffff7f0000000009000000000000000700000000000000"},
+    {"id":"cycle-and-self-loop","input_values":[4,5,0,0,1,8,1,2,6,2,1,7,2,3,5,3,3,32],"input_length":18,"output_capacity":32,"expected_result":32,"expected_output_hex":"ffffff7f00000000080000000000000006000000000000000500000000000000"},
+    {"id":"directed-unreachable-and-zero-edge-graph","input_values":[4,1,0,1,2,3],"input_length":6,"output_capacity":32,"expected_result":32,"expected_output_hex":"ffffff7f00000000000000000000000000000000000000000000000000000000"},
+    {"id":"maximum-node-count-output","input_values":[16,0,0],"input_length":3,"output_capacity":128,"expected_result":128,"expected_output_hex":"ffffff7f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"},
+    {"id":"length-mismatch","input_values":[2,1,0,0,1],"input_length":5,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"source-out-of-range","input_values":[2,0,2],"input_length":3,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-capacity-invalid-profile","input_values":[2,1,0,0,1,0],"input_length":6,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"endpoint-out-of-range","input_values":[2,1,0,0,2,3],"input_length":6,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"insufficient-output-capacity","input_values":[1,0,0],"input_length":3,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,0,0],"input_length":3,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":128,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

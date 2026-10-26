@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mediabench-gsm-rpe-grid-positioning-v1",
+  "algorithm": "mediabench_gsm_rpe_grid_positioning",
+  "function_symbol": "mediabench_gsm_rpe_grid_positioning",
+  "description": "Scatter thirteen decoded GSM RPE samples onto one of four 40-sample grids.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "mediabench/gsm/toast/rpe.c",
+    "symbol": "RPE_grid_positioning",
+    "lines": "363-398",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mediabench/gsm/toast/rpe.c",
+    "license_path": "mediabench/gsm/toast/COPYRIGHT",
+    "license": "Use permitted with notice retention; warranty disclaimer",
+    "launcher": "mediabench/gsm/toast/info.sh"
+  },
+  "contract": {
+    "input": "[grid, xMp[0], ..., xMp[12]]; grid is 0..3 and samples are signed 16-bit words",
+    "operation": "initialize ep[0..39] to zero, then set ep[grid + 3*i] = xMp[i] for i=0..12",
+    "output": "40 signed 16-bit little-endian values",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "success_result": 80,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "length_exact": 14,
+    "grid_range": [0, 3],
+    "sample_range": [-32768, 32767],
+    "maximum_valid_input_length": 14,
+    "maximum_parseable_input_length": 15,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "40 signed i16 little-endian values",
+    "maximum_bytes": 80,
+    "null_or_short_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "elements": 40,
+    "meaning": "Staged 40-sample reconstructed residual before output-capacity validation and serialization."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {
+      "id": "zero_residual_grid_zero",
+      "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 14,
+      "expected_result": 80,
+      "expected_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      "id": "grid_one_inserts_at_indices_one_through_thirty_seven",
+      "input_values": [1, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112],
+      "input_length": 14,
+      "expected_result": 80,
+      "expected_values": [0, 100, 0, 0, 101, 0, 0, 102, 0, 0, 103, 0, 0, 104, 0, 0, 105, 0, 0, 106, 0, 0, 107, 0, 0, 108, 0, 0, 109, 0, 0, 110, 0, 0, 111, 0, 0, 112, 0, 0]
+    },
+    {
+      "id": "grid_two_signed_samples",
+      "input_values": [2, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1],
+      "input_length": 14,
+      "expected_result": 80,
+      "expected_values": [0, 0, -13, 0, 0, -12, 0, 0, -11, 0, 0, -10, 0, 0, -9, 0, 0, -8, 0, 0, -7, 0, 0, -6, 0, 0, -5, 0, 0, -4, 0, 0, -3, 0, 0, -2, 0, 0, -1, 0]
+    },
+    {
+      "id": "grid_three_word_minimum_and_neighboring_values",
+      "input_values": [3, -32768, -32767, -32766, -32765, -32764, -32763, -32762, -32761, -32760, -32759, -32758, -32757, -32756],
+      "input_length": 14,
+      "expected_result": 80,
+      "expected_values": [0, 0, 0, -32768, 0, 0, -32767, 0, 0, -32766, 0, 0, -32765, 0, 0, -32764, 0, 0, -32763, 0, 0, -32762, 0, 0, -32761, 0, 0, -32760, 0, 0, -32759, 0, 0, -32758, 0, 0, -32757, 0, 0, -32756]
+    },
+    {
+      "id": "invalid_grid",
+      "input_values": [4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 14,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_word_range",
+      "input_values": [0, -32769, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 14,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_short_input",
+      "input_values": [0, 0, 0],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    },
+    {
+      "id": "short_output_no_write",
+      "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 14,
+      "output_capacity": 79,
+      "expected_result": -2
+    },
+    {
+      "id": "null_output_no_write",
+      "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 14,
+      "output_capacity": 80,
+      "output_is_null": true,
+      "expected_result": -2
+    }
+  ]
+}

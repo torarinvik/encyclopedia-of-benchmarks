@@ -1,0 +1,4 @@
+// Clean-room TSVC s118 profile; see package rights note.
+fn put64(out &u8,p int,v i64){mut b:=u64(v);for j in 0..8{unsafe{out[p+j]=u8(b&255)};b>>=8}}
+@[export:'tsvc_s118_triangular_convolution_recurrence']
+pub fn tsvc_s118_triangular_convolution_recurrence(input &i64,length usize,output &u8,capacity usize)i64{if unsafe{input==nil}||length<8||length>74{return -1};nr:=unsafe{input[0]};passes:=unsafe{input[1]};if nr<2||nr>8||passes<1||passes>4{return -1};n:=int(nr);if int(length)!=2+n+n*n{return -1};mut a:=[8]i64{};mut b:=[64]i64{};for i in 0..n{x:=unsafe{input[2+i]};if x< -1||x>1{return -1};a[i]=x};for i in 0..n*n{x:=unsafe{input[2+n+i]};if x< -1||x>1{return -1};b[i]=x};if unsafe{output==nil}||capacity<usize(8*n){return -2};for _ in 0..int(passes){for i in 1..n{for j in 0..i{a[i]+=b[j*n+i]*a[i-j-1]}}};for i in 0..n{put64(output,8*i,a[i])};return i64(n)}

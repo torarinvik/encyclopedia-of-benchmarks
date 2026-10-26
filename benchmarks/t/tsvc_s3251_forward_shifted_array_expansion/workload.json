@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s3251-f64-slice-v1",
+  "algorithm": "tsvc_s3251_forward_shifted_array_expansion",
+  "function_symbol": "tsvc_s3251_forward_shifted_array_expansion",
+  "abi": "float64_slice_io",
+  "description": "Bounded source-order profile of TSVC s3251's forward A dependency and B/D updates.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s3251",
+    "source_lines": {"kernel_start": 2396, "kernel_end": 2419},
+    "initializer_symbol": "s251",
+    "initializer_lines": {"start": 431, "end": 436},
+    "launcher_paths": ["TSVC/Expansion-dbl/info.sh", "TSVC/Expansion-flt/info.sh"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC",
+    "attribution": "TSVC source comments attribute codelets to David Callahan, Jack Dongarra, and David Levine.",
+    "license_note": "No explicit modification or redistribution grant was found in reviewed pinned materials; ports are clean-room."
+  },
+  "contract": {
+    "operation": "For i ascending from 0 through n-2: A[i+1]=B[i]+C[i]; B[i]=C[i]*E[i]; D[i]=A[i]*E[i], where A[i] is the current value after any preceding iteration.",
+    "input_layout": "[n,A[n],B[n],C[n],D[n],E[n]]",
+    "output_layout": "[A_final[n],B_final[n],D_final[n]]",
+    "n_range": [1, 64],
+    "value_range": [-1, 1],
+    "exact_length": "1+5*n",
+    "arithmetic": "Integer-valued binary64; intermediates are in [-2,2] and exactly representable in binary32 and binary64.",
+    "passes": 1,
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "input_modified": false
+  },
+  "input": {"kind": "float64_slice", "maximum_valid_length": 321, "maximum_parseable_length": 321, "n_range": [1, 64], "null_input_result": -1},
+  "output": {"kind": "float64_slice", "maximum_elements": 192, "no_write_on_error": true, "null_output_result": -2, "short_capacity_result": -2},
+  "workspace": {"elements": 192, "bytes": 1536, "meaning": "Staged concatenation of final A, B, and D vectors."},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 100, "absolute_tolerance": 0, "relative_tolerance": 0},
+  "cases": [
+    {"id": "n1-no-loop", "input_values": [1, 0, 1, 1, -1, 1], "input_length": 6, "expected_result": 3, "expected_output": [0, 1, -1]},
+    {"id": "forward-dependency-and-source-order", "input_values": [3, 1, 0, -1, 1, 1, -1, -1, 1, -1, 1, 1, 0, 1, -1, -1], "input_length": 16, "expected_result": 9, "expected_output": [1, 0, 2, -1, -1, -1, 1, 0, 0]},
+    {"id": "invalid-n", "input_values": [0], "input_length": 1, "expected_result": -1, "expected_output": []},
+    {"id": "truncated", "input_values": [2, 1, 0], "input_length": 3, "expected_result": -1, "expected_output": []},
+    {"id": "fractional", "input_values": [1, 0.5, 0, 0, 0, 0], "input_length": 6, "expected_result": -1, "expected_output": []},
+    {"id": "short-capacity", "input_values": [1, 0, 1, 1, 1, 1], "input_length": 6, "expected_result": -2, "expected_output": [], "output_capacity": 2},
+    {"id": "null-output", "input_values": [1, 0, 1, 1, 1, 1], "input_length": 6, "expected_result": -2, "expected_output": [], "output_is_null": true}
+  ]
+}

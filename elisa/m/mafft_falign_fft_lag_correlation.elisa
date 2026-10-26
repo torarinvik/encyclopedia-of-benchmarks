@@ -1,0 +1,137 @@
+# Clean-room bounded MAFFT Falign FFT lag profile; see package LICENSE.txt.
+extern trunc(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+const MAX_N: usize = 64
+const POLARITY: f64[20] = {8.1, 10.5, 11.6, 13.0, 5.5, 10.5, 12.3, 9.0, 10.4, 5.2, 4.9, 11.3, 5.7, 5.2, 8.0, 9.2, 8.6, 5.4, 6.2, 5.9}
+const VOLUME: f64[20] = {31.0, 124.0, 56.0, 54.0, 55.0, 85.0, 83.0, 3.0, 96.0, 111.0, 111.0, 119.0, 105.0, 132.0, 32.5, 32.0, 61.0, 170.0, 136.0, 84.0}
+
+def amino_channel(code: i64) -> i64:
+    if code == 65: return 0
+    if code == 82: return 1
+    if code == 78: return 2
+    if code == 68: return 3
+    if code == 67: return 4
+    if code == 81: return 5
+    if code == 69: return 6
+    if code == 71: return 7
+    if code == 72: return 8
+    if code == 73: return 9
+    if code == 76: return 10
+    if code == 75: return 11
+    if code == 77: return 12
+    if code == 70: return 13
+    if code == 80: return 14
+    if code == 83: return 15
+    if code == 84: return 16
+    if code == 87: return 17
+    if code == 89: return 18
+    if code == 86: return 19
+    return -1
+
+def fft(real: mutable f64&, imag: mutable f64&, offset: usize, n: usize, inverse: bool) -> void:
+    j: mutable usize = 0
+    for i in 1..<n:
+        bit: mutable usize = n >> 1
+        while (j & bit) != 0:
+            j <- j ^ bit
+            bit <- bit >> 1
+        j <- j ^ bit
+        if i < j:
+            temp: mutable f64 = real[offset + i]
+            real[offset + i] <- real[offset + j]
+            real[offset + j] <- temp
+            temp <- imag[offset + i]
+            imag[offset + i] <- imag[offset + j]
+            imag[offset + j] <- temp
+    span: mutable usize = 2
+    while span <= n:
+        direction: f64 = -1.0
+        if inverse: direction <- 1.0
+        angle: f64 = direction * 6.2831853071795864769 / span.f64()
+        cr: f64 = cos(angle)
+        ci: f64 = sin(angle)
+        start: mutable usize = 0
+        while start < n:
+            wr: mutable f64 = 1.0
+            wi: mutable f64 = 0.0
+            for k in 0..<(span / 2):
+                u: usize = offset + start + k
+                v: usize = u + span / 2
+                pr: f64 = wr * real[v] - wi * imag[v]
+                pi: f64 = wr * imag[v] + wi * real[v]
+                ur: f64 = real[u]
+                ui: f64 = imag[u]
+                real[u] <- ur + pr
+                imag[u] <- ui + pi
+                real[v] <- ur - pr
+                imag[v] <- ui - pi
+                next_wr: f64 = wr * cr - wi * ci
+                wi <- wr * ci + wi * cr
+                wr <- next_wr
+            start <- start + span
+        span <- span * 2
+    if not inverse:
+        for q in 0..<n:
+            real[offset + q] <- real[offset + q] / n.f64()
+            imag[offset + q] <- imag[offset + q] / n.f64()
+
+def mafft_falign_fft_lag_correlation_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > 66: return -1
+    for q in 0..<length:
+        value: f64 = input[q]
+        if value != value or trunc(value) != value: return -1
+    if input[0] < 1.0 or input[0] > 32.0 or input[1] < 1.0 or input[1] > 32.0: return -1
+    n1: usize = input[0].usize()
+    n2: usize = input[1].usize()
+    if length != 2 + n1 + n2: return -1
+    for q in 2..<length:
+        if input[q] < 65.0 or input[q] > 90.0 or amino_channel(input[q].i64()) < 0: return -1
+    n: mutable usize = 1
+    longer: usize = n1
+    if n2 > n1: longer <- n2
+    while n <= longer: n <- n * 2
+    if output.is_null() or capacity < n: return -2
+    r1: mutable f64[1280] = zeroed
+    i1: mutable f64[1280] = zeroed
+    r2: mutable f64[1280] = zeroed
+    i2: mutable f64[1280] = zeroed
+    re: mutable f64[64] = zeroed
+    im: mutable f64[64] = zeroed
+    mp: mutable f64 = 0.0
+    mv: mutable f64 = 0.0
+    for ch in 0..<20:
+        mp <- mp + POLARITY[ch]
+        mv <- mv + VOLUME[ch]
+    mp <- mp / 20.0
+    mv <- mv / 20.0
+    vp: mutable f64 = 0.0
+    vv: mutable f64 = 0.0
+    for ch in 0..<20:
+        dp: f64 = POLARITY[ch] - mp
+        dv: f64 = VOLUME[ch] - mv
+        vp <- vp + dp * dp
+        vv <- vv + dv * dv
+    sp: f64 = sqrt(vp / 20.0)
+    sv: f64 = sqrt(vv / 20.0)
+    for p in 0..<n1:
+        ch: usize = amino_channel(input[2 + p].i64()).usize()
+        r1[p] <- (POLARITY[ch] - mp) / sp
+        i1[p] <- (VOLUME[ch] - mv) / sv
+    for p in 0..<n2:
+        ch: usize = amino_channel(input[2 + n1 + p].i64()).usize()
+        r2[p] <- (POLARITY[ch] - mp) / sp
+        i2[p] <- (VOLUME[ch] - mv) / sv
+    fft(r1&, i1&, 0, n, false)
+    fft(r2&, i2&, 0, n, false)
+    for k in 0..<n:
+        re[k] <- r1[k] * r2[k] + i1[k] * i2[k]
+        im[k] <- -r1[k] * i2[k] + i1[k] * r2[k]
+    fft(re&, im&, 0, n, true)
+    for q in 0..<n:
+        source_index: usize = (n / 2 + n - q) % n
+        output[q] <- re[source_index]
+    n.i64()
+
+export fn mafft_falign_fft_lag_correlation(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = mafft_falign_fft_lag_correlation_impl

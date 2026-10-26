@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "id": "mediabench-jpeg-optimal-huffman-table-i64-array-bytes-output-v1",
+  "algorithm": "mediabench_jpeg_optimal_huffman_table",
+  "function_symbol": "mediabench_jpeg_optimal_huffman_table",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded IJG JPEG optimal Huffman code-length and symbol-table generation from a sparse frequency map.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "mediabench/jpeg/jpeg-6a/info.sh",
+      "mediabench/jpeg/jpeg-6a/jchuff.c",
+      "mediabench/jpeg/jpeg-6a/README"
+    ],
+    "symbols": ["jpeg_gen_optimal_table", "finish_pass_gather"],
+    "source_links": {
+      "launcher": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mediabench/jpeg/jpeg-6a/info.sh",
+      "kernel": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mediabench/jpeg/jpeg-6a/jchuff.c",
+      "license": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mediabench/jpeg/jpeg-6a/README"
+    },
+    "license": "Independent JPEG Group JPEG 6a distribution terms, including attribution and warranty disclaimer; notice reproduced in LICENSE.txt."
+  },
+  "contract": {
+    "operation": "Build one length-limited canonical JPEG Huffman table from positive frequencies for sparse byte symbols, using IJG's pseudo-symbol 256, root-symbol tie order, 16-bit length redistribution, pseudo-symbol removal, and source-order huffval emission.",
+    "input_layout": "[symbol_count, (symbol, frequency)*symbol_count]",
+    "symbol_count_range": [1, 20],
+    "symbol_range": [0, 255],
+    "frequency_range": [1, 1000000],
+    "duplicate_symbols": "Invalid.",
+    "tie_rule": "Among equal nonzero frequencies, choose the larger current root symbol ID first, then the larger remaining root ID; merged trees retain the first root ID.",
+    "maximum_code_length": 16,
+    "output_encoding": "Byte sequence [symbol_count, bits[1]..bits[16], huffval...].",
+    "output_bytes": "17 + symbol_count",
+    "maximum_valid_input_length": 41,
+    "maximum_output_bytes": 37,
+    "success_result": "17 + symbol_count",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "symbol count followed by distinct byte-symbol and positive-frequency pairs",
+    "maximum_length": 41,
+    "maximum_valid_length": 41,
+    "maximum_parseable_length": 41,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Table symbol count, sixteen code-length counts, then huffval symbols.",
+    "maximum_bytes": 37,
+    "capacity_unit": "bytes",
+    "success_result": "17 + symbol_count",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Fixed 257-entry frequency, tree-size, branch-link, and output work arrays."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-real-symbol-and-pseudo-symbol",
+      "input_values": [1, 42, 1],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 18,
+      "expected_result": 18,
+      "expected_output_hex": "0101000000000000000000000000002a"
+    },
+    {
+      "id": "equal-frequency-source-tie-order",
+      "input_values": [2, 7, 1, 9, 1],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 19,
+      "expected_result": 19,
+      "expected_output_hex": "02010100000000000000000000000000000709"
+    },
+    {
+      "id": "three-symbol-source-merge-order",
+      "input_values": [3, 1, 1, 2, 2, 3, 2],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 20,
+      "expected_result": 20,
+      "expected_output_hex": "03010101000000000000000000000000000000020301"
+    },
+    {
+      "id": "invalid-duplicate-symbol",
+      "input_values": [2, 7, 4, 7, 5],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 19,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-zero-frequency",
+      "input_values": [1, 42, 0],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 18,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-truncated-frame",
+      "input_values": [2, 7, 4, 9],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 19,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 19,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-buffer",
+      "input_values": [1, 42, 1],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 17,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-buffer",
+      "input_values": [1, 42, 1],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 18,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

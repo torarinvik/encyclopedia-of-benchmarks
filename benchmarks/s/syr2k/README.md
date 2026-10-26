@@ -36,3 +36,7 @@ The pinned launcher is [`info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d
 | Rust | [`rust/s/syr2k.rs`](../../../rust/s/syr2k.rs) |
 | V | [`v/s/syr2k.v`](../../../v/s/syr2k.v) |
 | Zig | [`zig/s/syr2k.zig`](../../../zig/s/syr2k.zig) |
+
+## Upstream license
+
+The pinned PolyBench/C repository includes the Ohio State University Software Distribution License at its repository root. The complete notice and redistribution conditions are reproduced in this package's [`LICENSE.txt`](LICENSE.txt).

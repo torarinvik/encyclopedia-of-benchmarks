@@ -1,0 +1,17 @@
+Prolangs-C simulator source permission notice
+
+The pinned source files state:
+
+    (c) William Landi 1991
+    Permission to use this code is granted as long as the copyright
+    notice remains in place.
+
+This notice is reproduced here and in each port, as required by the source's
+permission. The package ports are independently written, bounded adaptations
+of the FORMAT3_4 observable address-decoding behavior. No upstream source text
+is copied into the ports.
+
+Source revision: 5d7b75df749241efa7a6e6f5be613d3fcc5cce38
+Source: Prolangs-C/simulator/format.c::FORMAT3_4
+Supporting constants: Prolangs-C/simulator/constants.h
+Launcher: Prolangs-C/simulator/info.sh

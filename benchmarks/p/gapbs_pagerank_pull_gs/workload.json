@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "gapbs-pagerank-pull-gs-i64-array-scalar-v1",
+  "algorithm": "gapbs_pagerank_pull_gs",
+  "function_symbol": "gapbs_pagerank_pull_gs",
+  "abi": "i64_array_scalar",
+  "description": "Bounded source-ordered, binary32 Gauss-Seidel pull PageRank profile from GAPBS.",
+  "source": {
+    "repository": "sbeamer/gapbs",
+    "commit": "b5e3e19c2845f22fb338f4a4bc4b1ccee861d026",
+    "path": "src/pr.cc",
+    "symbols": ["PageRankPullGS"],
+    "url": "https://github.com/sbeamer/gapbs/blob/b5e3e19c2845f22fb338f4a4bc4b1ccee861d026/src/pr.cc",
+    "source_header_copyright": "Copyright (c) 2015, The Regents of the University of California (Regents)",
+    "license_path": "LICENSE.txt",
+    "license": "BSD-3-Clause"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, iteration_count, row-major binary directed adjacency matrix]",
+    "node_count_range": [2, 8],
+    "iteration_count_range": [0, 20],
+    "matrix_entry_values": [0, 1],
+    "matrix_rule": "Simple directed graph with zero diagonal; every row must have at least one outgoing edge.",
+    "maximum_valid_length": 66,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "floor(100 * sum((vertex_id + 1) * binary32_rank[vertex_id]) + 0.5)",
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "initialization": "Initialize every binary32 rank to 1/node_count, then each outgoing contribution to rank/outdegree.",
+    "damping_factor": "binary32 0.85",
+    "base_score": "binary32 ((1.0f - damping_factor) / node_count)",
+    "iteration": "For each requested iteration, process destination vertices in ascending ID order. Sum incoming contributions in ascending source ID order, update that destination score, then immediately update its outgoing contribution before processing the next destination.",
+    "variant": "This is GAPBS PageRankPullGS's in-place Gauss-Seidel pull order. It is distinct from the local synchronous binary64 PageRank profiles, which update a separate next-rank vector and redistribute dangling mass.",
+    "dangling_nodes": "Rejected: every source row must have nonzero outdegree, avoiding the source's division by zero for dangling rows.",
+    "convergence": "The profile fixes epsilon to zero, so the strict source condition error < epsilon cannot terminate early; it performs exactly iteration_count steps.",
+    "projection": "Return the 1-based vertex-weighted score checksum rounded to the nearest integer with positive half values rounded upward.",
+    "omitted_source_features": "OpenMP scheduling, logging, graph generation/loading, top-k printing, verifier, and convergence-error accumulation are omitted."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "zero-iterations-two-cycle",
+      "input_values": [2, 0, 0, 1, 1, 0],
+      "input_length": 6,
+      "expected_result": 150
+    },
+    {
+      "id": "in-place-pull-update",
+      "input_values": [3, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0],
+      "input_length": 11,
+      "expected_result": 153
+    },
+    {
+      "id": "twenty-iteration-directed-cycle",
+      "input_values": [3, 20, 0, 1, 0, 0, 0, 1, 1, 0, 0],
+      "input_length": 11,
+      "expected_result": 200
+    },
+    {
+      "id": "zero-outdegree-row",
+      "input_values": [2, 1, 0, 1, 0, 0],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "self-loop",
+      "input_values": [2, 1, 1, 0, 0, 1],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "nonbinary-entry",
+      "input_values": [2, 1, 0, 1, 2, 0],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "length-mismatch",
+      "input_values": [2, 1, 0, 1, 1, 0, 7],
+      "input_length": 7,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

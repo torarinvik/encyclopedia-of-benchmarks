@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "id": "gbbs-cosimrank-pair-similarity-i64-array-bytes-output-v1",
+  "algorithm": "gbbs_cosimrank_pair_similarity",
+  "function_symbol": "gbbs_cosimrank_pair_similarity",
+  "abi": "i64_array_bytes_output",
+  "description": "Exact bounded directed CoSimRank similarity for one source pair with four or fewer dyadic iterations.",
+  "source": {
+    "repository": "ParAlg/gbbs",
+    "commit": "dbd1dcad582c0a316c5ba0d5524319d596dd82da",
+    "path": "benchmarks/CoSimRank/CoSimRank.h",
+    "symbols": ["CoSimRank", "CoSimRank::operator()", "CoSimRank::PageRank"],
+    "url": "https://github.com/ParAlg/gbbs/blob/dbd1dcad582c0a316c5ba0d5524319d596dd82da/benchmarks/CoSimRank/CoSimRank.h",
+    "related_paths": ["benchmarks/CoSimRank/CoSimRank.cc"],
+    "launcher_path": "benchmarks/CoSimRank/CoSimRank.cc",
+    "launcher_symbol": "CoSimRank_runner",
+    "license_path": "LICENSE",
+    "license": "MIT"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, edge_count, source_u, source_v, iterations, (edge_from, edge_to)...]",
+    "node_count_range": [1, 8],
+    "edge_count_range": [0, 24],
+    "iterations_range": [1, 4],
+    "maximum_valid_length": 53,
+    "edge_semantics": "directed simple graph without self-loops; every nonzero outdegree is 1, 2, or 4",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_ieee754_binary64_bytes",
+    "encoding": "One binary64 CoSimRank score in IEEE-754 bit representation.",
+    "maximum_values": 1,
+    "maximum_bytes": 8,
+    "success_result": "8 bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8,
+    "meaning": "One staged binary64 result; the output is written only after validation and capacity checks."
+  },
+  "contract": {
+    "operation": "Initialize probability vectors at source_u and source_v. For each requested round, apply one directed uniform random-walk transition to each vector and add 0.5^round times the vectors' inner product to the score.",
+    "launcher_profile": "Fix -u and -v from the input, set -iters to the input iteration count, -cons 0.5, and -eps 0 so the exact requested number of rounds is performed.",
+    "source_profile": "The source begins with score 1 when the source vertices match and 0 otherwise, propagates the two unit page vectors, then adds the discounted inner product after each round.",
+    "projection": "The source's floating recurrence is restricted to a dyadic discount and outdegrees 1, 2, or 4, with at most four iterations. Ports use exact integer numerators on a 2^8 vector scale and encode the exact score as binary64. Parallel execution, tolerance stopping, weighted graphs, and arbitrary outdegrees are excluded.",
+    "discount": 0.5,
+    "epsilon": 0,
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "same-source-two-cycle-four-rounds",
+      "input_values": [2, 2, 0, 0, 4, 0, 1, 1, 0],
+      "input_length": 9,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "000000000000ff3f"
+    },
+    {
+      "id": "different-sources-two-cycle",
+      "input_values": [2, 2, 0, 1, 4, 0, 1, 1, 0],
+      "input_length": 9,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "distinct-sources-shared-successor",
+      "input_values": [3, 2, 0, 1, 2, 0, 2, 1, 2],
+      "input_length": 9,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "000000000000e03f"
+    },
+    {
+      "id": "same-source-two-way-fork-one-round",
+      "input_values": [3, 2, 0, 0, 1, 0, 1, 0, 2],
+      "input_length": 9,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "000000000000f43f"
+    },
+    {
+      "id": "maximum-edge-count-sink-pair",
+      "input_values": [8, 24, 6, 7, 4, 0, 1, 0, 2, 0, 6, 0, 7, 1, 2, 1, 3, 1, 6, 1, 7, 2, 3, 2, 4, 2, 6, 2, 7, 3, 4, 3, 5, 3, 6, 3, 7, 4, 5, 4, 0, 4, 6, 4, 7, 5, 0, 5, 1, 5, 6, 5, 7],
+      "input_length": 53,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    }
+  ]
+}

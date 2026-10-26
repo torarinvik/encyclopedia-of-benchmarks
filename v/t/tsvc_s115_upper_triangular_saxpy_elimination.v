@@ -1,0 +1,4 @@
+// Clean-room TSVC s115 profile; see package rights note.
+fn put64(o &u8,p int,v i64){mut b:=u64(v);for k in 0..8{unsafe{o[p+k]=u8(b&255)};b>>=8}}
+@[export:'tsvc_s115_upper_triangular_saxpy_elimination']
+pub fn tsvc_s115_upper_triangular_saxpy_elimination(input &i64,length usize,output &u8,capacity usize)i64{if unsafe{input==nil}||length<8||length>58{return -1};nr:=unsafe{input[0]};pr:=unsafe{input[1]};if nr<2||nr>7||pr<1||pr>3{return -1};n:=int(nr);passes:=int(pr);if int(length)!=2+n+n*n{return -1};mut a:=[8]i64{};mut m:=[64]i64{};for i in 0..n{x:=unsafe{input[2+i]};if x< -1||x>1{return -1};a[i]=x};for i in 0..n*n{x:=unsafe{input[2+n+i]};if x< -1||x>1{return -1};m[i]=x};if unsafe{output==nil}||capacity<usize(8*n){return -2};for _ in 0..passes{for j in 0..n{for i in j+1..n{a[i]-=m[j*n+i]*a[j]}}};for i in 0..n{put64(output,8*i,a[i])};return i64(n)}

@@ -58,6 +58,10 @@ from doe_pathfinder_signature_search_oracle import (
 )
 from ptrdist_ks_oracle import MAX_INPUT_LENGTH as PTRDIST_KS_MAX_INPUT_LENGTH
 from ptrdist_ks_oracle import expected_result as ptrdist_ks_expected
+from ptrdist_yacr2_maze1_dogleg_oracle import (
+    MAX_INPUT_LENGTH as PTRDIST_YACR2_MAZE1_DOGLEG_MAX_INPUT_LENGTH,
+    expected_result as ptrdist_yacr2_maze1_dogleg_expected,
+)
 from prolangs_c_assembler_oracle import (
     MAX_INPUT_LENGTH as PROLANGS_C_ASSEMBLER_MAX_INPUT_LENGTH,
     MAX_RECORDS as PROLANGS_C_ASSEMBLER_MAX_RECORDS,
@@ -67,6 +71,43 @@ from prolangs_c_bison_nullable_oracle import (
     INVALID_RESULT as PROLANGS_C_BISON_NULLABLE_INVALID_RESULT,
     MAX_INPUT_LENGTH as PROLANGS_C_BISON_NULLABLE_MAX_INPUT_LENGTH,
     expected_result as prolangs_c_bison_nullable_expected,
+)
+from prolangs_c_gnugo_liberty_count_oracle import (
+    BOARD_SIZE as PROLANGS_C_GNUGO_BOARD_SIZE,
+    MAX_STONES as PROLANGS_C_GNUGO_MAX_STONES,
+    MAX_INPUT_LENGTH as PROLANGS_C_GNUGO_MAX_INPUT_LENGTH,
+    INVALID_RESULT as PROLANGS_C_GNUGO_INVALID_RESULT,
+    expected_result as prolangs_c_gnugo_liberty_count_expected,
+)
+from gapbs_ordered_triangle_count_oracle import (
+    MAX_NODES as GAPBS_ORDERED_TRIANGLE_COUNT_MAX_NODES,
+    MAX_INPUT_LENGTH as GAPBS_ORDERED_TRIANGLE_COUNT_MAX_INPUT_LENGTH,
+    expected_result as gapbs_ordered_triangle_count_expected,
+)
+from prolangs_c_gnugo_suicide_oracle import (
+    BOARD_SIZE as PROLANGS_C_GNUGO_SUICIDE_BOARD_SIZE,
+    MAX_STONES as PROLANGS_C_GNUGO_SUICIDE_MAX_STONES,
+    MAX_INPUT_LENGTH as PROLANGS_C_GNUGO_SUICIDE_MAX_INPUT_LENGTH,
+    INVALID_RESULT as PROLANGS_C_GNUGO_SUICIDE_INVALID_RESULT,
+    expected_result as prolangs_c_gnugo_suicide_expected,
+)
+from gapbs_betweenness_centrality_oracle import (
+    MAX_N as GAPBS_BETWEENNESS_CENTRALITY_MAX_N,
+    expected_result as gapbs_betweenness_centrality_expected,
+)
+from gapbs_pagerank_pull_gs_oracle import (
+    MAX_INPUT_LENGTH as GAPBS_PAGERANK_PULL_GS_MAX_INPUT_LENGTH,
+    MAX_ITERATIONS as GAPBS_PAGERANK_PULL_GS_MAX_ITERATIONS,
+    MAX_NODES as GAPBS_PAGERANK_PULL_GS_MAX_NODES,
+    expected_result as gapbs_pagerank_pull_gs_expected,
+)
+from prolangs_c_simulator_format3_4_oracle import (
+    MAX_INPUT_LENGTH as PROLANGS_C_SIMULATOR_FORMAT3_4_MAX_INPUT_LENGTH,
+    expected_result as prolangs_c_simulator_format3_4_expected,
+)
+from prolangs_c_simulator_shiftr_oracle import (
+    MAX_INPUT_LENGTH as PROLANGS_C_SIMULATOR_SHIFTR_MAX_INPUT_LENGTH,
+    expected_result as prolangs_c_simulator_shiftr_expected,
 )
 from prolangs_football_tiebreaks_oracle import MAX_TEAMS as PROLANGS_FOOTBALL_MAX_TEAMS
 from prolangs_football_tiebreaks_oracle import MAX_RECORD_GAMES as PROLANGS_FOOTBALL_MAX_RECORD_GAMES
@@ -80,6 +121,11 @@ from scimark2_sor_oracle import (
 )
 from ptrdist_anagram_oracle import MAX_INPUT_LENGTH as PTRDIST_ANAGRAM_MAX_INPUT_LENGTH
 from ptrdist_anagram_oracle import expected_result as ptrdist_anagram_expected
+from ptrdist_sim_local_affine_alignment_oracle import (
+    MAX_INPUT_LENGTH as PTRDIST_SIM_LOCAL_AFFINE_MAX_INPUT_LENGTH,
+    MAX_SEQUENCE_LENGTH as PTRDIST_SIM_LOCAL_AFFINE_MAX_SEQUENCE_LENGTH,
+    expected_result as ptrdist_sim_local_affine_alignment_expected,
+)
 from stanford_puzzle_oracle import MAX_PASSES as STANFORD_PUZZLE_MAX_PASSES
 from stanford_puzzle_oracle import MAX_SEARCH_CALLS as STANFORD_PUZZLE_MAX_SEARCH_CALLS
 from stanford_puzzle_oracle import expected_output as stanford_puzzle_expected
@@ -103,6 +149,13 @@ from embench_aha_mont64_oracle import (
     MAX_INPUT_LENGTH as EMBENCH_AHA_MONT64_MAX_INPUT_LENGTH,
     MAX_MODULUS as EMBENCH_AHA_MONT64_MAX_MODULUS,
     expected_result as embench_aha_mont64_expected,
+)
+from beebs_bit_compress_oracle import (
+    INVALID_RESULT as BEEBS_BIT_COMPRESS_INVALID_RESULT,
+    MAX_INPUT_LENGTH as BEEBS_BIT_COMPRESS_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as BEEBS_BIT_COMPRESS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_U32 as BEEBS_BIT_COMPRESS_MAX_U32,
+    expected_result as beebs_bit_compress_expected,
 )
 from slre_oracle import MAX_PATTERN as SLRE_MAX_PATTERN
 from slre_oracle import MAX_TEXT as SLRE_MAX_TEXT
@@ -221,6 +274,12 @@ from parboil_lbm_oracle import (
     MAX_POPULATION_RAW as PARBOIL_LBM_MAX_POPULATION_RAW,
     expected_result as parboil_lbm_expected,
 )
+from parboil_mri_gridding_oracle import (
+    MAX_INPUT_LENGTH as PARBOIL_MRI_GRIDDING_MAX_INPUT_LENGTH,
+    MAX_SAMPLES as PARBOIL_MRI_GRIDDING_MAX_SAMPLES,
+    expected_result as parboil_mri_gridding_expected,
+)
+PARBOIL_MRI_GRIDDING_MAX_RESULT = 3_028_536
 from tsvc_vbor_oracle import MAX_INPUT_LENGTH as TSVC_VBOR_MAX_INPUT_LENGTH
 from tsvc_vbor_oracle import MAX_N as TSVC_VBOR_MAX_N
 from tsvc_vbor_oracle import expected_result as tsvc_vbor_expected
@@ -255,6 +314,12 @@ from tsvc_s424_alias_overlap_feedback_oracle import (
     VALUE_MAX as TSVC_S424_VALUE_MAX,
     VALUE_MIN as TSVC_S424_VALUE_MIN,
     expected_result as tsvc_s424_alias_overlap_feedback_expected,
+)
+from tsvc_s423_antidependence_offset64_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S423_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S423_MAX_N,
+    MIN_N as TSVC_S423_MIN_N,
+    expected_result as tsvc_s423_antidependence_offset64_expected,
 )
 from versabench_dbms_choose_entry_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_CHOOSE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH,
@@ -6396,6 +6461,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (EMBENCH_AHA_MONT64_MAX_INPUT_LENGTH + 1
                         if algorithm == "embench_aha_mont64" else
+                        BEEBS_BIT_COMPRESS_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "beebs_bit_compress" else
                         COREMARK_CRC_MAX_INPUT_LENGTH if algorithm == "coremark_crc" else
                         NETBENCH_CRC_MAX_LENGTH if algorithm == "netbench_crc" else
                         TRIMARAN_NETBENCH_URL_CHECKSUM_MAX_INPUT_LENGTH + 1
@@ -6953,6 +7020,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "tsvc_s258_wrapped_scalar_expansion"
                         else TSVC_S424_MAX_INPUT_LENGTH
                         if algorithm == "tsvc_s424_alias_overlap_feedback"
+                        else TSVC_S423_MAX_INPUT_LENGTH
+                        if algorithm == "tsvc_s423_antidependence_offset64"
                         else VERSABENCH_DBMS_CHOOSE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "versabench_dbms_choose_entry"
                         else VERSABENCH_DBMS_PARTITION_ENTRIES_MAX_PARSEABLE_INPUT_LENGTH
@@ -6992,6 +7061,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         max_input_length = PARBOIL_SAD_MAX_INPUT_LENGTH
     elif algorithm == "parboil_lbm":
         max_input_length = PARBOIL_LBM_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "parboil_mri_gridding":
+        max_input_length = PARBOIL_MRI_GRIDDING_MAX_INPUT_LENGTH
     elif algorithm == "mccat_08_main":
         max_input_length = MCCAT_08_MAIN_MAX_INPUT_LENGTH + 1
     elif algorithm == "mccat_09_vor":
@@ -7000,6 +7071,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         max_input_length = 4
     elif algorithm == "ptrdist_anagram":
         max_input_length = PTRDIST_ANAGRAM_MAX_INPUT_LENGTH + 1
+    elif algorithm == "ptrdist_sim_local_affine_alignment":
+        max_input_length = PTRDIST_SIM_LOCAL_AFFINE_MAX_INPUT_LENGTH + 1
     elif algorithm == "stanford_puzzle":
         max_input_length = 2
     elif algorithm == "mallocbench_cfrac":
@@ -7012,10 +7085,26 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         max_input_length = 4 + 2 * DOE_PATHFINDER_MAX_EDGES + DOE_PATHFINDER_MAX_NODES + DOE_PATHFINDER_MAX_SIGNATURE_LENGTH
     elif algorithm == "ptrdist_ks":
         max_input_length = PTRDIST_KS_MAX_INPUT_LENGTH + 1
+    elif algorithm == "ptrdist_yacr2_maze1_dogleg":
+        max_input_length = PTRDIST_YACR2_MAZE1_DOGLEG_MAX_INPUT_LENGTH
     elif algorithm == "prolangs_c_assembler":
         max_input_length = PROLANGS_C_ASSEMBLER_MAX_INPUT_LENGTH + 1
     elif algorithm == "prolangs_c_bison_nullable":
         max_input_length = PROLANGS_C_BISON_NULLABLE_MAX_INPUT_LENGTH
+    elif algorithm == "prolangs_c_gnugo_liberty_count":
+        max_input_length = PROLANGS_C_GNUGO_MAX_INPUT_LENGTH + 1
+    elif algorithm == "gapbs_ordered_triangle_count":
+        max_input_length = GAPBS_ORDERED_TRIANGLE_COUNT_MAX_INPUT_LENGTH + 1
+    elif algorithm == "prolangs_c_gnugo_suicide":
+        max_input_length = PROLANGS_C_GNUGO_SUICIDE_MAX_INPUT_LENGTH + 1
+    elif algorithm == "gapbs_betweenness_centrality":
+        max_input_length = 2 + GAPBS_BETWEENNESS_CENTRALITY_MAX_N + GAPBS_BETWEENNESS_CENTRALITY_MAX_N ** 2 + 1
+    elif algorithm == "gapbs_pagerank_pull_gs":
+        max_input_length = GAPBS_PAGERANK_PULL_GS_MAX_INPUT_LENGTH + 1
+    elif algorithm == "prolangs_c_simulator_format3_4":
+        max_input_length = PROLANGS_C_SIMULATOR_FORMAT3_4_MAX_INPUT_LENGTH + 1
+    elif algorithm == "prolangs_c_simulator_shiftr":
+        max_input_length = PROLANGS_C_SIMULATOR_SHIFTR_MAX_INPUT_LENGTH + 1
     elif algorithm == "prolangs_football_tiebreaks":
         max_input_length = 1 + 12 * PROLANGS_FOOTBALL_MAX_TEAMS + 2 * PROLANGS_FOOTBALL_MAX_TEAMS ** 2 + 1
     elif algorithm == "scimark2_sor":
@@ -7114,6 +7203,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = cbench_rsynth_f0_flutter_expected(values)
         if expected != expected_from_source:
             raise ValueError("cbench_rsynth_f0_flutter expected_result must match the bounded three-sine helper")
+    elif algorithm == "parboil_mri_gridding":
+        expected_from_source = parboil_mri_gridding_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("parboil_mri_gridding expected_result must match the bounded source-order grid checksum")
     elif algorithm == "tsvc_s4115_indexed_gather_product_sum":
         expected_from_source = tsvc_s4115_indexed_gather_product_sum_expected(values)
         if expected != expected_from_source:
@@ -7148,6 +7241,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             None if input_is_null else values, case.get("input_length", len(values)))
         if expected != expected_from_source:
             raise ValueError("ptrdist_anagram expected_result must match the bounded multiword decomposition search")
+    elif algorithm == "ptrdist_sim_local_affine_alignment":
+        expected_from_source = ptrdist_sim_local_affine_alignment_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("ptrdist_sim_local_affine_alignment expected_result must match the bounded first-best affine alignment")
     elif algorithm == "stanford_puzzle":
         input_is_null = case.get("input_is_null", False)
         expected_from_source = stanford_puzzle_expected(
@@ -7181,6 +7278,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = ptrdist_ks_expected(values)
         if expected != expected_from_source:
             raise ValueError("ptrdist_ks expected_result must match bounded Kernighan-Lin partitioning")
+    elif algorithm == "ptrdist_yacr2_maze1_dogleg":
+        expected_from_source = ptrdist_yacr2_maze1_dogleg_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("ptrdist_yacr2_maze1_dogleg expected_result must match the bounded dogleg geometry")
     elif algorithm == "prolangs_c_assembler":
         input_is_null = case.get("input_is_null", False)
         expected_from_source = prolangs_c_assembler_expected(
@@ -7193,6 +7294,39 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             None if input_is_null else values, case.get("input_length", len(values)))
         if expected != expected_from_source:
             raise ValueError("prolangs_c_bison_nullable expected_result must match the bounded nullable fixed point")
+    elif algorithm == "prolangs_c_gnugo_liberty_count":
+        expected_from_source = prolangs_c_gnugo_liberty_count_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("prolangs_c_gnugo_liberty_count expected_result must match distinct liberties of the selected Go group")
+    elif algorithm == "gapbs_ordered_triangle_count":
+        expected_from_source = gapbs_ordered_triangle_count_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("gapbs_ordered_triangle_count expected_result must match bounded ordered triangle counting")
+    elif algorithm == "prolangs_c_gnugo_suicide":
+        expected_from_source = prolangs_c_gnugo_suicide_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("prolangs_c_gnugo_suicide expected_result must match the bounded source suicide and ko predicate")
+    elif algorithm == "gapbs_betweenness_centrality":
+        expected_from_source = gapbs_betweenness_centrality_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("gapbs_betweenness_centrality expected_result must match the bounded Brandes score checksum")
+    elif algorithm == "gapbs_pagerank_pull_gs":
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = gapbs_pagerank_pull_gs_expected(
+            None if input_is_null else values,
+            input_is_null=input_is_null,
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("gapbs_pagerank_pull_gs expected_result must match the bounded binary32 pull profile")
+    elif algorithm == "prolangs_c_simulator_format3_4":
+        expected_from_source = prolangs_c_simulator_format3_4_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("prolangs_c_simulator_format3_4 expected_result must match the bounded SIC/XE address decode")
+    elif algorithm == "prolangs_c_simulator_shiftr":
+        expected_from_source = prolangs_c_simulator_shiftr_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("prolangs_c_simulator_shiftr expected_result must match the bounded 24-bit arithmetic shift")
     elif algorithm == "prolangs_football_tiebreaks":
         expected_from_source = prolangs_football_tiebreaks_expected(values)
         if expected != expected_from_source:
@@ -7257,6 +7391,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = embench_aha_mont64_expected(values)
         if expected != expected_from_source:
             raise ValueError("embench_aha_mont64 expected_result must match the bounded Montgomery-domain product")
+    elif algorithm == "beebs_bit_compress":
+        expected_from_source = beebs_bit_compress_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("beebs_bit_compress expected_result must match the bounded arbitrary-mask bit gather")
     elif algorithm == "slre":
         expected_from_source = slre_expected(values)
         if expected != expected_from_source:
@@ -16911,6 +17049,96 @@ def validate_ptrdist_anagram_workload(workload: dict) -> None:
             raise ValueError(f"ptrdist_anagram fixture differs from its bounded oracle: {case.get('id')}")
 
 
+def validate_ptrdist_sim_local_affine_alignment_workload(workload: dict) -> None:
+    """Validate the bounded first-best SIM affine local-alignment score profile."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "source-default-scoring-exact-match", "best-local-substring-after-mismatch",
+        "no-positive-match", "one-symbol-affine-gap", "two-symbol-affine-gap",
+        "identical-sequences", "invalid-bad-symbol", "invalid-length-mismatch",
+        "invalid-truncated-header",
+    }
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned, "path": "sim/sim.c",
+        "symbols": ["main", "SIM", "big_pass", "gap"],
+        "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/sim/sim.c",
+        "launcher": "sim/info.sh", "launcher_options": "8 tob.38-44 liv.42-48",
+        "copyright": "Copyright (c) 1990 Xiaoqiu Huang and Webb Miller",
+        "license_status": "No explicit redistribution grant found in pinned source; clean-room ports only.",
+    }
+    expected_contract = {
+        "input": "[left_length, left_ascii..., right_length, right_ascii...]",
+        "alphabet": "uppercase A/C/G/T only",
+        "scoring_integer_tenths": {
+            "match": 10, "transition_mismatch": -10, "transversion_mismatch": -10,
+            "gap_open_q": 60, "gap_extend_r": 2, "gap_length_k_cost": "q + r*k",
+        },
+        "operation": "Local affine-gap dynamic programming; report the maximum cell score from the initial full pass.",
+        "output": "maximum local similarity score in integer tenths; zero if all alignments score nonpositive",
+        "invalid_result": -1, "max_sequence_length": 64, "max_input_length": 130,
+        "source_scope_excluded": "The launcher requests eight nonintersecting alignments. This bounded profile implements only the first-best score and omits iterative recomputation, traceback/display, and file handling.",
+    }
+    expected_ids_in_cases = {case.get("id") for case in workload.get("cases", [])
+                             if isinstance(case, dict)}
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "contract", "input", "output",
+                          "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-ptrdist-sim-local-affine-alignment-v1"
+            or workload.get("algorithm") != "ptrdist_sim_local_affine_alignment"
+            or workload.get("function_symbol") != "ptrdist_sim_local_affine_alignment"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("description") != "Return the first-best local alignment score using SIM's default affine-gap scoring profile."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("contract") != expected_contract
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "maximum_valid_length": 130,
+                "maximum_parseable_length": 131, "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar", "minimum_success_value": 0,
+                "maximum_success_value": 640,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 20,
+            }
+            or PTRDIST_SIM_LOCAL_AFFINE_MAX_SEQUENCE_LENGTH != 64
+            or PTRDIST_SIM_LOCAL_AFFINE_MAX_INPUT_LENGTH != 130
+            or not isinstance(workload.get("cases"), list)
+            or len(workload["cases"]) != len(expected_ids)
+            or len(expected_ids_in_cases) != len(workload["cases"])
+            or expected_ids_in_cases != expected_ids):
+        raise ValueError("ptrdist_sim_local_affine_alignment metadata differs from the pinned bounded DP contract")
+
+    package = ROOT / "benchmarks" / "p" / "ptrdist_sim_local_affine_alignment"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+    if (expected_source["url"] not in readme or "Copyright (c) 1990 Xiaoqiu Huang and Webb Miller" not in readme
+            or "No explicit redistribution license grant" not in readme
+            or "K=8" not in readme or "clean-room" not in notice
+            or "No explicit redistribution license grant" not in notice):
+        raise ValueError("ptrdist_sim_local_affine_alignment provenance or rights notice is incomplete")
+    for relative in (
+            "c/p/ptrdist_sim_local_affine_alignment.c", "c3/p/ptrdist_sim_local_affine_alignment.c3",
+            "cpp/p/ptrdist_sim_local_affine_alignment.cpp", "elisa/p/ptrdist_sim_local_affine_alignment.elisa",
+            "nim/p/ptrdist_sim_local_affine_alignment.nim", "odin/p/ptrdist_sim_local_affine_alignment.odin",
+            "rust/p/ptrdist_sim_local_affine_alignment.rs", "v/p/ptrdist_sim_local_affine_alignment.v",
+            "zig/p/ptrdist_sim_local_affine_alignment.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "ptrdist_sim_local_affine_alignment" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"ptrdist_sim_local_affine_alignment port is missing: {relative}")
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > PTRDIST_SIM_LOCAL_AFFINE_MAX_INPUT_LENGTH + 1
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != ptrdist_sim_local_affine_alignment_expected(values)):
+            raise ValueError(f"ptrdist_sim_local_affine_alignment fixture differs from its oracle: {case.get('id')}")
+
+
 def validate_stanford_puzzle_workload(workload: dict) -> None:
     pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
     expected_ids = {
@@ -17326,6 +17554,58 @@ def validate_ptrdist_ks_workload(workload: dict) -> None:
             raise ValueError(f"ptrdist_ks fixture differs from its independent oracle: {case.get('id')}")
 
 
+def validate_ptrdist_yacr2_maze1_dogleg_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    expected_ids = {
+        "open-plane-left-upper-first", "left-upper-vcv-uses-right-upper",
+        "both-upper-jogs-blocked-left-lower", "left-lower-vcv-right-lower",
+        "all-neighbor-columns-have-vcv", "truncated-plane",
+        "invalid-track-order", "null-input",
+    }
+    source = workload.get("pinned_source", {})
+    launcher = workload.get("pinned_launcher", {})
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "ptrdist-yacr2-maze1-todd-dogleg-i64-v1"
+            or workload.get("algorithm") != "ptrdist_yacr2_maze1_dogleg"
+            or workload.get("function_symbol") != "ptrdist_yacr2_maze1_dogleg"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("symbols") != ["Maze1Mech", "Maze1"]
+            or "No explicit license" not in source.get("license_note", "")
+            or launcher.get("path") != "Ptrdist/yacr2/info.sh"
+            or launcher.get("compile_flags") != ["-DTODD"]
+            or launcher.get("run_options") != ["input2.in"]
+            or workload.get("input", {}).get("maximum_valid_input_length")
+            != PTRDIST_YACR2_MAZE1_DOGLEG_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("invalid_result") != -1
+            or workload.get("output", {}).get("kind") != "signed_64_bit_integer"
+            or workload.get("output", {}).get("invalid_result") != -1
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("ptrdist_yacr2_maze1_dogleg metadata differs from its pinned source contract")
+    readme = (ROOT / "benchmarks" / "p" / "ptrdist_yacr2_maze1_dogleg" / "README.md").read_text(
+        encoding="utf-8")
+    if (pinned not in readme or "Ptrdist/yacr2/maze.c" not in readme
+            or "-DTODD" not in readme or "no license is inferred" not in readme.lower()):
+        raise ValueError("ptrdist_yacr2_maze1_dogleg README is missing source or rights notes")
+    for case in cases:
+        values = case.get("input_values")
+        is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list)
+                or len(values) > PTRDIST_YACR2_MAZE1_DOGLEG_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != (0 if is_null else len(values))
+                or type(is_null) is not bool or (is_null and values)
+                or case["expected_result"] != ptrdist_yacr2_maze1_dogleg_expected(values)):
+            raise ValueError(f"ptrdist_yacr2_maze1_dogleg fixture mismatch: {case.get('id')}")
+
+
 def validate_prolangs_c_assembler_workload(workload: dict) -> None:
     pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
     expected_ids = {
@@ -17651,6 +17931,615 @@ def validate_prolangs_c_bison_nullable_workload(workload: dict) -> None:
                 or expected != prolangs_c_bison_nullable_expected(
                     None if input_is_null else values, input_length)):
             raise ValueError(f"prolangs_c_bison_nullable fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_prolangs_c_gnugo_liberty_count_workload(workload: dict) -> None:
+    """Pin the bounded GNU Go group-liberty contract, rights, and fixtures."""
+    pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    expected_ids = {
+        "isolated-center-stone", "two-stone-horizontal-group",
+        "fully-surrounded-single-stone", "corner-connected-group",
+        "shared-liberty-counted-once", "invalid-start-is-empty",
+        "invalid-duplicate-cell", "invalid-trailing-word",
+    }
+    expected_rights = (
+        "The pinned source headers explicitly grant use, modification, and redistribution under GNU General Public License version 1. "
+        "These ports are derivative implementations licensed under GNU GPL version 1; the original source files are not copied. "
+        "Attribution: GNU Go 1.1, Copyright (C) Free Software Foundation, Inc.; written by Man L. Li, modified by Wayne Iba, documented by Bob Webber."
+    )
+    expected_source = {
+        "repository": "https://github.com/lac-dcc/Benchmarks",
+        "revision": pinned,
+        "paths": ["Prolangs-C/gnugo/countlib.c", "Prolangs-C/gnugo/count.c"],
+        "symbols": ["countlib", "count"],
+        "launcher": "Prolangs-C/gnugo/info.sh",
+        "rights": expected_rights,
+    }
+    expected_input = {
+        "kind": "sparse_go_board_i64_array",
+        "length_formula": "4 + 2*k",
+        "minimum_length": 4,
+        "maximum_length": PROLANGS_C_GNUGO_MAX_INPUT_LENGTH,
+        "fields": ["start row 0..18", "start column 0..18", "selected color 1 or 2", "stone count k 0..361", "k pairs of row-major cell index 0..360 and stone color 1 or 2"],
+        "implicit_cells": "all cells not listed are empty (0)",
+        "duplicate_indices": "invalid",
+        "start_requirement": "selected cell must contain selected color",
+        "invalid_result": PROLANGS_C_GNUGO_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "scalar_distinct_liberty_count",
+        "range": [0, PROLANGS_C_GNUGO_MAX_STONES],
+        "invalid_result": PROLANGS_C_GNUGO_INVALID_RESULT,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call", "sample_count": 7,
+        "warmup_rounds": 2, "repetitions_per_sample": 1000,
+    }
+    if (set(workload) != {
+            "schema_version", "id", "algorithm", "function_symbol", "description",
+            "source", "input", "output", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != "1.0.0"
+            or workload.get("id") != "prolangs-c-gnugo-liberty-count-v1"
+            or workload.get("algorithm") != "prolangs_c_gnugo_liberty_count"
+            or workload.get("function_symbol") != "prolangs_c_gnugo_liberty_count"
+            or workload.get("description") != "Bounded source-derived countlib operation: number of distinct empty orthogonal neighbors of the selected connected Go group on a 19x19 board."
+            or workload.get("source") != expected_source
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("workspace") != {
+                "bytes": 2527,
+                "meaning": "Conceptual 19x19 byte board, visited and liberty bitmaps, plus a 361-entry 32-bit traversal stack; ports may use equivalent fixed bounded storage.",
+            }
+            or workload.get("measurement") != expected_measurement):
+        raise ValueError("prolangs_c_gnugo_liberty_count metadata differs from the pinned bounded contract")
+
+    package = ROOT / "benchmarks" / "p" / "prolangs_c_gnugo_liberty_count"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/Prolangs-C/gnugo/countlib.c"
+    if (source_url not in readme or "GNU GPL version 1" not in readme
+            or "not merely an arbitrary connected-component size" not in readme
+            or "GNU General Public License" not in notice
+            or "version 1" not in notice):
+        raise ValueError("prolangs_c_gnugo_liberty_count README or license notice is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "nim": "nim",
+                  "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        if not (ROOT / language / "p" / f"prolangs_c_gnugo_liberty_count.{extension}").is_file():
+            raise ValueError(f"prolangs_c_gnugo_liberty_count is missing its {language} port")
+
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("prolangs_c_gnugo_liberty_count fixture IDs differ from the contract")
+    for case in cases:
+        values = case.get("input_values")
+        expected = case.get("expected_result")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > PROLANGS_C_GNUGO_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(expected) is not int
+                or expected != prolangs_c_gnugo_liberty_count_expected(values)):
+            raise ValueError(f"prolangs_c_gnugo_liberty_count fixture differs from the group traversal oracle: {case.get('id')}")
+
+
+def validate_gapbs_ordered_triangle_count_workload(workload: dict) -> None:
+    """Pin the bounded GAPBS ordered triangle-counting contract and fixtures."""
+    pinned = "b5e3e19c2845f22fb338f4a4bc4b1ccee861d026"
+    expected_ids = {
+        "single-vertex", "single-edge", "one-triangle", "path-no-triangles",
+        "triangle-plus-isolate", "two-triangles-sharing-edge", "complete-four-graph",
+        "empty-invalid", "asymmetric-invalid", "self-loop-invalid",
+        "nonbinary-invalid", "length-mismatch-invalid",
+    }
+    expected_source = {
+        "repository": "sbeamer/gapbs", "commit": pinned, "path": "src/tc.cc",
+        "symbols": ["OrderedCount"],
+        "url": f"https://github.com/sbeamer/gapbs/blob/{pinned}/src/tc.cc",
+        "license_path": "LICENSE", "license": "BSD-3-Clause",
+    }
+    expected_input = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[node_count, row-major n-by-n adjacency matrix]",
+        "node_count_range": [1, GAPBS_ORDERED_TRIANGLE_COUNT_MAX_NODES],
+        "matrix_values": [0, 1],
+        "graph_constraints": ["simple", "undirected", "no self-loops"],
+        "invalid_input_result": -1,
+    }
+    expected_contract = {
+        "operation": "Count each unordered triangle exactly once using the GAPBS ID-order u>v>w neighbor-intersection traversal.",
+        "bounded_profile": "Use the source OrderedCount path without the Hybrid degree-relabel heuristic; matrix rows are scanned in ascending vertex order to construct sorted neighbor lists.",
+        "maximum_triangles": 560, "invalid_input_result": -1,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call", "sample_count": 9,
+        "warmup_rounds": 2, "repetitions_per_sample": 1000,
+    }
+    if (set(workload) != {
+            "schema_version", "id", "algorithm", "function_symbol", "description",
+            "source", "input", "contract", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "gapbs-ordered-triangle-count-i64-array-scalar-v1"
+            or workload.get("algorithm") != "gapbs_ordered_triangle_count"
+            or workload.get("function_symbol") != "gapbs_ordered_triangle_count"
+            or workload.get("description") != "Bounded GAPBS OrderedCount traversal for the number of triangles in a simple undirected graph."
+            or workload.get("source") != expected_source
+            or workload.get("input") != expected_input
+            or workload.get("contract") != expected_contract
+            or workload.get("measurement") != expected_measurement):
+        raise ValueError("gapbs_ordered_triangle_count metadata differs from the pinned contract")
+
+    package = ROOT / "benchmarks" / "t" / "gapbs_ordered_triangle_count"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    source_url = expected_source["url"]
+    if (source_url not in readme or "BSD-3-Clause" not in readme
+            or "degree-relabel" not in readme or "BSD 3-Clause License" not in notice):
+        raise ValueError("gapbs_ordered_triangle_count README or license notice is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "nim": "nim",
+                  "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        if not (ROOT / language / "t" / f"gapbs_ordered_triangle_count.{extension}").is_file():
+            raise ValueError(f"gapbs_ordered_triangle_count is missing its {language} port")
+
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("gapbs_ordered_triangle_count fixture IDs differ from its contract")
+    for case in cases:
+        values = case.get("input_values")
+        expected = case.get("expected_result")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > GAPBS_ORDERED_TRIANGLE_COUNT_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(expected) is not int
+                or expected != gapbs_ordered_triangle_count_expected(values)):
+            raise ValueError(f"gapbs_ordered_triangle_count fixture differs from triangle-count oracle: {case.get('id')}")
+
+
+def validate_prolangs_c_gnugo_suicide_workload(workload: dict) -> None:
+    """Pin the bounded GNU Go suicide and single-stone Ko contract."""
+    pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    expected_ids = {
+        "adjacent-liberty-accepts", "no-liberty-but-no-own-stone-lost",
+        "one-own-stone-lost-outside-ko-accepted", "single-stone-ko-takeback-rejected",
+        "occupied-candidate-invalid", "same-color-fields-invalid", "invalid-ko-index",
+        "invalid-duplicate-stone",
+    }
+    expected_rights = (
+        "The pinned headers explicitly grant modification and redistribution under GNU General Public License version 1. "
+        "Ports are derivative implementations licensed under GNU GPL version 1. "
+        "Attribution: GNU Go 1.1, Copyright (C) Free Software Foundation, Inc.; written by Man L. Li, modified by Wayne Iba, documented by Bob Webber."
+    )
+    expected_source = {
+        "repository": "https://github.com/lac-dcc/Benchmarks", "revision": pinned,
+        "paths": ["Prolangs-C/gnugo/suicide.c", "Prolangs-C/gnugo/eval.c",
+                  "Prolangs-C/gnugo/countlib.c", "Prolangs-C/gnugo/count.c"],
+        "symbols": ["suicide", "eval", "countlib", "count"],
+        "launcher": "Prolangs-C/gnugo/info.sh", "rights": expected_rights,
+    }
+    expected_input = {
+        "kind": "sparse_go_move_i64_array", "length_formula": "6 + 2*k",
+        "minimum_length": 6, "maximum_length": PROLANGS_C_GNUGO_SUICIDE_MAX_INPUT_LENGTH,
+        "fields": ["candidate row 0..18", "candidate column 0..18", "own color 1 or 2", "opponent move color 1 or 2, distinct from own", "ko point row-major index -1 for none or 0..360", "existing stone count k 0..120", "k row-major index/color pairs"],
+        "board": "19x19; omitted cells are empty; candidate location must be empty before the move",
+        "duplicate_indices": "invalid", "invalid_result": PROLANGS_C_GNUGO_SUICIDE_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "source_suicide_status",
+        "values": {"0": "source accepts the move", "1": "source rejects suicide or the specified single-stone ko recapture"},
+        "invalid_result": PROLANGS_C_GNUGO_SUICIDE_INVALID_RESULT,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call", "sample_count": 7,
+        "warmup_rounds": 2, "repetitions_per_sample": 1000,
+    }
+    if (set(workload) != {
+            "schema_version", "id", "algorithm", "function_symbol", "description",
+            "source", "input", "output", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != "1.0.0"
+            or workload.get("id") != "prolangs-c-gnugo-suicide-v1"
+            or workload.get("algorithm") != "prolangs_c_gnugo_suicide"
+            or workload.get("function_symbol") != "prolangs_c_gnugo_suicide"
+            or workload.get("description") != "Bounded source-derived GNU Go suicide move predicate, including its single-stone ko-takeback condition."
+            or workload.get("source") != expected_source
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("workspace") != {
+                "bytes": 2527,
+                "meaning": "Fixed board, visited/liberty state, and bounded traversal storage; implementations may use equivalent fixed storage. The 120-stone bound keeps every connected group’s maximum possible liberty count below the source's unsigned-byte l[][] wrap boundary.",
+            }
+            or workload.get("measurement") != expected_measurement):
+        raise ValueError("prolangs_c_gnugo_suicide metadata differs from its bounded source predicate contract")
+
+    package = ROOT / "benchmarks" / "p" / "prolangs_c_gnugo_suicide"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/Prolangs-C/gnugo/suicide.c"
+    if (source_url not in readme or "GNU GPL version 1" not in readme
+            or "Ko exception" not in readme or "Ko point" not in readme
+            or "GNU General Public License" not in notice or "version 1" not in notice):
+        raise ValueError("prolangs_c_gnugo_suicide README or license notice is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "nim": "nim",
+                  "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        if not (ROOT / language / "p" / f"prolangs_c_gnugo_suicide.{extension}").is_file():
+            raise ValueError(f"prolangs_c_gnugo_suicide is missing its {language} port")
+
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("prolangs_c_gnugo_suicide fixture IDs differ from the contract")
+    for case in cases:
+        values = case.get("input_values")
+        expected = case.get("expected_result")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > PROLANGS_C_GNUGO_SUICIDE_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(expected) is not int
+                or expected != prolangs_c_gnugo_suicide_expected(values)):
+            raise ValueError(f"prolangs_c_gnugo_suicide fixture differs from the source predicate oracle: {case.get('id')}")
+
+
+def validate_gapbs_betweenness_centrality_workload(workload: dict) -> None:
+    """Pin the bounded GAPBS Brandes centrality profile and workload."""
+    pinned = "b5e3e19c2845f22fb338f4a4bc4b1ccee861d026"
+    expected_ids = {
+        "three-node-path-source-left", "four-node-path-source-left",
+        "diamond-two-shortest-paths", "triangle-with-tail",
+        "path-four-both-endpoints", "triangle-source-left",
+        "isolated-source-zero-score-invalid", "duplicate-source-invalid",
+        "asymmetric-invalid", "nonbinary-invalid", "malformed-length-invalid",
+        "empty-invalid",
+    }
+    expected_source = {
+        "repository": "sbeamer/gapbs", "commit": pinned, "path": "src/bc.cc",
+        "symbols": ["PBFS", "Brandes"],
+        "url": f"https://github.com/sbeamer/gapbs/blob/{pinned}/src/bc.cc",
+        "license_path": "LICENSE", "license": "BSD-3-Clause",
+    }
+    expected_input = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[n, source_count, ordered source IDs, row-major n-by-n adjacency matrix]",
+        "node_count_range": [3, GAPBS_BETWEENNESS_CENTRALITY_MAX_N],
+        "source_count_range": [1, GAPBS_BETWEENNESS_CENTRALITY_MAX_N],
+        "source_id_range": [0, GAPBS_BETWEENNESS_CENTRALITY_MAX_N - 1],
+        "matrix_values": [0, 1],
+        "graph_constraints": ["simple", "undirected", "unweighted"],
+        "maximum_input_length": 2 + GAPBS_BETWEENNESS_CENTRALITY_MAX_N + GAPBS_BETWEENNESS_CENTRALITY_MAX_N ** 2,
+        "invalid_input_result": -1,
+    }
+    expected_contract = {
+        "operation": "For each listed source in order, run unweighted Brandes BFS/path-count and reverse dependency accumulation; normalize all accumulated vertex scores by their maximum, round each normalized score to nearest 1/1000 with positive halves upward, then return the vertex-index-weighted checksum.",
+        "score_storage": "binary32; source path counts are binary64; dependency ratio products are accumulated in source order with a binary32 store after each vertex update",
+        "source_sampling": "Explicit unique source list replaces GAPBS SourcePicker",
+        "checksum": "sum((zero_based_vertex_id + 1) * round_half_up(normalized_score * 1000))",
+        "maximum_result": 36000, "invalid_input_result": -1,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call", "sample_count": 9,
+        "warmup_rounds": 2, "repetitions_per_sample": 1000,
+    }
+    if (set(workload) != {
+            "schema_version", "id", "algorithm", "function_symbol", "description",
+            "source", "input", "contract", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "gapbs-betweenness-centrality-i64-array-scalar-v1"
+            or workload.get("algorithm") != "gapbs_betweenness_centrality"
+            or workload.get("function_symbol") != "gapbs_betweenness_centrality"
+            or workload.get("description") != "Bounded GAPBS Brandes betweenness centrality over an explicit ordered source list."
+            or workload.get("source") != expected_source
+            or workload.get("input") != expected_input
+            or workload.get("contract") != expected_contract
+            or workload.get("measurement") != expected_measurement):
+        raise ValueError("gapbs_betweenness_centrality metadata differs from the pinned contract")
+
+    package = ROOT / "benchmarks" / "b" / "gapbs_betweenness_centrality"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (expected_source["url"] not in readme or "graph_centrality" not in readme
+            or "BSD-3-Clause" not in readme or "BSD 3-Clause License" not in notice):
+        raise ValueError("gapbs_betweenness_centrality README or BSD notice is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "nim": "nim",
+                  "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        if not (ROOT / language / "b" / f"gapbs_betweenness_centrality.{extension}").is_file():
+            raise ValueError(f"gapbs_betweenness_centrality is missing its {language} port")
+
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("gapbs_betweenness_centrality fixture IDs differ from its contract")
+    for case in cases:
+        values = case.get("input_values")
+        expected = case.get("expected_result")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > 2 + GAPBS_BETWEENNESS_CENTRALITY_MAX_N + GAPBS_BETWEENNESS_CENTRALITY_MAX_N ** 2
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(expected) is not int
+                or expected != gapbs_betweenness_centrality_expected(values)):
+            raise ValueError(f"gapbs_betweenness_centrality fixture differs from Brandes oracle: {case.get('id')}")
+
+
+def validate_gapbs_pagerank_pull_gs_workload(workload: dict) -> None:
+    """Pin the bounded GAPBS in-place pull PageRank profile and fixtures."""
+    pinned = "b5e3e19c2845f22fb338f4a4bc4b1ccee861d026"
+    expected_ids = {
+        "zero-iterations-two-cycle", "in-place-pull-update",
+        "twenty-iteration-directed-cycle", "zero-outdegree-row", "self-loop",
+        "nonbinary-entry", "length-mismatch", "null-input",
+    }
+    expected_source = {
+        "repository": "sbeamer/gapbs", "commit": pinned, "path": "src/pr.cc",
+        "symbols": ["PageRankPullGS"],
+        "url": f"https://github.com/sbeamer/gapbs/blob/{pinned}/src/pr.cc",
+        "source_header_copyright": "Copyright (c) 2015, The Regents of the University of California (Regents)",
+        "license_path": "LICENSE.txt", "license": "BSD-3-Clause",
+    }
+    expected_input = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[node_count, iteration_count, row-major binary directed adjacency matrix]",
+        "node_count_range": [2, GAPBS_PAGERANK_PULL_GS_MAX_NODES],
+        "iteration_count_range": [0, GAPBS_PAGERANK_PULL_GS_MAX_ITERATIONS],
+        "matrix_entry_values": [0, 1],
+        "matrix_rule": "Simple directed graph with zero diagonal; every row must have at least one outgoing edge.",
+        "maximum_valid_length": GAPBS_PAGERANK_PULL_GS_MAX_INPUT_LENGTH,
+        "invalid_input_result": -1,
+    }
+    expected_output = {
+        "kind": "signed_64_bit_integer",
+        "encoding": "floor(100 * sum((vertex_id + 1) * binary32_rank[vertex_id]) + 0.5)",
+        "invalid_input_result": -1,
+    }
+    expected_contract = {
+        "initialization": "Initialize every binary32 rank to 1/node_count, then each outgoing contribution to rank/outdegree.",
+        "damping_factor": "binary32 0.85",
+        "base_score": "binary32 ((1.0f - damping_factor) / node_count)",
+        "iteration": "For each requested iteration, process destination vertices in ascending ID order. Sum incoming contributions in ascending source ID order, update that destination score, then immediately update its outgoing contribution before processing the next destination.",
+        "variant": "This is GAPBS PageRankPullGS's in-place Gauss-Seidel pull order. It is distinct from the local synchronous binary64 PageRank profiles, which update a separate next-rank vector and redistribute dangling mass.",
+        "dangling_nodes": "Rejected: every source row must have nonzero outdegree, avoiding the source's division by zero for dangling rows.",
+        "convergence": "The profile fixes epsilon to zero, so the strict source condition error < epsilon cannot terminate early; it performs exactly iteration_count steps.",
+        "projection": "Return the 1-based vertex-weighted score checksum rounded to the nearest integer with positive half values rounded upward.",
+        "omitted_source_features": "OpenMP scheduling, logging, graph generation/loading, top-k printing, verifier, and convergence-error accumulation are omitted.",
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+    }
+    if (set(workload) != {
+            "schema_version", "id", "algorithm", "function_symbol", "abi",
+            "description", "source", "input", "output", "contract", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "gapbs-pagerank-pull-gs-i64-array-scalar-v1"
+            or workload.get("algorithm") != "gapbs_pagerank_pull_gs"
+            or workload.get("function_symbol") != "gapbs_pagerank_pull_gs"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("description") != "Bounded source-ordered, binary32 Gauss-Seidel pull PageRank profile from GAPBS."
+            or workload.get("source") != expected_source
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("contract") != expected_contract
+            or workload.get("measurement") != expected_measurement):
+        raise ValueError("gapbs_pagerank_pull_gs metadata differs from the pinned contract")
+
+    package = ROOT / "benchmarks" / "p" / "gapbs_pagerank_pull_gs"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (expected_source["url"] not in readme
+            or "in-place Gauss–Seidel updates" not in readme
+            or "BSD-3-Clause" not in readme
+            or "Redistribution and use in source and binary forms" not in notice
+            or "THIS SOFTWARE IS PROVIDED" not in notice):
+        raise ValueError("gapbs_pagerank_pull_gs README or BSD notice is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "nim": "nim",
+                  "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        if not (ROOT / language / "p" / f"gapbs_pagerank_pull_gs.{extension}").is_file():
+            raise ValueError(f"gapbs_pagerank_pull_gs is missing its {language} port")
+
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("gapbs_pagerank_pull_gs fixture IDs differ from the contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        expected = case.get("expected_result")
+        required = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            required.add("input_is_null")
+        if (set(case) != required
+                or not isinstance(values, list)
+                or len(values) > GAPBS_PAGERANK_PULL_GS_MAX_INPUT_LENGTH + 1
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(input_is_null) is not bool
+                or type(input_length) is not int or input_length != len(values)
+                or type(expected) is not int
+                or expected != gapbs_pagerank_pull_gs_expected(
+                    None if input_is_null else values,
+                    input_is_null=input_is_null,
+                    input_length=input_length)):
+            raise ValueError(f"gapbs_pagerank_pull_gs fixture differs from its binary32 oracle: {case.get('id')}")
+
+
+def validate_prolangs_c_simulator_format3_4_workload(workload: dict) -> None:
+    """Pin the bounded Prolangs-C SIC/XE operand-address decode and fixtures."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "plane-sic-source-fallback-zero", "format3-simple-direct", "format3-indexed",
+        "format3-base-relative", "format3-pc-relative-negative-offset",
+        "format3-pc-relative-positive-offset", "format4-immediate", "format4-indexed",
+        "invalid-format3-base-and-pc", "invalid-format4-base-flag",
+        "unsupported-indirect-mode", "invalid-pc-range",
+        "negative-relative-address-outside-profile", "trailing-input-word-invalid",
+    }
+    expected_source = {
+        "repository": "https://github.com/lac-dcc/Benchmarks", "revision": pinned,
+        "path": "Prolangs-C/simulator/format.c", "symbol": "FORMAT3_4",
+        "supporting_path": "Prolangs-C/simulator/constants.h",
+        "launcher": "Prolangs-C/simulator/info.sh",
+        "rights": "Source header: (c) William Landi 1991. Permission to use this code is granted as long as the copyright notice remains in place. This notice is retained in all package ports and LICENSE.txt.",
+    }
+    expected_input = {
+        "kind": "sicxe_address_demand_i64_array",
+        "length": 7,
+        "fields": ["pc 0..1048572", "X register 0..16777215", "B register 0..16777215",
+                   "instruction byte 0", "instruction byte 1", "instruction byte 2",
+                   "instruction byte 3"],
+        "byte_range": [0, 255],
+        "supported_modes": ["plane-SIC n=i=0 source fallback", "format-3 simple/direct",
+                            "format-3 immediate", "format-3 indexed", "format-3 base-relative",
+                            "format-3 PC-relative", "format-4 simple/direct",
+                            "format-4 immediate", "format-4 indexed"],
+        "unsupported_modes": ["indirect mode (requires memory pointer dereference)",
+                              "value demand (requires operand memory read)"],
+        "address_bound": "negative decoded addresses are invalid in this profile so -1 remains an unambiguous error result",
+        "invalid_result": -1,
+    }
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "description", "source", "input", "output", "workspace",
+                          "measurement", "cases"}
+            or workload.get("schema_version") != "1.0.0"
+            or workload.get("id") != "prolangs-c-simulator-format3-4-address-v1"
+            or workload.get("algorithm") != "prolangs_c_simulator_format3_4"
+            or workload.get("function_symbol") != "prolangs_c_simulator_format3_4"
+            or workload.get("description") != "Address-demand SIC/XE FORMAT3/FORMAT4 operand decoder derived from Prolangs-C simulator FORMAT3_4."
+            or workload.get("source") != expected_source
+            or workload.get("input") != expected_input
+            or workload.get("output") != {"kind": "decoded_operand_address_i64", "invalid_result": -1}
+            or workload.get("workspace") != {
+                "bytes": 0,
+                "meaning": "Fixed seven-word instruction/register frame and scalar flag/address extraction.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 7,
+                "warmup_rounds": 2, "repetitions_per_sample": 1000,
+            }):
+        raise ValueError("prolangs_c_simulator_format3_4 metadata differs from its pinned address-demand profile")
+
+    package = ROOT / "benchmarks" / "p" / "prolangs_c_simulator_format3_4"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (f"{pinned}/Prolangs-C/simulator/format.c" not in readme
+            or "William Landi 1991" not in readme
+            or "Permission to use this code is granted as long as the copyright" not in notice
+            or "notice remains in place" not in notice):
+        raise ValueError("prolangs_c_simulator_format3_4 source attribution or permission notice is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "nim": "nim",
+                  "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        if not (ROOT / language / "p" / f"prolangs_c_simulator_format3_4.{extension}").is_file():
+            raise ValueError(f"prolangs_c_simulator_format3_4 is missing its {language} port")
+
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("prolangs_c_simulator_format3_4 fixture IDs differ from its contract")
+    for case in cases:
+        values = case.get("input_values")
+        expected = case.get("expected_result")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > PROLANGS_C_SIMULATOR_FORMAT3_4_MAX_INPUT_LENGTH + 1
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(expected) is not int
+                or expected != prolangs_c_simulator_format3_4_expected(values)):
+            raise ValueError(f"prolangs_c_simulator_format3_4 fixture differs from the address oracle: {case.get('id')}")
+
+
+def validate_prolangs_c_simulator_shiftr_workload(workload: dict) -> None:
+    """Pin the bounded Prolangs-C SIC/XE 24-bit SHIFTR_P operation."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "one-bit-shift-sign-fill", "four-bit-positive-shift",
+        "sixteen-bit-negative-shift", "sixteen-bit-all-sign-bits",
+        "register-nine-and-shift-four", "zero-value", "invalid-register-nibble",
+        "invalid-word-range", "invalid-frame",
+    }
+    expected_source = {
+        "repository": "https://github.com/lac-dcc/Benchmarks", "revision": pinned,
+        "paths": ["Prolangs-C/simulator/instruct2.c", "Prolangs-C/simulator/format.c",
+                  "Prolangs-C/simulator/machine.c"],
+        "symbols": ["SHIFTR_P", "FORMAT2", "BYTES_TO_BITS", "BITS_TO_BYTE"],
+        "launcher": "Prolangs-C/simulator/info.sh",
+        "rights": "(c) William Landi 1991. Permission to use this code is granted as long as the copyright notice remains in place. The notice is preserved in LICENSE.txt and all nine ports.",
+    }
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "description", "source", "input", "output", "workspace",
+                          "measurement", "cases"}
+            or workload.get("schema_version") != "1.0.0"
+            or workload.get("id") != "prolangs-c-simulator-shiftr-24-v1"
+            or workload.get("algorithm") != "prolangs_c_simulator_shiftr"
+            or workload.get("function_symbol") != "prolangs_c_simulator_shiftr"
+            or workload.get("description") != "SIC/XE simulator SHIFTR_P: sign-extending 24-bit register shift by the format-2 low nibble plus one."
+            or workload.get("source") != expected_source
+            or workload.get("input") != {
+                "kind": "format2_operand_and_u24_i64_array",
+                "length": 2,
+                "fields": ["format-2 second-byte: high nibble register index 0..9, low nibble shift-count-minus-one 0..15",
+                           "24-bit unsigned register bit pattern 0..16777215"],
+                "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "u24_arithmetic_right_shift_result",
+                "range": [0, 16777215], "invalid_result": -1,
+            }
+            or workload.get("workspace") != {
+                "bytes": 0, "meaning": "24-bit word and format-2 field extraction only.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 7,
+                "warmup_rounds": 2, "repetitions_per_sample": 1000,
+            }):
+        raise ValueError("prolangs_c_simulator_shiftr metadata differs from its pinned 24-bit contract")
+
+    package = ROOT / "benchmarks" / "p" / "prolangs_c_simulator_shiftr"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("SHIFTR_P" not in readme or pinned not in readme
+            or "William Landi 1991" not in readme
+            or "Permission to use this code is granted as long as the copyright" not in notice
+            or "notice remains in place" not in notice):
+        raise ValueError("prolangs_c_simulator_shiftr source attribution or permission notice is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "nim": "nim",
+                  "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        if not (ROOT / language / "p" / f"prolangs_c_simulator_shiftr.{extension}").is_file():
+            raise ValueError(f"prolangs_c_simulator_shiftr is missing its {language} port")
+
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("prolangs_c_simulator_shiftr fixture IDs differ from its contract")
+    for case in cases:
+        values = case.get("input_values")
+        expected = case.get("expected_result")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > PROLANGS_C_SIMULATOR_SHIFTR_MAX_INPUT_LENGTH + 1
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(expected) is not int
+                or expected != prolangs_c_simulator_shiftr_expected(values)):
+            raise ValueError(f"prolangs_c_simulator_shiftr fixture differs from the shift oracle: {case.get('id')}")
 
 
 def validate_cbench_office_pratt_boyer_moore_workload(workload: dict) -> None:
@@ -18087,6 +18976,172 @@ def validate_parboil_lbm_workload(workload: dict) -> None:
                     None if input_is_null else values, input_is_null=input_is_null,
                     input_length=case["input_length"])):
             raise ValueError(f"parboil_lbm fixture differs from its bounded D3Q19 oracle: {case.get('id')}")
+
+
+def validate_parboil_mri_gridding_workload(workload: dict) -> None:
+    """Pin the bounded MRI Cartesian gridding kernel and complete rights text."""
+    pinned = "ccf3d3126f1754ca85528722f4ced5894ccb852b"
+    expected_ids = {
+        "one-center-sample-seven-voxel-support", "two-overlapping-center-samples",
+        "corner-sample-clipped-by-grid-boundary", "zero-amplitude-sample-skips",
+        "no-samples", "coordinate-outside-profile-grid", "mismatched-sample-count",
+        "null-input",
+    }
+    source = workload.get("pinned_source", {})
+    contract = workload.get("contract", {})
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "pinned_source", "contract", "input", "output", "workspace",
+                          "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "parboil-mri-gridding-small-kaiser-kernel-v1"
+            or workload.get("algorithm") != "parboil_mri_gridding"
+            or workload.get("function_symbol") != "parboil_mri_gridding"
+            or workload.get("abi") != "i64_array_scalar"
+            or source.get("repository") != "yuhc/gpu-parboil"
+            or source.get("commit") != pinned
+            or source.get("paths") != [
+                "benchmarks/mri-gridding/src/cuda/CPU_kernels.c",
+                "benchmarks/mri-gridding/src/cuda/UDTypes.h",
+                "benchmarks/mri-gridding/src/base/main.c", "LICENSE",
+            ]
+            or source.get("symbols") != ["kernel_value_CPU", "gridding_Gold", "readSampleData"]
+            or "Illinois Open Source License" not in source.get("license", "")
+            or contract.get("sample_count_range") != [0, PARBOIL_MRI_GRIDDING_MAX_SAMPLES]
+            or contract.get("maximum_valid_input_words") != PARBOIL_MRI_GRIDDING_MAX_INPUT_LENGTH
+            or contract.get("maximum_parseable_input_words") != PARBOIL_MRI_GRIDDING_MAX_INPUT_LENGTH
+            or contract.get("grid_dimensions") != [3, 3, 3]
+            or contract.get("kernel_width") != 2.5
+            or contract.get("oversample") != 0.608933
+            or contract.get("lookup_table") is not False
+            or contract.get("maximum_absolute_result") != PARBOIL_MRI_GRIDDING_MAX_RESULT
+            or contract.get("invalid_result") != -1
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "maximum_valid_length": PARBOIL_MRI_GRIDDING_MAX_INPUT_LENGTH,
+                "maximum_parseable_length": PARBOIL_MRI_GRIDDING_MAX_INPUT_LENGTH,
+                "encoding": "[sample_count, (kx_u, ky_u, kz_u, real_u, imag_u, sdc_u)...], with grid-mapped integer coordinates and signed/unsigned millionth-scaled values.",
+                "invalid_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "encoding": "Weighted checksum of the final complex grid values quantized to Q1000 plus exact sample-density counts.",
+                "maximum_absolute_value": PARBOIL_MRI_GRIDDING_MAX_RESULT,
+                "invalid_input_result": -1,
+            }
+            or workload.get("workspace") != {
+                "bytes": 324,
+                "meaning": "Three 27-element binary32 arrays for real, imaginary, and sample-density accumulators.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("parboil_mri_gridding metadata differs from its pinned small-grid contract")
+    package = ROOT / "benchmarks" / "p" / "parboil_mri_gridding"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (pinned not in readme or "CPU_kernels.c" not in readme
+            or "clean-room" not in readme.lower()
+            or "Illinois Open Source License" not in license_text
+            or "Redistributions of source code must retain" not in license_text):
+        raise ValueError("parboil_mri_gridding source attribution or complete Illinois license is missing")
+    for relative in (
+            "c/p/parboil_mri_gridding.c", "c3/p/parboil_mri_gridding.c3",
+            "cpp/p/parboil_mri_gridding.cpp", "elisa/p/parboil_mri_gridding.elisa",
+            "nim/p/parboil_mri_gridding.nim", "odin/p/parboil_mri_gridding.odin",
+            "rust/p/parboil_mri_gridding.rs", "v/p/parboil_mri_gridding.v",
+            "zig/p/parboil_mri_gridding.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"parboil_mri_gridding language port is missing: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        if (set(case) not in ({"id", "input_values", "input_length", "expected_result"},
+                              {"id", "input_values", "input_length", "input_is_null", "expected_result"})
+                or type(input_is_null) is not bool
+                or not isinstance(values, list)
+                or len(values) > PARBOIL_MRI_GRIDDING_MAX_INPUT_LENGTH
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != parboil_mri_gridding_expected(
+                    None if input_is_null else values, input_is_null=input_is_null,
+                    input_length=case["input_length"])):
+            raise ValueError(f"parboil_mri_gridding fixture differs from its gather oracle: {case.get('id')}")
+
+
+def validate_cbench_rsynth_f0_flutter_workload(workload: dict) -> None:
+    """Pin the isolated RSynth flutter helper and its clean-room port package."""
+    pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    expected_ids = {
+        "disabled-flutter", "single-frame-flutter", "whole-cycle-near-zero",
+        "zero-frequency", "invalid-flutter-bound", "invalid-time-bound", "extra-input",
+    }
+    source = workload.get("pinned_source", {})
+    launcher = workload.get("pinned_launcher", {})
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "pinned_launcher", "input", "output",
+                          "contract", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-office-rsynth-f0-flutter-i64-array-scalar-v1"
+            or workload.get("algorithm") != "cbench_rsynth_f0_flutter"
+            or workload.get("function_symbol") != "cbench_rsynth_f0_flutter"
+            or workload.get("abi") != "i64_array_scalar"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != "cBench/office_rsynth/src/nsynth.c"
+            or source.get("symbol") != "flutter"
+            or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/office_rsynth/src/nsynth.c"
+            or launcher.get("commit") != pinned
+            or launcher.get("path") != "cBench/office_rsynth/src/info.sh"
+            or launcher.get("bench_name") != "office_rsynth"
+            or workload.get("input") != {
+                "kind": "signed_i64_array",
+                "encoding": "[F0hz10,f0_flutter,time_count]",
+                "f0_hz10_range": [0, 20_000], "flutter_range": [0, 100],
+                "time_count_range": [0, 1_000_000],
+                "maximum_valid_input_length": CBENCH_RSYNTH_F0_FLUTTER_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": CBENCH_RSYNTH_F0_FLUTTER_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_result": CBENCH_RSYNTH_F0_FLUTTER_INVALID_RESULT,
+            }
+            or workload.get("output", {}).get("kind") != "signed_64_bit_scalar"
+            or workload.get("contract", {}).get("pi_value") != 3.1415927
+            or "trunc_toward_zero" not in workload.get("contract", {}).get("operation", "")
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("cbench_rsynth_f0_flutter metadata differs from its pinned helper contract")
+    package = ROOT / "benchmarks" / "m" / "cbench_rsynth_f0_flutter"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (pinned not in readme or "nsynth.c" not in readme
+            or "clean-room" not in readme.lower()
+            or "Public Domain Software" not in rights
+            or "no dictionary or speech data" not in rights):
+        raise ValueError("cbench_rsynth_f0_flutter attribution or package-level rights notice is incomplete")
+    for relative in (
+            "c/m/cbench_rsynth_f0_flutter.c", "c3/m/cbench_rsynth_f0_flutter.c3",
+            "cpp/m/cbench_rsynth_f0_flutter.cpp", "elisa/m/cbench_rsynth_f0_flutter.elisa",
+            "nim/m/cbench_rsynth_f0_flutter.nim", "odin/m/cbench_rsynth_f0_flutter.odin",
+            "rust/m/cbench_rsynth_f0_flutter.rs", "v/m/cbench_rsynth_f0_flutter.v",
+            "zig/m/cbench_rsynth_f0_flutter.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"cbench_rsynth_f0_flutter language port is missing: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > CBENCH_RSYNTH_F0_FLUTTER_MAX_PARSEABLE_INPUT_LENGTH
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != cbench_rsynth_f0_flutter_expected(values)):
+            raise ValueError(f"cbench_rsynth_f0_flutter fixture differs from its bounded oracle: {case.get('id')}")
 
 
 def validate_cbench_ghostscript_rop3_idempotence_workload(workload: dict) -> None:
@@ -18683,6 +19738,93 @@ def validate_tsvc_s424_alias_overlap_feedback_workload(workload: dict) -> None:
                 or expected != tsvc_s424_alias_overlap_feedback_expected(
                     None if input_is_null else values)):
             raise ValueError(f"tsvc_s424_alias_overlap_feedback fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_tsvc_s423_antidependence_offset64_workload(workload: dict) -> None:
+    """Pin the bounded s423 anti-dependence contract, ports, and cases."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "paths": ["TSVC/Equivalencing-dbl/info.sh", "TSVC/Equivalencing-dbl/tsc.c",
+                  "TSVC/Equivalencing-flt/info.sh", "TSVC/Equivalencing-flt/tsc.c",
+                  "TSVC/tsc.inc", "TSVC/tests.h"],
+        "symbol": "s423", "source_lines": {"codelet_start": 4503, "codelet_end": 4531},
+        "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/TSVC",
+        "launcher_family": "TSVC/Equivalencing-dbl and TSVC/Equivalencing-flt",
+        "launcher_options": {"double": [3125, 14], "float": [3125, 5]},
+        "attribution": "The TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+        "license_note": "No explicit license grant was found in the pinned TSVC files or repository material reviewed. The ports are clean-room and reuse no upstream source code or comments.",
+    }
+    contract = {
+        "operation": "Initialize X[64..n+63] to one; for i=0..n-2 ascending assign X[i+1]=X[i+64]+A[i]; return sum(X[0..n-1]).",
+        "input_layout": "[n, A[n], X_prefix[64]]", "n_range": [65, 128],
+        "value_range": [0, 2], "exact_length": "n + 65", "passes": 1,
+        "output_range": [0, 383], "invalid_input_result": -1,
+        "input_modified": False,
+        "profile_scope": "One source-ordered pass; timing repetitions and dummy calls excluded.",
+    }
+    expected_ids = {"minimum-size-one-read-before-overwrite-sweep", "dimension-out-of-range",
+                    "truncated-frame", "out-of-range-value", "null-input"}
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "contract", "input", "output",
+                          "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-tsvc-s423-antidependence-offset64-i64-array-scalar-v1"
+            or workload.get("algorithm") != "tsvc_s423_antidependence_offset64"
+            or workload.get("function_symbol") != "tsvc_s423_antidependence_offset64"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != {
+                "kind": "bounded_signed_i64_array", "maximum_valid_length": TSVC_S423_MAX_INPUT_LENGTH,
+                "maximum_parseable_length": TSVC_S423_MAX_INPUT_LENGTH, "null_input_result": -1}
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar", "meaning": "Checksum of the updated base prefix X[0..n-1]."}
+            or workload.get("workspace") != {
+                "bytes": 2048,
+                "meaning": "Temporary A[128] and backing X[192] signed 64-bit arrays."}
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar", "sample_count": 5,
+                "warmup_rounds": 2, "repetitions_per_sample": 100}
+            or not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids):
+        raise ValueError("tsvc_s423_antidependence_offset64 workload differs from its pinned contract")
+    package = ROOT / "benchmarks" / "t" / "tsvc_s423_antidependence_offset64"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("anti-dependence" not in readme or "s423" not in readme
+            or "No explicit license grant was found" not in rights):
+        raise ValueError("tsvc_s423_antidependence_offset64 README or rights note is incomplete")
+    for relative in (
+            "c/t/tsvc_s423_antidependence_offset64.c", "c3/t/tsvc_s423_antidependence_offset64.c3",
+            "cpp/t/tsvc_s423_antidependence_offset64.cpp", "elisa/t/tsvc_s423_antidependence_offset64.elisa",
+            "nim/t/tsvc_s423_antidependence_offset64.nim", "odin/t/tsvc_s423_antidependence_offset64.odin",
+            "rust/t/tsvc_s423_antidependence_offset64.rs", "v/t/tsvc_s423_antidependence_offset64.v",
+            "zig/t/tsvc_s423_antidependence_offset64.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "tsvc_s423_antidependence_offset64" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"tsvc_s423_antidependence_offset64 port is missing its symbol: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        input_is_null = case.get("input_is_null", False)
+        expected = case.get("expected_result")
+        allowed = {"id", "input_values", "expected_result", "input_length"}
+        if input_is_null:
+            allowed.add("input_is_null")
+        if (set(case) != allowed or not isinstance(values, list)
+                or len(values) > TSVC_S423_MAX_INPUT_LENGTH
+                or type(input_length) is not int or not 0 <= input_length <= TSVC_S423_MAX_INPUT_LENGTH
+                or type(input_is_null) is not bool or type(expected) is not int
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or expected != tsvc_s423_antidependence_offset64_expected(
+                    None if input_is_null else values, input_is_null=input_is_null,
+                    input_length=input_length)):
+            raise ValueError(f"tsvc_s423_antidependence_offset64 fixture differs from its oracle: {case.get('id')}")
 
 
 def validate_tsvc_s258_wrapped_scalar_expansion_workload(workload: dict) -> None:
@@ -19368,6 +20510,91 @@ def validate_embench_aha_mont64_workload(workload: dict) -> None:
             raise ValueError(f"embench_aha_mont64 fixture differs from its Montgomery contract: {case.get('id')}")
 
 
+def validate_beebs_bit_compress_workload(workload: dict) -> None:
+    pinned = "049ded9f3aeb5591f553879d3a0376b8614e9422"
+    expected_ids = {
+        *(f"source_vector_{index:02d}" for index in range(1, 19)),
+        "all_data_bits_selected", "high_source_bit_compacts_after_low",
+        "negative_data_rejected", "oversized_mask_rejected",
+        "short_frame_rejected", "long_frame_rejected",
+    }
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_source", "contract", "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "beebs-masked-bit-compress-i64-array-scalar-v1"
+            or workload.get("algorithm") != "beebs_bit_compress"
+            or workload.get("function_symbol") != "beebs_bit_compress"
+            or workload.get("pinned_source") != {
+                "repository": "mageec/beebs", "commit": pinned,
+                "path": "src/aha-compress/compress_test.c",
+                "symbols": ["compress1", "compress2", "compress3", "compress4"],
+                "url": f"https://github.com/mageec/beebs/blob/{pinned}/src/aha-compress/compress_test.c",
+                "spdx": "GPL-3.0-or-later",
+                "rights_note": "The pinned benchmark file declares GPL-3.0-or-later. The nine ports are independently written from the bit-compress operation and the published test vectors; no source implementation text or comments are copied. The source comment does not identify a separate license for its GLS attribution.",
+            }
+            or workload.get("contract") != {
+                "operation": "For each bit position j whose mask bit is 1, copy data bit j into the next result bit, beginning at bit 0 and visiting source positions from low to high.",
+                "input_layout": "[data_u32, mask_u32]", "input_length": 2,
+                "input_value_range": [0, BEEBS_BIT_COMPRESS_MAX_U32],
+                "invalid_result": BEEBS_BIT_COMPRESS_INVALID_RESULT,
+                "algorithm_scope": "The 32-bit bit-compress primitive only. BEEBS compress1 through compress4 are alternate implementations of the same operation; the benchmark repeat loop and harness are excluded.",
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "exact_length": BEEBS_BIT_COMPRESS_MAX_INPUT_LENGTH,
+                "maximum_length": BEEBS_BIT_COMPRESS_MAX_INPUT_LENGTH,
+                "maximum_parseable_length": BEEBS_BIT_COMPRESS_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_input_result": BEEBS_BIT_COMPRESS_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "32-bit result containing the selected data bits compacted from bit 0 upward",
+                "range": "0 through 4294967295",
+                "invalid_input_result": BEEBS_BIT_COMPRESS_INVALID_RESULT,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("beebs_bit_compress metadata or fixture IDs differ from its pinned bit-compress contract")
+
+    package = ROOT / "benchmarks" / "b" / "beebs_bit_compress"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (workload["pinned_source"]["url"] not in readme
+            or "GPL-3.0-or-later" not in readme
+            or "independently written" not in readme
+            or "compress1` through `compress4`" not in readme
+            or "contiguous bit interval" not in readme
+            or "GNU GENERAL PUBLIC LICENSE" not in license_text
+            or "Copyright (C) 2013 Embecosm Limited and University of Bristol" not in license_text):
+        raise ValueError("beebs_bit_compress README or license is missing pinned provenance, rights, or operation scope")
+    paths = (
+        "c/b/beebs_bit_compress.c", "c3/b/beebs_bit_compress.c3",
+        "cpp/b/beebs_bit_compress.cpp", "elisa/b/beebs_bit_compress.elisa",
+        "nim/b/beebs_bit_compress.nim", "odin/b/beebs_bit_compress.odin",
+        "rust/b/beebs_bit_compress.rs", "v/b/beebs_bit_compress.v",
+        "zig/b/beebs_bit_compress.zig",
+    )
+    if any(not (ROOT / path).is_file() for path in paths):
+        raise ValueError("beebs_bit_compress is missing one or more of its nine language ports")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or len(values) > BEEBS_BIT_COMPRESS_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != beebs_bit_compress_expected(values)):
+            raise ValueError(f"beebs_bit_compress fixture differs from its bit-compress contract: {case.get('id')}")
+
+
 def validate_slre_workload(workload: dict) -> None:
     """Validate the pinned bounded Embench slre search profile and fixtures."""
     pinned = "09c2ed8c3b7008c95d08b038de4a3f6dc103ed70"
@@ -19918,12 +21145,17 @@ def main() -> int:
             or sha256_file(runner) != binary["harness_sha256"]):
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
+    workload_subdirectory = {
+        "gapbs_ordered_triangle_count": "t",
+        "gapbs_betweenness_centrality": "b",
+        "gapbs_pagerank_pull_gs": "p",
+    }.get(algorithm, letter)
     workload_path = args.workload or (
         ROOT / "benchmarks" / algorithm / "workload.json"
         if algorithm == "mcnaughton_yamada_thompson" else
         ROOT / "benchmarks" / "d" / algorithm / "workload.json"
         if algorithm.startswith("versabench_dbms_") else
-        ROOT / "benchmarks" / letter / algorithm / "workload.json")
+        ROOT / "benchmarks" / workload_subdirectory / algorithm / "workload.json")
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
@@ -20053,6 +21285,8 @@ def main() -> int:
         validate_mallocbench_espresso_workload(workload)
     elif algorithm == "ptrdist_anagram":
         validate_ptrdist_anagram_workload(workload)
+    elif algorithm == "ptrdist_sim_local_affine_alignment":
+        validate_ptrdist_sim_local_affine_alignment_workload(workload)
     elif algorithm == "stanford_puzzle":
         validate_stanford_puzzle_workload(workload)
     elif algorithm == "mallocbench_cfrac":
@@ -20065,16 +21299,34 @@ def main() -> int:
         validate_doe_pathfinder_signature_search_workload(workload)
     elif algorithm == "ptrdist_ks":
         validate_ptrdist_ks_workload(workload)
+    elif algorithm == "ptrdist_yacr2_maze1_dogleg":
+        validate_ptrdist_yacr2_maze1_dogleg_workload(workload)
     elif algorithm == "prolangs_c_assembler":
         validate_prolangs_c_assembler_workload(workload)
     elif algorithm == "prolangs_c_bison_nullable":
         validate_prolangs_c_bison_nullable_workload(workload)
+    elif algorithm == "prolangs_c_gnugo_liberty_count":
+        validate_prolangs_c_gnugo_liberty_count_workload(workload)
+    elif algorithm == "gapbs_ordered_triangle_count":
+        validate_gapbs_ordered_triangle_count_workload(workload)
+    elif algorithm == "prolangs_c_gnugo_suicide":
+        validate_prolangs_c_gnugo_suicide_workload(workload)
+    elif algorithm == "gapbs_betweenness_centrality":
+        validate_gapbs_betweenness_centrality_workload(workload)
+    elif algorithm == "gapbs_pagerank_pull_gs":
+        validate_gapbs_pagerank_pull_gs_workload(workload)
+    elif algorithm == "prolangs_c_simulator_format3_4":
+        validate_prolangs_c_simulator_format3_4_workload(workload)
+    elif algorithm == "prolangs_c_simulator_shiftr":
+        validate_prolangs_c_simulator_shiftr_workload(workload)
     elif algorithm == "cbench_office_pratt_boyer_moore":
         validate_cbench_office_pratt_boyer_moore_workload(workload)
     elif algorithm == "cbench_ispell_hash":
         validate_cbench_ispell_hash_workload(workload)
     elif algorithm == "cbench_ispell_lookup_chain":
         validate_cbench_ispell_lookup_chain_workload(workload)
+    elif algorithm == "cbench_rsynth_f0_flutter":
+        validate_cbench_rsynth_f0_flutter_workload(workload)
     elif algorithm == "cbench_ghostscript_rop3":
         validate_cbench_ghostscript_rop3_workload(workload)
     elif algorithm == "cbench_ghostscript_rop3_idempotence":
@@ -20087,6 +21339,8 @@ def main() -> int:
         validate_parboil_sad_workload(workload)
     elif algorithm == "parboil_lbm":
         validate_parboil_lbm_workload(workload)
+    elif algorithm == "parboil_mri_gridding":
+        validate_parboil_mri_gridding_workload(workload)
     elif algorithm == "tsvc_vbor":
         validate_tsvc_vbor_workload(workload)
     elif algorithm == "tsvc_s257_column_coupled_update":
@@ -20097,6 +21351,8 @@ def main() -> int:
         validate_tsvc_s331_last_negative_index_workload(workload)
     elif algorithm == "tsvc_s424_alias_overlap_feedback":
         validate_tsvc_s424_alias_overlap_feedback_workload(workload)
+    elif algorithm == "tsvc_s423_antidependence_offset64":
+        validate_tsvc_s423_antidependence_offset64_workload(workload)
     elif algorithm == "tsvc_s258_wrapped_scalar_expansion":
         validate_tsvc_s258_wrapped_scalar_expansion_workload(workload)
     elif algorithm == "versabench_dbms_choose_entry":
@@ -20116,6 +21372,8 @@ def main() -> int:
         validate_tsvc_s4115_indexed_gather_product_sum_workload(workload)
     elif algorithm == "embench_aha_mont64":
         validate_embench_aha_mont64_workload(workload)
+    elif algorithm == "beebs_bit_compress":
+        validate_beebs_bit_compress_workload(workload)
     elif algorithm == "slre":
         validate_slre_workload(workload)
     elif algorithm == "rodinia_srad_v2":
@@ -20223,7 +21481,8 @@ def main() -> int:
                 "stanford_puzzle", "mallocbench_cfrac", "npb_serial_dc",
                 "prolangs_c_assembler", "prolangs_c_bison_nullable",
                 "versabench_dbms_choose_entry", "tsvc_s424_alias_overlap_feedback",
-                "tsvc_s258_wrapped_scalar_expansion") else 1
+                "tsvc_s423_antidependence_offset64", "tsvc_s258_wrapped_scalar_expansion",
+                "beebs_bit_compress") else 1
             if values or type(input_length) is not int or not minimum_null_length <= input_length <= 100002:
                 raise ValueError(f"null input length is outside the supported range for {case['id']}")
         elif input_length != len(values):

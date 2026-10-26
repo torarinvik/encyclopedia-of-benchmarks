@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": "ptrdist-yacr2-maze1-todd-dogleg-i64-v1",
+  "algorithm": "ptrdist_yacr2_maze1_dogleg",
+  "function_symbol": "ptrdist_yacr2_maze1_dogleg",
+  "description": "One-column upper/lower YACR2 Maze1 dogleg decision with source -DTODD branch order and inclusive plane occupancy checks.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["Ptrdist/yacr2/maze.c", "Ptrdist/yacr2/info.sh", "Ptrdist/yacr2/input2.in"],
+    "symbols": ["Maze1Mech", "Maze1"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Ptrdist/yacr2",
+    "license_note": "No explicit license or redistribution grant found in inspected YACR2 source, launcher, or repository-root LICENSE/COPYING paths; no license is inferred. Ports and oracle are clean-room."
+  },
+  "pinned_launcher": {
+    "path": "Ptrdist/yacr2/info.sh",
+    "source_files": ["assign.c", "channel.c", "hcg.c", "main.c", "maze.c", "option.c", "vcg.c"],
+    "compile_flags": ["-DTODD"],
+    "run_options": ["input2.in"]
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[columns, tracks, one_based_column, bottom_track, top_track, vcv_flags[columns], occupied_cells[(tracks+2)*columns]]",
+    "columns_range": [2, 16],
+    "tracks_range": [2, 16],
+    "track_rule": "1 <= bottom_track < top_track <= tracks",
+    "vcv_flag_bounds": [0, 1],
+    "occupancy_bounds": [0, 1],
+    "occupancy_order": "Rows 0..tracks+1, each with one-based columns 1..columns in row-major order; 0 means free and 1 means occupied.",
+    "maximum_valid_input_length": 309,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Selected route branch: 1 left upper, 2 right upper, 3 left lower, 4 right lower; 0 when none is feasible.",
+    "invalid_result": -1
+  },
+  "source_semantics": {
+    "branch_order": "The pinned -DTODD branch sequence is left upper, right upper, left lower, right lower.",
+    "segment_check": "Four candidate segments are checked against the existing vertical plane, endpoints included; a candidate is accepted only if the adjacent column has no VCV.",
+    "excluded": "Path drawing, via placement, net cleanup, VCG construction, rerouting, and track insertion are outside this one-column profile."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "oracle": {
+    "path": "../../ptrdist_yacr2_maze1_dogleg_oracle.py",
+    "function": "expected_result",
+    "method": "Independent interval scans check the source geometry and try the four branch shapes in the pinned macro-selected order."
+  },
+  "cases": [
+    {"id": "open-plane-left-upper-first", "input_values": [3, 4, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 26, "expected_result": 1},
+    {"id": "left-upper-vcv-uses-right-upper", "input_values": [3, 4, 2, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 26, "expected_result": 2},
+    {"id": "both-upper-jogs-blocked-left-lower", "input_values": [3, 4, 2, 2, 3, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 26, "expected_result": 3},
+    {"id": "left-lower-vcv-right-lower", "input_values": [3, 4, 2, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 26, "expected_result": 4},
+    {"id": "all-neighbor-columns-have-vcv", "input_values": [3, 4, 2, 2, 3, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 26, "expected_result": 0},
+    {"id": "truncated-plane", "input_values": [3, 4, 2, 2, 3, 0, 0, 0, 0], "input_length": 9, "expected_result": -1},
+    {"id": "invalid-track-order", "input_values": [3, 4, 2, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 26, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

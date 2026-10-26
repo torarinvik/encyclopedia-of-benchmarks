@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "id": "gbbs-bkv12-densest-subgraph-i64-array-float64-v1",
+  "algorithm": "gbbs_bkv12_densest_subgraph",
+  "function_symbol": "gbbs_bkv12_densest_subgraph",
+  "abi": "i64_array_float64",
+  "description": "Bounded BKV12 density-threshold peeling profile with epsilon 0.001.",
+  "pinned_source": {
+    "repository": "ParAlg/gbbs",
+    "commit": "dbd1dcad582c0a316c5ba0d5524319d596dd82da",
+    "path": "benchmarks/ApproximateDensestSubgraph/ApproxPeelingBKV12/DensestSubgraph.h",
+    "symbol": "WorkEfficientDensestSubgraph",
+    "url": "https://github.com/ParAlg/gbbs/blob/dbd1dcad582c0a316c5ba0d5524319d596dd82da/benchmarks/ApproximateDensestSubgraph/ApproxPeelingBKV12/DensestSubgraph.h",
+    "launcher_path": "benchmarks/ApproximateDensestSubgraph/ApproxPeelingBKV12/DensestSubgraph.cc",
+    "launcher_symbol": "DensestSubgraph_runner",
+    "license": "MIT",
+    "license_file": "LICENSE.txt"
+  },
+  "contract": {
+    "operation": "Return the maximum induced average degree at the beginning of a BKV12 density-threshold round.",
+    "input_encoding": "[node_count, edge_count, (u, v)...]",
+    "bounds": {"nodes": [1, 16], "edges": [0, 64]},
+    "edge_semantics": "simple undirected graph; each edge appears once with 0 <= u < v < node_count",
+    "epsilon": 0.001,
+    "source_profile": "At each round measure sum of current degrees divided by remaining vertex count, update the maximum, remove every vertex with degree <= 1.001 times that average, and decrement surviving neighbors' degrees. Use exact integer comparison for the decimal threshold.",
+    "output_meaning": "Maximum source-style average-degree score; not the exact maximum induced density.",
+    "invalid_result": -1e300
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, edge_count, (u, v)...]",
+    "node_count_range": [1, 16],
+    "edge_count_range": [0, 64],
+    "maximum_valid_input_length": 130,
+    "maximum_parseable_input_length": 132,
+    "invalid_input_result": -1e300
+  },
+  "output": {"kind": "float64_scalar", "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12, "invalid_result": -1e300},
+  "measurement": {"comparison_model": "i64_array_float64_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "cases": [
+    {"id":"triangle-with-isolate","input_values":[4,3,0,1,0,2,1,2],"input_length":8,"expected_result":2.0},
+    {"id":"four-vertex-path","input_values":[4,3,0,1,1,2,2,3],"input_length":8,"expected_result":1.5},
+    {"id":"four-vertex-star","input_values":[4,3,0,1,0,2,0,3],"input_length":8,"expected_result":1.5},
+    {"id":"complete-four-graph","input_values":[4,6,0,1,0,2,0,3,1,2,1,3,2,3],"input_length":14,"expected_result":3.0},
+    {"id":"edgeless","input_values":[3,0],"input_length":2,"expected_result":0.0},
+    {"id":"maximum-nodes-and-edges","input_values":[16,64,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,1,2,1,3,1,4,1,5,1,6,1,7,1,8,1,9,1,10,1,11,2,3,2,4,2,5,2,6,2,7,2,8,2,9,2,10,2,11,3,4,3,5,3,6,3,7,3,8,3,9,3,10,3,11,4,5,4,6,4,7,4,8,4,9,4,10,4,11,5,6,5,7,5,8,5,9,5,10,5,11,6,7,6,8,6,9,6,10,6,11,7,8,7,9,7,10,7,11,8,9,8,10,8,11,9,10],"input_length":130,"expected_result":10.666666666666666},
+    {"id":"too-short","input_values":[1],"input_length":1,"expected_result":-1e300},
+    {"id":"node-count-out-of-range","input_values":[17,0],"input_length":2,"expected_result":-1e300},
+    {"id":"edge-count-out-of-range","input_values":[2,65],"input_length":2,"expected_result":-1e300},
+    {"id":"length-mismatch","input_values":[2,1,0],"input_length":3,"expected_result":-1e300},
+    {"id":"self-loop","input_values":[2,1,0,0],"input_length":4,"expected_result":-1e300},
+    {"id":"noncanonical-edge","input_values":[2,1,1,0],"input_length":4,"expected_result":-1e300},
+    {"id":"duplicate-edge","input_values":[2,2,0,1,0,1],"input_length":6,"expected_result":-1e300},
+    {"id":"endpoint-out-of-range","input_values":[2,1,0,2],"input_length":4,"expected_result":-1e300},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1e300}
+  ]
+}

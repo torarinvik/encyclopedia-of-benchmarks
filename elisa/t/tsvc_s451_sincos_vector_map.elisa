@@ -1,0 +1,18 @@
+extern trunc(value: f64) -> f64
+extern fabs(value: f64) -> f64
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+
+def tsvc_s451_sincos_vector_map_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 129: return -1
+    raw_n: f64 = input[0]
+    if trunc(raw_n) != raw_n or raw_n < 1.0 or raw_n > 64.0: return -1
+    n: usize = raw_n.usize()
+    if length != 1 + 2 * n: return -1
+    for i in 1..length:
+        if input[i] != input[i] or fabs(input[i]) > 10.0: return -1
+    if output.is_null() or capacity < n: return -2
+    for i in 0..n: output[i] <- sin(input[1+i]) + cos(input[1+n+i])
+    n.i64()
+
+export fn tsvc_s451_sincos_vector_map(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = tsvc_s451_sincos_vector_map_impl

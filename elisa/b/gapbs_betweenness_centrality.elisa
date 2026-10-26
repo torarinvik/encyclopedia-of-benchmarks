@@ -1,0 +1,111 @@
+# Clean-room bounded Brandes profile; see package LICENSE.txt.
+const GAPBS_BC_MAX_N: usize = 8
+
+def gapbs_betweenness_centrality_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 12 or length > 74: return -1
+    n_value: i64 = input[0]
+    k_value: i64 = input[1]
+    if n_value < 3 or n_value > 8 or k_value < 1 or k_value > n_value: return -1
+    n: usize = n_value.usize()
+    k: usize = k_value.usize()
+    if length != 2 + k + n * n: return -1
+    sources: mutable usize[8] = zeroed
+    si: mutable usize = 0
+    while si < k:
+        source_value: i64 = input[2 + si]
+        if source_value < 0 or source_value >= n_value: return -1
+        source: usize = source_value.usize()
+        prior: mutable usize = 0
+        while prior < si:
+            if sources[prior] == source: return -1
+            prior <- prior + 1
+        sources[si] <- source
+        si <- si + 1
+
+    adjacency: mutable i64[64] = zeroed
+    u: mutable usize = 0
+    while u < n:
+        v: mutable usize = 0
+        while v < n:
+            edge: i64 = input[2 + k + u * n + v]
+            if (edge != 0 and edge != 1) or (u == v and edge != 0): return -1
+            adjacency[u * 8 + v] <- edge
+            v <- v + 1
+        u <- u + 1
+    u <- 0
+    while u < n:
+        v <- u + 1
+        while v < n:
+            if adjacency[u * 8 + v] != adjacency[v * 8 + u]: return -1
+            v <- v + 1
+        u <- u + 1
+
+    scores: mutable f32[8] = zeroed
+    si <- 0
+    while si < k:
+        depth: mutable i64[8] = zeroed
+        queue: mutable usize[8] = zeroed
+        paths: mutable f64[8] = zeroed
+        delta: mutable f32[8] = zeroed
+        v <- 0
+        while v < n:
+            depth[v] <- -1
+            v <- v + 1
+        source: usize = sources[si]
+        depth[source] <- 0
+        paths[source] <- 1.0
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        queue[0] <- source
+        while head < tail:
+            node: usize = queue[head]
+            head <- head + 1
+            v <- 0
+            while v < n:
+                if adjacency[node * 8 + v] != 0:
+                    if depth[v] == -1:
+                        depth[v] <- depth[node] + 1
+                        queue[tail] <- v
+                        tail <- tail + 1
+                    if depth[v] == depth[node] + 1:
+                        paths[v] <- paths[v] + paths[node]
+                v <- v + 1
+        max_depth: mutable i64 = 0
+        v <- 0
+        while v < n:
+            if depth[v] > max_depth: max_depth <- depth[v]
+            v <- v + 1
+        d: mutable i64 = max_depth
+        while d >= 0:
+            u <- 0
+            while u < n:
+                if depth[u] == d:
+                    delta_u: mutable f32 = 0.0
+                    v <- 0
+                    while v < n:
+                        if adjacency[u * 8 + v] != 0 and depth[v] == d + 1:
+                            one_plus: f32 = 1.0 + delta[v]
+                            contribution: f64 = (paths[u] / paths[v]) * one_plus.f64()
+                            delta_u <- (delta_u.f64() + contribution).f32()
+                        v <- v + 1
+                    delta[u] <- delta_u
+                    scores[u] <- (scores[u].f64() + delta_u.f64()).f32()
+                u <- u + 1
+            d <- d - 1
+        si <- si + 1
+    biggest: mutable f32 = 0.0
+    v <- 0
+    while v < n:
+        if scores[v] > biggest: biggest <- scores[v]
+        v <- v + 1
+    if not (biggest > 0.0): return -1
+    checksum: mutable i64 = 0
+    v <- 0
+    while v < n:
+        normalized: f32 = scores[v] / biggest
+        qscore: i64 = (normalized.f64() * 1000.0 + 0.5).i64()
+        checksum <- checksum + (v + 1).i64() * qscore
+        v <- v + 1
+    checksum
+
+export fn gapbs_betweenness_centrality(input: i64&, length: usize) -> i64 = gapbs_betweenness_centrality_impl

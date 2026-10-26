@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mafft-falign-fft-lag-correlation-float64-slice-io-v1",
+  "algorithm": "mafft_falign_fft_lag_correlation",
+  "function_symbol": "mafft_falign_fft_lag_correlation",
+  "description": "Launcher-default MAFFT Falign FFT cross-correlation of standardized Miyata polarity/volume features, returned in source lag order.",
+  "pinned_sources": [
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"mafft/Falign.c","symbols":["Falign","seq_vec_5"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mafft/Falign.c","role":"launcher-default complex sequence feature and correlation path"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"mafft/pairlocalalign.c","symbols":["fftscore default","-e option"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mafft/pairlocalalign.c","role":"confirms info.sh selects the default fftscore=1 path"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"mafft/fft.c","symbols":["fft"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mafft/fft.c","role":"radix-2 transform and normalization"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"mafft/fftFunctions.c","symbols":["calcNaiseki","getKouho"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mafft/fftFunctions.c","role":"conjugate spectrum product and lag selection"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"mafft/miyata.h","symbols":["polarity_","volume_"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mafft/miyata.h","role":"source amino-acid feature values"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"mafft/constants.c","symbols":["standardized polarity and volume"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mafft/constants.c","role":"population mean/standard-deviation normalization"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"mafft/license","symbols":["BSD redistribution terms"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mafft/license","role":"license"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"mafft/info.sh","symbols":["bench_name","RUN_OPTIONS","STDIN"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mafft/info.sh","role":"pinned launcher configuration"}
+  ],
+  "pinned_launcher":{"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"mafft/info.sh","bench_name":"mafft","run_options":"-b 62 -g 0.100 -f 2.00 -h 0.100 -L","stdin":"pyruvate_decarboxylase.fasta"},
+  "source_bound":{"alphabet_order":"ARNDCQEGHILKMFPSTWYV","channels":1,"complex_feature":{"real":"population-standardized Miyata polarity","imaginary":"population-standardized Miyata volume"},"weights":"unit sequence weights for two single-sequence clusters","transform":"radix-2 forward FFT normalized by padded length; first spectrum times conjugate of second; unnormalized inverse; source soukan lag reorder","projection":"full score profile before getKouho anchor extraction","scope":"launcher-default fftscore=1 path; excludes later anchor refinement and alignment DP"},
+  "input":{"kind":"finite_float64_array","encoding":"[first_length,second_length,first uppercase ASCII codes,second uppercase ASCII codes]","input_length":"2+first_length+second_length","maximum_input_length":66,"sequence_length_range":[1,32],"alphabet":"ARNDCQEGHILKMFPSTWYV","invalid_input_result":-1},
+  "contract":{"operation":"Return the complete bounded circular cross-correlation profile of the launcher-default complex sequence features. Output slot q represents lag q-n/2.","invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "output":{"kind":"float64_array","encoding":"real component of feature-vector cross-correlation divided by n, where n is the smallest power of two strictly greater than max(sequence lengths)","maximum_elements":64,"success_result":"n output elements","absolute_tolerance":1e-12,"relative_tolerance":1e-12,"no_write_on_error":true},
+  "license":"BSD-3-Clause terms as present in pinned mafft/license; full notice copied into this package LICENSE.txt.",
+  "measurement":{"comparison_model":"float64_slice_io_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100,"absolute_tolerance":1e-12,"relative_tolerance":1e-12},
+  "cases":[
+    {"id":"single-residue-self-correlation","input_values":[1,1,65,65],"input_length":4,"output_capacity":2,"expected_result":2,"expected_output":[0.0,0.8057666177872]},
+    {"id":"two-residue-self-correlation","input_values":[2,2,65,65,65,65],"input_length":6,"output_capacity":4,"expected_result":4,"expected_output":[0.0,0.4028833088936,0.8057666177872,0.4028833088936]},
+    {"id":"mismatched-packed-length","input_values":[2,2,65,67,67],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"unsupported-residue","input_values":[1,1,88,65],"input_length":4,"expected_result":-1,"expected_output":[]},
+    {"id":"empty-sequence","input_values":[0,1,65],"input_length":3,"expected_result":-1,"expected_output":[]},
+    {"id":"short-output","input_values":[1,1,65,65],"input_length":4,"output_capacity":1,"expected_result":-2,"expected_output":[]}
+  ]
+}

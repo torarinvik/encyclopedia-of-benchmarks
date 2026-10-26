@@ -1,0 +1,49 @@
+extern cos(value: f64) -> f64
+
+const PI: f64 = 3.14159265358979323846264338327950288
+const ENWINDOW_MAX: f64 = 0.030526638
+
+def cbench_consumer_lame_mdct_short_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null or input_length < 1 or input_length > 19: return -1
+    index: mutable usize = 0
+    while index < input_length:
+        value: f64 = input[index]
+        if value != value or value < -32768.0 or value > 32768.0: return -1
+        index <- index + 1
+    if input_length != 18: return -1
+
+    coefficients: mutable f64[36] = zeroed
+    scale: f64 = 4.0 / 12.0
+    i: mutable usize = 0
+    while i < 3:
+        w2: f64 = cos(PI / 12.0 * (i.f64() + 0.5)) * ENWINDOW_MAX / 32768.0 * scale
+        m: mutable usize = 0
+        while m < 6:
+            coefficients[6 * m + i] <- w2 * cos((PI / 48.0) * (2 * m + 1).f64() * (4 * i + 14).f64())
+            coefficients[6 * m + i + 3] <- w2 * cos((PI / 48.0) * (2 * m + 1).f64() * (4 * i + 38).f64())
+            m <- m + 1
+        i <- i + 1
+    staged: mutable f64[18] = zeroed
+    m: mutable i64 = 5
+    while m >= 0:
+        l: mutable i64 = 2
+        while l >= 0:
+            base: usize = 6 * l.usize()
+            total: mutable f64 = coefficients[6 * m.usize()] * input[base]
+            i <- 1
+            while i < 6:
+                total <- total + coefficients[6 * m.usize() + i] * input[base + i]
+                i <- i + 1
+            staged[3 * m.usize() + l.usize()] <- total
+            l <- l - 1
+        m <- m - 1
+    if output == null or output_capacity < 18: return -2
+    index <- 0
+    while index < 18:
+        output[index] <- staged[index]
+        index <- index + 1
+    18
+
+export fn cbench_consumer_lame_mdct_short(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = cbench_consumer_lame_mdct_short_impl

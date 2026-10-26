@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-consumer-mad-alias-reduce-i64-array-bytes-output-v1",
+  "algorithm": "cbench_consumer_mad_alias_reduce",
+  "function_symbol": "cbench_consumer_mad_alias_reduce",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded FPM_DEFAULT fixed-point profile of libmad's Layer III eight-pair alias-reduction stage.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["cBench/consumer_mad/src/layer3.c", "cBench/consumer_mad/src/fixed.h", "cBench/consumer_mad/src/info.sh"],
+    "symbols": ["III_aliasreduce", "cs", "ca", "mad_f_mul"],
+    "source_links": {
+      "kernel": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/consumer_mad/src/layer3.c",
+      "fixed_point": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/consumer_mad/src/fixed.h",
+      "launcher": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/consumer_mad/src/info.sh"
+    },
+    "launcher_flags": ["-DFPM_DEFAULT"],
+    "license": "GNU GPL version 2 or (at your option) any later version",
+    "copyright": "Copyright (C) 2000-2001 Robert Leslie",
+    "license_file": "LICENSE.txt"
+  },
+  "contract": {
+    "operation": "At each adjacent 18-line subband boundary, transform eight pairs using the pinned cs/ca alias-reduction coefficients.",
+    "input_layout": "[boundary_count, (a0,b0,...,a7,b7) per boundary]",
+    "boundary_count_range": [1, 4],
+    "input_values_per_boundary": 16,
+    "input_value_range": [-100000000, 100000000],
+    "input_interpretation": "Signed Q28 mad_fixed_t values.",
+    "left_output": "mad_f_mul(a, cs[i]) + mad_f_mul(-b, ca[i])",
+    "right_output": "mad_f_mul(b, cs[i]) + mad_f_mul(a, ca[i])",
+    "fpm_default_multiply": "floor((x+2048)/4096) * floor((y+32768)/65536), with floor division for negative values",
+    "output_encoding": "Signed 32-bit little-endian Q28 values, boundary-major and pair-major, left then right.",
+    "output_bytes": "64 * boundary_count",
+    "maximum_valid_input_length": 65,
+    "maximum_output_bytes": 256,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "Boundary count followed by sixteen signed Q28 values per boundary.",
+    "maximum_length": 65,
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 65,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Signed little-endian Q28 i32 values, two values for each of eight pairs at each boundary.",
+    "maximum_bytes": 256,
+    "capacity_unit": "bytes",
+    "success_result": "64 * boundary_count",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Staged maximum output, preserving no-write-on-error behavior."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "zero-one-boundary",
+      "input_values": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 17,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "first-pair-a-impulse",
+      "input_values": [1, 4096, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 17,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output_hex": "b80d0000c5f7ffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "invalid-truncated-boundary",
+      "input_values": [1, 4096, 0],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-out-of-profile-range",
+      "input_values": [1, 100000001, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 17,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 4096, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 17,
+      "input_is_null": false,
+      "output_capacity": 63,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 4096, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 17,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

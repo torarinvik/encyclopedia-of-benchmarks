@@ -1,0 +1,38 @@
+# Clean-room bounded PolyBench QR port. See package LICENSE.txt.
+extern sqrt(value: f64) -> f64
+extern trunc(value: f64) -> f64
+
+def polybench_gramschmidt_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length != 2: return -1
+    m_value: f64 = input[0]
+    n_value: f64 = input[1]
+    if m_value != m_value or n_value != n_value or trunc(m_value) != m_value or trunc(n_value) != n_value: return -1
+    if m_value < 1.0 or m_value > 6.0 or n_value < 1.0 or n_value > 6.0 or n_value > m_value: return -1
+    m: usize = m_value.usize()
+    n: usize = n_value.usize()
+    q_cells: usize = m * n
+    r_cells: usize = n * n
+    total: usize = q_cells + r_cells
+    if output.is_null() or capacity < total: return -2
+    a: mutable f64[36] = zeroed
+    q: mutable f64[36] = zeroed
+    r: mutable f64[36] = zeroed
+    staged: mutable f64[72] = zeroed
+    for i in 0..<m:
+        for j in 0..<n:
+            a[i * n + j] <- (((i * j) % m).f64() / m.f64()) * 100.0 + 10.0
+    for k in 0..<n:
+        norm_squared: f64 = 0.0
+        for i in 0..<m: norm_squared <- norm_squared + a[i * n + k] * a[i * n + k]
+        r[k * n + k] <- sqrt(norm_squared)
+        for i in 0..<m: q[i * n + k] <- a[i * n + k] / r[k * n + k]
+        for j in (k + 1)..<n:
+            r[k * n + j] <- 0.0
+            for i in 0..<m: r[k * n + j] <- r[k * n + j] + q[i * n + k] * a[i * n + j]
+            for i in 0..<m: a[i * n + j] <- a[i * n + j] - q[i * n + k] * r[k * n + j]
+    for x in 0..<r_cells: staged[x] <- r[x]
+    for x in 0..<q_cells: staged[r_cells + x] <- q[x]
+    for x in 0..<total: output[x] <- staged[x]
+    total.i64()
+
+export fn polybench_gramschmidt(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = polybench_gramschmidt_impl

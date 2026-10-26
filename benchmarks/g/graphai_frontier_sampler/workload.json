@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "graph-aibench-three-round-frontier-sampler-float64-slice-v1",
+  "algorithm": "graphai_frontier_sampler",
+  "function_symbol": "graphai_frontier_sampler",
+  "abi": "float64_slice_io",
+  "description": "Three-round deterministic-choice branching frontier sampler with bounded 3/2/2 fanouts.",
+  "pinned_source": {
+    "repository": "chenxuhao/GraphAIBench",
+    "commit": "17834cb29b7c542481c2e3740dc9664841b72f59",
+    "path": "src/sampling/omp_base.cc",
+    "symbol": "sample",
+    "url": "https://github.com/chenxuhao/GraphAIBench/blob/17834cb29b7c542481c2e3740dc9664841b72f59/src/sampling/omp_base.cc",
+    "license": "MIT License",
+    "copyright": "Source comment: Copyright 2020 MIT; Authors: Xuhao Chen",
+    "license_file": "LICENSE.txt"
+  },
+  "contract": {
+    "operation": "Expand caller roots through three CSR rounds, selecting a supplied zero-based edge ordinal for each child draw with replacement.",
+    "input_encoding": "[n,m,r,roots[r],rowptr[n+1],colind[m],edge_choice[21*r]]",
+    "exact_input_length": "4+n+m+22*r",
+    "output_encoding": "roots || hop1 || hop2 || hop3, preserving frontier and child order; layer sizes are r,3r,6r,12r",
+    "fanouts": [3, 2, 2],
+    "source_fanouts": [15, 10, 10],
+    "choice_order": "round, frontier parent order, then child order; each choice is an edge ordinal in that parent's CSR row",
+    "bounds": {"n": [1, 8], "m": [0, 24], "roots": [1, 4]},
+    "expanded_zero_degree_vertex": "invalid input",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {"kind": "integer-valued_float64_array", "maximum_input_length": 124, "invalid_result": -1},
+  "output": {"kind": "integer-valued_float64_array", "maximum_elements": 88, "success_result": "22*r ordered vertex IDs", "null_or_short_result": -2, "no_write_on_error": true, "absolute_tolerance": 0, "relative_tolerance": 0},
+  "workspace": {"elements": 88, "meaning": "Fixed staged output for four bounded frontiers at r<=4."},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100, "absolute_tolerance": 0, "relative_tolerance": 0},
+  "cases": [
+    {"id": "branch-choice-order", "input_values": [3,4,1,0,0,2,3,4,1,2,0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 33, "expected_result": 22, "expected_output": [0,2,1,2,1,1,0,0,1,1,0,0,0,0,1,1,1,1,0,0,0,0]},
+    {"id": "one-root-cycle", "input_values": [2,2,1,0,0,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 30, "expected_result": 22, "expected_output": [0,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1]},
+    {"id": "invalid-choice", "input_values": [2,2,1,0,0,1,2,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 30, "expected_result": -1, "expected_output": []},
+    {"id": "short-capacity", "input_values": [2,2,1,0,0,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 30, "output_capacity": 21, "expected_result": -2, "expected_output": []},
+    {"id": "null-output", "input_values": [2,2,1,0,0,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 30, "output_capacity": 22, "output_is_null": true, "expected_result": -2, "expected_output": []},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output": []}
+  ]
+}

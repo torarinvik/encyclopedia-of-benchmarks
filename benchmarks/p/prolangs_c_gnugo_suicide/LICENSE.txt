@@ -1,0 +1,19 @@
+GNU Go source provenance and applicable license
+
+The pinned upstream files Prolangs-C/gnugo/suicide.c, eval.c, countlib.c, and
+count.c state:
+
+GNU GO - the game of Go (Wei-Chi), Version 1.1, last revised 3-1-89.
+Copyright (C) Free Software Foundation, Inc.
+Written by Man L. Li; modified by Wayne Iba; documented by Bob Webber.
+
+The source explicitly permits copying, distribution, and modification under
+the GNU General Public License as published by the Free Software Foundation,
+version 1. It states that the program is distributed without warranty and
+refers to the GNU General Public License in file COPYING. The pinned gnugo
+directory does not contain that referenced COPYING file. This package's ports
+are derivative implementations licensed under GNU GPL version 1. No upstream
+source text is copied into these files.
+
+Source revision: 5d7b75df749241efa7a6e6f5be613d3fcc5cce38
+Launcher: Prolangs-C/gnugo/info.sh

@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "beebs-lcdnum-digit-to-segment-i64-array-bytes-output-v1",
+  "algorithm": "beebs_lcdnum",
+  "function_symbol": "beebs_lcdnum",
+  "description": "Map five source-profiled low nibbles to their seven-segment masks.",
+  "pinned_source": {
+    "repository": "mageec/beebs",
+    "commit": "049ded9f3aeb5591f553879d3a0376b8614e9422",
+    "path": "src/lcdnum/liblcdnum.c",
+    "symbols": ["num_to_lcd", "benchmark", "verify_benchmark"],
+    "url": "https://github.com/mageec/beebs/blob/049ded9f3aeb5591f553879d3a0376b8614e9422/src/lcdnum/liblcdnum.c",
+    "spdx": "GPL-3.0-or-later",
+    "rights_note": "The pinned source declares GPL-3.0-or-later and attributes copyright to Embecosm Limited and the University of Bristol, with James Pallister as a contributor. The ports are clean-room implementations; LICENSE.txt and NOTICE.txt retain the source license and attribution."
+  },
+  "contract": {
+    "operation": "For each of five input bytes, mask with 0x0f and map through the source-ordered 16-entry seven-segment lookup table.",
+    "input_layout": "five raw byte values in signed-i64 words",
+    "input_length": 5,
+    "input_byte_range": [0, 255],
+    "low_nibble_mask": "0x0f",
+    "segment_mask_table_hex": ["00", "24", "5d", "6d", "2e", "5d", "7b", "25", "7f", "6f", "3f", "7a", "53", "7c", "5b", "1b"],
+    "output_length": 5,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "profile_projection": "The source benchmark scans volatile input/output ports ten times, but only converts and writes the first five values. This profile exposes those five masks as output bytes; port scans, the five ignored scans, and the absent source output verifier are harness exclusions."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "five raw byte values",
+    "exact_length": 5,
+    "maximum_valid_input_length": 5,
+    "maximum_parseable_input_length": 6,
+    "byte_range": [0, 255],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "five seven-segment masks in source lookup order",
+    "maximum_bytes": 5,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 5,
+    "meaning": "Five output masks; the 16-entry lookup table is fixed package data."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "nibbles_zero_through_four", "input_values": [0, 1, 2, 3, 4], "input_length": 5, "expected_result": 5, "expected_output_hex": "00245d6d2e"},
+    {"id": "nibbles_five_through_nine", "input_values": [5, 6, 7, 8, 9], "input_length": 5, "expected_result": 5, "expected_output_hex": "5d7b257f6f"},
+    {"id": "nibbles_ten_through_fourteen", "input_values": [10, 11, 12, 13, 14], "input_length": 5, "expected_result": 5, "expected_output_hex": "3f7a537c5b"},
+    {"id": "high_byte_values_use_low_nibbles", "input_values": [255, 254, 253, 252, 251], "input_length": 5, "expected_result": 5, "expected_output_hex": "1b5b7c537a"},
+    {"id": "high_bits_are_ignored", "input_values": [16, 17, 31, 32, 33], "input_length": 5, "expected_result": 5, "expected_output_hex": "00241b0024"},
+    {"id": "short_input_rejected", "input_values": [0, 1, 2, 3], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "trailing_input_rejected", "input_values": [0, 1, 2, 3, 4, 5], "input_length": 6, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "negative_byte_rejected", "input_values": [0, 1, 2, 3, -1], "input_length": 5, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "byte_above_range_rejected", "input_values": [0, 1, 2, 3, 256], "input_length": 5, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short_output_capacity", "input_values": [0, 1, 2, 3, 4], "input_length": 5, "output_capacity": 4, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output", "input_values": [0, 1, 2, 3, 4], "input_length": 5, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

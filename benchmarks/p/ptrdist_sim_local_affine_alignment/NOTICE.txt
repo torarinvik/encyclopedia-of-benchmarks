@@ -1,0 +1,13 @@
+Ptrdist SIM source attribution
+
+The source profile is based on the documented recurrence in:
+  lac-dcc/Benchmarks, sim/sim.c
+  commit 5d7b75df749241efa7a6e6f5be613d3fcc5cce38
+
+The upstream source identifies copyright (c) 1990 Xiaoqiu Huang and Webb
+Miller and cites their work on time-efficient linear-space local similarity
+alignment. No explicit redistribution license grant was found in the pinned
+source. The nine benchmark ports are clean-room implementations of the
+described bounded recurrence; they do not copy upstream code or comments.
+This notice makes no claim that upstream source terms license the source or
+binary distribution of these independent ports.

@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0.0",
+  "id": "paq8p-bounded-context-mixer-v1",
+  "algorithm": "paq8p_context_mixer",
+  "function_symbol": "paq8p_context_mixer",
+  "description": "Bounded PAQ8p adaptive context-mixer core with two selected experts and a nested combiner; not the full compressor.",
+  "source": {
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "revision": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "PAQ8p/paq8p.cpp",
+    "symbols": ["squash", "Stretch", "dot_product", "train", "Mixer"],
+    "launcher": "PAQ8p/info.sh",
+    "rights": "Copyright (C) 2008 Matt Mahoney, Serge Osnach, Alexander Ratushnyak, Bill Pettis, Przemyslaw Skibinski, Matthew Fite, wowtiger, Andrew Paterson, Jan Ondrus, Andreas Morphis, Pavel L. Holoborodko, KZ; GNU GPL version 2 or later."
+  },
+  "input": {
+    "kind": "bounded_mixer_step_trace_i64_array",
+    "layout": "[steps, (context_a, context_b, target_bit, x0, x1, x2, x3, x4, x5, x6, x7) repeated]",
+    "minimum_steps": 1,
+    "maximum_steps": 16,
+    "context_selector_range": [0, 1],
+    "target_bit_range": [0, 1],
+    "stretched_feature_range": [-2047, 2047],
+    "maximum_valid_length": 177,
+    "maximum_parseable_length": 178,
+    "invalid_result": -1
+  },
+  "mixer_profile": {
+    "outer": {"N": 8, "M": 4, "S": 2, "initial_weight": 0},
+    "inner": {"N": 2, "M": 1, "S": 1, "initial_weight": 32767, "source_pads_inputs_to": 8},
+    "context_ranges": [2, 2],
+    "prediction_order": "update nested combiner from prior bit; compute each selected expert's squash(dot8 >> 5); stretch expert probabilities; compute nested squash(dot8 >> 8); train outer selected experts against current target",
+    "fixed_point": "source pairwise products accumulate with arithmetic signed >>8; training uses source error scale 7 and the source rounded increment; weights clamp to signed 16-bit"
+  },
+  "output": {
+    "kind": "little_endian_u16_predictions",
+    "elements": "one 12-bit probability per step",
+    "maximum_bytes": 32,
+    "success_result": "2 * steps",
+    "invalid_result": -1,
+    "null_or_short_output_result": -2
+  },
+  "workspace": {
+    "bytes": 17408,
+    "meaning": "Includes the 4096-entry signed-32-bit stretch lookup, four expert rows, nested combiner, bounded input staging, and prediction output staging."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "neutral-one-step", "input_values": [1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 12, "expected_output_hex": "ff07"},
+    {"id": "trained-expert-two-step", "input_values": [2, 0, 0, 1, 2047, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2047, 0, 0, 0, 0, 0, 0, 0], "input_length": 23, "expected_output_hex": "ff07ae09"},
+    {"id": "invalid-context", "input_values": [1, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 12, "expected_result": -1},
+    {"id": "invalid-target", "input_values": [1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 12, "expected_result": -1},
+    {"id": "invalid-feature-range", "input_values": [1, 0, 0, 1, 2048, 0, 0, 0, 0, 0, 0, 0], "input_length": 12, "expected_result": -1},
+    {"id": "invalid-step-count", "input_values": [0], "input_length": 1, "expected_result": -1},
+    {"id": "invalid-trailing-word", "input_values": [1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 13, "expected_result": -1}
+  ]
+}

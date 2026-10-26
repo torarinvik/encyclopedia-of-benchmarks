@@ -1,0 +1,53 @@
+// Clean-room bounded sequential GARDENIA MF-SGD profile.
+extern trunc(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+def gardenia_sgd_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > 92: return -1
+    for q in 0..<length:
+        if input[q] != input[q] or input[q] > 1.0e300 or input[q] < -1.0e300: return -1
+    uv: f64=input[0]; iv: f64=input[1]; mv: f64=input[2]; kv: f64=input[3]
+    if trunc(uv)!=uv or trunc(iv)!=iv or trunc(mv)!=mv or trunc(kv)!=kv: return -1
+    if uv<1.0 or uv>7.0 or iv<1.0 or iv>7.0 or mv<1.0 or mv>24.0 or kv<1.0 or kv>4.0: return -1
+    users: usize=uv.usize(); items: usize=iv.usize(); m: usize=mv.usize(); k: usize=kv.usize(); n: usize=users+items
+    if n>8 or length!=5+users+2*m+n*k: return -1
+    rp: usize=4; ci: usize=rp+users+1; ra: usize=ci+m; la: usize=ra+m
+    rows: mutable usize[9]=zeroed; cols: mutable usize[24]=zeroed
+    ratings: mutable f64[24]=zeroed; latent: mutable f64[32]=zeroed
+    errors: mutable f64[8]=zeroed; staged: mutable f64[32]=zeroed
+    for i in 0..=users:
+        z: f64=input[rp+i]
+        if trunc(z)!=z or z<0.0 or z>mv: return -1
+        rows[i]=z.usize()
+        if i>0 and rows[i]<rows[i-1]: return -1
+    if rows[0]!=0 or rows[users]!=m: return -1
+    for e in 0..<m:
+        z: f64=input[ci+e]
+        if trunc(z)!=z or z<0.0 or z>=iv: return -1
+        cols[e]=z.usize(); ratings[e]=input[ra+e]
+        if ratings[e] < -4.0 or ratings[e]>4.0: return -1
+    for q in 0..<n*k:
+        latent[q]=input[la+q]
+        if latent[q]<0.0 or latent[q]>0.1: return -1
+    required: usize=n*k
+    if output.is_null() or capacity<required: return -2
+    for _ in 0..<3:
+        for u in 0..<users: errors[u] <- 0.0
+        for u in 0..<users:
+            for e in rows[u]..<rows[u+1]:
+                v: usize=users+cols[e]; estimate: f64=0.0
+                for f in 0..<k: estimate += latent[u*k+f]*latent[v*k+f]
+                delta: f64=ratings[e]-estimate; errors[u] += delta*delta
+                for f in 0..<k:
+                    ui: usize=u*k+f; vi: usize=v*k+f
+                    pu: f64=latent[ui]; pi: f64=latent[vi]
+                    latent[ui] += 0.00000035*(-0.001*pu+pi*delta)
+                    latent[vi] += 0.00000035*(-0.001*pi+pu*delta)
+        total: f64=0.0
+        for u in 0..<users: total += errors[u]
+        if sqrt(total/m.f64())<0.1: break
+    for q in 0..<required: staged[q] <- latent[q]
+    for q in 0..<required: output[q] <- staged[q]
+    required.i64()
+
+export fn gardenia_sgd(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = gardenia_sgd_impl

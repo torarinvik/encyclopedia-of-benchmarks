@@ -1,0 +1,178 @@
+/*
+ * Copyright (c) 1999 Takehiro TOMINAGA
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+extern cos(value: f64) -> f64
+
+const SAMPLE_COUNT: usize = 511
+const WINDOW_COUNT: usize = 256
+const INPUT_COUNT: usize = 767
+const MAX_INPUT_LENGTH: usize = 768
+const BAND_COUNT: usize = 32
+const OUTPUT_BYTES: usize = 256
+const PI: f64 = 3.14159265358979323846264338327950288
+const S_OFFSETS: i64[15] = [334,398,462,14,78,142,206,16,80,144,208,272,336,400,464]
+const T_OFFSETS: i64[15] = [176,112,48,496,432,368,304,494,430,366,302,238,174,110,46]
+
+def store_i64_le(output: mutable u8&, offset: usize, value: i64):
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def round_q1000(value: f64) -> i64:
+    scaled: f64 = value * 1000.0
+    magnitude: f64 = if scaled < 0.0: -scaled else: scaled
+    rounded: i64 = (magnitude + 0.5).i64()
+    if scaled < 0.0: -rounded else: rounded
+
+def valid(input: i64&, length: usize) -> bool:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH or length != INPUT_COUNT:
+        return false
+    index: mutable usize = 0
+    while index < SAMPLE_COUNT:
+        if input[index] < -32768 or input[index] > 32767: return false
+        index <- index + 1
+    index <- 0
+    while index < WINDOW_COUNT:
+        value: i64 = input[SAMPLE_COUNT + index]
+        if value < -4500000 or value > 36000000: return false
+        if (index == 0 or (index >= 8 and (index - 8) % 16 == 0)) and value <= 25000000:
+            return false
+        index <- index + 1
+    true
+
+def filterbank(input: i64&, window: mutable f64&, bands: mutable f64&):
+    maximum: f64 = window[248]
+    mmax: mutable f64[31] = zeroed
+    mm: mutable f64[16][31] = zeroed
+    wp: mutable usize = 0
+    wr: mutable usize = 0
+    w: mutable f64 = window[wp]
+    wp <- wp + 1
+    mmax[15] <- w / maximum
+    k: mutable usize = 0
+    while k < 7:
+        window[wr] <- window[wp] / w
+        wr <- wr + 1
+        wp <- wp + 1
+        k <- k + 1
+    i: mutable i64 = 14
+    while i >= 0:
+        w <- window[wp]
+        wp <- wp + 1
+        mmax[i.usize()] <- w / maximum
+        mmax[(30 - i).usize()] <- w / maximum
+        k <- 0
+        while k < 15:
+            window[wr] <- window[wp] / w
+            wr <- wr + 1
+            wp <- wp + 1
+            k <- k + 1
+        i <- i - 1
+    wp <- wp + 1
+    k <- 0
+    while k < 7:
+        window[wr] <- window[wp] / maximum
+        wr <- wr + 1
+        wp <- wp + 1
+        k <- k + 1
+    i <- 15
+    while i >= 0:
+        k64: mutable i64 = 1
+        while k64 < 32:
+            angle: f64 = ((2.0 * i.f64() + 1.0) * k64.f64() * PI) / 64.0
+            mm[i.usize()][(k64 - 1).usize()] <- cos(angle) * mmax[(k64 - 1).usize()]
+            k64 <- k64 + 1
+        i <- i - 1
+
+    inner: mutable f64[31] = zeroed
+    coeff: mutable usize = 0
+    t: mutable f64 = input[255].f64()
+    t <- t + (input[223] - input[287]).f64() * window[coeff]; coeff <- coeff + 1
+    t <- t + (input[191] + input[319]).f64() * window[coeff]; coeff <- coeff + 1
+    t <- t + (input[159] - input[351]).f64() * window[coeff]; coeff <- coeff + 1
+    t <- t + (input[127] + input[383]).f64() * window[coeff]; coeff <- coeff + 1
+    t <- t + (input[95] - input[415]).f64() * window[coeff]; coeff <- coeff + 1
+    t <- t + (input[63] + input[447]).f64() * window[coeff]; coeff <- coeff + 1
+    t <- t + (input[31] - input[479]).f64() * window[coeff]; coeff <- coeff + 1
+    inner[15] <- t
+    i <- 14
+    while i >= 0:
+        s: mutable f64 = input[(270 - i).usize()].f64()
+        t <- input[(240 + i).usize()].f64()
+        k <- 0
+        while k < 15:
+            w <- window[coeff]
+            coeff <- coeff + 1
+            si: i64 = S_OFFSETS[k] + (if k < 7: -i else: i)
+            ti: i64 = T_OFFSETS[k] + (if k < 7: i else: -i)
+            sv: f64 = input[si.usize()].f64() * w
+            tv: f64 = input[ti.usize()].f64() * w
+            if k >= 11: s <- s - sv else: s <- s + sv
+            if k >= 7 and k < 11: t <- t - tv else: t <- t + tv
+            k <- k + 1
+        inner[(30 - i).usize()] <- s
+        inner[i.usize()] <- t
+        i <- i - 1
+    s: mutable f64 = input[239].f64()
+    s <- s + input[175].f64() * window[coeff]; coeff <- coeff + 1
+    s <- s + input[111].f64() * window[coeff]; coeff <- coeff + 1
+    s <- s + input[47].f64() * window[coeff]; coeff <- coeff + 1
+    s <- s - input[303].f64() * window[coeff]; coeff <- coeff + 1
+    s <- s - input[367].f64() * window[coeff]; coeff <- coeff + 1
+    s <- s - input[431].f64() * window[coeff]; coeff <- coeff + 1
+    s <- s - input[495].f64() * window[coeff]
+    i <- 15
+    while i >= 0:
+        s0: mutable f64 = s
+        s1: mutable f64 = t * mm[i.usize()][0]
+        at: mutable usize = 1
+        k <- 0
+        while k < 15:
+            s0 <- s0 + mm[i.usize()][2 * k + 1] * inner[at]
+            at <- at + 1
+            s1 <- s1 + mm[i.usize()][2 * k + 2] * inner[at]
+            at <- at + 1
+            k <- k + 1
+        bands[i.usize()] <- s0 + s1
+        bands[(31 - i).usize()] <- s0 - s1
+        i <- i - 1
+
+export fn cbench_consumer_lame_window_subband(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if not valid(input, input_length): return -1
+    window: mutable f64[WINDOW_COUNT] = zeroed
+    index: mutable usize = 0
+    while index < WINDOW_COUNT:
+        window[index] <- input[SAMPLE_COUNT + index].f64() / 1000000000.0
+        index <- index + 1
+    bands: mutable f64[BAND_COUNT] = zeroed
+    filterbank(input, window, bands)
+    staged: mutable i64[BAND_COUNT] = zeroed
+    index <- 0
+    while index < BAND_COUNT:
+        staged[index] <- round_q1000(bands[index])
+        index <- index + 1
+    if output.is_null() or output_capacity < OUTPUT_BYTES: return -2
+    index <- 0
+    while index < BAND_COUNT:
+        store_i64_le(output, 8 * index, staged[index])
+        index <- index + 1
+    OUTPUT_BYTES.i64()

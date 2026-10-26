@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import datetime as dt
 from decimal import Decimal, ROUND_HALF_UP
 import hashlib
+import heapq
 from itertools import product
 import json
 import math
@@ -30,6 +31,9 @@ from rodinia_dwt2d_oracle import (
     MAX_OUTPUT_BYTES as RODINIA_DWT2D_MAX_OUTPUT_BYTES,
     expected_output as rodinia_dwt2d_expected_output,
     expected_result as rodinia_dwt2d_expected_result,
+)
+from saga_incremental_analytics_oracle import (
+    expected_output as saga_incremental_analytics_verifier_oracle,
 )
 from edn_lattice_synthesis_oracle import (
     MAX_ORDER as EDN_LATTICE_MAX_ORDER,
@@ -73,6 +77,18 @@ from mediabench_g721_encode_oracle import (
     MAX_INPUT_LENGTH as MEDIABENCH_G721_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as MEDIABENCH_G721_MAX_OUTPUT_BYTES,
     expected_output as mediabench_g721_encode_verifier_oracle,
+)
+from mediabench_gsm_rpe_grid_positioning_oracle import (
+    INPUT_COUNT as MEDIABENCH_GSM_RPE_POSITIONING_INPUT_COUNT,
+    MAX_INPUT_LENGTH as MEDIABENCH_GSM_RPE_POSITIONING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEDIABENCH_GSM_RPE_POSITIONING_MAX_OUTPUT_BYTES,
+    expected_output as mediabench_gsm_rpe_grid_positioning_package_oracle,
+)
+from cbench_consumer_lame_window_subband_oracle import (
+    INPUT_COUNT as CBENCH_LAME_WINDOW_SUBBAND_INPUT_COUNT,
+    MAX_INPUT_LENGTH as CBENCH_LAME_WINDOW_SUBBAND_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CBENCH_LAME_WINDOW_SUBBAND_MAX_OUTPUT_BYTES,
+    expected_output as cbench_consumer_lame_window_subband_package_oracle,
 )
 from simplify_fraction_oracle import (
     MAX_INPUT_LENGTH as SIMPLIFY_FRACTION_MAX_INPUT_LENGTH,
@@ -748,6 +764,31 @@ from minesweeper_oracle import MAX_INPUT_LENGTH as MINESWEEPER_MAX_INPUT_LENGTH
 from minesweeper_oracle import MAX_OUTPUT_BYTES as MINESWEEPER_MAX_OUTPUT_BYTES
 from minesweeper_oracle import MIN_DIMENSION as MINESWEEPER_MIN_DIMENSION
 from minesweeper_oracle import expected_output as minesweeper_oracle
+from beebs_nettle_cast128_oracle import (
+    INVALID_RESULT as BEEBS_NETTLE_CAST128_INVALID_RESULT,
+    KEY_BYTES as BEEBS_NETTLE_CAST128_KEY_BYTES,
+    BLOCK_BYTES as BEEBS_NETTLE_CAST128_BLOCK_BYTES,
+    MAX_VALID_INPUT_LENGTH as BEEBS_NETTLE_CAST128_MAX_VALID_INPUT_LENGTH,
+    MAX_INPUT_LENGTH as BEEBS_NETTLE_CAST128_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES,
+    OUTPUT_ERROR as BEEBS_NETTLE_CAST128_OUTPUT_ERROR,
+    expected_output as beebs_nettle_cast128_expected_output,
+)
+from beebs_fasta_oracle import (
+    INVALID_RESULT as BEEBS_FASTA_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as BEEBS_FASTA_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BEEBS_FASTA_MAX_OUTPUT_BYTES,
+    OUTPUT_ERROR as BEEBS_FASTA_OUTPUT_ERROR,
+    expected_output as beebs_fasta_expected_output,
+)
+from beebs_lcdnum_oracle import (
+    INVALID_RESULT as BEEBS_LCDNUM_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as BEEBS_LCDNUM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BEEBS_LCDNUM_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BEEBS_LCDNUM_MAX_OUTPUT_BYTES,
+    OUTPUT_ERROR as BEEBS_LCDNUM_OUTPUT_ERROR,
+    expected_output as beebs_lcdnum_expected_output,
+)
 from rc4_oracle import I64_MAX as RC4_I64_MAX
 from rc4_oracle import I64_MIN as RC4_I64_MIN
 from rc4_oracle import INVALID_RESULT as RC4_INVALID_RESULT
@@ -1254,6 +1295,7 @@ from sumset_oracle import expected_output as sumset_oracle
 from run_i64_array_bytes_output import MAX_OUTPUT_CAPACITY
 from run_i64_array_bytes_output import RECORDER_WORKSPACE_ALGORITHMS
 from run_i64_array_bytes_output import EXTERNAL_BYTE_OUTPUT_BOUNDS
+from run_i64_array_bytes_output import validate_new_byte_output_workload
 from rodinia_mummergpu_oracle import MAX_QUERY as RODINIA_MUMMERGPU_MAX_QUERY
 from rodinia_mummergpu_oracle import MAX_REF as RODINIA_MUMMERGPU_MAX_REF
 from rodinia_mummergpu_oracle import MAX_OUTPUT_BYTES as RODINIA_MUMMERGPU_MAX_OUTPUT_BYTES
@@ -1357,6 +1399,38 @@ from tsvc_s279_nested_branch_recompute_oracle import (
     MAX_OUTPUT_BYTES as TSVC_S279_MAX_OUTPUT_BYTES,
     MAX_PASSES as TSVC_S279_MAX_PASSES,
     MAX_VALUE as TSVC_S279_MAX_VALUE,
+)
+from tsvc_s115_upper_triangular_saxpy_elimination_oracle import (
+    I64_MAX as TSVC_S115_I64_MAX,I64_MIN as TSVC_S115_I64_MIN,MAX_INPUT_LENGTH as TSVC_S115_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S115_MAX_N,MAX_OUTPUT_BYTES as TSVC_S115_MAX_OUTPUT_BYTES,MAX_PASSES as TSVC_S115_MAX_PASSES,
+)
+from tsvc_s1113_feedback_anchor_add_oracle import (
+    I64_MAX as TSVC_S1113_I64_MAX,I64_MIN as TSVC_S1113_I64_MIN,MAX_INPUT_LENGTH as TSVC_S1113_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S1113_MAX_N,MAX_OUTPUT_BYTES as TSVC_S1113_MAX_OUTPUT_BYTES,
+)
+from tsvc_s113_invariant_anchor_add_oracle import (
+    I64_MAX as TSVC_S113_I64_MAX,I64_MIN as TSVC_S113_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S113_MAX_INPUT_LENGTH,MAX_N as TSVC_S113_MAX_N,MAX_OUTPUT_BYTES as TSVC_S113_MAX_OUTPUT_BYTES,
+)
+from tsvc_s1112_reverse_constant_offset_map_oracle import (
+    I64_MAX as TSVC_S1112_I64_MAX, I64_MIN as TSVC_S1112_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S1112_MAX_INPUT_LENGTH, MAX_N as TSVC_S1112_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S1112_MAX_OUTPUT_BYTES,
+)
+from tsvc_s1111_stride_two_polynomial_map_oracle import (
+    I64_MAX as TSVC_S1111_I64_MAX,
+    I64_MIN as TSVC_S1111_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S1111_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S1111_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S1111_MAX_OUTPUT_BYTES,
+)
+from tsvc_s119_diagonal_matrix_recurrence_oracle import (
+    I64_MAX as TSVC_S119_I64_MAX,
+    I64_MIN as TSVC_S119_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S119_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S119_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S119_MAX_PASSES,
+    MAX_SIDE as TSVC_S119_MAX_SIDE,
 )
 from tsvc_s2111_wavefront_add_recurrence_oracle import (
     I64_MAX as TSVC_S2111_I64_MAX,
@@ -1876,6 +1950,40 @@ from tsvc_s281_reverse_coupled_update_oracle import (
     MAX_PASSES as TSVC_S281_REVERSE_MAX_PASSES,
     expected_output as tsvc_s281_reverse_coupled_update_verifier_oracle,
 )
+from tsvc_s1281_elementwise_dual_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S1281_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S1281_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S1281_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S1281_MAX_PASSES,
+    expected_output as tsvc_s1281_elementwise_dual_update_verifier_oracle,
+)
+from tsvc_s293_first_element_broadcast_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S293_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S293_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S293_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s293_first_element_broadcast_verifier_oracle,
+)
+from tsvc_vtv_elementwise_product_oracle import (
+    MAX_INPUT_LENGTH as TSVC_VTV_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_VTV_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_VTV_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_VTV_MAX_PASSES,
+    expected_output as tsvc_vtv_elementwise_product_verifier_oracle,
+)
+from tsvc_vpvpv_three_vector_add_oracle import (
+    MAX_INPUT_LENGTH as TSVC_VPVPV_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_VPVPV_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_VPVPV_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_VPVPV_MAX_PASSES,
+    expected_output as tsvc_vpvpv_three_vector_add_verifier_oracle,
+)
+from tsvc_s471_ordered_two_vector_map_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S471_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S471_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S471_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S471_MAX_PASSES,
+    expected_output as tsvc_s471_ordered_two_vector_map_verifier_oracle,
+)
 from ansibench_dhrystone_oracle import MAX_PARSEABLE_INPUT_LENGTH as ANSIBENCH_DHRYSTONE_MAX_PARSEABLE_INPUT_LENGTH
 from ansibench_dhrystone_oracle import MAX_OUTPUT_BYTES as ANSIBENCH_DHRYSTONE_MAX_OUTPUT_BYTES
 from ansibench_dhrystone_oracle import expected_output as ansibench_dhrystone_oracle
@@ -1915,6 +2023,225 @@ from embedded_list_stress_oracle import expected_output as embedded_list_stress_
 from numeric_token_state_machine_oracle import MAX_OUTPUT_BYTES as NUMERIC_TOKEN_STATE_MACHINE_MAX_OUTPUT_BYTES
 from numeric_token_state_machine_oracle import MAX_PARSEABLE_INPUT_LENGTH as NUMERIC_TOKEN_STATE_MACHINE_MAX_PARSEABLE_INPUT_LENGTH
 from numeric_token_state_machine_oracle import expected_output as numeric_token_state_machine_oracle
+from prolangs_c_numeric_token_oracle import (
+    MAX_INPUT_LENGTH as PROLANGS_C_NUMERIC_TOKEN_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PROLANGS_C_NUMERIC_TOKEN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PROLANGS_C_NUMERIC_TOKEN_MAX_OUTPUT_BYTES,
+)
+from prolangs_c_loader_relocation_add_oracle import (
+    MAX_INPUT_LENGTH as PROLANGS_C_LOADER_RELOCATION_ADD_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PROLANGS_C_LOADER_RELOCATION_ADD_MAX_OUTPUT_BYTES,
+)
+from paq8p_context_mixer_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PAQ8P_CONTEXT_MIXER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PAQ8P_CONTEXT_MIXER_MAX_OUTPUT_BYTES,
+)
+from pargeo_bichromatic_closest_pair_oracle import (
+    MAX_INPUT_LENGTH as PARGEO_BCP_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PARGEO_BCP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PARGEO_BCP_MAX_OUTPUT_BYTES,
+)
+from mediabench_jpeg_optimal_huffman_table_oracle import (
+    MAX_SYMBOLS as MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_SYMBOLS,
+    MAX_FREQUENCY as MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_FREQUENCY,
+    MAX_INPUT_LENGTH as MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_OUTPUT_BYTES,
+)
+from gapbs_delta_step_sssp_oracle import (
+    MAX_NODES as GAPBS_DELTA_STEP_SSSP_MAX_NODES,
+    MAX_EDGES as GAPBS_DELTA_STEP_SSSP_MAX_EDGES,
+    MAX_INPUT_LENGTH as GAPBS_DELTA_STEP_SSSP_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GAPBS_DELTA_STEP_SSSP_MAX_OUTPUT_BYTES,
+    MAX_EDGE_WEIGHT as GAPBS_DELTA_STEP_SSSP_MAX_EDGE_WEIGHT,
+    INF_DISTANCE as GAPBS_DELTA_STEP_SSSP_INF_DISTANCE,
+)
+from gbbs_ss_widest_path_oracle import (
+    MAX_NODES as GBBS_WIDEST_PATH_MAX_NODES,
+    MAX_EDGES as GBBS_WIDEST_PATH_MAX_EDGES,
+    MAX_EDGE_CAPACITY as GBBS_WIDEST_PATH_MAX_EDGE_CAPACITY,
+    MAX_INPUT_LENGTH as GBBS_WIDEST_PATH_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_WIDEST_PATH_MAX_OUTPUT_BYTES,
+    SOURCE_INFINITY as GBBS_WIDEST_PATH_SOURCE_INFINITY,
+)
+from gbbs_k_core_decomposition_oracle import (
+    MAX_NODES as GBBS_KCORE_MAX_NODES,
+    MAX_EDGES as GBBS_KCORE_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_KCORE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_KCORE_MAX_OUTPUT_BYTES,
+)
+from gbbs_k_core_decomposition_verifier_oracle import (
+    expected_output as gbbs_k_core_decomposition_verifier_oracle,
+)
+from gbbs_k_clique_count_oracle import (
+    MAX_NODES as GBBS_KCLIQUE_MAX_NODES,
+    MAX_EDGES as GBBS_KCLIQUE_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_KCLIQUE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_KCLIQUE_MAX_OUTPUT_BYTES,
+)
+from gbbs_k_clique_count_verifier_oracle import (
+    expected_output as gbbs_k_clique_count_verifier_oracle,
+)
+from gbbs_label_propagation_clustering_oracle import (
+    MAX_NODES as GBBS_LABEL_PROP_MAX_NODES,
+    MAX_EDGES as GBBS_LABEL_PROP_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_LABEL_PROP_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_LABEL_PROP_MAX_OUTPUT_BYTES,
+)
+from gbbs_label_propagation_clustering_verifier_oracle import (
+    expected_output as gbbs_label_propagation_clustering_verifier_oracle,
+)
+from gbbs_five_cycle_count_oracle import (
+    MAX_NODES as GBBS_FIVE_CYCLE_MAX_NODES,
+    MAX_EDGES as GBBS_FIVE_CYCLE_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_FIVE_CYCLE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_FIVE_CYCLE_MAX_OUTPUT_BYTES,
+)
+from gbbs_five_cycle_count_verifier_oracle import (
+    expected_output as gbbs_five_cycle_count_verifier_oracle,
+)
+from gbbs_cosimrank_pair_similarity_oracle import (
+    MAX_NODES as GBBS_COSIMRANK_MAX_NODES,
+    MAX_EDGES as GBBS_COSIMRANK_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_COSIMRANK_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_COSIMRANK_MAX_OUTPUT_BYTES,
+)
+from gbbs_cosimrank_pair_similarity_verifier_oracle import (
+    expected_output as gbbs_cosimrank_pair_similarity_verifier_oracle,
+)
+from gbbs_yoshida_query_mis_oracle import (
+    MAX_NODES as GBBS_YOSHIDA_MIS_MAX_NODES,
+    MAX_EDGES as GBBS_YOSHIDA_MIS_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_YOSHIDA_MIS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_YOSHIDA_MIS_MAX_OUTPUT_BYTES,
+)
+from gbbs_yoshida_query_mis_verifier_oracle import (
+    expected_output as gbbs_yoshida_query_mis_verifier_oracle,
+)
+from gbbs_goodrich_pszona_degeneracy_order_verifier_oracle import (
+    MAX_NODES as GBBS_GOODRICH_PSZONA_MAX_NODES,
+    MAX_EDGES as GBBS_GOODRICH_PSZONA_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_GOODRICH_PSZONA_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_GOODRICH_PSZONA_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_goodrich_pszona_degeneracy_order_verifier_oracle,
+)
+from gbbs_barenboim_elkin_degeneracy_order_verifier_oracle import (
+    MAX_NODES as GBBS_BARENBOIM_ELKIN_MAX_NODES,
+    MAX_EDGES as GBBS_BARENBOIM_ELKIN_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_BARENBOIM_ELKIN_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_BARENBOIM_ELKIN_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_barenboim_elkin_degeneracy_order_verifier_oracle,
+)
+from pannotia_local_minimum_mis_verifier_oracle import (
+    MAX_NODES as PANNOTIA_MIS_MAX_NODES,
+    MAX_EDGES as PANNOTIA_MIS_MAX_EDGES,
+    MAX_INPUT_LENGTH as PANNOTIA_MIS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PANNOTIA_MIS_MAX_OUTPUT_BYTES,
+    expected_output as pannotia_local_minimum_mis_verifier_oracle,
+)
+from pannotia_priority_coloring_verifier_oracle import (
+    MAX_NODES as PANNOTIA_COLORING_MAX_NODES,
+    MAX_EDGES as PANNOTIA_COLORING_MAX_EDGES,
+    MAX_INPUT_LENGTH as PANNOTIA_COLORING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PANNOTIA_COLORING_MAX_OUTPUT_BYTES,
+    expected_output as pannotia_priority_coloring_verifier_oracle,
+)
+from gardenia_fb_trim_scc_verifier_oracle import (
+    MAX_NODES as GARDENIA_FB_TRIM_SCC_MAX_NODES,
+    MAX_EDGES as GARDENIA_FB_TRIM_SCC_MAX_EDGES,
+    MAX_INPUT_LENGTH as GARDENIA_FB_TRIM_SCC_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GARDENIA_FB_TRIM_SCC_MAX_OUTPUT_BYTES,
+    expected_output as gardenia_fb_trim_scc_verifier_oracle,
+)
+from gardenia_gm_vertex_coloring_verifier_oracle import (
+    MAX_NODES as GARDENIA_GM_COLORING_MAX_NODES,
+    MAX_EDGES as GARDENIA_GM_COLORING_MAX_EDGES,
+    MAX_INPUT_LENGTH as GARDENIA_GM_COLORING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GARDENIA_GM_COLORING_MAX_OUTPUT_BYTES,
+    expected_output as gardenia_gm_vertex_coloring_verifier_oracle,
+)
+from gbbs_scan_structural_clustering_verifier_oracle import (
+    MAX_NODES as GBBS_SCAN_MAX_NODES,
+    MAX_EDGES as GBBS_SCAN_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_SCAN_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_SCAN_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_scan_structural_clustering_verifier_oracle,
+)
+from gbbs_maximal_matching_verifier_oracle import (
+    MAX_NODES as GBBS_MAXIMAL_MATCHING_MAX_NODES,
+    MAX_EDGES as GBBS_MAXIMAL_MATCHING_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_MAXIMAL_MATCHING_MAX_INPUT_LENGTH,
+    OUTPUT_BYTES as GBBS_MAXIMAL_MATCHING_MAX_OUTPUT_BYTES,
+    INVALID_RESULT as GBBS_MAXIMAL_MATCHING_INVALID_RESULT,
+    OUTPUT_ERROR as GBBS_MAXIMAL_MATCHING_OUTPUT_ERROR,
+    expected_output as gbbs_maximal_matching_verifier_oracle,
+)
+from gbbs_biconnectivity_verifier_oracle import (
+    MAX_NODES as GBBS_BICONNECTIVITY_MAX_NODES,
+    MAX_EDGES as GBBS_BICONNECTIVITY_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_BICONNECTIVITY_MAX_INPUT_LENGTH,
+    expected_output as gbbs_biconnectivity_verifier_oracle,
+)
+from gbbs_approximate_set_cover_verifier_oracle import (
+    MAX_SETS as GBBS_SET_COVER_MAX_SETS,
+    MAX_INPUT_LENGTH as GBBS_SET_COVER_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_LENGTH as GBBS_SET_COVER_MAX_PARSEABLE_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_SET_COVER_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_approximate_set_cover_verifier_oracle,
+)
+from gbbs_low_diameter_decomposition_verifier_oracle import (
+    MAX_NODES as GBBS_LDD_MAX_NODES,
+    MAX_EDGES as GBBS_LDD_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_LDD_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_LDD_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_low_diameter_decomposition_verifier_oracle,
+)
+from gbbs_shiloach_vishkin_spanning_forest_verifier_oracle import (
+    MAX_NODES as GBBS_SV_FOREST_MAX_NODES,
+    MAX_EDGES as GBBS_SV_FOREST_MAX_EDGES,
+    MAX_INPUT_LENGTH as GBBS_SV_FOREST_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GBBS_SV_FOREST_MAX_OUTPUT_BYTES,
+    expected_output as gbbs_shiloach_vishkin_spanning_forest_verifier_oracle,
+)
+from rodinia_heartwall_template_match_verifier_oracle import (
+    MAX_INPUT_LENGTH as RODINIA_HEARTWALL_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RODINIA_HEARTWALL_MAX_OUTPUT_BYTES,
+    expected_bytes as rodinia_heartwall_template_match_verifier_expected_bytes,
+)
+from tsvc_s2711_nonzero_branch_axpy_verifier_oracle import (
+    MAX_N as TSVC_S2711_NONZERO_MAX_N,
+    MAX_PASSES as TSVC_S2711_NONZERO_MAX_PASSES,
+    MAX_INPUT_LENGTH as TSVC_S2711_NONZERO_MAX_INPUT_LENGTH,
+    expected_output as tsvc_s2711_nonzero_branch_axpy_verifier_oracle,
+)
+TSVC_S2711_NONZERO_MAX_OUTPUT_BYTES = 8 * TSVC_S2711_NONZERO_MAX_N
+from graphai_hac_complete_linkage_oracle import (
+    MAX_NODES as GRAPH_HAC_MAX_NODES,
+    MAX_EDGES as GRAPH_HAC_MAX_EDGES,
+    MAX_INPUT_LENGTH as GRAPH_HAC_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GRAPH_HAC_MAX_OUTPUT_BYTES,
+)
+from graphai_hac_complete_linkage_verifier_oracle import (
+    expected_output as graphai_hac_complete_linkage_verifier_oracle,
+)
+from gapbs_afforest_components_oracle import (
+    MAX_NODES as GAPBS_AFFOREST_MAX_NODES,
+    MAX_EDGES as GAPBS_AFFOREST_MAX_EDGES,
+    MAX_SAMPLES as GAPBS_AFFOREST_MAX_SAMPLES,
+    MAX_INPUT_LENGTH as GAPBS_AFFOREST_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GAPBS_AFFOREST_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GAPBS_AFFOREST_MAX_OUTPUT_BYTES,
+)
+from gapbs_shiloach_vishkin_components_oracle import (
+    MAX_NODES as GAPBS_SV_MAX_NODES,
+    MAX_EDGES as GAPBS_SV_MAX_EDGES,
+    MAX_INPUT_LENGTH as GAPBS_SV_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GAPBS_SV_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GAPBS_SV_MAX_OUTPUT_BYTES,
+)
+from cbench_consumer_mad_alias_reduce_oracle import (
+    MAX_INPUT_LENGTH as CBENCH_MAD_ALIAS_REDUCE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CBENCH_MAD_ALIAS_REDUCE_MAX_OUTPUT_BYTES,
+)
 from nbench_huffman_compression_oracle import MAX_OUTPUT_BYTES as NBENCH_HUFFMAN_COMPRESSION_MAX_OUTPUT_BYTES
 from nbench_huffman_compression_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_HUFFMAN_COMPRESSION_MAX_PARSEABLE_INPUT_LENGTH
 from nbench_huffman_compression_oracle import expected_output as nbench_huffman_compression_oracle
@@ -3123,6 +3450,7 @@ from uint_oracle import (
     OUTPUT_ERROR as UINT_OUTPUT_ERROR,
     expected_output as uint_oracle,
 )
+I64_MIN, I64_MAX = UINT_I64_MIN, UINT_I64_MAX
 from uint128_t_oracle import expected_output as uint128_t_oracle
 from uint256_t_oracle import expected_output as uint256_t_oracle
 from uuencode_verifier_oracle import (
@@ -3171,6 +3499,8 @@ ALGORITHMS = (*ALGORITHMS, "mccat_05_eks")
 ALGORITHMS = (*ALGORITHMS, "mccat_bintr")
 ALGORITHMS = (*ALGORITHMS, "mediabench_g721_encode")
 ALGORITHMS = (*ALGORITHMS, "mediabench_gsm_rpe_grid_selection")
+ALGORITHMS = (*ALGORITHMS, "mediabench_gsm_rpe_grid_positioning")
+ALGORITHMS = (*ALGORITHMS, "cbench_consumer_lame_window_subband")
 ALGORITHMS = (*ALGORITHMS, "rodinia_hybridsort")
 ALGORITHMS = (*ALGORITHMS, "rodinia_mummergpu", "tsvc_indexed_gather_scatter",
               "tsvc_s141_packed_symmetric_update", "tsvc_s131_forward_neighbor_update",
@@ -3178,13 +3508,14 @@ ALGORITHMS = (*ALGORITHMS, "rodinia_mummergpu", "tsvc_indexed_gather_scatter",
               "tsvc_s161_mutually_exclusive_updates", "tsvc_s211_ordered_neighbor_rewrite",
               "tsvc_s212_next_element_dependency")
 ALGORITHMS = (*ALGORITHMS, "rodinia_streamcluster_pgain")
+ALGORITHMS = (*ALGORITHMS, "saga_incremental_analytics")
 ALGORITHMS = (*ALGORITHMS, "idea_cfb64")
 ALGORITHMS = (*ALGORITHMS, "llubenchmark_list_traversal_growth")
 ALGORITHMS = (*ALGORITHMS, "tsvc_s114_transposed_lower_triangle_update")
 ALGORITHMS = (*ALGORITHMS, "tsvc_vif_masked_assignment")
 ALGORITHMS = (*ALGORITHMS, "tsvc_s278_branch_recompute")
 ALGORITHMS = (*ALGORITHMS, "tsvc_s279_nested_branch_recompute")
-ALGORITHMS = (*ALGORITHMS, "tsvc_s2111_wavefront_add_recurrence")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s2111_wavefront_add_recurrence", "tsvc_s119_diagonal_matrix_recurrence", "tsvc_s1111_stride_two_polynomial_map", "tsvc_s1112_reverse_constant_offset_map", "tsvc_s113_invariant_anchor_add", "tsvc_s1113_feedback_anchor_add", "tsvc_s115_upper_triangular_saxpy_elimination")
 ALGORITHMS = (*ALGORITHMS, "tsvc_s353_unrolled_sparse_saxpy")
 ALGORITHMS = (*ALGORITHMS, "tsvc_s251_scalar_square_expansion")
 ALGORITHMS = (*ALGORITHMS, "tsvc_s452_index_weighted_vector_map")
@@ -3239,6 +3570,13 @@ ALGORITHMS = (*ALGORITHMS, "tsvc_s271_positive_branch_axpy")
 ALGORITHMS = (*ALGORITHMS, "tsvc_s276_index_split_axpy")
 ALGORITHMS = (*ALGORITHMS, "tsvc_s277_guarded_carry_update")
 ALGORITHMS = (*ALGORITHMS, "tsvc_s274_dependent_conditional_overwrite")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s116_unrolled_product_chain",
+              "tsvc_s118_triangular_convolution_recurrence",
+              "tsvc_s1119_same_column_matrix_prefix",
+              "tsvc_s232_triangular_row_square_recurrence",
+              "tsvc_s1213_ordered_neighbor_array_map",
+              "tsvc_s233_s2233_matrix_prefix",
+              "tsvc_s235_fused_vector_matrix_recurrence")
 ALGORITHMS = (*ALGORITHMS, "simplify_fraction")
 ALGORITHMS = (*ALGORITHMS, "misc_reed_solomon")
 ALGORITHMS = (*ALGORITHMS, "depthconv")
@@ -3538,6 +3876,13 @@ WORKSPACE_ALGORITHMS.add("tsvc_s276_index_split_axpy")
 WORKSPACE_ALGORITHMS.add("tsvc_s277_guarded_carry_update")
 WORKSPACE_ALGORITHMS.add("tsvc_s251_scalar_square_expansion")
 WORKSPACE_ALGORITHMS.add("tsvc_s274_dependent_conditional_overwrite")
+WORKSPACE_ALGORITHMS.update({"tsvc_s116_unrolled_product_chain",
+                             "tsvc_s118_triangular_convolution_recurrence",
+                             "tsvc_s1119_same_column_matrix_prefix",
+                             "tsvc_s232_triangular_row_square_recurrence",
+                             "tsvc_s1213_ordered_neighbor_array_map",
+                             "tsvc_s233_s2233_matrix_prefix",
+                             "tsvc_s235_fused_vector_matrix_recurrence"})
 WORKSPACE_ALGORITHMS.add("eulerian_path")
 WORKSPACE_ALGORITHMS.add("directed_simple_cycles")
 WORKSPACE_ALGORITHMS.add("yens_kshortest_paths")
@@ -3801,7 +4146,61 @@ ALGORITHMS = (*ALGORITHMS, "smith_waterman_python", "smith_waterman_rust",
 ALGORITHMS = (*ALGORITHMS, "uuencode")
 ALGORITHMS = (*ALGORITHMS, "mccat_qbsort")
 ALGORITHMS = (*ALGORITHMS, "bmm", "mccat_bisect", "prolangs_c_allroots")
-ALGORITHMS = (*ALGORITHMS, "prolangs_c_cdecl")
+ALGORITHMS = (*ALGORITHMS, "prolangs_c_cdecl", "prolangs_c_numeric_token",
+              "prolangs_c_loader_relocation_add")
+ALGORITHMS = (*ALGORITHMS, "paq8p_context_mixer")
+ALGORITHMS = (*ALGORITHMS, "pargeo_bichromatic_closest_pair")
+ALGORITHMS = (*ALGORITHMS, "mediabench_jpeg_optimal_huffman_table")
+ALGORITHMS = (*ALGORITHMS, "gapbs_delta_step_sssp")
+ALGORITHMS = (*ALGORITHMS, "gbbs_ss_widest_path")
+ALGORITHMS = (*ALGORITHMS, "gbbs_k_core_decomposition")
+ALGORITHMS = (*ALGORITHMS, "gbbs_k_clique_count", "gbbs_label_propagation_clustering",
+              "gbbs_five_cycle_count")
+ALGORITHMS = (*ALGORITHMS, "gbbs_cosimrank_pair_similarity")
+ALGORITHMS = (*ALGORITHMS, "gbbs_yoshida_query_mis")
+ALGORITHMS = (*ALGORITHMS, "gbbs_goodrich_pszona_degeneracy_order")
+ALGORITHMS = (*ALGORITHMS, "gbbs_barenboim_elkin_degeneracy_order")
+ALGORITHMS = (*ALGORITHMS, "graphai_hac_complete_linkage")
+ALGORITHMS = (*ALGORITHMS, "pannotia_local_minimum_mis", "pannotia_priority_coloring")
+ALGORITHMS = (*ALGORITHMS, "gardenia_fb_trim_scc", "gardenia_gm_vertex_coloring")
+ALGORITHMS = (*ALGORITHMS, "gbbs_scan_structural_clustering")
+ALGORITHMS = (*ALGORITHMS, "gbbs_maximal_matching")
+ALGORITHMS = (*ALGORITHMS, "gbbs_biconnectivity")
+ALGORITHMS = (*ALGORITHMS, "gbbs_approximate_set_cover",
+              "gbbs_low_diameter_decomposition", "tsvc_s2711_nonzero_branch_axpy",
+              "gbbs_shiloach_vishkin_spanning_forest",
+              "rodinia_heartwall_template_match")
+ALGORITHMS = (*ALGORITHMS, "gapbs_afforest_components")
+ALGORITHMS = (*ALGORITHMS, "gapbs_shiloach_vishkin_components")
+WORKSPACE_ALGORITHMS.add("gapbs_afforest_components")
+WORKSPACE_ALGORITHMS.add("gapbs_shiloach_vishkin_components")
+WORKSPACE_ALGORITHMS.add("gbbs_ss_widest_path")
+WORKSPACE_ALGORITHMS.add("gbbs_k_core_decomposition")
+WORKSPACE_ALGORITHMS.update({"gbbs_k_clique_count", "gbbs_label_propagation_clustering",
+                             "gbbs_five_cycle_count"})
+WORKSPACE_ALGORITHMS.add("gbbs_cosimrank_pair_similarity")
+WORKSPACE_ALGORITHMS.add("gbbs_yoshida_query_mis")
+WORKSPACE_ALGORITHMS.add("gbbs_goodrich_pszona_degeneracy_order")
+WORKSPACE_ALGORITHMS.add("gbbs_barenboim_elkin_degeneracy_order")
+WORKSPACE_ALGORITHMS.add("graphai_hac_complete_linkage")
+WORKSPACE_ALGORITHMS.update({"pannotia_local_minimum_mis", "pannotia_priority_coloring"})
+WORKSPACE_ALGORITHMS.update({"gardenia_fb_trim_scc", "gardenia_gm_vertex_coloring"})
+WORKSPACE_ALGORITHMS.add("gbbs_scan_structural_clustering")
+WORKSPACE_ALGORITHMS.add("gbbs_maximal_matching")
+WORKSPACE_ALGORITHMS.add("gbbs_biconnectivity")
+WORKSPACE_ALGORITHMS.update({"gbbs_approximate_set_cover",
+                             "gbbs_low_diameter_decomposition",
+                             "tsvc_s2711_nonzero_branch_axpy",
+                             "gbbs_shiloach_vishkin_spanning_forest",
+                             "rodinia_heartwall_template_match"})
+ALGORITHMS = (*ALGORITHMS, "cbench_consumer_mad_alias_reduce")
+WORKSPACE_ALGORITHMS.update({
+    "prolangs_c_numeric_token", "prolangs_c_loader_relocation_add",
+    "paq8p_context_mixer", "pargeo_bichromatic_closest_pair",
+    "mediabench_jpeg_optimal_huffman_table",
+    "gapbs_delta_step_sssp",
+    "cbench_consumer_mad_alias_reduce",
+})
 ALGORITHMS = (*ALGORITHMS, "tarfind")
 ALGORITHMS = (*ALGORITHMS, "8b10b")
 ALGORITHMS = (*ALGORITHMS, "uudecode")
@@ -3823,12 +4222,18 @@ ALGORITHMS = (*ALGORITHMS, "min_cost_max_flow", "morton_sort", "number_theoretic
               "fortune_voronoi", "tsvc_s343_column_major_compaction",
               "cbench_tiffdither", "cbench_consumer_tiffmedian",
               "cbench_consumer_tiff2bw", "cbench_bzip2_mtf_rle",
-              "cbench_blowfish_cbc", "tsvc_s281_reverse_coupled_update")
+              "cbench_blowfish_cbc", "tsvc_s281_reverse_coupled_update",
+              "tsvc_s1281_elementwise_dual_update", "tsvc_s293_first_element_broadcast",
+              "tsvc_vtv_elementwise_product", "tsvc_vpvpv_three_vector_add",
+              "tsvc_s471_ordered_two_vector_map")
 ALGORITHMS = (*ALGORITHMS, "rodinia_dwt2d")
 ALGORITHMS = (*ALGORITHMS, "qrduino", "picojpeg")
 ALGORITHMS = (*ALGORITHMS, "statemate")
 ALGORITHMS = (*ALGORITHMS, "edn_lattice_synthesis", "edn_vec_mpy1", "edn_iir_cascade",
               "edn_jpeg_dct", "nsichneu")
+ALGORITHMS = (*ALGORITHMS, "beebs_nettle_cast128")
+ALGORITHMS = (*ALGORITHMS, "beebs_fasta")
+ALGORITHMS = (*ALGORITHMS, "beebs_lcdnum")
 WORKSPACE_ALGORITHMS.update({"min_cost_max_flow", "morton_sort", "number_theoretic_transform",
                              "relaxed_convolution", "seam_carving", "sqrt_tree", "beta_skeleton",
                              "schoenhage_strassen_multiply", "wspd", "batch_dynamic_kd_tree",
@@ -3837,10 +4242,16 @@ WORKSPACE_ALGORITHMS.update({"min_cost_max_flow", "morton_sort", "number_theoret
                              "tsvc_s343_column_major_compaction", "cbench_tiffdither",
                              "cbench_consumer_tiffmedian", "cbench_consumer_tiff2bw",
                              "cbench_bzip2_mtf_rle", "cbench_blowfish_cbc",
-                             "tsvc_s281_reverse_coupled_update"})
+                             "tsvc_s281_reverse_coupled_update",
+                             "tsvc_s1281_elementwise_dual_update",
+                             "tsvc_s293_first_element_broadcast", "tsvc_vtv_elementwise_product",
+                             "tsvc_vpvpv_three_vector_add", "tsvc_s471_ordered_two_vector_map"})
 WORKSPACE_ALGORITHMS.add("rodinia_dwt2d")
 WORKSPACE_ALGORITHMS.update({"qrduino", "picojpeg"})
 WORKSPACE_ALGORITHMS.add("statemate")
+WORKSPACE_ALGORITHMS.add("beebs_nettle_cast128")
+WORKSPACE_ALGORITHMS.add("beebs_fasta")
+WORKSPACE_ALGORITHMS.add("beebs_lcdnum")
 WORKSPACE_ALGORITHMS.add("lru_cache2")
 WORKSPACE_ALGORITHMS.add("idea_cfb64")
 WORKSPACE_ALGORITHMS.add("llubenchmark_list_traversal_growth")
@@ -3904,6 +4315,8 @@ WORKSPACE_ALGORITHMS.add("mccat_05_eks")
 WORKSPACE_ALGORITHMS.add("mccat_bintr")
 WORKSPACE_ALGORITHMS.add("mediabench_g721_encode")
 WORKSPACE_ALGORITHMS.add("mediabench_gsm_rpe_grid_selection")
+WORKSPACE_ALGORITHMS.add("mediabench_gsm_rpe_grid_positioning")
+WORKSPACE_ALGORITHMS.add("cbench_consumer_lame_window_subband")
 WORKSPACE_ALGORITHMS.add("rodinia_hybridsort")
 WORKSPACE_ALGORITHMS.update({"rodinia_mummergpu", "tsvc_indexed_gather_scatter",
                              "tsvc_s141_packed_symmetric_update",
@@ -3913,11 +4326,18 @@ WORKSPACE_ALGORITHMS.update({"rodinia_mummergpu", "tsvc_indexed_gather_scatter",
                              "tsvc_s211_ordered_neighbor_rewrite",
                              "tsvc_s212_next_element_dependency"})
 WORKSPACE_ALGORITHMS.add("rodinia_streamcluster_pgain")
+WORKSPACE_ALGORITHMS.add("saga_incremental_analytics")
 WORKSPACE_ALGORITHMS.add("tsvc_s114_transposed_lower_triangle_update")
 WORKSPACE_ALGORITHMS.add("tsvc_vif_masked_assignment")
 WORKSPACE_ALGORITHMS.add("tsvc_s278_branch_recompute")
 WORKSPACE_ALGORITHMS.add("tsvc_s279_nested_branch_recompute")
 WORKSPACE_ALGORITHMS.add("tsvc_s2111_wavefront_add_recurrence")
+WORKSPACE_ALGORITHMS.add("tsvc_s119_diagonal_matrix_recurrence")
+WORKSPACE_ALGORITHMS.add("tsvc_s1111_stride_two_polynomial_map")
+WORKSPACE_ALGORITHMS.add("tsvc_s1112_reverse_constant_offset_map")
+WORKSPACE_ALGORITHMS.add("tsvc_s113_invariant_anchor_add")
+WORKSPACE_ALGORITHMS.add("tsvc_s1113_feedback_anchor_add")
+WORKSPACE_ALGORITHMS.add("tsvc_s115_upper_triangular_saxpy_elimination")
 WORKSPACE_ALGORITHMS.add("tsvc_s353_unrolled_sparse_saxpy")
 WORKSPACE_ALGORITHMS.add("tsvc_s452_index_weighted_vector_map")
 WORKSPACE_ALGORITHMS.add("tsvc_s126_matrix_column_recurrence")
@@ -4627,6 +5047,685 @@ def prolangs_c_cdecl_verifier_oracle(
     if output is None:
         return -1, b""
     if output_is_null or (capacity is not None and capacity < len(output)):
+        return -2, b""
+    return len(output), output
+
+
+def _prolangs_c_numeric_token_verifier_encode(values: tuple[int, ...] | list[int]) -> bytes | None:
+    """Independently model Prolangs-C Number's token fields and binary32 steps."""
+    if (not isinstance(values, (tuple, list))
+            or not 1 <= len(values) <= PROLANGS_C_NUMERIC_TOKEN_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not 32 <= value <= 127 for value in values)):
+        return None
+    text = bytes(values).decode("ascii")
+    if any(character not in "0123456789.eE+-" for character in text):
+        return None
+    position = 0
+    integer_value = 0
+    if text[position].isdigit():
+        first = position
+        while position < len(text) and text[position].isdigit():
+            position += 1
+        integer_value = int(text[first:position])
+        if integer_value > 2147483647:
+            return None
+        if position == len(text):
+            return struct.pack("<iii", 256, integer_value, 0)
+
+    def f32(number: float) -> float:
+        return struct.unpack("<f", struct.pack("<f", number))[0]
+
+    real_seen = False
+    fraction = f32(0.0)
+    if position < len(text) and text[position] == ".":
+        real_seen = True
+        position += 1
+        leading_zeroes = 0
+        while position < len(text) and text[position] == "0":
+            leading_zeroes += 1
+            position += 1
+        first = position
+        while position < len(text) and text[position].isdigit():
+            position += 1
+        fraction_digits = text[first:position]
+        if leading_zeroes + len(fraction_digits) > 6:
+            return None
+        if fraction_digits:
+            fraction = f32(float(int(fraction_digits)))
+            while fraction >= 1.0:
+                fraction = f32(fraction / 10.0)
+            for _ in range(leading_zeroes):
+                fraction = f32(fraction / 10.0)
+    value = f32(fraction + f32(float(integer_value)))
+    if position < len(text) and text[position] in "eE":
+        real_seen = True
+        position += 1
+        exponent_sign = 1
+        if position < len(text) and text[position] in "+-":
+            exponent_sign = -1 if text[position] == "-" else 1
+            position += 1
+        first = position
+        while position < len(text) and text[position].isdigit():
+            position += 1
+        if first == position:
+            return None
+        exponent = exponent_sign * int(text[first:position])
+        if not -6 <= exponent <= 6:
+            return None
+        while exponent > 0:
+            value = f32(value * 10.0)
+            exponent -= 1
+        while exponent < 0:
+            value = f32(value / 10.0)
+            exponent += 1
+    if position != len(text) or not real_seen:
+        return None
+    raw_bits = struct.unpack("<i", struct.pack("<f", value))[0]
+    return struct.pack("<iii", 2001, integer_value, raw_bits)
+
+
+def prolangs_c_numeric_token_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (not isinstance(values, (tuple, list))
+            or len(values) > PROLANGS_C_NUMERIC_TOKEN_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None and (type(input_length) is not int
+                                              or input_length != (0 if input_is_null else len(values))))
+            or (input_is_null and values)
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    if input_is_null:
+        return -1, b""
+    encoded = _prolangs_c_numeric_token_verifier_encode(values)
+    if encoded is None:
+        return -1, b""
+    if output_is_null or (capacity is not None and capacity < PROLANGS_C_NUMERIC_TOKEN_MAX_OUTPUT_BYTES):
+        return -2, b""
+    return PROLANGS_C_NUMERIC_TOKEN_MAX_OUTPUT_BYTES, encoded
+
+
+def prolangs_c_loader_relocation_add_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (not isinstance(values, (tuple, list))
+            or len(values) > PROLANGS_C_LOADER_RELOCATION_ADD_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None and
+                (type(input_length) is not int
+                 or input_length != (0 if input_is_null else len(values))))
+            or (input_is_null and values)
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    if input_is_null or len(values) < 2:
+        return -1, b""
+    half_bytes, delta, *field_bytes = values
+    if (not 1 <= half_bytes <= 6 or not -65535 <= delta <= 65535
+            or any(not 0 <= value <= 255 for value in field_bytes)):
+        return -1, b""
+    width = (half_bytes + 1) // 2
+    if len(field_bytes) != width:
+        return -1, b""
+    adjusted = int.from_bytes(bytes(field_bytes), "big") + delta
+    if adjusted < 0:
+        return -1, b""
+    result_bytes = (adjusted & ((1 << (width * 8)) - 1)).to_bytes(width, "big")
+    if output_is_null or (capacity is not None and capacity < width):
+        return -2, b""
+    return width, result_bytes
+
+
+_PAQ8P_V_SQUASH_TABLE = (
+    1, 2, 3, 6, 10, 16, 27, 45, 73, 120, 194, 310, 488, 747,
+    1101, 1546, 2047, 2549, 2994, 3348, 3607, 3785, 3901, 3975,
+    4022, 4050, 4068, 4079, 4085, 4089, 4092, 4093, 4094,
+)
+_PAQ8P_V_MAX_INPUT_LENGTH = 177
+_PAQ8P_V_MAX_PARSEABLE_INPUT_LENGTH = 178
+_PAQ8P_V_OUTPUT_BYTES = 32
+
+
+def _paq8p_v_squash(value: int) -> int:
+    if value < -2047:
+        return 0
+    if value > 2047:
+        return 4095
+    fraction = value & 127
+    lower = (value >> 7) + 16
+    return ((_PAQ8P_V_SQUASH_TABLE[lower] * (128 - fraction)
+             + _PAQ8P_V_SQUASH_TABLE[lower + 1] * fraction + 64) >> 7)
+
+
+def _paq8p_v_stretch_table() -> list[int]:
+    inverse = [0] * 4096
+    source_probability = 0
+    for logit in range(-2047, 2048):
+        probability = _paq8p_v_squash(logit)
+        for encoded_probability in range(source_probability, probability + 1):
+            inverse[encoded_probability] = logit
+        source_probability = probability + 1
+    inverse[-1] = 2047
+    return inverse
+
+
+_PAQ8P_V_STRETCH = _paq8p_v_stretch_table()
+
+
+def _paq8p_v_dot8(inputs: tuple[int, ...] | list[int],
+                   weights: tuple[int, ...] | list[int]) -> int:
+    total = 0
+    pair_start = 0
+    while pair_start < 8:
+        pair_sum = inputs[pair_start] * weights[pair_start]
+        pair_sum += inputs[pair_start + 1] * weights[pair_start + 1]
+        total += pair_sum >> 8
+        pair_start += 2
+    return total
+
+
+def _paq8p_v_train(inputs: tuple[int, ...] | list[int],
+                   weights: list[int], error: int) -> None:
+    for index in range(8):
+        product_value = inputs[index] * error
+        doubled_fixed = (product_value * 2) >> 16
+        delta = (doubled_fixed + 1) >> 1
+        weights[index] = max(-32768, min(32767, weights[index] + delta))
+
+
+def _paq8p_v_trace(steps: list[tuple[int, int, int, list[int]]]) -> bytes:
+    expert_weights = [[0 for _ in range(8)] for _ in range(4)]
+    combiner_weights = [32767 for _ in range(8)]
+    last_combiner_input: list[int] | None = None
+    last_combiner_prediction = 2048
+    last_target = 0
+    encoded = bytearray()
+    for position, (first_selector, second_selector, target, features) in enumerate(steps):
+        if position:
+            previous_error = ((last_target << 12) - last_combiner_prediction) * 7
+            _paq8p_v_train(last_combiner_input or [0] * 8,
+                           combiner_weights, previous_error)
+
+        selected_rows = (first_selector, 2 + second_selector)
+        expert_probabilities = []
+        for row in selected_rows:
+            activation = _paq8p_v_dot8(features, expert_weights[row]) >> 5
+            expert_probabilities.append(_paq8p_v_squash(activation))
+
+        combiner_input = [
+            _PAQ8P_V_STRETCH[expert_probabilities[0]],
+            _PAQ8P_V_STRETCH[expert_probabilities[1]],
+            0, 0, 0, 0, 0, 0,
+        ]
+        prediction = _paq8p_v_squash(
+            _paq8p_v_dot8(combiner_input, combiner_weights) >> 8)
+        encoded.extend(struct.pack("<H", prediction))
+
+        for row, probability in zip(selected_rows, expert_probabilities):
+            error = ((target << 12) - probability) * 7
+            _paq8p_v_train(features, expert_weights[row], error)
+        last_combiner_input = combiner_input
+        last_combiner_prediction = prediction
+        last_target = target
+    return bytes(encoded)
+
+
+def paq8p_context_mixer_verifier_oracle(
+        values: tuple[int, ...] | list[int] | None,
+        capacity: int | None = None, output_is_null: bool = False,
+        input_is_null: bool = False, input_length: int | None = None) -> tuple[int, bytes]:
+    if (values is not None and not isinstance(values, (tuple, list))
+            or values is not None and len(values) > _PAQ8P_V_MAX_PARSEABLE_INPUT_LENGTH
+            or values is not None and any(type(value) is not int
+                                          or not -(1 << 63) <= value < (1 << 63)
+                                          for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or input_length is not None and (type(input_length) is not int
+                                             or not 0 <= input_length <= _PAQ8P_V_MAX_PARSEABLE_INPUT_LENGTH)
+            or input_is_null and values not in (None, [], ())
+            or not input_is_null and values is not None and input_length is not None
+            and input_length != len(values)
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, b""
+    if input_is_null or values is None or not values:
+        return -1, b""
+    step_count = values[0]
+    if not 1 <= step_count <= 16 or len(values) != 1 + 11 * step_count:
+        return -1, b""
+
+    steps: list[tuple[int, int, int, list[int]]] = []
+    cursor = 1
+    for _ in range(step_count):
+        context_a, context_b, target = values[cursor:cursor + 3]
+        features = list(values[cursor + 3:cursor + 11])
+        cursor += 11
+        if (context_a not in (0, 1) or context_b not in (0, 1)
+                or target not in (0, 1)
+                or any(feature < -2047 or feature > 2047 for feature in features)):
+            return -1, b""
+        steps.append((context_a, context_b, target, features))
+
+    if output_is_null or capacity is not None and capacity < 2 * step_count:
+        return -2, b""
+    output = _paq8p_v_trace(steps)
+    return len(output), output
+
+
+def pargeo_bichromatic_closest_pair_verifier_oracle(
+        values: tuple[int, ...] | list[int] | None,
+        capacity: int | None = None, output_is_null: bool = False,
+        input_is_null: bool = False, input_length: int | None = None) -> tuple[int, bytes]:
+    if (values is not None and not isinstance(values, (tuple, list))
+            or values is not None and len(values) > PARGEO_BCP_MAX_PARSEABLE_INPUT_LENGTH
+            or values is not None and any(type(value) is not int
+                                          or not -(1 << 63) <= value < (1 << 63)
+                                          for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or input_length is not None and (type(input_length) is not int
+                                             or not 0 <= input_length <= PARGEO_BCP_MAX_PARSEABLE_INPUT_LENGTH)
+            or input_is_null and values not in (None, [], ())
+            or not input_is_null and values is not None and input_length is not None
+            and input_length != len(values)
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, b""
+    if input_is_null or values is None or len(values) < 2:
+        return -1, b""
+    count_a, count_b = values[:2]
+    if (not 2 <= count_a <= 8 or not 2 <= count_b <= 8
+            or len(values) != 2 + 2 * (count_a + count_b)):
+        return -1, b""
+    coordinates = values[2:]
+    if any(coordinate < -1_000_000 or coordinate > 1_000_000
+           for coordinate in coordinates):
+        return -1, b""
+
+    boundary = 2 + 2 * count_a
+    best_squared_distance: int | None = None
+    for a_index in range(0, boundary - 2, 2):
+        ax, ay = coordinates[a_index], coordinates[a_index + 1]
+        for b_index in range(boundary - 2, len(coordinates), 2):
+            dx = ax - coordinates[b_index]
+            dy = ay - coordinates[b_index + 1]
+            distance = dx * dx + dy * dy
+            if best_squared_distance is None or distance < best_squared_distance:
+                best_squared_distance = distance
+
+    if output_is_null or capacity is not None and capacity < PARGEO_BCP_MAX_OUTPUT_BYTES:
+        return -2, b""
+    return PARGEO_BCP_MAX_OUTPUT_BYTES, struct.pack("<q", best_squared_distance)
+
+
+def cbench_consumer_mad_alias_reduce_verifier_oracle(
+        values: tuple[int, ...] | list[int] | None,
+        capacity: int | None = None, output_is_null: bool = False,
+        input_is_null: bool = False, input_length: int | None = None) -> tuple[int, bytes]:
+    """Recompute libmad's fixed-point butterfly with signed shift semantics."""
+    if (values is not None and not isinstance(values, (tuple, list))
+            or values is not None and len(values) > CBENCH_MAD_ALIAS_REDUCE_MAX_INPUT_LENGTH
+            or values is not None and any(type(value) is not int
+                                          or not I64_MIN <= value <= I64_MAX
+                                          for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or input_length is not None and (type(input_length) is not int
+                                             or not 0 <= input_length <= CBENCH_MAD_ALIAS_REDUCE_MAX_INPUT_LENGTH)
+            or input_is_null and values not in (None, [], ())
+            or not input_is_null and values is not None and input_length is not None
+            and input_length != len(values)
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, b""
+    if input_is_null or values is None or not values:
+        return -1, b""
+    boundary_count = values[0]
+    if (not 1 <= boundary_count <= 4
+            or len(values) != 1 + 16 * boundary_count
+            or any(not -100_000_000 <= value <= 100_000_000 for value in values[1:])):
+        return -1, b""
+
+    cs = (0x0DB84A81, 0x0E1B9D7F, 0x0F31ADCF, 0x0FBBA815,
+          0x0FEDA417, 0x0FFC8FC8, 0x0FFF964C, 0x0FFFF8D3)
+    ca = (-0x083B5FE7, -0x078C36D2, -0x05039814, -0x02E91DD1,
+          -0x0183603A, -0x00A7CB87, -0x003A2847, -0x000F27B4)
+    result: list[int] = []
+    for boundary in range(boundary_count):
+        base = 1 + 16 * boundary
+        for pair in range(8):
+            a, b = values[base + 2 * pair:base + 2 * pair + 2]
+            # Arithmetic shifts implement the signed floor rounding used by
+            # FPM_DEFAULT; this path differs from the package's // oracle.
+            left = ((a + 2048) >> 12) * ((cs[pair] + 32768) >> 16)
+            left += ((-b + 2048) >> 12) * ((ca[pair] + 32768) >> 16)
+            right = ((b + 2048) >> 12) * ((cs[pair] + 32768) >> 16)
+            right += ((a + 2048) >> 12) * ((ca[pair] + 32768) >> 16)
+            if not (-(1 << 31) <= left < 1 << 31 and -(1 << 31) <= right < 1 << 31):
+                return -1, b""
+            result.extend((left, right))
+
+    required = 64 * boundary_count
+    output = b"".join(struct.pack("<i", item) for item in result)
+    if output_is_null or capacity is not None and capacity < required:
+        return -2, b""
+    return required, output
+
+
+def gapbs_delta_step_sssp_verifier_oracle(
+        values: tuple[int, ...] | list[int] | None,
+        capacity: int | None = None, output_is_null: bool = False,
+        input_is_null: bool = False, input_length: int | None = None) -> tuple[int, bytes]:
+    """Recompute bounded directed shortest paths with an independent heap Dijkstra."""
+    if (values is not None and not isinstance(values, (tuple, list))
+            or values is not None and len(values) > GAPBS_DELTA_STEP_SSSP_MAX_INPUT_LENGTH
+            or values is not None and any(type(value) is not int
+                                          or not I64_MIN <= value <= I64_MAX
+                                          for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or input_length is not None and (type(input_length) is not int
+                                             or not 0 <= input_length <= GAPBS_DELTA_STEP_SSSP_MAX_INPUT_LENGTH)
+            or input_is_null and values not in (None, [], ())
+            or not input_is_null and values is not None and input_length is not None
+            and input_length != len(values)
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, b""
+    if input_is_null or values is None or len(values) < 4:
+        return -1, b""
+    node_count, edge_count, source, delta = values[:4]
+    if (not 1 <= node_count <= GAPBS_DELTA_STEP_SSSP_MAX_NODES
+            or not 0 <= edge_count <= GAPBS_DELTA_STEP_SSSP_MAX_EDGES
+            or not 0 <= source < node_count or not 1 <= delta <= 16
+            or len(values) != 4 + 3 * edge_count):
+        return -1, b""
+
+    adjacency: list[list[tuple[int, int]]] = [[] for _ in range(node_count)]
+    for offset in range(4, len(values), 3):
+        start, end, weight = values[offset:offset + 3]
+        if (not 0 <= start < node_count or not 0 <= end < node_count
+                or not 0 <= weight <= GAPBS_DELTA_STEP_SSSP_MAX_EDGE_WEIGHT):
+            return -1, b""
+        adjacency[start].append((end, weight))
+
+    # Dijkstra's priority queue is independent from the package oracle's
+    # Bellman-Ford relaxation and from the ports' delta-bucket traversal.
+    distances = [GAPBS_DELTA_STEP_SSSP_INF_DISTANCE] * node_count
+    distances[source] = 0
+    pending = [(0, source)]
+    while pending:
+        distance, vertex = heapq.heappop(pending)
+        if distance != distances[vertex]:
+            continue
+        for neighbor, weight in adjacency[vertex]:
+            candidate = distance + weight
+            if candidate < distances[neighbor]:
+                distances[neighbor] = candidate
+                heapq.heappush(pending, (candidate, neighbor))
+
+    output = b"".join(struct.pack("<q", distance) for distance in distances)
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return len(output), output
+
+
+def gbbs_ss_widest_path_verifier_oracle(
+        values: tuple[int, ...] | list[int] | None,
+        capacity: int | None = None, output_is_null: bool = False,
+        input_is_null: bool = False, input_length: int | None = None) -> tuple[int, bytes]:
+    """Recompute max-min widths by bounded edge relaxation, not vertex selection."""
+    if (values is not None and not isinstance(values, (tuple, list))
+            or values is not None and len(values) > GBBS_WIDEST_PATH_MAX_INPUT_LENGTH
+            or values is not None and any(type(value) is not int
+                                          or not I64_MIN <= value <= I64_MAX
+                                          for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or input_length is not None and (type(input_length) is not int
+                                             or not 0 <= input_length <= GBBS_WIDEST_PATH_MAX_INPUT_LENGTH)
+            or input_is_null and values not in (None, [], ())
+            or not input_is_null and values is not None and input_length is not None
+            and input_length != len(values)
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, b""
+    if input_is_null or values is None or len(values) < 3:
+        return -1, b""
+    node_count, edge_count, source = values[:3]
+    if (not 1 <= node_count <= GBBS_WIDEST_PATH_MAX_NODES
+            or not 0 <= edge_count <= GBBS_WIDEST_PATH_MAX_EDGES
+            or not 0 <= source < node_count
+            or len(values) != 3 + 3 * edge_count):
+        return -1, b""
+    edges = []
+    for offset in range(3, len(values), 3):
+        start, end, edge_width = values[offset:offset + 3]
+        if (not 0 <= start < node_count or not 0 <= end < node_count
+                or not 1 <= edge_width <= GBBS_WIDEST_PATH_MAX_EDGE_CAPACITY):
+            return -1, b""
+        edges.append((start, end, edge_width))
+
+    widths = [0] * node_count
+    widths[source] = GBBS_WIDEST_PATH_SOURCE_INFINITY
+    # Repeated edge sweeps enumerate every simple path up to n-1 edges.
+    for _round in range(node_count - 1):
+        changed = False
+        for start, end, edge_width in edges:
+            candidate = min(widths[start], edge_width)
+            if candidate > widths[end]:
+                widths[end] = candidate
+                changed = True
+        if not changed:
+            break
+
+    output = b"".join(struct.pack("<q", width) for width in widths)
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return len(output), output
+
+
+def gapbs_afforest_components_verifier_oracle(
+        values: tuple[int, ...] | list[int] | None,
+        capacity: int | None = None, output_is_null: bool = False,
+        input_is_null: bool = False, input_length: int | None = None) -> tuple[int, bytes]:
+    """Compute component minima with disjoint sets, independent of Afforest and DFS."""
+    max_parseable = GAPBS_AFFOREST_MAX_PARSEABLE_INPUT_LENGTH
+    if (values is not None and not isinstance(values, (tuple, list))
+            or values is not None and len(values) > max_parseable
+            or values is not None and any(type(value) is not int
+                                          or not I64_MIN <= value <= I64_MAX
+                                          for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or input_length is not None and (type(input_length) is not int
+                                             or not 0 <= input_length <= max_parseable)
+            or input_is_null and values not in (None, [], ())
+            or not input_is_null and values is not None and input_length is not None
+            and input_length != len(values)
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, b""
+    if input_is_null or values is None or len(values) < 4:
+        return -1, b""
+    node_count, edge_count, sample_count = values[:3]
+    if (not 1 <= node_count <= GAPBS_AFFOREST_MAX_NODES
+            or not 0 <= edge_count <= GAPBS_AFFOREST_MAX_EDGES
+            or not 1 <= sample_count <= GAPBS_AFFOREST_MAX_SAMPLES
+            or len(values) != 3 + sample_count + 2 * edge_count):
+        return -1, b""
+    samples = values[3:3 + sample_count]
+    if any(not 0 <= sample < node_count for sample in samples):
+        return -1, b""
+
+    parent = list(range(node_count))
+    size = [1] * node_count
+
+    def find(vertex: int) -> int:
+        while parent[vertex] != vertex:
+            parent[vertex] = parent[parent[vertex]]
+            vertex = parent[vertex]
+        return vertex
+
+    seen: set[tuple[int, int]] = set()
+    edge_start = 3 + sample_count
+    for offset in range(edge_start, len(values), 2):
+        left, right = values[offset:offset + 2]
+        if not (0 <= left < right < node_count) or (left, right) in seen:
+            return -1, b""
+        seen.add((left, right))
+        left_root, right_root = find(left), find(right)
+        if left_root != right_root:
+            if size[left_root] < size[right_root]:
+                left_root, right_root = right_root, left_root
+            parent[right_root] = left_root
+            size[left_root] += size[right_root]
+
+    minima = [node_count] * node_count
+    for vertex in range(node_count):
+        root = find(vertex)
+        minima[root] = min(minima[root], vertex)
+    labels = [minima[find(vertex)] for vertex in range(node_count)]
+    output = b"".join(struct.pack("<q", label) for label in labels)
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return len(output), output
+
+
+def gapbs_shiloach_vishkin_components_verifier_oracle(
+        values: tuple[int, ...] | list[int] | None,
+        capacity: int | None = None, output_is_null: bool = False,
+        input_is_null: bool = False, input_length: int | None = None) -> tuple[int, bytes]:
+    """Compute components with disjoint sets, independent of the package DFS oracle and hook sweeps."""
+    if (values is not None and not isinstance(values, (tuple, list))
+            or values is not None and len(values) > GAPBS_SV_MAX_PARSEABLE_INPUT_LENGTH
+            or values is not None and any(type(value) is not int
+                                          or not I64_MIN <= value <= I64_MAX
+                                          for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or input_length is not None and (type(input_length) is not int
+                                             or not 0 <= input_length <= GAPBS_SV_MAX_PARSEABLE_INPUT_LENGTH)
+            or input_is_null and values not in (None, [], ())
+            or not input_is_null and values is not None and input_length is not None
+            and input_length != len(values)
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, b""
+    if input_is_null or values is None or len(values) < 2:
+        return -1, b""
+    node_count, edge_count = values[:2]
+    if (not 1 <= node_count <= GAPBS_SV_MAX_NODES
+            or not 0 <= edge_count <= GAPBS_SV_MAX_EDGES
+            or len(values) != 2 + 2 * edge_count):
+        return -1, b""
+    parent = list(range(node_count))
+    size = [1] * node_count
+    seen: set[tuple[int, int]] = set()
+
+    def find(vertex: int) -> int:
+        while parent[vertex] != vertex:
+            parent[vertex] = parent[parent[vertex]]
+            vertex = parent[vertex]
+        return vertex
+
+    for offset in range(2, len(values), 2):
+        left, right = values[offset:offset + 2]
+        if not (0 <= left < right < node_count) or (left, right) in seen:
+            return -1, b""
+        seen.add((left, right))
+        left_root, right_root = find(left), find(right)
+        if left_root != right_root:
+            if size[left_root] < size[right_root]:
+                left_root, right_root = right_root, left_root
+            parent[right_root] = left_root
+            size[left_root] += size[right_root]
+
+    minimum = [node_count] * node_count
+    for vertex in range(node_count):
+        root = find(vertex)
+        minimum[root] = min(minimum[root], vertex)
+    labels = [minimum[find(vertex)] for vertex in range(node_count)]
+    output = b"".join(struct.pack("<q", label) for label in labels)
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return len(output), output
+
+
+def mediabench_jpeg_optimal_huffman_table_verifier_oracle(
+        values: tuple[int, ...] | list[int] | None,
+        capacity: int | None = None, output_is_null: bool = False,
+        input_is_null: bool = False, input_length: int | None = None) -> tuple[int, bytes]:
+    """Build the bounded IJG Huffman table with an independent active-root heap."""
+    if (values is not None and not isinstance(values, (tuple, list))
+            or values is not None and len(values) > MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_INPUT_LENGTH
+            or values is not None and any(type(value) is not int
+                                          or not -(1 << 63) <= value < (1 << 63)
+                                          for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or input_length is not None and (type(input_length) is not int
+                                             or not 0 <= input_length <= MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_INPUT_LENGTH)
+            or input_is_null and values not in (None, [], ())
+            or not input_is_null and values is not None and input_length is not None
+            and input_length != len(values)
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, b""
+    if input_is_null or values is None or not values:
+        return -1, b""
+    symbol_count = values[0]
+    if (not 1 <= symbol_count <= MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_SYMBOLS
+            or len(values) != 1 + 2 * symbol_count):
+        return -1, b""
+    records = [(values[1 + 2 * offset], values[2 + 2 * offset])
+               for offset in range(symbol_count)]
+    symbols = [symbol for symbol, _frequency in records]
+    if (len(set(symbols)) != symbol_count
+            or any(not 0 <= symbol <= 255 for symbol in symbols)
+            or any(not 1 <= frequency <= MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_FREQUENCY
+                   for _symbol, frequency in records)):
+        return -1, b""
+
+    # Heap ordering encodes IJG's root-ID tie rule; a merged item keeps its
+    # first selected root while tracking every original leaf for depth updates.
+    active = []
+    serial = 0
+    code_size = [0] * 257
+    for symbol, frequency in records:
+        heapq.heappush(active, (frequency, -symbol, serial, symbol, (symbol,)))
+        serial += 1
+    heapq.heappush(active, (1, -256, serial, 256, (256,)))
+    while len(active) > 1:
+        first_frequency, _first_key, _first_serial, first_root, first_leaves = heapq.heappop(active)
+        second_frequency, _second_key, _second_serial, _second_root, second_leaves = heapq.heappop(active)
+        for symbol in first_leaves:
+            code_size[symbol] += 1
+        for symbol in second_leaves:
+            code_size[symbol] += 1
+        heapq.heappush(active, (first_frequency + second_frequency, -first_root,
+                                serial, first_root, first_leaves + second_leaves))
+        serial += 1
+
+    length_counts = [0] * 33
+    for length in code_size:
+        if length:
+            if length > 32:
+                return -1, b""
+            length_counts[length] += 1
+    for length in range(32, 16, -1):
+        while length_counts[length]:
+            shorter = length - 2
+            while shorter >= 0 and length_counts[shorter] == 0:
+                shorter -= 1
+            if shorter < 0:
+                return -1, b""
+            length_counts[length] -= 2
+            length_counts[length - 1] += 1
+            length_counts[shorter + 1] += 2
+            length_counts[shorter] -= 1
+    longest = 16
+    while longest > 0 and length_counts[longest] == 0:
+        longest -= 1
+    if longest == 0:
+        return -1, b""
+    length_counts[longest] -= 1  # Drop pseudo-symbol 256.
+    ordered_symbols = sorted(symbol for symbol in range(256) if code_size[symbol])
+    ordered_symbols.sort(key=lambda symbol: (code_size[symbol], symbol))
+    if len(ordered_symbols) != symbol_count:
+        return -1, b""
+    output = bytes((symbol_count, *length_counts[1:17], *ordered_symbols))
+    if output_is_null or capacity is not None and capacity < len(output):
         return -2, b""
     return len(output), output
 
@@ -5701,6 +6800,50 @@ def picojpeg_verifier_oracle(values, capacity=None, output_is_null=False,
     return (result, output) if output is not None and len(output) == result else (-1, b"")
 
 
+def beebs_nettle_cast128_verifier_oracle(values, capacity=None, output_is_null=False,
+                                         input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= BEEBS_NETTLE_CAST128_MAX_INPUT_LENGTH))):
+        return BEEBS_NETTLE_CAST128_INVALID_RESULT, b""
+    if input_is_null:
+        return BEEBS_NETTLE_CAST128_INVALID_RESULT, b""
+    if (not isinstance(values, (list, tuple))
+            or (input_length is not None and input_length != len(values))):
+        return BEEBS_NETTLE_CAST128_INVALID_RESULT, b""
+    return beebs_nettle_cast128_expected_output(
+        values,
+        BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES if capacity is None else capacity,
+        output_is_null)
+
+
+def beebs_fasta_verifier_oracle(values, capacity=None, output_is_null=False,
+                                input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= BEEBS_FASTA_MAX_PARSEABLE_INPUT_LENGTH))):
+        return BEEBS_FASTA_INVALID_RESULT, b""
+    return beebs_fasta_expected_output(
+        values, BEEBS_FASTA_MAX_OUTPUT_BYTES if capacity is None else capacity,
+        output_is_null, input_is_null, input_length)
+
+
+def beebs_lcdnum_verifier_oracle(values, capacity=None, output_is_null=False,
+                                 input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= BEEBS_LCDNUM_MAX_PARSEABLE_INPUT_LENGTH))):
+        return BEEBS_LCDNUM_INVALID_RESULT, b""
+    return beebs_lcdnum_expected_output(
+        values, BEEBS_LCDNUM_MAX_OUTPUT_BYTES if capacity is None else capacity,
+        output_is_null, input_is_null, input_length)
+
+
 def statemate_verifier_oracle(values, capacity=None, output_is_null=False,
                               input_is_null=False, input_length=None):
     return statemate_verifier_expected_output(values, capacity, output_is_null,
@@ -5797,6 +6940,49 @@ def mediabench_gsm_rpe_grid_selection_verifier_oracle(
             best_score = energy
     selected = (best_grid, *(values[best_grid + 3 * index] for index in range(13)))
     return 112, struct.pack("<14q", *selected)
+
+
+def mediabench_gsm_rpe_grid_positioning_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Place samples by writing the 40-word output frame directly."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > MEDIABENCH_GSM_RPE_POSITIONING_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not UINT_I64_MIN <= value <= UINT_I64_MAX
+                   for value in values)
+            or input_length is not None and (type(input_length) is not int
+                                             or not 0 <= input_length <= MEDIABENCH_GSM_RPE_POSITIONING_MAX_INPUT_LENGTH)
+            or capacity is not None and (type(capacity) is not int or capacity < 0)
+            or input_is_null and values
+            or not input_is_null and input_length is not None and input_length != len(values)):
+        return -1, b""
+    if input_is_null or len(values) != MEDIABENCH_GSM_RPE_POSITIONING_INPUT_COUNT:
+        return -1, b""
+    grid = values[0]
+    if (type(grid) is not int or not 0 <= grid <= 3
+            or any(type(sample) is not int or not -32768 <= sample <= 32767
+                   for sample in values[1:])):
+        return -1, b""
+    output = bytearray(MEDIABENCH_GSM_RPE_POSITIONING_MAX_OUTPUT_BYTES)
+    for index, sample in enumerate(values[1:]):
+        struct.pack_into("<h", output, 2 * (grid + 3 * index), sample)
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return len(output), bytes(output)
+
+
+def cbench_consumer_lame_window_subband_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Serialize the independent package oracle's 32 projected band values."""
+    effective_capacity = (CBENCH_LAME_WINDOW_SUBBAND_MAX_OUTPUT_BYTES
+                          if capacity is None else capacity)
+    result, bands = cbench_consumer_lame_window_subband_package_oracle(
+        values, effective_capacity, output_is_null, input_is_null, input_length)
+    if result < 0:
+        return result, b""
+    return result, struct.pack("<32q", *bands)
 
 
 def rodinia_hybridsort_verifier_oracle(values, capacity=None, output_is_null=False,
@@ -6360,6 +7546,137 @@ def tsvc_s279_nested_branch_recompute_verifier_oracle(
             a[index] = b_values[index] + c_values[index] * d_values[index]
     output = (*a, *b_values, *c_values)
     return 3 * n, b"".join(struct.pack("<q", value) for value in output)
+
+
+def tsvc_s115_upper_triangular_saxpy_elimination_verifier_oracle(values,capacity=None,output_is_null=False,input_is_null=False,input_length=None):
+    """Nested-loop reference for ordered upper-triangle vector elimination."""
+    if (type(output_is_null)is not bool or type(input_is_null)is not bool or not isinstance(values,(list,tuple)) or len(values)>TSVC_S115_MAX_INPUT_LENGTH
+        or any(type(x)is not int or not TSVC_S115_I64_MIN<=x<=TSVC_S115_I64_MAX for x in values)
+        or input_length is not None and (type(input_length)is not int or not 0<=input_length<=TSVC_S115_MAX_INPUT_LENGTH)
+        or capacity is not None and (type(capacity)is not int or capacity<0) or input_is_null and values
+        or not input_is_null and input_length is not None and input_length!=len(values)):return -1,b""
+    if input_is_null or len(values)<8:return -1,b""
+    n,passes=values[:2]
+    if not 2<=n<=TSVC_S115_MAX_N or not 1<=passes<=TSVC_S115_MAX_PASSES or len(values)!=2+n+n*n:return -1,b""
+    a=list(values[2:2+n]);m=values[2+n:]
+    if any(not -1<=x<=1 for x in (*a,*m)):return -1,b""
+    if output_is_null or capacity is not None and capacity<8*n:return -2,b""
+    for _ in range(passes):
+        for j in range(n):
+            for i in range(j+1,n):a[i]=a[i]-m[j*n+i]*a[j]
+    return n,b"".join(struct.pack("<q",x) for x in a)
+
+
+def tsvc_s1113_feedback_anchor_add_verifier_oracle(values,capacity=None,output_is_null=False,input_is_null=False,input_length=None):
+    """Independent source-order model; the midpoint anchor is live and mutable."""
+    if (type(output_is_null)is not bool or type(input_is_null)is not bool or not isinstance(values,(list,tuple)) or len(values)>TSVC_S1113_MAX_INPUT_LENGTH
+        or any(type(x)is not int or not TSVC_S1113_I64_MIN<=x<=TSVC_S1113_I64_MAX for x in values)
+        or input_length is not None and (type(input_length)is not int or not 0<=input_length<=TSVC_S1113_MAX_INPUT_LENGTH)
+        or capacity is not None and (type(capacity)is not int or capacity<0) or input_is_null and values
+        or not input_is_null and input_length is not None and input_length!=len(values)):return -1,b""
+    if input_is_null or len(values)<3:return -1,b""
+    n=values[0]
+    if not 1<=n<=TSVC_S1113_MAX_N or len(values)!=1+2*n:return -1,b""
+    a=list(values[1:1+n]);b=values[1+n:]
+    if any(not -2<=x<=2 for x in (*a,*b)):return -1,b""
+    if output_is_null or capacity is not None and capacity<8*n:return -2,b""
+    midpoint=n//2
+    for i in range(n):a[i]=a[midpoint]+b[i]
+    return n,b"".join(struct.pack("<q",x) for x in a)
+
+
+def tsvc_s113_invariant_anchor_add_verifier_oracle(values,capacity=None,output_is_null=False,input_is_null=False,input_length=None):
+    """Independent model holds A[0] fixed while updating the remaining vector."""
+    if (type(output_is_null)is not bool or type(input_is_null)is not bool or not isinstance(values,(list,tuple)) or len(values)>TSVC_S113_MAX_INPUT_LENGTH
+        or any(type(x)is not int or not TSVC_S113_I64_MIN<=x<=TSVC_S113_I64_MAX for x in values)
+        or input_length is not None and (type(input_length)is not int or not 0<=input_length<=TSVC_S113_MAX_INPUT_LENGTH)
+        or capacity is not None and (type(capacity)is not int or capacity<0) or input_is_null and values
+        or not input_is_null and input_length is not None and input_length!=len(values)):return -1,b""
+    if input_is_null or len(values)<3:return -1,b""
+    n=values[0]
+    if not 1<=n<=TSVC_S113_MAX_N or len(values)!=1+2*n:return -1,b""
+    a=list(values[1:1+n]);b=values[1+n:]
+    if any(not -2<=x<=2 for x in (*a,*b)):return -1,b""
+    if output_is_null or capacity is not None and capacity<8*n:return -2,b""
+    fixed=a[0]
+    for idx,delta in enumerate(b[1:],1):a[idx]=fixed+delta
+    return n,b"".join(struct.pack("<q",x) for x in a)
+
+
+def tsvc_s1112_reverse_constant_offset_map_verifier_oracle(values,capacity=None,output_is_null=False,input_is_null=False,input_length=None):
+    """Reference reverse sweep for the source's B[i]+1 output map."""
+    if (type(output_is_null)is not bool or type(input_is_null)is not bool or not isinstance(values,(list,tuple)) or len(values)>TSVC_S1112_MAX_INPUT_LENGTH
+        or any(type(x)is not int or not TSVC_S1112_I64_MIN<=x<=TSVC_S1112_I64_MAX for x in values)
+        or input_length is not None and (type(input_length)is not int or not 0<=input_length<=TSVC_S1112_MAX_INPUT_LENGTH)
+        or capacity is not None and (type(capacity)is not int or capacity<0) or input_is_null and values
+        or not input_is_null and input_length is not None and input_length!=len(values)):return -1,b""
+    if input_is_null or len(values)<3:return -1,b""
+    n=values[0]
+    if not 1<=n<=TSVC_S1112_MAX_N or len(values)!=1+2*n:return -1,b""
+    a=list(values[1:1+n]);b=values[1+n:]
+    if any(not -2<=x<=2 for x in (*a,*b)):return -1,b""
+    if output_is_null or capacity is not None and capacity<8*n:return -2,b""
+    for i in range(n-1,-1,-1):a[i]=b[i]+1
+    return n,b"".join(struct.pack("<q",x) for x in a)
+
+
+def tsvc_s1111_stride_two_polynomial_map_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False, input_length=None):
+    """Independent vector model retaining only even-position polynomial writes."""
+    if (type(output_is_null)is not bool or type(input_is_null)is not bool or not isinstance(values,(list,tuple))
+        or len(values)>TSVC_S1111_MAX_INPUT_LENGTH
+        or any(type(x)is not int or not TSVC_S1111_I64_MIN<=x<=TSVC_S1111_I64_MAX for x in values)
+        or input_length is not None and (type(input_length)is not int or not 0<=input_length<=TSVC_S1111_MAX_INPUT_LENGTH)
+        or capacity is not None and (type(capacity)is not int or capacity<0)
+        or input_is_null and values or not input_is_null and input_length is not None and input_length!=len(values)):
+        return -1,b""
+    if input_is_null or len(values)<6:return -1,b""
+    n=values[0]
+    if not 1<=n<=TSVC_S1111_MAX_N or len(values)!=1+5*n:return -1,b""
+    a=list(values[1:1+2*n]);b=values[1+2*n:1+3*n];c=values[1+3*n:1+4*n];d=values[1+4*n:]
+    if any(not -2<=x<=2 for x in (*a,*b,*c,*d)):return -1,b""
+    if output_is_null or capacity is not None and capacity<16*n:return -2,b""
+    for i in range(n):
+        # Spell out the source-order terms to keep its repeated D*B term visible.
+        value=c[i]*b[i]
+        value=value+d[i]*b[i]
+        value=value+c[i]*c[i]
+        value=value+d[i]*b[i]
+        value=value+d[i]*c[i]
+        a[2*i]=value
+    return 2*n,b"".join(struct.pack("<q",x) for x in a)
+
+
+def tsvc_s119_diagonal_matrix_recurrence_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False, input_length=None):
+    """Independent nested-list model for s119's northwest-diagonal recurrence."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values,(list,tuple)) or len(values)>TSVC_S119_MAX_INPUT_LENGTH
+            or any(type(x) is not int or not TSVC_S119_I64_MIN<=x<=TSVC_S119_I64_MAX for x in values)
+            or input_length is not None and (type(input_length) is not int or not 0<=input_length<=TSVC_S119_MAX_INPUT_LENGTH)
+            or capacity is not None and (type(capacity) is not int or capacity<0)
+            or input_is_null and values
+            or not input_is_null and input_length is not None and input_length!=len(values)):
+        return -1,b""
+    if input_is_null or len(values)<10:
+        return -1,b""
+    side,passes=values[:2]
+    cells=side*side if isinstance(side,int) and side>=0 else 0
+    if (not 2<=side<=TSVC_S119_MAX_SIDE or not 1<=passes<=TSVC_S119_MAX_PASSES
+            or len(values)!=2+2*cells):
+        return -1,b""
+    a=[[values[2+r*side+c] for c in range(side)] for r in range(side)]
+    b=[[values[2+cells+r*side+c] for c in range(side)] for r in range(side)]
+    if any(not -2<=x<=2 for row in a for x in row) or any(not -2<=x<=2 for row in b for x in row):
+        return -1,b""
+    if output_is_null or capacity is not None and capacity<8*cells:
+        return -2,b""
+    for _ in range(passes):
+        for r in range(1,side):
+            for c in range(1,side):
+                a[r][c]=a[r-1][c-1]+b[r][c]
+    flat=[x for row in a for x in row]
+    return cells,b"".join(struct.pack("<q",x) for x in flat)
 
 
 def tsvc_s2111_wavefront_add_recurrence_verifier_oracle(
@@ -9051,6 +10368,230 @@ def rodinia_streamcluster_pgain_verifier_oracle(
     return len(output_values), output
 
 
+TSVC_S116_MAX_INPUT_LENGTH, TSVC_S116_MAX_OUTPUT_BYTES = 23, 168
+TSVC_S118_MAX_INPUT_LENGTH, TSVC_S118_MAX_OUTPUT_BYTES = 74, 64
+TSVC_S1119_MAX_INPUT_LENGTH, TSVC_S1119_MAX_OUTPUT_BYTES = 130, 512
+TSVC_S232_MAX_INPUT_LENGTH, TSVC_S232_MAX_OUTPUT_BYTES = 51, 200
+TSVC_S1213_MAX_INPUT_LENGTH, TSVC_S1213_MAX_OUTPUT_BYTES = 129, 512
+TSVC_S233_MAX_INPUT_LENGTH, TSVC_S233_MAX_OUTPUT_BYTES = 194, 1024
+TSVC_S235_MAX_INPUT_LENGTH, TSVC_S235_MAX_OUTPUT_BYTES = 153, 576
+
+
+def _tsvc_byte_frame(values, capacity, output_is_null, input_is_null, input_length,
+                     maximum_input):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple)) or len(values) > maximum_input
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                   for value in values)
+            or input_length is not None and (type(input_length) is not int
+                                              or not 0 <= input_length <= maximum_input)
+            or capacity is not None and (type(capacity) is not int or capacity < 0)
+            or input_is_null and values
+            or not input_is_null and input_length is not None and input_length != len(values)):
+        return False
+    return not input_is_null
+
+
+def tsvc_s116_unrolled_product_chain_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False, input_length=None):
+    if not _tsvc_byte_frame(values, capacity, output_is_null, input_is_null,
+                            input_length, TSVC_S116_MAX_INPUT_LENGTH) or len(values) < 8:
+        return -1, b""
+    n, passes = values[:2]
+    if not 6 <= n <= 21 or (n - 1) % 5 or not 1 <= passes <= 4 or len(values) != n + 2:
+        return -1, b""
+    a = list(values[2:])
+    if any(value not in (-1, 1) for value in a):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    for _ in range(passes):
+        for base in range(0, n - 5, 5):
+            a[base] = a[base + 1] * a[base]
+            a[base + 1] = a[base + 2] * a[base + 1]
+            a[base + 2] = a[base + 3] * a[base + 2]
+            a[base + 3] = a[base + 4] * a[base + 3]
+            a[base + 4] = a[base + 5] * a[base + 4]
+    return n, b"".join(struct.pack("<q", value) for value in a)
+
+
+def tsvc_s118_triangular_convolution_recurrence_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False, input_length=None):
+    if not _tsvc_byte_frame(values, capacity, output_is_null, input_is_null,
+                            input_length, TSVC_S118_MAX_INPUT_LENGTH) or len(values) < 8:
+        return -1, b""
+    n, passes = values[:2]
+    if not 2 <= n <= 8 or not 1 <= passes <= 4 or len(values) != 2 + n + n*n:
+        return -1, b""
+    a = list(values[2:2+n])
+    matrix = values[2+n:]
+    if any(value < -1 or value > 1 for value in (*a, *matrix)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8*n:
+        return -2, b""
+    for _ in range(passes):
+        for target in range(1, n):
+            for source in range(target):
+                a[target] = a[target] + matrix[source*n+target] * a[target-source-1]
+    return n, b"".join(struct.pack("<q", value) for value in a)
+
+
+def tsvc_s1119_same_column_matrix_prefix_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False, input_length=None):
+    if not _tsvc_byte_frame(values, capacity, output_is_null, input_is_null,
+                            input_length, TSVC_S1119_MAX_INPUT_LENGTH) or len(values) < 10:
+        return -1, b""
+    n, passes = values[:2]
+    if not 2 <= n <= 8 or not 1 <= passes <= 4 or len(values) != 2 + 2*n*n:
+        return -1, b""
+    count = n*n
+    matrix_a = list(values[2:2+count])
+    matrix_b = values[2+count:]
+    if any(value < -1 or value > 1 for value in (*matrix_a, *matrix_b)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8*count:
+        return -2, b""
+    for _ in range(passes):
+        for row in range(1, n):
+            for col in range(n):
+                at = row*n+col
+                matrix_a[at] = matrix_a[at-n] + matrix_b[at]
+    return count, b"".join(struct.pack("<q", value) for value in matrix_a)
+
+
+def tsvc_s232_triangular_row_square_recurrence_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False, input_length=None):
+    if not _tsvc_byte_frame(values, capacity, output_is_null, input_is_null,
+                            input_length, TSVC_S232_MAX_INPUT_LENGTH) or len(values) < 9:
+        return -1, b""
+    n = values[0]
+    if not 2 <= n <= 5 or len(values) != 1 + 2*n*n:
+        return -1, b""
+    count = n*n
+    matrix = list(values[1:1+count])
+    addend = values[1+count:]
+    if any(value < -1 or value > 1 for value in (*matrix, *addend)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8*count:
+        return -2, b""
+    for row in range(1, n):
+        col = 1
+        while col <= row:
+            prior = matrix[row*n+col-1]
+            matrix[row*n+col] = prior*prior + addend[row*n+col]
+            col += 1
+    return count, b"".join(struct.pack("<q", value) for value in matrix)
+
+
+def tsvc_s1213_ordered_neighbor_array_map_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False, input_length=None):
+    if not _tsvc_byte_frame(values, capacity, output_is_null, input_is_null,
+                            input_length, TSVC_S1213_MAX_INPUT_LENGTH) or len(values) < 13:
+        return -1, b""
+    n = values[0]
+    if not 3 <= n <= 32 or len(values) != 1 + 4*n:
+        return -1, b""
+    a = list(values[1:1+n])
+    b = list(values[1+n:1+2*n])
+    c = values[1+2*n:1+3*n]
+    d = values[1+3*n:]
+    if any(value < -1 or value > 1 for value in (*a, *b, *c, *d)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 16*n:
+        return -2, b""
+    for index in range(1, n-1):
+        new_a = b[index-1] + c[index]
+        a[index] = new_a
+        b[index] = a[index+1] * d[index]
+    return 2*n, b"".join(struct.pack("<q", value) for value in (*a, *b))
+
+
+def tsvc_s233_s2233_matrix_prefix_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False, input_length=None):
+    if not _tsvc_byte_frame(values, capacity, output_is_null, input_is_null,
+                            input_length, TSVC_S233_MAX_INPUT_LENGTH) or len(values) < 14:
+        return -1, b""
+    n, mode = values[:2]
+    if not 2 <= n <= 8 or mode not in (0, 1) or len(values) != 2 + 3*n*n:
+        return -1, b""
+    count = n*n
+    a = list(values[2:2+count])
+    b = list(values[2+count:2+2*count])
+    c = values[2+2*count:]
+    if any(value < -1 or value > 1 for value in (*a, *b, *c)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 16*count:
+        return -2, b""
+    for col in range(1, n):
+        for row in range(1, n):
+            at = row*n+col
+            a[at] = a[at-n] + c[at]
+    if mode == 0:
+        for row in range(1, n):
+            for col in range(1, n):
+                at = row*n+col
+                b[at] = b[at-1] + c[at]
+    else:
+        for col in range(1, n):
+            for row in range(1, n):
+                at = row*n+col
+                b[at] = b[at-n] + c[at]
+    return 2*count, b"".join(struct.pack("<q", value) for value in (*a, *b))
+
+
+def tsvc_s235_fused_vector_matrix_recurrence_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False, input_length=None):
+    if not _tsvc_byte_frame(values, capacity, output_is_null, input_is_null,
+                            input_length, TSVC_S235_MAX_INPUT_LENGTH) or len(values) < 15:
+        return -1, b""
+    n = values[0]
+    if not 2 <= n <= 8 or len(values) != 1 + 3*n + 2*n*n:
+        return -1, b""
+    pos = 1
+    a = list(values[pos:pos+n]); pos += n
+    b = values[pos:pos+n]; pos += n
+    c = values[pos:pos+n]; pos += n
+    matrix = list(values[pos:pos+n*n]); pos += n*n
+    weights = values[pos:]
+    if any(value < -1 or value > 1 for value in (*a, *b, *c, *matrix, *weights)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8*(n+n*n):
+        return -2, b""
+    for col in range(n):
+        updated_scalar = a[col] + b[col] * c[col]
+        a[col] = updated_scalar
+        for row in range(1, n):
+            at = row*n+col
+            matrix[at] = matrix[at-n] + weights[at] * updated_scalar
+    return n+n*n, b"".join(struct.pack("<q", value) for value in (*a, *matrix))
+
+
+def rodinia_heartwall_template_match_verifier_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or output_capacity is not None and
+            (type(output_capacity) is not int or output_capacity < 0)
+            or input_length is not None and
+            (type(input_length) is not int
+             or not 0 <= input_length <= RODINIA_HEARTWALL_MAX_INPUT_LENGTH)
+            or not isinstance(values, (list, tuple))
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or input_is_null and values
+            or not input_is_null and input_length is not None and input_length != len(values)):
+        return -1, b""
+    if input_is_null:
+        return -1, b""
+    result, output = rodinia_heartwall_template_match_verifier_expected_bytes(values)
+    if result < 0:
+        return -1, b""
+    if output_is_null or (output_capacity is not None
+                          and output_capacity < RODINIA_HEARTWALL_MAX_OUTPUT_BYTES):
+        return -2, b""
+    return result, output
+
+
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "ansibench_dhrystone": ansibench_dhrystone_oracle,
     "stream_vector_kernels": stream_vector_kernels_oracle,
@@ -9061,6 +10602,37 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "tripforce_tripcode": tripforce_tripcode_oracle,
     "embedded_list_stress": embedded_list_stress_oracle,
     "numeric_token_state_machine": numeric_token_state_machine_oracle,
+    "prolangs_c_numeric_token": prolangs_c_numeric_token_verifier_oracle,
+    "prolangs_c_loader_relocation_add": prolangs_c_loader_relocation_add_verifier_oracle,
+    "paq8p_context_mixer": paq8p_context_mixer_verifier_oracle,
+    "pargeo_bichromatic_closest_pair": pargeo_bichromatic_closest_pair_verifier_oracle,
+    "mediabench_jpeg_optimal_huffman_table": mediabench_jpeg_optimal_huffman_table_verifier_oracle,
+    "gapbs_delta_step_sssp": gapbs_delta_step_sssp_verifier_oracle,
+    "gbbs_ss_widest_path": gbbs_ss_widest_path_verifier_oracle,
+    "gbbs_k_core_decomposition": gbbs_k_core_decomposition_verifier_oracle,
+    "gbbs_k_clique_count": gbbs_k_clique_count_verifier_oracle,
+    "gbbs_label_propagation_clustering": gbbs_label_propagation_clustering_verifier_oracle,
+    "gbbs_five_cycle_count": gbbs_five_cycle_count_verifier_oracle,
+    "gbbs_cosimrank_pair_similarity": gbbs_cosimrank_pair_similarity_verifier_oracle,
+    "gbbs_yoshida_query_mis": gbbs_yoshida_query_mis_verifier_oracle,
+    "gbbs_goodrich_pszona_degeneracy_order": gbbs_goodrich_pszona_degeneracy_order_verifier_oracle,
+    "gbbs_barenboim_elkin_degeneracy_order": gbbs_barenboim_elkin_degeneracy_order_verifier_oracle,
+    "graphai_hac_complete_linkage": graphai_hac_complete_linkage_verifier_oracle,
+    "pannotia_local_minimum_mis": pannotia_local_minimum_mis_verifier_oracle,
+    "pannotia_priority_coloring": pannotia_priority_coloring_verifier_oracle,
+    "gardenia_fb_trim_scc": gardenia_fb_trim_scc_verifier_oracle,
+    "gardenia_gm_vertex_coloring": gardenia_gm_vertex_coloring_verifier_oracle,
+    "gbbs_scan_structural_clustering": gbbs_scan_structural_clustering_verifier_oracle,
+    "gbbs_maximal_matching": gbbs_maximal_matching_verifier_oracle,
+    "gbbs_biconnectivity": gbbs_biconnectivity_verifier_oracle,
+    "gbbs_approximate_set_cover": gbbs_approximate_set_cover_verifier_oracle,
+    "gbbs_low_diameter_decomposition": gbbs_low_diameter_decomposition_verifier_oracle,
+    "tsvc_s2711_nonzero_branch_axpy": tsvc_s2711_nonzero_branch_axpy_verifier_oracle,
+    "gbbs_shiloach_vishkin_spanning_forest": gbbs_shiloach_vishkin_spanning_forest_verifier_oracle,
+    "rodinia_heartwall_template_match": rodinia_heartwall_template_match_verifier_suite_oracle,
+    "gapbs_afforest_components": gapbs_afforest_components_verifier_oracle,
+    "gapbs_shiloach_vishkin_components": gapbs_shiloach_vishkin_components_verifier_oracle,
+    "cbench_consumer_mad_alias_reduce": cbench_consumer_mad_alias_reduce_verifier_oracle,
     "nbench_huffman_compression": nbench_huffman_compression_oracle,
     "nbench_resource_assignment": nbench_resource_assignment_oracle,
     "nbench_emulated_float_arithmetic": nbench_emulated_float_arithmetic_oracle,
@@ -9112,6 +10684,11 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "cbench_bzip2_mtf_rle": cbench_bzip2_mtf_rle_verifier_oracle,
     "cbench_blowfish_cbc": cbench_blowfish_cbc_verifier_oracle,
     "tsvc_s281_reverse_coupled_update": tsvc_s281_reverse_coupled_update_verifier_oracle,
+    "tsvc_s1281_elementwise_dual_update": tsvc_s1281_elementwise_dual_update_verifier_oracle,
+    "tsvc_s293_first_element_broadcast": tsvc_s293_first_element_broadcast_verifier_oracle,
+    "tsvc_vtv_elementwise_product": tsvc_vtv_elementwise_product_verifier_oracle,
+    "tsvc_vpvpv_three_vector_add": tsvc_vpvpv_three_vector_add_verifier_oracle,
+    "tsvc_s471_ordered_two_vector_map": tsvc_s471_ordered_two_vector_map_verifier_oracle,
     "freebench_distray": freebench_distray_verifier_oracle,
     "pcompress2": pcompress2_verifier_oracle,
     "mibench_security_sha0": mibench_security_sha0_verifier_oracle,
@@ -9120,6 +10697,8 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "mccat_bintr": mccat_bintr_verifier_oracle,
     "mediabench_g721_encode": mediabench_g721_encode_verifier_oracle,
     "mediabench_gsm_rpe_grid_selection": mediabench_gsm_rpe_grid_selection_verifier_oracle,
+    "mediabench_gsm_rpe_grid_positioning": mediabench_gsm_rpe_grid_positioning_verifier_oracle,
+    "cbench_consumer_lame_window_subband": cbench_consumer_lame_window_subband_verifier_oracle,
     "rodinia_hybridsort": rodinia_hybridsort_verifier_oracle,
     "rodinia_mummergpu": rodinia_mummergpu_verifier_oracle,
     "tsvc_indexed_gather_scatter": tsvc_indexed_gather_scatter_verifier_oracle,
@@ -9135,6 +10714,12 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "tsvc_s278_branch_recompute": tsvc_s278_branch_recompute_verifier_oracle,
     "tsvc_s279_nested_branch_recompute": tsvc_s279_nested_branch_recompute_verifier_oracle,
     "tsvc_s2111_wavefront_add_recurrence": tsvc_s2111_wavefront_add_recurrence_verifier_oracle,
+    "tsvc_s119_diagonal_matrix_recurrence": tsvc_s119_diagonal_matrix_recurrence_verifier_oracle,
+    "tsvc_s1111_stride_two_polynomial_map": tsvc_s1111_stride_two_polynomial_map_verifier_oracle,
+    "tsvc_s1112_reverse_constant_offset_map": tsvc_s1112_reverse_constant_offset_map_verifier_oracle,
+    "tsvc_s113_invariant_anchor_add": tsvc_s113_invariant_anchor_add_verifier_oracle,
+    "tsvc_s1113_feedback_anchor_add": tsvc_s1113_feedback_anchor_add_verifier_oracle,
+    "tsvc_s115_upper_triangular_saxpy_elimination": tsvc_s115_upper_triangular_saxpy_elimination_verifier_oracle,
     "tsvc_s353_unrolled_sparse_saxpy": tsvc_s353_unrolled_sparse_saxpy_verifier_oracle,
     "tsvc_s452_index_weighted_vector_map": tsvc_s452_index_weighted_vector_map_verifier_oracle,
     "tsvc_s126_matrix_column_recurrence": tsvc_s126_matrix_column_recurrence_verifier_oracle,
@@ -9172,6 +10757,13 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "tsvc_s2102_identity_matrix_initialize": tsvc_s2102_identity_matrix_initialize_verifier_oracle,
     "tsvc_vag_indexed_gather_copy": tsvc_vag_indexed_gather_copy_verifier_oracle,
     "tsvc_s332_first_above_threshold": tsvc_s332_first_above_threshold_verifier_oracle,
+    "tsvc_s116_unrolled_product_chain": tsvc_s116_unrolled_product_chain_verifier_oracle,
+    "tsvc_s118_triangular_convolution_recurrence": tsvc_s118_triangular_convolution_recurrence_verifier_oracle,
+    "tsvc_s1119_same_column_matrix_prefix": tsvc_s1119_same_column_matrix_prefix_verifier_oracle,
+    "tsvc_s232_triangular_row_square_recurrence": tsvc_s232_triangular_row_square_recurrence_verifier_oracle,
+    "tsvc_s1213_ordered_neighbor_array_map": tsvc_s1213_ordered_neighbor_array_map_verifier_oracle,
+    "tsvc_s233_s2233_matrix_prefix": tsvc_s233_s2233_matrix_prefix_verifier_oracle,
+    "tsvc_s235_fused_vector_matrix_recurrence": tsvc_s235_fused_vector_matrix_recurrence_verifier_oracle,
     "tsvc_s261_shifted_cross_array_update": tsvc_s261_shifted_cross_array_update_verifier_oracle,
     "mediabench_mpeg2_motion_vector_component": mediabench_mpeg2_motion_vector_component_verifier_oracle,
     "mibench_jpeg_ycbcr_to_rgb": mibench_jpeg_ycbcr_to_rgb_verifier_oracle,
@@ -9195,6 +10787,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "idea_cfb64": idea_cfb64_verifier_oracle,
     "llubenchmark_list_traversal_growth": llubenchmark_list_traversal_growth_verifier_oracle,
     "rodinia_streamcluster_pgain": rodinia_streamcluster_pgain_verifier_oracle,
+    "saga_incremental_analytics": saga_incremental_analytics_verifier_oracle,
     "simplify_fraction": simplify_fraction_verifier_oracle,
     "rodinia_dwt2d": rodinia_dwt2d_verifier_oracle,
     "qrduino": qrduino_verifier_oracle,
@@ -9205,6 +10798,9 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "edn_iir_cascade": edn_iir_cascade_verifier_suite_oracle,
     "edn_jpeg_dct": edn_jpeg_dct_verifier_suite_oracle,
     "nsichneu": nsichneu_verifier_oracle,
+    "beebs_nettle_cast128": beebs_nettle_cast128_verifier_oracle,
+    "beebs_fasta": beebs_fasta_verifier_oracle,
+    "beebs_lcdnum": beebs_lcdnum_verifier_oracle,
 }
 
 ANSIBENCH_BYTE_OUTPUT_BOUNDS = {
@@ -11916,6 +13512,189 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or "no explicit license grant" not in readme.lower()
                 or "does not copy upstream code" not in readme):
             raise ValueError("prolangs_c_cdecl README is missing source scope or rights details")
+    elif algorithm == "prolangs_c_numeric_token":
+        max_input, max_output = (PROLANGS_C_NUMERIC_TOKEN_MAX_PARSEABLE_INPUT_LENGTH,
+                                 PROLANGS_C_NUMERIC_TOKEN_MAX_OUTPUT_BYTES)
+        source = workload.get("source", {})
+        expected_ids = {
+            "integer-token", "fraction-exact", "leading-fraction-dot",
+            "decimal-trailing-dot", "positive-exponent", "negative-exponent",
+            "bare-dot-source-quirk", "invalid-trailing-letter",
+            "invalid-exponent-without-digits", "invalid-leading-sign",
+        }
+        if (workload.get("schema_version") != "1.0.0"
+                or workload.get("id") != "prolangs-c-number-token-binary32-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "https://github.com/lac-dcc/Benchmarks"
+                or source.get("revision") != "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+                or source.get("path") != "Prolangs-C/compiler/lexer.c"
+                or source.get("symbol") != "Number"
+                or "No explicit license" not in source.get("rights", "")
+                or input_spec.get("maximum_length") != PROLANGS_C_NUMERIC_TOKEN_MAX_INPUT_LENGTH
+                or input_spec.get("invalid_result") != -1
+                or output_spec.get("length_bytes") != max_output
+                or output_spec.get("invalid_result") != -1
+                or workspace_bytes != max_output
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("prolangs_c_numeric_token metadata differs from its bounded lexer contract")
+        readme = (ROOT / "benchmarks" / "p" / algorithm / "README.md").read_text(encoding="utf-8")
+        if ("Prolangs-C/compiler/lexer.c" not in readme
+                or "No explicit license" not in readme
+                or "clean-room" not in readme):
+            raise ValueError("prolangs_c_numeric_token README is missing source or rights notes")
+    elif algorithm == "prolangs_c_loader_relocation_add":
+        max_input, max_output = (PROLANGS_C_LOADER_RELOCATION_ADD_MAX_PARSEABLE_INPUT_LENGTH,
+                                 PROLANGS_C_LOADER_RELOCATION_ADD_MAX_OUTPUT_BYTES)
+        source = workload.get("source", {})
+        expected_ids = {
+            "one-byte-positive-delta", "odd-width-rounds-to-two-bytes",
+            "odd-five-half-byte-width-negative-delta", "field-width-overflow-truncates-high-carry",
+            "three-byte-relocation-subtract", "invalid-zero-half-byte-width",
+            "invalid-byte-range", "invalid-negative-adjusted-value", "invalid-framing",
+        }
+        if (workload.get("schema_version") != "1.0.0"
+                or workload.get("id") != "prolangs-c-loader-relocation-field-add-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "https://github.com/lac-dcc/Benchmarks"
+                or source.get("revision") != "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+                or source.get("paths") != ["Prolangs-C/loader/memory.c", "Prolangs-C/loader/convert.c"]
+                or source.get("symbols") != ["ADD_INT_TO_LOC", "NUM_TO_STR", "STR_TO_NUM"]
+                or "Permission to use this code is granted" not in source.get("rights", "")
+                or input_spec.get("minimum_length") != 3
+                or input_spec.get("maximum_length") != 5
+                or input_spec.get("half_byte_width_range") != [1, 6]
+                or input_spec.get("delta_range") != [-65535, 65535]
+                or input_spec.get("invalid_result") != -1
+                or output_spec.get("kind") != "modified_big_endian_field_bytes"
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("short_or_null_output_result") != -2
+                or output_spec.get("invalid_result") != -1
+                or workspace_bytes != max_output
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("prolangs_c_loader_relocation_add metadata differs from its bounded relocation contract")
+        package = ROOT / "benchmarks" / "p" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("Prolangs-C/loader/memory.c" not in readme
+                or "William Landi" not in notice
+                or "Permission to use this code is granted" not in notice):
+            raise ValueError("prolangs_c_loader_relocation_add README or permission notice is incomplete")
+    elif algorithm == "paq8p_context_mixer":
+        max_input, max_output = (PAQ8P_CONTEXT_MIXER_MAX_PARSEABLE_INPUT_LENGTH,
+                                 PAQ8P_CONTEXT_MIXER_MAX_OUTPUT_BYTES)
+        source = workload.get("source", {})
+        expected_ids = {
+            "neutral-one-step", "trained-expert-two-step", "invalid-context",
+            "invalid-target", "invalid-feature-range", "invalid-step-count",
+            "invalid-trailing-word",
+        }
+        if (workload.get("schema_version") != "1.0.0"
+                or workload.get("id") != "paq8p-bounded-context-mixer-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "https://github.com/lac-dcc/Benchmarks"
+                or source.get("revision") != "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+                or source.get("path") != "PAQ8p/paq8p.cpp"
+                or source.get("symbols") != ["squash", "Stretch", "dot_product", "train", "Mixer"]
+                or "GNU GPL version 2 or later" not in source.get("rights", "")
+                or input_spec.get("kind") != "bounded_mixer_step_trace_i64_array"
+                or input_spec.get("maximum_valid_length") != 177
+                or input_spec.get("maximum_parseable_length") != max_input
+                or input_spec.get("context_selector_range") != [0, 1]
+                or input_spec.get("target_bit_range") != [0, 1]
+                or input_spec.get("stretched_feature_range") != [-2047, 2047]
+                or output_spec.get("kind") != "little_endian_u16_predictions"
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("success_result") != "2 * steps"
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("null_or_short_output_result") != -2
+                or workspace_bytes != 17408
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("paq8p_context_mixer metadata differs from its bounded adaptive mixer contract")
+        package = ROOT / "benchmarks" / "p" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("PAQ8p/paq8p.cpp" not in readme
+                or "not a PAQ8p compressor benchmark" not in readme
+                or "GNU GENERAL PUBLIC LICENSE" not in license_text
+                or "version 2" not in license_text):
+            raise ValueError("paq8p_context_mixer README or GPL notice is incomplete")
+        for relative in (
+                "c/p/paq8p_context_mixer.c", "c3/p/paq8p_context_mixer.c3",
+                "cpp/p/paq8p_context_mixer.cpp", "elisa/p/paq8p_context_mixer.elisa",
+                "nim/p/paq8p_context_mixer.nim", "odin/p/paq8p_context_mixer.odin",
+                "rust/p/paq8p_context_mixer.rs", "v/p/paq8p_context_mixer.v",
+                "zig/p/paq8p_context_mixer.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"paq8p_context_mixer port is missing: {relative}")
+    elif algorithm == "pargeo_bichromatic_closest_pair":
+        max_input, max_output = (PARGEO_BCP_MAX_PARSEABLE_INPUT_LENGTH,
+                                 PARGEO_BCP_MAX_OUTPUT_BYTES)
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "unique-nearest-cross-pair", "equal-distance-cross-pairs",
+            "duplicate-point-across-colors", "negative-coordinates",
+            "tree-branches-and-box-pruning", "invalid-too-few-points",
+            "invalid-truncated-coordinate-frame", "invalid-coordinate-range",
+            "null-input", "short-output-buffer", "null-output-buffer",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "pargeo-bichromatic-closest-pair-2d-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "ParAlg/ParGeo"
+                or source.get("commit") != "4911408762c46b7c262f6d617d7adcb0cb0f219b"
+                or source.get("paths") != ["include/kdTree/bccpImpl.h", "include/kdTree/treeImpl.h",
+                                            "include/kdTree/nodeImpl.h", "include/pargeo/point.h", "LICENSE"]
+                or source.get("symbols") != ["bichromaticClosestPair", "bcpHelper", "constructSerial", "nodeDistance"]
+                or "MIT" not in source.get("license", "")
+                or contract.get("input_layout") != "[nA, nB, ax0, ay0, ..., bx0, by0, ...]"
+                or contract.get("point_count_range_per_set") != [2, 8]
+                or contract.get("coordinate_range") != [-1000000, 1000000]
+                or contract.get("leaf_capacity") != 2
+                or contract.get("maximum_valid_input_length") != PARGEO_BCP_MAX_INPUT_LENGTH
+                or contract.get("output_bytes") != max_output
+                or input_spec.get("maximum_valid_length") != PARGEO_BCP_MAX_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("success_result") != max_output
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workspace_bytes != 4096
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("pargeo_bichromatic_closest_pair metadata differs from its bounded KD-tree contract")
+        package = ROOT / "benchmarks" / "p" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("bichromaticClosestPair" not in readme
+                or "4911408762c46b7c262f6d617d7adcb0cb0f219b" not in readme
+                or "MIT License" not in license_text
+                or "Yiqiu Wang, Shangdi Yu, Laxman Dhulipala, Yan Gu, Julian Shun" not in license_text):
+            raise ValueError("pargeo_bichromatic_closest_pair README or MIT notice is incomplete")
+        for relative in (
+                "c/p/pargeo_bichromatic_closest_pair.c", "c3/p/pargeo_bichromatic_closest_pair.c3",
+                "cpp/p/pargeo_bichromatic_closest_pair.cpp", "elisa/p/pargeo_bichromatic_closest_pair.elisa",
+                "nim/p/pargeo_bichromatic_closest_pair.nim", "odin/p/pargeo_bichromatic_closest_pair.odin",
+                "rust/p/pargeo_bichromatic_closest_pair.rs", "v/p/pargeo_bichromatic_closest_pair.v",
+                "zig/p/pargeo_bichromatic_closest_pair.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"pargeo_bichromatic_closest_pair port is missing: {relative}")
     elif algorithm == "tarfind":
         max_input, max_output = 1602, 5
         pinned = "de24bdf561f4eaad7f37685641fa301f2b8b4bc3"
@@ -12082,6 +13861,17 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     elif algorithm in {"cbench_tiffdither", "cbench_consumer_tiffmedian",
                        "cbench_consumer_tiff2bw", "cbench_bzip2_mtf_rle",
                        "cbench_blowfish_cbc", "tsvc_s281_reverse_coupled_update",
+                       "tsvc_s116_unrolled_product_chain",
+                       "tsvc_s118_triangular_convolution_recurrence",
+                       "tsvc_s1119_same_column_matrix_prefix",
+                       "tsvc_s232_triangular_row_square_recurrence",
+                       "tsvc_s1213_ordered_neighbor_array_map",
+                       "tsvc_s233_s2233_matrix_prefix",
+                       "tsvc_s235_fused_vector_matrix_recurrence",
+                       "gbbs_goodrich_pszona_degeneracy_order",
+                       "gbbs_barenboim_elkin_degeneracy_order",
+                       "tsvc_s1281_elementwise_dual_update", "tsvc_s293_first_element_broadcast",
+                       "tsvc_vtv_elementwise_product",
                        "edn_lattice_synthesis", "edn_vec_mpy1", "edn_iir_cascade",
                        "edn_jpeg_dct", "nsichneu", "mediabench_gsm_rpe_grid_selection",
                        "rodinia_hybridsort", "rodinia_mummergpu",
@@ -12144,7 +13934,14 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                        "mibench_jpeg_ycbcr_to_rgb",
                        "cbench_consumer_jpeg_h2v2_fancy_upsample",
                        "parboil_tpacf_cross_correlation",
-                       "parboil_mri_q", "parboil_cutcp"}:
+                       "parboil_mri_q", "parboil_cutcp",
+                       "gardenia_fb_trim_scc", "gardenia_gm_vertex_coloring",
+                       "gbbs_scan_structural_clustering", "gbbs_maximal_matching",
+                       "gbbs_biconnectivity", "gbbs_approximate_set_cover",
+                       "gbbs_low_diameter_decomposition",
+                       "tsvc_s2711_nonzero_branch_axpy",
+                       "gbbs_shiloach_vishkin_spanning_forest",
+                       "rodinia_heartwall_template_match"}:
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
     elif algorithm in GENERIC_BYTE_OUTPUT_BOUNDS:
@@ -12264,10 +14061,18 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                          "tsvc_vag_indexed_gather_copy",
                          "tsvc_s332_first_above_threshold",
                          "tsvc_s261_shifted_cross_array_update",
+                         "tsvc_s116_unrolled_product_chain",
+                         "tsvc_s118_triangular_convolution_recurrence",
+                         "tsvc_s1119_same_column_matrix_prefix",
+                         "tsvc_s232_triangular_row_square_recurrence",
+                         "tsvc_s1213_ordered_neighbor_array_map",
+                         "tsvc_s233_s2233_matrix_prefix",
+                         "tsvc_s235_fused_vector_matrix_recurrence",
                          "tsvc_s251_scalar_square_expansion",
                          "tsvc_s279_nested_branch_recompute",
                          "tsvc_s2111_wavefront_add_recurrence",
                          "tsvc_s252_adjacent_product_pair_sum",
+                         "tsvc_s2711_nonzero_branch_axpy",
                          "llubenchmark_list_traversal_growth",
                          "rodinia_streamcluster_pgain"}:
             inconsistent_framing = (
@@ -12309,6 +14114,24 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 isinstance(expected_values, list) and len(output) == 112
                 and struct.unpack("<14q", output) == tuple(expected_values)
                 if result >= 0 else "expected_values" not in fixture and not output)
+        elif algorithm == "mediabench_gsm_rpe_grid_positioning":
+            expected_values = fixture.get("expected_values")
+            output_matches_fixture = (
+                isinstance(expected_values, list)
+                and len(output) == MEDIABENCH_GSM_RPE_POSITIONING_MAX_OUTPUT_BYTES
+                and struct.unpack("<40h", output) == tuple(expected_values)
+                if result >= 0 else "expected_values" not in fixture and not output)
+        elif algorithm == "cbench_consumer_lame_window_subband":
+            expected_values = fixture.get("expected_values")
+            output_matches_fixture = (
+                isinstance(expected_values, list) and len(expected_values) == 32
+                and len(output) == CBENCH_LAME_WINDOW_SUBBAND_MAX_OUTPUT_BYTES
+                and struct.unpack("<32q", output) == tuple(expected_values)
+                if result >= 0 else "expected_values" not in fixture and not output)
+        elif algorithm == "beebs_fasta":
+            expected_text = fixture.get("expected_output_text")
+            output_matches_fixture = (isinstance(expected_text, str)
+                                      and output == expected_text.encode("ascii"))
         else:
             output_matches_fixture = fixture.get("expected_output_hex", "").lower() == output.hex()
         if (type(fixture.get("expected_result")) is not int
@@ -12318,7 +14141,841 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add(values, capacity, output_is_null=output_is_null,
             input_is_null=input_is_null, input_length=input_length)
 
-    if algorithm == "simplify_fraction":
+    if algorithm == "prolangs_c_numeric_token":
+        for token in ("0", "2147483647", ".000001", "1e+6", "1.25e-6",
+                      "2147483648", "1.0000000", "1e+7", "1e-7", "1e+"):
+            add(tuple(token.encode("ascii")))
+        maximum = tuple(b"00000000000000001.123456")
+        result, output = add(maximum)
+        if result != PROLANGS_C_NUMERIC_TOKEN_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("prolangs_c_numeric_token maximum lexeme violates its fixed output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "prolangs_c_loader_relocation_add":
+        for half_bytes in range(1, 7):
+            width = (half_bytes + 1) // 2
+            add((half_bytes, 0, *(255 for _ in range(width))))
+            add((half_bytes, -1, *(0 for _ in range(width))))
+        maximum = (6, 1, 255, 255, 255)
+        result, output = add(maximum)
+        if result != 3 or len(output) != max_output:
+            raise ValueError("prolangs_c_loader_relocation_add maximum field has invalid output framing")
+        for capacity in (0, result - 1, result, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((6, 0, 1, 2, 3, 4, 5, 6))
+        add((), input_is_null=True, input_length=0)
+    elif algorithm == "paq8p_context_mixer":
+        maximum_values = [16]
+        for step in range(16):
+            maximum_values.extend((step & 1, (step >> 1) & 1, (step >> 2) & 1,
+                                   2047, -2047, step - 8, 8 - step,
+                                   511, -511, 1, -1))
+        maximum = tuple(maximum_values)
+        result, output = add(maximum)
+        if result != PAQ8P_CONTEXT_MIXER_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("paq8p_context_mixer maximum trace has invalid output framing")
+        for capacity in (0, 1, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add(maximum + (0,))
+        add((1, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0))
+        add((1, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0))
+        add((1, 0, 0, 1, 2048, 0, 0, 0, 0, 0, 0, 0))
+        add((0,))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "pargeo_bichromatic_closest_pair":
+        maximum_values = [8, 8]
+        for index in range(8):
+            maximum_values.extend((index * 10, 0))
+        for index in range(8):
+            maximum_values.extend((index * 10 + 1, 0))
+        maximum = tuple(maximum_values)
+        result, output = add(maximum)
+        if result != PARGEO_BCP_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("pargeo_bichromatic_closest_pair maximum sets have invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add(maximum[:-1])
+        add((1, 2, 0, 0, 1, 1, 2, 2, 3, 3))
+        add((2, 2, 1_000_001, 0, 1, 0, 2, 0, 3, 0))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "mediabench_jpeg_optimal_huffman_table":
+        skewed_frequencies = (
+            1, 1, 2, 3, 5, 8, 13, 21, 34, 55,
+            89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765,
+        )
+        maximum_values = [MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_SYMBOLS]
+        for symbol, frequency in enumerate(skewed_frequencies):
+            maximum_values.extend((symbol, frequency))
+        maximum = tuple(maximum_values)
+        result, output = add(maximum)
+        if (result != MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_OUTPUT_BYTES
+                or len(output) != max_output):
+            raise ValueError("mediabench_jpeg_optimal_huffman_table maximum input has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for values in (
+                (2, 7, 4, 7, 5), (1, 42, 0), (1, 256, 1),
+                (1, 42, MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_FREQUENCY + 1),
+                (2, 7, 4, 9), (1, 42, 1, 0),
+                tuple([MEDIABENCH_JPEG_OPTIMAL_HUFFMAN_MAX_SYMBOLS + 1] + [0] * 40),
+                (0,),
+        ):
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "cbench_consumer_mad_alias_reduce":
+        maximum = (4, *(100_000_000 if index % 2 == 0 else -100_000_000
+                        for index in range(4 * 16)))
+        result, output = add(maximum)
+        if result != CBENCH_MAD_ALIAS_REDUCE_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("cbench_consumer_mad_alias_reduce maximum trace has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0,), (5, *([0] * 80)),
+            tuple([4] + [0] * 63), tuple([3] + [0] * 64),
+            (1, 100_000_001, *([0] * 15)),
+            (1, I64_MIN, *([0] * 15)), (1, I64_MAX, *([0] * 15)),
+        )
+        for values in malformed:
+            if len(values) <= CBENCH_MAD_ALIAS_REDUCE_MAX_INPUT_LENGTH:
+                add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gapbs_afforest_components":
+        node_count = GAPBS_AFFOREST_MAX_NODES
+        sample_count = GAPBS_AFFOREST_MAX_SAMPLES
+        edges = []
+        for left in range(node_count):
+            for right in range(left + 1, node_count):
+                if len(edges) < GAPBS_AFFOREST_MAX_EDGES:
+                    edges.append((left, right))
+        maximum = (node_count, len(edges), sample_count,
+                   *([0] * sample_count), *(vertex for edge in edges for vertex in edge))
+        result, output = add(maximum)
+        if result != GAPBS_AFFOREST_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("gapbs_afforest_components maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (2, 0, 1, 0), (2, 1, 1, 2, 0, 1),
+            (2, 1, 1, 0, 0, 1, -1), (1, 0, 0),
+            (1, 0, GAPBS_AFFOREST_MAX_SAMPLES + 1, *([0] * (GAPBS_AFFOREST_MAX_SAMPLES + 1))),
+            (1, GAPBS_AFFOREST_MAX_EDGES + 1, 1, 0),
+            (3, 1, 1, 0, 0, 3),
+            (2, 2, 1, 0, 0, 1, 1, 0, 1),
+            tuple([0] * (GAPBS_AFFOREST_MAX_INPUT_LENGTH + 1)),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True,
+            input_length=GAPBS_AFFOREST_MAX_PARSEABLE_INPUT_LENGTH)
+    elif algorithm == "gapbs_shiloach_vishkin_components":
+        node_count = GAPBS_SV_MAX_NODES
+        edges = []
+        for left in range(node_count):
+            for right in range(left + 1, node_count):
+                if len(edges) < GAPBS_SV_MAX_EDGES:
+                    edges.append((left, right))
+        maximum = (node_count, len(edges), *(vertex for edge in edges for vertex in edge))
+        result, output = add(maximum)
+        if result != GAPBS_SV_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("gapbs_shiloach_vishkin_components maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0), (17, 0), (1, 0, 1),
+            (2, GAPBS_SV_MAX_EDGES + 1, *([0] * (2 * (GAPBS_SV_MAX_EDGES + 1)))),
+            (3, 1, 0, 3), (2, 1, 0, 0), (2, 2, 0, 1, 0, 1),
+            tuple([0] * GAPBS_SV_MAX_PARSEABLE_INPUT_LENGTH), (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=GAPBS_SV_MAX_PARSEABLE_INPUT_LENGTH)
+    elif algorithm == "gbbs_ss_widest_path":
+        node_count = GBBS_WIDEST_PATH_MAX_NODES
+        maximum_values = [node_count, GBBS_WIDEST_PATH_MAX_EDGES, 0]
+        for edge in range(GBBS_WIDEST_PATH_MAX_EDGES):
+            start = edge % node_count
+            maximum_values.extend((start, (start + 1) % node_count,
+                                   1 + edge % GBBS_WIDEST_PATH_MAX_EDGE_CAPACITY))
+        maximum = tuple(maximum_values)
+        result, output = add(maximum)
+        if (result != GBBS_WIDEST_PATH_MAX_OUTPUT_BYTES
+                or len(output) != max_output):
+            raise ValueError("gbbs_ss_widest_path maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (2, 0, 0), (2, 1, 0, 0, 2, 1),
+            (2, 1, 0, 0, 1, 0), (2, 1, 0, 0, 1, 33),
+            (1, 0, 1), (1, GBBS_WIDEST_PATH_MAX_EDGES + 1, 0),
+            (2, 1, 0, 0, 1),
+            tuple([0] * GBBS_WIDEST_PATH_MAX_INPUT_LENGTH),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_k_core_decomposition":
+        node_count = GBBS_KCORE_MAX_NODES
+        edges = []
+        for left in range(node_count):
+            for right in range(left + 1, node_count):
+                if len(edges) < GBBS_KCORE_MAX_EDGES:
+                    edges.append((left, right))
+        maximum = (node_count, len(edges),
+                   *(vertex for edge in edges for vertex in edge))
+        result, output = add(maximum)
+        if result != GBBS_KCORE_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("gbbs_k_core_decomposition maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0), (17, 0), (2, 65, *([0] * 128)),
+            (2, 1, 0), (2, 1, 0, 0), (2, 1, 1, 0),
+            (2, 2, 0, 1, 0, 1), (2, 1, 0, 2),
+            tuple([0] * GBBS_KCORE_MAX_INPUT_LENGTH), (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_k_clique_count":
+        node_count = GBBS_KCLIQUE_MAX_NODES
+        edges = []
+        for left in range(node_count):
+            for right in range(left + 1, node_count):
+                if len(edges) < GBBS_KCLIQUE_MAX_EDGES:
+                    edges.append((left, right))
+        maximum = (node_count, len(edges), *(vertex for edge in edges for vertex in edge))
+        result, output = add(maximum)
+        if result != GBBS_KCLIQUE_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("gbbs_k_clique_count maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0), (GBBS_KCLIQUE_MAX_NODES + 1, 0),
+            (2, GBBS_KCLIQUE_MAX_EDGES + 1, *([0] * (2 * (GBBS_KCLIQUE_MAX_EDGES + 1)))),
+            (2, 1, 0), (2, 1, 0, 0), (2, 1, 1, 0),
+            (2, 2, 0, 1, 0, 1), (2, 1, 0, 2),
+            tuple([0] * GBBS_KCLIQUE_MAX_INPUT_LENGTH), (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_label_propagation_clustering":
+        node_count = GBBS_LABEL_PROP_MAX_NODES
+        edges = []
+        for left in range(node_count):
+            for right in range(left + 1, node_count):
+                if len(edges) < GBBS_LABEL_PROP_MAX_EDGES:
+                    edges.append((left, right))
+        maximum = (node_count, len(edges), *(vertex for edge in edges for vertex in edge))
+        result, output = add(maximum)
+        if result != GBBS_LABEL_PROP_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("gbbs_label_propagation_clustering maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0), (GBBS_LABEL_PROP_MAX_NODES + 1, 0),
+            (2, GBBS_LABEL_PROP_MAX_EDGES + 1, *([0] * (2 * (GBBS_LABEL_PROP_MAX_EDGES + 1)))),
+            (2, 1, 0), (2, 1, 0, 0), (2, 1, 1, 0),
+            (2, 2, 0, 1, 0, 1), (2, 1, 0, 2),
+            tuple([0] * GBBS_LABEL_PROP_MAX_INPUT_LENGTH), (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_five_cycle_count":
+        node_count = GBBS_FIVE_CYCLE_MAX_NODES
+        edges = []
+        for left in range(node_count):
+            for right in range(left + 1, node_count):
+                if len(edges) < GBBS_FIVE_CYCLE_MAX_EDGES:
+                    edges.append((left, right))
+        maximum = (node_count, len(edges), *(vertex for edge in edges for vertex in edge))
+        result, output = add(maximum)
+        if result != GBBS_FIVE_CYCLE_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("gbbs_five_cycle_count maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0), (GBBS_FIVE_CYCLE_MAX_NODES + 1, 0),
+            (2, GBBS_FIVE_CYCLE_MAX_EDGES + 1, *([0] * (2 * (GBBS_FIVE_CYCLE_MAX_EDGES + 1)))),
+            (2, 1, 0), (2, 1, 0, 0), (2, 1, 1, 0),
+            (2, 2, 0, 1, 0, 1), (2, 1, 0, 2),
+            tuple([0] * GBBS_FIVE_CYCLE_MAX_INPUT_LENGTH), (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_cosimrank_pair_similarity":
+        node_count = GBBS_COSIMRANK_MAX_NODES
+        edges = []
+        for source in range(node_count - 2):
+            for offset in range(1, 5):
+                edges.append((source, (source + offset) % node_count))
+        maximum = (node_count, len(edges), 6, 7, 4,
+                   *(vertex for edge in edges for vertex in edge))
+        result, output = add(maximum)
+        if (result != GBBS_COSIMRANK_MAX_OUTPUT_BYTES
+                or len(output) != max_output):
+            raise ValueError("gbbs_cosimrank_pair_similarity maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0, 0, 0, 1),
+            (GBBS_COSIMRANK_MAX_NODES + 1, 0, 0, 0, 1),
+            (2, GBBS_COSIMRANK_MAX_EDGES + 1, 0, 1, 1,
+             *([0] * (2 * (GBBS_COSIMRANK_MAX_EDGES + 1)))),
+            (2, 1, 0, 0, 1, 0, 0),
+            (2, 2, 0, 1, 1, 0, 1, 0, 1),
+            (4, 3, 0, 1, 1, 0, 1, 0, 2, 0, 3),
+            (2, 1, 2, 0, 1, 0, 1),
+            (2, 1, 0, 1, 0, 0, 1),
+            (2, 1, 0, 1, 5, 0, 1),
+            tuple([0] * GBBS_COSIMRANK_MAX_INPUT_LENGTH), (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_yoshida_query_mis":
+        node_count = GBBS_YOSHIDA_MIS_MAX_NODES
+        edges = []
+        for left in range(node_count):
+            for right in range(left + 1, node_count):
+                if len(edges) < GBBS_YOSHIDA_MIS_MAX_EDGES:
+                    edges.append((left, right))
+        maximum = (node_count, len(edges), 0, 0,
+                   *(vertex for edge in edges for vertex in edge))
+        result, output = add(maximum)
+        if (result != GBBS_YOSHIDA_MIS_MAX_OUTPUT_BYTES
+                or len(output) != max_output):
+            raise ValueError("gbbs_yoshida_query_mis maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0, 0, 0),
+            (GBBS_YOSHIDA_MIS_MAX_NODES + 1, 0, 0, 0),
+            (2, GBBS_YOSHIDA_MIS_MAX_EDGES + 1, 0, 0,
+             *([0] * (2 * (GBBS_YOSHIDA_MIS_MAX_EDGES + 1)))),
+            (2, 0, 2, 0), (1, 0, 0, 129),
+            (2, 1, 0, 0, 0, 0),
+            (3, 2, 0, 0, 0, 1, 0, 1),
+            (2, 1, 0, 0, 1, 0),
+            (2, 1, 0, 1, 0),
+            tuple([0] * GBBS_YOSHIDA_MIS_MAX_INPUT_LENGTH),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_goodrich_pszona_degeneracy_order":
+        validate_new_byte_output_workload(workload, algorithm)
+        if (max_input != GBBS_GOODRICH_PSZONA_MAX_INPUT_LENGTH
+                or max_output != GBBS_GOODRICH_PSZONA_MAX_OUTPUT_BYTES
+                or workspace_bytes != GBBS_GOODRICH_PSZONA_MAX_OUTPUT_BYTES):
+            raise ValueError("GBBS Goodrich-Pszona suite bounds differ from its workload")
+        maximum_edges = tuple(
+            value for left in range(GBBS_GOODRICH_PSZONA_MAX_NODES)
+            for right in range(left + 1, GBBS_GOODRICH_PSZONA_MAX_NODES)
+            for value in (left, right))
+        maximum = (GBBS_GOODRICH_PSZONA_MAX_NODES,
+                   GBBS_GOODRICH_PSZONA_MAX_EDGES, *maximum_edges)
+        result, output = add(maximum)
+        if (len(maximum) != max_input or result != max_output
+                or len(output) != max_output):
+            raise ValueError("GBBS Goodrich-Pszona maximum complete graph has invalid framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0), (GBBS_GOODRICH_PSZONA_MAX_NODES + 1, 0),
+            (3, GBBS_GOODRICH_PSZONA_MAX_EDGES + 1),
+            (2, 1, 0), (2, 1, 0, 0), (2, 1, 1, 0),
+            (2, 2, 0, 1, 0, 1), (2, 1, 0, 2),
+            (3, 1, 2, 1), tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_barenboim_elkin_degeneracy_order":
+        validate_new_byte_output_workload(workload, algorithm)
+        if (max_input != GBBS_BARENBOIM_ELKIN_MAX_INPUT_LENGTH
+                or max_output != GBBS_BARENBOIM_ELKIN_MAX_OUTPUT_BYTES
+                or workspace_bytes != GBBS_BARENBOIM_ELKIN_MAX_OUTPUT_BYTES):
+            raise ValueError("GBBS Barenboim-Elkin suite bounds differ from its workload")
+        maximum_edges = tuple(
+            value for left in range(GBBS_BARENBOIM_ELKIN_MAX_NODES)
+            for right in range(left + 1, GBBS_BARENBOIM_ELKIN_MAX_NODES)
+            for value in (left, right))
+        maximum = (GBBS_BARENBOIM_ELKIN_MAX_NODES,
+                   GBBS_BARENBOIM_ELKIN_MAX_EDGES, *maximum_edges)
+        result, output = add(maximum)
+        if (len(maximum) != max_input or result != max_output
+                or len(output) != max_output):
+            raise ValueError("GBBS Barenboim-Elkin maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0), (GBBS_BARENBOIM_ELKIN_MAX_NODES + 1, 0),
+            (1, GBBS_BARENBOIM_ELKIN_MAX_EDGES + 1, *([0] * (max_input - 2))),
+            (3, 1, 0), (3, 1, 0, 1, 1),
+            (3, 2, 0, 1, 0, 1), (3, 1, 1, 0),
+            (3, 1, 0, 3), (3, 1, 1, 1),
+            tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_scan_structural_clustering":
+        validate_new_byte_output_workload(workload, algorithm)
+        if (max_input != GBBS_SCAN_MAX_INPUT_LENGTH
+                or max_output != GBBS_SCAN_MAX_OUTPUT_BYTES
+                or workspace_bytes != GBBS_SCAN_MAX_OUTPUT_BYTES):
+            raise ValueError("GBBS SCAN suite bounds differ from its workload")
+        maximum = tuple(next(case["input_values"] for case in workload["cases"]
+                             if case["id"] == "maximum-node-and-edge-bounds-two-cliques"))
+        result, output = add(maximum)
+        if (len(maximum) != max_input or result != max_output
+                or len(output) != max_output):
+            raise ValueError("GBBS SCAN maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0), (GBBS_SCAN_MAX_NODES + 1, 0),
+            (2, GBBS_SCAN_MAX_EDGES + 1), (2, 1, 0),
+            (2, 1, 0, 0), (2, 1, 1, 0),
+            (2, 2, 0, 1, 0, 1), (2, 1, 0, 2),
+            tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_maximal_matching":
+        validate_new_byte_output_workload(workload, algorithm)
+        if (max_input != GBBS_MAXIMAL_MATCHING_MAX_INPUT_LENGTH
+                or max_output != GBBS_MAXIMAL_MATCHING_MAX_OUTPUT_BYTES
+                or workspace_bytes != GBBS_MAXIMAL_MATCHING_MAX_OUTPUT_BYTES):
+            raise ValueError("GBBS maximal matching suite bounds differ from its workload")
+        maximum = tuple(next(case["input_values"] for case in workload["cases"]
+                             if case["id"] == "maximum-node-and-edge-bounds"))
+        result, output = add(maximum)
+        if (len(maximum) != max_input or result != max_output
+                or len(output) != max_output):
+            raise ValueError("GBBS maximal matching maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        short_result, short_output = add(maximum, max_output - 1)
+        if (short_result != GBBS_MAXIMAL_MATCHING_OUTPUT_ERROR or short_output):
+            raise ValueError("GBBS maximal matching accepted insufficient output capacity")
+        null_result, null_bytes = add(maximum, output_is_null=True)
+        if (null_result != GBBS_MAXIMAL_MATCHING_OUTPUT_ERROR or null_bytes):
+            raise ValueError("GBBS maximal matching accepted a null output pointer")
+        malformed = (
+            (), (0, 0), (GBBS_MAXIMAL_MATCHING_MAX_NODES + 1, 0),
+            (2, GBBS_MAXIMAL_MATCHING_MAX_EDGES + 1), (2, 1, 0),
+            (2, 1, 1, 0, 1), (3, 1, 0, 0),
+            (3, 2, 0, 0, 0, 1, 1, 2),
+            (3, 2, 0, 1, 0, 1, 0, 1),
+            (2, 1, 0, 1, 1, 0), (2, 1, 0, 0, 0),
+            (2, 1, 0, 0, 2), tuple([0] * max_input),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            result, output = add(values)
+            if result != GBBS_MAXIMAL_MATCHING_INVALID_RESULT or output:
+                raise ValueError("GBBS maximal matching accepted a generated malformed input")
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_approximate_set_cover":
+        validate_new_byte_output_workload(workload, algorithm)
+        if (max_input != GBBS_SET_COVER_MAX_PARSEABLE_LENGTH
+                or max_output != GBBS_SET_COVER_MAX_OUTPUT_BYTES
+                or workspace_bytes != 512):
+            raise ValueError("GBBS approximate set cover suite bounds differ from its workload")
+        maximum = tuple(next(case["input_values"] for case in workload["cases"]
+                             if case["id"] == "maximum-complete-eight"))
+        result, output = add(maximum)
+        if (len(maximum) != GBBS_SET_COVER_MAX_INPUT_LENGTH
+                or result != max_output or len(output) != max_output):
+            raise ValueError("GBBS approximate set cover maximum profile has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        short_result, short_output = add(maximum, max_output - 1)
+        if short_result != GBBS_SET_COVER_OUTPUT_ERROR or short_output:
+            raise ValueError("GBBS approximate set cover accepted insufficient output capacity")
+        null_result, null_bytes = add(maximum, output_is_null=True)
+        if null_result != GBBS_SET_COVER_OUTPUT_ERROR or null_bytes:
+            raise ValueError("GBBS approximate set cover accepted a null output pointer")
+        malformed = (
+            (), (0, 0), (GBBS_SET_COVER_MAX_SETS + 1, 0),
+            (2, 4, 0), (2, 2, 0), (1, 1),
+            (2, -1, 0), tuple([0] * max_input), maximum + (0,),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            result, output = add(values)
+            if result != GBBS_SET_COVER_INVALID_RESULT or output:
+                raise ValueError("GBBS approximate set cover accepted a generated malformed input")
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_low_diameter_decomposition":
+        validate_new_byte_output_workload(workload, algorithm)
+        if (max_input != GBBS_LDD_MAX_INPUT_LENGTH
+                or max_output != GBBS_LDD_MAX_OUTPUT_BYTES
+                or workspace_bytes != 768):
+            raise ValueError("GBBS low-diameter suite bounds differ from its workload")
+        maximum = tuple(next(case["input_values"] for case in workload["cases"]
+                             if case["id"] == "maximum-node-and-edge-count"))
+        result, output = add(maximum)
+        if (len(maximum) != max_input or result != GBBS_LDD_MAX_NODES
+                or len(output) != GBBS_LDD_MAX_NODES):
+            raise ValueError("GBBS low-diameter maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        short_result, short_output = add(maximum, max_output - 1)
+        if short_result != -2 or short_output:
+            raise ValueError("GBBS low-diameter decomposition accepted insufficient capacity")
+        null_result, null_bytes = add(maximum, output_is_null=True)
+        if null_result != -2 or null_bytes:
+            raise ValueError("GBBS low-diameter decomposition accepted null output")
+        malformed = (
+            (), (0, 0), (GBBS_LDD_MAX_NODES + 1, 0),
+            (2, GBBS_LDD_MAX_EDGES + 1), (2, 1, 0),
+            (2, 1, 0, 0), (2, 1, 1, 0), (3, 2, 0, 1, 0, 1),
+            (2, 1, 0, 2), (3, 1, 0), tuple([0] * max_input),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            result, output = add(values)
+            if result != -1 or output:
+                raise ValueError("GBBS low-diameter decomposition accepted malformed input")
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "tsvc_s2711_nonzero_branch_axpy":
+        validate_new_byte_output_workload(workload, algorithm)
+        if (max_input != TSVC_S2711_NONZERO_MAX_INPUT_LENGTH
+                or max_output != TSVC_S2711_NONZERO_MAX_OUTPUT_BYTES
+                or workspace_bytes != TSVC_S2711_NONZERO_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s2711 suite bounds differ from its workload")
+        n = TSVC_S2711_NONZERO_MAX_N
+        maximum = (n, TSVC_S2711_NONZERO_MAX_PASSES,
+                   *(0 for _ in range(n)), *(1 for _ in range(n)),
+                   *(1 for _ in range(n)))
+        result, output = add(maximum)
+        if (len(maximum) != max_input or result != n or len(output) != max_output):
+            raise ValueError("TSVC s2711 maximum arrays have invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        short_result, short_output = add(maximum, max_output - 1)
+        if short_result != -2 or short_output:
+            raise ValueError("TSVC s2711 accepted insufficient output capacity")
+        null_result, null_bytes = add(maximum, output_is_null=True)
+        if null_result != -2 or null_bytes:
+            raise ValueError("TSVC s2711 accepted null output")
+        malformed = (
+            (), (0, 1, 0, 0, 0),
+            (TSVC_S2711_NONZERO_MAX_N + 1, 1, 0, 0, 0),
+            (1, 0, 0, 0, 0), (1, TSVC_S2711_NONZERO_MAX_PASSES + 1, 0, 0, 0),
+            (1, 1, 0, 3, 1), (1, 1, 0, 1), tuple([0] * max_input),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            result, output = add(values)
+            if result != -1 or output:
+                raise ValueError("TSVC s2711 accepted a generated malformed input")
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_shiloach_vishkin_spanning_forest":
+        validate_new_byte_output_workload(workload, algorithm)
+        if (max_input != GBBS_SV_FOREST_MAX_INPUT_LENGTH
+                or max_output != GBBS_SV_FOREST_MAX_OUTPUT_BYTES
+                or workspace_bytes != 1024):
+            raise ValueError("GBBS spanning-forest suite bounds differ from its workload")
+        maximum = tuple(next(case["input_values"] for case in workload["cases"]
+                             if case["id"] == "maximum-node-and-edge-count"))
+        result, output = add(maximum)
+        if (len(maximum) != max_input or result != max_output or len(output) != max_output):
+            raise ValueError("GBBS spanning-forest maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        short_result, short_output = add(maximum, max_output - 1)
+        if short_result != -2 or short_output:
+            raise ValueError("GBBS spanning forest accepted insufficient output capacity")
+        null_result, null_bytes = add(maximum, output_is_null=True)
+        if null_result != -2 or null_bytes:
+            raise ValueError("GBBS spanning forest accepted null output")
+        malformed = (
+            (), (0, 0), (GBBS_SV_FOREST_MAX_NODES + 1, 0),
+            (2, GBBS_SV_FOREST_MAX_EDGES + 1), (2, 1, 0),
+            (2, 1, 0, 0), (2, 1, 1, 0),
+            (3, 2, 0, 1, 0, 1), (2, 1, 0, 2),
+            (3, 1, 0), tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            result, output = add(values)
+            if result != -1 or output:
+                raise ValueError("GBBS spanning forest accepted generated malformed input")
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "rodinia_heartwall_template_match":
+        validate_new_byte_output_workload(workload, algorithm)
+        if (max_input != RODINIA_HEARTWALL_MAX_INPUT_LENGTH
+                or max_output != RODINIA_HEARTWALL_MAX_OUTPUT_BYTES
+                or workspace_bytes != 4096):
+            raise ValueError("Rodinia Heartwall suite bounds differ from its workload")
+        image_rows = image_cols = 8
+        template_rows = template_cols = 4
+        template = tuple(range(template_rows * template_cols))
+        image = tuple(column * image_rows + row
+                      for column in range(image_cols) for row in range(image_rows))
+        maximum = (image_rows, image_cols, template_rows, template_cols, 1,
+                   *template, *image)
+        result, output = add(maximum)
+        if (len(maximum) != max_input or result != max_output
+                or len(output) != max_output):
+            raise ValueError("Rodinia Heartwall maximum image has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        short_result, short_output = add(maximum, max_output - 1)
+        if short_result != -2 or short_output:
+            raise ValueError("Rodinia Heartwall accepted insufficient output capacity")
+        null_result, null_bytes = add(maximum, output_is_null=True)
+        if null_result != -2 or null_bytes:
+            raise ValueError("Rodinia Heartwall accepted null output")
+        malformed = (
+            (), (1, 8, 2, 2, 1), (2, 2, 3, 2, 1),
+            (2, 2, 2, 2, -1, *range(4), 0, 1, 2, 3),
+            (2, 2, 2, 2, 2, 0, 1, 2, 3, 0, 1, 2, 3),
+            tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            result, output = add(values)
+            if result != -1 or output:
+                raise ValueError("Rodinia Heartwall accepted generated malformed input")
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gbbs_biconnectivity":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_biconnectivity_output = GBBS_BICONNECTIVITY_MAX_EDGES
+        if (max_input != GBBS_BICONNECTIVITY_MAX_INPUT_LENGTH
+                or max_output != max_biconnectivity_output
+                or workspace_bytes != 1024):
+            raise ValueError("GBBS biconnectivity suite bounds differ from its workload")
+        maximum = tuple(next(case["input_values"] for case in workload["cases"]
+                             if case["id"] == "maximum-edge-count-one-block"))
+        result, output = add(maximum)
+        if (len(maximum) != max_input or result != max_output
+                or len(output) != max_output):
+            raise ValueError("GBBS biconnectivity maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        short_result, short_output = add(maximum, max_output - 1)
+        if short_result != -2 or short_output:
+            raise ValueError("GBBS biconnectivity accepted insufficient output capacity")
+        null_result, null_bytes = add(maximum, output_is_null=True)
+        if null_result != -2 or null_bytes:
+            raise ValueError("GBBS biconnectivity accepted a null output pointer")
+        malformed = (
+            (), (0, 0), (GBBS_BICONNECTIVITY_MAX_NODES + 1, 0),
+            (2, GBBS_BICONNECTIVITY_MAX_EDGES + 1), (2, 1, 0),
+            (2, 1, 0, 0), (2, 1, 1, 0),
+            (3, 2, 0, 1, 0, 1), (2, 1, 0, 2),
+            (3, 1, 0), tuple([0] * max_input),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            result, output = add(values)
+            if result != -1 or output:
+                raise ValueError("GBBS biconnectivity accepted a generated malformed input")
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "graphai_hac_complete_linkage":
+        node_count = GRAPH_HAC_MAX_NODES
+        edges = []
+        for left in range(node_count):
+            for right in range(left + 1, node_count):
+                if len(edges) < GRAPH_HAC_MAX_EDGES:
+                    edges.append((left, right, len(edges) + 1))
+        maximum = (node_count, len(edges),
+                   *(value for edge in edges for value in edge))
+        result, output = add(maximum)
+        if result != GRAPH_HAC_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("graphai_hac_complete_linkage maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (1,), (0, 0), (GRAPH_HAC_MAX_NODES + 1, 0),
+            (2, GRAPH_HAC_MAX_EDGES + 1), (2, 0),
+            (2, 1, 0, 1), (2, 1, 0, 0, 3),
+            (2, 2, 0, 1, 3, 0, 1, 4),
+            (3, 2, 0, 1, 5, 1, 2, 5),
+            (2, 1, 0, 1, 0), (2, 1, 0, 1, 33),
+            (3, 1, 0, 1, 3),
+            tuple([0] * GRAPH_HAC_MAX_INPUT_LENGTH),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "pannotia_local_minimum_mis":
+        node_count = PANNOTIA_MIS_MAX_NODES
+        edges = [(left, right) for left in range(8) for right in range(8, 16)]
+        maximum = (node_count, len(edges), *range(node_count),
+                   *(value for edge in edges for value in edge))
+        result, output = add(maximum)
+        if result != PANNOTIA_MIS_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("pannotia_local_minimum_mis maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0), (PANNOTIA_MIS_MAX_NODES + 1, 0),
+            (2, PANNOTIA_MIS_MAX_EDGES + 1, 0, 1),
+            (2, 1, 0), (2, 1, 0, 0), (2, 1, 1, 0),
+            (2, 1, 0, 1, 0, 0), (2, 2, 0, 1, 0, 1, 0, 1),
+            (2, 1, 0, 1, 0, 2), (2, 1, 0, 1, 1, 0),
+            tuple([0] * PANNOTIA_MIS_MAX_INPUT_LENGTH),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gardenia_fb_trim_scc":
+        maximum = tuple(next(case["input_values"] for case in workload["cases"]
+                             if case["id"] == "maximum-four-strongly-connected-blocks"))
+        result, output = add(maximum)
+        if result != GARDENIA_FB_TRIM_SCC_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("gardenia_fb_trim_scc maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0), (GARDENIA_FB_TRIM_SCC_MAX_NODES + 1, 0),
+            (2, GARDENIA_FB_TRIM_SCC_MAX_EDGES + 1, 0, 1),
+            (2, 1, 0), (2, 1, -1, 0), (2, 1, 0, 2),
+            (2, 2, 0, 1, 0, 1),
+            tuple([0] * GARDENIA_FB_TRIM_SCC_MAX_INPUT_LENGTH),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gardenia_gm_vertex_coloring":
+        maximum = tuple(next(case["input_values"] for case in workload["cases"]
+                             if case["id"] == "maximum-complete-bipartite-graph"))
+        result, output = add(maximum)
+        if result != GARDENIA_GM_COLORING_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("gardenia_gm_vertex_coloring maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0), (GARDENIA_GM_COLORING_MAX_NODES + 1, 0),
+            (2, GARDENIA_GM_COLORING_MAX_EDGES + 1, 0, 1),
+            (2, 1, 0), (2, 1, 0, 0), (2, 1, 1, 0),
+            (2, 2, 0, 1, 0, 1), (2, 1, 0, 2),
+            tuple([0] * GARDENIA_GM_COLORING_MAX_INPUT_LENGTH),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "pannotia_priority_coloring":
+        node_count = PANNOTIA_COLORING_MAX_NODES
+        edges = [(left, right) for left in range(8) for right in range(8, 16)]
+        edge_words = tuple(value for edge in edges for value in edge)
+        maximum_inputs = (
+            (node_count, len(edges), 0, *range(node_count), *edge_words),
+            (node_count, len(edges), 1, *range(node_count), *edge_words),
+        )
+        for maximum in maximum_inputs:
+            result, output = add(maximum)
+            if result != PANNOTIA_COLORING_MAX_OUTPUT_BYTES or len(output) != max_output:
+                raise ValueError("pannotia_priority_coloring maximum graph has invalid output framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            add(maximum, output_is_null=True)
+        malformed = (
+            (), (0, 0, 0), (PANNOTIA_COLORING_MAX_NODES + 1, 0, 0),
+            (2, PANNOTIA_COLORING_MAX_EDGES + 1, 0, 0, 1),
+            (2, 1, 0, 0), (2, 1, 0, 0, 1), (2, 1, 0, 1, 0, 0, 1),
+            (2, 1, 0, 0, 1, 0, 1), (2, 1, 0, 0, 1, 0, 2),
+            (2, 1, 0, 0, 1, 1, 0), (1, 0, 2, 7),
+            tuple([0] * PANNOTIA_COLORING_MAX_INPUT_LENGTH),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "gapbs_delta_step_sssp":
+        node_count = GAPBS_DELTA_STEP_SSSP_MAX_NODES
+        maximum_values = [node_count, GAPBS_DELTA_STEP_SSSP_MAX_EDGES, 0, 1]
+        for _repeat in range(GAPBS_DELTA_STEP_SSSP_MAX_EDGES // node_count):
+            for vertex in range(node_count):
+                maximum_values.extend((vertex, (vertex + 1) % node_count,
+                                       GAPBS_DELTA_STEP_SSSP_MAX_EDGE_WEIGHT))
+        maximum = tuple(maximum_values)
+        result, output = add(maximum)
+        if result != GAPBS_DELTA_STEP_SSSP_MAX_OUTPUT_BYTES or len(output) != max_output:
+            raise ValueError("gapbs_delta_step_sssp maximum graph has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        malformed = (
+            (), (2, 0, 0, 1), (2, 1, 0, 1, 0, 2, 1),
+            (2, 1, 0, 1, 0, 1, -1), (1, 0, 0, 0), (1, 0, 1, 1),
+            (1, GAPBS_DELTA_STEP_SSSP_MAX_EDGES + 1, 0, 1),
+            (3, 1, 0, 1),
+            tuple([0] * GAPBS_DELTA_STEP_SSSP_MAX_INPUT_LENGTH),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "simplify_fraction":
         for fixture in workload.get("abi_cases", []):
             add(tuple(fixture["input_values"]),
                 fixture.get("output_capacity", workspace_bytes),
@@ -12361,6 +15018,59 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 tuple([0] * MEDIABENCH_G721_MAX_INPUT_LENGTH),
                 (UINT_I64_MIN,), (UINT_I64_MAX,)):
             add(tuple(values))
+    elif algorithm == "mediabench_gsm_rpe_grid_positioning":
+        for grid in range(4):
+            samples = tuple(((index * 4093 + grid * 8191) % 65536) - 32768
+                            for index in range(13))
+            add((grid, *samples))
+        maximum = (3, *([-32768, 32767] * 6), -32768)
+        result, output = add(maximum)
+        if (result != MEDIABENCH_GSM_RPE_POSITIONING_MAX_OUTPUT_BYTES
+                or len(output) != max_output):
+            raise ValueError("mediabench_gsm_rpe_grid_positioning maximum input has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True,
+            input_length=MEDIABENCH_GSM_RPE_POSITIONING_MAX_INPUT_LENGTH)
+        for malformed in (
+                (), (0,), (0, *([0] * 12)), (4, *([0] * 13)),
+                (0, -32769, *([0] * 12)), (0, *([0] * 12), 32768),
+                (0, *([0] * 13)), (UINT_I64_MIN,), (UINT_I64_MAX,)):
+            add(tuple(malformed))
+    elif algorithm == "cbench_consumer_lame_window_subband":
+        window = tuple(workload["cases"][0]["input_values"][511:])
+        traces = (
+            (0,) * 511,
+            (32767,) * 511,
+            (-32768,) * 511,
+            tuple(32767 if index % 2 == 0 else -32768 for index in range(511)),
+            tuple((index * 7919 % 65536) - 32768 for index in range(511)),
+        )
+        maximum = tuple([32767] * 511 + list(window))
+        for samples in traces:
+            add((*samples, *window))
+        result, output = add(maximum)
+        if (result != CBENCH_LAME_WINDOW_SUBBAND_MAX_OUTPUT_BYTES
+                or len(output) != max_output):
+            raise ValueError("LAME window-subband maximum profile has invalid output framing")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True,
+            input_length=CBENCH_LAME_WINDOW_SUBBAND_MAX_INPUT_LENGTH)
+        bad_sample = (32768, *([0] * 510), *window)
+        bad_coefficient = list(maximum)
+        bad_coefficient[511] = -4500001
+        bad_denominator = list(maximum)
+        bad_denominator[511] = 25000000
+        for malformed in (
+                (), (0,), tuple([0] * 766), (*maximum, 0), bad_sample,
+                tuple(bad_coefficient), tuple(bad_denominator),
+                (UINT_I64_MIN,), (UINT_I64_MAX,)):
+            add(tuple(malformed))
     elif algorithm == "mediabench_gsm_rpe_grid_selection":
         zeroes = (0,) * 40
         pulse_cases = tuple(
@@ -12868,6 +15578,86 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             add(values)
+    elif algorithm == "tsvc_s115_upper_triangular_saxpy_elimination":
+        rng=random.Random(0x115)
+        def make_s115_case(n:int,passes:int)->tuple[int,...]:return (n,passes,*(rng.randint(-1,1) for _ in range(n+n*n)))
+        for n,passes in ((2,1),(3,2),(TSVC_S115_MAX_N,TSVC_S115_MAX_PASSES)):
+            values=make_s115_case(n,passes);result,output=add(values)
+            if result!=n or len(output)!=8*n:raise ValueError("TSVC s115 generated output framing mismatch")
+        maximum=make_s115_case(TSVC_S115_MAX_N,TSVC_S115_MAX_PASSES);result,output=add(maximum)
+        if len(maximum)!=TSVC_S115_MAX_INPUT_LENGTH or result!=TSVC_S115_MAX_N or len(output)!=TSVC_S115_MAX_OUTPUT_BYTES:raise ValueError("TSVC s115 maximum case exceeds bounds")
+        for capacity in (0,len(output)-1,len(output),workspace_bytes):add(maximum,capacity)
+        add(maximum,output_is_null=True);add((),input_is_null=True,input_length=0);add((),input_is_null=True,input_length=max_input)
+        for values in ((),(2,1,0,0),(1,1,0),(8,1,0),(2,0,0,0,0,0,0,0),(2,1,0,0,0,0,0,2)):add(values)
+    elif algorithm == "tsvc_s1113_feedback_anchor_add":
+        rng=random.Random(0x1113)
+        def make_s1113_case(n:int)->tuple[int,...]:return (n,*(rng.randint(-2,2) for _ in range(2*n)))
+        for n in (1,2,3,TSVC_S1113_MAX_N):
+            values=make_s1113_case(n);result,output=add(values)
+            if result!=n or len(output)!=8*n:raise ValueError("TSVC s1113 generated output framing mismatch")
+        maximum=make_s1113_case(TSVC_S1113_MAX_N);result,output=add(maximum)
+        if len(maximum)!=TSVC_S1113_MAX_INPUT_LENGTH or result!=TSVC_S1113_MAX_N or len(output)!=TSVC_S1113_MAX_OUTPUT_BYTES:raise ValueError("TSVC s1113 maximum case exceeds bounds")
+        for capacity in (0,len(output)-1,len(output),workspace_bytes):add(maximum,capacity)
+        add(maximum,output_is_null=True);add((),input_is_null=True,input_length=0);add((),input_is_null=True,input_length=max_input)
+        for values in ((),(0,),(1,0),(65,0,0),(1,0,3)):add(values)
+    elif algorithm == "tsvc_s113_invariant_anchor_add":
+        rng=random.Random(0x113)
+        def make_s113_case(n:int)->tuple[int,...]:return (n,*(rng.randint(-2,2) for _ in range(2*n)))
+        for n in (1,2,3,TSVC_S113_MAX_N):
+            values=make_s113_case(n);result,output=add(values)
+            if result!=n or len(output)!=8*n:raise ValueError("TSVC s113 generated output framing mismatch")
+        maximum=make_s113_case(TSVC_S113_MAX_N);result,output=add(maximum)
+        if len(maximum)!=TSVC_S113_MAX_INPUT_LENGTH or result!=TSVC_S113_MAX_N or len(output)!=TSVC_S113_MAX_OUTPUT_BYTES:raise ValueError("TSVC s113 maximum case exceeds bounds")
+        for capacity in (0,len(output)-1,len(output),workspace_bytes):add(maximum,capacity)
+        add(maximum,output_is_null=True);add((),input_is_null=True,input_length=0);add((),input_is_null=True,input_length=max_input)
+        for values in ((),(0,),(1,0),(65,0,0),(1,0,3)):add(values)
+    elif algorithm == "tsvc_s1112_reverse_constant_offset_map":
+        rng=random.Random(0x1112)
+        def make_s1112_case(n:int)->tuple[int,...]:return (n,*(rng.randint(-2,2) for _ in range(2*n)))
+        for n in (1,2,3,TSVC_S1112_MAX_N):
+            values=make_s1112_case(n);result,output=add(values)
+            if result!=n or len(output)!=8*n:raise ValueError("TSVC s1112 generated output framing mismatch")
+        maximum=make_s1112_case(TSVC_S1112_MAX_N);result,output=add(maximum)
+        if len(maximum)!=TSVC_S1112_MAX_INPUT_LENGTH or result!=TSVC_S1112_MAX_N or len(output)!=TSVC_S1112_MAX_OUTPUT_BYTES:raise ValueError("TSVC s1112 maximum case exceeds bounds")
+        for capacity in (0,len(output)-1,len(output),workspace_bytes):add(maximum,capacity)
+        add(maximum,output_is_null=True);add((),input_is_null=True,input_length=0);add((),input_is_null=True,input_length=max_input)
+        for values in ((),(0,),(1,0),(65,0),(1,0,3)):add(values)
+    elif algorithm == "tsvc_s1111_stride_two_polynomial_map":
+        rng=random.Random(0x1111)
+        def make_s1111_case(n:int)->tuple[int,...]:
+            return (n,*(rng.randint(-2,2) for _ in range(5*n)))
+        for n in (1,2,3,TSVC_S1111_MAX_N):
+            values=make_s1111_case(n);result,output=add(values)
+            if result!=2*n or len(output)!=16*n: raise ValueError("TSVC s1111 generated case has inconsistent vector framing")
+        maximum=make_s1111_case(TSVC_S1111_MAX_N);result,output=add(maximum)
+        if len(maximum)!=TSVC_S1111_MAX_INPUT_LENGTH or result!=64 or len(output)!=TSVC_S1111_MAX_OUTPUT_BYTES:
+            raise ValueError("TSVC s1111 maximum case exceeds its input or output bound")
+        for capacity in (0,len(output)-1,len(output),workspace_bytes):add(maximum,capacity)
+        add(maximum,output_is_null=True);add((),input_is_null=True,input_length=0);add((),input_is_null=True,input_length=max_input)
+        for values in ((),(1,0,0,0,0),(33,0),(1,0,0,0,0,3)) : add(values)
+    elif algorithm == "tsvc_s119_diagonal_matrix_recurrence":
+        def make_s119_case(side: int, passes: int) -> tuple[int,...]:
+            a=tuple(((r*3+c*5)%5)-2 for r in range(side) for c in range(side))
+            b=tuple(((r*7+c*2)%5)-2 for r in range(side) for c in range(side))
+            return (side,passes,*a,*b)
+        for side in range(2,TSVC_S119_MAX_SIDE+1):
+            for passes in (1,2,TSVC_S119_MAX_PASSES):
+                values=make_s119_case(side,passes)
+                result,output=add(values)
+                if result!=side*side or len(output)!=8*side*side:
+                    raise ValueError("TSVC s119 generated case has inconsistent matrix framing")
+        maximum=make_s119_case(TSVC_S119_MAX_SIDE,TSVC_S119_MAX_PASSES)
+        result,output=add(maximum)
+        if len(maximum)!=TSVC_S119_MAX_INPUT_LENGTH or result!=64 or len(output)!=TSVC_S119_MAX_OUTPUT_BYTES:
+            raise ValueError("TSVC s119 maximum case exceeds its input or output bound")
+        for capacity in (0,len(output)-1,len(output),workspace_bytes): add(maximum,capacity)
+        add(maximum,output_is_null=True)
+        add((),input_is_null=True,input_length=0)
+        add((),input_is_null=True,input_length=max_input)
+        base=(2,1,*([0]*8))
+        malformed=((),(2,1,*([0]*7)),(9,1,*([0]*128)),(2,0,*([0]*8)),
+                   base+(0,),(2,1,0,0,0,0,0,0,0,3))
+        for values in malformed: add(values)
     elif algorithm == "tsvc_s2111_wavefront_add_recurrence":
         def make_s2111_case(side: int, passes: int) -> tuple[int, ...]:
             seeds = tuple(((row * 5 + col * 3) % 17) - 8
@@ -15525,6 +18315,93 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         for values in ((), (0,), (-1,), (TRIMARAN_ENC_RC4_MAX_PASSES + 1,),
                        (1, 0), (-(1 << 63),), ((1 << 63) - 1,)):
             add(values)
+    elif algorithm == "beebs_nettle_cast128":
+        if (max_input != BEEBS_NETTLE_CAST128_MAX_INPUT_LENGTH
+                or max_output != BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES
+                or BEEBS_NETTLE_CAST128_MAX_VALID_INPUT_LENGTH
+                    != BEEBS_NETTLE_CAST128_KEY_BYTES + BEEBS_NETTLE_CAST128_BLOCK_BYTES):
+            raise ValueError("beebs_nettle_cast128 suite bounds differ from the one-block oracle")
+        maximum_input = tuple(index & 0xFF for index in range(
+            BEEBS_NETTLE_CAST128_KEY_BYTES + BEEBS_NETTLE_CAST128_BLOCK_BYTES))
+        maximum_result, maximum_output = add(maximum_input)
+        if (len(maximum_input) != BEEBS_NETTLE_CAST128_MAX_VALID_INPUT_LENGTH
+                or maximum_result != BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES
+                or len(maximum_output) != BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES):
+            raise ValueError("beebs_nettle_cast128 maximum block does not fill its output bound")
+        for capacity in (0, BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES - 1,
+                         BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES,
+                         BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES + 1):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        rng_cast128 = random.Random(20261025)
+        for _ in range(32):
+            key_and_block = tuple(rng_cast128.randrange(256)
+                                  for _ in range(BEEBS_NETTLE_CAST128_MAX_VALID_INPUT_LENGTH))
+            add(key_and_block)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=BEEBS_NETTLE_CAST128_MAX_INPUT_LENGTH)
+        for values in (
+                (), (-(1 << 63),), ((1 << 63) - 1,),
+                tuple(maximum_input[:-1]), maximum_input + (0,),
+                tuple([-1, *maximum_input[1:]]), tuple([*maximum_input[:-1], 256]),
+                tuple([0] * BEEBS_NETTLE_CAST128_MAX_INPUT_LENGTH),
+        ):
+            add(values)
+    elif algorithm == "beebs_fasta":
+        if (max_input != BEEBS_FASTA_MAX_PARSEABLE_INPUT_LENGTH
+                or max_output != BEEBS_FASTA_MAX_OUTPUT_BYTES
+                or BEEBS_FASTA_MAX_PARSEABLE_INPUT_LENGTH != 3):
+            raise ValueError("beebs_fasta suite bounds differ from its bounded generator oracle")
+        maximum_input = (1000, 42)
+        maximum_result, maximum_output = add(maximum_input)
+        if (maximum_result != BEEBS_FASTA_MAX_OUTPUT_BYTES
+                or len(maximum_output) != BEEBS_FASTA_MAX_OUTPUT_BYTES):
+            raise ValueError("beebs_fasta maximum output does not fill its 10,245-byte bound")
+        for capacity in (0, maximum_result - 1, maximum_result, maximum_result + 1):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        for count in (1, 2, 59, 60, 61, 317, 999):
+            for seed in (0, 42, 139967):
+                add((count, seed))
+        rng_fasta = random.Random(20261025)
+        for _ in range(24):
+            add((rng_fasta.randint(1, 1000), rng_fasta.randint(0, 139967)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=BEEBS_FASTA_MAX_PARSEABLE_INPUT_LENGTH)
+        for values in (
+                (), (1,), (0, 42), (1001, 42), (1, -1), (1, 139968),
+                (1, 42, 0), (-(1 << 63),), ((1 << 63) - 1,),
+        ):
+            add(values)
+    elif algorithm == "beebs_lcdnum":
+        if (max_input != BEEBS_LCDNUM_MAX_PARSEABLE_INPUT_LENGTH
+                or max_output != BEEBS_LCDNUM_MAX_OUTPUT_BYTES
+                or BEEBS_LCDNUM_MAX_VALID_INPUT_LENGTH != 5
+                or BEEBS_LCDNUM_MAX_PARSEABLE_INPUT_LENGTH != 6):
+            raise ValueError("beebs_lcdnum suite bounds differ from its five-byte lookup profile")
+        maximum_input = (0, 1, 2, 3, 4)
+        maximum_result, maximum_output = add(maximum_input)
+        if (maximum_result != BEEBS_LCDNUM_MAX_OUTPUT_BYTES
+                or len(maximum_output) != BEEBS_LCDNUM_MAX_OUTPUT_BYTES):
+            raise ValueError("beebs_lcdnum maximum output does not fill its five-byte bound")
+        for capacity in (0, BEEBS_LCDNUM_MAX_OUTPUT_BYTES - 1,
+                         BEEBS_LCDNUM_MAX_OUTPUT_BYTES,
+                         BEEBS_LCDNUM_MAX_OUTPUT_BYTES + 1):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        # Exhaust the source's full raw-byte input domain in fixed-size calls.
+        for start in range(0, 256, BEEBS_LCDNUM_MAX_VALID_INPUT_LENGTH):
+            values = tuple(range(start, min(start + BEEBS_LCDNUM_MAX_VALID_INPUT_LENGTH, 256)))
+            values += (0,) * (BEEBS_LCDNUM_MAX_VALID_INPUT_LENGTH - len(values))
+            add(values)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=BEEBS_LCDNUM_MAX_PARSEABLE_INPUT_LENGTH)
+        add(maximum_input, input_length=BEEBS_LCDNUM_MAX_VALID_INPUT_LENGTH - 1)
+        for values in (
+                (), maximum_input + (5,), (-(1 << 63),), ((1 << 63) - 1,),
+                (0, 1, 2, 3, -1), (0, 1, 2, 3, 256),
+        ):
+            add(values)
     elif algorithm == "trimaran_enc_3des":
         source_block = (78, 111, 119, 32, 105, 115, 32, 116)
         add((0, *source_block))
@@ -15921,6 +18798,237 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed_inputs:
             add(values)
+    elif algorithm in {
+            "tsvc_s116_unrolled_product_chain",
+            "tsvc_s118_triangular_convolution_recurrence",
+            "tsvc_s1119_same_column_matrix_prefix",
+            "tsvc_s232_triangular_row_square_recurrence",
+            "tsvc_s1213_ordered_neighbor_array_map",
+            "tsvc_s233_s2233_matrix_prefix",
+            "tsvc_s235_fused_vector_matrix_recurrence"}:
+        expected_bounds = {
+            "tsvc_s116_unrolled_product_chain":
+                (TSVC_S116_MAX_INPUT_LENGTH, TSVC_S116_MAX_OUTPUT_BYTES),
+            "tsvc_s118_triangular_convolution_recurrence":
+                (TSVC_S118_MAX_INPUT_LENGTH, TSVC_S118_MAX_OUTPUT_BYTES),
+            "tsvc_s1119_same_column_matrix_prefix":
+                (TSVC_S1119_MAX_INPUT_LENGTH, TSVC_S1119_MAX_OUTPUT_BYTES),
+            "tsvc_s232_triangular_row_square_recurrence":
+                (TSVC_S232_MAX_INPUT_LENGTH, TSVC_S232_MAX_OUTPUT_BYTES),
+            "tsvc_s1213_ordered_neighbor_array_map":
+                (TSVC_S1213_MAX_INPUT_LENGTH, TSVC_S1213_MAX_OUTPUT_BYTES),
+            "tsvc_s233_s2233_matrix_prefix":
+                (TSVC_S233_MAX_INPUT_LENGTH, TSVC_S233_MAX_OUTPUT_BYTES),
+            "tsvc_s235_fused_vector_matrix_recurrence":
+                (TSVC_S235_MAX_INPUT_LENGTH, TSVC_S235_MAX_OUTPUT_BYTES),
+        }
+        if (max_input, max_output) != expected_bounds[algorithm]:
+            raise ValueError(f"{algorithm} suite bounds differ from its independent oracle")
+
+        def add_tsvc_case(values: tuple[int, ...], capacity: int = workspace_bytes,
+                          *, output_is_null: bool = False,
+                          input_is_null: bool = False,
+                          input_length: int | None = None) -> tuple[int, bytes]:
+            result, output = add(values, capacity, output_is_null=output_is_null,
+                                 input_is_null=input_is_null, input_length=input_length)
+            if result >= 0 and (result * 8 != len(output) or len(output) > max_output):
+                raise ValueError(f"{algorithm} output count disagrees with its byte framing")
+            if result < 0 and output:
+                raise ValueError(f"{algorithm} error case wrote output")
+            return result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", case.get("output_capacity", workspace_bytes))
+            result, output = add_tsvc_case(
+                values, capacity,
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length", len(values)))
+            if (result != case["expected_result"]
+                    or output.hex() != case.get("expected_output_hex", "").lower()):
+                raise ValueError(f"{algorithm} workload mismatch: {case['id']}")
+
+        if algorithm == "tsvc_s116_unrolled_product_chain":
+            maximum = (21, 4, *([1] * 21))
+            malformed = ((), (5, 1), (22, 1),
+                         (6, 0, *([1] * 6)), (6, 1, *([1] * 5), 0),
+                         maximum[:-1])
+        elif algorithm == "tsvc_s118_triangular_convolution_recurrence":
+            maximum = (8, 4, *([0] * (8 + 64)))
+            malformed = ((), (1, 1, *([0] * 2)), (9, 1),
+                         (2, 0, *([0] * 6)), maximum[:-1])
+        elif algorithm == "tsvc_s1119_same_column_matrix_prefix":
+            maximum = (8, 4, *([0] * (2 * 64)))
+            malformed = ((), (1, 1, *([0] * 2)), (9, 1),
+                         (2, 0, *([0] * 8)), maximum[:-1])
+        elif algorithm == "tsvc_s232_triangular_row_square_recurrence":
+            maximum = (5, *([0] * (2 * 25)))
+            malformed = ((), (1, *([0] * 2)), (6,), maximum[:-1],
+                         (2, *([0] * 7), 2, *([0] * 8)))
+        elif algorithm == "tsvc_s1213_ordered_neighbor_array_map":
+            maximum = (32, *([0] * (4 * 32)))
+            malformed = ((), (2, *([0] * 8)), (33,),
+                         maximum[:-1], (3, *([0] * 12), 2))
+        elif algorithm == "tsvc_s233_s2233_matrix_prefix":
+            maximum = (8, 0, *([0] * (3 * 64)))
+            malformed = ((), (1, 0, *([0] * 3)), (9, 0),
+                         (2, 2, *([0] * 12)), maximum[:-1])
+            alternate = (8, 1, *([0] * (3 * 64)))
+            result, output = add_tsvc_case(alternate)
+            if result != 2 * 64 or len(output) != max_output:
+                raise ValueError("TSVC s2233 maximum mode has inconsistent output framing")
+        else:
+            maximum = (8, *([0] * (3 * 8 + 2 * 64)))
+            malformed = ((), (1, *([0] * 5)), (9,),
+                         maximum[:-1], (2, *([0] * 6), 2,
+                                                        *([0] * (2 * 4)))
+                         )
+
+        result, output = add_tsvc_case(maximum)
+        if len(maximum) != max_input or result * 8 != max_output or len(output) != max_output:
+            raise ValueError(f"{algorithm} maximum shape does not fill its declared output bound")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add_tsvc_case(maximum, capacity)
+        add_tsvc_case(maximum, output_is_null=True)
+        add_tsvc_case((), input_is_null=True, input_length=0)
+        add_tsvc_case((), input_is_null=True, input_length=max_input)
+        for values in malformed:
+            add_tsvc_case(values)
+    elif algorithm == "tsvc_s1281_elementwise_dual_update":
+        if (max_input != TSVC_S1281_MAX_INPUT_LENGTH
+                or max_output != TSVC_S1281_MAX_OUTPUT_BYTES):
+            raise ValueError("s1281 suite bounds differ from the package oracle contract")
+        n = TSVC_S1281_MAX_N
+        passes = TSVC_S1281_MAX_PASSES
+        vectors = tuple(tuple(((i + offset) % 3) - 1 for i in range(n))
+                        for offset in range(5))
+        maximum_input = (n, passes, *vectors[0], *vectors[1], *vectors[2],
+                         *vectors[3], *vectors[4])
+        maximum_result, encoded = add(maximum_input)
+        if (len(maximum_input) != max_input or maximum_result != max_output
+                or len(encoded) != max_output):
+            raise ValueError("s1281 maximum input does not fill its output bound")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        bad_values = list(maximum_input)
+        bad_values[-1] = 2
+        malformed_inputs = (
+            (), (UINT_I64_MIN,), (UINT_I64_MAX,), (0, 1),
+            (n + 1, 1, *([0] * (5 * (n + 1)))),
+            (1, 0, *([0] * 5)), (1, 9, *([0] * 5)),
+            (1, 1, 0, 0, 0, 0), (1, 1, *([0] * 6)),
+            tuple(bad_values), tuple(maximum_input[:-1]),
+            tuple(maximum_input) + (0,), tuple([0] * max_input),
+        )
+        for values in malformed_inputs:
+            add(values)
+    elif algorithm == "tsvc_s293_first_element_broadcast":
+        if (max_input != TSVC_S293_MAX_INPUT_LENGTH
+                or max_output != TSVC_S293_MAX_OUTPUT_BYTES):
+            raise ValueError("s293 suite bounds differ from the package oracle contract")
+        n = TSVC_S293_MAX_N
+        maximum_input = (n, *tuple((i % 17) - 8 for i in range(n)))
+        maximum_result, encoded = add(maximum_input)
+        if (len(maximum_input) != max_input or maximum_result != max_output
+                or len(encoded) != max_output):
+            raise ValueError("s293 maximum input does not fill its output bound")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        invalid_inputs = (
+            (), (UINT_I64_MIN,), (UINT_I64_MAX,), (0,), (n + 1, *([0] * (n + 1)),),
+            (1,), (1, 9), (1, 0, 1), tuple(maximum_input[:-1]),
+            tuple(maximum_input) + (0,), tuple([0] * max_input),
+        )
+        for values in invalid_inputs:
+            add(values)
+    elif algorithm == "tsvc_vtv_elementwise_product":
+        if (max_input != TSVC_VTV_MAX_INPUT_LENGTH
+                or max_output != TSVC_VTV_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC vtv suite bounds differ from its oracle contract")
+        n, passes = TSVC_VTV_MAX_N, TSVC_VTV_MAX_PASSES
+        a = tuple((i % 5) - 2 for i in range(n))
+        b = tuple(((i * 3) % 5) - 2 for i in range(n))
+        maximum_input = (n, passes, *a, *b)
+        result, encoded = add(maximum_input)
+        if (len(maximum_input) != max_input or result != max_output or len(encoded) != max_output):
+            raise ValueError("TSVC vtv maximum input does not fill its output bound")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        bad_values = list(maximum_input)
+        bad_values[-1] = 3
+        invalid_inputs = (
+            (), (UINT_I64_MIN,), (UINT_I64_MAX,), (0, 1), (1, 0, 0, 0),
+            (1, 9, 0, 0), (n + 1, 1, *([0] * (2 * (n + 1)))),
+            (1, 1, 0), (1, 1, 0, 0, 0), tuple(bad_values),
+            tuple(maximum_input[:-1]), tuple(maximum_input) + (0,),
+            tuple([0] * max_input),
+        )
+        for values in invalid_inputs:
+            add(values)
+    elif algorithm == "tsvc_vpvpv_three_vector_add":
+        if (max_input != TSVC_VPVPV_MAX_INPUT_LENGTH
+                or max_output != TSVC_VPVPV_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC vpvpv suite bounds differ from its oracle contract")
+        n, passes = TSVC_VPVPV_MAX_N, TSVC_VPVPV_MAX_PASSES
+        a = tuple((i % 5) - 2 for i in range(n))
+        b = tuple(((i * 3) % 5) - 2 for i in range(n))
+        c = tuple(((i * 2) % 5) - 2 for i in range(n))
+        maximum_input = (n, passes, *a, *b, *c)
+        result, encoded = add(maximum_input)
+        if (len(maximum_input) != max_input or result != max_output or len(encoded) != max_output):
+            raise ValueError("TSVC vpvpv maximum input does not fill its output bound")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        invalid_inputs = (
+            (), (UINT_I64_MIN,), (UINT_I64_MAX,), (0, 1), (1, 0, 0, 0, 0),
+            (1, TSVC_VPVPV_MAX_PASSES + 1, 0, 0, 0),
+            (n + 1, 1, *([0] * (3 * (n + 1)))), (1, 1, 0, 0),
+            (1, 1, 0, 0, 0, 0), tuple(maximum_input[:-1]),
+            tuple(maximum_input) + (0,),
+            tuple([1, 1, 0, 0, 3]),
+        )
+        for values in invalid_inputs:
+            add(values)
+    elif algorithm == "tsvc_s471_ordered_two_vector_map":
+        if (max_input != TSVC_S471_MAX_INPUT_LENGTH
+                or max_output != TSVC_S471_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s471 suite bounds differ from its oracle contract")
+        n, passes = TSVC_S471_MAX_N, TSVC_S471_MAX_PASSES
+        b = tuple((i % 5) - 2 for i in range(n))
+        c = tuple(((i * 3) % 5) - 2 for i in range(n))
+        d = tuple(((i * 2) % 5) - 2 for i in range(n))
+        e = tuple(((i * 4) % 5) - 2 for i in range(n))
+        maximum_input = (n, passes, *b, *c, *d, *e)
+        result, encoded = add(maximum_input)
+        if (len(maximum_input) != max_input or result != max_output or len(encoded) != max_output):
+            raise ValueError("TSVC s471 maximum input does not fill its output bound")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        invalid_inputs = (
+            (), (UINT_I64_MIN,), (UINT_I64_MAX,), (0, 1), (1, 0, 0, 0, 0, 0),
+            (1, TSVC_S471_MAX_PASSES + 1, 0, 0, 0, 0),
+            (n + 1, 1, *([0] * (4 * (n + 1)))), (1, 1, 0, 0, 0),
+            (1, 1, 0, 0, 0, 0, 0), tuple(maximum_input[:-1]),
+            tuple(maximum_input) + (0,), (1, 1, 0, 0, 0, 3),
+        )
+        for values in invalid_inputs:
+            add(values)
     elif algorithm in GENERIC_BYTE_OUTPUT_BOUNDS:
         for case in workload["cases"]:
             values = tuple(case["input_values"])
@@ -15930,6 +19038,17 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     add(values, 0)
                     add(values, result - 1)
                 add(values, output_is_null=True)
+        if algorithm == "saga_incremental_analytics":
+            generated_states = (
+                (1, 3, 1, 1, 0, 0, 1, -1, 0, 1, 1, 1, 2, 1),
+                (2, 3, 1, 1, 0, 0, 2, 1_000_000_000, 0, 1, 2, 1, 2, 3),
+                (3, 2, 0, 1, -1, -1, -1, 0, 1, 1),
+                (4, 3, 1, 1, -1, 0, 0, 2, 0, 1, 1, 1, 2, 1),
+                (5, 3, 1, 1, 0, 1_000_000_000, 4, 0, 0, 1, 4, 1, 2, 3),
+                (6, 3, 1, 1, -1, 1, 1, 2, 0, 1, 1, 1, 2, 1),
+            )
+            for values in generated_states:
+                add(values)
         if algorithm == "rodinia_dwt2d":
             rng = random.Random(20261025)
             for width, height, levels in ((2, 2, 1), (4, 4, 2), (8, 8, 3),
@@ -51135,6 +54254,20 @@ def main() -> int:
     algorithm = args.algorithm
     workload_path = (ROOT / "benchmarks" / "merge_sort_linked_list" / "workload.json"
                      if algorithm == "merge_sort_linked_list" else
+                     ROOT / "benchmarks" / "l" / algorithm / "workload.json"
+                     if algorithm == "beebs_lcdnum" else
+                     ROOT / "benchmarks" / "w" / algorithm / "workload.json"
+                     if algorithm == "gbbs_ss_widest_path" else
+                     ROOT / "benchmarks" / "a" / algorithm / "workload.json"
+                     if algorithm in {"gapbs_afforest_components",
+                                      "gapbs_shiloach_vishkin_components"} else
+                     ROOT / "benchmarks" / "d" / algorithm / "workload.json"
+                     if algorithm == "gapbs_delta_step_sssp" else
+                     ROOT / "benchmarks" / "m" / algorithm / "workload.json"
+                     if algorithm in {"cbench_consumer_jpeg_h2v2_fancy_upsample",
+                                      "cbench_consumer_mad_alias_reduce",
+                         "mediabench_gsm_rpe_grid_positioning",
+                         "cbench_consumer_lame_window_subband"} else
                      ROOT / "benchmarks" / "d" / algorithm / "workload.json"
                      if algorithm == "versabench_dbms_keys_union" else
                      ROOT / "benchmarks" / "merge_ksorted_linked_list" / "workload.json"

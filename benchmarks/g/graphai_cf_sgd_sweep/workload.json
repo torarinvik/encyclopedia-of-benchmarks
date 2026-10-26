@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "graph-aibench-collaborative-filtering-sgd-one-sweep-float64-slice-v1",
+  "algorithm": "graphai_cf_sgd_sweep",
+  "function_symbol": "graphai_cf_sgd_sweep",
+  "abi": "float64_slice_io",
+  "description": "One deterministic user-to-item latent-factor residual and update sweep from GraphAIBench CF.",
+  "pinned_source": {
+    "repository": "chenxuhao/GraphAIBench",
+    "commit": "17834cb29b7c542481c2e3740dc9664841b72f59",
+    "path": ["src/embedding/omp_base.cc", "src/embedding/main.cc"],
+    "symbol": "SGDSolver, Initialize",
+    "url": "https://github.com/chenxuhao/GraphAIBench/tree/17834cb29b7c542481c2e3740dc9664841b72f59/src/embedding",
+    "license": "MIT License",
+    "copyright": "Copyright 2022 MIT; Authors: Xuhao Chen",
+    "license_file": "LICENSE.txt"
+  },
+  "contract": {
+    "operation": "Accumulate per-user residual factor errors over rating edges in CSR order, then update every factor once with step*(-lambda*latent+error) from the original factor matrix.",
+    "input_encoding": "[users,items,m,k,lambda,step,rowptr[users+items+1],colind[m],rating[m],latent[(users+items)*k]]",
+    "exact_input_length": "7+n+2*m+n*k, n=users+items",
+    "output_encoding": "updated latent factors in vertex-major then factor-major order",
+    "arithmetic": "Finite binary64 projection; dot products and edge residual updates preserve factor and CSR order; all vertex updates use the pre-sweep latent matrix.",
+    "bounds": {"users": [1, 7], "items": [1, 7], "vertices": [2, 8], "m": [0, 24], "k": [1, 4], "lambda": [0, 1], "step": [0, 0.01], "ratings": [-4, 4], "latent": [-2, 2]},
+    "graph_shape": "directed user-to-item CSR; item rows must be empty",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {"kind": "finite_float64_array", "maximum_input_length": 95, "invalid_result": -1},
+  "output": {"kind": "float64_array", "maximum_elements": 32, "success_result": "(users+items)*k updated factors", "null_or_short_result": -2, "no_write_on_error": true, "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12},
+  "workspace": {"elements": 32, "meaning": "Fixed edge indices and staged latent/error vectors at declared bounds."},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100, "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12},
+  "cases": [
+    {"id": "single-rating-update", "input_values": [1,1,1,1,0.1,0.2,0,1,1,1,2,0.5,1.5], "input_length": 13, "expected_result": 2, "expected_output": [0.865,1.47]},
+    {"id": "regularization-only-items", "input_values": [1,1,0,1,0.5,0.01,0,0,0,2,-1], "input_length": 11, "expected_result": 2, "expected_output": [1.99,-0.995]},
+    {"id": "invalid-item-destination", "input_values": [1,1,1,1,0.1,0.2,0,1,1,0,2,0.5,1.5], "input_length": 13, "expected_result": -1, "expected_output": []},
+    {"id": "short-capacity", "input_values": [1,1,1,1,0.1,0.2,0,1,1,1,2,0.5,1.5], "input_length": 13, "output_capacity": 1, "expected_result": -2, "expected_output": []},
+    {"id": "null-output", "input_values": [1,1,1,1,0.1,0.2,0,1,1,1,2,0.5,1.5], "input_length": 13, "output_capacity": 2, "output_is_null": true, "expected_result": -2, "expected_output": []},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output": []}
+  ]
+}

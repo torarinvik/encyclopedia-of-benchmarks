@@ -1,0 +1,5 @@
+/* Clean-room TSVC s233/s2233 profiles; see package rights note. */
+#include <stddef.h>
+#include <stdint.h>
+static void put64(uint8_t*o,size_t p,int64_t v){uint64_t b=(uint64_t)v;for(size_t k=0;k<8;k++){o[p+k]=(uint8_t)b;b>>=8;}}
+int64_t tsvc_s233_s2233_matrix_prefix(const int64_t*in,size_t len,uint8_t*out,size_t cap){if(!in||len<14||len>194)return -1;int64_t nr=in[0],mode=in[1];if(nr<2||nr>8||(mode!=0&&mode!=1))return -1;size_t n=(size_t)nr,nn=n*n;if(len!=2+3*nn)return -1;int64_t a[64],b[64],c[64];for(size_t i=0;i<nn;i++){int64_t x=in[2+i],y=in[2+nn+i],z=in[2+2*nn+i];if(x< -1||x>1||y< -1||y>1||z< -1||z>1)return -1;a[i]=x;b[i]=y;c[i]=z;}if(!out||cap<16*nn)return -2;for(size_t i=1;i<n;i++)for(size_t j=1;j<n;j++)a[j*n+i]=a[(j-1)*n+i]+c[j*n+i];if(mode==0){for(size_t i=1;i<n;i++)for(size_t j=1;j<n;j++)b[j*n+i]=b[j*n+i-1]+c[j*n+i];}else{for(size_t i=1;i<n;i++)for(size_t j=1;j<n;j++)b[i*n+j]=b[(i-1)*n+j]+c[i*n+j];}for(size_t i=0;i<nn;i++){put64(out,8*i,a[i]);put64(out,8*(nn+i),b[i]);}return (int64_t)(2*nn);}

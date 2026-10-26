@@ -1,0 +1,115 @@
+const MAX_SYMBOLS: i64 = 20
+const MAX_CLEN: i64 = 32
+
+def mediabench_jpeg_optimal_huffman_table_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > 41: return -1
+    if input[0] < 1 or input[0] > MAX_SYMBOLS: return -1
+    count: i64 = input[0]
+    if length != (1 + 2 * count).usize(): return -1
+    i: mutable i64 = 0
+    while i < count:
+        symbol: i64 = input[(1 + 2 * i).usize()]
+        frequency: i64 = input[(2 + 2 * i).usize()]
+        if symbol < 0 or symbol > 255 or frequency < 1 or frequency > 1000000: return -1
+        j: mutable i64 = 0
+        while j < i:
+            if input[(1 + 2 * j).usize()] == symbol: return -1
+            j <- j + 1
+        i <- i + 1
+    output_size: usize = (17 + count).usize()
+    if output == null or capacity < output_size: return -2
+
+    freq: mutable i64[257] = zeroed
+    codesize: mutable i64[257] = zeroed
+    others: mutable i64[257] = zeroed
+    bits: mutable i64[33] = zeroed
+    i <- 0
+    while i < 257:
+        others[i.usize()] <- -1
+        i <- i + 1
+    i <- 0
+    while i < count:
+        freq[input[(1 + 2 * i).usize()].usize()] <- input[(2 + 2 * i).usize()]
+        i <- i + 1
+    freq[256] <- 1
+    while true:
+        c1: mutable i64 = -1
+        c2: mutable i64 = -1
+        value: mutable i64 = 1000000000
+        i <- 0
+        while i <= 256:
+            if freq[i.usize()] != 0 and freq[i.usize()] <= value:
+                value <- freq[i.usize()]
+                c1 <- i
+            i <- i + 1
+        value <- 1000000000
+        i <- 0
+        while i <= 256:
+            if freq[i.usize()] != 0 and freq[i.usize()] <= value and i != c1:
+                value <- freq[i.usize()]
+                c2 <- i
+            i <- i + 1
+        if c2 < 0: break
+        freq[c1.usize()] <- freq[c1.usize()] + freq[c2.usize()]
+        freq[c2.usize()] <- 0
+        codesize[c1.usize()] <- codesize[c1.usize()] + 1
+        branch: mutable i64 = c1
+        while others[branch.usize()] >= 0:
+            branch <- others[branch.usize()]
+            codesize[branch.usize()] <- codesize[branch.usize()] + 1
+        others[branch.usize()] <- c2
+        codesize[c2.usize()] <- codesize[c2.usize()] + 1
+        branch <- c2
+        while others[branch.usize()] >= 0:
+            branch <- others[branch.usize()]
+            codesize[branch.usize()] <- codesize[branch.usize()] + 1
+    i <- 0
+    while i <= 256:
+        if codesize[i.usize()] != 0:
+            if codesize[i.usize()] > MAX_CLEN: return -1
+            bits[codesize[i.usize()].usize()] <- bits[codesize[i.usize()].usize()] + 1
+        i <- i + 1
+    i <- MAX_CLEN
+    while i > 16:
+        while bits[i.usize()] > 0:
+            j: mutable i64 = i - 2
+            while j >= 0 and bits[j.usize()] == 0: j <- j - 1
+            if j < 0 or bits[i.usize()] < 2: return -1
+            bits[i.usize()] <- bits[i.usize()] - 2
+            bits[(i - 1).usize()] <- bits[(i - 1).usize()] + 1
+            bits[(j + 1).usize()] <- bits[(j + 1).usize()] + 2
+            bits[j.usize()] <- bits[j.usize()] - 1
+        i <- i - 1
+    longest: mutable i64 = 16
+    while longest > 0 and bits[longest.usize()] == 0: longest <- longest - 1
+    if longest == 0: return -1
+    bits[longest.usize()] <- bits[longest.usize()] - 1
+    symbol_count: mutable i64 = 0
+    size: mutable i64 = 1
+    while size <= MAX_CLEN:
+        i <- 0
+        while i <= 255:
+            if codesize[i.usize()] == size: symbol_count <- symbol_count + 1
+            i <- i + 1
+        size <- size + 1
+    if symbol_count != count: return -1
+    output[0] <- count.u8()
+    i <- 1
+    while i <= 16:
+        output[i.usize()] <- bits[i.usize()].u8()
+        i <- i + 1
+    used: mutable usize = 17
+    size <- 1
+    while size <= MAX_CLEN:
+        i <- 0
+        while i <= 255:
+            if codesize[i.usize()] == size:
+                output[used] <- i.u8()
+                used <- used + 1
+            i <- i + 1
+        size <- size + 1
+    used.i64()
+
+export fn mediabench_jpeg_optimal_huffman_table(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = mediabench_jpeg_optimal_huffman_table_impl

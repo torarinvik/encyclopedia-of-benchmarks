@@ -1,0 +1,109 @@
+const MAX_LENGTH: usize = 24
+
+def store_i32(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u32 = value.u32()
+    for byte in 0..<4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def float_bits(value: f32) -> i32:
+    if value == 0.0:
+        return 0
+    normalized: mutable f32 = value
+    exponent: mutable i32 = 0
+    while normalized >= 2.0:
+        normalized <- normalized / 2.0
+        exponent <- exponent + 1
+    while normalized < 1.0:
+        normalized <- normalized * 2.0
+        exponent <- exponent - 1
+    mantissa: i32 = ((normalized - 1.0) * 8388608.0).i32()
+    ((exponent + 127) << 23) | mantissa
+
+def prolangs_c_numeric_token_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_LENGTH:
+        return -1
+    for j in 0..<length:
+        if input[j] < 32 or input[j] > 127:
+            return -1
+    i: mutable usize = 0
+    integer: mutable u32 = 0
+    had_integer: mutable bool = false
+    if input[i] >= 48 and input[i] <= 57:
+        had_integer <- true
+        while i < length and input[i] >= 48 and input[i] <= 57:
+            digit: u32 = (input[i] - 48).u32()
+            i <- i + 1
+            if integer > (2147483647.u32() - digit) / 10.u32():
+                return -1
+            integer <- integer * 10.u32() + digit
+        if i == length:
+            if output == null or capacity < 12:
+                return -2
+            store_i32(256, output, 0)
+            store_i32(integer.i32(), output, 4)
+            store_i32(0, output, 8)
+            return 12
+    fraction_digits: mutable u32 = 0
+    fraction_count: mutable usize = 0
+    leading_zeros: mutable usize = 0
+    has_dot: mutable bool = false
+    if i < length and input[i] == 46:
+        has_dot <- true
+        i <- i + 1
+        while i < length and input[i] == 48:
+            leading_zeros <- leading_zeros + 1
+            i <- i + 1
+        if leading_zeros > 6:
+            return -1
+        while i < length and input[i] >= 48 and input[i] <= 57:
+            if fraction_count == 6:
+                return -1
+            fraction_digits <- fraction_digits * 10.u32() + (input[i] - 48).u32()
+            fraction_count <- fraction_count + 1
+            i <- i + 1
+        if leading_zeros + fraction_count > 6:
+            return -1
+    value: mutable f32 = 0.0
+    if fraction_count != 0:
+        value <- fraction_digits.f32()
+        while value >= 1.0:
+            value <- value / 10.0
+        while leading_zeros > 0:
+            value <- value / 10.0
+            leading_zeros <- leading_zeros - 1
+    value <- value + integer.f32()
+    has_exp: mutable bool = false
+    if i < length and (input[i] == 101 or input[i] == 69):
+        has_exp <- true
+        i <- i + 1
+        sign: mutable i32 = 1
+        if i < length and (input[i] == 43 or input[i] == 45):
+            if input[i] == 45:
+                sign <- -1
+            i <- i + 1
+        if i == length or input[i] < 48 or input[i] > 57:
+            return -1
+        exponent: mutable i32 = 0
+        while i < length and input[i] >= 48 and input[i] <= 57:
+            exponent <- exponent * 10 + (input[i] - 48).i32()
+            i <- i + 1
+            if exponent > 6:
+                return -1
+        exponent <- exponent * sign
+        while exponent > 0:
+            value <- value * 10.0
+            exponent <- exponent - 1
+        while exponent < 0:
+            value <- value / 10.0
+            exponent <- exponent + 1
+    if i != length or (not has_dot and not has_exp) or (not had_integer and not has_dot):
+        return -1
+    if output == null or capacity < 12:
+        return -2
+    store_i32(2001, output, 0)
+    store_i32(integer.i32(), output, 4)
+    store_i32(float_bits(value), output, 8)
+    return 12
+
+export fn prolangs_c_numeric_token(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = prolangs_c_numeric_token_impl

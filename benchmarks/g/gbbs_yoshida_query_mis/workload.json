@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "gbbs-yoshida-query-mis-i64-array-bytes-output-v1",
+  "algorithm": "gbbs_yoshida_query_mis",
+  "function_symbol": "gbbs_yoshida_query_mis",
+  "abi": "i64_array_bytes_output",
+  "description": "One bounded recursive hash64-priority MIS query with a finite work cutoff.",
+  "source": {
+    "repository": "ParAlg/gbbs",
+    "commit": "dbd1dcad582c0a316c5ba0d5524319d596dd82da",
+    "path": "benchmarks/MaximalIndependentSet/Yoshida/MaximalIndependentSet.h",
+    "symbols": ["get_vertex_pri", "mis_query", "MaximalIndependentSet"],
+    "url": "https://github.com/ParAlg/gbbs/blob/dbd1dcad582c0a316c5ba0d5524319d596dd82da/benchmarks/MaximalIndependentSet/Yoshida/MaximalIndependentSet.h",
+    "related_paths": ["benchmarks/MaximalIndependentSet/Yoshida/reorder.h", "benchmarks/MaximalIndependentSet/Yoshida/MaximalIndependentSet.cc"],
+    "launcher_path": "benchmarks/MaximalIndependentSet/Yoshida/MaximalIndependentSet.cc",
+    "launcher_symbol": "MaximalIndependentSet_runner",
+    "license_path": "LICENSE",
+    "license": "MIT",
+    "dependency": {
+      "repository": "ParAlg/parlaylib",
+      "commit": "352f5367a6b3bd2f0c6f05882cdd02e978e349ea",
+      "path": "include/parlay/utilities.h",
+      "symbol": "parlay::hash64",
+      "license_path": "LICENSE",
+      "license": "MIT"
+    }
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, edge_count, query_vertex, query_cutoff, (u, v)...]",
+    "node_count_range": [1, 12],
+    "edge_count_range": [0, 24],
+    "query_cutoff_range": [0, 128],
+    "edge_semantics": "simple undirected graph; each edge appears once with 0 <= u < v < node_count",
+    "maximum_valid_length": 52,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[query_status, neighbor_visit_work], where status is 1 for in, 0 for out, and -1 for unknown.",
+    "maximum_values": 2,
+    "maximum_bytes": 16,
+    "success_result": "16 bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 16,
+    "meaning": "Two staged signed 64-bit output values are written only after graph validation and capacity checks."
+  },
+  "contract": {
+    "operation": "Run one recursive mis_query for query_vertex, using hash64(vertex) priorities and neighbor order by priority then vertex ID. Count each inspected neighbor in the query's cumulative work value and propagate in, out, or unknown exactly as the source helper does.",
+    "launcher_profile": "The source launcher requires a symmetric graph, invokes the Yoshida query implementation, and defaults -query_cutoff to SIZE_MAX. This bounded single-query projection exposes query_vertex directly and uses a finite cutoff in [0,128].",
+    "source_profile": "For each vertex, scan neighbors in ascending hash64 priority order. Stop scanning when the current vertex has lower priority than the neighbor (or equal priority and smaller ID); otherwise recursively query the neighbor. A neighbor status in makes the current vertex out; unknown propagates; exhausting the scan makes the current vertex in.",
+    "priority_source": "The priority is ParlayLib hash64 over the unsigned vertex ID, pinned at commit 352f5367a6b3bd2f0c6f05882cdd02e978e349ea; equal keys are ordered by vertex ID as in reorder_graph.",
+    "cutoff_semantics": "Before each neighbor visit, if cumulative work equals query_cutoff, return unknown without visiting that neighbor. Work starts at zero for this query and is returned even for unknown status.",
+    "projection": "The benchmark exposes one query result and work count rather than the launcher-wide maximum-work, total-work, and fraction-covered summary. Parallel per-vertex queries, graph I/O, timing, and unlimited cutoff are excluded.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"isolated-query-at-zero-cutoff","input_values":[1,0,0,0],"input_length":4,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000000000000000000"},
+    {"id":"isolated-root-with-separate-edge","input_values":[3,1,0,0,1,2],"input_length":6,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000000000000000000"},
+    {"id":"nonisolated-zero-cutoff-is-unknown","input_values":[2,1,0,0,0,1],"input_length":6,"output_capacity":16,"expected_result":16,"expected_output_hex":"ffffffffffffffff0000000000000000"},
+    {"id":"maximum-bounded-graph-zero-cutoff","input_values":[12,24,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,0,11,0,2,1,3,2,4,3,5,4,6,5,7,6,8,7,9,8,10,9,11,0,10,1,11],"input_length":52,"output_capacity":16,"expected_result":16,"expected_output_hex":"ffffffffffffffff0000000000000000"},
+    {"id":"self-loop-invalid","input_values":[2,1,0,0,0,0],"input_length":6,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"duplicate-undirected-edge-invalid","input_values":[3,2,0,0,0,1,0,1],"input_length":8,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"root-out-of-range","input_values":[2,0,2,0],"input_length":4,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"cutoff-out-of-range","input_values":[1,0,0,129],"input_length":4,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[2,1,0,1,0],"input_length":5,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"insufficient-output-capacity","input_values":[1,0,0,0],"input_length":4,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,0,0,0],"input_length":4,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"output_capacity":16,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

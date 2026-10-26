@@ -1,0 +1,18 @@
+# Clean-room TSVC s1112 profile; see package rights note.
+const MAX_INPUT_LENGTH:usize=129
+def put64(v:i64,out:mutable u8&,off:usize)->void:
+ bits:u64=v.u64();j:mutable usize=0
+ while j<8:out[off+j]<-((bits>>(8*j))&255).u8();j<-j+1
+def tsvc_s1112_reverse_constant_offset_map_impl(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64:
+ if input.is_null() or length<3 or length>MAX_INPUT_LENGTH:return -1
+ nr:i64=input[0];if nr<1 or nr>64:return -1
+ n:usize=nr.usize();if length!=1+2*n:return -1
+ a:mutable i64[64]=zeroed;b:mutable i64[64]=zeroed;i:mutable usize=0
+ while i<n:x:i64=input[1+i];y:i64=input[1+n+i];if x< -2 or x>2 or y< -2 or y>2:return -1;a[i]<-x;b[i]<-y;i<-i+1
+ if out.is_null() or cap<8*n:return -2
+ i<-n
+ while i>0:i<-i-1;a[i]<-b[i]+1
+ i<-0
+ while i<n:put64(a[i],out,8*i);i<-i+1
+ n.i64()
+export fn tsvc_s1112_reverse_constant_offset_map(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64=tsvc_s1112_reverse_constant_offset_map_impl

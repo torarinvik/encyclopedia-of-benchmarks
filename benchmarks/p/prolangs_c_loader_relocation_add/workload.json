@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0.0",
+  "id": "prolangs-c-loader-relocation-field-add-v1",
+  "algorithm": "prolangs_c_loader_relocation_add",
+  "function_symbol": "prolangs_c_loader_relocation_add",
+  "description": "Bounded clean-room profile of the SIC/XE loader's big-endian relocation field update.",
+  "source": {
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "revision": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["Prolangs-C/loader/memory.c", "Prolangs-C/loader/convert.c"],
+    "symbols": ["ADD_INT_TO_LOC", "NUM_TO_STR", "STR_TO_NUM"],
+    "launcher": "Prolangs-C/loader/info.sh",
+    "rights": "Copyright (c) William Landi 1991. Permission to use this code is granted as long as the copyright notice remains in place."
+  },
+  "input": {
+    "kind": "half_byte_width_delta_and_big_endian_bytes_i64_array",
+    "minimum_length": 3,
+    "maximum_length": 5,
+    "half_byte_width_range": [1, 6],
+    "delta_range": [-65535, 65535],
+    "byte_range": [0, 255],
+    "byte_width": "ceil(half_byte_width/2)",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "modified_big_endian_field_bytes",
+    "maximum_bytes": 3,
+    "success_result": "number of bytes written",
+    "short_or_null_output_result": -2,
+    "invalid_result": -1,
+    "overflow_behavior": "write the low field-width bytes, matching fixed-digit NUM_TO_STR formatting; its diagnostic output is omitted"
+  },
+  "workspace": {
+    "bytes": 3,
+    "meaning": "Staging copy of the one to three byte source field before applying relocation."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "one-byte-positive-delta", "input_values": [2, 1, 127], "input_length": 3, "expected_result": 1, "expected_output_hex": "80"},
+    {"id": "odd-width-rounds-to-two-bytes", "input_values": [3, 18, 1, 254], "input_length": 4, "expected_result": 2, "expected_output_hex": "0210"},
+    {"id": "odd-five-half-byte-width-negative-delta", "input_values": [5, -3, 1, 0, 0], "input_length": 5, "expected_result": 3, "expected_output_hex": "00fffd"},
+    {"id": "field-width-overflow-truncates-high-carry", "input_values": [2, 1, 255], "input_length": 3, "expected_result": 1, "expected_output_hex": "00"},
+    {"id": "three-byte-relocation-subtract", "input_values": [6, -4660, 18, 52, 86], "input_length": 5, "expected_result": 3, "expected_output_hex": "122222"},
+    {"id": "invalid-zero-half-byte-width", "input_values": [0, 1, 0], "input_length": 3, "expected_result": -1},
+    {"id": "invalid-byte-range", "input_values": [2, 1, 256], "input_length": 3, "expected_result": -1},
+    {"id": "invalid-negative-adjusted-value", "input_values": [2, -1, 0], "input_length": 3, "expected_result": -1},
+    {"id": "invalid-framing", "input_values": [2, 1, 1, 2], "input_length": 4, "expected_result": -1}
+  ]
+}

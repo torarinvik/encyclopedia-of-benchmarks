@@ -1,0 +1,3 @@
+// Clean-room TSVC s1113 profile; see package rights note.
+fn put64(out:[*]u8,p:usize,v:i64)void{const b=@as(u64,@bitCast(v));for(0..8)|j|out[p+j]=@truncate(b>>(8*j));}
+pub export fn tsvc_s1113_feedback_anchor_add(input:?[*]const i64,length:usize,output:?[*]u8,capacity:usize)i64{if(input==null or length<3 or length>129)return -1;const v=input.?[0..length];if(v[0]<1 or v[0]>64)return -1;const n:usize=@intCast(v[0]);if(length!=1+2*n)return -1;var a=[_]i64{0}**64;var b=[_]i64{0}**64;for(0..n)|i|{const x=v[1+i];const y=v[1+n+i];if(x< -2 or x>2 or y< -2 or y>2)return -1;a[i]=x;b[i]=y;}if(output==null or capacity<8*n)return -2;for(0..n)|i|a[i]=a[n/2]+b[i];for(0..n)|i|put64(output.?,8*i,a[i]);return @intCast(n);}

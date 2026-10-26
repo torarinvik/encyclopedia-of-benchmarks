@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "id": "beebs-fasta-weighted-sequence-generation-i64-array-bytes-output-v1",
+  "algorithm": "beebs_fasta",
+  "function_symbol": "beebs_fasta",
+  "description": "Bounded deterministic generation of the three source-intended FASTA records.",
+  "pinned_source": {
+    "repository": "mageec/beebs",
+    "commit": "049ded9f3aeb5591f553879d3a0376b8614e9422",
+    "path": "src/fasta/libfasta.c",
+    "symbols": [
+      "myrandom",
+      "accumulate_probabilities",
+      "repeat_fasta",
+      "random_fasta",
+      "benchmark",
+      "verify_benchmark"
+    ],
+    "url": "https://github.com/mageec/beebs/blob/049ded9f3aeb5591f553879d3a0376b8614e9422/src/fasta/libfasta.c",
+    "spdx": "GPL-3.0-or-later",
+    "embedded_notice": "Benchmark Game Revised BSD license, Copyright 2004-2009 Brent Fulgham; retained in NOTICE.txt.",
+    "rights_note": "The pinned BEEBS source declares GPL-3.0-or-later and reproduces a Benchmark Game Revised BSD notice. The ports are clean-room implementations; LICENSE.txt and NOTICE.txt preserve both notices."
+  },
+  "contract": {
+    "operation": "Generate the source-intended ALU, IUB, and Homo sapiens FASTA records using the source repeat and weighted-selection rules.",
+    "input_layout": "[n, initial_lcg_state]",
+    "count_range": [1, 1000],
+    "initial_lcg_state_range": [0, 139967],
+    "source_default_lcg_state": 42,
+    "lcg": "state = (state * 3877 + 29573) mod 139968; random ratio uses binary32 arithmetic.",
+    "record_lengths": ["2*n ALU symbols", "3*n IUB symbols", "5*n human-frequency symbols"],
+    "line_width": 60,
+    "output_encoding": "ASCII FASTA headers and body lines, each terminated by LF.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "profile_projection": "The pinned BEEBS source comments out header and body writes and does not reset its static LCG between calls. This profile materializes the intended byte stream and accepts an explicit initial state reset for each call."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n, initial_lcg_state]",
+    "exact_length": 2,
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "n_range": [1, 1000],
+    "initial_lcg_state_range": [0, 139967],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "ASCII FASTA stream with source headers and 60-symbol wrapped records.",
+    "maximum_bytes": 10245,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 10245,
+    "meaning": "Maximum FASTA output buffer; generator state and probability accumulators are bounded local scalars/arrays."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "one_record_seed_42",
+      "input_values": [1, 42],
+      "input_length": 2,
+      "expected_result": 90,
+      "expected_output_text": ">ONE Homo sapiens alu\nGG\n>TWO IUB ambiguity codes\nctt\n>THREE Homo sapiens frequency\ntgagc\n"
+    },
+    {
+      "id": "zero_count_rejected",
+      "input_values": [0, 42],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_text": ""
+    },
+    {
+      "id": "count_above_bound_rejected",
+      "input_values": [1001, 42],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_text": ""
+    },
+    {
+      "id": "negative_seed_rejected",
+      "input_values": [1, -1],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_text": ""
+    },
+    {
+      "id": "seed_at_modulus_rejected",
+      "input_values": [1, 139968],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_text": ""
+    },
+    {
+      "id": "trailing_input_rejected",
+      "input_values": [1, 42, 0],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_text": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [1, 42],
+      "input_length": 2,
+      "output_capacity": 89,
+      "expected_result": -2,
+      "expected_output_text": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [1, 42],
+      "input_length": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_text": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_text": ""
+    }
+  ]
+}

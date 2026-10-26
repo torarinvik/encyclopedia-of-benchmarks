@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "gbbs-approximate-set-cover-deterministic-profile-v1",
+  "algorithm": "gbbs_approximate_set_cover",
+  "function_symbol": "gbbs_approximate_set_cover",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded deterministic priority refinement of GBBS MANISBPT11 approximate set cover.",
+  "source": {
+    "repository": "ParAlg/gbbs",
+    "commit": "dbd1dcad582c0a316c5ba0d5524319d596dd82da",
+    "path": "benchmarks/ApproximateSetCover/MANISBPT11/ApproximateSetCover.h",
+    "symbol": "SetCover",
+    "launcher_path": "benchmarks/ApproximateSetCover/MANISBPT11/ApproximateSetCover.cc",
+    "url": "https://github.com/ParAlg/gbbs/blob/dbd1dcad582c0a316c5ba0d5524319d596dd82da/benchmarks/ApproximateSetCover/MANISBPT11/ApproximateSetCover.h",
+    "license_path": "LICENSE",
+    "license": "MIT"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[vertex_count, neighbor_mask_0, ..., neighbor_mask_(vertex_count-1)]",
+    "vertex_count_range": [1, 8],
+    "maximum_valid_length": 9,
+    "maximum_parseable_length": 10,
+    "invalid_input_result": -1,
+    "mask_semantics": "Each vertex is a candidate set containing its neighbors; bits outside vertex_count are invalid. Masks must be symmetric and loop-free."
+  },
+  "output": {
+    "kind": "two_little_endian_signed_64_bit_values",
+    "encoding": "[selected_set_bitmask, uncovered_element_bitmask]",
+    "maximum_bytes": 16,
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Maximum fixed scratch for eight adjacency masks, source-bucket state, per-round degrees/priorities/win counts, and staged two-word output."
+  },
+  "contract": {
+    "epsilon": 0.01,
+    "bucket_order": "Retain assigned buckets between rounds; process the highest stored bucket, recompute uncovered degree only for vertices in that bucket, and reassign those vertices. For integer degrees 1 through 8, source thresholds ceil((1+epsilon)^bucket) and ceil((1+epsilon)^(bucket-1)) equal that degree.",
+    "priority_refinement": "Replace the source's random permutation in each round by cyclic set-ID priority beginning at set_id = round mod set_count; lowest cyclic rank wins each uncovered element among currently maximum-bucket sets.",
+    "selection_rule": "A contender enters the cover when it wins at least the current bucket's low threshold, which equals its current degree in this bounded profile.",
+    "coverage_update": "Only elements adjacent to selected sets become covered; elements won by unselected contenders remain uncovered and are reconsidered after rebucketing.",
+    "overlap_note": "Distinct from greedy minimum vertex cover: this input is a set-element incidence system and the operation is GBBS's bucket/priority acquisition heuristic, not maximum-current-degree vertex selection.",
+    "launcher_exclusions": "Parallel edge maps, bucketing data structures, graph file parsing, timing, CLI reporting, and the random-number stream are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one-undirected-edge","input_values":[2,2,1],"input_length":3,"output_capacity":16,"expected_result":16,"expected_output_hex":"03000000000000000000000000000000"},
+    {"id":"path-rebucket","input_values":[3,2,5,2],"input_length":4,"output_capacity":16,"expected_result":16,"expected_output_hex":"06000000000000000000000000000000"},
+    {"id":"star-neighborhood-cover","input_values":[4,14,1,1,1],"input_length":5,"output_capacity":16,"expected_result":16,"expected_output_hex":"03000000000000000000000000000000"},
+    {"id":"two-disjoint-edges","input_values":[4,2,1,8,4],"input_length":5,"output_capacity":16,"expected_result":16,"expected_output_hex":"0f000000000000000000000000000000"},
+    {"id":"maximum-complete-eight","input_values":[8,254,253,251,247,239,223,191,127],"input_length":9,"output_capacity":16,"expected_result":16,"expected_output_hex":"03000000000000000000000000000000"},
+    {"id":"edgeless-elements-uncovered","input_values":[3,0,0,0],"input_length":4,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000700000000000000"},
+    {"id":"asymmetric-invalid","input_values":[3,2,0,0],"input_length":4,"output_capacity":16,"expected_result":-1},
+    {"id":"self-loop-invalid","input_values":[1,1],"input_length":2,"output_capacity":16,"expected_result":-1},
+    {"id":"mask-out-of-range","input_values":[2,4,0],"input_length":3,"output_capacity":16,"expected_result":-1},
+    {"id":"count-length-mismatch","input_values":[2,2],"input_length":2,"output_capacity":16,"expected_result":-1},
+    {"id":"short-capacity","input_values":[2,2,1],"input_length":3,"output_capacity":15,"expected_result":-2},
+    {"id":"null-output","input_values":[2,2,1],"input_length":3,"output_capacity":16,"output_is_null":true,"expected_result":-2},
+    {"id":"null-input","input_values":[2,2,1],"input_length":3,"output_capacity":16,"input_is_null":true,"expected_result":-1}
+  ]
+}

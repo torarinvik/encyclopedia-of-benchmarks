@@ -1,0 +1,4 @@
+module tsvc_s351_direct_unrolled_saxpy;
+extern fn double trunc(double value);
+extern fn double fabs(double value);
+fn long tsvc_s351_direct_unrolled_saxpy(double* x,usz l,double* y,usz cap) @export("tsvc_s351_direct_unrolled_saxpy"){if(x==null||l<12||l>82)return -1;double rd=x[0];if(rd!=rd||trunc(rd)!=rd||rd<5||rd>40)return -1;usz n=(usz)rd;if(n%5!=0||l!=2+2*n)return -1;for(usz i=1;i<l;i++)if(x[i]!=x[i]||trunc(x[i])!=x[i]||fabs(x[i])>1)return -1;if(y==null||cap<n)return -2;double[40] a;for(usz i=0;i<n;i++)a[i]=x[2+i];double alpha=x[1];for(usz base=0;base<n;base+=5){double p0=alpha*x[2+n+base];a[base]=a[base]+p0;double p1=alpha*x[2+n+base+1];a[base+1]=a[base+1]+p1;double p2=alpha*x[2+n+base+2];a[base+2]=a[base+2]+p2;double p3=alpha*x[2+n+base+3];a[base+3]=a[base+3]+p3;double p4=alpha*x[2+n+base+4];a[base+4]=a[base+4]+p4;}for(usz i=0;i<n;i++)y[i]=a[i];return (long)n;}

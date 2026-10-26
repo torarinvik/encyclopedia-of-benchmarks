@@ -1,0 +1,26 @@
+# Clean-room TSVC s235 profile; see package rights note.
+const MAX_INPUT_LENGTH:usize=153
+def put64(v:i64,out:mutable u8&,off:usize)->void:
+ bits:u64=v.u64();k:mutable usize=0
+ while k<8:out[off+k]<-((bits>>(8*k))&255).u8();k<-k+1
+def tsvc_s235_fused_vector_matrix_recurrence_impl(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64:
+ if input.is_null() or length<15 or length>MAX_INPUT_LENGTH:return -1
+ nr:i64=input[0];if nr<2 or nr>8:return -1
+ n:usize=nr.usize();nn:usize=n*n;if length!=1+3*n+2*nn:return -1
+ a:mutable i64[8]=zeroed;b:mutable i64[8]=zeroed;c:mutable i64[8]=zeroed;aa:mutable i64[64]=zeroed;bb:mutable i64[64]=zeroed;p:mutable usize=1;i:mutable usize=0
+ while i<n:x:i64=input[p];p<-p+1;if x< -1 or x>1:return -1;a[i]<-x;i<-i+1
+ i<-0;while i<n:x:i64=input[p];p<-p+1;if x< -1 or x>1:return -1;b[i]<-x;i<-i+1
+ i<-0;while i<n:x:i64=input[p];p<-p+1;if x< -1 or x>1:return -1;c[i]<-x;i<-i+1
+ i<-0;while i<nn:x:i64=input[p];p<-p+1;if x< -1 or x>1:return -1;aa[i]<-x;i<-i+1
+ i<-0;while i<nn:x:i64=input[p];p<-p+1;if x< -1 or x>1:return -1;bb[i]<-x;i<-i+1
+ if out.is_null() or cap<8*(n+nn):return -2
+ i<-0
+ while i<n:
+  a[i]<-a[i]+b[i]*c[i]
+  j:mutable usize=1
+  while j<n:k:usize=j*n+i;aa[k]<-aa[k-n]+bb[k]*a[i];j<-j+1
+  i<-i+1
+ i<-0;while i<n:put64(a[i],out,8*i);i<-i+1
+ i<-0;while i<nn:put64(aa[i],out,8*(n+i));i<-i+1
+ (n+nn).i64()
+export fn tsvc_s235_fused_vector_matrix_recurrence(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64=tsvc_s235_fused_vector_matrix_recurrence_impl

@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "id": "gapbs-afforest-components-i64-array-bytes-output-v1",
+  "algorithm": "gapbs_afforest_components",
+  "function_symbol": "gapbs_afforest_components",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded deterministic GAPBS Afforest connectivity profile returning component representatives.",
+  "source": {
+    "repository": "sbeamer/gapbs",
+    "commit": "b5e3e19c2845f22fb338f4a4bc4b1ccee861d026",
+    "path": "src/cc.cc",
+    "symbols": ["Link", "Compress", "SampleFrequentElement", "Afforest"],
+    "url": "https://github.com/sbeamer/gapbs/blob/b5e3e19c2845f22fb338f4a4bc4b1ccee861d026/src/cc.cc",
+    "source_header_copyright": "Copyright (c) 2018 The Hebrew University of Jerusalem (HUJI, A. Barak)",
+    "license_path": "LICENSE",
+    "license": "BSD-3-Clause"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, edge_count, sample_count, sample_vertex..., (u,v)...]",
+    "node_count_range": [1, 16],
+    "edge_count_range": [0, 64],
+    "sample_count_range": [1, 64],
+    "sample_vertex_range": "0 <= sample < node_count",
+    "edge_rule": "simple undirected edge with 0 <= u < v < node_count; duplicate edges are invalid",
+    "adjacency_order": "ascending neighbor vertex ID",
+    "maximum_valid_length": 195,
+    "maximum_parseable_length": 196,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "One minimum-vertex component representative per vertex, in vertex-ID order.",
+    "maximum_values": 16,
+    "maximum_bytes": 128,
+    "success_result": "8 * node_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Staged maximum-sized label output so invalid input and output errors leave caller memory untouched."
+  },
+  "contract": {
+    "operation": "Label undirected connected components using Afforest's sampled neighbor linking, pointer compression, and final edge linking.",
+    "neighbor_rounds": 2,
+    "sample_profile": "The caller supplies an explicit deterministic list of sample vertex IDs. Count the components of those samples after two neighbor rounds; ties select the smallest current label.",
+    "skip_profile": "Skip the selected sampled component in the final pass only if every unsampled adjacency entry of each of its vertices already has the same component label. Otherwise process all remaining edges; this guard keeps the bounded profile exact for every valid graph.",
+    "source_profile": "Use lower-root Link, Compress after each of two sampled-neighbor rounds, sample-frequency selection, and the remaining-neighbor pass. The source's random 1024-sample generator is represented by explicit caller samples; OpenMP, atomics, logging, timing, and parallel scheduling are omitted.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-vertex",
+      "input_values": [1, 0, 1, 0],
+      "input_length": 4,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "sampled-triangle-and-isolate",
+      "input_values": [4, 3, 4, 0, 0, 2, 3, 0, 1, 0, 2, 1, 2],
+      "input_length": 13,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000300000000000000"
+    },
+    {
+      "id": "two-disconnected-edges",
+      "input_values": [4, 2, 3, 2, 3, 2, 3, 0, 1],
+      "input_length": 9,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000002000000000000000200000000000000"
+    },
+    {
+      "id": "unsampled-bridge-disables-skip",
+      "input_values": [9, 5, 4, 0, 0, 2, 2, 0, 4, 1, 4, 2, 8, 3, 8, 4, 8],
+      "input_length": 17,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000500000000000000060000000000000007000000000000000000000000000000"
+    },
+    {
+      "id": "path-connected-after-neighbor-sampling",
+      "input_values": [4, 3, 2, 0, 3, 0, 1, 1, 2, 2, 3],
+      "input_length": 11,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "sample-count-upper-bound",
+      "input_values": [1, 0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 67,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "length-mismatch",
+      "input_values": [2, 1, 1, 0, 0, 1, 1],
+      "input_length": 7,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sample-out-of-range",
+      "input_values": [2, 0, 1, 2],
+      "input_length": 4,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-edge-invalid",
+      "input_values": [2, 2, 1, 0, 0, 0, 1, 0, 1],
+      "input_length": 9,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "edge-order-invalid",
+      "input_values": [2, 1, 1, 0, 1, 0],
+      "input_length": 6,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 0, 1, 0],
+      "input_length": 4,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 0, 1, 0],
+      "input_length": 4,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}
