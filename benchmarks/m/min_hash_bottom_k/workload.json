@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-min-hash-bottom-k-i64-array-bytes-output-v1",
+  "algorithm": "min_hash_bottom_k",
+  "function_symbol": "min_hash_bottom_k",
+  "abi": "i64_array_bytes_output",
+  "description": "Retain the k supplied-rank items with smallest (rank,item_id) keys.",
+  "source": {
+    "title": "Min-Hash Sketches",
+    "authors": ["Edith Cohen"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_573",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_573",
+    "algorithm_attribution": "bottom-k sketch order statistic and insertion threshold rule",
+    "implementation_status": "clean-room; explicit supplied-rank profile; no code license stated in chapter"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,k,(item_id,rank)[n]]",
+    "n_range": [1, 16],
+    "k_range": [1, 8],
+    "item_id_range": [0, 15],
+    "rank_range": [0, 1000],
+    "maximum_valid_length": 34,
+    "maximum_parseable_length": 35,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[count,(item_id,rank)[count]] sorted by (rank,item_id)",
+    "maximum_bytes": 136,
+    "success_result": "8*(1+2*min(n,k)) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "At most 16 item/rank records for the retained bottom-k sketch and staged output."
+  },
+  "contract": {
+    "rank_source": "Ranks are supplied as input; this profile does not generate hashes or random ranks.",
+    "selection": "Process input records as insertions; keep the k smallest (rank,item_id) keys, replacing the current maximum only when the new key is smaller.",
+    "tie_rule": "Equal ranks are ordered by increasing item_id as a deterministic refinement.",
+    "duplicate_items": "Item IDs must be unique.",
+    "scope": "Bottom-k order-statistic and threshold-update behavior only; no estimator or randomized guarantee is claimed.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"ranked-bottom-three","input_values":[5,3,0,9,1,50,2,20,3,1,4,40],"input_length":12,"output_capacity":56,"expected_result":56,"expected_output_hex":"0300000000000000030000000000000001000000000000000200000000000000140000000000000004000000000000002800000000000000"},
+    {"id":"fewer-items-than-k","input_values":[2,5,7,9,2,4],"input_length":6,"output_capacity":40,"expected_result":40,"expected_output_hex":"02000000000000000200000000000000040000000000000007000000000000000900000000000000"},
+    {"id":"rank-ties-use-item-id","input_values":[4,2,3,5,1,3,2,3,0,8],"input_length":10,"output_capacity":40,"expected_result":40,"expected_output_hex":"02000000000000000100000000000000030000000000000002000000000000000300000000000000"},
+    {"id":"threshold-replacement","input_values":[5,2,0,10,1,20,2,5,3,4,4,30],"input_length":12,"output_capacity":40,"expected_result":40,"expected_output_hex":"02000000000000000300000000000000040000000000000002000000000000000500000000000000"},
+    {"id":"duplicate-item-invalid","input_values":[2,1,4,8,4,3],"input_length":6,"output_capacity":136,"expected_result":-1,"expected_output_hex":""},
+    {"id":"rank-out-of-range","input_values":[1,1,0,1001],"input_length":4,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[2,2,0,4,1],"input_length":5,"output_capacity":136,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-capacity","input_values":[5,3,0,9,1,50,2,20,3,1,4,40],"input_length":12,"output_capacity":55,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,2,7,9,2,4],"input_length":6,"output_capacity":40,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":136,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

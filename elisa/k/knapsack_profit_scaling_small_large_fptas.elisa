@@ -1,0 +1,85 @@
+const MAX_N: usize = 8
+const MAX_INPUT: usize = 18
+const MAX_Q: usize = 128
+
+def knapsack_small_large_store(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    b: mutable usize = 0
+    while b < 8:
+        output[offset + b] <- ((bits >> (8 * b)) & 255).u8()
+        b <- b + 1
+
+def knapsack_profit_scaling_small_large_fptas(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("knapsack_profit_scaling_small_large_fptas"):
+    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    cap: i64 = input[0]; n64: i64 = input[1]
+    if cap < 1 or cap > 30 or n64 < 1 or n64 > 8 or length != 2 + 2 * n64.usize(): return -1
+    n: usize = n64.usize()
+    weight: mutable i64[8] = zeroed; profit: mutable i64[8] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        weight[i] <- input[2 + 2 * i]; profit[i] <- input[3 + 2 * i]
+        if weight[i] < 1 or weight[i] > 30 or profit[i] < 1 or profit[i] > 100: return -1
+        i <- i + 1
+    if output.is_null() or capacity < 16: return -2
+    order: mutable usize[8] = zeroed; eligible: mutable usize = 0
+    i <- 0
+    while i < n:
+        if weight[i] <= cap: order[eligible] <- i; eligible <- eligible + 1
+        i <- i + 1
+    i <- 1
+    while i < eligible:
+        key: usize = order[i]; j: mutable usize = i
+        while j > 0 and profit[key] * weight[order[j - 1]] > profit[order[j - 1]] * weight[key]:
+            order[j] <- order[j - 1]; j <- j - 1
+        order[j] <- key; i <- i + 1
+    upper_num: mutable i64 = 0; upper_den: mutable i64 = 1; room: mutable i64 = cap; i <- 0
+    while i < eligible:
+        item: usize = order[i]
+        if weight[item] <= room: upper_num <- upper_num + profit[item]; room <- room - weight[item]
+        else: upper_num <- upper_num * weight[item] + profit[item] * room; upper_den <- weight[item]; break
+        i <- i + 1
+    small: mutable usize[8] = zeroed; large: mutable usize[8] = zeroed
+    ns: mutable usize = 0; nl: mutable usize = 0; i <- 0
+    while i < n:
+        if weight[i] <= cap:
+            if 4 * profit[i] * upper_den <= upper_num: small[ns] <- i; ns <- ns + 1
+            else: large[nl] <- i; nl <- nl + 1
+        i <- i + 1
+    i <- 1
+    while i < ns:
+        key: usize = small[i]; j: mutable usize = i
+        while j > 0 and profit[key] * weight[small[j - 1]] > profit[small[j - 1]] * weight[key]: small[j] <- small[j - 1]; j <- j - 1
+        small[j] <- key; i <- i + 1
+    dpw: mutable i64[129] = zeroed; dpm: mutable i64[129] = zeroed
+    i <- 0
+    while i <= MAX_Q: dpw[i] <- cap + 1; i <- i + 1
+    dpw[0] <- 0; reachable: mutable usize = 0
+    k: mutable usize = 0
+    while k < nl:
+        item: usize = large[k]
+        value: usize = if upper_num > 0: (16 * profit[item] * upper_den / upper_num).usize() else: 0
+        q: mutable usize = reachable + 1
+        while q > 0:
+            q <- q - 1
+            if dpw[q] <= cap:
+                dst: usize = q + value; nw: i64 = dpw[q] + weight[item]
+                nm: i64 = dpm[q] | (1 << item).i64()
+                if nw < dpw[dst] or (nw == dpw[dst] and nm < dpm[dst]): dpw[dst] <- nw; dpm[dst] <- nm
+        reachable <- reachable + value; k <- k + 1
+    best_mask: mutable i64 = 0; best_profit: mutable i64 = 0; q <- 0
+    while q <= reachable:
+        if dpw[q] <= cap:
+            mask: mutable i64 = dpm[q]; value_profit: mutable i64 = 0; remaining: mutable i64 = cap - dpw[q]
+            i <- 0
+            while i < n:
+                if ((mask.u64() >> i) & 1) != 0: value_profit <- value_profit + profit[i]
+                i <- i + 1
+            k <- 0
+            while k < ns:
+                item <- small[k]
+                if weight[item] <= remaining: remaining <- remaining - weight[item]; mask <- mask | (1 << item).i64(); value_profit <- value_profit + profit[item]
+                k <- k + 1
+            if value_profit > best_profit or (value_profit == best_profit and mask < best_mask): best_profit <- value_profit; best_mask <- mask
+        q <- q + 1
+    knapsack_small_large_store(output, 0, best_mask); knapsack_small_large_store(output, 8, best_profit)
+    16

@@ -1,0 +1,137 @@
+const MAX_VARS: usize = 12
+const MAX_CLAUSES: usize = 32
+const MAX_INPUT: usize = 98
+const MAX_OUTPUT: usize = 104
+
+def random_3sat_greedy_dpll(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("random_3sat_greedy_dpll"):
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n_raw: i64 = input[0]
+    m_raw: i64 = input[1]
+    if n_raw < 3 or n_raw > MAX_VARS.i64() or m_raw < 0 or m_raw > MAX_CLAUSES.i64(): return -1
+    n: usize = n_raw.usize()
+    m: usize = m_raw.usize()
+    if length != 2 + 3 * m: return -1
+    clauses: mutable i64[MAX_CLAUSES * 3] = zeroed
+    lengths: mutable usize[MAX_CLAUSES] = zeroed
+    active: mutable bool[MAX_CLAUSES] = zeroed
+    clause: mutable usize = 0
+    while clause < m:
+        seen: mutable bool[MAX_VARS] = zeroed
+        offset: mutable usize = 0
+        while offset < 3:
+            literal: i64 = input[2 + 3 * clause + offset]
+            if literal == 0 or literal < -n.i64() or literal > n.i64(): return -1
+            variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+            if seen[variable]: return -1
+            seen[variable] <- true
+            clauses[3 * clause + offset] <- literal
+            offset <- offset + 1
+        lengths[clause] <- 3
+        active[clause] <- true
+        clause <- clause + 1
+    assigned: mutable i64[MAX_VARS] = zeroed
+    success: mutable bool = false
+    failed: mutable bool = false
+    step: mutable usize = 0
+    while step < n and not failed:
+        remaining: mutable usize = 0
+        clause <- 0
+        while clause < m:
+            if active[clause]: remaining <- remaining + 1
+            clause <- clause + 1
+        if remaining == 0:
+            success <- true
+            break
+        chosen: mutable i64 = 0
+        clause <- 0
+        while clause < m:
+            if chosen == 0 and active[clause] and lengths[clause] == 1: chosen <- clauses[3 * clause]
+            clause <- clause + 1
+        if chosen == 0:
+            counts: mutable usize[2 * MAX_VARS] = zeroed
+            clause <- 0
+            while clause < m:
+                if active[clause]:
+                    offset: mutable usize = 0
+                    while offset < lengths[clause]:
+                        literal: i64 = clauses[3 * clause + offset]
+                        variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+                        sign: usize = if literal < 0: 1 else: 0
+                        counts[2 * variable + sign] <- counts[2 * variable + sign] + 1
+                        offset <- offset + 1
+                clause <- clause + 1
+            variable: mutable usize = 0
+            best: mutable usize = 0
+            while variable < n:
+                sign: mutable usize = 0
+                while sign < 2:
+                    count: usize = counts[2 * variable + sign]
+                    if count > best:
+                        best <- count
+                        chosen <- if sign == 0: (variable + 1).i64() else: -((variable + 1).i64())
+                    sign <- sign + 1
+                variable <- variable + 1
+        if chosen == 0:
+            failed <- true
+            break
+        variable: usize = if chosen > 0: (chosen - 1).usize() else: (-chosen - 1).usize()
+        assigned[variable] <- if chosen > 0: 1 else: -1
+        clause <- 0
+        while clause < m:
+            if active[clause]:
+                satisfied: mutable bool = false
+                offset: mutable usize = 0
+                while offset < lengths[clause]:
+                    if clauses[3 * clause + offset] == chosen: satisfied <- true
+                    offset <- offset + 1
+                if satisfied:
+                    active[clause] <- false
+                else:
+                    write: mutable usize = 0
+                    offset <- 0
+                    while offset < lengths[clause]:
+                        literal: i64 = clauses[3 * clause + offset]
+                        if literal != -chosen:
+                            clauses[3 * clause + write] <- literal
+                            write <- write + 1
+                        offset <- offset + 1
+                    lengths[clause] <- write
+                    if write == 0:
+                        failed <- true
+                        break
+            clause <- clause + 1
+        step <- step + 1
+    if not failed:
+        remaining: mutable usize = 0
+        clause <- 0
+        while clause < m:
+            if active[clause]: remaining <- remaining + 1
+            clause <- clause + 1
+        success <- remaining == 0
+    if success:
+        variable: mutable usize = 0
+        while variable < n:
+            if assigned[variable] == 0: assigned[variable] <- -1
+            variable <- variable + 1
+    byte_count: usize = 8 * (n + 1)
+    if output.is_null() or capacity < byte_count: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    values: i64[MAX_VARS + 1] = zeroed
+    values[0] <- if success: 1 else: 0
+    variable: mutable usize = 0
+    while variable < n:
+        values[variable + 1] <- assigned[variable]
+        variable <- variable + 1
+    word: mutable usize = 0
+    while word < n + 1:
+        bits: u64 = values[word].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            staged[8 * word + byte] <- ((bits >> (8 * byte)) & 255).u8()
+            byte <- byte + 1
+        word <- word + 1
+    byte: mutable usize = 0
+    while byte < byte_count:
+        output[byte] <- staged[byte]
+        byte <- byte + 1
+    byte_count.i64()

@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi626-st-planar-leftmost-augmenting-flow-v1",
+  "algorithm": "st_planar_leftmost_augmenting_flow",
+  "function_symbol": "st_planar_leftmost_augmenting_flow",
+  "comparison_model": "i64_array_bytes_output_call",
+  "pinned_source": {
+    "title": "Planar Maximum s-t Flow",
+    "authors": [
+      "Glencora Borradaile"
+    ],
+    "doi": "10.1007/978-1-4939-2864-4_626",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_626",
+    "epub_path": "OEBPS/AChap626.html",
+    "section": "st-Planar Graphs",
+    "license": "No source-code license grant; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n,m,s,t,(tail,head,capacity)*m,(degree,edge_id...)*n]",
+    "n": [
+      2,
+      6
+    ],
+    "m": [
+      1,
+      10
+    ],
+    "capacity": [
+      0,
+      5
+    ],
+    "maximum_valid_length": 60,
+    "embedding_promise": "Connected simple directed planar embedding; supplied clockwise rotations; s and t incident to a common outer face.",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "layout": "[maximum_flow_value]",
+    "maximum_bytes": 8,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed arrays for at most six vertices and ten embedded edges, residual DFS state, and output staging."
+  },
+  "profile": {
+    "operation": "Repeated residual DFS in supplied per-vertex rotation order and bottleneck augmentation.",
+    "rotation_order": "The first listed incident edge starts the deterministic left-first scan at each vertex; ties follow listed order.",
+    "output_scope": "Only max-flow value; no edge-flow serialization.",
+    "source_projection": "Bounded deterministic operational refinement of the chapter's st-planar leftmost augmenting-path special case. General directed planar and undirected Reif algorithms are excluded."
+  },
+  "measurement": {
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "two-disjoint-capacity-paths",
+      "input_values": [
+        4,
+        5,
+        0,
+        3,
+        0,
+        1,
+        3,
+        0,
+        2,
+        2,
+        1,
+        2,
+        1,
+        1,
+        3,
+        2,
+        2,
+        3,
+        3,
+        2,
+        0,
+        1,
+        3,
+        0,
+        2,
+        3,
+        3,
+        1,
+        2,
+        4,
+        2,
+        3,
+        4
+      ],
+      "input_length": 33,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0400000000000000"
+    },
+    {
+      "id": "reverse-residual-rerouting",
+      "input_values": [
+        4,
+        5,
+        0,
+        3,
+        0,
+        1,
+        1,
+        0,
+        2,
+        1,
+        1,
+        2,
+        1,
+        1,
+        3,
+        1,
+        2,
+        3,
+        1,
+        2,
+        0,
+        1,
+        3,
+        0,
+        2,
+        3,
+        3,
+        1,
+        2,
+        4,
+        2,
+        3,
+        4
+      ],
+      "input_length": 33,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0200000000000000"
+    },
+    {
+      "id": "single-bottleneck",
+      "input_values": [
+        4,
+        3,
+        0,
+        3,
+        0,
+        1,
+        4,
+        1,
+        2,
+        2,
+        2,
+        3,
+        5,
+        1,
+        0,
+        2,
+        0,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2
+      ],
+      "input_length": 23,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0200000000000000"
+    }
+  ]
+}

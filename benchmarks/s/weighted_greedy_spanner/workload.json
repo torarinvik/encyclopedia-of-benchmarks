@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-weighted-graph-greedy-spanner-i64-array-bytes-output-v1",
+  "algorithm": "weighted_greedy_spanner",
+  "function_symbol": "weighted_greedy_spanner",
+  "abi": "i64_array_bytes_output",
+  "description": "Chapter Algorithm I: bounded weighted greedy (2k-1)-spanner construction.",
+  "source": {
+    "title": "Simple Algorithms for Spanners in Weighted Graphs",
+    "authors": ["Surender Baswana", "Sandeep Sen"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_10",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_10",
+    "algorithm_attribution": "Algorithm I, the Althöfer et al. increasing-weight greedy spanner.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, m, k, (u, v, weight)...]",
+    "n_range": [2, 8],
+    "m_range": [0, 28],
+    "k_range": [1, 3],
+    "weight_range": [1, 32],
+    "endpoint_rule": "0 <= u < v < n; no duplicate undirected edges",
+    "edge_order": "Any input order; processing order is (weight, u, v).",
+    "exact_length": "3 + 3 * m",
+    "maximum_valid_length": 87,
+    "maximum_parseable_length": 88,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_vector",
+    "encoding": "one canonical 0/1 selection byte per input edge, in input order",
+    "maximum_bytes": 28,
+    "success_result": "m bytes written",
+    "empty_output_result": 0,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Bounded 8-vertex adjacency matrix, Dijkstra state, and staged edge flags."
+  },
+  "contract": {
+    "stretch": "2 * k - 1",
+    "edge_processing_order": "Increasing (weight, u, v).",
+    "selection_rule": "Retain edge (u,v,w) iff its current-spanner shortest-path distance is greater than (2*k-1)*w.",
+    "distance_tie_rule": "Dijkstra settles equal-distance vertices by smaller vertex ID; edge processing ties use endpoint order."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "The package oracle follows the greedy edge sequence with Dijkstra; the independent verifier recomputes all-pairs distances with Floyd–Warshall after each selected edge.",
+  "cases": [
+    {"id":"empty_graph_edges","input_values":[2,0,2],"input_length":3,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"triangle_spanner","input_values":[3,3,2,0,1,1,1,2,1,0,2,2],"input_length":12,"output_capacity":3,"expected_result":3,"expected_output_hex":"010100"},
+    {"id":"path_makes_heavy_shortcut_redundant","input_values":[4,4,2,0,1,2,1,2,2,2,3,2,0,3,5],"input_length":15,"output_capacity":4,"expected_result":4,"expected_output_hex":"01010100"},
+    {"id":"stretch_one_retains_nonredundant_edge","input_values":[3,3,1,0,1,2,1,2,2,0,2,3],"input_length":12,"output_capacity":3,"expected_result":3,"expected_output_hex":"010101"},
+    {"id":"weight_tie_uses_endpoint_order","input_values":[3,3,2,0,2,2,0,1,1,1,2,1],"input_length":12,"output_capacity":3,"expected_result":3,"expected_output_hex":"000101"},
+    {"id":"disconnected_edge","input_values":[4,1,3,2,3,7],"input_length":6,"output_capacity":1,"expected_result":1,"expected_output_hex":"01"},
+    {"id":"maximum_complete_graph_output","input_values":[8,28,1,0,1,1,0,2,1,0,3,1,0,4,1,0,5,1,0,6,1,0,7,1,1,2,1,1,3,1,1,4,1,1,5,1,1,6,1,1,7,1,2,3,1,2,4,1,2,5,1,2,6,1,2,7,1,3,4,1,3,5,1,3,6,1,3,7,1,4,5,1,4,6,1,4,7,1,5,6,1,5,7,1,6,7,1],"input_length":87,"output_capacity":28,"expected_result":28,"expected_output_hex":"01010101010101010101010101010101010101010101010101010101"},
+    {"id":"invalid_k","input_values":[2,0,0],"input_length":3,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_zero_weight","input_values":[2,1,2,0,1,0],"input_length":6,"output_capacity":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"duplicate_edge","input_values":[3,2,2,0,1,1,0,1,2],"input_length":9,"output_capacity":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input","input_values":[2,0,2,0],"input_length":4,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"over_bound_parser_input","input_values":[8,28,1,0,1,1,0,2,1,0,3,1,0,4,1,0,5,1,0,6,1,0,7,1,1,2,1,1,3,1,1,4,1,1,5,1,1,6,1,1,7,1,2,3,1,2,4,1,2,5,1,2,6,1,2,7,1,3,4,1,3,5,1,3,6,1,3,7,1,4,5,1,4,6,1,4,7,1,5,6,1,5,7,1,6,7,1,0],"input_length":88,"output_capacity":28,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[3,3,2,0,1,1,1,2,1,0,2,2],"input_length":12,"output_capacity":2,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output_for_empty_result","input_values":[2,0,2],"input_length":3,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,40 @@
+const MAX_LENGTH: usize = 16
+const MAX_SUPPORT: usize = 17
+
+def choose_value(n: usize,k0: usize) -> i64:
+    if k0>n:return 0
+    k:mutable usize=k0
+    if k>n-k:k<-n-k
+    result:mutable i64=1;i:mutable usize=1
+    while i<=k:result<-result*(n-k+i).i64()/i.i64();i<-i+1
+    result
+
+def gcd_value(a0:i64,b0:i64)->i64:
+    a:mutable i64=a0;b:mutable i64=b0
+    while b!=0:r:mutable i64=a%b;a<-b;b<-r
+    a
+
+def put_i64(value:i64,output:mutable u8&,word:usize):
+    bits:u64=value.u64();byte:mutable usize=0
+    while byte<8:output[word*8+byte]<-((bits>>(byte*8))&255).u8();byte<-byte+1
+
+def spatial_motif_same_type_contact_pmf(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("spatial_motif_same_type_contact_pmf"):
+    if input.is_null() or length!=3:return -1
+    l0:i64=input[0];x10:i64=input[1];x20:i64=input[2]
+    if l0<1 or l0>MAX_LENGTH.i64() or x10<0 or x10>l0 or x20<0 or x20>l0:return -1
+    l:usize=l0.usize();x1:usize=x10.usize();x2:usize=x20.usize()
+    low:usize=if x1+x2>l:x1+x2-l else:0
+    high:usize=if x1<x2:x1 else:x2
+    denominator:=choose_value(l,x2)
+    numerators:mutable i64[MAX_SUPPORT]=zeroed
+    i:mutable usize=low
+    while i<=high:numerators[i-low]<-choose_value(x1,i)*choose_value(l-x1,x2-i);i<-i+1
+    expected_num:mutable i64=(x1*x2).i64();expected_den:mutable i64=l.i64();divisor:=gcd_value(expected_num,expected_den)
+    expected_num<-expected_num/divisor;expected_den<-expected_den/divisor
+    count:=high-low+1;bytes:usize=(3+count+2)*8
+    if output.is_null() or capacity<bytes:return -2
+    put_i64(low.i64(),output&,0);put_i64(high.i64(),output&,1);put_i64(denominator,output&,2)
+    i<-0
+    while i<count:put_i64(numerators[i],output&,3+i);i<-i+1
+    put_i64(expected_num,output&,3+count);put_i64(expected_den,output&,4+count)
+    bytes.i64()

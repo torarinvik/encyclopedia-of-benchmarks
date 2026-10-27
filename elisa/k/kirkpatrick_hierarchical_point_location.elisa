@@ -1,0 +1,139 @@
+const MAX_VERTICES: usize = 16
+const MAX_LEVELS: usize = 4
+const MAX_FACES: usize = 8
+const MAX_INPUT: usize = 268
+
+def cross(ax:i64,ay:i64,bx:i64,by:i64,cx:i64,cy:i64)->i64:
+    return (bx-ax)*(cy-ay)-(by-ay)*(cx-ax)
+
+def on_segment(ax:i64,ay:i64,bx:i64,by:i64,px:i64,py:i64)->bool:
+    return cross(ax,ay,bx,by,px,py)==0 and px>=(if ax<bx:ax else:bx) and px<=(if ax>bx:ax else:bx) and py>=(if ay<by:ay else:by) and py<=(if ay>by:ay else:by)
+
+def inside(qx:i64,qy:i64,t:i64&,xy:i64&)->bool:
+    a:i64=t[0]*2; b:i64=t[1]*2; c:i64=t[2]*2
+    return cross(xy[a],xy[a+1],xy[b],xy[b+1],qx,qy)>0 and cross(xy[b],xy[b+1],xy[c],xy[c+1],qx,qy)>0 and cross(xy[c],xy[c+1],xy[a],xy[a+1],qx,qy)>0
+
+def boundary(qx:i64,qy:i64,t:i64&,xy:i64&)->bool:
+    e:mutable usize=0
+    while e<3:
+        a:i64=t[e]*2; b:i64=t[(e+1)%3]*2
+        if on_segment(xy[a],xy[a+1],xy[b],xy[b+1],qx,qy):return true
+        e<-e+1
+    return false
+
+def seg_hit(ax:i64,ay:i64,bx:i64,by:i64,cx:i64,cy:i64,dx:i64,dy:i64)->bool:
+    o1:i64=cross(ax,ay,bx,by,cx,cy); o2:i64=cross(ax,ay,bx,by,dx,dy); o3:i64=cross(cx,cy,dx,dy,ax,ay); o4:i64=cross(cx,cy,dx,dy,bx,by)
+    if o1==0 and on_segment(ax,ay,bx,by,cx,cy):return true
+    if o2==0 and on_segment(ax,ay,bx,by,dx,dy):return true
+    if o3==0 and on_segment(cx,cy,dx,dy,ax,ay):return true
+    if o4==0 and on_segment(cx,cy,dx,dy,bx,by):return true
+    return o1*o2<0 and o3*o4<0
+
+def closed_inside(px:i64,py:i64,t:i64&,xy:i64&)->bool:
+    e:mutable usize=0
+    while e<3:
+        a:i64=t[e]*2; b:i64=t[(e+1)%3]*2
+        if cross(xy[a],xy[a+1],xy[b],xy[b+1],px,py)<0:return false
+        e<-e+1
+    return true
+
+def tri_hit(a:i64&,b:i64&,xy:i64&)->bool:
+    i:mutable usize=0
+    while i<3:
+        p:i64=a[i]*2
+        if closed_inside(xy[p],xy[p+1],b,xy):return true
+        p<-b[i]*2
+        if closed_inside(xy[p],xy[p+1],a,xy):return true
+        i<-i+1
+    i<-0
+    while i<3:
+        j:mutable usize=0
+        while j<3:
+            a0:i64=a[i]*2; a1:i64=a[(i+1)%3]*2; b0:i64=b[j]*2; b1:i64=b[(j+1)%3]*2
+            if seg_hit(xy[a0],xy[a0+1],xy[a1],xy[a1+1],xy[b0],xy[b0+1],xy[b1],xy[b1+1]):return true
+            j<-j+1
+        i<-i+1
+    return false
+
+def put64(value:i64,output:mutable u8&,pos:usize)->void:
+    bits:u64=value.u64()
+    j:mutable usize=0
+    while j<8:
+        output[pos+j]<-((bits>>(8*j))&255).u8()
+        j<-j+1
+
+def kirkpatrick_hierarchical_point_location(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("kirkpatrick_hierarchical_point_location"):
+    if input.is_null() or length<14 or length>MAX_INPUT:return -1
+    nv:i64=input[0]; nl:i64=input[1]; qx:i64=input[2]; qy:i64=input[3]
+    if nv<3 or nv>16 or nl<1 or nl>4 or qx< -1000 or qx>1000 or qy< -1000 or qy>1000:return -1
+    xy:mutable i64[32]=zeroed; faces:mutable i64[96]=zeroed; face_counts:mutable i64[4]=zeroed; cc:mutable i64[32]=zeroed; ids:mutable i64[256]=zeroed
+    pos:mutable usize=4; v:mutable usize=0
+    while v<nv.usize():
+        xy[2*v]<-input[pos]; xy[2*v+1]<-input[pos+1]; pos<-pos+2
+        if xy[2*v]< -1000 or xy[2*v]>1000 or xy[2*v+1]< -1000 or xy[2*v+1]>1000:return -1
+        v<-v+1
+    level:mutable usize=0
+    while level<nl.usize():
+        if pos>=length:return -1
+        count:i64=input[pos]; pos<-pos+1
+        if count<1 or count>8 or (level==0 and count!=1):return -1
+        face_counts[level]<-count; f:mutable usize=0
+        while f<count.usize():
+            if pos+3>length:return -1
+            base:usize=(level*8+f)*3; k:mutable usize=0
+            while k<3:
+                faces[base+k]<-input[pos]; pos<-pos+1
+                if faces[base+k]<0 or faces[base+k]>=nv:return -1
+                k<-k+1
+            a:i64=faces[base]*2; b:i64=faces[base+1]*2; c:i64=faces[base+2]*2
+            if faces[base]==faces[base+1] or faces[base]==faces[base+2] or faces[base+1]==faces[base+2] or cross(xy[a],xy[a+1],xy[b],xy[b+1],xy[c],xy[c+1])<=0:return -1
+            f<-f+1
+        if level+1<nl.usize():
+            f<-0
+            while f<count.usize():
+                if pos>=length:return -1
+                n:i64=input[pos]; pos<-pos+1
+                if n<1 or n>8 or pos+n.usize()>length:return -1
+                cc[level*8+f]<-n; j:mutable usize=0
+                while j<n.usize():
+                    child:i64=input[pos]; pos<-pos+1
+                    if child<0 or child>=8 or (j>0 and child<=ids[(level*8+f)*8+j-1]):return -1
+                    ids[(level*8+f)*8+j]<-child; j<-j+1
+                f<-f+1
+        level<-level+1
+    if pos!=length:return -1
+    level<-0
+    while level+1<nl.usize():
+        f<-0
+        while f<face_counts[level].usize():
+            j:mutable usize=0
+            while j<cc[level*8+f].usize():
+                child:i64=ids[(level*8+f)*8+j]
+                if child>=face_counts[level+1] or not tri_hit(faces[(level*8+f)*3]&,faces[((level+1)*8+child.usize())*3]&,xy[0]&):return -1
+                j<-j+1
+            f<-f+1
+        level<-level+1
+    level<-0
+    while level<nl.usize():
+        hits:mutable i64=0; f<-0
+        while f<face_counts[level].usize():
+            base:usize=(level*8+f)*3
+            if boundary(qx,qy,faces[base]&,xy[0]&):return -1
+            if inside(qx,qy,faces[base]&,xy[0]&):hits<-hits+1
+            f<-f+1
+        if hits!=1:return -1
+        level<-level+1
+    face:mutable i64=0; predicates:mutable i64=1; level<-0
+    while level+1<nl.usize():
+        found:mutable i64=-1; j:mutable usize=0
+        while j<cc[level*8+face.usize()].usize():
+            child:i64=ids[(level*8+face.usize())*8+j]; predicates<-predicates+1
+            if inside(qx,qy,faces[((level+1)*8+child.usize())*3]&,xy[0]&):found<-child;break
+            j<-j+1
+        if found<0:return -1
+        face<-found;level<-level+1
+    if output.is_null() or capacity<16:return -2
+    staged:mutable u8[16]=zeroed;put64(face,staged&,0);put64(predicates,staged&,8)
+    i:mutable usize=0
+    while i<16:output[i]<-staged[i];i<-i+1
+    return 16

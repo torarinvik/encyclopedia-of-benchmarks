@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi82-fm-index-locate-i64-array-bytes-output-v1",
+  "algorithm": "fm_index_locate",
+  "function_symbol": "fm_index_locate",
+  "abi": "i64_array_bytes_output",
+  "description": "FM-index backward search plus LF walking to sampled suffix-array values for locate(P).",
+  "source": {
+    "title": "Compressed Suffix Array",
+    "authors": [
+      "Djamal Belazzougui",
+      "Veli M\u00e4kinen",
+      "Daniel Valenzuela"
+    ],
+    "year": 2016,
+    "doi": "10.1007/978-1-4939-2864-4_82",
+    "epub_path": "OEBPS/AChap82.html",
+    "section": "FM-Index; locate(P) after LF mapping",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_82",
+    "implementation_status": "bounded clean-room profile; no book prose or code copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,text_symbols...,m,pattern_symbols...,sample_stride]",
+    "text_symbol_range": [
+      1,
+      4
+    ],
+    "pattern_symbol_range": [
+      1,
+      4
+    ],
+    "text_length_range": [
+      1,
+      32
+    ],
+    "pattern_length_range": [
+      1,
+      8
+    ],
+    "sample_stride_range": "1..n",
+    "maximum_valid_length": 43,
+    "maximum_parseable_length": 43,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[match_count,matching_text_offsets_in_suffix_array_order]",
+    "maximum_bytes": 264,
+    "success_result": "8*(match_count+1) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Bounded suffix array, BWT, C/rank/LF arrays, sampled-SA flags and values, and staged locations."
+  },
+  "contract": {
+    "index": "Build BWT for text plus a unique smallest sentinel 0. Backward search computes the matching suffix-array interval.",
+    "sampling": "Sample rows whose suffix-array value is divisible by the supplied stride s. This is a deterministic bounded realization of the chapter-described sampled-SA structure; the chapter requires s=Theta(log^(1+epsilon)n) asymptotically but leaves the finite sample schedule as a parameter.",
+    "locate": "For each row in the backward-search interval in suffix-array order, LF-walk until a sampled row; recover (sampled_SA_value+walk_steps) modulo n+1. Return offsets only in 0..n-1.",
+    "limits": "Counts/locates occurrences only. Does not claim compressed-space or asymptotic query bounds; rank is direct bounded prefix scan.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "banana-ana-lf-locate",
+      "input_values": [
+        6,
+        2,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        2
+      ],
+      "input_length": 12,
+      "output_capacity": 264,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000003000000000000000100000000000000"
+    },
+    {
+      "id": "overlapping-repeated-match",
+      "input_values": [
+        4,
+        1,
+        1,
+        1,
+        1,
+        2,
+        1,
+        1,
+        2
+      ],
+      "input_length": 9,
+      "output_capacity": 264,
+      "expected_result": 32,
+      "expected_output_hex": "0300000000000000020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "absent-symbol",
+      "input_values": [
+        4,
+        1,
+        2,
+        3,
+        1,
+        1,
+        4,
+        2
+      ],
+      "input_length": 8,
+      "output_capacity": 264,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "pattern-longer-than-text",
+      "input_values": [
+        2,
+        1,
+        2,
+        3,
+        1,
+        2,
+        1,
+        1
+      ],
+      "input_length": 8,
+      "output_capacity": 264,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "stride-one-all-suffixes-sampled",
+      "input_values": [
+        3,
+        3,
+        1,
+        2,
+        1,
+        2,
+        1
+      ],
+      "input_length": 7,
+      "output_capacity": 264,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000100000000000000"
+    },
+    {
+      "id": "maximum-input-length",
+      "input_values": [
+        32,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        8,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        5
+      ],
+      "input_length": 43,
+      "output_capacity": 264,
+      "expected_result": 208,
+      "expected_output_hex": "19000000000000001800000000000000170000000000000016000000000000001500000000000000140000000000000013000000000000001200000000000000110000000000000010000000000000000f000000000000000e000000000000000d000000000000000c000000000000000b000000000000000a000000000000000900000000000000080000000000000007000000000000000600000000000000050000000000000004000000000000000300000000000000020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-text-locate-output",
+      "input_values": [
+        32,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        4
+      ],
+      "input_length": 36,
+      "output_capacity": 264,
+      "expected_result": 264,
+      "expected_output_hex": "20000000000000001f000000000000001e000000000000001d000000000000001c000000000000001b000000000000001a0000000000000019000000000000001800000000000000170000000000000016000000000000001500000000000000140000000000000013000000000000001200000000000000110000000000000010000000000000000f000000000000000e000000000000000d000000000000000c000000000000000b000000000000000a000000000000000900000000000000080000000000000007000000000000000600000000000000050000000000000004000000000000000300000000000000020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "sentinel-symbol-invalid",
+      "input_values": [
+        2,
+        0,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 6,
+      "output_capacity": 264,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "stride-zero-invalid",
+      "input_values": [
+        2,
+        1,
+        2,
+        1,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "output_capacity": 264,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "stride-above-text-invalid",
+      "input_values": [
+        2,
+        1,
+        2,
+        1,
+        1,
+        3
+      ],
+      "input_length": 6,
+      "output_capacity": 264,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed-pattern-frame",
+      "input_values": [
+        2,
+        1,
+        2,
+        2,
+        1,
+        1
+      ],
+      "input_length": 6,
+      "output_capacity": 264,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-capacity",
+      "input_values": [
+        4,
+        1,
+        1,
+        1,
+        1,
+        2,
+        1,
+        1,
+        2
+      ],
+      "input_length": 9,
+      "output_capacity": 31,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [
+        4,
+        1,
+        1,
+        1,
+        1,
+        2,
+        1,
+        1,
+        2
+      ],
+      "input_length": 9,
+      "output_capacity": 32,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 1,
+      "output_capacity": 264,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_is_null": true
+    }
+  ]
+}

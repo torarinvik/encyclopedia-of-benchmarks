@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-min-hash-k-partition-i64-array-bytes-output-v1",
+  "algorithm": "min_hash_k_partition",
+  "function_symbol": "min_hash_k_partition",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Min-Hash Sketches",
+    "authors": ["Edith Cohen"],
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_573",
+    "method": "k-partition stochastic-averaging sketch with supplied bucket and rank choices",
+    "scope": "one minimum (rank,item_id) per bucket; hash generation and estimator properties excluded"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[k,n,(bucket,rank)[n]]; item ID is its zero-based stream position",
+    "k_range": [1, 8],
+    "item_count_range": [0, 32],
+    "bucket_range": "[0,k)",
+    "rank_range": [0, 1000],
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "(item_id,rank) per bucket in bucket order; empty bucket is (-1,1001); equal ranks select lower item ID",
+    "maximum_values": 16,
+    "maximum_bytes": 128,
+    "success_result": "actual output byte length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "eight bucket minima plus staged output"
+  },
+  "cases": [
+    {"id":"four-buckets-stream-updates-and-tie","input_values":[4,6,2,9,0,5,2,3,1,7,0,5,3,0],"input_length":14,"output_capacity":128,"expected_result":64,"expected_output_hex":"01000000000000000500000000000000030000000000000007000000000000000200000000000000030000000000000005000000000000000000000000000000"},
+    {"id":"empty-buckets","input_values":[4,2,1,1000,1,1],"input_length":6,"output_capacity":128,"expected_result":64,"expected_output_hex":"ffffffffffffffffe90300000000000001000000000000000100000000000000ffffffffffffffffe903000000000000ffffffffffffffffe903000000000000"},
+    {"id":"tie-by-earlier-stream-id","input_values":[3,4,1,4,1,4,0,2,1,1],"input_length":10,"output_capacity":128,"expected_result":48,"expected_output_hex":"0200000000000000020000000000000003000000000000000100000000000000ffffffffffffffffe903000000000000"},
+    {"id":"empty-stream","input_values":[3,0],"input_length":2,"output_capacity":128,"expected_result":48,"expected_output_hex":"ffffffffffffffffe903000000000000ffffffffffffffffe903000000000000ffffffffffffffffe903000000000000"},
+    {"id":"bucket-out-of-range","input_values":[2,1,2,0],"input_length":4,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"rank-out-of-range","input_values":[2,1,0,1001],"input_length":4,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[4,6,2,9,0,5,2,3,1,7,0,5,3,0],"input_length":14,"output_capacity":63,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,0],"input_length":2,"output_capacity":128,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ],
+  "measurement": {"comparison_model":"i64_array_bytes_output_call","sample_count":8,"warmup_rounds":1,"repetitions_per_sample":20}
+}

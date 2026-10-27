@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-comb-list-update-i64-array-bytes-output-v1",
+  "algorithm": "comb_list_update",
+  "function_symbol": "comb_list_update",
+  "abi": "i64_array_bytes_output",
+  "description": "Comb list update with supplied uniform mode draws and Bit initialization.",
+  "source": {
+    "title": "Online List Update",
+    "authors": ["Shahin Kamali"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_266",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_266",
+    "algorithm_attribution": "For each request, select Bit with probability 0.8 or Timestamp with probability 0.2.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,request_count,initial_order[n],request_ids[request_count],initial_bits[n],mode_draws[request_count]]",
+    "item_count_range": [1, 8],
+    "request_count_range": [0, 32],
+    "item_id_range": "0..n-1",
+    "initial_order_requirement": "permutation of all item IDs",
+    "initial_bit_range": [0, 1],
+    "mode_draw_range": [0, 4],
+    "mode_draw_mapping": "0..3 selects Bit; 4 selects Timestamp; independent uniform draws preserve the 0.8/0.2 mixture",
+    "maximum_valid_length": 82,
+    "maximum_parseable_length": 82,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_vector",
+    "encoding": "little-endian signed 64-bit words [total_access_cost,final_order[n],pre_access_positions[request_count],final_bits[n]]",
+    "maximum_bytes": 392,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {"bytes": 8192, "meaning": "Bounded request/mode histories, item bits, timestamps, and staged output."},
+  "contract": {
+    "access_cost": "Charge the 1-based position before applying the selected component's update.",
+    "bit_component": "Toggle the requested item's bit only when Bit is selected; move it to front if the new bit is one.",
+    "timestamp_component": "Timestamp uses the complete request history, regardless of which component handled intervening requests.",
+    "random_mode": "Independent uniform values 0..3 select Bit and value 4 selects Timestamp.",
+    "initial_randomness": "The supplied initial bits are fixed independent uniform samples for the Bit component."
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "oracle_method": "The primary oracle scans request intervals for Timestamp and applies Bit front moves. The independent verifier tracks positions and per-item occurrence-time lists.",
+  "cases": [
+    {"id":"timestamp_scan_then_bit_front_move","input_values":[4,6,0,1,2,3,3,0,1,0,3,2,0,0,0,0,4,4,4,4,4,0],"input_length":22,"output_capacity":120,"expected_result":120,"expected_output_hex":"1000000000000000 0200000000000000 0000000000000000 0300000000000000 0100000000000000 0400000000000000 0100000000000000 0200000000000000 0100000000000000 0400000000000000 0400000000000000 0000000000000000 0000000000000000 0100000000000000 0000000000000000"},
+    {"id":"bit_branch_toggles_only_when_selected","input_values":[2,3,0,1,1,0,1,0,0,4,4,0],"input_length":12,"output_capacity":64,"expected_result":64,"expected_output_hex":"0600000000000000 0100000000000000 0000000000000000 0200000000000000 0200000000000000 0200000000000000 0000000000000000 0100000000000000"},
+    {"id":"maximum_output_all_bit_draws","input_values":[8,32,0,1,2,3,4,5,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":82,"output_capacity":392,"expected_result":392,"expected_output_hex":"2700000000000000 0700000000000000 0000000000000000 0100000000000000 0200000000000000 0300000000000000 0400000000000000 0500000000000000 0600000000000000 0800000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000"},
+    {"id":"invalid_mode_draw","input_values":[1,1,0,0,0,5],"input_length":6,"output_capacity":392,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_initial_bit","input_values":[1,0,0,2],"input_length":4,"output_capacity":392,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input","input_values":[1,0,0,0,99],"input_length":5,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_capacity_for_maximum_output","input_values":[8,32,0,1,2,3,4,5,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":82,"output_capacity":391,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[4,6,0,1,2,3,3,0,1,0,3,2,0,0,0,0,4,4,4,4,4,0],"input_length":22,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

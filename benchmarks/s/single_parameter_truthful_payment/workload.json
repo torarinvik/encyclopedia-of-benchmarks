@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-single-parameter-truthful-payment-i64-array-bytes-output-v1",
+  "algorithm": "single_parameter_truthful_payment",
+  "function_symbol": "single_parameter_truthful_payment",
+  "pinned_source": {
+    "title": "Truthful Mechanisms for One-Parameter Agents",
+    "author": "Moshe Babaioff",
+    "doi": "10.1007/978-1-4939-2864-4_436",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_436",
+    "license": "No source-code license asserted; clean-room algorithm port"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[bid,k,(breakpoint,load)[k]]",
+    "bid_range": [0, 16],
+    "step_count_range": [1, 8],
+    "breakpoint_range": [0, 15],
+    "load_range": [0, 16],
+    "breakpoint_rule": "Strictly increasing; first breakpoint is zero.",
+    "allocation_rule": "Nonincreasing right-continuous step function, zero on [16,infinity).",
+    "maximum_valid_length": 18,
+    "invalid_result": -1
+  },
+  "contract": {
+    "payment": "P(b)=b*w(b)+integral_b^infinity w(u)du, with h_i=0.",
+    "output": "[w(b),P(b)]",
+    "arithmetic": "Exact integer area on unit-grid breakpoints and loads.",
+    "profile_scope": "The allocation rule is supplied; this profile computes its truthful payment under the chapter's monotonicity characterization and does not construct a mechanism."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[allocation_load,payment]",
+    "maximum_bytes": 16,
+    "success_result": 16,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 16,
+    "meaning": "Two-word staged output: current allocation and exact payment."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {
+      "id": "step-area-after-bid",
+      "input_values": [3, 3, 0, 4, 2, 3, 7, 0],
+      "input_length": 8,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "03000000000000001500000000000000"
+    },
+    {
+      "id": "bid-zero",
+      "input_values": [0, 2, 0, 2, 5, 0],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000000a00000000000000"
+    },
+    {
+      "id": "bid-at-zero-allocation-tail",
+      "input_values": [16, 2, 0, 4, 8, 0],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "invalid-increasing-load",
+      "input_values": [3, 2, 0, 1, 4, 2],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": -1
+    }
+  ]
+}

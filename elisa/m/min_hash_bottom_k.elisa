@@ -1,0 +1,35 @@
+const MAX_INPUT:usize=35
+def put64(value:i64,output:mutable u8&,pos:usize)->void:
+    bits:u64=value.u64();j:mutable usize=0
+    while j<8:
+        output[pos+j]<-((bits>>(8*j))&255).u8()
+        j<-j+1
+def min_hash_bottom_k(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("min_hash_bottom_k"):
+    if input.is_null() or length<4 or length>MAX_INPUT:return -1
+    nr:i64=input[0];kr:i64=input[1]
+    if nr<1 or nr>16 or kr<1 or kr>8 or length!=2+2*nr.usize():return -1
+    n:usize=nr.usize();k:usize=kr.usize();ids:mutable [16]usize=[0;16];ranks:mutable [16]i64=[0;16];count:mutable usize=0
+    i:mutable usize=0
+    while i<n:
+        id:i64=input[2+2*i];rank:i64=input[3+2*i]
+        if id<0 or id>=16 or rank<0 or rank>1000:return -1
+        j:mutable usize=0
+        while j<i:
+            if id==input[2+2*j]:return -1
+            j<-j+1
+        pos:mutable usize=0
+        while pos<count and (ranks[pos]<rank or (ranks[pos]==rank and ids[pos]<id.usize())):pos<-pos+1
+        if pos<k:
+            next:mutable usize=if count<k then count else k-1
+            while next>pos:
+                ids[next]<-ids[next-1];ranks[next]<-ranks[next-1];next<-next-1
+            ids[pos]<-id.usize();ranks[pos]<-rank
+            if count<k:count<-count+1
+        i<-i+1
+    bytes:usize=8*(1+2*count)
+    if output.is_null() or capacity<bytes:return -2
+    put64(count.i64(),output&,0)
+    i<-0
+    while i<count:
+        put64(ids[i].i64(),output&,8+16*i);put64(ranks[i],output&,16+16*i);i<-i+1
+    bytes.i64()

@@ -1,0 +1,17 @@
+def pfr_local_forward_decision_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length != 2: return -1
+    angle: i64 = input[0]
+    draw: i64 = input[1]
+    if angle < 0 || angle > 180000000 || draw < 0 || draw >= 1000000: return -1
+    forward: i64 = 0
+    if angle >= 134000000 || 180 * draw < angle: forward <- 1
+    if output == null || capacity < 8: return -2
+    bits: u64 = forward.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+    8
+
+export fn pfr_local_forward_decision(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = pfr_local_forward_decision_impl

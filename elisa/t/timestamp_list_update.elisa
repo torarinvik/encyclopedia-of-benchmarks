@@ -1,0 +1,68 @@
+const MAX_N: usize = 8
+const MAX_REQUESTS: usize = 32
+const MAX_INPUT: usize = 42
+const MAX_OUTPUT_BYTES: usize = 328
+
+def timestamp_store64(output: mutable u8&, offset: usize, value: i64): void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def timestamp_list_update_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    n_raw: i64 = input[0]
+    requests_raw: i64 = input[1]
+    if n_raw < 1 or n_raw > MAX_N.i64() or requests_raw < 0 or requests_raw > MAX_REQUESTS.i64(): return -1
+    n: usize = n_raw.usize()
+    request_count: usize = requests_raw.usize()
+    if length != 2 + n + request_count: return -1
+    order: mutable usize[MAX_N] = zeroed
+    seen: mutable bool[MAX_N] = zeroed
+    for i in 0..<n:
+        item: i64 = input[2 + i]
+        if item < 0 or item >= n_raw or seen[item.usize()]: return -1
+        order[i] <- item.usize()
+        seen[item.usize()] <- true
+    request_ids: mutable usize[MAX_REQUESTS] = zeroed
+    for i in 0..<request_count:
+        item: i64 = input[2 + n + i]
+        if item < 0 or item >= n_raw: return -1
+        request_ids[i] <- item.usize()
+    last_request: mutable i64[MAX_N] = zeroed
+    for i in 0..<MAX_N: last_request[i] <- -1
+    positions: mutable i64[MAX_REQUESTS] = zeroed
+    total_cost: mutable i64 = 0
+    for time in 0..<request_count:
+        item: usize = request_ids[time]
+        position: mutable usize = 0
+        while position < n and order[position] != item: position <- position + 1
+        if position == n: return -1
+        positions[time] <- (position + 1).i64()
+        total_cost <- total_cost + (position + 1).i64()
+        if last_request[item] >= 0:
+            for target in 0..<position:
+                candidate: usize = order[target]
+                occurrences: mutable usize = 0
+                for t in (last_request[item].usize() + 1)..<time:
+                    if request_ids[t] == candidate: occurrences <- occurrences + 1
+                if occurrences <= 1:
+                    for shift in 0..<(position - target):
+                        order[position - shift] <- order[position - shift - 1]
+                    order[target] <- item
+                    break
+        last_request[item] <- time.i64()
+    words: mutable i64[1 + MAX_N + MAX_REQUESTS] = zeroed
+    words[0] <- total_cost
+    for i in 0..<n: words[1 + i] <- order[i].i64()
+    for i in 0..<request_count: words[1 + n + i] <- positions[i]
+    output_bytes: usize = 8 * (1 + n + request_count)
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    for word in 0..<(1 + n + request_count): timestamp_store64(staged&, 8 * word, words[word])
+    for byte in 0..<output_bytes: output[byte] <- staged[byte]
+    output_bytes.i64()
+
+export fn timestamp_list_update(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64 = timestamp_list_update_impl

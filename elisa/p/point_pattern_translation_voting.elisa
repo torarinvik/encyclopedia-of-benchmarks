@@ -1,0 +1,82 @@
+const MAX_PATTERN: usize = 6
+const MAX_TARGET: usize = 8
+const MAX_PAIRS: usize = 48
+const MAX_COORD: i64 = 16
+
+def ptv_put64(output: mutable u8&, offset: usize, value: i64): void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def point_pattern_translation_voting_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 2 or length > 31: return -1
+    pattern_raw: i64 = input[0]
+    target_raw: i64 = input[1]
+    if pattern_raw < 1 or pattern_raw > MAX_PATTERN.i64() or target_raw < 1 or target_raw > MAX_TARGET.i64(): return -1
+    pattern_count: usize = pattern_raw.usize()
+    target_count: usize = target_raw.usize()
+    if length != 2 + 2 * (pattern_count + target_count): return -1
+    px: mutable i64[MAX_PATTERN] = zeroed
+    py: mutable i64[MAX_PATTERN] = zeroed
+    tx: mutable i64[MAX_TARGET] = zeroed
+    ty: mutable i64[MAX_TARGET] = zeroed
+    cursor: mutable usize = 2
+    for i in 0..<pattern_count:
+        px[i] <- input[cursor]
+        py[i] <- input[cursor + 1]
+        cursor <- cursor + 2
+        if px[i] < -MAX_COORD or px[i] > MAX_COORD or py[i] < -MAX_COORD or py[i] > MAX_COORD: return -1
+        for j in 0..<i:
+            if px[i] == px[j] and py[i] == py[j]: return -1
+    for i in 0..<target_count:
+        tx[i] <- input[cursor]
+        ty[i] <- input[cursor + 1]
+        cursor <- cursor + 2
+        if tx[i] < -MAX_COORD or tx[i] > MAX_COORD or ty[i] < -MAX_COORD or ty[i] > MAX_COORD: return -1
+        for j in 0..<i:
+            if tx[i] == tx[j] and ty[i] == ty[j]: return -1
+    if output.is_null(): return -2
+
+    dx: mutable i64[MAX_PAIRS] = zeroed
+    dy: mutable i64[MAX_PAIRS] = zeroed
+    pair_count: mutable usize = 0
+    for p in 0..<pattern_count:
+        for t in 0..<target_count:
+            dx[pair_count] <- tx[t] - px[p]
+            dy[pair_count] <- ty[t] - py[p]
+            pair_count <- pair_count + 1
+    for i in 1..<pair_count:
+        key_x: i64 = dx[i]
+        key_y: i64 = dy[i]
+        j: mutable usize = i
+        while j > 0 and (dx[j - 1] > key_x or (dx[j - 1] == key_x and dy[j - 1] > key_y)):
+            dx[j] <- dx[j - 1]
+            dy[j] <- dy[j - 1]
+            j <- j - 1
+        dx[j] <- key_x
+        dy[j] <- key_y
+    best_count: mutable usize = 0
+    best_x: mutable i64 = dx[0]
+    best_y: mutable i64 = dy[0]
+    i: mutable usize = 0
+    while i < pair_count:
+        ending: mutable usize = i + 1
+        while ending < pair_count and dx[ending] == dx[i] and dy[ending] == dy[i]:
+            ending <- ending + 1
+        if ending - i > best_count:
+            best_count <- ending - i
+            best_x <- dx[i]
+            best_y <- dy[i]
+        i <- ending
+    if capacity < 24: return -2
+    staged: mutable u8[24] = zeroed
+    ptv_put64(staged&, 0, best_count.i64())
+    ptv_put64(staged&, 8, best_x)
+    ptv_put64(staged&, 16, best_y)
+    for byte in 0..<24: output[byte] <- staged[byte]
+    24
+
+export fn point_pattern_translation_voting(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("point_pattern_translation_voting") = point_pattern_translation_voting_impl

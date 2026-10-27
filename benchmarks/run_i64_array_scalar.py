@@ -185,6 +185,14 @@ from xgboost_oracle import LEFT as XGBOOST_LEFT
 from xgboost_oracle import RIGHT as XGBOOST_RIGHT
 from xgboost_oracle import LEAVES as XGBOOST_LEAVES
 from xgboost_oracle import oracle as xgboost_expected
+from rle_lcs_block_dp_oracle import (
+    MAX_INPUT_LENGTH as RLE_LCS_BLOCK_DP_MAX_INPUT_LENGTH,
+    expected_result as rle_lcs_block_dp_expected,
+)
+from rle_levenshtein_block_dp_oracle import (
+    MAX_INPUT_LENGTH as RLE_LEVENSHTEIN_BLOCK_DP_MAX_INPUT_LENGTH,
+    expected_result as rle_levenshtein_block_dp_expected,
+)
 
 SLRE_MAX_INPUT_LENGTH = 2 + SLRE_MAX_TEXT + SLRE_MAX_PATTERN
 from analyzer_oracle import MAX_EVENTS as ANALYZER_MAX_EVENTS
@@ -1494,10 +1502,6 @@ from mcoloring_oracle import MAX_VERTICES as MCOLORING_MAX_VERTICES
 from mcoloring_oracle import MIN_COLORS as MCOLORING_MIN_COLORS
 from mcoloring_oracle import MIN_VERTICES as MCOLORING_MIN_VERTICES
 from mcoloring_oracle import expected_result as mcoloring_expected
-from johnsons_algorithm_oracle import MAX_INPUT_LENGTH as JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH
-from johnsons_algorithm_oracle import MAX_VERTICES as JOHNSONS_ALGORITHM_MAX_VERTICES
-from johnsons_algorithm_oracle import MAX_WEIGHT as JOHNSONS_ALGORITHM_MAX_WEIGHT
-from johnsons_algorithm_oracle import expected_result as johnsons_algorithm_expected_result
 from knapsack_zero_one_tabulation_oracle import CASE_IDS as KNAPSACK_ZERO_ONE_TABULATION_CASE_IDS
 from knapsack_zero_one_tabulation_oracle import INVALID_RESULT as KNAPSACK_ZERO_ONE_TABULATION_INVALID_RESULT
 from knapsack_zero_one_tabulation_oracle import MAX_CAPACITY as KNAPSACK_ZERO_ONE_TABULATION_MAX_CAPACITY
@@ -2751,111 +2755,6 @@ def validate_lca_workload(workload: dict) -> None:
         result = lca_expected_result(values, input_length, input_is_null)
         if type(case.get("expected_result")) is not int or result != case.get("expected_result"):
             raise ValueError(f"lca workload mismatch: {case.get('id')}")
-
-
-JOHNSONS_ALGORITHM_CASE_IDS = frozenset({
-    "positive_length_null_input", "single_vertex_ignored_negative_self_loop", "two_vertex_positive_cycle",
-    "directed_shortcut_changes_distance", "nonzero_diagonal_self_loops_are_ignored",
-    "zero_cells_mean_absent_edges", "maximum_dense_positive_matrix",
-    "disconnected_graph_invalid", "negative_cycle_invalid",
-    "negative_edge_zero_reweighted_invalid", "empty_input_invalid",
-    "zero_vertices_invalid", "vertex_count_above_bound_invalid",
-    "truncated_matrix_invalid", "trailing_matrix_cell_invalid", "cell_out_of_range_invalid",
-})
-
-
-def validate_johnsons_algorithm_workload(workload: dict) -> None:
-    """Pin the Java matrix Johnson contract and all-pairs distance fixtures."""
-    source = {
-        "repository": "TheAlgorithms/Java",
-        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
-        "path": "src/main/java/com/thealgorithms/datastructures/graphs/JohnsonsAlgorithm.java",
-        "symbol": "johnsonAlgorithm",
-        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/graphs/JohnsonsAlgorithm.java",
-    }
-    input_spec = {
-        "kind": "signed_64_bit_integer_array",
-        "encoding": "[V, row-major VxV matrix]",
-        "minimum_vertices": 1,
-        "maximum_vertices": JOHNSONS_ALGORITHM_MAX_VERTICES,
-        "maximum_input_length": JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH,
-        "cell_range": [-JOHNSONS_ALGORITHM_MAX_WEIGHT, JOHNSONS_ALGORITHM_MAX_WEIGHT],
-        "zero_cell": "absent_edge_normalized_to_positive_infinity_before_edge_list_and_shortest_path_processing",
-        "diagonal": "ignored; the pinned source excludes self-loops from edge ingestion",
-        "graph_domain": ["strongly_connected", "no_negative_cycle", "strictly_positive_reweighted_edges"],
-        "reweighted_edge_condition": "w + h[u] - h[v] > 0 for every ingested edge, using pinned Bellman-Ford potentials",
-        "invalid_input_result": -1,
-        "null_input_result": -1,
-    }
-    output_spec = {
-        "kind": "signed_64_bit_scalar",
-        "encoding": "low 63 bits of FNV-1a-64 over row-major VxV shortest distances, each distance serialized as one little-endian signed-i64 word",
-        "fnv1a_offset_basis": 14695981039346656037,
-        "fnv1a_prime": 1099511628211,
-        "unreachable_sentinel": 4611686018427387904,
-        "infinity_encoding": "Java Double.POSITIVE_INFINITY maps to 2^62; unreachable pairs do not occur in valid strongly connected cases",
-    }
-    measurement = {
-        "comparison_model": "i64_array_scalar_call",
-        "sample_count": 7,
-        "warmup_rounds": 1,
-        "repetitions_per_sample": 100,
-    }
-    case_list = workload.get("cases")
-    if not isinstance(case_list, list):
-        case_list = []
-    case_ids = [case.get("id") for case in case_list if isinstance(case, dict)]
-    null_cases = [case for case in case_list
-                  if isinstance(case, dict) and case.get("input_is_null", False)]
-    if (workload.get("schema_version") != 1
-            or workload.get("id") != "thealgorithms-java-johnsons-algorithm-i64-matrix-scalar-v1"
-            or workload.get("algorithm") != "johnsons_algorithm"
-            or workload.get("function_symbol") != "johnsons_algorithm"
-            or workload.get("pinned_source") != source
-            or workload.get("input") != input_spec
-            or workload.get("output") != output_spec
-            or workload.get("measurement") != measurement
-            or JOHNSONS_ALGORITHM_MAX_VERTICES != 16
-            or JOHNSONS_ALGORITHM_MAX_WEIGHT != 32
-            or JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH != 257
-            or len(case_ids) != len(JOHNSONS_ALGORITHM_CASE_IDS)
-            or len(case_ids) != len(set(case_ids))
-            or set(case_ids) != JOHNSONS_ALGORITHM_CASE_IDS
-            or len(null_cases) != 1
-            or null_cases[0].get("id") != "positive_length_null_input"
-            or null_cases[0].get("input_values") != []
-            or null_cases[0].get("input_length") != 1
-            or null_cases[0].get("expected_result") != -1):
-        raise ValueError("johnsons_algorithm workload metadata does not match its reviewed contract")
-
-    readme = (ROOT / "benchmarks" / "j" / "johnsons_algorithm" / "README.md").read_text(
-        encoding="utf-8")
-    if source["url"] not in readme:
-        raise ValueError("johnsons_algorithm README is missing its pinned source link")
-    indexed_cases = {case["id"]: case for case in case_list}
-    maximum_case = indexed_cases["maximum_dense_positive_matrix"]
-    if (len(maximum_case.get("input_values", [])) != JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH
-            or maximum_case.get("input_values", [None])[0] != JOHNSONS_ALGORITHM_MAX_VERTICES
-            or maximum_case.get("expected_result") == -1
-            or any(indexed_cases[case_id].get("expected_result") != -1
-                   for case_id in JOHNSONS_ALGORITHM_CASE_IDS if case_id.endswith("_invalid"))):
-        raise ValueError("johnsons_algorithm workload is missing maximum or invalid-graph coverage")
-
-    for case in case_list:
-        values = case.get("input_values")
-        input_is_null = case.get("input_is_null", False)
-        input_length = case.get("input_length", len(values) if isinstance(values, list) else -1)
-        if (not isinstance(values, list)
-                or len(values) > JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH
-                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
-                or type(input_is_null) is not bool
-                or type(input_length) is not int
-                or (input_is_null and (values or not 1 <= input_length <= JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH))
-                or (not input_is_null and input_length != len(values))):
-            raise ValueError(f"johnsons_algorithm input framing is invalid for {case.get('id')}")
-        result = johnsons_algorithm_expected_result(values)
-        if type(case.get("expected_result")) is not int or result != case.get("expected_result"):
-            raise ValueError(f"johnsons_algorithm workload mismatch: {case.get('id')}")
 
 
 def validate_knapsack_zero_one_tabulation_workload(workload: dict) -> None:
@@ -6197,7 +6096,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         MAX_FEISTEL_CIPHER_INPUT_LENGTH if algorithm == "feistel_cipher_normalized" else
                         MAX_EDMONDS_KARP_INPUT_LENGTH if algorithm == "edmonds_karp" else
                         MAX_GRAPH_ENUMERATION_INPUT_LENGTH if algorithm == "graph_enumeration" else
-                        JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH if algorithm == "johnsons_algorithm" else
                         KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH
                         if algorithm == "knapsack_zero_one_tabulation" else
                         LCA_MAX_INPUT_LENGTH if algorithm == "lca" else
@@ -6793,6 +6691,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         max_input_length = TSVC_S312_MAX_INPUT_LENGTH
     elif algorithm == "tsvc_s4115_indexed_gather_product_sum":
         max_input_length = TSVC_S4115_MAX_INPUT_LENGTH
+    elif algorithm == "rle_lcs_block_dp":
+        max_input_length = RLE_LCS_BLOCK_DP_MAX_INPUT_LENGTH
+    elif algorithm == "rle_levenshtein_block_dp":
+        max_input_length = RLE_LEVENSHTEIN_BLOCK_DP_MAX_INPUT_LENGTH
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
@@ -7091,6 +6993,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = xgboost_expected(values)
         if expected != expected_from_source:
             raise ValueError("xgboost expected_result must match the bounded multi-tree classifier profile")
+    elif algorithm == "rle_lcs_block_dp":
+        expected_from_source = rle_lcs_block_dp_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rle_lcs_block_dp expected_result must match the run-length block-boundary LCS recurrence")
+    elif algorithm == "rle_levenshtein_block_dp":
+        expected_from_source = rle_levenshtein_block_dp_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rle_levenshtein_block_dp expected_result must match the run-length block-boundary edit recurrence")
     elif algorithm == "analyzer":
         expected_from_source = analyzer_expected(values)
         if expected != expected_from_source:
@@ -7273,10 +7183,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = graph_enumeration_expected(values)
         if expected != expected_from_source:
             raise ValueError("graph_enumeration expected_result must match sorted-label adjacency enumeration")
-    elif algorithm == "johnsons_algorithm":
-        expected_from_source = johnsons_algorithm_expected_result(values)
-        if expected != expected_from_source:
-            raise ValueError("johnsons_algorithm expected_result must match bounded Java matrix all-pairs distances")
     elif algorithm == "knapsack_zero_one_tabulation":
         expected_from_source = knapsack_zero_one_tabulation_expected(values)
         if expected != expected_from_source:
@@ -21052,8 +20958,6 @@ def main() -> int:
         validate_graph_enumeration_workload(workload)
     elif algorithm == "lca":
         validate_lca_workload(workload)
-    elif algorithm == "johnsons_algorithm":
-        validate_johnsons_algorithm_workload(workload)
     elif algorithm == "knapsack_zero_one_tabulation":
         validate_knapsack_zero_one_tabulation_workload(workload)
     elif algorithm == "matrix_exponentiation":

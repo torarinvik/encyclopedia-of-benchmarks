@@ -1,0 +1,70 @@
+def ss_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[word * 8 + byte] <- (bits >> (byte * 8)).u8()
+
+def sum_of_squares_bin_packing_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 2 or length > 66:
+        return -1
+    capacity0: i64 = input[0]
+    n0: i64 = input[1]
+    if capacity0 < 1 or capacity0 > 64 or n0 < 0 or n0 > 64 or length != (2 + n0).usize():
+        return -1
+    n: usize = n0.usize()
+    for item in 0..<n:
+        size: i64 = input[item + 2]
+        if size < 1 or size > capacity0:
+            return -1
+    histogram: mutable i64[65] = zeroed
+    loads: mutable i64[64] = zeroed
+    assignments: mutable i64[64] = zeroed
+    bins: mutable usize = 0
+    score: mutable i64 = 0
+    for item in 0..<n:
+        size: i64 = input[item + 2]
+        selected: mutable usize = bins
+        best_score: mutable i64 = 9223372036854775807
+        for bin in 0..<bins:
+            from: i64 = loads[bin]
+            to: i64 = from + size
+            if to > capacity0:
+                continue
+            candidate: mutable i64 = score
+            if from < capacity0:
+                candidate <- candidate + (histogram[from] - 1) * (histogram[from] - 1) - histogram[from] * histogram[from]
+            if to < capacity0:
+                candidate <- candidate + (histogram[to] + 1) * (histogram[to] + 1) - histogram[to] * histogram[to]
+            if candidate < best_score:
+                best_score <- candidate
+                selected <- bin
+        new_score: mutable i64 = score
+        if size < capacity0:
+            new_score <- new_score + (histogram[size] + 1) * (histogram[size] + 1) - histogram[size] * histogram[size]
+        if new_score < best_score:
+            best_score <- new_score
+            selected <- bins
+        if selected == bins:
+            loads[bins] <- size
+            assignments[item] <- bins.i64()
+            if size < capacity0:
+                histogram[size] <- histogram[size] + 1
+            bins <- bins + 1
+        else:
+            from: i64 = loads[selected]
+            to: i64 = from + size
+            if from < capacity0:
+                histogram[from] <- histogram[from] - 1
+            if to < capacity0:
+                histogram[to] <- histogram[to] + 1
+            loads[selected] <- to
+            assignments[item] <- selected.i64()
+        score <- best_score
+    bytes: usize = 8 * (n + 1)
+    if output == null or output_capacity < bytes:
+        return -2
+    ss_put_i64(output, 0, bins.i64())
+    for item in 0..<n:
+        ss_put_i64(output, item + 1, assignments[item])
+    bytes.i64()
+
+export fn sum_of_squares_bin_packing(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = sum_of_squares_bin_packing_impl

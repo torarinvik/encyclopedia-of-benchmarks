@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-greedy-dual-weighted-caching-i64-array-bytes-output-v1",
+  "algorithm": "greedy_dual_weighted_caching",
+  "function_symbol": "greedy_dual_weighted_caching",
+  "abi": "i64_array_bytes_output",
+  "description": "Greedy Dual weighted caching with unit-sized files and deterministic hit-credit resets.",
+  "source": {
+    "title": "Online Paging and Caching",
+    "authors": ["Neal E. Young"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_267",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_267",
+    "algorithm_attribution": "Greedy Dual is the unit-file-size weighted-caching special case of Landlord; this profile resets a hit file's credit to its retrieval cost.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[cache_capacity,request_count,(file_id,retrieval_cost)*]",
+    "capacity_range": [1, 8],
+    "request_count_range": [0, 7],
+    "file_id_range": [0, 7],
+    "retrieval_cost_range": [0, 20],
+    "retrieval_cost_is_constant_per_id": true,
+    "file_size": 1,
+    "maximum_valid_length": 16,
+    "maximum_parseable_length": 16,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[miss_count,total_retrieval_cost,hit_flags,packed_eviction_masks,resident_mask]",
+    "maximum_bytes": 40,
+    "success_result": "40 bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {"bytes": 640, "meaning": "At most eight resident file IDs and credits, seven request events, and staged output."},
+  "contract": {
+    "miss_rule": "On a miss, reduce every resident credit by the minimum current credit until the requested file fits; insert it with credit equal to its retrieval cost.",
+    "hit_rule": "On a hit, reset that file's credit to its retrieval cost, selecting the chapter's allowed value between its current credit and that cost.",
+    "eviction_rule": "Evict every resident whose credit reaches zero after a reduction; record the IDs evicted by each miss as one byte in the packed eviction signature.",
+    "weighted_caching_model": "Every file has unit size; retrieval costs vary by file. The profile makes no competitive-ratio claim.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "oracle_method": "The primary oracle keeps an ordered resident-record list. The independent verifier uses a page-to-credit dictionary and reconstructs zero-credit survivors after each reduction.",
+  "cases": [
+    {"id":"hit_reset_changes_later_victim","input_values":[2,6,0,3,1,1,2,1,0,3,3,1,4,1],"input_length":14,"output_capacity":40,"expected_result":40,"expected_output_hex":"05000000000000000700000000000000080000000000000000000200040800001100000000000000"},
+    {"id":"zero_credit_file_evicted_on_miss","input_values":[1,2,0,0,1,1],"input_length":6,"output_capacity":40,"expected_result":40,"expected_output_hex":"02000000000000000100000000000000000000000000000000010000000000000200000000000000"},
+    {"id":"empty_trace","input_values":[2,0],"input_length":2,"output_capacity":40,"expected_result":40,"expected_output_hex":"00000000000000000000000000000000000000000000000000000000000000000200000000000000"},
+    {"id":"maximum_seven_requests","input_values":[8,7,0,1,1,1,2,1,3,1,4,1,5,1,6,1],"input_length":16,"output_capacity":40,"expected_result":40,"expected_output_hex":"07000000000000000700000000000000000000000000000000000000000000007f00000000000000"},
+    {"id":"inconsistent_retrieval_cost","input_values":[2,2,0,3,0,2],"input_length":6,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_retrieval_cost","input_values":[2,1,0,21],"input_length":4,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length_mismatch","input_values":[2,1,0],"input_length":3,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[2,0],"input_length":2,"output_capacity":39,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":2,"input_is_null":true,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[2,0],"input_length":2,"output_capacity":40,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

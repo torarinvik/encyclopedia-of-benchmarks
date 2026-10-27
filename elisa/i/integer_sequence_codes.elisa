@@ -1,0 +1,223 @@
+const MAX_N: usize = 32
+const MAX_INPUT: usize = 35
+const MAX_OUTPUT: usize = 4096
+const MAX_RESULT: usize = 512
+
+def emit_bit(output: mutable u8&, used: mutable usize&, value: bool) -> void:
+    output[used] <- if value: 49 else: 48
+    used <- used + 1
+
+def emit_byte(output: mutable u8&, used: mutable usize&, value: u8) -> void:
+    output[used] <- value
+    used <- used + 1
+
+def emit_number(output: mutable u8&, used: mutable usize&, value: u64, width: usize) -> void:
+    shift: mutable i64 = width.i64() - 1
+    while shift >= 0:
+        emit_bit(output, used, ((value >> shift.usize()) & 1.u64()) != 0.u64())
+        shift <- shift - 1
+
+def emit_unary(output: mutable u8&, used: mutable usize&, value: u64) -> void:
+    for _ in 0..<value.usize():
+        emit_bit(output, used, true)
+    emit_bit(output, used, false)
+
+def floor_log2(value: u64) -> usize:
+    remaining: mutable u64 = value
+    width: mutable usize = 0
+    while remaining > 1.u64():
+        remaining <- remaining >> 1
+        width <- width + 1
+    width
+
+def emit_minimal(output: mutable u8&, used: mutable usize&, value: u64, universe: u64) -> void:
+    if universe == 1.u64(): return
+    low_width: usize = floor_log2(universe)
+    short_count: u64 = (1.u64() << (low_width + 1)) - universe
+    if value < short_count:
+        emit_number(output, used, value, low_width)
+    else:
+        emit_number(output, used, value + short_count, low_width + 1)
+
+def emit_gamma(output: mutable u8&, used: mutable usize&, value: u64) -> void:
+    shifted: u64 = value + 1.u64()
+    width: usize = floor_log2(shifted)
+    emit_unary(output, used, width.u64())
+    emit_number(output, used, shifted - (1.u64() << width), width)
+
+def emit_delta(output: mutable u8&, used: mutable usize&, value: u64) -> void:
+    shifted: u64 = value + 1.u64()
+    width: usize = floor_log2(shifted)
+    emit_gamma(output, used, width.u64())
+    emit_number(output, used, shifted - (1.u64() << width), width)
+
+def emit_interpolative(output: mutable u8&, used: mutable usize&, input: i64&,
+                       left: usize, right: usize, low: i64, high: i64) -> void:
+    if left >= right: return
+    middle: usize = left + (right - left - 1) / 2
+    value: i64 = input[3 + middle]
+    lower: i64 = low + (middle - left).i64()
+    upper: i64 = high - (right - middle - 1).i64()
+    emit_minimal(output, used, (value - lower).u64(), (upper - lower).u64())
+    emit_interpolative(output, used, input, left, middle, low, value)
+    emit_interpolative(output, used, input, middle + 1, right, value + 1, high)
+
+def s9_slots(selector: usize) -> usize:
+    if selector == 0: 28
+    elif selector == 1: 14
+    elif selector == 2: 9
+    elif selector == 3: 7
+    elif selector == 4: 5
+    elif selector == 5: 4
+    elif selector == 6: 3
+    elif selector == 7: 2
+    else: 1
+
+def s9_width(selector: usize) -> usize:
+    if selector == 0: 1
+    elif selector == 1: 2
+    elif selector == 2: 3
+    elif selector == 3: 4
+    elif selector == 4: 5
+    elif selector == 5: 7
+    elif selector == 6: 9
+    elif selector == 7: 14
+    else: 28
+
+def emit_simple9(output: mutable u8&, used: mutable usize&, input: i64&, n: usize) -> void:
+    position: mutable usize = 0
+    while position < n:
+        selector: mutable usize = 0
+        take: mutable usize = 0
+        width: mutable usize = 0
+        for s in 0..<9:
+            slots: usize = s9_slots(s)
+            field_width: usize = s9_width(s)
+            candidate_count: usize = if slots < n - position: slots else: n - position
+            fits: mutable bool = true
+            for j in 0..<candidate_count:
+                if input[3 + position + j].u64() >= (1.u64() << field_width): fits <- false
+            if fits:
+                selector <- s
+                take <- candidate_count
+                width <- field_width
+                break
+        word: mutable u64 = selector.u64() << 28
+        slots: usize = s9_slots(selector)
+        for j in 0..<take:
+            word <- word | (input[3 + position + j].u64() << (28 - width * (j + 1)))
+        emit_number(output, used, word, 32)
+        position <- position + take
+
+def integer_sequence_codes_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or length > MAX_INPUT: return -1
+    mode: i64 = input[0]
+    n0: i64 = input[1]
+    parameter: i64 = input[2]
+    if mode < 0 or mode > 9 or n0 < 1 or n0 > MAX_N.i64() or length != n0.usize() + 3: return -1
+    n: usize = n0.usize()
+    if mode == 0:
+        if parameter != 0: return -1
+        for i in 0..<n:
+            if input[3 + i] < 0 or input[3 + i] > 31: return -1
+    elif mode == 1:
+        if parameter < 2 or parameter > 1000000: return -1
+        for i in 0..<n:
+            if input[3 + i] < 0 or input[3 + i] >= parameter: return -1
+    elif mode == 2 or mode == 3:
+        if parameter != 0: return -1
+        for i in 0..<n:
+            if input[3 + i] < 0 or input[3 + i] > 1000000: return -1
+    elif mode == 4:
+        if parameter < 1 or parameter > 128: return -1
+        for i in 0..<n:
+            if input[3 + i] < 0 or input[3 + i] > 127: return -1
+    elif mode == 7:
+        if parameter != 0: return -1
+        for i in 0..<n:
+            if input[3 + i] < 0 or input[3 + i] > 1000000: return -1
+    elif mode == 8:
+        if parameter != 0: return -1
+        for i in 0..<n:
+            if input[3 + i] < 0 or input[3 + i] >= (1.i64() << 28): return -1
+    elif mode == 9:
+        if parameter < 1 or parameter > 20: return -1
+        for i in 0..<n:
+            if input[3 + i] < 0 or input[3 + i] > 1000000: return -1
+    else:
+        if parameter < 2 or parameter > 4096 or n0 > parameter: return -1
+        for i in 0..<n:
+            if input[3 + i] < 0 or input[3 + i] >= parameter or (i > 0 and input[2 + i] >= input[3 + i]): return -1
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    used: mutable usize = 0
+    if mode == 0:
+        for i in 0..<n: emit_unary(&staged[0], used, input[3 + i].u64())
+    elif mode == 1:
+        for i in 0..<n: emit_minimal(&staged[0], used, input[3 + i].u64(), parameter.u64())
+    elif mode == 2:
+        for i in 0..<n: emit_gamma(&staged[0], used, input[3 + i].u64())
+    elif mode == 3:
+        for i in 0..<n: emit_delta(&staged[0], used, input[3 + i].u64())
+    elif mode == 4:
+        b: u64 = parameter.u64()
+        for i in 0..<n:
+            x: u64 = input[3 + i].u64()
+            emit_unary(&staged[0], used, x / b)
+            emit_minimal(&staged[0], used, x % b, b)
+    elif mode == 5:
+        width: mutable usize = 0
+        while n.u64() * (1.u64() << (width + 1)) <= parameter.u64(): width <- width + 1
+        bucket_size: u64 = 1.u64() << width
+        buckets: usize = ((parameter.u64() + bucket_size - 1.u64()) / bucket_size).usize()
+        counts: mutable u8[4096] = zeroed
+        for i in 0..<n: counts[(input[3 + i].u64() / bucket_size).usize()] <- counts[(input[3 + i].u64() / bucket_size).usize()] + 1
+        for bucket in 0..<buckets: emit_unary(&staged[0], used, counts[bucket].u64())
+        for i in 0..<n: emit_number(&staged[0], used, input[3 + i].u64() % bucket_size, width)
+    elif mode == 6:
+        emit_interpolative(&staged[0], used, input, 0, n, 0, parameter)
+    elif mode == 7:
+        for i in 0..<n:
+            value: u64 = input[3 + i].u64()
+            highest: mutable i64 = floor_log2(value).i64()
+            if highest < 0: highest <- 0 else: highest <- (highest / 7) * 7
+            shift: mutable i64 = highest
+            while shift >= 0:
+                byte: mutable u8 = ((value >> shift.usize()) & 0x7F.u64()).u8()
+                if shift != 0: byte <- byte | 0x80
+                emit_byte(&staged[0], used, byte)
+                shift <- shift - 7
+    elif mode == 8:
+        emit_simple9(&staged[0], used, input, n)
+    else:
+        width: usize = parameter.usize()
+        low_mask: u64 = (1.u64() << width) - 1.u64()
+        exceptions: mutable usize = 0
+        for i in 0..<n:
+            value: u64 = input[3 + i].u64()
+            emit_number(&staged[0], used, value & low_mask, width)
+            if value >= (1.u64() << width): exceptions <- exceptions + 1
+        emit_number(&staged[0], used, exceptions.u64(), 6)
+        position_width: mutable usize = 0
+        while (1 << position_width) < n: position_width <- position_width + 1
+        for i in 0..<n:
+            value: u64 = input[3 + i].u64()
+            if value >= (1.u64() << width):
+                emit_number(&staged[0], used, i.u64(), position_width)
+                emit_number(&staged[0], used, value, 20)
+    if output == null: return -2
+    if mode == 7:
+        if capacity < used: return -2
+        for i in 0..<used: output[i] <- staged[i]
+        return used.i64()
+    bytes: usize = (used + 7) / 8
+    if capacity < bytes: return -2
+    packed: mutable u8[MAX_RESULT] = zeroed
+    for i in 0..<used:
+        if staged[i] == 49:
+            index: usize = i / 8
+            shift: usize = 7 - i % 8
+            packed[index] <- packed[index] | (1.u8() << shift)
+    for i in 0..<bytes: output[i] <- packed[i]
+    bytes.i64()
+
+export fn integer_sequence_codes(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = integer_sequence_codes_impl

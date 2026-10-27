@@ -1,0 +1,105 @@
+extern pow(base: f64, exponent: f64) -> f64
+const UFP_N: usize = 8
+const UFP_M: usize = 16
+const UFP_K: usize = 8
+const UFP_MAX_INPUT: usize = 75
+const UFP_MAX_OUTPUT: usize = 648
+
+def ufp_put(output: mutable u8&, offset: usize, value: i64):
+    bits: u64 = value.u64()
+    b: mutable usize = 0
+    while b < 8: output[offset + b] <- ((bits >> (8 * b)) & 255).u8(); b <- b + 1
+
+def truthful_ufp_greedy1_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 9 or length > UFP_MAX_INPUT: return -1
+    if input[0] < 2 or input[0] > UFP_N.i64() or input[1] < 1 or input[1] > UFP_M.i64() or input[2] < 1 or input[2] > UFP_K.i64(): return -1
+    n: usize = input[0].usize(); m: usize = input[1].usize(); k: usize = input[2].usize()
+    if length != 3 + 3 * m + 3 * k: return -1
+    eu: mutable usize[UFP_M] = zeroed; ev: mutable usize[UFP_M] = zeroed
+    caps: mutable i64[UFP_M] = zeroed; prices: mutable f64[UFP_M] = zeroed
+    minimum: mutable i64 = 9; prev_u: mutable i64 = -1; prev_v: mutable i64 = -1
+    e: mutable usize = 0
+    while e < m:
+        u: i64 = input[3 + 3 * e]; v: i64 = input[4 + 3 * e]; b: i64 = input[5 + 3 * e]
+        if u < 0 or v <= u or v >= n.i64() or b < 2 or b > 8: return -1
+        if e > 0 and (u < prev_u or (u == prev_u and v <= prev_v)): return -1
+        eu[e] <- u.usize(); ev[e] <- v.usize(); caps[e] <- b; prices[e] <- 1.0 / b.f64()
+        if b < minimum: minimum <- b
+        prev_u <- u; prev_v <- v; e <- e + 1
+    src: mutable usize[UFP_K] = zeroed; dst: mutable usize[UFP_K] = zeroed; values: mutable i64[UFP_K] = zeroed
+    i: mutable usize = 0
+    while i < k:
+        s: i64 = input[3 + 3 * m + 3 * i]; t: i64 = input[4 + 3 * m + 3 * i]; value: i64 = input[5 + 3 * m + 3 * i]
+        if s < 0 or s >= n.i64() or t < 0 or t >= n.i64() or s == t or value < 1 or value > 100: return -1
+        src[i] <- s.usize(); dst[i] <- t.usize(); values[i] <- value; i <- i + 1
+    threshold: f64 = pow(2.718281828459045, (minimum - 1).f64()) * m.f64()
+    live: mutable bool[UFP_K] = zeroed; i <- 0; while i < k: live[i] <- true; i <- i + 1
+    selected: mutable usize[UFP_K] = zeroed; path_len: mutable usize[UFP_K] = zeroed
+    paths: mutable usize[UFP_K * UFP_N] = zeroed; count: mutable usize = 0
+    while count < k:
+        best: mutable i64 = -1; best_score: mutable f64 = -1.0
+        route_table: mutable usize[UFP_K * UFP_N] = zeroed; route_lengths: mutable usize[UFP_K] = zeroed
+        i <- 0
+        while i < k:
+            if live[i]:
+                dist: mutable f64[UFP_N] = zeroed; parent: mutable i64[UFP_N] = zeroed; used: mutable bool[UFP_N] = zeroed
+                v: usize = 0; while v < n: dist[v] <- 1e300; parent[v] <- -1; v <- v + 1
+                dist[src[i]] <- 0.0
+                step: mutable usize = 0
+                while step < n:
+                    u: mutable i64 = -1; v <- 0
+                    while v < n:
+                        if not used[v] and (u < 0 or dist[v] < dist[u.usize()] or (dist[v] == dist[u.usize()] and v < u.usize())): u <- v.i64()
+                        v <- v + 1
+                    if u < 0 or dist[u.usize()] >= 1e299: break
+                    used[u.usize()] <- true
+                    e <- 0
+                    while e < m:
+                        neighbor: mutable i64 = -1
+                        if eu[e] == u.usize(): neighbor <- ev[e].i64()
+                        else if ev[e] == u.usize(): neighbor <- eu[e].i64()
+                        if neighbor >= 0 and not used[neighbor.usize()]:
+                            cand: f64 = dist[u.usize()] + prices[e]
+                            if cand < dist[neighbor.usize()] or (cand == dist[neighbor.usize()] and (parent[neighbor.usize()] < 0 or u < parent[neighbor.usize()])):
+                                dist[neighbor.usize()] <- cand; parent[neighbor.usize()] <- u
+                        e <- e + 1
+                    step <- step + 1
+                if dist[dst[i]] >= 1e299: return -1
+                rev: mutable usize[UFP_N] = zeroed; len: mutable usize = 0; v <- dst[i]
+                while v != src[i] and len < n:
+                    rev[len] <- v; len <- len + 1
+                    if parent[v] < 0: return -1
+                    v <- parent[v].usize()
+                if v != src[i] or len >= n: return -1
+                rev[len] <- src[i]; len <- len + 1; route_lengths[i] <- len
+                var_q: mutable usize = 0
+                while var_q < len: route_table[i * UFP_N + var_q] <- rev[len - 1 - var_q]; var_q <- var_q + 1
+                score: f64 = values[i].f64() / dist[dst[i]]
+                if best < 0 or score > best_score: best <- i.i64(); best_score <- score
+            i <- i + 1
+        if best < 0: break
+        bi: usize = best.usize(); live[bi] <- false; selected[count] <- bi; path_len[count] <- route_lengths[bi]
+        i <- 0; while i < path_len[count]: paths[count * UFP_N + i] <- route_table[bi * UFP_N + i]; i <- i + 1
+        count <- count + 1
+        i <- 0
+        while i + 1 < path_len[count - 1]:
+            u: usize = paths[(count - 1) * UFP_N + i]; v2: usize = paths[(count - 1) * UFP_N + i + 1]; e <- 0
+            while e < m:
+                if (eu[e] == u and ev[e] == v2) or (eu[e] == v2 and ev[e] == u): prices[e] <- prices[e] * pow(threshold, 1.0 / (caps[e] - 1).f64())
+                e <- e + 1
+            i <- i + 1
+        dual: mutable f64 = 0.0; e <- 0; while e < m: dual <- dual + caps[e].f64() * prices[e]; e <- e + 1
+        if dual >= threshold: break
+    words: mutable usize = 1; i <- 0; while i < count: words <- words + 2 + path_len[i]; i <- i + 1
+    bytes: usize = 8 * words
+    if output.is_null() or capacity < bytes: return -2
+    staged: mutable u8[UFP_MAX_OUTPUT] = zeroed; ufp_put(staged, 0, count.i64()); varw: mutable usize = 1; i <- 0
+    while i < count:
+        ufp_put(staged, 8 * varw, selected[i].i64()); varw <- varw + 1
+        ufp_put(staged, 8 * varw, path_len[i].i64()); varw <- varw + 1
+        e <- 0; while e < path_len[i]: ufp_put(staged, 8 * varw, paths[i * UFP_N + e].i64()); varw <- varw + 1; e <- e + 1
+        i <- i + 1
+    i <- 0; while i < bytes: output[i] <- staged[i]; i <- i + 1
+    bytes.i64()
+
+export fn truthful_ufp_greedy1(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = truthful_ufp_greedy1_impl

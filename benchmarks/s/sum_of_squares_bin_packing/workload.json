@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-sum-of-squares-bin-packing-v1",
+  "algorithm": "sum_of_squares_bin_packing",
+  "function_symbol": "sum_of_squares_bin_packing",
+  "comparison_model": "i64_array_bytes_output_call",
+  "pinned_source": {
+    "title": "Bin Packing",
+    "author": "David S. Johnson",
+    "doi": "10.1007/978-1-4939-2864-4_49",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_49",
+    "epub_path": "OEBPS/AChap49.html",
+    "section": "Sum-of-Squares",
+    "license": "No source-code license asserted; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[capacity,item_count,size_0,...,size_(n-1)]",
+    "capacity_range": [
+      1,
+      64
+    ],
+    "item_count_range": [
+      0,
+      64
+    ],
+    "item_size_range": "1..capacity",
+    "maximum_valid_length": 66,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_i64_array",
+    "description": "[bin_count,zero-based bin ID for each item in input order]",
+    "objective": "After each item, minimize sum(n_h*n_h) for partial loads h=1..capacity-1; n_h is the number of bins of load h.",
+    "tie_rule": "Among equal scores choose the lowest eligible existing bin ID; a new bin is selected only if its score is strictly lower.",
+    "maximum_output_bytes": 520,
+    "maximum_output_elements": 65,
+    "success_result": "8 * (item_count + 1)",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_when_nonempty_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Bounded bin loads, partial-load histogram, and original-order item assignments."
+  },
+  "measurement": {
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "minimizes-partial-load-occupancy-squares",
+      "input_values": [
+        4,
+        4,
+        2,
+        2,
+        2,
+        2
+      ],
+      "input_length": 6,
+      "output_capacity": 520,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000000000000000000000000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "chooses-earliest-bin-on-equal-score",
+      "input_values": [
+        4,
+        3,
+        3,
+        3,
+        1
+      ],
+      "input_length": 5,
+      "output_capacity": 520,
+      "expected_result": 32,
+      "expected_output_hex": "0200000000000000000000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "full-bin-does-not-contribute-to-score",
+      "input_values": [
+        4,
+        4,
+        3,
+        3,
+        1,
+        1
+      ],
+      "input_length": 6,
+      "output_capacity": 520,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000000000000000000010000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "unit-capacity-full-items",
+      "input_values": [
+        1,
+        3,
+        1,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "output_capacity": 520,
+      "expected_result": 32,
+      "expected_output_hex": "0300000000000000000000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "empty-item-list",
+      "input_values": [
+        4,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 520,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "maximum-bounded-instance",
+      "input_values": [
+        64,
+        64,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 66,
+      "output_capacity": 520,
+      "expected_result": 520,
+      "expected_output_hex": "01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "declared-count-mismatch",
+      "input_values": [
+        4,
+        2,
+        1
+      ],
+      "input_length": 3,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-size-item-invalid",
+      "input_values": [
+        4,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "item-larger-than-capacity-invalid",
+      "input_values": [
+        4,
+        1,
+        5
+      ],
+      "input_length": 3,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [
+        4,
+        1,
+        2
+      ],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "capacity_error_result": -2
+    }
+  ],
+  "provenance": {
+    "chapter": "Bin Packing",
+    "doi": "10.1007/978-1-4939-2864-4_49",
+    "algorithm_profile": "Online Sum-of-Squares placement with deterministic lowest-bin tie refinement; no competitive-ratio claim is made."
+  }
+}

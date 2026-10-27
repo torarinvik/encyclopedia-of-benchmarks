@@ -1,0 +1,97 @@
+# Run-length-native LCS by run-pair blocks and boundary propagation.
+def rle_lcs_block_dp_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > 18:
+        return -1
+    left_count_value: i64 = input[0]
+    if left_count_value < 1 or left_count_value > 4:
+        return -1
+    left_count: usize = left_count_value.usize()
+    right_count_index: usize = 1 + 2 * left_count
+    if right_count_index >= length:
+        return -1
+    right_count_value: i64 = input[right_count_index]
+    if right_count_value < 1 or right_count_value > 4 or length != right_count_index + 1 + 2 * right_count_value.usize():
+        return -1
+    right_count: usize = right_count_value.usize()
+    left_symbol: mutable i64[4] = zeroed
+    left_size: mutable usize[4] = zeroed
+    right_symbol: mutable i64[4] = zeroed
+    right_size: mutable usize[4] = zeroed
+    left_total: mutable usize = 0
+    right_total: mutable usize = 0
+    for run in 0..<left_count:
+        symbol: i64 = input[1 + 2 * run]
+        size_value: i64 = input[2 + 2 * run]
+        if symbol < 0 or symbol > 3 or size_value < 1 or size_value > 8:
+            return -1
+        left_total <- left_total + size_value.usize()
+        if left_total > 16:
+            return -1
+        left_symbol[run] <- symbol
+        left_size[run] <- size_value.usize()
+    for run in 0..<right_count:
+        symbol: i64 = input[right_count_index + 1 + 2 * run]
+        size_value: i64 = input[right_count_index + 2 + 2 * run]
+        if symbol < 0 or symbol > 3 or size_value < 1 or size_value > 8:
+            return -1
+        right_total <- right_total + size_value.usize()
+        if right_total > 16:
+            return -1
+        right_symbol[run] <- symbol
+        right_size[run] <- size_value.usize()
+
+    bottom: mutable i64[4][9] = zeroed
+    next_bottom: mutable i64[4][9] = zeroed
+    i: mutable usize = 0
+    while i < left_count:
+        left_boundary: mutable i64[9] = zeroed
+        j: mutable usize = 0
+        while j < right_count:
+            rows: usize = left_size[i]
+            columns: usize = right_size[j]
+            previous: mutable i64[9] = zeroed
+            current: mutable i64[9] = zeroed
+            right_boundary: mutable i64[9] = zeroed
+            column: mutable usize = 0
+            while column <= columns:
+                previous[column] <- bottom[j][column]
+                column <- column + 1
+            right_boundary[0] <- previous[columns]
+            row: mutable usize = 1
+            while row <= rows:
+                current[0] <- left_boundary[row]
+                column <- 1
+                while column <= columns:
+                    if left_symbol[i] == right_symbol[j]:
+                        current[column] <- previous[column - 1] + 1
+                    elif previous[column] > current[column - 1]:
+                        current[column] <- previous[column]
+                    else:
+                        current[column] <- current[column - 1]
+                    column <- column + 1
+                right_boundary[row] <- current[columns]
+                column <- 0
+                while column <= columns:
+                    previous[column] <- current[column]
+                    column <- column + 1
+                row <- row + 1
+            column <- 0
+            while column <= columns:
+                next_bottom[j][column] <- previous[column]
+                column <- column + 1
+            row <- 0
+            while row <= rows:
+                left_boundary[row] <- right_boundary[row]
+                row <- row + 1
+            j <- j + 1
+        j <- 0
+        while j < right_count:
+            column <- 0
+            while column <= right_size[j]:
+                bottom[j][column] <- next_bottom[j][column]
+                column <- column + 1
+            j <- j + 1
+        i <- i + 1
+    bottom[right_count - 1][right_size[right_count - 1]]
+
+export fn rle_lcs_block_dp(input: i64&, length: usize) -> i64 = rle_lcs_block_dp_impl

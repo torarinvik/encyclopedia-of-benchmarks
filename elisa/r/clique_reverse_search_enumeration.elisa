@@ -1,0 +1,71 @@
+const MAX_N: usize = 8
+const MAX_INPUT: usize = 9
+const MAX_CLIQUES: usize = 256
+const MAX_OUTPUT_BYTES: usize = 264
+
+def clique_reverse_search_visit(n: usize, adjacency: i64&, clique: i64,
+        masks: mutable u8&, count: mutable usize&) -> void:
+    masks[count] <- clique.u8()
+    count <- count + 1
+    minimum: mutable usize = n
+    vertex: mutable usize = 0
+    while vertex < n:
+        if (clique & (1 << vertex.i64())) != 0:
+            minimum <- vertex
+            break
+        vertex <- vertex + 1
+    vertex <- 0
+    while vertex < minimum:
+        bit: i64 = 1 << vertex.i64()
+        if (clique & bit) == 0 and (adjacency[vertex] & clique) == clique:
+            clique_reverse_search_visit(n, adjacency, clique | bit, masks, count)
+        vertex <- vertex + 1
+
+def clique_reverse_search_store_count(value: i64, output: mutable u8&) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def clique_reverse_search_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > i64(MAX_N) or length != n_value.usize() + 1: return -1
+    n: usize = n_value.usize()
+    adjacency: mutable i64[MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        raw: i64 = input[vertex + 1]
+        if raw < 0 or raw >= (1 << n.i64()) or (raw & (1 << vertex.i64())) != 0: return -1
+        adjacency[vertex] <- raw
+        vertex <- vertex + 1
+    left: mutable usize = 0
+    while left < n:
+        right: mutable usize = left + 1
+        while right < n:
+            edge_left: bool = (adjacency[left] & (1 << right.i64())) != 0
+            edge_right: bool = (adjacency[right] & (1 << left.i64())) != 0
+            if edge_left != edge_right: return -1
+            right <- right + 1
+        left <- left + 1
+
+    masks: mutable u8[MAX_CLIQUES] = zeroed
+    count: mutable usize = 0
+    clique_reverse_search_visit(n, &adjacency[0], 0, &masks[0], count)
+    required: usize = 8 + count
+    if output.is_null() or capacity < required: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    clique_reverse_search_store_count(count.i64(), &staged[0])
+    index: mutable usize = 0
+    while index < count:
+        staged[8 + index] <- masks[index]
+        index <- index + 1
+    index <- 0
+    while index < required:
+        output[index] <- staged[index]
+        index <- index + 1
+    required.i64()
+
+export fn clique_reverse_search_enumeration(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = clique_reverse_search_impl

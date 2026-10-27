@@ -1,0 +1,63 @@
+const MAX_STATES: usize=4
+const MAX_ACTIONS: usize=3
+const MAX_INPUT: usize=29
+const MAX_OUTPUT: usize=72
+
+def put64(value:i64,output:mutable u8&,pos:usize)->void:
+    bits:u64=value.u64()
+    j:mutable usize=0
+    while j<8:
+        output[pos+j]<-((bits>>(8*j))&255).u8()
+        j<-j+1
+
+def mdp_value_iteration_deterministic(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("mdp_value_iteration_deterministic"):
+    if input.is_null() or length<7 or length>MAX_INPUT:return -1
+    s64:i64=input[0]; a64:i64=input[1]; h64:i64=input[2]; p:i64=input[3]; q:i64=input[4]
+    if s64<1 or s64>4 or a64<1 or a64>3 or h64<1 or h64>8 or q<1 or q>4 or p<0 or p>=q or length!=5+2*s64.usize()*a64.usize():return -1
+    states:usize=s64.usize(); actions:usize=a64.usize(); horizon:usize=h64.usize()
+    rewards:mutable i64[4][3]=zeroed
+    targets:mutable i64[4][3]=zeroed
+    at:mutable usize=5
+    s:mutable usize=0
+    while s<states:
+        a:mutable usize=0
+        while a<actions:
+            reward:i64=input[at]; target:i64=input[at+1]; at<-at+2
+            if reward < -100 or reward > 100 or target<0 or target>=s64:return -1
+            rewards[s][a]<-reward; targets[s][a]<-target
+            a<-a+1
+        s<-s+1
+    scale:mutable i64=1
+    step:mutable usize=0
+    while step<horizon:
+        scale<-scale*q; step<-step+1
+    value:mutable i64[4]=zeroed
+    next_value:mutable i64[4]=zeroed
+    policy:mutable i64[4]=zeroed
+    step<-0
+    while step<horizon:
+        s<-0
+        while s<states:
+            best:mutable i64=-9223372036854775807-1
+            best_action:mutable i64=0
+            a<-0
+            while a<actions:
+                target:usize=targets[s][a].usize()
+                candidate:i64=rewards[s][a]*scale+p*(value[target]/q)
+                if candidate>best:best<-candidate; best_action<-a.i64()
+                a<-a+1
+            next_value[s]<-best; policy[s]<-best_action
+            s<-s+1
+        s<-0
+        while s<states:
+            value[s]<-next_value[s]
+            s<-s+1
+        step<-step+1
+    bytes:usize=8*(1+2*states)
+    if output.is_null() or capacity<bytes:return -2
+    put64(scale,output&,0)
+    s<-0
+    while s<states:
+        put64(value[s],output&,8*(1+s)); put64(policy[s],output&,8*(1+states+s))
+        s<-s+1
+    bytes.i64()

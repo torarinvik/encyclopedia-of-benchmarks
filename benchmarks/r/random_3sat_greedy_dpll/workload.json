@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-random-3sat-greedy-dpll-i64-array-bytes-output-v1",
+  "algorithm": "random_3sat_greedy_dpll",
+  "function_symbol": "random_3sat_greedy_dpll",
+  "pinned_source": {
+    "title": "Thresholds of Random k-SAT",
+    "author": "Encyclopedia of Algorithms chapter",
+    "doi": "10.1007/978-1-4939-2864-4_423",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_423",
+    "license": "No source-code license asserted; clean-room algorithm implementation"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,3*m signed one-based literals grouped by clause]",
+    "variable_count_range": [3, 12],
+    "clause_count_range": [0, 32],
+    "maximum_valid_length": 98,
+    "invalid_result": -1
+  },
+  "contract": {
+    "formula": "3-CNF clauses contain three nonzero signed variable IDs, each variable used at most once in a clause.",
+    "unit_rule": "At each step choose the first current unit clause in original clause order.",
+    "greedy_rule": "If no unit exists, choose the literal with maximum occurrence count in the residual formula; ties choose lower variable ID and positive polarity before negative.",
+    "reduction": "Set the chosen literal true, remove every clause containing it, and remove its negation from other clauses. An empty clause ends the trace as failure. No backtracking is performed.",
+    "completion": "Success fills unassigned variables false. Failure returns the assignment reached at the first empty clause, with remaining variables zero.",
+    "output": "[success_bit,assignment[0..n)] where each assignment word is 1, -1, or 0",
+    "profile_scope": "Bounded source-described Greedy trace only; no random-threshold theorem, success-probability guarantee, or formula generator is included."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[success_bit,assignment[0..n)]",
+    "maximum_bytes": 104,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed residual clause storage, variable assignments, counts, and staged output for n<=12 and m<=32."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {
+      "id": "single-clause-positive-tie",
+      "input_values": [3, 1, 1, 2, 3],
+      "input_length": 5,
+      "output_capacity": 104,
+      "expected_result": 32,
+      "expected_output_hex": "01000000000000000100000000000000ffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "opposite-units-cause-failure-without-backtracking",
+      "input_values": [3, 8, 1, 2, 3, 1, 2, -3, 1, -2, 3, 1, -2, -3, -1, 2, 3, -1, 2, -3, -1, -2, 3, -1, -2, -3],
+      "input_length": 26,
+      "output_capacity": 104,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000010000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "empty-formula-exercises-maximum-output",
+      "input_values": [12, 0],
+      "input_length": 2,
+      "output_capacity": 104,
+      "expected_result": 104,
+      "expected_output_hex": "0100000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "repeated-variable-in-clause-is-invalid",
+      "input_values": [3, 1, 1, -1, 2],
+      "input_length": 5,
+      "output_capacity": 104,
+      "expected_result": -1
+    },
+    {
+      "id": "valid-output-capacity-too-small",
+      "input_values": [3, 1, 1, 2, 3],
+      "input_length": 5,
+      "output_capacity": 31,
+      "expected_result": -2
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+const MAX_TEXT: usize = 64
+const MAX_INPUT: usize = 66
+const MAX_OUTPUT: usize = 1536
+
+def lz77_rightmost_store(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def lz77_infinite_rightmost(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("lz77_infinite_rightmost"):
+    if input.is_null() or length < 1 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    if n64 < 0 or n64 > 64: return -1
+    n: usize = n64.usize()
+    if length != n + 1: return -1
+    i: mutable usize = 0
+    while i < n:
+        if input[i + 1] < 32 or input[i + 1] > 126: return -1
+        i <- i + 1
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    tokens: mutable usize = 0
+    q: mutable usize = 0
+    while q < n:
+        best_length: mutable usize = 0
+        best_position: mutable usize = 0
+        found: mutable bool = false
+        p: mutable usize = 0
+        while p < q:
+            match_length: mutable usize = 0
+            while q + match_length < n and input[p + match_length + 1] == input[q + match_length + 1]:
+                match_length <- match_length + 1
+            if match_length > best_length or (match_length == best_length and match_length > 0 and (not found or p > best_position)):
+                best_length <- match_length
+                best_position <- p
+                found <- true
+            p <- p + 1
+        source_position: i64 = if found: best_position.i64() else: 0
+        next_position: usize = q + best_length
+        next_character: i64 = if next_position < n: input[next_position + 1] else: 0
+        byte_offset: usize = tokens * 24
+        lz77_rightmost_store(staged, byte_offset, source_position)
+        lz77_rightmost_store(staged, byte_offset + 8, best_length.i64())
+        lz77_rightmost_store(staged, byte_offset + 16, next_character)
+        tokens <- tokens + 1
+        q <- if next_character != 0: next_position + 1 else: next_position
+    output_bytes: usize = tokens * 24
+    if output.is_null() or capacity < output_bytes: return -2
+    i <- 0
+    while i < output_bytes:
+        output[i] <- staged[i]
+        i <- i + 1
+    output_bytes.i64()

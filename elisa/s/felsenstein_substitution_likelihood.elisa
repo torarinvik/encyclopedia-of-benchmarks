@@ -1,0 +1,53 @@
+const FSL_MAX_INPUT: usize = 38
+
+def fsl_put_i64(output: mutable u8&, value: i64): void:
+    bits: u64 = value.u64()
+    for b in 0..<8:
+        output[b] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def felsenstein_substitution_likelihood(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64 @export("felsenstein_substitution_likelihood"):
+    if input.is_null() or length < 3 or length > FSL_MAX_INPUT: return -1
+    n: i64 = input[0]
+    if n < 1 or n > 8: return -1
+    stack: mutable i64[16] = zeroed
+    sp: mutable usize = 0
+    leaves: mutable i64 = 0
+    joins: mutable i64 = 0
+    edge_count: mutable i64 = 0
+    at: mutable usize = 1
+    while at < length:
+        tag: i64 = input[at]
+        at <- at + 1
+        if tag == 0:
+            if at >= length or input[at] < 0 or input[at] > 1 or sp >= 8: return -1
+            state: i64 = input[at]
+            at <- at + 1
+            stack[sp * 2] <- if state == 0: 1 else: 0
+            stack[sp * 2 + 1] <- if state == 1: 1 else: 0
+            sp <- sp + 1
+            leaves <- leaves + 1
+        else if tag == 1:
+            if at + 2 > length or sp < 2 or input[at] < 0 or input[at] > 1 or input[at + 1] < 0 or input[at + 1] > 1: return -1
+            lm: i64 = input[at]
+            rm: i64 = input[at + 1]
+            at <- at + 2
+            left: usize = (sp - 2) * 2
+            right: usize = (sp - 1) * 2
+            for parent in 0..<2:
+                l: i64 = if lm == 0: 4 * stack[left + parent] else: 3 * stack[left + parent] + stack[left + 1 - parent]
+                r: i64 = if rm == 0: 4 * stack[right + parent] else: 3 * stack[right + parent] + stack[right + 1 - parent]
+                stack[left + parent] <- l * r
+            sp <- sp - 1
+            joins <- joins + 1
+            edge_count <- edge_count + 2
+        else:
+            return -1
+    if leaves != n or joins != n - 1 or sp != 1 or edge_count != 2 * n - 2: return -1
+    shift: i64 = 29 - 2 * edge_count
+    if shift < 0: return -1
+    scaled: i64 = (stack[0] + stack[1]) << shift
+    if output.is_null() or capacity < 8: return -2
+    fsl_put_i64(output, scaled)
+    8

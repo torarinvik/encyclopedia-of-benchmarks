@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-random-planted-3sat-k-opt-i64-array-bytes-output-v1",
+  "algorithm": "random_planted_3sat_k_opt",
+  "function_symbol": "random_planted_3sat_k_opt",
+  "pinned_source": {
+    "title": "Random Planted 3-SAT",
+    "author": "Encyclopedia of Algorithms chapter; Feige and Vilenchik technical report for k-OPT details",
+    "doi": "10.1007/978-1-4939-2864-4_330",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_330",
+    "algorithm_reference_url": "https://www.wisdom.weizmann.ac.il/~feige/TechnicalReports/FeigeVilenchik.pdf",
+    "license": "No source-code license asserted; clean-room algorithm implementation"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,3*m signed one-based literals grouped by clause]",
+    "variable_count_range": [3, 12],
+    "clause_count_range": [0, 32],
+    "maximum_valid_length": 98,
+    "invalid_result": -1
+  },
+  "contract": {
+    "formula": "Every 3-CNF clause has three nonzero signed variable IDs with distinct variables.",
+    "initial_assignment": "Majority Vote; positive polarity wins only when its count is strictly greater; ties and unseen variables are false.",
+    "improving_move": "Flip between one and k variables and strictly enlarge the set of satisfied clause positions: retain every currently satisfied clause and satisfy at least one formerly unsatisfied clause.",
+    "search": "For each k starting at 1, enumerate complete assignments in lexicographic order (variable 1 first, false before true). Select the first assignment at Hamming distance 1..k that is an improving move. Repeat at that k until no move exists, then increase k and continue from the current assignment.",
+    "termination": "A satisfying assignment yields status 1. If no improvement exists at k=n, return status 0 and the current assignment; at that radius every assignment is considered, so no satisfying assignment exists.",
+    "output": "[status,assignment[0..n)] as signed-i64 words; status is 1 or 0 and each assignment word is 1=true or -1=false.",
+    "profile_scope": "The source leaves arbitration among improving moves unspecified; lexicographic assignment order fixes this choice. Direct exhaustive enumeration is bounded to n<=12 and realizes the paper's set-based move semantics; it does not implement the paper's depth-k search-tree speedup or its probabilistic guarantee."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[status,assignment[0..n)]",
+    "maximum_bytes": 104,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {"bytes": 4096, "meaning": "Fixed clause, assignment, polarity-count, and staged-output storage for n<=12 and m<=32."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 3, "warmup_rounds": 1, "repetitions_per_sample": 3},
+  "cases": [
+    {"id":"one-flip-set-based-improvement-solves","input_values":[3,5,1,-2,-3,-1,2,3,-1,2,-3,-1,-2,3,-1,2,3],"input_length":17,"output_capacity":104,"expected_result":32,"expected_output_hex":"0100000000000000ffffffffffffffffffffffffffffffff0100000000000000"},
+    {"id":"symmetric-unsatisfiable-formula","input_values":[3,8,1,2,3,1,2,-3,1,-2,3,1,-2,-3,-1,2,3,-1,2,-3,-1,-2,3,-1,-2,-3],"input_length":26,"output_capacity":104,"expected_result":32,"expected_output_hex":"0000000000000000ffffffffffffffffffffffffffffffffffffffffffffffff"},
+    {"id":"empty-formula-exercises-maximum-output","input_values":[12,0],"input_length":2,"output_capacity":104,"expected_result":104,"expected_output_hex":"0100000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"},
+    {"id":"repeated-variable-in-clause-is-invalid","input_values":[3,1,1,-1,2],"input_length":5,"output_capacity":104,"expected_result":-1},
+    {"id":"valid-output-capacity-too-small","input_values":[3,1,1,2,3],"input_length":5,"output_capacity":31,"expected_result":-2}
+  ]
+}

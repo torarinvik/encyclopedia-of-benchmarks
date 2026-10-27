@@ -1,0 +1,17 @@
+const MAX_INPUT:usize=39;const MAX_NODES:usize=51;
+#[derive(Clone,Copy)]struct Node{start:usize,length:usize,suffix:usize,child_count:usize,children:[usize;MAX_NODES]}
+const EMPTY:Node=Node{start:0,length:0,suffix:0,child_count:0,children:[0;MAX_NODES]};
+unsafe fn code_at(input:*const i64,n:usize,p:usize)->i64{if p==n{-1}else{*input.add(1+p)}}
+unsafe fn put64(o:*mut u8,p:usize,x:i64){let b=x as u64;for j in 0..8{*o.add(p+j)=(b>>(8*j)) as u8;}}
+unsafe fn suffix_less(input:*const i64,n:usize,a:usize,b:usize)->bool{let mut p=0;while a+p<=n&&b+p<=n{let x=code_at(input,n,a+p);let y=code_at(input,n,b+p);if x!=y{return x<y}p+=1;}a<b}
+#[no_mangle]pub unsafe extern "C" fn suffix_tree_pattern_occurrences(input:*const i64,length:usize,output:*mut u8,capacity:usize)->i64{
+ if input.is_null()||length<3||length>MAX_INPUT{return -1;}let nr=*input;if nr<0||nr>24{return -1;}let n=nr as usize;if length<2+n{return -1;}let mr=*input.add(1+n);if mr<1||mr>12||length!=2+n+mr as usize{return -1;}let m=mr as usize;
+ for i in 0..n{let x=*input.add(1+i);if x<0||x>127{return -1;}}for i in 0..m{let x=*input.add(2+n+i);if x<0||x>127{return -1;}}
+ let mut nodes=[EMPTY;MAX_NODES];let mut node_count=1;
+ for start in 0..=n{let suffix_len=n+1-start;let mut offset=0;let mut node=0;while offset<suffix_len{let first=code_at(input,n,start+offset);let mut slot=0;while slot<nodes[node].child_count&&code_at(input,n,nodes[nodes[node].children[slot]].start)!=first{slot+=1;}if slot==nodes[node].child_count{if node_count>=MAX_NODES{return -1;}let leaf=node_count;node_count+=1;nodes[leaf].start=start+offset;nodes[leaf].length=suffix_len-offset;nodes[leaf].suffix=start;nodes[node].children[nodes[node].child_count]=leaf;nodes[node].child_count+=1;break;}
+ let child=nodes[node].children[slot];let mut common=0;while common<nodes[child].length&&offset+common<suffix_len&&code_at(input,n,start+offset+common)==code_at(input,n,nodes[child].start+common){common+=1;}if common==nodes[child].length{offset+=common;node=child;continue;}if node_count>=MAX_NODES{return -1;}let split=node_count;node_count+=1;nodes[split].start=nodes[child].start;nodes[split].length=common;nodes[split].children[0]=child;nodes[split].child_count=1;nodes[child].start+=common;nodes[child].length-=common;nodes[node].children[slot]=split;offset+=common;node=split;}}
+ let mut node=0;let mut offset=0;let mut matched=false;while offset<m{let wanted=*input.add(2+n+offset);let mut slot=0;while slot<nodes[node].child_count&&code_at(input,n,nodes[nodes[node].children[slot]].start)!=wanted{slot+=1;}if slot==nodes[node].child_count{break;}let child=nodes[node].children[slot];let mut common=0;while common<nodes[child].length&&offset+common<m&&code_at(input,n,nodes[child].start+common)==*input.add(2+n+offset+common){common+=1;}if offset+common==m{node=child;matched=true;break;}if common!=nodes[child].length{break;}offset+=common;node=child;}
+ let mut starts=[0usize;24];let mut count=0;if matched{let mut stack=[0usize;MAX_NODES];let mut top=1;stack[0]=node;while top>0{top-=1;let x=stack[top];if nodes[x].child_count==0&&nodes[x].length>0{starts[count]=nodes[x].suffix;count+=1;}for j in 0..nodes[x].child_count{stack[top]=nodes[x].children[j];top+=1;}}}
+ for i in 1..count{let x=starts[i];let mut j=i;while j>0&&suffix_less(input,n,x,starts[j-1]){starts[j]=starts[j-1];j-=1;}starts[j]=x;}
+ let bytes=8*(1+count);if output.is_null()||capacity<bytes{return -2;}put64(output,0,count as i64);for i in 0..count{put64(output,8+8*i,starts[i] as i64);}bytes as i64
+}

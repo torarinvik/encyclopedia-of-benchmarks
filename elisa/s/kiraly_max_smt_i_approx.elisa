@@ -1,0 +1,146 @@
+const MAX_M: usize = 6
+const MAX_W: usize = 6
+const MAX_INPUT: usize = 74
+const MAX_OUTPUT: usize = 48
+const MAX_STEPS: usize = 121
+
+def put64(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def kiraly_max_smt_i_approx(input: i64&, length: usize, output: mutable u8&,
+        capacity: usize) -> i64 @export("kiraly_max_smt_i_approx"):
+    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    m64: i64 = input[0]
+    w64: i64 = input[1]
+    if m64 < 1 or m64 > 6 or w64 < 1 or w64 > 6: return -1
+    m: usize = m64.usize()
+    w: usize = w64.usize()
+    if length != 2 + 2 * m * w: return -1
+    men_rank: mutable i64[MAX_M * MAX_W] = zeroed
+    women_rank: mutable i64[MAX_W * MAX_M] = zeroed
+    live: mutable bool[MAX_M * MAX_W] = zeroed
+    assignment: mutable i64[MAX_M] = zeroed
+    woman_partner: mutable i64[MAX_W] = zeroed
+    status: mutable i64[MAX_M] = zeroed
+    man: mutable usize = 0
+    while man < m:
+        assignment[man] <- -1
+        woman: mutable usize = 0
+        while woman < w:
+            rank: i64 = input[2 + man * w + woman]
+            if rank < -1 or rank >= 6: return -1
+            men_rank[man * MAX_W + woman] <- rank
+            woman <- woman + 1
+        man <- man + 1
+    woman: mutable usize = 0
+    while woman < w:
+        woman_partner[woman] <- -1
+        man <- 0
+        while man < m:
+            rank: i64 = input[2 + m * w + woman * m + man]
+            if rank < -1 or rank >= 6: return -1
+            women_rank[woman * MAX_M + man] <- rank
+            man <- man + 1
+        woman <- woman + 1
+    man <- 0
+    while man < m:
+        woman <- 0
+        while woman < w:
+            ma: bool = men_rank[man * MAX_W + woman] >= 0
+            wa: bool = women_rank[woman * MAX_M + man] >= 0
+            if ma != wa: return -1
+            live[man * MAX_W + woman] <- ma
+            woman <- woman + 1
+        man <- man + 1
+    output_bytes: usize = 8 * m
+    if output.is_null() or capacity < output_bytes: return -2
+    steps: mutable usize = 0
+    while true:
+        steps <- steps + 1
+        if steps > MAX_STEPS: return -1
+        man <- m
+        x0: mutable usize = 0
+        while x0 < m:
+            if status[x0] != 2 and assignment[x0] == -1:
+                man <- x0
+                break
+            x0 <- x0 + 1
+        if man == m: break
+        woman <- w
+        x1: mutable usize = 0
+        while x1 < w:
+            if live[man * MAX_W + x1]:
+                better: mutable bool = woman == w
+                if not better:
+                    rank_new: i64 = men_rank[man * MAX_W + x1]
+                    rank_old: i64 = men_rank[man * MAX_W + woman]
+                    if rank_new < rank_old: better <- true
+                    else if rank_new == rank_old:
+                        new_maiden: bool = woman_partner[x1] == -1
+                        old_maiden: bool = woman_partner[woman] == -1
+                        if new_maiden != old_maiden: better <- new_maiden
+                        else: better <- x1 < woman
+                if better: woman <- x1
+            x1 <- x1 + 1
+        if woman == w:
+            if status[man] == 0:
+                status[man] <- 1
+                x2: mutable usize = 0
+                while x2 < w:
+                    live[man * MAX_W + x2] <- men_rank[man * MAX_W + x2] >= 0
+                    x2 <- x2 + 1
+            else: status[man] <- 2
+            continue
+        incumbent64: i64 = woman_partner[woman]
+        if incumbent64 < 0:
+            assignment[man] <- woman.i64()
+            woman_partner[woman] <- man.i64()
+            continue
+        incumbent: usize = incumbent64.usize()
+        old_uncertain: mutable bool = false
+        if status[incumbent] == 0 and assignment[incumbent] >= 0:
+            fiance: usize = assignment[incumbent].usize()
+            x3: mutable usize = 0
+            while x3 < w:
+                if live[incumbent * MAX_W + x3] and x3 != fiance:
+                    rank_new: i64 = men_rank[incumbent * MAX_W + x3]
+                    rank_old: i64 = men_rank[incumbent * MAX_W + fiance]
+                    preferred: mutable bool = rank_new < rank_old
+                    if rank_new == rank_old:
+                        new_maiden: bool = woman_partner[x3] == -1
+                        fiance_maiden: bool = woman_partner[fiance] == -1
+                        if new_maiden != fiance_maiden: preferred <- new_maiden
+                    if preferred:
+                        old_uncertain <- true
+                        break
+                x3 <- x3 + 1
+        accept: mutable bool = old_uncertain
+        if not accept:
+            rank_new: i64 = women_rank[woman * MAX_M + man]
+            rank_old: i64 = women_rank[woman * MAX_M + incumbent]
+            if rank_new < rank_old: accept <- true
+            else if rank_new == rank_old:
+                if status[man] != status[incumbent]: accept <- status[man] > status[incumbent]
+                else: accept <- man < incumbent
+        if accept:
+            assignment[incumbent] <- -1
+            woman_partner[woman] <- -1
+            if not old_uncertain: live[incumbent * MAX_W + woman] <- false
+            assignment[man] <- woman.i64()
+            woman_partner[woman] <- man.i64()
+        else: live[man * MAX_W + woman] <- false
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    man <- 0
+    while man < m:
+        put64(assignment[man], staged, 8 * man)
+        man <- man + 1
+    byte: mutable usize = 0
+    while byte < output_bytes:
+        output[byte] <- staged[byte]
+        byte <- byte + 1
+    return output_bytes.i64()

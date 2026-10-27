@@ -1,0 +1,69 @@
+const MAX_N: usize=16
+const MAX_M: usize=24
+const MAX_INPUT: usize=74
+
+def put32(value:i64,output:mutable u8&,pos:usize)->void:
+    bits:u64=value.u64()
+    j:mutable usize=0
+    while j<4:
+        output[pos+j]<-((bits>>(8*j))&255).u8()
+        j<-j+1
+
+def randomized_contraction_edge_sampling(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("randomized_contraction_edge_sampling"):
+    if input.is_null() or length<5 or length>MAX_INPUT:return -1
+    n64:i64=input[0];m64:i64=input[1]
+    if n64<2 or n64>16 or m64<n64-1 or m64>24 or length!=2+3*m64.usize():return -1
+    n:usize=n64.usize();m:usize=m64.usize()
+    eu:mutable i64[24]=zeroed;ev:mutable i64[24]=zeroed;bits:mutable i64[24]=zeroed
+    i:mutable usize=0
+    while i<m:
+        eu[i]<-input[2+3*i];ev[i]<-input[3+3*i];bits[i]<-input[4+3*i]
+        if eu[i]<0 or eu[i]>=ev[i] or ev[i]>=n64 or (bits[i]!=0 and bits[i]!=1):return -1
+        j:mutable usize=0
+        while j<i:
+            if eu[i]==eu[j] and ev[i]==ev[j]:return -1
+            j<-j+1
+        i<-i+1
+    seen:mutable u8[16]=zeroed;queue:mutable usize[16]=zeroed
+    head:mutable usize=0;tail:mutable usize=1;queue[0]<-0;seen[0]<-1
+    while head<tail:
+        current:usize=queue[head];head<-head+1;i<-0
+        while i<m:
+            next:i64=-1
+            if eu[i].usize()==current:next<-ev[i]
+            else if ev[i].usize()==current:next<-eu[i]
+            if next>=0 and seen[next.usize()]==0:
+                node:usize=next.usize();seen[node]<-1;queue[tail]<-node;tail<-tail+1
+            i<-i+1
+    if tail!=n:return -1
+    parent:mutable usize[16]=zeroed;i<-0
+    while i<n:parent[i]<-i;i<-i+1
+    i<-0
+    while i<m:
+        if bits[i]!=0:
+            a:usize=eu[i].usize();b:usize=ev[i].usize()
+            while parent[a]!=a:a<-parent[a]
+            while parent[b]!=b:b<-parent[b]
+            if a!=b:parent[b]<-a
+        i<-i+1
+    minimum:mutable usize[16]=zeroed;i<-0
+    while i<n:minimum[i]<-n;i<-i+1
+    i<-0
+    while i<n:
+        root:mutable usize=i
+        while parent[root]!=root:root<-parent[root]
+        if i<minimum[root]:minimum[root]<-i
+        i<-i+1
+    bytes:usize=4*n
+    if output.is_null() or capacity<bytes:return -2
+    staged:mutable u8[64]=zeroed;i<-0
+    while i<n:
+        root:mutable usize=i
+        while parent[root]!=root:root<-parent[root]
+        put32(minimum[root].i64(),staged&,4*i)
+        i<-i+1
+    i<-0
+    while i<bytes:
+        output[i]<-staged[i]
+        i<-i+1
+    bytes.i64()

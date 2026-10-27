@@ -38,3 +38,17 @@ Workload fixtures are in [`workload.json`](workload.json); primary and
 independent verifier oracles are
 [`min_plus_distance_product_oracle.py`](../../min_plus_distance_product_oracle.py)
 and [`min_plus_distance_product_verifier_oracle.py`](../../min_plus_distance_product_verifier_oracle.py).
+
+## Language ports
+
+| Language | Port |
+|---|---|
+| C | [`c/m/min_plus_distance_product.c`](../../../c/m/min_plus_distance_product.c) |
+| C3 | [`c3/m/min_plus_distance_product.c3`](../../../c3/m/min_plus_distance_product.c3) |
+| C++ | [`cpp/m/min_plus_distance_product.cpp`](../../../cpp/m/min_plus_distance_product.cpp) |
+| Elisa | [`elisa/m/min_plus_distance_product.elisa`](../../../elisa/m/min_plus_distance_product.elisa) |
+| Nim | [`nim/m/min_plus_distance_product.nim`](../../../nim/m/min_plus_distance_product.nim) |
+| Odin | [`odin/m/min_plus_distance_product.odin`](../../../odin/m/min_plus_distance_product.odin) |
+| Rust | [`rust/m/min_plus_distance_product.rs`](../../../rust/m/min_plus_distance_product.rs) |
+| V | [`v/m/min_plus_distance_product.v`](../../../v/m/min_plus_distance_product.v) |
+| Zig | [`zig/m/min_plus_distance_product.zig`](../../../zig/m/min_plus_distance_product.zig) |

@@ -1,0 +1,195 @@
+const MAX_LEAVES: usize = 8
+const MAX_NODES: usize = 15
+const MAX_CANDIDATES: usize = 256
+const MAX_INPUT: usize = 32
+const OUTPUT_BYTES: usize = 32
+
+def mask_lex_less(a: i64, b: i64, leaves: usize) -> bool:
+    bit: mutable usize = 0
+    while bit < leaves:
+        av: i64 = (a >> bit).i64() & 1
+        bv: i64 = (b >> bit).i64() & 1
+        if av != bv:
+            return av < bv
+        bit <- bit + 1
+    false
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def slicing_floorplan_stockmeyer_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT:
+        return -1
+    if input[0] < 1 or input[0] > 8:
+        return -1
+    leaves: usize = input[0].usize()
+    op: mutable i64[MAX_NODES] = zeroed
+    stack: mutable usize[MAX_NODES] = zeroed
+    cand_h: mutable i64[MAX_NODES * MAX_CANDIDATES] = zeroed
+    cand_w: mutable i64[MAX_NODES * MAX_CANDIDATES] = zeroed
+    cand_mask: mutable i64[MAX_NODES * MAX_CANDIDATES] = zeroed
+    count: mutable usize[MAX_NODES] = zeroed
+    node: mutable usize = 0
+    while node < MAX_NODES:
+        op[node] <- -1
+        node <- node + 1
+    stack_size: mutable usize = 0
+    node_count: mutable usize = 0
+    leaf_count: mutable usize = 0
+    internal_count: mutable usize = 0
+    position: mutable usize = 1
+    base: mutable usize = 0
+    i: mutable usize = 0
+    j: mutable usize = 0
+    kept: mutable usize = 0
+    dominated: mutable bool[MAX_CANDIDATES] = zeroed
+    while position < length:
+        token: i64 = input[position]
+        position <- position + 1
+        if token == 2:
+            if position + 2 > length or leaf_count >= leaves or node_count >= MAX_NODES:
+                return -1
+            height: i64 = input[position]
+            width: i64 = input[position + 1]
+            position <- position + 2
+            if height < 1 or height > 20 or width < 1 or width > 20:
+                return -1
+            op[node_count] <- 2
+            base <- node_count * MAX_CANDIDATES
+            cand_h[base] <- height
+            cand_w[base] <- width
+            cand_mask[base] <- 0
+            cand_h[base + 1] <- width
+            cand_w[base + 1] <- height
+            cand_mask[base + 1] <- (1 << leaf_count).i64()
+            count[node_count] <- 2
+            i <- 0
+            while i < count[node_count]:
+                j <- 0
+                dominated[i] <- false
+                while j < count[node_count]:
+                    if i != j:
+                        ah: i64 = cand_h[base + i]
+                        aw: i64 = cand_w[base + i]
+                        am: i64 = cand_mask[base + i]
+                        bh: i64 = cand_h[base + j]
+                        bw: i64 = cand_w[base + j]
+                        bm: i64 = cand_mask[base + j]
+                        if bh <= ah and bw <= aw and (bh < ah or bw < aw or mask_lex_less(bm, am, leaves) or (bm == am and j < i)):
+                            dominated[i] <- true
+                    j <- j + 1
+                i <- i + 1
+            kept <- 0
+            i <- 0
+            while i < count[node_count]:
+                if not dominated[i]:
+                    cand_h[base + kept] <- cand_h[base + i]
+                    cand_w[base + kept] <- cand_w[base + i]
+                    cand_mask[base + kept] <- cand_mask[base + i]
+                    kept <- kept + 1
+                i <- i + 1
+            count[node_count] <- kept
+            stack[stack_size] <- node_count
+            stack_size <- stack_size + 1
+            node_count <- node_count + 1
+            leaf_count <- leaf_count + 1
+        else if token == 0 or token == 1:
+            if stack_size < 2 or internal_count >= leaves - 1 or node_count >= MAX_NODES:
+                return -1
+            stack_size <- stack_size - 1
+            right: usize = stack[stack_size]
+            stack_size <- stack_size - 1
+            left: usize = stack[stack_size]
+            if op[right] == token:
+                return -1
+            op[node_count] <- token
+            base <- node_count * MAX_CANDIDATES
+            i <- 0
+            while i < count[left]:
+                j <- 0
+                while j < count[right]:
+                    if count[node_count] >= MAX_CANDIDATES:
+                        return -1
+                    li: usize = left * MAX_CANDIDATES + i
+                    ri: usize = right * MAX_CANDIDATES + j
+                    dest: usize = base + count[node_count]
+                    cand_mask[dest] <- cand_mask[li] | cand_mask[ri]
+                    if token == 0:
+                        cand_h[dest] <- if cand_h[li] > cand_h[ri]: cand_h[li] else: cand_h[ri]
+                        cand_w[dest] <- cand_w[li] + cand_w[ri]
+                    else:
+                        cand_h[dest] <- cand_h[li] + cand_h[ri]
+                        cand_w[dest] <- if cand_w[li] > cand_w[ri]: cand_w[li] else: cand_w[ri]
+                    count[node_count] <- count[node_count] + 1
+                    j <- j + 1
+                i <- i + 1
+            i <- 0
+            while i < count[node_count]:
+                j <- 0
+                dominated[i] <- false
+                while j < count[node_count]:
+                    if i != j:
+                        ai: usize = base + i
+                        bi: usize = base + j
+                        if cand_h[bi] <= cand_h[ai] and cand_w[bi] <= cand_w[ai] and
+                            (cand_h[bi] < cand_h[ai] or cand_w[bi] < cand_w[ai] or
+                             mask_lex_less(cand_mask[bi], cand_mask[ai], leaves) or
+                             (cand_mask[bi] == cand_mask[ai] and j < i)):
+                            dominated[i] <- true
+                    j <- j + 1
+                i <- i + 1
+            kept <- 0
+            i <- 0
+            while i < count[node_count]:
+                if not dominated[i]:
+                    cand_h[base + kept] <- cand_h[base + i]
+                    cand_w[base + kept] <- cand_w[base + i]
+                    cand_mask[base + kept] <- cand_mask[base + i]
+                    kept <- kept + 1
+                i <- i + 1
+            count[node_count] <- kept
+            stack[stack_size] <- node_count
+            stack_size <- stack_size + 1
+            node_count <- node_count + 1
+            internal_count <- internal_count + 1
+        else:
+            return -1
+    if position != length or leaf_count != leaves or internal_count != leaves - 1 or node_count != 2 * leaves - 1 or stack_size != 1:
+        return -1
+    root: usize = stack[0]
+    base <- root * MAX_CANDIDATES
+    if count[root] == 0:
+        return -1
+    best: usize = 0
+    i <- 1
+    while i < count[root]:
+        current: usize = base + i
+        prior: usize = base + best
+        area: i64 = cand_h[current] * cand_w[current]
+        best_area: i64 = cand_h[prior] * cand_w[prior]
+        if area < best_area or (area == best_area and (cand_h[current] < cand_h[prior] or
+            (cand_h[current] == cand_h[prior] and (cand_w[current] < cand_w[prior] or
+            (cand_w[current] == cand_w[prior] and mask_lex_less(cand_mask[current], cand_mask[prior], leaves))))):
+            best <- i
+        i <- i + 1
+    if output.is_null() or capacity < OUTPUT_BYTES:
+        return -2
+    staged: mutable u8[OUTPUT_BYTES] = zeroed
+    store_i64_le(cand_h[base + best] * cand_w[base + best], staged&, 0)
+    store_i64_le(cand_h[base + best], staged&, 8)
+    store_i64_le(cand_w[base + best], staged&, 16)
+    store_i64_le(cand_mask[base + best], staged&, 24)
+    byte: mutable usize = 0
+    while byte < OUTPUT_BYTES:
+        output[byte] <- staged[byte]
+        byte <- byte + 1
+    OUTPUT_BYTES.i64()
+
+export fn slicing_floorplan_stockmeyer(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = slicing_floorplan_stockmeyer_impl

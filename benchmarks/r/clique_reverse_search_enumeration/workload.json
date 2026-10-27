@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-clique-reverse-search-enumeration-i64-array-bytes-output-v1",
+  "algorithm": "clique_reverse_search_enumeration",
+  "function_symbol": "clique_reverse_search_enumeration",
+  "abi": "i64_array_bytes_output",
+  "description": "Enumerate every clique, including the empty clique and nonmaximal cliques, by the DOI 731 smallest-index-parent reverse-search tree.",
+  "source": {
+    "title": "Reverse Search; Enumeration Algorithms",
+    "authors": ["Masashi Kiyomi"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_731",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_731",
+    "algorithm_attribution": "The chapter's concrete clique example roots at the empty clique and makes the parent by removing the smallest-index vertex.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, adjacency_mask_for_vertex_0,...,adjacency_mask_for_vertex_(n-1)]",
+    "vertex_count_range": [1, 8],
+    "adjacency_mask_range": "0..(2^n-1), with the diagonal bit clear",
+    "graph_requirement": "Undirected simple graph represented by symmetric adjacency masks.",
+    "maximum_valid_length": 9,
+    "maximum_parseable_length": 9,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_vector",
+    "encoding": "little-endian signed 64-bit clique_count followed by one unsigned byte per clique mask in DFS preorder; bit v names vertex v; the empty clique has mask 0",
+    "maximum_bytes": 264,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {"bytes": 2048, "meaning": "At most 8 adjacency masks, 256 clique masks, recursion state, and staged output."},
+  "contract": {
+    "root": "The empty clique.",
+    "parent": "For each nonempty clique, remove its smallest-index vertex.",
+    "children": "A child adds a vertex smaller than every current clique vertex and adjacent to all vertices already in the clique; every child remains a clique.",
+    "child_order": "Visit eligible added vertices in increasing index order.",
+    "traversal": "Depth-first preorder, including the root before its descendants.",
+    "output_error_result": -2
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "oracle_method": "The primary oracle generates eligible smaller-index extensions directly. The independent verifier enumerates all n-bit subsets, filters cliques, computes each parent by removing its least significant set bit, then traverses children by the added vertex index.",
+  "cases": [
+    {"id":"three_vertex_path","input_values":[3,2,5,2],"input_length":4,"output_capacity":14,"expected_result":14,"expected_output_hex":"0600000000000000000102030406"},
+    {"id":"empty_two_vertex_graph","input_values":[2,0,0],"input_length":3,"output_capacity":11,"expected_result":11,"expected_output_hex":"0300000000000000000102"},
+    {"id":"maximum_complete_graph","input_values":[8,254,253,251,247,239,223,191,127],"input_length":9,"output_capacity":264,"expected_result":264,"expected_output_hex":"0001000000000000000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"},
+    {"id":"asymmetric_graph_invalid","input_values":[2,2,0],"input_length":3,"output_capacity":264,"expected_result":-1,"expected_output_hex":""},
+    {"id":"self_loop_invalid","input_values":[2,1,0],"input_length":3,"output_capacity":264,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length_mismatch_invalid","input_values":[3,2,5],"input_length":3,"output_capacity":264,"expected_result":-1,"expected_output_hex":""},
+    {"id":"vertex_bound_invalid","input_values":[9,0],"input_length":2,"output_capacity":264,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_capacity_for_maximum","input_values":[8,254,253,251,247,239,223,191,127],"input_length":9,"output_capacity":263,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":264,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[3,2,5,2],"input_length":4,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

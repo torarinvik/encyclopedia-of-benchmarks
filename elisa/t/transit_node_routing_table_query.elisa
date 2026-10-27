@@ -1,0 +1,72 @@
+const TN_MAX_INPUT: usize = 86
+
+def tn_put_i64(output: mutable u8&, word: usize, value: i64): void:
+    bits: u64 = value.u64()
+    for b in 0..<8:
+        output[word * 8 + b] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def transit_node_routing_table_query(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64 @export("transit_node_routing_table_query"):
+    if input.is_null() or length < 11 or length > TN_MAX_INPUT: return -1
+    q0: i64 = input[0]
+    source: i64 = input[1]
+    target: i64 = input[2]
+    if q0 < 1 or q0 > 8 or source < 0 or source >= 32 or target < 0 or target >= 32 or input[3] != 1: return -1
+    q: usize = q0.usize()
+    at: mutable usize = 4
+    nf0: i64 = input[at]
+    at <- at + 1
+    if nf0 < 1 or nf0 > 4 or nf0 > q0 or at + 2 * nf0.usize() > length: return -1
+    nf: usize = nf0.usize()
+    forward: mutable usize[8] = zeroed
+    source_dist: mutable i64[8] = zeroed
+    for i in 0..<nf:
+        u0: i64 = input[at]
+        d: i64 = input[at + 1]
+        at <- at + 2
+        if u0 < 0 or u0 >= q0 or d < 0 or d > 1000000: return -1
+        u: usize = u0.usize()
+        for j in 0..<i: if forward[j] == u: return -1
+        forward[i] <- u
+        source_dist[i] <- d
+    if at >= length: return -1
+    nb0: i64 = input[at]
+    at <- at + 1
+    if nb0 < 1 or nb0 > 4 or nb0 > q0 or at + 2 * nb0.usize() > length: return -1
+    nb: usize = nb0.usize()
+    backward: mutable usize[8] = zeroed
+    target_dist: mutable i64[8] = zeroed
+    for i in 0..<nb:
+        v0: i64 = input[at]
+        d: i64 = input[at + 1]
+        at <- at + 2
+        if v0 < 0 or v0 >= q0 or d < 0 or d > 1000000: return -1
+        v: usize = v0.usize()
+        for j in 0..<i: if backward[j] == v: return -1
+        backward[i] <- v
+        target_dist[i] <- d
+    if at + q * q != length: return -1
+    table: mutable i64[64] = zeroed
+    for i in 0..<q:
+        for j in 0..<q:
+            d: i64 = input[at]
+            at <- at + 1
+            if d < 0 or d > 1000000: return -1
+            table[i * 8 + j] <- d
+    for i in 0..<q: if table[i * 8 + i] != 0: return -1
+    best: mutable i64 = 0x7fffffffffffffff.i64()
+    bestu: mutable usize = 0
+    bestv: mutable usize = 0
+    for i in 0..<nf:
+        for j in 0..<nb:
+            d: i64 = source_dist[i] + table[forward[i] * 8 + backward[j]] + target_dist[j]
+            if d < best or (d == best and (forward[i] < bestu or (forward[i] == bestu and backward[j] < bestv))):
+                best <- d
+                bestu <- forward[i]
+                bestv <- backward[j]
+    if output.is_null() or capacity < 24: return -2
+    tn_put_i64(output, 0, best)
+    tn_put_i64(output, 1, bestu.i64())
+    tn_put_i64(output, 2, bestv.i64())
+    24

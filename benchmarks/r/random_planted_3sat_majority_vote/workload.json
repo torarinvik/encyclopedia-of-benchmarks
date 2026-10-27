@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-random-planted-3sat-majority-vote-i64-array-bytes-output-v1",
+  "algorithm": "random_planted_3sat_majority_vote",
+  "function_symbol": "random_planted_3sat_majority_vote",
+  "pinned_source": {
+    "title": "Random Planted 3-SAT",
+    "author": "Encyclopedia of Algorithms chapter",
+    "doi": "10.1007/978-1-4939-2864-4_330",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_330",
+    "license": "No source-code license asserted; clean-room algorithm implementation"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,3*m signed one-based literals grouped by clause]",
+    "variable_count_range": [3, 12],
+    "clause_count_range": [0, 32],
+    "maximum_valid_length": 98,
+    "invalid_result": -1
+  },
+  "contract": {
+    "formula": "Every 3-CNF clause contains three nonzero signed variable IDs, with no variable repeated within a clause.",
+    "choice": "For each variable, choose true iff positive occurrences exceed negative occurrences; ties and unseen variables choose false.",
+    "output": "n assignment words in variable order; 1=true and -1=false.",
+    "profile_scope": "Majority Vote initialization only; no random planted-instance generator or probabilistic guarantee is included."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "assignment[0..n)",
+    "maximum_bytes": 96,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {"bytes": 1024, "meaning": "Fixed per-variable polarity counters and staged assignment output for n<=12."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 3, "warmup_rounds": 1, "repetitions_per_sample": 3},
+  "cases": [
+    {"id":"majority-polarity-with-one-minority-variable","input_values":[3,5,1,-2,-3,-1,2,3,-1,2,-3,-1,-2,3,-1,2,3],"input_length":17,"output_capacity":96,"expected_result":24,"expected_output_hex":"ffffffffffffffff01000000000000000100000000000000"},
+    {"id":"all-tied-variables-choose-false","input_values":[3,8,1,2,3,1,2,-3,1,-2,3,1,-2,-3,-1,2,3,-1,2,-3,-1,-2,3,-1,-2,-3],"input_length":26,"output_capacity":96,"expected_result":24,"expected_output_hex":"ffffffffffffffffffffffffffffffffffffffffffffffff"},
+    {"id":"unseen-variable-chooses-false","input_values":[4,1,1,-2,3],"input_length":5,"output_capacity":96,"expected_result":32,"expected_output_hex":"0100000000000000ffffffffffffffff0100000000000000ffffffffffffffff"},
+    {"id":"repeated-variable-in-clause-is-invalid","input_values":[3,1,1,-1,2],"input_length":5,"output_capacity":96,"expected_result":-1},
+    {"id":"valid-output-capacity-too-small","input_values":[3,1,1,2,3],"input_length":5,"output_capacity":23,"expected_result":-2}
+  ]
+}

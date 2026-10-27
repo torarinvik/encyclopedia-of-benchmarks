@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-two-open-bin-best-fit-millionths-v1",
+  "algorithm": "bounded_space_best_fit_bin_packing",
+  "function_symbol": "bounded_space_best_fit_bin_packing",
+  "comparison_model": "i64_array_bytes_output_call",
+  "pinned_source": {
+    "title": "Bin Packing",
+    "author": "David S. Johnson",
+    "doi": "10.1007/978-1-4939-2864-4_49",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_49",
+    "epub_path": "OEBPS/AChap49.html",
+    "section": "Bounded-Space Algorithms",
+    "license": "No source-code license asserted; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[item_count,size_0,...,size_(n-1)]",
+    "item_count_range": [
+      0,
+      64
+    ],
+    "capacity_units": 1000000,
+    "item_size_range": [
+      1,
+      1000000
+    ],
+    "size_encoding": "integer millionths of unit bin capacity",
+    "maximum_valid_length": 65,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_i64_array",
+    "description": "[bin_count,zero-based bin ID per item in input order]",
+    "policy": "Apply ordinary Best Fit among open feasible bins; open a new bin if none fit; after placement, retain at most the two fullest non-full bins.",
+    "tie_rule": "Equal remaining space chooses the earliest bin. If more than two partial bins are open, equal loads retain the lower bin IDs. Full bins are permanently closed.",
+    "maximum_output_bytes": 520,
+    "maximum_output_elements": 65,
+    "success_result": "8 * (item_count + 1)",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_when_nonempty_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 1536,
+    "meaning": "At most 64 loads, 64 open/closed flags and 64 item assignments."
+  },
+  "measurement": {
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "closed-lowest-load-bin-cannot-receive-item",
+      "input_values": [
+        4,
+        600000,
+        700000,
+        800000,
+        400000
+      ],
+      "input_length": 5,
+      "output_capacity": 520,
+      "expected_result": 40,
+      "expected_output_hex": "04000000000000000000000000000000010000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "newly-opened-low-load-bin-is-closed-after-placement",
+      "input_values": [
+        5,
+        600000,
+        700000,
+        800000,
+        400000,
+        500000
+      ],
+      "input_length": 6,
+      "output_capacity": 520,
+      "expected_result": 48,
+      "expected_output_hex": "050000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000"
+    },
+    {
+      "id": "equal-best-fit-residual-selects-earliest-open-bin",
+      "input_values": [
+        3,
+        600000,
+        600000,
+        400000
+      ],
+      "input_length": 4,
+      "output_capacity": 520,
+      "expected_result": 32,
+      "expected_output_hex": "0200000000000000000000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "full-bins-close-and-keep-global-assignment-ids",
+      "input_values": [
+        4,
+        600000,
+        400000,
+        600000,
+        400000
+      ],
+      "input_length": 5,
+      "output_capacity": 520,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000000000000000000000000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "empty-item-list",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "output_capacity": 520,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "maximum-bounded-instance",
+      "input_values": [
+        64,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 65,
+      "output_capacity": 520,
+      "expected_result": 520,
+      "expected_output_hex": "01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "declared-count-mismatch",
+      "input_values": [
+        2,
+        500000
+      ],
+      "input_length": 2,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-size-invalid",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "oversize-invalid",
+      "input_values": [
+        1,
+        1000001
+      ],
+      "input_length": 2,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [
+        1,
+        500000
+      ],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "capacity_error_result": -2
+    }
+  ],
+  "provenance": {
+    "chapter": "Bin Packing",
+    "doi": "10.1007/978-1-4939-2864-4_49",
+    "algorithm_profile": "Two-open-bin bounded-space Best Fit: after each placement retain the two fullest non-full bins; deterministic ties by earlier bin ID. No cited ratio is claimed."
+  }
+}

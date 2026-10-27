@@ -1,0 +1,208 @@
+// Clean-room bounded solver from the ranked-popular-matching characterization.
+const MAX_A: usize = 4
+const MAX_P: usize = 4
+const MAX_POSTS: usize = 8
+const MAX_NODES: usize = 12
+const MAX_INPUT: usize = 51
+const MAX_OUTPUT: usize = 40
+
+def rmp_lex_less(a: usize[MAX_A], b: usize[MAX_A], count: usize) -> bool:
+    i: mutable usize = 0
+    while i < count:
+        if a[i] != b[i]: return a[i] < b[i]
+        i <- i+1
+    false
+
+def rmp_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    i: mutable usize = 0
+    while i < 8:
+        output[offset+i] <- ((bits>>(8*i))&255).u8()
+        i <- i+1
+
+def ranked_matching_popular_matching(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("ranked_matching_popular_matching"):
+    if input.is_null() or length < 6 or length > MAX_INPUT: return -1
+    a64: i64 = input[0]
+    p64: i64 = input[1]
+    e64: i64 = input[2]
+    if a64 < 1 or a64 > MAX_A.i64() or p64 < 1 or p64 > MAX_P.i64(): return -1
+    applicants: usize = a64.usize()
+    posts: usize = p64.usize()
+    if e64 < a64 or e64 > (applicants*posts).i64(): return -1
+    edges: usize = e64.usize()
+    if length != 3+3*edges: return -1
+    post_count: usize = posts+applicants
+    node_count: usize = applicants+post_count
+    output_bytes: usize = 8*(applicants+1)
+    rank: mutable i64[MAX_A][MAX_P] = zeroed
+    rank_seen: mutable bool[MAX_A][MAX_P+1] = zeroed
+    max_rank: mutable usize[MAX_A] = zeroed
+    edge: mutable usize = 0
+    while edge < edges:
+        at: usize = 3+3*edge
+        av: i64 = input[at]
+        pv: i64 = input[at+1]
+        rv: i64 = input[at+2]
+        if av < 0 or av >= a64 or pv < 0 or pv >= p64 or rv < 1 or rv > p64: return -1
+        a: usize = av.usize()
+        p: usize = pv.usize()
+        r: usize = rv.usize()
+        if rank[a][p] != 0: return -1
+        rank[a][p] <- rv
+        rank_seen[a][r] <- true
+        if r > max_rank[a]: max_rank[a] <- r
+        edge <- edge+1
+    a: mutable usize = 0
+    while a < applicants:
+        if max_rank[a] == 0: return -1
+        r: mutable usize = 1
+        while r <= max_rank[a]:
+            if not rank_seen[a][r]: return -1
+            r <- r+1
+        a <- a+1
+
+    best_m1: mutable usize[MAX_A] = zeroed
+    best_m1_size: mutable i64 = -1
+    m1_limit: mutable usize = 1
+    a <- 0
+    while a < applicants: m1_limit <- m1_limit*(posts+1); a <- a+1
+    code: mutable usize = 0
+    while code < m1_limit:
+        value: mutable usize = code
+        candidate: mutable usize[MAX_A] = zeroed
+        used: mutable u64 = 0
+        count: mutable i64 = 0
+        valid: mutable bool = true
+        a <- 0
+        while a < applicants:
+            p: usize = value%(posts+1)
+            value <- value/(posts+1)
+            candidate[a] <- p
+            if p != posts:
+                bit: u64 = 1.u64()<<p
+                if rank[a][p] != 1 or (used&bit) != 0: valid <- false; break
+                used <- used|bit
+                count <- count+1
+            a <- a+1
+        if valid and (count > best_m1_size or (count == best_m1_size and rmp_lex_less(candidate,best_m1,applicants))):
+            best_m1_size <- count
+            best_m1 <- candidate
+        code <- code+1
+
+    mate_a: mutable i64[MAX_A] = zeroed
+    mate_p: mutable i64[MAX_P] = zeroed
+    a <- 0
+    while a < applicants: mate_a[a] <- -1; a <- a+1
+    p: mutable usize = 0
+    while p < posts: mate_p[p] <- -1; p <- p+1
+    a <- 0
+    while a < applicants:
+        if best_m1[a] < posts: mate_a[a] <- best_m1[a].i64(); mate_p[best_m1[a]] <- a.i64()
+        a <- a+1
+    parity: mutable i64[MAX_NODES] = zeroed
+    n: mutable usize = 0
+    while n < node_count: parity[n] <- -1; n <- n+1
+    queue: mutable usize[MAX_NODES] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    a <- 0
+    while a < applicants:
+        if mate_a[a] < 0: parity[a] <- 0; queue[tail] <- a; tail <- tail+1
+        a <- a+1
+    p <- 0
+    while p < posts:
+        if mate_p[p] < 0: node: usize = applicants+p; parity[node] <- 0; queue[tail] <- node; tail <- tail+1
+        p <- p+1
+    p <- posts
+    while p < post_count: node: usize = applicants+p; parity[node] <- 0; queue[tail] <- node; tail <- tail+1; p <- p+1
+    while head < tail:
+        node: usize = queue[head]
+        head <- head+1
+        if node < applicants:
+            a <- node
+            if parity[node] == 0:
+                p <- 0
+                while p < posts:
+                    if rank[a][p] == 1 and mate_a[a] != p.i64() and parity[applicants+p] < 0:
+                        parity[applicants+p] <- 1; queue[tail] <- applicants+p; tail <- tail+1
+                    p <- p+1
+            else if mate_a[a] >= 0 and parity[applicants+mate_a[a].usize()] < 0:
+                target: usize = applicants+mate_a[a].usize()
+                parity[target] <- 0; queue[tail] <- target; tail <- tail+1
+        else:
+            p <- node-applicants
+            if p < posts:
+                if parity[node] == 0:
+                    a <- 0
+                    while a < applicants:
+                        if rank[a][p] == 1 and mate_a[a] != p.i64() and parity[a] < 0:
+                            parity[a] <- 1; queue[tail] <- a; tail <- tail+1
+                        a <- a+1
+                else if mate_p[p] >= 0 and parity[mate_p[p].usize()] < 0:
+                    target <- mate_p[p].usize()
+                    parity[target] <- 0; queue[tail] <- target; tail <- tail+1
+    class_of: mutable i64[MAX_NODES] = zeroed
+    n <- 0
+    while n < node_count: class_of[n] <- if parity[n] < 0: 2 else: parity[n]; n <- n+1
+    reduced: mutable bool[MAX_A][MAX_POSTS] = zeroed
+    allowed: mutable bool[MAX_A][MAX_POSTS] = zeroed
+    a <- 0
+    while a < applicants:
+        best_even_rank: mutable usize = posts+1
+        p <- 0
+        while p < posts:
+            if rank[a][p] == 1: reduced[a][p] <- true
+            if rank[a][p] > 0 and class_of[applicants+p] == 0 and rank[a][p].usize() < best_even_rank:
+                best_even_rank <- rank[a][p].usize()
+            p <- p+1
+        last_rank: usize = max_rank[a]+1
+        if class_of[applicants+posts+a] == 0 and last_rank < best_even_rank: best_even_rank <- last_rank
+        p <- 0
+        while p < posts:
+            if rank[a][p] > 0 and rank[a][p].usize() == best_even_rank and class_of[applicants+p] == 0: reduced[a][p] <- true
+            p <- p+1
+        if last_rank == best_even_rank and class_of[applicants+posts+a] == 0: reduced[a][posts+a] <- true
+        p <- 0
+        while p < post_count:
+            ca: i64 = class_of[a]
+            cp: i64 = class_of[applicants+p]
+            if reduced[a][p] and not ((ca == 1 and (cp == 1 or cp == 2)) or (ca == 2 and cp == 1)): allowed[a][p] <- true
+            p <- p+1
+        a <- a+1
+
+    best: mutable usize[MAX_A] = zeroed
+    found: mutable bool = false
+    full_limit: mutable usize = 1
+    a <- 0
+    while a < applicants: full_limit <- full_limit*post_count; a <- a+1
+    code <- 0
+    while code < full_limit:
+        value <- code
+        candidate: mutable usize[MAX_A] = zeroed
+        used <- 0
+        first_count: mutable i64 = 0
+        valid <- true
+        a <- 0
+        while a < applicants:
+            p <- value%post_count
+            value <- value/post_count
+            candidate[a] <- p
+            bit: u64 = 1.u64()<<p
+            if not allowed[a][p] or (used&bit) != 0: valid <- false; break
+            used <- used|bit
+            if p < posts and rank[a][p] == 1: first_count <- first_count+1
+            a <- a+1
+        if valid and first_count == best_m1_size and (not found or rmp_lex_less(candidate,best,applicants)):
+            found <- true
+            best <- candidate
+        code <- code+1
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    rmp_put(if found: 1 else: 0, staged&, 0)
+    a <- 0
+    while a < applicants:
+        rmp_put(if found: best[a].i64() else: -1, staged&, 8*(a+1))
+        a <- a+1
+    i: mutable usize = 0
+    while i < output_bytes: output[i] <- staged[i]; i <- i+1
+    output_bytes.i64()

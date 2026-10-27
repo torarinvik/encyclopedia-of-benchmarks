@@ -1,0 +1,86 @@
+const MAX_N: usize=12
+const MAX_M: usize=24
+const MAX_INPUT: usize=98
+
+def kkt_mst_sampling_filter(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("kkt_mst_sampling_filter"):
+    if input.is_null() or length<6 or length>MAX_INPUT:return -1
+    n64:i64=input[0];m64:i64=input[1]
+    if n64<2 or n64>12 or m64<1 or m64>24 or length!=2+4*m64.usize():return -1
+    n:usize=n64.usize();m:usize=m64.usize()
+    eu:mutable i64[24]=zeroed;ev:mutable i64[24]=zeroed;ew:mutable i64[24]=zeroed;sample:mutable i64[24]=zeroed
+    i:mutable usize=0
+    while i<m:
+        eu[i]<-input[2+4*i];ev[i]<-input[3+4*i];ew[i]<-input[4+4*i];sample[i]<-input[5+4*i]
+        if eu[i]<0 or eu[i]>=ev[i] or ev[i]>=n64 or ew[i]<1 or ew[i]>1024 or (sample[i]!=0 and sample[i]!=1):return -1
+        j:mutable usize=0
+        while j<i:
+            if (eu[i]==eu[j] and ev[i]==ev[j]) or ew[i]==ew[j]:return -1
+            j<-j+1
+        i<-i+1
+    bytes:usize=m
+    if output.is_null() or capacity<bytes:return -2
+    order:mutable usize[24]=zeroed;i<-0
+    while i<m:
+        order[i]<-i
+        i<-i+1
+    i<-0
+    while i<m:
+        best:mutable usize=i;j<-i+1
+        while j<m:
+            if ew[order[j]]<ew[order[best]]:best<-j
+            j<-j+1
+        temp:i64=order[i].i64();order[i]<-order[best];order[best]<-temp.usize()
+        i<-i+1
+    parent:mutable usize[12]=zeroed;i<-0
+    while i<n:
+        parent[i]<-i
+        i<-i+1
+    in_forest:mutable u8[24]=zeroed;staged:mutable u8[24]=zeroed
+    i<-0
+    while i<m:
+        e:usize=order[i]
+        if sample[e]!=0:
+            a:usize=eu[e].usize();b:usize=ev[e].usize()
+            while parent[a]!=a:
+                a<-parent[a]
+            while parent[b]!=b:
+                b<-parent[b]
+            if a!=b:
+                parent[b]<-a
+                in_forest[e]<-1
+        i<-i+1
+    e:mutable usize=0
+    while e<m:
+        if in_forest[e]!=0:
+            staged[e]<-1
+            e<-e+1
+            continue
+        path_max:mutable i64[12]=zeroed;queue:mutable usize[12]=zeroed;visited:mutable u8[12]=zeroed
+        i<-0
+        while i<n:
+            path_max[i]<- -1
+            i<-i+1
+        start:usize=eu[e].usize();target:usize=ev[e].usize();head:mutable usize=0;tail:mutable usize=1
+        queue[0]<-start;visited[start]<-1;path_max[start]<-0
+        while head<tail and visited[target]==0:
+            current:usize=queue[head];head<-head+1;k:mutable usize=0
+            while k<m:
+                if in_forest[k]!=0:
+                    next:i64=-1
+                    if eu[k].usize()==current:next<-ev[k]
+                    else if ev[k].usize()==current:next<-eu[k]
+                    if next>=0 and visited[next.usize()]==0:
+                        node:usize=next.usize();visited[node]<-1
+                        path_max[node]<-if path_max[current]>ew[k]:path_max[current] else:ew[k]
+                        queue[tail]<-node;tail<-tail+1
+                k<-k+1
+        if visited[target]==0 or ew[e]<path_max[target]:
+            staged[e]<-1
+        else:
+            staged[e]<-0
+        e<-e+1
+    i<-0
+    while i<m:
+        output[i]<-staged[i]
+        i<-i+1
+    bytes.i64()

@@ -1,0 +1,98 @@
+const MAX_INPUT: usize=39
+const MAX_NODES: usize=51
+const MAX_EDGES: usize=50
+const MAX_TEXT_LENGTH: usize=24
+def suffix_tree_code_at(input:i64&,n:usize,p:usize)->i64:
+    if p==n:return -1
+    input[1+p]
+def suffix_tree_put64(value:i64,output:mutable u8&,pos:usize)->void:
+    bits:u64=value.u64();j:mutable usize=0
+    while j<8:
+        output[pos+j]<-((bits>>(8*j))&255).u8();j<-j+1
+def suffix_tree_suffix_less(input:i64&,n:usize,a:usize,b:usize)->bool:
+    p:mutable usize=0
+    while a+p<=n and b+p<=n:
+        x:i64=suffix_tree_code_at(input,n,a+p);y:i64=suffix_tree_code_at(input,n,b+p)
+        if x!=y:return x<y
+        p<-p+1
+    a<b
+def suffix_tree_pattern_occurrences(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("suffix_tree_pattern_occurrences"):
+    if input.is_null() or length<3 or length>MAX_INPUT:return -1
+    nr:i64=input[0];if nr<0 or nr>24:return -1
+    n:usize=nr.usize();if length<2+n:return -1
+    mr:i64=input[1+n];if mr<1 or mr>12 or length!=2+n+mr.usize():return -1
+    m:usize=mr.usize();i:mutable usize=0
+    while i<n:
+        if input[1+i]<0 or input[1+i]>127:return -1
+        i<-i+1
+    i<-0
+    while i<m:
+        if input[2+n+i]<0 or input[2+n+i]>127:return -1
+        i<-i+1
+    label_start:mutable usize[MAX_NODES]=zeroed
+    label_length:mutable usize[MAX_NODES]=zeroed
+    suffix_start:mutable usize[MAX_NODES]=zeroed
+    first_edge:mutable i64[MAX_NODES]=zeroed
+    last_edge:mutable i64[MAX_NODES]=zeroed
+    edge_child:mutable i64[MAX_EDGES]=zeroed
+    edge_next:mutable i64[MAX_EDGES]=zeroed
+    i<-0
+    while i<MAX_NODES:first_edge[i]<--1;last_edge[i]<--1;i<-i+1
+    i<-0
+    while i<MAX_EDGES:edge_next[i]<--1;i<-i+1
+    node_count:mutable usize=1;edge_count:mutable usize=0;start:mutable usize=0
+    while start<=n:
+        suffix_length:usize=n+1-start;offset:mutable usize=0;node:mutable usize=0
+        while offset<suffix_length:
+            first_code:i64=suffix_tree_code_at(input,n,start+offset)
+            selected:mutable i64=first_edge[node]
+            while selected>=0 and suffix_tree_code_at(input,n,label_start[edge_child[selected.usize()].usize()])!=first_code:selected<-edge_next[selected.usize()]
+            if selected<0:
+                if node_count>=MAX_NODES:return -1
+                leaf:usize=node_count;node_count<-node_count+1
+                label_start[leaf]<-start+offset;label_length[leaf]<-suffix_length-offset;suffix_start[leaf]<-start
+                edge:usize=edge_count;edge_count<-edge_count+1;edge_child[edge]<-leaf.i64();edge_next[edge]<--1
+                if first_edge[node]<0:first_edge[node]<-edge.i64()
+                else:edge_next[last_edge[node].usize()]<-edge.i64()
+                last_edge[node]<-edge.i64();break
+            child:usize=edge_child[selected.usize()].usize();common:mutable usize=0
+            while common<label_length[child] and offset+common<suffix_length and suffix_tree_code_at(input,n,start+offset+common)==suffix_tree_code_at(input,n,label_start[child]+common):common<-common+1
+            if common==label_length[child]:offset<-offset+common;node<-child
+            else:
+                if node_count>=MAX_NODES:return -1
+                split:usize=node_count;node_count<-node_count+1
+                label_start[split]<-label_start[child];label_length[split]<-common
+                label_start[child]<-label_start[child]+common;label_length[child]<-label_length[child]-common
+                edge_child[selected.usize()]<-split.i64()
+                edge:usize=edge_count;edge_count<-edge_count+1;edge_child[edge]<-child.i64();edge_next[edge]<--1
+                first_edge[split]<-edge.i64();last_edge[split]<-edge.i64();offset<-offset+common;node<-split
+        start<-start+1
+    node:mutable usize=0;offset:mutable usize=0;matched:mutable bool=false
+    while offset<m:
+        wanted:i64=input[2+n+offset];selected:mutable i64=first_edge[node]
+        while selected>=0 and suffix_tree_code_at(input,n,label_start[edge_child[selected.usize()].usize()])!=wanted:selected<-edge_next[selected.usize()]
+        if selected<0:break
+        child:usize=edge_child[selected.usize()].usize();common:mutable usize=0
+        while common<label_length[child] and offset+common<m and suffix_tree_code_at(input,n,label_start[child]+common)==input[2+n+offset+common]:common<-common+1
+        if offset+common==m:node<-child;matched<-true;break
+        if common!=label_length[child]:break
+        offset<-offset+common;node<-child
+    starts:mutable usize[MAX_TEXT_LENGTH]=zeroed
+    count:mutable usize=0
+    if matched:
+        stack:mutable usize[MAX_NODES]=zeroed;top:mutable usize=1;stack[0]<-node
+        while top>0:
+            top<-top-1;x:usize=stack[top]
+            if first_edge[x]<0 and label_length[x]>0:starts[count]<-suffix_start[x];count<-count+1
+            edge:i64=first_edge[x]
+            while edge>=0:stack[top]<-edge_child[edge.usize()].usize();top<-top+1;edge<-edge_next[edge.usize()]
+    i<-1
+    while i<count:
+        x:usize=starts[i];j:mutable usize=i
+        while j>0 and suffix_tree_suffix_less(input,n,x,starts[j-1]):starts[j]<-starts[j-1];j<-j-1
+        starts[j]<-x;i<-i+1
+    bytes:usize=8*(1+count)
+    if output.is_null() or capacity<bytes:return -2
+    suffix_tree_put64(count.i64(),output&,0);i<-0
+    while i<count:suffix_tree_put64(starts[i].i64(),output&,8+8*i);i<-i+1
+    bytes.i64()

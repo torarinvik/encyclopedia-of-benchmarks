@@ -176,6 +176,8 @@ from rodinia_lavamd_oracle import rodinia_lavamd as rodinia_lavamd_oracle
 from rodinia_pathfinder_oracle import rodinia_pathfinder as rodinia_pathfinder_oracle
 from rodinia_bplus_tree_oracle import rodinia_bplus_tree as rodinia_bplus_tree_oracle
 from xgboost_oracle import oracle as xgboost_oracle
+from rle_lcs_block_dp_verifier_oracle import expected_result as rle_lcs_block_dp_verifier_oracle
+from rle_levenshtein_block_dp_verifier_oracle import expected_result as rle_levenshtein_block_dp_verifier_oracle
 from prolangs_football_tiebreaks_oracle import MAX_TEAMS as PROLANGS_FOOTBALL_MAX_TEAMS
 from prolangs_football_tiebreaks_oracle import MAX_RECORD_GAMES as PROLANGS_FOOTBALL_MAX_RECORD_GAMES
 from prolangs_football_tiebreaks_oracle import MAX_NET_POINTS as PROLANGS_FOOTBALL_MAX_NET_POINTS
@@ -949,7 +951,6 @@ from run_i64_array_scalar import validate_clojure_persistent_list_queue_workload
 from run_i64_array_scalar import validate_mcoloring_workload
 from run_i64_array_scalar import validate_graph_enumeration_workload
 from run_i64_array_scalar import validate_lca_workload
-from run_i64_array_scalar import validate_johnsons_algorithm_workload
 from run_i64_array_scalar import validate_knapsack_zero_one_tabulation_workload
 from run_i64_array_scalar import validate_matrix_exponentiation_workload
 from run_i64_array_scalar import validate_miller_rabin_primality_checker_workload
@@ -1638,10 +1639,6 @@ from mcoloring_oracle import MAX_VERTICES as MCOLORING_MAX_VERTICES
 from mcoloring_oracle import expected_result as mcoloring_oracle
 from solution42_oracle import MAX_INPUT_LENGTH as SOLUTION42_MAX_INPUT_LENGTH
 from solution42_oracle import expected_result as solution42_oracle
-from johnsons_algorithm_oracle import MAX_INPUT_LENGTH as JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH
-from johnsons_algorithm_oracle import MAX_VERTICES as JOHNSONS_ALGORITHM_MAX_VERTICES
-from johnsons_algorithm_oracle import MAX_WEIGHT as JOHNSONS_ALGORITHM_MAX_WEIGHT
-from johnsons_algorithm_oracle import expected_result as johnsons_algorithm_oracle
 from knapsack_zero_one_tabulation_oracle import INVALID_RESULT as KNAPSACK_ZERO_ONE_TABULATION_INVALID_RESULT
 from knapsack_zero_one_tabulation_oracle import MAX_CAPACITY as KNAPSACK_ZERO_ONE_TABULATION_MAX_CAPACITY
 from knapsack_zero_one_tabulation_oracle import MAX_ITEMS as KNAPSACK_ZERO_ONE_TABULATION_MAX_ITEMS
@@ -1836,7 +1833,6 @@ ALGORITHMS += ("shortest_word_distance",)
 ALGORITHMS += ("match_word_pattern",)
 ALGORITHMS += ("power_using_recursion",)
 ALGORITHMS += ("lca",)
-ALGORITHMS += ("johnsons_algorithm",)
 ALGORITHMS += ("knapsack_zero_one_tabulation",)
 ALGORITHMS += ("matrix_exponentiation",)
 ALGORITHMS += ("miller_rabin_primality_checker",)
@@ -1892,6 +1888,8 @@ ALGORITHMS += ("fourinarow_minimax",)
 ALGORITHMS += ("freebench_mason", "fhourstones_exact")
 ALGORITHMS += ("mcgill_exptree",)
 ALGORITHMS += ("freebench_neural_hopfield",)
+ALGORITHMS += ("rle_lcs_block_dp",)
+ALGORITHMS += ("rle_levenshtein_block_dp",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -3399,6 +3397,10 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return fhourstones_exact_oracle(values)
     if algorithm == "freebench_neural_hopfield":
         return freebench_neural_hopfield_oracle(values)
+    if algorithm == "rle_lcs_block_dp":
+        return rle_lcs_block_dp_verifier_oracle(values)
+    if algorithm == "rle_levenshtein_block_dp":
+        return rle_levenshtein_block_dp_verifier_oracle(values)
     if algorithm == "trimaran_enc_pc1":
         return trimaran_enc_pc1_oracle(values)
     if algorithm == "trimaran_netbench_url_internet_checksum":
@@ -3620,8 +3622,6 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return mcoloring_oracle(values)
     if algorithm == "solution42":
         return solution42_oracle(values)
-    if algorithm == "johnsons_algorithm":
-        return johnsons_algorithm_oracle(values)
     if algorithm == "greedy_graph_coloring":
         return greedy_graph_coloring_oracle(values)
     if algorithm == "greedy_best_first":
@@ -4531,8 +4531,6 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_graph_enumeration_workload(workload)
     elif algorithm == "lca":
         validate_lca_workload(workload)
-    elif algorithm == "johnsons_algorithm":
-        validate_johnsons_algorithm_workload(workload)
     elif algorithm == "knapsack_zero_one_tabulation":
         validate_knapsack_zero_one_tabulation_workload(workload)
     elif algorithm == "matrix_exponentiation":
@@ -6391,43 +6389,6 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for values in malformed:
             add_lca_case(tuple(values))
-    if algorithm == "johnsons_algorithm":
-        def add_johnsons_case(values: tuple[int, ...]) -> None:
-            if len(values) > JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH:
-                raise ValueError("johnsons_algorithm generated input exceeds its 257-value parser bound")
-            cases[values] = johnsons_algorithm_oracle(values)
-
-        rng_johnson = random.Random(20261017)
-        for graph_index in range(96):
-            vertices = 1 + (graph_index % JOHNSONS_ALGORITHM_MAX_VERTICES)
-            matrix = [0] * (vertices * vertices)
-            for vertex in range(vertices):
-                matrix[vertex * vertices + vertex] = rng_johnson.randint(
-                    -JOHNSONS_ALGORITHM_MAX_WEIGHT, JOHNSONS_ALGORITHM_MAX_WEIGHT)
-            if vertices > 1:
-                # A directed cycle guarantees strong connectivity; extra positive
-                # edges vary the shortest paths while keeping every reduced edge
-                # strictly positive under the zero Bellman-Ford potentials.
-                for vertex in range(vertices):
-                    matrix[vertex * vertices + (vertex + 1) % vertices] = rng_johnson.randint(
-                        1, JOHNSONS_ALGORITHM_MAX_WEIGHT)
-                for from_vertex in range(vertices):
-                    for to_vertex in range(vertices):
-                        index = from_vertex * vertices + to_vertex
-                        if from_vertex != to_vertex and matrix[index] == 0 and rng_johnson.randrange(3) == 0:
-                            matrix[index] = rng_johnson.randint(1, JOHNSONS_ALGORITHM_MAX_WEIGHT)
-            add_johnsons_case((vertices, *matrix))
-
-        malformed = (
-            (), (0,), (JOHNSONS_ALGORITHM_MAX_VERTICES + 1,),
-            (2, 0, 1), (1, 0, 1),
-            (2, 0, 33, 1, 0),
-            (3, 0, 1, 0, 0, 0, 0, 0, 0),
-            (3, 0, -3, 0, 0, 0, 1, 1, 0, 0),
-            (2, 0, -1, 2, 0),
-        )
-        for values in malformed:
-            add_johnsons_case(tuple(values))
     if algorithm == "mul_array":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})

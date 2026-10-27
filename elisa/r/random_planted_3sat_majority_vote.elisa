@@ -1,0 +1,44 @@
+const MAX_VARS: usize = 12
+const MAX_CLAUSES: usize = 32
+const MAX_INPUT: usize = 98
+const MAX_OUTPUT: usize = 96
+
+def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def random_planted_3sat_majority_vote(input: i64&, length: usize,
+                                      output: mutable u8&, capacity: usize) -> i64 @export("random_planted_3sat_majority_vote"):
+    if input == null or length < 2 or length > MAX_INPUT: return -1
+    if input[0] < 3 or input[0] > MAX_VARS.i64() or input[1] < 0 or input[1] > MAX_CLAUSES.i64(): return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 3 * m: return -1
+    positive: mutable usize[MAX_VARS] = zeroed
+    negative: mutable usize[MAX_VARS] = zeroed
+    clause: mutable usize = 0
+    while clause < m:
+        seen: mutable bool[MAX_VARS] = zeroed
+        offset: mutable usize = 0
+        while offset < 3:
+            literal: i64 = input[2 + 3 * clause + offset]
+            if literal == 0 or literal < -n.i64() or literal > n.i64(): return -1
+            variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+            if seen[variable]: return -1
+            seen[variable] <- true
+            if literal > 0: positive[variable] <- positive[variable] + 1
+            else: negative[variable] <- negative[variable] + 1
+            offset <- offset + 1
+        clause <- clause + 1
+    byte_count: usize = 8 * n
+    if output == null or capacity < byte_count: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    variable: mutable usize = 0
+    while variable < n:
+        value: i64 = if positive[variable] > negative[variable]: 1 else: -1
+        put_i64(&staged[0], 8 * variable, value)
+        variable <- variable + 1
+    for i in 0..<byte_count: output[i] <- staged[i]
+    byte_count.i64()

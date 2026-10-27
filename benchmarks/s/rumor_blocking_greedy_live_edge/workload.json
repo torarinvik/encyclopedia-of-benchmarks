@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi623-rumor-blocking-greedy-live-edge-v1",
+  "algorithm": "rumor_blocking_greedy_live_edge",
+  "function_symbol": "rumor_blocking_greedy_live_edge",
+  "comparison_model": "i64_array_bytes_output_call",
+  "pinned_source": {
+    "title": "Rumor Blocking",
+    "authors": ["Lidan Fan", "Weili Wu"],
+    "doi": "10.1007/978-1-4939-2864-4_623",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_623",
+    "epub_path": "OEBPS/AChap623.html",
+    "section": "Problem 1, MCICM, high-effectiveness property, Algorithm 1",
+    "license": "No source-code license asserted; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n,m,rumor_source_count,k,world_count,rumor_sources...,(u,v,live_world_mask)...]",
+    "vertices": [2, 8],
+    "directed_edges": [0, 16],
+    "rumor_sources": [1, 7],
+    "protectors_selected": [1, 3],
+    "world_count": [1, 8],
+    "maximum_valid_length": 60,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "layout": "[k,(selected_node,marginal_sum_over_worlds)*k]",
+    "maximum_bytes": 56,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed status/frontier/proposal arrays and candidate trace for at most eight nodes and eight sample worlds."
+  },
+  "profile": {
+    "model": "MCICM, p_protect=1 on every edge, detection delay d=0; rumor propagation outcomes are supplied as per-edge world masks.",
+    "score": "For each candidate, sum over worlds of f(P union {candidate})-f(P), where f is the number of no-protector baseline-infected nodes prevented.",
+    "tie_rule": "Equal marginal sums choose the lower node ID.",
+    "scope": "Finite supplied-sample greedy trace; no random generation or stochastic approximation guarantee."
+  },
+  "measurement": {"sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 100},
+  "cases": [
+    {
+      "id": "protected-priority-in-two-worlds",
+      "input_values": [4, 4, 1, 1, 2, 0, 0, 1, 1, 0, 2, 1, 1, 3, 1, 2, 3, 1],
+      "input_length": 18,
+      "output_capacity": 56,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "zero-live-edges-ties-by-node-id",
+      "input_values": [3, 0, 1, 1, 1, 0],
+      "input_length": 6,
+      "output_capacity": 56,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "reject-live-world-bit-out-of-range",
+      "input_values": [3, 1, 1, 1, 1, 0, 0, 1, 2],
+      "input_length": 9,
+      "output_capacity": 56,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

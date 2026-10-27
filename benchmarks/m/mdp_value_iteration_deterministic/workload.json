@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-mdp-value-iteration-deterministic-i64-array-bytes-output-v1",
+  "algorithm": "mdp_value_iteration_deterministic",
+  "function_symbol": "mdp_value_iteration_deterministic",
+  "abi": "i64_array_bytes_output",
+  "description": "Perform a fixed number of exact Bellman value-iteration sweeps on a bounded deterministic-transition MDP.",
+  "source": {
+    "title": "Reinforcement Learning",
+    "authors": [
+      "Eyal Even-Dar"
+    ],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_341",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_341",
+    "algorithm_attribution": "Finite discounted-MDP value iteration",
+    "implementation_status": "clean-room bounded deterministic-transition profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[S,A,H,p,q,(reward,next_state)*S*A]",
+    "states_range": [
+      1,
+      4
+    ],
+    "actions_range": [
+      1,
+      3
+    ],
+    "sweep_count_range": [
+      1,
+      8
+    ],
+    "discount": "gamma=p/q, 0<=p<q<=4",
+    "reward_range": [
+      -100,
+      100
+    ],
+    "maximum_valid_length": 29,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[q^H,scaled_value_for_each_state,lowest_index_greedy_action_for_each_state]",
+    "maximum_bytes": 72,
+    "success_result": "8*(1+2*S) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Two four-state value vectors, action candidates, transition/reward tables, and staged output."
+  },
+  "contract": {
+    "recurrence": "Start V_0(s)=0 and perform exactly H synchronous sweeps V_(t+1)(s)=max_a(reward(s,a)+(p/q)*V_t(next(s,a))).",
+    "exact_scale": "Return integer values scaled by q^H; all intermediate scaled Bellman candidates are exact integers.",
+    "transition_model": "Every state-action pair has one deterministic next state, a valid MDP subclass.",
+    "tie_rule": "The lowest action index is selected when multiple actions maximize the final Bellman candidate.",
+    "scope": "Finite sweep profile from zero only; no convergence guarantee or tolerance stopping, stochastic transitions, Q-learning, or Rmax exploration threshold.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "two-sweeps-discounted-loop",
+      "input_values": [
+        1,
+        2,
+        2,
+        1,
+        2,
+        2,
+        0,
+        3,
+        0
+      ],
+      "input_length": 9,
+      "output_capacity": 72,
+      "expected_result": 24,
+      "expected_output_hex": "040000000000000012000000000000000100000000000000"
+    },
+    {
+      "id": "lowest-action-index-tie",
+      "input_values": [
+        1,
+        2,
+        1,
+        1,
+        2,
+        1,
+        0,
+        1,
+        0
+      ],
+      "input_length": 9,
+      "output_capacity": 72,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "two-state-three-sweep-finite-horizon",
+      "input_values": [
+        2,
+        2,
+        3,
+        1,
+        2,
+        1,
+        1,
+        0,
+        0,
+        2,
+        0,
+        -1,
+        1
+      ],
+      "input_length": 13,
+      "output_capacity": 72,
+      "expected_result": 40,
+      "expected_output_hex": "08000000000000001200000000000000180000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-input-and-output",
+      "input_values": [
+        4,
+        3,
+        8,
+        3,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        3,
+        0,
+        3,
+        0,
+        3
+      ],
+      "input_length": 29,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output_hex": "000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "reward-outside-range-invalid",
+      "input_values": [
+        1,
+        1,
+        1,
+        0,
+        1,
+        101,
+        0
+      ],
+      "input_length": 7,
+      "output_capacity": 72,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

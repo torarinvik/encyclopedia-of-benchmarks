@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi353-transit-node-routing-table-query-v1",
+  "algorithm": "transit_node_routing_table_query",
+  "function_symbol": "transit_node_routing_table_query",
+  "comparison_model": "i64_array_bytes_output_call",
+  "pinned_source": {
+    "title": "Routing in Road Networks with Transit Nodes",
+    "author": "Dominik Schultes",
+    "doi": "10.1007/978-1-4939-2864-4_353",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_353",
+    "epub_path": "OEBPS/AChap353.html",
+    "section": "Key Results: transit-node distance formula",
+    "license": "No source-code license asserted; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[transit_count,source_id,target_id,far_flag,forward_count,(access_id,d_su)...,backward_count,(access_id,d_vt)...,row-major transit distance matrix]",
+    "transit_nodes": [1, 8],
+    "access_nodes_per_side": [1, 4],
+    "distance_range": [0, 1000000],
+    "maximum_valid_length": 86,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "layout": "[transit_distance,forward_access_id,backward_access_id]",
+    "maximum_bytes": 24,
+    "success_result": 24,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Bounded access-node lists, transit-distance table, and result staging."
+  },
+  "profile": {
+    "operation": "Transit-node table lookup for a query classified as far by the locality filter.",
+    "source_formula": "min d(s,u)+d(u,v)+d(v,t) over forward access u and backward access v.",
+    "locality": "The caller supplies far_flag=1 (not L(s,t)); local queries and fallback routing are outside this profile.",
+    "tie_rule": "Equal distances choose the lexicographically smallest access-node pair."
+  },
+  "measurement": {
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "minimum-access-pair-query",
+      "input_values": [2, 6, 7, 1, 2, 0, 3, 1, 5, 2, 0, 6, 1, 2, 0, 4, 7, 0],
+      "input_length": 18,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "070000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "reject-local-query-outside-profile",
+      "input_values": [1, 2, 3, 0, 1, 0, 1, 1, 0, 0, 0],
+      "input_length": 11,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

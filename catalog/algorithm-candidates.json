@@ -46976,27 +46976,6 @@
       "benchmark_name": "johnson_shortest_paths"
     },
     {
-      "candidate_id": "johnsons_algorithm",
-      "source_repository_count": 1,
-      "source_repositories": [
-        "Java"
-      ],
-      "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
-      "implementations": [
-        {
-          "repository": "Java",
-          "language": "Java",
-          "path": "src/main/java/com/thealgorithms/datastructures/graphs/JohnsonsAlgorithm.java",
-          "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/graphs/JohnsonsAlgorithm.java",
-          "local_folder_source": null
-        }
-      ],
-      "benchmark_name": "johnsons_algorithm",
-      "benchmark_contract": "benchmarks/j/johnsons_algorithm/README.md",
-      "review_notes": "The pinned Java implementation is a separate adjacency-matrix variant; do not alias to johnson. Preserve 0 as absent edge and no self-loop ingestion, with infinity for unreachable pairs. Require strongly connected inputs without negative cycles and with no zero reweighted edges to match its Dijkstra behavior."
-    },
-    {
       "candidate_id": "join",
       "source_repository_count": 1,
       "source_repositories": [

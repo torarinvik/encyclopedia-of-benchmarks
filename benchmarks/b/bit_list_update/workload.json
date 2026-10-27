@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-bit-list-update-i64-array-bytes-output-v1",
+  "algorithm": "bit_list_update",
+  "function_symbol": "bit_list_update",
+  "abi": "i64_array_bytes_output",
+  "description": "Bit list update with supplied random initial bits and access-position trace.",
+  "source": {
+    "title": "Online List Update",
+    "authors": ["Shahin Kamali"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_266",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_266",
+    "algorithm_attribution": "Each item's initial bit is uniformly random; every access complements that bit and moves the item to front when the new bit is one.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,request_count,initial_order[n],request_ids[request_count],initial_bits[n]]",
+    "item_count_range": [1, 8],
+    "request_count_range": [0, 32],
+    "item_id_range": "0..n-1",
+    "initial_order_requirement": "permutation of all item IDs",
+    "initial_bit_range": [0, 1],
+    "initial_randomness": "uniform independent bits supplied explicitly for deterministic replay",
+    "maximum_valid_length": 50,
+    "maximum_parseable_length": 50,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_vector",
+    "encoding": "little-endian signed 64-bit words [total_access_cost,final_order[n],pre_access_positions[request_count],final_bits[n]]",
+    "maximum_bytes": 392,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {"bytes": 4096, "meaning": "Bounded item bits, request positions, final state, and staged output."},
+  "contract": {
+    "access_cost": "Record the 1-based position before toggling the requested item's bit.",
+    "bit_update": "Complement only the accessed item's bit.",
+    "reorganization": "If the complemented bit is one, move the item to the list front with free exchanges; otherwise leave the order unchanged.",
+    "randomness": "The supplied initial bit vector is a fixed realization of independent uniform source bits."
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "oracle_method": "The primary oracle simulates front moves directly. The independent verifier maintains a page-to-position map and shifts the affected prefix.",
+  "cases": [
+    {"id":"bit_toggles_and_front_moves","input_values":[3,6,0,1,2,2,2,1,2,1,0,1,0],"input_length":13,"output_capacity":104,"expected_result":104,"expected_output_hex":"0e00000000000000 0000000000000000 0100000000000000 0200000000000000 0300000000000000 0100000000000000 0300000000000000 0100000000000000 0300000000000000 0300000000000000 0100000000000000 0100000000000000 0100000000000000"},
+    {"id":"front_access_still_toggles_bit","input_values":[2,2,0,1,0,1,0,1],"input_length":8,"output_capacity":56,"expected_result":56,"expected_output_hex":"0300000000000000 0000000000000000 0100000000000000 0100000000000000 0200000000000000 0100000000000000 0000000000000000"},
+    {"id":"empty_request_trace","input_values":[2,0,1,0,1,0],"input_length":6,"output_capacity":40,"expected_result":40,"expected_output_hex":"0000000000000000 0100000000000000 0000000000000000 0000000000000000 0100000000000000"},
+    {"id":"maximum_request_and_output_bounds","input_values":[8,32,0,1,2,3,4,5,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,0,0,0,0,0,0,0,0],"input_length":50,"output_capacity":392,"expected_result":392,"expected_output_hex":"2700000000000000 0700000000000000 0000000000000000 0100000000000000 0200000000000000 0300000000000000 0400000000000000 0500000000000000 0600000000000000 0800000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000"},
+    {"id":"duplicate_initial_item","input_values":[3,1,0,0,2,0,0,1,0],"input_length":9,"output_capacity":392,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_initial_bit","input_values":[2,0,0,1,0,2],"input_length":6,"output_capacity":392,"expected_result":-1,"expected_output_hex":""},
+    {"id":"request_outside_item_set","input_values":[2,1,0,1,2,0,0],"input_length":7,"output_capacity":392,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input","input_values":[1,0,0,0,99],"input_length":5,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_capacity","input_values":[8,32,0,1,2,3,4,5,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,0,0,0,0,0,0,0,0],"input_length":50,"output_capacity":391,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[3,6,0,1,2,2,2,1,2,1,0,1,0],"input_length":13,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

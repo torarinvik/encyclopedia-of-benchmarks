@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-apsp-min-plus-repeated-squaring-i64-array-bytes-output-v1",
+  "algorithm": "apsp_min_plus_repeated_squaring",
+  "function_symbol": "apsp_min_plus_repeated_squaring",
+  "pinned_source": {
+    "title": "All Pairs Shortest Paths via Matrix Multiplication",
+    "author": "Tadao Takaoka",
+    "doi": "10.1007/978-1-4939-2864-4_12",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_12",
+    "license": "No source-code license asserted; clean-room mathematical algorithm"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,distance_matrix_row_major[n*n]]",
+    "vertex_count_range": [1, 8],
+    "maximum_valid_length": 65,
+    "edge_cost_range": [1, 1000],
+    "infinity_sentinel": 1000000,
+    "invalid_result": -1
+  },
+  "contract": {
+    "matrix": "Directed graph; diagonal entries are zero, positive finite off-diagonal costs are edges, and the sentinel denotes no edge.",
+    "operation": "Use min-plus matrix multiplication C[i,j]=min_k(A[i,k]+A[k,j]) to repeatedly square the distance matrix until the represented path-length bound covers n-1 edges.",
+    "output": "Full row-major all-pairs shortest-distance matrix; unreachable pairs use the infinity sentinel.",
+    "scope": "Elementary repeated-squaring APSP distances only. The accelerated bridging-set methods and witness-matrix reconstruction are not implemented."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "n*n row-major signed-i64 distances",
+    "maximum_bytes": 512,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Two fixed 8x8 signed-i64 distance matrices used as current and next repeated-squaring state."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {
+      "id": "two-edge-route-beats-direct-edge",
+      "input_values": [3, 0, 2, 9, 1000000, 0, 3, 1000000, 1000000, 0],
+      "input_length": 10,
+      "output_capacity": 512,
+      "expected_result": 72,
+      "expected_output_hex": "00000000000000000200000000000000050000000000000040420f00000000000000000000000000030000000000000040420f000000000040420f00000000000000000000000000"
+    },
+    {
+      "id": "path-through-middle-vertex",
+      "input_values": [3, 0, 1000000, 1000000, 1000000, 0, 4, 2, 1000000, 0],
+      "input_length": 10,
+      "output_capacity": 512,
+      "expected_result": 72,
+      "expected_output_hex": "000000000000000040420f000000000040420f0000000000060000000000000000000000000000000400000000000000020000000000000040420f00000000000000000000000000"
+    },
+    {
+      "id": "single-vertex-zero-distance",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "nonzero-diagonal-is-invalid",
+      "input_values": [2, 1, 1000000, 1000000, 0],
+      "input_length": 5,
+      "output_capacity": 32,
+      "expected_result": -1
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [2, 0, 1000000, 1000000, 0],
+      "input_length": 5,
+      "output_capacity": 24,
+      "expected_result": -2
+    }
+  ]
+}

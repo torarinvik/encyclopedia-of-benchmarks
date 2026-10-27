@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-ski-rental-deterministic-i64-array-bytes-output-v1",
+  "algorithm": "ski_rental_deterministic",
+  "function_symbol": "ski_rental_deterministic",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded deterministic threshold strategy for the classical ski-rental problem.",
+  "source": {
+    "title": "Ski Rental Problem",
+    "authors": ["Mark S. Manasse"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_378",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_378",
+    "algorithm_attribution": "Deterministic rent-then-buy threshold strategy, with k=floor(purchase_cost/rent_cost) rentals.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[rent_cost, purchase_cost, trip_count]",
+    "rent_cost_range": [1, 32],
+    "purchase_cost_range": [1, 64],
+    "trip_count_range": [0, 32],
+    "exact_length": 3,
+    "maximum_valid_length": 3,
+    "maximum_parseable_length": 4,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_vector",
+    "encoding": "0=rent and ski, 1=buy and ski, 2=ski on owned equipment",
+    "maximum_bytes": 32,
+    "success_result": "trip_count bytes written",
+    "empty_output_result": 0,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Fixed 32-byte bounded trip-action trace."
+  },
+  "contract": {
+    "threshold_rentals": "floor(purchase_cost/rent_cost)",
+    "decision": "Rent for the first threshold_rentals trips. If another trip occurs, buy before that trip, then ski on owned equipment for subsequent trips.",
+    "online_information": "Each action depends only on costs and rentals already made; trip_count defines when the supplied trace ends."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "The package oracle computes the threshold directly; the independent verifier simulates rental spending and state transitions.",
+  "cases": [
+    {"id":"empty_trip_trace","input_values":[1,5,0],"input_length":3,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"buy_after_exact_threshold","input_values":[1,5,6],"input_length":3,"output_capacity":6,"expected_result":6,"expected_output_hex":"000000000001"},
+    {"id":"fractional_cost_ratio","input_values":[2,5,4],"input_length":3,"output_capacity":4,"expected_result":4,"expected_output_hex":"00010202"},
+    {"id":"purchase_cheaper_than_one_rental","input_values":[3,2,3],"input_length":3,"output_capacity":3,"expected_result":3,"expected_output_hex":"010202"},
+    {"id":"horizon_before_threshold","input_values":[1,10,9],"input_length":3,"output_capacity":9,"expected_result":9,"expected_output_hex":"000000000000000000"},
+    {"id":"maximum_output_and_terminal_purchase","input_values":[1,31,32],"input_length":3,"output_capacity":32,"expected_result":32,"expected_output_hex":"0000000000000000000000000000000000000000000000000000000000000001"},
+    {"id":"invalid_zero_rent","input_values":[0,5,3],"input_length":3,"output_capacity":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_trip_bound","input_values":[1,5,33],"input_length":3,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input","input_values":[1,5,0,0],"input_length":4,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"parser_length_overbound","input_values":[1,5,0,0,0],"input_length":5,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[1,5,6],"input_length":3,"output_capacity":5,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output_for_empty_trace","input_values":[1,5,0],"input_length":3,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

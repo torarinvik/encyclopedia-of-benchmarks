@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-rle-levenshtein-block-dp-i64-array-scalar-v1",
+  "algorithm": "rle_levenshtein_block_dp",
+  "function_symbol": "rle_levenshtein_block_dp",
+  "abi": "i64_array_scalar",
+  "description": "Unit-cost Levenshtein distance on run-length encoded strings using run-pair DP blocks and boundary propagation.",
+  "source": {
+    "title": "Similarity Between Compressed Strings",
+    "authors": ["Jin Wook Kim", "Amihood Amir", "Gad M. Landau", "Kunsoo Park"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_375",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_375",
+    "algorithm_attribution": "Run-length encoded Levenshtein distance by extending run-pair block computation with unit insertion, deletion, and substitution costs.",
+    "implementation_status": "clean-room bounded profile; no chapter prose or cited-paper code copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[left_run_count,(symbol,length)*,right_run_count,(symbol,length)*]",
+    "run_count_range": [1, 4],
+    "symbol_range": [0, 3],
+    "run_length_range": [1, 8],
+    "maximum_expanded_length_per_string": 16,
+    "maximum_valid_length": 18,
+    "maximum_parseable_length": 18,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "Unit-cost Levenshtein edit distance",
+    "result_range": [0, 16],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "At most four run-block boundary rows/columns and temporary state for one block."
+  },
+  "contract": {
+    "block_layout": "One dynamic-programming block is formed for every pair of left and right runs.",
+    "block_recurrence": "Each cell is the minimum of deletion from above plus one, insertion from the left plus one, and diagonal substitution with cost zero for equal symbols or one otherwise.",
+    "boundary_initialization": "The top boundary stores the right-string prefix length and the left boundary stores the left-string prefix length.",
+    "boundary_propagation": "Each block consumes its top and left boundaries, then passes its bottom and right boundaries to adjacent blocks.",
+    "input_representation": "Ports retain run symbols and lengths and never materialize the expanded strings.",
+    "result": "The lower-right dynamic-programming value is returned; no edit script is selected."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "oracle_method": "The primary oracle propagates run-pair block boundaries. The independent verifier evaluates the full unit-cost edit-distance table while reading each symbol from its encoded run sequence on demand.",
+  "cases": [
+    {"id":"single-matching-run-prefix-deletion","input_values":[1,0,3,1,0,2],"input_length":6,"expected_result":1},
+    {"id":"single-symbol-substitution","input_values":[1,0,1,1,1,1],"input_length":6,"expected_result":1},
+    {"id":"three-unit-substitutions","input_values":[1,0,3,1,1,3],"input_length":6,"expected_result":3},
+    {"id":"two-by-two-block-boundary-propagation","input_values":[2,0,2,1,1,2,0,1,1,2],"input_length":10,"expected_result":1},
+    {"id":"maximum-four-run-identical-inputs","input_values":[4,0,4,1,4,2,4,3,4,4,0,4,1,4,2,4,3,4],"input_length":18,"expected_result":0},
+    {"id":"invalid-run-count","input_values":[0,1,0,1],"input_length":4,"expected_result":-1},
+    {"id":"invalid-zero-run-length","input_values":[1,0,0,1,0,1],"input_length":6,"expected_result":-1},
+    {"id":"invalid-symbol","input_values":[1,4,1,1,0,1],"input_length":6,"expected_result":-1},
+    {"id":"trailing-value","input_values":[1,0,1,1,0,1,7],"input_length":7,"expected_result":-1}
+  ]
+}

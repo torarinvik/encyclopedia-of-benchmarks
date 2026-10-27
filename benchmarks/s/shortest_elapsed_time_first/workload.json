@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-setf-i64-array-bytes-output-v1",
+  "algorithm": "shortest_elapsed_time_first",
+  "function_symbol": "shortest_elapsed_time_first",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded discrete-time SETF schedule for a supplied single-machine job trace.",
+  "source": {
+    "title": "Shortest Elapsed Time First Scheduling",
+    "authors": ["Nikhil Bansal"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_369",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_369",
+    "algorithm_attribution": "SETF: at each time, run a released unfinished job with the least service received so far.",
+    "implementation_status": "clean-room bounded discrete-time profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[job_count, (release_time, service_size)...]",
+    "job_count_range": [0, 8],
+    "release_time_range": [0, 16],
+    "service_size_range": [1, 12],
+    "tie_rule": "Among jobs with equal attained service, run the smaller input index.",
+    "exact_length": "1 + 2 * job_count",
+    "maximum_valid_length": 17,
+    "maximum_parseable_length": 18,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_vector",
+    "encoding": "One byte per unit time from time 0 to completion: 0=idle, otherwise job_index+1.",
+    "maximum_bytes": 112,
+    "success_result": "schedule length in bytes",
+    "empty_output_result": 0,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Eight-job attained-service/remaining-work state and a 112-byte staged schedule."
+  },
+  "contract": {
+    "time_model": "Integer release times and unit execution slices; scheduling decisions occur at each integer boundary.",
+    "selection_rule": "Among released unfinished jobs, choose minimum attained service, then minimum input index. Job sizes determine completion only and are not used for priority.",
+    "preemption": "A decision is made each time unit, so the selected job may be preempted at the next boundary."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "The package oracle scans all ready jobs at each decision; the independent verifier maintains a priority heap of ready jobs keyed by attained service and input index.",
+  "cases": [
+    {"id":"empty_job_set","input_values":[0],"input_length":1,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"equal_attained_service_round_robin_ties","input_values":[2,0,3,0,3],"input_length":5,"output_capacity":6,"expected_result":6,"expected_output_hex":"010201020102"},
+    {"id":"setf_differs_from_shortest_remaining","input_values":[2,0,5,0,2],"input_length":5,"output_capacity":7,"expected_result":7,"expected_output_hex":"01020102010101"},
+    {"id":"released_job_waits_for_arrival","input_values":[2,2,1,0,2],"input_length":5,"output_capacity":3,"expected_result":3,"expected_output_hex":"020201"},
+    {"id":"initial_idle_slots","input_values":[1,2,1],"input_length":3,"output_capacity":3,"expected_result":3,"expected_output_hex":"000001"},
+    {"id":"maximum_eight_job_trace","input_values":[8,16,12,16,12,16,12,16,12,16,12,16,12,16,12,16,12],"input_length":17,"output_capacity":112,"expected_result":112,"expected_output_hex":"00000000000000000000000000000000010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708"},
+    {"id":"invalid_zero_service","input_values":[1,0,0],"input_length":3,"output_capacity":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_release_bound","input_values":[1,17,1],"input_length":3,"output_capacity":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input","input_values":[1,0,1,0],"input_length":4,"output_capacity":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"parser_length_overbound","input_values":[8,16,12,16,12,16,12,16,12,16,12,16,12,16,12,16,12,0],"input_length":18,"output_capacity":112,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[2,0,3,0,3],"input_length":5,"output_capacity":5,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output_for_empty_schedule","input_values":[0],"input_length":1,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

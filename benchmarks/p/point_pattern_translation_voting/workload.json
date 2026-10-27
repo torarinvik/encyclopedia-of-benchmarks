@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-point-pattern-translation-voting-i64-array-bytes-output-v1",
+  "algorithm": "point_pattern_translation_voting",
+  "function_symbol": "point_pattern_translation_voting",
+  "abi": "i64_array_bytes_output",
+  "description": "Find the translation with the most pattern-to-target point votes.",
+  "source": {
+    "title": "Point Pattern Matching",
+    "authors": ["Veli Mäkinen", "Esko Ukkonen"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_296",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_296",
+    "algorithm_attribution": "Translation voting for exact point-pattern matching and largest common point set.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[pattern_count,target_count,pattern_xy...,target_xy...]",
+    "pattern_count_range": [1, 6],
+    "target_count_range": [1, 8],
+    "coordinate_range": [-16, 16],
+    "point_sets_must_be_distinct": true,
+    "maximum_valid_length": 30,
+    "maximum_parseable_length": 31,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_vector",
+    "encoding": "[maximum_votes,dx,dy]",
+    "maximum_bytes": 24,
+    "success_result": 24,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "At most 48 signed integral translations and their vote groups."
+  },
+  "contract": {
+    "translation": "A pattern point (x,y) maps to target point (x+dx,y+dy).",
+    "vote_count": "Number of pattern points translated to points in the target set.",
+    "tie_rule": "Choose lexicographically smallest (dx,dy) among translations with maximum votes.",
+    "exact_match": "A full exact pattern occurrence is reported when maximum_votes equals pattern_count.",
+    "error_results": "Malformed input returns -1. Null output or insufficient capacity returns -2 without writes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "The primary oracle sorts pair-generated translation vectors and counts equal runs. The independent verifier checks every candidate with direct set-membership tests.",
+  "cases": [
+    {"id":"exact-translated-pattern","input_values":[2,3,0,0,1,1,5,7,6,8,20,-5],"input_length":12,"output_capacity":24,"expected_result":24,"expected_output_hex":"020000000000000005000000000000000700000000000000"},
+    {"id":"partial-maximum-overlap","input_values":[3,2,0,0,1,0,0,1,10,10,11,10],"input_length":12,"output_capacity":24,"expected_result":24,"expected_output_hex":"02000000000000000a000000000000000a00000000000000"},
+    {"id":"lexicographic-translation-tie","input_values":[1,2,0,0,-2,-2,2,2],"input_length":8,"output_capacity":24,"expected_result":24,"expected_output_hex":"0100000000000000fefffffffffffffffeffffffffffffff"},
+    {"id":"maximum-point-counts","input_values":[6,8,0,0,1,0,2,0,0,1,1,1,2,1,3,4,4,4,5,4,3,5,4,5,5,5,15,15,16,15],"input_length":30,"output_capacity":24,"expected_result":24,"expected_output_hex":"060000000000000003000000000000000400000000000000"},
+    {"id":"duplicate-pattern-point","input_values":[2,1,0,0,0,0,1,1],"input_length":8,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coordinate-out-of-range","input_values":[1,1,17,0,0,0],"input_length":6,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-input","input_values":[1,1,0,0,1,1,99],"input_length":7,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-capacity","input_values":[1,1,0,0,2,2],"input_length":6,"output_capacity":23,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,0,0,2,2],"input_length":6,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

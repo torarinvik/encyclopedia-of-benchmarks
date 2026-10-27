@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-kiraly-max-smti-approx-i64-array-bytes-output-v1",
+  "algorithm": "kiraly_max_smt_i_approx",
+  "function_symbol": "kiraly_max_smt_i_approx",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded deterministic profile of Király's local 3/2-approximation for maximum stable matching with ties and incomplete lists.",
+  "source": {
+    "title": "Simpler Approximation for Stable Marriage",
+    "authors": ["Zoltán Király"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_676; summarizes Király 2013",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_676",
+    "algorithm_attribution": "Király's linear-time local Deferred Acceptance variation for MAX-SMTI, with a 3/2 approximation guarantee",
+    "implementation_status": "clean-room bounded profile; no book prose or source code copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[men, women, men_rank[men][women] row-major, women_rank[women][men] row-major]; -1 means unacceptable; nonnegative values are weak-order ranks, where lower is preferred and equal values are tied",
+    "men_range": [1, 6],
+    "women_range": [1, 6],
+    "rank_range": "-1 or 0..5",
+    "acceptability_rule": "A man-woman pair must be acceptable to both sides or to neither side.",
+    "tie_rule": "Equal nonnegative ranks represent a tie; rank gaps are permitted.",
+    "maximum_valid_length": 74,
+    "maximum_parseable_length": 74,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "one woman ID per man, or -1 if unmatched, in man-ID order",
+    "maximum_values": 6,
+    "maximum_bytes": 48,
+    "success_result": "8 * men bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Bounded rank tables, acceptable-pair/live-list state, matching, participant statuses, and staged result for at most six men and six women."
+  },
+  "contract": {
+    "selection_rule": "Repeatedly activate the lowest-ID unmatched man who is not an old bachelor; he proposes to his favorite live acceptable woman, with maiden-before-engaged preference within an equal rank and then lower woman ID.",
+    "woman_rule": "An engaged woman is flighty exactly when her fiancé is an uncertain lad. A flighty woman prefers any certain suitor to her uncertain fiancé regardless of original rank. Otherwise she compares weak rank, then bachelor over lad within a tie, then lower man ID.",
+    "uncertainty_rule": "An engaged lad is uncertain when a live woman has a strictly better weak-order rank than his fiancé, or is maiden while tied with his engaged fiancé. ID tie-breaking does not make an indifferent woman a strict preference for uncertainty.",
+    "rejection_rule": "A rejected proposer deletes that woman. A displaced uncertain lad keeps the woman who rejected him; a displaced certain lad or bachelor deletes her.",
+    "exhaustion_rule": "A lad whose live list empties becomes a bachelor, restores his original acceptable list, and reactivates. A bachelor whose restored list empties becomes an inactive old bachelor.",
+    "determinism": "Every otherwise unresolved tie is broken by lower participant ID.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 10,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "strict-ranks-displacement",
+      "input_values": [2, 2, 0, 1, 0, 1, 1, 0, 0, 1],
+      "input_length": 10,
+      "output_capacity": 48,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000000000000000000"
+    },
+    {
+      "id": "ties-flighty-woman-and-uncertain-lad",
+      "input_values": [2, 2, 0, 0, 0, -1, 0, 0, 0, -1],
+      "input_length": 10,
+      "output_capacity": 48,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000000000000000000"
+    },
+    {
+      "id": "bachelor-outranks-lad-within-womens-tie",
+      "input_values": [2, 1, 0, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 48,
+      "expected_result": 16,
+      "expected_output_hex": "0000000000000000ffffffffffffffff"
+    },
+    {
+      "id": "incomplete-lists-unmatched-man",
+      "input_values": [2, 1, 0, 0, 0, 1],
+      "input_length": 6,
+      "output_capacity": 48,
+      "expected_result": 16,
+      "expected_output_hex": "0000000000000000ffffffffffffffff"
+    },
+    {
+      "id": "maximum-six-by-six-diagonal-acceptability",
+      "input_values": [
+        6, 6,
+        0, -1, -1, -1, -1, -1,
+        -1, 0, -1, -1, -1, -1,
+        -1, -1, 0, -1, -1, -1,
+        -1, -1, -1, 0, -1, -1,
+        -1, -1, -1, -1, 0, -1,
+        -1, -1, -1, -1, -1, 0,
+        0, -1, -1, -1, -1, -1,
+        -1, 0, -1, -1, -1, -1,
+        -1, -1, 0, -1, -1, -1,
+        -1, -1, -1, 0, -1, -1,
+        -1, -1, -1, -1, 0, -1,
+        -1, -1, -1, -1, -1, 0
+      ],
+      "input_length": 74,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000001000000000000000200000000000000030000000000000004000000000000000500000000000000"
+    },
+    {
+      "id": "asymmetric-acceptability",
+      "input_values": [1, 1, 0, -1],
+      "input_length": 4,
+      "output_capacity": 48,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-input",
+      "input_values": [2, 2, 0, 1, 0, 1, 1, 0, 0],
+      "input_length": 9,
+      "output_capacity": 48,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [2, 2, 0, 1, 0, 1, 1, 0, 0, 1],
+      "input_length": 10,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 2, 0, 1, 0, 1, 1, 0, 0, 1],
+      "input_length": 10,
+      "output_capacity": 48,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 48,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

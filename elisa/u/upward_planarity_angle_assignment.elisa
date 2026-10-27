@@ -1,0 +1,264 @@
+const UP_MAX_N: usize = 8
+const UP_MAX_M: usize = 18
+const UP_MAX_F: usize = 12
+const UP_MAX_INPUT: usize = 124
+const UP_MAX_OUTPUT_WORDS: usize = 26
+
+def up_store_i64(output: mutable u8&, offset: usize, value: i64): void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def up_augment(ordinal: usize, slot_count: usize,
+        terminals: usize[UP_MAX_N], slots: usize[UP_MAX_N],
+        incident: bool[UP_MAX_N][UP_MAX_F], owner: mutable i64[UP_MAX_N],
+        seen: mutable bool[UP_MAX_N], assigned: mutable i64[UP_MAX_N]) -> bool:
+    vertex: usize = terminals[ordinal]
+    for slot in 0..<slot_count:
+        face: usize = slots[slot]
+        if incident[vertex][face] and not seen[slot]:
+            seen[slot] <- true
+            previous: i64 = owner[slot]
+            if previous < 0 or up_augment(previous.usize(), slot_count, terminals, slots,
+                    incident, owner, seen, assigned):
+                owner[slot] <- ordinal.i64()
+                assigned[ordinal] <- slot.i64()
+                return true
+    false
+
+def up_can_match_suffix(start: usize, terminal_count: usize, face_count: usize,
+        terminals: usize[UP_MAX_N], capacities: usize[UP_MAX_F],
+        incident: bool[UP_MAX_N][UP_MAX_F]) -> bool:
+    slots: mutable usize[UP_MAX_N] = zeroed
+    slot_count: mutable usize = 0
+    for face in 0..<face_count:
+        for unit in 0..<capacities[face]:
+            slots[slot_count] <- face
+            slot_count <- slot_count + 1
+    owner: mutable i64[UP_MAX_N] = zeroed
+    assigned: mutable i64[UP_MAX_N] = zeroed
+    for slot in 0..<UP_MAX_N:
+        owner[slot] <- -1
+        assigned[slot] <- -1
+    for ordinal in start..<terminal_count:
+        seen: mutable bool[UP_MAX_N] = zeroed
+        if not up_augment(ordinal, slot_count, terminals, slots, incident, owner, seen, assigned):
+            return false
+    true
+
+def upward_planarity_angle_assignment_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 4 or length > UP_MAX_INPUT: return -1
+    n_raw: i64 = input[0]
+    m_raw: i64 = input[1]
+    f_raw: i64 = input[2]
+    outer_raw: i64 = input[3]
+    if n_raw < 2 or n_raw > UP_MAX_N.i64() or m_raw < 1 or m_raw > UP_MAX_M.i64() or
+            f_raw < 1 or f_raw > UP_MAX_F.i64() or outer_raw < 0 or outer_raw >= f_raw: return -1
+    n: usize = n_raw.usize()
+    m: usize = m_raw.usize()
+    face_count: usize = f_raw.usize()
+    outer: usize = outer_raw.usize()
+    if length != 4 + 6 * m + face_count: return -1
+
+    edge_u: mutable usize[UP_MAX_M] = zeroed
+    edge_v: mutable usize[UP_MAX_M] = zeroed
+    adjacent: mutable bool[UP_MAX_N][UP_MAX_N] = zeroed
+    outgoing: mutable bool[UP_MAX_N][UP_MAX_N] = zeroed
+    indegree: mutable usize[UP_MAX_N] = zeroed
+    for edge in 0..<m:
+        u_raw: i64 = input[4 + 2 * edge]
+        v_raw: i64 = input[5 + 2 * edge]
+        if u_raw < 0 or u_raw >= n_raw or v_raw < 0 or v_raw >= n_raw or u_raw == v_raw: return -1
+        u: usize = u_raw.usize()
+        v: usize = v_raw.usize()
+        if edge > 0 and (edge_u[edge - 1] > u or
+                edge_u[edge - 1] == u and edge_v[edge - 1] >= v): return -1
+        for prior in 0..<edge:
+            if edge_u[prior] == u and edge_v[prior] == v or
+                    edge_u[prior] == v and edge_v[prior] == u: return -1
+        edge_u[edge] <- u
+        edge_v[edge] <- v
+        adjacent[u][v] <- true
+        adjacent[v][u] <- true
+        outgoing[u][v] <- true
+        indegree[v] <- indegree[v] + 1
+
+    walk_length: mutable usize[UP_MAX_F] = zeroed
+    walk_from: mutable usize[2 * UP_MAX_M] = zeroed
+    walk_to: mutable usize[2 * UP_MAX_M] = zeroed
+    dart: mutable bool[UP_MAX_N][UP_MAX_N] = zeroed
+    cursor: mutable usize = 4 + 2 * m
+    total: mutable usize = 0
+    for face in 0..<face_count:
+        k_raw: i64 = input[cursor]
+        cursor <- cursor + 1
+        if k_raw < 1 or k_raw > (2 * m).i64() or total + k_raw.usize() > 2 * m: return -1
+        k: usize = k_raw.usize()
+        walk_length[face] <- k
+        for step in 0..<k:
+            u_raw: i64 = input[cursor]
+            v_raw: i64 = input[cursor + 1]
+            cursor <- cursor + 2
+            if u_raw < 0 or u_raw >= n_raw or v_raw < 0 or v_raw >= n_raw: return -1
+            u: usize = u_raw.usize()
+            v: usize = v_raw.usize()
+            if not adjacent[u][v] or dart[u][v]: return -1
+            dart[u][v] <- true
+            walk_from[total] <- u
+            walk_to[total] <- v
+            total <- total + 1
+    if cursor != length or total != 2 * m or n.i64() - m.i64() + face_count.i64() != 2: return -1
+    for edge in 0..<m:
+        if not dart[edge_u[edge]][edge_v[edge]] or not dart[edge_v[edge]][edge_u[edge]]: return -1
+
+    successor: mutable i64[UP_MAX_N][UP_MAX_N] = zeroed
+    first_corner: mutable i64[UP_MAX_F][UP_MAX_N] = zeroed
+    incident: mutable bool[UP_MAX_N][UP_MAX_F] = zeroed
+    switches: mutable usize[UP_MAX_F][2] = zeroed
+    for face in 0..<UP_MAX_F:
+        for vertex in 0..<UP_MAX_N: first_corner[face][vertex] <- -1
+    for vertex in 0..<UP_MAX_N:
+        for neighbor in 0..<UP_MAX_N: successor[vertex][neighbor] <- -1
+    cursor <- 0
+    for face in 0..<face_count:
+        base: usize = cursor
+        k: usize = walk_length[face]
+        for step in 0..<k:
+            u: usize = walk_from[cursor]
+            v: usize = walk_to[cursor]
+            next: usize = walk_to[base + (step + 1) % k]
+            if v != walk_from[base + (step + 1) % k] or successor[v][u] >= 0: return -1
+            successor[v][u] <- next.i64()
+            if first_corner[face][v] < 0: first_corner[face][v] <- step.i64()
+            incident[v][face] <- true
+            if outgoing[v][u] and outgoing[v][next]: switches[face][0] <- switches[face][0] + 1
+            if not outgoing[v][u] and not outgoing[v][next]: switches[face][1] <- switches[face][1] + 1
+            cursor <- cursor + 1
+
+    reached: mutable bool[UP_MAX_N] = zeroed
+    queue: mutable usize[UP_MAX_N] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    reached[0] <- true
+    queue[0] <- 0
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        for v in 0..<n:
+            if adjacent[u][v] and not reached[v]:
+                reached[v] <- true
+                queue[tail] <- v
+                tail <- tail + 1
+    for vertex in 0..<n: if not reached[vertex]: return -1
+
+    degree: mutable usize[UP_MAX_N] = zeroed
+    head <- 0
+    tail <- 0
+    for vertex in 0..<n:
+        degree[vertex] <- indegree[vertex]
+        if degree[vertex] == 0:
+            queue[tail] <- vertex
+            tail <- tail + 1
+    removed: mutable usize = 0
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        removed <- removed + 1
+        for v in 0..<n:
+            if outgoing[u][v]:
+                degree[v] <- degree[v] - 1
+                if degree[v] == 0:
+                    queue[tail] <- v
+                    tail <- tail + 1
+    if removed != n: return -1
+
+    for vertex in 0..<n:
+        degree_count: mutable usize = 0
+        for neighbor in 0..<n: if adjacent[vertex][neighbor]: degree_count <- degree_count + 1
+        if degree_count == 0: return -1
+        start: mutable i64 = -1
+        for neighbor in 0..<n:
+            if adjacent[vertex][neighbor]:
+                if successor[vertex][neighbor] < 0: return -1
+                start <- neighbor.i64()
+        current: mutable usize = start.usize()
+        seen_count: mutable usize = 0
+        transitions: mutable usize = 0
+        while true:
+            if seen_count >= degree_count: return -1
+            seen_count <- seen_count + 1
+            next_raw: i64 = successor[vertex][current]
+            if next_raw < 0 or next_raw >= n.i64(): return -1
+            next: usize = next_raw.usize()
+            if outgoing[vertex][current] != outgoing[vertex][next]: transitions <- transitions + 1
+            current <- next
+            if current == start.usize(): break
+        if seen_count != degree_count or transitions != 0 and transitions != 2: return -1
+
+    for face in 0..<face_count:
+        if switches[face][0] != switches[face][1]: return -1
+
+    face_capacity: mutable i64[UP_MAX_F] = zeroed
+    capacity_valid: mutable bool = true
+    total_capacity: mutable i64 = 0
+    for face in 0..<face_count:
+        adjustment: i64 = -1
+        if face == outer: adjustment <- 1
+        face_capacity[face] <- switches[face][0].i64() + adjustment
+        if face_capacity[face] < 0: capacity_valid <- false
+        total_capacity <- total_capacity + face_capacity[face]
+    terminals: mutable usize[UP_MAX_N] = zeroed
+    terminal_count: mutable usize = 0
+    for vertex in 0..<n:
+        out_degree: mutable usize = 0
+        for neighbor in 0..<n: if outgoing[vertex][neighbor]: out_degree <- out_degree + 1
+        if indegree[vertex] == 0 or out_degree == 0:
+            terminals[terminal_count] <- vertex
+            terminal_count <- terminal_count + 1
+    if total_capacity != terminal_count.i64(): capacity_valid <- false
+    output_bytes: usize = 8 * (2 + 3 * terminal_count)
+    if output.is_null() or capacity < output_bytes: return -2
+
+    chosen_face: mutable usize[UP_MAX_N] = zeroed
+    feasible: mutable bool = capacity_valid
+    if feasible:
+        remaining: mutable usize[UP_MAX_F] = zeroed
+        for face in 0..<face_count: remaining[face] <- face_capacity[face].usize()
+        for ordinal in 0..<terminal_count:
+            vertex: usize = terminals[ordinal]
+            picked: mutable bool = false
+            for face in 0..<face_count:
+                if remaining[face] == 0 or not incident[vertex][face]: continue
+                remaining[face] <- remaining[face] - 1
+                if up_can_match_suffix(ordinal + 1, terminal_count, face_count,
+                        terminals, remaining, incident):
+                    chosen_face[ordinal] <- face
+                    picked <- true
+                    break
+                remaining[face] <- remaining[face] + 1
+            if not picked:
+                feasible <- false
+                break
+
+    words: mutable i64[UP_MAX_OUTPUT_WORDS] = zeroed
+    words[0] <- if feasible: 1 else: 0
+    words[1] <- terminal_count.i64()
+    position: mutable usize = 2
+    for ordinal in 0..<terminal_count:
+        if feasible:
+            face: usize = chosen_face[ordinal]
+            words[position] <- terminals[ordinal].i64()
+            words[position + 1] <- face.i64()
+            words[position + 2] <- first_corner[face][terminals[ordinal]]
+        else:
+            words[position] <- -1
+            words[position + 1] <- -1
+            words[position + 2] <- -1
+        position <- position + 3
+    for word in 0..<position: up_store_i64(output&, 8 * word, words[word])
+    output_bytes.i64()
+
+export fn upward_planarity_angle_assignment(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64 = upward_planarity_angle_assignment_impl

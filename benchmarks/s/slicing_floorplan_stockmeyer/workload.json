@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-slicing-floorplan-stockmeyer-i64-array-bytes-output-v1",
+  "algorithm": "slicing_floorplan_stockmeyer",
+  "function_symbol": "slicing_floorplan_stockmeyer",
+  "abi": "i64_array_bytes_output",
+  "description": "Minimize area over cell orientations in a supplied slicing tree using Stockmeyer's nondominated dimension-pair DP.",
+  "source": {
+    "title": "Slicing Floorplan Orientation",
+    "authors": ["Evangeline F. Y. Young"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_379",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_379",
+    "algorithm_attribution": "Stockmeyer's postorder dynamic program stores nondominated height-width pairs and backpointers for slicing-tree subproblems.",
+    "implementation_status": "clean-room bounded profile; all-pairs child joins followed by skyline pruning preserve the source recurrence"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[leaf_count,postorder_tokens...]; token 2 is followed by (height,width), token 0 is vertical join, token 1 is horizontal join",
+    "leaf_count_range": [1, 8],
+    "cell_dimension_range": [1, 20],
+    "maximum_valid_length": 32,
+    "maximum_parseable_length": 32,
+    "tree_form": "Full binary postfix slicing tree; each internal operator differs from its right internal child. The caller supplies the source's smallest-depth representation.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[minimum_area,height,width,orientation_mask]",
+    "orientation_mask": "Bit i is zero for leaf i in its supplied (height,width) orientation and one for the rotated (width,height) orientation; leaves are numbered left to right.",
+    "maximum_bytes": 32,
+    "success_result": "32 bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 131072,
+    "meaning": "At most 15 tree nodes, 256 orientation candidates per node, skyline flags, and staged output."
+  },
+  "contract": {
+    "vertical_join": "(max(left_height,right_height), left_width+right_width)",
+    "horizontal_join": "(left_height+right_height, max(left_width,right_width))",
+    "skyline": "Remove a dimension pair if another pair has no greater height and width and is strictly smaller in at least one dimension. For identical pairs retain the lexicographically smallest leaf-orientation bit vector.",
+    "root_choice": "Minimize (area,height,width,orientation-bit-vector) lexicographically.",
+    "bounded_merge": "For each internal node, combine every retained child pair and prune the resulting list; this computes the same nondominated recurrence without claiming the source's O(n d) two-pointer scan bound.",
+    "tree_normalization": "The input is a supplied smallest-depth nonredundant slicing tree. Ports validate the local rule that an internal node differs from its right internal child but do not compare equivalent tree representations.",
+    "error_results": "Malformed tree/input returns -1. Null output or capacity below 32 returns -2 without writes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "The primary oracle builds and prunes a child-pair dimension skyline at every postfix tree node. The independent verifier enumerates all at most 256 cell-orientation masks and evaluates the supplied tree directly.",
+  "cases": [
+    {"id":"vertical-two-cell-area-choice","input_values":[2,2,2,5,2,3,1,0],"input_length":8,"output_capacity":32,"expected_result":32,"expected_output_hex":"0f00000000000000050000000000000003000000000000000100000000000000"},
+    {"id":"horizontal-two-cell-area-choice","input_values":[2,2,2,5,2,3,1,1],"input_length":8,"output_capacity":32,"expected_result":32,"expected_output_hex":"0f00000000000000030000000000000005000000000000000200000000000000"},
+    {"id":"nested-tree-area-tie-break","input_values":[3,2,1,4,2,3,2,2,2,5,1,0],"input_length":12,"output_capacity":32,"expected_result":32,"expected_output_hex":"1800000000000000040000000000000006000000000000000300000000000000"},
+    {"id":"maximum-eight-leaf-balanced-tree","input_values":[8,2,1,1,2,1,1,0,2,1,1,2,1,1,0,1,2,1,1,2,1,1,0,2,1,1,2,1,1,0,1,0],"input_length":32,"output_capacity":32,"expected_result":32,"expected_output_hex":"0800000000000000020000000000000004000000000000000000000000000000"},
+    {"id":"single-cell-square","input_values":[1,2,20,20],"input_length":4,"output_capacity":32,"expected_result":32,"expected_output_hex":"9001000000000000140000000000000014000000000000000000000000000000"},
+    {"id":"invalid-zero-dimension","input_values":[1,2,0,1],"input_length":4,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-equal-right-child-operator","input_values":[3,2,1,1,2,1,1,2,1,1,0,0],"input_length":12,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-extra-root","input_values":[1,2,2,2,2,1,1],"input_length":7,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,2,1,1],"input_length":4,"output_capacity":31,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,2,1,1],"input_length":4,"output_capacity":32,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

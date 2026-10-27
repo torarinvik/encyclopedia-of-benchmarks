@@ -1,0 +1,145 @@
+const FL_MAX_TOTAL: usize = 8
+const FL_MAX_M: usize = 7
+const FL_MAX_INPUT: usize = 75
+
+def fl_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def fl_lex_less(a: u64, b: u64, m: usize) -> bool:
+    i: mutable usize = 0
+    j: mutable usize = 0
+    while true:
+        while i < m and (a & (1u64 << i)) == 0: i <- i + 1
+        while j < m and (b & (1u64 << j)) == 0: j <- j + 1
+        if i == m or j == m: return i == m and j != m
+        if i != j: return i < j
+        i <- i + 1
+        j <- j + 1
+
+def fl_cost(n: usize, m: usize, q: usize, d: i64&, fee: i64&, mask: u64) -> i64:
+    total: mutable i64 = 0
+    j: mutable usize = 0
+    while j < m:
+        if (mask & (1u64 << j)) != 0: total <- total + fee[j]
+        j <- j + 1
+    u: mutable usize = 0
+    while u < n:
+        best: mutable i64 = 9223372036854775807
+        j <- 0
+        while j < m:
+            if (mask & (1u64 << j)) != 0 and d[u * q + n + j] < best:
+                best <- d[u * q + n + j]
+            j <- j + 1
+        total <- total + best
+        u <- u + 1
+    total
+
+def fl_consider(candidate: u64, n: usize, m: usize, q: usize,
+        d: i64&, fee: i64&, best: mutable u64&, best_cost: mutable i64&) -> void:
+    value: i64 = fl_cost(n, m, q, d, fee, candidate)
+    if value < best_cost or (value == best_cost and fl_lex_less(candidate, best, m)):
+        best <- candidate
+        best_cost <- value
+
+def facility_location_add_delete_swap(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("facility_location_add_delete_swap"):
+    if input.is_null() or length < 4 or length > FL_MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or m64 < 1 or n64 + m64 > 8 or n64 > 7 or m64 > 7: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    q: usize = n + m
+    if length != 2 + q * q + m + 1: return -1
+    d: mutable i64[64] = zeroed
+    fee: mutable i64[7] = zeroed
+    pos: mutable usize = 2
+    i: mutable usize = 0
+    while i < q:
+        j: mutable usize = 0
+        while j < q:
+            value: i64 = input[pos]
+            if value < 0 or value > 1000: return -1
+            d[i * q + j] <- value
+            pos <- pos + 1
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < q:
+        if d[i * q + i] != 0: return -1
+        j <- 0
+        while j < q:
+            if i != j and d[i * q + j] <= 0: return -1
+            if d[i * q + j] != d[j * q + i]: return -1
+            k: mutable usize = 0
+            while k < q:
+                if d[i * q + j] > d[i * q + k] + d[k * q + j]: return -1
+                k <- k + 1
+            j <- j + 1
+        i <- i + 1
+    j <- 0
+    while j < m:
+        fee[j] <- input[pos]
+        if fee[j] < 0 or fee[j] > 1000: return -1
+        pos <- pos + 1
+        j <- j + 1
+    raw: i64 = input[pos]
+    if raw <= 0 or raw.u64() >= (1u64 << m): return -1
+    current: mutable u64 = raw.u64()
+    current_cost: mutable i64 = fl_cost(n, m, q, d, fee, current)
+    pass: mutable usize = 0
+    while pass < (1 << m):
+        best: mutable u64 = current
+        best_cost: mutable i64 = current_cost
+        j <- 0
+        while j < m:
+            bit: u64 = 1u64 << j
+            if (current & bit) == 0:
+                fl_consider(current | bit, n, m, q, d, fee, best, best_cost)
+            else if (current & ~bit) != 0:
+                fl_consider(current & ~bit, n, m, q, d, fee, best, best_cost)
+                k: mutable usize = 0
+                while k < m:
+                    other: u64 = 1u64 << k
+                    if (current & other) == 0:
+                        fl_consider((current & ~bit) | other, n, m, q, d, fee, best, best_cost)
+                    k <- k + 1
+            j <- j + 1
+        if best_cost * 10 >= current_cost * 9: break
+        current <- best
+        current_cost <- best_cost
+        pass <- pass + 1
+    count: mutable usize = 0
+    j <- 0
+    while j < m:
+        if (current & (1u64 << j)) != 0: count <- count + 1
+        j <- j + 1
+    out_bytes: usize = 8 * (2 + n + count)
+    if output.is_null() or capacity < out_bytes: return -2
+    fl_put(current_cost, output, 0)
+    fl_put(count.i64(), output, 8)
+    at: mutable usize = 16
+    j <- 0
+    while j < m:
+        if (current & (1u64 << j)) != 0:
+            fl_put(j.i64(), output, at)
+            at <- at + 8
+        j <- j + 1
+    u: mutable usize = 0
+    while u < n:
+        best_facility: mutable usize = 0
+        dist: mutable i64 = 9223372036854775807
+        j <- 0
+        while j < m:
+            if (current & (1u64 << j)) != 0 and d[u * q + n + j] < dist:
+                dist <- d[u * q + n + j]
+                best_facility <- j
+            j <- j + 1
+        fl_put(best_facility.i64(), output, at)
+        at <- at + 8
+        u <- u + 1
+    at.i64()

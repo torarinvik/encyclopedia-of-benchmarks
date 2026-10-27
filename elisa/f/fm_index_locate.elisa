@@ -1,0 +1,134 @@
+const MAX_TEXT: usize = 32
+const MAX_PATTERN: usize = 8
+const MAX_INPUT: usize = 43
+const ALPHABET: usize = 5
+
+def fm_locate_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    b: mutable usize = 0
+    while b < 8:
+        output[offset + b] <- ((bits >> (8 * b)) & 255).u8()
+        b <- b + 1
+
+def fm_locate_suffix_less(s: i64&, n: usize, a0: usize, b0: usize) -> bool:
+    a: mutable usize = a0
+    b: mutable usize = b0
+    while a < n and b < n:
+        if s[a] != s[b]: return s[a] < s[b]
+        a <- a + 1
+        b <- b + 1
+    a == n and b != n
+
+def fm_index_locate(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("fm_index_locate"):
+    if input.is_null() or length < 5 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    if n64 < 1 or n64 > 32 or length < n64.usize() + 4: return -1
+    n: usize = n64.usize()
+    m_at: usize = n + 1
+    m64: i64 = input[m_at]
+    if m64 < 1 or m64 > 8 or length != m_at + 2 + m64.usize(): return -1
+    m: usize = m64.usize()
+    stride64: i64 = input[length - 1]
+    if stride64 < 1 or stride64 > n64: return -1
+    stride: usize = stride64.usize()
+    total: usize = n + 1
+    s: mutable i64[33] = zeroed
+    pattern: mutable i64[8] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        x: i64 = input[1 + i]
+        if x < 1 or x > 4: return -1
+        s[i] <- x
+        i <- i + 1
+    i <- 0
+    while i < m:
+        x: i64 = input[m_at + 1 + i]
+        if x < 1 or x > 4: return -1
+        pattern[i] <- x
+        i <- i + 1
+    s[n] <- 0
+    sa: mutable usize[33] = zeroed
+    i <- 0
+    while i < total:
+        sa[i] <- i
+        i <- i + 1
+    i <- 1
+    while i < total:
+        key: usize = sa[i]
+        j: mutable usize = i
+        while j > 0 and fm_locate_suffix_less(s, total, key, sa[j - 1]):
+            sa[j] <- sa[j - 1]
+            j <- j - 1
+        sa[j] <- key
+        i <- i + 1
+    bwt: mutable i64[33] = zeroed
+    freq: mutable usize[5] = zeroed
+    i <- 0
+    while i < total:
+        bwt[i] <- s[(sa[i] + total - 1) % total]
+        freq[bwt[i].usize()] <- freq[bwt[i].usize()] + 1
+        i <- i + 1
+    c: mutable usize[5] = zeroed
+    sum: mutable usize = 0
+    i <- 0
+    while i < ALPHABET:
+        c[i] <- sum
+        sum <- sum + freq[i]
+        i <- i + 1
+    left: mutable usize = 0
+    right: mutable usize = total
+    j: mutable usize = m
+    while j > 0:
+        j <- j - 1
+        sym: usize = pattern[j].usize()
+        rl: mutable usize = 0
+        rr: mutable usize = 0
+        x: mutable usize = 0
+        while x < left:
+            if bwt[x].usize() == sym: rl <- rl + 1
+            x <- x + 1
+        x <- 0
+        while x < right:
+            if bwt[x].usize() == sym: rr <- rr + 1
+            x <- x + 1
+        left <- c[sym] + rl
+        right <- c[sym] + rr
+        if left == right: break
+    lf: mutable usize[33] = zeroed
+    sampled: mutable bool[33] = zeroed
+    samples: mutable usize[33] = zeroed
+    row: mutable usize = 0
+    while row < total:
+        sym: usize = bwt[row].usize()
+        rank: mutable usize = 0
+        x <- 0
+        while x < row:
+            if bwt[x].usize() == sym: rank <- rank + 1
+            x <- x + 1
+        lf[row] <- c[sym] + rank
+        sampled[row] <- sa[row] % stride == 0
+        samples[row] <- sa[row]
+        row <- row + 1
+    locations: mutable i64[32] = zeroed
+    count: mutable usize = 0
+    origin: mutable usize = left
+    while origin < right:
+        row <- origin
+        steps: mutable usize = 0
+        while not sampled[row] and steps < total:
+            row <- lf[row]
+            steps <- steps + 1
+        if not sampled[row]: return -1
+        pos: usize = (samples[row] + steps) % total
+        if pos >= n: return -1
+        locations[count] <- pos.i64()
+        count <- count + 1
+        origin <- origin + 1
+    output_bytes: usize = 8 * (count + 1)
+    if output.is_null() or capacity < output_bytes: return -2
+    fm_locate_store(count.i64(), output, 0)
+    i <- 0
+    while i < count:
+        fm_locate_store(locations[i], output, 8 * (i + 1))
+        i <- i + 1
+    output_bytes.i64()

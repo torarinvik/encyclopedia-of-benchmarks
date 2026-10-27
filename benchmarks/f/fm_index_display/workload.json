@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "id": "encyclopedia-doi83-fm-index-display-v1",
+  "algorithm": "fm_index_display",
+  "function_symbol": "fm_index_display",
+  "comparison_model": "i64_array_bytes_output_call",
+  "pinned_source": {
+    "title": "Compressed Text Indexing",
+    "authors": ["Veli Mäkinen", "Gonzalo Navarro"],
+    "doi": "10.1007/978-1-4939-2864-4_83",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_83",
+    "epub_path": "OEBPS/AChap83.html",
+    "section": "FM-index; paragraph on general display(i,j) queries",
+    "license": "No source-code license asserted; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n,text_symbols[n],i,j,stride]",
+    "text_length_range": [1, 32],
+    "text_symbol_range": [1, 4],
+    "query_bounds": "zero-based inclusive 0 <= i <= j < n",
+    "stride_range": "1..n",
+    "maximum_valid_length": 36,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Raw alphabet-symbol bytes T[i..j] in forward text order",
+    "maximum_output_bytes": 32,
+    "success_result": "number of substring bytes written",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_when_nonempty_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Bounded suffix array, inverse suffix array, BWT, LF table, sampled ISA rows, and reverse substring staging."
+  },
+  "profile": {
+    "index": "Build BWT for text plus a unique smallest sentinel 0; construct SA, ISA, and LF for the bounded input.",
+    "sampling": "The chapter uses one-based positions j'*stride. Store ISA[p] when (p+1) is divisible by stride in zero-based indexing, and also store the terminal sentinel position n.",
+    "query": "Choose the smallest sampled p strictly greater than j; LF-walk from ISA[p], skip BWT symbols above j, collect T[j] down to T[i], then reverse.",
+    "scope": "One deterministic display(i,j) query; no compressed-space or asymptotic construction claim."
+  },
+  "measurement": {
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"whole-short-text-terminal-sample","input_values":[4,1,4,2,3,0,3,2],"input_length":8,"output_capacity":32,"expected_result":4,"expected_output_hex":"01040203"},
+    {"id":"regular-sample-with-overhang","input_values":[6,1,2,3,4,1,2,1,3,2],"input_length":10,"output_capacity":32,"expected_result":3,"expected_output_hex":"020304"},
+    {"id":"skip-overhang-from-next-sample","input_values":[6,3,1,4,2,2,1,0,1,4],"input_length":10,"output_capacity":32,"expected_result":2,"expected_output_hex":"0301"},
+    {"id":"terminal-sentinel-sample-boundary","input_values":[5,4,2,1,3,2,2,4,3],"input_length":9,"output_capacity":32,"expected_result":3,"expected_output_hex":"010302"},
+    {"id":"single-symbol-text","input_values":[1,4,0,0,1],"input_length":5,"output_capacity":32,"expected_result":1,"expected_output_hex":"04"},
+    {"id":"maximum-text-terminal-sample","input_values":[32,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,31,5],"input_length":36,"output_capacity":32,"expected_result":32,"expected_output_hex":"0101010101010101010101010101010101010101010101010101010101010101"},
+    {"id":"invalid-reversed-range","input_values":[4,1,2,3,4,3,2,1],"input_length":8,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-stride","input_values":[3,1,2,3,0,2,4],"input_length":7,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"insufficient-capacity","input_values":[4,1,2,3,4,0,3,2],"input_length":8,"output_capacity":0,"expected_result":-2,"expected_output_hex":"","capacity_error_result":-2}
+  ]
+}

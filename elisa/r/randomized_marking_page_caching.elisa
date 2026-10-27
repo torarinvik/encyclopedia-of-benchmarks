@@ -1,0 +1,93 @@
+const MAX_REQUESTS: usize = 32
+const MAX_PAGES: usize = 16
+const MAX_INPUT: usize = 67
+const MAX_OUTPUT_BYTES: usize = 536
+
+def marking_store64(output: mutable u8&, offset: usize, value: i64): void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def randomized_marking_page_caching_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    cache_raw: i64 = input[0]
+    requests_raw: i64 = input[1]
+    if cache_raw < 1 or cache_raw > 8 or requests_raw < 0 or requests_raw > MAX_REQUESTS.i64(): return -1
+    cache_size: usize = cache_raw.usize()
+    request_count: usize = requests_raw.usize()
+    if length < 3 + request_count: return -1
+    choices_raw: i64 = input[2 + request_count]
+    if choices_raw < 0 or choices_raw > requests_raw or length != 3 + request_count + choices_raw.usize(): return -1
+    choice_count: usize = choices_raw.usize()
+    pages: mutable usize[MAX_REQUESTS] = zeroed
+    choices: mutable usize[MAX_REQUESTS] = zeroed
+    for i in 0..<request_count:
+        page: i64 = input[2 + i]
+        if page < 0 or page >= MAX_PAGES.i64(): return -1
+        pages[i] <- page.usize()
+    for i in 0..<choice_count:
+        choice: i64 = input[3 + request_count + i]
+        if choice < 0 or choice > MAX_PAGES.i64(): return -1
+        choices[i] <- choice.usize()
+    resident: mutable bool[MAX_PAGES] = zeroed
+    marked: mutable bool[MAX_PAGES] = zeroed
+    hits: mutable i64[MAX_REQUESTS] = zeroed
+    victims: mutable i64[MAX_REQUESTS] = zeroed
+    for i in 0..<MAX_REQUESTS: victims[i] <- -1
+    resident_count: mutable usize = 0
+    choice_at: mutable usize = 0
+    misses: mutable i64 = 0
+    for request in 0..<request_count:
+        page: usize = pages[request]
+        if resident[page]:
+            hits[request] <- 1
+            marked[page] <- true
+            continue
+        misses <- misses + 1
+        if resident_count == cache_size:
+            eligible: mutable usize[MAX_PAGES] = zeroed
+            eligible_count: mutable usize = 0
+            for candidate in 0..<MAX_PAGES:
+                if resident[candidate] and not marked[candidate]:
+                    eligible[eligible_count] <- candidate
+                    eligible_count <- eligible_count + 1
+            if eligible_count == 0:
+                for candidate in 0..<MAX_PAGES:
+                    if resident[candidate]:
+                        marked[candidate] <- false
+                        eligible[eligible_count] <- candidate
+                        eligible_count <- eligible_count + 1
+            if choice_at >= choice_count or choices[choice_at] >= eligible_count: return -1
+            victim: usize = eligible[choices[choice_at]]
+            choice_at <- choice_at + 1
+            resident[victim] <- false
+            marked[victim] <- false
+            resident_count <- resident_count - 1
+            victims[request] <- victim.i64()
+        resident[page] <- true
+        marked[page] <- true
+        resident_count <- resident_count + 1
+    if choice_at != choice_count: return -1
+    resident_mask: mutable u64 = 0
+    marked_mask: mutable u64 = 0
+    for page in 0..<MAX_PAGES:
+        if resident[page]: resident_mask <- resident_mask | (1.u64() << page)
+        if resident[page] and marked[page]: marked_mask <- marked_mask | (1.u64() << page)
+    words: mutable i64[3 + 2 * MAX_REQUESTS] = zeroed
+    words[0] <- misses
+    words[1] <- resident_mask.i64()
+    words[2] <- marked_mask.i64()
+    for i in 0..<request_count:
+        words[3 + i] <- hits[i]
+        words[3 + request_count + i] <- victims[i]
+    output_bytes: usize = 8 * (3 + 2 * request_count)
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    for word in 0..<(3 + 2 * request_count): marking_store64(staged&, 8 * word, words[word])
+    for byte in 0..<output_bytes: output[byte] <- staged[byte]
+    output_bytes.i64()
+
+export fn randomized_marking_page_caching(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64 = randomized_marking_page_caching_impl

@@ -1,0 +1,183 @@
+# Bounded Extended-GS for concave multi-unit stable allocations.
+const MAX_INPUT: usize = 19
+const MAX_OUTPUT_BYTES: usize = 104
+const INF: i64 = 255
+
+def allocation_utility(first: i64, second: i64, count: i64) -> i64:
+    if count == 0:
+        return 0
+    if count == 1:
+        return first
+    first + second
+
+def extended_gs_general_stable_allocation_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT:
+        return -1
+    men_value: i64 = input[0]
+    women_value: i64 = input[1]
+    quota_value: i64 = input[2]
+    if men_value < 1 or men_value > 2 or women_value < 1 or women_value > 2 or quota_value < 1 or quota_value > 2:
+        return -1
+    men: usize = men_value.usize()
+    women: usize = women_value.usize()
+    quota: i64 = quota_value
+    edges: usize = men * women
+    if length != 3 + 4 * edges:
+        return -1
+    mf: mutable i64[4] = zeroed
+    ms: mutable i64[4] = zeroed
+    wf: mutable i64[4] = zeroed
+    ws: mutable i64[4] = zeroed
+    e: mutable usize = 0
+    while e < edges:
+        mf[e] <- input[3 + 4 * e]
+        ms[e] <- input[4 + 4 * e]
+        wf[e] <- input[5 + 4 * e]
+        ws[e] <- input[6 + 4 * e]
+        if mf[e] < 0 or mf[e] > 8 or ms[e] < 0 or ms[e] > mf[e] or wf[e] < 0 or wf[e] > 8 or ws[e] < 0 or ws[e] > wf[e]:
+            return -1
+        e <- e + 1
+
+    x_w: mutable i64[4] = zeroed
+    z_m: mutable i64[4] = zeroed
+    z_w: mutable i64[4] = zeroed
+    x_m: mutable i64[4] = zeroed
+    next_w: mutable i64[4] = zeroed
+    e <- 0
+    while e < edges:
+        z_m[e] <- INF
+        e <- e + 1
+
+    converged: mutable bool = false
+    iteration: mutable usize = 0
+    while iteration < 3 * edges + 2 and not converged:
+        codes: mutable usize = 1
+        e <- 0
+        while e < edges:
+            codes <- codes * 3
+            e <- e + 1
+        best_value: mutable i64 = -1
+        code: mutable usize = 0
+        while code < codes:
+            candidate: mutable i64[4] = zeroed
+            remainder: mutable usize = code
+            index: mutable usize = edges
+            while index > 0:
+                index <- index - 1
+                candidate[index] <- (remainder % 3).i64()
+                remainder <- remainder / 3
+            feasible_m: mutable bool = true
+            e <- 0
+            while e < edges:
+                if candidate[e] < x_w[e] or candidate[e] > z_m[e]:
+                    feasible_m <- false
+                e <- e + 1
+            man_m: mutable usize = 0
+            while man_m < men:
+                total_m: mutable i64 = 0
+                woman_m: mutable usize = 0
+                while woman_m < women:
+                    total_m <- total_m + candidate[man_m * women + woman_m]
+                    woman_m <- woman_m + 1
+                if total_m > quota:
+                    feasible_m <- false
+                man_m <- man_m + 1
+            if feasible_m:
+                value_m: mutable i64 = 0
+                e <- 0
+                while e < edges:
+                    value_m <- value_m + allocation_utility(mf[e], ms[e], candidate[e])
+                    e <- e + 1
+                if value_m > best_value:
+                    best_value <- value_m
+                    e <- 0
+                    while e < edges:
+                        x_m[e] <- candidate[e]
+                        e <- e + 1
+            code <- code + 1
+
+        best_value <- -1
+        code <- 0
+        while code < codes:
+            candidate: mutable i64[4] = zeroed
+            remainder <- code
+            index <- edges
+            while index > 0:
+                index <- index - 1
+                candidate[index] <- (remainder % 3).i64()
+                remainder <- remainder / 3
+            feasible_w: mutable bool = true
+            e <- 0
+            while e < edges:
+                if candidate[e] > x_m[e]:
+                    feasible_w <- false
+                e <- e + 1
+            woman_w: mutable usize = 0
+            while woman_w < women:
+                total_w: mutable i64 = 0
+                man_w: mutable usize = 0
+                while man_w < men:
+                    total_w <- total_w + candidate[man_w * women + woman_w]
+                    man_w <- man_w + 1
+                if total_w > quota:
+                    feasible_w <- false
+                woman_w <- woman_w + 1
+            if feasible_w:
+                value_w: mutable i64 = 0
+                e <- 0
+                while e < edges:
+                    value_w <- value_w + allocation_utility(wf[e], ws[e], candidate[e])
+                    e <- e + 1
+                if value_w > best_value:
+                    best_value <- value_w
+                    e <- 0
+                    while e < edges:
+                        next_w[e] <- candidate[e]
+                        e <- e + 1
+            code <- code + 1
+
+        converged <- true
+        e <- 0
+        while e < edges:
+            if x_m[e] != next_w[e]:
+                converged <- false
+            e <- e + 1
+        if not converged:
+            e <- 0
+            while e < edges:
+                if x_m[e] > next_w[e]:
+                    z_m[e] <- next_w[e]
+                    z_w[e] <- INF
+                x_w[e] <- next_w[e]
+                e <- e + 1
+        iteration <- iteration + 1
+    if not converged:
+        return -1
+    output_values: usize = 1 + 3 * edges
+    output_bytes: usize = 8 * output_values
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    staged: mutable i64[13] = zeroed
+    staged[0] <- edges.i64()
+    e <- 0
+    while e < edges:
+        staged[1 + e] <- x_m[e]
+        staged[1 + edges + e] <- z_m[e]
+        if z_w[e] > x_m[e]:
+            staged[1 + 2 * edges + e] <- z_w[e]
+        else:
+            staged[1 + 2 * edges + e] <- x_m[e]
+        e <- e + 1
+    word: mutable usize = 0
+    while word < output_values:
+        bits: u64 = staged[word].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[8 * word + byte] <- ((bits >> (8 * byte)) & 255).u8()
+            byte <- byte + 1
+        word <- word + 1
+    output_bytes.i64()
+
+export fn extended_gs_general_stable_allocation(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = extended_gs_general_stable_allocation_impl

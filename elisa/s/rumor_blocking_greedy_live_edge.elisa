@@ -1,0 +1,80 @@
+const MAX_N: usize = 8
+const MAX_M: usize = 16
+const MAX_WORLDS: usize = 8
+
+def rb_infected_count(n:usize,m:usize,world:usize,sources:u64,protectors:u64,edge_u:usize[MAX_M],edge_v:usize[MAX_M],live:usize[MAX_M])->i64:
+    status:mutable u8[MAX_N]=zeroed;rf:mutable bool[MAX_N]=zeroed;pf:mutable bool[MAX_N]=zeroed
+    v:mutable usize=0
+    while v<n:
+        if (sources&(1.u64()<<v))!=0:status[v]<-1;rf[v]<-true
+        if (protectors&(1.u64()<<v))!=0:status[v]<-2;pf[v]<-true
+        v<-v+1
+    step:mutable usize=0
+    while step<n:
+        rp:mutable bool[MAX_N]=zeroed;pp:mutable bool[MAX_N]=zeroed;nr:mutable bool[MAX_N]=zeroed;np:mutable bool[MAX_N]=zeroed
+        e:mutable usize=0
+        while e<m:
+            u:=edge_u[e];target:=edge_v[e]
+            if status[target]==0:
+                if pf[u]:pp[target]<-true
+                if rf[u] and (live[e]&(1<<world))!=0:rp[target]<-true
+            e<-e+1
+        changed:mutable bool=false;v<-0
+        while v<n:
+            if status[v]==0:
+                if pp[v]:status[v]<-2;np[v]<-true;changed<-true
+                else if rp[v]:status[v]<-1;nr[v]<-true;changed<-true
+            v<-v+1
+        rf<-nr;pf<-np
+        if not changed:break
+        step<-step+1
+    count:mutable i64=0;v<-0
+    while v<n:
+        if status[v]==1:count<-count+1
+        v<-v+1
+    count
+
+def rb_put_i64(value:i64,output:mutable u8&,word:usize):
+    bits:u64=value.u64();b:mutable usize=0
+    while b<8:output[word*8+b]<-((bits>>(8*b))&255).u8();b<-b+1
+
+def rumor_blocking_greedy_live_edge(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("rumor_blocking_greedy_live_edge"):
+    if input.is_null() or length<5 or length>61:return -1
+    n0:i64=input[0];m0:i64=input[1];r0:i64=input[2];k0:i64=input[3];w0:i64=input[4]
+    if n0<2 or n0>8 or m0<0 or m0>16 or r0<1 or r0>=n0 or k0<1 or k0>3 or w0<1 or w0>8 or k0>n0-r0 or length!=(5+r0+3*m0).usize():return -1
+    n:usize=n0.usize();m:usize=m0.usize();r:usize=r0.usize();k:usize=k0.usize();worlds:usize=w0.usize()
+    sources:mutable u64=0;i:mutable usize=0
+    while i<r:
+        v:=input[5+i]
+        if v<0 or v>=n0 or (sources&(1.u64()<<v.usize()))!=0:return -1
+        sources<-sources|(1.u64()<<v.usize());i<-i+1
+    edge_u:mutable usize[MAX_M]=zeroed;edge_v:mutable usize[MAX_M]=zeroed;live:mutable usize[MAX_M]=zeroed
+    seen:mutable bool[MAX_N*MAX_N]=zeroed;at:=5+r;allowed:usize=(1<<worlds)-1;e:mutable usize=0
+    while e<m:
+        u:=input[at+3*e];v:=input[at+3*e+1];mask:=input[at+3*e+2]
+        if u<0 or u>=n0 or v<0 or v>=n0 or u==v or mask<0 or mask>allowed.i64():return -1
+        key:=u.usize()*MAX_N+v.usize()
+        if seen[key]:return -1
+        seen[key]<-true;edge_u[e]<-u.usize();edge_v[e]<-v.usize();live[e]<-mask.usize();e<-e+1
+    baseline:mutable i64[MAX_WORLDS]=zeroed;w:mutable usize=0
+    while w<worlds:baseline[w]<-rb_infected_count(n,m,w,sources,0,edge_u,edge_v,live);w<-w+1
+    selected:mutable u64=0;chosen:mutable usize[MAX_N]=zeroed;scores:mutable i64[MAX_N]=zeroed
+    round:mutable usize=0
+    while round<k:
+        current:mutable i64[MAX_WORLDS]=zeroed;w<-0
+        while w<worlds:current[w]<-baseline[w]-rb_infected_count(n,m,w,sources,selected,edge_u,edge_v,live);w<-w+1
+        best:mutable i64=-1;best_score:mutable i64=-1;candidate:mutable usize=0
+        while candidate<n:
+            bit:=1.u64()<<candidate
+            if (sources&bit)==0 and (selected&bit)==0:
+                score:mutable i64=0;w<-0
+                while w<worlds:score<-score+baseline[w]-rb_infected_count(n,m,w,sources,selected|bit,edge_u,edge_v,live)-current[w];w<-w+1
+                if score>best_score:best<-candidate.i64();best_score<-score
+            candidate<-candidate+1
+        if best<0:return -1
+        selected<-selected|(1.u64()<<best.usize());chosen[round]<-best.usize();scores[round]<-best_score;round<-round+1
+    bytes:usize=(1+2*k)*8
+    if output.is_null() or capacity<bytes:return -2
+    rb_put_i64(k.i64(),output&,0);round<-0
+    while round<k:rb_put_i64(chosen[round].i64(),output&,1+2*round);rb_put_i64(scores[round],output&,2+2*round);round<-round+1
+    bytes.i64()

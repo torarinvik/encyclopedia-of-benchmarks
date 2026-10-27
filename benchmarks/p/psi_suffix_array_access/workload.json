@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-psi-suffix-array-access-v1",
+  "algorithm": "psi_suffix_array_access",
+  "function_symbol": "psi_suffix_array_access",
+  "comparison_model": "i64_array_bytes_output_call",
+  "pinned_source": {
+    "title": "Compressed Suffix Array",
+    "authors": ["Djamel Belazzougui", "Veli Mäkinen", "Daniel Valenzuela"],
+    "doi": "10.1007/978-1-4939-2864-4_82",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_82",
+    "epub_path": "OEBPS/AChap82.html",
+    "section": "Ψ-Based CSAs",
+    "license": "No source-code license asserted; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[n,query_rank,stride,psi[0..n),sample_A_by_rank[0..n)]",
+    "n_range": [1, 32],
+    "query_rank_range": "0 through n-1",
+    "stride_range": "1 through n",
+    "psi_range": "A permutation of 0 through n-1 forming one n-cycle",
+    "sample_vector": "Store A[i] iff (A[i]-1) mod stride = 0 (zero-based text offset is divisible by stride); otherwise store 0. The chapter leaves the sample phase and compressed encoding unspecified; this package selects the deterministic phase that guarantees fewer than stride Psi steps across wraparound.",
+    "suffix_array_value_range": "1 through n",
+    "maximum_valid_length": 67,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_unsigned_64_bit_array",
+    "layout": "[suffix_array_value,hops_to_first_sample]",
+    "ordering": "One-based A[query_rank], followed by number of Ψ applications from query_rank to the first sampled rank.",
+    "hops_range": "0 through stride-1",
+    "maximum_output_words": 2,
+    "maximum_output_bytes": 16,
+    "success_result": "16 bytes",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_when_nonempty_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "At most 32 reconstructed SA values and cycle/sample validation flags."
+  },
+  "measurement": {"sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "cases": [
+    {
+      "id": "aba-dollar-query-before-periodic-sample",
+      "input_values": [4, 3, 2, 2, 0, 3, 1, 0, 3, 1, 0],
+      "input_length": 11,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000000100000000000000"
+    },
+    {
+      "id": "aba-dollar-query-on-periodic-sample",
+      "input_values": [4, 2, 2, 2, 0, 3, 1, 0, 3, 1, 0],
+      "input_length": 11,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000000000000000000"
+    },
+    {
+      "id": "banana-query-before-stride-three-sample",
+      "input_values": [7, 5, 3, 4, 0, 5, 6, 3, 1, 2, 0, 7, 0, 4, 0, 1, 0],
+      "input_length": 17,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "05000000000000000200000000000000"
+    },
+    {
+      "id": "banana-query-near-single-stride-seven-sample",
+      "input_values": [7, 6, 7, 4, 0, 5, 6, 3, 1, 2, 0, 0, 0, 0, 1, 0, 0],
+      "input_length": 17,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "03000000000000000500000000000000"
+    },
+    {
+      "id": "invalid-nonperiodic-sample-value",
+      "input_values": [4, 1, 2, 2, 0, 3, 1, 0, 3, 0, 0],
+      "input_length": 11,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-nonpermutation-psi",
+      "input_values": [4, 1, 2, 2, 1, 3, 1, 0, 3, 1, 0],
+      "input_length": 11,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [4, 1, 2, 2, 0, 3, 1, 0, 3, 1, 0],
+      "input_length": 11,
+      "output_capacity": 8,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "capacity_error_result": -2
+    }
+  ],
+  "provenance": {
+    "chapter": "Compressed Suffix Array",
+    "doi": "10.1007/978-1-4939-2864-4_82",
+    "algorithm_profile": "Follow Ψ from one suffix-array rank to the nearest text-position sample, then reverse the hop count modulo n; explicit Ψ and periodic samples replace the unspecified compressed hierarchy."
+  }
+}

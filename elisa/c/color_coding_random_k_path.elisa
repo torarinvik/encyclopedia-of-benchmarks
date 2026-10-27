@@ -1,0 +1,113 @@
+const MAX_N: usize = 12
+const MAX_M: usize = 66
+const MAX_K: usize = 6
+const MAX_TRIALS: usize = 8
+const MAX_INPUT: usize = 232
+const MAX_OUTPUT: usize = 64
+
+def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def path_less(a: i64&, b: i64&, length: usize) -> bool:
+    index: mutable usize = 0
+    while index < length:
+        if a[index] != b[index]: return a[index] < b[index]
+        index <- index + 1
+    false
+
+def color_coding_random_k_path(input: i64&, length: usize,
+                               output: mutable u8&, capacity: usize) -> i64 @export("color_coding_random_k_path"):
+    if input == null or length < 4 or length > MAX_INPUT: return -1
+    if input[0] < 1 or input[0] > MAX_N.i64() or input[1] < 0 or input[1] > MAX_M.i64()
+        or input[2] < 1 or input[2] > MAX_K.i64() or input[2] > input[0]
+        or input[3] < 1 or input[3] > MAX_TRIALS.i64(): return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    k: usize = input[2].usize()
+    trials: usize = input[3].usize()
+    edge_start: usize = 4
+    color_start: usize = edge_start + 2 * m
+    if length != color_start + trials * n: return -1
+    adjacency: mutable u64[MAX_N] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        a: i64 = input[edge_start + 2 * edge]
+        b: i64 = input[edge_start + 2 * edge + 1]
+        if a < 0 or b < 0 or a >= n.i64() or b >= n.i64() or a == b: return -1
+        u: usize = a.usize()
+        v: usize = b.usize()
+        if (adjacency[u] & (1.u64() << v)) != 0: return -1
+        adjacency[u] <- adjacency[u] | (1.u64() << v)
+        adjacency[v] <- adjacency[v] | (1.u64() << u)
+        edge <- edge + 1
+    trial: mutable usize = 0
+    while trial < trials:
+        vertex: mutable usize = 0
+        while vertex < n:
+            color: i64 = input[color_start + trial * n + vertex]
+            if color < 0 or color >= k.i64(): return -1
+            vertex <- vertex + 1
+        trial <- trial + 1
+    full: usize = (1 << k) - 1
+    trial <- 0
+    while trial < trials:
+        colors: mutable usize[MAX_N] = zeroed
+        for vertex in 0..<n: colors[vertex] <- input[color_start + trial * n + vertex].usize()
+        reachable: mutable bool[64][MAX_N] = zeroed
+        paths: mutable i64[64][MAX_N][MAX_K] = zeroed
+        mask: mutable usize = 0
+        while mask <= full:
+            for vertex in 0..<n:
+                for position in 0..<k: paths[mask][vertex][position] <- -1
+            mask <- mask + 1
+        for vertex in 0..<n:
+            singleton: usize = 1 << colors[vertex]
+            reachable[singleton][vertex] <- true
+            paths[singleton][vertex][0] <- vertex.i64()
+        mask <- 1
+        while mask <= full:
+            path_length: mutable usize = 0
+            bits: mutable usize = mask
+            while bits != 0:
+                bits <- bits & (bits - 1)
+                path_length <- path_length + 1
+            vertex: mutable usize = 0
+            while vertex < n:
+                if reachable[mask][vertex] and mask != full:
+                    next_vertex: mutable usize = 0
+                    while next_vertex < n:
+                        color_bit: usize = 1 << colors[next_vertex]
+                        if (adjacency[vertex] & (1.u64() << next_vertex)) != 0 and (mask & color_bit) == 0:
+                            next_mask: usize = mask | color_bit
+                            candidate: mutable i64[MAX_K] = zeroed
+                            for position in 0..<path_length: candidate[position] <- paths[mask][vertex][position]
+                            candidate[path_length] <- next_vertex.i64()
+                            if not reachable[next_mask][next_vertex] or path_less(&candidate[0], &paths[next_mask][next_vertex][0], path_length + 1):
+                                reachable[next_mask][next_vertex] <- true
+                                for position in 0..path_length: paths[next_mask][next_vertex][position] <- candidate[position]
+                        next_vertex <- next_vertex + 1
+                vertex <- vertex + 1
+            mask <- mask + 1
+        best: mutable i64 = -1
+        for vertex in 0..<n:
+            if reachable[full][vertex] and (best < 0 or path_less(&paths[full][vertex][0], &paths[full][best.usize()][0], k)):
+                best <- vertex.i64()
+        if best >= 0:
+            byte_count: usize = 8 * (k + 2)
+            if output == null or capacity < byte_count: return -2
+            staged: mutable u8[MAX_OUTPUT] = zeroed
+            put_i64(&staged[0], 0, 1)
+            put_i64(&staged[0], 8, (trial + 1).i64())
+            for position in 0..<k: put_i64(&staged[0], 8 * (position + 2), paths[full][best.usize()][position])
+            for byte in 0..<byte_count: output[byte] <- staged[byte]
+            return byte_count.i64()
+        trial <- trial + 1
+    if output == null or capacity < 16: return -2
+    staged: mutable u8[16] = zeroed
+    put_i64(&staged[0], 0, 0)
+    put_i64(&staged[0], 8, 0)
+    for byte in 0..<16: output[byte] <- staged[byte]
+    16

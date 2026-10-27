@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-single-source-dynamic-reachability-rebuild-i64-array-bytes-output-v1",
+  "algorithm": "single_source_dynamic_reachability_rebuild",
+  "function_symbol": "single_source_dynamic_reachability_rebuild",
+  "abi": "i64_array_bytes_output",
+  "description": "Maintain fixed-source reachability by rebuilding after each directed edge update.",
+  "source": {
+    "title": "Single-Source Fully Dynamic Reachability",
+    "authors": ["Camil Demetrescu", "Giuseppe F. Italiano"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_376",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_376",
+    "algorithm_attribution": "Explicit traversal-after-update baseline maintaining a Boolean reachability vector from a fixed source.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,source,initial_edge_count,(u,v)*,operation_count,(kind,a,b)*]",
+    "n_range": [2, 8],
+    "source_range": "0..n-1",
+    "initial_edge_count_range": [0, 16],
+    "operation_count_range": [0, 20],
+    "operation_kinds": {"0": "insert directed edge (a,b)", "1": "delete directed edge (a,b)", "2": "query reachability to a; b must be 0"},
+    "initial_edges_must_be_unique": true,
+    "repeated_insert_and_missing_delete": "idempotent no-op",
+    "maximum_valid_length": 96,
+    "maximum_parseable_length": 97,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_vector",
+    "encoding": "[query_count,answer_0,...]",
+    "answer_values": {"0": "unreachable from source", "1": "reachable from source"},
+    "query_order": "same order as kind-2 operations",
+    "maximum_bytes": 168,
+    "success_result": "8 * (1 + query_count)",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "At most 8 by 8 directed edges, 20 stored operations and answers, BFS queue, and staged output."
+  },
+  "contract": {
+    "initialization": "Run graph traversal from the fixed source and store its reachable set.",
+    "update": "After every insertion or deletion, rerun graph traversal from the source and replace the reachable vector.",
+    "query": "Return the stored reachability bit for the requested vertex.",
+    "self_reachability": "The source reaches itself by a path of length zero.",
+    "error_results": "Malformed input returns -1. Null or insufficient output returns -2 without writes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "The primary oracle rebuilds the source reachability vector after every update; the independent verifier applies updates and runs BFS separately at each query.",
+  "cases": [
+    {"id":"insert-delete-changes-reachability","input_values":[4,0,2,0,1,1,2,5,2,2,0,0,2,3,2,3,0,1,0,1,2,3,0],"input_length":23,"output_capacity":168,"expected_result":32,"expected_output_hex":"0300000000000000010000000000000001000000000000000000000000000000"},
+    {"id":"no-queries","input_values":[2,0,0,0],"input_length":4,"output_capacity":168,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"maximum-nodes-and-initial-edges","input_values":[8,0,16,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,0,0,2,1,3,2,4,3,5,4,6,5,7,6,0,7,1,0],"input_length":36,"output_capacity":168,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"duplicate-initial-edge","input_values":[2,0,2,0,1,0,1,0,0],"input_length":9,"output_capacity":168,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-operation-kind","input_values":[2,0,0,1,3,0,0],"input_length":7,"output_capacity":168,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-query-sentinel","input_values":[2,0,0,1,2,1,1],"input_length":7,"output_capacity":168,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-input","input_values":[2,0,0,0,9],"input_length":5,"output_capacity":168,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-capacity","input_values":[2,0,0,1,2,0,0],"input_length":7,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":168,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,0,0,1,2,0,0],"input_length":7,"output_capacity":168,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

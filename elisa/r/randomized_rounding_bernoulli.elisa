@@ -1,0 +1,25 @@
+const MAX_N: usize=16
+const MAX_INPUT: usize=65
+
+def randomized_rounding_bernoulli(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("randomized_rounding_bernoulli"):
+    if input.is_null() or length<5 or length>MAX_INPUT:return -1
+    n64:i64=input[0]
+    if n64<1 or n64>16 or length!=1+4*n64.usize():return -1
+    n:usize=n64.usize()
+    staged:mutable u8[16]=zeroed
+    i:mutable usize=0
+    while i<n:
+        x_num:i64=input[1+4*i]
+        x_den:i64=input[2+4*i]
+        u_num:i64=input[3+4*i]
+        u_den:i64=input[4+4*i]
+        if x_den<1 or x_den>32 or x_num<0 or x_num>x_den or u_den<1 or u_den>32 or u_num<0 or u_num>=u_den:return -1
+        staged[i]<-if u_num*x_den<x_num*u_den:1.u8() else:0.u8()
+        i<-i+1
+    bytes:usize=n
+    if output.is_null() or capacity<bytes:return -2
+    i<-0
+    while i<n:
+        output[i]<-staged[i]
+        i<-i+1
+    bytes.i64()

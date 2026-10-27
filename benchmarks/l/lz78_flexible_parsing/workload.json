@@ -1,0 +1,440 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi108-lz78-flexible-parsing-i64-array-bytes-output-v1",
+  "algorithm": "lz78_flexible_parsing",
+  "function_symbol": "lz78_flexible_parsing",
+  "comparison_model": "i64_array_bytes_output_call",
+  "pinned_source": {
+    "title": "Dictionary-Based Data Compression",
+    "authors": [
+      "Travis Gagie",
+      "Giovanni Manzini"
+    ],
+    "doi": "10.1007/978-1-4939-2864-4_108",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_108",
+    "epub_path": "OEBPS/AChap108.html",
+    "section": "Greedy vs. Non-Greedy Parsing; one-step lookahead method attributed to Matias and Sahinalp (SODA 1999)",
+    "license": "No source-code license asserted; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n, printable_ASCII_character_codes...]",
+    "text_length_range": [
+      0,
+      32
+    ],
+    "character_code_range": [
+      32,
+      126
+    ],
+    "maximum_valid_length": 33,
+    "maximum_parseable_length": 34,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "unprefixed (parent_dictionary_id, character_code) i64 pairs; terminal known phrase is (phrase_id,0)",
+    "maximum_output_bytes": 512,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Bounded phrase arrays, token staging and output framing for at most 32 characters."
+  },
+  "profile": {
+    "dictionary_rule": "Begin with empty phrase at ID 0; candidates are matching dictionary prefixes followed by the next input character; add a selected phrase only if new.",
+    "selection_rule": "Maximize position + candidate_phrase_length + longest_match_length_after_candidate in the trial dictionary. Ties use longer candidate phrase, then smaller parent dictionary ID.",
+    "terminal_rule": "If the remaining suffix is an existing nonempty dictionary phrase, emit its ID with symbol 0 and stop; empty input emits no token.",
+    "scope": "Bounded one-step lookahead parsing core; explicit tie and final-token refinements. No asymptotic runtime claim."
+  },
+  "measurement": {
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty-input",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "input_length": 1,
+      "output_capacity": 512
+    },
+    {
+      "id": "single-symbol",
+      "input_values": [
+        1,
+        97
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000006100000000000000",
+      "input_length": 2,
+      "output_capacity": 512
+    },
+    {
+      "id": "repeated-symbol-terminal-phrase",
+      "input_values": [
+        5,
+        97,
+        97,
+        97,
+        97,
+        97
+      ],
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000061000000000000000100000000000000610000000000000002000000000000000000000000000000",
+      "input_length": 6,
+      "output_capacity": 512
+    },
+    {
+      "id": "lookahead-versus-greedy",
+      "input_values": [
+        7,
+        97,
+        97,
+        98,
+        97,
+        97,
+        98,
+        97
+      ],
+      "expected_result": 80,
+      "expected_output_hex": "0000000000000000610000000000000001000000000000006200000000000000000000000000000061000000000000000100000000000000620000000000000001000000000000000000000000000000",
+      "input_length": 8,
+      "output_capacity": 512
+    },
+    {
+      "id": "maximum-output",
+      "input_values": [
+        32,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63
+      ],
+      "expected_result": 512,
+      "expected_output_hex": "0000000000000000200000000000000000000000000000002100000000000000000000000000000022000000000000000000000000000000230000000000000000000000000000002400000000000000000000000000000025000000000000000000000000000000260000000000000000000000000000002700000000000000000000000000000028000000000000000000000000000000290000000000000000000000000000002a0000000000000000000000000000002b0000000000000000000000000000002c0000000000000000000000000000002d0000000000000000000000000000002e0000000000000000000000000000002f000000000000000000000000000000300000000000000000000000000000003100000000000000000000000000000032000000000000000000000000000000330000000000000000000000000000003400000000000000000000000000000035000000000000000000000000000000360000000000000000000000000000003700000000000000000000000000000038000000000000000000000000000000390000000000000000000000000000003a0000000000000000000000000000003b0000000000000000000000000000003c0000000000000000000000000000003d0000000000000000000000000000003e0000000000000000000000000000003f00000000000000",
+      "input_length": 33,
+      "output_capacity": 512
+    },
+    {
+      "id": "negative-length",
+      "input_values": [
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 1,
+      "output_capacity": 512
+    },
+    {
+      "id": "length-over-bound",
+      "input_values": [
+        33,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 34,
+      "output_capacity": 512
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [
+        1,
+        97,
+        98
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 3,
+      "output_capacity": 512
+    },
+    {
+      "id": "nonprintable",
+      "input_values": [
+        1,
+        31
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 2,
+      "output_capacity": 512
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null-input-positive-length",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 512,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed-input-precedes-null-output",
+      "input_values": [
+        1,
+        31
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid-empty-null-output",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid-empty-zero-capacity",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": false,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single-token-short-capacity",
+      "input_values": [
+        1,
+        97
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 15,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single-token-exact-capacity",
+      "input_values": [
+        1,
+        97
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 16,
+      "output_is_null": false,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000006100000000000000"
+    },
+    {
+      "id": "maximum-parseable-trailing-word",
+      "input_values": [
+        32,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        97
+      ],
+      "input_length": 34,
+      "input_is_null": false,
+      "output_capacity": 512,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-output-short-capacity",
+      "input_values": [
+        32,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63
+      ],
+      "input_length": 33,
+      "input_is_null": false,
+      "output_capacity": 511,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-output-exact-capacity",
+      "input_values": [
+        32,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63
+      ],
+      "input_length": 33,
+      "input_is_null": false,
+      "output_capacity": 512,
+      "output_is_null": false,
+      "expected_result": 512,
+      "expected_output_hex": "0000000000000000200000000000000000000000000000002100000000000000000000000000000022000000000000000000000000000000230000000000000000000000000000002400000000000000000000000000000025000000000000000000000000000000260000000000000000000000000000002700000000000000000000000000000028000000000000000000000000000000290000000000000000000000000000002a0000000000000000000000000000002b0000000000000000000000000000002c0000000000000000000000000000002d0000000000000000000000000000002e0000000000000000000000000000002f000000000000000000000000000000300000000000000000000000000000003100000000000000000000000000000032000000000000000000000000000000330000000000000000000000000000003400000000000000000000000000000035000000000000000000000000000000360000000000000000000000000000003700000000000000000000000000000038000000000000000000000000000000390000000000000000000000000000003a0000000000000000000000000000003b0000000000000000000000000000003c0000000000000000000000000000003d0000000000000000000000000000003e0000000000000000000000000000003f00000000000000"
+    }
+  ]
+}

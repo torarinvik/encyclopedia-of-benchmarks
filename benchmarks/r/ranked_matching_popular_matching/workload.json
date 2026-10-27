@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-ranked-matching-popular-matching-i64-array-bytes-output-v1",
+  "algorithm": "ranked_matching_popular_matching",
+  "function_symbol": "ranked_matching_popular_matching",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded applicant-ranked popular matching with ties, private last resorts, and the rank-one maximum-cardinality condition.",
+  "source": {
+    "title": "Ranked Matching",
+    "authors": ["Kavitha Telikepalli"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_331",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_331",
+    "algorithm_attribution": "Popular-Matching characterization for ranked bipartite applicants and posts",
+    "implementation_status": "clean-room bounded profile; no book prose or source code copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[applicant_count,post_count,ranked_edge_count,(applicant_id,post_id,rank)*]",
+    "applicant_count_range": [1, 4],
+    "post_count_range": [1, 4],
+    "ranked_edge_count_range": "applicant_count..applicant_count*post_count",
+    "rank_range": "1..post_count, with contiguous rank groups per applicant; equal ranks encode ties",
+    "input_rules": "Edge pairs are distinct, IDs are zero based, every applicant has a nonempty list, and ranks have no gaps. Each applicant receives one private last-resort post below all listed ranks.",
+    "maximum_valid_length": 51,
+    "maximum_parseable_length": 51,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[found,assignment_by_applicant]; real post IDs are 0..post_count-1, private last resort for applicant a is post_count+a, and no-solution uses found=0 with every assignment -1",
+    "maximum_values": 5,
+    "maximum_bytes": 40,
+    "success_result": "8 * (applicant_count + 1) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Fixed preference/rank matrices, rank-one matching, alternating classes, reduced edges, and exhaustive assignments for at most four applicants and four real posts."
+  },
+  "contract": {
+    "alternating_forest": "Root at every unmatched applicant and post in the rank-one graph; traverse nonmatching edges from even vertices and matching edges from odd vertices. Private last-resort posts are isolated even vertices.",
+    "reduced_graph": "For each applicant retain all rank-one posts and all most-preferred even posts, including the private last resort only when it is among those most-preferred even posts; delete odd-odd and odd-unreachable edges.",
+    "acceptance": "Return an applicant-complete matching in the filtered reduced graph whose rank-one edge subset has cardinality equal to the maximum matching size of the rank-one graph.",
+    "tie_break": "Return the lexicographically smallest assignment vector among qualifying matchings, with real post IDs before private last-resort IDs.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "identical-strict-lists-have-popular-matching",
+      "input_values": [2, 2, 4, 0, 0, 1, 0, 1, 2, 1, 0, 1, 1, 1, 2],
+      "input_length": 15,
+      "output_capacity": 40,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "rank-one-tie-with-two-posts",
+      "input_values": [2, 2, 4, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1],
+      "input_length": 15,
+      "output_capacity": 40,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "last-resorts-absent-from-reduced-graph",
+      "input_values": [3, 3, 9, 0, 0, 1, 0, 1, 2, 0, 2, 3, 1, 0, 1, 1, 1, 2, 1, 2, 3, 2, 0, 1, 2, 1, 2, 2, 2, 3],
+      "input_length": 30,
+      "output_capacity": 40,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000ffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "maximum-four-by-four-profile",
+      "input_values": [4, 4, 16, 0, 0, 1, 0, 1, 2, 0, 2, 3, 0, 3, 4, 1, 0, 1, 1, 1, 2, 1, 2, 3, 1, 3, 4, 2, 0, 1, 2, 1, 2, 2, 2, 3, 2, 3, 4, 3, 0, 1, 3, 1, 2, 3, 2, 3, 3, 3, 4],
+      "input_length": 51,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "0000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "rank-gap-is-invalid",
+      "input_values": [1, 3, 2, 0, 0, 1, 0, 1, 3],
+      "input_length": 9,
+      "output_capacity": 40,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

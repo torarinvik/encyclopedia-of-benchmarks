@@ -1,0 +1,168 @@
+const MAX_N: usize = 3
+const MAX_L: usize = 4
+const MAX_INPUT: usize = 20
+const MAX_OUTPUT: usize = 48
+const SCALE: i64 = 46656
+
+def gcd64(a0: i64, b0: i64) -> i64:
+    a: mutable i64 = a0
+    b: mutable i64 = b0
+    while b != 0:
+        r: i64 = a % b
+        a <- b
+        b <- r
+    return a
+
+def put64(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def optimistic_flow_control_updates(input: i64&, length: usize, output: mutable u8&,
+        capacity: usize) -> i64 @export("optimistic_flow_control_updates"):
+    if input.is_null() or length < 7 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    l64: i64 = input[1]
+    mode64: i64 = input[2]
+    q64: i64 = input[3]
+    if n64 < 2 or n64 > 3 or l64 < 1 or l64 > 4 or mode64 < 0 or mode64 > 3 or q64 < 1 or q64 > 6: return -1
+    n: usize = n64.usize()
+    links: usize = l64.usize()
+    mode: usize = mode64.usize()
+    updates: usize = q64.usize()
+    if length != 4 + links + n * links: return -1
+    cap: mutable i64[MAX_L] = zeroed
+    path: mutable bool[MAX_N * MAX_L] = zeroed
+    rate: mutable i64[MAX_N] = zeroed
+    e: mutable usize = 0
+    while e < links:
+        cap[e] <- input[4 + e]
+        if cap[e] < 1 or cap[e] > 16: return -1
+        e <- e + 1
+    s: mutable usize = 0
+    while s < n:
+        used: mutable bool = false
+        e <- 0
+        while e < links:
+            bit: i64 = input[4 + links + s * links + e]
+            if bit != 0 and bit != 1: return -1
+            path[s * MAX_L + e] <- bit == 1
+            if bit == 1: used <- true
+            e <- e + 1
+        if not used: return -1
+        s <- s + 1
+    output_bytes: usize = 16 * n
+    if output.is_null() or capacity < output_bytes: return -2
+    step: mutable usize = 0
+    while step < updates:
+        session: mutable usize = 0
+        if mode == 0: session <- step % n
+        else if mode == 1:
+            s <- 1
+            while s < n:
+                if rate[s] < rate[session]: session <- s
+                s <- s + 1
+        else if mode == 2:
+            found: mutable bool = false
+            s <- 0
+            while s < n and not found:
+                local: mutable bool = true
+                j: mutable usize = 0
+                while j < n and local:
+                    if j != s:
+                        shares: mutable bool = false
+                        e <- 0
+                        while e < links:
+                            if path[s * MAX_L + e] and path[j * MAX_L + e]: shares <- true
+                            e <- e + 1
+                        if shares and (rate[j] < rate[s] or (rate[j] == rate[s] and j < s)): local <- false
+                    j <- j + 1
+                if local:
+                    session <- s
+                    found <- true
+                s <- s + 1
+        else:
+            selected: mutable usize = links
+            best_load: mutable i64 = 0
+            e <- 0
+            while e < links:
+                load: mutable i64 = 0
+                used: mutable bool = false
+                s <- 0
+                while s < n:
+                    if path[s * MAX_L + e]:
+                        load <- load + rate[s]
+                        used <- true
+                    s <- s + 1
+                if used and (selected == links or load * cap[selected] > best_load * cap[e]):
+                    selected <- e
+                    best_load <- load
+                e <- e + 1
+            s <- 0
+            while s < n:
+                if path[s * MAX_L + selected]:
+                    session <- s
+                    break
+                s <- s + 1
+        best: mutable i64 = 9223372036854775807
+        bottleneck: mutable usize = links
+        e <- 0
+        while e < links:
+            if path[session * MAX_L + e]:
+                fixed: mutable i64 = 0
+                active: mutable usize = 1
+                j: mutable usize = 0
+                while j < n:
+                    if j != session and path[j * MAX_L + e]:
+                        if rate[j] <= rate[session]: fixed <- fixed + rate[j]
+                        else: active <- active + 1
+                    j <- j + 1
+                level: mutable i64 = rate[session]
+                candidate: mutable i64 = level
+                iteration: mutable usize = 0
+                while iteration < n:
+                    numerator: i64 = cap[e] * SCALE - fixed
+                    if numerator < 0 or numerator % active.i64() != 0: return -1
+                    candidate <- numerator / active.i64()
+                    if candidate < level: return -1
+                    next: mutable i64 = 9223372036854775807
+                    j <- 0
+                    while j < n:
+                        if j != session and path[j * MAX_L + e] and rate[j] > level and rate[j] < next: next <- rate[j]
+                        j <- j + 1
+                    if next == 9223372036854775807 or candidate <= next: break
+                    saturated: mutable usize = 0
+                    j <- 0
+                    while j < n:
+                        if j != session and path[j * MAX_L + e] and rate[j] == next: saturated <- saturated + 1
+                        j <- j + 1
+                    fixed <- fixed + saturated.i64() * next
+                    active <- active - saturated
+                    level <- next
+                    iteration <- iteration + 1
+                if candidate < best:
+                    best <- candidate
+                    bottleneck <- e
+            e <- e + 1
+        if bottleneck == links: return -1
+        rate[session] <- best
+        j <- 0
+        while j < n:
+            if j != session and path[j * MAX_L + bottleneck] and rate[j] > best: rate[j] <- best
+            j <- j + 1
+        step <- step + 1
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    s <- 0
+    while s < n:
+        divisor: i64 = gcd64(rate[s], SCALE)
+        put64(rate[s] / divisor, staged, 16 * s)
+        put64(SCALE / divisor, staged, 16 * s + 8)
+        s <- s + 1
+    e <- 0
+    while e < output_bytes:
+        output[e] <- staged[e]
+        e <- e + 1
+    return output_bytes.i64()

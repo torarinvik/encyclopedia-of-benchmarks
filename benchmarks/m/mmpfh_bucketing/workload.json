@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-mmpfh-bucketing-i64-array-bytes-output-v1",
+  "algorithm": "mmpfh_bucketing",
+  "function_symbol": "mmpfh_bucketing",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "reference": "Encyclopedia of Algorithms, Monotone Minimal Perfect Hash Functions, DOI 10.1007/978-1-4939-2864-4_639",
+    "method": "equal-size buckets with longest-common-prefix delimiters and explicit d0/d1 maps",
+    "scope": "fixed 16-bit keys, bucket size 3, explicit mapping tables; no succinct encoding claim"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, query_count, sorted_unique_key_0, ..., sorted_unique_key_(n-1), present_query_0, ..., present_query_(q-1)]",
+    "key_domain": [0, 65535],
+    "n_range": [1, 32],
+    "query_count_range": [1, 32],
+    "bucket_size": 3,
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "[n, bucket_count, query_count, d0(key_i)..., (prefix_length,prefix_value,bucket_id)*, query_rank*]",
+    "maximum_values": 100,
+    "maximum_bytes": 800,
+    "success_result": "actual output bytes",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 800,
+    "meaning": "staged explicit d0/d1 delimiter maps and query ranks"
+  },
+  "cases": [
+    {"id":"two-buckets-and-query-ranks","input_values":[5,2,4096,4608,4864,32768,33024,4864,32768],"input_length":9,"output_capacity":800,"expected_result":128,"expected_output_hex":"0500000000000000020000000000000002000000000000000600000000000000060000000000000006000000000000000700000000000000070000000000000006000000000000000400000000000000000000000000000007000000000000004000000000000000010000000000000002000000000000000300000000000000"},
+    {"id":"singleton-set","input_values":[1,1,42,42],"input_length":4,"output_capacity":800,"expected_result":64,"expected_output_hex":"010000000000000001000000000000000100000000000000100000000000000010000000000000002a00000000000000000000000000000000"},
+    {"id":"unsorted-keys","input_values":[2,1,9,3,3],"input_length":5,"output_capacity":800,"expected_result":-1,"expected_output_hex":""},
+    {"id":"query-not-in-set","input_values":[2,1,9,9,3],"input_length":5,"output_capacity":800,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[5,2,4096,4608,4864,32768,33024,4864,32768],"input_length":9,"output_capacity":127,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,42,42],"input_length":4,"output_capacity":800,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ],
+  "measurement": {"comparison_model":"i64_array_bytes_output_call","sample_count":6,"warmup_rounds":1,"repetitions_per_sample":20}
+}

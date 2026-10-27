@@ -1,0 +1,53 @@
+const MAX_FACETS: usize = 16
+const MAX_VERTICES: usize = 12
+
+def crust_put_i64(value:i64,output:mutable u8&,word:usize):
+    bits:u64=value.u64();b:mutable usize=0
+    while b<8:output[word*8+b]<-((bits>>(8*b))&255).u8();b<-b+1
+
+def crust_pole_triangle_filter(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("crust_pole_triangle_filter"):
+    if input.is_null() or length<3 or length>51:return -1
+    ns0:i64=input[0];np0:i64=input[1];nf0:i64=input[2]
+    if ns0<3 or ns0>8 or np0<1 or np0>4 or ns0+np0>MAX_VERTICES.i64() or nf0<0 or nf0>MAX_FACETS.i64() or length!=(3+3*nf0).usize():return -1
+    ns:usize=ns0.usize();total:usize=(ns0+np0).usize();nf:usize=nf0.usize()
+    facets:mutable usize[MAX_FACETS*3]=zeroed;count:mutable usize=0;i:mutable usize=0
+    while i<nf:
+        tri:mutable usize[3]=zeroed
+        j:mutable usize=0
+        while j<3:
+            v:=input[3+3*i+j]
+            if v<0 or v.usize()>=total:return -1
+            tri[j]<-v.usize();j<-j+1
+        if tri[0]==tri[1] or tri[0]==tri[2] or tri[1]==tri[2]:return -1
+        if tri[0]<ns and tri[1]<ns and tri[2]<ns:
+            j<-1
+            while j<3:
+                x:=tri[j];p:mutable usize=j
+                while p>0 and tri[p-1]>x:tri[p]<-tri[p-1];p<-p-1
+                tri[p]<-x;j<-j+1
+            duplicate:mutable bool=false;j<-0
+            while j<count:
+                if facets[j*3]==tri[0] and facets[j*3+1]==tri[1] and facets[j*3+2]==tri[2]:duplicate<-true
+                j<-j+1
+            if not duplicate:
+                j<-0
+                while j<3:facets[count*3+j]<-tri[j];j<-j+1
+                count<-count+1
+        i<-i+1
+    i<-1
+    while i<count:
+        a:=facets[i*3];b:=facets[i*3+1];c:=facets[i*3+2];j:mutable usize=i
+        while j>0:
+            before:=facets[(j-1)*3]*MAX_VERTICES*MAX_VERTICES+facets[(j-1)*3+1]*MAX_VERTICES+facets[(j-1)*3+2]
+            current:=a*MAX_VERTICES*MAX_VERTICES+b*MAX_VERTICES+c
+            if before<=current:break
+            k:mutable usize=0
+            while k<3:facets[j*3+k]<-facets[(j-1)*3+k];k<-k+1
+            j<-j-1
+        facets[j*3]<-a;facets[j*3+1]<-b;facets[j*3+2]<-c;i<-i+1
+    bytes:usize=(1+3*count)*8
+    if output.is_null() or capacity<bytes:return -2
+    crust_put_i64(count.i64(),output&,0);at:mutable usize=1;i<-0
+    while i<count:
+        crust_put_i64(facets[i*3].i64(),output&,at);crust_put_i64(facets[i*3+1].i64(),output&,at+1);crust_put_i64(facets[i*3+2].i64(),output&,at+2);at<-at+3;i<-i+1
+    bytes.i64()

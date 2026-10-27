@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi400-felsenstein-substitution-likelihood-v1",
+  "algorithm": "felsenstein_substitution_likelihood",
+  "function_symbol": "felsenstein_substitution_likelihood",
+  "comparison_model": "i64_array_bytes_output_call",
+  "pinned_source": {
+    "title": "Statistical Multiple Alignment",
+    "doi": "10.1007/978-1-4939-2864-4_400",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_400",
+    "epub_path": "OEBPS/AChap400.html",
+    "section": "Felsenstein conditional likelihood and root likelihood, Eqs. 6–7",
+    "license": "No source-code license asserted; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[leaf_count, postorder tokens; leaf=[0,state], internal=[1,left_edge_mode,right_edge_mode]]",
+    "leaves": [1, 8],
+    "edge_modes": [0, 1],
+    "maximum_valid_length": 38,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "layout": "[site_likelihood times 2^30]",
+    "maximum_bytes": 8,
+    "success_result": 8,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "At most eight postorder conditional-likelihood vectors and staged scalar output."
+  },
+  "profile": {
+    "alphabet": [0, 1],
+    "transition_mode_0": "identity matrix",
+    "transition_mode_1": "binary symmetric matrix [[3/4,1/4],[1/4,3/4]]",
+    "root_prior": "uniform",
+    "scope": "One observed site on a supplied rooted full binary tree; alignment and indel-HMM operations excluded."
+  },
+  "measurement": {
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "one-leaf-uniform-root-prior",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000002000000000"
+    },
+    {
+      "id": "two-change-edges-observe-zero",
+      "input_values": [2, 0, 0, 1, 1, 1, 1],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000001400000000"
+    }
+  ]
+}

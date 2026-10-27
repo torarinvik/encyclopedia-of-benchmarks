@@ -1,0 +1,66 @@
+const MAX_N: usize = 3
+const MAX_OUTPUT_BYTES: usize = 144
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def johnson_trotter_adjacent_gray_code_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 1: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > 3: return -1
+    n: usize = n_value.usize()
+    permutation_count: mutable usize = 1
+    value: mutable usize = 2
+    while value <= n:
+        permutation_count <- permutation_count * value
+        value <- value + 1
+    output_bytes: usize = 8 * n * permutation_count
+    if output.is_null() or capacity < output_bytes: return -2
+    permutation: mutable i64[MAX_N] = zeroed
+    direction: mutable i64[MAX_N + 1] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        permutation[index] <- index.i64() + 1
+        direction[index + 1] <- -1
+        index <- index + 1
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    rows: mutable usize = 0
+    while true:
+        index <- 0
+        while index < n:
+            store_i64_le(permutation[index], staged&, 8 * (rows * n + index))
+            index <- index + 1
+        rows <- rows + 1
+        largest_mobile: mutable i64 = 0
+        mobile_position: mutable usize = n
+        position: mutable usize = 0
+        while position < n:
+            item: i64 = permutation[position]
+            neighbor: i64 = position.i64() + direction[item.usize()]
+            if neighbor >= 0 and neighbor < n.i64() and item > permutation[neighbor.usize()] and item > largest_mobile:
+                largest_mobile <- item
+                mobile_position <- position
+            position <- position + 1
+        if mobile_position == n: break
+        neighbor: usize = (mobile_position.i64() + direction[largest_mobile.usize()]).usize()
+        temporary: i64 = permutation[mobile_position]
+        permutation[mobile_position] <- permutation[neighbor]
+        permutation[neighbor] <- temporary
+        value <- (largest_mobile + 1).usize()
+        while value <= n:
+            direction[value] <- -direction[value]
+            value <- value + 1
+    index <- 0
+    while index < output_bytes:
+        output[index] <- staged[index]
+        index <- index + 1
+    output_bytes.i64()
+
+export fn johnson_trotter_adjacent_gray_code(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = johnson_trotter_adjacent_gray_code_impl

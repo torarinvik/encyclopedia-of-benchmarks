@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-frequent-itemset-conditional-db-reduction-v1",
+  "algorithm": "frequent_itemset_conditional_db_reduction",
+  "function_symbol": "frequent_itemset_conditional_db_reduction",
+  "comparison_model": "i64_array_bytes_output_call",
+  "pinned_source": {
+    "title": "Frequent Pattern Mining",
+    "author": "Takeaki Uno",
+    "doi": "10.1007/978-1-4939-2864-4_722",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_722",
+    "epub_path": "OEBPS/AChap722.html",
+    "section": "Database Reduction",
+    "license": "No source-code license asserted; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[item_count,row_count,minimum_support,tail,prefix_mask,transaction_masks...]",
+    "item_count_range": [1, 8],
+    "row_count_range": [1, 64],
+    "minimum_support_range": "1 through row_count",
+    "tail_range": "-1 only for empty prefix, otherwise highest set bit of prefix_mask",
+    "prefix_rule": "The prefix must occur in at least minimum_support rows.",
+    "transaction_mask_range": "0 through (1 << item_count) - 1",
+    "maximum_valid_length": 69,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_unsigned_64_bit_array",
+    "layout": "[record_count,reduced_mask_0,multiplicity_0,...]",
+    "ordering": "Reduced masks sorted in ascending numeric order.",
+    "multiplicity": "Number of unit-weight rows in Occ(P) that reduce to the record mask.",
+    "sum_of_multiplicities": "Exactly support(P).",
+    "maximum_output_words": 129,
+    "maximum_output_bytes": 1032,
+    "success_result": "exact output byte length",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_when_nonempty_result": -2,
+    "errors_write_nothing": true
+  },
+  "transform": {
+    "steps": [
+      "Select rows containing prefix_mask (Occ(P)).",
+      "For every item i greater than tail, compute support(P union {i}) and keep i only when its support is at least minimum_support.",
+      "In each selected row, remove all item bits strictly below tail and all extension bits that failed the support threshold; retain the tail bit itself for a nonempty prefix.",
+      "Coalesce identical reduced row masks and store their original row multiplicity."
+    ],
+    "empty_prefix": "tail=-1 and prefix_mask=0; no lower bits are removed, and every item is an eligible extension candidate."
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Eight extension supports, up to 64 reduced masks and multiplicities, and 129 output words before capacity validation."
+  },
+  "measurement": {"sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "cases": [
+    {
+      "id": "prefix-reduction-and-duplicate-row-merge",
+      "input_values": [4, 6, 2, 1, 3, 7, 15, 3, 11, 4, 15],
+      "input_length": 11,
+      "output_capacity": 1032,
+      "expected_result": 72,
+      "expected_output_hex": "040000000000000002000000000000000100000000000000060000000000000001000000000000000a0000000000000001000000000000000e000000000000000200000000000000"
+    },
+    {
+      "id": "infrequent-extension-removed-before-coalescing",
+      "input_values": [3, 5, 2, 0, 1, 3, 3, 5, 1, 2],
+      "input_length": 10,
+      "output_capacity": 1032,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000100000000000000020000000000000003000000000000000200000000000000"
+    },
+    {
+      "id": "tail-bit-retained-and-lower-item-removed",
+      "input_values": [2, 3, 1, 1, 3, 3, 3, 1],
+      "input_length": 8,
+      "output_capacity": 1032,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000002000000000000000200000000000000"
+    },
+    {
+      "id": "empty-prefix-and-duplicate-rows",
+      "input_values": [3, 4, 2, -1, 0, 3, 3, 1, 5],
+      "input_length": 9,
+      "output_capacity": 1032,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000100000000000000020000000000000003000000000000000200000000000000"
+    },
+    {
+      "id": "all-extensions-pruned-coalesces-empty-row",
+      "input_values": [2, 2, 2, -1, 0, 1, 2],
+      "input_length": 7,
+      "output_capacity": 1032,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000200000000000000"
+    },
+    {
+      "id": "infrequent-prefix-invalid",
+      "input_values": [2, 2, 2, 0, 1, 1, 2],
+      "input_length": 7,
+      "output_capacity": 1032,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 2, 1, -1, 0, 1, 2],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "capacity_error_result": -2
+    }
+  ],
+  "provenance": {
+    "chapter": "Frequent Pattern Mining",
+    "doi": "10.1007/978-1-4939-2864-4_722",
+    "algorithm_profile": "For one frequent prefix, form Occ(P), remove items below tail(P) and infrequent one-item extensions, then coalesce equal conditional transactions with multiplicities."
+  }
+}

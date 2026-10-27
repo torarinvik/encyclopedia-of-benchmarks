@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-timestamp-list-update-i64-array-bytes-output-v1",
+  "algorithm": "timestamp_list_update",
+  "function_symbol": "timestamp_list_update",
+  "abi": "i64_array_bytes_output",
+  "description": "Timestamp list update with exact request-history qualification and access-position trace.",
+  "source": {
+    "title": "Online List Update",
+    "authors": ["Shahin Kamali"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_266",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_266",
+    "algorithm_attribution": "After an access, Timestamp inserts the item before the first preceding item requested at most once since its previous request.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,request_count,initial_order[n],request_ids[request_count]]",
+    "item_count_range": [1, 8],
+    "request_count_range": [0, 32],
+    "item_id_range": "0..n-1",
+    "initial_order_requirement": "permutation of all item IDs",
+    "maximum_valid_length": 42,
+    "maximum_parseable_length": 42,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_vector",
+    "encoding": "little-endian signed 64-bit words [total_access_cost,final_order[n],pre_access_positions[request_count]]",
+    "maximum_bytes": 328,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {"bytes": 2048, "meaning": "Bounded request-history timestamps, access positions, and staged output."},
+  "contract": {
+    "access_cost": "Record and charge the 1-based position immediately before every request.",
+    "first_request": "An item with no earlier request is not reorganized.",
+    "qualifying_item": "Scan items before x from front to back; y qualifies when the count of requests to y strictly after x's previous request and strictly before the current request is at most one.",
+    "update": "Move x immediately before the first qualifying y using free exchanges; if no y qualifies, leave the list unchanged.",
+    "history": "Every request updates the history, including requests that do not move their item."
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "oracle_method": "The primary oracle scans the bounded request interval for each preceding item. The independent verifier counts stored occurrence timestamps for each item.",
+  "cases": [
+    {"id":"first_item_with_at_most_one_intervening_request","input_values":[4,5,0,1,2,3,3,0,1,0,3],"input_length":11,"output_capacity":80,"expected_result":80,"expected_output_hex":"0c00000000000000 0000000000000000 0300000000000000 0100000000000000 0200000000000000 0400000000000000 0100000000000000 0200000000000000 0100000000000000 0400000000000000"},
+    {"id":"no_preceding_item_qualifies","input_values":[3,6,0,1,2,2,0,1,0,1,2],"input_length":11,"output_capacity":80,"expected_result":80,"expected_output_hex":"0c00000000000000 0100000000000000 0000000000000000 0200000000000000 0300000000000000 0100000000000000 0200000000000000 0100000000000000 0200000000000000 0300000000000000"},
+    {"id":"empty_request_trace","input_values":[2,0,1,0],"input_length":4,"output_capacity":24,"expected_result":24,"expected_output_hex":"0000000000000000 0100000000000000 0000000000000000"},
+    {"id":"maximum_request_and_output_bounds","input_values":[8,32,0,1,2,3,4,5,6,7,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],"input_length":42,"output_capacity":328,"expected_result":328,"expected_output_hex":"2600000000000000 0300000000000000 0000000000000000 0100000000000000 0200000000000000 0400000000000000 0500000000000000 0600000000000000 0700000000000000 0400000000000000 0400000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000"},
+    {"id":"duplicate_initial_item","input_values":[3,1,0,0,2,0],"input_length":6,"output_capacity":328,"expected_result":-1,"expected_output_hex":""},
+    {"id":"request_outside_item_set","input_values":[2,1,0,2],"input_length":4,"output_capacity":328,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input","input_values":[1,0,0,99],"input_length":4,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_capacity","input_values":[8,32,0,1,2,3,4,5,6,7,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],"input_length":42,"output_capacity":327,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[4,5,0,1,2,3,3,0,1,0,3],"input_length":11,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

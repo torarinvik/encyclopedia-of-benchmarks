@@ -1,0 +1,66 @@
+const MAX_N:usize=6
+const MAX_M:usize=10
+const MAX_INPUT:usize=60
+
+def st_planar_leftmost_augmenting_flow(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("st_planar_leftmost_augmenting_flow"):
+    if input.is_null() or length<4 or length>MAX_INPUT:return -1
+    n0:i64=input[0];m0:i64=input[1];s0:i64=input[2];t0:i64=input[3]
+    if n0<2 or n0>6 or m0<1 or m0>10 or s0<0 or s0>=n0 or t0<0 or t0>=n0 or s0==t0:return -1
+    n:usize=n0.usize();m:usize=m0.usize();s:usize=s0.usize();t:usize=t0.usize()
+    if length<4+3*m:return -1
+    eu:mutable usize[MAX_M]=zeroed;ev:mutable usize[MAX_M]=zeroed;caps:mutable i64[MAX_M]=zeroed;pairs:mutable bool[MAX_N*MAX_N]=zeroed;at:mutable usize=4;e:mutable usize=0
+    while e<m:
+        u0:=input[at];v0:=input[at+1];c:=input[at+2];at<-at+3
+        if u0<0 or u0>=n0 or v0<0 or v0>=n0 or u0==v0 or c<0 or c>5:return -1
+        u:=u0.usize();v:=v0.usize();if pairs[u*MAX_N+v] or pairs[v*MAX_N+u]:return -1
+        pairs[u*MAX_N+v]<-true;pairs[v*MAX_N+u]<-true;eu[e]<-u;ev[e]<-v;caps[e]<-c;e<-e+1
+    degree:mutable usize[MAX_N]=zeroed;rot:mutable usize[MAX_N*MAX_N]=zeroed;occ:mutable usize[MAX_M*2]=zeroed;used:mutable bool[MAX_N*MAX_M]=zeroed;x:mutable usize=0
+    while x<n:
+        if at>=length:return -1
+        d0:=input[at];at<-at+1;if d0<0 or d0>=n0 or at+d0.usize()>length:return -1
+        d:=d0.usize();degree[x]<-d;j:mutable usize=0
+        while j<d:
+            e0:=input[at];at<-at+1;if e0<0 or e0>=m0:return -1
+            edge:=e0.usize();if used[x*MAX_M+edge]:return -1;used[x*MAX_M+edge]<-true;rot[x*MAX_N+j]<-edge
+            if eu[edge]==x:occ[2*edge]<-occ[2*edge]+1
+            else if ev[edge]==x:occ[2*edge+1]<-occ[2*edge+1]+1
+            else:return -1
+            j<-j+1
+        x<-x+1
+    if at!=length:return -1
+    e<-0;while e<m:if occ[2*e]!=1 or occ[2*e+1]!=1:return -1;e<-e+1
+    connected:mutable bool[MAX_N]=zeroed;queue:mutable usize[MAX_N]=zeroed;head:mutable usize=0;tail:mutable usize=0;connected[s]<-true;queue[tail]<-s;tail<-tail+1
+    while head<tail:
+        u:=queue[head];head<-head+1;e<-0
+        while e<m:
+            v:mutable usize=MAX_N
+            if eu[e]==u:v<-ev[e]
+            else if ev[e]==u:v<-eu[e]
+            if v<MAX_N and not connected[v]:connected[v]<-true;queue[tail]<-v;tail<-tail+1
+            e<-e+1
+    x<-0;while x<n:if not connected[x]:return -1;x<-x+1
+    flow:mutable i64[MAX_M]=zeroed;total:mutable i64=0
+    loop:
+        seen:mutable bool[MAX_N]=zeroed;parent:mutable i64[MAX_N]=zeroed;parent_edge:mutable i64[MAX_N]=zeroed;parent_dir:mutable i64[MAX_N]=zeroed;next_edge:mutable usize[MAX_N]=zeroed;x<-0
+        while x<n:parent[x]<--1;parent_edge[x]<--1;x<-x+1
+        stack:mutable usize[MAX_N]=zeroed;top:mutable usize=0;seen[s]<-true;stack[top]<-s;top<-top+1
+        while top>0 and not seen[t]:
+            u:=stack[top-1]
+            if next_edge[u]>=degree[u]:top<-top-1;continue
+            edge:=rot[u*MAX_N+next_edge[u]];next_edge[u]<-next_edge[u]+1;v:=eu[edge];residual:=flow[edge];direction:i64=-1
+            if eu[edge]==u:v<-ev[edge];residual<-caps[edge]-flow[edge];direction<-1
+            if residual>0 and not seen[v]:seen[v]<-true;parent[v]<-u.i64();parent_edge[v]<-edge.i64();parent_dir[v]<-direction;stack[top]<-v;top<-top+1
+        if not seen[t]:break
+        delta:mutable i64=1000000;y:mutable usize=t
+        while y!=s:
+            u:=parent[y].usize();edge:=parent_edge[y].usize();residual:=flow[edge]
+            if eu[edge]==u:residual<-caps[edge]-flow[edge]
+            if residual<delta:delta<-residual
+            y<-u
+        y<-t
+        while y!=s:edge:=parent_edge[y].usize();flow[edge]<-flow[edge]+parent_dir[y]*delta;y<-parent[y].usize()
+        total<-total+delta
+    if output.is_null() or capacity<8:return -2
+    bits:u64=total.u64();b:mutable usize=0
+    while b<8:output[b]<-((bits>>(8*b))&255).u8();b<-b+1
+    8.i64()

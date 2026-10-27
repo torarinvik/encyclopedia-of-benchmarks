@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-lz77-infinite-window-rightmost-i64-array-bytes-output-v1",
+  "algorithm": "lz77_infinite_rightmost",
+  "function_symbol": "lz77_infinite_rightmost",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Lempel-Ziv Compression",
+    "authors": ["Simon J. Puglisi"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_634",
+    "path": "OEBPS/AChap634.html",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_634",
+    "algorithm_attribution": "infinite-window greedy LZ77 with the rightmost prior occurrence refinement",
+    "implementation_status": "clean-room bounded parse; no upstream code reproduced"
+  },
+  "contract": {
+    "operation": "Greedy infinite-window LZ77 phrase parsing with rightmost tie selection.",
+    "input_encoding": "[n, printable_ASCII_character_codes...]",
+    "input_length_range": [0, 64],
+    "character_code_range": [32, 126],
+    "maximum_valid_input_length": 65,
+    "maximum_parseable_input_length": 66,
+    "match_rule": "At suffix q, choose the longest matching prior substring beginning p<q; equal positive lengths select greatest p. Matching may overlap q and is bounded by the remaining target suffix.",
+    "token_rule": "Emit (p,length,nextChar) using the absolute zero-based source position p, or p=0,length=0 for a literal; nextChar is the following code or 0 if the phrase ends at input end. Terminal marker consumes only the phrase; otherwise consume phrase plus nextChar.",
+    "output_encoding": "little-endian signed-i64 triples (sourcePosition,length,nextChar) without a count prefix",
+    "maximum_output_bytes": 1536,
+    "success_result": "bytes written",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Malformed framing/characters or null input return -1 before output checks. Null output or insufficient result capacity returns -2 after validation; errors do not write output."
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[n, printable_ASCII_character_codes...]",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "character_code_range": [32, 126]
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "(sourcePosition,length,nextChar) triples; no count prefix",
+    "maximum_bytes": 1536,
+    "success_result": "encoded byte length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1536,
+    "meaning": "staged token stream; at most one token per input character"
+  },
+  "cases": [
+    {"id":"empty-string","input_values":[0],"input_length":1,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"single-literal","input_values":[1,97],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output_hex":"000000000000000000000000000000006100000000000000"},
+    {"id":"overlap-terminal-phrase","input_values":[4,97,97,97,97],"input_length":5,"output_capacity":48,"expected_result":48,"expected_output_hex":"000000000000000000000000000000006100000000000000000000000000000003000000000000000000000000000000"},
+    {"id":"rightmost-equal-length-match","input_values":[9,97,98,88,97,98,89,97,98,90],"input_length":10,"output_capacity":120,"expected_result":120,"expected_output_hex":"000000000000000000000000000000006100000000000000000000000000000000000000000000006200000000000000000000000000000000000000000000005800000000000000000000000000000002000000000000005900000000000000030000000000000002000000000000005a00000000000000"},
+    {"id":"invalid-extra-word","input_values":[1,97,98],"input_length":3,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-nul-marker-collision","input_values":[1,0],"input_length":2,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-capacity","input_values":[1,97],"input_length":2,"output_capacity":23,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":1,"input_is_null":true,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,97],"input_length":2,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ],
+  "measurement": {"comparison_model":"i64_array_bytes_output_call","sample_count":10,"warmup_rounds":1,"repetitions_per_sample":20}
+}

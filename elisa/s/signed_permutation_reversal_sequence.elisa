@@ -1,0 +1,127 @@
+const MAX_N: usize = 5
+const MAX_STATES: usize = 3840
+const MAX_MOVES: usize = 10
+const MAX_OUTPUT_BYTES: usize = 168
+
+def sp_encode(permutation: i64[MAX_N]&, n: usize): usize:
+    rank: mutable usize = 0
+    signs: mutable usize = 0
+    for i in 0..<n:
+        value: usize = (if permutation[i] < 0: -permutation[i] else: permutation[i]).usize()
+        smaller: mutable usize = 0
+        for j in (i + 1)..<n:
+            other: usize = (if permutation[j] < 0: -permutation[j] else: permutation[j]).usize()
+            if other < value: smaller <- smaller + 1
+        rank <- rank * (n - i) + smaller
+        if permutation[i] < 0: signs <- signs | (1 << (value - 1))
+    rank * (1 << n) + signs
+
+def sp_decode_state(state: usize, n: usize, factorials: usize[MAX_N + 1]&, permutation: mutable i64[MAX_N]&): void:
+    sign_count: usize = 1 << n
+    rank: mutable usize = state / sign_count
+    signs: usize = state % sign_count
+    available: mutable usize[MAX_N] = zeroed
+    for i in 0..<n: available[i] <- i + 1
+    remaining: mutable usize = n
+    for i in 0..<n:
+        factor: usize = factorials[n - i - 1]
+        digit: usize = rank / factor
+        rank <- rank % factor
+        value: usize = available[digit]
+        for j in digit..<(remaining - 1): available[j] <- available[j + 1]
+        remaining <- remaining - 1
+        permutation[i] <- value.i64()
+        if signs & (1 << (value - 1)) != 0: permutation[i] <- -permutation[i]
+
+def sp_reverse(permutation: mutable i64[MAX_N]&, left_start: usize, right_start: usize): void:
+    left: mutable usize = left_start
+    right: mutable usize = right_start
+    while left < right:
+        a: i64 = permutation[left]
+        b: i64 = permutation[right]
+        permutation[left] <- -b
+        permutation[right] <- -a
+        left <- left + 1
+        right <- right - 1
+    if left == right: permutation[left] <- -permutation[left]
+
+def sp_put64(output: mutable u8&, offset: usize, value: i64): void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def signed_permutation_reversal_sequence_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 3 or length > MAX_N + 1: return -1
+    raw_n: i64 = input[0]
+    if raw_n < 2 or raw_n > MAX_N.i64() or length != raw_n.usize() + 1: return -1
+    n: usize = raw_n.usize()
+    seen: mutable usize = 0
+    permutation: mutable i64[MAX_N] = zeroed
+    for i in 0..<n:
+        value: i64 = input[i + 1]
+        if value == 0 or value < -raw_n or value > raw_n: return -1
+        absolute: usize = (if value < 0: -value else: value).usize()
+        bit: usize = 1 << (absolute - 1)
+        if seen & bit != 0: return -1
+        seen <- seen | bit
+        permutation[i] <- value
+    if seen != (1 << n) - 1: return -1
+    if output.is_null(): return -2
+
+    factorials: usize[MAX_N + 1] = [1, 1, 2, 6, 24, 120]
+    state_count: usize = factorials[n] * (1 << n)
+    parent: mutable i32[MAX_STATES] = zeroed
+    queue: mutable i32[MAX_STATES] = zeroed
+    move_left: mutable i8[MAX_STATES] = zeroed
+    move_right: mutable i8[MAX_STATES] = zeroed
+    for state in 0..<state_count: parent[state] <- -2
+    start: usize = sp_encode(permutation&, n)
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    parent[start] <- -1
+    queue[tail] <- start.i32()
+    tail <- tail + 1
+    while head < tail and parent[0] == -2:
+        current: usize = queue[head].usize()
+        head <- head + 1
+        current_permutation: mutable i64[MAX_N] = zeroed
+        sp_decode_state(current, n, factorials&, current_permutation&)
+        for left in 0..<n:
+            if parent[0] != -2: break
+            for right in left..<n:
+                neighbor: mutable i64[MAX_N] = current_permutation
+                sp_reverse(neighbor&, left, right)
+                next: usize = sp_encode(neighbor&, n)
+                if parent[next] != -2: continue
+                parent[next] <- current.i32()
+                move_left[next] <- (left + 1).i8()
+                move_right[next] <- (right + 1).i8()
+                queue[tail] <- next.i32()
+                tail <- tail + 1
+                if next == 0: break
+    if parent[0] == -2: return -1
+
+    reverse_moves: mutable i64[MAX_MOVES * 2] = zeroed
+    move_count: mutable usize = 0
+    current: mutable usize = 0
+    while parent[current] >= 0:
+        if move_count == MAX_MOVES: return -1
+        reverse_moves[2 * move_count] <- move_left[current].i64()
+        reverse_moves[2 * move_count + 1] <- move_right[current].i64()
+        move_count <- move_count + 1
+        current <- parent[current].usize()
+    output_bytes: usize = 8 * (1 + 2 * move_count)
+    if capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    sp_put64(staged&, 0, move_count.i64())
+    for i in 0..<move_count:
+        reverse_index: usize = move_count - 1 - i
+        sp_put64(staged&, 8 * (1 + 2 * i), reverse_moves[2 * reverse_index])
+        sp_put64(staged&, 8 * (2 + 2 * i), reverse_moves[2 * reverse_index + 1])
+    for byte in 0..<output_bytes: output[byte] <- staged[byte]
+    output_bytes.i64()
+
+export fn signed_permutation_reversal_sequence(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = signed_permutation_reversal_sequence_impl

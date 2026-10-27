@@ -1,0 +1,45 @@
+const MAX_JOBS: usize = 8
+const MAX_INPUT: usize = 18
+const MAX_OUTPUT: usize = 112
+
+def shortest_elapsed_time_first(input: i64&, length: usize,
+                               output: mutable u8&, capacity: usize) -> i64 @export("shortest_elapsed_time_first"):
+    if input.is_null() or length < 1 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    if n64 < 0 or n64 > 8 or length != 1 + 2 * n64.usize(): return -1
+    n: usize = n64.usize()
+    release: mutable i64[MAX_JOBS] = zeroed
+    remaining: mutable i64[MAX_JOBS] = zeroed
+    attained: mutable i64[MAX_JOBS] = zeroed
+    job: mutable usize = 0
+    while job < n:
+        release[job] <- input[1 + 2 * job]
+        remaining[job] <- input[2 + 2 * job]
+        if release[job] < 0 or release[job] > 16 or remaining[job] < 1 or remaining[job] > 12: return -1
+        job <- job + 1
+    if output.is_null(): return -2
+    trace: mutable u8[MAX_OUTPUT] = zeroed
+    time: mutable usize = 0
+    completed: mutable usize = 0
+    final_time: mutable usize = 0
+    while completed < n and time < MAX_OUTPUT:
+        chosen: mutable usize = n
+        job <- 0
+        while job < n:
+            if release[job] <= time.i64() and remaining[job] > 0 and
+                (chosen == n or attained[job] < attained[chosen]): chosen <- job
+            job <- job + 1
+        if chosen < n:
+            trace[time] <- (chosen + 1).u8()
+            attained[chosen] <- attained[chosen] + 1
+            remaining[chosen] <- remaining[chosen] - 1
+            if remaining[chosen] == 0: completed <- completed + 1
+        time <- time + 1
+    if completed != n: return -1
+    final_time <- time
+    if capacity < time: return -2
+    time <- 0
+    while time < final_time:
+        output[time] <- trace[time]
+        time <- time + 1
+    final_time.i64()

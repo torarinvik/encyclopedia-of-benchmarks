@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-private-noisy-power-iteration-i64-array-bytes-output-v1",
+  "algorithm": "private_noisy_power_iteration",
+  "function_symbol": "private_noisy_power_iteration",
+  "abi": "i64_array_bytes_output",
+  "description": "Run the rank-one noisy power recurrence on a bounded symmetric matrix with supplied fixed-point noise vectors.",
+  "source": {
+    "title": "Private Spectral Analysis",
+    "authors": ["Moritz Hardt"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_552",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_552",
+    "algorithm_attribution": "Noisy Power Method, rank-one specialization of Figure 1",
+    "implementation_status": "clean-room fixed-point supplied-noise replay"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,iterations,sigma,A_row_major...,x0...,z1..., ...,zL...]",
+    "scale": 1000000,
+    "n_range": [2, 4],
+    "iteration_range": [1, 4],
+    "matrix_constraints": "symmetric; |A_ij| <= 1000000",
+    "initial_vector_constraint": "sum(x0_i^2) = 1000000000000",
+    "noise_constraint": "0 <= sigma <= 1000000; each supplied z component is in [-2000000,2000000]",
+    "maximum_valid_length": 39,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "final normalized fixed-point vector x_L, one component per row",
+    "maximum_bytes": 32,
+    "success_result": "8 * n bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Bounded 4x4 matrix, three length-four fixed-point vectors, and staged output."
+  },
+  "contract": {
+    "iteration": "y_i = trunc0((sum_j A_ij*x_j + sigma*z_i)/S); r=floor_sqrt(sum_i y_i^2); x_i=trunc0(y_i*S/r).",
+    "rounding": "All arithmetic is integer fixed point with S=1000000; divisions truncate toward zero and square roots round down.",
+    "zero_iterate": "If any round has r=0 the input trace is invalid and returns -1 without writing.",
+    "randomness": "Supplied z vectors are deterministic noise-tape values, not generated Gaussian draws.",
+    "guarantees": "No differential-privacy, Gaussian-distribution, or utility guarantee is claimed.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "one-power-step-and-normalization",
+      "input_values": [2, 1, 0, 1000000, 0, 0, 0, 600000, 800000, 0, 0],
+      "input_length": 11,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "40420f00000000000000000000000000"
+    },
+    {
+      "id": "supplied-noise-vector",
+      "input_values": [2, 1, 1000000, 0, 0, 0, 0, 1000000, 0, 600000, 800000],
+      "input_length": 11,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "c02709000000000000350c0000000000"
+    },
+    {
+      "id": "maximum-four-by-four-four-iterations",
+      "input_values": [4, 4, 0, 1000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 39,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "40420f0000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "negative-eigen-direction",
+      "input_values": [2, 1, 0, -1000000, 0, 0, 0, 600000, 800000, 0, 0],
+      "input_length": 11,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "c0bdf0ffffffffff0000000000000000"
+    },
+    {
+      "id": "asymmetric-matrix",
+      "input_values": [2, 1, 0, 1000000, 1, 0, 0, 1000000, 0, 0, 0],
+      "input_length": 11,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "initial-vector-not-unit",
+      "input_values": [2, 1, 0, 0, 0, 0, 0, 600000, 600000, 0, 0],
+      "input_length": 11,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-iterate",
+      "input_values": [2, 1, 0, 0, 0, 0, 0, 1000000, 0, 0, 0],
+      "input_length": 11,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input-length-mismatch",
+      "input_values": [2, 1, 0, 0, 0, 0, 0, 1000000, 0, 0],
+      "input_length": 10,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 1, 0, 1000000, 0, 0, 0, 600000, 800000, 0, 0],
+      "input_length": 11,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 1, 0, 1000000, 0, 0, 0, 600000, 800000, 0, 0],
+      "input_length": 11,
+      "output_capacity": 16,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 11,
+      "input_is_null": true,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

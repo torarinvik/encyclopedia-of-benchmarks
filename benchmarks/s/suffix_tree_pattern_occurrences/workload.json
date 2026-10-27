@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-suffix-tree-pattern-occurrences-i64-array-bytes-output-v1",
+  "algorithm": "suffix_tree_pattern_occurrences",
+  "function_symbol": "suffix_tree_pattern_occurrences",
+  "abi": "i64_array_bytes_output",
+  "description": "Build a bounded compressed suffix tree, traverse the matching path, and enumerate all occurrence leaves.",
+  "source": {
+    "title": "Text Indexing",
+    "authors": ["Srinivas Aluru"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_422",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_422",
+    "algorithm_attribution": "suffix-tree pattern-path traversal and descendant-leaf enumeration",
+    "implementation_status": "clean-room; chapter has no explicit source-code license"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,text[n],m,pattern[m]]",
+    "text_length_range": [0, 24],
+    "pattern_length_range": [1, 12],
+    "symbol_range": [0, 127],
+    "maximum_valid_length": 38,
+    "maximum_parseable_length": 39,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[count,occurrence_start_positions...] in lexicographic suffix-leaf order",
+    "maximum_bytes": 200,
+    "success_result": "8*(1+count) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 32768,
+    "meaning": "At most 51 compact-tree nodes, bounded child lists, traversal stack, match positions, and staged output."
+  },
+  "contract": {
+    "tree": "Append a unique internal terminator smaller than all input symbols, then insert all n+1 suffixes into a compressed trie by edge splitting.",
+    "query": "Follow compressed edge labels; after the full pattern matches, enumerate every descendant suffix leaf.",
+    "leaf_order": "Sort matching starts by lexicographic suffix order, with the internal terminator smaller than ASCII.",
+    "setup_scope": "The bounded call builds the suffix tree before querying; no query-only complexity claim is made.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"banana-ana-leaf-order","input_values":[6,98,97,110,97,110,97,3,97,110,97],"input_length":11,"output_capacity":24,"expected_result":24,"expected_output_hex":"020000000000000003000000000000000100000000000000"},
+    {"id":"overlapping-repeated-pattern","input_values":[5,97,97,97,97,97,2,97,97],"input_length":9,"output_capacity":40,"expected_result":40,"expected_output_hex":"04000000000000000300000000000000020000000000000001000000000000000000000000000000"},
+    {"id":"pattern-ends-within-compressed-edge","input_values":[5,120,97,98,99,100,3,97,98,99],"input_length":10,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000100000000000000"},
+    {"id":"absent-pattern","input_values":[3,97,98,99,1,122],"input_length":6,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"pattern-longer-than-text","input_values":[2,97,98,3,97,98,99],"input_length":7,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"empty-text-nonempty-pattern","input_values":[0,1,97],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"invalid-ascii-symbol","input_values":[1,128,1,128],"input_length":4,"output_capacity":200,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[2,97,98,1],"input_length":4,"output_capacity":200,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-capacity","input_values":[6,98,97,110,97,110,97,3,97,110,97],"input_length":11,"output_capacity":23,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[3,97,98,97,1,97],"input_length":6,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":200,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

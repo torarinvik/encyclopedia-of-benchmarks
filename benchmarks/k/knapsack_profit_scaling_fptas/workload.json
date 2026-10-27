@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-knapsack-profit-scaling-fptas-i64-array-bytes-output-v1",
+  "algorithm": "knapsack_profit_scaling_fptas",
+  "function_symbol": "knapsack_profit_scaling_fptas",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "reference": "Encyclopedia of Algorithms, Knapsack, DOI 10.1007/978-1-4939-2864-4_192",
+    "method": "Ibarra-Kim profit scaling followed by DP-Profits",
+    "scope": "base FPTAS with fixed epsilon=1/2; no small/large-item enhancement"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[capacity, item_count, weight_0, profit_0, ...]",
+    "capacity_range": [1, 100],
+    "item_count_range": [1, 12],
+    "weight_range": [1, 100],
+    "profit_range": [1, 10000],
+    "epsilon": "1/2",
+    "maximum_valid_length": 26,
+    "maximum_parseable_length": 26,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "[selected_item_bitmask, original_profit]",
+    "maximum_values": 2,
+    "maximum_bytes": 16,
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 16,
+    "meaning": "staged two-word result; bounded DP state uses fixed local arrays"
+  },
+  "cases": [
+    {"id":"fractional-upper-bound-and-scaling","input_values":[10,3,6,30,5,20,4,18],"input_length":8,"output_capacity":16,"expected_result":16,"expected_output_hex":"05000000000000003000000000000000"},
+    {"id":"both-scaled-items-fit","input_values":[5,2,3,10,2,10],"input_length":6,"output_capacity":16,"expected_result":16,"expected_output_hex":"03000000000000001400000000000000"},
+    {"id":"nonintegral-lp-bound","input_values":[10,3,4,9,5,10,6,13],"input_length":8,"output_capacity":16,"expected_result":16,"expected_output_hex":"05000000000000001600000000000000"},
+    {"id":"equal-ratios-tie-by-item-id","input_values":[5,3,2,5,2,5,3,7],"input_length":8,"output_capacity":16,"expected_result":16,"expected_output_hex":"05000000000000000c00000000000000"},
+    {"id":"all-items-over-capacity","input_values":[3,2,4,100,5,200],"input_length":6,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000000000000000000"},
+    {"id":"maximum-twelve-items","input_values":[100,12,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"input_length":26,"output_capacity":16,"expected_result":16,"expected_output_hex":"ff0f0000000000000c00000000000000"},
+    {"id":"short-output-capacity","input_values":[5,2,3,10,2,10],"input_length":6,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid-short-frame","input_values":[5,2,3,10],"input_length":4,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input-positive-length","input_values":[],"input_length":1,"input_is_null":true,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output-valid-frame","input_values":[5,2,3,10,2,10],"input_length":6,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ],
+  "measurement": {"comparison_model":"i64_array_bytes_output_call","sample_count":9,"warmup_rounds":1,"repetitions_per_sample":20}
+}

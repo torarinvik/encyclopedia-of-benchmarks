@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-hub-labeling-greedy-order-i64-array-bytes-output-v1",
+  "algorithm": "hub_labeling_greedy_order",
+  "function_symbol": "hub_labeling_greedy_order",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Hub Labeling (2-Hop Labeling)",
+    "authors": ["Daniel Delling", "Andrew V. Goldberg", "Renato F. Werneck"],
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_580",
+    "method": "greedy uncovered-path vertex ordering followed by canonical hierarchical labels",
+    "scope": "undirected unweighted graphs with unique shortest paths; explicit bounded trees and labels"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[vertex_count, edge_count, normalized_u0, normalized_v0, ...]",
+    "vertex_count_range": [1, 8],
+    "edge_count_range": [0, 28],
+    "edge_rules": "simple undirected edges u<v, strictly lexicographically sorted",
+    "graph_rules": "connected; every pair has a unique shortest path",
+    "greedy_coverage": "count uncovered ordered source-target paths containing each candidate, including self-pairs",
+    "greedy_tie_rule": "lowest vertex ID",
+    "maximum_valid_length": 58,
+    "maximum_parseable_length": 58,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "[n, greedy_order_high_to_low..., (label_count, packed_hub_distance_entry...)*]; each packed entry has hub ID in bits 0..7 and distance in bits 8..15; labels sorted by hub ID",
+    "maximum_values": 81,
+    "maximum_bytes": 648,
+    "success_result": "actual output byte length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "bounded adjacency, per-root shortest-path trees, uncovered ordered-pair state, labels, and staged output"
+  },
+  "cases": [
+    {"id":"path-three-greedy-order","input_values":[3,2,0,1,1,2],"input_length":6,"output_capacity":648,"expected_result":96,"expected_output_hex":"030000000000000001000000000000000000000000000000020000000000000002000000000000000000000000000000010100000000000001000000000000000100000000000000020000000000000001010000000000000200000000000000"},
+    {"id":"single-vertex","input_values":[1,0],"input_length":2,"output_capacity":648,"expected_result":32,"expected_output_hex":"0100000000000000000000000000000001000000000000000000000000000000"},
+    {"id":"diamond-nonunique-shortest-path","input_values":[4,4,0,1,0,2,1,3,2,3],"input_length":10,"output_capacity":648,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[2,1,0,1,99],"input_length":5,"output_capacity":648,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[3,2,0,1,1,2],"input_length":6,"output_capacity":95,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,0],"input_length":2,"output_capacity":648,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ],
+  "measurement": {"comparison_model":"i64_array_bytes_output_call","sample_count":6,"warmup_rounds":1,"repetitions_per_sample":20}
+}

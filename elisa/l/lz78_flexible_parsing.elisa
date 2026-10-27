@@ -1,0 +1,119 @@
+const MAX_TEXT: usize = 32
+const MAX_DICT: usize = 33
+const MAX_OUTPUT: usize = 512
+
+def lz78_flexible_parsing_impl(input: i64&, input_length: usize,
+                               output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > 34: return -1
+    if input[0] < 0 or input[0] > 32.i64(): return -1
+    n: usize = input[0].usize()
+    if input_length != n + 1: return -1
+    text: mutable u8[32] = zeroed
+    for i in 0..<n:
+        if input[i + 1] < 32 or input[i + 1] > 126: return -1
+        text[i] <- input[i + 1].u8()
+
+    words: mutable u8[33][32] = zeroed
+    word_lengths: mutable usize[33] = zeroed
+    token_parents: mutable i64[32] = zeroed
+    token_symbols: mutable i64[32] = zeroed
+    dictionary_count: mutable usize = 1
+    token_count: mutable usize = 0
+    position: mutable usize = 0
+    while position < n:
+        final_id: mutable usize = dictionary_count
+        for id in 1..<dictionary_count:
+            if word_lengths[id] == n - position:
+                same: mutable bool = true
+                for i in 0..<(n - position):
+                    if words[id][i] != text[position + i]: same <- false
+                if same:
+                    final_id <- id
+                    break
+        if final_id != dictionary_count:
+            token_parents[token_count] <- final_id.i64()
+            token_symbols[token_count] <- 0
+            token_count <- token_count + 1
+            position <- n
+            break
+
+        have_best: mutable bool = false
+        best_parent: mutable usize = 0
+        best_length: mutable usize = 0
+        best_next: mutable usize = 0
+        best_symbol: mutable u8 = 0.u8()
+        best_new: mutable bool = false
+        best_word: mutable u8[32] = zeroed
+        for parent in 0..<dictionary_count:
+            prefix_length: usize = word_lengths[parent]
+            if position + prefix_length > n: continue
+            prefix_matches: mutable bool = true
+            for i in 0..<prefix_length:
+                if words[parent][i] != text[position + i]: prefix_matches <- false
+            if not prefix_matches: continue
+            symbol_position: usize = position + prefix_length
+            if symbol_position >= n: continue
+            phrase_length: usize = prefix_length + 1
+            phrase: mutable u8[32] = zeroed
+            for i in 0..<prefix_length: phrase[i] <- words[parent][i]
+            phrase[prefix_length] <- text[symbol_position]
+            phrase_id: mutable usize = dictionary_count
+            for id in 1..<dictionary_count:
+                if word_lengths[id] == phrase_length:
+                    same: mutable bool = true
+                    for i in 0..<phrase_length:
+                        if words[id][i] != phrase[i]: same <- false
+                    if same:
+                        phrase_id <- id
+                        break
+            is_new: bool = phrase_id == dictionary_count
+            next_position: usize = position + phrase_length
+            next_match: mutable usize = 0
+            for id in 1..<dictionary_count:
+                candidate_length: usize = word_lengths[id]
+                if candidate_length <= next_match or next_position + candidate_length > n: continue
+                same: mutable bool = true
+                for i in 0..<candidate_length:
+                    if words[id][i] != text[next_position + i]: same <- false
+                if same: next_match <- candidate_length
+            if is_new and phrase_length > next_match and next_position + phrase_length <= n:
+                same: mutable bool = true
+                for i in 0..<phrase_length:
+                    if phrase[i] != text[next_position + i]: same <- false
+                if same: next_match <- phrase_length
+            advancement: usize = phrase_length + next_match
+            if not have_best or advancement > best_next or
+                (advancement == best_next and phrase_length > best_length) or
+                (advancement == best_next and phrase_length == best_length and parent < best_parent):
+                have_best <- true
+                best_parent <- parent
+                best_length <- phrase_length
+                best_next <- advancement
+                best_symbol <- text[symbol_position]
+                best_new <- is_new
+                for i in 0..<phrase_length: best_word[i] <- phrase[i]
+        if not have_best: return -1
+        token_parents[token_count] <- best_parent.i64()
+        token_symbols[token_count] <- best_symbol.i64()
+        token_count <- token_count + 1
+        if best_new:
+            for i in 0..<best_length: words[dictionary_count][i] <- best_word[i]
+            word_lengths[dictionary_count] <- best_length
+            dictionary_count <- dictionary_count + 1
+        position <- position + best_length
+
+    output_bytes: usize = token_count * 16
+    staged: mutable u8[512] = zeroed
+    for token in 0..<token_count:
+        parent_bits: u64 = token_parents[token].u64()
+        symbol_bits: u64 = token_symbols[token].u64()
+        for byte_index in 0..<8:
+            shift: usize = byte_index * 8
+            staged[token * 16 + byte_index] <- ((parent_bits >> shift) & 255).u8()
+            staged[token * 16 + 8 + byte_index] <- ((symbol_bits >> shift) & 255).u8()
+    if output.is_null() or capacity < output_bytes: return -2
+    for i in 0..<output_bytes: output[i] <- staged[i]
+    output_bytes.i64()
+
+export fn lz78_flexible_parsing(input: i64&, input_length: usize,
+                                output: mutable u8&, capacity: usize) -> i64 = lz78_flexible_parsing_impl

@@ -1,0 +1,82 @@
+const MAX_N: usize = 8
+const MAX_M: usize = 28
+const MAX_INPUT: usize = 88
+const INF: i64 = 1152921504606846976
+
+def weighted_greedy_spanner(input: i64&, length: usize,
+                            output: mutable u8&, capacity: usize) -> i64 @export("weighted_greedy_spanner"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    k: i64 = input[2]
+    if n64 < 2 or n64 > 8 or m64 < 0 or m64 > 28 or k < 1 or k > 3 or length != 3 + 3 * m64.usize(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    edge_u: mutable i64[MAX_M] = zeroed
+    edge_v: mutable i64[MAX_M] = zeroed
+    edge_w: mutable i64[MAX_M] = zeroed
+    order: mutable usize[MAX_M] = zeroed
+    adjacency: mutable i64[MAX_N * MAX_N] = zeroed
+    selected: mutable u8[MAX_M] = zeroed
+    i: mutable usize = 0
+    while i < m:
+        edge_u[i] <- input[3 + 3 * i]
+        edge_v[i] <- input[4 + 3 * i]
+        edge_w[i] <- input[5 + 3 * i]
+        if edge_u[i] < 0 or edge_v[i] <= edge_u[i] or edge_v[i] >= n64 or edge_w[i] < 1 or edge_w[i] > 32: return -1
+        j: mutable usize = 0
+        while j < i:
+            if edge_u[j] == edge_u[i] and edge_v[j] == edge_v[i]: return -1
+            j <- j + 1
+        order[i] <- i
+        i <- i + 1
+    i <- 1
+    while i < m:
+        key: usize = order[i]
+        pos: mutable usize = i
+        while pos > 0:
+            prior: usize = order[pos - 1]
+            if edge_w[prior] < edge_w[key] or (edge_w[prior] == edge_w[key] and edge_u[prior] < edge_u[key]) or
+                (edge_w[prior] == edge_w[key] and edge_u[prior] == edge_u[key] and edge_v[prior] <= edge_v[key]): break
+            order[pos] <- prior
+            pos <- pos - 1
+        order[pos] <- key
+        i <- i + 1
+    if output.is_null() or capacity < m: return -2
+    rank: mutable usize = 0
+    while rank < m:
+        edge: usize = order[rank]
+        source: usize = edge_u[edge].usize()
+        target: usize = edge_v[edge].usize()
+        distance: mutable i64[MAX_N] = zeroed
+        settled: mutable bool[MAX_N] = zeroed
+        v: mutable usize = 0
+        while v < n:
+            distance[v] <- INF
+            v <- v + 1
+        distance[source] <- 0
+        step: mutable usize = 0
+        while step < n:
+            vertex: mutable usize = n
+            v <- 0
+            while v < n:
+                if not settled[v] and (vertex == n or distance[v] < distance[vertex]): vertex <- v
+                v <- v + 1
+            if vertex == n or distance[vertex] == INF: break
+            settled[vertex] <- true
+            v <- 0
+            while v < n:
+                weight: i64 = adjacency[vertex * MAX_N + v]
+                if weight > 0 and distance[v] > distance[vertex] + weight: distance[v] <- distance[vertex] + weight
+                v <- v + 1
+            step <- step + 1
+        if distance[target] > (2 * k - 1) * edge_w[edge]:
+            selected[edge] <- 1
+            adjacency[source * MAX_N + target] <- edge_w[edge]
+            adjacency[target * MAX_N + source] <- edge_w[edge]
+        rank <- rank + 1
+    i <- 0
+    while i < m:
+        output[i] <- selected[i]
+        i <- i + 1
+    m.i64()

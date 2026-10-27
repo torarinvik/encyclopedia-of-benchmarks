@@ -2422,6 +2422,8 @@ from lz77_python_rust_oracle import (
     OUTPUT_ERROR as LZ77_PYTHON_RUST_OUTPUT_ERROR,
     expected_output as lz77_python_rust_oracle,
 )
+from lz77_infinite_rightmost_verifier_oracle import expected_output as lz77_infinite_rightmost_independent_oracle
+from kmp_slp_jump_output_verifier_oracle import expected_output as kmp_slp_jump_output_independent_oracle
 from sepia_oracle import (
     MIN_DIMENSION as SEPIA_MIN_DIMENSION,
     MAX_DIMENSION as SEPIA_MAX_DIMENSION,
@@ -3452,6 +3454,9 @@ from uint_fixed_width_oracle import INVALID_RESULT as UINT_FIXED_WIDTH_INVALID_R
 from uint_fixed_width_oracle import OUTPUT_ERROR as UINT_FIXED_WIDTH_OUTPUT_ERROR
 from approximate_tandem_squares_oracle import MAX_INPUT_LENGTH as APPROXIMATE_TANDEM_SQUARES_MAX_INPUT_LENGTH
 from approximate_tandem_squares_verifier_oracle import verify as approximate_tandem_squares_independent_check
+from approximate_tandem_k_repetitions_verifier_oracle import expected_output as approximate_tandem_k_repetitions_independent_oracle
+from approximate_tandem_k_runs_verifier_oracle import expected_output as approximate_tandem_k_runs_independent_oracle
+from approximate_tandem_k_edit_repeats_verifier_oracle import expected_output as approximate_tandem_k_edit_repeats_independent_oracle
 from binary_decision_graph_oracle import MAX_INPUT_LENGTH as BINARY_DECISION_GRAPH_MAX_INPUT_LENGTH
 from binary_decision_graph_verifier_oracle import verify as binary_decision_graph_independent_check
 from vertex_cover_kernelization_verifier_oracle import expected_output as vertex_cover_kernelization_independent_oracle
@@ -3468,8 +3473,39 @@ from vector_bin_packing_verifier_oracle import expected_output as vector_bin_pac
 from list_ranking_independent_set_contraction_verifier_oracle import expected_output as list_ranking_contraction_independent_oracle
 from frequent_itemset_backtrack_oracle import MAX_INPUT_LENGTH as FREQUENT_ITEMSET_BACKTRACK_MAX_INPUT_LENGTH
 from frequent_itemset_backtrack_verifier_oracle import verify as frequent_itemset_backtrack_independent_check
+from frequent_itemset_delivery_oracle import MAX_INPUT_LENGTH as FREQUENT_ITEMSET_DELIVERY_MAX_INPUT_LENGTH
+from frequent_itemset_delivery_verifier_oracle import verify as frequent_itemset_delivery_independent_check
+from frequent_itemset_conditional_db_reduction_oracle import MAX_INPUT_LENGTH as FREQUENT_ITEMSET_CONDITIONAL_DB_REDUCTION_MAX_INPUT_LENGTH
+from frequent_itemset_conditional_db_reduction_verifier_oracle import verify as frequent_itemset_conditional_db_reduction_independent_check
+from next_fit_bin_packing_oracle import MAX_INPUT_LENGTH as NEXT_FIT_BIN_PACKING_MAX_INPUT_LENGTH
+from next_fit_bin_packing_verifier_oracle import verify as next_fit_bin_packing_independent_check
+from best_fit_bin_packing_oracle import MAX_INPUT_LENGTH as BEST_FIT_BIN_PACKING_MAX_INPUT_LENGTH
+from best_fit_bin_packing_verifier_oracle import verify as best_fit_bin_packing_independent_check
+from first_fit_decreasing_bin_packing_oracle import MAX_INPUT_LENGTH as FIRST_FIT_DECREASING_BIN_PACKING_MAX_INPUT_LENGTH
+from first_fit_decreasing_bin_packing_verifier_oracle import verify as first_fit_decreasing_bin_packing_independent_check
+from best_fit_decreasing_bin_packing_oracle import MAX_INPUT_LENGTH as BEST_FIT_DECREASING_BIN_PACKING_MAX_INPUT_LENGTH
+from best_fit_decreasing_bin_packing_verifier_oracle import verify as best_fit_decreasing_bin_packing_independent_check
+from next_fit_decreasing_bin_packing_oracle import MAX_INPUT_LENGTH as NEXT_FIT_DECREASING_BIN_PACKING_MAX_INPUT_LENGTH
+from next_fit_decreasing_bin_packing_verifier_oracle import verify as next_fit_decreasing_bin_packing_independent_check
+from next_fit_increasing_bin_packing_oracle import MAX_INPUT_LENGTH as NEXT_FIT_INCREASING_BIN_PACKING_MAX_INPUT_LENGTH
+from next_fit_increasing_bin_packing_verifier_oracle import verify as next_fit_increasing_bin_packing_independent_check
+from sum_of_squares_bin_packing_oracle import MAX_INPUT_LENGTH as SUM_OF_SQUARES_BIN_PACKING_MAX_INPUT_LENGTH
+from sum_of_squares_bin_packing_verifier_oracle import evaluate as sum_of_squares_bin_packing_independent_evaluate
+from bounded_space_best_fit_bin_packing_verifier_oracle import expected_output as bounded_space_best_fit_bin_packing_independent_oracle
+from mmpfh_bucketing_verifier_oracle import expected_output as mmpfh_bucketing_independent_oracle
+from mmpfh_compacted_trie_rank_verifier_oracle import expected_output as mmpfh_compacted_trie_rank_independent_oracle
 from ldfs_ordering_certificate_verifier_oracle import expected_output as ldfs_ordering_certificate_independent_oracle
 from weighted_greedy_set_cover_verifier_oracle import expected_output as weighted_greedy_set_cover_independent_oracle
+from weighted_greedy_spanner_verifier_oracle import expected_output as weighted_greedy_spanner_independent_oracle
+from ski_rental_deterministic_verifier_oracle import expected_output as ski_rental_deterministic_independent_oracle
+from shortest_elapsed_time_first_verifier_oracle import expected_output as shortest_elapsed_time_first_independent_oracle
+from kiraly_max_smt_i_approx_verifier_oracle import expected_output as kiraly_max_smt_i_approx_independent_oracle
+from geometric_greedy_compass_routing_verifier_oracle import expected_output as geometric_greedy_compass_routing_independent_oracle
+from optimistic_flow_control_updates_verifier_oracle import expected_output as optimistic_flow_control_updates_independent_oracle
+from knapsack_profit_scaling_fptas_verifier_oracle import expected_output as knapsack_profit_scaling_fptas_independent_oracle
+from knapsack_profit_scaling_small_large_verifier_oracle import expected_output as knapsack_profit_scaling_small_large_independent_oracle
+from knapsack_profit_scaling_small_large_oracle import MAX_INPUT_LENGTH as KNAPSACK_PROFIT_SCALING_SMALL_LARGE_MAX_INPUT_LENGTH
+from signed_permutation_reversal_sequence_verifier_oracle import expected_output as signed_permutation_reversal_sequence_independent_oracle
 from hospitals_residents_rgs_verifier_oracle import expected_output as hospitals_residents_rgs_independent_oracle
 from two_interval_precedence_chain_verifier_oracle import expected_output as two_interval_precedence_chain_independent_oracle
 from approximate_matching_greedy_oracle import MAX_INPUT_LENGTH as APPROXIMATE_MATCHING_GREEDY_MAX_INPUT_LENGTH
@@ -3486,6 +3522,7 @@ from rate_monotonic_scheduling_verifier_oracle import expected_output as rate_mo
 from non_shared_edges_verifier_oracle import expected_output as non_shared_edges_independent_oracle
 from unit_disk_graph_wspd_verifier_oracle import expected_output as unit_disk_graph_wspd_independent_oracle
 from landlord_file_caching_verifier_oracle import expected_output as landlord_file_caching_independent_oracle
+from greedy_dual_weighted_caching_verifier_oracle import expected_output as greedy_dual_weighted_caching_independent_oracle
 from frt_tree_metric_oracle import MAX_INPUT_LENGTH as FRT_TREE_METRIC_MAX_INPUT_LENGTH
 from frt_tree_metric_verifier_oracle import verify as frt_tree_metric_independent_check
 from wire_sizing_verifier_oracle import expected_output as wire_sizing_independent_oracle
@@ -3501,9 +3538,13 @@ from fm_index_count_verifier_oracle import evaluate as fm_index_count_independen
 from bst_interleave_bound_verifier_oracle import expected_output as bst_interleave_bound_independent_oracle
 from ring_exact_covering_protocol_oracle import expected_output as ring_exact_covering_protocol_independent_oracle
 from ppsz_k_sat_trace_verifier_oracle import expected_output as ppsz_k_sat_trace_independent_oracle
+from random_3sat_greedy_dpll_verifier_oracle import expected_output as random_3sat_greedy_dpll_independent_oracle
 from randomized_ray_search_verifier_oracle import expected_output as randomized_ray_search_independent_oracle
 from suffix_array_lcp_search_verifier_oracle import expected_output as suffix_array_lcp_search_independent_oracle
+from suffix_tree_pattern_occurrences_verifier_oracle import expected_output as suffix_tree_pattern_occurrences_independent_oracle
+from suffix_array_dc3_verifier_oracle import expected_output as suffix_array_dc3_independent_oracle
 from packet_switching_sgr_multi_queue_verifier_oracle import expected_output as packet_switching_sgr_multi_queue_independent_oracle
+from packet_switching_single_buffer_verifier_oracle import expected_output as packet_switching_single_buffer_independent_oracle
 from minimal_dominating_sets_interval_oracle import MAX_INPUT_LENGTH as MINIMAL_DOMINATING_SETS_INTERVAL_MAX_INPUT_LENGTH
 from minimal_dominating_sets_interval_verifier_oracle import evaluate as minimal_dominating_sets_interval_independent_check
 from counting_triangles_stream_reservoir_oracle import MAX_INPUT_LENGTH as COUNTING_TRIANGLES_STREAM_RESERVOIR_MAX_INPUT_LENGTH
@@ -3516,9 +3557,15 @@ from nni_phylogeny_distance_verifier_oracle import expected_output as nni_phylog
 from streaming_triangles_oracle import MAX_INPUT_LENGTH as STREAMING_TRIANGLES_MAX_INPUT_LENGTH
 from streaming_triangles_verifier_oracle import verify as streaming_triangles_independent_check
 from universal_sequencing_doubling_verifier_oracle import expected_output as universal_sequencing_doubling_independent_oracle
+from single_parameter_truthful_payment_verifier_oracle import expected_output as single_parameter_truthful_payment_independent_oracle
+from truthful_multicast_pmst_tree_verifier_oracle import expected_output as truthful_multicast_pmst_tree_independent_oracle
+from johnson_trotter_adjacent_gray_code_verifier_oracle import expected_output as johnson_trotter_adjacent_gray_code_independent_oracle
+from truthful_multiunit_ca_greedy2_verifier_oracle import expected_output as truthful_multiunit_ca_greedy2_independent_oracle
+from truthful_ufp_greedy1_verifier_oracle import expected_output as truthful_ufp_greedy1_independent_oracle
 from dc_tree_k_server_path_oracle import MAX_INPUT_LENGTH as DC_TREE_K_SERVER_PATH_MAX_INPUT_LENGTH
 from dc_tree_k_server_path_verifier_oracle import verify as dc_tree_k_server_path_independent_check
 from hub_labeling_pruned_verifier_oracle import expected_output as hub_labeling_pruned_independent_oracle
+from hub_labeling_greedy_order_verifier_oracle import expected_output as hub_labeling_greedy_order_independent_oracle
 from dense_graph_bipartiteness_tester_verifier_oracle import expected_output as dense_graph_bipartiteness_tester_independent_oracle
 from all_distances_sketch_bottom_k_oracle import MAX_INPUT_LENGTH as ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_INPUT_LENGTH
 from all_distances_sketch_bottom_k_verifier_oracle import verify as all_distances_sketch_bottom_k_independent_check
@@ -3535,13 +3582,39 @@ from two_level_dynamic_maximal_matching_insertions_verifier_oracle import expect
 from substring_parsimony_verifier_oracle import expected_output as substring_parsimony_independent_oracle
 from weighted_connected_dominating_set_verifier_oracle import expected_output as weighted_connected_dominating_set_independent_oracle
 from weighted_popular_matching_verifier_oracle import expected_output as weighted_popular_matching_independent_oracle
+from ranked_matching_popular_matching_verifier_oracle import expected_output as ranked_matching_popular_matching_independent_oracle
+from extended_gs_general_stable_allocation_verifier_oracle import expected_output as extended_gs_general_stable_allocation_independent_oracle
+from slicing_floorplan_stockmeyer_verifier_oracle import expected_output as slicing_floorplan_stockmeyer_independent_oracle
+from randomized_rounding_bernoulli_verifier_oracle import expected_output as randomized_rounding_bernoulli_independent_oracle
+from kkt_mst_sampling_filter_verifier_oracle import expected_output as kkt_mst_sampling_filter_independent_oracle
+from sugiyama_barycentric_crossing_reduction_verifier_oracle import expected_output as sugiyama_barycentric_crossing_reduction_independent_oracle
+from randomized_contraction_edge_sampling_verifier_oracle import expected_output as randomized_contraction_edge_sampling_independent_oracle
+from private_noisy_power_iteration_verifier_oracle import expected_output as private_noisy_power_iteration_independent_oracle
+from kirkpatrick_hierarchical_point_location_verifier_oracle import expected_output as kirkpatrick_hierarchical_point_location_independent_oracle
+from secretary_1e_threshold_verifier_oracle import expected_output as secretary_1e_threshold_independent_oracle
+from steiner_tree_gain_greedy_verifier_oracle import expected_output as steiner_tree_gain_greedy_independent_oracle
+from felsenstein_substitution_likelihood_verifier_oracle import expected_output as felsenstein_substitution_likelihood_independent_oracle
+from robust_scheduling_single_arrival_migration_verifier_oracle import expected_output as robust_scheduling_single_arrival_migration_independent_oracle
+from pfr_local_forward_decision_verifier_oracle import expected_output as pfr_local_forward_decision_independent_oracle
+from transit_node_routing_table_query_verifier_oracle import expected_output as transit_node_routing_table_query_independent_oracle
+from sequential_lut_k_cut_enumeration_verifier_oracle import expected_output as sequential_lut_k_cut_enumeration_independent_oracle
+from rna_mfe_loop_energy_dp_verifier_oracle import expected_output as rna_mfe_loop_energy_dp_independent_oracle
+from spatial_motif_same_type_contact_pmf_verifier_oracle import expected_output as spatial_motif_same_type_contact_pmf_independent_oracle
+from lz78_flexible_parsing_verifier_oracle import verify as lz78_flexible_parsing_independent_check
 from parameterized_pattern_matching_verifier_oracle import expected_output as parameterized_pattern_matching_independent_oracle
 from voronoi_delaunay_empty_circle_verifier_oracle import expected_output as voronoi_delaunay_empty_circle_independent_oracle
 from fibonacci_integer_code_oracle import MAX_INPUT_LENGTH as FIBONACCI_INTEGER_CODE_MAX_INPUT_LENGTH
 from fibonacci_integer_code_verifier_oracle import verify as fibonacci_integer_code_independent_check
 from undirected_feedback_vertex_set_verifier_oracle import expected_output as undirected_feedback_vertex_set_independent_oracle
 from min_hash_k_mins_verifier_oracle import expected_output as min_hash_k_mins_independent_oracle
+from min_hash_k_partition_verifier_oracle import expected_output as min_hash_k_partition_independent_oracle
+from min_hash_bottom_k_verifier_oracle import expected_output as min_hash_bottom_k_independent_oracle
+from clique_reverse_search_enumeration_verifier_oracle import MAX_INPUT as CLIQUE_REVERSE_SEARCH_ENUMERATION_MAX_INPUT
+from clique_reverse_search_enumeration_verifier_oracle import expected_output as clique_reverse_search_enumeration_independent_oracle
+from procedure_s_general_cnf_sat_verifier_oracle import MAX_INPUT_LENGTH as PROCEDURE_S_GENERAL_CNF_SAT_MAX_INPUT_LENGTH
+from procedure_s_general_cnf_sat_verifier_oracle import evaluate as procedure_s_general_cnf_sat_independent_check
 from srpt_flow_time_verifier_oracle import expected_output as srpt_flow_time_independent_oracle
+from yds_speed_scaling_verifier_oracle import expected_output as yds_speed_scaling_independent_oracle
 from concave_gap_alignment_global_verifier_oracle import expected_output as concave_gap_alignment_global_independent_oracle
 from two_dimensional_string_matching_verifier_oracle import expected_output as two_dimensional_string_matching_independent_oracle
 from two_dimensional_scaled_pattern_matching_verifier_oracle import expected_output as two_dimensional_scaled_pattern_matching_independent_oracle
@@ -3549,6 +3622,7 @@ from work_function_k_server_verifier_oracle import expected_output as work_funct
 from ams_sketch_verifier_oracle import verify as ams_sketch_independent_oracle
 from approximate_regex_matching_verifier_oracle import verify as approximate_regex_matching_independent_oracle
 from color_coding_k_path_verifier_oracle import verify as color_coding_k_path_independent_oracle
+from color_coding_random_k_path_verifier_oracle import expected_output as color_coding_random_k_path_independent_oracle
 from closest_string_center_verifier_oracle import verify as closest_string_center_independent_oracle
 from closest_substring_center_verifier_oracle import verify as closest_substring_center_independent_oracle
 from count_min_sketch_affine_verifier_oracle import verify as count_min_sketch_affine_independent_oracle
@@ -3559,6 +3633,7 @@ from first_fit_bin_packing_verifier_oracle import verify as first_fit_bin_packin
 from list_scheduling_verifier_oracle import expected_output as list_scheduling_independent_oracle
 from lex_bfs_verifier_oracle import expected_output as lex_bfs_independent_oracle
 from max_cut_sahni_gonzalez_verifier_oracle import expected_output as max_cut_sahni_gonzalez_independent_oracle
+from max_cut_gw_rounding_verifier_oracle import expected_output as max_cut_gw_rounding_independent_oracle
 from max_average_length_bounded_segment_verifier_oracle import expected_output as max_average_length_bounded_segment_independent_oracle
 from max_sum_length_bounded_segment_verifier_oracle import expected_output as max_sum_length_bounded_segment_independent_oracle
 from misra_gries_summaries_verifier_oracle import expected_output as misra_gries_summaries_independent_oracle
@@ -3566,10 +3641,50 @@ from smith_weighted_completion_time_verifier_oracle import expected_output as sm
 from negative_cycle_detection_oracle import expected_output as negative_cycle_detection_reference_oracle
 from negative_cycle_detection_verifier_oracle import verify_output as negative_cycle_detection_independent_check
 from min_sum_set_cover_greedy_verifier_oracle import expected_output as min_sum_set_cover_greedy_independent_oracle
-from harmonic_4_bin_packing_verifier_oracle import expected_output as harmonic_4_bin_packing_independent_oracle
+from min_plus_distance_product_oracle import MAX_INPUT_LENGTH as MIN_PLUS_DISTANCE_PRODUCT_MAX_INPUT_LENGTH
+from min_plus_distance_product_verifier_oracle import expected_output as min_plus_distance_product_independent_oracle
+from apsp_min_plus_repeated_squaring_verifier_oracle import MAX_INPUT_LENGTH as APSP_MIN_PLUS_REPEATED_SQUARING_MAX_INPUT_LENGTH
+from apsp_min_plus_repeated_squaring_verifier_oracle import evaluate as apsp_min_plus_repeated_squaring_independent_evaluate
+from upward_planarity_angle_assignment_verifier_oracle import expected_output as upward_planarity_angle_assignment_independent_oracle
+from submodular_ranking_greedy_verifier_oracle import expected_output as submodular_ranking_greedy_independent_oracle
+from harmonic_k_bin_packing_verifier_oracle import expected_output as harmonic_k_bin_packing_independent_oracle
+from fm_index_locate_verifier_oracle import expected_output as fm_index_locate_independent_oracle
+from fm_index_display_verifier_oracle import expected_output as fm_index_display_independent_oracle
+from psi_suffix_array_access_verifier_oracle import expected_output as psi_suffix_array_access_independent_oracle
+from p2p_chord_finger_lookup_verifier_oracle import expected_output as p2p_chord_finger_lookup_independent_oracle
+from point_pattern_translation_voting_verifier_oracle import expected_output as point_pattern_translation_voting_independent_oracle
+from point_pattern_translation_lex_scan_verifier_oracle import expected_output as point_pattern_translation_lex_scan_independent_oracle
+from phylogenetic_tree_from_distance_matrix_verifier_oracle import expected_output as phylogenetic_tree_from_distance_matrix_independent_oracle
+from facility_location_add_delete_swap_verifier_oracle import expected_output as facility_location_add_delete_swap_independent_oracle
+from integer_sequence_codes_verifier_oracle import expected_output as integer_sequence_codes_independent_oracle
+from two_edge_connected_spanning_subgraph_greedy_verifier_oracle import expected_output as two_edge_connected_spanning_subgraph_greedy_independent_oracle
+from single_source_dynamic_reachability_rebuild_verifier_oracle import expected_output as single_source_dynamic_reachability_rebuild_independent_oracle
+from timetable_earliest_arrival_dijkstra_verifier_oracle import expected_output as timetable_earliest_arrival_dijkstra_independent_oracle
+from online_list_update_transpose_verifier_oracle import expected_output as online_list_update_transpose_independent_oracle
+from reverse_search_permutation_enumeration_verifier_oracle import expected_output as reverse_search_permutation_enumeration_independent_oracle
+from frequency_count_list_update_verifier_oracle import expected_output as frequency_count_list_update_independent_oracle
+from timestamp_list_update_verifier_oracle import expected_output as timestamp_list_update_independent_oracle
+from bit_list_update_verifier_oracle import expected_output as bit_list_update_independent_oracle
+from comb_list_update_verifier_oracle import expected_output as comb_list_update_independent_oracle
+from randomized_marking_page_caching_verifier_oracle import expected_output as randomized_marking_page_caching_independent_oracle
+from weak_stable_matching_ties_incomplete_oracle import MAX_INPUT_LENGTH as WEAK_STABLE_MATCHING_TIES_INCOMPLETE_MAX_INPUT_LENGTH
+from weak_stable_matching_ties_incomplete_verifier_oracle import expected_output as weak_stable_matching_ties_incomplete_independent_oracle
+from almost_c1p_set_cover_enumeration_verifier_oracle import expected_output as almost_c1p_set_cover_enumeration_independent_oracle
+from random_planted_3sat_majority_vote_verifier_oracle import expected_output as random_planted_3sat_majority_vote_independent_oracle
+from random_planted_3sat_k_opt_verifier_oracle import expected_output as random_planted_3sat_k_opt_independent_oracle
 from metric_tsp_tree_doubling_verifier_oracle import expected_output as metric_tsp_tree_doubling_independent_oracle
+from metric_tsp_christofides_verifier_oracle import expected_output as metric_tsp_christofides_independent_oracle
 from online_interval_coloring_verifier_oracle import expected_output as online_interval_coloring_independent_oracle
 from weighted_random_sampling_verifier_oracle import expected_output as weighted_random_sampling_independent_oracle
+from mdp_value_iteration_deterministic_verifier_oracle import expected_output as mdp_value_iteration_deterministic_independent_oracle
+from radio_network_decay_phase_verifier_oracle import expected_output as radio_network_decay_phase_independent_oracle
+from rumor_blocking_greedy_live_edge_verifier_oracle import expected_output as rumor_blocking_greedy_live_edge_independent_oracle
+from distributed_coupon_collection_replay_verifier_oracle import expected_output as distributed_coupon_collection_replay_independent_oracle
+from routing_cost_constrained_cds_goc_mcds_c_verifier_oracle import expected_output as routing_cost_constrained_cds_goc_mcds_c_independent_oracle
+from st_planar_leftmost_augmenting_flow_verifier_oracle import expected_output as st_planar_leftmost_augmenting_flow_independent_oracle
+from crust_pole_triangle_filter_verifier_oracle import expected_output as crust_pole_triangle_filter_independent_oracle
+from sensor_energy_balance_estimator_trace_verifier_oracle import expected_output as sensor_energy_balance_estimator_trace_independent_oracle
+from packet_routing_work_conserving_schedule_verifier_oracle import expected_output as packet_routing_work_conserving_schedule_independent_oracle
 
 ALGORITHMS = ("letter_combinations_of_phone_number", "blake2b", "charoccurrence", "swap_case", "binary_and_operator", "entropy", "rna_transcription", "reverse_words", "string_switch_case", "reverse_complement", "reverse_string", "reverse_letters", "bresenham_line", "check_polygon", "red_black_tree_insert_search", "unique_permutation", "infix_to_prefix", "inverse_fast_fourier_transform", "naive_search", "next_permutation", "gronsfeld_cipher", "a5_cipher", "a5_key_stream_generator", "aatree", "title_case_conversion", "change_brightness", "change_contrast",
               "chaos_machine", "convert_to_negative", "canny", "red_black_tree_unique_key_ops", "weight_conversions", "brainfuck", "p_series",
@@ -4228,6 +4343,7 @@ ALGORITHMS = (*ALGORITHMS, "fixed_priority_queue_using_list", "element_priority_
 ALGORITHMS = (*ALGORITHMS, "memoize")
 ALGORITHMS = (*ALGORITHMS, "lz78")
 ALGORITHMS = (*ALGORITHMS, "lz77_java", "lz77_python_rust")
+ALGORITHMS = (*ALGORITHMS, "lz77_infinite_rightmost", "kmp_slp_jump_output")
 ALGORITHMS = (*ALGORITHMS, "sepia")
 ALGORITHMS = (*ALGORITHMS, "random_graph_generator")
 ALGORITHMS = (*ALGORITHMS, "shannon_fano_compressor")
@@ -4341,7 +4457,9 @@ ALGORITHMS = (*ALGORITHMS, "ams_sketch", "count_min_sketch_affine",
               "max_sum_length_bounded_segment", "misra_gries_summaries",
               "negative_cycle_detection")
 ALGORITHMS = (*ALGORITHMS, "min_sum_set_cover_greedy",
-              "harmonic_4_bin_packing", "metric_tsp_tree_doubling")
+              "harmonic_k_bin_packing", "metric_tsp_tree_doubling")
+ALGORITHMS = (*ALGORITHMS, "submodular_ranking_greedy")
+ALGORITHMS = (*ALGORITHMS, "metric_tsp_christofides")
 ALGORITHMS = (*ALGORITHMS, "online_interval_coloring")
 ALGORITHMS = (*ALGORITHMS, "approximate_regex_matching")
 ALGORITHMS = (*ALGORITHMS, "exact_graph_coloring_inclusion_exclusion")
@@ -4360,13 +4478,45 @@ ALGORITHMS = (*ALGORITHMS, "first_fit_cardinality_bin_packing", "directed_perfec
 ALGORITHMS = (*ALGORITHMS, "max_minimum_machine_load_lpt", "min_hash_k_mins",
               "srpt_flow_time", "concave_gap_alignment_global",
               "two_dimensional_string_matching")
+ALGORITHMS = (*ALGORITHMS, "yds_speed_scaling")
+ALGORITHMS = (*ALGORITHMS, "min_hash_k_partition", "procedure_s_general_cnf_sat")
+ALGORITHMS = (*ALGORITHMS, "clique_reverse_search_enumeration")
 ALGORITHMS = (*ALGORITHMS, "fibonacci_integer_code", "undirected_feedback_vertex_set")
 ALGORITHMS = (*ALGORITHMS, "vector_scheduling")
 ALGORITHMS = (*ALGORITHMS, "vector_bin_packing", "list_ranking_independent_set_contraction")
 ALGORITHMS = (*ALGORITHMS, "two_dimensional_scaled_pattern_matching")
 ALGORITHMS = (*ALGORITHMS, "frequent_itemset_backtrack")
+ALGORITHMS = (*ALGORITHMS, "frequent_itemset_delivery")
+ALGORITHMS = (*ALGORITHMS, "frequent_itemset_conditional_db_reduction")
+ALGORITHMS = (*ALGORITHMS, "next_fit_bin_packing")
+ALGORITHMS = (*ALGORITHMS, "best_fit_bin_packing")
+ALGORITHMS = (*ALGORITHMS, "first_fit_decreasing_bin_packing")
+ALGORITHMS = (*ALGORITHMS, "best_fit_decreasing_bin_packing")
+ALGORITHMS = (*ALGORITHMS, "next_fit_decreasing_bin_packing")
+ALGORITHMS = (*ALGORITHMS, "next_fit_increasing_bin_packing")
+ALGORITHMS = (*ALGORITHMS, "sum_of_squares_bin_packing")
+ALGORITHMS = (*ALGORITHMS, "bounded_space_best_fit_bin_packing")
+ALGORITHMS = (*ALGORITHMS, "mmpfh_bucketing")
+ALGORITHMS = (*ALGORITHMS, "mmpfh_compacted_trie_rank")
 ALGORITHMS = (*ALGORITHMS, "ldfs_ordering_certificate")
 ALGORITHMS = (*ALGORITHMS, "weighted_greedy_set_cover", "hospitals_residents_rgs")
+ALGORITHMS = (*ALGORITHMS, "weighted_greedy_spanner")
+ALGORITHMS = (*ALGORITHMS, "ski_rental_deterministic")
+ALGORITHMS = (*ALGORITHMS, "shortest_elapsed_time_first")
+ALGORITHMS = (*ALGORITHMS, "kiraly_max_smt_i_approx")
+ALGORITHMS = (*ALGORITHMS, "geometric_greedy_compass_routing", "fm_index_locate",
+              "p2p_chord_finger_lookup", "random_planted_3sat_majority_vote",
+              "random_planted_3sat_k_opt", "max_cut_gw_rounding")
+ALGORITHMS = (*ALGORITHMS, "optimistic_flow_control_updates")
+ALGORITHMS = (*ALGORITHMS, "color_coding_random_k_path")
+ALGORITHMS = (*ALGORITHMS, "knapsack_profit_scaling_fptas")
+ALGORITHMS = (*ALGORITHMS, "knapsack_profit_scaling_small_large_fptas")
+ALGORITHMS = (*ALGORITHMS, "signed_permutation_reversal_sequence")
+ALGORITHMS = (*ALGORITHMS, "point_pattern_translation_voting")
+ALGORITHMS = (*ALGORITHMS, "phylogenetic_tree_from_distance_matrix")
+ALGORITHMS = (*ALGORITHMS, "point_pattern_translation_lex_scan")
+ALGORITHMS = (*ALGORITHMS, "facility_location_add_delete_swap")
+ALGORITHMS = (*ALGORITHMS, "integer_sequence_codes")
 ALGORITHMS = (*ALGORITHMS, "two_interval_precedence_chain")
 ALGORITHMS = (*ALGORITHMS, "approximate_matching_greedy")
 ALGORITHMS = (*ALGORITHMS, "voronoi_delaunay_empty_circle")
@@ -4374,10 +4524,28 @@ ALGORITHMS = (*ALGORITHMS, "parentheses_generator")
 ALGORITHMS = (*ALGORITHMS, "approximating_diameter_bfs", "weighted_connected_dominating_set")
 ALGORITHMS = (*ALGORITHMS, "domination_local_reduction")
 ALGORITHMS = (*ALGORITHMS, "weighted_popular_matching")
+ALGORITHMS = (*ALGORITHMS, "ranked_matching_popular_matching")
+ALGORITHMS = (*ALGORITHMS, "extended_gs_general_stable_allocation")
+ALGORITHMS = (*ALGORITHMS, "slicing_floorplan_stockmeyer")
+ALGORITHMS = (*ALGORITHMS, "randomized_rounding_bernoulli")
+ALGORITHMS = (*ALGORITHMS, "kkt_mst_sampling_filter")
+ALGORITHMS = (*ALGORITHMS, "sugiyama_barycentric_crossing_reduction")
+ALGORITHMS = (*ALGORITHMS, "randomized_contraction_edge_sampling")
+ALGORITHMS = (*ALGORITHMS, "private_noisy_power_iteration")
+ALGORITHMS = (*ALGORITHMS, "kirkpatrick_hierarchical_point_location")
+ALGORITHMS = (*ALGORITHMS, "secretary_1e_threshold")
+ALGORITHMS = (*ALGORITHMS, "steiner_tree_gain_greedy")
+ALGORITHMS = (*ALGORITHMS, "felsenstein_substitution_likelihood")
+ALGORITHMS = (*ALGORITHMS, "robust_scheduling_single_arrival_migration")
+ALGORITHMS = (*ALGORITHMS, "pfr_local_forward_decision", "transit_node_routing_table_query")
+ALGORITHMS = (*ALGORITHMS, "sequential_lut_k_cut_enumeration")
+ALGORITHMS = (*ALGORITHMS, "rna_mfe_loop_energy_dp")
+ALGORITHMS = (*ALGORITHMS, "spatial_motif_same_type_contact_pmf")
 ALGORITHMS = (*ALGORITHMS, "parameterized_pattern_matching")
 ALGORITHMS = (*ALGORITHMS, "tsp_few_inner_points")
 ALGORITHMS = (*ALGORITHMS, "rate_monotonic_scheduling", "non_shared_edges", "unit_disk_graph_wspd")
 ALGORITHMS = (*ALGORITHMS, "landlord_file_caching")
+ALGORITHMS = (*ALGORITHMS, "greedy_dual_weighted_caching")
 ALGORITHMS = (*ALGORITHMS, "frt_tree_metric", "wire_sizing", "rank_select_bitstring")
 ALGORITHMS = (*ALGORITHMS, "permutation_shortcut_index")
 ALGORITHMS = (*ALGORITHMS, "three_dimensional_moment_curve")
@@ -4388,22 +4556,62 @@ ALGORITHMS = (*ALGORITHMS, "stochastic_knapsack_greedy")
 ALGORITHMS = (*ALGORITHMS, "fm_index_count")
 ALGORITHMS = (*ALGORITHMS, "bst_interleave_bound", "ring_exact_covering_protocol",
               "ppsz_k_sat_trace")
+ALGORITHMS = (*ALGORITHMS, "random_3sat_greedy_dpll")
 ALGORITHMS = (*ALGORITHMS, "randomized_ray_search")
 ALGORITHMS = (*ALGORITHMS, "suffix_array_lcp_search")
+ALGORITHMS = (*ALGORITHMS, "suffix_array_dc3")
 ALGORITHMS = (*ALGORITHMS, "packet_switching_sgr_multi_queue")
+ALGORITHMS = (*ALGORITHMS, "packet_switching_single_buffer")
 ALGORITHMS = (*ALGORITHMS, "minimal_dominating_sets_interval")
 WORKSPACE_ALGORITHMS.add("permutation_shortcut_index")
+WORKSPACE_ALGORITHMS.add("slicing_floorplan_stockmeyer")
+WORKSPACE_ALGORITHMS.add("randomized_rounding_bernoulli")
+WORKSPACE_ALGORITHMS.add("kkt_mst_sampling_filter")
+WORKSPACE_ALGORITHMS.add("sugiyama_barycentric_crossing_reduction")
+WORKSPACE_ALGORITHMS.add("randomized_contraction_edge_sampling")
+WORKSPACE_ALGORITHMS.add("private_noisy_power_iteration")
+WORKSPACE_ALGORITHMS.add("kirkpatrick_hierarchical_point_location")
+WORKSPACE_ALGORITHMS.add("secretary_1e_threshold")
+WORKSPACE_ALGORITHMS.add("steiner_tree_gain_greedy")
+WORKSPACE_ALGORITHMS.add("felsenstein_substitution_likelihood")
+WORKSPACE_ALGORITHMS.add("robust_scheduling_single_arrival_migration")
+WORKSPACE_ALGORITHMS.update({"pfr_local_forward_decision", "transit_node_routing_table_query"})
+WORKSPACE_ALGORITHMS.add("sequential_lut_k_cut_enumeration")
+WORKSPACE_ALGORITHMS.add("rna_mfe_loop_energy_dp")
+WORKSPACE_ALGORITHMS.add("spatial_motif_same_type_contact_pmf")
+WORKSPACE_ALGORITHMS.add("lz78_flexible_parsing")
 WORKSPACE_ALGORITHMS.add("three_dimensional_moment_curve")
 WORKSPACE_ALGORITHMS.add("suffix_tree_from_sa_lcp")
 WORKSPACE_ALGORITHMS.add("technology_mapping_minimum_area_tree_cover")
 WORKSPACE_ALGORITHMS.add("thorup_zwick_distance_oracle")
 WORKSPACE_ALGORITHMS.add("stochastic_knapsack_greedy")
 WORKSPACE_ALGORITHMS.add("fm_index_count")
+WORKSPACE_ALGORITHMS.add("weighted_greedy_spanner")
+WORKSPACE_ALGORITHMS.add("ski_rental_deterministic")
+WORKSPACE_ALGORITHMS.add("shortest_elapsed_time_first")
+WORKSPACE_ALGORITHMS.add("kiraly_max_smt_i_approx")
+WORKSPACE_ALGORITHMS.update({
+    "geometric_greedy_compass_routing", "fm_index_locate", "harmonic_k_bin_packing",
+    "p2p_chord_finger_lookup", "random_planted_3sat_majority_vote",
+    "random_planted_3sat_k_opt", "max_cut_gw_rounding", "optimistic_flow_control_updates",
+    "color_coding_random_k_path",
+    "knapsack_profit_scaling_fptas",
+    "knapsack_profit_scaling_small_large_fptas",
+    "signed_permutation_reversal_sequence",
+    "point_pattern_translation_voting",
+    "phylogenetic_tree_from_distance_matrix",
+    "facility_location_add_delete_swap",
+    "integer_sequence_codes",
+    "point_pattern_translation_lex_scan",
+})
 WORKSPACE_ALGORITHMS.update({
     "bst_interleave_bound", "ring_exact_covering_protocol", "ppsz_k_sat_trace",
+    "random_3sat_greedy_dpll",
     "randomized_ray_search",
     "suffix_array_lcp_search",
+    "suffix_array_dc3",
     "packet_switching_sgr_multi_queue",
+    "packet_switching_single_buffer",
     "minimal_dominating_sets_interval",
 })
 ALGORITHMS = (*ALGORITHMS, "counting_triangles_stream_reservoir")
@@ -4413,8 +4621,14 @@ ALGORITHMS = (*ALGORITHMS, "treewidth_min_fill_elimination", "nni_phylogeny_dist
 ALGORITHMS = (*ALGORITHMS, "treewidth_exact_elimination_order")
 ALGORITHMS = (*ALGORITHMS, "streaming_triangles")
 ALGORITHMS = (*ALGORITHMS, "universal_sequencing_doubling")
+ALGORITHMS = (*ALGORITHMS, "single_parameter_truthful_payment")
+ALGORITHMS = (*ALGORITHMS, "truthful_multicast_pmst_tree")
+ALGORITHMS = (*ALGORITHMS, "johnson_trotter_adjacent_gray_code")
+ALGORITHMS = (*ALGORITHMS, "truthful_multiunit_ca_greedy2")
+ALGORITHMS = (*ALGORITHMS, "truthful_ufp_greedy1")
 ALGORITHMS = (*ALGORITHMS, "dc_tree_k_server_path")
 ALGORITHMS = (*ALGORITHMS, "hub_labeling_pruned", "dense_graph_bipartiteness_tester")
+ALGORITHMS = (*ALGORITHMS, "hub_labeling_greedy_order")
 ALGORITHMS = (*ALGORITHMS, "all_distances_sketch_bottom_k")
 ALGORITHMS = (*ALGORITHMS, "sublinear_bipartiteness_walk_tester")
 ALGORITHMS = (*ALGORITHMS, "optimal_stable_marriage")
@@ -4424,14 +4638,42 @@ ALGORITHMS = (*ALGORITHMS, "orthogonal_range_reporting_2d")
 ALGORITHMS = (*ALGORITHMS, "k_median_p1_local_search")
 ALGORITHMS = (*ALGORITHMS, "two_level_dynamic_maximal_matching_insertions")
 ALGORITHMS = (*ALGORITHMS, "substring_parsimony")
+ALGORITHMS = (*ALGORITHMS, "fm_index_display", "two_edge_connected_spanning_subgraph_greedy",
+              "single_source_dynamic_reachability_rebuild")
+ALGORITHMS = (*ALGORITHMS, "psi_suffix_array_access")
+ALGORITHMS = (*ALGORITHMS, "approximate_tandem_k_repetitions", "min_hash_bottom_k",
+              "almost_c1p_set_cover_enumeration")
+ALGORITHMS = (*ALGORITHMS, "approximate_tandem_k_runs")
+ALGORITHMS = (*ALGORITHMS, "approximate_tandem_k_edit_repeats")
+ALGORITHMS = (*ALGORITHMS, "timetable_earliest_arrival_dijkstra")
+ALGORITHMS = (*ALGORITHMS, "suffix_tree_pattern_occurrences")
+ALGORITHMS = (*ALGORITHMS, "min_plus_distance_product")
+ALGORITHMS = (*ALGORITHMS, "apsp_min_plus_repeated_squaring")
+ALGORITHMS = (*ALGORITHMS, "upward_planarity_angle_assignment")
+ALGORITHMS = (*ALGORITHMS, "weak_stable_matching_ties_incomplete")
+ALGORITHMS = (*ALGORITHMS, "online_list_update_transpose")
+ALGORITHMS = (*ALGORITHMS, "reverse_search_permutation_enumeration")
+ALGORITHMS = (*ALGORITHMS, "frequency_count_list_update", "timestamp_list_update",
+              "bit_list_update", "comb_list_update")
+ALGORITHMS = (*ALGORITHMS, "randomized_marking_page_caching")
+ALGORITHMS = (*ALGORITHMS, "mdp_value_iteration_deterministic", "radio_network_decay_phase",
+              "rumor_blocking_greedy_live_edge")
+ALGORITHMS = (*ALGORITHMS, "distributed_coupon_collection_replay",
+              "routing_cost_constrained_cds_goc_mcds_c",
+              "st_planar_leftmost_augmenting_flow", "crust_pole_triangle_filter")
+ALGORITHMS = (*ALGORITHMS, "sensor_energy_balance_estimator_trace")
+ALGORITHMS = (*ALGORITHMS, "packet_routing_work_conserving_schedule")
+ALGORITHMS = (*ALGORITHMS, "lz78_flexible_parsing")
 WORKSPACE_ALGORITHMS.update({
     "ams_sketch", "count_min_sketch_affine", "deterministic_line_search",
     "color_coding_k_path",
     "fast_subset_convolution", "first_fit_bin_packing", "lex_bfs",
     "max_cut_sahni_gonzalez", "max_sum_length_bounded_segment",
     "misra_gries_summaries", "negative_cycle_detection",
-    "min_sum_set_cover_greedy", "harmonic_4_bin_packing",
+    "min_sum_set_cover_greedy", "harmonic_k_bin_packing",
+    "submodular_ranking_greedy",
     "metric_tsp_tree_doubling",
+    "metric_tsp_christofides",
     "online_interval_coloring",
     "approximate_regex_matching",
     "exact_graph_coloring_inclusion_exclusion",
@@ -4442,18 +4684,37 @@ WORKSPACE_ALGORITHMS.update({
     "weighted_random_sampling",
     "binary_decision_graph", "work_function_k_server",
     "approximate_tandem_squares",
+    "approximate_tandem_k_repetitions",
+    "approximate_tandem_k_runs",
+    "approximate_tandem_k_edit_repeats",
     "vertex_cover_kernelization",
     "zdd_family_count",
     "vertex_cover_search_trees",
     "first_fit_cardinality_bin_packing", "directed_perfect_phylogeny",
     "max_minimum_machine_load_lpt", "min_hash_k_mins",
+    "min_hash_k_partition", "procedure_s_general_cnf_sat",
+    "clique_reverse_search_enumeration",
+    "min_hash_bottom_k",
     "srpt_flow_time", "concave_gap_alignment_global",
+    "yds_speed_scaling",
     "two_dimensional_string_matching",
     "fibonacci_integer_code", "undirected_feedback_vertex_set",
     "vector_scheduling",
     "vector_bin_packing", "list_ranking_independent_set_contraction",
     "two_dimensional_scaled_pattern_matching",
     "frequent_itemset_backtrack",
+    "frequent_itemset_delivery",
+    "frequent_itemset_conditional_db_reduction",
+    "next_fit_bin_packing",
+    "best_fit_bin_packing",
+    "first_fit_decreasing_bin_packing",
+    "best_fit_decreasing_bin_packing",
+    "next_fit_decreasing_bin_packing",
+    "next_fit_increasing_bin_packing",
+    "sum_of_squares_bin_packing",
+    "bounded_space_best_fit_bin_packing",
+    "mmpfh_bucketing",
+    "mmpfh_compacted_trie_rank",
     "ldfs_ordering_certificate",
     "weighted_greedy_set_cover", "hospitals_residents_rgs",
     "two_interval_precedence_chain",
@@ -4463,12 +4724,15 @@ WORKSPACE_ALGORITHMS.update({
     "approximating_diameter_bfs", "weighted_connected_dominating_set",
     "domination_local_reduction",
     "weighted_popular_matching",
+    "ranked_matching_popular_matching",
+    "extended_gs_general_stable_allocation",
     "parameterized_pattern_matching",
     "tsp_few_inner_points",
     "rate_monotonic_scheduling",
     "non_shared_edges",
     "unit_disk_graph_wspd",
     "landlord_file_caching",
+    "greedy_dual_weighted_caching",
     "frt_tree_metric",
     "wire_sizing",
     "rank_select_bitstring",
@@ -4480,8 +4744,14 @@ WORKSPACE_ALGORITHMS.update({
     "nni_phylogeny_distance",
     "streaming_triangles",
     "universal_sequencing_doubling",
+    "single_parameter_truthful_payment",
+    "truthful_multicast_pmst_tree",
+    "johnson_trotter_adjacent_gray_code",
+    "truthful_multiunit_ca_greedy2",
+    "truthful_ufp_greedy1",
     "dc_tree_k_server_path",
     "hub_labeling_pruned",
+    "hub_labeling_greedy_order",
     "dense_graph_bipartiteness_tester",
     "all_distances_sketch_bottom_k",
     "sublinear_bipartiteness_walk_tester",
@@ -4492,6 +4762,33 @@ WORKSPACE_ALGORITHMS.update({
     "k_median_p1_local_search",
     "two_level_dynamic_maximal_matching_insertions",
     "substring_parsimony",
+    "fm_index_display",
+    "psi_suffix_array_access",
+    "two_edge_connected_spanning_subgraph_greedy",
+    "single_source_dynamic_reachability_rebuild",
+    "timetable_earliest_arrival_dijkstra",
+    "suffix_tree_pattern_occurrences",
+    "min_plus_distance_product",
+    "apsp_min_plus_repeated_squaring",
+    "upward_planarity_angle_assignment",
+    "weak_stable_matching_ties_incomplete",
+    "online_list_update_transpose",
+    "reverse_search_permutation_enumeration",
+    "frequency_count_list_update",
+    "timestamp_list_update",
+    "bit_list_update",
+    "comb_list_update",
+    "randomized_marking_page_caching",
+    "mdp_value_iteration_deterministic",
+    "radio_network_decay_phase",
+    "rumor_blocking_greedy_live_edge",
+    "distributed_coupon_collection_replay",
+    "routing_cost_constrained_cds_goc_mcds_c",
+    "st_planar_leftmost_augmenting_flow",
+    "crust_pole_triangle_filter",
+    "sensor_energy_balance_estimator_trace",
+    "packet_routing_work_conserving_schedule",
+    "almost_c1p_set_cover_enumeration",
 })
 WORKSPACE_ALGORITHMS.update({"min_cost_max_flow", "morton_sort", "number_theoretic_transform",
                              "relaxed_convolution", "seam_carving", "sqrt_tree", "beta_skeleton",
@@ -4517,6 +4814,7 @@ WORKSPACE_ALGORITHMS.add("llubenchmark_list_traversal_growth")
 WORKSPACE_ALGORITHMS.add("memoize")
 WORKSPACE_ALGORITHMS.add("lz78")
 WORKSPACE_ALGORITHMS.update({"lz77_java", "lz77_python_rust"})
+WORKSPACE_ALGORITHMS.update({"lz77_infinite_rightmost", "kmp_slp_jump_output"})
 WORKSPACE_ALGORITHMS.add("sepia")
 WORKSPACE_ALGORITHMS.add("random_graph_generator")
 WORKSPACE_ALGORITHMS.add("timeline")
@@ -10895,15 +11193,56 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "undirected_feedback_vertex_set": undirected_feedback_vertex_set_independent_oracle,
     "max_minimum_machine_load_lpt": max_minimum_machine_load_lpt_independent_oracle,
     "min_hash_k_mins": min_hash_k_mins_independent_oracle,
+    "min_hash_k_partition": min_hash_k_partition_independent_oracle,
+    "procedure_s_general_cnf_sat": _adapt_array_verifier(
+        procedure_s_general_cnf_sat_independent_check,
+        PROCEDURE_S_GENERAL_CNF_SAT_MAX_INPUT_LENGTH),
+    "min_hash_bottom_k": min_hash_bottom_k_independent_oracle,
+    "clique_reverse_search_enumeration": clique_reverse_search_enumeration_independent_oracle,
     "srpt_flow_time": srpt_flow_time_independent_oracle,
+    "yds_speed_scaling": yds_speed_scaling_independent_oracle,
     "concave_gap_alignment_global": concave_gap_alignment_global_independent_oracle,
     "two_dimensional_string_matching": two_dimensional_string_matching_independent_oracle,
     "two_dimensional_scaled_pattern_matching": two_dimensional_scaled_pattern_matching_independent_oracle,
     "frequent_itemset_backtrack": _adapt_array_verifier(
         frequent_itemset_backtrack_independent_check,
         FREQUENT_ITEMSET_BACKTRACK_MAX_INPUT_LENGTH + 1),
+    "frequent_itemset_delivery": _adapt_array_verifier(
+        frequent_itemset_delivery_independent_check,
+        FREQUENT_ITEMSET_DELIVERY_MAX_INPUT_LENGTH + 1),
+    "frequent_itemset_conditional_db_reduction": _adapt_array_verifier(
+        frequent_itemset_conditional_db_reduction_independent_check,
+        FREQUENT_ITEMSET_CONDITIONAL_DB_REDUCTION_MAX_INPUT_LENGTH),
+    "next_fit_bin_packing": _adapt_array_verifier(
+        next_fit_bin_packing_independent_check,
+        NEXT_FIT_BIN_PACKING_MAX_INPUT_LENGTH + 1),
+    "best_fit_bin_packing": _adapt_array_verifier(
+        best_fit_bin_packing_independent_check,
+        BEST_FIT_BIN_PACKING_MAX_INPUT_LENGTH + 1),
+    "first_fit_decreasing_bin_packing": _adapt_array_verifier(
+        first_fit_decreasing_bin_packing_independent_check,
+        FIRST_FIT_DECREASING_BIN_PACKING_MAX_INPUT_LENGTH + 1),
+    "best_fit_decreasing_bin_packing": _adapt_array_verifier(
+        best_fit_decreasing_bin_packing_independent_check,
+        BEST_FIT_DECREASING_BIN_PACKING_MAX_INPUT_LENGTH + 1),
+    "next_fit_decreasing_bin_packing": _adapt_array_verifier(
+        next_fit_decreasing_bin_packing_independent_check,
+        NEXT_FIT_DECREASING_BIN_PACKING_MAX_INPUT_LENGTH + 1),
+    "next_fit_increasing_bin_packing": _adapt_array_verifier(
+        next_fit_increasing_bin_packing_independent_check,
+        NEXT_FIT_INCREASING_BIN_PACKING_MAX_INPUT_LENGTH + 1),
+    "sum_of_squares_bin_packing": _adapt_array_verifier(
+        sum_of_squares_bin_packing_independent_evaluate,
+        SUM_OF_SQUARES_BIN_PACKING_MAX_INPUT_LENGTH + 1),
+    "bounded_space_best_fit_bin_packing": bounded_space_best_fit_bin_packing_independent_oracle,
+    "mmpfh_bucketing": mmpfh_bucketing_independent_oracle,
+    "mmpfh_compacted_trie_rank": mmpfh_compacted_trie_rank_independent_oracle,
     "ldfs_ordering_certificate": ldfs_ordering_certificate_independent_oracle,
     "weighted_greedy_set_cover": weighted_greedy_set_cover_independent_oracle,
+    "weighted_greedy_spanner": weighted_greedy_spanner_independent_oracle,
+    "ski_rental_deterministic": ski_rental_deterministic_independent_oracle,
+    "shortest_elapsed_time_first": shortest_elapsed_time_first_independent_oracle,
+    "kiraly_max_smt_i_approx": kiraly_max_smt_i_approx_independent_oracle,
     "hospitals_residents_rgs": hospitals_residents_rgs_independent_oracle,
     "two_interval_precedence_chain": two_interval_precedence_chain_independent_oracle,
     "approximate_matching_greedy": _adapt_array_verifier(
@@ -10921,12 +11260,32 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
         DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH + 1),
     "weighted_connected_dominating_set": weighted_connected_dominating_set_independent_oracle,
     "weighted_popular_matching": weighted_popular_matching_independent_oracle,
+    "ranked_matching_popular_matching": ranked_matching_popular_matching_independent_oracle,
+    "extended_gs_general_stable_allocation": extended_gs_general_stable_allocation_independent_oracle,
+    "slicing_floorplan_stockmeyer": slicing_floorplan_stockmeyer_independent_oracle,
+    "randomized_rounding_bernoulli": randomized_rounding_bernoulli_independent_oracle,
+    "kkt_mst_sampling_filter": kkt_mst_sampling_filter_independent_oracle,
+    "sugiyama_barycentric_crossing_reduction": sugiyama_barycentric_crossing_reduction_independent_oracle,
+    "randomized_contraction_edge_sampling": randomized_contraction_edge_sampling_independent_oracle,
+    "private_noisy_power_iteration": private_noisy_power_iteration_independent_oracle,
+    "kirkpatrick_hierarchical_point_location": kirkpatrick_hierarchical_point_location_independent_oracle,
+    "secretary_1e_threshold": secretary_1e_threshold_independent_oracle,
+    "steiner_tree_gain_greedy": steiner_tree_gain_greedy_independent_oracle,
+    "felsenstein_substitution_likelihood": felsenstein_substitution_likelihood_independent_oracle,
+    "robust_scheduling_single_arrival_migration": robust_scheduling_single_arrival_migration_independent_oracle,
+    "pfr_local_forward_decision": pfr_local_forward_decision_independent_oracle,
+    "transit_node_routing_table_query": transit_node_routing_table_query_independent_oracle,
+    "sequential_lut_k_cut_enumeration": sequential_lut_k_cut_enumeration_independent_oracle,
+    "rna_mfe_loop_energy_dp": rna_mfe_loop_energy_dp_independent_oracle,
+    "spatial_motif_same_type_contact_pmf": spatial_motif_same_type_contact_pmf_independent_oracle,
+    "lz78_flexible_parsing": lz78_flexible_parsing_independent_check,
     "parameterized_pattern_matching": parameterized_pattern_matching_independent_oracle,
     "tsp_few_inner_points": tsp_few_inner_points_independent_oracle,
     "rate_monotonic_scheduling": rate_monotonic_scheduling_independent_oracle,
     "non_shared_edges": non_shared_edges_independent_oracle,
     "unit_disk_graph_wspd": unit_disk_graph_wspd_independent_oracle,
     "landlord_file_caching": landlord_file_caching_independent_oracle,
+    "greedy_dual_weighted_caching": greedy_dual_weighted_caching_independent_oracle,
     "frt_tree_metric": _adapt_array_verifier(
         frt_tree_metric_independent_check,
         FRT_TREE_METRIC_MAX_INPUT_LENGTH + 1),
@@ -10943,9 +11302,13 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "bst_interleave_bound": bst_interleave_bound_independent_oracle,
     "ring_exact_covering_protocol": ring_exact_covering_protocol_independent_oracle,
     "ppsz_k_sat_trace": ppsz_k_sat_trace_independent_oracle,
+    "random_3sat_greedy_dpll": random_3sat_greedy_dpll_independent_oracle,
     "randomized_ray_search": randomized_ray_search_independent_oracle,
     "suffix_array_lcp_search": suffix_array_lcp_search_independent_oracle,
+    "suffix_tree_pattern_occurrences": suffix_tree_pattern_occurrences_independent_oracle,
+    "suffix_array_dc3": suffix_array_dc3_independent_oracle,
     "packet_switching_sgr_multi_queue": packet_switching_sgr_multi_queue_independent_oracle,
+    "packet_switching_single_buffer": packet_switching_single_buffer_independent_oracle,
     "minimal_dominating_sets_interval": _adapt_array_verifier(
         minimal_dominating_sets_interval_independent_check,
         MINIMAL_DOMINATING_SETS_INTERVAL_MAX_INPUT_LENGTH),
@@ -10962,10 +11325,16 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
         streaming_triangles_independent_check,
         STREAMING_TRIANGLES_MAX_INPUT_LENGTH + 1),
     "universal_sequencing_doubling": universal_sequencing_doubling_independent_oracle,
+    "single_parameter_truthful_payment": single_parameter_truthful_payment_independent_oracle,
+    "truthful_multicast_pmst_tree": truthful_multicast_pmst_tree_independent_oracle,
+    "johnson_trotter_adjacent_gray_code": johnson_trotter_adjacent_gray_code_independent_oracle,
+    "truthful_multiunit_ca_greedy2": truthful_multiunit_ca_greedy2_independent_oracle,
+    "truthful_ufp_greedy1": truthful_ufp_greedy1_independent_oracle,
     "dc_tree_k_server_path": _adapt_array_verifier(
         dc_tree_k_server_path_independent_check,
         DC_TREE_K_SERVER_PATH_MAX_INPUT_LENGTH + 1),
     "hub_labeling_pruned": hub_labeling_pruned_independent_oracle,
+    "hub_labeling_greedy_order": hub_labeling_greedy_order_independent_oracle,
     "dense_graph_bipartiteness_tester": dense_graph_bipartiteness_tester_independent_oracle,
     "all_distances_sketch_bottom_k": _adapt_array_verifier(
         all_distances_sketch_bottom_k_independent_check,
@@ -10998,6 +11367,9 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "approximate_tandem_squares": _adapt_array_verifier(
         approximate_tandem_squares_independent_check,
         APPROXIMATE_TANDEM_SQUARES_MAX_INPUT_LENGTH + 1),
+    "approximate_tandem_k_repetitions": approximate_tandem_k_repetitions_independent_oracle,
+    "approximate_tandem_k_runs": approximate_tandem_k_runs_independent_oracle,
+    "approximate_tandem_k_edit_repeats": approximate_tandem_k_edit_repeats_independent_oracle,
     "work_function_k_server": work_function_k_server_independent_oracle,
     "binary_decision_graph": _adapt_array_verifier(
         binary_decision_graph_independent_check,
@@ -11024,16 +11396,70 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "list_scheduling": list_scheduling_independent_oracle,
     "lex_bfs": lex_bfs_independent_oracle,
     "max_cut_sahni_gonzalez": max_cut_sahni_gonzalez_independent_oracle,
+    "max_cut_gw_rounding": max_cut_gw_rounding_independent_oracle,
+    "color_coding_random_k_path": color_coding_random_k_path_independent_oracle,
     "max_average_length_bounded_segment": max_average_length_bounded_segment_independent_oracle,
     "max_sum_length_bounded_segment": max_sum_length_bounded_segment_independent_oracle,
     "misra_gries_summaries": misra_gries_summaries_independent_oracle,
     "smith_weighted_completion_time": smith_weighted_completion_time_independent_oracle,
     "negative_cycle_detection": _negative_cycle_detection_independent_oracle,
     "min_sum_set_cover_greedy": min_sum_set_cover_greedy_independent_oracle,
-    "harmonic_4_bin_packing": harmonic_4_bin_packing_independent_oracle,
+    "min_plus_distance_product": _adapt_array_verifier(
+        min_plus_distance_product_independent_oracle,
+        MIN_PLUS_DISTANCE_PRODUCT_MAX_INPUT_LENGTH + 1),
+    "apsp_min_plus_repeated_squaring": _adapt_array_verifier(
+        apsp_min_plus_repeated_squaring_independent_evaluate,
+        APSP_MIN_PLUS_REPEATED_SQUARING_MAX_INPUT_LENGTH),
+    "upward_planarity_angle_assignment": upward_planarity_angle_assignment_independent_oracle,
+    "submodular_ranking_greedy": submodular_ranking_greedy_independent_oracle,
+    "harmonic_k_bin_packing": harmonic_k_bin_packing_independent_oracle,
+    "fm_index_locate": fm_index_locate_independent_oracle,
+    "fm_index_display": fm_index_display_independent_oracle,
+    "psi_suffix_array_access": psi_suffix_array_access_independent_oracle,
+    "geometric_greedy_compass_routing": geometric_greedy_compass_routing_independent_oracle,
+    "optimistic_flow_control_updates": optimistic_flow_control_updates_independent_oracle,
+    "knapsack_profit_scaling_fptas": knapsack_profit_scaling_fptas_independent_oracle,
+    "knapsack_profit_scaling_small_large_fptas": _adapt_array_verifier(
+        knapsack_profit_scaling_small_large_independent_oracle,
+        KNAPSACK_PROFIT_SCALING_SMALL_LARGE_MAX_INPUT_LENGTH + 1),
+    "signed_permutation_reversal_sequence": signed_permutation_reversal_sequence_independent_oracle,
+    "p2p_chord_finger_lookup": p2p_chord_finger_lookup_independent_oracle,
+    "point_pattern_translation_voting": point_pattern_translation_voting_independent_oracle,
+    "point_pattern_translation_lex_scan": point_pattern_translation_lex_scan_independent_oracle,
+    "weak_stable_matching_ties_incomplete": _adapt_array_verifier(
+        weak_stable_matching_ties_incomplete_independent_oracle,
+        WEAK_STABLE_MATCHING_TIES_INCOMPLETE_MAX_INPUT_LENGTH + 1),
+    "lz77_infinite_rightmost": lz77_infinite_rightmost_independent_oracle,
+    "kmp_slp_jump_output": kmp_slp_jump_output_independent_oracle,
+    "phylogenetic_tree_from_distance_matrix": phylogenetic_tree_from_distance_matrix_independent_oracle,
+    "facility_location_add_delete_swap": facility_location_add_delete_swap_independent_oracle,
+    "integer_sequence_codes": integer_sequence_codes_independent_oracle,
+    "almost_c1p_set_cover_enumeration": almost_c1p_set_cover_enumeration_independent_oracle,
+    "two_edge_connected_spanning_subgraph_greedy": two_edge_connected_spanning_subgraph_greedy_independent_oracle,
+    "single_source_dynamic_reachability_rebuild": single_source_dynamic_reachability_rebuild_independent_oracle,
+    "timetable_earliest_arrival_dijkstra": timetable_earliest_arrival_dijkstra_independent_oracle,
+    "online_list_update_transpose": online_list_update_transpose_independent_oracle,
+    "reverse_search_permutation_enumeration": reverse_search_permutation_enumeration_independent_oracle,
+    "frequency_count_list_update": frequency_count_list_update_independent_oracle,
+    "timestamp_list_update": timestamp_list_update_independent_oracle,
+    "bit_list_update": bit_list_update_independent_oracle,
+    "comb_list_update": comb_list_update_independent_oracle,
+    "randomized_marking_page_caching": randomized_marking_page_caching_independent_oracle,
+    "random_planted_3sat_majority_vote": random_planted_3sat_majority_vote_independent_oracle,
+    "random_planted_3sat_k_opt": random_planted_3sat_k_opt_independent_oracle,
     "metric_tsp_tree_doubling": metric_tsp_tree_doubling_independent_oracle,
+    "metric_tsp_christofides": metric_tsp_christofides_independent_oracle,
     "online_interval_coloring": online_interval_coloring_independent_oracle,
     "weighted_random_sampling": weighted_random_sampling_independent_oracle,
+    "mdp_value_iteration_deterministic": mdp_value_iteration_deterministic_independent_oracle,
+    "radio_network_decay_phase": radio_network_decay_phase_independent_oracle,
+    "rumor_blocking_greedy_live_edge": rumor_blocking_greedy_live_edge_independent_oracle,
+    "distributed_coupon_collection_replay": distributed_coupon_collection_replay_independent_oracle,
+    "routing_cost_constrained_cds_goc_mcds_c": routing_cost_constrained_cds_goc_mcds_c_independent_oracle,
+    "st_planar_leftmost_augmenting_flow": st_planar_leftmost_augmenting_flow_independent_oracle,
+    "crust_pole_triangle_filter": crust_pole_triangle_filter_independent_oracle,
+    "sensor_energy_balance_estimator_trace": sensor_energy_balance_estimator_trace_independent_oracle,
+    "packet_routing_work_conserving_schedule": packet_routing_work_conserving_schedule_independent_oracle,
     "ansibench_dhrystone": ansibench_dhrystone_oracle,
     "stream_vector_kernels": stream_vector_kernels_oracle,
     "string_heap_sort": string_heap_sort_oracle,

@@ -1,0 +1,55 @@
+const MAX_N: usize = 8
+const MAX_REQUESTS: usize = 32
+const MAX_INPUT: usize = 42
+const MAX_OUTPUT_BYTES: usize = 328
+
+def transpose_store64(output: mutable u8&, offset: usize, value: i64): void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def online_list_update_transpose_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    n_raw: i64 = input[0]
+    requests_raw: i64 = input[1]
+    if n_raw < 1 or n_raw > MAX_N.i64() or requests_raw < 0 or requests_raw > MAX_REQUESTS.i64(): return -1
+    n: usize = n_raw.usize()
+    request_count: usize = requests_raw.usize()
+    if length != 2 + n + request_count: return -1
+    order: mutable usize[MAX_N] = zeroed
+    seen: mutable bool[MAX_N] = zeroed
+    for i in 0..<n:
+        item: i64 = input[2 + i]
+        if item < 0 or item >= n_raw or seen[item.usize()]: return -1
+        order[i] <- item.usize()
+        seen[item.usize()] <- true
+    positions: mutable i64[MAX_REQUESTS] = zeroed
+    total_cost: mutable i64 = 0
+    for request in 0..<request_count:
+        item_raw: i64 = input[2 + n + request]
+        if item_raw < 0 or item_raw >= n_raw: return -1
+        position: mutable usize = 0
+        while position < n and order[position] != item_raw.usize(): position <- position + 1
+        if position == n: return -1
+        positions[request] <- (position + 1).i64()
+        total_cost <- total_cost + (position + 1).i64()
+        if position > 0:
+            previous: usize = order[position - 1]
+            order[position - 1] <- order[position]
+            order[position] <- previous
+            total_cost <- total_cost + 1
+    words: mutable i64[1 + MAX_N + MAX_REQUESTS] = zeroed
+    words[0] <- total_cost
+    for i in 0..<n: words[1 + i] <- order[i].i64()
+    for i in 0..<request_count: words[1 + n + i] <- positions[i]
+    output_bytes: usize = 8 * (1 + n + request_count)
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    for word in 0..<(1 + n + request_count): transpose_store64(staged&, 8 * word, words[word])
+    for byte in 0..<output_bytes: output[byte] <- staged[byte]
+    output_bytes.i64()
+
+export fn online_list_update_transpose(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64 = online_list_update_transpose_impl

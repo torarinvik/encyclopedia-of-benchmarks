@@ -1,0 +1,72 @@
+const MAX_PATTERN: usize = 6
+const MAX_TARGET: usize = 8
+const MAX_COORD: i64 = 16
+
+def ppls_put64(output: mutable u8&, offset: usize, value: i64): void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def ppls_less(ax: i64, ay: i64, bx: i64, by: i64): bool:
+    return ax < bx or (ax == bx and ay < by)
+
+def point_pattern_translation_lex_scan_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 2 or length > 31: return -1
+    pattern_raw: i64 = input[0]
+    target_raw: i64 = input[1]
+    if pattern_raw < 1 or pattern_raw > MAX_PATTERN.i64() or target_raw < 1 or target_raw > MAX_TARGET.i64() or pattern_raw > target_raw: return -1
+    pattern_count: usize = pattern_raw.usize()
+    target_count: usize = target_raw.usize()
+    if length != 2 + 2 * (pattern_count + target_count): return -1
+    px: mutable i64[MAX_PATTERN] = zeroed
+    py: mutable i64[MAX_PATTERN] = zeroed
+    tx: mutable i64[MAX_TARGET] = zeroed
+    ty: mutable i64[MAX_TARGET] = zeroed
+    cursor: mutable usize = 2
+    for i in 0..<pattern_count:
+        px[i] <- input[cursor]
+        py[i] <- input[cursor + 1]
+        cursor <- cursor + 2
+        if px[i] < -MAX_COORD or px[i] > MAX_COORD or py[i] < -MAX_COORD or py[i] > MAX_COORD: return -1
+        if i > 0 and not ppls_less(px[i - 1], py[i - 1], px[i], py[i]): return -1
+    for i in 0..<target_count:
+        tx[i] <- input[cursor]
+        ty[i] <- input[cursor + 1]
+        cursor <- cursor + 2
+        if tx[i] < -MAX_COORD or tx[i] > MAX_COORD or ty[i] < -MAX_COORD or ty[i] > MAX_COORD: return -1
+        if i > 0 and not ppls_less(tx[i - 1], ty[i - 1], tx[i], ty[i]): return -1
+    if output.is_null() or capacity < 24: return -2
+
+    found: mutable i64 = 0
+    best_x: mutable i64 = 0
+    best_y: mutable i64 = 0
+    for anchor in 0..<target_count:
+        dx: i64 = tx[anchor] - px[0]
+        dy: i64 = ty[anchor] - py[0]
+        target_index: mutable usize = anchor + 1
+        matches: mutable bool = true
+        for pattern_index in 1..<pattern_count:
+            wanted_x: i64 = px[pattern_index] + dx
+            wanted_y: i64 = py[pattern_index] + dy
+            while target_index < target_count and ppls_less(tx[target_index], ty[target_index], wanted_x, wanted_y):
+                target_index <- target_index + 1
+            if target_index >= target_count or tx[target_index] != wanted_x or ty[target_index] != wanted_y:
+                matches <- false
+                break
+            target_index <- target_index + 1
+        if matches:
+            found <- 1
+            best_x <- dx
+            best_y <- dy
+            break
+    staged: mutable u8[24] = zeroed
+    ppls_put64(staged&, 0, found)
+    ppls_put64(staged&, 8, best_x)
+    ppls_put64(staged&, 16, best_y)
+    for byte in 0..<24: output[byte] <- staged[byte]
+    24
+
+export fn point_pattern_translation_lex_scan(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("point_pattern_translation_lex_scan") = point_pattern_translation_lex_scan_impl

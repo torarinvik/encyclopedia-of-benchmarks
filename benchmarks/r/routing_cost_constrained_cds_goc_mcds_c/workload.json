@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi621-routing-cost-constrained-cds-goc-mcds-c-v1",
+  "algorithm": "routing_cost_constrained_cds_goc_mcds_c",
+  "function_symbol": "routing_cost_constrained_cds_goc_mcds_c",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded replay of the chapter's centralized GOC-MCDS-C maximal-independent-set and distance-three connector stages.",
+  "source": {
+    "title": "Routing-Cost Constrained Connected Dominating Set",
+    "authors": ["Hongwei Du", "Haiming Luo"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_621",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_621",
+    "algorithm_attribution": "GOC-MCDS-C centralized construction; MISI follows the chapter's unique-ID local-minimum rounds",
+    "implementation_status": "clean-room bounded trace; deterministic ID and shortest-path tie rules"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,adjacency_mask[n],unique_node_id[n]]",
+    "vertex_count_range": [1, 8],
+    "adjacency_masks": "symmetric loop-free masks over vertices 0..n-1; graph must be connected",
+    "node_id_range": [1, 1000],
+    "node_ids": "distinct positive IDs used by MISI and shortest-path tie breaking",
+    "maximum_valid_length": 17,
+    "maximum_parseable_length": 17,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[maximal_independent_set_mask,connected_dominating_set_mask]",
+    "maximum_bytes": 16,
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Fixed adjacency, BFS, queue, and set-mask state for at most eight vertices."
+  },
+  "contract": {
+    "stage_one": "Repeat synchronous MISI rounds: every white vertex with the smallest ID among its white neighbors turns black; white neighbors of black vertices turn gray.",
+    "stage_two": "For each MIS pair at graph distance at most three, add the internal vertices of one shortest path to the connector set.",
+    "shortest_path_tie_rule": "Among shortest paths, choose the lexicographically smallest node-ID sequence; consider MIS pairs in ascending node-ID order.",
+    "result": "Return the MIS mask and the union of the MIS and all selected path interiors.",
+    "scope": "The chapter's unit-disk approximation and routing-stretch guarantees are not claimed for this graph-only profile; distributed Algorithm 3 is excluded.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"singleton-connected-graph","input_values":[1,0,1],"input_length":3,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000100000000000000"},
+    {"id":"path-with-distance-two-mis-pair","input_values":[4,2,5,10,4,2,1,3],"input_length":9,"output_capacity":16,"expected_result":16,"expected_output_hex":"05000000000000000700000000000000"},
+    {"id":"cycle-shortest-path-tie-by-node-id","input_values":[4,10,5,10,5,1,2,4,3],"input_length":9,"output_capacity":16,"expected_result":16,"expected_output_hex":"05000000000000000700000000000000"},
+    {"id":"maximum-eight-vertex-clique","input_values":[8,254,253,251,247,239,223,191,127,1,2,3,4,5,6,7,8],"input_length":17,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000100000000000000"},
+    {"id":"disconnected-graph-invalid","input_values":[4,2,1,8,4,1,2,3],"input_length":9,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"duplicate-node-id-invalid","input_values":[2,2,1,5,5],"input_length":5,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"insufficient-output-capacity","input_values":[1,0,1],"input_length":3,"output_capacity":15,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

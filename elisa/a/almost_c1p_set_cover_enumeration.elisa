@@ -1,0 +1,76 @@
+const MAX_ROWS: usize = 8
+const MAX_COLUMNS: usize = 10
+const MAX_OUTPUT_BYTES: usize = 80
+
+def acsc_store64(output: mutable u8&, offset: usize, value: i64): void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def almost_c1p_set_cover_enumeration_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 4 or length > 21: return -1
+    rows_raw: i64 = input[0]
+    columns_raw: i64 = input[1]
+    if rows_raw < 1 or rows_raw > MAX_ROWS.i64() or columns_raw < 1 or columns_raw > MAX_COLUMNS.i64() or length != 2 + rows_raw.usize() + columns_raw.usize(): return -1
+    rows: usize = rows_raw.usize()
+    columns: usize = columns_raw.usize()
+    weights: mutable i64[MAX_COLUMNS] = zeroed
+    for column in 0..<columns:
+        weight: i64 = input[2 + column]
+        if weight < 1 or weight > 20: return -1
+        weights[column] <- weight
+    valid_mask: usize = (1 << columns) - 1
+    row_masks: mutable usize[MAX_ROWS] = zeroed
+    for row in 0..<rows:
+        raw_mask: i64 = input[2 + columns + row]
+        if raw_mask < 0 or (raw_mask.usize() & ~valid_mask) != 0: return -1
+        row_masks[row] <- raw_mask.usize()
+
+    state_count: usize = 1 << columns
+    feasible: mutable bool[1 << MAX_COLUMNS] = zeroed
+    feasible[0] <- true
+    for row in 0..<rows:
+        cover_mask: usize = row_masks[row]
+        for selected in 0..<state_count:
+            if not feasible[selected] or (selected & cover_mask) != 0: continue
+            feasible[selected] <- false
+            for column in 0..<columns:
+                bit: usize = 1 << column
+                if (cover_mask & bit) != 0: feasible[selected | bit] <- true
+
+    best_found: mutable bool = false
+    best_mask: mutable usize = 0
+    best_cost: mutable i64 = 0
+    for selected in 0..<state_count:
+        if not feasible[selected]: continue
+        cost: mutable i64 = 0
+        for column in 0..<columns:
+            if (selected & (1 << column)) != 0: cost <- cost + weights[column]
+        if not best_found or cost < best_cost or (cost == best_cost and selected < best_mask):
+            best_found <- true
+            best_mask <- selected
+            best_cost <- cost
+    selected_count: mutable usize = 0
+    if best_found:
+        for column in 0..<columns:
+            if (best_mask & (1 << column)) != 0: selected_count <- selected_count + 1
+    output_bytes: usize = if best_found: 8 * (selected_count + 2) else: 8
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    if best_found:
+        acsc_store64(staged&, 0, selected_count.i64())
+        cursor: mutable usize = 1
+        for column in 0..<columns:
+            if (best_mask & (1 << column)) != 0:
+                acsc_store64(staged&, 8 * cursor, column.i64())
+                cursor <- cursor + 1
+        acsc_store64(staged&, 8 * cursor, best_cost)
+    else:
+        acsc_store64(staged&, 0, -1)
+    for byte in 0..<output_bytes: output[byte] <- staged[byte]
+    output_bytes.i64()
+
+export fn almost_c1p_set_cover_enumeration(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("almost_c1p_set_cover_enumeration") = almost_c1p_set_cover_enumeration_impl

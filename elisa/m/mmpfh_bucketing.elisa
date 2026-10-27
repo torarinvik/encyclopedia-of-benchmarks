@@ -1,0 +1,101 @@
+const MAX_N: usize = 32
+const MAX_Q: usize = 32
+const BUCKET: usize = 3
+const MAX_B: usize = 11
+const MAX_WORDS: usize = 100
+
+def mmpfh_lcp(a: i64, b: i64) -> usize:
+    count: mutable usize = 0
+    while count < 16 and ((a >> (15 - count)) & 1) == ((b >> (15 - count)) & 1):
+        count <- count + 1
+    return count
+
+def mmpfh_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def mmpfh_bucketing(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("mmpfh_bucketing"):
+    if input.is_null() or length < 3 or length > 66:
+        return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > 32 or q_value < 1 or q_value > 32 or length != 2 + n_value.usize() + q_value.usize():
+        return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    keys: mutable i64[32] = zeroed
+    queries: mutable i64[32] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        x: i64 = input[2 + i]
+        if x < 0 or x > 65535 or (i > 0 and keys[i - 1] >= x):
+            return -1
+        keys[i] <- x
+        i <- i + 1
+    i <- 0
+    while i < q:
+        x: i64 = input[2 + n + i]
+        if x < 0 or x > 65535:
+            return -1
+        found: mutable bool = false
+        j: mutable usize = 0
+        while j < n:
+            if keys[j] == x: found <- true
+            j <- j + 1
+        if not found: return -1
+        queries[i] <- x
+        i <- i + 1
+    buckets: usize = (n + 2) / 3
+    d0: mutable i64[32] = zeroed
+    lengths: mutable i64[11] = zeroed
+    prefixes: mutable i64[11] = zeroed
+    ranks: mutable i64[32] = zeroed
+    b: mutable usize = 0
+    while b < buckets:
+        start: usize = b * 3
+        finish: mutable usize = start + 3
+        if finish > n: finish <- n
+        plen: mutable usize = 16
+        if finish - start > 1: plen <- mmpfh_lcp(keys[start], keys[finish - 1])
+        prefix: mutable i64 = 0
+        if plen > 0: prefix <- keys[start] >> (16 - plen)
+        lengths[b] <- plen.i64()
+        prefixes[b] <- prefix
+        i <- start
+        while i < finish:
+            d0[i] <- plen.i64()
+            i <- i + 1
+        b <- b + 1
+    i <- 0
+    while i < q:
+        pos: mutable usize = 0
+        while keys[pos] != queries[i]: pos <- pos + 1
+        plen: usize = d0[pos].usize()
+        prefix: mutable i64 = 0
+        if plen > 0: prefix <- queries[i] >> (16 - plen)
+        b <- 0
+        while b < buckets and (lengths[b] != plen.i64() or prefixes[b] != prefix): b <- b + 1
+        if b == buckets: return -1
+        ranks[i] <- (b * 3 + pos - b * 3).i64()
+        i <- i + 1
+    words: usize = 3 + n + 3 * buckets + q
+    if output.is_null() or capacity < words * 8: return -2
+    staged: mutable i64[100] = zeroed
+    k: mutable usize = 0
+    staged[k] <- n.i64(); k <- k + 1; staged[k] <- buckets.i64(); k <- k + 1; staged[k] <- q.i64(); k <- k + 1
+    i <- 0
+    while i < n: staged[k] <- d0[i]; k <- k + 1; i <- i + 1
+    b <- 0
+    while b < buckets:
+        staged[k] <- lengths[b]; k <- k + 1; staged[k] <- prefixes[b]; k <- k + 1; staged[k] <- b.i64(); k <- k + 1
+        b <- b + 1
+    i <- 0
+    while i < q: staged[k] <- ranks[i]; k <- k + 1; i <- i + 1
+    i <- 0
+    while i < words:
+        mmpfh_put_i64(output, i * 8, staged[i])
+        i <- i + 1
+    return (words * 8).i64()

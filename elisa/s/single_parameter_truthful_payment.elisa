@@ -1,0 +1,47 @@
+const MAX_STEPS: usize = 8
+const MAX_INPUT: usize = 18
+const MAX_BID: usize = 16
+const MAX_OUTPUT: usize = 16
+
+def single_parameter_truthful_payment_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    if input[0] < 0 or input[0] > MAX_BID.i64() or input[1] < 1 or input[1] > MAX_STEPS.i64(): return -1
+    bid: usize = input[0].usize()
+    count: usize = input[1].usize()
+    if length != 2 + 2 * count: return -1
+    i: mutable usize = 0
+    while i < count:
+        point: i64 = input[2 + 2 * i]
+        load: i64 = input[3 + 2 * i]
+        if point < 0 or point >= MAX_BID.i64() or load < 0 or load > MAX_BID.i64(): return -1
+        if i == 0 and point != 0: return -1
+        if i > 0 and (point <= input[2 + 2 * (i - 1)] or load > input[3 + 2 * (i - 1)]): return -1
+        i <- i + 1
+    allocation: mutable i64 = 0
+    if bid < MAX_BID:
+        i <- 0
+        while i < count:
+            if input[2 + 2 * i].usize() <= bid: allocation <- input[3 + 2 * i]
+            i <- i + 1
+    area: mutable i64 = 0
+    i <- 0
+    while i < count:
+        start: usize = input[2 + 2 * i].usize()
+        finish: usize = if i + 1 < count: input[2 + 2 * (i + 1)].usize() else: MAX_BID
+        left: usize = if start > bid: start else: bid
+        if finish > left: area <- area + (finish - left).i64() * input[3 + 2 * i]
+        i <- i + 1
+    payment: i64 = bid.i64() * allocation + area
+    if output.is_null() or capacity < MAX_OUTPUT: return -2
+    alloc_bits: u64 = allocation.u64()
+    payment_bits: u64 = payment.u64()
+    i <- 0
+    while i < 8:
+        output[i] <- ((alloc_bits >> (8 * i)) & 255).u8()
+        output[8 + i] <- ((payment_bits >> (8 * i)) & 255).u8()
+        i <- i + 1
+    MAX_OUTPUT.i64()
+
+export fn single_parameter_truthful_payment(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = single_parameter_truthful_payment_impl

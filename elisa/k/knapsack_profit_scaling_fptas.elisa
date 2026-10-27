@@ -1,0 +1,94 @@
+const MAX_N: usize = 12
+const MAX_INPUT: usize = 26
+const MAX_Q: usize = 576
+
+def knapsack_store(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    b: mutable usize = 0
+    while b < 8:
+        output[offset + b] <- ((bits >> (8 * b)) & 255).u8()
+        b <- b + 1
+
+def knapsack_profit_scaling_fptas(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("knapsack_profit_scaling_fptas"):
+    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    cap: i64 = input[0]
+    n64: i64 = input[1]
+    if cap < 1 or cap > 100 or n64 < 1 or n64 > 12 or length != 2 + 2 * n64.usize(): return -1
+    n: usize = n64.usize()
+    weight: mutable i64[12] = zeroed
+    profit: mutable i64[12] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        weight[i] <- input[2 + 2 * i]
+        profit[i] <- input[3 + 2 * i]
+        if weight[i] < 1 or weight[i] > 100 or profit[i] < 1 or profit[i] > 10000: return -1
+        i <- i + 1
+    if output.is_null() or capacity < 16: return -2
+    order: mutable usize[12] = zeroed
+    eligible: mutable usize = 0
+    i <- 0
+    while i < n:
+        if weight[i] <= cap:
+            order[eligible] <- i
+            eligible <- eligible + 1
+        i <- i + 1
+    i <- 1
+    while i < eligible:
+        key: usize = order[i]
+        j: mutable usize = i
+        while j > 0 and profit[key] * weight[order[j - 1]] > profit[order[j - 1]] * weight[key]:
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- key
+        i <- i + 1
+    upper: mutable i64 = 0
+    room: mutable i64 = cap
+    i <- 0
+    while i < eligible:
+        item: usize = order[i]
+        if weight[item] <= room:
+            upper <- upper + profit[item]
+            room <- room - weight[item]
+        else:
+            upper <- upper + profit[item] * room / weight[item]
+            break
+        i <- i + 1
+    dp_weight: mutable i64[577] = zeroed
+    dp_mask: mutable i64[577] = zeroed
+    i <- 0
+    while i <= MAX_Q:
+        dp_weight[i] <- cap + 1
+        i <- i + 1
+    dp_weight[0] <- 0
+    reachable: mutable usize = 0
+    i <- 0
+    while i < n:
+        if weight[i] <= cap and upper > 0:
+            value: usize = (4 * n64 * profit[i] / upper).usize()
+            if value > 0:
+                q: mutable usize = reachable + 1
+                while q > 0:
+                    q <- q - 1
+                    if dp_weight[q] <= cap:
+                        next: usize = q + value
+                        next_weight: i64 = dp_weight[q] + weight[i]
+                        next_mask: i64 = dp_mask[q] | (1 << i).i64()
+                        if next_weight < dp_weight[next] or (next_weight == dp_weight[next] and next_mask < dp_mask[next]):
+                            dp_weight[next] <- next_weight
+                            dp_mask[next] <- next_mask
+                reachable <- reachable + value
+        i <- i + 1
+    best: mutable usize = 0
+    i <- 1
+    while i <= MAX_Q:
+        if dp_weight[i] <= cap: best <- i
+        i <- i + 1
+    mask: i64 = dp_mask[best]
+    selected_profit: mutable i64 = 0
+    i <- 0
+    while i < n:
+        if ((mask.u64() >> i) & 1) != 0: selected_profit <- selected_profit + profit[i]
+        i <- i + 1
+    knapsack_store(output, 0, mask)
+    knapsack_store(output, 8, selected_profit)
+    16

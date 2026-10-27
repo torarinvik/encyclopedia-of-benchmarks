@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi649-sugiyama-barycentric-crossing-reduction-v1",
+  "algorithm": "sugiyama_barycentric_crossing_reduction",
+  "function_symbol": "sugiyama_barycentric_crossing_reduction",
+  "comparison_model": "i64_array_bytes_output_call",
+  "pinned_source": {
+    "title": "Sugiyama Algorithm",
+    "author": "Nikola S. Nikolov",
+    "doi": "10.1007/978-1-4939-2864-4_649",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_649",
+    "epub_path": "OEBPS/AChap649.html",
+    "section": "Key Results: Down-Up Procedure and barycentric method",
+    "license": "No source-code license asserted; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[layer_count,max_sweeps,layer sizes and ordered vertex IDs...,edge_count,(source,target)...]",
+    "layers": [2, 8],
+    "vertices": [2, 32],
+    "vertex_id_range": [0, 31],
+    "edges": [0, 128],
+    "max_sweeps": [0, 16],
+    "maximum_valid_length": 299,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "layout": "[sweeps_performed,crossing_count,final layer orders concatenated]",
+    "maximum_bytes": 272,
+    "success_result": "8*(vertex_count+2)",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed arrays for at most 32 vertices, 8 layers and 128 edges, sorting keys, and staged output."
+  },
+  "profile": {
+    "operation": "Barycentric Down-Up crossing-reduction on a supplied proper hierarchy.",
+    "source_scope": "Implements the chapter's ordering substep only; DAG reversal, layer assignment, dummy vertices, and x-coordinate placement are excluded.",
+    "tie_rule": "Equal barycenters retain current order; isolated vertices use their current position."
+  },
+  "measurement": {
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "down-up-removes-crossing",
+      "input_values": [3, 4, 3, 0, 1, 2, 3, 3, 4, 5, 2, 6, 7, 5, 0, 4, 1, 3, 2, 5, 3, 6, 5, 7],
+      "input_length": 24,
+      "output_capacity": 272,
+      "expected_result": 80,
+      "expected_output_hex": "0200000000000000000000000000000000000000000000000100000000000000020000000000000004000000000000000300000000000000050000000000000006000000000000000700000000000000"
+    },
+    {
+      "id": "equal-barycenters-keep-order",
+      "input_values": [2, 8, 2, 0, 1, 2, 2, 2, 3, 2, 0, 2, 0, 3],
+      "input_length": 14,
+      "output_capacity": 272,
+      "expected_result": 48,
+      "expected_output_hex": "010000000000000000000000000000000000000000000000010000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "zero-sweep-limit-preserves-crossing",
+      "input_values": [2, 0, 2, 0, 1, 2, 2, 2, 3, 2, 0, 3, 1, 2],
+      "input_length": 14,
+      "output_capacity": 272,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000001000000000000000000000000000000010000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "malformed-nonadjacent-edge",
+      "input_values": [3, 2, 1, 0, 1, 1, 1, 2, 1, 0, 2],
+      "input_length": 11,
+      "output_capacity": 272,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "algorithm": "upward_planarity_angle_assignment",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Upward Graph Drawing",
+    "doi": "10.1007/978-1-4939-2864-4_653",
+    "chapter": "653",
+    "profile": "fixed-embedding angle-assignment flow feasibility"
+  },
+  "input": {
+    "kind": "i64_array",
+    "maximum_valid_length": 124,
+    "maximum_parseable_length": 124,
+    "invalid_result": -1,
+    "null_result": -1,
+    "layout": "[n,m,f,outer,(tail,head)*m,(walk_length,(from,to)*walk_length)*f]"
+  },
+  "output": {
+    "maximum_bytes": 208,
+    "null_result": -2,
+    "short_capacity_result": -2,
+    "success": "little-endian i64 words [feasible,terminal_count,(vertex,face,corner)*terminal_count]"
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "bounded adjacency, face rotations, and capacity-matching state"
+  },
+  "bounds": {"vertices": 8, "arcs": 18, "faces": 12},
+  "cases": [
+    {
+      "name": "directed-path-single-face",
+      "input": [3,2,1,0,0,1,1,2,4,0,1,1,2,2,1,1,0],
+      "input_length": 17,
+      "expected_result": 64,
+      "expected_output_hex": "01000000000000000200000000000000000000000000000000000000000000000300000000000000020000000000000000000000000000000100000000000000"
+    },
+    {
+      "name": "multiple-feasible-face-assignments-lexicographic",
+      "input": [4,4,2,0,0,1,0,3,2,1,2,3,4,0,1,1,2,2,3,3,0,4,1,0,0,3,3,2,2,1],
+      "input_length": 30,
+      "expected_result": 112,
+      "expected_output_hex": "0100000000000000040000000000000000000000000000000000000000000000030000000000000001000000000000000000000000000000020000000000000000000000000000000100000000000000030000000000000001000000000000000100000000000000"
+    }
+  ]
+}

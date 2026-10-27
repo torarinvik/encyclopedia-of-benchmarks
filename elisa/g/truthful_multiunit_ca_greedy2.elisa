@@ -1,0 +1,88 @@
+extern pow(base: f64, exponent: f64) -> f64
+const CA_MAX_ITEMS: usize = 6
+const CA_MAX_BIDDERS: usize = 12
+const CA_MAX_INPUT: usize = 32
+const CA_MAX_OUTPUT: usize = 104
+
+def ca_put_i64(output: mutable u8&, offset: usize, value: i64):
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def truthful_multiunit_ca_greedy2_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > CA_MAX_INPUT: return -1
+    if input[0] < 2 or input[0] > CA_MAX_ITEMS.i64() or input[1] < 1 or input[1] > CA_MAX_BIDDERS.i64(): return -1
+    items: usize = input[0].usize()
+    bidders: usize = input[1].usize()
+    if length != 2 + items + 2 * bidders: return -1
+    caps: mutable i64[CA_MAX_ITEMS] = zeroed
+    prices: mutable f64[CA_MAX_ITEMS] = zeroed
+    minimum: mutable i64 = 9
+    e: mutable usize = 0
+    while e < items:
+        cap: i64 = input[2 + e]
+        if cap < 1 or cap > 8: return -1
+        caps[e] <- cap
+        prices[e] <- 1.0 / cap.f64()
+        if cap < minimum: minimum <- cap
+        e <- e + 1
+    values: mutable i64[CA_MAX_BIDDERS] = zeroed
+    masks: mutable i64[CA_MAX_BIDDERS] = zeroed
+    i: mutable usize = 0
+    while i < bidders:
+        value: i64 = input[2 + items + 2 * i]
+        mask: i64 = input[3 + items + 2 * i]
+        if value < 1 or value > 100 or mask < 1 or mask >= (1 << items): return -1
+        values[i] <- value
+        masks[i] <- mask
+        i <- i + 1
+    threshold: f64 = pow(2.718281828459045, minimum.f64()) * items.f64()
+    chosen: mutable bool[CA_MAX_BIDDERS] = zeroed
+    order: mutable usize[CA_MAX_BIDDERS] = zeroed
+    count: mutable usize = 0
+    while count < bidders:
+        best: mutable i64 = -1
+        best_score: mutable f64 = -1.0
+        i <- 0
+        while i < bidders:
+            if not chosen[i]:
+                denominator: mutable f64 = 0.0
+                e <- 0
+                while e < items:
+                    if (masks[i] & (1 << e)) != 0: denominator <- denominator + prices[e]
+                    e <- e + 1
+                score: f64 = values[i].f64() / denominator
+                if best < 0 or score > best_score:
+                    best <- i.i64()
+                    best_score <- score
+            i <- i + 1
+        if best < 0: break
+        chosen[best.usize()] <- true
+        order[count] <- best.usize()
+        count <- count + 1
+        e <- 0
+        while e < items:
+            if (masks[best.usize()] & (1 << e)) != 0:
+                prices[e] <- prices[e] * pow(threshold, 1.0 / caps[e].f64())
+            e <- e + 1
+        dual: mutable f64 = 0.0
+        e <- 0
+        while e < items:
+            dual <- dual + caps[e].f64() * prices[e]
+            e <- e + 1
+        if dual >= threshold: break
+    bytes: usize = 8 * (1 + count)
+    if output.is_null() or capacity < bytes: return -2
+    staged: mutable u8[CA_MAX_OUTPUT] = zeroed
+    ca_put_i64(staged, 0, count.i64())
+    i <- 0
+    while i < count:
+        ca_put_i64(staged, 8 * (i + 1), order[i].i64())
+        i <- i + 1
+    i <- 0
+    while i < bytes: output[i] <- staged[i]; i <- i + 1
+    bytes.i64()
+
+export fn truthful_multiunit_ca_greedy2(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = truthful_multiunit_ca_greedy2_impl

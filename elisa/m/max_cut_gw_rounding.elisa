@@ -1,0 +1,91 @@
+const MAX_N: usize = 16
+const MAX_M: usize = 120
+const MAX_D: usize = 4
+const MAX_INPUT: usize = 431
+
+def max_cut_gw_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def max_cut_gw_rounding(input: i64&, length: usize,
+                        output: mutable u8&, capacity: usize) -> i64 @export("max_cut_gw_rounding"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    d64: i64 = input[2]
+    if n64 < 2 or n64 > 16 or m64 < 0 or m64 > 120 or d64 < 1 or d64 > 4 or
+       length != 3 + 3 * m64.usize() + n64.usize() * d64.usize() + d64.usize(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    d: usize = d64.usize()
+    edge_u: mutable i64[120] = zeroed
+    edge_v: mutable i64[120] = zeroed
+    edge_weight: mutable i64[120] = zeroed
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    edge: mutable usize = 0
+    while edge < m:
+        u: i64 = input[3 + 3 * edge]
+        v: i64 = input[4 + 3 * edge]
+        weight: i64 = input[5 + 3 * edge]
+        if u < 0 or v <= u or v >= n64 or weight < 1 or weight > 10000 or
+           u < previous_u or (u == previous_u and v <= previous_v): return -1
+        previous_u <- u
+        previous_v <- v
+        edge_u[edge] <- u
+        edge_v[edge] <- v
+        edge_weight[edge] <- weight
+        edge <- edge + 1
+    vector_offset: usize = 3 + 3 * m
+    vectors: mutable i64[16][4] = zeroed
+    normal: mutable i64[4] = zeroed
+    common_norm: mutable i64 = 0
+    vertex: mutable usize = 0
+    while vertex < n:
+        norm: mutable i64 = 0
+        axis: mutable usize = 0
+        while axis < d:
+            coordinate: i64 = input[vector_offset + vertex * d + axis]
+            if coordinate < -100 or coordinate > 100: return -1
+            vectors[vertex][axis] <- coordinate
+            norm <- norm + coordinate * coordinate
+            axis <- axis + 1
+        if vertex == 0: common_norm <- norm
+        else if norm != common_norm: return -1
+        vertex <- vertex + 1
+    if common_norm == 0: return -1
+    has_normal: mutable bool = false
+    axis: mutable usize = 0
+    while axis < d:
+        normal[axis] <- input[vector_offset + n * d + axis]
+        if normal[axis] < -100 or normal[axis] > 100: return -1
+        if normal[axis] != 0: has_normal <- true
+        axis <- axis + 1
+    if not has_normal: return -1
+    output_bytes: usize = 8 * (n + 1)
+    if output.is_null() or capacity < output_bytes: return -2
+    side: mutable i64[16] = zeroed
+    vertex <- 0
+    while vertex < n:
+        projection: mutable i64 = 0
+        axis <- 0
+        while axis < d:
+            projection <- projection + vectors[vertex][axis] * normal[axis]
+            axis <- axis + 1
+        if projection > 0: side[vertex] <- 1
+        vertex <- vertex + 1
+    cut: mutable i64 = 0
+    edge <- 0
+    while edge < m:
+        if side[edge_u[edge].usize()] != side[edge_v[edge].usize()]:
+            cut <- cut + edge_weight[edge]
+        edge <- edge + 1
+    max_cut_gw_store_i64_le(cut, output, 0)
+    vertex <- 0
+    while vertex < n:
+        max_cut_gw_store_i64_le(side[vertex], output, 8 * (vertex + 1))
+        vertex <- vertex + 1
+    output_bytes.i64()

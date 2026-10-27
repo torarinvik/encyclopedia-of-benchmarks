@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-distributed-coupon-collection-replay-i64-array-bytes-output-v1",
+  "algorithm": "distributed_coupon_collection_replay",
+  "function_symbol": "distributed_coupon_collection_replay",
+  "abi": "i64_array_bytes_output",
+  "description": "Replay a bounded number of source-defined distributed coupon-collection steps from a supplied open/closed tape.",
+  "source": {
+    "title": "Randomized Gossiping in Radio Networks",
+    "authors": ["Leszek Gąsieniec"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_324",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_324",
+    "algorithm_attribution": "Distributed coupon-collection process",
+    "implementation_status": "clean-room bounded deterministic supplied-outcome replay"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,c,k,T,bin_coupon_masks[n],open_bits[T*n]]; open bits are step-major",
+    "bins_range": [2, 8],
+    "coupon_count_range": [1, 8],
+    "copies_per_coupon_range": "1<=k<=n; every coupon occurs in at least k distinct bins",
+    "step_count_range": [1, 8],
+    "maximum_valid_length": 76,
+    "open_bits": "exactly T*n binary values; 1 represents open and 0 represents closed",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[collected_coupon_mask,singleton_open_steps]",
+    "maximum_bytes": 16,
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Fixed bin masks and step-major opening tape for at most eight bins, coupons, and steps."
+  },
+  "contract": {
+    "process": "At each step, each bin opens independently with probability 1/n in the source process. If exactly one opens, all coupons in that bin are collected; zero or multiple open bins yield no collection.",
+    "randomness": "The bounded profile consumes a supplied deterministic tape of open/closed outcomes; it does not sample randomness.",
+    "scope": "The profile replays the coupon-collection process only; it does not implement radio gossip, claim a probability or expectation, or claim a completion-time bound.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "one-open-bin-collects-its-coupon",
+      "input_values": [2, 1, 1, 1, 1, 0, 1, 0],
+      "input_length": 8,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000100000000000000"
+    },
+    {
+      "id": "zero-and-multiple-open-bins-collect-nothing",
+      "input_values": [3, 2, 2, 2, 3, 1, 2, 1, 1, 0, 0, 0, 0],
+      "input_length": 13,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "three-singleton-steps-collect-union",
+      "input_values": [3, 2, 2, 3, 1, 3, 2, 1, 0, 0, 0, 0, 1, 0, 0, 1],
+      "input_length": 16,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "03000000000000000300000000000000"
+    },
+    {
+      "id": "maximum-eight-bin-eight-coupon-eight-step-profile",
+      "input_values": [8, 8, 1, 8, 1, 2, 4, 8, 16, 32, 64, 128, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 76,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "ff000000000000000800000000000000"
+    },
+    {
+      "id": "coupon-copy-count-invalid",
+      "input_values": [2, 2, 2, 1, 1, 2, 1, 0],
+      "input_length": 8,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

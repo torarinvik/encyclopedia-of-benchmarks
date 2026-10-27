@@ -1,0 +1,105 @@
+const MAX_KEYS: usize = 16
+const MAX_QUERIES: usize = 16
+const MAX_NODES: usize = 31
+const MAX_OUTPUT: usize = 174
+
+def mmpfh_ct_build(lo: usize, hi: usize, width: usize, keys: u32&, nodes: mutable i64[31][6], used: mutable usize&) -> usize:
+    id: usize = used
+    used <- used + 1
+    if hi - lo == 1:
+        nodes[id][0] <- -1
+        nodes[id][1] <- -1
+        nodes[id][2] <- -1
+        nodes[id][3] <- keys[lo].i64()
+        nodes[id][4] <- keys[lo].i64()
+        nodes[id][5] <- 1
+        return id
+    difference: u32 = keys[lo] ^ keys[hi - 1]
+    bit: mutable usize = 0
+    while bit < width and ((difference >> (width - 1 - bit)) & 1) == 0:
+        bit <- bit + 1
+    split: mutable usize = lo
+    while split < hi and ((keys[split] >> (width - 1 - bit)) & 1) == 0:
+        split <- split + 1
+    nodes[id][0] <- (bit.i64())
+    nodes[id][3] <- keys[lo].i64()
+    nodes[id][4] <- keys[hi - 1].i64()
+    left: usize = mmpfh_ct_build(lo, split, width, keys, nodes, used)
+    right: usize = mmpfh_ct_build(split, hi, width, keys, nodes, used)
+    nodes[id][1] <- left.i64()
+    nodes[id][2] <- right.i64()
+    nodes[id][5] <- nodes[left][5] + nodes[right][5]
+    return id
+
+def mmpfh_ct_rank(query: u32, width: usize, nodes: i64[31][6]) -> usize:
+    id: mutable usize = 0
+    rank: mutable usize = 0
+    while true:
+        if query < nodes[id][3].u32(): return rank
+        if query > nodes[id][4].u32(): return rank + nodes[id][5].usize()
+        if nodes[id][0] < 0: return rank
+        bit: usize = nodes[id][0].usize()
+        if ((query >> (width - 1 - bit)) & 1) == 1:
+            left: usize = nodes[id][1].usize()
+            rank <- rank + nodes[left][5].usize()
+            id <- nodes[id][2].usize()
+        else:
+            id <- nodes[id][1].usize()
+
+def mmpfh_ct_put(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def mmpfh_compacted_trie_rank(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("mmpfh_compacted_trie_rank"):
+    if input.is_null() or length < 3 or length > 35: return -1
+    w0: i64 = input[0]
+    d0: i64 = input[1]
+    q0: i64 = input[2]
+    if w0 < 1 or w0 > 16 or d0 < 1 or d0 > 16 or q0 < 1 or q0 > 16 or length != (3 + d0 + q0).usize(): return -1
+    width: usize = w0.usize()
+    count: usize = d0.usize()
+    qcount: usize = q0.usize()
+    limit: u32 = 1.u32() << width
+    keys: mutable u32[16] = zeroed
+    i: mutable usize = 0
+    while i < count:
+        x: i64 = input[3 + i]
+        if x < 0 or x.u64() >= limit.u64() or (i > 0 and x <= input[2 + i]): return -1
+        keys[i] <- x.u32()
+        i <- i + 1
+    i <- 0
+    while i < qcount:
+        x: i64 = input[3 + count + i]
+        if x < 0 or x.u64() >= limit.u64(): return -1
+        i <- i + 1
+    nodes: mutable i64[31][6] = zeroed
+    used: mutable usize = 0
+    mmpfh_ct_build(0, count, width, keys, nodes, used)
+    staged: mutable i64[174] = zeroed
+    pos: mutable usize = 0
+    staged[pos] <- d0; pos <- pos + 1
+    staged[pos] <- used.i64(); pos <- pos + 1
+    staged[pos] <- q0; pos <- pos + 1
+    i <- 0
+    while i < used:
+        staged[pos] <- nodes[i][0]; pos <- pos + 1
+        staged[pos] <- nodes[i][1]; pos <- pos + 1
+        staged[pos] <- nodes[i][2]; pos <- pos + 1
+        staged[pos] <- nodes[i][3]; pos <- pos + 1
+        staged[pos] <- nodes[i][4]; pos <- pos + 1
+        i <- i + 1
+    i <- 0
+    while i < qcount:
+        staged[pos] <- mmpfh_ct_rank(input[3 + count + i].u32(), width, nodes).i64()
+        pos <- pos + 1
+        i <- i + 1
+    required: usize = pos * 8
+    if output.is_null() or capacity < required: return -2
+    i <- 0
+    while i < pos:
+        mmpfh_ct_put(output, i * 8, staged[i])
+        i <- i + 1
+    return required.i64()

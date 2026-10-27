@@ -1,0 +1,58 @@
+def delivery_put_u64(output: mutable u8&, word: usize, value: u64) -> void:
+    for byte in 0..<8:
+        output[word * 8 + byte] <- (value >> (byte * 8)).u8()
+
+def frequent_itemset_delivery_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 6 or length > 69:
+        return -1
+    n0: i64 = input[0]
+    rows0: i64 = input[1]
+    minimum: i64 = input[2]
+    tail: i64 = input[3]
+    prefix0: i64 = input[4]
+    if n0 < 1 or n0 > 8 or rows0 < 1 or rows0 > 64 or minimum < 1 or minimum > rows0 or length != (5 + rows0).usize():
+        return -1
+    if tail < -1 or tail >= n0 or prefix0 < 0:
+        return -1
+    n: usize = n0.usize()
+    row_count: usize = rows0.usize()
+    limit: u64 = 1.u64() << n
+    prefix: u64 = prefix0.u64()
+    if prefix >= limit or (tail == -1 and prefix != 0.u64()) or (tail >= 0 and (((prefix >> tail.usize()) & 1.u64()) == 0.u64() or (prefix >> (tail.usize() + 1)) != 0.u64())):
+        return -1
+    occurrences: mutable u64[8] = zeroed
+    supports: mutable u64[8] = zeroed
+    for row in 0..<row_count:
+        row0: i64 = input[5 + row]
+        if row0 < 0 or row0.u64() >= limit:
+            return -1
+        mask: u64 = row0.u64()
+        if (mask & prefix) != prefix:
+            continue
+        for item in (tail + 1).usize()..<n:
+            bit: u64 = 1.u64() << item
+            if (mask & bit) != 0.u64():
+                occurrences[item] <- occurrences[item] | (1.u64() << row)
+                supports[item] <- supports[item] + 1.u64()
+    words: mutable u64[25] = zeroed
+    records: mutable usize = 0
+    for item in (tail + 1).usize()..<n:
+        if supports[item] < minimum.u64():
+            continue
+        at: usize = 1 + 3 * records
+        words[at] <- item.u64()
+        words[at + 1] <- occurrences[item]
+        words[at + 2] <- supports[item]
+        records <- records + 1
+    words[0] <- records.u64()
+    word_count: usize = 1 + 3 * records
+    bytes: usize = 8 * word_count
+    if bytes > 200:
+        return -1
+    if output == null or capacity < bytes:
+        return -2
+    for word in 0..<word_count:
+        delivery_put_u64(output, word, words[word])
+    bytes.i64()
+
+export fn frequent_itemset_delivery(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = frequent_itemset_delivery_impl

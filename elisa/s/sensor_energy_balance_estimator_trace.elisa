@@ -1,0 +1,83 @@
+const MAX_N:usize=8
+const MAX_INPUT:usize=82
+const INPUT_SCALE:i64=1000000
+
+def gcd(a0:i64,b0:i64)->i64:
+    a:mutable i64=a0
+    b:mutable i64=b0
+    while b!=0:
+        r:i64=a%b
+        a<-b
+        b<-r
+    a
+
+def put64(value:i64,output:mutable u8&,pos:usize)->void:
+    bits:u64=value.u64()
+    j:mutable usize=0
+    while j<8:
+        output[pos+j]<-((bits>>(8*j))&255).u8()
+        j<-j+1
+
+def sensor_energy_balance_estimator_trace(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("sensor_energy_balance_estimator_trace"):
+    if input.is_null() or length<4 or length>MAX_INPUT:return -1
+    n64:i64=input[0];h64:i64=input[1]
+    if n64<1 or n64>8 or h64<1 or h64>8 or length!=2+n64.usize()+h64.usize()+n64.usize()*h64.usize():return -1
+    n:usize=n64.usize(); h:usize=h64.usize()
+    lambdas:mutable i64[8]=zeroed
+    total:mutable i64=0
+    i:mutable usize=0
+    while i<n:
+        lambdas[i]<-input[2+i]
+        if lambdas[i]<0 or lambdas[i]>INPUT_SCALE:return -1
+        total<-total+lambdas[i]
+        i<-i+1
+    if total!=INPUT_SCALE:return -1
+    full:u64=(1.u64<<n)-1
+    path_at:usize=2+n
+    t:mutable usize=0
+    while t<h:
+        mask:i64=input[path_at+t]
+        if mask<=0 or (mask.u64()&~full)!=0:return -1
+        t<-t+1
+    lcm:mutable i64=1
+    divisor:mutable i64=2
+    while divisor<=h64:
+        lcm<-(lcm/gcd(lcm,divisor))*divisor
+        divisor<-divisor+1
+    q:i64=INPUT_SCALE*lcm
+    draw_at:usize=path_at+h
+    i<-0
+    while i<n*h:
+        draw:i64=input[draw_at+i]
+        if draw<0 or draw>=q:return -1
+        i<-i+1
+    state:mutable i64[8]=zeroed
+    i<-0
+    while i<n:
+        state[i]<-lambdas[i]*lcm
+        i<-i+1
+    t<-0
+    while t<h:
+        loop_count:i64=(t+1).i64()
+        delta:i64=q/loop_count
+        path:u64=input[path_at+t].u64()
+        i<-0
+        while i<n:
+            if state[i]<0 or state[i]>q:return -1
+            draw:i64=input[draw_at+t*n+i]
+            bernoulli:i64=0
+            if draw<state[i]:bernoulli<-1
+            observed:i64=((path>>i)&1).i64()
+            updated:i64=state[i]+(observed-bernoulli)*delta
+            if updated<0 or updated>q:return -1
+            state[i]<-updated
+            i<-i+1
+        t<-t+1
+    bytes:usize=8*(1+n)
+    if output.is_null() or capacity<bytes:return -2
+    put64(q,output&,0)
+    i<-0
+    while i<n:
+        put64(state[i],output&,8*(i+1))
+        i<-i+1
+    bytes.i64()

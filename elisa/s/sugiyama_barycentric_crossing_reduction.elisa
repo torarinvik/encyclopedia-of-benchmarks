@@ -1,0 +1,144 @@
+const SUG_MAX_LAYERS: usize = 8
+const SUG_MAX_VERTICES: usize = 32
+const SUG_MAX_EDGES: usize = 128
+const SUG_MAX_INPUT: usize = 299
+
+def sugiyama_put_i64(output: mutable u8&, word: usize, value: i64): void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[word * 8 + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def sugiyama_positions(order: i64[256], sizes: i64[8], layer: usize,
+        pos: mutable i64[32]): void:
+    for i in 0..<sizes[layer].usize():
+        vertex: usize = order[layer * 32 + i].usize()
+        pos[vertex] <- i.i64()
+
+def sugiyama_reorder(order: mutable i64[256], sizes: i64[8],
+        owner: i64[32], edge_u: i64[128], edge_v: i64[128],
+        edge_count: usize, target: usize, fixed: usize, downward: bool,
+        pos: mutable i64[32]): void:
+    sugiyama_positions(order, sizes, fixed, pos)
+    rank: mutable i64[32] = zeroed
+    numerator: mutable i64[32] = zeroed
+    denominator: mutable i64[32] = zeroed
+    for i in 0..<sizes[target].usize():
+        vertex: usize = order[target * 32 + i].usize()
+        rank[vertex] <- i.i64()
+    for edge in 0..<edge_count:
+        u: usize = edge_u[edge].usize()
+        v: usize = edge_v[edge].usize()
+        if downward and owner[u] == (fixed + 1).i64() and owner[v] == (target + 1).i64():
+            numerator[v] <- numerator[v] + pos[u]
+            denominator[v] <- denominator[v] + 1
+        else if not downward and owner[u] == (target + 1).i64() and owner[v] == (fixed + 1).i64():
+            numerator[u] <- numerator[u] + pos[v]
+            denominator[u] <- denominator[u] + 1
+    for i in 0..<sizes[target].usize():
+        vertex: usize = order[target * 32 + i].usize()
+        if denominator[vertex] == 0:
+            numerator[vertex] <- rank[vertex]
+            denominator[vertex] <- 1
+    for i in 1..<sizes[target].usize():
+        vertex: usize = order[target * 32 + i].usize()
+        j: mutable usize = i
+        while j > 0:
+            previous: usize = order[target * 32 + j - 1].usize()
+            left: i64 = numerator[vertex] * denominator[previous]
+            right: i64 = numerator[previous] * denominator[vertex]
+            if left > right or (left == right and rank[vertex] > rank[previous]):
+                break
+            order[target * 32 + j] <- order[target * 32 + j - 1]
+            j <- j - 1
+        order[target * 32 + j] <- vertex.i64()
+    sugiyama_positions(order, sizes, target, pos)
+
+def sugiyama_barycentric_crossing_reduction_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 2 or length > SUG_MAX_INPUT: return -1
+    layers_raw: i64 = input[0]
+    limit_raw: i64 = input[1]
+    if layers_raw < 2 or layers_raw > 8 or limit_raw < 0 or limit_raw > 16: return -1
+    layers: usize = layers_raw.usize()
+    order: mutable i64[256] = zeroed
+    sizes: mutable i64[8] = zeroed
+    owner: mutable i64[32] = zeroed
+    pos: mutable i64[32] = zeroed
+    edge_u: mutable i64[128] = zeroed
+    edge_v: mutable i64[128] = zeroed
+    at: mutable usize = 2
+    total: mutable usize = 0
+    for level in 0..<layers:
+        if at >= length: return -1
+        count_raw: i64 = input[at]
+        at <- at + 1
+        if count_raw < 1 or count_raw > 32 or at + count_raw.usize() > length: return -1
+        count: usize = count_raw.usize()
+        sizes[level] <- count.i64()
+        total <- total + count
+        if total > 32: return -1
+        for i in 0..<count:
+            id_raw: i64 = input[at]
+            at <- at + 1
+            if id_raw < 0 or id_raw >= 32: return -1
+            id: usize = id_raw.usize()
+            if owner[id] != 0: return -1
+            order[level * 32 + i] <- id.i64()
+            owner[id] <- (level + 1).i64()
+    if total < 2 or at >= length: return -1
+    edge_count_raw: i64 = input[at]
+    at <- at + 1
+    if edge_count_raw < 0 or edge_count_raw > 128: return -1
+    edge_count: usize = edge_count_raw.usize()
+    if at + 2 * edge_count != length: return -1
+    for edge in 0..<edge_count:
+        u_raw: i64 = input[at + 2 * edge]
+        v_raw: i64 = input[at + 2 * edge + 1]
+        if u_raw < 0 or u_raw >= 32 or v_raw < 0 or v_raw >= 32: return -1
+        u: usize = u_raw.usize()
+        v: usize = v_raw.usize()
+        if owner[u] == 0 or owner[v] != owner[u] + 1: return -1
+        for prior in 0..<edge:
+            if edge_u[prior] == u.i64() and edge_v[prior] == v.i64(): return -1
+        edge_u[edge] <- u.i64()
+        edge_v[edge] <- v.i64()
+    sweeps: mutable usize = 0
+    for pass in 0..<limit_raw.usize():
+        before: mutable i64[256] = zeroed
+        for i in 0..<256: before[i] <- order[i]
+        for level in 0..<(layers - 1):
+            sugiyama_reorder(order, sizes, owner, edge_u, edge_v, edge_count,
+                level + 1, level, true, pos)
+        for step in 0..<(layers - 1):
+            level: usize = layers - 2 - step
+            sugiyama_reorder(order, sizes, owner, edge_u, edge_v, edge_count,
+                level, level + 1, false, pos)
+        sweeps <- sweeps + 1
+        changed: mutable bool = false
+        for level in 0..<layers:
+            for i in 0..<sizes[level].usize():
+                if before[level * 32 + i] != order[level * 32 + i]: changed <- true
+        if not changed: break
+    for level in 0..<layers: sugiyama_positions(order, sizes, level, pos)
+    crossings: mutable i64 = 0
+    for i in 0..<edge_count:
+        for j in (i + 1)..<edge_count:
+            if owner[edge_u[i].usize()] == owner[edge_u[j].usize()] and
+                    (pos[edge_u[i].usize()] - pos[edge_u[j].usize()]) *
+                    (pos[edge_v[i].usize()] - pos[edge_v[j].usize()]) < 0:
+                crossings <- crossings + 1
+    bytes: usize = 8 * (total + 2)
+    if output.is_null() or capacity < bytes: return -2
+    sugiyama_put_i64(output, 0, sweeps.i64())
+    sugiyama_put_i64(output, 1, crossings)
+    word: mutable usize = 2
+    for level in 0..<layers:
+        for i in 0..<sizes[level].usize():
+            sugiyama_put_i64(output, word, order[level * 32 + i])
+            word <- word + 1
+    bytes.i64()
+
+export fn sugiyama_barycentric_crossing_reduction(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64 =
+    sugiyama_barycentric_crossing_reduction_impl(input, length, output, capacity)

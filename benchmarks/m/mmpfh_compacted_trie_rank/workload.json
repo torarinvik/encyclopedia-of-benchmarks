@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-mmpfh-compacted-trie-rank-i64-array-bytes-output-v1",
+  "algorithm": "mmpfh_compacted_trie_rank",
+  "function_symbol": "mmpfh_compacted_trie_rank",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Monotone Minimal Perfect Hash Functions",
+    "authors": ["Paolo Boldi", "Sebastiano Vigna"],
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_639",
+    "method": "MSB-first compacted binary trie ranking of fixed-width delimiter keys",
+    "scope": "explicit Patricia nodes and exact insertion rank; no succinct encoding"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[width,delimiter_count,query_count,sorted_unique_delimiters...,queries...]",
+    "width_range": [1, 16],
+    "delimiter_count_range": [1, 16],
+    "query_count_range": [1, 16],
+    "key_domain": "unsigned values in [0,2^width); delimiter values strictly increase",
+    "branch_bit_convention": "MSB-first, index 0 tests bit width-1",
+    "maximum_valid_length": 35,
+    "maximum_parseable_length": 35,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "[delimiter_count,node_count,query_count,node records...,ranks...]; records [bit,left_id,right_id,subtree_min,subtree_max], leaves [-1,-1,-1,key,key], internal nodes store the min/max key bounds and use preorder IDs with left-before-right",
+    "maximum_values": 174,
+    "maximum_bytes": 1392,
+    "success_result": "actual output byte length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "bounded full binary trie, compacted node table, subtree leaf counts, and staged output"
+  },
+  "cases": [
+    {"id":"interior-and-exit-ranks","input_values":[4,3,5,2,10,14,0,2,6,10,15],"input_length":11,"output_capacity":1392,"expected_result":264,"expected_output_hex":"03000000000000000500000000000000050000000000000000000000000000000100000000000000020000000000000002000000000000000e00000000000000ffffffffffffffffffffffffffffffffffffffffffffffff020000000000000002000000000000000100000000000000030000000000000004000000000000000a000000000000000e00000000000000ffffffffffffffffffffffffffffffffffffffffffffffff0a000000000000000a00000000000000ffffffffffffffffffffffffffffffffffffffffffffffff0e000000000000000e0000000000000000000000000000000000000000000000010000000000000001000000000000000300000000000000"},
+    {"id":"skipped-prefix-exit","input_values":[4,3,3,4,6,7,3,5,8],"input_length":9,"output_capacity":1392,"expected_result":248,"expected_output_hex":"03000000000000000500000000000000030000000000000002000000000000000100000000000000020000000000000004000000000000000700000000000000ffffffffffffffffffffffffffffffffffffffffffffffff0400000000000000040000000000000003000000000000000300000000000000040000000000000006000000000000000700000000000000ffffffffffffffffffffffffffffffffffffffffffffffff06000000000000000600000000000000ffffffffffffffffffffffffffffffffffffffffffffffff07000000000000000700000000000000000000000000000001000000000000000300000000000000"},
+    {"id":"one-delimiter","input_values":[8,1,3,128,0,128,255],"input_length":7,"output_capacity":1392,"expected_result":88,"expected_output_hex":"010000000000000001000000000000000300000000000000ffffffffffffffffffffffffffffffffffffffffffffffff80000000000000008000000000000000000000000000000000000000000000000100000000000000"},
+    {"id":"unsorted-delimiters","input_values":[4,2,1,9,3,4],"input_length":6,"output_capacity":1392,"expected_result":-1,"expected_output_hex":""},
+    {"id":"key-out-of-width","input_values":[3,1,1,8,0],"input_length":5,"output_capacity":1392,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[4,3,1,2,10,14,6],"input_length":7,"output_capacity":231,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,1,1,2,1],"input_length":5,"output_capacity":1392,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ],
+  "measurement": {"comparison_model":"i64_array_bytes_output_call","sample_count":7,"warmup_rounds":1,"repetitions_per_sample":20}
+}

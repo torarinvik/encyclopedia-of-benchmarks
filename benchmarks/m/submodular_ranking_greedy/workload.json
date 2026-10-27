@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-submodular-ranking-greedy-i64-array-bytes-output-v1",
+  "algorithm": "submodular_ranking_greedy",
+  "function_symbol": "submodular_ranking_greedy",
+  "abi": "i64_array_bytes_output",
+  "description": "Submodular-ranking greedy selection using normalized explicit submodular tables.",
+  "source": {
+    "title": "Min-Sum Set Cover and Its Generalizations",
+    "authors": ["Sungjin Im"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_806",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_806",
+    "algorithm_attribution": "Theorem 3 discussion: maximize sum of normalized function marginals",
+    "implementation_status": "clean-room from the stated mathematical rule; no source code copied; no explicit code license in chapter"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m, f0[mask=0..2^n-1], ..., f(m-1)[mask=0..2^n-1]]; each table value is 8*f(A)",
+    "n_range": [1, 5],
+    "m_range": [1, 4],
+    "table_value_range": [0, 8],
+    "table_conditions": ["f(empty)=0", "f(full)=1", "monotone", "submodular"],
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 131,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[sum_of_first_completion_times, zero_based_element_order[n], first_completion_times[m]]",
+    "maximum_bytes": 80,
+    "success_result": "8*(1+n+m) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {"bytes": 4096, "meaning": "Four tables of at most 32 values, subset/selection state, exact score accumulators, and staged output."},
+  "contract": {
+    "selection": "At each step choose the unscheduled element maximizing sum_i (f_i(A union {e})-f_i(A))/(1-f_i(A)); omit i where f_i(A)=1.",
+    "tie_rule": "Lowest zero-based element ID.",
+    "score_arithmetic": "Exact rational comparison; input table values represent multiples of 1/8.",
+    "completion_time": "First one-based prefix time at which f_i(A)=1.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 2, "repetitions_per_sample": 100},
+  "cases": [
+    {"id":"crossing-coverage-functions-tie-break","input_values":[2,2,0,8,0,8,0,0,8,8],"input_length":10,"output_capacity":40,"expected_result":40,"expected_output_hex":"03000000000000000000000000000000010000000000000001000000000000000200000000000000"},
+    {"id":"single-function-completes-before-order-ends","input_values":[2,1,0,8,8,8],"input_length":6,"output_capacity":32,"expected_result":32,"expected_output_hex":"0100000000000000000000000000000001000000000000000100000000000000"},
+    {"id":"nonmonotone-table-invalid","input_values":[2,1,0,8,4,4],"input_length":6,"output_capacity":80,"expected_result":-1,"expected_output_hex":""},
+    {"id":"monotone-nonsubmodular-table-invalid","input_values":[2,1,0,2,2,8],"input_length":6,"output_capacity":80,"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-mismatch","input_values":[2,1,0,8,8],"input_length":5,"output_capacity":80,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,2,0,8,0,8,0,0,8,8],"input_length":10,"output_capacity":39,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,2,0,8,0,8,0,0,8,8],"input_length":10,"output_capacity":40,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":80,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

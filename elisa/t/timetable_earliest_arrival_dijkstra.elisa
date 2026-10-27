@@ -1,0 +1,108 @@
+const MAX_N: usize = 8
+const MAX_ARCS: usize = 12
+const MAX_TRIPS: usize = 4
+const MAX_OUTPUT_BYTES: usize = 88
+const INF: i64 = 1000000000
+
+def tead_store64(output: mutable u8&, offset: usize, value: i64): void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def timetable_earliest_arrival_dijkstra_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 5 or length > 138: return -1
+    n_raw: i64 = input[0]
+    arc_count_raw: i64 = input[1]
+    source_raw: i64 = input[2]
+    target_raw: i64 = input[3]
+    start_time: i64 = input[4]
+    if n_raw < 2 or n_raw > MAX_N.i64() or arc_count_raw < 0 or arc_count_raw > MAX_ARCS.i64() or source_raw < 0 or source_raw >= n_raw or target_raw < 0 or target_raw >= n_raw or start_time < 0 or start_time > 1000: return -1
+    n: usize = n_raw.usize()
+    arc_count: usize = arc_count_raw.usize()
+    source: usize = source_raw.usize()
+    target: usize = target_raw.usize()
+    arc_u: mutable usize[MAX_ARCS] = zeroed
+    arc_v: mutable usize[MAX_ARCS] = zeroed
+    trip_count: mutable usize[MAX_ARCS] = zeroed
+    departure: mutable i64[MAX_ARCS][MAX_TRIPS] = zeroed
+    arrival: mutable i64[MAX_ARCS][MAX_TRIPS] = zeroed
+    cursor: mutable usize = 5
+    for edge in 0..<arc_count:
+        if cursor + 3 > length: return -1
+        u_raw: i64 = input[cursor]
+        v_raw: i64 = input[cursor + 1]
+        count_raw: i64 = input[cursor + 2]
+        cursor <- cursor + 3
+        if u_raw < 0 or u_raw >= n_raw or v_raw < 0 or v_raw >= n_raw or u_raw == v_raw or count_raw < 1 or count_raw > MAX_TRIPS.i64() or cursor + 2 * count_raw.usize() > length: return -1
+        u: usize = u_raw.usize()
+        v: usize = v_raw.usize()
+        count: usize = count_raw.usize()
+        for prior in 0..<edge:
+            if arc_u[prior] == u and arc_v[prior] == v: return -1
+        arc_u[edge] <- u
+        arc_v[edge] <- v
+        trip_count[edge] <- count
+        for trip in 0..<count:
+            dep: i64 = input[cursor]
+            arr: i64 = input[cursor + 1]
+            cursor <- cursor + 2
+            if dep < 0 or dep > 1000 or arr <= dep or arr > 2000 or (trip > 0 and (dep <= departure[edge][trip - 1] or arr < arrival[edge][trip - 1])): return -1
+            departure[edge][trip] <- dep
+            arrival[edge][trip] <- arr
+    if cursor != length: return -1
+
+    distance: mutable i64[MAX_N] = zeroed
+    parent: mutable i64[MAX_N] = zeroed
+    settled: mutable bool[MAX_N] = zeroed
+    for vertex in 0..<n:
+        distance[vertex] <- INF
+        parent[vertex] <- -1
+    distance[source] <- start_time
+    for step in 0..<n:
+        chosen: mutable usize = MAX_N
+        for vertex in 0..<n:
+            if not settled[vertex] and distance[vertex] < INF and (chosen == MAX_N or distance[vertex] < distance[chosen] or (distance[vertex] == distance[chosen] and vertex < chosen)):
+                chosen <- vertex
+        if chosen == MAX_N: break
+        settled[chosen] <- true
+        for edge in 0..<arc_count:
+            v: usize = arc_v[edge]
+            if arc_u[edge] != chosen or settled[v]: continue
+            trip: mutable usize = 0
+            while trip < trip_count[edge] and departure[edge][trip] < distance[chosen]: trip <- trip + 1
+            if trip == trip_count[edge]: continue
+            candidate: i64 = arrival[edge][trip]
+            if candidate < distance[v] or (candidate == distance[v] and (parent[v] < 0 or chosen.i64() < parent[v])):
+                distance[v] <- candidate
+                parent[v] <- chosen.i64()
+
+    reverse_path: mutable usize[MAX_N] = zeroed
+    path_length: mutable usize = 0
+    if distance[target] < INF:
+        current: mutable usize = target
+        reverse_path[path_length] <- current
+        path_length <- path_length + 1
+        while current != source and path_length < n:
+            if parent[current] < 0:
+                path_length <- 0
+                break
+            current <- parent[current].usize()
+            reverse_path[path_length] <- current
+            path_length <- path_length + 1
+        if path_length == 0 or reverse_path[path_length - 1] != source: path_length <- 0
+    reachable: bool = path_length > 0
+    output_bytes: usize = if reachable: 8 * (3 + path_length) else: 24
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    tead_store64(staged&, 0, if reachable: 1 else: 0)
+    tead_store64(staged&, 8, if reachable: distance[target] else: -1)
+    tead_store64(staged&, 16, path_length.i64())
+    if reachable:
+        for i in 0..<path_length: tead_store64(staged&, 24 + 8 * i, reverse_path[path_length - 1 - i].i64())
+    for byte in 0..<output_bytes: output[byte] <- staged[byte]
+    output_bytes.i64()
+
+export fn timetable_earliest_arrival_dijkstra(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("timetable_earliest_arrival_dijkstra") = timetable_earliest_arrival_dijkstra_impl

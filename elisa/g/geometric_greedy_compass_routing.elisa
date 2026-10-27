@@ -1,0 +1,119 @@
+const MAX_N: usize = 8
+const MAX_INPUT: usize = 84
+const MAX_OUTPUT: usize = 80
+const OUTPUT_VALUES: usize = 10
+
+def put64(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def angle_better(da: i64, la: i64, db: i64, lb: i64) -> bool:
+    if (da >= 0) != (db >= 0): return da >= 0
+    left: i64 = da * da * lb
+    right: i64 = db * db * la
+    if da >= 0: return left > right
+    return left < right
+
+def angle_equal(da: i64, la: i64, db: i64, lb: i64) -> bool:
+    return (da >= 0) == (db >= 0) and da * da * lb == db * db * la
+
+def geometric_greedy_compass_routing(input: i64&, length: usize, output: mutable u8&,
+        capacity: usize) -> i64 @export("geometric_greedy_compass_routing"):
+    if input.is_null() or length < 12 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    mode: i64 = input[1]
+    source64: i64 = input[2]
+    target64: i64 = input[3]
+    if n64 < 2 or n64 > 8 or mode < 0 or mode > 1 or source64 < 0 or target64 < 0 or source64 >= n64 or target64 >= n64: return -1
+    n: usize = n64.usize()
+    source: usize = source64.usize()
+    target: usize = target64.usize()
+    if length != 4 + 2 * n + n * n: return -1
+    x: mutable i64[MAX_N] = zeroed
+    y: mutable i64[MAX_N] = zeroed
+    adjacency: usize = 4 + 2 * n
+    i: mutable usize = 0
+    while i < n:
+        x[i] <- input[4 + i]
+        y[i] <- input[4 + n + i]
+        if x[i] < -8 or x[i] > 8 or y[i] < -8 or y[i] > 8: return -1
+        j: mutable usize = 0
+        while j < i:
+            if x[i] == x[j] and y[i] == y[j]: return -1
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        j: mutable usize = 0
+        while j < n:
+            a: i64 = input[adjacency + i * n + j]
+            b: i64 = input[adjacency + j * n + i]
+            if (a != 0 and a != 1) or a != b or (i == j and a != 0): return -1
+            j <- j + 1
+        i <- i + 1
+    if output.is_null() or capacity < MAX_OUTPUT: return -2
+    path: mutable usize[MAX_N] = zeroed
+    visited: mutable bool[MAX_N] = zeroed
+    count: mutable usize = 1
+    path[0] <- source
+    visited[source] <- true
+    current: mutable usize = source
+    while current != target and count < n:
+        best: mutable usize = n
+        best_dot: mutable i64 = 0
+        best_len: mutable i64 = 1
+        best_distance: mutable i64 = 0
+        tx: i64 = x[target] - x[current]
+        ty: i64 = y[target] - y[current]
+        v: mutable usize = 0
+        while v < n:
+            if input[adjacency + current * n + v] == 1:
+                better: mutable bool = best == n
+                dx: i64 = x[v] - x[current]
+                dy: i64 = y[v] - y[current]
+                if mode == 0:
+                    rx: i64 = x[v] - x[target]
+                    ry: i64 = y[v] - y[target]
+                    distance: i64 = rx * rx + ry * ry
+                    if not better: better <- distance < best_distance or (distance == best_distance and v < best)
+                    if better: best_distance <- distance
+                else:
+                    dot: i64 = dx * tx + dy * ty
+                    len: i64 = dx * dx + dy * dy
+                    if not better: better <- angle_better(dot, len, best_dot, best_len) or (angle_equal(dot, len, best_dot, best_len) and v < best)
+                    if better:
+                        best_dot <- dot
+                        best_len <- len
+                if better: best <- v
+            v <- v + 1
+        if best == n or visited[best]: break
+        path[count] <- best
+        count <- count + 1
+        visited[best] <- true
+        current <- best
+    record: mutable i64[OUTPUT_VALUES] = zeroed
+    if current == target: record[0] <- 1
+    else: record[0] <- 0
+    record[1] <- (count - 1).i64()
+    i <- 0
+    while i < MAX_N:
+        record[2 + i] <- -1
+        i <- i + 1
+    i <- 0
+    while i < count:
+        record[2 + i] <- path[i].i64()
+        i <- i + 1
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    i <- 0
+    while i < OUTPUT_VALUES:
+        put64(record[i], staged, 8 * i)
+        i <- i + 1
+    i <- 0
+    while i < MAX_OUTPUT:
+        output[i] <- staged[i]
+        i <- i + 1
+    return MAX_OUTPUT.i64()

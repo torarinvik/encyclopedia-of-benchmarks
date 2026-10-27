@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-radio-network-decay-phase-i64-array-bytes-output-v1",
+  "algorithm": "radio_network_decay_phase",
+  "function_symbol": "radio_network_decay_phase",
+  "abi": "i64_array_bytes_output",
+  "description": "Replay one bounded synchronized Decay(k,m) phase on an undirected radio graph using supplied coin bits.",
+  "source": {
+    "title": "Randomized Broadcasting in Radio Networks",
+    "authors": ["Alon Itai"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_322",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_322",
+    "algorithm_attribution": "Decay(k,m) randomized broadcast phase",
+    "implementation_status": "clean-room bounded deterministic coin-tape replay"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,k,initial_mask,adjacency_mask[n],coin_bits[n*k]]; coin bits are node-major",
+    "vertices_range": [2, 8],
+    "phase_slots_range": [1, 8],
+    "maximum_valid_length": 75,
+    "graph": "undirected simple graph encoded by symmetric loop-free vertex adjacency masks",
+    "initial_informed_set": "nonempty bitmask over vertices 0..n-1",
+    "coin_bits": "exactly n*k supplied binary values; used after a sender transmits in the corresponding slot",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[newly_informed_mask,total_transmissions]",
+    "maximum_bytes": 16,
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Fixed adjacency and per-node coin-tape state for at most eight vertices and eight synchronized slots."
+  },
+  "contract": {
+    "phase": "One synchronized Decay(k,m) phase only. Initially informed nodes are the only senders in the phase; newly informed nodes join only a subsequent phase.",
+    "reception": "An initially uninformed vertex receives in a slot iff exactly one of its neighbors transmits in that slot. Zero or multiple transmitters result in no reception.",
+    "coin_rule": "After its slot transmission, bit 0 stops that sender and bit 1 keeps it active for the next slot; every sender stops after the final slot.",
+    "coin_randomness": "The fair-coin tape is supplied and replayed deterministically; the profile does not sample randomness or claim probability guarantees.",
+    "excluded_scope": "No repeated global broadcast schedule, network-level completion guarantee, or radio capture/interference behavior beyond strict singleton reception.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-transmitter-informs-neighbor",
+      "input_values": [2, 1, 1, 2, 1, 0, 0],
+      "input_length": 7,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000000100000000000000"
+    },
+    {
+      "id": "two-neighbors-collide-at-receiver",
+      "input_values": [3, 1, 5, 2, 5, 2, 0, 0, 0],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000200000000000000"
+    },
+    {
+      "id": "one-sender-continues-for-three-slots",
+      "input_values": [2, 3, 1, 2, 1, 1, 1, 0, 0, 0, 0],
+      "input_length": 11,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000000300000000000000"
+    },
+    {
+      "id": "maximum-eight-vertex-eight-slot-input",
+      "input_values": [8, 8, 255, 254, 253, 251, 247, 239, 223, 191, 127, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+      "input_length": 75,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000004000000000000000"
+    },
+    {
+      "id": "nonsymmetric-graph-invalid",
+      "input_values": [2, 1, 1, 2, 0, 0, 0],
+      "input_length": 7,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

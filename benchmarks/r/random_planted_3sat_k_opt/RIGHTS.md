@@ -1,0 +1,3 @@
+# Rights and provenance
+
+Behavioral sources: “Random Planted 3-SAT,” *Encyclopedia of Algorithms*, DOI `10.1007/978-1-4939-2864-4_330`, and U. Feige and D. Vilenchik, “A local search algorithm for 3-SAT,” Weizmann Institute technical report (2004), <https://www.wisdom.weizmann.ac.il/~feige/TechnicalReports/FeigeVilenchik.pdf>. These sources are copyrighted and do not provide a source-code license for this package. The implementation and oracles are independently written from the set-based improving-move description; no source code or book/report prose is copied. The bounded profile makes the unspecified arbitration deterministic and does not claim the paper's search-tree runtime or probabilistic guarantee.

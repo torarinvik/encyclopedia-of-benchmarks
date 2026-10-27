@@ -1,0 +1,159 @@
+const PMST_MAX_N: usize = 8
+const PMST_MAX_M: usize = 28
+const PMST_MAX_INPUT: usize = 95
+const PMST_MAX_OUTPUT: usize = 176
+
+def pmst_find(parent: mutable usize[PMST_MAX_N]&, value: usize) -> usize:
+    root: mutable usize = value
+    while parent[root] != root: root <- parent[root]
+    while parent[value] != value:
+        next: usize = parent[value]
+        parent[value] <- root
+        value <- next
+    root
+
+def pmst_put_i64(output: mutable u8&, offset: usize, value: i64):
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def truthful_multicast_pmst_tree_impl(input: i64&, length: usize, output: mutable u8&,
+        capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > PMST_MAX_INPUT: return -1
+    if input[0] < 2 or input[0] > PMST_MAX_N.i64() or input[1] < input[0] - 1 or input[1] > PMST_MAX_M.i64(): return -1
+    if input[2] < 0 or input[2] >= input[0] or input[3] < 1 or input[3] >= input[0]: return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    source: usize = input[2].usize()
+    receiver_count: usize = input[3].usize()
+    if length != 4 + 3 * m + receiver_count: return -1
+    eu: mutable usize[PMST_MAX_M] = zeroed
+    ev: mutable usize[PMST_MAX_M] = zeroed
+    ew: mutable i64[PMST_MAX_M] = zeroed
+    order: mutable usize[PMST_MAX_M] = zeroed
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    e: mutable usize = 0
+    while e < m:
+        u: i64 = input[4 + 3 * e]
+        v: i64 = input[5 + 3 * e]
+        w: i64 = input[6 + 3 * e]
+        if u < 0 or v <= u or v >= n.i64() or w < 1 or w > 100: return -1
+        if e > 0 and (u < previous_u or (u == previous_u and v <= previous_v)): return -1
+        eu[e] <- u.usize()
+        ev[e] <- v.usize()
+        ew[e] <- w
+        order[e] <- e
+        previous_u <- u
+        previous_v <- v
+        e <- e + 1
+    receivers: mutable usize[PMST_MAX_N] = zeroed
+    previous_receiver: mutable i64 = -1
+    i: mutable usize = 0
+    while i < receiver_count:
+        receiver: i64 = input[4 + 3 * m + i]
+        if receiver < 0 or receiver >= n.i64() or receiver == source.i64(): return -1
+        if i > 0 and receiver <= previous_receiver: return -1
+        receivers[i] <- receiver.usize()
+        previous_receiver <- receiver
+        i <- i + 1
+    i <- 1
+    while i < m:
+        key: usize = order[i]
+        j: mutable usize = i
+        while j > 0:
+            prior: usize = order[j - 1]
+            if ew[prior] < ew[key] or (ew[prior] == ew[key] and (eu[prior] < eu[key] or (eu[prior] == eu[key] and ev[prior] < ev[key]))): break
+            order[j] <- prior
+            j <- j - 1
+        order[j] <- key
+        i <- i + 1
+    dsu: mutable usize[PMST_MAX_N] = zeroed
+    i <- 0
+    while i < n: dsu[i] <- i; i <- i + 1
+    tu: mutable usize[PMST_MAX_N] = zeroed
+    tv: mutable usize[PMST_MAX_N] = zeroed
+    tw: mutable i64[PMST_MAX_N] = zeroed
+    tree_count: mutable usize = 0
+    z: mutable usize = 0
+    while z < m and tree_count < n - 1:
+        edge: usize = order[z]
+        a: usize = pmst_find(dsu, eu[edge])
+        b: usize = pmst_find(dsu, ev[edge])
+        if a != b:
+            dsu[a] <- b
+            tu[tree_count] <- eu[edge]
+            tv[tree_count] <- ev[edge]
+            tw[tree_count] <- ew[edge]
+            tree_count <- tree_count + 1
+        z <- z + 1
+    if tree_count != n - 1: return -1
+    edge_at: mutable usize[PMST_MAX_N * PMST_MAX_N] = zeroed
+    e <- 0
+    while e < tree_count:
+        edge_at[tu[e] * PMST_MAX_N + tv[e]] <- e + 1
+        edge_at[tv[e] * PMST_MAX_N + tu[e]] <- e + 1
+        e <- e + 1
+    parent: mutable i64[PMST_MAX_N] = zeroed
+    parent_edge: mutable i64[PMST_MAX_N] = zeroed
+    i <- 0
+    while i < n: parent[i] <- -1; parent_edge[i] <- -1; i <- i + 1
+    parent[source] <- source.i64()
+    stack: mutable usize[PMST_MAX_N] = zeroed
+    top: mutable usize = 1
+    stack[0] <- source
+    while top > 0:
+        top <- top - 1
+        u: usize = stack[top]
+        v: usize = 0
+        while v < n:
+            edge_plus_one: usize = edge_at[u * PMST_MAX_N + v]
+            if edge_plus_one > 0 and parent[v] < 0:
+                parent[v] <- u.i64()
+                parent_edge[v] <- (edge_plus_one - 1).i64()
+                stack[top] <- v
+                top <- top + 1
+            v <- v + 1
+    keep: mutable bool[PMST_MAX_N] = zeroed
+    i <- 0
+    while i < receiver_count:
+        v: mutable usize = receivers[i]
+        while v != source:
+            if parent[v] < 0: return -1
+            keep[parent_edge[v].usize()] <- true
+            v <- parent[v].usize()
+        i <- i + 1
+    selected: mutable usize[PMST_MAX_N] = zeroed
+    count: mutable usize = 0
+    e <- 0
+    while e < tree_count:
+        if keep[e]: selected[count] <- e; count <- count + 1
+        e <- e + 1
+    i <- 1
+    while i < count:
+        key: usize = selected[i]
+        j: mutable usize = i
+        while j > 0 and (tu[selected[j - 1]] > tu[key] or (tu[selected[j - 1]] == tu[key] and tv[selected[j - 1]] > tv[key])):
+            selected[j] <- selected[j - 1]
+            j <- j - 1
+        selected[j] <- key
+        i <- i + 1
+    bytes: usize = 8 * (1 + 3 * count)
+    if output.is_null() or capacity < bytes: return -2
+    staged: mutable u8[PMST_MAX_OUTPUT] = zeroed
+    pmst_put_i64(staged, 0, count.i64())
+    i <- 0
+    while i < count:
+        edge <- selected[i]
+        pmst_put_i64(staged, 8 * (1 + 3 * i), tu[edge].i64())
+        pmst_put_i64(staged, 8 * (2 + 3 * i), tv[edge].i64())
+        pmst_put_i64(staged, 8 * (3 + 3 * i), tw[edge])
+        i <- i + 1
+    i <- 0
+    while i < bytes: output[i] <- staged[i]; i <- i + 1
+    bytes.i64()
+
+export fn truthful_multicast_pmst_tree(input: i64&, length: usize, output: mutable u8&,
+        capacity: usize) -> i64 = truthful_multicast_pmst_tree_impl

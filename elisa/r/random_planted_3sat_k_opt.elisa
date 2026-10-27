@@ -1,0 +1,85 @@
+const MAX_VARS: usize = 12
+const MAX_CLAUSES: usize = 32
+const MAX_INPUT: usize = 98
+const MAX_OUTPUT: usize = 104
+
+def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def sat_set(clauses: i64&, m: usize, n: usize, code: usize) -> u64:
+    result: mutable u64 = 0
+    clause: mutable usize = 0
+    while clause < m:
+        satisfied: mutable bool = false
+        for offset in 0..<3:
+            literal: i64 = clauses[3 * clause + offset]
+            variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+            truth: bool = ((code >> (n - 1 - variable)) & 1) != 0
+            if truth == (literal > 0): satisfied <- true
+        if satisfied: result <- result | (1.u64() << clause)
+        clause <- clause + 1
+    result
+
+def random_planted_3sat_k_opt(input: i64&, length: usize,
+                              output: mutable u8&, capacity: usize) -> i64 @export("random_planted_3sat_k_opt"):
+    if input == null or length < 2 or length > MAX_INPUT: return -1
+    if input[0] < 3 or input[0] > MAX_VARS.i64() or input[1] < 0 or input[1] > MAX_CLAUSES.i64(): return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 3 * m: return -1
+    clauses: mutable i64[MAX_CLAUSES * 3] = zeroed
+    positive: mutable usize[MAX_VARS] = zeroed
+    negative: mutable usize[MAX_VARS] = zeroed
+    clause: mutable usize = 0
+    while clause < m:
+        seen: mutable bool[MAX_VARS] = zeroed
+        for offset in 0..<3:
+            literal: i64 = input[2 + 3 * clause + offset]
+            if literal == 0 or literal < -n.i64() or literal > n.i64(): return -1
+            variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+            if seen[variable]: return -1
+            seen[variable] <- true
+            clauses[3 * clause + offset] <- literal
+            if literal > 0: positive[variable] <- positive[variable] + 1
+            else: negative[variable] <- negative[variable] + 1
+        clause <- clause + 1
+    current: mutable usize = 0
+    for variable in 0..<n:
+        if positive[variable] > negative[variable]: current <- current | (1 << (n - 1 - variable))
+    full: u64 = if m == 0: 0 else: (1.u64() << m) - 1
+    k: mutable usize = 1
+    status: mutable i64 = 0
+    while true:
+        before: u64 = sat_set(&clauses[0], m, n, current)
+        if before == full: status <- 1; break
+        found: mutable bool = false
+        candidate: mutable usize = 0
+        limit: usize = 1 << n
+        while candidate < limit:
+            diff: mutable usize = current ^ candidate
+            distance: mutable usize = 0
+            while diff != 0:
+                diff <- diff & (diff - 1)
+                distance <- distance + 1
+            if distance > 0 and distance <= k:
+                after: u64 = sat_set(&clauses[0], m, n, candidate)
+                if after != before and (after & before) == before:
+                    current <- candidate
+                    found <- true
+                    break
+            candidate <- candidate + 1
+        if found: continue
+        if k == n: status <- 0; break
+        k <- k + 1
+    byte_count: usize = 8 * (n + 1)
+    if output == null or capacity < byte_count: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    put_i64(&staged[0], 0, status)
+    for variable in 0..<n:
+        truth: bool = ((current >> (n - 1 - variable)) & 1) != 0
+        put_i64(&staged[0], 8 * (variable + 1), if truth: 1 else: -1)
+    for i in 0..<byte_count: output[i] <- staged[i]
+    byte_count.i64()

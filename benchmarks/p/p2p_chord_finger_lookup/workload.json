@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-p2p-chord-finger-lookup-i64-array-bytes-output-v1",
+  "algorithm": "p2p_chord_finger_lookup",
+  "function_symbol": "p2p_chord_finger_lookup",
+  "pinned_source": {
+    "title": "P2P",
+    "author": "Encyclopedia of Algorithms chapter",
+    "doi": "10.1007/978-1-4939-2864-4_272",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_272",
+    "license": "No source-code license asserted; clean-room algorithm implementation"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[bits,node_count,start_index,key,node_ids...,finger_indices_by_node_then_level...]",
+    "bits_range": [1, 6],
+    "node_count_range": [2, 16],
+    "maximum_valid_length": 116,
+    "invalid_result": -1
+  },
+  "contract": {
+    "ring": "Identifier space is [0,2^bits); node_ids are strictly increasing and distinct.",
+    "fingers": "For node u and level i in [0,bits), finger[u,i] is the sorted-array index of the first member at or after (node_id[u]+2^i) mod 2^bits, wrapping to index 0.",
+    "lookup": "Owner is the first node ID >= key, wrapping to index 0. From the current node, choose the highest-level supplied finger with positive clockwise progress no farther than the owner.",
+    "output": "Visited node IDs from start through owner, as little-endian signed-i64 words.",
+    "profile_scope": "Fixed membership and finger table; no join/leave maintenance, transport, or random ID generation."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "route node IDs",
+    "maximum_bytes": 128,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Fixed arrays for at most 16 node IDs, 96 finger indexes, route indexes, and staged 128-byte output."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {
+      "id": "three-hop-lookup-across-members",
+      "input_values": [4,5,0,10,0,2,5,9,13,1,1,2,3,2,2,3,4,3,3,3,4,4,4,4,1,0,0,1,2],
+      "input_length": 29,
+      "output_capacity": 128,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000009000000000000000d00000000000000"
+    },
+    {
+      "id": "key-at-current-node",
+      "input_values": [4,5,2,5,0,2,5,9,13,1,1,2,3,2,2,3,4,3,3,3,4,4,4,4,1,0,0,1,2],
+      "input_length": 29,
+      "output_capacity": 128,
+      "expected_result": 8,
+      "expected_output_hex": "0500000000000000"
+    },
+    {
+      "id": "clockwise-wrap-to-first-member",
+      "input_values": [4,5,4,14,0,2,5,9,13,1,1,2,3,2,2,3,4,3,3,3,4,4,4,4,1,0,0,1,2],
+      "input_length": 29,
+      "output_capacity": 128,
+      "expected_result": 16,
+      "expected_output_hex": "0d000000000000000000000000000000"
+    },
+    {
+      "id": "incorrect-finger-pointer-is-invalid",
+      "input_values": [4,5,0,10,0,2,5,9,13,1,1,2,4,2,2,3,4,3,3,3,4,4,4,4,1,0,0,1,2],
+      "input_length": 29,
+      "output_capacity": 128,
+      "expected_result": -1
+    },
+    {
+      "id": "valid-route-insufficient-capacity",
+      "input_values": [4,5,0,10,0,2,5,9,13,1,1,2,3,2,2,3,4,3,3,3,4,4,4,4,1,0,0,1,2],
+      "input_length": 29,
+      "output_capacity": 23,
+      "expected_result": -2
+    }
+  ]
+}

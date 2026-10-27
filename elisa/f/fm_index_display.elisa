@@ -1,0 +1,106 @@
+const MAX_TEXT: usize = 32
+const MAX_INPUT: usize = 36
+const ALPHABET: usize = 5
+
+def fm_display_suffix_less(text: i64&, n: usize, a0: usize, b0: usize) -> bool:
+    a: mutable usize = a0
+    b: mutable usize = b0
+    while a < n and b < n:
+        if text[a] != text[b]: return text[a] < text[b]
+        a <- a + 1
+        b <- b + 1
+    a == n and b != n
+
+def fm_index_display(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("fm_index_display"):
+    if input.is_null() or length < 5 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    if n64 < 1 or n64 > 32 or length != n64.usize() + 4: return -1
+    n: usize = n64.usize()
+    left64: i64 = input[n + 1]
+    right64: i64 = input[n + 2]
+    stride64: i64 = input[n + 3]
+    if left64 < 0 or right64 < left64 or right64 >= n64 or stride64 < 1 or stride64 > n64: return -1
+    left: usize = left64.usize()
+    right: usize = right64.usize()
+    stride: usize = stride64.usize()
+    size: usize = n + 1
+    text: mutable i64[33] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        x: i64 = input[i + 1]
+        if x < 1 or x > 4: return -1
+        text[i] <- x
+        i <- i + 1
+    text[n] <- 0
+    sa: mutable usize[33] = zeroed
+    i <- 0
+    while i < size:
+        sa[i] <- i
+        i <- i + 1
+    i <- 1
+    while i < size:
+        key: usize = sa[i]
+        j: mutable usize = i
+        while j > 0 and fm_display_suffix_less(text, size, key, sa[j - 1]):
+            sa[j] <- sa[j - 1]
+            j <- j - 1
+        sa[j] <- key
+        i <- i + 1
+    isa: mutable usize[33] = zeroed
+    bwt: mutable usize[33] = zeroed
+    freq: mutable usize[5] = zeroed
+    i <- 0
+    while i < size:
+        pos: usize = sa[i]
+        isa[pos] <- i
+        symbol: usize = text[(pos + size - 1) % size].usize()
+        bwt[i] <- symbol
+        freq[symbol] <- freq[symbol] + 1
+        i <- i + 1
+    first: mutable usize[5] = zeroed
+    total: mutable usize = 0
+    i <- 0
+    while i < ALPHABET:
+        first[i] <- total
+        total <- total + freq[i]
+        i <- i + 1
+    seen: mutable usize[5] = zeroed
+    lf: mutable usize[33] = zeroed
+    i <- 0
+    while i < size:
+        symbol: usize = bwt[i]
+        lf[i] <- first[symbol] + seen[symbol]
+        seen[symbol] <- seen[symbol] + 1
+        i <- i + 1
+    sampled_isa: mutable usize[33] = zeroed
+    sampled: mutable bool[33] = zeroed
+    pos: mutable usize = 0
+    while pos < n:
+        if (pos + 1) % stride == 0:
+            sampled[pos] <- true
+            sampled_isa[pos] <- isa[pos]
+        pos <- pos + 1
+    sampled[n] <- true
+    sampled_isa[n] <- isa[n]
+    sample: mutable usize = ((right + 1) / stride + 1) * stride - 1
+    if sample > n: sample <- n
+    if not sampled[sample]: return -1
+    row: mutable usize = sampled_isa[sample]
+    current: mutable usize = sample
+    while current > right + 1:
+        row <- lf[row]
+        current <- current - 1
+    reversed: mutable u8[32] = zeroed
+    count: mutable usize = 0
+    while current > left:
+        reversed[count] <- bwt[row].u8()
+        count <- count + 1
+        row <- lf[row]
+        current <- current - 1
+    if count != right - left + 1: return -1
+    if output.is_null() or capacity < count: return -2
+    i <- 0
+    while i < count:
+        output[i] <- reversed[count - 1 - i]
+        i <- i + 1
+    count.i64()

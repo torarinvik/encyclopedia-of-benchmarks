@@ -1,0 +1,190 @@
+const MAX_TEXT_LENGTH: usize = 16
+const MAX_INPUT_LENGTH: usize = 18
+
+def symbol_at(symbols: i64&, length: usize, position: usize) -> i64:
+    if position < length: return symbols[position]
+    return 0
+
+def sample_rank(ranks: i64&, length: usize, position: usize) -> i64:
+    if position < length: return ranks[position]
+    return -1
+
+def triple_compare(symbols: i64&, length: usize, left: usize, right: usize) -> i64:
+    for offset in 0..<3:
+        a: i64 = symbol_at(symbols, length, left + offset)
+        b: i64 = symbol_at(symbols, length, right + offset)
+        if a != b: return if a < b: -1 else: 1
+    return 0
+
+def suffix_compare(symbols: i64&, length: usize, left_start: usize, right_start: usize) -> i64:
+    left: mutable usize = left_start
+    right: mutable usize = right_start
+    while left < length and right < length:
+        if symbols[left] != symbols[right]: return if symbols[left] < symbols[right]: -1 else: 1
+        left <- left + 1
+        right <- right + 1
+    if left == length and right == length: return 0
+    return if left == length: -1 else: 1
+
+def zero_pair_compare(symbols: i64&, ranks: i64&, length: usize,
+                      left: usize, right: usize) -> i64:
+    a: i64 = symbol_at(symbols, length, left)
+    b: i64 = symbol_at(symbols, length, right)
+    if a != b: return if a < b: -1 else: 1
+    a <- sample_rank(ranks, length, left + 1)
+    b <- sample_rank(ranks, length, right + 1)
+    if a != b: return if a < b: -1 else: 1
+    return 0
+
+def merge_compare(symbols: i64&, ranks: i64&, length: usize,
+                  zero: usize, sample: usize) -> i64:
+    a: i64 = symbol_at(symbols, length, zero)
+    b: i64 = symbol_at(symbols, length, sample)
+    if a != b: return if a < b: -1 else: 1
+    if sample % 3 == 1:
+        a <- sample_rank(ranks, length, zero + 1)
+        b <- sample_rank(ranks, length, sample + 1)
+        if a != b: return if a < b: -1 else: 1
+    else:
+        a <- symbol_at(symbols, length, zero + 1)
+        b <- symbol_at(symbols, length, sample + 1)
+        if a != b: return if a < b: -1 else: 1
+        a <- sample_rank(ranks, length, zero + 2)
+        b <- sample_rank(ranks, length, sample + 2)
+        if a != b: return if a < b: -1 else: 1
+    return 0
+
+def dc3(symbols: i64&, length: usize, suffixes: mutable usize&) -> void:
+    if length == 0: return
+    if length <= 3:
+        for i in 0..<length: suffixes[i] <- i
+        for i in 1..<length:
+            key: usize = suffixes[i]
+            position: mutable usize = i
+            while position > 0 and suffix_compare(symbols, length, key, suffixes[position - 1]) < 0:
+                suffixes[position] <- suffixes[position - 1]
+                position <- position - 1
+            suffixes[position] <- key
+        return
+
+    sample_positions: mutable usize[MAX_TEXT_LENGTH] = zeroed
+    sample_count: mutable usize = 0
+    for i in 1..<length:
+        if i % 3 != 0:
+            sample_positions[sample_count] <- i
+            sample_count <- sample_count + 1
+    for i in 1..<sample_count:
+        key: usize = sample_positions[i]
+        position: mutable usize = i
+        while position > 0 and triple_compare(symbols, length, key, sample_positions[position - 1]) < 0:
+            sample_positions[position] <- sample_positions[position - 1]
+            position <- position - 1
+        sample_positions[position] <- key
+
+    triple_ranks: mutable i64[MAX_TEXT_LENGTH] = zeroed
+    next_rank: mutable i64 = 0
+    for i in 0..<sample_count:
+        if i == 0 or triple_compare(symbols, length, sample_positions[i - 1], sample_positions[i]) != 0:
+            next_rank <- next_rank + 1
+        triple_ranks[sample_positions[i]] <- next_rank
+    group_one_count: mutable usize = 0
+    i: mutable usize = 1
+    while i < length:
+        group_one_count <- group_one_count + 1
+        i <- i + 3
+    reduced: mutable i64[MAX_TEXT_LENGTH] = zeroed
+    reduced_length: mutable usize = 0
+    i <- 1
+    while i < length:
+        reduced[reduced_length] <- triple_ranks[i]
+        reduced_length <- reduced_length + 1
+        i <- i + 3
+    reduced[reduced_length] <- 0
+    reduced_length <- reduced_length + 1
+    i <- 2
+    while i < length:
+        reduced[reduced_length] <- triple_ranks[i]
+        reduced_length <- reduced_length + 1
+        i <- i + 3
+    reduced_order: mutable usize[MAX_TEXT_LENGTH] = zeroed
+    dc3(&reduced[0], reduced_length, &reduced_order[0])
+
+    sample_order: mutable usize[MAX_TEXT_LENGTH] = zeroed
+    ranks: mutable i64[MAX_TEXT_LENGTH] = zeroed
+    for i in 0..<length: ranks[i] <- -1
+    sample_order_count: mutable usize = 0
+    for i in 0..<reduced_length:
+        reduced_position: usize = reduced_order[i]
+        if reduced_position == group_one_count: continue
+        source_position: usize = if reduced_position < group_one_count:
+            1 + 3 * reduced_position
+        else:
+            2 + 3 * (reduced_position - group_one_count - 1)
+        sample_order[sample_order_count] <- source_position
+        ranks[source_position] <- sample_order_count.i64()
+        sample_order_count <- sample_order_count + 1
+
+    zero_positions: mutable usize[MAX_TEXT_LENGTH] = zeroed
+    zero_count: mutable usize = 0
+    i <- 0
+    while i < length:
+        zero_positions[zero_count] <- i
+        zero_count <- zero_count + 1
+        i <- i + 3
+    for i in 1..<zero_count:
+        key: usize = zero_positions[i]
+        position: mutable usize = i
+        while position > 0 and zero_pair_compare(symbols, ranks, length, key, zero_positions[position - 1]) < 0:
+            zero_positions[position] <- zero_positions[position - 1]
+            position <- position - 1
+        zero_positions[position] <- key
+
+    zi: mutable usize = 0
+    si: mutable usize = 0
+    oi: mutable usize = 0
+    while zi < zero_count and si < sample_order_count:
+        zero: usize = zero_positions[zi]
+        sample: usize = sample_order[si]
+        if merge_compare(symbols, ranks, length, zero, sample) < 0:
+            suffixes[oi] <- zero_positions[zi]
+            zi <- zi + 1
+        else:
+            suffixes[oi] <- sample_order[si]
+            si <- si + 1
+        oi <- oi + 1
+    while zi < zero_count:
+        suffixes[oi] <- zero_positions[zi]
+        zi <- zi + 1
+        oi <- oi + 1
+    while si < sample_order_count:
+        suffixes[oi] <- sample_order[si]
+        si <- si + 1
+        oi <- oi + 1
+
+def put_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def suffix_array_dc3_impl(input: i64&, length: usize,
+                          output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > MAX_TEXT_LENGTH.i64(): return -1
+    count: usize = count_value.usize()
+    if length != count + 1: return -1
+    for i in 0..<count:
+        if input[i + 1] < 0 or input[i + 1] > 255: return -1
+    output_bytes: usize = count * 8
+    if output == null or capacity < output_bytes: return -2
+    if count == 0: return 0
+    symbols: mutable i64[MAX_TEXT_LENGTH] = zeroed
+    for i in 0..<count: symbols[i] <- input[i + 1] + 1
+    suffixes: mutable usize[MAX_TEXT_LENGTH] = zeroed
+    dc3(&symbols[0], count, &suffixes[0])
+    for i in 0..<count: put_i64_le(output, i * 8, suffixes[i].i64())
+    output_bytes.i64()
+
+export fn suffix_array_dc3(input: i64&, length: usize,
+                           output: mutable u8&, capacity: usize) -> i64 = suffix_array_dc3_impl

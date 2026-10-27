@@ -1,0 +1,97 @@
+const MAX_REQUESTS: usize = 7
+const MAX_FILES: usize = 8
+const MAX_INPUT: usize = 16
+
+def greedy_dual_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def greedy_dual_weighted_caching_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    cache_capacity: i64 = input[0]
+    count_value: i64 = input[1]
+    if cache_capacity < 1 or cache_capacity > i64(MAX_FILES) or count_value < 0 or count_value > i64(MAX_REQUESTS) or
+        length != 2 + 2 * count_value.usize(): return -1
+    known_cost: mutable i64[MAX_FILES] = zeroed
+    seen: mutable bool[MAX_FILES] = zeroed
+    request: mutable usize = 0
+    while request < count_value.usize():
+        id: i64 = input[2 + 2 * request]
+        cost: i64 = input[3 + 2 * request]
+        if id < 0 or id >= i64(MAX_FILES) or cost < 0 or cost > 20: return -1
+        slot: usize = id.usize()
+        if seen[slot] and known_cost[slot] != cost: return -1
+        seen[slot] <- true
+        known_cost[slot] <- cost
+        request <- request + 1
+
+    ids: mutable i64[MAX_FILES] = zeroed
+    credits: mutable i64[MAX_FILES] = zeroed
+    resident_count: mutable usize = 0
+    misses: mutable i64 = 0
+    total_cost: mutable i64 = 0
+    hit_signature: mutable u64 = 0
+    eviction_signature: mutable u64 = 0
+    resident_mask: mutable u64 = 0
+    request <- 0
+    while request < count_value.usize():
+        id: i64 = input[2 + 2 * request]
+        cost: i64 = input[3 + 2 * request]
+        position: mutable usize = 0
+        while position < resident_count and ids[position] != id: position <- position + 1
+        if position < resident_count:
+            hit_signature <- hit_signature | (1.u64() << request)
+            credits[position] <- cost
+            request <- request + 1
+            continue
+        misses <- misses + 1
+        total_cost <- total_cost + cost
+        evicted_mask: mutable u64 = 0
+        while resident_count >= cache_capacity.usize():
+            delta: mutable i64 = credits[0]
+            position <- 1
+            while position < resident_count:
+                if credits[position] < delta: delta <- credits[position]
+                position <- position + 1
+            kept: mutable usize = 0
+            position <- 0
+            while position < resident_count:
+                credits[position] <- credits[position] - delta
+                if credits[position] == 0:
+                    evicted_mask <- evicted_mask | (1.u64() << ids[position].usize())
+                else:
+                    ids[kept] <- ids[position]
+                    credits[kept] <- credits[position]
+                    kept <- kept + 1
+                position <- position + 1
+            resident_count <- kept
+        eviction_signature <- eviction_signature | (evicted_mask << (8 * request))
+        ids[resident_count] <- id
+        credits[resident_count] <- cost
+        resident_count <- resident_count + 1
+        request <- request + 1
+
+    position: mutable usize = 0
+    while position < resident_count:
+        resident_mask <- resident_mask | (1.u64() << ids[position].usize())
+        position <- position + 1
+    if output.is_null() or output_capacity < 40: return -2
+    staged: mutable u8[40] = zeroed
+    greedy_dual_store_i64(misses, &staged[0], 0)
+    greedy_dual_store_i64(total_cost, &staged[0], 8)
+    greedy_dual_store_i64(hit_signature.i64(), &staged[0], 16)
+    greedy_dual_store_i64(eviction_signature.i64(), &staged[0], 24)
+    greedy_dual_store_i64(resident_mask.i64(), &staged[0], 32)
+    byte: mutable usize = 0
+    while byte < 40:
+        output[byte] <- staged[byte]
+        byte <- byte + 1
+    40
+
+export fn greedy_dual_weighted_caching(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = greedy_dual_weighted_caching_impl

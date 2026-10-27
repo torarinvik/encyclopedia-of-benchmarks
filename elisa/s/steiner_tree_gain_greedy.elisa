@@ -1,0 +1,219 @@
+const ST_N: usize = 4
+const ST_MAX_INPUT: usize = 37
+
+struct ST_Edge:
+    u: usize
+    v: usize
+    w: i64
+
+def st_put_i64(output: mutable u8&, word: usize, value: i64): void:
+    bits: u64 = value.u64()
+    for b in 0..<8:
+        output[word * 8 + b] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def st_root(parent: mutable usize[4], value: usize): usize:
+    x: mutable usize = value
+    while parent[x] != x:
+        parent[x] <- parent[parent[x]]
+        x <- parent[x]
+    x
+
+def st_join(parent: mutable usize[4], a: usize, b: usize): bool:
+    ra: usize = st_root(parent, a)
+    rb: usize = st_root(parent, b)
+    if ra == rb: return false
+    parent[rb] <- ra
+    true
+
+def st_group_count(n: usize, mask: i64, h: bool[16]): usize:
+    parent: mutable usize[4] = zeroed
+    for i in 0..<4: parent[i] <- i
+    for i in 0..<n:
+        for j in (i + 1)..<n:
+            if h[i * 4 + j]: st_join(parent, i, j)
+    seen: mutable bool[4] = zeroed
+    count: mutable usize = 0
+    for i in 0..<n:
+        if (mask & (1.i64() << i)) != 0:
+            r: usize = st_root(parent, i)
+            if not seen[r]: seen[r] <- true; count <- count + 1
+    count
+
+def st_metric_mst(n: usize, mask: i64, w: i64[16]): i64:
+    verts: mutable usize[4] = zeroed
+    vn: mutable usize = 0
+    for i in 0..<n:
+        if (mask & (1.i64() << i)) != 0: verts[vn] <- i; vn <- vn + 1
+    if vn <= 1: return 0
+    used: mutable bool[4] = zeroed
+    best: mutable i64[4] = zeroed
+    for i in 0..<4: best[i] <- 0x7fffffffffffffff.i64()
+    used[verts[0]] <- true
+    for k in 1..<vn: best[verts[k]] <- w[verts[0] * 4 + verts[k]]
+    total: mutable i64 = 0
+    for _ in 1..<vn:
+        pick: mutable usize = 4
+        for k in 0..<vn:
+            v: usize = verts[k]
+            if not used[v] and (pick == 4 or best[v] < best[pick] or (best[v] == best[pick] and v < pick)): pick <- v
+        total <- total + best[pick]
+        used[pick] <- true
+        for k in 0..<vn:
+            v: usize = verts[k]
+            if not used[v] and w[pick * 4 + v] < best[v]: best[v] <- w[pick * 4 + v]
+    total
+
+def st_less(a: ST_Edge, b: ST_Edge): bool:
+    a.w < b.w or (a.w == b.w and (a.u < b.u or (a.u == b.u and a.v < b.v)))
+
+def st_mst_h(n: usize, w: i64[16], h: bool[16], tree: mutable ST_Edge[3], tree_n: mutable usize): i64:
+    edges: mutable ST_Edge[6] = zeroed
+    ec: mutable usize = 0
+    for i in 0..<n:
+        for j in (i + 1)..<n:
+            if h[i * 4 + j]: edges[ec] <- ST_Edge(u: i, v: j, w: w[i * 4 + j]); ec <- ec + 1
+    for i in 1..<ec:
+        x: ST_Edge = edges[i]
+        j: mutable usize = i
+        while j > 0 and st_less(x, edges[j - 1]): edges[j] <- edges[j - 1]; j <- j - 1
+        edges[j] <- x
+    parent: mutable usize[4] = zeroed
+    for i in 0..<4: parent[i] <- i
+    tree_n <- 0
+    cost: mutable i64 = 0
+    for i in 0..<ec:
+        e: ST_Edge = edges[i]
+        if st_join(parent, e.u, e.v): tree[tree_n] <- e; tree_n <- tree_n + 1; cost <- cost + e.w
+    cost
+
+def st_contracted_mst(n: usize, mask: i64, w: i64[16], h: bool[16]): i64:
+    d: mutable i64[16] = zeroed
+    parent: mutable usize[4] = zeroed
+    for i in 0..<4:
+        parent[i] <- i
+        for j in 0..<4: d[i * 4 + j] <- w[i * 4 + j]
+    for i in 0..<n:
+        for j in (i + 1)..<n:
+            if h[i * 4 + j]: d[i * 4 + j] <- 0; d[j * 4 + i] <- 0; st_join(parent, i, j)
+    for k in 0..<n:
+        for i in 0..<n:
+            for j in 0..<n:
+                if d[i * 4 + j] > d[i * 4 + k] + d[k * 4 + j]: d[i * 4 + j] <- d[i * 4 + k] + d[k * 4 + j]
+    roots: mutable usize[4] = zeroed
+    g: mutable usize = 0
+    for v in 0..<n:
+        if (mask & (1.i64() << v)) != 0:
+            r: usize = st_root(parent, v)
+            found: mutable bool = false
+            for x in 0..<g: if roots[x] == r: found <- true
+            if not found: roots[g] <- r; g <- g + 1
+    if g <= 1: return 0
+    q: mutable i64[16] = zeroed
+    for a in 0..<g:
+        for b in (a + 1)..<g:
+            best: mutable i64 = 0x7fffffffffffffff.i64()
+            for u in 0..<n:
+                if st_root(parent, u) == roots[a]:
+                    for v in 0..<n:
+                        if st_root(parent, v) == roots[b] and d[u * 4 + v] < best: best <- d[u * 4 + v]
+            q[a * 4 + b] <- best; q[b * 4 + a] <- best
+    used: mutable bool[4] = zeroed
+    best: mutable i64[4] = zeroed
+    for i in 0..<4: best[i] <- 0x7fffffffffffffff.i64()
+    used[0] <- true
+    for j in 1..<g: best[j] <- q[j]
+    total: mutable i64 = 0
+    for _ in 1..<g:
+        pick: mutable usize = 4
+        for v in 0..<g:
+            if not used[v] and (pick == 4 or best[v] < best[pick] or (best[v] == best[pick] and v < pick)): pick <- v
+        total <- total + best[pick]; used[pick] <- true
+        for v in 0..<g: if not used[v] and q[pick * 4 + v] < best[v]: best[v] <- q[pick * 4 + v]
+    total
+
+def steiner_tree_gain_greedy(input: i64&, length: usize, output: mutable u8&, capacity: usize): i64 @export("steiner_tree_gain_greedy"):
+    if input.is_null() or length < 4 or length > ST_MAX_INPUT: return -1
+    n0: i64 = input[0]; mask: i64 = input[1]; count0: i64 = input[2]
+    if n0 < 2 or n0 > 4 or mask <= 0 or (mask >> n0) != 0 or count0 < 1 or count0 > 4: return -1
+    n: usize = n0.usize(); count: usize = count0.usize()
+    terminals: usize = 0
+    for i in 0..<n: if (mask & (1.i64() << i)) != 0: terminals <- terminals + 1
+    if terminals < 2: return -1
+    w: mutable i64[16] = zeroed
+    at: mutable usize = 3
+    for i in 0..<n:
+        for j in (i + 1)..<n:
+            if at >= length or input[at] < 0 or input[at] > 1000: return -1
+            w[i * 4 + j] <- input[at]; w[j * 4 + i] <- input[at]; at <- at + 1
+    for i in 0..<n:
+        for j in 0..<n:
+            for k in 0..<n: if w[i * 4 + j] > w[i * 4 + k] + w[k * 4 + j]: return -1
+    family_u: mutable usize[12] = zeroed
+    family_v: mutable usize[12] = zeroed
+    sizes: mutable usize[4] = zeroed
+    family_h: mutable bool[16] = zeroed
+    for c in 0..<count:
+        if at >= length: return -1
+        ec0: i64 = input[at]; at <- at + 1
+        if ec0 < 1 or ec0 > n0 - 1 or at + 2 * ec0.usize() > length: return -1
+        ec: usize = ec0.usize()
+        parent: mutable usize[4] = zeroed
+        degree: mutable usize[4] = zeroed
+        for i in 0..<4: parent[i] <- i
+        for e in 0..<ec:
+            u0: i64 = input[at]; v0: i64 = input[at + 1]; at <- at + 2
+            if u0 < 0 or u0 >= n0 or v0 < 0 or v0 >= n0 or u0 == v0: return -1
+            u: usize = u0.usize(); v: usize = v0.usize()
+            if not st_join(parent, u, v): return -1
+            if u > v: tmp: usize = u; u <- v; v <- tmp
+            for x in 0..<e:
+                if family_u[c * 3 + x] == u and family_v[c * 3 + x] == v: return -1
+            family_u[c * 3 + e] <- u; family_v[c * 3 + e] <- v
+            family_h[u * 4 + v] <- true; family_h[v * 4 + u] <- true
+            degree[u] <- degree[u] + 1; degree[v] <- degree[v] + 1
+        seen: mutable usize = 0; leaves: mutable usize = 0; first: mutable usize = 4
+        for v in 0..<n:
+            if degree[v] > 0:
+                if first == 4: first <- st_root(parent, v)
+                else if st_root(parent, v) != first: return -1
+                seen <- seen + 1
+                if degree[v] == 1:
+                    if (mask & (1.i64() << v)) == 0: return -1
+                    leaves <- leaves + 1
+                else if (mask & (1.i64() << v)) != 0: return -1
+        if seen != ec + 1 or leaves < 2 or leaves > 3: return -1
+        sizes[c] <- ec
+    if at != length or st_group_count(n, mask, family_h) != 1: return -1
+    baseline: i64 = st_metric_mst(n, mask, w)
+    h: mutable bool[16] = zeroed
+    selected: mutable bool[4] = zeroed
+    while st_group_count(n, mask, h) > 1:
+        before: usize = st_group_count(n, mask, h)
+        best: mutable usize = 4
+        best_gain: mutable i64 = -0x7fffffffffffffff.i64()
+        for c in 0..<count:
+            if selected[c]: continue
+            trial: mutable bool[16] = zeroed
+            for x in 0..<16: trial[x] <- h[x]
+            for e in 0..<sizes[c]:
+                u: usize = family_u[c * 3 + e]; v: usize = family_v[c * 3 + e]
+                trial[u * 4 + v] <- true; trial[v * 4 + u] <- true
+            if st_group_count(n, mask, trial) >= before: continue
+            scratch: mutable ST_Edge[3] = zeroed
+            scratch_n: mutable usize = 0
+            gain: i64 = baseline - st_contracted_mst(n, mask, w, trial) - st_mst_h(n, w, trial, scratch, scratch_n)
+            if best == 4 or gain > best_gain: best <- c; best_gain <- gain
+        if best == 4: return -1
+        selected[best] <- true
+        for e in 0..<sizes[best]:
+            u: usize = family_u[best * 3 + e]; v: usize = family_v[best * 3 + e]
+            h[u * 4 + v] <- true; h[v * 4 + u] <- true
+    tree: mutable ST_Edge[3] = zeroed
+    tree_n: mutable usize = 0
+    cost: i64 = st_mst_h(n, w, h, tree, tree_n)
+    bytes: usize = 8 * (3 + 2 * tree_n)
+    if output.is_null() or capacity < bytes: return -2
+    st_put_i64(output,0,1); st_put_i64(output,1,cost); st_put_i64(output,2,tree_n.i64())
+    for i in 0..<tree_n: st_put_i64(output,3+2*i,tree[i].u.i64()); st_put_i64(output,4+2*i,tree[i].v.i64())
+    bytes.i64()

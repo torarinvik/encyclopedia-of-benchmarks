@@ -1,0 +1,78 @@
+const MAX_NODES: usize = 16
+const MAX_BITS: usize = 6
+const MAX_INPUT: usize = 116
+const MAX_OUTPUT: usize = 128
+
+def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def p2p_chord_finger_lookup(input: i64&, length: usize,
+                            output: mutable u8&, capacity: usize) -> i64 @export("p2p_chord_finger_lookup"):
+    if input == null or length < 4 or length > MAX_INPUT: return -1
+    if input[0] < 1 or input[0] > MAX_BITS.i64() or input[1] < 2 or input[1] > MAX_NODES.i64(): return -1
+    bits: usize = input[0].usize()
+    n: usize = input[1].usize()
+    ring: i64 = 1 << bits
+    if n > ring.usize() or input[2] < 0 or input[2] >= n.i64() or input[3] < 0 or input[3] >= ring: return -1
+    if length != 4 + n + n * bits: return -1
+    ids: mutable i64[MAX_NODES] = zeroed
+    fingers: mutable usize[MAX_NODES * MAX_BITS] = zeroed
+    node: mutable usize = 0
+    while node < n:
+        raw: i64 = input[4 + node]
+        if raw < 0 or raw >= ring: return -1
+        if node > 0 and raw <= ids[node - 1]: return -1
+        ids[node] <- raw
+        node <- node + 1
+    node <- 0
+    while node < n:
+        level: mutable usize = 0
+        while level < bits:
+            target: i64 = (ids[node] + (1 << level)) % ring
+            successor: mutable usize = 0
+            while successor < n and ids[successor] < target: successor <- successor + 1
+            if successor == n: successor <- 0
+            raw: i64 = input[4 + n + node * bits + level]
+            if raw < 0 or raw >= n.i64() or raw.usize() != successor: return -1
+            fingers[node * bits + level] <- successor
+            level <- level + 1
+        node <- node + 1
+    key: i64 = input[3]
+    owner: mutable usize = 0
+    while owner < n and ids[owner] < key: owner <- owner + 1
+    if owner == n: owner <- 0
+    route: mutable usize[MAX_NODES] = zeroed
+    route_length: mutable usize = 1
+    current: mutable usize = input[2].usize()
+    route[0] <- current
+    step: mutable usize = 0
+    while step < n and current != owner:
+        target_distance: i64 = (ids[owner] - ids[current] + ring) % ring
+        chosen: mutable i64 = -1
+        level: mutable i64 = bits.i64() - 1
+        while level >= 0:
+            candidate: usize = fingers[current * bits + level.usize()]
+            progress: i64 = (ids[candidate] - ids[current] + ring) % ring
+            if progress > 0 and progress <= target_distance:
+                chosen <- candidate.i64()
+                break
+            level <- level - 1
+        if chosen < 0 or route_length >= n: return -1
+        index: mutable usize = 0
+        while index < route_length:
+            if route[index] == chosen.usize(): return -1
+            index <- index + 1
+        current <- chosen.usize()
+        route[route_length] <- current
+        route_length <- route_length + 1
+        step <- step + 1
+    if current != owner: return -1
+    byte_count: usize = 8 * route_length
+    if output == null or capacity < byte_count: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    for i in 0..<route_length: put_i64(&staged[0], 8 * i, ids[route[i]])
+    for i in 0..<byte_count: output[i] <- staged[i]
+    byte_count.i64()

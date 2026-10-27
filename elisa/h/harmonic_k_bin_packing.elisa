@@ -1,0 +1,52 @@
+const MAX_N: usize = 32
+const MAX_K: usize = 8
+const MAX_INPUT: usize = 34
+const CAPACITY: i64 = 10000
+
+def harmonic_k_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def harmonic_k_bin_packing(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("harmonic_k_bin_packing"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    k64: i64 = input[0]
+    n64: i64 = input[1]
+    if k64 < 3 or k64 > 8 or n64 < 1 or n64 > 32 or length != 2 + n64.usize(): return -1
+    k: usize = k64.usize()
+    n: usize = n64.usize()
+    i: mutable usize = 0
+    while i < n:
+        if input[2 + i] < 1 or input[2 + i] > CAPACITY: return -1
+        i <- i + 1
+    output_bytes: usize = 8 * (n + 1)
+    if output.is_null() or capacity < output_bytes: return -2
+    current: mutable i64[8] = [-1, -1, -1, -1, -1, -1, -1, -1]
+    remaining: mutable i64[8] = zeroed
+    assignment: mutable i64[32] = zeroed
+    bins: mutable i64 = 0
+    i <- 0
+    while i < n:
+        size: i64 = input[2 + i]
+        kind: mutable usize = k - 1
+        c: mutable usize = 0
+        while c < k - 1:
+            if size * (c + 2).i64() > CAPACITY:
+                kind <- c
+                break
+            c <- c + 1
+        if current[kind] < 0 or size > remaining[kind]:
+            current[kind] <- bins
+            bins <- bins + 1
+            remaining[kind] <- CAPACITY
+        assignment[i] <- current[kind]
+        remaining[kind] <- remaining[kind] - size
+        i <- i + 1
+    harmonic_k_store(bins, output, 0)
+    i <- 0
+    while i < n:
+        harmonic_k_store(assignment[i], output, 8 * (i + 1))
+        i <- i + 1
+    output_bytes.i64()

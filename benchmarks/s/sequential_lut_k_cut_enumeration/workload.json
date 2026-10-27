@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi364-sequential-lut-k-cut-enumeration-v1",
+  "algorithm": "sequential_lut_k_cut_enumeration",
+  "function_symbol": "sequential_lut_k_cut_enumeration",
+  "comparison_model": "i64_array_bytes_output_call",
+  "pinned_source": {
+    "title": "Sequential Circuit Technology Mapping",
+    "doi": "10.1007/978-1-4939-2864-4_364",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_364",
+    "epub_path": "OEBPS/AChap364.html",
+    "section": "K-feasible cuts and merge recurrence",
+    "license": "No source-code license asserted; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[node_count,K,edge_count,(source,target,edge_delay)...]",
+    "node_count": [1, 3],
+    "K": [1, 2],
+    "edge_count": [0, 3],
+    "edge_delay": [0, 1],
+    "topological_order": "Node identifiers are topological; every edge requires source < target.",
+    "maximum_valid_length": 12,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "layout": "[node_count,cut_count_0,masks...,cut_count_1,masks...,...]",
+    "cut_encoding": "bit (3*node+delay) represents the element (node,delay); masks are sorted numerically.",
+    "maximum_bytes": 1112,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed cut-set, incoming-edge, and output staging arrays for at most three nodes and three edges."
+  },
+  "profile": {
+    "operation": "Enumerate all K-feasible cuts at each node using the chapter's sequential cut merge recurrence.",
+    "recurrence": "For each incoming edge, select one child cut, add the edge delay to every element, union selected cuts, and retain unions of size at most K together with the trivial cut.",
+    "delay_bound": 2,
+    "scope": "Bounded acyclic topological-order profile. Cyclic fixed-point iteration, LUT covering/area optimization, and general sequential mapping are not included."
+  },
+  "measurement": {"sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 100},
+  "cases": [
+    {
+      "id": "single-node-trivial-cut",
+      "input_values": [1, 1, 0],
+      "input_length": 3,
+      "output_capacity": 1112,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "two-input-merge-pruned-at-k-one",
+      "input_values": [3, 1, 2, 0, 2, 0, 1, 2, 0],
+      "input_length": 9,
+      "output_capacity": 1112,
+      "expected_result": 56,
+      "expected_output_hex": "0300000000000000010000000000000001000000000000000100000000000000080000000000000001000000000000004000000000000000"
+    },
+    {
+      "id": "two-input-merge-retained-at-k-two",
+      "input_values": [3, 2, 2, 0, 2, 0, 1, 2, 0],
+      "input_length": 9,
+      "output_capacity": 1112,
+      "expected_result": 64,
+      "expected_output_hex": "03000000000000000100000000000000010000000000000001000000000000000800000000000000020000000000000009000000000000004000000000000000"
+    },
+    {
+      "id": "reject-non-topological-edge",
+      "input_values": [2, 1, 1, 1, 0, 0],
+      "input_length": 6,
+      "output_capacity": 1112,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+const MAX_MACHINES: usize = 3
+const MAX_OLD_JOBS: usize = 8
+const MAX_INPUT: usize = 20
+const MAX_OUTPUT: usize = 88
+
+def robust_scheduling_put64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def robust_scheduling_exact_optimum(machines: usize, sizes: i64&, jobs: usize) -> i64:
+    assignments: mutable usize = 1
+    code_count: mutable usize = 0
+    while code_count < jobs:
+        assignments <- assignments * machines
+        code_count <- code_count + 1
+    best: mutable i64 = 0
+    i: mutable usize = 0
+    while i < jobs:
+        best <- best + sizes[i]
+        i <- i + 1
+    code: mutable usize = 0
+    while code < assignments:
+        loads: mutable i64[MAX_MACHINES] = zeroed
+        remaining: mutable usize = code
+        j: mutable usize = 0
+        while j < jobs:
+            target: usize = remaining % machines
+            remaining <- remaining / machines
+            loads[target] <- loads[target] + sizes[j]
+            j <- j + 1
+        makespan: mutable i64 = loads[0]
+        machine: mutable usize = 1
+        while machine < machines:
+            if loads[machine] > makespan: makespan <- loads[machine]
+            machine <- machine + 1
+        if makespan < best: best <- makespan
+        code <- code + 1
+    best
+
+def robust_scheduling_single_arrival_migration_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length < 6 || length > MAX_INPUT: return -1
+    m64: i64 = input[0]
+    n64: i64 = input[1]
+    claimed: i64 = input[2]
+    new_size: i64 = input[3]
+    if m64 < 2 || m64 > MAX_MACHINES.i64() || n64 < 1 || n64 > MAX_OLD_JOBS.i64() || claimed < 1 || new_size < 1 || new_size > 20: return -1
+    machines: usize = m64.usize()
+    n: usize = n64.usize()
+    if length != 4 + 2 * n: return -1
+    sizes: mutable i64[9] = zeroed
+    assignment: mutable usize[9] = zeroed
+    loads: mutable i64[MAX_MACHINES] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        size: i64 = input[4 + 2 * i]
+        machine: i64 = input[5 + 2 * i]
+        if size < 1 || size > 20 || machine < 0 || machine >= m64: return -1
+        sizes[i] <- size
+        assignment[i] <- machine.usize()
+        loads[machine.usize()] <- loads[machine.usize()] + size
+        i <- i + 1
+    sizes[n] <- new_size
+    optimum: i64 = robust_scheduling_exact_optimum(machines, &sizes[0], n + 1)
+    if optimum != claimed: return -1
+    moved: mutable i64 = 0
+    if 2 * new_size <= optimum:
+        target: mutable usize = 0
+        machine: mutable usize = 1
+        while machine < machines:
+            if loads[machine] < loads[target]: target <- machine
+            machine <- machine + 1
+        assignment[n] <- target
+        loads[target] <- loads[target] + new_size
+    else:
+        source: mutable i64 = -1
+        machine: mutable usize = 0
+        while machine < machines:
+            eligible: mutable bool = true
+            volume: mutable i64 = 0
+            i <- 0
+            while i < n:
+                if assignment[i] == machine:
+                    if 2 * sizes[i] > optimum: eligible <- false
+                    volume <- volume + sizes[i]
+                i <- i + 1
+            if eligible && volume >= new_size:
+                source <- machine.i64()
+                break
+            machine <- machine + 1
+        if source < 0: return -1
+        removed: mutable bool[MAX_OLD_JOBS] = zeroed
+        volume: mutable i64 = 0
+        i <- 0
+        while i < n:
+            if assignment[i] == source.usize():
+                removed[i] <- true
+                volume <- volume + sizes[i]
+                loads[source.usize()] <- loads[source.usize()] - sizes[i]
+                if volume >= new_size: break
+            i <- i + 1
+        if volume < new_size: return -1
+        assignment[n] <- source.usize()
+        loads[source.usize()] <- loads[source.usize()] + new_size
+        i <- 0
+        while i < n:
+            if removed[i]:
+                target: mutable usize = 0
+                machine <- 1
+                while machine < machines:
+                    if loads[machine] < loads[target]: target <- machine
+                    machine <- machine + 1
+                assignment[i] <- target
+                loads[target] <- loads[target] + sizes[i]
+                if target != source.usize(): moved <- moved + sizes[i]
+            i <- i + 1
+    bytes: usize = 8 * (n + 3)
+    if output == null || capacity < bytes: return -2
+    robust_scheduling_put64(output, 0, optimum)
+    robust_scheduling_put64(output, 8, moved)
+    i <- 0
+    while i < n + 1:
+        robust_scheduling_put64(output, 8 * (i + 2), assignment[i].i64())
+        i <- i + 1
+    bytes.i64()
+
+export fn robust_scheduling_single_arrival_migration(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = robust_scheduling_single_arrival_migration_impl

@@ -1,0 +1,137 @@
+const MAX_TEXT: usize = 12
+const MAX_INPUT: usize = 14
+const MAX_OUTPUT: usize = 1592
+
+def minimum(a: usize, b: usize) -> usize:
+    if a < b: return a
+    b
+
+def edit_distance(text: i64&, a: usize, a_length: usize, b: usize, b_length: usize) -> usize:
+    row: mutable usize[13] = zeroed
+    j: mutable usize = 0
+    while j <= b_length:
+        row[j] <- j
+        j <- j + 1
+    i: mutable usize = 1
+    while i <= a_length:
+        diagonal: mutable usize = row[0]
+        row[0] <- i
+        j <- 1
+        while j <= b_length:
+            above: usize = row[j]
+            deletion: usize = above + 1
+            insertion: usize = row[j - 1] + 1
+            substitution: mutable usize = diagonal
+            if text[a + i - 1] != text[b + j - 1]: substitution <- substitution + 1
+            row[j] <- minimum(minimum(deletion, insertion), substitution)
+            diagonal <- above
+            j <- j + 1
+        i <- i + 1
+    row[b_length]
+
+def minimum_edit_cost(text: i64&, start: usize, length: usize) -> usize:
+    best: mutable usize = 1000
+    piece_start: mutable usize[12] = zeroed
+    piece_length: mutable usize[12] = zeroed
+    prefix: mutable usize = 0
+    while prefix <= length:
+        suffix: mutable usize = 0
+        while prefix + suffix <= length:
+            middle: usize = length - prefix - suffix
+            if middle >= 2:
+                end_mask: usize = 1 << (middle - 1)
+                mask: mutable usize = 1
+                while mask < end_mask:
+                    segments: mutable usize = 0
+                    previous: mutable usize = 0
+                    cut: mutable usize = 1
+                    while cut < middle:
+                        if (mask & (1 << (cut - 1))) != 0:
+                            piece_start[segments] <- start + prefix + previous
+                            piece_length[segments] <- cut - previous
+                            segments <- segments + 1
+                            previous <- cut
+                        cut <- cut + 1
+                    piece_start[segments] <- start + prefix + previous
+                    piece_length[segments] <- middle - previous
+                    segments <- segments + 1
+                    left: mutable usize = 1000
+                    fragment: mutable usize = 0
+                    while fragment <= piece_length[0]:
+                        cost: usize = edit_distance(text, start, prefix,
+                            piece_start[0] + piece_length[0] - fragment, fragment)
+                        if cost < left: left <- cost
+                        fragment <- fragment + 1
+                    last: usize = segments - 1
+                    right: mutable usize = 1000
+                    fragment <- 0
+                    while fragment <= piece_length[last]:
+                        cost: usize = edit_distance(text, piece_start[last], fragment,
+                            start + length - suffix, suffix)
+                        if cost < right: right <- cost
+                        fragment <- fragment + 1
+                    internal: mutable usize = 0
+                    index: mutable usize = 0
+                    while index + 1 < segments:
+                        internal <- internal + edit_distance(text, piece_start[index], piece_length[index],
+                                                             piece_start[index + 1], piece_length[index + 1])
+                        index <- index + 1
+                    total: usize = left + internal + right
+                    if total < best: best <- total
+                    mask <- mask + 1
+            suffix <- suffix + 1
+        prefix <- prefix + 1
+    best
+
+def count_records(text: i64&, n: usize, budget: usize) -> usize:
+    count: mutable usize = 0
+    start: mutable usize = 0
+    while start < n:
+        length: mutable usize = 2
+        while length <= n - start:
+            if minimum_edit_cost(text, start + 2, length) <= budget:
+                count <- count + 1
+            length <- length + 1
+        start <- start + 1
+    count
+
+def store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def approximate_tandem_k_edit_repeats(input: i64&, length: usize,
+                                     output: mutable u8&, capacity: usize) -> i64
+    @export("approximate_tandem_k_edit_repeats"):
+    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    budget64: i64 = input[1]
+    if n64 < 2 or n64 > MAX_TEXT or budget64 < 0 or budget64 > 4 or length != n64.usize() + 2: return -1
+    n: usize = n64.usize()
+    budget: usize = budget64.usize()
+    i: mutable usize = 0
+    while i < n:
+        if input[2 + i] < 0 or input[2 + i] > 3: return -1
+        i <- i + 1
+    count: usize = count_records(input, n, budget)
+    bytes: usize = 8 * (1 + 3 * count)
+    if bytes > MAX_OUTPUT: return -1
+    if output.is_null() or capacity < bytes: return -2
+    store_i64(count.i64(), output, 0)
+    record: mutable usize = 0
+    start: mutable usize = 0
+    while start < n:
+        factor_length: mutable usize = 2
+        while factor_length <= n - start:
+            cost: usize = minimum_edit_cost(input, 2 + start, factor_length)
+            if cost <= budget:
+                offset: usize = 8 * (1 + 3 * record)
+                store_i64(start.i64(), output, offset)
+                store_i64(factor_length.i64(), output, offset + 8)
+                store_i64(cost.i64(), output, offset + 16)
+                record <- record + 1
+            factor_length <- factor_length + 1
+        start <- start + 1
+    bytes.i64()

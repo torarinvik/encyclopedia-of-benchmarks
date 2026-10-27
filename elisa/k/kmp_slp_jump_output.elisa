@@ -1,0 +1,116 @@
+const MAX_PATTERN: usize = 6
+const MAX_VARIABLES: usize = 12
+const MAX_FACTORS: usize = 8
+const MAX_TEXT: usize = 64
+const MAX_INPUT: usize = 53
+const MAX_OUTPUT_BYTES: usize = 520
+
+def kmp_store64(output: mutable u8&, offset: usize, value: i64): void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def kmp_slp_jump_output_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 8 or length > MAX_INPUT: return -1
+    cursor: mutable usize = 0
+    pattern_raw: i64 = input[cursor]
+    cursor <- cursor + 1
+    if pattern_raw < 1 or pattern_raw > MAX_PATTERN.i64(): return -1
+    pattern_length: usize = pattern_raw.usize()
+    pattern: mutable i64[MAX_PATTERN] = zeroed
+    for i in 0..<pattern_length:
+        pattern[i] <- input[cursor]
+        cursor <- cursor + 1
+        if pattern[i] < 0 or pattern[i] > 3: return -1
+    if cursor >= length: return -1
+    variable_raw: i64 = input[cursor]
+    cursor <- cursor + 1
+    if variable_raw < 1 or variable_raw > MAX_VARIABLES.i64() or cursor + 3 * variable_raw.usize() + 1 > length: return -1
+    variable_count: usize = variable_raw.usize()
+    kind: mutable usize[MAX_VARIABLES] = zeroed
+    first: mutable usize[MAX_VARIABLES] = zeroed
+    second: mutable usize[MAX_VARIABLES] = zeroed
+    terminal: mutable i64[MAX_VARIABLES] = zeroed
+    variable_length: mutable usize[MAX_VARIABLES] = zeroed
+    for variable in 0..<variable_count:
+        kind_raw: i64 = input[cursor]
+        first_raw: i64 = input[cursor + 1]
+        second_raw: i64 = input[cursor + 2]
+        cursor <- cursor + 3
+        if kind_raw == 0:
+            if first_raw < 0 or first_raw > 3 or second_raw != 0: return -1
+            terminal[variable] <- first_raw
+            variable_length[variable] <- 1
+        else if kind_raw == 1:
+            if first_raw < 0 or second_raw < 0 or first_raw >= variable.i64() or second_raw >= variable.i64(): return -1
+            kind[variable] <- 1
+            first[variable] <- first_raw.usize()
+            second[variable] <- second_raw.usize()
+            variable_length[variable] <- variable_length[first[variable]] + variable_length[second[variable]]
+            if variable_length[variable] > MAX_TEXT: return -1
+        else:
+            return -1
+    if cursor >= length: return -1
+    factor_raw: i64 = input[cursor]
+    cursor <- cursor + 1
+    if factor_raw < 1 or factor_raw > MAX_FACTORS.i64() or cursor + factor_raw.usize() != length: return -1
+    factor_count: usize = factor_raw.usize()
+    factors: mutable usize[MAX_FACTORS] = zeroed
+    text_length: mutable usize = 0
+    for i in 0..<factor_count:
+        factor: i64 = input[cursor]
+        cursor <- cursor + 1
+        if factor < 0 or factor >= variable_raw: return -1
+        factors[i] <- factor.usize()
+        text_length <- text_length + variable_length[factors[i]]
+        if text_length > MAX_TEXT: return -1
+
+    failure: mutable usize[MAX_PATTERN] = zeroed
+    border: mutable usize = 0
+    for i in 1..<pattern_length:
+        while border > 0 and pattern[i] != pattern[border]: border <- failure[border - 1]
+        if pattern[i] == pattern[border]: border <- border + 1
+        failure[i] <- border
+    jump: mutable usize[MAX_VARIABLES][MAX_PATTERN] = zeroed
+    output_mask: mutable u64[MAX_VARIABLES][MAX_PATTERN] = zeroed
+    for variable in 0..<variable_count:
+        for state in 0..<pattern_length:
+            if kind[variable] == 0:
+                next: mutable usize = state
+                while next > 0 and pattern[next] != terminal[variable]: next <- failure[next - 1]
+                if pattern[next] == terminal[variable]: next <- next + 1
+                if next == pattern_length:
+                    output_mask[variable][state] <- 1
+                    next <- failure[pattern_length - 1]
+                jump[variable][state] <- next
+            else:
+                left: usize = first[variable]
+                right: usize = second[variable]
+                middle: usize = jump[left][state]
+                jump[variable][state] <- jump[right][middle]
+                output_mask[variable][state] <- output_mask[left][state] | (output_mask[right][middle] << variable_length[left])
+    state: mutable usize = 0
+    offset: mutable usize = 0
+    end_offsets: mutable u64 = 0
+    for i in 0..<factor_count:
+        variable: usize = factors[i]
+        end_offsets <- end_offsets | (output_mask[variable][state] << offset)
+        state <- jump[variable][state]
+        offset <- offset + variable_length[variable]
+    words: mutable i64[1 + MAX_TEXT] = zeroed
+    occurrences: mutable usize = 0
+    for ending in 0..<text_length:
+        if ((end_offsets >> ending) & 1) != 0:
+            if ending + 1 < pattern_length: return -1
+            words[1 + occurrences] <- (ending + 1 - pattern_length).i64()
+            occurrences <- occurrences + 1
+    words[0] <- occurrences.i64()
+    output_bytes: usize = 8 * (1 + occurrences)
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    for word in 0..<(1 + occurrences): kmp_store64(staged&, 8 * word, words[word])
+    for byte in 0..<output_bytes: output[byte] <- staged[byte]
+    output_bytes.i64()
+
+export fn kmp_slp_jump_output(input: i64&, length: usize, output: mutable u8&, capacity: usize): i64 = kmp_slp_jump_output_impl

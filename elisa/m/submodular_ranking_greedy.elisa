@@ -1,0 +1,102 @@
+const SR_MAX_N: usize = 5
+const SR_MAX_M: usize = 4
+const SR_MAX_INPUT: usize = 131
+
+def sr_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def submodular_ranking_greedy(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("submodular_ranking_greedy"):
+    if input.is_null() or length < 2 or length > SR_MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > 5 or m64 < 1 or m64 > 4: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    size: usize = 1 << n
+    if length != 2 + m * size: return -1
+    f: mutable i64[4][32] = zeroed
+    i: mutable usize = 0
+    while i < m:
+        a: mutable usize = 0
+        while a < size:
+            v: i64 = input[2 + i * size + a]
+            if v < 0 or v > 8: return -1
+            f[i][a] <- v
+            a <- a + 1
+        if f[i][0] != 0 or f[i][size - 1] != 8: return -1
+        a <- 0
+        while a < size:
+            bit: mutable usize = 0
+            while bit < n:
+                e: usize = 1 << bit
+                if (a & e) == 0 and f[i][a] > f[i][a | e]: return -1
+                bit <- bit + 1
+            a <- a + 1
+        a <- 0
+        while a < size:
+            b: mutable usize = 0
+            while b < size:
+                if (a & b) == a:
+                    bit <- 0
+                    while bit < n:
+                        e: usize = 1 << bit
+                        if (b & e) == 0 and f[i][a | e] - f[i][a] < f[i][b | e] - f[i][b]: return -1
+                        bit <- bit + 1
+                b <- b + 1
+            a <- a + 1
+        i <- i + 1
+    out_bytes: usize = 8 * (1 + n + m)
+    if output.is_null() or capacity < out_bytes: return -2
+    order: mutable usize[5] = zeroed
+    times: mutable i64[4] = zeroed
+    total: mutable i64 = 0
+    mask: mutable usize = 0
+    t: mutable usize = 1
+    while t <= n:
+        winner: mutable usize = 0
+        best_num: mutable i64 = -1
+        best_den: mutable i64 = 1
+        e: mutable usize = 0
+        while e < n:
+            bit: usize = 1 << e
+            if (mask & bit) == 0:
+                num: mutable i64 = 0
+                den: mutable i64 = 1
+                i <- 0
+                while i < m:
+                    cur: i64 = f[i][mask]
+                    if cur != 8:
+                        d: i64 = 8 - cur
+                        gain: i64 = f[i][mask | bit] - cur
+                        num <- num * d + gain * den
+                        den <- den * d
+                    i <- i + 1
+                if best_num < 0 or num * best_den > best_num * den:
+                    winner <- e
+                    best_num <- num
+                    best_den <- den
+            e <- e + 1
+        mask <- mask | (1 << winner)
+        order[t - 1] <- winner
+        i <- 0
+        while i < m:
+            if times[i] == 0 and f[i][mask] == 8:
+                times[i] <- t.i64()
+                total <- total + t.i64()
+            i <- i + 1
+        t <- t + 1
+    sr_store_i64_le(total, output, 0)
+    i <- 0
+    while i < n:
+        sr_store_i64_le(order[i].i64(), output, 8 * (1 + i))
+        i <- i + 1
+    i <- 0
+    while i < m:
+        sr_store_i64_le(times[i], output, 8 * (1 + n + i))
+        i <- i + 1
+    out_bytes.i64()
