@@ -1,0 +1,93 @@
+# Bitset fixed-point dominator analysis for a bounded directed graph.
+const MAX_VERTEX_COUNT: usize = 63
+const MAX_EDGE_COUNT: usize = 2047
+const MAX_INPUT_LENGTH: usize = 3 + 2 * MAX_EDGE_COUNT
+
+def dominator_tree_count_bits(value_value: u64) -> usize:
+    remaining: mutable u64 = value_value
+    count: mutable usize = 0
+    while remaining != 0:
+        remaining <- remaining & (remaining - 1.u64())
+        count <- count + 1
+    count
+
+def dominator_tree_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    if input[0] < 1 or input[0] > i64(MAX_VERTEX_COUNT) or input[1] < 0 or
+            input[1] >= input[0] or input[2] < 0 or input[2] > i64(MAX_EDGE_COUNT):
+        return -1
+    vertex_count: usize = input[0].usize()
+    root: usize = input[1].usize()
+    edge_count: usize = input[2].usize()
+    if length != 3 + 2 * edge_count:
+        return -1
+
+    outgoing: mutable u64[63] = zeroed
+    for edge in 0..<edge_count |input, outgoing, vertex_count|:
+        from_value: i64 = input[3 + 2 * edge]
+        to_value: i64 = input[4 + 2 * edge]
+        if from_value < 0 or to_value < 0 or from_value >= vertex_count.i64() or
+                to_value >= vertex_count.i64():
+            return -1
+        from: usize = from_value.usize()
+        to: usize = to_value.usize()
+        outgoing[from] <- outgoing[from] | (1.u64() << to)
+
+    reachable: mutable u64 = 1.u64() << root
+    frontier: mutable u64 = reachable
+    while frontier != 0 |frontier, reachable, outgoing, vertex_count|:
+        discovered: mutable u64 = 0
+        for vertex in 0..<vertex_count:
+            if (frontier & (1.u64() << vertex)) != 0:
+                discovered <- discovered | outgoing[vertex]
+        discovered <- discovered & ~reachable
+        reachable <- reachable | discovered
+        frontier <- discovered
+
+    dominators: mutable u64[63] = zeroed
+    dominators[root] <- 1.u64() << root
+    for vertex in 0..<vertex_count |vertex, reachable, dominators, root|:
+        if (reachable & (1.u64() << vertex)) != 0 and vertex != root:
+            dominators[vertex] <- reachable
+
+    changed: mutable bool = true
+    while changed |changed, vertex_count, root, reachable, outgoing, dominators|:
+        changed <- false
+        for vertex in 0..<vertex_count |vertex, root, reachable, outgoing, dominators, changed|:
+            vertex_bit: u64 = 1.u64() << vertex
+            if (reachable & vertex_bit) == 0 or vertex == root:
+                continue
+            common: mutable u64 = reachable
+            for predecessor in 0..<vertex_count |predecessor, reachable, outgoing, vertex_bit, dominators, common|:
+                if (reachable & (1.u64() << predecessor)) != 0 and
+                        (outgoing[predecessor] & vertex_bit) != 0:
+                    common <- common & dominators[predecessor]
+            updated: u64 = common | vertex_bit
+            if updated != dominators[vertex]:
+                dominators[vertex] <- updated
+                changed <- true
+
+    if output.is_null() or output_capacity < vertex_count:
+        return -2
+    for vertex in 0..<vertex_count |vertex, reachable, dominators, root, output|:
+        vertex_bit: u64 = 1.u64() << vertex
+        if (reachable & vertex_bit) == 0:
+            output[vertex] <- 255.u8()
+        elif vertex == root:
+            output[vertex] <- root.u8()
+        else:
+            strict: u64 = dominators[vertex] & ~vertex_bit
+            best: mutable usize = root
+            best_depth: mutable usize = 0
+            for candidate in 0..<vertex_count |candidate, strict, dominators, best, best_depth|:
+                if (strict & (1.u64() << candidate)) == 0:
+                    continue
+                depth: usize = dominator_tree_count_bits(dominators[candidate])
+                if depth > best_depth:
+                    best <- candidate
+                    best_depth <- depth
+            output[vertex] <- best.u8()
+    vertex_count.i64()
+
+export fn dominator_tree(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = dominator_tree_impl

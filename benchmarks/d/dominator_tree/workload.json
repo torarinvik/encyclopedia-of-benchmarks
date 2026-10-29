@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "id": "dominator-tree-i64-array-bytes-output-v1",
+  "algorithm": "dominator_tree",
+  "function_symbol": "dominator_tree",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded bitset data-flow computation of a directed graph's immediate dominators.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[vertex_count, root, edge_count, (from, to)*edge_count]",
+    "node_count_range": [1, 63],
+    "edge_count_range": [0, 2047],
+    "maximum_valid_length": 4097,
+    "vertex_ids": "zero-based",
+    "graph_semantics": "directed; repeated edges are coalesced; self-loops are allowed",
+    "edge_semantics": "Directed graph; parallel arcs are coalesced and self-loops are permitted.",
+    "root_range": "0 <= root < vertex_count",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "immediate_dominator_id_byte_array",
+    "encoding": "one byte per vertex in vertex-ID order; immediate-dominator ID for reachable vertices, root is its own parent, and 255 marks unreachable vertices",
+    "maximum_values": 63,
+    "maximum_bytes": 63,
+    "success_result": "vertex_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 63,
+    "meaning": "Maximum-sized byte output containing one immediate-dominator ID per vertex."
+  },
+  "contract": {
+    "operation": "Compute root-relative immediate dominators using reachable-vertex data-flow sets and return one parent ID per vertex.",
+    "unreachable_rule": "Emit 255 for every vertex not reachable from the selected root.",
+    "root_rule": "The root's immediate dominator is the root itself.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "source": {
+    "name": "Library Checker Dominator Tree",
+    "url": "https://judge.yosupo.jp/problem/dominatortree",
+    "algorithm_reference": "https://hipersoft.cs.rice.edu/grads/publications/dom14.pdf",
+    "implementation_note": "clean-room iterative set-dataflow algorithm represented as fixed-width bitsets"
+  },
+  "cases": [
+    {
+      "id": "single_vertex_root",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "rooted_chain",
+      "input_values": [5, 0, 4, 0, 1, 1, 2, 2, 3, 3, 4],
+      "input_length": 11,
+      "expected_result": 5,
+      "expected_output_hex": "0000010203"
+    },
+    {
+      "id": "diamond_join",
+      "input_values": [4, 0, 4, 0, 1, 0, 2, 1, 3, 2, 3],
+      "input_length": 11,
+      "expected_result": 4,
+      "expected_output_hex": "00000000"
+    },
+    {
+      "id": "cycle_with_shared_exit",
+      "input_values": [4, 0, 5, 0, 1, 1, 2, 2, 1, 1, 3, 2, 3],
+      "input_length": 13,
+      "expected_result": 4,
+      "expected_output_hex": "00000101"
+    },
+    {
+      "id": "unreachable_components_and_cycle",
+      "input_values": [6, 2, 5, 2, 3, 3, 4, 4, 3, 0, 1, 5, 5],
+      "input_length": 13,
+      "expected_result": 6,
+      "expected_output_hex": "ffff020203ff"
+    },
+    {
+      "id": "multiple_root_branches_join",
+      "input_values": [5, 3, 6, 3, 0, 3, 1, 0, 2, 1, 2, 2, 4, 1, 4],
+      "input_length": 15,
+      "expected_result": 5,
+      "expected_output_hex": "0303030303"
+    },
+    {
+      "id": "nonzero_root_self_loop_and_duplicate_edge",
+      "input_values": [4, 2, 5, 2, 1, 1, 1, 1, 0, 2, 3, 2, 1],
+      "input_length": 13,
+      "expected_result": 4,
+      "expected_output_hex": "01020202"
+    },
+    {
+      "id": "unreachable_vertices_around_isolated_root",
+      "input_values": [3, 1, 0],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "ff01ff"
+    },
+    {
+      "id": "wrong-length-invalid",
+      "input_values": [3, 0, 0, 1],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "endpoint-out-of-range-invalid",
+      "input_values": [2, 0, 1, 0, 2],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-root",
+      "input_values": [2, 2, 0],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-buffer",
+      "input_values": [4, 0, 1, 0, 1],
+      "input_length": 5,
+      "output_capacity": 3,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-buffer",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input-buffer",
+      "input_values": [],
+      "input_length": 3,
+      "input_is_null": true,
+      "output_capacity": 63,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}
