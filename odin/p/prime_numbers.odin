@@ -4,8 +4,12 @@ import "core:c"
 
 is_prime :: proc "contextless" (value: i64) -> bool {
     if value < 2 do return false
-    for divisor := i64(2); divisor <= value / divisor; divisor += 1 {
-        if value % divisor == 0 do return false
+    divisor := i64(2)
+    quotient := value / divisor
+    for divisor <= quotient {
+        if value - quotient * divisor == 0 do return false
+        divisor += 1
+        quotient = value / divisor
     }
     return true
 }

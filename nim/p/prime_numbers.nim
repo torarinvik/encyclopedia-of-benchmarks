@@ -2,9 +2,11 @@
 proc isPrime(value: int64): bool =
   if value < 2: return false
   var divisor = 2'i64
-  while divisor <= value div divisor:
-    if value mod divisor == 0: return false
+  var quotient = value div divisor
+  while divisor <= quotient:
+    if value - quotient * divisor == 0: return false
     inc divisor
+    quotient = value div divisor
   true
 
 proc decimalLength(value: int64): csize_t =

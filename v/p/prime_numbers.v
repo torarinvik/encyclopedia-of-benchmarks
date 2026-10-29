@@ -3,9 +3,11 @@ module prime_numbers
 fn is_prime(value i64) bool {
 	if value < 2 { return false }
 	mut divisor := i64(2)
-	for divisor <= value / divisor {
-		if value % divisor == 0 { return false }
+	mut quotient := value / divisor
+	for divisor <= quotient {
+		if value - quotient * divisor == 0 { return false }
 		divisor++
+		quotient = value / divisor
 	}
 	return true
 }

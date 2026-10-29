@@ -5,8 +5,13 @@
 static bool is_prime(std::int64_t value)
 {
     if (value < 2) return false;
-    for (std::int64_t divisor = 2; divisor <= value / divisor; ++divisor)
-        if (value % divisor == 0) return false;
+    std::int64_t divisor = 2;
+    std::int64_t quotient = value / divisor;
+    while (divisor <= quotient) {
+        if (value - quotient * divisor == 0) return false;
+        ++divisor;
+        quotient = value / divisor;
+    }
     return true;
 }
 

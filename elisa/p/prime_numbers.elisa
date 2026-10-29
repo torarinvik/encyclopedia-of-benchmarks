@@ -3,10 +3,12 @@ def is_prime(value: i64) -> bool:
     if value < 2:
         return false
     divisor: mutable i64 = 2
-    while divisor <= value / divisor:
-        if value % divisor == 0:
+    quotient: mutable i64 = value / divisor
+    while divisor <= quotient:
+        if value - quotient * divisor == 0:
             return false
         divisor <- divisor + 1
+        quotient <- value / divisor
     true
 
 def decimal_length(value: i64) -> usize:

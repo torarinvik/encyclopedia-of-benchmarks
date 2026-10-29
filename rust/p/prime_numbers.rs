@@ -1,9 +1,11 @@
 fn is_prime(value: i64) -> bool {
     if value < 2 { return false; }
     let mut divisor = 2i64;
-    while divisor <= value / divisor {
-        if value % divisor == 0 { return false; }
+    let mut quotient = value / divisor;
+    while divisor <= quotient {
+        if value - quotient * divisor == 0 { return false; }
         divisor += 1;
+        quotient = value / divisor;
     }
     true
 }

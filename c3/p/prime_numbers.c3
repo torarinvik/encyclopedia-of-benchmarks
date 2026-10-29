@@ -2,8 +2,12 @@ module prime_numbers;
 
 fn bool is_prime(long value) {
     if (value < 2) return false;
-    for (long divisor = 2; divisor <= value / divisor; divisor++) {
-        if (value % divisor == 0) return false;
+    long divisor = 2;
+    long quotient = value / divisor;
+    while (divisor <= quotient) {
+        if (value - quotient * divisor == 0) return false;
+        divisor++;
+        quotient = value / divisor;
     }
     return true;
 }

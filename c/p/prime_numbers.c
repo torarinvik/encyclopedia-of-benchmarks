@@ -5,8 +5,13 @@
 static int is_prime(int64_t value)
 {
     if (value < 2) return 0;
-    for (int64_t divisor = 2; divisor <= value / divisor; ++divisor)
-        if (value % divisor == 0) return 0;
+    int64_t divisor = 2;
+    int64_t quotient = value / divisor;
+    while (divisor <= quotient) {
+        if (value - quotient * divisor == 0) return 0;
+        ++divisor;
+        quotient = value / divisor;
+    }
     return 1;
 }
 

@@ -1,8 +1,11 @@
 fn isPrime(value: i64) bool {
     if (value < 2) return false;
     var divisor: i64 = 2;
-    while (divisor <= @divTrunc(value, divisor)) : (divisor += 1) {
-        if (@mod(value, divisor) == 0) return false;
+    var quotient = @divTrunc(value, divisor);
+    while (divisor <= quotient) {
+        if (value - quotient * divisor == 0) return false;
+        divisor += 1;
+        quotient = @divTrunc(value, divisor);
     }
     return true;
 }
