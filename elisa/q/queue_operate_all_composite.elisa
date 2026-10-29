@@ -1,0 +1,104 @@
+# Two-stack aggregate queue for ordered affine-function composition.
+const MAX_OPERATIONS: usize = 64
+const MAX_INPUT_LENGTH: usize = 193
+const MODULUS: i64 = 998244353
+
+struct Affine:
+    a: i64
+    b: i64
+
+def compose(first: Affine, second: Affine) -> Affine:
+    result: Affine
+    result.a <- (second.a * first.a) % MODULUS
+    result.b <- (second.a * first.b + second.b) % MODULUS
+    result
+
+def push_back(back_functions: mutable view[Affine], back_aggregates: mutable view[Affine],
+              back_size: mutable usize&, a: i64, b: i64) -> void:
+    function: Affine
+    function.a <- a
+    function.b <- b
+    back_functions[back_size] <- function
+    if back_size == 0:
+        back_aggregates[back_size] <- function
+    else:
+        back_aggregates[back_size] <- compose(back_aggregates[back_size - 1], function)
+    back_size <- back_size + 1
+
+def transfer(back_functions: view[Affine], back_size: mutable usize&,
+             front_aggregates: mutable view[Affine], front_size: mutable usize&) -> void:
+    while back_size > 0 |back_size, front_size, back_functions, front_aggregates|:
+        back_size <- back_size - 1
+        function: Affine = back_functions[back_size]
+        if front_size == 0:
+            front_aggregates[front_size] <- function
+        else:
+            front_aggregates[front_size] <- compose(function, front_aggregates[front_size - 1])
+        front_size <- front_size + 1
+
+def pop_front(back_functions: view[Affine], back_size: mutable usize&,
+              front_aggregates: mutable view[Affine], front_size: mutable usize&) -> bool:
+    if front_size == 0:
+        transfer(back_functions, back_size, front_aggregates, front_size)
+    if front_size == 0: return false
+    front_size <- front_size - 1
+    true
+
+def aggregate(front_aggregates: view[Affine], front_size: usize,
+              back_aggregates: view[Affine], back_size: usize) -> Affine:
+    result: Affine
+    result.a <- 1
+    result.b <- 0
+    if front_size > 0:
+        result <- front_aggregates[front_size - 1]
+    if back_size > 0:
+        if front_size > 0:
+            result <- compose(result, back_aggregates[back_size - 1])
+        else:
+            result <- back_aggregates[back_size - 1]
+    result
+
+def queue_operate_all_composite_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    operation_value: i64 = input[0]
+    if operation_value < 0 or operation_value > 64: return -1
+    operation_count: usize = operation_value.usize()
+
+    back_functions: mutable Affine[64] = zeroed
+    back_aggregates: mutable Affine[64] = zeroed
+    front_aggregates: mutable Affine[64] = zeroed
+    back_size: mutable usize = 0
+    front_size: mutable usize = 0
+    position: mutable usize = 1
+    checksum: mutable i64 = 0
+    query_number: mutable i64 = 0
+    for operation in 0..<operation_count:
+        if position >= length: return -1
+        opcode: i64 = input[position]
+        position <- position + 1
+        if opcode == 0:
+            if length - position < 2: return -1
+            a: i64 = input[position]
+            b: i64 = input[position + 1]
+            position <- position + 2
+            if a < 1 or a >= MODULUS or b < 0 or b >= MODULUS: return -1
+            push_back(back_functions[0:64], back_aggregates[0:64], back_size, a, b)
+        else if opcode == 1:
+            if not pop_front(back_functions[0:64], back_size, front_aggregates[0:64], front_size):
+                return -1
+        else if opcode == 2:
+            if position >= length: return -1
+            x: i64 = input[position]
+            position <- position + 1
+            if x < 0 or x >= MODULUS: return -1
+            function: Affine = aggregate(front_aggregates[0:64], front_size,
+                                         back_aggregates[0:64], back_size)
+            answer: i64 = (function.a * x + function.b) % MODULUS
+            query_number <- query_number + 1
+            checksum <- checksum + query_number * (answer + 1)
+        else:
+            return -1
+    if position != length: return -1
+    checksum
+
+export fn queue_operate_all_composite(input: i64&, length: usize) -> i64 = queue_operate_all_composite_impl

@@ -1301,6 +1301,11 @@ from d_esopo_pape_oracle import MAX_OUTPUT_BYTES as D_ESOPO_PAPE_VERIFIER_MAX_OU
 from d_esopo_pape_oracle import MAX_VERTICES as D_ESOPO_PAPE_VERIFIER_MAX_VERTICES
 from d_esopo_pape_oracle import MAX_WEIGHT as D_ESOPO_PAPE_VERIFIER_MAX_WEIGHT
 from d_esopo_pape_oracle import expected_output as d_esopo_pape_package_oracle
+from s.static_range_mode_query.oracle import MAX_N as STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_N
+from s.static_range_mode_query.oracle import MAX_Q as STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_Q
+from s.static_range_mode_query.oracle import MAX_VALUE as STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_VALUE
+from s.static_range_mode_query.oracle import MAX_INPUT_LENGTH as STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_INPUT_LENGTH
+from s.static_range_mode_query.oracle import MAX_OUTPUT_BYTES as STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_OUTPUT_BYTES
 from run_i64_array_bytes_output import MAX_OUTPUT_CAPACITY
 from run_i64_array_bytes_output import RECORDER_WORKSPACE_ALGORITHMS
 from run_i64_array_bytes_output import EXTERNAL_BYTE_OUTPUT_BOUNDS
@@ -4788,6 +4793,7 @@ ALGORITHMS = (*ALGORITHMS, "lz78_flexible_parsing")
 ALGORITHMS = (*ALGORITHMS, "dominator_tree", "st_numbering", "link_cut_tree")
 ALGORITHMS = (*ALGORITHMS, "k_shortest_walk")
 ALGORITHMS = (*ALGORITHMS, "d_esopo_pape")
+ALGORITHMS = (*ALGORITHMS, "static_range_mode_query")
 WORKSPACE_ALGORITHMS.update({
     "ams_sketch", "count_min_sketch_affine", "deterministic_line_search",
     "color_coding_k_path",
@@ -5052,6 +5058,7 @@ WORKSPACE_ALGORITHMS.add("dominator_tree")
 WORKSPACE_ALGORITHMS.update({"st_numbering", "link_cut_tree"})
 WORKSPACE_ALGORITHMS.add("k_shortest_walk")
 WORKSPACE_ALGORITHMS.add("d_esopo_pape")
+WORKSPACE_ALGORITHMS.add("static_range_mode_query")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
 
 MISC_LOWERCASE_MAX_CHARACTERS = 31
@@ -11700,6 +11707,50 @@ def d_esopo_pape_independent_oracle(
     return d_esopo_pape_package_oracle(values, **oracle_arguments)
 
 
+def static_range_mode_query_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or capacity is not None and (type(capacity) is not int or capacity < 0)
+            or input_length is not None and (
+                type(input_length) is not int
+                or not 0 <= input_length <= STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_INPUT_LENGTH)
+            or input_is_null and values not in (None, [], ())):
+        return -1, b""
+    if input_is_null or values is None:
+        return -1, b""
+    if (not isinstance(values, (list, tuple))
+            or len(values) < 2
+            or len(values) > STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_INPUT_LENGTH
+            or input_length is not None and input_length != len(values)
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)):
+        return -1, b""
+    n, query_count = values[:2]
+    if (not 1 <= n <= STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_N
+            or not 1 <= query_count <= STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_Q
+            or len(values) != 2 + n + 2 * query_count):
+        return -1, b""
+    array = values[2:2 + n]
+    if any(not 0 <= value <= STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_VALUE for value in array):
+        return -1, b""
+    answers: list[tuple[int, int]] = []
+    query_offset = 2 + n
+    for query_index in range(query_count):
+        left, right = values[query_offset + 2 * query_index:query_offset + 2 * query_index + 2]
+        if not 0 <= left < right <= n:
+            return -1, b""
+        counts: dict[int, int] = {}
+        for item in array[left:right]:
+            counts[item] = counts.get(item, 0) + 1
+        mode = min(counts, key=lambda item: (-counts[item], item))
+        answers.append((mode, counts[mode]))
+    output = b"".join(struct.pack("<qq", mode, count) for mode, count in answers)
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return len(output), output
+
+
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "vector_scheduling": vector_scheduling_independent_oracle,
     "vector_bin_packing": vector_bin_packing_independent_oracle,
@@ -11780,6 +11831,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "link_cut_tree": link_cut_tree_independent_oracle,
     "k_shortest_walk": k_shortest_walk_independent_oracle,
     "d_esopo_pape": d_esopo_pape_independent_oracle,
+    "static_range_mode_query": static_range_mode_query_independent_oracle,
     "weighted_connected_dominating_set": weighted_connected_dominating_set_independent_oracle,
     "weighted_popular_matching": weighted_popular_matching_independent_oracle,
     "ranked_matching_popular_matching": ranked_matching_popular_matching_independent_oracle,
@@ -20916,6 +20968,70 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     reversed_edges = tuple(reversed(generated_edges))
                     add((vertex_count, edge_count, source,
                          *(value for edge in reversed_edges for value in edge)))
+        elif algorithm == "static_range_mode_query":
+            if (max_input != STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != 4096):
+                raise ValueError("static_range_mode_query bounds or workspace differ from its contract")
+
+            n = STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_N
+            query_count = STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_Q
+            array = tuple(value for _ in range(n // 8) for value in range(8))
+            queries = tuple(value for _ in range(query_count) for value in (0, n))
+            maximum = (n, query_count, *array, *queries)
+            result, output = add(maximum)
+            if (len(maximum) != max_input or result != max_output
+                    or len(output) != max_output
+                    or struct.unpack_from("<qq", output) != (0, n // 8)):
+                raise ValueError("static_range_mode_query maximum profile has invalid framing or output")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("static_range_mode_query accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("static_range_mode_query accepted null output")
+
+            tie_probe = (8, 3, 4, 2, 4, 2, 1, 1, 1, 8, 0, 4, 0, 8, 4, 8)
+            tie_result, tie_output = add(tie_probe)
+            if (tie_result != 48 or struct.unpack_from("<qq", tie_output) != (2, 2)):
+                raise ValueError("static_range_mode_query tie probe no longer selects the smallest mode")
+
+            malformed = (
+                (), (0, 1, 0, 0), (1, 0, 7), (33, 1, *([0] * 33)),
+                (1, 1, STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_VALUE + 1, 0, 1),
+                (2, 1, 1, 2, 1, 1), (2, 1, 1, 2, 0, 3),
+                (1, 1, 7, 0), (1, 1, 7, 0, 1, 9),
+                (1, 1, 7, 0, 1, 2), tuple([0] * max_input),
+                (UINT_I64_MIN,), (UINT_I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("static_range_mode_query accepted malformed input")
+            precedence_result, precedence_output = add(
+                (1, 1, STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_VALUE + 1, 0, 1),
+                0, output_is_null=True)
+            if precedence_result != -1 or precedence_output:
+                raise ValueError("static_range_mode_query output errors took precedence over invalid input")
+            for null_length in (0, max_input):
+                null_result, null_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if null_result != -1 or null_output:
+                    raise ValueError("static_range_mode_query accepted null input")
+
+            rng = random.Random(20261029)
+            for _ in range(64):
+                generated_n = rng.randrange(1, STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_N + 1)
+                generated_q = rng.randrange(1, STATIC_RANGE_MODE_QUERY_VERIFIER_MAX_Q + 1)
+                generated_array = tuple(rng.randrange(8) for _ in range(generated_n))
+                generated_queries = []
+                for _query_index in range(generated_q):
+                    left = rng.randrange(generated_n)
+                    right = rng.randrange(left + 1, generated_n + 1)
+                    generated_queries.extend((left, right))
+                add((generated_n, generated_q, *generated_array, *generated_queries))
         elif algorithm == "domination_local_reduction":
             if (max_input != DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH + 1
                     or max_output != DOMINATION_LOCAL_REDUCTION_MAX_OUTPUT_BYTES

@@ -36682,6 +36682,140 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             if not support_file.is_file():
                 raise ValueError(f"d_esopo_pape support file is missing: {support_file.name}")
         return
+    if algorithm == "static_range_mode_query":
+        package = ROOT / "benchmarks" / "s" / algorithm
+        issue_url = "https://github.com/yosupo06/library-checker-problems/issues/959"
+        paper_url = "https://cs.au.dk/~larsen/papers/linear_mode.pdf"
+        expected_source = {
+            "name": "Library Checker Static Range Mode Query proposal",
+            "url": issue_url,
+            "algorithm_reference": paper_url,
+            "reuse": "Problem taxonomy and algorithm reference only; no source code or prose copied.",
+        }
+        expected_contract = {
+            "operation": "For each half-open static array range, return a mode and its frequency.",
+            "input_layout": "[n, q, A_0, ..., A_(n-1), (l, r)*q]",
+            "n_range": [1, 32],
+            "q_range": [1, 16],
+            "value_range": [0, 1000000000],
+            "query_range": "0 <= l < r <= n",
+            "tie_rule": "Choose the smallest numeric value among modes.",
+            "output_encoding": "For each query, little-endian signed i64 (mode, frequency).",
+            "success_result": "16*q bytes written",
+            "invalid_input_result": -1,
+            "null_output_result": -2,
+            "insufficient_output_capacity_result": -2,
+            "no_write_on_error": True,
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "maximum_valid_length": STATIC_RANGE_MODE_QUERY_MAX_INPUT_LENGTH,
+            "maximum_parseable_length": STATIC_RANGE_MODE_QUERY_MAX_INPUT_LENGTH,
+            "invalid_result": -1,
+            "null_input_result": -1,
+        }
+        expected_output = {
+            "kind": "little_endian_signed_64_bit_pairs",
+            "maximum_bytes": STATIC_RANGE_MODE_QUERY_MAX_OUTPUT_BYTES,
+            "success_result": "16*q bytes",
+            "invalid_input_result": -1,
+            "null_output_result": -2,
+            "insufficient_output_capacity_result": -2,
+            "no_write_on_error": True,
+        }
+        expected_case_ids = {
+            "single-element", "smallest-value-breaks-frequency-tie",
+            "boundary-candidate-beats-block-mode", "whole-block-mode-tie",
+            "range-with-no-whole-block", "four-mixed-ranges",
+            "maximum-array-and-query-batch", "n-out-of-range", "q-out-of-range",
+            "value-out-of-range", "empty-range-invalid", "range-end-out-of-range",
+            "truncated-query-frame", "trailing-input-value", "null-output",
+            "short-output-capacity", "null-input",
+        }
+        cases = workload.get("cases")
+        if (set(workload) != {
+                    "schema_version", "id", "algorithm", "function_symbol", "abi",
+                    "source", "contract", "input", "output", "workspace",
+                    "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "static-range-mode-query-bounded-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("source") != expected_source
+                or workload.get("contract") != expected_contract
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("workspace") != {
+                    "bytes": 4096,
+                    "meaning": "Rank compression, occurrence positions, and the bounded block-mode table.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100,
+                }
+                or not isinstance(cases, list)
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_case_ids
+                or len(cases) != len(expected_case_ids)):
+            raise ValueError("static_range_mode_query metadata differs from its bounded contract")
+
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        if (issue_url not in readme or paper_url not in readme
+                or "O(n^2 + n*ceil(n/B) + q*B*log n)" not in readme
+                or "smallest mode value" not in readme
+                or "4,096 bytes" not in readme):
+            raise ValueError("static_range_mode_query README is missing provenance, bounds, complexity, or tie rule")
+        source_paths = (
+            "c/s/static_range_mode_query.c", "c3/s/static_range_mode_query.c3",
+            "cpp/s/static_range_mode_query.cpp", "elisa/s/static_range_mode_query.elisa",
+            "nim/s/static_range_mode_query.nim", "odin/s/static_range_mode_query.odin",
+            "rust/s/static_range_mode_query.rs", "v/s/static_range_mode_query.v",
+            "zig/s/static_range_mode_query.zig",
+        )
+        for relative in source_paths:
+            port = ROOT / relative
+            if (not port.is_file() or algorithm not in port.read_text(encoding="utf-8")
+                    or relative not in readme):
+                raise ValueError(f"static_range_mode_query source port or README link is missing: {relative}")
+        for support_file in (package / "oracle.py", package / "verify_workload.py"):
+            if not support_file.is_file():
+                raise ValueError(f"static_range_mode_query package support file is missing: {support_file.name}")
+
+        seen_ids: set[str] = set()
+        for case in cases:
+            if (not isinstance(case, dict)
+                    or set(case) - {"id", "input_values", "input_length", "output_capacity",
+                                    "output_is_null", "input_is_null", "expected_result",
+                                    "expected_output_hex"}
+                    or not {"id", "input_values", "input_length", "output_capacity",
+                            "expected_result", "expected_output_hex"}.issubset(case)):
+                raise ValueError("static_range_mode_query fixture fields differ from its contract")
+            case_id = case["id"]
+            values = case["input_values"]
+            input_length = case["input_length"]
+            capacity = case["output_capacity"]
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            if (not isinstance(case_id, str) or case_id in seen_ids
+                    or not isinstance(values, list)
+                    or len(values) > STATIC_RANGE_MODE_QUERY_MAX_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= STATIC_RANGE_MODE_QUERY_MAX_INPUT_LENGTH
+                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or input_is_null and (values or output_is_null)
+                    or not input_is_null and input_length != len(values)
+                    or type(case.get("expected_result")) is not int
+                    or not isinstance(case.get("expected_output_hex"), str)):
+                raise ValueError(f"static_range_mode_query fixture framing is invalid: {case_id}")
+            seen_ids.add(case_id)
+            result, output = static_range_mode_query_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if case["expected_result"] != result or case["expected_output_hex"].lower() != output.hex():
+                raise ValueError(f"static_range_mode_query fixture differs from its direct-scan oracle: {case_id}")
+        return
     if algorithm == "counting_spanning_trees_directed":
         expected_source = {
             "repository": "Library Checker",

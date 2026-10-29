@@ -958,6 +958,7 @@ from run_i64_array_scalar import validate_incremental_scc_workload
 from run_i64_array_scalar import validate_segment_tree_beats_workload
 from run_i64_array_scalar import validate_eertree_workload
 from run_i64_array_scalar import validate_segment_add_get_min_workload
+from run_i64_array_scalar import validate_point_set_range_composite_workload
 from run_i64_array_scalar import validate_manhattan_mst_workload
 from run_i64_array_scalar import validate_matrix_exponentiation_workload
 from run_i64_array_scalar import validate_miller_rabin_primality_checker_workload
@@ -1681,6 +1682,11 @@ from segment_add_get_min_oracle import INVALID_RESULT as SEGMENT_ADD_GET_MIN_INV
 from segment_add_get_min_oracle import MAX_INITIAL_SEGMENTS as SEGMENT_ADD_GET_MIN_MAX_INITIAL_SEGMENTS
 from segment_add_get_min_oracle import MAX_INPUT_LENGTH as SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
 from segment_add_get_min_oracle import MAX_OPERATIONS as SEGMENT_ADD_GET_MIN_MAX_OPERATIONS
+from point_set_range_composite_oracle import INVALID_RESULT as POINT_SET_RANGE_COMPOSITE_INVALID_RESULT
+from point_set_range_composite_oracle import MAX_INPUT_LENGTH as POINT_SET_RANGE_COMPOSITE_MAX_INPUT_LENGTH
+from point_set_range_composite_oracle import MAX_N as POINT_SET_RANGE_COMPOSITE_MAX_N
+from point_set_range_composite_oracle import MAX_OPERATIONS as POINT_SET_RANGE_COMPOSITE_MAX_OPERATIONS
+from point_set_range_composite_oracle import MODULUS as POINT_SET_RANGE_COMPOSITE_MODULUS
 from manhattan_mst_oracle import MAX_COORDINATE as MANHATTAN_MST_MAX_COORDINATE
 from manhattan_mst_oracle import MAX_INPUT_LENGTH as MANHATTAN_MST_MAX_INPUT_LENGTH
 from manhattan_mst_oracle import MAX_POINTS as MANHATTAN_MST_MAX_POINTS
@@ -1935,6 +1941,7 @@ ALGORITHMS += ("three_edge_connected_components",)
 ALGORITHMS += ("incremental_scc",)
 ALGORITHMS += ("manhattan_mst",)
 ALGORITHMS += ("segment_add_get_min",)
+ALGORITHMS += ("point_set_range_composite",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -3375,6 +3382,54 @@ def segment_add_get_min_verifier_oracle(
     return checksum
 
 
+def point_set_range_composite_verifier_oracle(values: list[int] | tuple[int, ...]) -> int:
+    """Apply each queried affine map directly, independent of the segment tree."""
+    if (not isinstance(values, (list, tuple))
+            or not 2 <= len(values) <= POINT_SET_RANGE_COMPOSITE_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                   for value in values)):
+        return POINT_SET_RANGE_COMPOSITE_INVALID_RESULT
+    n, operation_count = values[0], values[1]
+    if (not 1 <= n <= POINT_SET_RANGE_COMPOSITE_MAX_N
+            or not 0 <= operation_count <= POINT_SET_RANGE_COMPOSITE_MAX_OPERATIONS
+            or len(values) != 2 + 2 * n + 4 * operation_count):
+        return POINT_SET_RANGE_COMPOSITE_INVALID_RESULT
+
+    maps: list[tuple[int, int]] = []
+    cursor = 2
+    for _ in range(n):
+        a, b = values[cursor:cursor + 2]
+        if (not 0 <= a < POINT_SET_RANGE_COMPOSITE_MODULUS
+                or not 0 <= b < POINT_SET_RANGE_COMPOSITE_MODULUS):
+            return POINT_SET_RANGE_COMPOSITE_INVALID_RESULT
+        maps.append((a, b))
+        cursor += 2
+
+    checksum = 0
+    query_number = 0
+    for _ in range(operation_count):
+        opcode, first, second, third = values[cursor:cursor + 4]
+        cursor += 4
+        if opcode == 0:
+            if (not 0 <= first < n
+                    or not 0 <= second < POINT_SET_RANGE_COMPOSITE_MODULUS
+                    or not 0 <= third < POINT_SET_RANGE_COMPOSITE_MODULUS):
+                return POINT_SET_RANGE_COMPOSITE_INVALID_RESULT
+            maps[first] = (second, third)
+        elif opcode == 1:
+            if (not 0 <= first <= second <= n
+                    or not 0 <= third < POINT_SET_RANGE_COMPOSITE_MODULUS):
+                return POINT_SET_RANGE_COMPOSITE_INVALID_RESULT
+            answer = third
+            for a, b in maps[first:second]:
+                answer = (a * answer + b) % POINT_SET_RANGE_COMPOSITE_MODULUS
+            query_number += 1
+            checksum = (checksum + query_number * answer) % POINT_SET_RANGE_COMPOSITE_MODULUS
+        else:
+            return POINT_SET_RANGE_COMPOSITE_INVALID_RESULT
+    return checksum if cursor == len(values) else POINT_SET_RANGE_COMPOSITE_INVALID_RESULT
+
+
 def oracle(algorithm: str, values: list[int]) -> int:
     if algorithm == "mccat_08_main":
         return mccat_08_main_oracle(values)
@@ -3592,6 +3647,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return eertree_oracle(values)
     if algorithm == "segment_add_get_min":
         return segment_add_get_min_verifier_oracle(values)
+    if algorithm == "point_set_range_composite":
+        return point_set_range_composite_verifier_oracle(values)
     if algorithm == "manhattan_mst":
         return manhattan_mst_oracle(values)
     if algorithm == "knapsack_zero_one_tabulation":
@@ -4696,6 +4753,15 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if fixture_result != fixture.get("expected_result"):
                 raise ValueError(
                     f"segment_add_get_min fixture differs from the independent scan oracle: {fixture.get('id')}"
+                )
+    elif algorithm == "point_set_range_composite":
+        validate_point_set_range_composite_workload(workload)
+        for fixture in workload.get("cases", []):
+            fixture_values = fixture.get("input_values", [])
+            fixture_result = point_set_range_composite_verifier_oracle(fixture_values)
+            if fixture_result != fixture.get("expected_result"):
+                raise ValueError(
+                    f"point_set_range_composite fixture differs from the independent direct-scan oracle: {fixture.get('id')}"
                 )
     elif algorithm == "manhattan_mst":
         validate_manhattan_mst_workload(workload)

@@ -1532,6 +1532,10 @@ from segment_add_get_min_oracle import MAX_INPUT_LENGTH as SEGMENT_ADD_GET_MIN_M
 from segment_add_get_min_oracle import TASK_URL as SEGMENT_ADD_GET_MIN_TASK_URL
 from segment_add_get_min_oracle import SPECIFICATION_URL as SEGMENT_ADD_GET_MIN_SPECIFICATION_URL
 from segment_add_get_min_oracle import expected_result as segment_add_get_min_expected
+from point_set_range_composite_oracle import MAX_INPUT_LENGTH as POINT_SET_RANGE_COMPOSITE_MAX_INPUT_LENGTH
+from point_set_range_composite_oracle import TASK_URL as POINT_SET_RANGE_COMPOSITE_TASK_URL
+from point_set_range_composite_oracle import PROPOSAL_URL as POINT_SET_RANGE_COMPOSITE_PROPOSAL_URL
+from point_set_range_composite_oracle import expected_result as point_set_range_composite_expected
 from manhattan_mst_oracle import MAX_INPUT_LENGTH as MANHATTAN_MST_MAX_INPUT_LENGTH
 from manhattan_mst_oracle import expected_output as manhattan_mst_expected
 from verify_li_chao_tree import validate_sources as validate_li_chao_tree_sources
@@ -1543,6 +1547,7 @@ from verify_incremental_scc import validate_workload as validate_incremental_scc
 from verify_eertree import validate_sources as validate_eertree_sources
 from verify_eertree import validate_workload as validate_eertree_package_workload
 from verify_segment_add_get_min import validate_workload as validate_segment_add_get_min_package_workload
+from verify_point_set_range_composite import validate_workload as validate_point_set_range_composite_package_workload
 from verify_manhattan_mst_oracle import validate_workload as validate_manhattan_mst_package_workload
 
 
@@ -1589,6 +1594,15 @@ def validate_segment_add_get_min_workload(workload: dict) -> None:
     if (SEGMENT_ADD_GET_MIN_TASK_URL not in readme
             or SEGMENT_ADD_GET_MIN_SPECIFICATION_URL not in readme):
         raise ValueError("segment_add_get_min README is missing official task provenance")
+
+
+def validate_point_set_range_composite_workload(workload: dict) -> None:
+    validate_point_set_range_composite_package_workload(workload)
+    readme = (ROOT / "benchmarks" / "p" / "point_set_range_composite" / "README.md").read_text(
+        encoding="utf-8")
+    if (POINT_SET_RANGE_COMPOSITE_TASK_URL not in readme
+            or POINT_SET_RANGE_COMPOSITE_PROPOSAL_URL not in readme):
+        raise ValueError("point_set_range_composite README is missing official task provenance")
 
 
 def validate_manhattan_mst_workload(workload: dict) -> None:
@@ -6269,6 +6283,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         EERTREE_MAX_INPUT_LENGTH if algorithm == "eertree" else
                         SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
                         if algorithm == "segment_add_get_min" else
+                        POINT_SET_RANGE_COMPOSITE_MAX_INPUT_LENGTH
+                        if algorithm == "point_set_range_composite" else
                         2 + SEGMENT_TREE_BEATS_MAX_ITEMS + 4 * SEGMENT_TREE_BEATS_MAX_OPERATIONS
                         if algorithm == "segment_tree_beats" else
                         KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH
@@ -7406,6 +7422,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         )
         if expected != expected_from_source:
             raise ValueError("segment_add_get_min expected_result must match direct interval scans")
+    elif algorithm == "point_set_range_composite":
+        expected_from_source = point_set_range_composite_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("point_set_range_composite expected_result must match direct ordered map application")
     elif algorithm == "knapsack_zero_one_tabulation":
         expected_from_source = knapsack_zero_one_tabulation_expected(values)
         if expected != expected_from_source:
@@ -21160,6 +21184,8 @@ def main() -> int:
         validate_eertree_workload(workload)
     elif algorithm == "segment_add_get_min":
         validate_segment_add_get_min_workload(workload)
+    elif algorithm == "point_set_range_composite":
+        validate_point_set_range_composite_workload(workload)
     elif algorithm == "matrix_exponentiation":
         validate_matrix_exponentiation_workload(workload)
     elif algorithm == "miller_rabin_primality_checker":
@@ -21213,9 +21239,11 @@ def main() -> int:
                 "versabench_dbms_choose_entry", "tsvc_s424_alias_overlap_feedback",
                 "tsvc_s423_antidependence_offset64", "tsvc_s258_wrapped_scalar_expansion",
                 "beebs_bit_compress", "three_edge_connected_components", "incremental_scc",
-                "segment_add_get_min") else 1
+                "segment_add_get_min", "point_set_range_composite") else 1
             maximum_null_length = (SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
                                    if algorithm == "segment_add_get_min" else
+                                   POINT_SET_RANGE_COMPOSITE_MAX_INPUT_LENGTH
+                                   if algorithm == "point_set_range_composite" else
                                    THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
                                    if algorithm == "three_edge_connected_components" else
                                    INCREMENTAL_SCC_MAX_INPUT_LENGTH if algorithm == "incremental_scc" else 100002)
