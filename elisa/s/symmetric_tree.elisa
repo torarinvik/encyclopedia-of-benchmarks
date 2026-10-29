@@ -1,5 +1,5 @@
 # Recursively compare opposite child pairs in an indexed binary tree.
-def symmetric_tree_mirror(nodes: i64&, node_count: usize, left: i64, right: i64) -> i64:
+def symmetric_tree_mirror(nodes: view[i64], node_count: usize, left: i64, right: i64) -> i64:
     if left == -1 or right == -1:
         return 1 if left == right else 0
     if left < 0 or right < 0 or left.u64() >= node_count.u64() or right.u64() >= node_count.u64():
@@ -37,6 +37,6 @@ def symmetric_tree_impl(nodes: i64&, node_count: usize, root_index: i64) -> i64:
     invalid_right: bool = right < -1 or (right >= 0 and right.u64() >= node_count.u64())
     if invalid_left or invalid_right:
         return -1
-    symmetric_tree_mirror(nodes, node_count, left, right)
+    symmetric_tree_mirror(nodes[0:3 * node_count], node_count, left, right)
 
 export fn symmetric_tree(nodes: i64&, node_count: usize, root_index: i64) -> i64 = symmetric_tree_impl

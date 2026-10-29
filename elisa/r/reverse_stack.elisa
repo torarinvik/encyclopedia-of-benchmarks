@@ -15,7 +15,7 @@ def reverse_stack_recursive(items: mutable i64[16], size: usize) -> void:
     reverse_stack_recursive(items, size - 1)
     reverse_stack_insert(items, size - 1, top)
 
-def reverse_stack_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def reverse_stack_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -35,8 +35,9 @@ def reverse_stack_impl(input: i64&, length: usize, output: mutable u8&, capacity
     bytes: usize = (count + 1) * 8
     if output == null || capacity < bytes: return -2
     reverse_stack_recursive(items, count)
-    reverse_stack_put_i64(output, 0, raw_count)
-    for i in 0..<count: reverse_stack_put_i64(output, 8 * (i + 1), items[i])
+    output_view: mutable view[u8] = output[0:bytes]
+    reverse_stack_put_i64(output_view, 0, raw_count)
+    for i in 0..<count: reverse_stack_put_i64(output_view, 8 * (i + 1), items[i])
     bytes.i64()
 
 export fn reverse_stack(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = reverse_stack_impl

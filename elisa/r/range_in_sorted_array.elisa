@@ -1,4 +1,4 @@
-def find_bound(values: i64&, offset: usize, n: usize, key: i64, find_left: bool) -> i64:
+def find_bound(values: view[i64], offset: usize, n: usize, key: i64, find_left: bool) -> i64:
     left: mutable i64 = 0
     right: mutable i64 = n.i64() - 1
     while left <= right:
@@ -18,7 +18,7 @@ def find_bound(values: i64&, offset: usize, n: usize, key: i64, find_left: bool)
             left <- mid + 1
     -1
 
-def put_i32_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def put_i32_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u32 = value.u32()
     for byte in 0..<4:
         output[offset + byte] <- (bits & 255).u8()
@@ -36,12 +36,14 @@ def range_in_sorted_array_impl(input: i64&, length: usize, output: mutable u8&, 
             return -1
         if i > 0 and input[i] > input[i + 1]:
             return -1
-    first: i64 = find_bound(input, 1, n, key, true)
-    last: i64 = find_bound(input, 1, n, key, false)
+    input_view: view[i64] = input[0:length]
+    first: i64 = find_bound(input_view, 1, n, key, true)
+    last: i64 = find_bound(input_view, 1, n, key, false)
     if output == null or output_capacity < 8:
         return -2
-    put_i32_le(output, 0, first)
-    put_i32_le(output, 4, last)
+    output_view: mutable view[u8] = output[0:output_capacity]
+    put_i32_le(output_view, 0, first)
+    put_i32_le(output_view, 4, last)
     8
 
 export fn range_in_sorted_array(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = range_in_sorted_array_impl

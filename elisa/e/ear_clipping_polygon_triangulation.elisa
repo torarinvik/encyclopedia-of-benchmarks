@@ -1,13 +1,13 @@
 const MAX_VERTICES: usize = 64
 
-def ear_clip_orient(values: i64&, a: usize, b: usize, c: usize) -> i64:
+def ear_clip_orient(values: view[i64], a: usize, b: usize, c: usize) -> i64:
     abx: i64 = values[2 * b] - values[2 * a]
     aby: i64 = values[2 * b + 1] - values[2 * a + 1]
     acx: i64 = values[2 * c] - values[2 * a]
     acy: i64 = values[2 * c + 1] - values[2 * a + 1]
     abx * acy - aby * acx
 
-def ear_clip_on_segment(values: i64&, a: usize, b: usize, p: usize) -> bool:
+def ear_clip_on_segment(values: view[i64], a: usize, b: usize, p: usize) -> bool:
     min_x: mutable i64 = values[2 * a]
     max_x: mutable i64 = values[2 * a]
     min_y: mutable i64 = values[2 * a + 1]
@@ -23,7 +23,7 @@ def ear_clip_on_segment(values: i64&, a: usize, b: usize, p: usize) -> bool:
     (values[2 * p] >= min_x and values[2 * p] <= max_x and
     values[2 * p + 1] >= min_y and values[2 * p + 1] <= max_y)
 
-def ear_clip_segments_intersect(values: i64&, a: usize, b: usize, c: usize, d: usize) -> bool:
+def ear_clip_segments_intersect(values: view[i64], a: usize, b: usize, c: usize, d: usize) -> bool:
     o1: i64 = ear_clip_orient(values, a, b, c)
     o2: i64 = ear_clip_orient(values, a, b, d)
     o3: i64 = ear_clip_orient(values, c, d, a)
@@ -36,12 +36,12 @@ def ear_clip_segments_intersect(values: i64&, a: usize, b: usize, c: usize, d: u
     (o3 == 0 and ear_clip_on_segment(values, c, d, a)) or
     (o4 == 0 and ear_clip_on_segment(values, c, d, b)))
 
-def ear_clip_in_triangle(values: i64&, a: usize, b: usize, c: usize, p: usize, winding: i64) -> bool:
+def ear_clip_in_triangle(values: view[i64], a: usize, b: usize, c: usize, p: usize, winding: i64) -> bool:
     (ear_clip_orient(values, a, b, p) * winding >= 0 and
     ear_clip_orient(values, b, c, p) * winding >= 0 and
     ear_clip_orient(values, c, a, p) * winding >= 0)
 
-def ear_clip_write_index(output: mutable u8&, position: usize, index: usize) -> void:
+def ear_clip_write_index(output: mutable view[u8], position: usize, index: usize) -> void:
     value: u32 = index.u32()
     byte: mutable usize = 0
     while byte < 4:
@@ -67,7 +67,7 @@ def ear_clipping_polygon_triangulation_impl(values: i64&, length: usize,
                 return -1
             j <- j + 1
         area2 <- area2 + values[2 * i] * values[2 * next + 1] - values[2 * i + 1] * values[2 * next]
-        if ear_clip_orient(values, (i + n - 1) % n, i, next) == 0:
+        if ear_clip_orient(values[0:length], (i + n - 1) % n, i, next) == 0:
             return -1
         i <- i + 1
     if area2 == 0:
@@ -79,7 +79,7 @@ def ear_clipping_polygon_triangulation_impl(values: i64&, length: usize,
         j: mutable usize = i + 1
         while j < n:
             jnext: usize = (j + 1) % n
-            if inext != j and jnext != i and ear_clip_segments_intersect(values, i, inext, j, jnext):
+            if inext != j and jnext != i and ear_clip_segments_intersect(values[0:length], i, inext, j, jnext):
                 return -1
             j <- j + 1
         i <- i + 1
@@ -107,20 +107,20 @@ def ear_clipping_polygon_triangulation_impl(values: i64&, length: usize,
                     prev <- (prev + n - 1) % n
                 while not live[next]:
                     next <- (next + 1) % n
-                if ear_clip_orient(values, prev, current, next) * winding > 0:
+                if ear_clip_orient(values[0:length], prev, current, next) * winding > 0:
                     contains: mutable bool = false
                     point: mutable usize = 0
                     while point < n and not contains:
                         if (live[point] and point != prev and point != current and point != next and
-                                ear_clip_in_triangle(values, prev, current, next, point, winding)):
+                                ear_clip_in_triangle(values[0:length], prev, current, next, point, winding)):
                             contains <- true
                         point <- point + 1
                     if not contains:
-                        ear_clip_write_index(output, emitted, prev)
+                        ear_clip_write_index(output[0:output_capacity], emitted, prev)
                         emitted <- emitted + 1
-                        ear_clip_write_index(output, emitted, current)
+                        ear_clip_write_index(output[0:output_capacity], emitted, current)
                         emitted <- emitted + 1
-                        ear_clip_write_index(output, emitted, next)
+                        ear_clip_write_index(output[0:output_capacity], emitted, next)
                         emitted <- emitted + 1
                         live[current] <- false
                         live_count <- live_count - 1
@@ -138,11 +138,11 @@ def ear_clipping_polygon_triangulation_impl(values: i64&, length: usize,
     third: mutable usize = (second + 1) % n
     while not live[third]:
         third <- (third + 1) % n
-    ear_clip_write_index(output, emitted, first)
+    ear_clip_write_index(output[0:output_capacity], emitted, first)
     emitted <- emitted + 1
-    ear_clip_write_index(output, emitted, second)
+    ear_clip_write_index(output[0:output_capacity], emitted, second)
     emitted <- emitted + 1
-    ear_clip_write_index(output, emitted, third)
+    ear_clip_write_index(output[0:output_capacity], emitted, third)
     (n - 2).i64()
 
 export fn ear_clipping_polygon_triangulation(values: i64&, length: usize,

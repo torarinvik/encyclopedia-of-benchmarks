@@ -3,15 +3,15 @@ const MAX_NODES: usize = 10
 const MAX_EDGES: usize = 9
 const MAX_OUTPUT_BYTES: usize = 152
 
-def phylo_put64(output: mutable u8&, offset: usize, value: i64): void:
+def phylo_put64(output: mutable view[u8], offset: usize, value: i64): void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def phylo_tree_distance(node_count: usize, edge_count: usize,
-        edge_u: usize[MAX_EDGES]&, edge_v: usize[MAX_EDGES]&, edge_w: i64[MAX_EDGES]&, start: usize, target: usize,
-        distances: mutable i64[MAX_NODES]&): bool:
+        edge_u: view[usize], edge_v: view[usize], edge_w: view[i64], start: usize, target: usize,
+        distances: mutable view[i64]): bool:
     parent: mutable i64[MAX_NODES] = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
     queue: mutable usize[MAX_NODES] = zeroed
     head: mutable usize = 0
@@ -175,8 +175,8 @@ def phylogenetic_tree_from_distance_matrix_impl(input: i64&, length: usize,
     distances: mutable i64[MAX_NODES] = zeroed
     for i in 0..<n:
         for j in (i + 1)..<n:
-            if not phylo_tree_distance(node_count, edge_count, edge_u&, edge_v&, edge_w&,
-                    label_node[i], label_node[j], distances&) or distances[label_node[j]] != 2 * d[i * MAX_N + j]: return 0
+            if not phylo_tree_distance(node_count, edge_count, edge_u[0:edge_count], edge_v[0:edge_count], edge_w[0:edge_count],
+                    label_node[i], label_node[j], distances[0:MAX_NODES]) or distances[label_node[j]] != 2 * d[i * MAX_N + j]: return 0
 
     full_mask: usize = (1 << n) - 1
     record_mask: mutable i64[MAX_EDGES] = zeroed
@@ -216,10 +216,10 @@ def phylogenetic_tree_from_distance_matrix_impl(input: i64&, length: usize,
     output_bytes: usize = 8 * (1 + 2 * edge_count)
     if output.is_null() or capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    phylo_put64(staged&, 0, edge_count.i64())
+    phylo_put64(staged[0:MAX_OUTPUT_BYTES], 0, edge_count.i64())
     for i in 0..<edge_count:
-        phylo_put64(staged&, 8 * (1 + 2 * i), record_mask[i])
-        phylo_put64(staged&, 8 * (2 + 2 * i), record_weight[i])
+        phylo_put64(staged[0:MAX_OUTPUT_BYTES], 8 * (1 + 2 * i), record_mask[i])
+        phylo_put64(staged[0:MAX_OUTPUT_BYTES], 8 * (2 + 2 * i), record_weight[i])
     for byte in 0..<output_bytes: output[byte] <- staged[byte]
     output_bytes.i64()
 

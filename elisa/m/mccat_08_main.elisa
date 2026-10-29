@@ -20,31 +20,31 @@ const MAX_FRAMES: i64 = 360
 const MICRO: f64 = 1000000.0
 const SOURCE_PI: f64 = 3.14159265359
 
-def eks_identity(matrix: mutable f64[16]&) -> void:
+def eks_identity(matrix: mutable view[f64]) -> void:
     for row in 0..<4:
         for column in 0..<4:
             matrix[row * 4 + column] <- if row == column: 1.0 else: 0.0
 
-def eks_scale(x: f64, y: f64, z: f64, matrix: mutable f64[16]&) -> void:
+def eks_scale(x: f64, y: f64, z: f64, matrix: mutable view[f64]) -> void:
     eks_identity(matrix)
     matrix[0] <- x
     matrix[5] <- y
     matrix[10] <- z
 
-def eks_translate(x: f64, y: f64, z: f64, matrix: mutable f64[16]&) -> void:
+def eks_translate(x: f64, y: f64, z: f64, matrix: mutable view[f64]) -> void:
     eks_identity(matrix)
     matrix[3] <- x
     matrix[7] <- y
     matrix[11] <- z
 
-def eks_multiply(left: f64[16]&, right: f64[16]&, output: mutable f64[16]&) -> void:
+def eks_multiply(left: view[f64], right: view[f64], output: mutable view[f64]) -> void:
     for row in 0..<4:
         for column in 0..<4:
             total: mutable f64 = 0.0
             for inner in 0..<4: total <- total + left[row * 4 + inner] * right[inner * 4 + column]
             output[row * 4 + column] <- total
 
-def eks_rotate(rx: f64, ry: f64, rz: f64, output: mutable f64[16]&) -> void:
+def eks_rotate(rx: f64, ry: f64, rz: f64, output: mutable view[f64]) -> void:
     dx: f64 = SOURCE_PI / 180.0 * rx
     dy: f64 = SOURCE_PI / 180.0 * ry
     dz: f64 = SOURCE_PI / 180.0 * rz
@@ -58,9 +58,9 @@ def eks_rotate(rx: f64, ry: f64, rz: f64, output: mutable f64[16]&) -> void:
     y: mutable f64[16] = zeroed
     z: mutable f64[16] = zeroed
     xy: mutable f64[16] = zeroed
-    eks_identity(x)
-    eks_identity(y)
-    eks_identity(z)
+    eks_identity(x[0:16])
+    eks_identity(y[0:16])
+    eks_identity(z[0:16])
     x[5] <- cx
     x[6] <- -sx
     x[9] <- sx
@@ -73,10 +73,10 @@ def eks_rotate(rx: f64, ry: f64, rz: f64, output: mutable f64[16]&) -> void:
     z[1] <- -sz
     z[4] <- sz
     z[5] <- cz
-    eks_multiply(x, y, xy)
-    eks_multiply(xy, z, output)
+    eks_multiply(x[0:16], y[0:16], xy[0:16])
+    eks_multiply(xy[0:16], z[0:16], output)
 
-def eks_apply(matrix: f64[16]&, point: f64[3]&, output: mutable f64[3]&) -> void:
+def eks_apply(matrix: view[f64], point: view[f64], output: mutable view[f64]) -> void:
     for row in 0..<3:
         value: mutable f64 = matrix[row * 4 + 3]
         for column in 0..<3: value <- value + matrix[row * 4 + column] * point[column]
@@ -127,12 +127,12 @@ def mccat_08_main_impl(input: i64&, input_length: usize) -> i64:
         parent_scale: mutable f64[16] = zeroed
         parent_rotation: mutable f64[16] = zeroed
         parent_translation: mutable f64[16] = zeroed
-        eks_scale(input[2].f64()/MICRO,input[3].f64()/MICRO,input[4].f64()/MICRO,child_scale)
-        eks_rotate(input[5].f64()/MICRO,input[6].f64()/MICRO,input[7].f64()/MICRO,child_rotation)
-        eks_translate(input[8].f64()/MICRO,input[9].f64()/MICRO,input[10].f64()/MICRO,child_translation)
-        eks_scale(input[11].f64()/MICRO,input[12].f64()/MICRO,input[13].f64()/MICRO,parent_scale)
-        eks_rotate(input[14].f64()/MICRO,input[15].f64()/MICRO+frame.f64(),input[16].f64()/MICRO,parent_rotation)
-        eks_translate(input[17].f64()/MICRO,input[18].f64()/MICRO,input[19].f64()/MICRO,parent_translation)
+        eks_scale(input[2].f64()/MICRO,input[3].f64()/MICRO,input[4].f64()/MICRO,child_scale[0:16])
+        eks_rotate(input[5].f64()/MICRO,input[6].f64()/MICRO,input[7].f64()/MICRO,child_rotation[0:16])
+        eks_translate(input[8].f64()/MICRO,input[9].f64()/MICRO,input[10].f64()/MICRO,child_translation[0:16])
+        eks_scale(input[11].f64()/MICRO,input[12].f64()/MICRO,input[13].f64()/MICRO,parent_scale[0:16])
+        eks_rotate(input[14].f64()/MICRO,input[15].f64()/MICRO+frame.f64(),input[16].f64()/MICRO,parent_rotation[0:16])
+        eks_translate(input[17].f64()/MICRO,input[18].f64()/MICRO,input[19].f64()/MICRO,parent_translation[0:16])
         for point in 0..<unique:
             original: mutable f64[3] = zeroed
             a: mutable f64[3] = zeroed
@@ -142,12 +142,12 @@ def mccat_08_main_impl(input: i64&, input_length: usize) -> i64:
             e: mutable f64[3] = zeroed
             f: mutable f64[3] = zeroed
             for axis in 0..<3: original[axis] <- points[3 * point + axis]
-            eks_apply(child_scale,original,a)
-            eks_apply(child_rotation,a,b)
-            eks_apply(child_translation,b,c)
-            eks_apply(parent_scale,c,d)
-            eks_apply(parent_rotation,d,e)
-            eks_apply(parent_translation,e,f)
+            eks_apply(child_scale[0:16],original[0:3],a[0:3])
+            eks_apply(child_rotation[0:16],a[0:3],b[0:3])
+            eks_apply(child_translation[0:16],b[0:3],c[0:3])
+            eks_apply(parent_scale[0:16],c[0:3],d[0:3])
+            eks_apply(parent_rotation[0:16],d[0:3],e[0:3])
+            eks_apply(parent_translation[0:16],e[0:3],f[0:3])
             weight: i64 = (frame.i64() + 1) * (point.i64() + 1)
             checksum <- checksum + weight * (eks_round_milli(f[0]) + 3 * eks_round_milli(f[1]) + 7 * eks_round_milli(f[2]))
         frame <- frame + 1

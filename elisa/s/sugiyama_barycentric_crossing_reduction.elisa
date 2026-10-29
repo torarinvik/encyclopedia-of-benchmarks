@@ -3,7 +3,7 @@ const SUG_MAX_VERTICES: usize = 32
 const SUG_MAX_EDGES: usize = 128
 const SUG_MAX_INPUT: usize = 299
 
-def sugiyama_put_i64(output: mutable u8&, word: usize, value: i64): void:
+def sugiyama_put_i64(output: mutable view[u8], word: usize, value: i64): void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[word * 8 + byte] <- (bits & 255).u8()
@@ -130,12 +130,12 @@ def sugiyama_barycentric_crossing_reduction_impl(input: i64&, length: usize,
                 crossings <- crossings + 1
     bytes: usize = 8 * (total + 2)
     if output.is_null() or capacity < bytes: return -2
-    sugiyama_put_i64(output, 0, sweeps.i64())
-    sugiyama_put_i64(output, 1, crossings)
+    sugiyama_put_i64(output[0:bytes], 0, sweeps.i64())
+    sugiyama_put_i64(output[0:bytes], 1, crossings)
     word: mutable usize = 2
     for level in 0..<layers:
         for i in 0..<sizes[level].usize():
-            sugiyama_put_i64(output, word, order[level * 32 + i])
+            sugiyama_put_i64(output[0:bytes], word, order[level * 32 + i])
             word <- word + 1
     bytes.i64()
 

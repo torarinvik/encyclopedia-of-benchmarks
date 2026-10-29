@@ -6,7 +6,7 @@ const MAX_OUTPUT_BYTES: usize = MAX_SIGNAL_LENGTH * 8
 const MAX_FIXED_SAMPLE: i64 = 128
 const SAMPLE_SCALE: f64 = 16.0
 
-def convolve_1d_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
+def convolve_1d_write_f64(output: mutable view[u8], position: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -49,7 +49,7 @@ def convolve_1d_impl(input: i64&, length: usize, output: mutable u8&,
                 signal_value: f64 = input[2 + signal_index.usize()].f64() / SAMPLE_SCALE
                 accumulated <- accumulated + kernel_value * signal_value
             j <- j + 1
-        convolve_1d_write_f64(output, i * 8, accumulated)
+        convolve_1d_write_f64(output[0:output_bytes], i * 8, accumulated)
         i <- i + 1
     output_bytes.i64()
 

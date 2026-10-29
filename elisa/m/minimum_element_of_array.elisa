@@ -6,7 +6,7 @@ def next_rng(state: mutable u32&) -> u32:
     state <- if x == 0: 2_654_435_769 else: x
     state
 
-def partition(values: mutable i64&, low: usize, high: usize) -> usize:
+def partition(values: mutable view[i64], low: usize, high: usize) -> usize:
     pivot: i64 = values[high]
     index: mutable usize = low
     scan: mutable usize = low
@@ -22,7 +22,7 @@ def partition(values: mutable i64&, low: usize, high: usize) -> usize:
     values[high] <- temp
     index
 
-def select_k(values: mutable i64&, low: usize, high: usize, rank: usize, state: mutable u32&) -> i64:
+def select_k(values: mutable view[i64], low: usize, high: usize, rank: usize, state: mutable u32&) -> i64:
     if low == high: return values[low]
     pivot: usize = low + (next_rng(state).usize() % (high - low + 1))
     temp: i64 = values[pivot]
@@ -52,6 +52,6 @@ def minimum_element_of_array_impl(input: i64&, length: usize) -> i64:
         values[i] <- value
         i <- i + 1
     random_state: mutable u32 = if seed == 0: 2_654_435_769 else: seed.u32()
-    select_k(values, 0, n.usize() - 1, rank.usize(), random_state)
+    select_k(values[0:n.usize()], 0, n.usize() - 1, rank.usize(), random_state)
 
 export fn minimum_element_of_array(values: i64&, length: usize) -> i64 = minimum_element_of_array_impl

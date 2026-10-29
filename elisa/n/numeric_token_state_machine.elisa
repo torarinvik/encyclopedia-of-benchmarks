@@ -2,7 +2,7 @@
 # Apache-2.0 licensed upstream kernel, bounded variant; modifications made.
 const MAX_TEXT: usize = 96
 
-def scan_text(text: mutable u8&, n: usize, finals: mutable u32&, transitions: mutable u32&) -> void:
+def scan_text(text: mutable view[u8], n: usize, finals: mutable view[u32], transitions: mutable view[u32]) -> void:
     pos: mutable usize = 0
     while pos < n:
         state: mutable usize = 0
@@ -87,12 +87,12 @@ def numeric_token_state_machine_impl(values: i64&, length: usize, output: mutabl
 
     finals: mutable u32[8] = zeroed
     transitions: mutable u32[8] = zeroed
-    scan_text(text, n, finals, transitions)
+    scan_text(text[0:n], n, finals[0:8], transitions[0:8])
     i <- 0
     while i < n:
         if text[i] != ','.u8(): text[i] <- text[i] ^ seed.u8()
         i <- i + step.usize()
-    scan_text(text, n, finals, transitions)
+    scan_text(text[0:n], n, finals[0:8], transitions[0:8])
     i <- 0
     while i < n:
         if text[i] != ','.u8(): text[i] <- text[i] ^ seed.u8()

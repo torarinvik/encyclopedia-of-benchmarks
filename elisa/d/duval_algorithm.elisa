@@ -1,5 +1,5 @@
 # Lyndon factorization using Duval's linear-time algorithm.
-def valid_input(values: i64&, length: usize) -> bool:
+def valid_input(values: view[i64], length: usize) -> bool:
     if length > 4096:
         return false
     index: mutable usize = 0
@@ -10,7 +10,7 @@ def valid_input(values: i64&, length: usize) -> bool:
         index <- index + 1
     true
 
-def factor_count(values: i64&, length: usize) -> usize:
+def factor_count(values: view[i64], length: usize) -> usize:
     start: mutable usize = 0
     count: mutable usize = 0
     while start < length:
@@ -28,13 +28,13 @@ def factor_count(values: i64&, length: usize) -> usize:
             start <- start + factor_length
     count
 
-def store_u32_le(output: mutable u8&, offset: usize, value: usize) -> void:
+def store_u32_le(output: mutable view[u8], offset: usize, value: usize) -> void:
     output[offset] <- (value & 255).u8()
     output[offset + 1] <- ((value >> 8) & 255).u8()
     output[offset + 2] <- ((value >> 16) & 255).u8()
     output[offset + 3] <- ((value >> 24) & 255).u8()
 
-def write_factors(values: i64&, length: usize, output: mutable u8&) -> void:
+def write_factors(values: view[i64], length: usize, output: mutable view[u8]) -> void:
     start: mutable usize = 0
     factor_index: mutable usize = 0
     while start < length:
@@ -53,15 +53,16 @@ def write_factors(values: i64&, length: usize, output: mutable u8&) -> void:
             start <- start + factor_length
 
 def duval_algorithm_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if not valid_input(values, length):
+    values_view: view[i64] = values[0:length]
+    if not valid_input(values_view, length):
         return -1
-    count: usize = factor_count(values, length)
+    count: usize = factor_count(values_view, length)
     required: usize = 4 * count
     if required == 0:
         return 0
     if output_capacity < required:
         return -2
-    write_factors(values, length, output)
+    write_factors(values_view, length, output[0:required])
     count.i64()
 
 export fn duval_algorithm(values: i64&, length: usize, output: mutable u8&,

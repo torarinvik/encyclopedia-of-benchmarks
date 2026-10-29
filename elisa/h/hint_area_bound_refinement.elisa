@@ -1,4 +1,4 @@
-def hint_write_i64(out: mutable u8&, offset: usize, value: i64) -> void:
+def hint_write_i64(out: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..8: out[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
 
@@ -57,11 +57,11 @@ def hint_area_bound_refinement_impl(input: i64&, length: usize, output: mutable 
         it <- it + 1
     result_status: i64 = 0
     if it > iq: result_status <- 1
-    hint_write_i64(output, 0, result_status)
-    hint_write_i64(output, 8, it.i64())
-    hint_write_i64(output, 16, lower)
-    hint_write_i64(output, 24, upper)
-    hint_write_i64(output, 32, upper - lower)
+    hint_write_i64(output[0:40], 0, result_status)
+    hint_write_i64(output[0:40], 8, it.i64())
+    hint_write_i64(output[0:40], 16, lower)
+    hint_write_i64(output[0:40], 24, upper)
+    hint_write_i64(output[0:40], 32, upper - lower)
     40
 
 export fn hint_area_bound_refinement(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = hint_area_bound_refinement_impl

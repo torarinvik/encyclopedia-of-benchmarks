@@ -1,4 +1,4 @@
-def zdd_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def zdd_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits >> (byte * 8)).u8()
@@ -61,13 +61,13 @@ def zdd_family_count_impl(input: i64&, length: usize, output: mutable u8&, capac
     output_length: usize = 8 * (3 + 3 * nodes)
     if output == null or capacity < output_length:
         return -2
-    zdd_put_i64(output, 0, ids[0])
-    zdd_put_i64(output, 8, nodes.i64())
-    zdd_put_i64(output, 16, counts[ids[0].usize()])
+    zdd_put_i64(output[0:capacity], 0, ids[0])
+    zdd_put_i64(output[0:capacity], 8, nodes.i64())
+    zdd_put_i64(output[0:capacity], 16, counts[ids[0].usize()])
     for i in 0..<nodes:
-        zdd_put_i64(output, (3 + 3 * i) * 8, vars[i])
-        zdd_put_i64(output, (4 + 3 * i) * 8, lows[i])
-        zdd_put_i64(output, (5 + 3 * i) * 8, highs[i])
+        zdd_put_i64(output[0:capacity], (3 + 3 * i) * 8, vars[i])
+        zdd_put_i64(output[0:capacity], (4 + 3 * i) * 8, lows[i])
+        zdd_put_i64(output[0:capacity], (5 + 3 * i) * 8, highs[i])
     output_length.i64()
 
 export fn zdd_family_count(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = zdd_family_count_impl

@@ -1,22 +1,22 @@
 const MAX_TEXT_LENGTH: usize = 16
 const MAX_INPUT_LENGTH: usize = 18
 
-def symbol_at(symbols: i64&, length: usize, position: usize) -> i64:
+def symbol_at(symbols: view[i64], length: usize, position: usize) -> i64:
     if position < length: return symbols[position]
     return 0
 
-def sample_rank(ranks: i64&, length: usize, position: usize) -> i64:
+def sample_rank(ranks: view[i64], length: usize, position: usize) -> i64:
     if position < length: return ranks[position]
     return -1
 
-def triple_compare(symbols: i64&, length: usize, left: usize, right: usize) -> i64:
+def triple_compare(symbols: view[i64], length: usize, left: usize, right: usize) -> i64:
     for offset in 0..<3:
         a: i64 = symbol_at(symbols, length, left + offset)
         b: i64 = symbol_at(symbols, length, right + offset)
         if a != b: return if a < b: -1 else: 1
     return 0
 
-def suffix_compare(symbols: i64&, length: usize, left_start: usize, right_start: usize) -> i64:
+def suffix_compare(symbols: view[i64], length: usize, left_start: usize, right_start: usize) -> i64:
     left: mutable usize = left_start
     right: mutable usize = right_start
     while left < length and right < length:
@@ -26,7 +26,7 @@ def suffix_compare(symbols: i64&, length: usize, left_start: usize, right_start:
     if left == length and right == length: return 0
     return if left == length: -1 else: 1
 
-def zero_pair_compare(symbols: i64&, ranks: i64&, length: usize,
+def zero_pair_compare(symbols: view[i64], ranks: view[i64], length: usize,
                       left: usize, right: usize) -> i64:
     a: i64 = symbol_at(symbols, length, left)
     b: i64 = symbol_at(symbols, length, right)
@@ -36,7 +36,7 @@ def zero_pair_compare(symbols: i64&, ranks: i64&, length: usize,
     if a != b: return if a < b: -1 else: 1
     return 0
 
-def merge_compare(symbols: i64&, ranks: i64&, length: usize,
+def merge_compare(symbols: view[i64], ranks: view[i64], length: usize,
                   zero: usize, sample: usize) -> i64:
     a: i64 = symbol_at(symbols, length, zero)
     b: i64 = symbol_at(symbols, length, sample)
@@ -54,7 +54,7 @@ def merge_compare(symbols: i64&, ranks: i64&, length: usize,
         if a != b: return if a < b: -1 else: 1
     return 0
 
-def dc3(symbols: i64&, length: usize, suffixes: mutable usize&) -> void:
+def dc3(symbols: view[i64], length: usize, suffixes: mutable view[usize]) -> void:
     if length == 0: return
     if length <= 3:
         for i in 0..<length: suffixes[i] <- i
@@ -107,7 +107,7 @@ def dc3(symbols: i64&, length: usize, suffixes: mutable usize&) -> void:
         reduced_length <- reduced_length + 1
         i <- i + 3
     reduced_order: mutable usize[MAX_TEXT_LENGTH] = zeroed
-    dc3(&reduced[0], reduced_length, &reduced_order[0])
+    dc3(reduced[0:MAX_TEXT_LENGTH], reduced_length, reduced_order[0:MAX_TEXT_LENGTH])
 
     sample_order: mutable usize[MAX_TEXT_LENGTH] = zeroed
     ranks: mutable i64[MAX_TEXT_LENGTH] = zeroed
@@ -134,7 +134,7 @@ def dc3(symbols: i64&, length: usize, suffixes: mutable usize&) -> void:
     for i in 1..<zero_count:
         key: usize = zero_positions[i]
         position: mutable usize = i
-        while position > 0 and zero_pair_compare(symbols, ranks, length, key, zero_positions[position - 1]) < 0:
+        while position > 0 and zero_pair_compare(symbols, ranks[0:MAX_TEXT_LENGTH], length, key, zero_positions[position - 1]) < 0:
             zero_positions[position] <- zero_positions[position - 1]
             position <- position - 1
         zero_positions[position] <- key
@@ -145,7 +145,7 @@ def dc3(symbols: i64&, length: usize, suffixes: mutable usize&) -> void:
     while zi < zero_count and si < sample_order_count:
         zero: usize = zero_positions[zi]
         sample: usize = sample_order[si]
-        if merge_compare(symbols, ranks, length, zero, sample) < 0:
+        if merge_compare(symbols, ranks[0:MAX_TEXT_LENGTH], length, zero, sample) < 0:
             suffixes[oi] <- zero_positions[zi]
             zi <- zi + 1
         else:
@@ -161,7 +161,7 @@ def dc3(symbols: i64&, length: usize, suffixes: mutable usize&) -> void:
         si <- si + 1
         oi <- oi + 1
 
-def put_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -182,8 +182,8 @@ def suffix_array_dc3_impl(input: i64&, length: usize,
     symbols: mutable i64[MAX_TEXT_LENGTH] = zeroed
     for i in 0..<count: symbols[i] <- input[i + 1] + 1
     suffixes: mutable usize[MAX_TEXT_LENGTH] = zeroed
-    dc3(&symbols[0], count, &suffixes[0])
-    for i in 0..<count: put_i64_le(output, i * 8, suffixes[i].i64())
+    dc3(symbols[0:MAX_TEXT_LENGTH], count, suffixes[0:MAX_TEXT_LENGTH])
+    for i in 0..<count: put_i64_le(output[0:capacity], i * 8, suffixes[i].i64())
     output_bytes.i64()
 
 export fn suffix_array_dc3(input: i64&, length: usize,

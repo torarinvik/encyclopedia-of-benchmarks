@@ -23,19 +23,19 @@ def trie_multiple_search_hash_u16(hash: mutable u64&, value: usize) -> void:
     trie_multiple_search_hash_byte(hash, (value & 255).u8())
     trie_multiple_search_hash_byte(hash, ((value >> 8) & 255).u8())
 
-def trie_multiple_search_hash_string(hash: mutable u64&, word: u8&, length: usize) -> void:
+def trie_multiple_search_hash_string(hash: mutable u64&, word: view[u8], length: usize) -> void:
     trie_multiple_search_hash_byte(hash, length.u8())
     index: mutable usize = 0
     while index < length:
         trie_multiple_search_hash_byte(hash, word[index])
         index <- index + 1
 
-def trie_multiple_search_hash_word_text(hash: mutable u64&, words: TrieMultipleSearchWord&,
+def trie_multiple_search_hash_word_text(hash: mutable u64&, words: view[TrieMultipleSearchWord],
                                         word_index: usize) -> void:
     word_length: usize = words[word_index].length
-    trie_multiple_search_hash_string(hash, &words[word_index].bytes[0], word_length)
+    trie_multiple_search_hash_string(hash, words[word_index].bytes[0:word_length], word_length)
 
-def trie_multiple_search_hash_word(hash: mutable u64&, words: TrieMultipleSearchWord&,
+def trie_multiple_search_hash_word(hash: mutable u64&, words: view[TrieMultipleSearchWord],
                                    word_index: usize) -> void:
     trie_multiple_search_hash_word_text(hash, words, word_index)
     frequency: u32 = words[word_index].frequency
@@ -44,7 +44,7 @@ def trie_multiple_search_hash_word(hash: mutable u64&, words: TrieMultipleSearch
         trie_multiple_search_hash_byte(hash, ((frequency >> (byte * 8)) & 255).u8())
         byte <- byte + 1
 
-def trie_multiple_search_word_less(words: TrieMultipleSearchWord&,
+def trie_multiple_search_word_less(words: view[TrieMultipleSearchWord],
                                    left: usize, right: usize) -> bool:
     left_length: usize = words[left].length
     right_length: usize = words[right].length
@@ -58,8 +58,8 @@ def trie_multiple_search_word_less(words: TrieMultipleSearchWord&,
         index <- index + 1
     left_length < right_length
 
-def trie_multiple_search_word_begins_with(words: TrieMultipleSearchWord&,
-                                          word_index: usize, prefix: u8&,
+def trie_multiple_search_word_begins_with(words: view[TrieMultipleSearchWord],
+                                          word_index: usize, prefix: view[u8],
                                           prefix_length: usize) -> bool:
     if words[word_index].length < prefix_length: return false
     index: mutable usize = 0
@@ -68,7 +68,7 @@ def trie_multiple_search_word_begins_with(words: TrieMultipleSearchWord&,
         index <- index + 1
     true
 
-def trie_multiple_search_rank_before(words: TrieMultipleSearchWord&,
+def trie_multiple_search_rank_before(words: view[TrieMultipleSearchWord],
                                      left: usize, right: usize) -> bool:
     if words[left].frequency != words[right].frequency:
         return words[left].frequency > words[right].frequency
@@ -156,7 +156,7 @@ def trie_multiple_search_impl(input: i64&, length: usize) -> i64:
                 words[word_count].frequency <- 0.u32()
                 position: mutable usize = word_count
                 while position > 0 and
-                      trie_multiple_search_word_less(words, word_count, order[position - 1]):
+                      trie_multiple_search_word_less(words[0:32], word_count, order[position - 1]):
                     order[position] <- order[position - 1]
                     position <- position - 1
                 order[position] <- word_count
@@ -176,8 +176,8 @@ def trie_multiple_search_impl(input: i64&, length: usize) -> i64:
             while index < word_count:
                 word_index: usize = order[index]
                 if words[word_index].length > matched_length and
-                   trie_multiple_search_word_begins_with(words, word_index,
-                       &folded_word[0], matched_length):
+                   trie_multiple_search_word_begins_with(words[0:32], word_index,
+                       folded_word[0:word_length], matched_length):
                     candidates[candidate_count] <- word_index
                     candidate_count <- candidate_count + 1
                 index <- index + 1
@@ -188,7 +188,7 @@ def trie_multiple_search_impl(input: i64&, length: usize) -> i64:
                     current: usize = candidates[position]
                     insertion: mutable usize = position
                     while insertion > 0 and
-                          trie_multiple_search_rank_before(words, current, candidates[insertion - 1]):
+                          trie_multiple_search_rank_before(words[0:32], current, candidates[insertion - 1]):
                         candidates[insertion] <- candidates[insertion - 1]
                         insertion <- insertion - 1
                     candidates[insertion] <- current
@@ -200,10 +200,10 @@ def trie_multiple_search_impl(input: i64&, length: usize) -> i64:
             if exact_match: total_count <- total_count + 1
             trie_multiple_search_hash_u16(hash, total_count)
             if exact_match:
-                trie_multiple_search_hash_string(hash, &raw_word[0], word_length)
+                trie_multiple_search_hash_string(hash, raw_word[0:word_length], word_length)
             index <- 0
             while index < result_count:
-                trie_multiple_search_hash_word_text(hash, words, candidates[index])
+                trie_multiple_search_hash_word_text(hash, words[0:32], candidates[index])
                 index <- index + 1
         operation <- operation + 1
 
@@ -211,7 +211,7 @@ def trie_multiple_search_impl(input: i64&, length: usize) -> i64:
     trie_multiple_search_hash_u16(hash, word_count)
     index: mutable usize = 0
     while index < word_count:
-        trie_multiple_search_hash_word(hash, words, order[index])
+        trie_multiple_search_hash_word(hash, words[0:32], order[index])
         index <- index + 1
     (hash & 9223372036854775807.u64()).i64()
 

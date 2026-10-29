@@ -2,7 +2,7 @@ const MAX_N: usize = 12
 const MAX_INPUT: usize = 26
 const MAX_Q: usize = 576
 
-def knapsack_store(output: mutable u8&, offset: usize, value: i64) -> void:
+def knapsack_store(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     b: mutable usize = 0
     while b < 8:
@@ -89,6 +89,6 @@ def knapsack_profit_scaling_fptas(input: i64&, length: usize, output: mutable u8
     while i < n:
         if ((mask.u64() >> i) & 1) != 0: selected_profit <- selected_profit + profit[i]
         i <- i + 1
-    knapsack_store(output, 0, mask)
-    knapsack_store(output, 8, selected_profit)
+    knapsack_store(output[0:16], 0, mask)
+    knapsack_store(output[0:16], 8, selected_profit)
     16

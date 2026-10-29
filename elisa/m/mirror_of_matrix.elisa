@@ -1,7 +1,7 @@
 const MAX_DIMENSION: usize = 16
 const MAX_PARSEABLE_INPUT_LENGTH: usize = 259
 
-def store_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i32_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u32 = value.u32()
     output[offset] <- (bits & 255).u8()
     output[offset + 1] <- ((bits >> 8) & 255).u8()
@@ -31,12 +31,13 @@ def mirror_of_matrix_impl(values: i64&, length: usize, output: mutable u8&, outp
     byte_count: usize = 4 * cell_count
     if output.is_null() or output_capacity < byte_count:
         return -2
+    output_view: mutable view[u8] = output[0:byte_count]
     row: usize = 0
     while row < rows:
         column: usize = 0
         while column < columns:
             source_index: usize = 2 + row * columns + (columns - 1 - column)
-            store_i32_le(values[source_index], output, 4 * (row * columns + column))
+            store_i32_le(values[source_index], output_view, 4 * (row * columns + column))
             column <- column + 1
         row <- row + 1
     byte_count.i64()

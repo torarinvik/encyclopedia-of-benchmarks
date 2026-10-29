@@ -14,7 +14,7 @@ def digit_factorial_sum(value: i64) -> i64:
         total <- 1
     total
 
-def cache_contains(value: i64, number_limit: i64, cache: mutable u32&) -> bool:
+def cache_contains(value: i64, number_limit: i64, cache: view[u32]) -> bool:
     if value < 1 or value >= number_limit:
         return false
     cache[value.usize()] != 0.u32()
@@ -38,12 +38,12 @@ def problem74_sol2_impl(chain_length: i64, number_limit: i64) -> i64:
         path_length: mutable usize = 0
         chain_set_length: mutable i64 = 0
         chain_element: mutable i64 = start
-        while not cache_contains(chain_element, number_limit, cache) and not path_contains(path, path_length, chain_element) and chain_set_length <= chain_length:
+        while not cache_contains(chain_element, number_limit, cache[0:number_limit.usize()]) and not path_contains(path, path_length, chain_element) and chain_set_length <= chain_length:
             path[path_length] <- chain_element
             path_length <- path_length + 1
             chain_set_length <- chain_set_length + 1
             chain_element <- digit_factorial_sum(chain_element)
-        if cache_contains(chain_element, number_limit, cache):
+        if cache_contains(chain_element, number_limit, cache[0:number_limit.usize()]):
             chain_set_length <- chain_set_length + cache[chain_element.usize()].i64()
 
         cache[start.usize()] <- chain_set_length.u32()

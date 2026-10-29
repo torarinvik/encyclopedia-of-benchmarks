@@ -1,5 +1,5 @@
 # Clean-room bounded GBBS approximate set-cover profile; see package MIT notice.
-def gbbs_approximate_set_cover_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def gbbs_approximate_set_cover_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -100,6 +100,6 @@ def gbbs_approximate_set_cover(input: i64&, length: usize, output: mutable u8&, 
             s <- s + 1
         uncovered <- uncovered & ~covered
         round <- round + 1
-    gbbs_approximate_set_cover_store(selected.i64(), output, 0)
-    gbbs_approximate_set_cover_store(uncovered.i64(), output, 8)
+    gbbs_approximate_set_cover_store(selected.i64(), output[0:16], 0)
+    gbbs_approximate_set_cover_store(uncovered.i64(), output[0:16], 8)
     16

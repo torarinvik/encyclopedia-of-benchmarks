@@ -1,4 +1,4 @@
-def parentheses_generate(pairs: usize, opens: usize, closes: usize, path: mutable u8&, output: mutable u8&, index: mutable usize&):
+def parentheses_generate(pairs: usize, opens: usize, closes: usize, path: mutable view[u8], output: mutable view[u8], index: mutable usize&):
     if opens + closes == pairs * 2:
         i: mutable usize = 0
         while i < pairs * 2: output[2 + index * pairs * 2 + i] <- path[i]; i <- i + 1
@@ -20,5 +20,5 @@ export fn parentheses_generator(input: i64&, length: usize, output: mutable u8&,
     output[0] <- pair_counts[pairs].u8(); output[1] <- (pair_counts[pairs] >> 8).u8()
     path: mutable u8[12]
     index: mutable usize = 0
-    parentheses_generate(pairs, 0, 0, path, output, index)
+    parentheses_generate(pairs, 0, 0, path[0:12], output[0:capacity], index)
     needed.i64()

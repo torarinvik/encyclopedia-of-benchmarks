@@ -28,7 +28,7 @@ const PI: f64 = 3.14159265358979323846264338327950288
 const S_OFFSETS: i64[15] = [334,398,462,14,78,142,206,16,80,144,208,272,336,400,464]
 const T_OFFSETS: i64[15] = [176,112,48,496,432,368,304,494,430,366,302,238,174,110,46]
 
-def store_i64_le(output: mutable u8&, offset: usize, value: i64):
+def store_i64_le(output: mutable view[u8], offset: usize, value: i64):
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -42,7 +42,7 @@ def round_q1000(value: f64) -> i64:
     rounded: i64 = (magnitude + 0.5).i64()
     if scaled < 0.0: -rounded else: rounded
 
-def valid(input: i64&, length: usize) -> bool:
+def valid(input: view[i64], length: usize) -> bool:
     if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH or length != INPUT_COUNT:
         return false
     index: mutable usize = 0
@@ -58,7 +58,7 @@ def valid(input: i64&, length: usize) -> bool:
         index <- index + 1
     true
 
-def filterbank(input: i64&, window: mutable f64&, bands: mutable f64&):
+def filterbank(input: view[i64], window: mutable view[f64], bands: mutable view[f64]):
     maximum: f64 = window[248]
     mmax: mutable f64[31] = zeroed
     mm: mutable f64[16][31] = zeroed
@@ -157,22 +157,23 @@ def filterbank(input: i64&, window: mutable f64&, bands: mutable f64&):
 
 export fn cbench_consumer_lame_window_subband(input: i64&, input_length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if not valid(input, input_length): return -1
+    if not valid(input[0:input_length], input_length): return -1
     window: mutable f64[WINDOW_COUNT] = zeroed
     index: mutable usize = 0
     while index < WINDOW_COUNT:
         window[index] <- input[SAMPLE_COUNT + index].f64() / 1000000000.0
         index <- index + 1
     bands: mutable f64[BAND_COUNT] = zeroed
-    filterbank(input, window, bands)
+    filterbank(input[0:input_length], window[0:WINDOW_COUNT], bands[0:BAND_COUNT])
     staged: mutable i64[BAND_COUNT] = zeroed
     index <- 0
     while index < BAND_COUNT:
         staged[index] <- round_q1000(bands[index])
         index <- index + 1
     if output.is_null() or output_capacity < OUTPUT_BYTES: return -2
+    output_view: mutable view[u8] = output[0:OUTPUT_BYTES]
     index <- 0
     while index < BAND_COUNT:
-        store_i64_le(output, 8 * index, staged[index])
+        store_i64_le(output_view, 8 * index, staged[index])
         index <- index + 1
     OUTPUT_BYTES.i64()

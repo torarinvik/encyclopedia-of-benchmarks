@@ -3,7 +3,7 @@ const NEG_CYCLE_MAX_N: usize = 20
 const NEG_CYCLE_MAX_M: usize = 64
 const NEG_CYCLE_MAX_INPUT: usize = 194
 
-def negative_cycle_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def negative_cycle_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -97,6 +97,6 @@ def negative_cycle_detection(input: i64&, length: usize, output: mutable u8&, ca
     if output.is_null() or capacity < output_bytes: return -2
     index <- 0
     while index < record_length:
-        negative_cycle_store_i64_le(record[index], output, 8 * index)
+        negative_cycle_store_i64_le(record[index], output[0:capacity], 8 * index)
         index <- index + 1
     output_bytes.i64()

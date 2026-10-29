@@ -2,7 +2,7 @@ const STACK_MAX_OPERATIONS: usize = 64
 const STACK_MAX_INPUT_LENGTH: usize = 129
 const STACK_MAX_OUTPUT_BYTES: usize = 1536
 
-def stack_doubly_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def stack_doubly_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -10,7 +10,7 @@ def stack_doubly_write_i64(output: mutable u8&, offset: usize, value: i64) -> vo
         bits <- bits >> 8
         byte <- byte + 1
 
-def stack_doubly_write_record(output: mutable u8&, offset: usize,
+def stack_doubly_write_record(output: mutable view[u8], offset: usize,
                               opcode: i64, tag: i64, value: i64) -> void:
     stack_doubly_write_i64(output, offset, opcode)
     stack_doubly_write_i64(output, offset + 8, tag)
@@ -79,7 +79,7 @@ def stack_with_doubly_linked_list_impl(input: i64&, length: usize,
                     while node != 0:
                         value <- value + 1
                         node <- next_ids[node]
-        stack_doubly_write_record(buffer[0], written, opcode, tag, value)
+        stack_doubly_write_record(buffer[0:STACK_MAX_OUTPUT_BYTES], written, opcode, tag, value)
         written <- written + 24
         index <- index + 1
 

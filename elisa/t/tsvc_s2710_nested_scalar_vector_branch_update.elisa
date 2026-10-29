@@ -1,13 +1,52 @@
-extern trunc(value:f64)->f64
-extern fabs(value:f64)->f64
-fn long tsvc_s2710_nested_scalar_vector_branch_update(double* x,usz l,double* y,usz cap) @export("tsvc_s2710_nested_scalar_vector_branch_update"){
- if(x==null||l<58||l>323)return -1
- double rn=x[0];double rp=x[1];double scalar=x[2];if(rn!=rn||trunc(rn)!=rn||rn<11||rn>64||rp!=rp||trunc(rp)!=rp||rp<1||rp>8||scalar!=scalar||trunc(scalar)!=scalar||fabs(scalar)>1)return -1
- usz n=(usz)rn;usz passes=(usz)rp;if(l!=3+5*n)return -1
- for(usz i=3;i<l;i++)if(x[i]!=x[i]||trunc(x[i])!=x[i]||fabs(x[i])>1)return -1
- if(y==null||cap<3*n)return -2
- double[64] a;double[64] b;double[64] c;for(usz i=0;i<n;i++){a[i]=x[3+i];b[i]=x[3+n+i];c[i]=x[3+2*n+i];}
- for(usz pass=0;pass<passes;pass++)for(usz i=0;i<n;i++){double d=x[3+3*n+i];double e=x[3+4*n+i];if(a[i]>b[i]){a[i]+=b[i]*d;c[i]+=d*d;}else{b[i]=a[i]+e*e;if(scalar>0)c[i]=a[i]+d*d;else c[i]+=e*e;}}
- for(usz i=0;i<n;i++){y[i]<-a[i];y[n+i]<-b[i];y[2*n+i]<-c[i];}
- return (long)(3*n)
-}
+extern trunc(value: f64) -> f64
+extern fabs(value: f64) -> f64
+
+def tsvc_s2710_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 58 or length > 323:
+        return -1
+    count: f64 = input[0]
+    repetitions: f64 = input[1]
+    scalar: f64 = input[2]
+    if count != count or trunc(count) != count or count < 11 or count > 64 or
+            repetitions != repetitions or trunc(repetitions) != repetitions or repetitions < 1 or repetitions > 8 or
+            scalar != scalar or trunc(scalar) != scalar or fabs(scalar) > 1:
+        return -1
+    n: usize = count.usize()
+    passes: usize = repetitions.usize()
+    if length != 3 + 5 * n:
+        return -1
+    for i in 3..length:
+        value: f64 = input[i]
+        if value != value or trunc(value) != value or fabs(value) > 1:
+            return -1
+    if output.is_null() or capacity < 3 * n:
+        return -2
+
+    a: mutable f64[64] = zeroed
+    b: mutable f64[64] = zeroed
+    c: mutable f64[64] = zeroed
+    for i in 0..n:
+        a[i] <- input[3 + i]
+        b[i] <- input[3 + n + i]
+        c[i] <- input[3 + 2 * n + i]
+    for pass in 0..passes:
+        for i in 0..n:
+            d: f64 = input[3 + 3 * n + i]
+            e: f64 = input[3 + 4 * n + i]
+            if a[i] > b[i]:
+                a[i] <- a[i] + b[i] * d
+                c[i] <- c[i] + d * d
+            else:
+                b[i] <- a[i] + e * e
+                if scalar > 0:
+                    c[i] <- a[i] + d * d
+                else:
+                    c[i] <- c[i] + e * e
+    for i in 0..n:
+        output[i] <- a[i]
+        output[n + i] <- b[i]
+        output[2 * n + i] <- c[i]
+    return (3 * n).i64()
+
+export fn tsvc_s2710_nested_scalar_vector_branch_update(input: f64&, length: usize,
+        output: mutable f64&, capacity: usize) -> i64 = tsvc_s2710_impl

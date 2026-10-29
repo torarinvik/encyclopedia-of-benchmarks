@@ -17,8 +17,8 @@ struct WaTorEntity:
 def wa_tor_breed_time(kind: i64) -> i64:
     if kind == 1: 5 else: 20
 
-def wa_tor_move_and_reproduce(entities: mutable WaTorEntity&, entity_count: mutable usize&,
-                              board: mutable i64&, entity_id: usize, width: usize, height: usize) -> void:
+def wa_tor_move_and_reproduce(entities: mutable view[WaTorEntity], entity_count: mutable usize&,
+                              board: mutable view[i64], entity_id: usize, width: usize, height: usize) -> void:
     old_row: i64 = entities[entity_id].row
     old_col: i64 = entities[entity_id].col
     direction: mutable usize = 0
@@ -59,8 +59,8 @@ def wa_tor_move_and_reproduce(entities: mutable WaTorEntity&, entity_count: muta
     else:
         entities[entity_id].timer <- entities[entity_id].timer - 1
 
-def wa_tor_predator_action(entities: mutable WaTorEntity&, entity_count: mutable usize&,
-                           board: mutable i64&, entity_id: usize, width: usize, height: usize) -> void:
+def wa_tor_predator_action(entities: mutable view[WaTorEntity], entity_count: mutable usize&,
+                           board: mutable view[i64], entity_id: usize, width: usize, height: usize) -> void:
     current: usize = entities[entity_id].row.usize() * width + entities[entity_id].col.usize()
     if entities[entity_id].energy == 0:
         board[current] <- -1
@@ -149,9 +149,11 @@ def wa_tor_impl(values: i64&, length: usize) -> i64:
             entity_id: usize = snapshot[index]
             if entities[entity_id].alive:
                 if entities[entity_id].kind == 1:
-                    wa_tor_move_and_reproduce(&entities[0], entity_count, &board[0], entity_id, width, height)
+                    wa_tor_move_and_reproduce(entities[0:WA_TOR_MAX_ENTITY_RECORDS], entity_count,
+                                              board[0:cell_count], entity_id, width, height)
                 else:
-                    wa_tor_predator_action(&entities[0], entity_count, &board[0], entity_id, width, height)
+                    wa_tor_predator_action(entities[0:WA_TOR_MAX_ENTITY_RECORDS], entity_count,
+                                           board[0:cell_count], entity_id, width, height)
             index <- index + 1
         chronon <- chronon + 1
 

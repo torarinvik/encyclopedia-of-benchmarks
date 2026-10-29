@@ -1,7 +1,7 @@
 // Clean-room Lexicographic Depth-First Search with 4-vertex certificates.
 const MAX_N: usize = 8
 const MAX_FIELDS: usize = 234
-def ldfs_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def ldfs_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -99,5 +99,5 @@ def ldfs_ordering_certificate(input: i64&, length: usize, output: mutable u8&, c
     bytes: usize = 8*at
     if output.is_null() or capacity < bytes: return -2
     i <- 0
-    while i < at: ldfs_put(fields[i], output&, 8*i); i <- i+1
+    while i < at: ldfs_put(fields[i], output[0:bytes], 8*i); i <- i+1
     bytes.i64()

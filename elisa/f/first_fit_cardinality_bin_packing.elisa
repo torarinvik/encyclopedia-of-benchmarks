@@ -1,4 +1,4 @@
-def ff_card_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def ff_card_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits >> (byte * 8)).u8()
@@ -32,9 +32,9 @@ def first_fit_cardinality_bin_packing_impl(input: i64&, length: usize, output: m
     output_length: usize = 8 * (n + 1)
     if output == null or capacity < output_length:
         return -2
-    ff_card_put_i64(output, 0, bins.i64())
+    ff_card_put_i64(output[0:output_length], 0, bins.i64())
     for i in 0..<n:
-        ff_card_put_i64(output, (i + 1) * 8, owners[i])
+        ff_card_put_i64(output[0:output_length], (i + 1) * 8, owners[i])
     output_length.i64()
 
 export fn first_fit_cardinality_bin_packing(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = first_fit_cardinality_bin_packing_impl

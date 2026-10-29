@@ -1,5 +1,5 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
-def put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def put_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for i in 0..8:
@@ -31,6 +31,6 @@ def gram_schmidt_impl(v: i64&, length: usize, out: mutable u8&, capacity: usize)
             for j in 0..dimension: projections[j] <- projections[j]+q[i*dimension+j]*factor
         for j in 0..dimension: q[k*dimension+j] <- a[k*dimension+j]-projections[j]
     for i in 0..rows:
-        for j in 0..dimension: put_f64(out, (i*dimension+j).usize()*8, q[i*dimension+j])
+        for j in 0..dimension: put_f64(out[0:bytes], (i*dimension+j).usize()*8, q[i*dimension+j])
     bytes.i64()
 export gram_schmidt(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64 = gram_schmidt_impl

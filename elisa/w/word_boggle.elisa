@@ -3,9 +3,9 @@ def word_boggle_letter(code: i64) -> i64:
     if code >= 97 and code <= 122: return code - 97 + 26
     -1
 
-def word_boggle_visit(board: i64&, rows: i64, cols: i64, pos: i64, node: i64,
-                      children: i64[25012]&, terminal: i64[481]&,
-                      visited: mutable bool[36]&, found: mutable bool[32]&) -> void:
+def word_boggle_visit(board: view[i64], rows: i64, cols: i64, pos: i64, node: i64,
+                      children: view[i64], terminal: view[i64],
+                      visited: mutable view[bool], found: mutable view[bool]) -> void:
     visited[pos.usize()] <- true
     if terminal[node.usize()] >= 0:
         found[terminal[node.usize()].usize()] <- true
@@ -29,7 +29,7 @@ def word_boggle_visit(board: i64&, rows: i64, cols: i64, pos: i64, node: i64,
         dr <- dr + 1
     visited[pos.usize()] <- false
 
-def word_boggle_less(words: i64[480], lengths: i64[32], a: i64, b: i64) -> bool:
+def word_boggle_less(words: view[i64], lengths: view[i64], a: i64, b: i64) -> bool:
     n: mutable i64 = lengths[a.usize()]
     if lengths[b.usize()] < n: n <- lengths[b.usize()]
     i: mutable i64 = 0
@@ -122,7 +122,8 @@ def word_boggle_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
         letter: i64 = word_boggle_letter(input[(2 + i).usize()])
         child: i64 = children[letter.usize()]
         if child >= 0:
-            word_boggle_visit(input, rows, cols, i, child, children, terminal, visited, found)
+            word_boggle_visit(input[0:length], rows, cols, i, child,
+                    children[0:25012], terminal[0:481], visited[0:36], found[0:32])
         i <- i + 1
     order: mutable i64[32] = zeroed
     found_count: mutable i64 = 0
@@ -138,7 +139,7 @@ def word_boggle_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
     while i < found_count:
         value: i64 = order[i.usize()]
         j: mutable i64 = i
-        while j > 0 and word_boggle_less(words, lengths, value, order[(j - 1).usize()]):
+        while j > 0 and word_boggle_less(words[0:480], lengths[0:32], value, order[(j - 1).usize()]):
             order[j.usize()] <- order[(j - 1).usize()]
             j <- j - 1
         order[j.usize()] <- value

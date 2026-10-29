@@ -29,7 +29,7 @@ def required_length(limit: i64) -> usize:
         value <- value + 1
     length
 
-def append_decimal(value: i64, output: mutable u8&, position_value: usize) -> usize:
+def append_decimal(value: i64, output: mutable view[u8], position_value: usize) -> usize:
     digits: mutable u8[3]
     count: mutable usize = 0
     remaining: mutable i64 = value
@@ -58,7 +58,7 @@ def prime_numbers_impl(limit: i64, output: mutable u8&, output_capacity: usize) 
             if count > 0:
                 output[position] <- 44.u8()
                 position <- position + 1
-            position <- append_decimal(value, output, position)
+            position <- append_decimal(value, output[0:output_capacity], position)
             count <- count + 1
         value <- value + 1
     position.i64()

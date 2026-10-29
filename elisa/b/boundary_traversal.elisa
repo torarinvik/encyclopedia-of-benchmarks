@@ -1,6 +1,6 @@
 const MAX_N: usize = 100
 
-def boundary_validate(nodes: i64&, count: usize, node: i64, seen: mutable u8&, reached: mutable usize&) -> bool:
+def boundary_validate(nodes: view[i64], count: usize, node: i64, seen: mutable view[u8], reached: mutable usize&) -> bool:
     if node == -1: return true
     if node < 0 or node.u64() >= count.u64(): return false
     i: usize = node.usize()
@@ -14,10 +14,10 @@ def boundary_validate(nodes: i64&, count: usize, node: i64, seen: mutable u8&, r
     if (left >= 0 and left.u64() >= count.u64()) or (right >= 0 and right.u64() >= count.u64()): return false
     boundary_validate(nodes,count,left,seen,reached) and boundary_validate(nodes,count,right,seen,reached)
 
-def boundary_is_leaf(nodes: i64&, i: usize) -> bool:
+def boundary_is_leaf(nodes: view[i64], i: usize) -> bool:
     nodes[3*i+1] == -1 and nodes[3*i+2] == -1
 
-def boundary_emit_leaves(nodes: i64&, node: i64, output: mutable i64&, used: mutable usize&) -> void:
+def boundary_emit_leaves(nodes: view[i64], node: i64, output: mutable view[i64], used: mutable usize&) -> void:
     if node == -1: return
     i: usize = node.usize()
     if boundary_is_leaf(nodes, i):
@@ -33,31 +33,33 @@ def boundary_traversal_impl(nodes: i64&, count: usize, root: i64, output: mutabl
     if root < 0 or root.u64() >= count.u64(): return -1
     seen: mutable u8[100] = zeroed
     reached: mutable usize = 0
-    if not boundary_validate(nodes, count, root, &seen[0], reached) or reached != count: return -1
+    nodes_view: view[i64] = nodes[0:3 * count]
+    output_view: mutable view[i64] = output[0:capacity]
+    if not boundary_validate(nodes_view, count, root, seen[0:count], reached) or reached != count: return -1
     used: mutable usize = 0
     ri: usize = root.usize()
-    if not boundary_is_leaf(nodes, ri):
+    if not boundary_is_leaf(nodes_view, ri):
         output[used] <- nodes[3*ri]
         used <- used + 1
     cur: mutable i64 = nodes[3*ri+1]
     if cur == -1 and nodes[3*ri+2] != -1: cur <- nodes[3*ri+2]
     while cur != -1:
         i: usize = cur.usize()
-        if not boundary_is_leaf(nodes, i):
+        if not boundary_is_leaf(nodes_view, i):
             output[used] <- nodes[3*i]
             used <- used + 1
         if nodes[3*i+1] != -1:
             cur <- nodes[3*i+1]
         else:
             cur <- nodes[3*i+2]
-    boundary_emit_leaves(nodes, root, output, used)
+    boundary_emit_leaves(nodes_view, root, output_view, used)
     if nodes[3*ri+2] != -1 and nodes[3*ri+1] == -1: return used.i64()
     right: mutable i64[100] = zeroed
     rn: mutable usize = 0
     cur <- nodes[3*ri+2]
     while cur != -1:
         i: usize = cur.usize()
-        if not boundary_is_leaf(nodes, i):
+        if not boundary_is_leaf(nodes_view, i):
             right[rn] <- nodes[3*i]
             rn <- rn + 1
         if nodes[3*i+2] != -1:

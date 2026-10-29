@@ -1,7 +1,7 @@
 const MAX_VALUES: usize = 256
 const MAX_INPUT: usize = 258
 
-def sift_down(values: mutable i64&, root_start: usize, end: usize) -> void:
+def sift_down(values: mutable view[i64], root_start: usize, end: usize) -> void:
     root: mutable usize = root_start
     while root < end / 2:
         child: mutable usize = root * 2 + 1
@@ -14,7 +14,7 @@ def sift_down(values: mutable i64&, root_start: usize, end: usize) -> void:
         values[child] <- temporary
         root <- child
 
-def heap_sort(values: mutable i64&, length: usize) -> void:
+def heap_sort(values: mutable view[i64], length: usize) -> void:
     start: mutable usize = length / 2
     while start > 0:
         start <- start - 1
@@ -41,7 +41,7 @@ def two_pointers_pair_count_impl(input: i64&, length: usize) -> i64:
         value: i64 = input[2 + index]
         if value < -1000000 or value > 1000000: return -1
         values[index] <- value
-    heap_sort(&values[0], count)
+    heap_sort(values[0:count], count)
     if count < 2: return 0
     index: mutable usize = 1
     while index < count:

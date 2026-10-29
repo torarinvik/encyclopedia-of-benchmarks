@@ -1,7 +1,7 @@
 const MAX_SIDE: usize = 16
 const MAX_KERNEL_SIDE: usize = 7
 
-def image_convolution_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def image_convolution_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -52,7 +52,7 @@ def image_convolution_impl(input: i64&, length: usize, output: mutable u8&, outp
                     total <- total + pixel * weight
                     kernel_column <- kernel_column + 1
                 kernel_row <- kernel_row + 1
-            image_convolution_store_i64(output, (row * side + column) * 8, total)
+            image_convolution_store_i64(output[0:output_bytes], (row * side + column) * 8, total)
             column <- column + 1
         row <- row + 1
     output_bytes.i64()

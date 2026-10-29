@@ -1,13 +1,36 @@
-extern trunc(value:f64)->f64
-extern fabs(value:f64)->f64
-fn long tsvc_s2712_comparison_gated_axpy(double* x,usz l,double* y,usz cap) @export("tsvc_s2712_comparison_gated_axpy"){
- if(x==null||l<5||l>194)return -1
- double rn=x[0];double rp=x[1];if(rn!=rn||trunc(rn)!=rn||rn<1||rn>64||rp!=rp||trunc(rp)!=rp||rp<1||rp>8)return -1
- usz n=(usz)rn;usz passes=(usz)rp;if(l!=2+3*n)return -1
- for(usz i=2;i<l;i++)if(x[i]!=x[i]||trunc(x[i])!=x[i]||fabs(x[i])>2)return -1
- if(y==null||cap<n)return -2
- double[64] a;for(usz i=0;i<n;i++)a[i]=x[2+i]
- for(usz pass=0;pass<passes;pass++)for(usz i=0;i<n;i++){double b=x[2+n+i];if(a[i]>b)a[i]+=b*x[2+2*n+i];}
- for(usz i=0;i<n;i++)y[i]<-a[i]
- return (long)n
-}
+extern trunc(value: f64) -> f64
+extern fabs(value: f64) -> f64
+
+def tsvc_s2712_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > 194:
+        return -1
+    count: f64 = input[0]
+    repetitions: f64 = input[1]
+    if count != count or trunc(count) != count or count < 1 or count > 64 or
+            repetitions != repetitions or trunc(repetitions) != repetitions or repetitions < 1 or repetitions > 8:
+        return -1
+    n: usize = count.usize()
+    passes: usize = repetitions.usize()
+    if length != 2 + 3 * n:
+        return -1
+    for i in 2..length:
+        value: f64 = input[i]
+        if value != value or trunc(value) != value or fabs(value) > 2:
+            return -1
+    if output.is_null() or capacity < n:
+        return -2
+
+    a: mutable f64[64] = zeroed
+    for i in 0..n:
+        a[i] <- input[2 + i]
+    for pass in 0..passes:
+        for i in 0..n:
+            b: f64 = input[2 + n + i]
+            if a[i] > b:
+                a[i] <- a[i] + b * input[2 + 2 * n + i]
+    for i in 0..n:
+        output[i] <- a[i]
+    return n.i64()
+
+export fn tsvc_s2712_comparison_gated_axpy(input: f64&, length: usize,
+        output: mutable f64&, capacity: usize) -> i64 = tsvc_s2712_impl

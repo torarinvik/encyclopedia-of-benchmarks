@@ -36,7 +36,7 @@ def letter_index(value: i64) -> i64:
     if value >= 97 and value <= 122: return value - 97
     return -1
 
-def append_word(input: i64&, start: usize, finish: usize, scratch: mutable u8&, written: mutable usize&) -> void:
+def append_word(input: view[i64], start: usize, finish: usize, scratch: mutable view[u8], written: mutable usize&) -> void:
     position: mutable usize = start
     while position < finish:
         letter: i64 = letter_index(input[position])
@@ -56,7 +56,7 @@ def append_word(input: i64&, start: usize, finish: usize, scratch: mutable u8&, 
         written <- written + 1
         position <- position + 1
 
-def encode(input: i64&, length: usize, scratch: mutable u8&) -> usize:
+def encode(input: view[i64], length: usize, scratch: mutable view[u8]) -> usize:
     finish: mutable usize = length
     while finish > 0 and input[finish - 1] == 32: finish <- finish - 1
     if finish == 0: return 0
@@ -83,7 +83,9 @@ def morse_code_converter_encode_impl(input: i64&, length: usize, output: mutable
         if input[index] < 0 or input[index] > 127: return -1
         index <- index + 1
     scratch: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    written: usize = encode(input, length, scratch)
+    written: usize = 0
+    if length > 0:
+        written <- encode(input[0:length], length, scratch[0:MAX_OUTPUT_BYTES])
     if output.is_null() or capacity < written: return -2
     index <- 0
     while index < written:

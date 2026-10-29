@@ -2,7 +2,7 @@ const GBBS_FIVE_CYCLE_MAX_N: usize = 16
 const GBBS_FIVE_CYCLE_MAX_M: usize = 64
 const GBBS_FIVE_CYCLE_MAX_INPUT: usize = 130
 
-def gbbs_five_cycle_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def gbbs_five_cycle_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -55,5 +55,5 @@ def gbbs_five_cycle_count(input: i64&, length: usize, output: mutable u8&, capac
                 second <- second + 1
             first <- first + 1
         start <- start + 1
-    gbbs_five_cycle_store_i64_le(count, output, 0)
+    gbbs_five_cycle_store_i64_le(count, output[0:8], 0)
     return 8

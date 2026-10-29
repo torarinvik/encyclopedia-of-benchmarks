@@ -2,7 +2,7 @@ const MAX_N: usize = 6
 const MAX_INPUT: usize = 73
 const MAX_OUTPUT_BYTES: usize = 104
 
-def wsmt_store(output: mutable u8&, offset: usize, value: i64): void:
+def wsmt_store(output: mutable view[u8], offset: usize, value: i64): void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -73,7 +73,7 @@ def weak_stable_matching_ties_incomplete_impl(input: i64&, length: usize,
     output_bytes: usize = 8 * (1 + 2 * pairs)
     if output.is_null() or capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    for word in 0..<(1 + 2 * pairs): wsmt_store(staged&, 8 * word, words[word])
+    for word in 0..<(1 + 2 * pairs): wsmt_store(staged[0:MAX_OUTPUT_BYTES], 8 * word, words[word])
     for byte in 0..<output_bytes: output[byte] <- staged[byte]
     output_bytes.i64()
 

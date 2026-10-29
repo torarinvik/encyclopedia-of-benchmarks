@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u32&, source: f32&, length: usize) -> mutable u32&
 
-def julia_sets_put_f32(output: mutable u8&, offset: usize, value: f32) -> void:
+def julia_sets_put_f32(output: mutable view[u8], offset: usize, value: f32) -> void:
     bits: mutable u32 = 0
     memcpy(&bits, &value, 4)
     for byte in 0..4: output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
@@ -42,7 +42,7 @@ def julia_sets_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
         computed[2 * point] <- real
         computed[2 * point + 1] <- imag
     for component in 0..2 * count:
-        julia_sets_put_f32(output, component * 4, computed[component])
+        julia_sets_put_f32(output[0:needed], component * 4, computed[component])
     needed.i64()
 
 export fn julia_sets(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = julia_sets_impl

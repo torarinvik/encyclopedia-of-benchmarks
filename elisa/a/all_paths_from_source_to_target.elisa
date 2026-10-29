@@ -1,4 +1,4 @@
-def all_paths_from_source_to_target_put_i64(output: mutable u8&, position: usize, value: i64) -> void:
+def all_paths_from_source_to_target_put_i64(output: mutable view[u8], position: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     offset: mutable usize = 0
     while offset < 8:
@@ -6,7 +6,7 @@ def all_paths_from_source_to_target_put_i64(output: mutable u8&, position: usize
         bits <- bits / 256.u64()
         offset <- offset + 1
 
-def all_paths_from_source_to_target_dfs(adj: i64&, degree: i64&, visited: mutable bool&, path: mutable i64&, depth: usize, target: i64, count: mutable usize&, output: mutable u8&, at: mutable usize&, overflow: mutable bool&) -> void:
+def all_paths_from_source_to_target_dfs(adj: view[i64], degree: view[i64], visited: mutable view[bool], path: mutable view[i64], depth: usize, target: i64, count: mutable usize&, output: mutable view[u8], at: mutable usize&, overflow: mutable bool&) -> void:
     if overflow:
         return
     current: i64 = path[depth - 1]
@@ -61,10 +61,10 @@ def all_paths_from_source_to_target_impl(values: i64&, length: usize, output: mu
     count: mutable usize = 0
     at: mutable usize = 8
     overflow: mutable bool = false
-    all_paths_from_source_to_target_dfs(adjacency, degree, visited, path, 1, target, count, temporary, at, overflow)
+    all_paths_from_source_to_target_dfs(adjacency[0:192], degree[0:8], visited[0:8], path[0:8], 1, target, count, temporary[0:72008], at, overflow)
     if overflow:
         return -2
-    all_paths_from_source_to_target_put_i64(temporary, 0, count.i64())
+    all_paths_from_source_to_target_put_i64(temporary[0:at], 0, count.i64())
     if output == null or capacity < at:
         return -2
     offset: mutable usize = 0

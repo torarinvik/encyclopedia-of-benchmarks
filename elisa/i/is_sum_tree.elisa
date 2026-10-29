@@ -1,10 +1,10 @@
-def is_sum_tree_subtree_sum(nodes: i64&, index: i64) -> i64:
+def is_sum_tree_subtree_sum(nodes: view[i64], index: i64) -> i64:
     if index < 0:
         return 0
     base: usize = (index * 3).usize()
     nodes[base] + is_sum_tree_subtree_sum(nodes, nodes[base + 1]) + is_sum_tree_subtree_sum(nodes, nodes[base + 2])
 
-def is_sum_tree_check_node(nodes: i64&, index: i64) -> bool:
+def is_sum_tree_check_node(nodes: view[i64], index: i64) -> bool:
     base: usize = (index * 3).usize()
     value: i64 = nodes[base]
     left: i64 = nodes[base + 1]
@@ -47,6 +47,6 @@ def is_sum_tree_impl(nodes: i64&, count: usize, root: i64) -> i64:
                 return -9000000000000000000
             stack[top] <- right
             top <- top + 1
-    if is_sum_tree_check_node(nodes, root): 1.i64() else: 0.i64()
+    if is_sum_tree_check_node(nodes[0:3 * count], root): 1.i64() else: 0.i64()
 
 export fn is_sum_tree(nodes: i64&, count: usize, root: i64) -> i64 = is_sum_tree_impl

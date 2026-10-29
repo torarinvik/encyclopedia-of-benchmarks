@@ -1,5 +1,5 @@
 # Clean-room bounded FM-index count via BWT backward search.
-def fm_suffix_less(s: i64&, n: usize, a0: usize, b0: usize) -> bool:
+def fm_suffix_less(s: view[i64], n: usize, a0: usize, b0: usize) -> bool:
     while a < n |a: mutable usize = a0, b: mutable usize = b0|:
         if s[a] < s[b]:
             return true
@@ -48,7 +48,7 @@ def fm_index_count_impl(input: i64&, length: usize, output: mutable u8&, output_
         key: usize = sa[i]
         position: mutable usize = i
         while position > 0 |position: mutable usize = i, sa| -> sa:
-            if fm_suffix_less(s, total, key, sa[position - 1]):
+            if fm_suffix_less(s[0:total], total, key, sa[position - 1]):
                 sa[position] <- sa[position - 1]
                 position <- position - 1
             else:

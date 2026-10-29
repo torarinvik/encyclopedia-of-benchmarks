@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def put_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
+def put_f64_le(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte_index: mutable usize = 0
@@ -9,7 +9,7 @@ def put_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
         bits <- bits >> 8
         byte_index <- byte_index + 1
 
-def put_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte_index: mutable usize = 0
     while byte_index < 8:
@@ -33,9 +33,9 @@ def exponential_moving_average_java_stream_impl(input: i64&, length: usize, outp
         variance <- 0.75 * (variance + 0.25 * deviation * deviation)
         index <- index + 1
     if output.is_null() or capacity < 24: return -2
-    put_f64_le(output, 0, mean)
-    put_f64_le(output, 8, variance)
-    put_i64_le(output, 16, input[1])
+    put_f64_le(output[0:24], 0, mean)
+    put_f64_le(output[0:24], 8, variance)
+    put_i64_le(output[0:24], 16, input[1])
     24
 
 export fn exponential_moving_average_java_stream(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = exponential_moving_average_java_stream_impl

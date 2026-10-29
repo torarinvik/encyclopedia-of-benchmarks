@@ -20,7 +20,7 @@ struct DState:
     arr2: i64[50][50]
     rec: DRecord[2]
 
-def dhrystone_copy_text(destination: mutable u8&, text: &str) -> void:
+def dhrystone_copy_text(destination: mutable view[u8], text: &str) -> void:
     index: mutable usize = 0
     while index < 31:
         if index < text.len(): destination[index] <- text[index].u8()
@@ -28,7 +28,7 @@ def dhrystone_copy_text(destination: mutable u8&, text: &str) -> void:
         if index >= text.len(): break
         index <- index + 1
 
-def dhrystone_compare_text(a: u8&, b: u8&) -> i64:
+def dhrystone_compare_text(a: view[u8], b: view[u8]) -> i64:
     index: mutable usize = 0
     while index < 31:
         left: i64 = a[index].i64()
@@ -113,7 +113,7 @@ def dhrystone_proc8(state: mutable DState&, a: i64, b: i64) -> void:
     state.arr2[local + 20][local] <- state.arr1[local]
     state.int_glob <- 5
 
-def dhrystone_func2(state: mutable DState&, a: u8&, b: u8&) -> bool:
+def dhrystone_func2(state: mutable DState&, a: view[u8], b: view[u8]) -> bool:
     local: mutable usize = 2
     character: mutable i64 = 0
     while local <= 2:
@@ -122,7 +122,7 @@ def dhrystone_func2(state: mutable DState&, a: u8&, b: u8&) -> bool:
             local <- local + 1
     if character >= 87 && character < 90: local <- 7
     if character == 82: return true
-    if dhrystone_compare_text(a, b) > 0:
+    if dhrystone_compare_text(a[0:31], b[0:31]) > 0:
         state.int_glob <- local.i64() + 7
         return true
     false
@@ -135,10 +135,10 @@ def ansibench_dhrystone_impl(input: i64&, length: usize, output: mutable u8&, ca
     state.rec[0].discr <- I1
     state.rec[0].enum_comp <- I3
     state.rec[0].int_comp <- 40
-    dhrystone_copy_text(state.rec[0].text, "DHRYSTONE PROGRAM, SOME STRING")
+    dhrystone_copy_text(state.rec[0].text[0:31], "DHRYSTONE PROGRAM, SOME STRING")
     str1: mutable u8[31] = zeroed
     str2: mutable u8[31] = zeroed
-    dhrystone_copy_text(str1, "DHRYSTONE PROGRAM, 1'ST STRING")
+    dhrystone_copy_text(str1[0:31], "DHRYSTONE PROGRAM, 1'ST STRING")
     state.arr2[8][7] <- 10
     int1: mutable i64 = 0
     int2: mutable i64 = 0
@@ -151,9 +151,9 @@ def ansibench_dhrystone_impl(input: i64&, length: usize, output: mutable u8&, ca
         dhrystone_proc4(state)
         int1 <- 2
         int2 <- 3
-        dhrystone_copy_text(str2, "DHRYSTONE PROGRAM, 2'ND STRING")
+        dhrystone_copy_text(str2[0:31], "DHRYSTONE PROGRAM, 2'ND STRING")
         enum_loc <- I2
-        if dhrystone_func2(state, str1, str2): func2_false <- 0
+        if dhrystone_func2(state, str1[0:31], str2[0:31]): func2_false <- 0
         else: func2_false <- 1
         while int1 < int2:
             int3 <- 5 * int1 - int2
@@ -165,7 +165,7 @@ def ansibench_dhrystone_impl(input: i64&, length: usize, output: mutable u8&, ca
         while ch_index <= state.ch2:
             if enum_loc == dhrystone_func1(state, ch_index, 67):
                 enum_loc <- dhrystone_proc6(state, I1)
-                dhrystone_copy_text(str2, "DHRYSTONE PROGRAM, 3'RD STRING")
+                dhrystone_copy_text(str2[0:31], "DHRYSTONE PROGRAM, 3'RD STRING")
                 int2 <- run
                 state.int_glob <- run
             ch_index <- ch_index + 1

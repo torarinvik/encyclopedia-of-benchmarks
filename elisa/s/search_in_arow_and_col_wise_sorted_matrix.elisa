@@ -1,7 +1,7 @@
 const MAX_DIMENSION: i64 = 63
 const MAX_INPUT_VALUES: usize = 3971
 
-def write_i32_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def write_i32_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u32 = value.i32().u32()
     byte: mutable usize = 0
     while byte < 4:
@@ -53,8 +53,8 @@ export fn search_in_arow_and_col_wise_sorted_matrix(input: i64&, length: usize,
 
     if output.is_null() or capacity < 8: return -2
     buffer: mutable u8[8] = zeroed
-    write_i32_le(buffer[0], 0, result_row)
-    write_i32_le(buffer[0], 4, result_column)
+    write_i32_le(buffer[0:8], 0, result_row)
+    write_i32_le(buffer[0:8], 4, result_column)
     index: mutable usize = 0
     while index < 8:
         output[index] <- buffer[index]

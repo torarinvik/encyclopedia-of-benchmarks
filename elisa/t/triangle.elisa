@@ -2,7 +2,7 @@
 extern sqrt(value: f64) -> f64
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def put_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
+def put_f64_le(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     # Binary64 values are copied as bytes through the shared ABI buffer.
     memcpy(&bits, &value, 8)
@@ -41,7 +41,7 @@ def triangle_impl(input: i64&, length: usize, output: mutable u8&, capacity: usi
     values: f64[6] = [circum_x,circum_y,incenter_x,incenter_y,ortho_x,ortho_y]
     i <- 0
     while i < 6:
-        put_f64_le(output,i*8,values[i])
+        put_f64_le(output[0:48],i*8,values[i])
         i <- i + 1
     48
 

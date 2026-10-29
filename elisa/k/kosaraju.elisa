@@ -3,7 +3,7 @@ const MAX_VERTEX_COUNT: usize = 40
 const MAX_EDGE_COUNT: usize = 2047
 const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_EDGE_COUNT
 
-def kosaraju_fill_order(adjacency: u64&, visited: mutable u8&, order: mutable usize&,
+def kosaraju_fill_order(adjacency: view[u64], visited: mutable view[u8], order: mutable view[usize],
         order_length: mutable usize&, vertex_count: usize, vertex: usize) -> void:
     visited[vertex] <- 1.u8()
     neighbor: mutable usize = 0
@@ -14,7 +14,7 @@ def kosaraju_fill_order(adjacency: u64&, visited: mutable u8&, order: mutable us
     order[order_length] <- vertex
     order_length <- order_length + 1
 
-def kosaraju_collect(transpose: u64&, visited: mutable u8&, component_id: mutable i64&,
+def kosaraju_collect(transpose: view[u64], visited: mutable view[u8], component_id: mutable view[i64],
         vertex_count: usize, vertex: usize, id: i64) -> void:
     visited[vertex] <- 1.u8()
     component_id[vertex] <- id
@@ -50,7 +50,7 @@ def kosaraju_impl(input: i64&, length: usize, output: mutable u8&,
     order_length: mutable usize = 0
     for vertex in 0..<vertex_count |vertex, adjacency, visited, order, order_length|:
         if visited[vertex] == 0:
-            kosaraju_fill_order(&adjacency[0], &visited[0], &order[0], &order_length,
+            kosaraju_fill_order(adjacency[0:vertex_count], visited[0:vertex_count], order[0:vertex_count], &order_length,
                 vertex_count, vertex)
     vertex: mutable usize = 0
     while vertex < MAX_VERTEX_COUNT |vertex, visited|:
@@ -66,7 +66,7 @@ def kosaraju_impl(input: i64&, length: usize, output: mutable u8&,
     while step < order_length |step, order, visited, transpose, component_id, component_count|:
         current: usize = order[order_length - 1 - step]
         if visited[current] == 0:
-            kosaraju_collect(&transpose[0], &visited[0], &component_id[0],
+            kosaraju_collect(transpose[0:vertex_count], visited[0:vertex_count], component_id[0:vertex_count],
                 vertex_count, current, component_count.i64())
             component_count <- component_count + 1
         step <- step + 1

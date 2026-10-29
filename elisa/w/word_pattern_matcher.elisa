@@ -1,6 +1,6 @@
-def word_pattern_matcher_visit(input: i64&, pattern_start: usize, text_start: usize,
+def word_pattern_matcher_visit(input: view[i64], pattern_start: usize, text_start: usize,
     plen: usize, tlen: usize, pi: usize, ti: usize,
-    starts: mutable i32&, sizes: mutable i32&) -> bool:
+    starts: mutable view[i32], sizes: mutable view[i32]) -> bool:
     if pi == plen: return ti == tlen
     symbol: usize = (input[pattern_start + pi] - 32).usize()
     if sizes[symbol] >= 0:
@@ -55,6 +55,7 @@ def word_pattern_matcher_impl(input: i64&, length: usize, output: mutable u8&, c
         starts[index] <- -1
         sizes[index] <- -1
         index <- index + 1
-    if word_pattern_matcher_visit(input, 1, text_index + 1, plen, tlen, 0, 0, &starts[0], &sizes[0]): 1 else: 0
+    if word_pattern_matcher_visit(input[0:length], 1, text_index + 1, plen, tlen, 0, 0,
+            starts[0:95], sizes[0:95]): 1 else: 0
 
 export fn word_pattern_matcher(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = word_pattern_matcher_impl

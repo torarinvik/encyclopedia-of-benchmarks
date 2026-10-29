@@ -13,7 +13,7 @@ struct ProcedureSStats:
     branches: i64
     max_depth: i64
 
-def procedure_s_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+def procedure_s_put_i64(output: mutable view[u8], word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[word * 8 + byte] <- (bits >> (byte * 8)).u8()
@@ -129,12 +129,12 @@ def procedure_s_general_cnf_sat_impl(input: i64&, length: usize, output: mutable
     model: mutable u64 = 0
     sat: bool = procedure_s_solve(formula, variables, k, 0, 0, 0, stats, model)
     if output == null or output_capacity < 48: return -2
-    procedure_s_put_i64(output, 0, if sat: 1 else: 0)
-    procedure_s_put_i64(output, 1, if sat: model.i64() else: 0)
-    procedure_s_put_i64(output, 2, stats.calls)
-    procedure_s_put_i64(output, 3, stats.tests)
-    procedure_s_put_i64(output, 4, stats.branches)
-    procedure_s_put_i64(output, 5, stats.max_depth)
+    procedure_s_put_i64(output[0:output_capacity], 0, if sat: 1 else: 0)
+    procedure_s_put_i64(output[0:output_capacity], 1, if sat: model.i64() else: 0)
+    procedure_s_put_i64(output[0:output_capacity], 2, stats.calls)
+    procedure_s_put_i64(output[0:output_capacity], 3, stats.tests)
+    procedure_s_put_i64(output[0:output_capacity], 4, stats.branches)
+    procedure_s_put_i64(output[0:output_capacity], 5, stats.max_depth)
     48
 
 export fn procedure_s_general_cnf_sat(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = procedure_s_general_cnf_sat_impl

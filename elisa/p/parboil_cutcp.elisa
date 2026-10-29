@@ -1,8 +1,8 @@
 module parboil_cutcp
 
-extern floorf(f32 value) -> f32
-extern ceilf(f32 value) -> f32
-extern sqrtf(f32 value) -> f32
+extern floorf(value: f32) -> f32
+extern ceilf(value: f32) -> f32
+extern sqrtf(value: f32) -> f32
 
 const MAX_DIM: i64 = 4
 const MAX_ATOMS: i64 = 4
@@ -10,10 +10,10 @@ const MAX_INPUT: i64 = 25
 const MAX_GRID: i64 = 64
 const INV_CELL_LENGTH: f32 = 0.25.f32()
 
-def fn f32 parboil_cutcp_decode(i64 raw):
+def parboil_cutcp_decode(raw: i64) -> f32:
     return raw.f32() / 1000000.0.f32()
 
-def fn i32 parboil_cutcp_quantize(f32 value):
+def parboil_cutcp_quantize(value: f32) -> i32:
     scaled: f32 = value * 1000.0.f32()
     magnitude: f32 = if scaled < 0.0.f32(): -scaled else: scaled
     whole: mutable i32 = magnitude.i32()
@@ -21,16 +21,16 @@ def fn i32 parboil_cutcp_quantize(f32 value):
     if scaled < 0.0.f32(): return -whole
     return whole
 
-def fn void parboil_cutcp_write_i32_le(u8* output, i64 offset, i32 value):
+def parboil_cutcp_write_i32_le(output: mutable view[u8], offset: i64, value: i32) -> void:
     bits: u32 = value.u32()
     output[offset] <- bits.u8()
     output[offset + 1] <- (bits >> 8).u8()
     output[offset + 2] <- (bits >> 16).u8()
     output[offset + 3] <- (bits >> 24).u8()
 
-/* Clean-room Parboil cutcp profile; Illinois Open Source License in package docs. */
-def fn i64 parboil_cutcp(i64* input, i64 input_length, u8* output, i64 output_capacity):
-    if input == null or input_length < 13 or input_length > MAX_INPUT: return -1
+# Clean-room Parboil cutcp profile; Illinois Open Source License in package docs.
+def parboil_cutcp_impl(input: i64&, input_length: i64, output: mutable u8&, output_capacity: i64) -> i64:
+    if input.is_null() or input_length < 13 or input_length > MAX_INPUT: return -1
     if input[0] < 2 or input[0] > MAX_DIM or input[1] < 2 or input[1] > MAX_DIM
         or input[2] < 2 or input[2] > MAX_DIM or input[3] < 1 or input[3] > MAX_ATOMS: return -1
     nx: i64 = input[0]
@@ -58,7 +58,7 @@ def fn i64 parboil_cutcp(i64* input, i64 input_length, u8* output, i64 output_ca
         n <- n + 1
     points: i64 = nx * ny * nz
     output_bytes: i64 = 4 * points
-    if output == null or output_capacity < output_bytes: return -2
+    if output.is_null() or output_capacity < output_bytes: return -2
 
     xlo: f32 = parboil_cutcp_decode(xlo_raw)
     ylo: f32 = parboil_cutcp_decode(ylo_raw)
@@ -182,10 +182,14 @@ def fn i64 parboil_cutcp(i64* input, i64 input_length, u8* output, i64 output_ca
                 k <- k + 1
             n <- next[n]
         c <- c + 1
+    staged: mutable u8[256] = zeroed
     point: mutable i64 = 0
     while point < points:
-        parboil_cutcp_write_i32_le(output, 4 * point, parboil_cutcp_quantize(grid[point]))
+        parboil_cutcp_write_i32_le(staged[0:256], 4 * point, parboil_cutcp_quantize(grid[point]))
         point <- point + 1
+    for byte in 0..output_bytes:
+        output[byte] <- staged[byte]
     return output_bytes
 
-export fn parboil_cutcp
+export fn parboil_cutcp(input: i64&, input_length: i64, output: mutable u8&,
+        output_capacity: i64) -> i64 = parboil_cutcp_impl

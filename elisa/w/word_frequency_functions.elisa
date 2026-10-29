@@ -12,7 +12,7 @@ def wf_punctuation(value: u8) -> bool:
 def wf_lower_ascii(value: u8) -> u8:
     if value >= 65 and value <= 90: (value + 32).u8() else: value
 
-def wf_put32(output: mutable u8&, position: mutable usize&, value: u32) -> void:
+def wf_put32(output: mutable view[u8], position: mutable usize&, value: u32) -> void:
     bits: mutable u32 = value
     index: mutable usize = 0
     while index < 4:
@@ -21,7 +21,7 @@ def wf_put32(output: mutable u8&, position: mutable usize&, value: u32) -> void:
         bits <- bits >> 8
         index <- index + 1
 
-def wf_put64(output: mutable u8&, position: mutable usize&, value: i64) -> void:
+def wf_put64(output: mutable view[u8], position: mutable usize&, value: i64) -> void:
     bits: mutable u64 = value.u64()
     index: mutable usize = 0
     while index < 8:
@@ -136,12 +136,12 @@ def word_frequency_functions_impl(input: i64&, length: usize, output: mutable u8
         return -1
     if output == null or capacity < output_length: return -2
     position: mutable usize = 0
-    wf_put32(output, position&, kind.u32())
+    wf_put32(output[0:capacity], position&, kind.u32())
     if kind == 0 or kind == 2:
-        wf_put64(output, position&, first)
+        wf_put64(output[0:capacity], position&, first)
     else if kind == 1:
-        wf_put64(output, position&, first)
-        wf_put64(output, position&, second)
+        wf_put64(output[0:capacity], position&, first)
+        wf_put64(output[0:capacity], position&, second)
     position.i64()
 
 export fn word_frequency_functions(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = word_frequency_functions_impl

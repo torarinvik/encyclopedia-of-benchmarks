@@ -33,7 +33,7 @@ const CBENCH_BZIP2_MTF_RLE_MAX_BLOCK: usize = 32
 const CBENCH_BZIP2_MTF_RLE_MAX_TOKENS: usize = 33
 const CBENCH_BZIP2_MTF_RLE_MAX_INPUT: usize = 68
 
-def cbench_bzip2_mtf_rle_emit_run(tokens: mutable u8&, used: mutable usize&, count: usize) -> void:
+def cbench_bzip2_mtf_rle_emit_run(tokens: mutable view[u8], used: mutable usize&, count: usize) -> void:
     if count == 0:
         return
     value: mutable usize = count - 1
@@ -89,7 +89,7 @@ def cbench_bzip2_mtf_rle_impl(input: i64&, input_length: usize,
             if rank == 0:
                 pending_zeros <- pending_zeros + 1
                 continue
-            cbench_bzip2_mtf_rle_emit_run(&staged[0], &staged_count, pending_zeros)
+            cbench_bzip2_mtf_rle_emit_run(staged[0:CBENCH_BZIP2_MTF_RLE_MAX_TOKENS], &staged_count, pending_zeros)
             pending_zeros <- 0
             staged[staged_count] <- (rank + 1).u8()
             staged_count <- staged_count + 1
@@ -99,7 +99,7 @@ def cbench_bzip2_mtf_rle_impl(input: i64&, input_length: usize,
                 order[j] <- order[j - 1]
                 j <- j - 1
             order[0] <- moved
-        cbench_bzip2_mtf_rle_emit_run(&staged[0], &staged_count, pending_zeros)
+        cbench_bzip2_mtf_rle_emit_run(staged[0:CBENCH_BZIP2_MTF_RLE_MAX_TOKENS], &staged_count, pending_zeros)
         staged[staged_count] <- (alphabet_length + 1).u8()
         staged_count <- staged_count + 1
     else if input[0] == 1:

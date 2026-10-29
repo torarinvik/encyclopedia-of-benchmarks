@@ -32,14 +32,14 @@ def benchmarkgame_recursive_takeuchi_float(x: f64, y: f64, z: f64) -> f64:
             benchmarkgame_recursive_takeuchi_float(z - 1.0, x, y))
     z
 
-def benchmarkgame_recursive_append_text(buffer: mutable u8&, used: mutable usize&, text: string) -> void:
+def benchmarkgame_recursive_append_text(buffer: mutable view[u8], used: mutable usize&, text: string) -> void:
     index: mutable usize = 0
     while index < text.len():
         buffer[used] <- text.byte_at(index)
         used <- used + 1
         index <- index + 1
 
-def benchmarkgame_recursive_append_number(buffer: mutable u8&, used: mutable usize&, value: i64) -> void:
+def benchmarkgame_recursive_append_number(buffer: mutable view[u8], used: mutable usize&, value: i64) -> void:
     reversed: mutable u8[20] = zeroed
     remaining: mutable i64 = value
     count: mutable usize = 0
@@ -61,28 +61,29 @@ def benchmarkgame_recursive_impl(n: i64, output: mutable u8&, output_capacity: u
         return -2
 
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT_BYTES]
     used: mutable usize = 0
-    benchmarkgame_recursive_append_text(staged, used, "Ack(3,")
-    benchmarkgame_recursive_append_number(staged, used, n + 1)
-    benchmarkgame_recursive_append_text(staged, used, "): ")
-    benchmarkgame_recursive_append_number(staged, used, benchmarkgame_recursive_ackermann(3, n + 1))
-    benchmarkgame_recursive_append_text(staged, used, "\nFib(")
-    benchmarkgame_recursive_append_number(staged, used, 28 + n)
-    benchmarkgame_recursive_append_text(staged, used, ".0): ")
-    benchmarkgame_recursive_append_number(staged, used, benchmarkgame_recursive_fibonacci_float((28 + n).f64()).i64())
-    benchmarkgame_recursive_append_text(staged, used, ".0\nTak(")
-    benchmarkgame_recursive_append_number(staged, used, 3 * n)
-    benchmarkgame_recursive_append_text(staged, used, ",")
-    benchmarkgame_recursive_append_number(staged, used, 2 * n)
-    benchmarkgame_recursive_append_text(staged, used, ",")
-    benchmarkgame_recursive_append_number(staged, used, n)
-    benchmarkgame_recursive_append_text(staged, used, "): ")
-    benchmarkgame_recursive_append_number(staged, used, benchmarkgame_recursive_takeuchi_integer(3 * n, 2 * n, n))
-    benchmarkgame_recursive_append_text(staged, used, "\nFib(3): ")
-    benchmarkgame_recursive_append_number(staged, used, benchmarkgame_recursive_fibonacci_integer(3))
-    benchmarkgame_recursive_append_text(staged, used, "\nTak(3.0,2.0,1.0): ")
-    benchmarkgame_recursive_append_number(staged, used, benchmarkgame_recursive_takeuchi_float(3.0, 2.0, 1.0).i64())
-    benchmarkgame_recursive_append_text(staged, used, ".0\n")
+    benchmarkgame_recursive_append_text(staged_view, used, "Ack(3,")
+    benchmarkgame_recursive_append_number(staged_view, used, n + 1)
+    benchmarkgame_recursive_append_text(staged_view, used, "): ")
+    benchmarkgame_recursive_append_number(staged_view, used, benchmarkgame_recursive_ackermann(3, n + 1))
+    benchmarkgame_recursive_append_text(staged_view, used, "\nFib(")
+    benchmarkgame_recursive_append_number(staged_view, used, 28 + n)
+    benchmarkgame_recursive_append_text(staged_view, used, ".0): ")
+    benchmarkgame_recursive_append_number(staged_view, used, benchmarkgame_recursive_fibonacci_float((28 + n).f64()).i64())
+    benchmarkgame_recursive_append_text(staged_view, used, ".0\nTak(")
+    benchmarkgame_recursive_append_number(staged_view, used, 3 * n)
+    benchmarkgame_recursive_append_text(staged_view, used, ",")
+    benchmarkgame_recursive_append_number(staged_view, used, 2 * n)
+    benchmarkgame_recursive_append_text(staged_view, used, ",")
+    benchmarkgame_recursive_append_number(staged_view, used, n)
+    benchmarkgame_recursive_append_text(staged_view, used, "): ")
+    benchmarkgame_recursive_append_number(staged_view, used, benchmarkgame_recursive_takeuchi_integer(3 * n, 2 * n, n))
+    benchmarkgame_recursive_append_text(staged_view, used, "\nFib(3): ")
+    benchmarkgame_recursive_append_number(staged_view, used, benchmarkgame_recursive_fibonacci_integer(3))
+    benchmarkgame_recursive_append_text(staged_view, used, "\nTak(3.0,2.0,1.0): ")
+    benchmarkgame_recursive_append_number(staged_view, used, benchmarkgame_recursive_takeuchi_float(3.0, 2.0, 1.0).i64())
+    benchmarkgame_recursive_append_text(staged_view, used, ".0\n")
 
     if output_capacity < used:
         return -2

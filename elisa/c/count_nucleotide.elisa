@@ -8,7 +8,7 @@ def count_nucleotide_decimal_length(value: i64) -> usize:
         length <- length + 1
     length
 
-def count_nucleotide_write_decimal(output: mutable u8&, offset: usize, value: i64) -> usize:
+def count_nucleotide_write_decimal(output: mutable view[u8], offset: usize, value: i64) -> usize:
     divisor: mutable i64 = 1
     while value / divisor >= 10:
         divisor <- divisor * 10
@@ -42,16 +42,16 @@ def count_nucleotide_impl(values: i64&, length: usize, output: mutable u8&, capa
     output_length: usize = count_nucleotide_decimal_length(count_a) + count_nucleotide_decimal_length(count_c) + count_nucleotide_decimal_length(count_g) + count_nucleotide_decimal_length(count_t) + 3
     if output.is_null() or capacity < output_length:
         return -2
-    offset: mutable usize = count_nucleotide_write_decimal(output, 0, count_a)
+    offset: mutable usize = count_nucleotide_write_decimal(output[0:output_length], 0, count_a)
     output[offset] <- 32
     offset <- offset + 1
-    offset <- count_nucleotide_write_decimal(output, offset, count_c)
+    offset <- count_nucleotide_write_decimal(output[0:output_length], offset, count_c)
     output[offset] <- 32
     offset <- offset + 1
-    offset <- count_nucleotide_write_decimal(output, offset, count_g)
+    offset <- count_nucleotide_write_decimal(output[0:output_length], offset, count_g)
     output[offset] <- 32
     offset <- offset + 1
-    offset <- count_nucleotide_write_decimal(output, offset, count_t)
+    offset <- count_nucleotide_write_decimal(output[0:output_length], offset, count_t)
     offset.i64()
 
 export fn count_nucleotide(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = count_nucleotide_impl

@@ -1,4 +1,4 @@
-def decimal_expansion_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def decimal_expansion_write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     byte_index: mutable usize = 0
     if value == -1:
         while byte_index < 8:
@@ -44,9 +44,9 @@ def decimal_expansion_impl(values: i64&, length: usize, output: mutable u8&, cap
     if output == null or capacity < required:
         return -2
     integer_part: i64 = if numerator == denominator: 1 else 0
-    decimal_expansion_write_i64_le(output, 0, integer_part)
-    decimal_expansion_write_i64_le(output, 8, digit_count.i64())
-    decimal_expansion_write_i64_le(output, 16, cycle_start)
+    decimal_expansion_write_i64_le(output[0:required], 0, integer_part)
+    decimal_expansion_write_i64_le(output[0:required], 8, digit_count.i64())
+    decimal_expansion_write_i64_le(output[0:required], 16, cycle_start)
     index <- 0
     while index < digit_count:
         output[24 + index] <- digits[index]

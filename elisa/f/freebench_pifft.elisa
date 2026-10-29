@@ -5,7 +5,7 @@ const FFT_SIZE: usize = 8
 const BASE: i64 = 1000
 const SCALE: i64 = 1000000
 
-def freebench_pifft_fft(real: mutable f64[8]&, imag: mutable f64[8]&, inverse: bool) -> void:
+def freebench_pifft_fft(real: mutable view[f64], imag: mutable view[f64], inverse: bool) -> void:
     reversed: usize[8] = {0, 4, 2, 6, 1, 5, 3, 7}
     for i in 0..<8:
         j: usize = reversed[i]
@@ -57,14 +57,14 @@ def freebench_pifft_multiply(left_value: i64, right_value: i64) -> i64:
         right_real[i] <- (right % BASE).f64()
         left <- left / BASE
         right <- right / BASE
-    freebench_pifft_fft(left_real&, left_imag&, false)
-    freebench_pifft_fft(right_real&, right_imag&, false)
+    freebench_pifft_fft(left_real[0:8], left_imag[0:8], false)
+    freebench_pifft_fft(right_real[0:8], right_imag[0:8], false)
     for i in 0..<8:
         product_real: f64 = left_real[i] * right_real[i] - left_imag[i] * right_imag[i]
         product_imag: f64 = left_real[i] * right_imag[i] + left_imag[i] * right_real[i]
         left_real[i] <- product_real
         left_imag[i] <- product_imag
-    freebench_pifft_fft(left_real&, left_imag&, true)
+    freebench_pifft_fft(left_real[0:8], left_imag[0:8], true)
     product: mutable i64 = 0
     place: mutable i64 = 1
     for i in 0..<5:

@@ -2,7 +2,7 @@
 const MAX_VALUES: usize = 256
 const MAX_PAIRS: usize = 128
 
-def sort_pairs(low: mutable i64&, high: mutable i64&, scratch_low: mutable i64&, scratch_high: mutable i64&, count: usize) -> void:
+def sort_pairs(low: mutable view[i64], high: mutable view[i64], scratch_low: mutable view[i64], scratch_high: mutable view[i64], count: usize) -> void:
     width: mutable usize = 1
     while width < count:
         start: mutable usize = 0
@@ -46,7 +46,7 @@ def sort_pairs(low: mutable i64&, high: mutable i64&, scratch_low: mutable i64&,
             break
         width <- width * 2
 
-def binary_insert(values: mutable i64&, length: usize, item: i64) -> usize:
+def binary_insert(values: mutable view[i64], length: usize, item: i64) -> usize:
     low: mutable usize = 0
     high: mutable usize = length
     while low < high:
@@ -82,7 +82,7 @@ def merge_insertion_sort_impl(values: mutable i64&, length: usize) -> void:
             pair_low[pair] <- second
             pair_high[pair] <- first
         pair <- pair + 1
-    sort_pairs(pair_low[0], pair_high[0], scratch_low[0], scratch_high[0], pair_count)
+    sort_pairs(pair_low[0:pair_count], pair_high[0:pair_count], scratch_low[0:pair_count], scratch_high[0:pair_count], pair_count)
     chain_length: mutable usize = 0
     pair <- 0
     while pair < pair_count:
@@ -93,10 +93,10 @@ def merge_insertion_sort_impl(values: mutable i64&, length: usize) -> void:
         chain[chain_length] <- pair_high[pair_count - 1]
         chain_length <- chain_length + 1
     if length % 2 != 0:
-        chain_length <- binary_insert(chain[0], chain_length, values[length - 1])
+        chain_length <- binary_insert(chain[0:MAX_VALUES], chain_length, values[length - 1])
     pair <- 0
     while pair + 1 < pair_count:
-        chain_length <- binary_insert(chain[0], chain_length, pair_high[pair])
+        chain_length <- binary_insert(chain[0:MAX_VALUES], chain_length, pair_high[pair])
         pair <- pair + 1
     index: mutable usize = 0
     while index < length:

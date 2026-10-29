@@ -2,7 +2,7 @@
 const MAX_SIDE: usize = 8
 const MAX_CELLS: usize = 64
 const MAX_INPUT_LENGTH: usize = 130
-def put64(v:i64,out:mutable u8&,off:usize)->void:
+def put64(v:i64,out:mutable view[u8],off:usize)->void:
  bits:u64=v.u64();j:mutable usize=0
  while j<8:out[off+j]<-((bits>>(8*j))&255).u8();j<-j+1
 def tsvc_s119_diagonal_matrix_recurrence_impl(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64:
@@ -27,6 +27,6 @@ def tsvc_s119_diagonal_matrix_recurrence_impl(input:i64&,length:usize,out:mutabl
    i<-i+1
   p<-p+1
  i<-0
- while i<cells:put64(a[i],out,8*i);i<-i+1
+ while i<cells:put64(a[i],out[0:cap],8*i);i<-i+1
  cells.i64()
 export fn tsvc_s119_diagonal_matrix_recurrence(input:i64&,length:usize,out:mutable u8&,cap:usize)->i64=tsvc_s119_diagonal_matrix_recurrence_impl

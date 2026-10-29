@@ -2,14 +2,14 @@
 const ONLINE_INTERVAL_MAX_N: usize = 64
 const ONLINE_INTERVAL_MAX_INPUT: usize = 129
 
-def online_interval_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def online_interval_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def online_interval_level_fits(left: i64&, right: i64&, levels: usize&, last: usize, candidate: usize) -> bool:
+def online_interval_level_fits(left: view[i64], right: view[i64], levels: view[usize], last: usize, candidate: usize) -> bool:
     anchor: mutable usize = 0
     while anchor <= last:
         point: i64 = left[anchor]
@@ -45,7 +45,7 @@ def online_interval_coloring(input: i64&, length: usize, output: mutable u8&, ca
     i <- 0
     while i < n:
         level: mutable usize = 1
-        while !online_interval_level_fits(&left[0], &right[0], &levels[0], i, level):
+        while !online_interval_level_fits(left[0:i + 1], right[0:i + 1], levels[0:i + 1], i, level):
             level <- level + 1
             if level > i + 1: return -1
         levels[i] <- level
@@ -64,6 +64,6 @@ def online_interval_coloring(input: i64&, length: usize, output: mutable u8&, ca
 
     i <- 0
     while i < n:
-        online_interval_store_i64_le(colors[i].i64(), output, 8 * i)
+        online_interval_store_i64_le(colors[i].i64(), output[0:capacity], 8 * i)
         i <- i + 1
     output_bytes.i64()

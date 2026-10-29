@@ -1,6 +1,6 @@
 const MAX_DIMENSION: usize = 32
 
-def matrix_copy_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def matrix_copy_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -29,11 +29,12 @@ def matrix_copy_impl(input: i64&, length: usize, output: mutable u8&, output_cap
     result_count: usize = result_rows * result_columns
     output_bytes: usize = (2 + result_count) * 8
     if output_capacity < output_bytes: return -2
-    matrix_copy_store_i64(output, 0, result_rows.i64())
-    matrix_copy_store_i64(output, 8, result_columns.i64())
+    output_view: mutable view[u8] = output[0:output_bytes]
+    matrix_copy_store_i64(output_view, 0, result_rows.i64())
+    matrix_copy_store_i64(output_view, 8, result_columns.i64())
     index <- 0
     while index < result_count:
-        matrix_copy_store_i64(output, 16 + index * 8, input[2 + index])
+        matrix_copy_store_i64(output_view, 16 + index * 8, input[2 + index])
         index <- index + 1
     output_bytes.i64()
 

@@ -21,8 +21,8 @@ struct KdNode:
 def kdtree_coordinate(point: KdPoint, axis: usize) -> i64:
     if axis == 0: point.x else: point.y
 
-def kdtree_build(points: mutable KdPoint&, start: usize, length: usize, depth: usize,
-                 nodes: mutable KdNode&, node_count: mutable usize&) -> usize:
+def kdtree_build(points: mutable view[KdPoint], start: usize, length: usize, depth: usize,
+                 nodes: mutable view[KdNode], node_count: mutable usize&) -> usize:
     if length == 0: return NONE
     axis: usize = depth % 2
     for index in start + 1 ..< start + length:
@@ -41,13 +41,13 @@ def kdtree_build(points: mutable KdPoint&, start: usize, length: usize, depth: u
     node.left <- NONE
     node.right <- NONE
     nodes[root] <- node
-    left: usize = kdtree_build(&points[0], start, median, depth + 1, &nodes[0], node_count)
-    right: usize = kdtree_build(&points[0], start + median + 1, length - median - 1, depth + 1, &nodes[0], node_count)
+    left: usize = kdtree_build(points, start, median, depth + 1, nodes, node_count)
+    right: usize = kdtree_build(points, start + median + 1, length - median - 1, depth + 1, nodes, node_count)
     nodes[root].left <- left
     nodes[root].right <- right
     root
 
-def kdtree_insert(nodes: mutable KdNode&, node_count: mutable usize&, root: usize, point: KdPoint, depth: usize) -> usize:
+def kdtree_insert(nodes: mutable view[KdNode], node_count: mutable usize&, root: usize, point: KdPoint, depth: usize) -> usize:
     if root == NONE:
         index: usize = node_count
         node_count <- node_count + 1
@@ -60,26 +60,26 @@ def kdtree_insert(nodes: mutable KdNode&, node_count: mutable usize&, root: usiz
         return index
     axis: usize = nodes[root].axis
     if kdtree_coordinate(point, axis) < kdtree_coordinate(nodes[root].point, axis):
-        nodes[root].left <- kdtree_insert(&nodes[0], node_count, nodes[root].left, point, depth + 1)
+        nodes[root].left <- kdtree_insert(nodes, node_count, nodes[root].left, point, depth + 1)
     else:
-        nodes[root].right <- kdtree_insert(&nodes[0], node_count, nodes[root].right, point, depth + 1)
+        nodes[root].right <- kdtree_insert(nodes, node_count, nodes[root].right, point, depth + 1)
     root
 
-def kdtree_search(nodes: KdNode&, root: usize, point: KdPoint) -> bool:
+def kdtree_search(nodes: view[KdNode], root: usize, point: KdPoint) -> bool:
     if root == NONE: return false
     if nodes[root].point.x == point.x and nodes[root].point.y == point.y: return true
     axis: usize = nodes[root].axis
     if kdtree_coordinate(point, axis) < kdtree_coordinate(nodes[root].point, axis):
-        kdtree_search(&nodes[0], nodes[root].left, point)
+        kdtree_search(nodes, nodes[root].left, point)
     else:
-        kdtree_search(&nodes[0], nodes[root].right, point)
+        kdtree_search(nodes, nodes[root].right, point)
 
 def kdtree_distance_squared(left: KdPoint, right: KdPoint) -> i64:
     dx: i64 = left.x - right.x
     dy: i64 = left.y - right.y
     dx * dx + dy * dy
 
-def kdtree_nearest(nodes: KdNode&, root: usize, query: KdPoint, best_arg: usize) -> usize:
+def kdtree_nearest(nodes: view[KdNode], root: usize, query: KdPoint, best_arg: usize) -> usize:
     if root == NONE: return best_arg
     if nodes[root].point.x == query.x and nodes[root].point.y == query.y: return root
     point: KdPoint = nodes[root].point
@@ -93,9 +93,9 @@ def kdtree_nearest(nodes: KdNode&, root: usize, query: KdPoint, best_arg: usize)
     query_left: bool = kdtree_coordinate(query, axis) < kdtree_coordinate(point, axis)
     near: usize = if query_left: nodes[root].left else: nodes[root].right
     far: usize = if query_left: nodes[root].right else: nodes[root].left
-    best <- kdtree_nearest(&nodes[0], near, query, best)
+    best <- kdtree_nearest(nodes, near, query, best)
     if distance_except_axis < kdtree_distance_squared(nodes[best].point, query):
-        best <- kdtree_nearest(&nodes[0], far, query, best)
+        best <- kdtree_nearest(nodes, far, query, best)
     best
 
 def kdtree_benchmark_impl(input: i64&, length: usize) -> i64:
@@ -122,7 +122,7 @@ def kdtree_benchmark_impl(input: i64&, length: usize) -> i64:
     nodes: mutable KdNode[MAX_POINTS] = zeroed
     point_count: mutable usize = 0
     root: mutable usize = NONE
-    if initial_count > 0: root <- kdtree_build(&points[0], 0, initial_count, 0, &nodes[0], point_count)
+    if initial_count > 0: root <- kdtree_build(points[0:initial_count], 0, initial_count, 0, nodes[0:MAX_POINTS], point_count)
     checksum: mutable i64 = 0
     operations_start: usize = operation_count_index + 1
     for operation in 0..<operation_count:
@@ -140,13 +140,13 @@ def kdtree_benchmark_impl(input: i64&, length: usize) -> i64:
                 if point_count >= MAX_POINTS: return -1
                 for index in 0..<point_count:
                     if nodes[index].point.x == first or nodes[index].point.y == second: return -1
-                root <- kdtree_insert(&nodes[0], point_count, root, point, 0)
+                root <- kdtree_insert(nodes[0:MAX_POINTS], point_count, root, point, 0)
                 continue
             else if opcode == 1:
-                if kdtree_search(&nodes[0], root, point): result <- 1
+                if kdtree_search(nodes[0:point_count], root, point): result <- 1
             else:
                 if root == NONE: return -1
-                closest: usize = kdtree_nearest(&nodes[0], root, point, root)
+                closest: usize = kdtree_nearest(nodes[0:point_count], root, point, root)
                 result <- kdtree_distance_squared(nodes[closest].point, point)
         else if opcode == 2 or opcode == 3:
             if first < 0 or first > 1 or second != 0 or root == NONE: return -1

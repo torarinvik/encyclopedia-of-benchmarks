@@ -13,10 +13,10 @@ struct CtmBox:
     bmax: i64
     total: i64
 
-def ctm_hist_at(histogram: i64[32768]&, r: usize, g: usize, b: usize) -> i64:
+def ctm_hist_at(histogram: view[i64], r: usize, g: usize, b: usize) -> i64:
     histogram[(r * BIN_SIDE + g) * BIN_SIDE + b]
 
-def ctm_shrink_box(histogram: i64[32768]&, box: mutable CtmBox&) -> void:
+def ctm_shrink_box(histogram: view[i64], box: mutable CtmBox&) -> void:
     rmin: mutable usize = BIN_SIDE
     gmin: mutable usize = BIN_SIDE
     bmin: mutable usize = BIN_SIDE
@@ -43,7 +43,7 @@ def ctm_shrink_box(histogram: i64[32768]&, box: mutable CtmBox&) -> void:
     box.gmin <- gmin.i64(); box.gmax <- gmax
     box.bmin <- bmin.i64(); box.bmax <- bmax
 
-def ctm_largest_box(boxes: CtmBox[8]&, count: usize) -> i64:
+def ctm_largest_box(boxes: view[CtmBox], count: usize) -> i64:
     selected: mutable i64 = -1
     largest_total: mutable i64 = -1
     i: mutable usize = 0
@@ -56,7 +56,7 @@ def ctm_largest_box(boxes: CtmBox[8]&, count: usize) -> i64:
         i <- i + 1
     selected
 
-def ctm_split_box(histogram: i64[32768]&, boxes: mutable CtmBox[8]&, count: mutable usize&, selected: usize) -> void:
+def ctm_split_box(histogram: view[i64], boxes: mutable view[CtmBox], count: mutable usize&, selected: usize) -> void:
     upper: mutable CtmBox = boxes[selected]
     rspan: i64 = upper.rmax - upper.rmin
     gspan: i64 = upper.gmax - upper.gmin
@@ -159,9 +159,9 @@ def cbench_consumer_tiffmedian_impl(input: i64&, input_length: usize, output: mu
     boxes[0].total <- pixel_count.i64()
     box_count: mutable usize = 1
     while box_count < palette_limit:
-        selected: i64 = ctm_largest_box(boxes, box_count)
+        selected: i64 = ctm_largest_box(boxes[0:MAX_PALETTE], box_count)
         if selected < 0: break
-        ctm_split_box(histogram, boxes, box_count, selected.usize())
+        ctm_split_box(histogram[0:HISTOGRAM_SIZE], boxes[0:MAX_PALETTE], box_count, selected.usize())
     output_bytes: usize = 1 + 3 * box_count
     if output == null or output_capacity < output_bytes: return -2
     output[0] <- box_count.u8()

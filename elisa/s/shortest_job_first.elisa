@@ -2,7 +2,7 @@ const MAX_JOBS: usize = 32
 const MAX_OUTPUT_BYTES: usize = 520
 const SENTINEL: i64 = 999999999
 
-def shortest_job_first_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def shortest_job_first_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -48,9 +48,9 @@ def shortest_job_first_impl(input: i64&, length: usize, output: mutable u8&, cap
             wait: i64 = finish_time - input[1 + short_index] - input[1 + count + short_index]
             waiting[short_index] <- if wait > 0: wait else: 0
         time <- time + 1
-    shortest_job_first_put_i64(output, 0, raw_count)
-    for i in 0..<count: shortest_job_first_put_i64(output, 8 * (1 + i), waiting[i])
-    for i in 0..<count: shortest_job_first_put_i64(output, 8 * (1 + count + i), input[1 + count + i] + waiting[i])
+    shortest_job_first_put_i64(output[0:capacity], 0, raw_count)
+    for i in 0..<count: shortest_job_first_put_i64(output[0:capacity], 8 * (1 + i), waiting[i])
+    for i in 0..<count: shortest_job_first_put_i64(output[0:capacity], 8 * (1 + count + i), input[1 + count + i] + waiting[i])
     bytes.i64()
 
 export fn shortest_job_first(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = shortest_job_first_impl

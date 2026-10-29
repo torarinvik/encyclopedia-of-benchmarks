@@ -1,4 +1,4 @@
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: usize = 0
     while byte < 8:
@@ -6,7 +6,7 @@ def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
         bits <- bits >> 8
         byte <- byte + 1
 
-def compare_rows(left: i64&, right: i64&, keys: i64&, key_count: usize, ascending: bool) -> i64:
+def compare_rows(left: view[i64], right: view[i64], keys: view[i64], key_count: usize, ascending: bool) -> i64:
     key_index: usize = 0
     while key_index < key_count:
         field: usize = (keys[key_index] - 1).usize()
@@ -53,7 +53,7 @@ def array_keys_sort_impl(values: i64&, length: usize, output: mutable u8&, capac
     while left < count:
         right: usize = left + 1
         while right < count:
-            if compare_rows(rows[left * 4], rows[right * 4], values[3], key_count, true) == 0: return -1
+            if compare_rows(rows[left * 4:left * 4 + 4], rows[right * 4:right * 4 + 4], values[3:3 + key_count], key_count, true) == 0: return -1
             right <- right + 1
         left <- left + 1
     byte_count: usize = 32 * count
@@ -62,7 +62,7 @@ def array_keys_sort_impl(values: i64&, length: usize, output: mutable u8&, capac
     while i < count:
         temporary: mutable i64[4] = [rows[i * 4], rows[i * 4 + 1], rows[i * 4 + 2], rows[i * 4 + 3]]
         position: mutable usize = i
-        while position > 0 and compare_rows(rows[(position - 1) * 4], temporary[0], values[3], key_count, order == 1) > 0:
+        while position > 0 and compare_rows(rows[(position - 1) * 4:(position - 1) * 4 + 4], temporary[0:4], values[3:3 + key_count], key_count, order == 1) > 0:
             rows[position * 4] <- rows[(position - 1) * 4]
             rows[position * 4 + 1] <- rows[(position - 1) * 4 + 1]
             rows[position * 4 + 2] <- rows[(position - 1) * 4 + 2]
@@ -75,7 +75,7 @@ def array_keys_sort_impl(values: i64&, length: usize, output: mutable u8&, capac
         i <- i + 1
     index <- 0
     while index < 4 * count:
-        store_i64_le(rows[index], output, 8 * index)
+        store_i64_le(rows[index], output[0:byte_count], 8 * index)
         index <- index + 1
     byte_count.i64()
 

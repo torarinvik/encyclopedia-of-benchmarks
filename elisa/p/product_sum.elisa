@@ -1,4 +1,4 @@
-def product_sum_parse(tokens: i64&, count: usize, cursor: mutable usize&, depth: usize, nested: bool, valid: mutable bool&) -> i64:
+def product_sum_parse(tokens: view[i64], count: usize, cursor: mutable usize&, depth: usize, nested: bool, valid: mutable bool&) -> i64:
     if depth > 16: valid <- false; return 0
     total: mutable i64 = 0
     while cursor < count:
@@ -22,7 +22,7 @@ def product_sum_impl(input: i64&, length: usize) -> i64:
     if input.is_null() or length < 1 or length > 129 or input[0] < 0 or input[0] > 128.i64() or length != input[0].usize() + 1: return -1
     cursor: mutable usize = 0
     valid: mutable bool = true
-    answer: i64 = product_sum_parse(input + 1, input[0].usize(), cursor, 1, false, valid)
+    answer: i64 = product_sum_parse(input[1:length], input[0].usize(), cursor, 1, false, valid)
     if valid and cursor == input[0].usize(): return answer
     -1
 

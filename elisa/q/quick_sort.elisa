@@ -1,5 +1,5 @@
 # Lomuto quicksort on half-open ranges; recurse into the smaller partition.
-def partition(values: mutable i64&, low: usize, high: usize) -> usize:
+def partition(values: mutable view[i64], low: usize, high: usize) -> usize:
     pivot: i64 = values[high - 1]
     boundary: mutable usize = low
     scan: mutable usize = low
@@ -15,7 +15,7 @@ def partition(values: mutable i64&, low: usize, high: usize) -> usize:
     values[high - 1] <- temporary
     boundary
 
-def quick_sort_range(values: mutable i64&, low_value: usize, high_value: usize) -> void:
+def quick_sort_range(values: mutable view[i64], low_value: usize, high_value: usize) -> void:
     low: mutable usize = low_value
     high: mutable usize = high_value
     while high - low > 1:
@@ -28,8 +28,9 @@ def quick_sort_range(values: mutable i64&, low_value: usize, high_value: usize) 
             quick_sort_range(values, right_start, high)
             high <- pivot
 
-def quick_sort_impl(values: mutable i64&, length: usize) -> void:
+def quick_sort_impl(values: mutable view[i64], length: usize) -> void:
     if length > 1:
         quick_sort_range(values, 0, length)
 
-export fn quick_sort(values: mutable i64&, length: usize) -> void = quick_sort_impl
+export fn quick_sort(values: mutable i64&, length: usize) -> void =
+    quick_sort_impl(values[0:length], length)

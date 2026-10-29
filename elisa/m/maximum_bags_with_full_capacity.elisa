@@ -1,7 +1,7 @@
 const MAX_INPUT_LENGTH: usize = 16384
 const MAX_BAGS: usize = 8191
 
-def sift_down(values: mutable i64&, root: usize, end: usize) -> void:
+def sift_down(values: mutable view[i64], root: usize, end: usize) -> void:
     current: mutable usize = root
     while current < end / 2 |current, values|:
         child: mutable usize = current * 2 + 1
@@ -35,14 +35,14 @@ def maximum_bags_with_full_capacity_impl(input: i64&, length: usize) -> i64:
     start: mutable usize = count / 2
     while start > 0 |start, deficits|:
         start <- start - 1
-        sift_down(&deficits[0], start, count)
+        sift_down(deficits[0:count], start, count)
     end: mutable usize = count
     while end > 1 |end, deficits|:
         end <- end - 1
         temporary: i64 = deficits[0]
         deficits[0] <- deficits[end]
         deficits[end] <- temporary
-        sift_down(&deficits[0], 0, end)
+        sift_down(deficits[0:count], 0, end)
     full_bags: mutable i64 = 0
     for index in 0..<count |remaining, full_bags, deficits|:
         if deficits[index] > remaining:

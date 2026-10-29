@@ -5,15 +5,15 @@ const MAX_SLOPE_PPM: i64 = 5000000
 const MAX_INTERCEPT_MICRO: i64 = 1000000000000
 const INVALID_RESULT: f64 = -1.0e300
 
-def units_converter_find_root(parent: mutable usize&, node: usize) -> usize:
+def units_converter_find_root(parent: mutable view[usize], node: usize) -> usize:
     current: mutable usize = node
     while parent[current] != current:
         parent[current] <- parent[parent[current]]
         current <- parent[current]
     current
 
-def units_converter_put_if_needed(present: mutable i64&, slopes: mutable f64&,
-        intercepts: mutable f64&, source: usize, target: usize,
+def units_converter_put_if_needed(present: mutable view[i64], slopes: mutable view[f64],
+        intercepts: mutable view[f64], source: usize, target: usize,
         slope: f64, intercept: f64) -> bool:
     if source == target:
         return false
@@ -25,10 +25,10 @@ def units_converter_put_if_needed(present: mutable i64&, slopes: mutable f64&,
     intercepts[slot] <- intercept
     true
 
-def units_converter_add_all(known_present: i64&, known_slopes: f64&,
-        known_intercepts: f64&, unit_count: usize,
-        result_present: mutable i64&, result_slopes: mutable f64&,
-        result_intercepts: mutable f64&) -> usize:
+def units_converter_add_all(known_present: view[i64], known_slopes: view[f64],
+        known_intercepts: view[f64], unit_count: usize,
+        result_present: mutable view[i64], result_slopes: mutable view[f64],
+        result_intercepts: mutable view[f64]) -> usize:
     inverse_present: mutable i64[MAX_CONVERSIONS] = zeroed
     inverse_slopes: mutable f64[MAX_CONVERSIONS] = zeroed
     inverse_intercepts: mutable f64[MAX_CONVERSIONS] = zeroed
@@ -38,11 +38,11 @@ def units_converter_add_all(known_present: i64&, known_slopes: f64&,
             slot: usize = source * MAX_UNITS + target
             if known_present[slot] == 0:
                 continue
-            if units_converter_put_if_needed(&inverse_present[0], &inverse_slopes[0],
-                    &inverse_intercepts[0], source, target, known_slopes[slot], known_intercepts[slot]):
+            if units_converter_put_if_needed(inverse_present[0:MAX_CONVERSIONS], inverse_slopes[0:MAX_CONVERSIONS],
+                    inverse_intercepts[0:MAX_CONVERSIONS], source, target, known_slopes[slot], known_intercepts[slot]):
                 inverse_count <- inverse_count + 1
-            if units_converter_put_if_needed(&inverse_present[0], &inverse_slopes[0],
-                    &inverse_intercepts[0], target, source, 1.0 / known_slopes[slot],
+            if units_converter_put_if_needed(inverse_present[0:MAX_CONVERSIONS], inverse_slopes[0:MAX_CONVERSIONS],
+                    inverse_intercepts[0:MAX_CONVERSIONS], target, source, 1.0 / known_slopes[slot],
                     -known_intercepts[slot] / known_slopes[slot]):
                 inverse_count <- inverse_count + 1
 
@@ -130,8 +130,8 @@ def units_converter_impl(values: i64&, length: usize) -> f64:
                 return INVALID_RESULT
             from_unit: usize = from_value.usize()
             to_unit: usize = to_value.usize()
-            root_from: usize = units_converter_find_root(&parent[0], from_unit)
-            root_to: usize = units_converter_find_root(&parent[0], to_unit)
+            root_from: usize = units_converter_find_root(parent[0:MAX_UNITS], from_unit)
+            root_to: usize = units_converter_find_root(parent[0:MAX_UNITS], to_unit)
             if root_from == root_to:
                 return INVALID_RESULT
             parent[root_from] <- root_to
@@ -158,8 +158,9 @@ def units_converter_impl(values: i64&, length: usize) -> f64:
             next_present[slot] <- 0
             next_slopes[slot] <- 0.0
             next_intercepts[slot] <- 0.0
-        next_count: usize = units_converter_add_all(&known_present[0], &known_slopes[0],
-                &known_intercepts[0], unit_count, &next_present[0], &next_slopes[0], &next_intercepts[0])
+        next_count: usize = units_converter_add_all(known_present[0:MAX_CONVERSIONS], known_slopes[0:MAX_CONVERSIONS],
+                known_intercepts[0:MAX_CONVERSIONS], unit_count, next_present[0:MAX_CONVERSIONS],
+                next_slopes[0:MAX_CONVERSIONS], next_intercepts[0:MAX_CONVERSIONS])
         for slot in 0..<MAX_CONVERSIONS:
             known_present[slot] <- next_present[slot]
             known_slopes[slot] <- next_slopes[slot]

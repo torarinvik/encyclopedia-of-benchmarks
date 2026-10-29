@@ -1,4 +1,4 @@
-def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = if value < 0: (value + 18_446_744_073_709_551_616).u64() else: value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -15,6 +15,7 @@ def maximum_minimum_window_impl(input: i64&, length: usize, output: mutable u8&,
         if input[index + 1] < 0 or input[index + 1] > 1_000_000: return -2
         index <- index + 1
     if output_capacity < n * 8: return -3
+    output_view: mutable view[u8] = output[0:n * 8]
     result: mutable i64[257] = zeroed
     left: mutable i64[256] = zeroed
     right: mutable i64[256] = zeroed
@@ -46,7 +47,7 @@ def maximum_minimum_window_impl(input: i64&, length: usize, output: mutable u8&,
         if result[index] < result[index + 1]: result[index] <- result[index + 1]
     index <- 1
     while index <= n:
-        store_i64_le(result[index], output, (index - 1) * 8)
+        store_i64_le(result[index], output_view, (index - 1) * 8)
         index <- index + 1
     n.i64()
 

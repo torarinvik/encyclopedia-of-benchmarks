@@ -1,7 +1,7 @@
 const MAX_N: usize = 8
 const MAX_INPUT: usize = 65
 
-def metric_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def metric_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -43,6 +43,7 @@ def metric_tsp_tree_doubling(input: i64&, length: usize,
         u <- u + 1
     output_bytes: usize = 8 * (n + 2)
     if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
     processed: mutable bool[8][8] = zeroed
     tree: mutable bool[8][8] = zeroed
     parent: mutable usize[8] = zeroed
@@ -101,10 +102,10 @@ def metric_tsp_tree_doubling(input: i64&, length: usize,
         cost <- cost + d[order[u]][order[u + 1]]
         u <- u + 1
     cost <- cost + d[order[n - 1]][0]
-    metric_store_i64_le(cost, output, 0)
+    metric_store_i64_le(cost, output_view, 0)
     u <- 0
     while u < n:
-        metric_store_i64_le(order[u].i64(), output, 8 * (u + 1))
+        metric_store_i64_le(order[u].i64(), output_view, 8 * (u + 1))
         u <- u + 1
-    metric_store_i64_le(0, output, 8 * (n + 1))
+    metric_store_i64_le(0, output_view, 8 * (n + 1))
     output_bytes.i64()

@@ -7,8 +7,8 @@ const MAX_OPERATIONS: usize = 511
 const OFFSET: i64 = 1000000
 const HASH_MOD: i64 = 1000000007
 
-def b_tree_split_child(keys: mutable i64&, children: mutable usize&,
-        key_count: mutable usize&, leaf: mutable u8&, used_nodes: mutable usize&,
+def b_tree_split_child(keys: mutable view[i64], children: mutable view[usize],
+        key_count: mutable view[usize], leaf: mutable view[u8], used_nodes: mutable usize&,
         min_degree: usize, parent: usize, child_index: usize) -> bool:
     if used_nodes >= MAX_NODE_COUNT:
         return false
@@ -37,8 +37,8 @@ def b_tree_split_child(keys: mutable i64&, children: mutable usize&,
     key_count[parent] <- parent_count + 1
     true
 
-def b_tree_insert_non_full(keys: mutable i64&, children: mutable usize&,
-        key_count: mutable usize&, leaf: mutable u8&, used_nodes: mutable usize&,
+def b_tree_insert_non_full(keys: mutable view[i64], children: mutable view[usize],
+        key_count: mutable view[usize], leaf: mutable view[u8], used_nodes: mutable usize&,
         min_degree: usize, node: usize, key: i64) -> bool:
     index: mutable usize = key_count[node]
     if leaf[node] != 0:
@@ -59,8 +59,8 @@ def b_tree_insert_non_full(keys: mutable i64&, children: mutable usize&,
     b_tree_insert_non_full(keys, children, key_count, leaf, used_nodes,
         min_degree, children[node * MAX_NODE_CHILDREN + index], key)
 
-def b_tree_insert_key(keys: mutable i64&, children: mutable usize&,
-        key_count: mutable usize&, leaf: mutable u8&, used_nodes: mutable usize&,
+def b_tree_insert_key(keys: mutable view[i64], children: mutable view[usize],
+        key_count: mutable view[usize], leaf: mutable view[u8], used_nodes: mutable usize&,
         root: mutable usize&, min_degree: usize, key: i64) -> bool:
     if key_count[root] == 2 * min_degree - 1:
         if used_nodes + 2 > MAX_NODE_COUNT:
@@ -75,7 +75,7 @@ def b_tree_insert_key(keys: mutable i64&, children: mutable usize&,
             return false
     b_tree_insert_non_full(keys, children, key_count, leaf, used_nodes, min_degree, root, key)
 
-def b_tree_search_key(keys: i64&, children: usize&, key_count: usize&, leaf: u8&,
+def b_tree_search_key(keys: view[i64], children: view[usize], key_count: view[usize], leaf: view[u8],
         root: usize, key: i64) -> bool:
     node: mutable usize = root
     while true |node, keys, children, key_count, leaf|:
@@ -89,7 +89,7 @@ def b_tree_search_key(keys: i64&, children: usize&, key_count: usize&, leaf: u8&
         node <- children[node * MAX_NODE_CHILDREN + index]
     false
 
-def b_tree_walk_in_order(keys: i64&, children: usize&, key_count: usize&, leaf: u8&,
+def b_tree_walk_in_order(keys: view[i64], children: view[usize], key_count: view[usize], leaf: view[u8],
         root: usize, operation_count: usize, ordered_sum: mutable i64&, add_ordered_sum: bool) -> i64:
     node_stack: mutable usize[32] = zeroed
     position_stack: mutable usize[32] = zeroed
@@ -153,24 +153,24 @@ def b_tree_benchmark_impl(input: i64&, length: usize) -> i64:
         if opcode == 0:
             if payload < -OFFSET or payload > OFFSET or inserted_count == MAX_KEY_COUNT:
                 return -1
-            if not b_tree_insert_key(&keys[0], &children[0], &key_count[0], &leaf[0], used_nodes, root, min_degree, payload):
+            if not b_tree_insert_key(keys[0:MAX_NODE_COUNT * MAX_NODE_KEYS], children[0:MAX_NODE_COUNT * MAX_NODE_CHILDREN], key_count[0:MAX_NODE_COUNT], leaf[0:MAX_NODE_COUNT], used_nodes, root, min_degree, payload):
                 return -1
             inserted_count <- inserted_count + 1
             observed <- 1
         elif opcode == 1:
             if payload < -OFFSET or payload > OFFSET:
                 return -1
-            if b_tree_search_key(&keys[0], &children[0], &key_count[0], &leaf[0], root, payload):
+            if b_tree_search_key(keys[0:MAX_NODE_COUNT * MAX_NODE_KEYS], children[0:MAX_NODE_COUNT * MAX_NODE_CHILDREN], key_count[0:MAX_NODE_COUNT], leaf[0:MAX_NODE_COUNT], root, payload):
                 observed <- 1
         elif opcode == 2:
             if payload != 0:
                 return -1
             ignored_sum: mutable i64 = 0
-            observed <- b_tree_walk_in_order(&keys[0], &children[0], &key_count[0], &leaf[0], root, 0, ignored_sum, false)
+            observed <- b_tree_walk_in_order(keys[0:MAX_NODE_COUNT * MAX_NODE_KEYS], children[0:MAX_NODE_COUNT * MAX_NODE_CHILDREN], key_count[0:MAX_NODE_COUNT], leaf[0:MAX_NODE_COUNT], root, 0, ignored_sum, false)
         else:
             return -1
         checksum <- checksum + (operation.i64() + 1) * (observed + OFFSET)
-    b_tree_walk_in_order(&keys[0], &children[0], &key_count[0], &leaf[0], root, operation_count, checksum, true)
+    b_tree_walk_in_order(keys[0:MAX_NODE_COUNT * MAX_NODE_KEYS], children[0:MAX_NODE_COUNT * MAX_NODE_CHILDREN], key_count[0:MAX_NODE_COUNT], leaf[0:MAX_NODE_COUNT], root, operation_count, checksum, true)
     checksum
 
 export fn b_tree_benchmark(input: i64&, length: usize) -> i64 = b_tree_benchmark_impl

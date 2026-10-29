@@ -1,9 +1,9 @@
-def sm_det3(m: i64&) -> i64:
+def sm_det3(m: view[i64]) -> i64:
     m[0] * (m[4] * m[8] - m[5] * m[7])
         - m[1] * (m[3] * m[8] - m[5] * m[6])
         + m[2] * (m[3] * m[7] - m[4] * m[6])
 
-def sm_charpoly(m: i64&, n: usize, out: mutable i64&) -> void:
+def sm_charpoly(m: view[i64], n: usize, out: mutable view[i64]) -> void:
     trace: mutable i64 = 0
     for i in 0..<n: trace <- trace + m[i * n + i]
     out[0] <- -trace
@@ -18,7 +18,7 @@ def sm_charpoly(m: i64&, n: usize, out: mutable i64&) -> void:
 def sm_disc3(a: i64, b: i64, c: i64) -> i64:
     a * a * b * b - 4 * b * b * b - 4 * a * a * a * c - 27 * c * c + 18 * a * b * c
 
-def sm_rank_singular(m: i64&, n: usize) -> usize:
+def sm_rank_singular(m: view[i64], n: usize) -> usize:
     for r0 in 0..<n:
         for r1 in (r0 + 1)..<n:
             for c0 in 0..<n:
@@ -29,49 +29,49 @@ def sm_rank_singular(m: i64&, n: usize) -> usize:
         if m[i] != 0: return 1
     0
 
-def sm_shifted(m: i64&, n: usize, numerator: i64, denominator: i64, out: mutable i64&) -> void:
+def sm_shifted(m: view[i64], n: usize, numerator: i64, denominator: i64, out: mutable view[i64]) -> void:
     for i in 0..<(n * n): out[i] <- denominator * m[i]
     for i in 0..<n: out[i * n + i] <- out[i * n + i] - numerator
 
-def sm_multiply(a: i64&, b: i64&, n: usize, out: mutable i64&) -> void:
+def sm_multiply(a: view[i64], b: view[i64], n: usize, out: mutable view[i64]) -> void:
     for row in 0..<n:
         for col in 0..<n:
             value: mutable i64 = 0
             for k in 0..<n: value <- value + a[row * n + k] * b[k * n + col]
             out[row * n + col] <- value
 
-def sm_similar(a: i64&, b: i64&, n: usize) -> bool:
+def sm_similar(a: view[i64], b: view[i64], n: usize) -> bool:
     ca: mutable i64[3] = zeroed
     cb: mutable i64[3] = zeroed
-    sm_charpoly(a, n, ca[0])
-    sm_charpoly(b, n, cb[0])
+    sm_charpoly(a, n, ca[0:3])
+    sm_charpoly(b, n, cb[0:3])
     if ca[0] != cb[0] or ca[1] != cb[1] or ca[2] != cb[2]: return false
     if n == 1: return true
     if n == 2:
         if ca[0] * ca[0] - 4 * ca[1] != 0: return true
         da: mutable i64[9] = zeroed
         db: mutable i64[9] = zeroed
-        sm_shifted(a, n, -ca[0], 2, da[0])
-        sm_shifted(b, n, -ca[0], 2, db[0])
-        return sm_rank_singular(da[0], n) == sm_rank_singular(db[0], n)
+        sm_shifted(a, n, -ca[0], 2, da[0:9])
+        sm_shifted(b, n, -ca[0], 2, db[0:9])
+        return sm_rank_singular(da[0:9], n) == sm_rank_singular(db[0:9], n)
     if sm_disc3(ca[0], ca[1], ca[2]) != 0: return true
     q: i64 = ca[0] * ca[0] - 3 * ca[1]
     da: mutable i64[9] = zeroed
     db: mutable i64[9] = zeroed
     if q == 0:
-        sm_shifted(a, n, -ca[0], 3, da[0])
-        sm_shifted(b, n, -ca[0], 3, db[0])
-        if sm_rank_singular(da[0], n) != sm_rank_singular(db[0], n): return false
+        sm_shifted(a, n, -ca[0], 3, da[0:9])
+        sm_shifted(b, n, -ca[0], 3, db[0:9])
+        if sm_rank_singular(da[0:9], n) != sm_rank_singular(db[0:9], n): return false
         da2: mutable i64[9] = zeroed
         db2: mutable i64[9] = zeroed
-        sm_multiply(da[0], da[0], n, da2[0])
-        sm_multiply(db[0], db[0], n, db2[0])
-        return sm_rank_singular(da2[0], n) == sm_rank_singular(db2[0], n)
+        sm_multiply(da[0:9], da[0:9], n, da2[0:9])
+        sm_multiply(db[0:9], db[0:9], n, db2[0:9])
+        return sm_rank_singular(da2[0:9], n) == sm_rank_singular(db2[0:9], n)
     numerator: i64 = 9 * ca[2] - ca[0] * ca[1]
     denominator: i64 = 2 * q
-    sm_shifted(a, n, numerator, denominator, da[0])
-    sm_shifted(b, n, numerator, denominator, db[0])
-    sm_rank_singular(da[0], n) == sm_rank_singular(db[0], n)
+    sm_shifted(a, n, numerator, denominator, da[0:9])
+    sm_shifted(b, n, numerator, denominator, db[0:9])
+    sm_rank_singular(da[0:9], n) == sm_rank_singular(db[0:9], n)
 
 def similar_matrices_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 1 or length > 19: return -1
@@ -87,6 +87,6 @@ def similar_matrices_impl(input: i64&, length: usize) -> i64:
         if value < -5 or value > 5: return -1
         if i < matrix_size: a[i] <- value
         else: b[i - matrix_size] <- value
-    if sm_similar(a[0], b[0], n): 1 else: 0
+    if sm_similar(a[0:matrix_size], b[0:matrix_size], n): 1 else: 0
 
 export fn similar_matrices(input: i64&, length: usize) -> i64 = similar_matrices_impl

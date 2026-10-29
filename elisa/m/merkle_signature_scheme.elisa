@@ -84,7 +84,7 @@ def sha256_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize
 export fn sha256(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = sha256_impl
 
 
-def merkle_signature_scheme_verify(input: i64&, height: usize, w: usize, msg_len: usize, leaf_index: usize, sig_pos: usize, pk_pos: usize, auth_pos: usize, root_pos: usize, l: usize) -> i64:
+def merkle_signature_scheme_verify(input: view[i64], height: usize, w: usize, msg_len: usize, leaf_index: usize, sig_pos: usize, pk_pos: usize, auth_pos: usize, root_pos: usize, l: usize) -> i64:
     digest: mutable u8[32] = zeroed
     current: mutable u8[32] = zeroed
     if sha256(&input[3], msg_len, &digest[0], 32) != 32: return 0
@@ -184,7 +184,7 @@ def merkle_signature_scheme_impl(input: i64&, length: usize, output: mutable u8&
         if input[i] < 0 or input[i] > 255: return -1
         i <- i + 1
     if output == null or capacity < 8: return -2
-    valid: i64 = merkle_signature_scheme_verify(input, height, w, msg, index_value.usize(), sig_pos, pk_pos, auth_pos, root_pos, l)
+    valid: i64 = merkle_signature_scheme_verify(input[0:length], height, w, msg, index_value.usize(), sig_pos, pk_pos, auth_pos, root_pos, l)
     i <- 0
     while i < 8:
         output[i] <- 0

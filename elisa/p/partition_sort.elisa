@@ -1,5 +1,5 @@
 # First-element-pivot quicksort using Hoare's partition scheme.
-def partition_sort_partition(values: mutable i64&, low: usize, high: usize) -> usize:
+def partition_sort_partition(values: mutable view[i64], low: usize, high: usize) -> usize:
     pivot: i64 = values[low]
     left: mutable usize = low
     right: mutable usize = high
@@ -17,7 +17,7 @@ def partition_sort_partition(values: mutable i64&, low: usize, high: usize) -> u
         right <- right - 1
 
 # Inclusive low/high bounds match the source's partitionSort routine.
-def partition_sort_range(values: mutable i64&, low: usize, high: usize) -> void:
+def partition_sort_range(values: mutable view[i64], low: usize, high: usize) -> void:
     if low < high:
         split: usize = partition_sort_partition(values, low, high)
         partition_sort_range(values, low, split)
@@ -25,6 +25,6 @@ def partition_sort_range(values: mutable i64&, low: usize, high: usize) -> void:
 
 def partition_sort_impl(values: mutable i64&, length: usize) -> void:
     if length > 1:
-        partition_sort_range(values, 0, length - 1)
+        partition_sort_range(values[0:length], 0, length - 1)
 
 export fn partition_sort(values: mutable i64&, length: usize) -> void = partition_sort_impl

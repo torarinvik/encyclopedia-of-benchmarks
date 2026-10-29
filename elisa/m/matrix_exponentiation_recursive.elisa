@@ -18,7 +18,7 @@ def power(matrix: i64[4], exponent: i64) -> i64[4]:
     half: i64[4] = power(matrix, exponent / 2)
     multiply(half, half)
 
-def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = if value < 0: (value + 18_446_744_073_709_551_616).u64() else: value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -34,11 +34,12 @@ def matrix_exponentiation_recursive_impl(input: i64&, length: usize, output: mut
         if input[index] < -1 or input[index] > 1: return -2
         index <- index + 1
     if output_capacity < 32: return -3
+    output_view: mutable view[u8] = output[0:32]
     matrix: i64[4] = [input[1], input[2], input[3], input[4]]
     result: i64[4] = power(matrix, exponent)
     index <- 0
     while index < 4:
-        store_i64_le(result[index], output, index * 8)
+        store_i64_le(result[index], output_view, index * 8)
         index <- index + 1
     4
 

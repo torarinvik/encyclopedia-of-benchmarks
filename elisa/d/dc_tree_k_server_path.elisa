@@ -1,4 +1,4 @@
-def dc_tree_k_server_path_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def dc_tree_k_server_path_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for b in 0..<8: output[offset+b] <- (bits >> (8*b)).u8()
 
@@ -39,7 +39,7 @@ def dc_tree_k_server_path_impl(input: i64&, length: usize, output: mutable u8&, 
             at <- at+1
     bytes: usize=8*q*(k+1)
     if output==null or capacity<bytes: return -2
-    for i in 0..<at: dc_tree_k_server_path_put_i64(output,i*8,staged[i])
+    for i in 0..<at: dc_tree_k_server_path_put_i64(output[0:bytes],i*8,staged[i])
     bytes.i64()
 
 export fn dc_tree_k_server_path(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = dc_tree_k_server_path_impl

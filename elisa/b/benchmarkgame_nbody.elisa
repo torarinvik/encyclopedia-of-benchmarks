@@ -8,7 +8,7 @@ struct Body:
     vy: f64
     vz: f64
     mass: f64
-def put_f64(output: mutable u8&, offset: usize, value: f64):
+def put_f64(output: mutable view[u8], offset: usize, value: f64):
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for k in 0..<8:
@@ -60,7 +60,7 @@ def benchmarkgame_nbody_impl(input: i64&, length: usize, output: mutable u8&, ca
             bodies[i].x <- bodies[i].x+0.01*bodies[i].vx
             bodies[i].y <- bodies[i].y+0.01*bodies[i].vy
             bodies[i].z <- bodies[i].z+0.01*bodies[i].vz
-    put_f64(output, 0, initial)
-    put_f64(output, 8, body_energy(bodies))
+    put_f64(output[0:16], 0, initial)
+    put_f64(output[0:16], 8, body_energy(bodies))
     16
 export fn benchmarkgame_nbody(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = benchmarkgame_nbody_impl

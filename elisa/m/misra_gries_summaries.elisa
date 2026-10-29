@@ -2,7 +2,7 @@ const MAX_K: usize = 8
 const MAX_ITEMS: usize = 64
 const MAX_INPUT: usize = 66
 
-def mg_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def mg_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -53,6 +53,7 @@ def misra_gries_summaries(input: i64&, length: usize,
         slot <- slot + 1
     output_bytes: usize = 8 * (1 + 2 * used)
     if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
     ordered_items: mutable i64[8] = zeroed
     ordered_counts: mutable i64[8] = zeroed
     at: mutable usize = 0
@@ -68,10 +69,10 @@ def misra_gries_summaries(input: i64&, length: usize,
             ordered_counts[position] <- counts[slot]
             at <- at + 1
         slot <- slot + 1
-    mg_store_i64_le(used.i64(), output, 0)
+    mg_store_i64_le(used.i64(), output_view, 0)
     index <- 0
     while index < used:
-        mg_store_i64_le(ordered_items[index], output, 8 * (1 + 2 * index))
-        mg_store_i64_le(ordered_counts[index], output, 8 * (2 + 2 * index))
+        mg_store_i64_le(ordered_items[index], output_view, 8 * (1 + 2 * index))
+        mg_store_i64_le(ordered_counts[index], output_view, 8 * (2 + 2 * index))
         index <- index + 1
     output_bytes.i64()

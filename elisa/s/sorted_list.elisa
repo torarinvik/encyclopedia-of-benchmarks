@@ -2,7 +2,7 @@ const SORTED_LIST_MAX_PARSEABLE_LENGTH: usize = 1025
 const SORTED_LIST_CHECKSUM_OFFSET: i64 = 1000000
 const SORTED_LIST_MAX_VALUE: i64 = 1000000
 
-def sorted_list_lower_bound(values: i64&, size: usize, target: i64) -> usize:
+def sorted_list_lower_bound(values: view[i64], size: usize, target: i64) -> usize:
     left: mutable usize = 0
     right: mutable usize = size
     while left < right:
@@ -31,7 +31,7 @@ def sorted_list_impl(input: i64&, length: usize) -> i64:
 
         if opcode == 0:
             if payload < 0 or payload > SORTED_LIST_MAX_VALUE or size >= 256: return -1
-            position: usize = sorted_list_lower_bound(items, size, payload)
+            position: usize = sorted_list_lower_bound(items[0:256], size, payload)
             index: mutable usize = size
             while index > position:
                 items[index] <- items[index - 1]
@@ -41,7 +41,7 @@ def sorted_list_impl(input: i64&, length: usize) -> i64:
             has_observation <- false
         elif opcode == 1 or opcode == 2:
             if payload < 0 or payload > SORTED_LIST_MAX_VALUE: return -1
-            position: usize = sorted_list_lower_bound(items, size, payload)
+            position: usize = sorted_list_lower_bound(items[0:256], size, payload)
             found: bool = position < size and items[position] == payload
             if found: observed <- 1
             if opcode == 2 and found:

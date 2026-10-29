@@ -11,7 +11,7 @@ def gcd(a0:i64,b0:i64)->i64:
         b<-r
     a
 
-def put64(value:i64,output:mutable u8&,pos:usize)->void:
+def put64(value:i64,output:mutable view[u8],pos:usize)->void:
     bits:u64=value.u64()
     j:mutable usize=0
     while j<8:
@@ -75,9 +75,9 @@ def sensor_energy_balance_estimator_trace(input:i64&,length:usize,output:mutable
         t<-t+1
     bytes:usize=8*(1+n)
     if output.is_null() or capacity<bytes:return -2
-    put64(q,output&,0)
+    put64(q,output[0:bytes],0)
     i<-0
     while i<n:
-        put64(state[i],output&,8*(i+1))
+        put64(state[i],output[0:bytes],8*(i+1))
         i<-i+1
     bytes.i64()

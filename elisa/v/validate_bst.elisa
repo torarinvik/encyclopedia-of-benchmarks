@@ -1,5 +1,5 @@
 # Check strict BST bounds over a valid indexed binary tree.
-def validate_bst_subtree(nodes: i64&, node_count: usize, node: i64,
+def validate_bst_subtree(nodes: view[i64], node_count: usize, node: i64,
                           has_lower: bool, lower: i64, has_upper: bool, upper: i64) -> i64:
     if node == -1:
         return 1
@@ -29,6 +29,6 @@ def validate_bst_impl(nodes: i64&, node_count: usize, root_index: i64) -> i64:
         return 1 if root_index == -1 else -1
     if root_index < 0 or root_index.u64() >= node_count.u64():
         return -1
-    validate_bst_subtree(nodes, node_count, root_index, false, 0, false, 0)
+    validate_bst_subtree(nodes[0:3 * node_count], node_count, root_index, false, 0, false, 0)
 
 export fn validate_bst(nodes: i64&, node_count: usize, root_index: i64) -> i64 = validate_bst_impl

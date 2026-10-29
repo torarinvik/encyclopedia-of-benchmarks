@@ -1,5 +1,5 @@
 # Iterative Lomuto quicksort using the final value as its pivot.
-def quick_sort_iterative_partition(values: mutable i64&, low: usize, high: usize) -> usize:
+def quick_sort_iterative_partition(values: mutable view[i64], low: usize, high: usize) -> usize:
     pivot: i64 = values[high - 1]
     boundary: mutable usize = low
     for scan in low..<(high - 1):
@@ -13,7 +13,7 @@ def quick_sort_iterative_partition(values: mutable i64&, low: usize, high: usize
     values[high - 1] <- temporary
     boundary
 
-def quick_sort_iterative_impl(values: mutable i64&, length: usize) -> void:
+def quick_sort_iterative_impl(values: mutable view[i64], length: usize) -> void:
     if length < 2:
         return
 
@@ -47,4 +47,5 @@ def quick_sort_iterative_impl(values: mutable i64&, length: usize) -> void:
             low <- stack_low[stack_size]
             high <- stack_high[stack_size]
 
-export fn quick_sort_iterative(values: mutable i64&, length: usize) -> void = quick_sort_iterative_impl
+export fn quick_sort_iterative(values: mutable i64&, length: usize) -> void =
+    quick_sort_iterative_impl(values[0:length], length)

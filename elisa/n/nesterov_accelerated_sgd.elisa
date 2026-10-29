@@ -1,5 +1,5 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
-def put_double(output: mutable u8&, offset: usize, value: f64):
+def put_double(output: mutable view[u8], offset: usize, value: f64):
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     k: mutable usize = 0
@@ -38,7 +38,7 @@ def nesterov_accelerated_sgd_impl(values: i64&, length: usize, output: mutable u
         t <- t+1
     i <- 0
     while i < w:
-        put_double(output,i*8,params[i])
+        put_double(output[0:capacity],i*8,params[i])
         i <- i+1
     (w*8).i64()
 export nesterov_accelerated_sgd(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = nesterov_accelerated_sgd_impl

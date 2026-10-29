@@ -5,7 +5,7 @@ const MAX_QUERY_COUNT: usize = 8
 const MAX_KEY: i64 = 1000
 const MAX_PARSEABLE_LENGTH: usize = 19
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     index: mutable usize = 0
     while index < 8:
@@ -64,7 +64,7 @@ def hash_table_impl(values: i64&, length: usize, output: mutable u8&, output_cap
     while index < query_count:
         query: i64 = values[query_start + index]
         found: i64 = if table[(query % TABLE_CAPACITY.i64()).usize()] == query: 1 else: 0
-        store_i64_le(found, output, 8 * index)
+        store_i64_le(found, output[0:output_bytes], 8 * index)
         index <- index + 1
     output_bytes.i64()
 

@@ -1,4 +1,4 @@
-def binary_heap_min_push_peek_pop_sift_down(heap: mutable i64&, count: usize, start: usize) -> void:
+def binary_heap_min_push_peek_pop_sift_down(heap: mutable view[i64], count: usize, start: usize) -> void:
     index: mutable usize = start
     while true:
         smallest: mutable usize = index
@@ -15,7 +15,7 @@ def binary_heap_min_push_peek_pop_sift_down(heap: mutable i64&, count: usize, st
         heap[smallest] <- temporary
         index <- smallest
 
-def binary_heap_min_push_peek_pop_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def binary_heap_min_push_peek_pop_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -53,11 +53,11 @@ def binary_heap_min_push_peek_pop_impl(values: i64&, length: usize, output: muta
     remaining: mutable usize = count
     index <- 0
     while index < count:
-        binary_heap_min_push_peek_pop_store(heap[0], output, 8 * index)
+        binary_heap_min_push_peek_pop_store(heap[0], output[0:output_bytes], 8 * index)
         remaining <- remaining - 1
         if remaining > 0:
             heap[0] <- heap[remaining]
-            binary_heap_min_push_peek_pop_sift_down(heap[0], remaining, 0)
+            binary_heap_min_push_peek_pop_sift_down(heap[0:remaining], remaining, 0)
         index <- index + 1
     output_bytes.i64()
 

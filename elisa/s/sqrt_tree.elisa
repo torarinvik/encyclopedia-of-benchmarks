@@ -136,7 +136,7 @@ def sqrt_tree_query_node(state: mutable SqrtTreeState&, input: i64&, node: usize
     answer <- sqrt_tree_min(answer, state.prefix[depth * MAX_ITEMS + offset + right - node_left])
     answer
 
-def sqrt_tree_store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def sqrt_tree_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -174,7 +174,7 @@ def sqrt_tree_impl(input: i64&, length: usize, output: mutable u8&, output_capac
     while query < query_count:
         left: usize = input[query_offset + 2 * query].usize()
         right: usize = input[query_offset + 2 * query + 1].usize()
-        sqrt_tree_store_i64_le(output, 8 * query, sqrt_tree_query_node(state, input, root, left, right))
+        sqrt_tree_store_i64_le(output[0:required], 8 * query, sqrt_tree_query_node(state, input, root, left, right))
         query <- query + 1
     required.i64()
 

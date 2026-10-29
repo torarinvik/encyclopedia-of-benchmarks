@@ -25,7 +25,7 @@ def gapbs_afforest_compress(n: usize, component: mutable usize&) -> void:
             component[vertex] <- component[component[vertex]]
         vertex <- vertex + 1
 
-def gapbs_afforest_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def gapbs_afforest_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -122,6 +122,6 @@ def gapbs_afforest_components(input: i64&, length: usize, output: mutable u8&, c
     gapbs_afforest_compress(n, component)
     u <- 0
     while u < n:
-        gapbs_afforest_store_i64_le(component[u].i64(), output, 8 * u)
+        gapbs_afforest_store_i64_le(component[u].i64(), output[0:output_bytes], 8 * u)
         u <- u + 1
     output_bytes.i64()

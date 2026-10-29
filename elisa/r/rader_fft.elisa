@@ -4,7 +4,7 @@ extern sin(value: f64) -> f64
 const MAX_COMPONENT: f64 = 100.0
 const PI_VALUE: f64 = 3.14159265358979323846264338327950288
 
-def rader_fft_fft8(real: mutable f64[8]&, imag: mutable f64[8]&, inverse: bool) -> void:
+def rader_fft_fft8(real: mutable view[f64], imag: mutable view[f64], inverse: bool) -> void:
     reversed: usize[8] = {0, 4, 2, 6, 1, 5, 3, 7}
     for i in 0..<8:
         j: usize = reversed[i]
@@ -64,14 +64,14 @@ def rader_fft_impl(input: f64&, input_length: usize,
         angle: f64 = -2.0 * PI_VALUE * kernel_power[i].f64() / 5.0
         br[i] <- cos(angle)
         bi[i] <- sin(angle)
-    rader_fft_fft8(ar&, ai&, false)
-    rader_fft_fft8(br&, bi&, false)
+    rader_fft_fft8(ar[0:8], ai[0:8], false)
+    rader_fft_fft8(br[0:8], bi[0:8], false)
     for i in 0..<8:
         product_real: f64 = ar[i] * br[i] - ai[i] * bi[i]
         product_imag: f64 = ar[i] * bi[i] + ai[i] * br[i]
         ar[i] <- product_real
         ai[i] <- product_imag
-    rader_fft_fft8(ar&, ai&, true)
+    rader_fft_fft8(ar[0:8], ai[0:8], true)
 
     result: mutable f64[10] = zeroed
     for n in 0..<5:

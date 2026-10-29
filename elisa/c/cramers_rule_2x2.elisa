@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def cramers_rule_2x2_write(output: mutable u8&, offset: usize, value: f64) -> void:
+def cramers_rule_2x2_write(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -27,8 +27,8 @@ def cramers_rule_2x2_impl(v: i64&, length: usize, output: mutable u8&, capacity:
     dy: i64 = a1 * c2 - a2 * c1
     if d == 0: return -1
     if output == null or capacity < 16: return -2
-    cramers_rule_2x2_write(output, 0, dx.f64() / d.f64())
-    cramers_rule_2x2_write(output, 8, dy.f64() / d.f64())
+    cramers_rule_2x2_write(output[0:16], 0, dx.f64() / d.f64())
+    cramers_rule_2x2_write(output[0:16], 8, dy.f64() / d.f64())
     2
 
 export fn cramers_rule_2x2(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = cramers_rule_2x2_impl

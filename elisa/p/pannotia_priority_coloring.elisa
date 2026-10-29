@@ -3,7 +3,7 @@ const PANNOTIA_COLOR_MAX_M: usize = 64
 const PANNOTIA_COLOR_MAX_INPUT: usize = 147
 const PANNOTIA_COLOR_MAX_PRIORITY: i64 = 99999998
 
-def pannotia_color_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def pannotia_color_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -93,6 +93,6 @@ def pannotia_priority_coloring(input: i64&, length: usize,
         if mode == 1: current_color <- current_color + 2 else: current_color <- current_color + 1
     v <- 0
     while v < n:
-        pannotia_color_store_i64_le(color[v], output, 8 * v)
+        pannotia_color_store_i64_le(color[v], output[0:capacity], 8 * v)
         v <- v + 1
     output_bytes.i64()

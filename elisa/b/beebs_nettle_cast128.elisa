@@ -256,28 +256,28 @@ const SBOXES: u32[2048] = [0x30FB40D4, 0x9FA0FF0B, 0x6BECCD2F, 0x3F258C7A, 0x1E2
     0x04F19130, 0xBA6E4EC0, 0x99265164, 0x1EE7230D, 0x50B2AD80, 0xEAEE6801, 0x8DB2A283, 0xEA8BF59E]
 def cast128_sb(box: usize, index: u8) -> u32:
     SBOXES[box * 256 + index.usize()]
-def cast128_rd(data: u8&, offset: usize) -> u32:
+def cast128_rd(data: view[u8], offset: usize) -> u32:
     (data[offset].u32() << 24) | (data[offset + 1].u32() << 16) | (data[offset + 2].u32() << 8) | data[offset + 3].u32()
-def cast128_wr(data: mutable u8&, offset: usize, value: u32) -> void:
+def cast128_wr(data: mutable view[u8], offset: usize, value: u32) -> void:
     data[offset] <- (value >> 24).u8()
     data[offset + 1] <- (value >> 16).u8()
     data[offset + 2] <- (value >> 8).u8()
     data[offset + 3] <- value.u8()
-def cast128_expand(x: mutable u8&, keys: mutable u32&, slot: usize) -> void:
+def cast128_expand(x: mutable view[u8], keys: mutable view[u32], slot: usize) -> void:
     z: mutable u8[16] = zeroed
     next_x: mutable u8[16] = zeroed
-    cast128_wr(z[0],0,cast128_rd(x[0],0)^cast128_sb(4,x[13])^cast128_sb(5,x[15])^cast128_sb(6,x[12])^cast128_sb(7,x[14])^cast128_sb(6,x[8]))
-    cast128_wr(z[0],4,cast128_rd(x[0],8)^cast128_sb(4,z[0])^cast128_sb(5,z[2])^cast128_sb(6,z[1])^cast128_sb(7,z[3])^cast128_sb(7,x[10]))
-    cast128_wr(z[0],8,cast128_rd(x[0],12)^cast128_sb(4,z[7])^cast128_sb(5,z[6])^cast128_sb(6,z[5])^cast128_sb(7,z[4])^cast128_sb(4,x[9]))
-    cast128_wr(z[0],12,cast128_rd(x[0],4)^cast128_sb(4,z[10])^cast128_sb(5,z[9])^cast128_sb(6,z[11])^cast128_sb(7,z[8])^cast128_sb(5,x[11]))
+    cast128_wr(z[0:16],0,cast128_rd(x,0)^cast128_sb(4,x[13])^cast128_sb(5,x[15])^cast128_sb(6,x[12])^cast128_sb(7,x[14])^cast128_sb(6,x[8]))
+    cast128_wr(z[0:16],4,cast128_rd(x,8)^cast128_sb(4,z[0])^cast128_sb(5,z[2])^cast128_sb(6,z[1])^cast128_sb(7,z[3])^cast128_sb(7,x[10]))
+    cast128_wr(z[0:16],8,cast128_rd(x,12)^cast128_sb(4,z[7])^cast128_sb(5,z[6])^cast128_sb(6,z[5])^cast128_sb(7,z[4])^cast128_sb(4,x[9]))
+    cast128_wr(z[0:16],12,cast128_rd(x,4)^cast128_sb(4,z[10])^cast128_sb(5,z[9])^cast128_sb(6,z[11])^cast128_sb(7,z[8])^cast128_sb(5,x[11]))
     keys[slot] <- cast128_sb(4,z[8])^cast128_sb(5,z[9])^cast128_sb(6,z[7])^cast128_sb(7,z[6])^cast128_sb(4,z[2])
     keys[slot+1] <- cast128_sb(4,z[10])^cast128_sb(5,z[11])^cast128_sb(6,z[5])^cast128_sb(7,z[4])^cast128_sb(5,z[6])
     keys[slot+2] <- cast128_sb(4,z[12])^cast128_sb(5,z[13])^cast128_sb(6,z[3])^cast128_sb(7,z[2])^cast128_sb(6,z[9])
     keys[slot+3] <- cast128_sb(4,z[14])^cast128_sb(5,z[15])^cast128_sb(6,z[1])^cast128_sb(7,z[0])^cast128_sb(7,z[12])
-    cast128_wr(next_x[0],0,cast128_rd(z[0],8)^cast128_sb(4,z[5])^cast128_sb(5,z[7])^cast128_sb(6,z[4])^cast128_sb(7,z[6])^cast128_sb(6,z[0]))
-    cast128_wr(next_x[0],4,cast128_rd(z[0],0)^cast128_sb(4,x[0])^cast128_sb(5,x[2])^cast128_sb(6,x[1])^cast128_sb(7,x[3])^cast128_sb(7,z[2]))
-    cast128_wr(next_x[0],8,cast128_rd(z[0],4)^cast128_sb(4,x[7])^cast128_sb(5,x[6])^cast128_sb(6,x[5])^cast128_sb(7,x[4])^cast128_sb(4,z[1]))
-    cast128_wr(next_x[0],12,cast128_rd(z[0],12)^cast128_sb(4,x[10])^cast128_sb(5,x[9])^cast128_sb(6,x[11])^cast128_sb(7,x[8])^cast128_sb(5,z[3]))
+    cast128_wr(next_x[0:16],0,cast128_rd(z[0:16],8)^cast128_sb(4,z[5])^cast128_sb(5,z[7])^cast128_sb(6,z[4])^cast128_sb(7,z[6])^cast128_sb(6,z[0]))
+    cast128_wr(next_x[0:16],4,cast128_rd(z[0:16],0)^cast128_sb(4,x[0])^cast128_sb(5,x[2])^cast128_sb(6,x[1])^cast128_sb(7,x[3])^cast128_sb(7,z[2]))
+    cast128_wr(next_x[0:16],8,cast128_rd(z[0:16],4)^cast128_sb(4,x[7])^cast128_sb(5,x[6])^cast128_sb(6,x[5])^cast128_sb(7,x[4])^cast128_sb(4,z[1]))
+    cast128_wr(next_x[0:16],12,cast128_rd(z[0:16],12)^cast128_sb(4,x[10])^cast128_sb(5,x[9])^cast128_sb(6,x[11])^cast128_sb(7,x[8])^cast128_sb(5,z[3]))
     i: mutable usize = 0
     while i < 16:
         x[i] <- next_x[i]
@@ -288,7 +288,7 @@ def cast128_expand(x: mutable u8&, keys: mutable u32&, slot: usize) -> void:
     keys[slot+7] <- cast128_sb(4,x[5])^cast128_sb(5,x[4])^cast128_sb(6,x[10])^cast128_sb(7,x[11])^cast128_sb(7,x[7])
 def cast128_rotl(value: u32, amount: u32) -> u32:
     (value << amount) | (value >> ((32 - amount) & 31))
-def cast128_encrypt(key: u8&, block: u8&, output: mutable u8&) -> void:
+def cast128_encrypt(key: view[u8], block: view[u8], output: mutable view[u8]) -> void:
     x: mutable u8[16] = zeroed
     keys: mutable u32[32] = zeroed
     i: mutable usize = 0
@@ -297,7 +297,7 @@ def cast128_encrypt(key: u8&, block: u8&, output: mutable u8&) -> void:
         i <- i + 1
     step: mutable usize = 0
     while step < 4:
-        cast128_expand(x[0],keys[0],step*8)
+        cast128_expand(x[0:16],keys[0:32],step*8)
         step <- step + 1
     left: mutable u32 = cast128_rd(block,0)
     right: mutable u32 = cast128_rd(block,4)
@@ -320,8 +320,8 @@ def cast128_encrypt(key: u8&, block: u8&, output: mutable u8&) -> void:
         left <- right
         right <- next_right
         round <- round + 1
-    cast128_wr(output,0,right)
-    cast128_wr(output,4,left)
+    cast128_wr(output[0:8],0,right)
+    cast128_wr(output[0:8],4,left)
 def beebs_nettle_cast128_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 24 or length > 25 or length != 24: return -1
     i: mutable usize = 0
@@ -340,7 +340,7 @@ def beebs_nettle_cast128_impl(input: i64&, length: usize, output: mutable u8&, c
     while i < 8:
         block[i] <- input[i+16].u8()
         i <- i + 1
-    cast128_encrypt(key[0],block[0],result[0])
+    cast128_encrypt(key[0:16],block[0:8],result[0:8])
     i <- 0
     while i < 8:
         output[i] <- result[i]

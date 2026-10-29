@@ -1,4 +1,4 @@
-def segmented_sieve_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def segmented_sieve_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -51,7 +51,7 @@ def segmented_sieve_impl(input: i64&, length: usize, output: mutable u8&, capaci
     if capacity < output_length or (output_length > 0 and output.is_null()): return -2
     index <- 0
     while index < prime_count:
-        segmented_sieve_put_i64(output, index * 8, primes[index])
+        segmented_sieve_put_i64(output[0:output_length], index * 8, primes[index])
         index <- index + 1
     output_length.i64()
 

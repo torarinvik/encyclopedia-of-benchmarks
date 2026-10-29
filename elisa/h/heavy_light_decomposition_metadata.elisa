@@ -1,4 +1,4 @@
-def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -99,14 +99,14 @@ def heavy_light_decomposition_metadata_impl(input: i64&, length: usize, output: 
     required: usize = (1 + 3 * n) * 8
     if output.is_null() or capacity < required: return -2
     cursor: mutable usize = 0
-    put_i64(output, cursor * 8, n_value)
+    put_i64(output[0:required], cursor * 8, n_value)
     cursor <- cursor + 1
     for vertex in 0..<n:
-        put_i64(output, cursor * 8, position[vertex])
+        put_i64(output[0:required], cursor * 8, position[vertex])
         cursor <- cursor + 1
-        put_i64(output, cursor * 8, head[vertex])
+        put_i64(output[0:required], cursor * 8, head[vertex])
         cursor <- cursor + 1
-        put_i64(output, cursor * 8, big_child[vertex])
+        put_i64(output[0:required], cursor * 8, big_child[vertex])
         cursor <- cursor + 1
     required.i64()
 

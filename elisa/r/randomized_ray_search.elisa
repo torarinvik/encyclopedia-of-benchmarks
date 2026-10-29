@@ -2,7 +2,7 @@ const MAX_RAYS: usize = 5
 const MAX_ROUNDS: usize = 32
 const MAX_INPUT: usize = 11
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -50,8 +50,9 @@ def randomized_ray_search_impl(input: i64&, length: usize, output: mutable u8&, 
         round <- round + 1
     if not found: return -1
     if output.is_null() or capacity < 16: return -2
-    store_i64_le(attempts, output&, 0)
-    store_i64_le(total, output&, 8)
+    output_view: mutable view[u8] = output[0:capacity]
+    store_i64_le(attempts, output_view, 0)
+    store_i64_le(total, output_view, 8)
     16
 
 export fn randomized_ray_search(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = randomized_ray_search_impl

@@ -1,7 +1,7 @@
 const MAX_LENGTH: usize = 256
 const INVALID_RESULT: i64 = -9223372036854775807 - 1
 
-def kth_smallest_partition(values: mutable i64&, low_value: usize, high_value: usize) -> usize:
+def kth_smallest_partition(values: mutable view[i64], low_value: usize, high_value: usize) -> usize:
     pivot: usize = high_value
     i: mutable usize = low_value
     j: mutable usize = high_value - 1
@@ -45,7 +45,7 @@ def kth_smallest_impl(input: i64&, length: usize) -> i64:
     high: mutable usize = usize(n_value) - 1
     k: mutable usize = usize(k_value)
     while low < high:
-        pivot: usize = kth_smallest_partition(&values[0], low, high)
+        pivot: usize = kth_smallest_partition(values[0:usize(n_value)], low, high)
         pivot_rank: usize = pivot - low + 1
         if k == pivot_rank:
             return values[pivot]

@@ -16,7 +16,7 @@ def inverse_of_matrix_abs(value: f64) -> f64:
     if value < 0.0: return -value
     value
 
-def inverse_of_matrix_valid_dominance(matrix: f64&, dimension: usize) -> bool:
+def inverse_of_matrix_valid_dominance(matrix: view[f64], dimension: usize) -> bool:
     seen: mutable bool[3] = zeroed
     row: mutable usize = 0
     while row < dimension:
@@ -39,7 +39,7 @@ def inverse_of_matrix_valid_dominance(matrix: f64&, dimension: usize) -> bool:
         row <- row + 1
     true
 
-def inverse_of_matrix_invert(matrix: mutable f64&, dimension: usize) -> f64[9]:
+def inverse_of_matrix_invert(matrix: mutable view[f64], dimension: usize) -> f64[9]:
     inverse: mutable f64[9] = zeroed
     identity: mutable f64[9] = zeroed
     indices: mutable usize[3] = zeroed
@@ -113,7 +113,7 @@ def inverse_of_matrix_invert(matrix: mutable f64&, dimension: usize) -> f64[9]:
         rhs <- rhs + 1
     inverse
 
-def inverse_of_matrix_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def inverse_of_matrix_put_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -133,8 +133,8 @@ def inverse_of_matrix_impl(input: i64&, length: usize, output: mutable u8&, capa
         if coefficient < -32 or coefficient > 32: return -1
         matrix[index] <- coefficient.f64() / 16.0
         index <- index + 1
-    if not inverse_of_matrix_valid_dominance(&matrix, dimension): return -1
-    inverse: f64[9] = inverse_of_matrix_invert(&matrix, dimension)
+    if not inverse_of_matrix_valid_dominance(matrix[0:dimension * dimension], dimension): return -1
+    inverse: f64[9] = inverse_of_matrix_invert(matrix[0:dimension * dimension], dimension)
     index <- 0
     while index < dimension * dimension:
         if inverse[index] != inverse[index] or inverse_of_matrix_abs(inverse[index]) > 32768.0: return -1
@@ -143,7 +143,7 @@ def inverse_of_matrix_impl(input: i64&, length: usize, output: mutable u8&, capa
     if output.is_null() or capacity < output_bytes: return -2
     index <- 0
     while index < dimension * dimension:
-        inverse_of_matrix_put_f64(output, index * 8, inverse[index])
+        inverse_of_matrix_put_f64(output[0:output_bytes], index * 8, inverse[index])
         index <- index + 1
     output_bytes.i64()
 

@@ -11,7 +11,7 @@ def dice_thrower_required_bytes(remaining: usize, depth: usize) -> usize:
         face <- face + 1
     total
 
-def dice_thrower_emit(remaining: usize, depth: usize, digits: mutable u8&, output: mutable u8&,
+def dice_thrower_emit(remaining: usize, depth: usize, digits: mutable view[u8], output: mutable view[u8],
         position: mutable usize&) -> void:
     if remaining == 0:
         index: mutable usize = 0
@@ -28,7 +28,7 @@ def dice_thrower_emit(remaining: usize, depth: usize, digits: mutable u8&, outpu
     face: mutable usize = 1
     while face <= maximum_face:
         digits[depth] <- (48 + face).u8()
-        dice_thrower_emit(remaining - face, depth + 1, digits, output, position)
+        dice_thrower_emit(remaining - face, depth + 1, digits[0:8], output, position)
         face <- face + 1
 
 def dice_thrower_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
@@ -43,7 +43,7 @@ def dice_thrower_impl(values: i64&, length: usize, output: mutable u8&, output_c
         return -2
     digits: mutable u8[8] = zeroed
     position: mutable usize = 0
-    dice_thrower_emit(target, 0, digits, output, position)
+    dice_thrower_emit(target, 0, digits[0:8], output[0:needed], position)
     position.i64()
 
 export fn dice_thrower(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = dice_thrower_impl

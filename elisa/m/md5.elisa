@@ -6,7 +6,7 @@ def md5_add32(left: u32, right: u32) -> u32:
 def md5_rotate_left(value: u32, amount: usize) -> u32:
     (value << amount) | (value >> (32 - amount))
 
-def md5_byte(input: i64&, length: usize, padded_length: usize, bit_length: u64, position: usize) -> u32:
+def md5_byte(input: view[i64], length: usize, padded_length: usize, bit_length: u64, position: usize) -> u32:
     if position < length:
         return input[position].u32()
     if position == length:
@@ -15,7 +15,7 @@ def md5_byte(input: i64&, length: usize, padded_length: usize, bit_length: u64, 
         return ((bit_length >> (8 * (position - (padded_length - 8)))) & 255.u64()).u32()
     0.u32()
 
-def md5_word(input: i64&, length: usize, padded_length: usize, bit_length: u64,
+def md5_word(input: view[i64], length: usize, padded_length: usize, bit_length: u64,
              block_offset: usize, word_index: usize) -> u32:
     word: mutable u32 = 0
     start: usize = block_offset + word_index * 4
@@ -29,6 +29,9 @@ def md5_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: u
     for index in 0..<length:
         if input[index] < 0 or input[index] > 255:
             return -1
+    empty_input: i64[1] = zeroed
+    input_view: mutable view[i64] = empty_input[0:0]
+    if length > 0: input_view <- input[0:length]
     if output == null or output_capacity < 16:
         return -2
 
@@ -57,7 +60,7 @@ def md5_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: u
     while offset < padded_length:
         words: mutable u32[16]
         for index in 0..<16:
-            words[index] <- md5_word(input, length, padded_length, bit_length, offset, index)
+            words[index] <- md5_word(input_view, length, padded_length, bit_length, offset, index)
         a: mutable u32 = h0
         b: mutable u32 = h1
         c: mutable u32 = h2

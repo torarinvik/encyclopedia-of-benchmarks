@@ -3,7 +3,7 @@ const MAX_QUERIES: usize = 1024
 const MAX_ARCS: usize = 510
 const MAX_QUERY_ARCS: usize = 2048
 
-def lowest_common_ancestor_tarjan_find_root(parent: mutable usize&, value: usize) -> usize:
+def lowest_common_ancestor_tarjan_find_root(parent: mutable view[usize], value: usize) -> usize:
     root: mutable usize = value
     while parent[root] != root:
         root <- parent[root]
@@ -14,10 +14,10 @@ def lowest_common_ancestor_tarjan_find_root(parent: mutable usize&, value: usize
         current <- next
     root
 
-def lowest_common_ancestor_tarjan_join(parent: mutable usize&, rank: mutable usize&,
+def lowest_common_ancestor_tarjan_join(parent: mutable view[usize], rank: mutable view[usize],
         left: usize, right: usize) -> void:
-    left_root: usize = lowest_common_ancestor_tarjan_find_root(parent, left)
-    right_root: usize = lowest_common_ancestor_tarjan_find_root(parent, right)
+        left_root: usize = lowest_common_ancestor_tarjan_find_root(parent, left)
+        right_root: usize = lowest_common_ancestor_tarjan_find_root(parent, right)
     if left_root == right_root:
         return
     if rank[left_root] < rank[right_root]:
@@ -77,11 +77,11 @@ def lowest_common_ancestor_tarjan_impl(input: i64&, length: usize,
             return -1
         left: usize = left_arg.usize()
         right: usize = right_arg.usize()
-        left_root: usize = lowest_common_ancestor_tarjan_find_root(&validation_parent[0], left)
-        right_root: usize = lowest_common_ancestor_tarjan_find_root(&validation_parent[0], right)
+        left_root: usize = lowest_common_ancestor_tarjan_find_root(validation_parent[0:node_count], left)
+        right_root: usize = lowest_common_ancestor_tarjan_find_root(validation_parent[0:node_count], right)
         if left_root == right_root:
             return -1
-        lowest_common_ancestor_tarjan_join(&validation_parent[0], &validation_rank[0], left, right)
+        lowest_common_ancestor_tarjan_join(validation_parent[0:node_count], validation_rank[0:node_count], left, right)
         forward: usize = 2 * edge
         reverse: usize = forward + 1
         edge_to[forward] <- right
@@ -91,9 +91,9 @@ def lowest_common_ancestor_tarjan_impl(input: i64&, length: usize,
         edge_next[reverse] <- edge_head[right]
         edge_head[right] <- reverse.i64()
 
-    root_component: usize = lowest_common_ancestor_tarjan_find_root(&validation_parent[0], root)
+    root_component: usize = lowest_common_ancestor_tarjan_find_root(validation_parent[0:node_count], root)
     for node in 0..<node_count |validation_parent|:
-        if lowest_common_ancestor_tarjan_find_root(&validation_parent[0], node) != root_component:
+        if lowest_common_ancestor_tarjan_find_root(validation_parent[0:node_count], node) != root_component:
             return -1
 
     for query in 0..<query_count |input, query_offset, query_head, query_to, query_next, query_id|:
@@ -144,14 +144,14 @@ def lowest_common_ancestor_tarjan_impl(input: i64&, length: usize,
             index: usize = item.usize()
             other: usize = query_to[index]
             if finished[other]:
-                component: usize = lowest_common_ancestor_tarjan_find_root(&dsu_parent[0], other)
+                component: usize = lowest_common_ancestor_tarjan_find_root(dsu_parent[0:node_count], other)
                 answers[query_id[index]] <- ancestor[component]
             item <- query_next[index]
         top <- top - 1
         if tree_parent[node] >= 0:
             parent: usize = tree_parent[node].usize()
-            lowest_common_ancestor_tarjan_join(&dsu_parent[0], &dsu_rank[0], parent, node)
-            component: usize = lowest_common_ancestor_tarjan_find_root(&dsu_parent[0], parent)
+            lowest_common_ancestor_tarjan_join(dsu_parent[0:node_count], dsu_rank[0:node_count], parent, node)
+            component: usize = lowest_common_ancestor_tarjan_find_root(dsu_parent[0:node_count], parent)
             ancestor[component] <- parent
 
     for query in 0..<query_count |output, answers|:

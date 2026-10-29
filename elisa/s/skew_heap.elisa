@@ -59,7 +59,7 @@ def skew_heap_pop(heap: mutable SkewHeapState&) -> i32:
     heap.count <- heap.count - 1
     value
 
-def skew_heap_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def skew_heap_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255.u64()).u8()
@@ -108,7 +108,7 @@ def skew_heap_impl(input: i64&, length: usize, output: mutable u8&, capacity: us
                 answer_count <- answer_count + 1
     output_bytes: usize = answer_count * 8
     if output == null or capacity < output_bytes: return -2
-    for index in 0..<answer_count: skew_heap_store_i64(&output[0], index * 8, answers[index])
+    for index in 0..<answer_count: skew_heap_store_i64(output[0:output_bytes], index * 8, answers[index])
     output_bytes.i64()
 
 export fn skew_heap(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = skew_heap_impl

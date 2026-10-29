@@ -1,11 +1,11 @@
 # Bounded operation stream for the source MinHeap API.
-def put_i64(out: u8&, slot: usize, value: i64):
+def put_i64(out: mutable view[u8], slot: usize, value: i64):
     bits: u64 = value.u64()
     for b in 0..8:
         out[slot * 8 + b] = (bits & 255).u8()
         bits = bits >> 8
 
-def sift_down(heap: i64&, size: usize, index: usize):
+def sift_down(heap: mutable view[i64], size: usize, index: usize):
     i: usize = index
     while true:
         left: usize = 2 * i + 1
@@ -22,7 +22,7 @@ def sift_down(heap: i64&, size: usize, index: usize):
         heap[smallest] = temp
         i = smallest
 
-def bubble_up(heap: i64&, index: usize):
+def bubble_up(heap: mutable view[i64], index: usize):
     i: usize = index
     while i > 0:
         parent: usize = (i - 1) / 2
@@ -52,7 +52,7 @@ def binary_heap_indexed_operations_impl(values: i64&, length: usize, output: u8&
                 return -1
             if size < heap_capacity.usize():
                 heap[size] = a
-                bubble_up(heap, size)
+                bubble_up(heap[0:size + 1], size)
                 size += 1
         elif op == 1 or op == 2:
             if a != 0 or b != 0 or (op == 1 and size == 0):
@@ -66,23 +66,23 @@ def binary_heap_indexed_operations_impl(values: i64&, length: usize, output: u8&
                 size -= 1
                 heap[0] = heap[size]
                 if size > 0:
-                    sift_down(heap, size, 0)
-            put_i64(output, output_count, result)
+                    sift_down(heap[0:size], size, 0)
+            put_i64(output[0:output_capacity], output_count, result)
             output_count += 1
         elif op == 3:
             if a < 0 or a.usize() >= size or b < -2147483648 or b > 2147483647 or b > heap[a.usize()]:
                 return -1
             heap[a.usize()] = b
-            bubble_up(heap, a.usize())
+            bubble_up(heap[0:size], a.usize())
         elif op == 4:
             if a < 0 or a.usize() >= size or b != 0:
                 return -1
             heap[a.usize()] = -2147483648
-            bubble_up(heap, a.usize())
+            bubble_up(heap[0:size], a.usize())
             size -= 1
             heap[0] = heap[size]
             if size > 0:
-                sift_down(heap, size, 0)
+                sift_down(heap[0:size], size, 0)
         else:
             return -1
     bytes: usize = output_count * 8

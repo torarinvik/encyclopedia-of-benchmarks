@@ -1,7 +1,7 @@
 const MAX_N: usize = 3
 const MAX_OUTPUT_BYTES: usize = 144
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -34,7 +34,7 @@ def johnson_trotter_adjacent_gray_code_impl(input: i64&, length: usize,
     while true:
         index <- 0
         while index < n:
-            store_i64_le(permutation[index], staged&, 8 * (rows * n + index))
+            store_i64_le(permutation[index], staged[0:output_bytes], 8 * (rows * n + index))
             index <- index + 1
         rows <- rows + 1
         largest_mobile: mutable i64 = 0

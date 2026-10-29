@@ -6,7 +6,7 @@ const MAX_COORDINATE: i64 = 10000
 def jarvis_scan_orientation(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
     (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
 
-def jarvis_scan_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def jarvis_scan_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -83,8 +83,8 @@ def jarvis_scan_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
         return -2
     point <- 0
     while point < hull_count:
-        jarvis_scan_put_i64(output, point * 16, x[hull[point]])
-        jarvis_scan_put_i64(output, point * 16 + 8, y[hull[point]])
+        jarvis_scan_put_i64(output[0:bytes], point * 16, x[hull[point]])
+        jarvis_scan_put_i64(output[0:bytes], point * 16 + 8, y[hull[point]])
         point <- point + 1
     bytes.i64()
 

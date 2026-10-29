@@ -16,7 +16,7 @@ struct LruMapEntry:
 def lru_hash_key(key: i32) -> usize:
     ((key.i64() + 2147483648) % 1024).usize()
 
-def lru_map_find(map: mutable LruMapEntry&, key: i32) -> i32:
+def lru_map_find(map: view[LruMapEntry], key: i32) -> i32:
     start: usize = lru_hash_key(key)
     for probe in 0..<LRU_MAP_SIZE:
         index: usize = (start + probe) & (LRU_MAP_SIZE - 1)
@@ -24,7 +24,7 @@ def lru_map_find(map: mutable LruMapEntry&, key: i32) -> i32:
         if map[index].state == 1 and map[index].key == key: return map[index].node
     -1
 
-def lru_map_insert(map: mutable LruMapEntry&, key: i32, node: i32) -> bool:
+def lru_map_insert(map: mutable view[LruMapEntry], key: i32, node: i32) -> bool:
     slot: mutable usize = lru_hash_key(key)
     tombstone: mutable usize = LRU_MAP_SIZE
     for probe in 0..<LRU_MAP_SIZE:
@@ -44,7 +44,7 @@ def lru_map_insert(map: mutable LruMapEntry&, key: i32, node: i32) -> bool:
         return true
     false
 
-def lru_map_remove(map: mutable LruMapEntry&, key: i32) -> void:
+def lru_map_remove(map: mutable view[LruMapEntry], key: i32) -> void:
     slot: mutable usize = lru_hash_key(key)
     for probe in 0..<LRU_MAP_SIZE:
         if map[slot].state == 0: return
@@ -53,7 +53,7 @@ def lru_map_remove(map: mutable LruMapEntry&, key: i32) -> void:
             return
         slot <- (slot + 1) & (LRU_MAP_SIZE - 1)
 
-def lru_unlink(nodes: mutable LruCacheNode&, head: mutable i32&, tail: mutable i32&, node: usize) -> void:
+def lru_unlink(nodes: mutable view[LruCacheNode], head: mutable i32&, tail: mutable i32&, node: usize) -> void:
     previous: i32 = nodes[node].previous
     next: i32 = nodes[node].next
     if previous < 0: head <- next
@@ -61,19 +61,19 @@ def lru_unlink(nodes: mutable LruCacheNode&, head: mutable i32&, tail: mutable i
     if next < 0: tail <- previous
     else: nodes[next.usize()].previous <- previous
 
-def lru_link_head(nodes: mutable LruCacheNode&, head: mutable i32&, tail: mutable i32&, node: usize) -> void:
+def lru_link_head(nodes: mutable view[LruCacheNode], head: mutable i32&, tail: mutable i32&, node: usize) -> void:
     nodes[node].previous <- -1
     nodes[node].next <- head
     if head < 0: tail <- node.i32()
     else: nodes[head.usize()].previous <- node.i32()
     head <- node.i32()
 
-def lru_promote(nodes: mutable LruCacheNode&, head: mutable i32&, tail: mutable i32&, node: usize) -> void:
+def lru_promote(nodes: mutable view[LruCacheNode], head: mutable i32&, tail: mutable i32&, node: usize) -> void:
     if head == node.i32(): return
-    lru_unlink(&nodes[0], &head, &tail, node)
-    lru_link_head(&nodes[0], &head, &tail, node)
+    lru_unlink(nodes, &head, &tail, node)
+    lru_link_head(nodes, &head, &tail, node)
 
-def lru_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def lru_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255.u64()).u8()
@@ -114,19 +114,19 @@ def lru_cache2_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
                 node_count <- node_count + 1
             else:
                 node <- tail.usize()
-                lru_map_remove(&map[0], nodes[node].key)
-                lru_unlink(&nodes[0], &head, &tail, node)
+                lru_map_remove(map[0:LRU_MAP_SIZE], nodes[0:cache_capacity], nodes[node].key)
+                lru_unlink(nodes[0:cache_capacity], &head, &tail, node)
             nodes[node].key <- key
             nodes[node].value <- second.i32()
-            if not lru_map_insert(&map[0], key, node.i32()): return -1
-            lru_link_head(&nodes[0], &head, &tail, node)
+            if not lru_map_insert(map[0:LRU_MAP_SIZE], key, node.i32()): return -1
+            lru_link_head(nodes[0:cache_capacity], &head, &tail, node)
             results[operation] <- -9223372036854775807 - 1
         else if opcode == 1:
             if first < -2147483648 or first > 2147483647 or second != 0: return -1
-            node_value: i32 = lru_map_find(&map[0], first.i32())
+            node_value: i32 = lru_map_find(map[0:LRU_MAP_SIZE], first.i32())
             if node_value < 0: return -1
             node: usize = node_value.usize()
-            lru_promote(&nodes[0], &head, &tail, node)
+            lru_promote(nodes[0:cache_capacity], &head, &tail, node)
             results[operation] <- nodes[node].value.i64()
         else:
             if first != 0 or second != 0: return -1
@@ -136,7 +136,7 @@ def lru_cache2_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
 
     output_bytes: usize = operation_count * 8
     if output == null or capacity < output_bytes: return -2
-    for operation in 0..<operation_count: lru_store_i64(&output[0], operation * 8, results[operation])
+    for operation in 0..<operation_count: lru_store_i64(output[0:output_bytes], operation * 8, results[operation])
     output_bytes.i64()
 
 export fn lru_cache2(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = lru_cache2_impl

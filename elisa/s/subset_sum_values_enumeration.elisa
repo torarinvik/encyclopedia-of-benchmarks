@@ -3,15 +3,15 @@ const MAX_ITEMS: usize = 11
 const MAX_TARGET: i64 = 256
 const MAX_ITEM: i64 = 64
 
-def write_i64_le(output: mutable u8&, position: mutable usize&, value: i64) -> void:
+def write_i64_le(output: mutable view[u8], position: mutable usize&, value: i64) -> void:
     shift: mutable usize = 0
     while shift < 64:
         output[position] <- ((value >> shift) & 255).u8()
         position <- position + 1
         shift <- shift + 8
 
-def enumerate(input: i64&, items: usize, index: usize, target: i64, total: i64,
-              chosen: mutable i64&, chosen_count: usize, output: mutable u8&,
+def enumerate(input: view[i64], items: usize, index: usize, target: i64, total: i64,
+              chosen: mutable view[i64], chosen_count: usize, output: mutable view[u8],
               position: mutable usize&, emit: bool) -> usize:
     if total == target:
         if emit:
@@ -42,15 +42,17 @@ def subset_sum_values_enumeration_impl(input: i64&, length: usize,
 
     chosen: mutable i64[MAX_ITEMS] = zeroed
     dummy_position: mutable usize = 0
-    slots: usize = enumerate(input, items, 0, target, 0, chosen, 0,
-        output, dummy_position, false)
+    dry_output: mutable u8[1] = zeroed
+    slots: usize = enumerate(input[0:length], items, 0, target, 0, chosen[0:MAX_ITEMS], 0,
+        dry_output[0:1], dummy_position, false)
     required: usize = slots * 8
     if required == 0:
         return 0
     if output.is_null() or output_capacity < required:
         return -2
     position: mutable usize = 0
-    enumerate(input, items, 0, target, 0, chosen, 0, output, position, true)
+    enumerate(input[0:length], items, 0, target, 0, chosen[0:MAX_ITEMS], 0,
+        output[0:required], position, true)
     position.i64()
 
 export fn subset_sum_values_enumeration(input: i64&, length: usize,

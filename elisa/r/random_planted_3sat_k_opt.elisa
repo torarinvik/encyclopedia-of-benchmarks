@@ -3,13 +3,13 @@ const MAX_CLAUSES: usize = 32
 const MAX_INPUT: usize = 98
 const MAX_OUTPUT: usize = 104
 
-def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def sat_set(clauses: i64&, m: usize, n: usize, code: usize) -> u64:
+def sat_set(clauses: view[i64], m: usize, n: usize, code: usize) -> u64:
     result: mutable u64 = 0
     clause: mutable usize = 0
     while clause < m:
@@ -46,6 +46,7 @@ def random_planted_3sat_k_opt(input: i64&, length: usize,
             if literal > 0: positive[variable] <- positive[variable] + 1
             else: negative[variable] <- negative[variable] + 1
         clause <- clause + 1
+    clause_view: view[i64] = clauses[0:3 * m]
     current: mutable usize = 0
     for variable in 0..<n:
         if positive[variable] > negative[variable]: current <- current | (1 << (n - 1 - variable))
@@ -53,7 +54,7 @@ def random_planted_3sat_k_opt(input: i64&, length: usize,
     k: mutable usize = 1
     status: mutable i64 = 0
     while true:
-        before: u64 = sat_set(&clauses[0], m, n, current)
+        before: u64 = sat_set(clause_view, m, n, current)
         if before == full: status <- 1; break
         found: mutable bool = false
         candidate: mutable usize = 0
@@ -65,7 +66,7 @@ def random_planted_3sat_k_opt(input: i64&, length: usize,
                 diff <- diff & (diff - 1)
                 distance <- distance + 1
             if distance > 0 and distance <= k:
-                after: u64 = sat_set(&clauses[0], m, n, candidate)
+                after: u64 = sat_set(clause_view, m, n, candidate)
                 if after != before and (after & before) == before:
                     current <- candidate
                     found <- true
@@ -77,9 +78,10 @@ def random_planted_3sat_k_opt(input: i64&, length: usize,
     byte_count: usize = 8 * (n + 1)
     if output == null or capacity < byte_count: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
-    put_i64(&staged[0], 0, status)
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT]
+    put_i64(staged_view, 0, status)
     for variable in 0..<n:
         truth: bool = ((current >> (n - 1 - variable)) & 1) != 0
-        put_i64(&staged[0], 8 * (variable + 1), if truth: 1 else: -1)
+        put_i64(staged_view, 8 * (variable + 1), if truth: 1 else: -1)
     for i in 0..<byte_count: output[i] <- staged[i]
     byte_count.i64()

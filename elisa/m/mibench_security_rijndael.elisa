@@ -38,7 +38,7 @@ def rijndael_make_sbox() -> u8[256]:
             rijndael_rotl8(inverse, 3) ^ rijndael_rotl8(inverse, 4) ^ 0x63
     sbox
 
-def rijndael_encrypt_block(key: u8&, block: u8&) -> u8[16]:
+def rijndael_encrypt_block(key: view[u8], block: view[u8]) -> u8[16]:
     sbox: u8[256] = rijndael_make_sbox()
     round_constants: u8[7] = [1, 2, 4, 8, 16, 32, 64]
     round_keys: mutable u8[240] = zeroed
@@ -112,7 +112,7 @@ def mibench_security_rijndael_impl(input: i64&, input_length: usize,
         key[index] <- input[index].u8()
     for index in 0..<BLOCK_BYTES:
         block[index] <- input[KEY_BYTES + index].u8()
-    ciphertext: u8[16] = rijndael_encrypt_block(key[0], block[0])
+    ciphertext: u8[16] = rijndael_encrypt_block(key[0:KEY_BYTES], block[0:BLOCK_BYTES])
     for index in 0..<BLOCK_BYTES:
         output[index] <- ciphertext[index]
     BLOCK_BYTES.i64()

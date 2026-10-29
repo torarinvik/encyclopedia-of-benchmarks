@@ -1,11 +1,11 @@
-def dc_find(parent: mutable i64[32]&, x0: usize) -> usize:
+def dc_find(parent: mutable view[i64], x0: usize) -> usize:
     x: mutable usize = x0
     while parent[x] != x.i64():
         parent[x] <- parent[parent[x].usize()]
         x <- parent[x].usize()
     x
 
-def dc_side(adj: u64[32]&, n: usize, start: usize, output_nodes: mutable usize[32]&) -> usize:
+def dc_side(adj: view[u64], n: usize, start: usize, output_nodes: mutable view[usize]) -> usize:
     seen: mutable bool[32] = zeroed
     nodes: mutable usize[32] = zeroed
     top: mutable usize = 1
@@ -58,8 +58,8 @@ def decremental_connectivity_impl(a: i64&, length: usize) -> i64:
         v: usize = v64_value.usize()
         if ((adj[u] >> v) & 1) != 0:
             return -1
-        ru: usize = dc_find(&parent[0], u)
-        rv: usize = dc_find(&parent[0], v)
+        ru: usize = dc_find(parent[0:n], u)
+        rv: usize = dc_find(parent[0:n], v)
         if ru == rv:
             return -1
         parent[rv] <- ru.i64()
@@ -111,8 +111,8 @@ def decremental_connectivity_impl(a: i64&, length: usize) -> i64:
             adj[v] <- adj[v] & ~(1 << u)
             left: mutable usize[32] = zeroed
             right: mutable usize[32] = zeroed
-            lc: usize = dc_side(&adj[0], n, u, &left[0])
-            rc: usize = dc_side(&adj[0], n, v, &right[0])
+            lc: usize = dc_side(adj[0:n], n, u, left[0:n])
+            rc: usize = dc_side(adj[0:n], n, v, right[0:n])
             j: mutable usize = 0
             if lc < rc or (lc == rc and u < v):
                 while j < lc:

@@ -1,4 +1,4 @@
-def first_fit_bin_packing_put(output: mutable u8&, offset: usize, value: i64) -> void:
+def first_fit_bin_packing_put(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -34,10 +34,10 @@ def first_fit_bin_packing_impl(input: i64&, length: usize, output: mutable u8&, 
         index <- index + 1
     required: usize = (n + 1) * 8
     if capacity < required or output.is_null(): return -2
-    first_fit_bin_packing_put(output, 0, bins.i64())
+    first_fit_bin_packing_put(output[0:required], 0, bins.i64())
     index <- 0
     while index < n:
-        first_fit_bin_packing_put(output, 8 * (index + 1), assignments[index])
+        first_fit_bin_packing_put(output[0:required], 8 * (index + 1), assignments[index])
         index <- index + 1
     return required.i64()
 

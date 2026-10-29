@@ -9,7 +9,7 @@ def absolute_value(value: f64) -> f64:
     if value < 0.0: return -value
     value
 
-def horner_value_and_derivative(coefficients: f64&, degree: usize, x: f64, derivative: mutable f64&) -> f64:
+def horner_value_and_derivative(coefficients: view[f64], degree: usize, x: f64, derivative: mutable f64&) -> f64:
     value: mutable f64 = coefficients[degree]
     slope: mutable f64 = value
     j: mutable usize = degree
@@ -21,7 +21,7 @@ def horner_value_and_derivative(coefficients: f64&, degree: usize, x: f64, deriv
     derivative <- slope
     value
 
-def newton_root(coefficients: f64&, degree: usize, lower_bound: f64, upper_bound: f64) -> f64:
+def newton_root(coefficients: view[f64], degree: usize, lower_bound: f64, upper_bound: f64) -> f64:
     lower: mutable f64 = lower_bound
     upper: mutable f64 = upper_bound
     if upper < lower:
@@ -39,7 +39,7 @@ def newton_root(coefficients: f64&, degree: usize, lower_bound: f64, upper_bound
         iterations <- iterations + 1
     current
 
-def store_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
+def store_f64_le(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     i: mutable usize = 0
@@ -48,7 +48,7 @@ def store_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
         bits <- bits >> 8
         i <- i + 1
 
-def solve(output: mutable u8&) -> void:
+def solve(output: mutable view[u8]) -> void:
     original: f64[4] = [4.0, -4.0, -1.0, 1.0]
     coefficients: f64[4] = [4.0, -4.0, -1.0, 1.0]
     upper: mutable f64 = 0.0
@@ -59,7 +59,7 @@ def solve(output: mutable u8&) -> void:
     upper <- upper / absolute_value(coefficients[3])
     lower: f64 = -upper - 1.0
 
-    first_root: f64 = newton_root(&coefficients[0], 3, lower, upper)
+    first_root: f64 = newton_root(coefficients[0:4], 3, lower, upper)
     deflated: mutable f64[3] = zeroed
     deflated[2] <- coefficients[3]
     i <- 2
@@ -70,18 +70,18 @@ def solve(output: mutable u8&) -> void:
     discriminant: f64 = deflated[1] * deflated[1] - 4.0 * deflated[2] * deflated[0]
     plus_root: f64 = (-deflated[1] + sqrt(discriminant)) / (2.0 * deflated[2])
     minus_root: f64 = (-deflated[1] - sqrt(discriminant)) / (2.0 * deflated[2])
-    refined_plus: f64 = newton_root(&original[0], 3, plus_root - 0.5, plus_root + 0.5)
-    refined_minus: f64 = newton_root(&original[0], 3, minus_root - 0.5, minus_root + 0.5)
-    store_f64_le(output, 0, first_root)
-    store_f64_le(output, 8, refined_plus)
-    store_f64_le(output, 16, refined_minus)
+    refined_plus: f64 = newton_root(original[0:4], 3, plus_root - 0.5, plus_root + 0.5)
+    refined_minus: f64 = newton_root(original[0:4], 3, minus_root - 0.5, minus_root + 0.5)
+    store_f64_le(output[0:REQUIRED_BYTES], 0, first_root)
+    store_f64_le(output[0:REQUIRED_BYTES], 8, refined_plus)
+    store_f64_le(output[0:REQUIRED_BYTES], 16, refined_minus)
 
 def prolangs_c_allroots_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if values.is_null() or length != 4: return -1
     if values[0] != 4 or values[1] != -4 or values[2] != -1 or values[3] != 1: return -1
     if output.is_null() or capacity < REQUIRED_BYTES: return -2
     staged: mutable u8[REQUIRED_BYTES] = zeroed
-    solve(staged)
+    solve(staged[0:REQUIRED_BYTES])
     i: mutable usize = 0
     while i < REQUIRED_BYTES:
         output[i] <- staged[i]

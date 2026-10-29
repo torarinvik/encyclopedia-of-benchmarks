@@ -2,16 +2,16 @@ const MAX_MESSAGE_LENGTH: usize = 64
 const MAX_INPUT_LENGTH: usize = 98
 const LIMB_MASK: u64 = 0x3ffffff
 
-def poly1305_load32(bytes: u8&, offset: usize) -> u64:
+def poly1305_load32(bytes: view[u8], offset: usize) -> u64:
     bytes[offset].u64() or (bytes[offset + 1].u64() << 8) or
         (bytes[offset + 2].u64() << 16) or (bytes[offset + 3].u64() << 24)
 
-def poly1305_store32(output: mutable u8&, offset: usize, value: u64) -> void:
+def poly1305_store32(output: mutable view[u8], offset: usize, value: u64) -> void:
     for byte in 0..<4 |output, value|:
         output[offset + byte] <- ((value >> (8 * byte)) & 255).u8()
 
-def poly1305_tag(key: u8&, message: u8&, message_length: usize,
-        tag: mutable u8&) -> void:
+def poly1305_tag(key: view[u8], message: view[u8], message_length: usize,
+        tag: mutable view[u8]) -> void:
     r0: u64 = poly1305_load32(key, 0) & 0x3ffffff
     r1: u64 = (poly1305_load32(key, 3) >> 2) & 0x3ffff03
     r2: u64 = (poly1305_load32(key, 6) >> 4) & 0x3ffc0ff
@@ -38,11 +38,12 @@ def poly1305_tag(key: u8&, message: u8&, message_length: usize,
         if block_length < 16:
             block[block_length] <- 1
             high_bit <- 0
-        h0 <- h0 + (poly1305_load32(block, 0) & LIMB_MASK)
-        h1 <- h1 + ((poly1305_load32(block, 3) >> 2) & LIMB_MASK)
-        h2 <- h2 + ((poly1305_load32(block, 6) >> 4) & LIMB_MASK)
-        h3 <- h3 + ((poly1305_load32(block, 9) >> 6) & LIMB_MASK)
-        h4 <- h4 + ((poly1305_load32(block, 12) >> 8) or high_bit)
+        block_view: view[u8] = block[0:16]
+        h0 <- h0 + (poly1305_load32(block_view, 0) & LIMB_MASK)
+        h1 <- h1 + ((poly1305_load32(block_view, 3) >> 2) & LIMB_MASK)
+        h2 <- h2 + ((poly1305_load32(block_view, 6) >> 4) & LIMB_MASK)
+        h3 <- h3 + ((poly1305_load32(block_view, 9) >> 6) & LIMB_MASK)
+        h4 <- h4 + ((poly1305_load32(block_view, 12) >> 8) or high_bit)
         d0: u64 = h0 * r0 + h1 * s4 + h2 * s3 + h3 * s2 + h4 * s1
         d1: u64 = h0 * r1 + h1 * r0 + h2 * s4 + h3 * s3 + h4 * s2
         d2: u64 = h0 * r2 + h1 * r1 + h2 * r0 + h3 * s4 + h4 * s3
@@ -120,7 +121,7 @@ def poly1305_impl(input: i64&, length: usize,
         key[i] <- input[1 + i].u8()
     for i in 0..<raw_length.usize() |input, message|:
         message[i] <- input[33 + i].u8()
-    poly1305_tag(key, message, raw_length.usize(), tag)
+    poly1305_tag(key[0:32], message[0:raw_length.usize()], raw_length.usize(), tag[0:16])
     for i in 0..<16 |output, tag|:
         output[i] <- tag[i]
     16

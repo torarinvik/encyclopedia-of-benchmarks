@@ -5,7 +5,7 @@ extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable
 const MAX_SAMPLES: usize = 64
 const MAX_FEATURES: usize = 8
 
-def put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def put_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for byte in 0..<8:
@@ -47,9 +47,9 @@ def logistic_regression_cost_gradient_impl(input: i64&, length: usize, output: m
         for feature in 0..<d:
             x: f64 = input[features_offset + sample * d + feature].f64() / 1000000.0
             gradient[feature] <- gradient[feature] + residual * x
-    put_f64(output, 0, loss / m.f64())
+    put_f64(output[0:required], 0, loss / m.f64())
     for feature in 0..<d:
-        put_f64(output, (feature + 1) * 8, gradient[feature] / m.f64())
+        put_f64(output[0:required], (feature + 1) * 8, gradient[feature] / m.f64())
     required.i64()
 
 export fn logistic_regression_cost_gradient(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = logistic_regression_cost_gradient_impl

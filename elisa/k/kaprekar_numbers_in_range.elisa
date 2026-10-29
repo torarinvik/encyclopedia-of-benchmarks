@@ -30,7 +30,7 @@ def required_length(start: i64, end: i64) -> usize:
         number <- number + 1
     bytes
 
-def append_decimal(number_value: i64, output: mutable u8&, position_value: usize) -> usize:
+def append_decimal(number_value: i64, output: mutable view[u8], position_value: usize) -> usize:
     digits: mutable u8[20]
     count: mutable usize = 0
     remaining: mutable i64 = number_value
@@ -62,7 +62,7 @@ def kaprekar_numbers_in_range_impl(values: i64&, length: usize, output: mutable 
     number: mutable i64 = start
     while number <= end:
         if is_kaprekar(number):
-            position <- append_decimal(number, output, position)
+            position <- append_decimal(number, output[0:required], position)
             output[position] <- 0.u8()
             position <- position + 1
         number <- number + 1

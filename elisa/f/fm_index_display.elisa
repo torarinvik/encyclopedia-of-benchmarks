@@ -2,7 +2,7 @@ const MAX_TEXT: usize = 32
 const MAX_INPUT: usize = 36
 const ALPHABET: usize = 5
 
-def fm_display_suffix_less(text: i64&, n: usize, a0: usize, b0: usize) -> bool:
+def fm_display_suffix_less(text: view[i64], n: usize, a0: usize, b0: usize) -> bool:
     a: mutable usize = a0
     b: mutable usize = b0
     while a < n and b < n:
@@ -41,7 +41,7 @@ def fm_index_display(input: i64&, length: usize, output: mutable u8&, capacity: 
     while i < size:
         key: usize = sa[i]
         j: mutable usize = i
-        while j > 0 and fm_display_suffix_less(text, size, key, sa[j - 1]):
+        while j > 0 and fm_display_suffix_less(text[0:size], size, key, sa[j - 1]):
             sa[j] <- sa[j - 1]
             j <- j - 1
         sa[j] <- key

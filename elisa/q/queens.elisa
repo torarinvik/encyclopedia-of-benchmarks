@@ -32,14 +32,14 @@ def queens_find_solutions(state: mutable QueensState&, level: i64) -> void:
             state.backward_diag[backward.usize()] <- EMPTY_OWNER
         file_index <- file_index + 1
 
-def queens_append_text(output: mutable u8&, position: mutable usize&, text: &str) -> void:
+def queens_append_text(output: mutable view[u8], position: mutable usize&, text: &str) -> void:
     index: mutable usize = 0
     while index < text.length():
         output[position] <- text[index].u8()
         position <- position + 1
         index <- index + 1
 
-def queens_append_unsigned(output: mutable u8&, position: mutable usize&, value_value: u64) -> void:
+def queens_append_unsigned(output: mutable view[u8], position: mutable usize&, value_value: u64) -> void:
     digits: mutable u8[24] = zeroed
     count: mutable usize = 0
     value: mutable u64 = value_value
@@ -53,7 +53,7 @@ def queens_append_unsigned(output: mutable u8&, position: mutable usize&, value_
         output[position] <- digits[count]
         position <- position + 1
 
-def queens_render_output(n: i64, solutions: u64, output: mutable u8&) -> usize:
+def queens_render_output(n: i64, solutions: u64, output: mutable view[u8]) -> usize:
     position: mutable usize = 0
     queens_append_unsigned(output, position, n.u64())
     if n == 1:
@@ -89,7 +89,7 @@ def queens_impl(n: i64, output: mutable u8&, output_capacity: usize) -> i64:
     queens_find_solutions(state, 0)
 
     formatted: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    required: usize = queens_render_output(n, state.solutions, formatted)
+    required: usize = queens_render_output(n, state.solutions, formatted[0:MAX_OUTPUT_BYTES])
     if output.is_null() or output_capacity < required: return -2
     index: mutable usize = 0
     while index < required:

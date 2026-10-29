@@ -4,7 +4,7 @@ const TSVC_S291_MAX_N: usize = 64
 const TSVC_S291_MAX_INPUT_LENGTH: usize = 1 + TSVC_S291_MAX_N
 const TSVC_S291_MAX_VALUE: i64 = 1000000
 
-def tsvc_s291_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s291_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -27,7 +27,7 @@ def tsvc_s291_impl(input: i64&, length: usize, output: mutable u8&, capacity: us
 
     for i in 0..n:
         previous: usize = if i == 0 then n - 1 else i - 1
-        tsvc_s291_store(input[i + 1] + input[previous + 1], output, 8 * i)
+        tsvc_s291_store(input[i + 1] + input[previous + 1], output[0:capacity], 8 * i)
     n.i64()
 
 export fn tsvc_s291_cyclic_neighbor_average(input: i64&, length: usize,

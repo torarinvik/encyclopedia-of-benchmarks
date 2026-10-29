@@ -1,4 +1,4 @@
-def acronym_valid_phrase(phrase: i64&, length: usize, acronym_length: mutable usize&) -> bool:
+def acronym_valid_phrase(phrase: view[i64], length: usize, acronym_length: mutable usize&) -> bool:
     if length > 79:
         return false
     acronym_length <- 0
@@ -13,7 +13,7 @@ def acronym_valid_phrase(phrase: i64&, length: usize, acronym_length: mutable us
 
 def acronym_impl(phrase: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
     required: mutable usize = 0
-    if not acronym_valid_phrase(phrase, length, required):
+    if not acronym_valid_phrase(phrase[0:length], length, required):
         return -1
     if output_capacity < required:
         return -2

@@ -5,7 +5,7 @@ def spread_16(value: u32) -> u32:
     mutable <- (mutable | (mutable << 2)) & 0x33333333
     (mutable | (mutable << 1)) & 0x55555555
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: usize = 0
     while byte < 8:
@@ -33,6 +33,7 @@ def morton_sort_impl(values: i64&, length: usize, output: mutable u8&, capacity:
     bytes: usize = count * 8
     if output.is_null() or capacity < bytes:
         return -2
+    output_view: mutable view[u8] = output[0:bytes]
     index <- 1
     while index < count:
         current: usize = order[index]
@@ -45,7 +46,7 @@ def morton_sort_impl(values: i64&, length: usize, output: mutable u8&, capacity:
         index <- index + 1
     index <- 0
     while index < count:
-        store_i64_le(order[index].i64(), output, index * 8)
+        store_i64_le(order[index].i64(), output_view, index * 8)
         index <- index + 1
     bytes.i64()
 

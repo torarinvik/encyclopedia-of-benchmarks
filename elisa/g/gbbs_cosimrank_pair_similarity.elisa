@@ -1,5 +1,5 @@
 # Clean-room exact dyadic CoSimRank profile; see package LICENSE.txt.
-def gbbs_cosimrank_store_binary64(output: mutable u8&, numerator: u32) -> void:
+def gbbs_cosimrank_store_binary64(output: mutable view[u8], numerator: u32) -> void:
     bits: mutable u64 = 0
     if numerator != 0:
         high: mutable usize = 0
@@ -77,5 +77,5 @@ export fn gbbs_cosimrank_pair_similarity(input: i64&, input_length: usize,
             next_v[vertex] <- 0
             vertex <- vertex + 1
         step <- step + 1
-    gbbs_cosimrank_store_binary64(output, numerator)
+    gbbs_cosimrank_store_binary64(output[0:8], numerator)
     8

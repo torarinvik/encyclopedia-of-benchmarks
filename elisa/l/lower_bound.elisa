@@ -1,4 +1,4 @@
-def lower_bound_range(values: i64&, target: i64, left: i64, right: i64) -> i64:
+def lower_bound_range(values: view[i64], target: i64, left: i64, right: i64) -> i64:
     if right <= left:
         left
     else:
@@ -23,6 +23,6 @@ def lower_bound_impl(values: i64&, length: usize, target: i64) -> i64:
         if invalid:
             -1
         else:
-            lower_bound_range(values, target, 0, length.i64() - 1)
+            lower_bound_range(values[0:length], target, 0, length.i64() - 1)
 
 export fn lower_bound(values: i64&, length: usize, target: i64) -> i64 = lower_bound_impl

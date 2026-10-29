@@ -8,7 +8,7 @@ def round_ties_to_even(value: f64) -> i64:
         return lower + 1
     lower
 
-def write_i32_le(value: i64, output: mutable u8&, position: mutable usize&) -> void:
+def write_i32_le(value: i64, output: mutable view[u8], position: mutable usize&) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -48,8 +48,8 @@ def digital_differential_analyzer_line_impl(values: i64&, length: usize,
     while step < steps.usize():
         x <- x + x_increment
         y <- y + y_increment
-        write_i32_le(round_ties_to_even(x), output, position)
-        write_i32_le(round_ties_to_even(y), output, position)
+        write_i32_le(round_ties_to_even(x), output[0:output_bytes], position)
+        write_i32_le(round_ties_to_even(y), output[0:output_bytes], position)
         step <- step + 1
     output_bytes.i64()
 

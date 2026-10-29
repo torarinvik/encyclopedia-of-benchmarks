@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def put_double(output: mutable u8&, offset: usize, value: f64):
+def put_double(output: mutable view[u8], offset: usize, value: f64):
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     i: mutable usize = 0
@@ -41,8 +41,8 @@ def ordinary_least_squares_regression_impl(values: i64&, length: usize, output: 
     slope: f64 = num / den
     intercept: f64 = ym - slope * xm
     if capacity < 16: return -2
-    put_double(output, 0, intercept)
-    put_double(output, 8, slope)
+    put_double(output[0:capacity], 0, intercept)
+    put_double(output[0:capacity], 8, slope)
     return 16
 
 export fn ordinary_least_squares_regression(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = ordinary_least_squares_regression_impl

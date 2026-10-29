@@ -3,8 +3,8 @@ const TABLE_SIZE: usize = 257
 const MAX_OCCURRENCES: usize = 192
 const ARRAY_COUNT: usize = 3
 
-def arrays_intersection_add_occurrence(value: i64, keys: mutable i64&, counts: mutable usize&,
-        occupied: mutable bool&, order: mutable usize&, order_length: mutable usize&) -> void:
+def arrays_intersection_add_occurrence(value: i64, keys: mutable view[i64], counts: mutable view[usize],
+        occupied: mutable view[bool], order: mutable view[usize], order_length: mutable usize&) -> void:
     remainder: mutable i64 = value % 257
     if remainder < 0:
         remainder <- remainder + 257
@@ -19,7 +19,7 @@ def arrays_intersection_add_occurrence(value: i64, keys: mutable i64&, counts: m
         order_length <- order_length + 1
     counts[slot] <- counts[slot] + 1
 
-def arrays_intersection_store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
+def arrays_intersection_store_i32_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     for byte in 0 ..< 4:
         output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -59,7 +59,7 @@ def arrays_intersection_impl(input: i64&, length: usize, output: mutable u8&, ou
     while array < ARRAY_COUNT:
         index <- 0
         while index < sizes[array]:
-            arrays_intersection_add_occurrence(input[starts[array] + index], &keys[0], &counts[0], &occupied[0], &order[0], order_length)
+            arrays_intersection_add_occurrence(input[starts[array] + index], keys[0:TABLE_SIZE], counts[0:TABLE_SIZE], occupied[0:TABLE_SIZE], order[0:MAX_OCCURRENCES], order_length)
             index <- index + 1
         array <- array + 1
 
@@ -77,7 +77,7 @@ def arrays_intersection_impl(input: i64&, length: usize, output: mutable u8&, ou
     while index < order_length:
         slot: usize = order[index]
         if counts[slot] == ARRAY_COUNT:
-            arrays_intersection_store_i32_le(keys[slot], output, written * 4)
+            arrays_intersection_store_i32_le(keys[slot], output[0:required], written * 4)
             written <- written + 1
         index <- index + 1
     written.i64()

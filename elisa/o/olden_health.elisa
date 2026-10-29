@@ -27,8 +27,8 @@ struct OldenHealthVillage:
     head: i64[4]
     tail: i64[4]
 
-def olden_health_queue_push(villages: mutable OldenHealthVillage&,
-                            patients: mutable OldenHealthPatient&,
+def olden_health_queue_push(villages: mutable view[OldenHealthVillage],
+                            patients: mutable view[OldenHealthPatient],
                             village_index: usize, queue: usize, patient_id: usize) -> void:
     tail: i64 = villages[village_index].tail[queue]
     patients[patient_id].previous <- tail
@@ -39,8 +39,8 @@ def olden_health_queue_push(villages: mutable OldenHealthVillage&,
         villages[village_index].head[queue] <- patient_id.i64()
     villages[village_index].tail[queue] <- patient_id.i64()
 
-def olden_health_queue_remove(villages: mutable OldenHealthVillage&,
-                              patients: mutable OldenHealthPatient&,
+def olden_health_queue_remove(villages: mutable view[OldenHealthVillage],
+                              patients: mutable view[OldenHealthPatient],
                               village_index: usize, queue: usize, patient_id: usize) -> void:
     previous: i64 = patients[patient_id].previous
     next: i64 = patients[patient_id].next
@@ -55,7 +55,7 @@ def olden_health_queue_remove(villages: mutable OldenHealthVillage&,
     patients[patient_id].next <- -1
     patients[patient_id].previous <- -1
 
-def olden_health_random(villages: mutable OldenHealthVillage&, village_index: usize) -> f32:
+def olden_health_random(villages: mutable view[OldenHealthVillage], village_index: usize) -> f32:
     state: mutable i64 = villages[village_index].seed ^ HEALTH_MASK
     quotient: i64 = state / HEALTH_IQ
     state <- HEALTH_IA * (state - quotient * HEALTH_IQ) - HEALTH_IR * quotient
@@ -65,8 +65,8 @@ def olden_health_random(villages: mutable OldenHealthVillage&, village_index: us
     villages[village_index].seed <- (value * HEALTH_IM.f32()).i64()
     value
 
-def olden_health_admit(villages: mutable OldenHealthVillage&,
-                       patients: mutable OldenHealthPatient&,
+def olden_health_admit(villages: mutable view[OldenHealthVillage],
+                       patients: mutable view[OldenHealthPatient],
                        village_index: usize, patient_id: usize) -> void:
     patients[patient_id].hospital_visits <- patients[patient_id].hospital_visits + 1
     if villages[village_index].free_personnel > 0:
@@ -78,7 +78,7 @@ def olden_health_admit(villages: mutable OldenHealthVillage&,
         olden_health_queue_push(villages, patients, village_index, HEALTH_WAITING, patient_id)
 
 def olden_health_build_postorder(label: usize, village_count: usize,
-                                 order: mutable usize&, order_length: mutable usize&) -> void:
+                                 order: mutable view[usize], order_length: mutable usize&) -> void:
     offset: mutable i64 = 4
     while offset >= 1:
         child_value: i64 = label.i64() * 4 + offset
@@ -89,8 +89,8 @@ def olden_health_build_postorder(label: usize, village_count: usize,
     order_length <- order_length + 1
 
 def olden_health_simulate_village(label: usize, village_count: usize,
-                                  villages: mutable OldenHealthVillage&,
-                                  patients: mutable OldenHealthPatient&,
+                                  villages: mutable view[OldenHealthVillage],
+                                  patients: mutable view[OldenHealthPatient],
                                   patient_count: mutable usize&,
                                   discharged: mutable i64&) -> void:
     offset: mutable i64 = 4
@@ -194,7 +194,7 @@ def olden_health_impl(input: i64&, length: usize) -> i64:
 
     order: mutable usize[HEALTH_MAX_VILLAGES] = zeroed
     order_length: mutable usize = 0
-    olden_health_build_postorder(0, village_count, order, order_length)
+    olden_health_build_postorder(0, village_count, order[0:HEALTH_MAX_VILLAGES], order_length)
     patients: mutable OldenHealthPatient[HEALTH_MAX_PATIENTS] = zeroed
     patient_count: mutable usize = 0
     discharged: mutable i64 = 0
@@ -202,7 +202,7 @@ def olden_health_impl(input: i64&, length: usize) -> i64:
     while tick < ticks:
         index: mutable usize = 0
         while index < order_length:
-            olden_health_simulate_village(order[index], village_count, villages, patients, patient_count, discharged)
+            olden_health_simulate_village(order[index], village_count, villages[0:village_count], patients[0:HEALTH_MAX_PATIENTS], patient_count, discharged)
             index <- index + 1
         tick <- tick + 1
     discharged

@@ -8,7 +8,7 @@ const TSVC_S211_MAX_PASSES: i64 = 32
 def tsvc_s211_bounded(value: i64) -> bool:
     value >= -TSVC_S211_MAX_VALUE and value <= TSVC_S211_MAX_VALUE
 
-def tsvc_s211_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s211_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -46,8 +46,8 @@ def tsvc_s211_impl(input: i64&, length: usize, output: mutable u8&, capacity: us
             a[i] <- b[i - 1] + input[c_start + i] * input[d_start + i]
             b[i] <- b[i + 1] - input[e_start + i] * input[d_start + i]
     for i in 0..n:
-        tsvc_s211_store(a[i], output, 8 * i)
-        tsvc_s211_store(b[i], output, 8 * (n + i))
+        tsvc_s211_store(a[i], output[0:capacity], 8 * i)
+        tsvc_s211_store(b[i], output[0:capacity], 8 * (n + i))
     (2 * n).i64()
 
 export fn tsvc_s211_ordered_neighbor_rewrite(input: i64&, length: usize,

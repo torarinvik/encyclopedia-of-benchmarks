@@ -17,7 +17,7 @@ def fp_backtrack_enumerate(rows: i64&, row_count: usize, item_count: usize, star
         records <- records + 1
         fp_backtrack_enumerate(projected[0], projected_count, item_count, item + 1, mask, minimum, words, records)
 
-def fp_backtrack_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+def fp_backtrack_put_i64(output: mutable view[u8], word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[word * 8 + byte] <- (bits >> (byte * 8)).u8()
@@ -48,7 +48,7 @@ def frequent_itemset_backtrack_impl(input: i64&, length: usize, output: mutable 
     if output == null or capacity < bytes:
         return -2
     for i in 0..<word_count:
-        fp_backtrack_put_i64(output, i, words[i])
+        fp_backtrack_put_i64(output[0:bytes], i, words[i])
     bytes.i64()
 
 export fn frequent_itemset_backtrack(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = frequent_itemset_backtrack_impl

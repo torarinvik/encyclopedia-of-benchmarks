@@ -1,7 +1,7 @@
 const DX: i64[8] = [1, 2, 2, 1, -1, -2, -2, -1]
 const DY: i64[8] = [-2, -1, 1, 2, 2, 1, -1, -2]
 
-def count_neighbors(board: i64&, row: i64, column: i64) -> usize:
+def count_neighbors(board: view[i64], row: i64, column: i64) -> usize:
     count: mutable usize = 0
     for move in 0..<8:
         next_row: i64 = row + DY[move]
@@ -10,7 +10,7 @@ def count_neighbors(board: i64&, row: i64, column: i64) -> usize:
             count <- count + 1
     count
 
-def neighbors(board: i64&, row: i64, column: i64, moves: mutable i64&) -> usize:
+def neighbors(board: view[i64], row: i64, column: i64, moves: mutable view[i64]) -> usize:
     count: mutable usize = 0
     for move in 0..<8:
         next_row: i64 = row + DY[move]
@@ -37,20 +37,20 @@ def neighbors(board: i64&, row: i64, column: i64, moves: mutable i64&) -> usize:
         index <- index + 1
     count
 
-def orphan(board: i64&, count: usize, row: i64, column: i64) -> bool:
+def orphan(board: view[i64], count: usize, row: i64, column: i64) -> bool:
     if count < 63:
         moves: mutable i64[24] = zeroed
-        total: usize = neighbors(board, row, column, moves)
+        total: usize = neighbors(board, row, column, moves[0:24])
         for index in 0..<total:
             if count_neighbors(board, moves[index * 3], moves[index * 3 + 1]) == 0:
                 return true
     false
 
-def solve(board: mutable i64&, row: i64, column: i64, count: usize) -> bool:
+def solve(board: mutable view[i64], row: i64, column: i64, count: usize) -> bool:
     if count > 64:
         return true
     moves: mutable i64[24] = zeroed
-    total: usize = neighbors(board, row, column, moves)
+    total: usize = neighbors(board, row, column, moves[0:24])
     if total == 0 and count != 64:
         return false
     for index in 0..<total:
@@ -69,7 +69,7 @@ def knights_tour_warnsdorff_open_impl(input: i64&, length: usize, output: mutabl
         return -2
     board: mutable i64[64] = zeroed
     board[0] <- 1
-    if not solve(board, 0, 0, 2):
+    if not solve(board[0:64], 0, 0, 2):
         return -1
     path: mutable i64[64] = zeroed
     for row in 0..<8:

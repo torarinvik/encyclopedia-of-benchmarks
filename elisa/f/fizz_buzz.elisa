@@ -9,7 +9,7 @@ def fizz_buzz_token_length(value: i64) -> usize:
         return 2.usize()
     return 1.usize()
 
-def fizz_buzz_append_number(value_value: i64, output: mutable u8&, position_value: usize) -> usize:
+def fizz_buzz_append_number(value_value: i64, output: mutable view[u8], position_value: usize) -> usize:
     value: mutable i64 = value_value
     position: mutable usize = position_value
     if value >= 100:
@@ -54,7 +54,7 @@ def fizz_buzz_impl(value: i64, output: mutable u8&, output_capacity: usize) -> i
             output[position] <- 66.u8(); output[position + 1] <- 117.u8(); output[position + 2] <- 122.u8(); output[position + 3] <- 122.u8()
             position <- position + 4
         else:
-            position <- fizz_buzz_append_number(current, output, position)
+            position <- fizz_buzz_append_number(current, output[0:width], position)
         output[position] <- 32.u8()
         position <- position + 1
         current <- current + 1

@@ -1,5 +1,5 @@
 # Count literal-space-delimited words and requested-word matches.
-def word_count_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
+def word_count_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[position + byte] <- (bits % 256.u64()).u8()
@@ -41,8 +41,8 @@ def word_count_impl(values: i64&, length: usize, output: mutable u8&, output_cap
             start <- end + 1
     if output_capacity < 16:
         return -2
-    word_count_store_i64(total.i64(), output, 0)
-    word_count_store_i64(matches.i64(), output, 8)
+    word_count_store_i64(total.i64(), output[0:output_capacity], 0)
+    word_count_store_i64(matches.i64(), output[0:output_capacity], 8)
     16.i64()
 
 export fn word_count(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = word_count_impl

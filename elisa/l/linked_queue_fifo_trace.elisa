@@ -1,4 +1,4 @@
-def linked_queue_fifo_trace_put_i32(output: mutable u8&, index: usize, value: i64) -> void:
+def linked_queue_fifo_trace_put_i32(output: mutable view[u8], index: usize, value: i64) -> void:
     bits: u32 = value.i32().u32()
     byte: mutable usize = 0
     while byte < 4:
@@ -51,6 +51,6 @@ def linked_queue_fifo_trace_impl(input: i64&, length: usize, output: mutable u8&
     if bytes > 0 and (output.is_null() or capacity < bytes): return -2
     index <- 0
     while index < count:
-        linked_queue_fifo_trace_put_i32(output, index, result[index])
+        linked_queue_fifo_trace_put_i32(output[0:bytes], index, result[index])
         index <- index + 1
     bytes.i64()

@@ -26,7 +26,7 @@ def decrypt_caesar_with_chi_squared_frequency(index: usize) -> f64:
     if index == 23: return 0.00150
     if index == 24: return 0.01994
     0.00077
-def decrypt_caesar_with_chi_squared_put_f64(output: mutable u8&, value: f64) -> void:
+def decrypt_caesar_with_chi_squared_put_f64(output: mutable view[u8], value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -93,7 +93,7 @@ def decrypt_caesar_with_chi_squared_impl(input: i64&, length: usize, output: mut
                 best[index] <- candidate[index]
                 index <- index + 1
         shift <- shift + 1
-    decrypt_caesar_with_chi_squared_put_f64(output, best_score)
+    decrypt_caesar_with_chi_squared_put_f64(output[0:8 + text_length], best_score)
     index <- 0
     while index < text_length:
         output[index + 8] <- best[index]

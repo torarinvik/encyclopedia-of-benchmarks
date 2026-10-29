@@ -4,7 +4,7 @@ const MAX_INPUT_LENGTH: usize = 52
 const MAX_OUTPUT_BYTES: usize = 256
 const NO_ALLOCATION: i64 = -255
 
-def memory_management_algorithms_put_i64_le(output: mutable u8&, offset: usize, value: i64):
+def memory_management_algorithms_put_i64_le(output: mutable view[u8], offset: usize, value: i64):
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -91,9 +91,10 @@ def memory_management_algorithms_impl(input: i64&, input_length: usize,
     output_bytes: usize = process_count * 8
     if output_bytes > MAX_OUTPUT_BYTES: return -1
     if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
     index <- 0
     while index < process_count:
-        memory_management_algorithms_put_i64_le(output, index * 8, allocations[index])
+        memory_management_algorithms_put_i64_le(output_view, index * 8, allocations[index])
         index <- index + 1
     output_bytes.i64()
 

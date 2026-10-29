@@ -1,5 +1,5 @@
 # Stable strand sort using caller-provided temporary storage.
-def strand_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+def strand_sort_impl(values: mutable view[i64], scratch: mutable view[i64], length: usize) -> void:
     if length < 2:
         return
     remaining: mutable usize = length
@@ -45,4 +45,5 @@ def strand_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize)
         remaining <- remaining_write
         result_length <- result_length + strand_length
 
-export fn strand_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void = strand_sort_impl
+export fn strand_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+    strand_sort_impl(values[0:length], scratch[0:length], length)

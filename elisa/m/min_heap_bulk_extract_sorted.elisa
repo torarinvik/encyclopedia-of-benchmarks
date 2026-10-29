@@ -1,4 +1,4 @@
-def min_heap_bulk_extract_sorted_sift_down(heap: mutable i64&, count: usize, start: usize) -> void:
+def min_heap_bulk_extract_sorted_sift_down(heap: mutable view[i64], count: usize, start: usize) -> void:
     index: mutable usize = start
     while true:
         smallest: mutable usize = index
@@ -15,7 +15,7 @@ def min_heap_bulk_extract_sorted_sift_down(heap: mutable i64&, count: usize, sta
         heap[smallest] <- temporary
         index <- smallest
 
-def min_heap_bulk_extract_sorted_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def min_heap_bulk_extract_sorted_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -53,11 +53,11 @@ def min_heap_bulk_extract_sorted_impl(values: i64&, length: usize, output: mutab
     remaining: mutable usize = count
     index <- 0
     while index < count:
-        min_heap_bulk_extract_sorted_store(heap[0], output, 8 * index)
+        min_heap_bulk_extract_sorted_store(heap[0], output[0:output_bytes], 8 * index)
         remaining <- remaining - 1
         if remaining > 0:
             heap[0] <- heap[remaining]
-            min_heap_bulk_extract_sorted_sift_down(heap[0], remaining, 0)
+            min_heap_bulk_extract_sorted_sift_down(heap[0:count], remaining, 0)
         index <- index + 1
     output_bytes.i64()
 

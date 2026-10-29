@@ -1,4 +1,4 @@
-def put64(out: mutable u8&, index: usize, value: i64) -> void:
+def put64(out: mutable view[u8], index: usize, value: i64) -> void:
     raw: u64 = value.u64()
     for byte in 0..8: out[index * 8 + byte] <- ((raw >> (byte * 8)) & 255).u8()
 
@@ -53,8 +53,9 @@ def rodinia_streamcluster_pgain_impl(values: i64&, length: usize, output: mutabl
     objective <- count * z
     for i in 0..p: objective <- objective + out_cost[i]
     if output.is_null() or capacity < 8 * (5 + 2 * p): return -2
-    put64(output, 0, if opened: 1 else: 0); put64(output, 1, if opened: -opening else: 0); put64(output, 2, count); put64(output, 3, out_mask); put64(output, 4, objective)
-    for i in 0..p: put64(output, 5 + i, out_ass[i].i64()); put64(output, 5 + p + i, out_cost[i])
+    output_bytes: usize = 8 * (5 + 2 * p)
+    put64(output[0:output_bytes], 0, if opened: 1 else: 0); put64(output[0:output_bytes], 1, if opened: -opening else: 0); put64(output[0:output_bytes], 2, count); put64(output[0:output_bytes], 3, out_mask); put64(output[0:output_bytes], 4, objective)
+    for i in 0..p: put64(output[0:output_bytes], 5 + i, out_ass[i].i64()); put64(output[0:output_bytes], 5 + p + i, out_cost[i])
     (5 + 2 * p).i64()
 
 export fn rodinia_streamcluster_pgain(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = rodinia_streamcluster_pgain_impl

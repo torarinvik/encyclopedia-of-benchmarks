@@ -1,5 +1,5 @@
 # Prefix preprocessing, inclusive range queries, and prefix-set membership.
-def prefix_sum_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
+def prefix_sum_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
     remaining: mutable i64 = value
     byte: mutable usize = 0
     while byte < 8:
@@ -12,7 +12,7 @@ def prefix_sum_hash_key(key: i64) -> usize:
     bucket: i64 = (key % 1024 + 1024) % 1024
     bucket.usize()
 
-def prefix_sum_contains(prefix: i64&, count: usize, target: i64) -> bool:
+def prefix_sum_contains(prefix: view[i64], count: usize, target: i64) -> bool:
     keys: mutable i64[1024] = zeroed
     used: mutable bool[1024] = zeroed
     slot: mutable usize = prefix_sum_hash_key(0)
@@ -64,17 +64,20 @@ def prefix_sum_impl(input: i64&, length: usize, output: mutable u8&, output_capa
     if output_capacity < words * 8:
         return -2
     if operation == 0:
+        if count == 0: return 0
+        output_view: mutable view[u8] = output[0:words * 8]
         index <- 0
         while index < count:
-            prefix_sum_store_i64(prefix[index + 1], output, index * 8)
+            prefix_sum_store_i64(prefix[index + 1], output_view, index * 8)
             index <- index + 1
         return count.i64()
     result: i64 = 0
     if operation == 1:
         result <- prefix[(input[3 + count] + 1).usize()] - prefix[input[2 + count].usize()]
-    else if prefix_sum_contains(prefix, count, input[2 + count]):
+    else if prefix_sum_contains(prefix[0:count + 1], count, input[2 + count]):
         result <- 1
-    prefix_sum_store_i64(result, output, 0)
+    output_view: mutable view[u8] = output[0:words * 8]
+    prefix_sum_store_i64(result, output_view, 0)
     1
 
 export fn prefix_sum(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = prefix_sum_impl

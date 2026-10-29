@@ -1,4 +1,4 @@
-def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -27,10 +27,10 @@ def alternative_list_arrange_impl(input: i64&, length: usize, output: mutable u8
     written: mutable usize = 0
     while index < first_count or index < second_count:
         if index < first_count:
-            store_i64_le(input[index + 1], output, written * 8)
+            store_i64_le(input[index + 1], output[0:count*8], written * 8)
             written <- written + 1
         if index < second_count:
-            store_i64_le(input[first_count + index + 2], output, written * 8)
+            store_i64_le(input[first_count + index + 2], output[0:count*8], written * 8)
             written <- written + 1
         index <- index + 1
     count.i64()

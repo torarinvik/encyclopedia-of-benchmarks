@@ -10,7 +10,7 @@ def permute_string_factorial(value: usize) -> usize:
         factor <- factor + 1
     result
 
-def permute_string_unique_count(values: u8&, character_count: usize) -> usize:
+def permute_string_unique_count(values: view[u8], character_count: usize) -> usize:
     if character_count == 0:
         return 0
     frequencies: mutable usize[128] = zeroed
@@ -26,7 +26,7 @@ def permute_string_unique_count(values: u8&, character_count: usize) -> usize:
         index <- index + 1
     result
 
-def permute_string_next(values: mutable u8&, character_count: usize) -> void:
+def permute_string_next(values: mutable view[u8], character_count: usize) -> void:
     if character_count < 2:
         return
     pivot: mutable usize = character_count - 1
@@ -77,7 +77,7 @@ def permute_string_impl(input: i64&, input_length: usize, output: mutable u8&, o
         values[position] <- value
         index <- index + 1
 
-    permutation_count: usize = permute_string_unique_count(&values[0], character_count)
+    permutation_count: usize = permute_string_unique_count(values[0:character_count], character_count)
     output_bytes: usize = permutation_count * character_count
     if output.is_null() or output_capacity < output_bytes:
         return -2
@@ -88,7 +88,7 @@ def permute_string_impl(input: i64&, input_length: usize, output: mutable u8&, o
             output[row * character_count + column] <- values[column]
             column <- column + 1
         if row + 1 < permutation_count:
-            permute_string_next(&values[0], character_count)
+            permute_string_next(values[0:character_count], character_count)
         row <- row + 1
     output_bytes.i64()
 

@@ -1,4 +1,4 @@
-def upper_bound_range(values: i64&, target: i64, left: i64, right: i64) -> i64:
+def upper_bound_range(values: view[i64], target: i64, left: i64, right: i64) -> i64:
     if right <= left:
         left
     else:
@@ -25,6 +25,6 @@ def upper_bound_impl(values: i64&, length: usize) -> i64:
             if invalid:
                 -1
             else:
-                upper_bound_range(values, target, 0, array_length.i64() - 1)
+                upper_bound_range(values[0:length], target, 0, array_length.i64() - 1)
 
 export fn upper_bound(values: i64&, length: usize) -> i64 = upper_bound_impl

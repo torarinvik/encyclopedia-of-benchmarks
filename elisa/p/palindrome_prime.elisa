@@ -16,7 +16,7 @@ def reverse_decimal(value: u32) -> u32:
         remaining <- remaining / 10
     reversed
 
-def write_u32_le(output: mutable u8&, position: usize, value: u32):
+def write_u32_le(output: mutable view[u8], position: usize, value: u32):
     output[position] <- u8(value & 255)
     output[position + 1] <- u8((value >> 8) & 255)
     output[position + 2] <- u8((value >> 16) & 255)
@@ -31,12 +31,12 @@ def palindrome_prime_impl(n: i64, output: mutable u8&, output_capacity: usize) -
     required: usize = usize(n) * 4
     if output == null or output_capacity < required:
         return -2
-    write_u32_le(output, 0, 2)
+    write_u32_le(output[0:output_capacity], 0, 2)
     count: mutable usize = 1
     candidate: mutable u32 = 3
     while count < required / 4:
         if candidate == reverse_decimal(candidate) and is_prime(candidate):
-            write_u32_le(output, count * 4, candidate)
+            write_u32_le(output[0:output_capacity], count * 4, candidate)
             count <- count + 1
         candidate <- candidate + 2
     i64(required)

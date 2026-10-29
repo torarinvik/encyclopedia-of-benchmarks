@@ -3,8 +3,8 @@
 const OUTPUT_BYTES: usize = 82
 const MAX_PASSES: i64 = 2000
 
-def rc4_crypt_one(keys: u8[48]&, key_base: usize, key_length: usize,
-                  staged: mutable u8[82]&, data_base: usize, data_length: usize) -> void:
+def rc4_crypt_one(keys: view[u8], key_base: usize, key_length: usize,
+                  staged: mutable view[u8], data_base: usize, data_length: usize) -> void:
     state: mutable i32[256] = zeroed
     for index in 0..<256:
         state[index] <- index.i32()
@@ -65,7 +65,7 @@ def trimaran_enc_rc4_impl(input: i64&, length: usize, output: mutable u8&, outpu
         for pass in 0..<passes.usize():
             for byte in 0..<data_lengths[vector]:
                 staged[output_base + byte] <- plaintexts[input_base + byte]
-            rc4_crypt_one(keys&, vector * 8, key_lengths[vector], staged&, output_base, data_lengths[vector])
+            rc4_crypt_one(keys[0:48], vector * 8, key_lengths[vector], staged[0:82], output_base, data_lengths[vector])
     for index in 0..<OUTPUT_BYTES:
         output[index] <- staged[index]
     OUTPUT_BYTES.i64()

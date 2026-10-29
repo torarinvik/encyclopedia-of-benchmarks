@@ -107,11 +107,11 @@ def fv_dist(p: FvRPoint, a: i64, b: i64, c: i64) -> FvRat:
 def fv_intersection(p: FvRPoint, q: FvRPoint, dp: FvRat, dq: FvRat) -> FvRPoint:
     t: FvRat = fv_div(dp,fv_sub(dp,dq))
     FvRPoint(fv_add(p.x,fv_mul(t,fv_sub(q.x,p.x))),fv_add(p.y,fv_mul(t,fv_sub(q.y,p.y))))
-def fv_push(poly: mutable FvRPoint[FV_VERTICES]&, count: mutable usize&, point: FvRPoint) -> void:
+def fv_push(poly: mutable view[FvRPoint], count: mutable usize&, point: FvRPoint) -> void:
     if count == 0 or not fv_equal(poly[count-1],point):
         poly[count] <- point
         count <- count+1
-def fv_clip(poly: mutable FvRPoint[FV_VERTICES]&, count: usize, a: i64, b: i64, c: i64) -> usize:
+def fv_clip(poly: mutable view[FvRPoint], count: usize, a: i64, b: i64, c: i64) -> usize:
     next: mutable FvRPoint[FV_VERTICES]
     n: mutable usize = 0
     for i in 0..<count:
@@ -122,16 +122,16 @@ def fv_clip(poly: mutable FvRPoint[FV_VERTICES]&, count: usize, a: i64, b: i64, 
         pin: bool = dp.n <= 0
         qin: bool = dq.n <= 0
         if pin and qin:
-            fv_push(next,n,q)
+            fv_push(next[0:FV_VERTICES],n,q)
         else if pin and not qin:
-            fv_push(next,n,fv_intersection(p,q,dp,dq))
+            fv_push(next[0:FV_VERTICES],n,fv_intersection(p,q,dp,dq))
         else if not pin and qin:
-            fv_push(next,n,fv_intersection(p,q,dp,dq))
-            fv_push(next,n,q)
+            fv_push(next[0:FV_VERTICES],n,fv_intersection(p,q,dp,dq))
+            fv_push(next[0:FV_VERTICES],n,q)
     if n > 1 and fv_equal(next[0],next[n-1]): n <- n-1
     for i in 0..<n: poly[i] <- next[i]
     n
-def fv_valid(input: i64&, n: usize) -> bool:
+def fv_valid(input: view[i64], n: usize) -> bool:
     for i in 0..<n:
         for j in (i+1)..<n:
             if input[1+2*i]==input[1+2*j] and input[2+2*i]==input[2+2*j]: return false
@@ -152,7 +152,7 @@ def fv_valid(input: i64&, n: usize) -> bool:
                     det:i64=ax*(by*cc-bb*cy)-ay*(bx*cc-bb*cx)+aa*(bx*cy-by*cx)
                     if det==0:return false
     true
-def fv_put(out: mutable u8&, slot: usize, value: i64) -> void:
+def fv_put(out: mutable view[u8], slot: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for i in 0..<8:
         out[slot*8+i] <- (bits & 255).u8()
@@ -163,7 +163,7 @@ def fortune_voronoi_impl(input: i64&, length: usize, output: mutable u8&, capaci
     n: usize = input[0].usize()
     for i in 0..<n:
         if input[1+2*i] < -8 or input[1+2*i] > 8 or input[2+2*i] < -8 or input[2+2*i] > 8: return -1
-    if not fv_valid(input,n): return -1
+    if not fv_valid(input[0:length],n): return -1
     sites: mutable FvPoint[FV_N]
     order: mutable i64[FV_N]
     for i in 0..<n:
@@ -240,7 +240,7 @@ def fortune_voronoi_impl(input: i64&, length: usize, output: mutable u8&, capaci
         for j in 0..<n:
             if adjacent[i][j]:
                 x:i64=input[1+2*j]; y:i64=input[2+2*j]; sx:i64=input[1+2*i]; sy:i64=input[2+2*i]
-                count <- fv_clip(poly,count,2*(x-sx),2*(y-sy),x*x+y*y-sx*sx-sy*sy)
+                count <- fv_clip(poly[0:FV_VERTICES],count,2*(x-sx),2*(y-sy),x*x+y*y-sx*sx-sy*sy)
         if count<3 or used+2+4*count>FV_OUTPUT:return -1
         start:mutable usize=0
         for j in 1..<count:if fv_less(poly[j],poly[start]):start <- j
@@ -252,7 +252,7 @@ def fortune_voronoi_impl(input: i64&, length: usize, output: mutable u8&, capaci
             values[used] <- p.y.n; used <- used+1; values[used] <- p.y.d; used <- used+1
     bytes:usize=used*8
     if output==null or capacity<bytes:return -2
-    for i in 0..<used:fv_put(output,i,values[i])
+    for i in 0..<used:fv_put(output[0:bytes],i,values[i])
     bytes.i64()
 
 export def fortune_voronoi(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:

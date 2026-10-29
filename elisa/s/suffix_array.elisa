@@ -1,7 +1,7 @@
 const MAX_TEXT_LENGTH: usize = 64
 const MAX_INPUT_LENGTH: usize = 65
 
-def suffix_array_pair_less(left: usize, right: usize, rank: i64&, length: usize, step: usize) -> bool:
+def suffix_array_pair_less(left: usize, right: usize, rank: view[i64], length: usize, step: usize) -> bool:
     if rank[left] != rank[right]:
         return rank[left] < rank[right]
     left_second: i64 = if left + step < length: rank[left + step] else: -1
@@ -44,7 +44,7 @@ def suffix_array_impl(input: i64&, length: usize, output: mutable u8&, output_ca
         while index < count:
             key: usize = suffixes[index]
             position: mutable usize = index
-            while position > 0 and suffix_array_pair_less(key, suffixes[position - 1], rank, count, step):
+            while position > 0 and suffix_array_pair_less(key, suffixes[position - 1], rank[0:count], count, step):
                 suffixes[position] <- suffixes[position - 1]
                 position <- position - 1
             suffixes[position] <- key

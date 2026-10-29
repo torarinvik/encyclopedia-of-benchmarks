@@ -1,5 +1,5 @@
 # Clean-room bounded GARDENIA Gebremedhin-Manne coloring profile.
-def gardenia_gm_vertex_coloring_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def gardenia_gm_vertex_coloring_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64=value.u64()
     for byte in 0..<8: output[offset+byte] <- ((bits>>(8*byte)) & 255.u64()).u8()
 
@@ -47,5 +47,5 @@ def gardenia_gm_vertex_coloring(input: i64&, length: usize, output: mutable u8&,
                 next_count <- next_count+1
         pending_count <- next_count
         for item in 0..<pending_count: pending[item] <- next_pending[item]
-    for u in 0..<n: gardenia_gm_vertex_coloring_store(colors[u].i64(),output&,8*u)
+    for u in 0..<n: gardenia_gm_vertex_coloring_store(colors[u].i64(),output[0:output_bytes],8*u)
     output_bytes.i64()

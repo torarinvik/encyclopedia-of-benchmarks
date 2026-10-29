@@ -2,7 +2,7 @@ const MAX_TASKS: usize = 8
 const MAX_INPUT: usize = 17
 const MAX_OUTPUT_BYTES: usize = 80
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -77,11 +77,12 @@ def rate_monotonic_scheduling_impl(input: i64&, length: usize,
     output_bytes: usize = 8 * (count + 2)
     if output.is_null() or capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    store_i64_le(schedulable, staged&, 0)
-    store_i64_le(failed_task, staged&, 8)
+    staged_view: mutable view[u8] = staged[0:output_bytes]
+    store_i64_le(schedulable, staged_view, 0)
+    store_i64_le(failed_task, staged_view, 8)
     task <- 0
     while task < count:
-        store_i64_le(response[task], staged&, 8 * (task + 2))
+        store_i64_le(response[task], staged_view, 8 * (task + 2))
         task <- task + 1
     task <- 0
     while task < output_bytes:

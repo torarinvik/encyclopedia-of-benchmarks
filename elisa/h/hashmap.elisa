@@ -28,7 +28,7 @@ def hashmap_hash_key(key: i64) -> u64:
 def hashmap_bucket_for(key: i64, capacity: usize) -> usize:
     (hashmap_hash_key(key) & (capacity - 1).u64()).usize()
 
-def hashmap_put_i64_le(output: mutable u8&, word: usize, value: i64) -> void:
+def hashmap_put_i64_le(output: mutable view[u8], word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -146,6 +146,6 @@ def hashmap(input: i64&, length: usize, output: mutable u8&, output_capacity: us
     if output.is_null() or output_capacity < output_bytes: return -2
     index <- 0
     while index < result_words:
-        hashmap_put_i64_le(output, index, results[index])
+        hashmap_put_i64_le(output[0:output_bytes], index, results[index])
         index <- index + 1
     output_bytes.i64()

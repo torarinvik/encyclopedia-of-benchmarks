@@ -1,7 +1,7 @@
 const MAX_LENGTH: usize = 1024
 const BYTES_PER_VALUE: usize = 8
 
-def hexagonal_numbers_one_based_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
+def hexagonal_numbers_one_based_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < BYTES_PER_VALUE:
@@ -18,7 +18,7 @@ def hexagonal_numbers_one_based_impl(length: i64, output: mutable u8&, output_ca
     index: mutable usize = 0
     while index < n:
         i: i64 = index.i64() + 1
-        hexagonal_numbers_one_based_store_i64(i * (2 * i - 1), output, index * BYTES_PER_VALUE)
+        hexagonal_numbers_one_based_store_i64(i * (2 * i - 1), output[0:required], index * BYTES_PER_VALUE)
         index <- index + 1
     length
 

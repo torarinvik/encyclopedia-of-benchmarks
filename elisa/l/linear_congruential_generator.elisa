@@ -1,5 +1,5 @@
 # Emit each post-step state as one little-endian u64 value.
-def put_u64_le(output: mutable u8&, offset: usize, value: u64) -> void:
+def put_u64_le(output: mutable view[u8], offset: usize, value: u64) -> void:
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (value >> (byte * 8)).u8()
@@ -23,7 +23,7 @@ def linear_congruential_generator_impl(input: i64&, length: usize, output: mutab
     i: mutable usize = 0
     while i < n:
         state <- ((multiplier.u64() * state + increment.u64()) % modulo.u64())
-        put_u64_le(output, i * 8, state)
+        put_u64_le(output[0:required], i * 8, state)
         i <- i + 1
     required.i64()
 

@@ -1,7 +1,7 @@
 const GENERATE_SUBSETS_MAX_ITEMS: usize = 12
 const GENERATE_SUBSETS_MAX_SAFE: i64 = 9007199254740991
 
-def generate_sub_sets_put32(output: mutable u8&, position: mutable usize&, value: u32) -> void:
+def generate_sub_sets_put32(output: mutable view[u8], position: mutable usize&, value: u32) -> void:
     bits: mutable u32 = value
     index: mutable usize = 0
     while index < 4:
@@ -10,7 +10,7 @@ def generate_sub_sets_put32(output: mutable u8&, position: mutable usize&, value
         bits <- bits >> 8
         index <- index + 1
 
-def generate_sub_sets_put64(output: mutable u8&, position: mutable usize&, value: i64) -> void:
+def generate_sub_sets_put64(output: mutable view[u8], position: mutable usize&, value: i64) -> void:
     bits: mutable u64 = value.u64()
     index: mutable usize = 0
     while index < 8:
@@ -35,7 +35,7 @@ def generate_sub_sets_impl(input: i64&, length: usize, output: mutable u8&, capa
     needed: usize = 4 + 4 * subsets + 8 * total_items
     if output == null or capacity < needed: return -2
     position: mutable usize = 0
-    generate_sub_sets_put32(output, position&, subsets.u32())
+    generate_sub_sets_put32(output[0:needed], position&, subsets.u32())
     mask: mutable usize = 0
     while mask < subsets:
         count: mutable u32 = 0
@@ -43,11 +43,11 @@ def generate_sub_sets_impl(input: i64&, length: usize, output: mutable u8&, capa
         while index < n:
             if (mask & (1.usize() << index)) != 0: count <- count + 1
             index <- index + 1
-        generate_sub_sets_put32(output, position&, count)
+        generate_sub_sets_put32(output[0:needed], position&, count)
         index <- 0
         while index < n:
             if (mask & (1.usize() << index)) != 0:
-                generate_sub_sets_put64(output, position&, input[index + 1])
+                generate_sub_sets_put64(output[0:needed], position&, input[index + 1])
             index <- index + 1
         mask <- mask + 1
     position.i64()

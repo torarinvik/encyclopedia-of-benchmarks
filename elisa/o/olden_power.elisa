@@ -12,7 +12,7 @@ def find_g(p: f64, q: f64) -> f64:
 def find_h(p: f64, q: f64) -> f64:
     p - 5.0 * q
 
-def gradient_f(p: f64, q: f64, pi_r: f64, pi_i: f64, gradient: mutable f64&) -> f64:
+def gradient_f(p: f64, q: f64, pi_r: f64, pi_i: f64, gradient: mutable view[f64]) -> f64:
     gradient[0] <- 1.0 / (1.0 + p) - pi_r
     gradient[1] <- 1.0 / (1.0 + q) - pi_i
     magnitude: f64 = sqrt(gradient[0] * gradient[0] + gradient[1] * gradient[1])
@@ -20,7 +20,7 @@ def gradient_f(p: f64, q: f64, pi_r: f64, pi_i: f64, gradient: mutable f64&) -> 
     gradient[1] <- gradient[1] / magnitude
     magnitude
 
-def gradient_g(p: f64, q: f64, gradient: mutable f64&) -> f64:
+def gradient_g(p: f64, q: f64, gradient: mutable view[f64]) -> f64:
     gradient[0] <- 2.0 * p
     gradient[1] <- 2.0 * q
     magnitude: f64 = sqrt(gradient[0] * gradient[0] + gradient[1] * gradient[1])
@@ -28,13 +28,13 @@ def gradient_g(p: f64, q: f64, gradient: mutable f64&) -> f64:
     gradient[1] <- gradient[1] / magnitude
     magnitude
 
-def gradient_h(gradient: mutable f64&) -> f64:
+def gradient_h(gradient: mutable view[f64]) -> f64:
     magnitude: f64 = sqrt(26.0)
     gradient[0] <- 1.0 / magnitude
     gradient[1] <- -5.0 / magnitude
     magnitude
 
-def second_gradient_f(p: f64, q: f64, pi_r: f64, pi_i: f64, result: mutable f64&) -> void:
+def second_gradient_f(p: f64, q: f64, pi_r: f64, pi_i: f64, result: mutable view[f64]) -> void:
     p_inv: f64 = 1.0 / (p + 1.0)
     q_inv: f64 = 1.0 / (q + 1.0)
     p_term: f64 = p_inv - pi_r
@@ -43,7 +43,7 @@ def second_gradient_f(p: f64, q: f64, pi_r: f64, pi_i: f64, result: mutable f64&
     result[0] <- -p_inv * p_inv * p_term / magnitude
     result[1] <- -q_inv * q_inv * q_term / magnitude
 
-def make_orthogonal(modified: mutable f64&, fixed: f64&) -> f64:
+def make_orthogonal(modified: mutable view[f64], fixed: view[f64]) -> f64:
     dot: f64 = modified[0] * fixed[0] + modified[1] * fixed[1]
     modified[0] <- modified[0] - dot * fixed[0]
     modified[1] <- modified[1] - dot * fixed[1]
@@ -60,25 +60,25 @@ def optimize_one(p: mutable f64&, q: mutable f64&, pi_r: f64, pi_i: f64) -> void
     dd_grad_f: [2]f64 = [0.0, 0.0]
     h: f64 = find_h(p, q)
     if abs(h) > H_EPSILON:
-        magnitude: f64 = gradient_h(&grad_h)
+        magnitude: f64 = gradient_h(grad_h[0:2])
         total: f64 = h / magnitude
         p <- p - total * grad_h[0]
         q <- q - total * grad_h[1]
     g: f64 = find_g(p, q)
     if g > G_EPSILON:
-        magnitude: mutable f64 = gradient_g(p, q, &grad_g)
-        gradient_h(&grad_h)
-        magnitude <- magnitude * make_orthogonal(&grad_g, &grad_h)
+        magnitude: mutable f64 = gradient_g(p, q, grad_g[0:2])
+        gradient_h(grad_h[0:2])
+        magnitude <- magnitude * make_orthogonal(grad_g[0:2], grad_h[0:2])
         total: f64 = g / magnitude
         p <- p - total * grad_g[0]
         q <- q - total * grad_g[1]
-    magnitude: mutable f64 = gradient_f(p, q, pi_r, pi_i, &grad_f)
-    second_gradient_f(p, q, pi_r, pi_i, &dd_grad_f)
+    magnitude: mutable f64 = gradient_f(p, q, pi_r, pi_i, grad_f[0:2])
+    second_gradient_f(p, q, pi_r, pi_i, dd_grad_f[0:2])
     total: mutable f64 = grad_f[0] * dd_grad_f[0] + grad_f[1] * dd_grad_f[1]
     magnitude <- magnitude / abs(total)
-    gradient_h(&grad_h)
-    magnitude <- magnitude * make_orthogonal(&grad_f, &grad_h)
-    gradient_g(p, q, &grad_g)
+    gradient_h(grad_h[0:2])
+    magnitude <- magnitude * make_orthogonal(grad_f[0:2], grad_h[0:2])
+    gradient_g(p, q, grad_g[0:2])
     total <- grad_f[0] * grad_g[0] + grad_f[1] * grad_g[1]
     if total > 0.0:
         max_dist: f64 = -find_g(p, q) / total

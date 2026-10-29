@@ -3,11 +3,11 @@ const TLM_N: usize = 9
 const TLM_Q: usize = 24
 const TLM_R: usize = 4
 
-def tlm_put64(output: mutable u8&, offset: usize, value: i64): void:
+def tlm_put64(output: mutable view[u8], offset: usize, value: i64): void:
     bits: u64 = value.u64()
     for i in 0..<8: output[offset+i] <- ((bits >> (8*i)) & 255).u8()
 
-def tlm_owned(graph: bool[81]&, level: i64[9]&, n: usize, u: usize, list: mutable usize[9]&): usize:
+def tlm_owned(graph: view[bool], level: view[i64], n: usize, u: usize, list: mutable view[usize]): usize:
     count: mutable usize = 0
     for v in 0..<n:
         if graph[u*TLM_N+v] and level[u] == 0 and level[v] == 0:
@@ -15,7 +15,7 @@ def tlm_owned(graph: bool[81]&, level: i64[9]&, n: usize, u: usize, list: mutabl
             count <- count + 1
     count
 
-def tlm_repair(graph: bool[81]&, level: i64[9]&, mate: mutable i64[9]&, n: usize, u: i64): void:
+def tlm_repair(graph: view[bool], level: view[i64], mate: mutable view[i64], n: usize, u: i64): void:
     if u < 0: return
     id: usize = u.usize()
     if level[id] != 0 or mate[id] >= 0: return
@@ -25,10 +25,10 @@ def tlm_repair(graph: bool[81]&, level: i64[9]&, mate: mutable i64[9]&, n: usize
             mate[v] <- id.i64()
             return
 
-def tlm_promote(graph: bool[81]&, level: mutable i64[9]&, mate: mutable i64[9]&, n: usize,
-                u: usize, tape: usize[4]&, r: usize, used: mutable usize&): bool:
+def tlm_promote(graph: view[bool], level: mutable view[i64], mate: mutable view[i64], n: usize,
+                u: usize, tape: view[usize], r: usize, used: mutable usize&): bool:
     candidates: mutable usize[9] = zeroed
-    count: usize = tlm_owned(graph&, level&, n, u, candidates&)
+    count: usize = tlm_owned(graph, level, n, u, candidates[0:TLM_N])
     if count == 0 or used >= r or tape[used] >= count: return false
     y: usize = candidates[tape[used]]
     used <- used + 1
@@ -40,8 +40,8 @@ def tlm_promote(graph: bool[81]&, level: mutable i64[9]&, mate: mutable i64[9]&,
     level[y] <- 1
     mate[u] <- y.i64()
     mate[y] <- u.i64()
-    tlm_repair(graph&, level&, mate&, n, w)
-    if x != w: tlm_repair(graph&, level&, mate&, n, x)
+    tlm_repair(graph, level, mate, n, w)
+    if x != w: tlm_repair(graph, level, mate, n, x)
     true
 
 def two_level_dynamic_maximal_matching_insertions_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize): i64:
@@ -93,18 +93,18 @@ def two_level_dynamic_maximal_matching_insertions_impl(input: i64&, length: usiz
             mate[v] <- u.i64()
         a: mutable usize[9] = zeroed
         b: mutable usize[9] = zeroed
-        da: usize = tlm_owned(graph&, level&, n, u, a&)
-        db: usize = tlm_owned(graph&, level&, n, v, b&)
+        da: usize = tlm_owned(graph[0:TLM_N * TLM_N], level[0:TLM_N], n, u, a[0:TLM_N])
+        db: usize = tlm_owned(graph[0:TLM_N * TLM_N], level[0:TLM_N], n, v, b[0:TLM_N])
         who: usize = if da > db or (da == db and u < v): u else: v
         c: mutable usize[9] = zeroed
-        count: usize = tlm_owned(graph&, level&, n, who, c&)
-        if count >= threshold and not tlm_promote(graph&, level&, mate&, n, who, tape&, r, used&): return -1
+        count: usize = tlm_owned(graph[0:TLM_N * TLM_N], level[0:TLM_N], n, who, c[0:TLM_N])
+        if count >= threshold and not tlm_promote(graph[0:TLM_N * TLM_N], level[0:TLM_N], mate[0:TLM_N], n, who, tape[0:TLM_R], r, used&): return -1
     if used != r: return -1
     bytes: usize = 8 * (1 + 2 * n)
     if output.is_null() or capacity < bytes: return -2
-    tlm_put64(output&, 0, n.i64())
-    for i in 0..<n: tlm_put64(output&, 8+8*i, level[i])
-    for i in 0..<n: tlm_put64(output&, 8+8*n+8*i, mate[i])
+    tlm_put64(output[0:capacity], 0, n.i64())
+    for i in 0..<n: tlm_put64(output[0:capacity], 8+8*i, level[i])
+    for i in 0..<n: tlm_put64(output[0:capacity], 8+8*n+8*i, mate[i])
     bytes.i64()
 
 export fn two_level_dynamic_maximal_matching_insertions(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = two_level_dynamic_maximal_matching_insertions_impl

@@ -5,7 +5,7 @@ const MAX_INPUT_WORDS: usize = 3 + MAX_N * MAX_N
 const MAX_PARSEABLE_INPUT_WORDS: usize = MAX_INPUT_WORDS + 1
 const MAX_OUTPUT_BYTES: usize = 8 * MAX_N * MAX_N
 
-def put_f64_le(value: f64, output: mutable u8&, offset: usize) -> void:
+def put_f64_le(value: f64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -29,6 +29,7 @@ def max_pooling_impl(input: i32&, length: usize, output: mutable u8&, capacity: 
     bytes: usize = output_count * 8
     if output.is_null() or capacity < bytes: return -2
     buffer: mutable u8[2048] = zeroed
+    buffer_view: mutable view[u8] = buffer[0:bytes]
     position: mutable usize = 0
     row: mutable usize = 0
     while row < out_side:
@@ -45,7 +46,7 @@ def max_pooling_impl(input: i32&, length: usize, output: mutable u8&, capacity: 
                     if value > maximum: maximum <- value
                     c <- c + 1
                 r <- r + 1
-            put_f64_le(maximum.f64(), buffer[0], position)
+            put_f64_le(maximum.f64(), buffer_view, position)
             position <- position + 8
             col <- col + 1
         row <- row + 1

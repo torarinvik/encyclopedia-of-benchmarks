@@ -2,7 +2,7 @@ const MAX_PAYLOAD_BYTES: usize = 256
 const MAX_INPUT_LENGTH: usize = 259
 const OUTPUT_BYTES: usize = 16
 
-def length_utf8_scalar_count(bytes: u8&, payload_length: usize) -> i64:
+def length_utf8_scalar_count(bytes: view[u8], payload_length: usize) -> i64:
     index: mutable usize = 0
     count: mutable i64 = 0
     while index < payload_length:
@@ -30,7 +30,7 @@ def length_utf8_scalar_count(bytes: u8&, payload_length: usize) -> i64:
         count <- count + 1
     count
 
-def length_put_i64_le(output: mutable u8&, position: usize, value: i64) -> void:
+def length_put_i64_le(output: mutable view[u8], position: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -63,13 +63,13 @@ def length_impl(input: i64&, input_length: usize, output: mutable u8&, output_ca
             payload[index] <- value.u8()
         index <- index + 1
 
-    scalar_count: i64 = length_utf8_scalar_count(&payload[0], payload_length)
+    scalar_count: i64 = length_utf8_scalar_count(payload[0:payload_length], payload_length)
     if scalar_count < 0:
         return -1
     if output.is_null() or output_capacity < OUTPUT_BYTES:
         return -2
-    length_put_i64_le(output, 0, payload_length.i64())
-    length_put_i64_le(output, 8, scalar_count)
+    length_put_i64_le(output[0:output_capacity], 0, payload_length.i64())
+    length_put_i64_le(output[0:output_capacity], 8, scalar_count)
     OUTPUT_BYTES.i64()
 
 export fn length(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 =

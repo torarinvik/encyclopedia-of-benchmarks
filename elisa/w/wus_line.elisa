@@ -36,14 +36,14 @@ def wus_line_add_endpoint(pixel_x: mutable i64&, pixel_y: mutable i64&,
     wus_line_add_pixel(pixel_x, pixel_y, intensities, count, x_pixel, y_pixel + 1,
             fractional_y * x_gap, steep)
 
-def wus_line_write_i32(output: mutable u8&, position: usize, value: i64) -> void:
+def wus_line_write_i32(output: mutable view[u8], position: usize, value: i64) -> void:
     bits: u32 = value.i32().u32()
     byte: mutable usize = 0
     while byte < 4:
         output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def wus_line_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
+def wus_line_write_f64(output: mutable view[u8], position: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -127,9 +127,9 @@ def wus_line_impl(values: i64&, length: usize, output: mutable u8&,
         return -2
     for index in 0..<pixel_count:
         offset: usize = index * 16
-        wus_line_write_i32(output, offset, pixel_x[index])
-        wus_line_write_i32(output, offset + 4, pixel_y[index])
-        wus_line_write_f64(output, offset + 8, intensities[index])
+        wus_line_write_i32(output[0:output_capacity], offset, pixel_x[index])
+        wus_line_write_i32(output[0:output_capacity], offset + 4, pixel_y[index])
+        wus_line_write_f64(output[0:output_capacity], offset + 8, intensities[index])
     required.i64()
 
 export fn wus_line(values: i64&, length: usize, output: mutable u8&,

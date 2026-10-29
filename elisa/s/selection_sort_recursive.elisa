@@ -1,5 +1,5 @@
 # Recursive selection sort for the shared signed 64-bit benchmark contract.
-def minimum_index(values: i64&, start: usize, end: usize) -> usize:
+def minimum_index(values: view[i64], start: usize, end: usize) -> usize:
     if start + 1 >= end:
         return start
     minimum: usize = minimum_index(values, start + 1, end)
@@ -7,7 +7,7 @@ def minimum_index(values: i64&, start: usize, end: usize) -> usize:
         return start
     minimum
 
-def selection_sort_range(values: mutable i64&, start: usize, length: usize) -> void:
+def selection_sort_range(values: mutable view[i64], start: usize, length: usize) -> void:
     if start + 1 >= length:
         return
     minimum: usize = minimum_index(values, start, length)
@@ -17,7 +17,8 @@ def selection_sort_range(values: mutable i64&, start: usize, length: usize) -> v
         values[minimum] <- temporary
     selection_sort_range(values, start + 1, length)
 
-def selection_sort_recursive_impl(values: mutable i64&, length: usize) -> void:
+def selection_sort_recursive_impl(values: mutable view[i64], length: usize) -> void:
     selection_sort_range(values, 0, length)
 
-export fn selection_sort_recursive(values: mutable i64&, length: usize) -> void = selection_sort_recursive_impl
+export fn selection_sort_recursive(values: mutable i64&, length: usize) -> void:
+    selection_sort_recursive_impl(values[0:length], length)

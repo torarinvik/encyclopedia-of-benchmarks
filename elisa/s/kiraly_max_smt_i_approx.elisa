@@ -4,7 +4,7 @@ const MAX_INPUT: usize = 74
 const MAX_OUTPUT: usize = 48
 const MAX_STEPS: usize = 121
 
-def put64(value: i64, output: mutable u8&, position: usize) -> void:
+def put64(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -137,7 +137,7 @@ def kiraly_max_smt_i_approx(input: i64&, length: usize, output: mutable u8&,
     staged: mutable u8[MAX_OUTPUT] = zeroed
     man <- 0
     while man < m:
-        put64(assignment[man], staged, 8 * man)
+        put64(assignment[man], staged[0:output_bytes], 8 * man)
         man <- man + 1
     byte: mutable usize = 0
     while byte < output_bytes:

@@ -2,7 +2,7 @@ const MAX_K: usize = 8
 const MAX_N: usize = 32
 const EMPTY_RANK: i64 = 1001
 
-def min_hash_partition_put(output: mutable u8&, offset: usize, value: i64) -> void:
+def min_hash_partition_put(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -41,8 +41,9 @@ def min_hash_k_partition(input: i64&, length: usize, output: mutable u8&, capaci
         bucket <- bucket + 1
     required: usize = 2 * k * 8
     if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
     item <- 0
     while item < 2 * k:
-        min_hash_partition_put(output, item * 8, staged[item])
+        min_hash_partition_put(output_view, item * 8, staged[item])
         item <- item + 1
     return required.i64()

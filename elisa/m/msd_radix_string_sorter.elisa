@@ -14,7 +14,7 @@ def bucket(value: EncodedString&, digit: usize) -> usize:
         return 0
     value.bytes[digit].usize() + 1
 
-def msd_sort(values: mutable EncodedString[256]&, auxiliary: mutable EncodedString[256]&, low: usize, high: usize, digit: usize) -> void:
+def msd_sort(values: mutable view[EncodedString], auxiliary: mutable view[EncodedString], low: usize, high: usize, digit: usize) -> void:
     if high - low < 2 or digit >= MAX_LENGTH:
         return
     counts: mutable usize[257] = zeroed
@@ -55,6 +55,8 @@ def msd_radix_string_sorter_impl(input: i64&, length: usize) -> i64:
     count: usize = input[0].usize()
     values: mutable EncodedString[256] = zeroed
     auxiliary: mutable EncodedString[256] = zeroed
+    values_view: mutable view[EncodedString] = values[0:MAX_STRINGS]
+    auxiliary_view: mutable view[EncodedString] = auxiliary[0:MAX_STRINGS]
     position: mutable usize = 1
     string_index: mutable usize = 0
     while string_index < count:
@@ -76,7 +78,7 @@ def msd_radix_string_sorter_impl(input: i64&, length: usize) -> i64:
     if position != length:
         return -1
     if count > 1:
-        msd_sort(values, auxiliary, 0, count, 0)
+        msd_sort(values_view, auxiliary_view, 0, count, 0)
     hash: mutable u64 = FNV_OFFSET
     hash <- (hash ^ (count.u64() & 255.u64())) * FNV_PRIME
     hash <- (hash ^ ((count.u64() >> 8) & 255.u64())) * FNV_PRIME

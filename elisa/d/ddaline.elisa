@@ -4,7 +4,7 @@ def ddaline_java_round(value: f64) -> i64:
     if rounded.f64() > shifted: rounded <- rounded - 1
     rounded
 
-def ddaline_write_i64(output: mutable u8&, position: mutable usize&, value: i64) -> usize:
+def ddaline_write_i64(output: mutable view[u8], position: mutable usize&, value: i64) -> usize:
     shift: mutable usize = 0
     while shift < 64:
         output[position] <- ((value >> shift) & 255).u8()
@@ -28,8 +28,8 @@ def ddaline_impl(input: i64&, length: usize, output: mutable u8&, capacity: usiz
     if output.is_null() or capacity < output_bytes: return -2
     position: mutable usize = 0
     if steps == 0:
-        ddaline_write_i64(output, &position, input[0])
-        ddaline_write_i64(output, &position, input[1])
+        ddaline_write_i64(output[0:output_bytes], &position, input[0])
+        ddaline_write_i64(output[0:output_bytes], &position, input[1])
         return 16
     x_increment: f64 = dx.f64() / steps.f64()
     y_increment: f64 = dy.f64() / steps.f64()
@@ -37,8 +37,8 @@ def ddaline_impl(input: i64&, length: usize, output: mutable u8&, capacity: usiz
     y: mutable f64 = input[1].f64()
     step: mutable i64 = 0
     while step <= steps:
-        ddaline_write_i64(output, &position, ddaline_java_round(x))
-        ddaline_write_i64(output, &position, ddaline_java_round(y))
+        ddaline_write_i64(output[0:output_bytes], &position, ddaline_java_round(x))
+        ddaline_write_i64(output[0:output_bytes], &position, ddaline_java_round(y))
         x <- x + x_increment
         y <- y + y_increment
         step <- step + 1

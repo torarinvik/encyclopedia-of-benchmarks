@@ -2,7 +2,7 @@ const PTRDIST_KS_MAX_MODULES: usize = 8
 const PTRDIST_KS_MAX_NETS: usize = 16
 const PTRDIST_KS_MAX_INPUT: usize = 146
 
-def ptrdist_ks_edge_cut(side: i64[8]&, members: i64[128]&, degrees: i64[16]&, net_count: usize) -> i64:
+def ptrdist_ks_edge_cut(side: view[i64], members: view[i64], degrees: view[i64], net_count: usize) -> i64:
     total: mutable i64 = 0
     net: mutable usize = 0
     while net < net_count:
@@ -17,7 +17,7 @@ def ptrdist_ks_edge_cut(side: i64[8]&, members: i64[128]&, degrees: i64[16]&, ne
         net <- net + 1
     total
 
-def ptrdist_ks_net_cut(side: i64[8]&, members: i64[128]&, degrees: i64[16]&, net_count: usize) -> i64:
+def ptrdist_ks_net_cut(side: view[i64], members: view[i64], degrees: view[i64], net_count: usize) -> i64:
     total: mutable i64 = 0
     net: mutable usize = 0
     while net < net_count:
@@ -97,7 +97,7 @@ def ptrdist_ks_impl(input: i64&, length: usize) -> i64:
         best_prefix: mutable usize = 0
         step: mutable usize = 0
         while step < half:
-            baseline: i64 = ptrdist_ks_edge_cut(work, members, degrees, net_count)
+            baseline: i64 = ptrdist_ks_edge_cut(work[0:8], members[0:128], degrees[0:16], net_count)
             pair_gain: mutable i64 = -2147483647
             chosen_a: mutable i64 = -1
             chosen_b: mutable i64 = -1
@@ -109,7 +109,7 @@ def ptrdist_ks_impl(input: i64&, length: usize) -> i64:
                     b: i64 = remaining_b[bi]
                     work[a.usize()] <- 1
                     work[b.usize()] <- 0
-                    gain: i64 = baseline - ptrdist_ks_edge_cut(work, members, degrees, net_count)
+                    gain: i64 = baseline - ptrdist_ks_edge_cut(work[0:8], members[0:128], degrees[0:16], net_count)
                     work[a.usize()] <- 0
                     work[b.usize()] <- 1
                     if gain > pair_gain:
@@ -172,7 +172,7 @@ def ptrdist_ks_impl(input: i64&, length: usize) -> i64:
     while i < modules:
         if side[i] == 0: mask <- mask | (1.i64() << i)
         i <- i + 1
-    mask + (ptrdist_ks_edge_cut(side, members, degrees, net_count) << 8) +
-        (ptrdist_ks_net_cut(side, members, degrees, net_count) << 17) + (accepted_passes << 22)
+    mask + (ptrdist_ks_edge_cut(side[0:8], members[0:128], degrees[0:16], net_count) << 8) +
+        (ptrdist_ks_net_cut(side[0:8], members[0:128], degrees[0:16], net_count) << 17) + (accepted_passes << 22)
 
 export fn ptrdist_ks(input: i64&, length: usize) -> i64 = ptrdist_ks_impl

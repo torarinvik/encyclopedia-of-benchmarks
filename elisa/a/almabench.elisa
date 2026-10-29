@@ -201,14 +201,14 @@ def planet_position(planet: usize, day: i64, result: mutable f64&):
     result[1] <- asin(z / distance) * R2D
     result[2] <- distance
 
-def append_text(buffer: mutable u8&, used: mutable usize&, text: string):
+def append_text(buffer: mutable view[u8], used: mutable usize&, text: string):
     index: mutable usize = 0
     while index < text.len():
         buffer[used] <- text.byte_at(index)
         used <- used + 1
         index <- index + 1
 
-def append_integer(buffer: mutable u8&, used: mutable usize&, value: i64):
+def append_integer(buffer: mutable view[u8], used: mutable usize&, value: i64):
     reversed: mutable u8[20] = zeroed
     remaining: mutable i64 = value
     count: mutable usize = 0
@@ -258,7 +258,7 @@ def rounded_micro_units(bits: u64) -> u64:
         quotient <- quotient + 1.u64()
     quotient
 
-def append_fixed(buffer: mutable u8&, used: mutable usize&, value: f64):
+def append_fixed(buffer: mutable view[u8], used: mutable usize&, value: f64):
     bits: mutable u64 = 0.u64()
     memcpy(&bits, &value, 8)
     negative: bool = (bits >> 63) != 0.u64()
@@ -291,15 +291,16 @@ def almabench_impl(days: i64, output: mutable u8&, output_capacity: usize) -> i6
             planet <- planet + 1
         day <- day + 1
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT_BYTES]
     used: mutable usize = 0
     planet: mutable usize = 0
     while planet < 8:
-        append_fixed(staged, used, positions[planet][0])
-        append_text(staged, used, " ")
-        append_fixed(staged, used, positions[planet][1])
-        append_text(staged, used, " ")
-        append_fixed(staged, used, positions[planet][2])
-        append_text(staged, used, "\n")
+        append_fixed(staged_view, used, positions[planet][0])
+        append_text(staged_view, used, " ")
+        append_fixed(staged_view, used, positions[planet][1])
+        append_text(staged_view, used, " ")
+        append_fixed(staged_view, used, positions[planet][2])
+        append_text(staged_view, used, "\n")
         planet <- planet + 1
     if output_capacity < used:
         return -2

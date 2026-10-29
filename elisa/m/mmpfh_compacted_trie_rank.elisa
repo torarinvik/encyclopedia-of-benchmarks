@@ -3,7 +3,7 @@ const MAX_QUERIES: usize = 16
 const MAX_NODES: usize = 31
 const MAX_OUTPUT: usize = 174
 
-def mmpfh_ct_build(lo: usize, hi: usize, width: usize, keys: u32&, nodes: mutable i64[31][6], used: mutable usize&) -> usize:
+def mmpfh_ct_build(lo: usize, hi: usize, width: usize, keys: view[u32], nodes: mutable i64[31][6], used: mutable usize&) -> usize:
     id: usize = used
     used <- used + 1
     if hi - lo == 1:
@@ -46,7 +46,7 @@ def mmpfh_ct_rank(query: u32, width: usize, nodes: i64[31][6]) -> usize:
         else:
             id <- nodes[id][1].usize()
 
-def mmpfh_ct_put(output: mutable u8&, offset: usize, value: i64) -> void:
+def mmpfh_ct_put(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -77,7 +77,7 @@ def mmpfh_compacted_trie_rank(input: i64&, length: usize, output: mutable u8&, c
         i <- i + 1
     nodes: mutable i64[31][6] = zeroed
     used: mutable usize = 0
-    mmpfh_ct_build(0, count, width, keys, nodes, used)
+    mmpfh_ct_build(0, count, width, keys[0:count], nodes, used)
     staged: mutable i64[174] = zeroed
     pos: mutable usize = 0
     staged[pos] <- d0; pos <- pos + 1
@@ -98,8 +98,9 @@ def mmpfh_compacted_trie_rank(input: i64&, length: usize, output: mutable u8&, c
         i <- i + 1
     required: usize = pos * 8
     if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
     i <- 0
     while i < pos:
-        mmpfh_ct_put(output, i * 8, staged[i])
+        mmpfh_ct_put(output_view, i * 8, staged[i])
         i <- i + 1
     return required.i64()

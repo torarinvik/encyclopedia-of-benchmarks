@@ -31,10 +31,10 @@ def morse_word(index: usize) -> i64:
     if index == 25: return 1027
     return 0
 
-def is_separator(input: i64&, position: usize, finish: usize) -> bool:
+def is_separator(input: view[i64], position: usize, finish: usize) -> bool:
     position + 2 < finish and input[position] == 32 and input[position + 1] == 124 and input[position + 2] == 32
 
-def decode_token(input: i64&, start: usize, finish: usize) -> u8:
+def decode_token(input: view[i64], start: usize, finish: usize) -> u8:
     letter: mutable usize = 0
     while letter < 26:
         word: i64 = morse_word(letter)
@@ -53,7 +53,7 @@ def decode_token(input: i64&, start: usize, finish: usize) -> u8:
         letter <- letter + 1
     63.u8()
 
-def append_word(input: i64&, start: usize, finish_value: usize, scratch: mutable u8&, written: mutable usize&) -> void:
+def append_word(input: view[i64], start: usize, finish_value: usize, scratch: mutable view[u8], written: mutable usize&) -> void:
     if start == finish_value:
         scratch[written] <- 63
         written <- written + 1
@@ -73,7 +73,7 @@ def append_word(input: i64&, start: usize, finish_value: usize, scratch: mutable
             token_start <- position + 1
         position <- position + 1
 
-def decode(input: i64&, length: usize, scratch: mutable u8&) -> usize:
+def decode(input: view[i64], length: usize, scratch: mutable view[u8]) -> usize:
     if length == 0:
         scratch[0] <- 63
         return 1
@@ -102,7 +102,12 @@ def morse_code_converter_decode_impl(input: i64&, length: usize, output: mutable
         if input[index] < 0 or input[index] > 127: return -1
         index <- index + 1
     scratch: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    written: usize = decode(input, length, scratch)
+    written: usize = 0
+    if length == 0:
+        scratch[0] <- 63
+        written <- 1
+    else:
+        written <- decode(input[0:length], length, scratch[0:MAX_OUTPUT_BYTES])
     if output.is_null() or capacity < written: return -2
     index <- 0
     while index < written:

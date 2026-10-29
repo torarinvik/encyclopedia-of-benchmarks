@@ -3,7 +3,7 @@ const CACHE_CAPACITY: usize = 512
 const RUN_SIZE: usize = 16
 const MAXIMUM_LENGTH: usize = 2048
 
-def reverse_range(values: mutable i64&, first_value: usize, last_value: usize) -> void:
+def reverse_range(values: mutable view[i64], first_value: usize, last_value: usize) -> void:
     first: mutable usize = first_value
     last: mutable usize = last_value
     while first < last:
@@ -15,7 +15,7 @@ def reverse_range(values: mutable i64&, first_value: usize, last_value: usize) -
         values[last] <- item
         first <- first + 1
 
-def insertion_sort(values: mutable i64&, first: usize, last: usize) -> void:
+def insertion_sort(values: mutable view[i64], first: usize, last: usize) -> void:
     index: mutable usize = first + 1
     while index < last:
         item: mutable i64 = values[index]
@@ -26,7 +26,7 @@ def insertion_sort(values: mutable i64&, first: usize, last: usize) -> void:
         values[position] <- item
         index <- index + 1
 
-def rotate_adjacent(values: mutable i64&, scratch: mutable i64&, first: usize, middle: usize, last: usize, cache_size: usize) -> void:
+def rotate_adjacent(values: mutable view[i64], scratch: mutable view[i64], first: usize, middle: usize, last: usize, cache_size: usize) -> void:
     left_length: mutable usize = middle - first
     right_length: mutable usize = last - middle
     if left_length == 0 or right_length == 0:
@@ -63,7 +63,7 @@ def rotate_adjacent(values: mutable i64&, scratch: mutable i64&, first: usize, m
     reverse_range(values, middle, last)
     reverse_range(values, first, last)
 
-def merge_from_cache(values: mutable i64&, scratch: mutable i64&, first: usize, middle: usize, last: usize) -> void:
+def merge_from_cache(values: mutable view[i64], scratch: mutable view[i64], first: usize, middle: usize, last: usize) -> void:
     left_length: mutable usize = middle - first
     index: mutable usize = 0
     while index < left_length:
@@ -85,7 +85,7 @@ def merge_from_cache(values: mutable i64&, scratch: mutable i64&, first: usize, 
         left <- left + 1
         output <- output + 1
 
-def block_rotation_merge(values: mutable i64&, scratch: mutable i64&, first: usize, middle_value: usize, last: usize, cache_size: usize) -> void:
+def block_rotation_merge(values: mutable view[i64], scratch: mutable view[i64], first: usize, middle_value: usize, last: usize, cache_size: usize) -> void:
     total: mutable usize = last - first
     block_size: mutable usize = 1
     while block_size + 1 <= total / (block_size + 1):
@@ -125,7 +125,7 @@ def block_rotation_merge(values: mutable i64&, scratch: mutable i64&, first: usi
                 left <- left + moved
                 middle <- middle + moved
 
-def wikisort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+def wikisort_impl(values: mutable view[i64], scratch: mutable view[i64], length: usize) -> void:
     if length < 2 or length > MAXIMUM_LENGTH:
         return
     cache_size: mutable usize = length
@@ -163,4 +163,8 @@ def wikisort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) ->
             break
         width <- width * 2
 
-export fn wikisort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void = wikisort_impl
+export fn wikisort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+    if length < 2 or length > MAXIMUM_LENGTH:
+        return
+    scratch_length: usize = if length < CACHE_CAPACITY: length else: CACHE_CAPACITY
+    wikisort_impl(values[0:length], scratch[0:scratch_length], length)

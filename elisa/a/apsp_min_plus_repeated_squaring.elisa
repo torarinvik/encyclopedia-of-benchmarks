@@ -2,7 +2,7 @@ const APSP_MAX_N: usize = 8
 const APSP_MAX_INPUT: usize = 65
 const APSP_INF: i64 = 1000000
 
-def apsp_store_i64(output: mutable u8&, offset: usize, value: i64): void:
+def apsp_store_i64(output: mutable view[u8], offset: usize, value: i64): void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -38,7 +38,7 @@ def apsp_min_plus_repeated_squaring_impl(input: i64&, length: usize,
         edge_bound <- edge_bound * 2
     bytes: usize = 8 * n * n
     if output.is_null() or capacity < bytes: return -2
-    for index in 0..<n * n: apsp_store_i64(current[index], output&, 8 * index)
+    for index in 0..<n * n: apsp_store_i64(current[index], output[0:bytes], 8 * index)
     bytes.i64()
 
 export fn apsp_min_plus_repeated_squaring(input: i64&, length: usize,

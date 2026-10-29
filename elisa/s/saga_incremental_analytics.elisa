@@ -10,7 +10,7 @@ def push_once(vertex: usize, queue: mutable usize&, count: mutable usize&, seen:
         queue[count] <- vertex
         count <- count + 1
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -227,6 +227,6 @@ def saga_incremental_analytics(input: i64&, length: usize, output: mutable u8&, 
             first <- false
     v <- 0
     while v < n:
-        store_i64_le(property[v], output, 8 * v)
+        store_i64_le(property[v], output[0:capacity], 8 * v)
         v <- v + 1
     return output_bytes.i64()

@@ -4,7 +4,7 @@ const TSVC_S2711_MAX_N: usize = 64
 const TSVC_S2711_MAX_PASSES: usize = 8
 const TSVC_S2711_MAX_INPUT_LENGTH: usize = 194
 
-def tsvc_s2711_nonzero_branch_axpy_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s2711_nonzero_branch_axpy_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -49,7 +49,7 @@ def tsvc_s2711_nonzero_branch_axpy_impl(input: i64&, length: usize,
         pass <- pass + 1
     i <- 0
     while i < n:
-        tsvc_s2711_nonzero_branch_axpy_store_i64(a[i], output, 8 * i)
+        tsvc_s2711_nonzero_branch_axpy_store_i64(a[i], output[0:output_capacity], 8 * i)
         i <- i + 1
     (n).i64()
 

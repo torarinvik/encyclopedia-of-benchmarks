@@ -1,6 +1,6 @@
 const MAX_POINTS: usize = 1024
 
-def convex_hull_quickhull_cross(a: usize, b: usize, c: usize, values: i64&) -> i64:
+def convex_hull_quickhull_cross(a: usize, b: usize, c: usize, values: view[i64]) -> i64:
     dx1: i64 = values[2 * b] - values[2 * a]
     dy1: i64 = values[2 * b + 1] - values[2 * a + 1]
     dx2: i64 = values[2 * c] - values[2 * a]
@@ -8,15 +8,15 @@ def convex_hull_quickhull_cross(a: usize, b: usize, c: usize, values: i64&) -> i
     dx1 * dy2 - dy1 * dx2
 
 def convex_hull_quickhull_before(left: usize, right: usize,
-        values: i64&) -> bool:
+        values: view[i64]) -> bool:
     if values[2 * left] != values[2 * right]:
         return values[2 * left] < values[2 * right]
     if values[2 * left + 1] != values[2 * right + 1]:
         return values[2 * left + 1] < values[2 * right + 1]
     left < right
 
-def convex_hull_quickhull_sort(points: mutable usize&, scratch: mutable usize&,
-        begin: usize, end: usize, values: i64&) -> void:
+def convex_hull_quickhull_sort(points: mutable view[usize], scratch: mutable view[usize],
+        begin: usize, end: usize, values: view[i64]) -> void:
     if end - begin < 2:
         return
     middle: usize = begin + (end - begin) / 2
@@ -46,8 +46,8 @@ def convex_hull_quickhull_sort(points: mutable usize&, scratch: mutable usize&,
         points[index] <- scratch[index]
         index <- index + 1
 
-def convex_hull_quickhull_visit(points: usize&, count: usize,
-        left: usize, right: usize, on_hull: mutable u8&, values: i64&) -> void:
+def convex_hull_quickhull_visit(points: view[usize], count: usize,
+        left: usize, right: usize, on_hull: mutable view[u8], values: view[i64]) -> void:
     farthest: mutable usize = MAX_POINTS
     greatest_area: mutable i64 = 0
     index: mutable usize = 0
@@ -64,7 +64,7 @@ def convex_hull_quickhull_visit(points: usize&, count: usize,
     convex_hull_quickhull_visit(points, count, left, farthest, on_hull, values)
     convex_hull_quickhull_visit(points, count, farthest, right, on_hull, values)
 
-def convex_hull_quickhull_write_index(output: mutable u8&,
+def convex_hull_quickhull_write_index(output: mutable view[u8],
         position: usize, id: usize) -> void:
     value: u32 = id.u32()
     byte: mutable usize = 0
@@ -91,7 +91,8 @@ def convex_hull_quickhull_impl(values: i64&, length: usize,
     if point_count == 0:
         return 0
 
-    convex_hull_quickhull_sort(&order[0], &scratch[0], 0, point_count, values)
+    convex_hull_quickhull_sort(order[0:point_count], scratch[0:point_count],
+        0, point_count, values[0:length])
     unique_count: mutable usize = 0
     index <- 0
     while index < point_count:
@@ -108,10 +109,10 @@ def convex_hull_quickhull_impl(values: i64&, length: usize,
     else:
         on_hull[0] <- 1.u8()
         on_hull[unique_count - 1] <- 1.u8()
-        convex_hull_quickhull_visit(&points[0], unique_count, 0,
-                unique_count - 1, &on_hull[0], values)
-        convex_hull_quickhull_visit(&points[0], unique_count,
-                unique_count - 1, 0, &on_hull[0], values)
+        convex_hull_quickhull_visit(points[0:unique_count], unique_count, 0,
+                unique_count - 1, on_hull[0:unique_count], values[0:length])
+        convex_hull_quickhull_visit(points[0:unique_count], unique_count,
+                unique_count - 1, 0, on_hull[0:unique_count], values[0:length])
 
     hull_count: mutable usize = 0
     index <- 0
@@ -125,7 +126,7 @@ def convex_hull_quickhull_impl(values: i64&, length: usize,
     index <- 0
     while index < unique_count:
         if on_hull[index] != 0:
-            convex_hull_quickhull_write_index(output, position, points[index])
+            convex_hull_quickhull_write_index(output[0:output_capacity], position, points[index])
             position <- position + 1
         index <- index + 1
     hull_count.i64()

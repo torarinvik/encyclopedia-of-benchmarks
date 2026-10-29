@@ -2,8 +2,8 @@ const MAX_NODE_COUNT: usize = 100
 const MIN_VALUE: i64 = -100
 const MAX_VALUE: i64 = 100
 
-def binary_tree_inorder_visit(nodes: i64&, node_count: usize, node: i64,
-                              output: mutable i64&, capacity: usize,
+def binary_tree_inorder_visit(nodes: view[i64], node_count: usize, node: i64,
+                              output: mutable view[i64], capacity: usize,
                               used: mutable usize&) -> bool:
     if node == -1:
         return true
@@ -35,7 +35,7 @@ def binary_tree_inorder_impl(nodes: i64&, node_count: usize, root_index: i64,
     if root_index < 0 or root_index.u64() >= node_count.u64():
         return -1
     used: mutable usize = 0
-    if not binary_tree_inorder_visit(nodes, node_count, root_index, output, output_capacity, used):
+    if not binary_tree_inorder_visit(nodes[0:node_count * 3], node_count, root_index, output[0:output_capacity], output_capacity, used):
         return -1
     if used != node_count:
         return -1

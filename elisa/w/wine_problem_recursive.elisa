@@ -1,7 +1,7 @@
 const MAX_ITEMS: usize = 14
 const MAX_PRICE: i64 = 1000000
 
-def wine_problem_recursive_solve(prices: i64&, count: usize, first: usize, last: usize) -> i64:
+def wine_problem_recursive_solve(prices: view[i64], count: usize, first: usize, last: usize) -> i64:
     year: i64 = (count - (last - first + 1) + 1).i64()
     if first == last: return prices[first] * year
     sell_first: i64 = prices[first] * year + wine_problem_recursive_solve(prices, count, first + 1, last)
@@ -15,6 +15,6 @@ def wine_problem_recursive_impl(prices: i64&, length: usize) -> i64:
     while index < length:
         if prices[index] < 0 or prices[index] > MAX_PRICE: return -1
         index <- index + 1
-    wine_problem_recursive_solve(prices, length, 0, length - 1)
+    wine_problem_recursive_solve(prices[0:length], length, 0, length - 1)
 
 export fn wine_problem_recursive(prices: i64&, length: usize) -> i64 = wine_problem_recursive_impl

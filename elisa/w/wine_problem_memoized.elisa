@@ -1,8 +1,8 @@
 const MAX_ITEMS: usize = 64
 const MAX_PRICE: i64 = 1000000
 
-def wine_problem_memoized_solve(prices: i64&, count: usize, first: usize, last: usize,
-                                memo: mutable i64&) -> i64:
+def wine_problem_memoized_solve(prices: view[i64], count: usize, first: usize, last: usize,
+                                memo: mutable view[i64]) -> i64:
     slot: usize = first * MAX_ITEMS + last
     year: i64 = (count - (last - first + 1) + 1).i64()
     if first == last:
@@ -22,6 +22,7 @@ def wine_problem_memoized_impl(prices: i64&, length: usize) -> i64:
         if prices[index] < 1 or prices[index] > MAX_PRICE: return -1
         index <- index + 1
     memo: mutable i64[MAX_ITEMS * MAX_ITEMS] = zeroed
-    wine_problem_memoized_solve(prices, length, 0, length - 1, &memo[0])
+    wine_problem_memoized_solve(prices[0:length], length, 0, length - 1,
+            memo[0:MAX_ITEMS * MAX_ITEMS])
 
 export fn wine_problem_memoized(prices: i64&, length: usize) -> i64 = wine_problem_memoized_impl

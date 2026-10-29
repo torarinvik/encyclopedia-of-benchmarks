@@ -1,7 +1,7 @@
 const MAX_COUNT: usize = 64
 const MAX_INPUT_LENGTH: usize = 66
 
-def push_max(heap: mutable i64&, count: mutable usize&, value: i64) -> void:
+def push_max(heap: mutable view[i64], count: mutable usize&, value: i64) -> void:
     position: mutable usize = count
     count <- count + 1
     while position > 0 and heap[(position - 1) / 2] < value:
@@ -10,7 +10,7 @@ def push_max(heap: mutable i64&, count: mutable usize&, value: i64) -> void:
         position <- parent
     heap[position] <- value
 
-def pop_max(heap: mutable i64&, count: mutable usize&) -> i64:
+def pop_max(heap: mutable view[i64], count: mutable usize&) -> i64:
     result: i64 = heap[0]
     count <- count - 1
     value: i64 = heap[count]
@@ -26,7 +26,7 @@ def pop_max(heap: mutable i64&, count: mutable usize&) -> i64:
     heap[position] <- value
     result
 
-def push_min(heap: mutable i64&, count: mutable usize&, value: i64) -> void:
+def push_min(heap: mutable view[i64], count: mutable usize&, value: i64) -> void:
     position: mutable usize = count
     count <- count + 1
     while position > 0 and heap[(position - 1) / 2] > value:
@@ -35,7 +35,7 @@ def push_min(heap: mutable i64&, count: mutable usize&, value: i64) -> void:
         position <- parent
     heap[position] <- value
 
-def pop_min(heap: mutable i64&, count: mutable usize&) -> i64:
+def pop_min(heap: mutable view[i64], count: mutable usize&) -> i64:
     result: i64 = heap[0]
     count <- count - 1
     value: i64 = heap[count]
@@ -68,13 +68,13 @@ def median_of_running_array_byte_impl(input: i32&, length: usize, output: mutabl
         if sample < -128 or sample > 127:
             return -1
         if upper_count > 0 and sample < upper[0]:
-            push_max(&lower[0], &lower_count, sample)
+            push_max(lower[0:count], &lower_count, sample)
         else:
-            push_min(&upper[0], &upper_count, sample)
+            push_min(upper[0:count], &upper_count, sample)
         if lower_count > upper_count + 1:
-            push_min(&upper[0], &upper_count, pop_max(&lower[0], &lower_count))
+            push_min(upper[0:count], &upper_count, pop_max(lower[0:count], &lower_count))
         else if upper_count > lower_count + 1:
-            push_max(&lower[0], &lower_count, pop_min(&upper[0], &upper_count))
+            push_max(lower[0:count], &lower_count, pop_min(upper[0:count], &upper_count))
         median: mutable i64 = 0
         if lower_count > upper_count:
             median <- lower[0]

@@ -3,7 +3,7 @@
 const TSVC_S4117_MAX_N: usize = 64
 const TSVC_S4117_MAX_INPUT_LENGTH: usize = 161
 
-def tsvc_s4117_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s4117_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -35,7 +35,7 @@ def tsvc_s4117_pair_replicated_gather_map_impl(input: i64&, length: usize,
     i <- 0
     while i < n:
         value: i64 = input[b_offset + i] + input[c_offset + i / 2] * input[d_offset + i]
-        tsvc_s4117_store_i64_le(value, output, 8 * i)
+        tsvc_s4117_store_i64_le(value, output[0:capacity], 8 * i)
         i <- i + 1
     n.i64()
 

@@ -2,7 +2,7 @@
 const MAX_N: usize = 8
 const MAX_INPUT: usize = 17
 
-def put64(value: i64, output: mutable u8&, position: usize) -> void:
+def put64(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -127,6 +127,7 @@ def routing_cost_constrained_cds_goc_mcds_c(input: i64&, length: usize,
                 b <- b + 1
         a <- a + 1
     if output.is_null() or capacity < 16: return -2
-    put64(independent.i64(), output&, 0)
-    put64((independent | connectors).i64(), output&, 8)
+    output_view: mutable view[u8] = output[0:16]
+    put64(independent.i64(), output_view, 0)
+    put64((independent | connectors).i64(), output_view, 8)
     16

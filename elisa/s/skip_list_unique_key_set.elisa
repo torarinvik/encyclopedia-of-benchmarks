@@ -14,8 +14,8 @@ def random_level(state: mutable u32&) -> usize:
         level <- level + 1
     level
 
-def find_update(keys: i64&, links: usize&, active: usize, key: i64,
-                update: mutable usize&) -> usize:
+def find_update(keys: view[i64], links: view[usize], active: usize, key: i64,
+                update: mutable view[usize]) -> usize:
     current: mutable usize = 0
     level: mutable usize = active
     while level > 0:
@@ -25,15 +25,15 @@ def find_update(keys: i64&, links: usize&, active: usize, key: i64,
         update[level] <- current
     links[current * MAX_LEVELS]
 
-def contains_key(keys: i64&, links: usize&, active: usize, key: i64) -> bool:
+def contains_key(keys: view[i64], links: view[usize], active: usize, key: i64) -> bool:
     update: mutable usize[MAX_LEVELS] = zeroed
-    found: usize = find_update(keys, links, active, key, update)
+    found: usize = find_update(keys, links, active, key, update[0:MAX_LEVELS])
     found != 0 and keys[found] == key
 
-def insert_key(keys: mutable i64&, values: mutable i64&, links: mutable usize&,
+def insert_key(keys: mutable view[i64], values: mutable view[i64], links: mutable view[usize],
                next_node: mutable usize&, active: mutable usize&, rng: mutable u32&, key: i64) -> void:
     update: mutable usize[MAX_LEVELS] = zeroed
-    find_update(keys, links, active, key, update)
+    find_update(keys, links, active, key, update[0:MAX_LEVELS])
     height: usize = random_level(rng)
     if height > active:
         for level in active..<height:
@@ -49,9 +49,9 @@ def insert_key(keys: mutable i64&, values: mutable i64&, links: mutable usize&,
         links[update[level] * MAX_LEVELS + level] <- id
         level <- level + 1
 
-def erase_key(keys: mutable i64&, links: mutable usize&, active: usize, key: i64) -> bool:
+def erase_key(keys: mutable view[i64], links: mutable view[usize], active: usize, key: i64) -> bool:
     update: mutable usize[MAX_LEVELS] = zeroed
-    found: usize = find_update(keys, links, active, key, update)
+    found: usize = find_update(keys, links, active, key, update[0:MAX_LEVELS])
     if found == 0 or keys[found] != key:
         return false
     for level in 0..<active:
@@ -59,7 +59,7 @@ def erase_key(keys: mutable i64&, links: mutable usize&, active: usize, key: i64
             links[update[level] * MAX_LEVELS + level] <- links[found * MAX_LEVELS + level]
     true
 
-def put_i64(output: mutable u8&, position: usize, value: i64) -> void:
+def put_i64(output: mutable view[u8], position: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[position + byte] <- (bits & 255).u8()
@@ -86,12 +86,13 @@ def skip_list_unique_key_set_impl(input: i64&, length: usize, output: mutable u8
         operation: i64 = input[1 + 2 * index]
         key: i64 = input[2 + 2 * index]
         if operation == 0:
-            if contains_key(keys, links, active, key):
+            if contains_key(keys[0:MAX_OPS + 1], links[0:(MAX_OPS + 1) * MAX_LEVELS], active, key):
                 return -1
-            insert_key(keys, values, links, &next_node, &active, &rng, key)
+            insert_key(keys[0:MAX_OPS + 1], values[0:MAX_OPS + 1],
+                links[0:(MAX_OPS + 1) * MAX_LEVELS], &next_node, &active, &rng, key)
         elif operation == 1:
-            contains_key(keys, links, active, key)
-        elif not erase_key(keys, links, active, key):
+            contains_key(keys[0:MAX_OPS + 1], links[0:(MAX_OPS + 1) * MAX_LEVELS], active, key)
+        elif not erase_key(keys[0:MAX_OPS + 1], links[0:(MAX_OPS + 1) * MAX_LEVELS], active, key):
             return -1
     count: mutable usize = 0
     current: mutable usize = links[0]
@@ -104,7 +105,7 @@ def skip_list_unique_key_set_impl(input: i64&, length: usize, output: mutable u8
     current <- links[0]
     index: mutable usize = 0
     while current != 0:
-        put_i64(output, index * 8, values[current])
+        put_i64(output[0:capacity], index * 8, values[current])
         index <- index + 1
         current <- links[current * MAX_LEVELS]
     required.i64()

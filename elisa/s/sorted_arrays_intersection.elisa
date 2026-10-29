@@ -3,7 +3,7 @@ const ARRAY_COUNT: usize = 3
 const MAX_ARRAY_LENGTH: usize = 64
 const BYTES_PER_VALUE: usize = 4
 
-def sorted_arrays_intersection_store_i32(value: i64, output: mutable u8&, position: usize) -> void:
+def sorted_arrays_intersection_store_i32(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -53,7 +53,7 @@ def sorted_arrays_intersection_impl(input: i64&, length: usize,
         second: i64 = input[starts[1] + cursor[1]]
         third: i64 = input[starts[2] + cursor[2]]
         if first == second and first == third:
-            sorted_arrays_intersection_store_i32(first, output, result_count * BYTES_PER_VALUE)
+            sorted_arrays_intersection_store_i32(first, output[0:maximum_result * BYTES_PER_VALUE], result_count * BYTES_PER_VALUE)
             result_count <- result_count + 1
             cursor[0] <- cursor[0] + 1
             cursor[1] <- cursor[1] + 1

@@ -1,14 +1,14 @@
 const MAX_LEVEL: i64 = 6
 const SCALE: i64 = 1000000
 
-def cantor_put_byte(output: mutable u8&, capacity: usize, length: mutable usize&, value: u8) -> bool:
+def cantor_put_byte(output: mutable view[u8], capacity: usize, length: mutable usize&, value: u8) -> bool:
     if length >= capacity:
         return false
     output[length] <- value
     length <- length + 1
     true
 
-def cantor_put_uint(output: mutable u8&, capacity: usize, length: mutable usize&, value: i64) -> bool:
+def cantor_put_uint(output: mutable view[u8], capacity: usize, length: mutable usize&, value: i64) -> bool:
     digits: mutable u8[20]
     count: mutable usize = 0
     remaining: mutable i64 = value
@@ -24,7 +24,7 @@ def cantor_put_uint(output: mutable u8&, capacity: usize, length: mutable usize&
             return false
     true
 
-def cantor_put_fixed(output: mutable u8&, capacity: usize, length: mutable usize&, ticks: i64) -> bool:
+def cantor_put_fixed(output: mutable view[u8], capacity: usize, length: mutable usize&, ticks: i64) -> bool:
     fraction: i64 = ticks % SCALE
     if not cantor_put_uint(output, capacity, length, ticks / SCALE):
         return false
@@ -51,40 +51,41 @@ def cantor_set_impl(input: i64&, length: usize, output: mutable u8&, output_capa
     next_positions: mutable i64[64] = zeroed
     interval_count: mutable usize = 1
     output_length: mutable usize = 0
+    output_view: mutable view[u8] = output[0:output_capacity]
     denominator: mutable i64 = 1
     span: i64 = ending - start
     level: mutable i64 = 0
     while level <= max_level:
-        if not cantor_put_byte(output, output_capacity, output_length, 76.u8()): return -2
-        if not cantor_put_byte(output, output_capacity, output_length, 101.u8()): return -2
-        if not cantor_put_byte(output, output_capacity, output_length, 118.u8()): return -2
-        if not cantor_put_byte(output, output_capacity, output_length, 101.u8()): return -2
-        if not cantor_put_byte(output, output_capacity, output_length, 108.u8()): return -2
-        if not cantor_put_byte(output, output_capacity, output_length, 32.u8()): return -2
-        if not cantor_put_uint(output, output_capacity, output_length, level): return -2
-        if not cantor_put_byte(output, output_capacity, output_length, 9.u8()): return -2
+        if not cantor_put_byte(output_view, output_capacity, output_length, 76.u8()): return -2
+        if not cantor_put_byte(output_view, output_capacity, output_length, 101.u8()): return -2
+        if not cantor_put_byte(output_view, output_capacity, output_length, 118.u8()): return -2
+        if not cantor_put_byte(output_view, output_capacity, output_length, 101.u8()): return -2
+        if not cantor_put_byte(output_view, output_capacity, output_length, 108.u8()): return -2
+        if not cantor_put_byte(output_view, output_capacity, output_length, 32.u8()): return -2
+        if not cantor_put_uint(output_view, output_capacity, output_length, level): return -2
+        if not cantor_put_byte(output_view, output_capacity, output_length, 9.u8()): return -2
         index: mutable usize = 0
         while index < interval_count:
             left_num: i64 = start * denominator + span * positions[index]
             right_num: i64 = start * denominator + span * (positions[index] + 1)
             left: i64 = (left_num * SCALE + denominator / 2) / denominator
             right: i64 = (right_num * SCALE + denominator / 2) / denominator
-            if not cantor_put_byte(output, output_capacity, output_length, 9.u8()): return -2
-            if not cantor_put_byte(output, output_capacity, output_length, 91.u8()): return -2
-            if not cantor_put_fixed(output, output_capacity, output_length, left): return -2
-            if not cantor_put_byte(output, output_capacity, output_length, 93.u8()): return -2
-            if not cantor_put_byte(output, output_capacity, output_length, 32.u8()): return -2
-            if not cantor_put_byte(output, output_capacity, output_length, 45.u8()): return -2
-            if not cantor_put_byte(output, output_capacity, output_length, 45.u8()): return -2
-            if not cantor_put_byte(output, output_capacity, output_length, 32.u8()): return -2
-            if not cantor_put_byte(output, output_capacity, output_length, 91.u8()): return -2
-            if not cantor_put_fixed(output, output_capacity, output_length, right): return -2
-            if not cantor_put_byte(output, output_capacity, output_length, 93.u8()): return -2
+            if not cantor_put_byte(output_view, output_capacity, output_length, 9.u8()): return -2
+            if not cantor_put_byte(output_view, output_capacity, output_length, 91.u8()): return -2
+            if not cantor_put_fixed(output_view, output_capacity, output_length, left): return -2
+            if not cantor_put_byte(output_view, output_capacity, output_length, 93.u8()): return -2
+            if not cantor_put_byte(output_view, output_capacity, output_length, 32.u8()): return -2
+            if not cantor_put_byte(output_view, output_capacity, output_length, 45.u8()): return -2
+            if not cantor_put_byte(output_view, output_capacity, output_length, 45.u8()): return -2
+            if not cantor_put_byte(output_view, output_capacity, output_length, 32.u8()): return -2
+            if not cantor_put_byte(output_view, output_capacity, output_length, 91.u8()): return -2
+            if not cantor_put_fixed(output_view, output_capacity, output_length, right): return -2
+            if not cantor_put_byte(output_view, output_capacity, output_length, 93.u8()): return -2
             index <- index + 1
-        if not cantor_put_byte(output, output_capacity, output_length, 10.u8()):
+        if not cantor_put_byte(output_view, output_capacity, output_length, 10.u8()):
             return -2
         if level < max_level:
-            if not cantor_put_byte(output, output_capacity, output_length, 10.u8()):
+            if not cantor_put_byte(output_view, output_capacity, output_length, 10.u8()):
                 return -2
             index <- 0
             while index < interval_count:
@@ -100,7 +101,7 @@ def cantor_set_impl(input: i64&, length: usize, output: mutable u8&, output_capa
         level <- level + 1
     if output_length >= output_capacity:
         return -2
-    output[output_length] <- 0.u8()
+    output_view[output_length] <- 0.u8()
     output_length <- output_length + 1
     output_length.i64()
 

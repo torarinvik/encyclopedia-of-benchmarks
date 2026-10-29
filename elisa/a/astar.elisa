@@ -1,4 +1,4 @@
-def astar_write_i64(output: mutable u8&, position: mutable usize&, value: i64) -> usize:
+def astar_write_i64(output: mutable view[u8], position: mutable usize&, value: i64) -> usize:
     shift: mutable usize = 0
     while shift < 64:
         output[position] <- ((value >> shift) & 255).u8()
@@ -77,8 +77,8 @@ def astar_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize)
     cursor <- current.i64()
     while cursor >= 0:
         position <- position - 16
-        astar_write_i64(output, &position, node_x[cursor.usize()])
-        astar_write_i64(output, &position, node_y[cursor.usize()])
+        astar_write_i64(output[0:output_bytes], &position, node_x[cursor.usize()])
+        astar_write_i64(output[0:output_bytes], &position, node_y[cursor.usize()])
         cursor <- node_parent[cursor.usize()]
     output_bytes.i64()
 

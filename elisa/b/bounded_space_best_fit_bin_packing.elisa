@@ -1,4 +1,4 @@
-def bsb_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+def bsb_put_i64(output: mutable view[u8], word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[word * 8 + byte] <- (bits >> (byte * 8)).u8()
@@ -52,9 +52,9 @@ def bounded_space_best_fit_bin_packing_impl(input: i64&, length: usize, output: 
     bytes: usize = 8 * (n + 1)
     if output == null or output_capacity < bytes:
         return -2
-    bsb_put_i64(output, 0, bins.i64())
+    bsb_put_i64(output[0:bytes], 0, bins.i64())
     for item in 0..<n:
-        bsb_put_i64(output, item + 1, assignments[item])
+        bsb_put_i64(output[0:bytes], item + 1, assignments[item])
     bytes.i64()
 
 export fn bounded_space_best_fit_bin_packing(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = bounded_space_best_fit_bin_packing_impl

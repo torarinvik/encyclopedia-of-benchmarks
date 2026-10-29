@@ -14,7 +14,7 @@ def visit(nums: i64&, n: usize, target: i64, start: usize, current: i64, remaini
         visit(nums,n,target,i+1,current+nums[i],remaining-nums[i],path,depth+1,solutions,lens,count)
     false
 }
-def put64(output: mutable u8&, pos: mutable usize&, value: i64):
+def put64(output: mutable view[u8], pos: mutable usize&, value: i64):
     bits: u64 = value.u64()
     for j in 0..<8:
         output[pos] <- ((bits >> (8*j)) & 255).u8()
@@ -34,10 +34,10 @@ def sum_of_subsets_impl(input: i64&, length: usize, output: mutable u8&, capacit
     need: mutable usize = 8
     for i in 0..<count: need <- need+8+8*lens[i]
     if output == null || capacity < need: return -2
-    pos: mutable usize = 0; put64(output,pos,count.i64())
+    pos: mutable usize = 0; put64(output[0:capacity],pos,count.i64())
     for i in 0..<count:
-        put64(output,pos,lens[i].i64())
-        for j in 0..<lens[i]: put64(output,pos,solutions[i*MAX_N+j])
+        put64(output[0:capacity],pos,lens[i].i64())
+        for j in 0..<lens[i]: put64(output[0:capacity],pos,solutions[i*MAX_N+j])
     pos.i64()
 }
 export fn sum_of_subsets(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = sum_of_subsets_impl

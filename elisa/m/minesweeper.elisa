@@ -3,7 +3,7 @@ const MS_MAX_DIM: usize = 32
 const MS_MAX_CELLS: usize = MS_MAX_DIM * MS_MAX_DIM
 const MS_MAX_OUTPUT: usize = 8 + 8 * MS_MAX_CELLS
 
-def ms_write_i64(output: mutable u8&, position_value: usize, value: i64) -> usize:
+def ms_write_i64(output: mutable view[u8], position_value: usize, value: i64) -> usize:
     position: mutable usize = position_value
     bits: u64 = value.u64()
     for byte in 0..<8:
@@ -50,10 +50,11 @@ def minesweeper_impl(input: i64&, length: usize,
     needed: usize = 8 + 8 * count
     if output == null or output_capacity < needed:
         return -2
+    output_view: mutable view[u8] = output[0:needed]
     written: mutable usize = 0
-    written <- ms_write_i64(output, written, count.i64())
+    written <- ms_write_i64(output_view, written, count.i64())
     for index in 0..<count:
-        written <- ms_write_i64(output, written, neighbors[index].i64())
+        written <- ms_write_i64(output_view, written, neighbors[index].i64())
     written.i64()
 
 export fn minesweeper(input: i64&, length: usize,

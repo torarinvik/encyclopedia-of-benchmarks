@@ -7,7 +7,7 @@ def popcount_impl(value_in: u64) -> usize:
         value <- value >> 1
     count
 
-def write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte_index: mutable usize = 0
     while byte_index < 8:
@@ -62,8 +62,8 @@ def association_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
     if capacity < required or (required > 0 and output.is_null()): return -2
     row <- 0
     while row < result_count:
-        write_i64_le(output, row * 16, masks[row])
-        write_i64_le(output, row * 16 + 8, supports[row])
+        write_i64_le(output[0:required], row * 16, masks[row])
+        write_i64_le(output[0:required], row * 16 + 8, supports[row])
         row <- row + 1
     required.i64()
 

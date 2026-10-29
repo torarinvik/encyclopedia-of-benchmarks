@@ -3,7 +3,7 @@ const MAX_ATOMS: usize = 3
 const MAX_INPUT: usize = 43
 const MAX_OUTPUT_WORDS: usize = 9
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -125,7 +125,7 @@ def stochastic_knapsack_greedy_impl(input: i64&, length: usize, output: mutable 
     if output.is_null() or capacity < output_bytes: return -2
     i <- 0
     while i < words:
-        store_i64_le(staged[i], output&, i * 8)
+        store_i64_le(staged[i], output[0:output_bytes], i * 8)
         i <- i + 1
     output_bytes.i64()
 

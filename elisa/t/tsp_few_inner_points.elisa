@@ -1,6 +1,6 @@
 const TSP_FEW_INF: i64 = 2305843009213693951
 
-def tsp_few_dist(points: i64[32]&, ia: usize, ib: usize) -> i64:
+def tsp_few_dist(points: view[i64], ia: usize, ib: usize) -> i64:
     dx: i64=points[2*ia]-points[2*ib];dy: i64=points[2*ia+1]-points[2*ib+1]
     square: i64=(dx*dx+dy*dy)*1000000
     low: mutable i64=0;high: mutable i64=3000000
@@ -16,8 +16,8 @@ def tsp_few_add(a:i64,b:i64)->i64:
     if a>=TSP_FEW_INF:return TSP_FEW_INF
     a+b
 
-def tsp_few_solve(outer: usize[16]&, outer_n: usize, order: usize[6]&, k: usize,
-                  points: i64[32]&) -> i64:
+def tsp_few_solve(outer: view[usize], outer_n: usize, order: view[usize], k: usize,
+                  points: view[i64]) -> i64:
     po: mutable i64[7]=zeroed;pi: mutable i64[7]=zeroed;co: mutable i64[7]=zeroed;ci: mutable i64[7]=zeroed
     for j in 0..=k:po[j]<-TSP_FEW_INF;pi[j]<-TSP_FEW_INF
     po[0]<-0
@@ -49,7 +49,7 @@ def tsp_few_solve(outer: usize[16]&, outer_n: usize, order: usize[6]&, k: usize,
         if close<best:best<-close
     best
 
-def tsp_few_next(order: mutable usize[6]&, k: usize) -> bool:
+def tsp_few_next(order: mutable view[usize], k: usize) -> bool:
     if k<2:return false
     i:mutable i64=k.i64()-2
     while i>=0 and order[i.usize()]>=order[i.usize()+1]:i<-i-1
@@ -63,7 +63,7 @@ def tsp_few_next(order: mutable usize[6]&, k: usize) -> bool:
         left<-left+1;right<-right-1
     true
 
-def tsp_few_put(output: mutable u8&, value:i64)->void:
+def tsp_few_put(output: mutable view[u8], value:i64)->void:
     bits:u64=value.u64()
     for b in 0..<8:output[b]<-(bits>>(8*b)).u8()
 
@@ -94,10 +94,10 @@ def tsp_few_inner_points_impl(input:i64&, length:usize, output:mutable u8&, capa
         inner[j]<-x
     best:mutable i64=TSP_FEW_INF
     while true:
-        value:i64=tsp_few_solve(outer,outer_n,inner,k,points)
+        value:i64=tsp_few_solve(outer[0:outer_n],outer_n,inner[0:k],k,points[0:2*n])
         if value<best:best<-value
-        if not tsp_few_next(inner,k):break
+        if not tsp_few_next(inner[0:k],k):break
     if output==null or capacity<8:return -2
-    tsp_few_put(output,best);8
+    tsp_few_put(output[0:8],best);8
 
 export fn tsp_few_inner_points(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 = tsp_few_inner_points_impl

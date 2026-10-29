@@ -1,12 +1,12 @@
 # One-based kth-smallest selection using the median-of-medians pivot.
 const BFPRT_INVALID: i64 = -2147483649
 
-def bfprt_swap(values: mutable i32&, left: usize, right: usize) -> void:
+def bfprt_swap(values: mutable view[i32], left: usize, right: usize) -> void:
     temporary: i32 = values[left]
     values[left] <- values[right]
     values[right] <- temporary
 
-def bfprt_select(values: mutable i32&, left_value: usize, right_value: usize, rank: usize) -> i32:
+def bfprt_select(values: mutable view[i32], left_value: usize, right_value: usize, rank: usize) -> i32:
     left: mutable usize = left_value
     right: mutable usize = right_value
     while left < right:
@@ -72,6 +72,6 @@ def bfprt_impl(input: i64&, length: usize) -> i64:
             return BFPRT_INVALID
         values[index] <- value.i32()
         index <- index + 1
-    bfprt_select(values, 0, count - 1, (rank_value - 1).usize()).i64()
+    bfprt_select(values[0:count], 0, count - 1, (rank_value - 1).usize()).i64()
 
 export fn bfprt(input: i64&, length: usize) -> i64 = bfprt_impl

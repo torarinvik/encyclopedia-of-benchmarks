@@ -4,7 +4,7 @@ const ALL_DIGITS: i64 = 1022
 def sudoku_mrv_is_single(candidates: i64) -> bool:
     candidates != 0 and (candidates & (candidates - 1)) == 0
 
-def sudoku_mrv_eliminate(candidates: mutable i64&, cell: usize, removed: i64) -> bool:
+def sudoku_mrv_eliminate(candidates: mutable view[i64], cell: usize, removed: i64) -> bool:
     if (candidates[cell] & removed) == 0:
         return true
     candidates[cell] <- candidates[cell] & (ALL_DIGITS ^ removed)
@@ -55,7 +55,7 @@ def sudoku_mrv_eliminate(candidates: mutable i64&, cell: usize, removed: i64) ->
         unit <- unit + 1
     true
 
-def sudoku_mrv_assign(candidates: mutable i64&, cell: usize, selected: i64) -> bool:
+def sudoku_mrv_assign(candidates: mutable view[i64], cell: usize, selected: i64) -> bool:
     if (candidates[cell] & selected) == 0:
         return false
     other: mutable i64 = candidates[cell] & (ALL_DIGITS ^ selected)
@@ -66,7 +66,7 @@ def sudoku_mrv_assign(candidates: mutable i64&, cell: usize, selected: i64) -> b
             return false
     true
 
-def sudoku_mrv_search(candidates: mutable i64&) -> bool:
+def sudoku_mrv_search(candidates: mutable view[i64]) -> bool:
     best_cell: mutable usize = SUDOKU_CELLS
     best_count: mutable usize = 10
     cell: mutable usize = 0
@@ -95,7 +95,7 @@ def sudoku_mrv_search(candidates: mutable i64&) -> bool:
             while cell < SUDOKU_CELLS:
                 branch[cell] <- candidates[cell]
                 cell <- cell + 1
-            if sudoku_mrv_assign(&branch[0], best_cell, bit) and sudoku_mrv_search(&branch[0]):
+            if sudoku_mrv_assign(branch[0:81], best_cell, bit) and sudoku_mrv_search(branch[0:81]):
                 cell <- 0
                 while cell < SUDOKU_CELLS:
                     candidates[cell] <- branch[cell]
@@ -117,10 +117,10 @@ def sudoku_solver_mrv_impl(values: i64&, length: usize,
         cell <- cell + 1
     cell <- 0
     while cell < SUDOKU_CELLS:
-        if values[cell] != 0 and not sudoku_mrv_assign(&candidates[0], cell, 1 << values[cell]):
+        if values[cell] != 0 and not sudoku_mrv_assign(candidates[0:81], cell, 1 << values[cell]):
             return -1
         cell <- cell + 1
-    if not sudoku_mrv_search(&candidates[0]):
+    if not sudoku_mrv_search(candidates[0:81]):
         return -1
     if output_capacity < 4 * SUDOKU_CELLS:
         return -2

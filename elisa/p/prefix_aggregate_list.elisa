@@ -5,7 +5,7 @@ const MAX_PARSEABLE_INPUT_LENGTH: usize = 260
 const MAX_OUTPUT_BYTES: usize = 512
 const MAX_VALUE: i64 = 1000000
 
-def prefix_aggregate_list_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+def prefix_aggregate_list_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255.u64()).u8()
@@ -70,7 +70,7 @@ def prefix_aggregate_list_impl(input: i64&, length: usize, output: mutable u8&, 
             from_index: usize = range_from.usize()
             to_index: usize = range_to.usize()
             result: i64 = prefix[to_index - 1] - (if from_index == 1: 0 else: prefix[from_index - 2])
-            prefix_aggregate_list_store_i64(result, encoded, 8 * query_count)
+            prefix_aggregate_list_store_i64(result, encoded[0:MAX_OUTPUT_BYTES], 8 * query_count)
             query_count <- query_count + 1
         else:
             return -1

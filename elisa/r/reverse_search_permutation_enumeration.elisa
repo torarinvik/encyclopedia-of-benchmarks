@@ -2,8 +2,8 @@ const MAX_N: usize = 4
 const MAX_INPUT: usize = 2
 const MAX_WORDS: usize = 97
 
-def reverse_search_permutation_enumeration_visit(permutation: mutable i64&, n: usize,
-        staged: mutable i64&, cursor: mutable usize&) -> void:
+def reverse_search_permutation_enumeration_visit(permutation: mutable view[i64], n: usize,
+        staged: mutable view[i64], cursor: mutable usize&) -> void:
     index: mutable usize = 0
     while index < n:
         staged[cursor] <- permutation[index]
@@ -39,7 +39,7 @@ def reverse_search_permutation_enumeration_visit(permutation: mutable i64&, n: u
         permutation[left] <- permutation[left + 1]
         permutation[left + 1] <- temporary
 
-def reverse_search_permutation_enumeration_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def reverse_search_permutation_enumeration_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -61,6 +61,7 @@ def reverse_search_permutation_enumeration_impl(input: i64&, length: usize,
     words: usize = 1 + n * count
     required: usize = words * 8
     if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
 
     permutation: mutable i64[MAX_N] = zeroed
     staged: mutable i64[MAX_WORDS] = zeroed
@@ -70,10 +71,10 @@ def reverse_search_permutation_enumeration_impl(input: i64&, length: usize,
         index <- index + 1
     staged[0] <- count.i64()
     cursor: mutable usize = 1
-    reverse_search_permutation_enumeration_visit(&permutation[0], n, &staged[0], cursor)
+    reverse_search_permutation_enumeration_visit(permutation[0:n], n, staged[0:words], cursor)
     index <- 0
     while index < words:
-        reverse_search_permutation_enumeration_store(staged[index], output, index * 8)
+        reverse_search_permutation_enumeration_store(staged[index], output_view, index * 8)
         index <- index + 1
     required.i64()
 

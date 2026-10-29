@@ -1,5 +1,5 @@
 # Three-way quicksort with the final value as pivot.
-def quick_sort_3_range(values: mutable i64&, low_value: usize, high_value: usize) -> void:
+def quick_sort_3_range(values: mutable view[i64], low_value: usize, high_value: usize) -> void:
     low: mutable usize = low_value
     high: mutable usize = high_value
     while high - low > 1:
@@ -28,8 +28,9 @@ def quick_sort_3_range(values: mutable i64&, low_value: usize, high_value: usize
             quick_sort_3_range(values, greater, high)
             high <- less
 
-def quick_sort_3_impl(values: mutable i64&, length: usize) -> void:
+def quick_sort_3_impl(values: mutable view[i64], length: usize) -> void:
     if length > 1:
         quick_sort_3_range(values, 0, length)
 
-export fn quick_sort_3(values: mutable i64&, length: usize) -> void = quick_sort_3_impl
+export fn quick_sort_3(values: mutable i64&, length: usize) -> void =
+    quick_sort_3_impl(values[0:length], length)

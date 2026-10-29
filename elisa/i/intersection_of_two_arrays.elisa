@@ -1,4 +1,4 @@
-def intersection_of_two_arrays_store_i32(value: i64, output: mutable u8&, position: usize) -> void:
+def intersection_of_two_arrays_store_i32(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -59,7 +59,7 @@ def intersection_of_two_arrays_impl(input: i64&, length: usize,
             second_index <- second_index + 1
         else:
             if result_count == 0 or first != previous_value:
-                intersection_of_two_arrays_store_i32(first, output, result_count * 4)
+                intersection_of_two_arrays_store_i32(first, output[0:maximum_result * 4], result_count * 4)
                 previous_value <- first
                 result_count <- result_count + 1
             first_index <- first_index + 1

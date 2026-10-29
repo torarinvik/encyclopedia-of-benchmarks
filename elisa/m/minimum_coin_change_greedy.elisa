@@ -4,7 +4,7 @@ const MAX_DENOMINATIONS: usize = 32
 const MAX_INPUT_VALUES: usize = 34
 const MAX_OUTPUT_BYTES: usize = 16388
 
-def minimum_coin_change_greedy_write_i32(output: mutable u8&, offset: usize, value: i64) -> void:
+def minimum_coin_change_greedy_write_i32(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u32 = value.u32()
     byte: mutable usize = 0
     while byte < 4:
@@ -46,9 +46,10 @@ export fn minimum_coin_change_greedy(input: i64&, length: usize,
 
     needed: usize = (1 + chosen_count) * 4
     if output.is_null() or capacity < needed: return -2
-    minimum_coin_change_greedy_write_i32(output[0], 0, chosen_count.i64())
+    output_view: mutable view[u8] = output[0:needed]
+    minimum_coin_change_greedy_write_i32(output_view, 0, chosen_count.i64())
     index <- 0
     while index < chosen_count:
-        minimum_coin_change_greedy_write_i32(output[0], 4 + 4 * index, chosen[index])
+        minimum_coin_change_greedy_write_i32(output_view, 4 + 4 * index, chosen[index])
         index <- index + 1
     needed.i64()

@@ -1,7 +1,7 @@
 const MAX_VERTICES: usize = 64
 const MAX_EDGES: i64 = 2016
 
-def graph_coloring_backtracking_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def graph_coloring_backtracking_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255.u64()).u8()
@@ -63,10 +63,10 @@ def graph_coloring_backtracking_impl(input: i64&, length: usize, output: mutable
     required: usize = used * 8
     if capacity < required:
         return -2
-    graph_coloring_backtracking_put_i64(output, 0, n_value)
+    graph_coloring_backtracking_put_i64(output[0:required], 0, n_value)
     for vertex in 0..<n:
-        graph_coloring_backtracking_put_i64(output, (vertex + 1) * 8, colors[vertex])
-    graph_coloring_backtracking_put_i64(output, (n + 1) * 8, colors_used)
+        graph_coloring_backtracking_put_i64(output[0:required], (vertex + 1) * 8, colors[vertex])
+    graph_coloring_backtracking_put_i64(output[0:required], (n + 1) * 8, colors_used)
     required.i64()
 
 export fn graph_coloring_backtracking(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = graph_coloring_backtracking_impl

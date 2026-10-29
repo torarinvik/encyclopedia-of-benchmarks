@@ -35,7 +35,7 @@ def median_finder_heap_pop(heap: mutable i64[32], count: mutable usize&, is_max:
         index <- best
     result
 
-def median_finder_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
+def median_finder_write_f64(output: mutable view[u8], position: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -53,6 +53,7 @@ def median_finder_impl(input: i64&, length: usize, output: mutable u8&, output_c
         index <- index + 1
     required: usize = count.usize() * 8
     if output_capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
 
     lower: mutable i64[32] = zeroed
     upper: mutable i64[32] = zeroed
@@ -78,7 +79,7 @@ def median_finder_impl(input: i64&, length: usize, output: mutable u8&, output_c
             (lower[0].f64() + upper[0].f64()) / 2.0
         else:
             lower[0].f64()
-        median_finder_write_f64(output, index * 8, median)
+        median_finder_write_f64(output_view, index * 8, median)
         index <- index + 1
     count.i64() * 8
 

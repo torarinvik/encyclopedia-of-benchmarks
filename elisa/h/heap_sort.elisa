@@ -1,5 +1,5 @@
 # In-place max-heap sort with a zero-based heap.
-def sift_down(values: mutable i64&, root: usize, end: usize) -> void:
+def sift_down(values: mutable view[i64], root: usize, end: usize) -> void:
     current: mutable usize = root
     while current < end / 2:
         child: mutable usize = current * 2 + 1
@@ -16,13 +16,13 @@ def heap_sort_impl(values: mutable i64&, length: usize) -> void:
     start: mutable usize = length / 2
     while start > 0:
         start <- start - 1
-        sift_down(values, start, length)
+        sift_down(values[0:length], start, length)
     end: mutable usize = length
     while end > 1:
         end <- end - 1
         temporary: i64 = values[0]
         values[0] <- values[end]
         values[end] <- temporary
-        sift_down(values, 0, end)
+        sift_down(values[0:length], 0, end)
 
 export fn heap_sort(values: mutable i64&, length: usize) -> void = heap_sort_impl

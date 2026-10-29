@@ -1,7 +1,7 @@
 extern cos(value: f64) -> f64
 extern sin(value: f64) -> f64
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: usize = 0
     while byte < 8:
@@ -15,7 +15,7 @@ def quantize(value: f64) -> i64:
         return (scaled + 0.5).i64()
     (scaled - 0.5).i64()
 
-def transform(real: mutable f64&, imag: mutable f64&, n: usize) -> void:
+def transform(real: mutable view[f64], imag: mutable view[f64], n: usize) -> void:
     reverse: mutable usize = 0
     position: usize = 1
     while position < n:
@@ -81,11 +81,11 @@ def fast_fourier_transform_impl(values: i64&, length: usize, output: mutable u8&
     while index < n:
         real[index] <- values[index + 1].f64()
         index <- index + 1
-    transform(real[0], imag[0], n)
+    transform(real[0:n], imag[0:n], n)
     index <- 0
     while index < n:
-        store_i64_le(quantize(real[index]), output, 16 * index)
-        store_i64_le(quantize(imag[index]), output, 16 * index + 8)
+        store_i64_le(quantize(real[index]), output[0:capacity], 16 * index)
+        store_i64_le(quantize(imag[index]), output[0:capacity], 16 * index + 8)
         index <- index + 1
     byte_count.i64()
 

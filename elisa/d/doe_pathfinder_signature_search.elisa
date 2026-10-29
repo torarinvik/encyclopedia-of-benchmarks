@@ -3,33 +3,33 @@ const MAX_EDGES: usize = 100
 const MAX_SIGNATURE_LENGTH: usize = 4
 const MAX_LABEL: i64 = 7
 
-def search_leg(values: i64&, edge_count: usize, labels_start: usize, signature_start: usize,
-               signature_length: usize, node: usize, signature_index: usize,
+def search_leg(edges: view[i64], labels: view[i64], signature: view[i64],
+               edge_count: usize, signature_length: usize, node: usize, signature_index: usize,
                visited: mutable u64&) -> bool:
     bit: u64 = (1).u64() << node
     if (visited & bit) != 0:
         return false
     visited <- visited | bit
-    target_label: i64 = values[signature_start + signature_index]
+    target_label: i64 = signature[signature_index]
 
     for edge in 0..<edge_count:
-        if values[3 + 2 * edge].usize() != node:
+        if edges[2 * edge].usize() != node:
             continue
-        target: usize = values[4 + 2 * edge].usize()
-        if values[labels_start + target] != target_label:
+        target: usize = edges[2 * edge + 1].usize()
+        if labels[target] != target_label:
             continue
         if signature_index + 1 == signature_length:
             return true
         next_visited: mutable u64 = 0
-        if search_leg(values, edge_count, labels_start, signature_start, signature_length,
+        if search_leg(edges, labels, signature, edge_count, signature_length,
                       target, signature_index + 1, next_visited):
             return true
 
     for edge in 0..<edge_count:
-        if values[3 + 2 * edge].usize() != node:
+        if edges[2 * edge].usize() != node:
             continue
-        target: usize = values[4 + 2 * edge].usize()
-        if search_leg(values, edge_count, labels_start, signature_start, signature_length,
+        target: usize = edges[2 * edge + 1].usize()
+        if search_leg(edges, labels, signature, edge_count, signature_length,
                       target, signature_index, visited):
             return true
     false
@@ -67,8 +67,8 @@ def doe_pathfinder_signature_search_impl(values: i64&, length: usize) -> i64:
     for node in 0..<node_count:
         if values[labels_start + node] == first_label:
             visited: mutable u64 = 0
-            if search_leg(values, edge_count, labels_start, signature_start, signature_length,
-                          node, 1, visited):
+            if search_leg(values[3:labels_start], values[labels_start:signature_start], values[signature_start:length],
+                          edge_count, signature_length, node, 1, visited):
                 return 1
     0
 

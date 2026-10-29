@@ -1,5 +1,5 @@
 # Encode ascending prime/exponent pairs as little-endian u32 values.
-def factor_pairs(value: i64, primes: mutable u32&, exponents: mutable u32&) -> usize:
+def factor_pairs(value: i64, primes: mutable view[u32], exponents: mutable view[u32]) -> usize:
     count: mutable usize = 0
     remaining: mutable i64 = value
     divisor: mutable i64 = 2
@@ -19,7 +19,7 @@ def factor_pairs(value: i64, primes: mutable u32&, exponents: mutable u32&) -> u
         count <- count + 1
     count
 
-def write_u32le(value: u32, output: mutable u8&, position: usize):
+def write_u32le(value: u32, output: mutable view[u8], position: usize):
     for byte in 0..<4:
         output[position + byte] <- ((value >> (8 * byte)) & 255).u8()
 
@@ -28,13 +28,13 @@ def prime_factorization_impl(value: i64, output: mutable u8&, output_capacity: u
         return -1
     primes: mutable u32[10]
     exponents: mutable u32[10]
-    count: usize = factor_pairs(value, &primes[0], &exponents[0])
+    count: usize = factor_pairs(value, primes[0:10], exponents[0:10])
     required: usize = count * 8
     if output_capacity < required:
         return -2
     for i in 0 ..< count:
-        write_u32le(primes[i], output, 8 * i)
-        write_u32le(exponents[i], output, 8 * i + 4)
+        write_u32le(primes[i], output[0:output_capacity], 8 * i)
+        write_u32le(exponents[i], output[0:output_capacity], 8 * i + 4)
     required.i64()
 
 export fn prime_factorization(value: i64, output: mutable u8&, output_capacity: usize) -> i64 = prime_factorization_impl

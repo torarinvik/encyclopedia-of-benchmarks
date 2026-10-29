@@ -1,6 +1,6 @@
 const MAX_INPUT_VALUES: usize = 512
 
-def collect_matches(values: i64&, text_length: usize, pattern_length: usize, pattern_start: usize, positions: mutable u8&) -> usize:
+def collect_matches(values: view[i64], text_length: usize, pattern_length: usize, pattern_start: usize, positions: mutable view[u8]) -> usize:
     bad_shift: mutable usize[128] = zeroed
     present: mutable bool[128] = zeroed
     suffix_skip: mutable usize[256] = zeroed
@@ -61,7 +61,7 @@ def boyer_moore_ag_impl(values: i64&, length: usize, output: mutable u8&, output
     positions: mutable u8[255] = zeroed
     count: mutable usize = 0
     if pattern_length <= text_length:
-        count <- collect_matches(values, text_length, pattern_length, 2 + text_length, &positions[0])
+        count <- collect_matches(values[0:length], text_length, pattern_length, 2 + text_length, positions[0:MAX_INPUT_VALUES])
     if output_capacity < count:
         return -2
     for index in 0..<count:

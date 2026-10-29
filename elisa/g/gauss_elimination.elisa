@@ -1,6 +1,6 @@
 extern nearbyint(value: f64) -> f64
 
-def put_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
+def put_f64_le(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     b: mutable usize = 0
@@ -67,7 +67,7 @@ def gauss_elimination_impl(input: i64&, length: usize, output: mutable u8&, capa
         ans[row] <- (m[row*9+n]-mul)/m[row*9+row]
     row <- 0
     while row < n:
-        put_f64_le(output, row*8, nearbyint(ans[row].f64()*100.0)/100.0)
+        put_f64_le(output[0:n*8], row*8, nearbyint(ans[row].f64()*100.0)/100.0)
         row <- row+1
     (n*8).i64()
 

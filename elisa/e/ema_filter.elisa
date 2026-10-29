@@ -1,7 +1,7 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
 # Apply Java EMAFilter to one bounded sequence; alpha is quantized to 1/1024 steps.
-def ema_filter_put_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
+def ema_filter_put_f64_le(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte_index: mutable usize = 0
@@ -36,7 +36,7 @@ def ema_filter_impl(input: i64&, length: usize, output: mutable u8&, output_capa
             ema_value <- sample
         else:
             ema_value <- alpha * sample + (1.0 - alpha) * ema_value
-        ema_filter_put_f64_le(output, index * 8, ema_value)
+        ema_filter_put_f64_le(output[0:required], index * 8, ema_value)
         index <- index + 1
     required.i64()
 

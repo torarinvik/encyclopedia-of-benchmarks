@@ -1,7 +1,7 @@
 const MAX_NODE_COUNT: usize = 63
 const MAX_PARSEABLE_INPUT_LENGTH: usize = 65
 
-def store_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i32_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u32 = value.u32()
     output[offset] <- (bits & 255).u8()
     output[offset + 1] <- ((bits >> 8) & 255).u8()
@@ -28,6 +28,7 @@ def morrisinorder_impl(values: i64&, length: usize, output: mutable u8&, output_
     byte_count: usize = 4 * count
     if output.is_null() or output_capacity < byte_count:
         return -2
+    output_view: mutable view[u8] = output[0:byte_count]
 
     left_nodes: mutable i64[MAX_NODE_COUNT] = zeroed
     right_nodes: mutable i64[MAX_NODE_COUNT] = zeroed
@@ -52,7 +53,7 @@ def morrisinorder_impl(values: i64&, length: usize, output: mutable u8&, output_
     while current >= 0:
         current_index: usize = current.usize()
         if left_nodes[current_index] < 0:
-            store_i32_le(values[current_index + 1], output, 4 * written)
+            store_i32_le(values[current_index + 1], output_view, 4 * written)
             written <- written + 1
             current <- right_nodes[current_index]
         else:
@@ -64,7 +65,7 @@ def morrisinorder_impl(values: i64&, length: usize, output: mutable u8&, output_
                 current <- left_nodes[current_index]
             else:
                 right_nodes[predecessor] <- -1
-                store_i32_le(values[current_index + 1], output, 4 * written)
+                store_i32_le(values[current_index + 1], output_view, 4 * written)
                 written <- written + 1
                 current <- right_nodes[current_index]
     byte_count.i64()

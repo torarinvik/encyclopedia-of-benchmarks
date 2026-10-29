@@ -1,4 +1,4 @@
-def store_le(output: mutable u8&, offset: usize, value: i64):
+def store_le(output: mutable view[u8], offset: usize, value: i64):
     bits: u64 = value.u64()
     b: mutable usize = 0
     while b < 8:
@@ -31,11 +31,12 @@ def rotate_matrix_180_impl(values: i64&, length: usize, output: mutable u8&, cap
         i <- i + 1
     bytes: usize = 8 * (2 + out_rows * out_cols)
     if output.is_null() or capacity < bytes: return -2
-    store_le(output, 0, out_rows.i64())
-    store_le(output, 8, out_cols.i64())
+    output_view: mutable view[u8] = output[0:bytes]
+    store_le(output_view, 0, out_rows.i64())
+    store_le(output_view, 8, out_cols.i64())
     i <- 0
     while i < out_rows * out_cols:
-        store_le(output, 16 + 8 * i, result[i])
+        store_le(output_view, 16 + 8 * i, result[i])
         i <- i + 1
     bytes.i64()
 

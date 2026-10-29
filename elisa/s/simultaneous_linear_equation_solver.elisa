@@ -10,7 +10,7 @@ const MAX_TICK_MAGNITUDE: i64 = 2251799813685248
 def simultaneous_equation_finite(value: f64) -> bool:
     value == value and value < 1.7976931348623157e308 and value > -1.7976931348623157e308
 
-def simultaneous_equation_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def simultaneous_equation_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -114,7 +114,7 @@ def simultaneous_equation_impl(input: i64&, length: usize, output: mutable u8&, 
         solutions[row] <- value
 
     buffer: mutable u8[48] = zeroed
-    simultaneous_equation_write_i64(buffer[0], 0, n_value)
+    simultaneous_equation_write_i64(buffer[0:MAX_OUTPUT_BYTES], 0, n_value)
     row <- 0
     while row < n:
         scaled: f64 = solutions[row] * 100000.0
@@ -136,7 +136,7 @@ def simultaneous_equation_impl(input: i64&, length: usize, output: mutable u8&, 
         if projected > projected_midpoint or (projected == projected_midpoint and ticks % 2 != 0):
             ticks <- ticks + 1
         if ticks < -MAX_TICK_MAGNITUDE or ticks > MAX_TICK_MAGNITUDE: return -1
-        simultaneous_equation_write_i64(buffer[0], 8 + row * 8, ticks)
+        simultaneous_equation_write_i64(buffer[0:MAX_OUTPUT_BYTES], 8 + row * 8, ticks)
         row <- row + 1
 
     needed: usize = 8 + 8 * n

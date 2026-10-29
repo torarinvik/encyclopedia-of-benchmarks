@@ -7,8 +7,8 @@ def sha256_add32(left: u32, right: u32) -> u32:
 def sha256_rotr(value: u32, amount: usize) -> u32:
     (value >> amount) | (value << (32 - amount))
 
-def proof_of_work_hash(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if length > MAX_INPUT_LENGTH or (length > 0 and input == null):
+def proof_of_work_hash(input: view[i64], length: usize, output: mutable view[u8], capacity: usize) -> i64:
+    if length > MAX_INPUT_LENGTH:
         return -1
     for index in 0..<length:
         if input[index] < 0 or input[index] > 255:
@@ -109,7 +109,7 @@ def proof_of_work_impl(input: i64&, length: usize, output: mutable u8&, capacity
         for index in 0..<digit_count:
             message[18 + index] <- digits[digit_count - 1 - index].i64()
         message_length: usize = 18 + digit_count
-        if proof_of_work_hash(message, message_length, digest, 32) != 32:
+        if proof_of_work_hash(message[0:message_length], message_length, digest[0:32], 32) != 32:
             return -1
         has_prefix: mutable bool = true
         for nibble in 0..<difficulty.usize():

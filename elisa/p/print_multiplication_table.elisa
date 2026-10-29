@@ -8,7 +8,7 @@ def print_multiplication_table_decimal_length(value: i64) -> usize:
         digits <- digits + 1
     digits
 
-def print_multiplication_table_append_decimal(value: i64, output: mutable u8&,
+def print_multiplication_table_append_decimal(value: i64, output: mutable view[u8],
         position: mutable usize&) -> void:
     magnitude: mutable i64 = value
     if magnitude < 0:
@@ -55,17 +55,17 @@ def print_multiplication_table_impl(input: i64&, length: usize, output: mutable 
         if multiplier > 1:
             output[position] <- 10
             position <- position + 1
-        print_multiplication_table_append_decimal(number, output, position)
+        print_multiplication_table_append_decimal(number, output[0:output_capacity], position)
         output[position] <- 32
         output[position + 1] <- 42
         output[position + 2] <- 32
         position <- position + 3
-        print_multiplication_table_append_decimal(multiplier, output, position)
+        print_multiplication_table_append_decimal(multiplier, output[0:output_capacity], position)
         output[position] <- 32
         output[position + 1] <- 61
         output[position + 2] <- 32
         position <- position + 3
-        print_multiplication_table_append_decimal(number * multiplier, output, position)
+        print_multiplication_table_append_decimal(number * multiplier, output[0:output_capacity], position)
         multiplier <- multiplier + 1
     position.i64()
 

@@ -2,7 +2,7 @@ const GBBS_LABEL_MAX_N: usize = 16
 const GBBS_LABEL_MAX_M: usize = 64
 const GBBS_LABEL_MAX_INPUT: usize = 130
 
-def gbbs_label_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def gbbs_label_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -63,6 +63,6 @@ def gbbs_label_propagation_clustering(input: i64&, length: usize,
         vertex <- vertex + 1
     vertex <- 0
     while vertex < n:
-        gbbs_label_store_i64_le(labels[vertex], output, 8 * vertex)
+        gbbs_label_store_i64_le(labels[vertex], output[0:output_bytes], 8 * vertex)
         vertex <- vertex + 1
     return output_bytes.i64()

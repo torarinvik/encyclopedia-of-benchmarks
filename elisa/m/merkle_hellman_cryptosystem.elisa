@@ -39,7 +39,7 @@ def merkle_inverse_mod(value: u64, modulus: u64) -> u64:
         t <- next_t
     old_t
 
-def merkle_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def merkle_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..8: output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
 
@@ -64,6 +64,7 @@ def merkle_hellman_cryptosystem_impl(input: i64&, length: usize, output: mutable
         if index + 1 < draw_count and divisor == 1: return -1
         if index + 1 == draw_count and divisor != 1: return -1
     if output == null or capacity < 17: return -2
+    output_view: mutable view[u8] = output[0:17]
 
     multiplier: u64 = input[10 + draw_count].u64()
     hard: mutable u64[8] = zeroed
@@ -85,9 +86,9 @@ def merkle_hellman_cryptosystem_impl(input: i64&, length: usize, output: mutable
             residue <- residue - weight
             decoded <- decoded | (1.u8() << index.u32())
     if residue != 0 or decoded.u64() != message: return -1
-    merkle_put_i64(output, 0, ciphertext.i64())
-    merkle_put_i64(output, 8, 1)
-    output[16] <- decoded
+    merkle_put_i64(output_view, 0, ciphertext.i64())
+    merkle_put_i64(output_view, 8, 1)
+    output_view[16] <- decoded
     17
 
 export fn merkle_hellman_cryptosystem(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 =

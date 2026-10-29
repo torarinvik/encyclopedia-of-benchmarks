@@ -21,7 +21,7 @@ def smallest_circle_consider(cx: f64, cy: f64, radius: f64,
         best_radius[0] <- radius
         best_valid[0] <- 1.u8()
 
-def smallest_circle_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
+def smallest_circle_write_f64(output: mutable view[u8], position: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for byte in 0..<8:
@@ -85,9 +85,9 @@ def smallest_circle_impl(values: i64&, length: usize, output: mutable u8&,
         return -1
     if output == null or output_capacity < 24:
         return -2
-    smallest_circle_write_f64(output, 0, best_x)
-    smallest_circle_write_f64(output, 8, best_y)
-    smallest_circle_write_f64(output, 16, best_radius)
+    smallest_circle_write_f64(output[0:24], 0, best_x)
+    smallest_circle_write_f64(output[0:24], 8, best_y)
+    smallest_circle_write_f64(output[0:24], 16, best_radius)
     1
 
 export fn smallest_circle(values: i64&, length: usize, output: mutable u8&,

@@ -2,8 +2,8 @@
 const MAX_SIDE: usize = 64
 const MAX_EDGES: usize = 4096
 
-def try_augment(left: usize, right_count: usize, adjacency: i64&, seen_right: mutable i64&,
-    pair_right: mutable i64&) -> bool:
+def try_augment(left: usize, right_count: usize, adjacency: view[i64], seen_right: mutable view[i64],
+    pair_right: mutable view[i64]) -> bool:
     right: mutable usize = 0
     while right < right_count:
         if adjacency[left * MAX_SIDE + right] != 0 and seen_right[right] == 0:
@@ -46,7 +46,7 @@ export fn bipartite_matching_kuhn(input: i64&, length: usize) -> i64:
     left: mutable usize = 0
     while left < left_count:
         seen_right: mutable i64[64] = zeroed
-        if try_augment(left, right_count, adjacency, seen_right, pair_right):
+        if try_augment(left, right_count, adjacency[0:MAX_SIDE * MAX_SIDE], seen_right[0:right_count], pair_right[0:right_count]):
             matching <- matching + 1
         left <- left + 1
     matching

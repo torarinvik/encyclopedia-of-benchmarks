@@ -2,7 +2,7 @@ const MAX_REQUESTS: usize = 7
 const MAX_FILES: usize = 8
 const MAX_INPUT: usize = 23
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -95,11 +95,11 @@ def landlord_file_caching_impl(input: i64&, length: usize, output: mutable u8&, 
         i <- i + 1
     if output.is_null() or capacity < 40: return -2
     staged: mutable u8[40] = zeroed
-    store_i64_le(misses, staged&, 0)
-    store_i64_le(total_cost, staged&, 8)
-    store_i64_le(hit_signature.i64(), staged&, 16)
-    store_i64_le(eviction_signature.i64(), staged&, 24)
-    store_i64_le(resident_mask.i64(), staged&, 32)
+    store_i64_le(misses, staged[0:40], 0)
+    store_i64_le(total_cost, staged[0:40], 8)
+    store_i64_le(hit_signature.i64(), staged[0:40], 16)
+    store_i64_le(eviction_signature.i64(), staged[0:40], 24)
+    store_i64_le(resident_mask.i64(), staged[0:40], 32)
     byte: mutable usize = 0
     while byte < 40:
         output[byte] <- staged[byte]

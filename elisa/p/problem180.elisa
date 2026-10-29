@@ -23,7 +23,7 @@ def problem180_integer_sqrt(value: i64) -> i64:
         next <- (root + value / root) / 2
     root
 
-def problem180_insert(numerators: mutable i64&, denominators: mutable i64&,
+def problem180_insert(numerators: mutable view[i64], denominators: mutable view[i64],
                       numerator: i64, denominator: i64) -> bool:
     hash: i64 = ((numerator % HASH_CAPACITY.i64()) * 1009 + denominator % HASH_CAPACITY.i64()) % HASH_CAPACITY.i64()
     index: mutable usize = hash.usize()
@@ -35,7 +35,7 @@ def problem180_insert(numerators: mutable i64&, denominators: mutable i64&,
     denominators[index] <- denominator
     true
 
-def problem180_record(numerators: mutable i64&, denominators: mutable i64&,
+def problem180_record(numerators: mutable view[i64], denominators: mutable view[i64],
                       xn: i64, xd: i64, yn: i64, yd: i64,
                       zn_input: i64, zd_input: i64, order: i64) -> bool:
     if zn_input <= 0 or zd_input <= 0:
@@ -68,25 +68,25 @@ def problem180_impl(order: i64) -> i64:
                         if problem180_gcd(yn, yd) == 1 and xn * yd <= yn * xd:
                             zn: mutable i64 = xn * yd + xd * yn
                             zd: mutable i64 = xd * yd
-                            problem180_record(numerators, denominators, xn, xd, yn, yd, zn, zd, order)
+                            problem180_record(numerators[0:HASH_CAPACITY], denominators[0:HASH_CAPACITY], xn, xd, yn, yd, zn, zd, order)
 
                             square_num: mutable i64 = xn * xn * yd * yd + xd * xd * yn * yn
                             square_den: mutable i64 = xd * xd * yd * yd
                             root_num: mutable i64 = problem180_integer_sqrt(square_num)
                             root_den: mutable i64 = problem180_integer_sqrt(square_den)
                             if root_num * root_num == square_num and root_den * root_den == square_den:
-                                problem180_record(numerators, denominators, xn, xd, yn, yd, root_num, root_den, order)
+                                problem180_record(numerators[0:HASH_CAPACITY], denominators[0:HASH_CAPACITY], xn, xd, yn, yd, root_num, root_den, order)
 
                             zn <- xn * yn
                             zd <- xd * yn + xn * yd
-                            problem180_record(numerators, denominators, xn, xd, yn, yd, zn, zd, order)
+                            problem180_record(numerators[0:HASH_CAPACITY], denominators[0:HASH_CAPACITY], xn, xd, yn, yd, zn, zd, order)
 
                             square_num <- xn * xn * yn * yn
                             square_den <- xd * xd * yn * yn + xn * xn * yd * yd
                             root_num <- problem180_integer_sqrt(square_num)
                             root_den <- problem180_integer_sqrt(square_den)
                             if root_num * root_num == square_num and root_den * root_den == square_den:
-                                problem180_record(numerators, denominators, xn, xd, yn, yd, root_num, root_den, order)
+                                problem180_record(numerators[0:HASH_CAPACITY], denominators[0:HASH_CAPACITY], xn, xd, yn, yd, root_num, root_den, order)
                         yd <- yd + 1
                     yn <- yn + 1
             xd <- xd + 1

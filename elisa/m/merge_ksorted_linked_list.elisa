@@ -39,7 +39,7 @@ def merge_k_linked_heap_pop(heap: mutable MergeKLinkedHeapNode[MAX_LISTS], size:
         heap[index] <- last
     result
 
-def put_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def put_i32_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 4:
@@ -95,10 +95,11 @@ def merge_ksorted_linked_list_impl(input: i64&, length: usize, output: mutable u
         list <- list + 1
 
     buffer: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    buffer_view: mutable view[u8] = buffer[0:output_bytes]
     written: mutable usize = 0
     while heap_size > 0:
         node: MergeKLinkedHeapNode = merge_k_linked_heap_pop(heap, heap_size)
-        put_i32_le(node.value, buffer, written)
+        put_i32_le(node.value, buffer_view, written)
         written <- written + 4
         next_index: usize = node.node_index + 1
         if next_index < lengths[node.list_index]:

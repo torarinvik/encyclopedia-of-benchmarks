@@ -6,7 +6,7 @@ const RSA_KEY_GENERATOR_MAX_PACKED_LENGTH: usize = 1027
 const RSA_KEY_GENERATOR_FNV_OFFSET: u64 = 14695981039346656037.u64()
 const RSA_KEY_GENERATOR_FNV_PRIME: u64 = 1099511628211.u64()
 
-def rsa_key_generator_draw(input: i64&, length: usize, cursor: mutable usize&, low: i64, high: i64,
+def rsa_key_generator_draw(input: view[i64], length: usize, cursor: mutable usize&, low: i64, high: i64,
                            valid: mutable bool&) -> i64:
     if not valid: return -1
     if cursor >= length:
@@ -38,7 +38,7 @@ def rsa_key_generator_power_mod(base: i64, exponent_input: i64, modulus: i64) ->
         exponent <- exponent / 2
     result
 
-def rsa_key_generator_rabin_miller(num: i64, input: i64&, length: usize,
+def rsa_key_generator_rabin_miller(num: i64, input: view[i64], length: usize,
                                    cursor: mutable usize&, valid: mutable bool&) -> bool:
     s: mutable i64 = num - 1
     t: mutable i64 = 0
@@ -59,7 +59,7 @@ def rsa_key_generator_rabin_miller(num: i64, input: i64&, length: usize,
         round <- round + 1
     true
 
-def rsa_key_generator_is_prime_low_num(num: i64, input: i64&, length: usize,
+def rsa_key_generator_is_prime_low_num(num: i64, input: view[i64], length: usize,
                                        cursor: mutable usize&, valid: mutable bool&) -> bool:
     if num < 2: return false
     if num <= 997:
@@ -74,7 +74,7 @@ def rsa_key_generator_is_prime_low_num(num: i64, input: i64&, length: usize,
         divisor <- divisor + 1
     rsa_key_generator_rabin_miller(num, input, length, cursor, valid)
 
-def rsa_key_generator_generate_large_prime(key_size: i64, input: i64&, length: usize,
+def rsa_key_generator_generate_large_prime(key_size: i64, input: view[i64], length: usize,
                                            cursor: mutable usize&, valid: mutable bool&) -> i64:
     low: i64 = 1.i64() << (key_size - 1).usize()
     high: i64 = 1.i64() << key_size.usize()
@@ -127,11 +127,12 @@ def rsa_key_generator_impl(input: i64&, length: usize) -> i64:
         value: i64 = input[2 + index]
         if value < 2 or value >= draw_limit: return -1
         index <- index + 1
+    input_view: view[i64] = input[0:length]
     cursor: mutable usize = 2
     valid: mutable bool = true
-    p: i64 = rsa_key_generator_generate_large_prime(key_size, input, length, cursor, valid)
+    p: i64 = rsa_key_generator_generate_large_prime(key_size, input_view, length, cursor, valid)
     if not valid: return -1
-    q: i64 = rsa_key_generator_generate_large_prime(key_size, input, length, cursor, valid)
+    q: i64 = rsa_key_generator_generate_large_prime(key_size, input_view, length, cursor, valid)
     if not valid: return -1
     n: i64 = p * q
     phi: i64 = (p - 1) * (q - 1)
@@ -139,7 +140,7 @@ def rsa_key_generator_impl(input: i64&, length: usize) -> i64:
     high: i64 = 1.i64() << key_size.usize()
     e: mutable i64 = 0
     while true:
-        e <- rsa_key_generator_draw(input, length, cursor, low, high, valid)
+        e <- rsa_key_generator_draw(input_view, length, cursor, low, high, valid)
         if not valid: return -1
         if rsa_key_generator_gcd(e, phi) == 1: break
     d: i64 = rsa_key_generator_find_mod_inverse(e, phi)

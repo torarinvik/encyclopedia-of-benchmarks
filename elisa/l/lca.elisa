@@ -1,4 +1,4 @@
-def find_root(parent: mutable usize[64]&, vertex: usize) -> usize:
+def find_root(parent: mutable view[usize], vertex: usize) -> usize:
     current: mutable usize = vertex
     while parent[current] != current:
         parent[current] <- parent[parent[current]]
@@ -26,8 +26,8 @@ def lca_impl(input: i64&, length: usize) -> i64:
         if u_arg < 0 or u_arg >= node_count.i64() or v_arg < 0 or v_arg >= node_count.i64() or u_arg == v_arg: return -1
         u: usize = u_arg.usize()
         v: usize = v_arg.usize()
-        root_u: usize = find_root(dsu, u)
-        root_v: usize = find_root(dsu, v)
+        root_u: usize = find_root(dsu[0:node_count], u)
+        root_v: usize = find_root(dsu[0:node_count], v)
         if root_u == root_v: return -1
         dsu[root_u] <- root_v
         adjacency[u][degree[u]] <- v.i64()
@@ -38,10 +38,10 @@ def lca_impl(input: i64&, length: usize) -> i64:
     query_a_arg: i64 = input[position]
     query_b_arg: i64 = input[position + 1]
     if query_a_arg < 0 or query_a_arg >= node_count.i64() or query_b_arg < 0 or query_b_arg >= node_count.i64(): return -1
-    component: usize = find_root(dsu, 0)
+    component: usize = find_root(dsu[0:node_count], 0)
     index <- 1
     while index < node_count:
-        if find_root(dsu, index) != component: return -1
+        if find_root(dsu[0:node_count], index) != component: return -1
         index <- index + 1
 
     parent: mutable usize[64] = zeroed

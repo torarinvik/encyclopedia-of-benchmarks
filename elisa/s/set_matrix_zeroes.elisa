@@ -4,7 +4,7 @@ const MAX_CELLS: usize = 64
 const MIN_CELL: i64 = -1000000
 const MAX_CELL: i64 = 1000000
 
-def write_i64_le(output: mutable u8&, position: usize, value: i64):
+def write_i64_le(output: mutable view[u8], position: usize, value: i64):
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -64,7 +64,7 @@ def set_matrix_zeroes_impl(input: i64&, length: usize, output: mutable u8&, capa
 
     index <- 0
     while index < cells:
-        write_i64_le(output, index * 8, matrix[index])
+        write_i64_le(output[0:capacity], index * 8, matrix[index])
         index <- index + 1
     bytes.i64()
 

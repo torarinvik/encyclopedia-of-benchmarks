@@ -1,4 +1,4 @@
-def approximating_diameter_bfs_put_i64(output: mutable u8&, value: i64) -> void:
+def approximating_diameter_bfs_put_i64(output: mutable view[u8], value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[byte] <- (bits >> (byte * 8)).u8()
@@ -48,7 +48,7 @@ def approximating_diameter_bfs_impl(input: i64&, length: usize, output: mutable 
             estimate <- dist[i]
     if output == null or capacity < 8:
         return -2
-    approximating_diameter_bfs_put_i64(output, estimate)
+    approximating_diameter_bfs_put_i64(output[0:8], estimate)
     8
 
 export fn approximating_diameter_bfs(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = approximating_diameter_bfs_impl

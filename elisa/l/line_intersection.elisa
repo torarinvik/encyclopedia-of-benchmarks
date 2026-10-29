@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def line_intersection_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
+def line_intersection_write_f64(output: mutable view[u8], position: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -8,12 +8,12 @@ def line_intersection_write_f64(output: mutable u8&, position: usize, value: f64
         output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def line_intersection_write_point(output: mutable u8&, capacity: usize,
+def line_intersection_write_point(output: mutable view[u8], capacity: usize,
         x: f64, y: f64) -> i64:
     if capacity < 16:
         return -2
-    line_intersection_write_f64(output, 0, x)
-    line_intersection_write_f64(output, 8, y)
+    line_intersection_write_f64(output[0:16], 0, x)
+    line_intersection_write_f64(output[0:16], 8, y)
     1
 
 def line_intersection_same(x1: i64, y1: i64, x2: i64, y2: i64) -> bool:
@@ -71,15 +71,15 @@ def line_intersection_impl(values: i64&, length: usize,
         return -1
     if segments and p_point and q_point:
         if line_intersection_same(x1, y1, x3, y3):
-            return line_intersection_write_point(output, output_capacity, x1.f64(), y1.f64())
+            return line_intersection_write_point(output[0:output_capacity], output_capacity, x1.f64(), y1.f64())
         return 0
     if segments and p_point:
         if line_intersection_on_segment(x3, y3, x4, y4, x1, y1):
-            return line_intersection_write_point(output, output_capacity, x1.f64(), y1.f64())
+            return line_intersection_write_point(output[0:output_capacity], output_capacity, x1.f64(), y1.f64())
         return 0
     if segments and q_point:
         if line_intersection_on_segment(x1, y1, x2, y2, x3, y3):
-            return line_intersection_write_point(output, output_capacity, x3.f64(), y3.f64())
+            return line_intersection_write_point(output[0:output_capacity], output_capacity, x3.f64(), y3.f64())
         return 0
 
     denominator: i64 = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
@@ -111,10 +111,10 @@ def line_intersection_impl(values: i64&, length: usize,
         if (positive_x < min_x * positive_denominator or positive_x > max_x * positive_denominator or
                 positive_y < min_y * positive_denominator or positive_y > max_y * positive_denominator):
             return 0
-        return line_intersection_write_point(output, output_capacity,
+        return line_intersection_write_point(output[0:output_capacity], output_capacity,
             positive_x.f64() / positive_denominator.f64(),
             positive_y.f64() / positive_denominator.f64())
-    line_intersection_write_point(output, output_capacity,
+    line_intersection_write_point(output[0:output_capacity], output_capacity,
         numerator_x.f64() / denominator.f64(), numerator_y.f64() / denominator.f64())
 
 export fn line_intersection(values: i64&, length: usize, output: mutable u8&,

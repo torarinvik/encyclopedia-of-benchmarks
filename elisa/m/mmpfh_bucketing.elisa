@@ -10,7 +10,7 @@ def mmpfh_lcp(a: i64, b: i64) -> usize:
         count <- count + 1
     return count
 
-def mmpfh_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def mmpfh_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -82,7 +82,9 @@ def mmpfh_bucketing(input: i64&, length: usize, output: mutable u8&, capacity: u
         ranks[i] <- (b * 3 + pos - b * 3).i64()
         i <- i + 1
     words: usize = 3 + n + 3 * buckets + q
-    if output.is_null() or capacity < words * 8: return -2
+    required: usize = words * 8
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
     staged: mutable i64[100] = zeroed
     k: mutable usize = 0
     staged[k] <- n.i64(); k <- k + 1; staged[k] <- buckets.i64(); k <- k + 1; staged[k] <- q.i64(); k <- k + 1
@@ -96,6 +98,6 @@ def mmpfh_bucketing(input: i64&, length: usize, output: mutable u8&, capacity: u
     while i < q: staged[k] <- ranks[i]; k <- k + 1; i <- i + 1
     i <- 0
     while i < words:
-        mmpfh_put_i64(output, i * 8, staged[i])
+        mmpfh_put_i64(output_view, i * 8, staged[i])
         i <- i + 1
     return (words * 8).i64()

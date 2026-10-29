@@ -6,7 +6,7 @@ const BYTES_PER_TRIPLET: usize = 12
 def hash_slot(value: i64) -> usize:
     ((value + 100000) * 37 % HASH_CAPACITY.i64()).usize()
 
-def seen_contains(keys: i64&, occupied: bool&, value: i64) -> bool:
+def seen_contains(keys: view[i64], occupied: view[bool], value: i64) -> bool:
     slot: usize = hash_slot(value)
     for probes in 0..<HASH_CAPACITY:
         if not occupied[slot]:
@@ -16,7 +16,7 @@ def seen_contains(keys: i64&, occupied: bool&, value: i64) -> bool:
         slot <- (slot + 1) % HASH_CAPACITY
     false
 
-def seen_add(keys: mutable i64&, occupied: mutable bool&, value: i64) -> void:
+def seen_add(keys: mutable view[i64], occupied: mutable view[bool], value: i64) -> void:
     slot: usize = hash_slot(value)
     for probes in 0..<HASH_CAPACITY:
         if not occupied[slot]:
@@ -27,13 +27,13 @@ def seen_add(keys: mutable i64&, occupied: mutable bool&, value: i64) -> void:
             return
         slot <- (slot + 1) % HASH_CAPACITY
 
-def already_output(triples: i64&, count: usize, a: i64, b: i64, c: i64) -> bool:
+def already_output(triples: view[i64], count: usize, a: i64, b: i64, c: i64) -> bool:
     for i in 0..<count:
         if triples[i * 3] == a and triples[i * 3 + 1] == b and triples[i * 3 + 2] == c:
             return true
     false
 
-def write_i32_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def write_i32_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u32 = value.u32()
     output[offset] <- (bits & 255).u8()
     output[offset + 1] <- ((bits >> 8) & 255).u8()
@@ -59,7 +59,7 @@ def find_triplets_with_0_sum_hashing_impl(input: i64&, length: usize, output: mu
         for j in i + 1..<length:
             other: i64 = input[j]
             required: i64 = -input[i] - other
-            if required >= -100000 and required <= 100000 and seen_contains(keys, occupied, required):
+            if required >= -100000 and required <= 100000 and seen_contains(keys[0:HASH_CAPACITY], occupied[0:HASH_CAPACITY], required):
                 a: mutable i64 = input[i]
                 b: mutable i64 = other
                 c: mutable i64 = required
@@ -76,19 +76,19 @@ def find_triplets_with_0_sum_hashing_impl(input: i64&, length: usize, output: mu
                     t <- a
                     a <- b
                     b <- t
-                if not already_output(triples, count, a, b, c) and count < MAX_TRIPLETS:
+                if not already_output(triples[0:count * 3], count, a, b, c) and count < MAX_TRIPLETS:
                     triples[count * 3] <- a
                     triples[count * 3 + 1] <- b
                     triples[count * 3 + 2] <- c
                     count <- count + 1
-            seen_add(keys, occupied, other)
+            seen_add(keys[0:HASH_CAPACITY], occupied[0:HASH_CAPACITY], other)
     if count == 0:
         return 0
     needed: usize = count * BYTES_PER_TRIPLET
     if output == null or output_capacity < needed:
         return -2
     for i in 0..<count * 3:
-        write_i32_le(output, i * 4, triples[i])
+        write_i32_le(output[0:needed], i * 4, triples[i])
     count.i64()
 
 export fn find_triplets_with_0_sum_hashing(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = find_triplets_with_0_sum_hashing_impl

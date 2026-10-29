@@ -1,10 +1,10 @@
-def eulerian_trail_undirected_simple_put_i64(output: mutable u8&, position: usize, value: i64) -> void:
+def eulerian_trail_undirected_simple_put_i64(output: mutable view[u8], position: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[position + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def eulerian_trail_undirected_simple_dfs(neighbors: i64&, degree: i64&, seen: mutable bool&, path: mutable i64&, count: mutable usize&, node: usize) -> void:
+def eulerian_trail_undirected_simple_dfs(neighbors: view[i64], degree: view[i64], seen: mutable view[bool], path: mutable view[i64], count: mutable usize&, node: usize) -> void:
     path[count] <- node.i64()
     count <- count + 1
     for offset in 0..<degree[node].usize():
@@ -75,16 +75,16 @@ def eulerian_trail_undirected_simple_impl(input: i64&, length: usize, output: mu
     seen: mutable bool[100] = zeroed
     path: mutable i64[46] = zeroed
     count: mutable usize = 0
-    eulerian_trail_undirected_simple_dfs(neighbors, degree, seen, path, count, start)
+    eulerian_trail_undirected_simple_dfs(neighbors[0:450], degree[0:10], seen[0:100], path[0:46], count, start)
     if count != edges + 1:
         return -1
     bytes: usize = (2 + count) * 8
     if output == null or capacity < bytes:
         return -2
-    eulerian_trail_undirected_simple_put_i64(output, 0, status)
-    eulerian_trail_undirected_simple_put_i64(output, 8, count.i64())
+    eulerian_trail_undirected_simple_put_i64(output[0:bytes], 0, status)
+    eulerian_trail_undirected_simple_put_i64(output[0:bytes], 8, count.i64())
     for i in 0..<count:
-        eulerian_trail_undirected_simple_put_i64(output, (2 + i) * 8, path[i])
+        eulerian_trail_undirected_simple_put_i64(output[0:bytes], (2 + i) * 8, path[i])
     bytes.i64()
 
 export fn eulerian_trail_undirected_simple(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = eulerian_trail_undirected_simple_impl

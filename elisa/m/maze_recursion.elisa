@@ -6,7 +6,7 @@ const OUTPUT_BYTES: usize = 228
 const START_INDEX: usize = 8
 const TARGET_INDEX: usize = 47
 
-def maze_recursion_solve(grid: mutable u8&, row: usize, col: usize, strategy: i64) -> bool:
+def maze_recursion_solve(grid: mutable view[u8], row: usize, col: usize, strategy: i64) -> bool:
     if grid[TARGET_INDEX] == 2:
         return true
     index: usize = row * GRID_COLS + col
@@ -28,7 +28,7 @@ def maze_recursion_solve(grid: mutable u8&, row: usize, col: usize, strategy: i6
     grid[index] <- 3
     return false
 
-def maze_recursion_put_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def maze_recursion_put_i32_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 4:
@@ -65,12 +65,13 @@ def maze_recursion_impl(input: i64&, length: usize, output: mutable u8&, capacit
     if output.is_null() or capacity < OUTPUT_BYTES:
         return -2
 
-    found: bool = maze_recursion_solve(grid, 1, 1, strategy)
+    found: bool = maze_recursion_solve(grid[0:GRID_CELLS], 1, 1, strategy)
     buffer: mutable u8[OUTPUT_BYTES] = zeroed
-    maze_recursion_put_i32_le(if found then 1 else 0, buffer, 0)
+    buffer_view: mutable view[u8] = buffer[0:OUTPUT_BYTES]
+    maze_recursion_put_i32_le(if found then 1 else 0, buffer_view, 0)
     index <- 0
     while index < GRID_CELLS:
-        maze_recursion_put_i32_le(grid[index].i64(), buffer, 4 * (index + 1))
+        maze_recursion_put_i32_le(grid[index].i64(), buffer_view, 4 * (index + 1))
         index <- index + 1
     index <- 0
     while index < OUTPUT_BYTES:

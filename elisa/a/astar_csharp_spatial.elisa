@@ -1,16 +1,16 @@
 extern sqrt(value: f64) -> f64
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def astar_csharp_distance(xs: f64&, ys: f64&, a: usize, b: usize) -> f64:
+def astar_csharp_distance(xs: view[f64], ys: view[f64], a: usize, b: usize) -> f64:
     dx: f64 = xs[a] - xs[b]
     dy: f64 = ys[a] - ys[b]
     sqrt(dx * dx + dy * dy)
 
-def astar_csharp_total(current: f64&, estimated: f64&, node: usize) -> f64:
+def astar_csharp_total(current: view[f64], estimated: view[f64], node: usize) -> f64:
     current[node] + estimated[node]
 
-def astar_csharp_enqueue(heap: mutable usize&, heap_count: mutable usize&, value: usize,
-        current: f64&, estimated: f64&) -> void:
+def astar_csharp_enqueue(heap: mutable view[usize], heap_count: mutable usize&, value: usize,
+        current: view[f64], estimated: view[f64]) -> void:
     index: mutable usize = heap_count
     heap_count <- heap_count + 1
     while index > 0:
@@ -21,8 +21,8 @@ def astar_csharp_enqueue(heap: mutable usize&, heap_count: mutable usize&, value
         index <- parent
     heap[index] <- value
 
-def astar_csharp_dequeue(heap: mutable usize&, heap_count: mutable usize&,
-        current: f64&, estimated: f64&) -> usize:
+def astar_csharp_dequeue(heap: mutable view[usize], heap_count: mutable usize&,
+        current: view[f64], estimated: view[f64]) -> usize:
     target: usize = heap[0]
     heap_count <- heap_count - 1
     root: usize = heap[heap_count]
@@ -41,7 +41,7 @@ def astar_csharp_dequeue(heap: mutable usize&, heap_count: mutable usize&,
         heap[index] <- root
     target
 
-def astar_csharp_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def astar_csharp_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     index: mutable usize = 0
     while index < 8:
         output[offset + index] <- ((value >> (index * 8)) & 255).u8()
@@ -142,13 +142,13 @@ def astar_csharp_impl(input: i64&, length: usize, output: mutable u8&, capacity:
         if input[edge + 2 * edge_index] == start.i64():
             node: usize = input[edge + 2 * edge_index + 1].usize()
             if traversable[node] == 1:
-                current[node] <- astar_csharp_distance(xs, ys, start, node) * multipliers[node]
-                estimated[node] <- astar_csharp_distance(xs, ys, node, goal)
-                astar_csharp_enqueue(heap, heap_count, node, current, estimated)
+                current[node] <- astar_csharp_distance(xs[0:16], ys[0:16], start, node) * multipliers[node]
+                estimated[node] <- astar_csharp_distance(xs[0:16], ys[0:16], node, goal)
+                astar_csharp_enqueue(heap[0:16], heap_count, node, current[0:16], estimated[0:16])
         edge_index <- edge_index + 1
     path_count: mutable usize = 0
     while heap_count > 0:
-        node: usize = astar_csharp_dequeue(heap, heap_count, current, estimated)
+        node: usize = astar_csharp_dequeue(heap[0:16], heap_count, current[0:16], estimated[0:16])
         state[node] <- 2
         if astar_csharp_total(current, estimated, node) == astar_csharp_total(current, estimated, goal):
             cursor: mutable i64 = goal.i64()
@@ -164,10 +164,10 @@ def astar_csharp_impl(input: i64&, length: usize, output: mutable u8&, capacity:
                 if traversable[connected] == 1 and state[connected] != 2:
                     if state[connected] == 0:
                         parents[connected] <- node.i64()
-                        current[connected] <- current[node] + astar_csharp_distance(xs, ys, node, connected) * multipliers[connected]
-                        estimated[connected] <- current[connected] + astar_csharp_distance(xs, ys, connected, goal)
+                        current[connected] <- current[node] + astar_csharp_distance(xs[0:16], ys[0:16], node, connected) * multipliers[connected]
+                        estimated[connected] <- current[connected] + astar_csharp_distance(xs[0:16], ys[0:16], connected, goal)
                         state[connected] <- 1
-                        astar_csharp_enqueue(heap, heap_count, connected, current, estimated)
+                        astar_csharp_enqueue(heap[0:16], heap_count, connected, current[0:16], estimated[0:16])
                     elif astar_csharp_total(current, estimated, node) != astar_csharp_total(current, estimated, connected):
                         new_current: f64 = current[node] + astar_csharp_distance(xs, ys, node, connected)
                         new_total: f64 = new_current + estimated[node]
@@ -184,7 +184,7 @@ def astar_csharp_impl(input: i64&, length: usize, output: mutable u8&, capacity:
         return -2
     index <- 0
     while index < path_count:
-        astar_csharp_put_i64(output, index * 8, path[path_count - 1 - index].i64())
+        astar_csharp_put_i64(output[0:output_bytes], index * 8, path[path_count - 1 - index].i64())
         index <- index + 1
     output_bytes.i64()
 

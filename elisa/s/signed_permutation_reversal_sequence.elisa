@@ -3,7 +3,7 @@ const MAX_STATES: usize = 3840
 const MAX_MOVES: usize = 10
 const MAX_OUTPUT_BYTES: usize = 168
 
-def sp_encode(permutation: i64[MAX_N]&, n: usize): usize:
+def sp_encode(permutation: view[i64], n: usize): usize:
     rank: mutable usize = 0
     signs: mutable usize = 0
     for i in 0..<n:
@@ -16,7 +16,7 @@ def sp_encode(permutation: i64[MAX_N]&, n: usize): usize:
         if permutation[i] < 0: signs <- signs | (1 << (value - 1))
     rank * (1 << n) + signs
 
-def sp_decode_state(state: usize, n: usize, factorials: usize[MAX_N + 1]&, permutation: mutable i64[MAX_N]&): void:
+def sp_decode_state(state: usize, n: usize, factorials: view[usize], permutation: mutable view[i64]): void:
     sign_count: usize = 1 << n
     rank: mutable usize = state / sign_count
     signs: usize = state % sign_count
@@ -33,7 +33,7 @@ def sp_decode_state(state: usize, n: usize, factorials: usize[MAX_N + 1]&, permu
         permutation[i] <- value.i64()
         if signs & (1 << (value - 1)) != 0: permutation[i] <- -permutation[i]
 
-def sp_reverse(permutation: mutable i64[MAX_N]&, left_start: usize, right_start: usize): void:
+def sp_reverse(permutation: mutable view[i64], left_start: usize, right_start: usize): void:
     left: mutable usize = left_start
     right: mutable usize = right_start
     while left < right:
@@ -45,7 +45,7 @@ def sp_reverse(permutation: mutable i64[MAX_N]&, left_start: usize, right_start:
         right <- right - 1
     if left == right: permutation[left] <- -permutation[left]
 
-def sp_put64(output: mutable u8&, offset: usize, value: i64): void:
+def sp_put64(output: mutable view[u8], offset: usize, value: i64): void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -77,7 +77,7 @@ def signed_permutation_reversal_sequence_impl(input: i64&, length: usize,
     move_left: mutable i8[MAX_STATES] = zeroed
     move_right: mutable i8[MAX_STATES] = zeroed
     for state in 0..<state_count: parent[state] <- -2
-    start: usize = sp_encode(permutation&, n)
+    start: usize = sp_encode(permutation[0:n], n)
     head: mutable usize = 0
     tail: mutable usize = 0
     parent[start] <- -1
@@ -87,13 +87,13 @@ def signed_permutation_reversal_sequence_impl(input: i64&, length: usize,
         current: usize = queue[head].usize()
         head <- head + 1
         current_permutation: mutable i64[MAX_N] = zeroed
-        sp_decode_state(current, n, factorials&, current_permutation&)
+        sp_decode_state(current, n, factorials[0:MAX_N + 1], current_permutation[0:n])
         for left in 0..<n:
             if parent[0] != -2: break
             for right in left..<n:
                 neighbor: mutable i64[MAX_N] = current_permutation
-                sp_reverse(neighbor&, left, right)
-                next: usize = sp_encode(neighbor&, n)
+                sp_reverse(neighbor[0:n], left, right)
+                next: usize = sp_encode(neighbor[0:n], n)
                 if parent[next] != -2: continue
                 parent[next] <- current.i32()
                 move_left[next] <- (left + 1).i8()
@@ -115,11 +115,11 @@ def signed_permutation_reversal_sequence_impl(input: i64&, length: usize,
     output_bytes: usize = 8 * (1 + 2 * move_count)
     if capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    sp_put64(staged&, 0, move_count.i64())
+    sp_put64(staged[0:output_bytes], 0, move_count.i64())
     for i in 0..<move_count:
         reverse_index: usize = move_count - 1 - i
-        sp_put64(staged&, 8 * (1 + 2 * i), reverse_moves[2 * reverse_index])
-        sp_put64(staged&, 8 * (2 + 2 * i), reverse_moves[2 * reverse_index + 1])
+        sp_put64(staged[0:output_bytes], 8 * (1 + 2 * i), reverse_moves[2 * reverse_index])
+        sp_put64(staged[0:output_bytes], 8 * (2 + 2 * i), reverse_moves[2 * reverse_index + 1])
     for byte in 0..<output_bytes: output[byte] <- staged[byte]
     output_bytes.i64()
 

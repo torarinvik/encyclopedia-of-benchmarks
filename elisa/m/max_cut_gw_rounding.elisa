@@ -3,7 +3,7 @@ const MAX_M: usize = 120
 const MAX_D: usize = 4
 const MAX_INPUT: usize = 431
 
-def max_cut_gw_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def max_cut_gw_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -67,6 +67,7 @@ def max_cut_gw_rounding(input: i64&, length: usize,
     if not has_normal: return -1
     output_bytes: usize = 8 * (n + 1)
     if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
     side: mutable i64[16] = zeroed
     vertex <- 0
     while vertex < n:
@@ -83,9 +84,9 @@ def max_cut_gw_rounding(input: i64&, length: usize,
         if side[edge_u[edge].usize()] != side[edge_v[edge].usize()]:
             cut <- cut + edge_weight[edge]
         edge <- edge + 1
-    max_cut_gw_store_i64_le(cut, output, 0)
+    max_cut_gw_store_i64_le(cut, output_view, 0)
     vertex <- 0
     while vertex < n:
-        max_cut_gw_store_i64_le(side[vertex], output, 8 * (vertex + 1))
+        max_cut_gw_store_i64_le(side[vertex], output_view, 8 * (vertex + 1))
         vertex <- vertex + 1
     output_bytes.i64()

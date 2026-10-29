@@ -3,7 +3,7 @@ const PC_MAX_LENGTH: usize = 32
 const PC_MAX_OUTPUT: usize = 8 + PC_MAX_LENGTH * 16
 const PC_SYMBOLS: usize = 257
 
-def pc_rotation_less(input: u8&, n: usize, left: usize, right: usize) -> bool:
+def pc_rotation_less(input: view[u8], n: usize, left: usize, right: usize) -> bool:
     offset: usize = 0
     while offset < n:
         a: u8 = input[(left + offset) % n]
@@ -12,7 +12,7 @@ def pc_rotation_less(input: u8&, n: usize, left: usize, right: usize) -> bool:
         offset <- offset + 1
     left < right
 
-def pc_output_bit(output: mutable u8&, outpos: mutable usize&, buffer: mutable u8&, bits_to_go: mutable usize&, bit: bool) -> void:
+def pc_output_bit(output: mutable view[u8], outpos: mutable usize&, buffer: mutable u8&, bits_to_go: mutable usize&, bit: bool) -> void:
     buffer <- buffer >> 1
     if bit: buffer <- buffer | 0x80.u8()
     bits_to_go <- bits_to_go - 1
@@ -21,13 +21,13 @@ def pc_output_bit(output: mutable u8&, outpos: mutable usize&, buffer: mutable u
         outpos <- outpos + 1
         bits_to_go <- 8
 
-def pc_bit_plus_follow(output: mutable u8&, outpos: mutable usize&, buffer: mutable u8&, bits_to_go: mutable usize&, follow: mutable usize&, bit: bool) -> void:
+def pc_bit_plus_follow(output: mutable view[u8], outpos: mutable usize&, buffer: mutable u8&, bits_to_go: mutable usize&, follow: mutable usize&, bit: bool) -> void:
     pc_output_bit(output, outpos, buffer, bits_to_go, bit)
     while follow > 0:
         pc_output_bit(output, outpos, buffer, bits_to_go, not bit)
         follow <- follow - 1
 
-def pc_encode_symbol(symbol: usize, cum: i64&, low: mutable u32&, high: mutable u32&, follow: mutable usize&, output: mutable u8&, outpos: mutable usize&, buffer: mutable u8&, bits_to_go: mutable usize&) -> void:
+def pc_encode_symbol(symbol: usize, cum: view[i64], low: mutable u32&, high: mutable u32&, follow: mutable usize&, output: mutable view[u8], outpos: mutable usize&, buffer: mutable u8&, bits_to_go: mutable usize&) -> void:
     span: u64 = (high - low).u64() + 1
     old_low: u32 = low
     high <- old_low + (span * cum[symbol - 1].u64() / cum[0].u64()).u32() - 1
@@ -50,7 +50,7 @@ def pc_encode_symbol(symbol: usize, cum: i64&, low: mutable u32&, high: mutable 
             low <- low * 2.u32()
             high <- high * 2.u32() + 1.u32()
 
-def pc_update_model(symbol: usize, char_to_index: mutable usize&, index_to_char: mutable u8&, freq: mutable i64&, cum: mutable i64&) -> void:
+def pc_update_model(symbol: usize, char_to_index: mutable view[usize], index_to_char: mutable view[u8], freq: mutable view[i64], cum: mutable view[i64]) -> void:
     if cum[0] == 16383:
         total: mutable i64 = 0
         i: mutable i64 = PC_SYMBOLS.i64()
@@ -73,7 +73,7 @@ def pc_update_model(symbol: usize, char_to_index: mutable usize&, index_to_char:
         i <- i - 1
         cum[i] <- cum[i] + 1
 
-def pc_arithmetic_encode(data: u8&, count: usize, encoded: mutable u8&) -> usize:
+def pc_arithmetic_encode(data: view[u8], count: usize, encoded: mutable view[u8]) -> usize:
     char_to_index: mutable usize[256] = zeroed
     index_to_char: mutable u8[258] = zeroed
     freq: mutable i64[258] = zeroed
@@ -98,17 +98,17 @@ def pc_arithmetic_encode(data: u8&, count: usize, encoded: mutable u8&) -> usize
     i <- 0
     while i < count:
         symbol: usize = char_to_index[data[i].usize()]
-        pc_encode_symbol(symbol, cum[0], low, high, follow, encoded, outpos, buffer, bits_to_go)
-        pc_update_model(symbol, char_to_index[0], index_to_char[0], freq[0], cum[0])
+        pc_encode_symbol(symbol, cum[0:258], low, high, follow, encoded, outpos, buffer, bits_to_go)
+        pc_update_model(symbol, char_to_index[0:256], index_to_char[0:258], freq[0:258], cum[0:258])
         i <- i + 1
-    pc_encode_symbol(257, cum[0], low, high, follow, encoded, outpos, buffer, bits_to_go)
+    pc_encode_symbol(257, cum[0:258], low, high, follow, encoded, outpos, buffer, bits_to_go)
     follow <- follow + 1
     pc_bit_plus_follow(encoded, outpos, buffer, bits_to_go, follow, low >= 16384.u32())
     encoded[outpos] <- (buffer >> bits_to_go.u8()).u8()
     outpos <- outpos + 1
     outpos
 
-def pc_compress_bounded(input: u8&, n: usize, output: mutable u8&) -> usize:
+def pc_compress_bounded(input: view[u8], n: usize, output: mutable view[u8]) -> usize:
     order: mutable usize[PC_MAX_LENGTH] = zeroed
     last: mutable u8[PC_MAX_LENGTH] = zeroed
     rle: mutable u8[PC_MAX_LENGTH * 2] = zeroed
@@ -162,7 +162,7 @@ def pc_compress_bounded(input: u8&, n: usize, output: mutable u8&) -> usize:
     output[5] <- 0
     output[6] <- 0
     output[7] <- 0
-    8 + pc_arithmetic_encode(rle[0], rle_length, output[8])
+    8 + pc_arithmetic_encode(rle[0:rle_length], rle_length, output[8:PC_MAX_OUTPUT])
 
 def pcompress2_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if values.is_null() or length < 2 or values[0] < 1 or values[0] > PC_MAX_LENGTH.i64(): return -1
@@ -176,7 +176,7 @@ def pcompress2_impl(values: i64&, length: usize, output: mutable u8&, capacity: 
         input[i] <- value.u8()
         i <- i + 1
     encoded: mutable u8[PC_MAX_OUTPUT] = zeroed
-    encoded_length: usize = pc_compress_bounded(input[0], n, encoded[0])
+    encoded_length: usize = pc_compress_bounded(input[0:n], n, encoded[0:PC_MAX_OUTPUT])
     if output.is_null() or capacity < encoded_length: return -2
     i <- 0
     while i < encoded_length:

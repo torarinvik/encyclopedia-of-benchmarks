@@ -1,10 +1,10 @@
 # Patience sorting with lower-bound piles and a binary min-heap merge.
 const MAX_INPUT_LENGTH: usize = 1024
 
-def patience_node_less(keys: i64&, left: usize, right: usize) -> bool:
+def patience_node_less(keys: view[i64], left: usize, right: usize) -> bool:
     return keys[left] < keys[right] or (keys[left] == keys[right] and left < right)
 
-def patience_sift_down(keys: i64&, merge_heap: mutable usize&, heap_length: usize, root_value: usize) -> void:
+def patience_sift_down(keys: view[i64], merge_heap: mutable view[usize], heap_length: usize, root_value: usize) -> void:
     root: mutable usize = root_value
     while root < heap_length / 2:
         child: mutable usize = root * 2 + 1
@@ -52,7 +52,7 @@ def patience_sort_impl(values: mutable i64&, length: usize) -> void:
     start: mutable usize = heap_length / 2
     while start > 0:
         start <- start - 1
-        patience_sift_down(&keys[0], &merge_heap[0], heap_length, start)
+        patience_sift_down(keys[0:length], merge_heap[0:pile_count], heap_length, start)
     output: mutable usize = 0
     while heap_length > 0:
         node: usize = merge_heap[0]
@@ -66,6 +66,6 @@ def patience_sort_impl(values: mutable i64&, length: usize) -> void:
             if heap_length > 0:
                 merge_heap[0] <- merge_heap[heap_length]
         if heap_length > 0:
-            patience_sift_down(&keys[0], &merge_heap[0], heap_length, 0)
+            patience_sift_down(keys[0:length], merge_heap[0:pile_count], heap_length, 0)
 
 export fn patience_sort(values: mutable i64&, length: usize) -> void = patience_sort_impl

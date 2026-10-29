@@ -7,8 +7,8 @@ def sha256_add32(left: u32, right: u32) -> u32:
 def sha256_rotr(value: u32, amount: usize) -> u32:
     (value >> amount) | (value << (32 - amount))
 
-def proof_of_work_hash(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if length > MAX_INPUT_LENGTH or (length > 0 and input == null):
+def proof_of_work_hash(input: view[i64], length: usize, output: mutable view[u8], capacity: usize) -> i64:
+    if length > MAX_INPUT_LENGTH:
         return -1
     for index in 0..<length:
         if input[index] < 0 or input[index] > 255:
@@ -74,7 +74,7 @@ def proof_of_work_hash(input: i64&, length: usize, output: mutable u8&, capacity
         state[5] <- sha256_add32(state[5], f)
         state[6] <- sha256_add32(state[6], g)
         state[7] <- sha256_add32(state[7], h)
-    if output == null or capacity < 32:
+    if capacity < 32:
         return -2
     for word in 0..<8:
         for byte in 0..<4:
@@ -97,7 +97,7 @@ def append_decimal(out: mutable i64[151], initial: usize, initial_value: u64) ->
         position <- position + 1
     position
 
-def zero_prefix(digest: u8&, difficulty: i64) -> bool:
+def zero_prefix(digest: view[u8], difficulty: i64) -> bool:
     for index in 0..<difficulty.usize():
         byte: u8 = digest[index / 2]
         nibble: u8 = if index % 2 == 0 then byte >> 4 else byte & 15
@@ -127,8 +127,8 @@ def simple_proof_of_work_impl(input: i64&, length: usize, output: mutable u8&, c
         for i in 0..<pl.usize(): message[n] <- input[5 + tl.usize() + i]; n <- n + 1
         n <- append_decimal(message, n, nonce)
         digest: mutable u8[32] = zeroed
-        if proof_of_work_hash(message, n, digest, 32) != 32: return -1
-        if zero_prefix(digest, difficulty):
+        if proof_of_work_hash(message[0:n], n, digest[0:32], 32) != 32: return -1
+        if zero_prefix(digest[0:32], difficulty):
             for i in 0..<8: output[i] <- ((nonce >> (8 * i)) & 255).u8()
             for i in 0..<32:
                 output[8 + 2 * i] <- hex[(digest[i] >> 4).usize()]

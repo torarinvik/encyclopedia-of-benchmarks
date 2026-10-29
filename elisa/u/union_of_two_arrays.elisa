@@ -1,4 +1,4 @@
-def union_of_two_arrays_store_i32(value: i64, output: mutable u8&, position: usize) -> void:
+def union_of_two_arrays_store_i32(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -70,7 +70,7 @@ def union_of_two_arrays_impl(input: i64&, length: usize,
                 first_index <- first_index + 1
                 second_index <- second_index + 1
         if result_count == 0 or value != previous_value:
-            union_of_two_arrays_store_i32(value, output, result_count * 4)
+            union_of_two_arrays_store_i32(value, output[0:output_capacity], result_count * 4)
             previous_value <- value
             result_count <- result_count + 1
     result_count.i64()

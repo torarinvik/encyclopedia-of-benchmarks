@@ -1,4 +1,4 @@
-def top_k_frequent_words_sift(heap: mutable usize&, counts: usize&, size: usize, root_value: usize) -> void:
+def top_k_frequent_words_sift(heap: mutable view[usize], counts: view[usize], size: usize, root_value: usize) -> void:
     best: mutable usize = root_value
     left: usize = root_value * 2 + 1
     right: usize = left + 1
@@ -64,7 +64,7 @@ def top_k_frequent_words_impl(values: i64&, length: usize, output: mutable u8&, 
     build: mutable usize = distinct / 2
     while build > 0:
         build <- build - 1
-        top_k_frequent_words_sift(heap, counts, distinct, build)
+        top_k_frequent_words_sift(heap[0:64], counts[0:64], distinct, build)
     limit: usize = if k < distinct then k else distinct
     temporary: mutable u8[1089] = zeroed
     output_length: mutable usize = 0
@@ -81,7 +81,7 @@ def top_k_frequent_words_impl(values: i64&, length: usize, output: mutable u8&, 
         distinct <- distinct - 1
         heap[0] <- heap[distinct]
         if distinct > 0:
-            top_k_frequent_words_sift(heap, counts, distinct, 0)
+            top_k_frequent_words_sift(heap[0:64], counts[0:64], distinct, 0)
         word_index <- word_index + 1
     temporary[output_length] <- 0.u8()
     output_length <- output_length + 1

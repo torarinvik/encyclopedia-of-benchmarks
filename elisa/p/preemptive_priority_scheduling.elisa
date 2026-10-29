@@ -2,7 +2,7 @@ const MAX_PROCESSES: usize = 8
 const MAX_SCHEDULE_TICKS: usize = 80
 const MAX_OUTPUT_WORDS: usize = 81
 
-def put_i32_le(output: mutable u8&, offset: usize, value: i32) -> void:
+def put_i32_le(output: mutable view[u8], offset: usize, value: i32) -> void:
     bits: mutable u32 = value.u32()
     byte: mutable usize = 0
     while byte < 4:
@@ -62,10 +62,10 @@ def preemptive_priority_scheduling_impl(input: i32&, length: usize, output: muta
     bytes: usize = (1 + tick_count) * 4
     if output.is_null() or capacity < bytes: return -2
     buffer: mutable u8[MAX_OUTPUT_WORDS * 4] = zeroed
-    put_i32_le(buffer, 0, tick_count.i32())
+    put_i32_le(buffer[0:MAX_OUTPUT_WORDS * 4], 0, tick_count.i32())
     index <- 0
     while index < tick_count:
-        put_i32_le(buffer, 4 * (index + 1), schedule[index])
+        put_i32_le(buffer[0:MAX_OUTPUT_WORDS * 4], 4 * (index + 1), schedule[index])
         index <- index + 1
     index <- 0
     while index < bytes:

@@ -9,7 +9,7 @@ def bidirectional_a_star_heuristic(a: usize, b: usize, columns: usize) -> i64:
         h <- h + 1
     h
 
-def bidirectional_a_star_put(output: mutable u8&, slot: usize, value: i64) -> void:
+def bidirectional_a_star_put(output: mutable view[u8], slot: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[slot * 8 + byte] <- (bits & 255).u8()
@@ -135,10 +135,10 @@ def bidirectional_a_star_impl(input: i64&, length: usize, output: mutable u8&, c
     bytes: usize = (1 + 2 * count) * 8
     if output == null or capacity < bytes:
         return -2
-    bidirectional_a_star_put(output, 0, count.i64())
+    bidirectional_a_star_put(output[0:bytes], 0, count.i64())
     for i in 0..<count:
-        bidirectional_a_star_put(output, 1 + 2 * i, (path[i].usize() / columns).i64())
-        bidirectional_a_star_put(output, 2 + 2 * i, (path[i].usize() % columns).i64())
+        bidirectional_a_star_put(output[0:bytes], 1 + 2 * i, (path[i].usize() / columns).i64())
+        bidirectional_a_star_put(output[0:bytes], 2 + 2 * i, (path[i].usize() % columns).i64())
     bytes.i64()
 
 export fn bidirectional_a_star(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = bidirectional_a_star_impl

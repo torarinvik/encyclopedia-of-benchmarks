@@ -4,7 +4,7 @@ const TSVC_S442_MAX_N: usize = 64
 const TSVC_S442_MAX_PASSES: usize = 16
 const TSVC_S442_MAX_INPUT_LENGTH: usize = 386
 
-def tsvc_s442_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s442_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -57,7 +57,7 @@ def tsvc_s442_indexed_square_accumulate_impl(input: i64&, length: usize,
         round <- round + 1
     i <- 0
     while i < n:
-        tsvc_s442_store_i64_le(a[i], output, 8 * i)
+        tsvc_s442_store_i64_le(a[i], output[0:capacity], 8 * i)
         i <- i + 1
     n.i64()
 

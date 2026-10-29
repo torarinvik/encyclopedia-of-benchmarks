@@ -3,7 +3,7 @@ extern cos(value: f64) -> f64
 extern exp(value: f64) -> f64
 extern memcpy(destination: mutable u32&, source: f32&, length: usize) -> mutable u32&
 
-def put_f32_le(output: mutable u8&, offset: usize, value: f64) -> void:
+def put_f32_le(output: mutable view[u8], offset: usize, value: f64) -> void:
     rounded: f32 = value.f32()
     bits: mutable u32 = 0
     memcpy(&bits, &rounded, 4)
@@ -41,7 +41,7 @@ def gabor_filter_impl(v: i64&, length: usize, output: mutable u8&, capacity: usi
             kernel_y: f64 = -sine*px+cosine*py
             exponent: f64 = -(kernel_x*kernel_x+(gamma*gamma).f64()*kernel_y*kernel_y)/(2.0*sigma.f64()*sigma.f64())
             phase_angle: f64 = 2.0*pi*kernel_x/wavelength.f64()+phase.f64()
-            put_f32_le(output, offset, exp(exponent)*cos(phase_angle))
+            put_f32_le(output[0:output_bytes], offset, exp(exponent)*cos(phase_angle))
             offset <- offset+4
     output_bytes.i64()
 

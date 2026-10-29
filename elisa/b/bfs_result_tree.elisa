@@ -1,4 +1,4 @@
-def bfs_result_tree_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+def bfs_result_tree_put_i64(output: mutable view[u8], word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -56,28 +56,28 @@ def bfs_result_tree_impl(input: i64&, length: usize, output: mutable u8&, capaci
             neighbor_index <- neighbor_index + 1
     words: usize = 4 + 6 * count
     if output.is_null() or capacity < words * 8: return -2
-    bfs_result_tree_put_i64(output, 0, count.i64())
+    bfs_result_tree_put_i64(output[0:words * 8], 0, count.i64())
     index <- 0
     while index < count:
-        bfs_result_tree_put_i64(output, index + 1, order[index].i64())
+        bfs_result_tree_put_i64(output[0:words * 8], index + 1, order[index].i64())
         index <- index + 1
-    bfs_result_tree_put_i64(output, count + 1, count.i64())
+    bfs_result_tree_put_i64(output[0:words * 8], count + 1, count.i64())
     index <- 0
     while index < count:
-        bfs_result_tree_put_i64(output, count + 2 + index, order[index].i64())
+        bfs_result_tree_put_i64(output[0:words * 8], count + 2 + index, order[index].i64())
         index <- index + 1
-    bfs_result_tree_put_i64(output, 2 * count + 2, count.i64())
+    bfs_result_tree_put_i64(output[0:words * 8], 2 * count + 2, count.i64())
     index <- 0
     while index < count:
         vertex: usize = order[index]
-        bfs_result_tree_put_i64(output, 2 * count + 3 + 2 * index, vertex.i64())
-        bfs_result_tree_put_i64(output, 2 * count + 4 + 2 * index, parent[vertex])
+        bfs_result_tree_put_i64(output[0:words * 8], 2 * count + 3 + 2 * index, vertex.i64())
+        bfs_result_tree_put_i64(output[0:words * 8], 2 * count + 4 + 2 * index, parent[vertex])
         index <- index + 1
-    bfs_result_tree_put_i64(output, 4 * count + 3, count.i64())
+    bfs_result_tree_put_i64(output[0:words * 8], 4 * count + 3, count.i64())
     index <- 0
     while index < count:
         vertex: usize = order[index]
-        bfs_result_tree_put_i64(output, 4 * count + 4 + 2 * index, vertex.i64())
-        bfs_result_tree_put_i64(output, 4 * count + 5 + 2 * index, distance[vertex])
+        bfs_result_tree_put_i64(output[0:words * 8], 4 * count + 4 + 2 * index, vertex.i64())
+        bfs_result_tree_put_i64(output[0:words * 8], 4 * count + 5 + 2 * index, distance[vertex])
         index <- index + 1
     (words * 8).i64()

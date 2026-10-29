@@ -1,5 +1,5 @@
 # SlowSort over an inclusive interval.
-def slow_sort_range(values: mutable i64&, first: usize, last: usize) -> void:
+def slow_sort_range(values: mutable view[i64], first: usize, last: usize) -> void:
     if first >= last:
         return
     middle: usize = first + (last - first) / 2
@@ -13,6 +13,6 @@ def slow_sort_range(values: mutable i64&, first: usize, last: usize) -> void:
 
 def slow_sort_impl(values: mutable i64&, length: usize) -> void:
     if length > 1:
-        slow_sort_range(values, 0, length - 1)
+        slow_sort_range(values[0:length], 0, length - 1)
 
 export fn slow_sort(values: mutable i64&, length: usize) -> void = slow_sort_impl

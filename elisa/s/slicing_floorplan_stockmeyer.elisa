@@ -14,7 +14,7 @@ def mask_lex_less(a: i64, b: i64, leaves: usize) -> bool:
         bit <- bit + 1
     false
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -181,10 +181,10 @@ def slicing_floorplan_stockmeyer_impl(input: i64&, length: usize,
     if output.is_null() or capacity < OUTPUT_BYTES:
         return -2
     staged: mutable u8[OUTPUT_BYTES] = zeroed
-    store_i64_le(cand_h[base + best] * cand_w[base + best], staged&, 0)
-    store_i64_le(cand_h[base + best], staged&, 8)
-    store_i64_le(cand_w[base + best], staged&, 16)
-    store_i64_le(cand_mask[base + best], staged&, 24)
+    store_i64_le(cand_h[base + best] * cand_w[base + best], staged[0:OUTPUT_BYTES], 0)
+    store_i64_le(cand_h[base + best], staged[0:OUTPUT_BYTES], 8)
+    store_i64_le(cand_w[base + best], staged[0:OUTPUT_BYTES], 16)
+    store_i64_le(cand_mask[base + best], staged[0:OUTPUT_BYTES], 24)
     byte: mutable usize = 0
     while byte < OUTPUT_BYTES:
         output[byte] <- staged[byte]

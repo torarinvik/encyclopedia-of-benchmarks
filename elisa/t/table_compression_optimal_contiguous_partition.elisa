@@ -3,7 +3,7 @@ const MAX_COLS: usize = 8
 const MAX_INPUT: usize = 66
 const OUTPUT_BYTES: usize = 24
 
-def table_compression_interval_cost(input: i64&, rows: usize, cols: usize,
+def table_compression_interval_cost(input: view[i64], rows: usize, cols: usize,
                                    begin_col: usize, end_col: usize) -> i64:
     runs: mutable i64 = 0
     have_previous: mutable bool = false
@@ -20,7 +20,7 @@ def table_compression_interval_cost(input: i64&, rows: usize, cols: usize,
         row <- row + 1
     runs * 2
 
-def table_compression_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def table_compression_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -48,7 +48,7 @@ def table_compression_optimal_contiguous_partition(input: i64&, length: usize,
         costs[finish] <- 0x3fffffff.i64()
         start: mutable usize = 0
         while start < finish:
-            candidate: i64 = costs[start] + table_compression_interval_cost(input, rows, cols, start, finish)
+            candidate: i64 = costs[start] + table_compression_interval_cost(input[0:length], rows, cols, start, finish)
             if candidate < costs[finish]:
                 costs[finish] <- candidate
                 previous[finish] <- start
@@ -65,9 +65,9 @@ def table_compression_optimal_contiguous_partition(input: i64&, length: usize,
         finish <- start
     if output.is_null() or capacity < OUTPUT_BYTES: return -2
     staged: mutable u8[OUTPUT_BYTES] = zeroed
-    table_compression_put(costs[cols], staged, 0)
-    table_compression_put(groups, staged, 8)
-    table_compression_put(cuts.i64(), staged, 16)
+    table_compression_put(costs[cols], staged[0:OUTPUT_BYTES], 0)
+    table_compression_put(groups, staged[0:OUTPUT_BYTES], 8)
+    table_compression_put(cuts.i64(), staged[0:OUTPUT_BYTES], 16)
     index <- 0
     while index < OUTPUT_BYTES:
         output[index] <- staged[index]

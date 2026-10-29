@@ -3,7 +3,7 @@ const HUFFBENCH_DATA_BYTES: usize = 4096
 const HUFFBENCH_MIN_PASSES: i64 = 1
 const HUFFBENCH_MAX_PASSES: i64 = 30
 
-def huffbench_heap_adjust(frequency: usize&, heap: mutable usize&, active: usize, one_based: usize) -> void:
+def huffbench_heap_adjust(frequency: view[usize], heap: mutable view[usize], active: usize, one_based: usize) -> void:
     value: usize = heap[one_based - 1]
     index: mutable usize = one_based
     while index <= active / 2:
@@ -26,7 +26,7 @@ def huffbench_random4(seed: mutable i64&) -> usize:
     seed <- seed ^ 123459876
     result
 
-def huffbench_compdecomp(data: mutable u8&, compressed: mutable u8&,
+def huffbench_compdecomp(data: mutable view[u8], compressed: mutable view[u8],
         compressed_length: mutable usize&, checksum: mutable u32&) -> bool:
     frequency: mutable usize[512] = zeroed
     heap: mutable usize[256] = zeroed
@@ -43,19 +43,19 @@ def huffbench_compdecomp(data: mutable u8&, compressed: mutable u8&,
             active <- active + 1
     index: mutable usize = active
     while index > 0:
-        huffbench_heap_adjust(frequency, &heap[0], active, index)
+        huffbench_heap_adjust(frequency[0:512], heap[0:256], active, index)
         index <- index - 1
     while active > 1:
         active <- active - 1
         first: usize = heap[0]
         heap[0] <- heap[active]
-        huffbench_heap_adjust(frequency, &heap[0], active, 1)
+        huffbench_heap_adjust(frequency[0:512], heap[0:256], active, 1)
         parent: usize = 256 + active
         frequency[parent] <- frequency[heap[0]] + frequency[first]
         link[first] <- parent.i64()
         link[heap[0]] <- -parent.i64()
         heap[0] <- parent
-        huffbench_heap_adjust(frequency, &heap[0], active, 1)
+        huffbench_heap_adjust(frequency[0:512], heap[0:256], active, 1)
     link[256 + active] <- 0
 
     for symbol in 0..<256:
@@ -151,7 +151,7 @@ def huffbench_compdecomp(data: mutable u8&, compressed: mutable u8&,
     checksum <- sum.u32()
     true
 
-def huffbench_append_decimal(value_input: u32, output: mutable u8&, position_input: usize) -> usize:
+def huffbench_append_decimal(value_input: u32, output: mutable view[u8], position_input: usize) -> usize:
     digits: mutable u8[10]
     digit_count: mutable usize = 0
     value: mutable u32 = value_input
@@ -188,7 +188,7 @@ def coyote_huffbench_impl(passes: i64, output: mutable u8&, output_capacity: usi
     checksum: mutable u32 = 0
     pass: mutable i64 = 0
     while pass < passes:
-        if not huffbench_compdecomp(&data[0], &compressed[0], &compressed_length, &checksum):
+        if not huffbench_compdecomp(data[0:HUFFBENCH_DATA_BYTES], compressed[0:HUFFBENCH_DATA_BYTES + 1], &compressed_length, &checksum):
             return -1
         pass <- pass + 1
 
@@ -211,7 +211,7 @@ def coyote_huffbench_impl(passes: i64, output: mutable u8&, output_capacity: usi
     staged[position] <- 101; position <- position + 1
     staged[position] <- 115; position <- position + 1
     staged[position] <- 61; position <- position + 1
-    position <- huffbench_append_decimal(passes.u32(), staged, position)
+    position <- huffbench_append_decimal(passes.u32(), staged[0:52], position)
     staged[position] <- 32; position <- position + 1
     staged[position] <- 99; position <- position + 1
     staged[position] <- 111; position <- position + 1
@@ -224,7 +224,7 @@ def coyote_huffbench_impl(passes: i64, output: mutable u8&, output_capacity: usi
     staged[position] <- 101; position <- position + 1
     staged[position] <- 100; position <- position + 1
     staged[position] <- 61; position <- position + 1
-    position <- huffbench_append_decimal(compressed_length.u32(), staged, position)
+    position <- huffbench_append_decimal(compressed_length.u32(), staged[0:52], position)
     staged[position] <- 32; position <- position + 1
     staged[position] <- 99; position <- position + 1
     staged[position] <- 104; position <- position + 1
@@ -235,7 +235,7 @@ def coyote_huffbench_impl(passes: i64, output: mutable u8&, output_capacity: usi
     staged[position] <- 117; position <- position + 1
     staged[position] <- 109; position <- position + 1
     staged[position] <- 61; position <- position + 1
-    position <- huffbench_append_decimal(checksum, staged, position)
+    position <- huffbench_append_decimal(checksum, staged[0:52], position)
     staged[position] <- 10
     position <- position + 1
     if output_capacity < position:

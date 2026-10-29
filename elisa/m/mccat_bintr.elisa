@@ -16,19 +16,19 @@ const MCCAT_BINTR_MAX_NODES: usize = 64
 const MCCAT_BINTR_QUERY_COUNT: usize = 100
 const MCCAT_BINTR_OUTPUT_BYTES: usize = 33
 
-def mccat_bintr_tree_size(left: i32&, right: i32&, node: i32) -> i32:
+def mccat_bintr_tree_size(left: view[i32], right: view[i32], node: i32) -> i32:
     if node < 0:
         return 0
     index: usize = node.usize()
     1 + mccat_bintr_tree_size(left, right, left[index]) + mccat_bintr_tree_size(left, right, right[index])
 
-def mccat_bintr_tree_sum(values: i32&, left: i32&, right: i32&, node: i32) -> f64:
+def mccat_bintr_tree_sum(values: view[i32], left: view[i32], right: view[i32], node: i32) -> f64:
     if node < 0:
         return 0.0
     index: usize = node.usize()
     values[index].f64() + mccat_bintr_tree_sum(values, left, right, left[index]) + mccat_bintr_tree_sum(values, left, right, right[index])
 
-def mccat_bintr_member_dfs(values: i32&, left: i32&, right: i32&, node: i32, sought: i32) -> bool:
+def mccat_bintr_member_dfs(values: view[i32], left: view[i32], right: view[i32], node: i32, sought: i32) -> bool:
     if node < 0:
         return false
     index: usize = node.usize()
@@ -38,11 +38,11 @@ def mccat_bintr_member_dfs(values: i32&, left: i32&, right: i32&, node: i32, sou
         return true
     mccat_bintr_member_dfs(values, left, right, right[index], sought)
 
-def mccat_bintr_put_u32(output: mutable u8&, offset: usize, value: u32) -> void:
+def mccat_bintr_put_u32(output: mutable view[u8], offset: usize, value: u32) -> void:
     for byte in 0..<4:
         output[offset + byte] <- ((value >> (8 * byte)) & 255).u8()
 
-def mccat_bintr_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def mccat_bintr_put_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for byte in 0..<8:
@@ -108,17 +108,21 @@ def mccat_bintr_impl(input: i64&, input_length: usize, output: mutable u8&, outp
                     else:
                         current <- child
 
-    size: i32 = mccat_bintr_tree_size(&left[0], &right[0], root)
-    sum: f64 = mccat_bintr_tree_sum(&values[0], &left[0], &right[0], root)
+    values_view: mutable view[i32] = values[0:MCCAT_BINTR_MAX_NODES]
+    left_view: mutable view[i32] = left[0:MCCAT_BINTR_MAX_NODES]
+    right_view: mutable view[i32] = right[0:MCCAT_BINTR_MAX_NODES]
+    size: i32 = mccat_bintr_tree_size(left_view, right_view, root)
+    sum: f64 = mccat_bintr_tree_sum(values_view, left_view, right_view, root)
     mean: f64 = sum / size.f64()
-    mccat_bintr_put_u32(output, 0, size.u32())
-    mccat_bintr_put_f64(output, 4, sum)
-    mccat_bintr_put_f64(output, 12, mean)
+    output_view: mutable view[u8] = output[0:MCCAT_BINTR_OUTPUT_BYTES]
+    mccat_bintr_put_u32(output_view, 0, size.u32())
+    mccat_bintr_put_f64(output_view, 4, sum)
+    mccat_bintr_put_f64(output_view, 12, mean)
     for byte in 0..<13:
         output[20 + byte] <- 0
     for index in 0..<MCCAT_BINTR_QUERY_COUNT:
         sought: i32 = input[node_count + 2 + index].i32()
-        if mccat_bintr_member_dfs(&values[0], &left[0], &right[0], root, sought):
+        if mccat_bintr_member_dfs(values_view, left_view, right_view, root, sought):
             output[20 + index / 8] <- output[20 + index / 8] | (1.u8() << (index % 8))
     MCCAT_BINTR_OUTPUT_BYTES.i64()
 

@@ -25,7 +25,7 @@ def rna_mfe_lex_less(left: u64, right: u64, count: usize) -> bool:
         li <- li + 1
         ri <- ri + 1
 
-def rna_mfe_put64(output: mutable u8&, offset: usize, value: i64) -> void:
+def rna_mfe_put64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -33,7 +33,7 @@ def rna_mfe_put64(output: mutable u8&, offset: usize, value: i64) -> void:
         bits <- bits >> 8
         byte <- byte + 1
 
-def rna_mfe_loop_cost(input: i64&, n: usize, kind: usize, unpaired: usize, children: usize) -> i64:
+def rna_mfe_loop_cost(input: view[i64], n: usize, kind: usize, unpaired: usize, children: usize) -> i64:
     input[1 + n + kind * 39 + unpaired * 3 + children]
 
 def rna_mfe_loop_energy_dp_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
@@ -42,6 +42,7 @@ def rna_mfe_loop_energy_dp_impl(input: i64&, length: usize, output: mutable u8&,
     if n64 < 4 || n64 > 12: return -1
     n: usize = n64.usize()
     if length != 1 + n + TABLE_VALUES: return -1
+    input_view: view[i64] = input[0:length]
     bases: mutable i64[MAX_N] = zeroed
     i: mutable usize = 0
     while i < n:
@@ -100,7 +101,7 @@ def rna_mfe_loop_energy_dp_impl(input: i64&, length: usize, output: mutable u8&,
                 outer: u64 = 1.u64() << ids[i][j].usize()
                 best: mutable i64 = INF
                 best_mask: mutable u64 = 0
-                candidate: mutable i64 = rna_mfe_loop_cost(input, n, kind, span - 1, 0)
+                candidate: mutable i64 = rna_mfe_loop_cost(input_view, n, kind, span - 1, 0)
                 if candidate < best || (candidate == best && rna_mfe_lex_less(outer, best_mask, pair_count)):
                     best <- candidate
                     best_mask <- outer
@@ -110,7 +111,7 @@ def rna_mfe_loop_energy_dp_impl(input: i64&, length: usize, output: mutable u8&,
                     while b < j:
                         if ids[a][b] >= 0 && ve[a][b] != INF:
                             unpaired: usize = (a - i - 1) + (j - b - 1)
-                            candidate <- rna_mfe_loop_cost(input, n, kind, unpaired, 1) + ve[a][b]
+                            candidate <- rna_mfe_loop_cost(input_view, n, kind, unpaired, 1) + ve[a][b]
                             mask: u64 = outer | vm[a][b]
                             if candidate < best || (candidate == best && rna_mfe_lex_less(mask, best_mask, pair_count)):
                                 best <- candidate
@@ -128,7 +129,7 @@ def rna_mfe_loop_energy_dp_impl(input: i64&, length: usize, output: mutable u8&,
                                 while d < j:
                                     if ids[c][d] >= 0 && ve[c][d] != INF:
                                         unpaired: usize = (a - i - 1) + (c - b - 1) + (j - d - 1)
-                                        candidate <- rna_mfe_loop_cost(input, n, kind, unpaired, 2) + ve[a][b] + ve[c][d]
+                                        candidate <- rna_mfe_loop_cost(input_view, n, kind, unpaired, 2) + ve[a][b] + ve[c][d]
                                         mask: u64 = outer | vm[a][b] | vm[c][d]
                                         if candidate < best || (candidate == best && rna_mfe_lex_less(mask, best_mask, pair_count)):
                                             best <- candidate
@@ -177,15 +178,16 @@ def rna_mfe_loop_energy_dp_impl(input: i64&, length: usize, output: mutable u8&,
     bytes: usize = 8 * (2 + 2 * count)
     if output == null || capacity < bytes: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
-    rna_mfe_put64(staged, 0, we[n - 1])
-    rna_mfe_put64(staged, 8, count.i64())
+    staged_view: mutable view[u8] = staged[0:bytes]
+    rna_mfe_put64(staged_view, 0, we[n - 1])
+    rna_mfe_put64(staged_view, 8, count.i64())
     at: mutable usize = 2
     p <- 0
     while p < pair_count:
         if ((wm[n - 1] >> p) & 1) != 0:
-            rna_mfe_put64(staged, 8 * at, pair_i[p].i64())
+            rna_mfe_put64(staged_view, 8 * at, pair_i[p].i64())
             at <- at + 1
-            rna_mfe_put64(staged, 8 * at, pair_j[p].i64())
+            rna_mfe_put64(staged_view, 8 * at, pair_j[p].i64())
             at <- at + 1
         p <- p + 1
     i <- 0

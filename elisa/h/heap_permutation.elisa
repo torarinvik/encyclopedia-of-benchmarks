@@ -1,10 +1,10 @@
-def put_i32(output: mutable u8&, offset: usize, value: i32) -> void:
+def put_i32(output: mutable view[u8], offset: usize, value: i32) -> void:
     bits: mutable u32 = value.u32()
     for byte in 0..<4:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def generate(values: mutable i32&, n: usize, k: usize, output: mutable u8&, rows: mutable usize&) -> void:
+def generate(values: mutable view[i32], n: usize, k: usize, output: mutable view[u8], rows: mutable usize&) -> void:
     if k == 1:
         start: usize = rows * n * 4
         for index in 0..<n: put_i32(output, start + index * 4, values[index])
@@ -33,7 +33,7 @@ def heap_permutation_impl(input: i64&, length: usize, output: mutable u8&, capac
     if capacity < required or (required != 0 and output.is_null()): return -2
     if n == 0: return 1
     rows: mutable usize = 0
-    generate(values, n, n, output, rows)
+    generate(values[0:n], n, n, output[0:required], rows)
     rows.i64()
 
 export fn heap_permutation(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = heap_permutation_impl

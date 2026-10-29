@@ -153,7 +153,7 @@ def pb_search(a: PBTree&, ai: i64, b: PBTree&, bi: i64, best: mutable i64&) -> v
             pb_search(a, pairs[(2 * i).usize()], b, pairs[(2 * i + 1).usize()], best)
             i <- i + 1
 
-def pb_write_i64(output: mutable u8&, value: i64) -> void:
+def pb_write_i64(output: mutable view[u8], value: i64) -> void:
     bits: u64 = value.u64()
     i: mutable usize = 0
     while i < 8:
@@ -189,7 +189,7 @@ def pargeo_bichromatic_closest_pair_impl(input: i64&, length: usize,
     rb: i64 = pb_build(b, 0, nb)
     best: mutable i64 = 9223372036854775807
     pb_search(a, ra, b, rb, best)
-    pb_write_i64(output, best)
+    pb_write_i64(output[0:capacity], best)
     8
 
 export fn pargeo_bichromatic_closest_pair(input: i64&, length: usize,

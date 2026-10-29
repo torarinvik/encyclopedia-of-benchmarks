@@ -1,4 +1,4 @@
-def complex_arithmetic_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
+def complex_arithmetic_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[position + byte] <- (bits % 256.u64()).u8()
@@ -48,8 +48,8 @@ def complex_arithmetic_impl(input: i64&, length: usize,
 
     if output_capacity < 16 or output == null:
         return -2
-    complex_arithmetic_store_i64(real_result, output, 0)
-    complex_arithmetic_store_i64(imaginary_result, output, 8)
+    complex_arithmetic_store_i64(real_result, output[0:16], 0)
+    complex_arithmetic_store_i64(imaginary_result, output[0:16], 8)
     return 2
 
 export fn complex_arithmetic(input: i64&, length: usize,

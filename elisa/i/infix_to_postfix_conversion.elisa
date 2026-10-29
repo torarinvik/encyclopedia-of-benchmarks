@@ -15,7 +15,7 @@ def infix_to_postfix_conversion_precedence(ch: i64) -> i64:
         return 2
     3
 
-def emit_token(result: mutable u8&, count_input: usize, token: u8) -> usize:
+def emit_token(result: mutable view[u8], count_input: usize, token: u8) -> usize:
     position: mutable usize = count_input
     if position > 0:
         result[position] <- 32u8
@@ -40,7 +40,7 @@ def infix_to_postfix_conversion_impl(input: i64&, length: usize, output: mutable
         if infix_to_postfix_conversion_is_operand(ch):
             if not expect_operand:
                 return -1
-            count <- emit_token(result, count, ch.u8())
+            count <- emit_token(result[0:MAX_OUTPUT], count, ch.u8())
             expect_operand <- false
         elif ch == 40:
             if not expect_operand or top == MAX_EXPRESSION:
@@ -52,7 +52,7 @@ def infix_to_postfix_conversion_impl(input: i64&, length: usize, output: mutable
                 return -1
             while top > 0 and stack[top - 1] != 40u8:
                 top <- top - 1
-                count <- emit_token(result, count, stack[top])
+                count <- emit_token(result[0:MAX_OUTPUT], count, stack[top])
             if top == 0:
                 return -1
             top <- top - 1
@@ -64,7 +64,7 @@ def infix_to_postfix_conversion_impl(input: i64&, length: usize, output: mutable
                   (infix_to_postfix_conversion_precedence(ch) < infix_to_postfix_conversion_precedence(stack[top - 1].i64()) or
                    (infix_to_postfix_conversion_precedence(ch) == infix_to_postfix_conversion_precedence(stack[top - 1].i64()) and ch != 94)):
                 top <- top - 1
-                count <- emit_token(result, count, stack[top])
+                count <- emit_token(result[0:MAX_OUTPUT], count, stack[top])
             if top == MAX_EXPRESSION:
                 return -1
             stack[top] <- ch.u8()
@@ -79,7 +79,7 @@ def infix_to_postfix_conversion_impl(input: i64&, length: usize, output: mutable
         if stack[top - 1] == 40u8:
             return -1
         top <- top - 1
-        count <- emit_token(result, count, stack[top])
+        count <- emit_token(result[0:MAX_OUTPUT], count, stack[top])
     result[count] <- 0u8
     count <- count + 1
     if output_capacity < count:

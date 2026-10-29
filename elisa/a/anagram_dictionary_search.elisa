@@ -1,7 +1,7 @@
 const MAX_WORDS: i64 = 16
 const MAX_WORD_LENGTH: i64 = 16
 
-def anagram_dictionary_search_is_match(input: i64&, query_length: usize, word_offset: usize, word_length: usize) -> bool:
+def anagram_dictionary_search_is_match(input: view[i64], query_length: usize, word_offset: usize, word_length: usize) -> bool:
     if query_length != word_length:
         return false
     counts: mutable i64[26] = zeroed
@@ -17,7 +17,7 @@ def anagram_dictionary_search_is_match(input: i64&, query_length: usize, word_of
         index <- index + 1
     true
 
-def anagram_dictionary_search_put_byte(output: mutable u8&, capacity: usize, length: mutable usize&, value: u8) -> bool:
+def anagram_dictionary_search_put_byte(output: mutable view[u8], capacity: usize, length: mutable usize&, value: u8) -> bool:
     if length >= capacity:
         return false
     output[length] <- value
@@ -54,19 +54,19 @@ def anagram_dictionary_search_impl(input: i64&, length: usize, output: mutable u
             if input[offset + index] < 97 or input[offset + index] > 122:
                 return -1
             index <- index + 1
-        if anagram_dictionary_search_is_match(input, query_length, offset, word_length):
+        if anagram_dictionary_search_is_match(input[0:length], query_length, offset, word_length):
             index <- 0
             while index < word_length:
-                if not anagram_dictionary_search_put_byte(output, output_capacity, output_length, input[offset + index].u8()):
+                if not anagram_dictionary_search_put_byte(output[0:output_capacity], output_capacity, output_length, input[offset + index].u8()):
                     return -2
                 index <- index + 1
-            if not anagram_dictionary_search_put_byte(output, output_capacity, output_length, 10.u8()):
+            if not anagram_dictionary_search_put_byte(output[0:output_capacity], output_capacity, output_length, 10.u8()):
                 return -2
         offset <- offset + word_length
         item <- item + 1
     if offset != length:
         return -1
-    if not anagram_dictionary_search_put_byte(output, output_capacity, output_length, 0.u8()):
+    if not anagram_dictionary_search_put_byte(output[0:output_capacity], output_capacity, output_length, 0.u8()):
         return -2
     output_length.i64()
 

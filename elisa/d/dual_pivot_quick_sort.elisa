@@ -1,5 +1,5 @@
 # Dual-pivot quicksort with first and final values as pivots.
-def dual_pivot_sort_range(values: mutable i64&, low_value: usize, high_value: usize) -> void:
+def dual_pivot_sort_range(values: mutable view[i64], low_value: usize, high_value: usize) -> void:
     low: mutable usize = low_value
     high: mutable usize = high_value
     while high - low > 2:
@@ -63,6 +63,6 @@ def dual_pivot_sort_range(values: mutable i64&, low_value: usize, high_value: us
 
 def dual_pivot_quick_sort_impl(values: mutable i64&, length: usize) -> void:
     if length > 1:
-        dual_pivot_sort_range(values, 0, length)
+        dual_pivot_sort_range(values[0:length], 0, length)
 
 export fn dual_pivot_quick_sort(values: mutable i64&, length: usize) -> void = dual_pivot_quick_sort_impl

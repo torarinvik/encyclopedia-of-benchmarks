@@ -1,6 +1,6 @@
 const MAX_N: usize = 7
 
-def heaps_emit_row(items: u8&, n: usize, output: mutable u8&, rows: mutable usize&) -> void:
+def heaps_emit_row(items: mutable view[u8], n: usize, output: mutable view[u8], rows: mutable usize&) -> void:
     offset: usize = rows * n
     index: mutable usize = 0
     while index < n:
@@ -8,8 +8,8 @@ def heaps_emit_row(items: u8&, n: usize, output: mutable u8&, rows: mutable usiz
         index <- index + 1
     rows <- rows + 1
 
-def heaps_generate(items: mutable u8&, n: usize, size: usize,
-                   output: mutable u8&, rows: mutable usize&) -> void:
+def heaps_generate(items: mutable view[u8], n: usize, size: usize,
+                   output: mutable view[u8], rows: mutable usize&) -> void:
     if size == 1:
         heaps_emit_row(items, n, output, rows)
         return
@@ -42,7 +42,7 @@ def heaps_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize
         items[index] <- (49 + index).u8()
         index <- index + 1
     rows: mutable usize = 0
-    heaps_generate(items, n, n, output, rows)
+    heaps_generate(items[0:n], n, n, output[0:required], rows)
     rows.i64()
 
 export fn heaps(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = heaps_impl

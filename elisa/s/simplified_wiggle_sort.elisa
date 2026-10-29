@@ -1,7 +1,7 @@
 # QuickSelect median followed by alternating low/high placement.
 const MAX_ARRAY_LENGTH: usize = 4096
 
-def select_kth(values: mutable i64&, count: usize, target: usize) -> i64:
+def select_kth(values: mutable view[i64], count: usize, target: usize) -> i64:
     low: mutable i64 = 0
     high: mutable i64 = count.i64() - 1
     while low < high:
@@ -27,7 +27,7 @@ def select_kth(values: mutable i64&, count: usize, target: usize) -> i64:
             break
     values[target]
 
-def store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i32_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -51,7 +51,7 @@ def simplified_wiggle_sort_impl(input: i64&, length: usize, output: mutable u8&,
     if length == 0:
         return 0
 
-    median: i64 = select_kth(&values[0], length, length / 2)
+    median: i64 = select_kth(values[0:length], length, length / 2)
     smaller: mutable usize = 0
     greater: mutable i64 = (length.i64() - 1 - (length.i64() % 2))
     index <- 0
@@ -68,7 +68,7 @@ def simplified_wiggle_sort_impl(input: i64&, length: usize, output: mutable u8&,
         index <- index + 1
     index <- 0
     while index < length:
-        store_i32_le(ordered[index], output, index * 4)
+        store_i32_le(ordered[index], output[0:byte_count], index * 4)
         index <- index + 1
     length.i64()
 

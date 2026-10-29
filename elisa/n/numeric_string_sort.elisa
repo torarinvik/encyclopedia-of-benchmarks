@@ -1,5 +1,5 @@
 # Sort bounded decimal strings by normalized length and lexicographic order.
-def numeric_token_less(values: i64&, left_start: usize, left_length: usize,
+def numeric_token_less(values: view[i64], left_start: usize, left_length: usize,
                        right_start: usize, right_length: usize) -> bool:
     if left_length != right_length: return left_length < right_length
     for index in 0..<left_length:
@@ -58,7 +58,7 @@ def numeric_string_sort_impl(values: i64&, length: usize,
     for index in 1..<count:
         key: usize = order[index]
         position: mutable usize = index
-        while position > 0 and numeric_token_less(values,
+        while position > 0 and numeric_token_less(values[0:length],
               normalized_starts[key], normalized_lengths[key],
               normalized_starts[order[position - 1]], normalized_lengths[order[position - 1]]):
             order[position] <- order[position - 1]

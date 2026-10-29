@@ -1,4 +1,4 @@
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -31,7 +31,7 @@ def convolution_impl(values: i64&, length: usize, output: mutable u8&, capacity:
         while k <= k_end:
             sum <- sum + values[k + 2] * values[a_count + (i - k) + 2]
             k <- k + 1
-        store_i64_le(sum, output, i * 8)
+        store_i64_le(sum, output[0:byte_count], i * 8)
         i <- i + 1
     byte_count.i64()
 

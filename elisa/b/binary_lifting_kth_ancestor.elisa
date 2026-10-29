@@ -2,7 +2,7 @@ const MAX_NODES: usize = 256
 const MAX_QUERIES: usize = 1024
 const LEVELS: usize = 9
 
-def binary_lifting_kth_ancestor_put(output: mutable u8&, slot: usize, value: i64) -> void:
+def binary_lifting_kth_ancestor_put(output: mutable view[u8], slot: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for i in 0..<8:
         output[slot * 8 + i] <- (bits & 255).u8()
@@ -67,7 +67,7 @@ def binary_lifting_kth_ancestor_impl(input: i64&, length: usize, output: mutable
     bytes: usize = (1 + queries) * 8
     if output == null or capacity < bytes:
         return -2
-    binary_lifting_kth_ancestor_put(output, 0, queries.i64())
+    binary_lifting_kth_ancestor_put(output[0:bytes], 0, queries.i64())
     for query in 0..<queries:
         node: usize = input[query_offset + 2 * query].usize()
         k: u64 = input[query_offset + 2 * query + 1].u64()
@@ -77,7 +77,7 @@ def binary_lifting_kth_ancestor_impl(input: i64&, length: usize, output: mutable
             for bit in 0..<LEVELS:
                 if (k & ((1).u64() << bit)) != 0:
                     node <- up[bit * MAX_NODES + node].usize()
-        binary_lifting_kth_ancestor_put(output, (1 + query) * 8, node.i64())
+        binary_lifting_kth_ancestor_put(output[0:bytes], (1 + query) * 8, node.i64())
     bytes.i64()
 
 export fn binary_lifting_kth_ancestor(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = binary_lifting_kth_ancestor_impl

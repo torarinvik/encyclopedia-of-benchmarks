@@ -1,19 +1,17 @@
-module llubenchmark_list_traversal_growth;
-
-def fn void llub_store_le_i64(u8* output, i64 offset, i64 value):
+def llub_store_le_i64(output: mutable u8&, offset: i64, value: i64) -> void:
     byte: mutable i64 = 0
     while byte < 8:
         output[offset + byte] <- ((value >> (8 * byte)).u8())
         byte <- byte + 1
 
-def fn i64 llubenchmark_list_traversal_growth(i64* input, i64 input_length,
-        u8* output, i64 output_capacity):
-    if input == null or input_length != 3: return -1
+def llubenchmark_list_traversal_growth_impl(input: i64&, input_length: i64,
+        output: mutable u8&, output_capacity: i64) -> i64:
+    if input.is_null() or input_length != 3: return -1
     list_value: i64 = input[0]
     initial_value: i64 = input[1]
     iteration_value: i64 = input[2]
     if list_value < 1 or list_value > 4 or initial_value < 1 or initial_value > 4 or iteration_value < 0 or iteration_value > 16: return -1
-    if output == null or output_capacity < 16: return -2
+    if output.is_null() or output_capacity < 16: return -2
 
     list_count: i64 = list_value
     initial_length: i64 = initial_value
@@ -76,4 +74,5 @@ def fn i64 llubenchmark_list_traversal_growth(i64* input, i64 input_length,
     llub_store_le_i64(output, 8, allocated)
     return 2
 
-export fn llubenchmark_list_traversal_growth
+export fn llubenchmark_list_traversal_growth(input: i64&, input_length: i64,
+        output: mutable u8&, output_capacity: i64) -> i64 = llubenchmark_list_traversal_growth_impl

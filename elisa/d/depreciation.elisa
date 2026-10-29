@@ -5,7 +5,7 @@ const MAX_UNITS: i64 = 1000000000
 extern fabs(value: f64) -> f64
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def depreciation_write_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def depreciation_write_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -140,7 +140,7 @@ def depreciation_impl(input: i64&, length: usize, output: mutable u8&, output_ca
         return -2
     index: mutable usize = 0
     while index < years:
-        depreciation_write_f64(output, index * 8, schedule[index])
+        depreciation_write_f64(output[0:output_bytes], index * 8, schedule[index])
         index <- index + 1
     output_bytes.i64()
 

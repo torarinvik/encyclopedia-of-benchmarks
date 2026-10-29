@@ -1,5 +1,5 @@
 # Integer Bresenham rasterization with both endpoints included.
-def bresenham_line_write_i32(output: mutable u8&, position: usize, value: i64) -> void:
+def bresenham_line_write_i32(output: mutable view[u8], position: usize, value: i64) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -48,8 +48,8 @@ def bresenham_line_impl(values: i64&, length: usize, output: mutable u8&,
     err: mutable i64 = dx - dy
     position: mutable usize = 0
     while true:
-        bresenham_line_write_i32(output, position, x)
-        bresenham_line_write_i32(output, position + 4, y)
+        bresenham_line_write_i32(output[0:required], position, x)
+        bresenham_line_write_i32(output[0:required], position + 4, y)
         position <- position + 8
         if x == x1 and y == y1:
             break

@@ -1,6 +1,6 @@
 const PRIME: i64 = 2147483647
 
-def count_min_sketch_affine_put(output: mutable u8&, offset: usize, value: i64) -> void:
+def count_min_sketch_affine_put(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -78,7 +78,7 @@ def count_min_sketch_affine_impl(input: i64&, length: usize, output: mutable u8&
     if capacity < required or (required > 0 and output.is_null()): return -2
     op <- 0
     while op < count:
-        count_min_sketch_affine_put(output, 8 * op, staged[op])
+        count_min_sketch_affine_put(output[0:required], 8 * op, staged[op])
         op <- op + 1
     return required.i64()
 

@@ -1,14 +1,14 @@
 # Recursive row search matching the pinned matrix-search source.
-def search_row(values: i64&, base: usize, lower: i64, upper: i64, target: i64) -> i64:
+def search_row(values: view[i64], lower: i64, upper: i64, target: i64) -> i64:
     middle: i64 = (lower + upper) / 2
-    value: i64 = values[base + middle.usize()]
+    value: i64 = values[middle.usize()]
     if value == target:
         return middle
     if lower >= upper:
         return -1
     if value < target:
-        return search_row(values, base, middle + 1, upper, target)
-    search_row(values, base, lower, middle - 1, target)
+        return search_row(values, middle + 1, upper, target)
+    search_row(values, lower, middle - 1, target)
 
 def binary_search_matrix_impl(values: i64&, length: usize) -> i64:
     if length < 3:
@@ -26,7 +26,8 @@ def binary_search_matrix_impl(values: i64&, length: usize) -> i64:
         return 0
     row: mutable usize = 0
     while row < rows and values[3 + row * columns] < target:
-        column: i64 = search_row(values, 3 + row * columns, 0, columns.i64() - 1, target)
+        row_start: usize = 3 + row * columns
+        column: i64 = search_row(values[row_start:row_start + columns], 0, columns.i64() - 1, target)
         if column != -1:
             return (row * columns).i64() + column
         row <- row + 1

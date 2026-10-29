@@ -9,7 +9,7 @@ def floor_div(value: i64, divisor: i64) -> i64:
 def mad_mul(left: i64, right: i64) -> i64:
     return floor_div(left + 2048, 4096) * floor_div(right + 32768, 65536)
 
-def write_i32_le(output: mutable u8&, offset: usize, value: i64):
+def write_i32_le(output: mutable view[u8], offset: usize, value: i64):
     byte: mutable usize = 0
     while byte < 4:
         shifted: i64 = floor_div(value, (1 << (8 * byte)).i64())
@@ -42,9 +42,10 @@ def cbench_consumer_mad_alias_reduce_impl(input: i64&, length: usize,
             i <- i + 1
         boundary <- boundary + 1
     if output == null or capacity < output_size: return -2
+    output_view: mutable view[u8] = output[0:output_size]
     i <- 0
     while i < 16 * boundaries:
-        write_i32_le(output, 4 * i, staged[i])
+        write_i32_le(output_view, 4 * i, staged[i])
         i <- i + 1
     return output_size.i64()
 

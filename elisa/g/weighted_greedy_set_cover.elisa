@@ -2,7 +2,7 @@ const MAX_M: usize = 16
 const MAX_INPUT: usize = 34
 const MAX_OUTPUT: usize = 136
 
-def put64(value: i64, output: mutable u8&, position: usize) -> void:
+def put64(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -62,10 +62,10 @@ def weighted_greedy_set_cover(input: i64&, length: usize,
     output_bytes: usize = 8 * (selected_count + 1)
     if output.is_null() or capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
-    put64(selected_count.i64(), staged&, 0)
+    put64(selected_count.i64(), staged[0:output_bytes], 0)
     set <- 0
     while set < selected_count:
-        put64(selected[set].i64(), staged&, 8 * (set + 1))
+        put64(selected[set].i64(), staged[0:output_bytes], 8 * (set + 1))
         set <- set + 1
     set <- 0
     while set < output_bytes:

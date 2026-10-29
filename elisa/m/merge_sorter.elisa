@@ -1,7 +1,7 @@
 # Stable recursive top-down merge sort with reusable scratch storage.
 const MAX_VALUES: usize = 1024
 
-def merge_sorter_range(values: mutable i64&, scratch: mutable i64&, low: usize, high: usize) -> void:
+def merge_sorter_range(values: mutable view[i64], scratch: mutable view[i64], low: usize, high: usize) -> void:
     if high - low <= 1:
         return
     middle: usize = low + (high - low) / 2
@@ -31,10 +31,11 @@ def merge_sorter_range(values: mutable i64&, scratch: mutable i64&, low: usize, 
         values[index] <- scratch[index]
         index <- index + 1
 
-def merge_sorter_impl(values: mutable i64&, length: usize) -> void:
+def merge_sorter_impl(values: mutable view[i64], length: usize) -> void:
     if length > MAX_VALUES:
         return
     scratch: mutable i64[1024] = zeroed
-    merge_sorter_range(values, scratch[0], 0, length)
+    merge_sorter_range(values, scratch[0:length], 0, length)
 
-export fn merge_sorter(values: mutable i64&, length: usize) -> void = merge_sorter_impl
+export fn merge_sorter(values: mutable i64&, length: usize) -> void =
+    merge_sorter_impl(values[0:length], length)

@@ -1,5 +1,5 @@
 # Count an ASCII codepoint array and emit its canonical frequency map.
-def charoccurrence_append_decimal(buffer: mutable u8&, offset: usize, value: usize) -> usize:
+def charoccurrence_append_decimal(buffer: mutable view[u8], offset: usize, value: usize) -> usize:
     digits: mutable u8[3] = zeroed
     count: mutable usize = 0
     remaining: mutable usize = value
@@ -40,10 +40,10 @@ def charoccurrence_impl(values: i64&, length: usize, output: mutable u8&, capaci
             if used > 0:
                 encoded[used] <- 44
                 used <- used + 1
-            used <- charoccurrence_append_decimal(&encoded[0], used, codepoint)
+            used <- charoccurrence_append_decimal(encoded[0:1024], used, codepoint)
             encoded[used] <- 61
             used <- used + 1
-            used <- charoccurrence_append_decimal(&encoded[0], used, counts[codepoint].usize())
+            used <- charoccurrence_append_decimal(encoded[0:1024], used, counts[codepoint].usize())
         codepoint <- codepoint + 1
     if used > capacity:
         return -2

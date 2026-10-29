@@ -1,4 +1,4 @@
-def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def put_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -43,7 +43,7 @@ def coordinate_compression_impl(input: i64&, length: usize, output: mutable u8&,
             middle: usize = low + (high - low) / 2
             if sorted[middle] < input[i + 1]: low <- middle + 1
             else: high <- middle
-        put_i64_le(ranks[low], output, i * 8)
+        put_i64_le(ranks[low], output[0:n*8], i * 8)
         i <- i + 1
     (n * 8).i64()
 

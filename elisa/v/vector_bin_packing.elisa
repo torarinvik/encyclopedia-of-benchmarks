@@ -4,7 +4,7 @@ const MAX_D: usize = 4
 const MAX_INPUT: usize = 130
 const MAX_FIELDS: usize = 161
 
-def vector_bin_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def vector_bin_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -67,6 +67,6 @@ def vector_bin_packing(input: i64&, length: usize, output: mutable u8&, capacity
     if output.is_null() or capacity < 8*count: return -2
     coordinate <- 0
     while coordinate < count:
-        vector_bin_put(staged[coordinate], output&, 8*coordinate)
+        vector_bin_put(staged[coordinate], output[0:capacity], 8*coordinate)
         coordinate <- coordinate + 1
     (8*count).i64()

@@ -1,12 +1,12 @@
 # Count minimum swaps needed to order a distinct-value array.
 const MAX_VALUES: usize = 256
 
-def swap_position_less(keys: i64&, order: usize&, left: usize, right: usize) -> bool:
+def swap_position_less(keys: view[i64], order: view[usize], left: usize, right: usize) -> bool:
     left_index: usize = order[left]
     right_index: usize = order[right]
     return keys[left_index] < keys[right_index] or (keys[left_index] == keys[right_index] and left_index < right_index)
 
-def swap_sift_down(keys: i64&, order: mutable usize&, heap_length: usize, root_value: usize) -> void:
+def swap_sift_down(keys: view[i64], order: mutable view[usize], heap_length: usize, root_value: usize) -> void:
     root: mutable usize = root_value
     while root < heap_length / 2:
         child: mutable usize = root * 2 + 1
@@ -33,14 +33,14 @@ def swap_sort_impl(values: i64&, length: usize) -> i64:
     start: mutable usize = length / 2
     while start > 0:
         start <- start - 1
-        swap_sift_down(&keys[0], &order[0], length, start)
+        swap_sift_down(keys[0:MAX_VALUES], order[0:MAX_VALUES], length, start)
     end: mutable usize = length
     while end > 1:
         end <- end - 1
         temporary: usize = order[0]
         order[0] <- order[end]
         order[end] <- temporary
-        swap_sift_down(&keys[0], &order[0], end, 0)
+        swap_sift_down(keys[0:MAX_VALUES], order[0:MAX_VALUES], end, 0)
     index <- 1
     while index < length:
         if keys[order[index - 1]] == keys[order[index]]:

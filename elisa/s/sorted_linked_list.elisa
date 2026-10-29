@@ -6,7 +6,7 @@ struct SllNode:
     value: i64
     next: i64
 
-def sll_put_i64_le(output: mutable u8&, offset: usize, value: i64):
+def sll_put_i64_le(output: mutable view[u8], offset: usize, value: i64):
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -117,7 +117,7 @@ def sorted_linked_list_impl(input: i64&, input_length: usize,
     if output.is_null() or capacity < output_bytes: return -2
     index <- 0
     while index < word_count:
-        sll_put_i64_le(output, index * 8, staged[index])
+        sll_put_i64_le(output[0:output_bytes], index * 8, staged[index])
         index <- index + 1
     output_bytes.i64()
 

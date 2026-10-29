@@ -1,6 +1,6 @@
 const FSL_MAX_INPUT: usize = 38
 
-def fsl_put_i64(output: mutable u8&, value: i64): void:
+def fsl_put_i64(output: mutable view[u8], value: i64): void:
     bits: u64 = value.u64()
     for b in 0..<8:
         output[b] <- (bits & 255).u8()
@@ -49,5 +49,5 @@ def felsenstein_substitution_likelihood(input: i64&, length: usize,
     if shift < 0: return -1
     scaled: i64 = (stack[0] + stack[1]) << shift
     if output.is_null() or capacity < 8: return -2
-    fsl_put_i64(output, scaled)
+    fsl_put_i64(output[0:8], scaled)
     8

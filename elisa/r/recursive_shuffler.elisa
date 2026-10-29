@@ -1,7 +1,7 @@
 const MAX_VALUES: usize = 64
 const MODULUS: u64 = 2147483647
 
-def recursive_shuffler_shuffle(values: mutable i32&, item: i64, state: mutable u64&) -> void:
+def recursive_shuffler_shuffle(values: mutable view[i32], item: i64, state: mutable u64&) -> void:
     if item <= 0:
         return
     recursive_shuffler_shuffle(values, item - 1, state)
@@ -30,7 +30,7 @@ def recursive_shuffler_impl(input: i64&, length: usize,
         return -2
     state: mutable u64 = seed.u64()
     if count > 1:
-        recursive_shuffler_shuffle(&values[0], (count - 1).i64(), &state)
+        recursive_shuffler_shuffle(values[0:count], (count - 1).i64(), &state)
     for index in 0..<count:
         bits: u32 = values[index].u32()
         for byte in 0..<4:

@@ -1,6 +1,6 @@
 const D:usize=8
 const MAX_INPUT:usize=132
-def put64(value:i64,output:mutable u8&,pos:usize)->void:
+def put64(value:i64,output:mutable view[u8],pos:usize)->void:
     bits:u64=value.u64();j:mutable usize=0
     while j<8:
         output[pos+j]<-((bits>>(8*j))&255).u8()
@@ -66,7 +66,7 @@ def two_dimensional_string_matching(input:i64&,length:usize,output:mutable u8&,c
             tr<-tr+1
         col<-col+1
     bytes:usize=8*(1+2*count);if output.is_null() or capacity<bytes:return -2
-    put64(count.i64(),output&,0);i<-0
+    put64(count.i64(),output[0:bytes],0);i<-0
     while i<count:
-        put64(mr[i],output&,8*(1+2*i));put64(mc[i],output&,8*(2+2*i));i<-i+1
+        put64(mr[i],output[0:bytes],8*(1+2*i));put64(mc[i],output[0:bytes],8*(2+2*i));i<-i+1
     bytes.i64()

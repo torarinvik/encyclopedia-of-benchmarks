@@ -1,6 +1,6 @@
 const MAX_LENGTH: usize = 512
 
-def kth_largest_sift_down(values: mutable i64&, root_value: usize, heap_length: usize) -> void:
+def kth_largest_sift_down(values: mutable view[i64], root_value: usize, heap_length: usize) -> void:
     root: mutable usize = root_value
     while root < heap_length / 2:
         child: mutable usize = root * 2 + 1
@@ -40,14 +40,14 @@ def kth_largest_by_sort_impl(input: i64&, length: usize) -> i64:
     start: mutable usize = count / 2
     while start > 0:
         start <- start - 1
-        kth_largest_sift_down(&values[0], start, count)
+        kth_largest_sift_down(values[0:count], start, count)
     heap_length: mutable usize = count
     while heap_length > 1:
         temporary: i64 = values[0]
         values[0] <- values[heap_length - 1]
         values[heap_length - 1] <- temporary
         heap_length <- heap_length - 1
-        kth_largest_sift_down(&values[0], 0, heap_length)
+        kth_largest_sift_down(values[0:count], 0, heap_length)
     values[count - k_value.usize()]
 
 export fn kth_largest_by_sort(input: i64&, length: usize) -> i64 = kth_largest_by_sort_impl

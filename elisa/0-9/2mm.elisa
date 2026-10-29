@@ -2,8 +2,8 @@ const TWO_MM_MAX_DIMENSION: usize = 16
 const TWO_MM_MAX_CELLS: usize = TWO_MM_MAX_DIMENSION * TWO_MM_MAX_DIMENSION
 const TWO_MM_INVALID_RESULT: f64 = -1e300
 
-def two_mm_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 4:
+def two_mm_impl(values: view[i64], length: usize) -> f64:
+    if length != 4:
         return TWO_MM_INVALID_RESULT
     if values[0] < 1 or values[0] > TWO_MM_MAX_DIMENSION.i64() or
        values[1] < 1 or values[1] > TWO_MM_MAX_DIMENSION.i64() or
@@ -84,4 +84,6 @@ def two_mm_impl(values: i64&, length: usize) -> f64:
         i <- i + 1
     checksum
 
-export fn two_mm(values: i64&, length: usize) -> f64 = two_mm_impl
+export fn two_mm(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 4: return TWO_MM_INVALID_RESULT
+    two_mm_impl(values[0:length], length)

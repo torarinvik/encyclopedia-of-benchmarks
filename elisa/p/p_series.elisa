@@ -7,7 +7,7 @@ def p_series_decimal_width(value_input: i64) -> usize:
         width <- width + 1
     width
 
-def p_series_append_decimal(output: mutable u8&, position_input: usize, value_input: i64) -> usize:
+def p_series_append_decimal(output: mutable view[u8], position_input: usize, value_input: i64) -> usize:
     value: mutable i64 = value_input
     digits: mutable u8[20] = zeroed
     count: mutable usize = 0
@@ -62,7 +62,7 @@ def p_series_impl(values: i64&, length: usize, output: mutable u8&, output_capac
         position <- position + 1
         output[position] <- 32u8
         position <- position + 1
-        position <- p_series_append_decimal(output, position, denominator)
+        position <- p_series_append_decimal(output[0:output_capacity], position, denominator)
         output[position] <- 10u8
         position <- position + 1
         term <- term + 1

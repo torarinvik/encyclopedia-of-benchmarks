@@ -1,10 +1,10 @@
 # Introsort with quicksort partitioning, a heapsort depth fallback, and insertion cutoff.
-def swap_i64(values: mutable i64&, left: usize, right: usize) -> void:
+def swap_i64(values: mutable view[i64], left: usize, right: usize) -> void:
     temporary: i64 = values[left]
     values[left] <- values[right]
     values[right] <- temporary
 
-def insertion_sort_range(values: mutable i64&, low: usize, high: usize) -> void:
+def insertion_sort_range(values: mutable view[i64], low: usize, high: usize) -> void:
     index: mutable usize = low + 1
     while index < high:
         key: i64 = values[index]
@@ -15,7 +15,7 @@ def insertion_sort_range(values: mutable i64&, low: usize, high: usize) -> void:
         values[cursor] <- key
         index <- index + 1
 
-def sift_down(values: mutable i64&, start: usize, count: usize, root_start: usize) -> void:
+def sift_down(values: mutable view[i64], start: usize, count: usize, root_start: usize) -> void:
     root: mutable usize = root_start
     while root < count / 2:
         child: mutable usize = root * 2 + 1
@@ -26,7 +26,7 @@ def sift_down(values: mutable i64&, start: usize, count: usize, root_start: usiz
         swap_i64(values, start + root, start + child)
         root <- child
 
-def heap_sort_range(values: mutable i64&, low: usize, count: usize) -> void:
+def heap_sort_range(values: mutable view[i64], low: usize, count: usize) -> void:
     parent: mutable usize = count / 2
     while parent > 0:
         parent <- parent - 1
@@ -37,7 +37,7 @@ def heap_sort_range(values: mutable i64&, low: usize, count: usize) -> void:
         swap_i64(values, low, low + end)
         sift_down(values, low, end, 0)
 
-def partition_range(values: mutable i64&, low: usize, high: usize) -> usize:
+def partition_range(values: mutable view[i64], low: usize, high: usize) -> usize:
     last: usize = high - 1
     pivot_index: usize = low + (high - low) / 2
     swap_i64(values, pivot_index, last)
@@ -52,7 +52,7 @@ def partition_range(values: mutable i64&, low: usize, high: usize) -> usize:
     swap_i64(values, boundary, last)
     boundary
 
-def intro_sort_range(values: mutable i64&, low: usize, high: usize, depth: usize) -> void:
+def intro_sort_range(values: mutable view[i64], low: usize, high: usize, depth: usize) -> void:
     count: usize = high - low
     if count <= 16:
         insertion_sort_range(values, low, high)
@@ -75,6 +75,6 @@ def depth_limit(length: usize) -> usize:
 def intro_sort_impl(values: mutable i64&, length: usize) -> void:
     if length < 2:
         return
-    intro_sort_range(values, 0, length, depth_limit(length))
+    intro_sort_range(values[0:length], 0, length, depth_limit(length))
 
 export fn intro_sort(values: mutable i64&, length: usize) -> void = intro_sort_impl

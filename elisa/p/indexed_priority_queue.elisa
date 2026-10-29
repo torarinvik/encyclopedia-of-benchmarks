@@ -1,5 +1,5 @@
 # Bounded identity-addressed min-heap event trace.
-def indexed_priority_queue_key_in_use(heap_ids: i64&, heap_keys: i64&, size: usize,
+def indexed_priority_queue_key_in_use(heap_ids: view[i64], heap_keys: view[i64], size: usize,
         key: i64, except_id: i64) -> bool:
     index: mutable usize = 0
     while index < size:
@@ -8,8 +8,8 @@ def indexed_priority_queue_key_in_use(heap_ids: i64&, heap_keys: i64&, size: usi
         index <- index + 1
     false
 
-def indexed_priority_queue_sift_up(heap_ids: mutable i64&, heap_keys: mutable i64&,
-        positions: mutable i64&, index_value: usize) -> bool:
+def indexed_priority_queue_sift_up(heap_ids: mutable view[i64], heap_keys: mutable view[i64],
+        positions: mutable view[i64], index_value: usize) -> bool:
     index: mutable usize = index_value
     original: usize = index
     item_id: i64 = heap_ids[index]
@@ -27,8 +27,8 @@ def indexed_priority_queue_sift_up(heap_ids: mutable i64&, heap_keys: mutable i6
     positions[item_id.usize()] <- index.i64()
     index != original
 
-def indexed_priority_queue_sift_down(heap_ids: mutable i64&, heap_keys: mutable i64&,
-        positions: mutable i64&, size: usize, index_value: usize) -> void:
+def indexed_priority_queue_sift_down(heap_ids: mutable view[i64], heap_keys: mutable view[i64],
+        positions: mutable view[i64], size: usize, index_value: usize) -> void:
     index: mutable usize = index_value
     item_id: i64 = heap_ids[index]
     item_key: i64 = heap_keys[index]
@@ -48,8 +48,8 @@ def indexed_priority_queue_sift_down(heap_ids: mutable i64&, heap_keys: mutable 
     heap_keys[index] <- item_key
     positions[item_id.usize()] <- index.i64()
 
-def indexed_priority_queue_remove_at(size: mutable usize&, heap_ids: mutable i64&,
-        heap_keys: mutable i64&, positions: mutable i64&, index: usize) -> void:
+def indexed_priority_queue_remove_at(size: mutable usize&, heap_ids: mutable view[i64],
+        heap_keys: mutable view[i64], positions: mutable view[i64], index: usize) -> void:
     new_size: usize = size - 1
     removed_id: i64 = heap_ids[index]
     moved_id: i64 = heap_ids[new_size]
@@ -64,7 +64,7 @@ def indexed_priority_queue_remove_at(size: mutable usize&, heap_ids: mutable i64
     if not indexed_priority_queue_sift_up(heap_ids, heap_keys, positions, index):
         indexed_priority_queue_sift_down(heap_ids, heap_keys, positions, size, index)
 
-def indexed_priority_queue_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
+def indexed_priority_queue_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -88,6 +88,9 @@ def indexed_priority_queue_impl(values: i64&, length: usize,
     heap_keys: mutable i64[64] = zeroed
     positions: mutable i64[64] = zeroed
     records: mutable i64[1536] = zeroed
+    heap_ids_view: mutable view[i64] = heap_ids[0:64]
+    heap_keys_view: mutable view[i64] = heap_keys[0:64]
+    positions_view: mutable view[i64] = positions[0:64]
     id: mutable usize = 0
     while id < 64:
         positions[id] <- -1
@@ -109,13 +112,13 @@ def indexed_priority_queue_impl(values: i64&, length: usize,
             if element_id < 0 or element_id >= 64 or key < -2147483648 or key > 2147483647:
                 return -1
             if positions[element_id.usize()] >= 0 or size >= 64 or
-                    indexed_priority_queue_key_in_use(heap_ids, heap_keys, size, key, -1):
+                    indexed_priority_queue_key_in_use(heap_ids_view, heap_keys_view, size, key, -1):
                 return -1
             heap_ids[size] <- element_id
             heap_keys[size] <- key
             positions[element_id.usize()] <- size.i64()
             size <- size + 1
-            indexed_priority_queue_sift_up(heap_ids, heap_keys, positions, size - 1)
+            indexed_priority_queue_sift_up(heap_ids_view, heap_keys_view, positions_view, size - 1)
         else if opcode == 1 or opcode == 2:
             if element_id != 0 or key != 0:
                 return -1
@@ -125,14 +128,14 @@ def indexed_priority_queue_impl(values: i64&, length: usize,
                 result_id <- heap_ids[0]
                 result_key <- heap_keys[0]
                 if opcode == 2:
-                    indexed_priority_queue_remove_at(size, heap_ids, heap_keys, positions, 0)
+                    indexed_priority_queue_remove_at(size, heap_ids_view, heap_keys_view, positions_view, 0)
         else if opcode == 3 or opcode == 4:
             if element_id < 0 or element_id >= 64 or key != 0:
                 return -1
             position: i64 = positions[element_id.usize()]
             status <- if position >= 0: 1 else: 0
             if opcode == 3 and position >= 0:
-                indexed_priority_queue_remove_at(size, heap_ids, heap_keys, positions, position.usize())
+                indexed_priority_queue_remove_at(size, heap_ids_view, heap_keys_view, positions_view, position.usize())
         else if opcode >= 5 and opcode <= 7:
             if element_id < 0 or element_id >= 64 or key < -2147483648 or key > 2147483647:
                 return -1
@@ -141,15 +144,15 @@ def indexed_priority_queue_impl(values: i64&, length: usize,
                 return -1
             old_key: i64 = heap_keys[position.usize()]
             if (opcode == 6 and key >= old_key) or (opcode == 7 and key <= old_key) or
-                    indexed_priority_queue_key_in_use(heap_ids, heap_keys, size, key, element_id):
+                    indexed_priority_queue_key_in_use(heap_ids_view, heap_keys_view, size, key, element_id):
                 return -1
             heap_keys[position.usize()] <- key
             if opcode == 6:
-                indexed_priority_queue_sift_up(heap_ids, heap_keys, positions, position.usize())
+                indexed_priority_queue_sift_up(heap_ids_view, heap_keys_view, positions_view, position.usize())
             else if opcode == 7:
-                indexed_priority_queue_sift_down(heap_ids, heap_keys, positions, size, position.usize())
-            else if not indexed_priority_queue_sift_up(heap_ids, heap_keys, positions, position.usize()):
-                indexed_priority_queue_sift_down(heap_ids, heap_keys, positions, size, position.usize())
+                indexed_priority_queue_sift_down(heap_ids_view, heap_keys_view, positions_view, size, position.usize())
+            else if not indexed_priority_queue_sift_up(heap_ids_view, heap_keys_view, positions_view, position.usize()):
+                indexed_priority_queue_sift_down(heap_ids_view, heap_keys_view, positions_view, size, position.usize())
         else if opcode == 8 or opcode == 9 or opcode == 10:
             if element_id != 0 or key != 0:
                 return -1
@@ -178,11 +181,12 @@ def indexed_priority_queue_impl(values: i64&, length: usize,
     required: usize = event_count * 48
     if output.is_null() or output_capacity < required:
         return -2
+    output_view: mutable view[u8] = output[0:required]
     event_index <- 0
     while event_index < event_count:
         field: mutable usize = 0
         while field < 6:
-            indexed_priority_queue_store_i64(records[event_index * 6 + field], output,
+            indexed_priority_queue_store_i64(records[event_index * 6 + field], output_view,
                 event_index * 48 + field * 8)
             field <- field + 1
         event_index <- event_index + 1

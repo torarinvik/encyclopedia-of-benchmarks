@@ -3,7 +3,7 @@ const MAX_REQUESTS: usize = 32
 const MAX_INPUT: usize = 42
 const MAX_OUTPUT_BYTES: usize = 328
 
-def fc_store64(output: mutable u8&, offset: usize, value: i64): void:
+def fc_store64(output: mutable view[u8], offset: usize, value: i64): void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -53,7 +53,7 @@ def frequency_count_list_update_impl(input: i64&, length: usize,
     output_bytes: usize = 8 * (1 + n + request_count)
     if output.is_null() or capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    for word in 0..<(1 + n + request_count): fc_store64(staged&, 8 * word, words[word])
+    for word in 0..<(1 + n + request_count): fc_store64(staged[0:output_bytes], 8 * word, words[word])
     for byte in 0..<output_bytes: output[byte] <- staged[byte]
     output_bytes.i64()
 

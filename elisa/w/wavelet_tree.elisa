@@ -15,7 +15,7 @@ struct WaveletTask:
     count: usize
     values: i64[64]
 
-def wavelet_rank_prefix(nodes: WaveletNode&, root: i64, value: i64, count: usize) -> i64:
+def wavelet_rank_prefix(nodes: view[WaveletNode], root: i64, value: i64, count: usize) -> i64:
     node_id: mutable i64 = root
     remaining: mutable usize = count
     while node_id >= 0:
@@ -33,7 +33,7 @@ def wavelet_rank_prefix(nodes: WaveletNode&, root: i64, value: i64, count: usize
             remaining <- remaining - left_count
     0
 
-def wavelet_quantile(nodes: WaveletNode&, root: i64, left: usize, right: usize, k: usize) -> i64:
+def wavelet_quantile(nodes: view[WaveletNode], root: i64, left: usize, right: usize, k: usize) -> i64:
     node_id: mutable i64 = root
     first: mutable usize = left
     last: mutable usize = right
@@ -55,7 +55,7 @@ def wavelet_quantile(nodes: WaveletNode&, root: i64, left: usize, right: usize, 
             order <- order - in_left
     -1
 
-def wavelet_count_le(nodes: WaveletNode&, root: i64, left: usize, right: usize, value: i64) -> i64:
+def wavelet_count_le(nodes: view[WaveletNode], root: i64, left: usize, right: usize, value: i64) -> i64:
     node_id: mutable i64 = root
     first: mutable usize = left
     last: mutable usize = right

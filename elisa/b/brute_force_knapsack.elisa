@@ -1,4 +1,4 @@
-def brute_force_knapsack_solve(packed: i64&, item_count: usize, capacity: i64) -> i64:
+def brute_force_knapsack_solve(packed: view[i64], item_count: usize, capacity: i64) -> i64:
     if item_count == 0 or capacity == 0:
         return 0
     weight: i64 = packed[2 + 2 * (item_count - 1)]
@@ -28,6 +28,6 @@ def brute_force_knapsack_impl(packed: i64&, length: usize) -> i64:
         if weight < 1 or weight > 4096 or value < 0 or value > 100000000:
             return -1
         index <- index + 1
-    brute_force_knapsack_solve(packed, item_count, capacity)
+    brute_force_knapsack_solve(packed[0:length], item_count, capacity)
 
 export fn brute_force_knapsack(packed: i64&, length: usize) -> i64 = brute_force_knapsack_impl

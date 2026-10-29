@@ -1,4 +1,4 @@
-def stream_vector_kernels_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def stream_vector_kernels_write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -57,7 +57,7 @@ def stream_vector_kernels_impl(input: i64&, length: usize, output: mutable u8&, 
         return -2
     index <- 0
     while index < count:
-        stream_vector_kernels_write_i64_le(output, index * 8, staged[index])
+        stream_vector_kernels_write_i64_le(output[0:output_bytes], index * 8, staged[index])
         index <- index + 1
     output_bytes.i64()
 

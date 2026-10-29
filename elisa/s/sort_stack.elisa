@@ -1,4 +1,4 @@
-def insert_sorted(stack: mutable i32[64]&, size: mutable usize&, value: i32):
+def insert_sorted(stack: mutable view[i32], size: mutable usize&, value: i32):
     if size == 0 or value > stack[size - 1]:
         stack[size] <- value
         size <- size + 1
@@ -9,7 +9,7 @@ def insert_sorted(stack: mutable i32[64]&, size: mutable usize&, value: i32):
     stack[size] <- top
     size <- size + 1
 
-def sort_recursively(stack: mutable i32[64]&, size: mutable usize&):
+def sort_recursively(stack: mutable view[i32], size: mutable usize&):
     if size == 0: return
     size <- size - 1
     top: i32 = stack[size]
@@ -27,7 +27,7 @@ def sort_stack_impl(input: i64&, length: usize, output: mutable u8&, output_capa
         stack[index] <- input[index + 1].i32()
         index <- index + 1
     size: mutable usize = count
-    sort_recursively(stack, size)
+    sort_recursively(stack[0:64], size)
     bytes: usize = size * 4
     if output.is_null() or output_capacity < bytes: return -2
     index <- 0

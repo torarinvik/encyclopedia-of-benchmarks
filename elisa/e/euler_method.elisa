@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def put_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
+def put_f64_le(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte_index: mutable usize = 0
@@ -22,12 +22,12 @@ def euler_method_impl(input: i64&, length: usize, output: mutable u8&, capacity:
         exponent <- exponent + 1
     x: mutable f64 = input[0].f64()
     y: mutable f64 = input[1].f64()
-    put_f64_le(output, 0, y)
+    put_f64_le(output[0:required], 0, y)
     step: mutable usize = 0
     while step < steps:
         y <- y + h * (x + y)
         x <- x + h
-        put_f64_le(output, 8 * (step + 1), y)
+        put_f64_le(output[0:required], 8 * (step + 1), y)
         step <- step + 1
     required.i64()
 

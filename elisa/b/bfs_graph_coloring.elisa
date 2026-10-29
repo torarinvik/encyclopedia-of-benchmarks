@@ -1,4 +1,4 @@
-def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -69,9 +69,9 @@ def bfs_graph_coloring_impl(input: i64&, length: usize, output: mutable u8&, cap
     used: usize = vertex_count + 2
     required: usize = used * 8
     if output.is_null() or capacity < required: return -2
-    put_i64(output, 0, vertex_count.i64())
-    for vertex in 0..<vertex_count: put_i64(output, (vertex + 1) * 8, colors[vertex])
-    put_i64(output, (vertex_count + 1) * 8, colors_used)
+    put_i64(output[0:required], 0, vertex_count.i64())
+    for vertex in 0..<vertex_count: put_i64(output[0:required], (vertex + 1) * 8, colors[vertex])
+    put_i64(output[0:required], (vertex_count + 1) * 8, colors_used)
     required.i64()
 
 export fn bfs_graph_coloring(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = bfs_graph_coloring_impl

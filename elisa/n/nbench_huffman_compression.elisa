@@ -10,7 +10,7 @@ struct HuffNode:
     left: i32
     right: i32
 
-def nbench_huffman_put_u32(value: u32, output: mutable u8&, offset: usize) -> void:
+def nbench_huffman_put_u32(value: u32, output: mutable view[u8], offset: usize) -> void:
     b: usize = 0
     while b < 4:
         output[offset + b] <- ((value >> (8 * b)) & 255).u8()
@@ -145,7 +145,7 @@ def nbench_huffman_compression_impl(values: i64&, length: usize, output: mutable
     stream_bytes: usize = (bit_count + 7) / 8
     total: usize = 4 + stream_bytes
     if output.is_null() or capacity < total: return -2
-    nbench_huffman_put_u32(bit_count.u32(), output, 0)
+    nbench_huffman_put_u32(bit_count.u32(), output[0:capacity], 0)
     i <- 0
     while i < stream_bytes:
         output[4 + i] <- stream[i]

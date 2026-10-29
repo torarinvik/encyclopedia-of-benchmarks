@@ -3,7 +3,7 @@ const MAX_EDGES: usize = 48
 const MAX_INPUT_LENGTH: usize = 98
 const MAX_ROUTE: usize = 49
 
-def write_i64_le(output: mutable u8&, offset: usize, value: i64):
+def write_i64_le(output: mutable view[u8], offset: usize, value: i64):
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -131,10 +131,10 @@ def hierholzer_eulerian_path_impl(input: i64&, length: usize, output: mutable u8
 
     output_bytes: usize = 8 * (path_length + 1)
     if output == null || capacity < output_bytes: return -2
-    write_i64_le(output, 0, path_length.i64())
+    write_i64_le(output[0:output_bytes], 0, path_length.i64())
     i: mutable usize = 0
     while i < path_length:
-        write_i64_le(output, 8 * (i + 1), path[i].i64())
+        write_i64_le(output[0:output_bytes], 8 * (i + 1), path[i].i64())
         i <- i + 1
     output_bytes.i64()
 

@@ -1,4 +1,4 @@
-def dijkstra_positive_connected_put_i64(output: mutable u8&, index: usize, value: i64) -> void:
+def dijkstra_positive_connected_put_i64(output: mutable view[u8], index: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -79,6 +79,6 @@ def dijkstra_positive_connected_impl(input: i64&, length: usize, output: mutable
     if output.is_null() or capacity < n * 8: return -2
     index <- 0
     while index < n:
-        dijkstra_positive_connected_put_i64(output, index, distance[index])
+        dijkstra_positive_connected_put_i64(output[0:n*8], index, distance[index])
         index <- index + 1
     (n * 8).i64()

@@ -14,20 +14,20 @@ def fasta_wrapped_lines(count: usize) -> usize:
 def fasta_output_length(count: usize) -> usize:
     77 + 10 * count + fasta_wrapped_lines(2 * count) + fasta_wrapped_lines(3 * count) + fasta_wrapped_lines(5 * count)
 
-def fasta_accumulate_probabilities(weights: mutable f32&, size: usize) -> void:
+def fasta_accumulate_probabilities(weights: mutable view[f32], size: usize) -> void:
     cumulative: mutable f32 = 0.0.f32()
     for index in 0..<size:
         cumulative <- cumulative + weights[index]
         weights[index] <- cumulative
 
-def fasta_next_base(state: mutable i64&, weights: f32&, symbols: u8&, size: usize) -> u8:
+def fasta_next_base(state: mutable i64&, weights: view[f32], symbols: view[u8], size: usize) -> u8:
     state <- (state * 3877 + 29573) % 139968
     random_value: f32 = state.f32() / 139968.f32()
     for index in 0..<size:
         if weights[index] >= random_value: return symbols[index]
     symbols[size - 1]
 
-def fasta_write_repeat(output: mutable u8&, offset: mutable usize&, count: usize) -> void:
+def fasta_write_repeat(output: mutable view[u8], offset: mutable usize&, count: usize) -> void:
     for index in 0..<count:
         output[offset] <- ALU.byte(index % ALU.len())
         offset <- offset + 1
@@ -35,8 +35,8 @@ def fasta_write_repeat(output: mutable u8&, offset: mutable usize&, count: usize
             output[offset] <- 10
             offset <- offset + 1
 
-def fasta_write_weighted(output: mutable u8&, offset: mutable usize&, count: usize,
-                         state: mutable i64&, weights: f32&, symbols: u8&, size: usize) -> void:
+def fasta_write_weighted(output: mutable view[u8], offset: mutable usize&, count: usize,
+                         state: mutable i64&, weights: view[f32], symbols: view[u8], size: usize) -> void:
     for index in 0..<count:
         output[offset] <- fasta_next_base(state, weights, symbols, size)
         offset <- offset + 1
@@ -54,8 +54,8 @@ def beebs_fasta_impl(values: i64&, length: usize, output: mutable u8&, capacity:
     if output.is_null() or capacity < needed: return -2
     iub_thresholds: mutable f32[15] = IUB_WEIGHTS
     human_thresholds: mutable f32[4] = HUMAN_WEIGHTS
-    fasta_accumulate_probabilities(iub_thresholds, 15)
-    fasta_accumulate_probabilities(human_thresholds, 4)
+    fasta_accumulate_probabilities(iub_thresholds[0:15], 15)
+    fasta_accumulate_probabilities(human_thresholds[0:4], 4)
     header_one: &str = ">ONE Homo sapiens alu\n"
     header_two: &str = ">TWO IUB ambiguity codes\n"
     header_three: &str = ">THREE Homo sapiens frequency\n"
@@ -63,16 +63,16 @@ def beebs_fasta_impl(values: i64&, length: usize, output: mutable u8&, capacity:
     for i in 0..<header_one.len():
         output[offset] <- header_one.byte(i)
         offset <- offset + 1
-    fasta_write_repeat(output, offset, 2 * count)
+    fasta_write_repeat(output[0:needed], offset, 2 * count)
     for i in 0..<header_two.len():
         output[offset] <- header_two.byte(i)
         offset <- offset + 1
     state: mutable i64 = seed_value
-    fasta_write_weighted(output, offset, 3 * count, state, iub_thresholds, IUB_SYMBOLS, 15)
+    fasta_write_weighted(output[0:needed], offset, 3 * count, state, iub_thresholds[0:15], IUB_SYMBOLS[0:15], 15)
     for i in 0..<header_three.len():
         output[offset] <- header_three.byte(i)
         offset <- offset + 1
-    fasta_write_weighted(output, offset, 5 * count, state, human_thresholds, HUMAN_SYMBOLS, 4)
+    fasta_write_weighted(output[0:needed], offset, 5 * count, state, human_thresholds[0:4], HUMAN_SYMBOLS[0:4], 4)
     offset.i64()
 
 export fn beebs_fasta(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = beebs_fasta_impl

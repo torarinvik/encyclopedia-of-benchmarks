@@ -1,4 +1,4 @@
-def put_motion_component(output: u8&, value: i64) -> void:
+def put_motion_component(output: mutable view[u8], value: i64) -> void:
     bits: u64 = value.u64()
     for b in 0..<8: output[b] <- ((bits >> (8*b)) & 255).u8()
 
@@ -23,6 +23,6 @@ def mediabench_mpeg2_motion_vector_component_impl(values: i64&, length: usize, o
         vec <- vec - ((-motion_code-1) << r_size) - residual - 1
         if vec < -lim: vec <- vec + 2*lim
     if output.is_null() or capacity < 8: return -2
-    put_motion_component(output,vec)
+    put_motion_component(output[0:capacity],vec)
     8
 export fn mediabench_mpeg2_motion_vector_component(values: i64&, length: usize, output: u8&, capacity: usize) -> i64 = mediabench_mpeg2_motion_vector_component_impl

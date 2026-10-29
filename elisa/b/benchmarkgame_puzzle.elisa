@@ -42,7 +42,7 @@ def benchmarkgame_puzzle_find_duplicate(data: i32&, length: usize) -> i32:
     result <- result xor length.u32()
     result.i32()
 
-def benchmarkgame_puzzle_store_i32_le(output: mutable u8&, offset: usize, value: i32) -> void:
+def benchmarkgame_puzzle_store_i32_le(output: mutable view[u8], offset: usize, value: i32) -> void:
     bits: mutable u32 = value.u32()
     byte: mutable usize = 0
     while byte < 4:
@@ -78,7 +78,7 @@ def benchmarkgame_puzzle_impl(input: i64&, length: usize,
         while scan < scans:
             duplicate <- benchmarkgame_puzzle_find_duplicate(data, size + 1)
             scan <- scan + 1
-        benchmarkgame_puzzle_store_i32_le(output, round * 4, duplicate)
+        benchmarkgame_puzzle_store_i32_le(output[0:output_bytes], round * 4, duplicate)
         round <- round + 1
     output_bytes.i64()
 

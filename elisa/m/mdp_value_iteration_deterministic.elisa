@@ -3,7 +3,7 @@ const MAX_ACTIONS: usize=3
 const MAX_INPUT: usize=29
 const MAX_OUTPUT: usize=72
 
-def put64(value:i64,output:mutable u8&,pos:usize)->void:
+def put64(value:i64,output:mutable view[u8],pos:usize)->void:
     bits:u64=value.u64()
     j:mutable usize=0
     while j<8:
@@ -55,9 +55,10 @@ def mdp_value_iteration_deterministic(input:i64&,length:usize,output:mutable u8&
         step<-step+1
     bytes:usize=8*(1+2*states)
     if output.is_null() or capacity<bytes:return -2
-    put64(scale,output&,0)
+    output_view:mutable view[u8]=output[0:bytes]
+    put64(scale,output_view,0)
     s<-0
     while s<states:
-        put64(value[s],output&,8*(1+s)); put64(policy[s],output&,8*(1+states+s))
+        put64(value[s],output_view,8*(1+s)); put64(policy[s],output_view,8*(1+states+s))
         s<-s+1
     bytes.i64()

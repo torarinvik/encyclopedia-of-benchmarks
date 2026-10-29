@@ -1,6 +1,6 @@
 const MAX_LENGTH: usize = 24
 
-def store_i32(value: i32, output: mutable u8&, offset: usize) -> void:
+def store_i32(value: i32, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u32 = value.u32()
     for byte in 0..<4:
         output[offset + byte] <- (bits & 255).u8()
@@ -40,9 +40,9 @@ def prolangs_c_numeric_token_impl(input: i64&, length: usize, output: mutable u8
         if i == length:
             if output == null or capacity < 12:
                 return -2
-            store_i32(256, output, 0)
-            store_i32(integer.i32(), output, 4)
-            store_i32(0, output, 8)
+            store_i32(256, output[0:capacity], 0)
+            store_i32(integer.i32(), output[0:capacity], 4)
+            store_i32(0, output[0:capacity], 8)
             return 12
     fraction_digits: mutable u32 = 0
     fraction_count: mutable usize = 0
@@ -101,9 +101,9 @@ def prolangs_c_numeric_token_impl(input: i64&, length: usize, output: mutable u8
         return -1
     if output == null or capacity < 12:
         return -2
-    store_i32(2001, output, 0)
-    store_i32(integer.i32(), output, 4)
-    store_i32(float_bits(value), output, 8)
+    store_i32(2001, output[0:capacity], 0)
+    store_i32(integer.i32(), output[0:capacity], 4)
+    store_i32(float_bits(value), output[0:capacity], 8)
     return 12
 
 export fn prolangs_c_numeric_token(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = prolangs_c_numeric_token_impl

@@ -1,6 +1,6 @@
 const MAX_N: usize=12
 const MAX_INPUT: usize=25
-def put64(x:i64,o:mutable u8&,p:usize)->void:
+def put64(x:i64,o:mutable view[u8],p:usize)->void:
     b:u64=x.u64();j:mutable usize=0
     while j<8:
         o[p+j]<-((b>>(8*j))&255).u8()
@@ -20,6 +20,7 @@ def smith_weighted_completion_time(input:i64&,length:usize,output:mutable u8&,ca
         if p[i]<1 or p[i]>10000 or w[i]<1 or w[i]>10000:return -1
         order[i]<-i.i64();i<-i+1
     bytes:usize=8*(n+1);if output.is_null() or capacity<bytes:return -2
+    output_view:mutable view[u8]=output[0:bytes]
     i<-1
     while i<n:
         key:i64=order[i];j:mutable usize=i
@@ -32,6 +33,6 @@ def smith_weighted_completion_time(input:i64&,length:usize,output:mutable u8&,ca
     time:mutable i64=0;total:mutable i64=0;i<-0
     while i<n:
         job:usize=order[i].usize();time<-time+p[job];total<-total+w[job]*time;i<-i+1
-    put64(total,output,0);i<-0
-    while i<n:put64(order[i],output,8*(i+1));i<-i+1
+    put64(total,output_view,0);i<-0
+    while i<n:put64(order[i],output_view,8*(i+1));i<-i+1
     bytes.i64()

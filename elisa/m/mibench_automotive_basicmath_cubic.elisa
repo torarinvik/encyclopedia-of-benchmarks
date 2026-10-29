@@ -7,7 +7,7 @@ extern sqrt(value: f64) -> f64
 extern pow(value: f64, exponent: f64) -> f64
 extern fabs(value: f64) -> f64
 
-def solve_cubic(input: f64&, roots: mutable f64&) -> i64:
+def solve_cubic(input: view[f64], roots: mutable view[f64]) -> i64:
     a: f64 = input[0]
     b: f64 = input[1]
     c: f64 = input[2]
@@ -43,7 +43,7 @@ def mibench_automotive_basicmath_cubic_impl(input: f64&, input_length: usize,
     if input[0] > -1.0 and input[0] < 1.0:
         return -1
     roots: mutable f64[3] = zeroed
-    count: i64 = solve_cubic(input, roots[0])
+    count: i64 = solve_cubic(input[0:INPUT_COUNT], roots[0:MAX_ROOTS])
     if count < 0:
         return -1
     if output.is_null() or output_capacity < count.usize():

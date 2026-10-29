@@ -1,4 +1,4 @@
-def matching_greedy_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+def matching_greedy_put_i64(output: mutable view[u8], word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[word * 8 + byte] <- (bits >> (byte * 8)).u8()
@@ -49,8 +49,8 @@ def approximate_matching_greedy_impl(input: i64&, length: usize, output: mutable
             matched[v] <- true
             selected <- selected | (1.u64() << best)
             total <- total + weight
-    matching_greedy_put_i64(output, 0, total)
-    matching_greedy_put_i64(output, 1, selected.i64())
+    matching_greedy_put_i64(output[0:16], 0, total)
+    matching_greedy_put_i64(output[0:16], 1, selected.i64())
     16
 
 export fn approximate_matching_greedy(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = approximate_matching_greedy_impl

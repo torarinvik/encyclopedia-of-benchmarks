@@ -14,10 +14,10 @@ const COEFF: f32[15] = [
     0.216415572361227e8.f32(), 0.356644482244025e9.f32(), 0.144048298227235e10.f32()
 ]
 
-def fn f32 parboil_mri_gridding_decode(i64 raw):
+def parboil_mri_gridding_decode(raw: i64) -> f32:
     return raw.f32() / 1000000.0.f32()
 
-def fn f32 parboil_mri_gridding_kernel(f32 value):
+def parboil_mri_gridding_kernel(value: f32) -> f32:
     z: f32 = value * value
     num: mutable f32 = COEFF[0]
     i: mutable i64 = 1
@@ -32,7 +32,7 @@ def fn f32 parboil_mri_gridding_kernel(f32 value):
     den <- den - 0.144048298227235e10.f32()
     return -num / den
 
-def fn f32 parboil_mri_gridding_beta():
+def parboil_mri_gridding_beta() -> f32:
     first: mutable f32 = 4.0.f32() * WIDTH
     first <- first * WIDTH
     divisor: f32 = OVERSAMPLE * OVERSAMPLE
@@ -43,31 +43,31 @@ def fn f32 parboil_mri_gridding_beta():
     argument <- argument - 0.8
     return (3.14159265359 * sqrt(argument)).f32()
 
-def fn f32 parboil_mri_gridding_weight(f32 v, f32 inverse, f32 beta, f32 sdc):
+def parboil_mri_gridding_weight(v: f32, inverse: f32, beta: f32, sdc: f32) -> f32:
     product: f32 = v * inverse
     radicand: f64 = 1.0 - product.f64()
     argument: f32 = (beta.f64() * sqrt(radicand)).f32()
     return parboil_mri_gridding_kernel(argument) * sdc
 
-def fn i64 parboil_mri_gridding_lower(f32 k, f32 cutoff):
+def parboil_mri_gridding_lower(k: f32, cutoff: f32) -> i64:
     difference: f32 = k - cutoff
     if difference < 0.0.f32(): return 0
     return difference.i64()
 
-def fn i64 parboil_mri_gridding_upper(f32 k, f32 cutoff):
+def parboil_mri_gridding_upper(k: f32, cutoff: f32) -> i64:
     sum: f32 = k + cutoff
     if sum > 2.0.f32(): return 2
     return sum.i64()
 
-def fn i64 parboil_mri_gridding_quantize(f32 value):
+def parboil_mri_gridding_quantize(value: f32) -> i64:
     scaled: f32 = value * 1000.0.f32()
     magnitude: f32 = if scaled < 0.0.f32() { -scaled } else { scaled }
     whole: mutable i64 = magnitude.i64()
     if magnitude - whole.f32() >= 0.5.f32(): whole <- whole + 1
     return if scaled < 0.0.f32() { -whole } else { whole }
 
-def fn i64 parboil_mri_gridding(i64* input, i64 input_length):
-    if input == null or input_length < 1 or input_length > 25: return -1
+def parboil_mri_gridding_impl(input: i64&, input_length: i64) -> i64:
+    if input.is_null() or input_length < 1 or input_length > 25: return -1
     n: i64 = input[0]
     if n < 0 or n > MAX_SAMPLES or input_length != 1 + 6 * n: return -1
     s: mutable i64 = 0
@@ -138,4 +138,4 @@ def fn i64 parboil_mri_gridding(i64* input, i64 input_length):
         i <- i + 1
     return checksum
 
-export fn parboil_mri_gridding
+export fn parboil_mri_gridding(input: i64&, input_length: i64) -> i64 = parboil_mri_gridding_impl

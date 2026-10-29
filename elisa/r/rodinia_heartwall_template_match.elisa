@@ -1,6 +1,6 @@
 extern sqrt(value: f64) -> f64
 
-def rodinia_heartwall_template_match_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def rodinia_heartwall_template_match_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for b in 0..<8: output[offset + b] <- ((bits >> (8 * b)) & 255).u8()
 
@@ -44,7 +44,8 @@ def rodinia_heartwall_template_match_impl(input: i64&, length: usize,
                 if magnitude > best: best <- magnitude; besti <- k
             k <- k + 1
     if output.is_null() or capacity < 8: return -2
-    rodinia_heartwall_template_match_put(besti.i64(), output, 0)
+    output_view: mutable view[u8] = output[0:8]
+    rodinia_heartwall_template_match_put(besti.i64(), output_view, 0)
     8
 
 export fn rodinia_heartwall_template_match(input: i64&, length: usize,

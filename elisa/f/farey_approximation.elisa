@@ -1,4 +1,4 @@
-def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = value.u64()
     byte: usize = 0
     while byte < 8:
@@ -33,8 +33,8 @@ def farey_approximation_impl(values: i64&, length: usize, output: mutable u8&, o
             c <- numerator
             d <- denominator
         iteration <- iteration + 1
-    store_i64_le(numerator, output, 0)
-    store_i64_le(denominator, output, 8)
+    store_i64_le(numerator, output[0:16], 0)
+    store_i64_le(denominator, output[0:16], 8)
     16
 
 export fn farey_approximation(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = farey_approximation_impl

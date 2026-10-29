@@ -1,6 +1,6 @@
 const MAX_LENGTH: usize = 4096
 
-def building_ways_for_target(values: i64&, length: usize, target: i64) -> i64:
+def building_ways_for_target(values: view[i64], length: usize, target: i64) -> i64:
     ways: i64 =
         while index < length |index: mutable usize = 0, first_count: mutable i64 = 0, middle_count: mutable i64 = 0, ways: mutable i64 = 0| -> ways:
             if values[index] == target:
@@ -27,6 +27,7 @@ def number_of_ways_to_select_buildings_impl(values: i64&, length: usize) -> i64:
             valid
     if not valid_values:
         return -1
-    building_ways_for_target(values, length, 48) + building_ways_for_target(values, length, 49)
+    values_view: view[i64] = values[0:length]
+    building_ways_for_target(values_view, length, 48) + building_ways_for_target(values_view, length, 49)
 
 export fn number_of_ways_to_select_buildings(values: i64&, length: usize) -> i64 = number_of_ways_to_select_buildings_impl

@@ -11,8 +11,8 @@ struct SkylinePoint:
 def skyline_dominates(left: SkylinePoint, right: SkylinePoint) -> bool:
     (left.x < right.x and left.y <= right.y) or (left.x <= right.x and left.y < right.y)
 
-def skyline_produce(points: SkylinePoint&, start: usize, count: usize,
-        output: mutable SkylinePoint&) -> usize:
+def skyline_produce(points: view[SkylinePoint], start: usize, count: usize,
+        output: mutable view[SkylinePoint]) -> usize:
     if count == 1:
         output[0] <- points[start]
         return 1
@@ -30,8 +30,8 @@ def skyline_produce(points: SkylinePoint&, start: usize, count: usize,
     middle: usize = count / 2
     left: mutable SkylinePoint[SKYLINE_MAX_POINTS] = zeroed
     right: mutable SkylinePoint[SKYLINE_MAX_POINTS] = zeroed
-    left_count: mutable usize = skyline_produce(points, start, middle, left)
-    right_count: mutable usize = skyline_produce(points, start + middle, count - middle, right)
+    left_count: mutable usize = skyline_produce(points, start, middle, left[0:SKYLINE_MAX_POINTS])
+    right_count: mutable usize = skyline_produce(points, start + middle, count - middle, right[0:SKYLINE_MAX_POINTS])
 
     index: mutable usize = 0
     while index + 1 < left_count:
@@ -97,7 +97,7 @@ def skyline_impl(input: i64&, input_length: usize, output: mutable u8&,
         index <- index + 1
 
     skyline: mutable SkylinePoint[SKYLINE_MAX_POINTS] = zeroed
-    skyline_count: usize = skyline_produce(points, 0, count, skyline)
+    skyline_count: usize = skyline_produce(points[0:SKYLINE_MAX_POINTS], 0, count, skyline[0:SKYLINE_MAX_POINTS])
     staged: mutable u8[SKYLINE_MAX_OUTPUT_BYTES] = zeroed
     staged[0] <- skyline_count.u8()
     index <- 0

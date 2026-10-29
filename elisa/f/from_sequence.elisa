@@ -1,4 +1,4 @@
-def append_i64(buffer: mutable u8&, position: usize, value: i64) -> usize:
+def append_i64(buffer: mutable view[u8], position: usize, value: i64) -> usize:
     digits: mutable u8[20]
     digit_count: mutable i64 = 0
     magnitude: mutable u64 = if value < 0: (-(value+1)).u64()+1 else: value.u64()
@@ -33,7 +33,7 @@ def from_sequence_impl(v: i64&, length: usize, out: mutable u8&, capacity: usize
     if count < 1 or count > 128 or length != (count+1).usize(): return -1
     buffer: mutable u8[3589]
     position: mutable usize = 0
-    for i in 0..count: position <- append_i64(buffer, position, v[i+1])
+    for i in 0..count: position <- append_i64(buffer[0:3589], position, v[i+1])
     buffer[position] <- 60
     buffer[position+1] <- 69
     buffer[position+2] <- 78

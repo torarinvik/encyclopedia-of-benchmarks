@@ -3,7 +3,7 @@
 const TSVC_S332_MAX_N: usize = 256
 const TSVC_S332_MAX_INPUT_LENGTH: usize = 258
 
-def tsvc_s332_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s332_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -39,8 +39,8 @@ def tsvc_s332_first_above_threshold_impl(input: i64&, length: usize,
             value <- values[i]
             break
         i <- i + 1
-    tsvc_s332_store_i64_le(index, output, 0)
-    tsvc_s332_store_i64_le(value, output, 8)
+    tsvc_s332_store_i64_le(index, output[0:capacity], 0)
+    tsvc_s332_store_i64_le(value, output[0:capacity], 8)
     2
 
 export fn tsvc_s332_first_above_threshold(input: i64&, length: usize,

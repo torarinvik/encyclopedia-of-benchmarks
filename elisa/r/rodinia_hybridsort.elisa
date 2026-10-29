@@ -8,7 +8,7 @@ def bucket(value: f32, minimum: f32, span: f32) -> usize:
     if index >= 1024: index <- 1023
     return index.usize()
 
-def merge_sort(items: mutable i64&, scratch: mutable i64&, start: usize, count: usize):
+def merge_sort(items: mutable view[i64], scratch: mutable view[i64], start: usize, count: usize):
     width: mutable usize = 1
     while width < count:
         left: mutable usize = 0
@@ -37,7 +37,7 @@ def merge_sort(items: mutable i64&, scratch: mutable i64&, start: usize, count: 
             i <- i + 1
         width <- width * 2
 
-def put_i64(output: mutable u8&, offset: usize, value: i64):
+def put_i64(output: mutable view[u8], offset: usize, value: i64):
     bits: u64 = value.u64()
     b: mutable usize = 0
     while b < 8:
@@ -92,11 +92,11 @@ export fn rodinia_hybridsort(input: i64&, length: usize, output: mutable u8&, ca
     bin <- 0
     while bin < BINS:
         size: usize = offsets[bin + 1] - offsets[bin]
-        if size > 1: merge_sort(scattered, scratch, offsets[bin], size)
+        if size > 1: merge_sort(scattered[0:count], scratch[0:count], offsets[bin], size)
         bin <- bin + 1
     i <- 0
     while i < count:
-        put_i64(output, i * 8, scattered[i])
+        put_i64(output[0:output_bytes], i * 8, scattered[i])
         i <- i + 1
     return output_bytes.i64()
 }

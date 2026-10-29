@@ -6,7 +6,7 @@ const MAX_VALUE: i64 = 1000000
 def power_sort_key_less(left: i64, right: i64, reverse: bool) -> bool:
     if reverse: left > right else: left < right
 
-def power_sort_find_run(values: mutable i64&, start: usize, end: usize, reverse: bool) -> usize:
+def power_sort_find_run(values: mutable view[i64], start: usize, end: usize, reverse: bool) -> usize:
     if start >= end - 1: return start + 1
     run_end: mutable usize = start + 1
     if power_sort_key_less(values[run_end], values[start], reverse):
@@ -36,7 +36,7 @@ def power_sort_node_power(total_length: usize, b1: usize, n1: usize, b2: usize, 
         scale <- scale * 2
     power
 
-def power_sort_merge(values: mutable i64&, start1: usize, end1: usize, end2: usize, reverse: bool) -> void:
+def power_sort_merge(values: mutable view[i64], start1: usize, end1: usize, end2: usize, reverse: bool) -> void:
     left: mutable i64[MAX_VALUES] = zeroed
     right: mutable i64[MAX_VALUES] = zeroed
     left_length: usize = end1 - start1
@@ -70,7 +70,7 @@ def power_sort_merge(values: mutable i64&, start1: usize, end1: usize, end2: usi
         j <- j + 1
         output_index <- output_index + 1
 
-def power_sort_impl(values: mutable i64&, length: usize, reverse: bool) -> void:
+def power_sort_impl(values: mutable view[i64], length: usize, reverse: bool) -> void:
     if length <= 1: return
     stack_starts: mutable usize[MAX_VALUES] = zeroed
     stack_lengths: mutable usize[MAX_VALUES] = zeroed
@@ -116,7 +116,7 @@ def power_sort_impl(values: mutable i64&, length: usize, reverse: bool) -> void:
         stack_powers[stack_size] <- power
         stack_size <- stack_size + 1
 
-def power_sort_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def power_sort_write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -140,10 +140,10 @@ def power_sort_impl_call(input: i64&, length: usize, output: mutable u8&, capaci
     if count == 0: return 0
     output_bytes: usize = 8 * count
     if output.is_null() or capacity < output_bytes: return -2
-    power_sort_impl(values[0], count, reverse_value == 1)
+    power_sort_impl(values[0:count], count, reverse_value == 1)
     index <- 0
     while index < count:
-        power_sort_write_i64_le(output, 8 * index, values[index])
+        power_sort_write_i64_le(output[0:capacity], 8 * index, values[index])
         index <- index + 1
     output_bytes.i64()
 

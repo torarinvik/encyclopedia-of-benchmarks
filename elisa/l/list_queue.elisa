@@ -1,4 +1,4 @@
-def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+def put_i32_le(value: i32, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.i64().u64()
     byte: mutable usize = 0
     while byte < 4:
@@ -65,7 +65,7 @@ def list_queue_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
     buffer: mutable u8[520] = zeroed
     i <- 0
     while i < word_count:
-        put_i32_le(words[i], buffer[0], i * 4)
+        put_i32_le(words[i], buffer[0:bytes], i * 4)
         i <- i + 1
     i <- 0
     while i < bytes:

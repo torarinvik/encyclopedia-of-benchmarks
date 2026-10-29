@@ -1,7 +1,7 @@
 const MAX_N: usize = 64
 const MAX_INPUT_LENGTH: usize = 66
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: usize = 0
     while byte < 8:
@@ -21,6 +21,7 @@ def rotate_singly_linked_lists_impl(input: i64&, length: usize, output: mutable 
         index <- index + 1
     bytes: usize = 8 * (n + 1)
     if output == null or capacity < bytes: return -2
+    output_view: mutable view[u8] = output[0:bytes]
 
     nodes: mutable i64[MAX_N] = zeroed
     next: mutable i64[MAX_N] = zeroed
@@ -44,11 +45,11 @@ def rotate_singly_linked_lists_impl(input: i64&, length: usize, output: mutable 
             index <- index + 1
         head <- next[new_tail]
         next[new_tail] <- -1
-    store_i64_le(n.i64(), output, 0)
+    store_i64_le(n.i64(), output_view, 0)
     node: i64 = head
     index <- 0
     while index < n:
-        store_i64_le(nodes[node.usize()], output, 8 + index * 8)
+        store_i64_le(nodes[node.usize()], output_view, 8 + index * 8)
         if index + 1 < n: node <- next[node.usize()]
         index <- index + 1
     bytes.i64()

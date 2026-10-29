@@ -3,7 +3,7 @@ const INSERTION_THRESHOLD: usize = 16
 const MAX_BUCKETS: usize = 8
 const BUCKET_STRIDE: usize = 128
 
-def spread_sort_segment(values: mutable i32&, start: usize, length: usize) -> void:
+def spread_sort_segment(values: mutable view[i32], start: usize, length: usize) -> void:
     if length < 2: return
     if length <= INSERTION_THRESHOLD:
         index: mutable usize = 1
@@ -44,7 +44,7 @@ def spread_sort_segment(values: mutable i32&, start: usize, length: usize) -> vo
     bucket: mutable usize = 0
     while bucket < bucket_count:
         if bucket_sizes[bucket] > 0:
-            spread_sort_segment(bucket_values, bucket * BUCKET_STRIDE, bucket_sizes[bucket])
+            spread_sort_segment(bucket_values[0:1024], bucket * BUCKET_STRIDE, bucket_sizes[bucket])
             index <- 0
             while index < bucket_sizes[bucket]:
                 values[start + written] <- bucket_values[bucket * BUCKET_STRIDE + index]
@@ -65,7 +65,7 @@ def spread_sort_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
 
     output_bytes: usize = length * 4
     if output == null or capacity < output_bytes: return -2
-    spread_sort_segment(values, 0, length)
+    spread_sort_segment(values[0:MAX_LENGTH], 0, length)
     index <- 0
     while index < length:
         bits: u32 = values[index].u32()

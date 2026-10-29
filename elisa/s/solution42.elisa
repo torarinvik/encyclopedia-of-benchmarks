@@ -7,7 +7,7 @@ def solution42_is_triangle_score(score: i64) -> bool:
         n <- n + 1
     false
 
-def solution42_count_first_line(input: i64&, length: usize) -> i64:
+def solution42_count_first_line(input: view[i64], length: usize) -> i64:
     line_end: mutable usize = length
     index: mutable usize = 0
     while index < length:
@@ -49,6 +49,6 @@ def solution42_impl(input: i64&, length: usize) -> i64:
     while index < length:
         if input[index] < 0 or input[index] > 127: return -1
         index <- index + 1
-    solution42_count_first_line(input, length)
+    solution42_count_first_line(input[0:length], length)
 
 export fn solution42(input: i64&, length: usize) -> i64 = solution42_impl

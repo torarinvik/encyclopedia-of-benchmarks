@@ -20,7 +20,7 @@ def convolution_neural_network_round_three(value: f64) -> f64:
         integer <- integer + 1
     integer.f64() / 1000.0
 
-def convolution_neural_network_write_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def convolution_neural_network_write_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -178,7 +178,7 @@ def convolution_neural_network_impl(input: i64&, length: usize, output: mutable 
         while index < hidden:
             total <- total + hidden_output[index] * output_weights[unit * hidden + index]
             index <- index + 1
-        convolution_neural_network_write_f64(output, unit * 8, convolution_neural_network_round_three(convolution_neural_network_sigmoid(total - output_bias[unit])))
+        convolution_neural_network_write_f64(output[0:output_bytes], unit * 8, convolution_neural_network_round_three(convolution_neural_network_sigmoid(total - output_bias[unit])))
         unit <- unit + 1
     output_bytes.i64()
 

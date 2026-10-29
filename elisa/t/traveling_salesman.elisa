@@ -4,7 +4,7 @@ const TRAVELING_SALESMAN_JAVA_INT_MIN: i64 = -2147483648
 const TRAVELING_SALESMAN_JAVA_INT_MAX: i64 = 2147483647
 const TRAVELING_SALESMAN_MAX_EDGE_COST: i64 = 1000
 
-def traveling_salesman_next_permutation(values: mutable usize&, length: usize) -> bool:
+def traveling_salesman_next_permutation(values: mutable view[usize], length: usize) -> bool:
     if length < 2: return false
     pivot: mutable usize = length - 1
     while pivot > 0 and values[pivot - 1] >= values[pivot]:
@@ -77,7 +77,7 @@ def traveling_salesman_impl(input: i64&, length: usize) -> i64:
                 route_cost <- route_cost + return_edge
                 if route_cost < best: best <- route_cost
 
-        if not traveling_salesman_next_permutation(&permutation[0], permutation_length):
+        if not traveling_salesman_next_permutation(permutation[0:permutation_length], permutation_length):
             break
     best
 

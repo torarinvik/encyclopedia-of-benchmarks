@@ -1,7 +1,7 @@
 # Bottom-up merge passes over two bounded buffers, modeling sequential stores.
 const MAX_VALUES: usize = 4096
 
-def merge_pass(source: i64&, destination: mutable i64&, length: usize, width: usize) -> void:
+def merge_pass(source: view[i64], destination: mutable view[i64], length: usize, width: usize) -> void:
     start: mutable usize = 0
     while start < length:
         middle: mutable usize = start + width
@@ -31,7 +31,7 @@ def merge_pass(source: i64&, destination: mutable i64&, length: usize, width: us
             output_index <- output_index + 1
         start <- start + width * 2
 
-def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -56,9 +56,9 @@ def external_merge_sorter_impl(input: i64&, length: usize, output: mutable u8&,
     width: mutable usize = 1
     while width < length:
         if source_is_primary:
-            merge_pass(&primary[0], &temporary[0], length, width)
+            merge_pass(primary[0:length], temporary[0:length], length, width)
         else:
-            merge_pass(&temporary[0], &primary[0], length, width)
+            merge_pass(temporary[0:length], primary[0:length], length, width)
         source_is_primary <- not source_is_primary
         if width > length / 2:
             break
@@ -67,9 +67,9 @@ def external_merge_sorter_impl(input: i64&, length: usize, output: mutable u8&,
     index <- 0
     while index < length:
         if source_is_primary:
-            store_i64_le(primary[index], output, index * 8)
+            store_i64_le(primary[index], output[0:output_capacity], index * 8)
         else:
-            store_i64_le(temporary[index], output, index * 8)
+            store_i64_le(temporary[index], output[0:output_capacity], index * 8)
         index <- index + 1
     output_bytes.i64()
 

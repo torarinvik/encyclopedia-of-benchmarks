@@ -1,10 +1,10 @@
 # Middle-column elimination, then binary search of one row slice.
-def search_row(values: i64&, row_base: i64, low: i64, high: i64, target: i64) -> i64:
+def search_row(values: view[i64], low: i64, high: i64, target: i64) -> i64:
     lo: mutable i64 = low
     hi: mutable i64 = high
     while lo <= hi:
         middle: i64 = lo + (hi - lo) / 2
-        value: i64 = values[3 + row_base + middle]
+        value: i64 = values[middle.usize()]
         if value == target:
             return middle
         if value < target:
@@ -39,19 +39,24 @@ def binary_search2d_array_impl(values: i64&, length: usize) -> i64:
         return start_row * cols + middle_col
     if values[3 + end_row * cols + middle_col] == target:
         return end_row * cols + middle_col
+    row_start: mutable usize = 0
     if target <= values[3 + start_row * cols + middle_col - 1]:
-        col: i64 = search_row(values, start_row * cols, 0, middle_col - 1, target)
+        row_start <- (3 + start_row * cols).usize()
+        col: i64 = search_row(values[row_start:row_start + cols.usize()], 0, middle_col - 1, target)
         if col < 0: return -1
         return start_row * cols + col
     if target >= values[3 + start_row * cols + middle_col + 1] and target <= values[3 + start_row * cols + cols - 1]:
-        col: i64 = search_row(values, start_row * cols, middle_col + 1, cols - 1, target)
+        row_start <- (3 + start_row * cols).usize()
+        col: i64 = search_row(values[row_start:row_start + cols.usize()], middle_col + 1, cols - 1, target)
         if col < 0: return -1
         return start_row * cols + col
     if target <= values[3 + end_row * cols + middle_col - 1]:
-        col: i64 = search_row(values, end_row * cols, 0, middle_col - 1, target)
+        row_start <- (3 + end_row * cols).usize()
+        col: i64 = search_row(values[row_start:row_start + cols.usize()], 0, middle_col - 1, target)
         if col < 0: return -1
         return end_row * cols + col
-    col: i64 = search_row(values, end_row * cols, middle_col + 1, cols - 1, target)
+    row_start <- (3 + end_row * cols).usize()
+    col: i64 = search_row(values[row_start:row_start + cols.usize()], middle_col + 1, cols - 1, target)
     if col < 0: return -1
     end_row * cols + col
 

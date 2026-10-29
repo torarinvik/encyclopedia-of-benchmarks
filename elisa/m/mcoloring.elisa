@@ -1,7 +1,7 @@
 const MAX_VERTICES: usize = 14
 const MAX_PARSEABLE_INPUT_LENGTH: usize = 17
 
-def mcoloring_find_root(parent: mutable usize&, vertex_input: usize) -> usize:
+def mcoloring_find_root(parent: mutable view[usize], vertex_input: usize) -> usize:
     vertex: mutable usize = vertex_input
     while parent[vertex] != vertex:
         parent[vertex] <- parent[parent[vertex]]
@@ -39,8 +39,8 @@ def mcoloring_impl(input: i64&, length: usize) -> i64:
             reverse_edge: bool = masks[neighbor] & (1u32 << vertex) != 0
             if edge != reverse_edge: return -1
             if edge:
-                root_a: usize = mcoloring_find_root(&parent[0], vertex)
-                root_b: usize = mcoloring_find_root(&parent[0], neighbor)
+                root_a: usize = mcoloring_find_root(parent[0:n], vertex)
+                root_b: usize = mcoloring_find_root(parent[0:n], neighbor)
                 if root_a == root_b: return -1
                 parent[root_a] <- root_b
             neighbor <- neighbor + 1

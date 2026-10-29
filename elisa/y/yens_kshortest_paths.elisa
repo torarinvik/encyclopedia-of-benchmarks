@@ -1,31 +1,12 @@
 const NMAX: usize = 8
 const KMAX: usize = 8
 
-def yen_put(output: mutable u8&, offset: usize, value: i64) -> void:
+def yen_put(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for index in 0..<8:
         output[offset + index] <- ((bits >> (index * 8)) & 255).u8()
 
-def yen_lex_less(a: i64&, astart: usize, alen: usize, acost: i64, b: i64&, bstart: usize, blen: usize, bcost: i64) -> bool:
-    if acost != bcost:
-        return acost < bcost
-    limit: mutable usize = alen
-    if blen < limit:
-        limit <- blen
-    for i in 0..<limit:
-        if a[astart + i] != b[bstart + i]:
-            return a[astart + i] < b[bstart + i]
-    alen < blen
-
-def yen_same(a: i64&, astart: usize, alen: usize, b: i64&, bstart: usize, blen: usize) -> bool:
-    if alen != blen:
-        return false
-    for i in 0..<alen:
-        if a[astart + i] != b[bstart + i]:
-            return false
-    true
-
-def yen_shortest(graph: i64&, n: usize, src: usize, dst: usize, blocked_nodes: u64, blocked_edges: u64) -> i64:
+def yen_shortest(graph: view[i64], n: usize, src: usize, dst: usize, blocked_nodes: u64, blocked_edges: u64) -> i64:
     current: mutable i64[8] = zeroed
     next_vertex: mutable usize[8] = zeroed
     path_cost: mutable i64[8] = zeroed
@@ -116,7 +97,8 @@ def yens_kshortest_paths_impl(input: i64&, length: usize, output: mutable u8&, o
     candidate_costs: mutable i64[64] = zeroed
     accepted_count: mutable usize = 0
     candidate_count: mutable usize = 0
-    first_code: i64 = yen_shortest(input[4], n, src, dst, 0, 0)
+    graph: view[i64] = input[4:length]
+    first_code: i64 = yen_shortest(graph, n, src, dst, 0, 0)
     first_length: usize = ((first_code.u64() >> 24) & 15).usize()
     if first_code >= 0:
         for j in 0..<first_length:
@@ -150,7 +132,7 @@ def yens_kshortest_paths_impl(input: i64&, length: usize, output: mutable u8&, o
                     u: usize = accepted[p * NMAX + spur_index].usize()
                     v: usize = accepted[p * NMAX + spur_index + 1].usize()
                     blocked_edges <- blocked_edges | (1.u64() << (u * NMAX + v))
-            spur_code: i64 = yen_shortest(input[4], n, root[spur_index].usize(), dst, blocked_nodes, blocked_edges)
+            spur_code: i64 = yen_shortest(graph, n, root[spur_index].usize(), dst, blocked_nodes, blocked_edges)
             spur_length: usize = ((spur_code.u64() >> 24) & 15).usize()
             if spur_code >= 0:
                 total: mutable i64[8] = zeroed
@@ -220,15 +202,15 @@ def yens_kshortest_paths_impl(input: i64&, length: usize, output: mutable u8&, o
         required <- required + (accepted_lengths[i] + 2) * 8
     if output_capacity < required:
         return -2
-    yen_put(output, 0, accepted_count.i64())
+    yen_put(output[0:output_capacity], 0, accepted_count.i64())
     position: mutable usize = 8
     for i in 0..<accepted_count:
-        yen_put(output, position, accepted_lengths[i].i64())
+        yen_put(output[0:output_capacity], position, accepted_lengths[i].i64())
         position <- position + 8
         for j in 0..<accepted_lengths[i]:
-            yen_put(output, position, accepted[i * NMAX + j])
+            yen_put(output[0:output_capacity], position, accepted[i * NMAX + j])
             position <- position + 8
-        yen_put(output, position, accepted_costs[i])
+        yen_put(output[0:output_capacity], position, accepted_costs[i])
         position <- position + 8
     required.i64()
 

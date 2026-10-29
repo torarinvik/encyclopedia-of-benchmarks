@@ -3,8 +3,8 @@ const MAX_VERTEX_COUNT: usize = 64
 const MAX_EDGE_COUNT: usize = 2047
 const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_EDGE_COUNT
 
-def bridges_visit(adjacency: u64&, bridge_mask: mutable u64&, discovery: mutable i64&,
-        low: mutable i64&, parent: mutable i64&, vertex_count: usize,
+def bridges_visit(adjacency: view[u64], bridge_mask: mutable view[u64], discovery: mutable view[i64],
+        low: mutable view[i64], parent: mutable view[i64], vertex_count: usize,
         vertex: usize, time: mutable usize&) -> void:
     discovery[vertex] <- time.i64()
     low[vertex] <- time.i64()
@@ -60,7 +60,7 @@ def bridges_impl(input: i64&, length: usize,
     vertex <- 0
     while vertex < vertex_count |vertex, discovery, adjacency, bridge_mask, low, parent, time|:
         if discovery[vertex] == -1:
-            bridges_visit(&adjacency[0], &bridge_mask[0], &discovery[0], &low[0], &parent[0],
+            bridges_visit(adjacency[0:vertex_count], bridge_mask[0:vertex_count], discovery[0:vertex_count], low[0:vertex_count], parent[0:vertex_count],
                 vertex_count, vertex, time)
         vertex <- vertex + 1
     bridge_count: mutable usize = 0

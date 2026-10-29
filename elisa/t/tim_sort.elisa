@@ -1,5 +1,5 @@
 # Stable bottom-up TimSort-style sort using caller-provided scratch storage.
-def insertion_sort_run(values: mutable i64&, low: usize, high: usize) -> void:
+def insertion_sort_run(values: mutable view[i64], low: usize, high: usize) -> void:
     index: mutable usize = low + 1
     while index < high:
         key: i64 = values[index]
@@ -10,7 +10,7 @@ def insertion_sort_run(values: mutable i64&, low: usize, high: usize) -> void:
         values[cursor] <- key
         index <- index + 1
 
-def merge_runs(values: mutable i64&, scratch: mutable i64&, left: usize, middle: usize, right: usize) -> void:
+def merge_runs(values: mutable view[i64], scratch: mutable view[i64], left: usize, middle: usize, right: usize) -> void:
     index: mutable usize = left
     while index < right:
         scratch[index] <- values[index]
@@ -30,7 +30,7 @@ def merge_runs(values: mutable i64&, scratch: mutable i64&, left: usize, middle:
             second <- second + 1
         output <- output + 1
 
-def tim_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+def tim_sort_impl(values: mutable view[i64], scratch: mutable view[i64], length: usize) -> void:
     if length < 2:
         return
     start: mutable usize = 0
@@ -55,4 +55,7 @@ def tim_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) ->
             break
         width <- width * 2
 
-export fn tim_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void = tim_sort_impl
+export fn tim_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    tim_sort_impl(values[0:length], scratch[0:length], length)

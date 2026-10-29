@@ -5,7 +5,7 @@ def floor_q16(value: i64) -> i64:
     if value >= 0: return value / 65536
     -((-value + 65535) / 65536)
 
-def valid_jpeg_block(v: i64&) -> bool:
+def valid_jpeg_block(v: view[i64]) -> bool:
     if v[0] != 255 or v[1] != 216 or v[2] != 255 or v[3] != 219 or v[4] != 0 or v[5] != 67 or v[6] != 0: return false
     for i in 0..<64:
         if v[7 + i] < 1 or v[7 + i] > 255 or (i >= 2 and v[7 + i] != 1): return false
@@ -26,7 +26,7 @@ def picojpeg_impl(values: i64&, length: usize, output: mutable u8&, capacity: us
     if values.is_null() or length != INPUT_BYTES: return -1
     for i in 0..<length:
         if values[i] < 0 or values[i] > 255: return -1
-    if not valid_jpeg_block(values): return -1
+    if not valid_jpeg_block(values[0:INPUT_BYTES]): return -1
     scan: i64 = (values[135] << 8) | values[136]
     if (scan & 0x8000) != 0 or (scan & 0x0400) != 0 or ((scan >> 4) & 3) != 2 or (scan & 15) != 15: return -1
     dc_raw: i64 = (scan >> 11) & 15

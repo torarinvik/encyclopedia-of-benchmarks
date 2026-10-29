@@ -1,4 +1,4 @@
-def sierpinski_carpet_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def sierpinski_carpet_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -29,7 +29,7 @@ def sierpinski_carpet_impl(input: i64&, length: usize, output: mutable u8&, capa
         level <- level + 1
     needed: usize = 8 + side * side + side - 1
     if output == null or capacity < needed: return -2
-    sierpinski_carpet_write_i64(output, 0, side.i64())
+    sierpinski_carpet_write_i64(output[0:capacity], 0, side.i64())
     out: mutable usize = 8
     row: mutable usize = 0
     while row < side:

@@ -2,7 +2,7 @@ const MAX_COUNT: usize = 256
 const MAX_INPUT_LENGTH: usize = 5
 const MAX_OUTPUT_BYTES: usize = 1024
 
-def pcg32_put_u32_le(output: mutable u8&, index: usize, value: u32) -> void:
+def pcg32_put_u32_le(output: mutable view[u8], index: usize, value: u32) -> void:
     bits: mutable u32 = value
     offset: usize = index * 4
     byte: mutable usize = 0
@@ -38,6 +38,7 @@ def pcg32_random_impl(input: i64&, length: usize, output: mutable u8&, output_ca
         return -1
     if output.is_null() or output_capacity < required_bytes:
         return -2
+    output_view: mutable view[u8] = output[0:required_bytes]
 
     index: mutable usize = 0
     while index < count:
@@ -46,7 +47,7 @@ def pcg32_random_impl(input: i64&, length: usize, output: mutable u8&, output_ca
         state <- state *% multiplier +% increment
         value <- value ^ (value >> 18)
         xorshifted: u32 = (value >> 27).u32()
-        pcg32_put_u32_le(output, index, pcg32_rotate_right(xorshifted, rotation))
+        pcg32_put_u32_le(output_view, index, pcg32_rotate_right(xorshifted, rotation))
         index <- index + 1
     required_bytes.i64()
 

@@ -9,7 +9,7 @@ def back_propagation_neural_network_quantize(value: f64) -> i64:
     else:
         (scaled - 0.5).i64()
 
-def back_propagation_neural_network_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def back_propagation_neural_network_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits >> (byte * 8)).u8()
@@ -71,7 +71,7 @@ def back_propagation_neural_network_impl(input: i64&, length: usize,
         back_propagation_neural_network_quantize(updated_output_bias)
     ]
     for index in 0..<7:
-        back_propagation_neural_network_put_i64(output, index * 8, result[index])
+        back_propagation_neural_network_put_i64(output[0:56], index * 8, result[index])
     56
 
 export fn back_propagation_neural_network(input: i64&, length: usize,

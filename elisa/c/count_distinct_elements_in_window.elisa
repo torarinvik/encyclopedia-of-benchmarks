@@ -6,14 +6,14 @@ def hash_slot(value: i32) -> usize:
     mixed: u64 = bits.u64() * 2654435761.u64()
     (mixed.u32() >> 23).usize()
 
-def find_slot(keys: i32&, occupied: bool&, value: i32) -> usize:
+def find_slot(keys: view[i32], occupied: view[bool], value: i32) -> usize:
     for probes in 0..<HASH_CAPACITY|slot: usize = hash_slot(value)|:
         if not occupied[slot] or keys[slot] == value:
             return slot
         slot <- (slot + 1) % HASH_CAPACITY
     0
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     for byte in 0..<8|output, bits:u64 = value.u64()|:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
@@ -41,7 +41,7 @@ def count_distinct_elements_in_window_impl(input: i64&, length: usize, output: m
     distinct: mutable i64 = 0
     for i in 0..<k:
         value: i32 = input[i + 2].i32()
-        slot: usize = find_slot(keys, occupied, value)
+        slot: usize = find_slot(keys[0:HASH_CAPACITY], occupied[0:HASH_CAPACITY], value)
         if not occupied[slot]:
             keys[slot] <- value
             occupied[slot] <- true
@@ -49,10 +49,10 @@ def count_distinct_elements_in_window_impl(input: i64&, length: usize, output: m
         if counts[slot] == 0:
             distinct <- distinct + 1
         counts[slot] <- counts[slot] + 1
-    store_i64_le(distinct, output, 0)
+    store_i64_le(distinct, output[0:capacity], 0)
     for i in k..<n:
         incoming: i32 = input[i + 2].i32()
-        slot: usize = find_slot(keys, occupied, incoming)
+        slot: usize = find_slot(keys[0:HASH_CAPACITY], occupied[0:HASH_CAPACITY], incoming)
         if not occupied[slot]:
             keys[slot] <- incoming
             occupied[slot] <- true
@@ -61,11 +61,11 @@ def count_distinct_elements_in_window_impl(input: i64&, length: usize, output: m
             distinct <- distinct + 1
         counts[slot] <- counts[slot] + 1
         outgoing: i32 = input[i - k + 2].i32()
-        slot <- find_slot(keys, occupied, outgoing)
+        slot <- find_slot(keys[0:HASH_CAPACITY], occupied[0:HASH_CAPACITY], outgoing)
         counts[slot] <- counts[slot] - 1
         if counts[slot] == 0:
             distinct <- distinct - 1
-        store_i64_le(distinct, output, (i - k + 1) * 8)
+        store_i64_le(distinct, output[0:capacity], (i - k + 1) * 8)
     (out_n * 8).i64()
 
 export fn count_distinct_elements_in_window(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = count_distinct_elements_in_window_impl

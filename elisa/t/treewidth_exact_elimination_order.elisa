@@ -3,7 +3,7 @@ const MAX_EDGES: usize = 28
 const MAX_INPUT: usize = 58
 const MAX_OUTPUT: usize = 72
 
-def treewidth_exact_elimination_order_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def treewidth_exact_elimination_order_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -89,10 +89,10 @@ def treewidth_exact_elimination_order(input: i64&, length: usize,
     bytes: usize = 8 * (n + 1)
     if output.is_null() or capacity < bytes: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
-    treewidth_exact_elimination_order_put(best_width.i64(), staged, 0)
+    treewidth_exact_elimination_order_put(best_width.i64(), staged[0:MAX_OUTPUT], 0)
     index <- 0
     while index < n:
-        treewidth_exact_elimination_order_put(best_order[index].i64(), staged, 8 * (index + 1))
+        treewidth_exact_elimination_order_put(best_order[index].i64(), staged[0:MAX_OUTPUT], 8 * (index + 1))
         index <- index + 1
     index <- 0
     while index < bytes: output[index] <- staged[index]; index <- index + 1

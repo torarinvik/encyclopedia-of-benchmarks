@@ -1,4 +1,4 @@
-def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+def put_i32_le(value: i32, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.i64().u64()
     byte: mutable usize = 0
     while byte < 4:
@@ -97,8 +97,9 @@ def multi_level_feedback_queue_impl(input: i32&, length: usize, output: mutable 
     bytes: usize = word_count * 4
     if output.is_null() or output_capacity < bytes: return -2
     buffer: mutable u8[132] = zeroed
+    buffer_view: mutable view[u8] = buffer[0:bytes]
     while index < word_count |index: mutable usize = 0| -> void:
-        put_i32_le(words[index], buffer[0], index * 4)
+        put_i32_le(words[index], buffer_view, index * 4)
         index <- index + 1
     index <- 0
     while index < bytes:

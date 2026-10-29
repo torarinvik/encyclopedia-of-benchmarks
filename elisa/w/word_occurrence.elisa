@@ -4,7 +4,7 @@ const MAX_ENTRIES: usize = 512
 def word_occurrence_ws(value: u8) -> bool:
     (value >= 9 and value <= 13) or (value >= 28 and value <= 32)
 
-def word_occurrence_put32(output: mutable u8&, position: mutable usize&, value: u32) -> void:
+def word_occurrence_put32(output: mutable view[u8], position: mutable usize&, value: u32) -> void:
     bits: mutable u32 = value
     index: mutable usize = 0
     while index < 4:
@@ -56,16 +56,16 @@ def word_occurrence_impl(input: i64&, length: usize, output: mutable u8&, capaci
         entry <- entry + 1
     if output == null or capacity < needed: return -2
     position: mutable usize = 0
-    word_occurrence_put32(output, position&, entries.u32())
+    word_occurrence_put32(output[0:capacity], position&, entries.u32())
     entry <- 0
     while entry < entries:
-        word_occurrence_put32(output, position&, lengths[entry].u32())
+        word_occurrence_put32(output[0:capacity], position&, lengths[entry].u32())
         index <- 0
         while index < lengths[entry]:
             output[position] <- text[starts[entry] + index]
             position <- position + 1
             index <- index + 1
-        word_occurrence_put32(output, position&, counts[entry])
+        word_occurrence_put32(output[0:capacity], position&, counts[entry])
         entry <- entry + 1
     position.i64()
 

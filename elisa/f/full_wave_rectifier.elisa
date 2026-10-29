@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def store_f64_le(output: mutable u8&, position: usize, value: f64) -> void:
+def store_f64_le(output: mutable view[u8], position: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for byte in 0..<8:
@@ -28,12 +28,12 @@ def full_wave_rectifier_impl(values: i64&, length: usize,
     rl: f64 = rl_i.f64()
     vm: f64 = vm_i.f64()
     im: f64 = im_i.f64()
-    store_f64_le(output, 0, vm / (rf + rs + rl))
-    store_f64_le(output, 8, 2.0 * im * 0.318)
-    store_f64_le(output, 16, 2.0 * 0.318 * vm)
-    store_f64_le(output, 24, vm / rl)
-    store_f64_le(output, 32, im * 0.707)
-    store_f64_le(output, 40, vm * 0.707)
+    store_f64_le(output[0:48], 0, vm / (rf + rs + rl))
+    store_f64_le(output[0:48], 8, 2.0 * im * 0.318)
+    store_f64_le(output[0:48], 16, 2.0 * 0.318 * vm)
+    store_f64_le(output[0:48], 24, vm / rl)
+    store_f64_le(output[0:48], 32, im * 0.707)
+    store_f64_le(output[0:48], 40, vm * 0.707)
     48.i64()
 
 export fn full_wave_rectifier(values: i64&, length: usize,

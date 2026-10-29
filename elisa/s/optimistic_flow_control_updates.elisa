@@ -13,7 +13,7 @@ def gcd64(a0: i64, b0: i64) -> i64:
         b <- r
     return a
 
-def put64(value: i64, output: mutable u8&, position: usize) -> void:
+def put64(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -158,8 +158,8 @@ def optimistic_flow_control_updates(input: i64&, length: usize, output: mutable 
     s <- 0
     while s < n:
         divisor: i64 = gcd64(rate[s], SCALE)
-        put64(rate[s] / divisor, staged, 16 * s)
-        put64(SCALE / divisor, staged, 16 * s + 8)
+        put64(rate[s] / divisor, staged[0:output_bytes], 16 * s)
+        put64(SCALE / divisor, staged[0:output_bytes], 16 * s + 8)
         s <- s + 1
     e <- 0
     while e < output_bytes:

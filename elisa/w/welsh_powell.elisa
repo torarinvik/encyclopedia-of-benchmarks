@@ -1,7 +1,7 @@
 def welsh_powell_bit(vertex: usize) -> u64:
     return 1.u64() << vertex
 
-def welsh_powell_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def welsh_powell_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -93,7 +93,7 @@ def welsh_powell_impl(input: i64&, length: usize,
 
     vertex <- 0
     while vertex < n:
-        welsh_powell_put_i64(output, vertex * 8, colors[vertex])
+        welsh_powell_put_i64(output[0:capacity], vertex * 8, colors[vertex])
         vertex <- vertex + 1
     output_bytes.i64()
 

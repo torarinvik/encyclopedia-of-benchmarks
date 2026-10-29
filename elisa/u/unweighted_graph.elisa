@@ -5,7 +5,7 @@ const MAX_PARSEABLE_INPUT_LENGTH: usize = 64
 const MAX_OUTPUT_WORDS: usize = 81
 const MAX_OUTPUT_BYTES: usize = 648
 
-def unweighted_graph_find_id(ids: i64&, count: usize, id: i64) -> i64:
+def unweighted_graph_find_id(ids: view[i64], count: usize, id: i64) -> i64:
     index: mutable usize = 0
     while index < count:
         if ids[index] == id: return index.i64()
@@ -30,7 +30,7 @@ def unweighted_graph_impl(input: i64&, input_length: usize,
     while index < initial_count:
         node: i64 = input[3 + index]
         if node < -2147483648 or node > 2147483647: return -1
-        if unweighted_graph_find_id(ids, known_count, node) >= 0: return -1
+        if unweighted_graph_find_id(ids[0:MAX_KNOWN_IDS], known_count, node) >= 0: return -1
         ids[known_count] <- node
         declared[known_count] <- true
         known_count <- known_count + 1
@@ -48,7 +48,7 @@ def unweighted_graph_impl(input: i64&, input_length: usize,
         if first < -2147483648 or first > 2147483647 or second < -2147483648 or second > 2147483647: return -1
         if op == 0:
             if second != 0: return -1
-            existing: i64 = unweighted_graph_find_id(ids, known_count, first)
+            existing: i64 = unweighted_graph_find_id(ids[0:MAX_KNOWN_IDS], known_count, first)
             if existing >= 0 and declared[existing.usize()]: return -1
             if existing < 0:
                 if known_count >= MAX_KNOWN_IDS: return -1
@@ -58,9 +58,9 @@ def unweighted_graph_impl(input: i64&, input_length: usize,
                 known_count <- known_count + 1
             declared[existing.usize()] <- true
         else if op == 1:
-            from: i64 = unweighted_graph_find_id(ids, known_count, first)
+            from: i64 = unweighted_graph_find_id(ids[0:MAX_KNOWN_IDS], known_count, first)
             if from < 0 or not declared[from.usize()]: return -1
-            to: i64 = unweighted_graph_find_id(ids, known_count, second)
+            to: i64 = unweighted_graph_find_id(ids[0:MAX_KNOWN_IDS], known_count, second)
             if not directed and (to < 0 or not declared[to.usize()]): return -1
             if to < 0:
                 if known_count >= MAX_KNOWN_IDS: return -1
@@ -74,7 +74,7 @@ def unweighted_graph_impl(input: i64&, input_length: usize,
             if not directed: adjacency[to.usize() * MAX_KNOWN_IDS + from.usize()] <- true
         else if op == 2:
             if second != 0: return -1
-            node: i64 = unweighted_graph_find_id(ids, known_count, first)
+            node: i64 = unweighted_graph_find_id(ids[0:MAX_KNOWN_IDS], known_count, first)
             if node < 0 or not declared[node.usize()]: return -1
             sorted: mutable i64[MAX_KNOWN_IDS] = zeroed
             neighbor_count: mutable usize = 0

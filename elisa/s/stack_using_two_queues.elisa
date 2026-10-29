@@ -1,4 +1,4 @@
-def push_new(main_queue: mutable i64[128]&, temp_queue: mutable i64[128]&,
+def push_new(main_queue: mutable view[i64], temp_queue: mutable view[i64],
              head: mutable usize&, tail: mutable usize&, value: i64):
     temp_tail: mutable usize = 0
     temp_queue[temp_tail] <- value
@@ -30,9 +30,9 @@ def stack_using_two_queues_impl(input: i64&, length: usize, output: mutable u8&,
         if opcode == 0:
             if operand < -2147483648 or operand > 2147483647: return -1
             if main_is_a:
-                push_new(queue_a, queue_b, head, tail, operand)
+                push_new(queue_a[0:128], queue_b[0:128], head, tail, operand)
             else:
-                push_new(queue_b, queue_a, head, tail, operand)
+                push_new(queue_b[0:128], queue_a[0:128], head, tail, operand)
             main_is_a <- not main_is_a
         elif opcode == 1:
             if operand != 0 or head == tail: return -1

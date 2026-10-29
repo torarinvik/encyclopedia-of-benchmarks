@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def exponential_moving_average_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def exponential_moving_average_put_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -26,7 +26,7 @@ def exponential_moving_average_impl(input: i64&, length: usize, output: mutable 
         if index == 0: average <- price
         else if index <= window: average <- (average + price) * 0.5
         else: average <- (alpha * price) + ((1.0 - alpha) * average)
-        exponential_moving_average_put_f64(output, index * 8, average)
+        exponential_moving_average_put_f64(output[0:count * 8], index * 8, average)
         index <- index + 1
     (count * 8).i64()
 

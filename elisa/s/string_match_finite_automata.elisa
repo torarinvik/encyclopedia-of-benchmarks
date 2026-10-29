@@ -4,7 +4,7 @@ const ALPHABET_SIZE: usize = 128
 const TABLE_SIZE: usize = (MAX_PATTERN_LENGTH + 1) * ALPHABET_SIZE
 const MAX_PARSEABLE_INPUT_LENGTH: usize = 291
 
-def next_state(pattern: i64&, pattern_length: usize, state: usize, symbol: i64) -> usize:
+def next_state(pattern: view[i64], pattern_length: usize, state: usize, symbol: i64) -> usize:
     if state < pattern_length and symbol == pattern[state]:
         return state + 1
     candidate: mutable usize = state
@@ -22,7 +22,7 @@ def next_state(pattern: i64&, pattern_length: usize, state: usize, symbol: i64) 
         candidate <- candidate - 1
     0
 
-def store_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i32_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u32 = value.u32()
     output[offset] <- (bits & 255).u8()
     output[offset + 1] <- ((bits >> 8) & 255).u8()
@@ -47,8 +47,8 @@ def string_match_finite_automata_impl(values: i64&, length: usize, output: mutab
             return -1
         index <- index + 1
 
-    text: i64& = &values[2]
-    pattern: i64& = &values[2 + text_length]
+    text: view[i64] = values[2:2 + text_length]
+    pattern: view[i64] = values[2 + text_length:length]
     transitions: mutable i64[TABLE_SIZE] = zeroed
     state_index: usize = 0
     while state_index <= pattern_length:
@@ -75,7 +75,7 @@ def string_match_finite_automata_impl(values: i64&, length: usize, output: mutab
         return -2
     index <- 0
     while index < match_count:
-        store_i32_le(matches[index], output, 4 * index)
+        store_i32_le(matches[index], output[0:output_capacity], 4 * index)
         index <- index + 1
     byte_count.i64()
 

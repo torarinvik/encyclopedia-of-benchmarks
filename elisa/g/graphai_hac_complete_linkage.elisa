@@ -5,7 +5,7 @@ const GRAPH_HAC_MAX_INPUT: usize = 74
 const GRAPH_HAC_MAX_NODES: usize = 15
 const GRAPH_HAC_ROOT_PARENT: i64 = 4294967295
 
-def graph_hac_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def graph_hac_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -121,7 +121,7 @@ def graphai_hac_complete_linkage(input: i64&, length: usize, output: mutable u8&
         merge <- merge + 1
     node <- 0
     while node < node_count:
-        graph_hac_store_i64_le(parent[node], output, 16 * node)
-        graph_hac_store_i64_le(merge_weight[node], output, 16 * node + 8)
+        graph_hac_store_i64_le(parent[node], output[0:output_bytes], 16 * node)
+        graph_hac_store_i64_le(merge_weight[node], output[0:output_bytes], 16 * node + 8)
         node <- node + 1
     output_bytes.i64()

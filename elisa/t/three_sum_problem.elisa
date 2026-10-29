@@ -2,7 +2,7 @@
 const MAX_ITEMS: usize = 257
 const BYTES_PER_TRIPLET: usize = 12
 
-def sift_down(values: mutable i64&, root_start: usize, end: usize) -> void:
+def sift_down(values: mutable view[i64], root_start: usize, end: usize) -> void:
     root: mutable usize = root_start
     while root < end / 2:
         child: mutable usize = root * 2 + 1
@@ -15,7 +15,7 @@ def sift_down(values: mutable i64&, root_start: usize, end: usize) -> void:
         values[child] <- temporary
         root <- child
 
-def heap_sort(values: mutable i64&, length: usize) -> void:
+def heap_sort(values: mutable view[i64], length: usize) -> void:
     start: mutable usize = length / 2
     while start > 0:
         start <- start - 1
@@ -28,14 +28,14 @@ def heap_sort(values: mutable i64&, length: usize) -> void:
         values[ending] <- temporary
         sift_down(values, 0, ending)
 
-def store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i32_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
     output[position + 2] <- ((bits >> 16) & 255).u8()
     output[position + 3] <- ((bits >> 24) & 255).u8()
 
-def enumerate_triplets(values: i64&, length: usize, target: i64, output: mutable u8&,
+def enumerate_triplets(values: view[i64], length: usize, target: i64, output: mutable view[u8],
         write_output: bool) -> usize:
     result_count: mutable usize = 0
     first: mutable usize = 0
@@ -82,15 +82,15 @@ def three_sum_problem_impl(input: i64&, length: usize, output: mutable u8&, outp
             return -1
         values[index] <- value
         index <- index + 1
-    heap_sort(&values[0], usize(n))
+    heap_sort(values[0:usize(n)], usize(n))
 
     maximum_bytes: mutable usize = 0
     if n > 1:
         maximum_bytes <- (usize(n) * usize(n - 1) / 2) * BYTES_PER_TRIPLET
     if output_capacity < maximum_bytes:
-        needed: usize = enumerate_triplets(&values[0], usize(n), target, output, false) * BYTES_PER_TRIPLET
+        needed: usize = enumerate_triplets(values[0:usize(n)], usize(n), target, output[0:output_capacity], false) * BYTES_PER_TRIPLET
         if output_capacity < needed:
             return -2
-    enumerate_triplets(&values[0], usize(n), target, output, true).i64()
+    enumerate_triplets(values[0:usize(n)], usize(n), target, output[0:output_capacity], true).i64()
 
 export fn three_sum_problem(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = three_sum_problem_impl

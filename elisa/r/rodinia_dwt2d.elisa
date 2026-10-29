@@ -8,8 +8,8 @@ def rodinia_dwt2d_div_trunc(numerator: i64, denominator: i64) -> i64:
         return -((-numerator) / denominator)
     numerator / denominator
 
-def rodinia_dwt2d_transform_line(line: i64&, n: usize,
-                                result: mutable i64&) -> void:
+def rodinia_dwt2d_transform_line(line: view[i64], n: usize,
+                                result: mutable view[i64]) -> void:
     half: usize = n / 2
     detail: mutable i64[8] = zeroed
     for j in 0..<half:
@@ -22,7 +22,7 @@ def rodinia_dwt2d_transform_line(line: i64&, n: usize,
     for j in 0..<half:
         result[half + j] <- detail[j]
 
-def rodinia_dwt2d_put_i32(output: mutable u8&, offset: usize, value: i64) -> void:
+def rodinia_dwt2d_put_i32(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u32 = value.u32()
     for byte in 0..<4:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
@@ -66,13 +66,13 @@ def rodinia_dwt2d_impl(input: i64&, length: usize,
         for x in 0..<active_width:
             for y in 0..<active_height:
                 line[y] <- plane[y * width + x]
-            rodinia_dwt2d_transform_line(line&, active_height, transformed&)
+            rodinia_dwt2d_transform_line(line[0:active_height], active_height, transformed[0:active_height])
             for y in 0..<active_height:
                 vertical[y * width + x] <- transformed[y]
         for y in 0..<active_height:
             for x in 0..<active_width:
                 line[x] <- vertical[y * width + x]
-            rodinia_dwt2d_transform_line(line&, active_width, transformed&)
+            rodinia_dwt2d_transform_line(line[0:active_width], active_width, transformed[0:active_width])
             for x in 0..<active_width:
                 next[y * width + x] <- transformed[x]
         for y in 0..<active_height:
@@ -106,7 +106,7 @@ def rodinia_dwt2d_impl(input: i64&, length: usize,
                 output_index <- output_index + 1
         stage <- stage - 1
     for i in 0..<cells:
-        rodinia_dwt2d_put_i32(output&, 4 * i, ordered[i])
+        rodinia_dwt2d_put_i32(output[0:output_bytes], 4 * i, ordered[i])
     output_bytes.i64()
 
 export fn rodinia_dwt2d(input: i64&, length: usize, output: mutable u8&,

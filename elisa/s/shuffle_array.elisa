@@ -4,7 +4,7 @@ const MAX_OUTPUT_BYTES: usize = 520
 const I32_MIN: i64 = -2147483648
 const I32_MAX: i64 = 2147483647
 
-def shuffle_array_store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def shuffle_array_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -54,10 +54,10 @@ def shuffle_array_impl(input: i64&, input_length: usize,
 
     output_bytes: usize = 8 * (result_count + 1)
     if output_bytes > MAX_OUTPUT_BYTES or output.is_null() or output_capacity < output_bytes: return -2
-    shuffle_array_store_i64_le(output, 0, result_count.i64())
+    shuffle_array_store_i64_le(output[0:output_bytes], 0, result_count.i64())
     index <- 0
     while index < result_count:
-        shuffle_array_store_i64_le(output, 8 * (index + 1), result_values[index])
+        shuffle_array_store_i64_le(output[0:output_bytes], 8 * (index + 1), result_values[index])
         index <- index + 1
     output_bytes.i64()
 

@@ -1,4 +1,4 @@
-def tic_tac_toe_won(board: i64&, player: i64) -> bool:
+def tic_tac_toe_won(board: view[i64], player: i64) -> bool:
     line: mutable usize = 0
     while line < 8:
         a: mutable usize = 0
@@ -34,7 +34,7 @@ def tic_tac_toe_record(best_rank: mutable i64&, best_score: mutable i64&, best_m
         best_mask <- 1 << index
     elif rank == best_rank: best_mask <- best_mask | (1 << index)
 
-def tic_tac_toe_search(board: mutable i64&, side: i64) -> i64:
+def tic_tac_toe_search(board: view[i64], side: i64) -> i64:
     # Explicit depth stack avoids host recursion limits while preserving row-major DFS.
     if tic_tac_toe_won(board, 1) or tic_tac_toe_won(board, 2): return -1
     root_available: mutable bool = false
@@ -74,8 +74,8 @@ def tic_tac_toe_search(board: mutable i64&, side: i64) -> i64:
             player: i64 = sides[depth]
             boards[offset + cursor] <- player
             score: mutable i64 = -1
-            if tic_tac_toe_won(&boards[offset], 1): score <- 1
-            elif tic_tac_toe_won(&boards[offset], 2): score <- 2
+            if tic_tac_toe_won(boards[offset:offset + 9], 1): score <- 1
+            elif tic_tac_toe_won(boards[offset:offset + 9], 2): score <- 2
             else:
                 full: mutable bool = true
                 index <- 0
@@ -109,7 +109,7 @@ def depth_first_search_tic_tac_toe_impl(input: i64&, length: usize) -> i64:
         if input[index + 1] < 0 or input[index + 1] > 2: return -1
         board[index] <- input[index + 1]
         index <- index + 1
-    result: i64 = tic_tac_toe_search(&board[0], input[0])
+    result: i64 = tic_tac_toe_search(board[0:9], input[0])
     if result < 0: return 0
     1 + result
 

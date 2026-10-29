@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def streaming_moving_average_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def streaming_moving_average_put_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -28,7 +28,7 @@ def streaming_moving_average_impl(input: i64&, length: usize, output: mutable u8
             sum <- sum + input[2 + cursor]
             cursor <- cursor + 1
         average: f64 = sum.f64() / (index + 1 - start).f64()
-        streaming_moving_average_put_f64(output, index * 8, average)
+        streaming_moving_average_put_f64(output[0:capacity], index * 8, average)
         index <- index + 1
     (count * 8).i64()
 

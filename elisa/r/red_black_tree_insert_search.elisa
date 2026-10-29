@@ -2,15 +2,15 @@ const MAX_OPERATIONS: usize = 128
 const INVALID_RESULT: i64 = -1
 const CAPACITY_RESULT: i64 = -2
 
-def rb_insert_search_is_red(red: bool&, node: usize) -> bool:
+def rb_insert_search_is_red(red: view[bool], node: usize) -> bool:
     node != 0 and red[node]
 
-def rb_insert_search_flip(node: usize, left: usize&, right: usize&, red: mutable bool&) -> void:
+def rb_insert_search_flip(node: usize, left: view[usize], right: view[usize], red: mutable view[bool]) -> void:
     red[node] <- not red[node]
     red[left[node]] <- not red[left[node]]
     red[right[node]] <- not red[right[node]]
 
-def rb_insert_search_rotate_left(node: usize, left: mutable usize&, right: mutable usize&, red: mutable bool&) -> usize:
+def rb_insert_search_rotate_left(node: usize, left: mutable view[usize], right: mutable view[usize], red: mutable view[bool]) -> usize:
     pivot: usize = right[node]
     right[node] <- left[pivot]
     left[pivot] <- node
@@ -18,7 +18,7 @@ def rb_insert_search_rotate_left(node: usize, left: mutable usize&, right: mutab
     red[node] <- true
     pivot
 
-def rb_insert_search_rotate_right(node: usize, left: mutable usize&, right: mutable usize&, red: mutable bool&) -> usize:
+def rb_insert_search_rotate_right(node: usize, left: mutable view[usize], right: mutable view[usize], red: mutable view[bool]) -> usize:
     pivot: usize = left[node]
     left[node] <- right[pivot]
     right[pivot] <- node
@@ -26,7 +26,7 @@ def rb_insert_search_rotate_right(node: usize, left: mutable usize&, right: muta
     red[node] <- true
     pivot
 
-def rb_insert_search_find(start: usize, key: i64, keys: i64&, left: usize&, right: usize&) -> usize:
+def rb_insert_search_find(start: usize, key: i64, keys: view[i64], left: view[usize], right: view[usize]) -> usize:
     node: mutable usize = start
     while node != 0:
         if key < keys[node]: node <- left[node]
@@ -34,7 +34,7 @@ def rb_insert_search_find(start: usize, key: i64, keys: i64&, left: usize&, righ
         else: return node
     0
 
-def rb_insert_search_insert(node_value: usize, key: i64, next: mutable usize&, keys: mutable i64&, left: mutable usize&, right: mutable usize&, red: mutable bool&) -> usize:
+def rb_insert_search_insert(node_value: usize, key: i64, next: mutable usize&, keys: mutable view[i64], left: mutable view[usize], right: mutable view[usize], red: mutable view[bool]) -> usize:
     node: mutable usize = node_value
     if node == 0:
         node <- next
@@ -57,7 +57,7 @@ def rb_insert_search_insert(node_value: usize, key: i64, next: mutable usize&, k
         node <- rb_insert_search_rotate_right(node, left, right, red)
     node
 
-def rb_insert_search_sort(values: mutable i64&, count: usize) -> void:
+def rb_insert_search_sort(values: mutable view[i64], count: usize) -> void:
     index: mutable usize = 1
     while index < count:
         value: i64 = values[index]
@@ -68,7 +68,7 @@ def rb_insert_search_sort(values: mutable i64&, count: usize) -> void:
         values[position] <- value
         index <- index + 1
 
-def rb_insert_search_put(output: mutable u8&, offset: usize, value: i64) -> void:
+def rb_insert_search_put(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -97,27 +97,27 @@ def red_black_tree_insert_search_impl(input: i64&, length: usize, output: mutabl
         opcode: i64 = input[1 + 2 * op]
         key: i64 = input[2 + 2 * op]
         if opcode == 0:
-            if rb_insert_search_find(root, key, keys[0], left[0], right[0]) != 0: return INVALID_RESULT
-            root <- rb_insert_search_insert(root, key, next, keys[0], left[0], right[0], red[0])
+            if rb_insert_search_find(root, key, keys[0:MAX_OPERATIONS + 1], left[0:MAX_OPERATIONS + 1], right[0:MAX_OPERATIONS + 1]) != 0: return INVALID_RESULT
+            root <- rb_insert_search_insert(root, key, next, keys[0:MAX_OPERATIONS + 1], left[0:MAX_OPERATIONS + 1], right[0:MAX_OPERATIONS + 1], red[0:MAX_OPERATIONS + 1])
             red[root] <- false
             active[key_count] <- key
             key_count <- key_count + 1
         else:
-            results[search_count] <- if rb_insert_search_find(root, key, keys[0], left[0], right[0]) != 0: 1 else: 0
+            results[search_count] <- if rb_insert_search_find(root, key, keys[0:MAX_OPERATIONS + 1], left[0:MAX_OPERATIONS + 1], right[0:MAX_OPERATIONS + 1]) != 0: 1 else: 0
             search_count <- search_count + 1
-    rb_insert_search_sort(active[0], key_count)
+    rb_insert_search_sort(active[0:key_count], key_count)
     required: usize = (2 + key_count + search_count) * 8
     if output.is_null() or capacity < required: return CAPACITY_RESULT
     offset: mutable usize = 0
-    rb_insert_search_put(output, offset, key_count.i64())
+    rb_insert_search_put(output[0:capacity], offset, key_count.i64())
     offset <- offset + 8
     for index in 0..<key_count:
-        rb_insert_search_put(output, offset, active[index])
+        rb_insert_search_put(output[0:capacity], offset, active[index])
         offset <- offset + 8
-    rb_insert_search_put(output, offset, search_count.i64())
+    rb_insert_search_put(output[0:capacity], offset, search_count.i64())
     offset <- offset + 8
     for index in 0..<search_count:
-        rb_insert_search_put(output, offset, results[index])
+        rb_insert_search_put(output[0:capacity], offset, results[index])
         offset <- offset + 8
     required.i64()
 

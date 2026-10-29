@@ -3,7 +3,7 @@ const MAX_M: usize = 66
 const MAX_Q: usize = 32
 const INF: i64 = 0x3fffffffffffffff
 
-def put_i64(output: mutable u8&, offset: usize, value: i64):
+def put_i64(output: mutable view[u8], offset: usize, value: i64):
     bits: u64 = value as u64
     for byte in 0..<8 |output|:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255) as u8
@@ -82,7 +82,7 @@ def thorup_zwick_distance_oracle_impl(input: i64&, length: usize, output: mutabl
         if not found: return -1
     bytes: usize = 8 * (q + 1)
     if output.is_null() or capacity < bytes: return -2
-    for i in 0..<q + 1 |staged, output|: put_i64(output, i * 8, staged[i])
+    for i in 0..<q + 1 |staged, output|: put_i64(output[0:bytes], i * 8, staged[i])
     bytes as i64
 
 export fn thorup_zwick_distance_oracle(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = thorup_zwick_distance_oracle_impl

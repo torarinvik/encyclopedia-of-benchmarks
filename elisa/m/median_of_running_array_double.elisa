@@ -8,7 +8,7 @@ def median_double_less(left: f64, right: f64) -> bool:
         return (1.0 / left < 0.0) and (1.0 / right >= 0.0)
     false
 
-def median_double_push_max(heap: mutable f64&, count: mutable usize&, value: f64) -> void:
+def median_double_push_max(heap: mutable view[f64], count: mutable usize&, value: f64) -> void:
     position: mutable usize = count
     count <- count + 1
     while position > 0 and median_double_less(heap[(position - 1) / 2], value):
@@ -17,7 +17,7 @@ def median_double_push_max(heap: mutable f64&, count: mutable usize&, value: f64
         position <- parent
     heap[position] <- value
 
-def median_double_pop_max(heap: mutable f64&, count: mutable usize&) -> f64:
+def median_double_pop_max(heap: mutable view[f64], count: mutable usize&) -> f64:
     result: f64 = heap[0]
     count <- count - 1
     value: f64 = heap[count]
@@ -33,7 +33,7 @@ def median_double_pop_max(heap: mutable f64&, count: mutable usize&) -> f64:
     heap[position] <- value
     result
 
-def median_double_push_min(heap: mutable f64&, count: mutable usize&, value: f64) -> void:
+def median_double_push_min(heap: mutable view[f64], count: mutable usize&, value: f64) -> void:
     position: mutable usize = count
     count <- count + 1
     while position > 0 and median_double_less(value, heap[(position - 1) / 2]):
@@ -42,7 +42,7 @@ def median_double_push_min(heap: mutable f64&, count: mutable usize&, value: f64
         position <- parent
     heap[position] <- value
 
-def median_double_pop_min(heap: mutable f64&, count: mutable usize&) -> f64:
+def median_double_pop_min(heap: mutable view[f64], count: mutable usize&) -> f64:
     result: f64 = heap[0]
     count <- count - 1
     value: f64 = heap[count]
@@ -70,6 +70,8 @@ def median_of_running_array_double_impl(input: f64&, length: usize, output: muta
     lower: mutable f64[64] = zeroed
     upper: mutable f64[64] = zeroed
     medians: mutable f64[64] = zeroed
+    lower_view: mutable view[f64] = lower[0:MAX_COUNT]
+    upper_view: mutable view[f64] = upper[0:MAX_COUNT]
     lower_count: mutable usize = 0
     upper_count: mutable usize = 0
     for index in 0..<count:
@@ -77,13 +79,13 @@ def median_of_running_array_double_impl(input: f64&, length: usize, output: muta
         if sample != sample or sample < -1000000.0 or sample > 1000000.0:
             return -1
         if upper_count > 0 and median_double_less(sample, upper[0]):
-            median_double_push_max(&lower[0], &lower_count, sample)
+            median_double_push_max(lower_view, lower_count, sample)
         else:
-            median_double_push_min(&upper[0], &upper_count, sample)
+            median_double_push_min(upper_view, upper_count, sample)
         if lower_count > upper_count + 1:
-            median_double_push_min(&upper[0], &upper_count, median_double_pop_max(&lower[0], &lower_count))
+            median_double_push_min(upper_view, upper_count, median_double_pop_max(lower_view, lower_count))
         else if upper_count > lower_count + 1:
-            median_double_push_max(&lower[0], &lower_count, median_double_pop_min(&upper[0], &upper_count))
+            median_double_push_max(lower_view, lower_count, median_double_pop_min(upper_view, upper_count))
         if lower_count > upper_count:
             medians[index] <- lower[0]
         else if upper_count > lower_count:

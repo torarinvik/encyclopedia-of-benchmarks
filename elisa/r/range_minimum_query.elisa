@@ -1,5 +1,5 @@
 # Static range minimum queries using a sparse table.
-def range_minimum_query_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def range_minimum_query_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -21,6 +21,7 @@ def range_minimum_query_impl(input: i64&, length: usize, output: mutable u8&, ca
         if values[index] < -1000 or values[index] > 1000: return -1
         index <- index + 1
     if capacity < q * 8 or (q > 0 and output.is_null()): return -2
+    output_view: mutable view[u8] = output[0:q * 8]
     table: mutable usize[7][64] = zeroed
     index <- 0
     while index < n: table[0][index] <- index; index <- index + 1
@@ -50,6 +51,6 @@ def range_minimum_query_impl(input: i64&, length: usize, output: mutable u8&, ca
             a: usize = table[level][l]; b: usize = table[level][r - width]
             if values[a] < values[b]: answer <- values[a]
             else: answer <- values[b]
-        range_minimum_query_put_i64(output, query * 8, answer)
+        range_minimum_query_put_i64(output_view, query * 8, answer)
         query <- query + 1
     (q * 8).i64()

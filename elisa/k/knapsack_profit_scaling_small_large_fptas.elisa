@@ -2,7 +2,7 @@ const MAX_N: usize = 8
 const MAX_INPUT: usize = 18
 const MAX_Q: usize = 128
 
-def knapsack_small_large_store(output: mutable u8&, offset: usize, value: i64) -> void:
+def knapsack_small_large_store(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     b: mutable usize = 0
     while b < 8:
@@ -81,5 +81,5 @@ def knapsack_profit_scaling_small_large_fptas(input: i64&, length: usize, output
                 k <- k + 1
             if value_profit > best_profit or (value_profit == best_profit and mask < best_mask): best_profit <- value_profit; best_mask <- mask
         q <- q + 1
-    knapsack_small_large_store(output, 0, best_mask); knapsack_small_large_store(output, 8, best_profit)
+    knapsack_small_large_store(output[0:16], 0, best_mask); knapsack_small_large_store(output[0:16], 8, best_profit)
     16

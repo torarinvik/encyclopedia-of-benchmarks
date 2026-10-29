@@ -7,7 +7,7 @@ def dense_graph_bipartiteness_tester_has_edge(row: i64, vertex: usize) -> bool:
     bits: u64 = row.u64()
     return ((bits >> vertex) & 1) != 0
 
-def dense_graph_bipartiteness_tester_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def dense_graph_bipartiteness_tester_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -89,8 +89,8 @@ def dense_graph_bipartiteness_tester(input: i64&, length: usize,
         start <- start + 1
     if output.is_null() or capacity < MAX_OUTPUT: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
-    dense_graph_bipartiteness_tester_put(accepted, staged, 0)
-    dense_graph_bipartiteness_tester_put((q * (q - 1) / 2).i64(), staged, 8)
+    dense_graph_bipartiteness_tester_put(accepted, staged[0:16], 0)
+    dense_graph_bipartiteness_tester_put((q * (q - 1) / 2).i64(), staged[0:16], 8)
     i <- 0
     while i < MAX_OUTPUT:
         output[i] <- staged[i]

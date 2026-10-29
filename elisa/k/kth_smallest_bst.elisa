@@ -3,7 +3,7 @@ const MAX_VALUE: i64 = 10000
 const INVALID_TREE_RESULT: i64 = -9223372036854775807 - 1
 
 # Visit nodes in order and propagate a found value without scanning later nodes.
-def kth_smallest_bst_visit(nodes: i64&, node_count: usize, node: i64,
+def kth_smallest_bst_visit(nodes: view[i64], node_count: usize, node: i64,
                            remaining: mutable i64&) -> i64:
     if node == -1:
         return -1
@@ -30,7 +30,7 @@ def kth_smallest_bst_impl(nodes: i64&, node_count: usize, root_index: i64, k: i6
        root_index.u64() >= node_count.u64() or k < 1 or k.u64() > node_count.u64()):
         return -1
     remaining: mutable i64 = k
-    result: i64 = kth_smallest_bst_visit(nodes, node_count, root_index, remaining)
+    result: i64 = kth_smallest_bst_visit(nodes[0:node_count * 3], node_count, root_index, remaining)
     if result < 0:
         return -1
     result

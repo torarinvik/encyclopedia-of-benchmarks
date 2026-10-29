@@ -6,8 +6,8 @@ const DERiche_MAX_HEIGHT: usize = 32
 const DERiche_MAX_PIXELS: usize = DERiche_MAX_WIDTH * DERiche_MAX_HEIGHT
 const DERiche_INVALID_RESULT: f64 = -1e300
 
-def deriche_filter_once(width: usize, height: usize, image: f32&, output: mutable f32&,
-                        y1: mutable f32&, y2: mutable f32&) -> void:
+def deriche_filter_once(width: usize, height: usize, image: view[f32], output: mutable view[f32],
+                        y1: mutable view[f32], y2: mutable view[f32]) -> void:
     alpha: f32 = 0.25.f32()
     exp_neg_alpha: f32 = exp((-alpha).f64()).f32()
     difference: f32 = 1.0.f32() - exp_neg_alpha
@@ -131,7 +131,8 @@ def deriche_impl(values: i64&, length: usize) -> f64:
         i <- i + 1
     pass: mutable usize = 0
     while pass < iterations:
-        deriche_filter_once(width, height, image, output, y1, y2)
+        deriche_filter_once(width, height, image[0:width * height], output[0:width * height],
+                y1[0:width * height], y2[0:width * height])
         at: mutable usize = 0
         while at < width * height:
             image[at] <- output[at]

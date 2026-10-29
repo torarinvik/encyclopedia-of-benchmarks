@@ -1,4 +1,4 @@
-def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+def put_i32_le(value: i32, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.i64().u64()
     byte: mutable usize = 0
     while byte < 4:
@@ -35,8 +35,9 @@ def median_search2_impl(input: i64&, length: usize, output: mutable u8&, capacit
         found <- 1
     if output.is_null() or capacity < 8: return -2
     buffer: mutable u8[8] = zeroed
-    put_i32_le(found, buffer[0], 0)
-    put_i32_le(median_index, buffer[0], 4)
+    buffer_view: mutable view[u8] = buffer[0:8]
+    put_i32_le(found, buffer_view, 0)
+    put_i32_le(median_index, buffer_view, 4)
     i <- 0
     while i < 8:
         output[i] <- buffer[i]

@@ -5,7 +5,7 @@ def hierholzer_algorithm_fnv_word(hash: u64, value: i64) -> u64:
         result <- (result ^ ((bits >> (byte * 8)) & 255.u64())) * 1099511628211.u64()
     result
 
-def hierholzer_algorithm_record_hash(has_circuit: i64, route: i64&, route_count: usize) -> i64:
+def hierholzer_algorithm_record_hash(has_circuit: i64, route: view[i64], route_count: usize) -> i64:
     hash: mutable u64 = hierholzer_algorithm_fnv_word(14695981039346656037.u64(), has_circuit)
     hash <- hierholzer_algorithm_fnv_word(hash, route_count.i64())
     for index in 0..<route_count:
@@ -47,12 +47,12 @@ def hierholzer_algorithm_impl(input: i64&, length: usize) -> i64:
             odd_count <- odd_count + 1
     empty_route: mutable i64[513] = zeroed
     if odd_count != 0:
-        return hierholzer_algorithm_record_hash(0, empty_route, 0)
+        return hierholzer_algorithm_record_hash(0, empty_route[0:0], 0)
     if vertices == 0:
-        return hierholzer_algorithm_record_hash(1, empty_route, 0)
+        return hierholzer_algorithm_record_hash(1, empty_route[0:0], 0)
     if first_nonempty < 0:
         empty_route[0] <- 0
-        return hierholzer_algorithm_record_hash(1, empty_route, 1)
+        return hierholzer_algorithm_record_hash(1, empty_route[0:1], 1)
 
     reached: mutable bool[8] = zeroed
     queue: mutable i64[8] = zeroed
@@ -73,7 +73,7 @@ def hierholzer_algorithm_impl(input: i64&, length: usize) -> i64:
                 q_tail <- q_tail + 1
     for vertex in 0..<vertices:
         if degree[vertex] > 0 and not reached[vertex]:
-            return hierholzer_algorithm_record_hash(0, empty_route, 0)
+            return hierholzer_algorithm_record_hash(0, empty_route[0:0], 0)
 
     stack: mutable i64[513] = zeroed
     route_reverse: mutable i64[513] = zeroed
@@ -104,7 +104,7 @@ def hierholzer_algorithm_impl(input: i64&, length: usize) -> i64:
             route_reverse[route_count] <- u.i64()
             route_count <- route_count + 1
     if route_count != edges + 1:
-        return hierholzer_algorithm_record_hash(0, empty_route, 0)
-    hierholzer_algorithm_record_hash(1, route_reverse, route_count)
+        return hierholzer_algorithm_record_hash(0, empty_route[0:0], 0)
+    hierholzer_algorithm_record_hash(1, route_reverse[0:route_count], route_count)
 
 export fn hierholzer_algorithm(input: i64&, length: usize) -> i64 = hierholzer_algorithm_impl

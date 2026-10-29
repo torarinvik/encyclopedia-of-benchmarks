@@ -29,7 +29,7 @@ def quad_tree_intersects(node: QuadNode, query_x: f64, query_y: f64, query_half_
         query_y - query_half_width <= node.center_y + node.half_width and
         query_y + query_half_width >= node.center_y - node.half_width
 
-def quad_tree_subdivide(nodes: mutable QuadNode&, node_index: usize, node_count: mutable usize&) -> void:
+def quad_tree_subdivide(nodes: mutable view[QuadNode], node_index: usize, node_count: mutable usize&) -> void:
     child_half: f64 = nodes[node_index].half_width / 2.0
     cx: f64 = nodes[node_index].center_x
     cy: f64 = nodes[node_index].center_y
@@ -47,8 +47,8 @@ def quad_tree_subdivide(nodes: mutable QuadNode&, node_index: usize, node_count:
         child <- child + 1
     nodes[node_index].divided <- true
 
-def quad_tree_insert(nodes: mutable QuadNode&, node_index: usize, point_index: usize,
-                     points: QuadPoint&, capacity: usize, node_count: mutable usize&) -> bool:
+def quad_tree_insert(nodes: mutable view[QuadNode], node_index: usize, point_index: usize,
+                     points: view[QuadPoint], capacity: usize, node_count: mutable usize&) -> bool:
     node: QuadNode = nodes[node_index]
     point: QuadPoint = points[point_index]
     if not quad_tree_contains(node, point): return false
@@ -64,9 +64,9 @@ def quad_tree_insert(nodes: mutable QuadNode&, node_index: usize, point_index: u
         child <- child + 1
     false
 
-def quad_tree_query(nodes: QuadNode&, node_index: usize, points: QuadPoint&,
+def quad_tree_query(nodes: view[QuadNode], node_index: usize, points: view[QuadPoint],
                     query_x: f64, query_y: f64, query_half_width: f64,
-                    query_indices: mutable usize&, query_count: mutable usize&) -> void:
+                    query_indices: mutable view[usize], query_count: mutable usize&) -> void:
     node: QuadNode = nodes[node_index]
     if not quad_tree_intersects(node, query_x, query_y, query_half_width): return
     left: f64 = query_x - query_half_width
@@ -88,7 +88,7 @@ def quad_tree_query(nodes: QuadNode&, node_index: usize, points: QuadPoint&,
                             query_half_width, query_indices, query_count)
             child <- child + 1
 
-def quad_tree_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def quad_tree_write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -134,12 +134,12 @@ def quad_tree_impl(input: i64&, input_length: usize,
     words[0] <- point_count.i64()
     point <- 0
     while point < point_count:
-        words[1 + point] <- if quad_tree_insert(nodes, 0, point, points, input[3].usize(), node_count) then 1 else 0
+        words[1 + point] <- if quad_tree_insert(nodes[0:MAX_NODES], 0, point, points[0:MAX_POINTS], input[3].usize(), node_count) then 1 else 0
         point <- point + 1
     query_x: f64 = input[query_offset].f64()
     query_y: f64 = input[query_offset + 1].f64()
     query_half_width: f64 = input[query_offset + 2].f64()
-    quad_tree_query(nodes, 0, points, query_x, query_y, query_half_width, query_indices, query_count)
+    quad_tree_query(nodes[0:MAX_NODES], 0, points[0:MAX_POINTS], query_x, query_y, query_half_width, query_indices[0:MAX_POINTS], query_count)
     word_count: usize = 2 + point_count + 2 * query_count
     words[1 + point_count] <- query_count.i64()
     index: mutable usize = 0
@@ -152,9 +152,10 @@ def quad_tree_impl(input: i64&, input_length: usize,
     output_bytes: usize = word_count * 8
     if output_bytes > MAX_OUTPUT_BYTES: return -1
     if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:capacity]
     index <- 0
     while index < word_count:
-        quad_tree_write_i64_le(output, index * 8, words[index])
+        quad_tree_write_i64_le(output_view, index * 8, words[index])
         index <- index + 1
     output_bytes.i64()
 

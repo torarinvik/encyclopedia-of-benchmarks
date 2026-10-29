@@ -1,5 +1,5 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
-def putd(output: mutable u8&, offset: usize, value: f64):
+def putd(output: mutable view[u8], offset: usize, value: f64):
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     k: mutable usize = 0
@@ -30,20 +30,20 @@ def fuzzy_operations_impl(v: i64&, length: usize, output: mutable u8&, capacity:
     peak: f64 = v[2].f64()/1000.0
     right: f64 = v[3].f64()/1000.0
     if op == 0:
-        putd(output, 0, 1.0-right)
-        putd(output, 8, 1.0-left)
-        putd(output, 16, 1.0-peak)
+        putd(output[0:size], 0, 1.0-right)
+        putd(output[0:size], 8, 1.0-left)
+        putd(output[0:size], 16, 1.0-peak)
     elif op == 1:
-        putd(output, 0, max(left, v[4].f64()/1000.0))
-        putd(output, 8, min(right, v[6].f64()/1000.0))
-        putd(output, 16, (peak+v[5].f64()/1000.0)/2.0)
+        putd(output[0:size], 0, max(left, v[4].f64()/1000.0))
+        putd(output[0:size], 8, min(right, v[6].f64()/1000.0))
+        putd(output[0:size], 16, (peak+v[5].f64()/1000.0)/2.0)
     elif op == 2:
-        putd(output, 0, min(left, v[4].f64()/1000.0))
-        putd(output, 8, (peak+v[5].f64()/1000.0)/2.0)
-        putd(output, 16, max(right, v[6].f64()/1000.0))
+        putd(output[0:size], 0, min(left, v[4].f64()/1000.0))
+        putd(output[0:size], 8, (peak+v[5].f64()/1000.0)/2.0)
+        putd(output[0:size], 16, max(right, v[6].f64()/1000.0))
     else:
         x: f64 = v[7].f64()/1000.0
         y: f64 = if x <= left or x >= right: 0.0 else: if x <= peak: (x-left)/(peak-left) else: (right-x)/(right-peak)
-        putd(output, 0, y)
+        putd(output[0:size], 0, y)
     size.i64()
 export fuzzy_operations(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = fuzzy_operations_impl

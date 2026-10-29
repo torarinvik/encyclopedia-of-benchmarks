@@ -9,8 +9,8 @@ def word_count_julia_is_word(value: i64) -> bool:
     byte: u8 = word_count_julia_lower(value)
     (byte >= 97.u8() and byte <= 122.u8()) or (byte >= 48.u8() and byte <= 57.u8()) or byte == 95.u8()
 
-def word_count_julia_compare(input: i64&, start: usize, length: usize,
-        starts: mutable usize&, lengths: mutable usize&, slot: usize) -> i64:
+def word_count_julia_compare(input: view[i64], start: usize, length: usize,
+        starts: view[usize], lengths: view[usize], slot: usize) -> i64:
     shared: mutable usize = lengths[slot]
     if length < lengths[slot]:
         shared <- length
@@ -27,7 +27,7 @@ def word_count_julia_compare(input: i64&, start: usize, length: usize,
         return 1
     0
 
-def word_count_julia_write_count(count: usize, output: mutable u8&, position_value: usize) -> usize:
+def word_count_julia_write_count(count: usize, output: mutable view[u8], position_value: usize) -> usize:
     digits: mutable u8[4]
     digit_count: mutable usize = 0
     remaining: mutable usize = count
@@ -70,9 +70,11 @@ def word_count_julia_impl(values: i64&, length: usize, output: mutable u8&,
             token_length <- token_length + 2
             index <- index + 2
         position: mutable usize = 0
-        while position < unique_count and word_count_julia_compare(values, start, token_length, &starts[0], &lengths[0], position) > 0:
+        while position < unique_count and word_count_julia_compare(values[0:length], start, token_length,
+                starts[0:1000], lengths[0:1000], position) > 0:
             position <- position + 1
-        if position < unique_count and word_count_julia_compare(values, start, token_length, &starts[0], &lengths[0], position) == 0:
+        if position < unique_count and word_count_julia_compare(values[0:length], start, token_length,
+                starts[0:1000], lengths[0:1000], position) == 0:
             counts[position] <- counts[position] + 1
         else:
             shift_index: mutable usize = unique_count
@@ -101,7 +103,7 @@ def word_count_julia_impl(values: i64&, length: usize, output: mutable u8&,
         for offset in 0..<lengths[item]:
             output[written] <- word_count_julia_lower(values[starts[item] + offset])
             written <- written + 1
-        written <- word_count_julia_write_count(counts[item], output, written)
+        written <- word_count_julia_write_count(counts[item], output[0:output_capacity], written)
     written.i64()
 
 export fn word_count_julia(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = word_count_julia_impl

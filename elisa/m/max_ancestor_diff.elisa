@@ -1,5 +1,5 @@
 # Recursively carry the minimum and maximum ancestor values down each path.
-def max_ancestor_diff_visit(nodes: i64&, node_count: usize, node: i64,
+def max_ancestor_diff_visit(nodes: view[i64], node_count: usize, node: i64,
         path_min: i64, path_max: i64) -> i64:
     if node == -1:
         return 0
@@ -37,6 +37,6 @@ def max_ancestor_diff_impl(nodes: i64&, node_count: usize, root_index: i64) -> i
     root_value: i64 = nodes[3 * root_index.usize()]
     if root_value < -100000 or root_value > 100000:
         return -1
-    max_ancestor_diff_visit(nodes, node_count, root_index, root_value, root_value)
+    max_ancestor_diff_visit(nodes[0:node_count * 3], node_count, root_index, root_value, root_value)
 
 export fn max_ancestor_diff(nodes: i64&, node_count: usize, root_index: i64) -> i64 = max_ancestor_diff_impl

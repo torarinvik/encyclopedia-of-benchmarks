@@ -2,7 +2,7 @@
 const ML_MAX_JOBS: usize = 64
 const ML_MAX_OUTPUT: usize = 4 + 12 * ML_MAX_JOBS
 
-def ml_write_i32(output: mutable u8&, offset: usize, value: i64) -> void:
+def ml_write_i32(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u32 = value.u32()
     output[offset] <- (bits & 255).u8()
     output[offset + 1] <- ((bits >> 8) & 255).u8()
@@ -67,12 +67,13 @@ def minimizing_lateness_impl(input: i64&, length: usize,
     if output == null or output_capacity < needed:
         return -2
     payload: mutable u8[ML_MAX_OUTPUT] = zeroed
-    ml_write_i32(payload[0], 0, count.i64())
+    payload_view: mutable view[u8] = payload[0:needed]
+    ml_write_i32(payload_view, 0, count.i64())
     for index in 0..<count:
         offset: usize = 4 + 12 * index
-        ml_write_i32(payload[0], offset, original[index])
-        ml_write_i32(payload[0], offset + 4, start_times[index])
-        ml_write_i32(payload[0], offset + 8, lateness[index])
+        ml_write_i32(payload_view, offset, original[index])
+        ml_write_i32(payload_view, offset + 4, start_times[index])
+        ml_write_i32(payload_view, offset + 8, lateness[index])
     for index in 0..<needed:
         output[index] <- payload[index]
     needed.i64()

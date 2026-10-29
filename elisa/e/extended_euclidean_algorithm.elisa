@@ -1,5 +1,5 @@
 # Iterative extended Euclid for positive signed-32-bit inputs.
-def eea_store_i32(value: i64, output: mutable u8&, position: usize) -> usize:
+def eea_store_i32(value: i64, output: mutable view[u8], position: usize) -> usize:
     magnitude: mutable u64 = 0.u64()
     if value < 0:
         magnitude <- (-value).u64()
@@ -40,9 +40,9 @@ def extended_euclidean_algorithm_impl(input: i64&, length: usize, output: mutabl
     if old_r > 2147483647 or old_x < -2147483648 or old_x > 2147483647 or old_y < -2147483648 or old_y > 2147483647:
         return -1
     position: mutable usize = 0
-    position <- eea_store_i32(old_r, output, position)
-    position <- eea_store_i32(old_x, output, position)
-    position <- eea_store_i32(old_y, output, position)
+    position <- eea_store_i32(old_r, output[0:12], position)
+    position <- eea_store_i32(old_x, output[0:12], position)
+    position <- eea_store_i32(old_y, output[0:12], position)
     if position == 12:
         return 3
     -1

@@ -3,7 +3,7 @@
 const TSVC_S353_MAX_N: usize = 20
 const TSVC_S353_MAX_INPUT_LENGTH: usize = 62
 
-def tsvc_s353_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s353_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -53,7 +53,7 @@ def tsvc_s353_unrolled_sparse_saxpy_impl(input: i64&, length: usize,
         i <- i + 5
     i <- 0
     while i < n:
-        tsvc_s353_store_i64_le(a[i], output, 8 * i)
+        tsvc_s353_store_i64_le(a[i], output[0:capacity], 8 * i)
         i <- i + 1
     n.i64()
 

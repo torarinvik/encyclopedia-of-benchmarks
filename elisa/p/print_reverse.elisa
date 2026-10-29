@@ -4,7 +4,7 @@ const MAX_OUTPUT_BYTES: usize = 3836
 const I32_MIN_VALUE: i64 = -2147483648
 const I32_MAX_VALUE: i64 = 2147483647
 
-def print_reverse_append_decimal(buffer: mutable u8&, position: mutable usize&, value_value: i64) -> void:
+def print_reverse_append_decimal(buffer: mutable view[u8], position: mutable usize&, value_value: i64) -> void:
     value: mutable i64 = value_value
     digits: mutable u8[10] = zeroed
     count: mutable usize = 0
@@ -47,7 +47,7 @@ def print_reverse_impl(input: i64&, length: usize, output: mutable u8&, output_c
             encoded[written + 2] <- 45.u8()
             encoded[written + 3] <- 32.u8()
             written <- written + 4
-        print_reverse_append_decimal(encoded, written, input[remaining])
+        print_reverse_append_decimal(encoded[0:MAX_OUTPUT_BYTES], written, input[remaining])
 
     if output == null or output_capacity < written:
         return -2

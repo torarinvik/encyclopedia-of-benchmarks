@@ -1,5 +1,5 @@
-/* Clean-room adaptation of Ispell lookup.c; modified version. License in package docs. */
-def fn i64 cbench_ispell_lookup_hash(i64* a, i64 start, i64 size, i64 modulus):
+# Clean-room adaptation of Ispell lookup.c; license in package docs.
+def cbench_ispell_lookup_hash(a: i64&, start: i64, size: i64, modulus: i64) -> i64:
     h: mutable u32 = 0
     first: i64 = if size < 4: size else: 4
     i: mutable i64 = 0
@@ -11,8 +11,8 @@ def fn i64 cbench_ispell_lookup_hash(i64* a, i64 start, i64 size, i64 modulus):
         i <- i + 1
     return (h % modulus.u32()).i64()
 
-def fn i64 cbench_ispell_lookup_chain(i64* a, i64 length):
-    if a == null or length < 3 or length > 108: return -1
+def cbench_ispell_lookup_chain_impl(a: i64&, length: i64) -> i64:
+    if a.is_null() or length < 3 or length > 108: return -1
     if a[0] < 1 or a[0] > 8 or a[1] < 1 or a[1] > 8 or a[2] < 0 or a[2] > 8: return -1
     m: i64 = a[0]
     q: i64 = a[1]
@@ -64,4 +64,4 @@ def fn i64 cbench_ispell_lookup_chain(i64* a, i64 length):
         node <- links[entry]
     return 0
 
-export fn cbench_ispell_lookup_chain
+export fn cbench_ispell_lookup_chain(a: i64&, length: i64) -> i64 = cbench_ispell_lookup_chain_impl

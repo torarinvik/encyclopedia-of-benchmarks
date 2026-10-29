@@ -1,5 +1,5 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
-def putd(output: mutable u8&, offset: usize, value: f64):
+def putd(output: mutable view[u8], offset: usize, value: f64):
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     k: mutable usize = 0
@@ -32,6 +32,6 @@ def neural_network_impl(v: i64&, length: usize, output: mutable u8&, capacity: u
         while i < nh.usize():
             z <- z+hidden[i]*(v[w2+i*no.usize()+j].f64()/1000.0)
             i <- i+1
-        putd(output,j*8,sigmoid(z)); j <- j+1
+        putd(output[0:capacity],j*8,sigmoid(z)); j <- j+1
     (no*8)
 export neural_network(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = neural_network_impl

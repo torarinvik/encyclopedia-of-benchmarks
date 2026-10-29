@@ -1,17 +1,47 @@
-module tsvc_s2275_matrix_vector_axpy_interleave;
-extern trunc(value:f64)->f64
-extern fabs(value:f64)->f64
-fn long tsvc_s2275_matrix_vector_axpy_interleave(double* x,usz l,double* y,usz cap) @export("tsvc_s2275_matrix_vector_axpy_interleave"){
- if(x==null||l<9||l>226)return -1
- double rn=x[0];double rp=x[1];if(rn!=rn||trunc(rn)!=rn||rn<1||rn>8||rp!=rp||trunc(rp)!=rp||rp<1||rp>8)return -1
- usz n=(usz)rn;usz passes=(usz)rp;usz ms=n*n;usz out_count=ms+n;if(l!=2+3*ms+4*n)return -1
- for(usz i=2;i<l;i++)if(x[i]!=x[i]||trunc(x[i])!=x[i]||fabs(x[i])>1)return -1
- if(y==null||cap<out_count)return -2
- double[64] aa;double[8] a;usz bb=2+ms;usz cc=2+2*ms;usz vec=2+3*ms
- for(usz i=0;i<ms;i++)aa[i]=x[2+i]
- for(usz i=0;i<n;i++)a[i]=x[vec+i]
- for(usz pass=0;pass<passes;pass++)for(usz i=0;i<n;i++){for(usz j=0;j<n;j++){usz k=j*n+i;aa[k]=aa[k]+x[bb+k]*x[cc+k]}a[i]=x[vec+n+i]+x[vec+2*n+i]*x[vec+3*n+i]}
- for(usz i=0;i<ms;i++)y[i]<-aa[i]
- for(usz i=0;i<n;i++)y[ms+i]<-a[i]
- return (long)out_count
-}
+extern trunc(value: f64) -> f64
+extern fabs(value: f64) -> f64
+
+def tsvc_s2275_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 9 or length > 226:
+        return -1
+    count: f64 = input[0]
+    repetitions: f64 = input[1]
+    if count != count or trunc(count) != count or count < 1 or count > 8 or
+            repetitions != repetitions or trunc(repetitions) != repetitions or repetitions < 1 or repetitions > 8:
+        return -1
+    n: usize = count.usize()
+    passes: usize = repetitions.usize()
+    matrix_size: usize = n * n
+    output_count: usize = matrix_size + n
+    if length != 2 + 3 * matrix_size + 4 * n:
+        return -1
+    for i in 2..length:
+        value: f64 = input[i]
+        if value != value or trunc(value) != value or fabs(value) > 1:
+            return -1
+    if output.is_null() or capacity < output_count:
+        return -2
+
+    matrix: mutable f64[64] = zeroed
+    vector: mutable f64[8] = zeroed
+    b_start: usize = 2 + matrix_size
+    c_start: usize = 2 + 2 * matrix_size
+    vector_start: usize = 2 + 3 * matrix_size
+    for i in 0..matrix_size:
+        matrix[i] <- input[2 + i]
+    for i in 0..n:
+        vector[i] <- input[vector_start + i]
+    for pass in 0..passes:
+        for i in 0..n:
+            for j in 0..n:
+                k: usize = j * n + i
+                matrix[k] <- matrix[k] + input[b_start + k] * input[c_start + k]
+            vector[i] <- input[vector_start + n + i] + input[vector_start + 2 * n + i] * input[vector_start + 3 * n + i]
+    for i in 0..matrix_size:
+        output[i] <- matrix[i]
+    for i in 0..n:
+        output[matrix_size + i] <- vector[i]
+    return output_count.i64()
+
+export fn tsvc_s2275_matrix_vector_axpy_interleave(input: f64&, length: usize,
+        output: mutable f64&, capacity: usize) -> i64 = tsvc_s2275_impl

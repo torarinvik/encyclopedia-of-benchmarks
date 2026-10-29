@@ -1,4 +1,4 @@
-def append_u64(value_input: u64, output: mutable u8&, output_capacity: usize, position: mutable usize&) -> bool:
+def append_u64(value_input: u64, output: mutable view[u8], output_capacity: usize, position: mutable usize&) -> bool:
     digits: mutable u8[20] = zeroed
     count: mutable usize = 0
     value: mutable u64 = value_input
@@ -35,13 +35,13 @@ def allocation_number_impl(input: i64&, length: usize, output: mutable u8&, outp
                 total
             else:
                 (index + 1) * block
-        if not append_u64(start, output, output_capacity, position):
+        if not append_u64(start, output[0:output_capacity], output_capacity, position):
             return -2
         if position >= output_capacity:
             return -2
         output[position] <- 45
         position <- position + 1
-        if not append_u64(end, output, output_capacity, position):
+        if not append_u64(end, output[0:output_capacity], output_capacity, position):
             return -2
         if index + 1 != partitions:
             if position >= output_capacity:

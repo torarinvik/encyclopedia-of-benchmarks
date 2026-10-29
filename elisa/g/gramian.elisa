@@ -1,11 +1,11 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
-def put_f64(out: mutable u8&, offset: usize, value: f64) -> void:
+def put_f64(out: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for i in 0..<8:
         out[offset+i] <- (bits & 255).u8()
         bits <- bits >> 8
-def gram(v: i64&, channels: i64, pixels: i64, part: i64, result: mutable f64[9]) -> void:
+def gram(v: i64&, channels: i64, pixels: i64, part: i64, result: mutable view[f64]) -> void:
     total: i64 = channels*pixels
     for i in 0..<channels:
         for j in 0..<channels:
@@ -30,14 +30,14 @@ def gramian_impl(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i
     first: mutable f64[9] = zeroed
     second: mutable f64[9] = zeroed
     result: mutable f64[9] = zeroed
-    gram(v, channels, pixels, 0, first)
+    gram(v, channels, pixels, 0, first[0:9])
     if op == 1:
-        gram(v, channels, pixels, 1, second)
+        gram(v, channels, pixels, 1, second[0:9])
         for i in 0..<channels*channels:
             delta: f64 = first[i]-second[i]
             result[0] <- result[0]+delta*delta
     else:
         for i in 0..<channels*channels: result[i] <- first[i]
-    for i in 0..<count: put_f64(out, i*8, result[i])
+    for i in 0..<count: put_f64(out[0:bytes], i*8, result[i])
     bytes.i64()
 export gramian(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64 = gramian_impl

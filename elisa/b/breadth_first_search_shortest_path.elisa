@@ -3,7 +3,7 @@ const MAX_EDGES: usize = 256
 const MAX_INPUT_LENGTH: usize = 4 + 2 * MAX_EDGES
 const MAX_OUTPUT_VALUES: usize = 1 + MAX_VERTICES
 
-def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -69,7 +69,7 @@ def breadth_first_search_shortest_path_impl(input: i64&, length: usize, output: 
     if output.is_null() or capacity < required: return -2
     index: mutable usize = 0
     while index <= path_count:
-        put_i64(output, index * 8, encoded[index])
+        put_i64(output[0:required], index * 8, encoded[index])
         index <- index + 1
     required.i64()
 

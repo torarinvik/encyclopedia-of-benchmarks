@@ -1,4 +1,4 @@
-def partition(a: i64&, lo: i64, hi: i64) -> i64:
+def partition(a: mutable view[i64], lo: i64, hi: i64) -> i64:
     pivot = a[hi]; i = lo
     for j in lo..hi:
         if a[j] < pivot:
@@ -17,7 +17,7 @@ def kthnumber_impl(v: i64&, n: usize) -> i64:
     if mode==2:target=count-k
     lo=0;hi=count-1
     while lo<=hi:
-        q=partition(a,lo,hi)
+        q=partition(a[0:count.usize()],lo,hi)
         if q==target:return a[q]
         if q<target:lo=q+1
         else:hi=q-1

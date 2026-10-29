@@ -49,7 +49,7 @@ def mfcc_encode_f64(value: f64) -> u64:
     if negative: bits <- bits | F64_SIGN_MASK
     bits
 
-def mfcc_fft(real: mutable f64&, imag: mutable f64&, n: usize) -> void:
+def mfcc_fft(real: mutable view[f64], imag: mutable view[f64], n: usize) -> void:
     reverse: mutable usize = 0
     position: mutable usize = 1
     while position < n:
@@ -100,7 +100,7 @@ def mfcc_hz_to_mel(hz: f64) -> f64:
 def mfcc_mel_to_hz(mel: f64) -> f64:
     700.0 * (pow(10.0, mel / 2595.0) - 1.0)
 
-def mfcc_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def mfcc_put_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: u64 = mfcc_encode_f64(value)
     byte: mutable usize = 0
     while byte < 8:
@@ -208,7 +208,7 @@ def mfcc_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) 
         while index < fft_size:
             real[index] <- padded[frame * hop + index] * window[index]
             index <- index + 1
-        mfcc_fft(real[0], imag[0], fft_size)
+        mfcc_fft(real[0:fft_size], imag[0:fft_size], fft_size)
         power: mutable f32[MAX_FFT / 2 + 1] = zeroed
         index <- 0
         while index < bin_count:
@@ -266,11 +266,12 @@ def mfcc_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) 
 
     required: usize = dct_count * frames * 8
     if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
     coefficient <- 0
     while coefficient < dct_count:
         frame <- 0
         while frame < frames:
-            mfcc_put_f64(output, (coefficient * frames + frame) * 8, result[coefficient][frame])
+            mfcc_put_f64(output_view, (coefficient * frames + frame) * 8, result[coefficient][frame])
             frame <- frame + 1
         coefficient <- coefficient + 1
     required.i64()

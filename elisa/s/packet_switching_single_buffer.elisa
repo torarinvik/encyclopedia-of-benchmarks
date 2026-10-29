@@ -4,7 +4,7 @@ const MAX_INPUT: usize = 38
 const MAX_OUTPUT_BYTES: usize = 64
 const BETA: i64 = 15
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -12,7 +12,7 @@ def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
         bits <- bits >> 8
         byte <- byte + 1
 
-def erase_packet(ids: mutable i64&, values: mutable i64&, count: mutable usize&, index: usize) -> void:
+def erase_packet(ids: mutable view[i64], values: mutable view[i64], count: mutable usize&, index: usize) -> void:
     position: mutable usize = index
     while position + 1 < count:
         ids[position] <- ids[position + 1]
@@ -70,7 +70,7 @@ def packet_switching_single_buffer_impl(input: i64&, length: usize,
                         break
                     index <- index + 1
             if preempt < resident_count:
-                erase_packet(resident_id&, resident_value&, resident_count&, preempt)
+                erase_packet(resident_id[0:MAX_PACKETS], resident_value[0:MAX_PACKETS], resident_count&, preempt)
                 resident_id[resident_count] <- next_packet.i64()
                 resident_value[resident_count] <- value
                 resident_count <- resident_count + 1
@@ -87,14 +87,14 @@ def packet_switching_single_buffer_impl(input: i64&, length: usize,
                 if value > smallest:
                     evict: mutable usize = 0
                     while resident_value[evict] != smallest: evict <- evict + 1
-                    erase_packet(resident_id&, resident_value&, resident_count&, evict)
+                    erase_packet(resident_id[0:MAX_PACKETS], resident_value[0:MAX_PACKETS], resident_count&, evict)
                     resident_id[resident_count] <- next_packet.i64()
                     resident_value[resident_count] <- value
                     resident_count <- resident_count + 1
             next_packet <- next_packet + 1
         if resident_count > 0:
             schedule[slot] <- resident_id[0]
-            erase_packet(resident_id&, resident_value&, resident_count&, 0)
+            erase_packet(resident_id[0:MAX_PACKETS], resident_value[0:MAX_PACKETS], resident_count&, 0)
         else:
             schedule[slot] <- -1
         slot <- slot + 1
@@ -103,7 +103,7 @@ def packet_switching_single_buffer_impl(input: i64&, length: usize,
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
     slot <- 0
     while slot < slots:
-        store_i64_le(schedule[slot], staged&, 8 * slot)
+        store_i64_le(schedule[slot], staged[0:MAX_OUTPUT_BYTES], 8 * slot)
         slot <- slot + 1
     byte: mutable usize = 0
     while byte < output_bytes:

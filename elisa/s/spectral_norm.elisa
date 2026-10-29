@@ -7,7 +7,7 @@ def spectral_norm_matrix_entry(i: usize, j: usize) -> f64:
     triangular: usize = (i + j) * (i + j + 1) / 2
     1.0 / (triangular + i + 1).f64()
 
-def spectral_norm_multiply_a(n: usize, input: f64&, output: mutable f64&) -> void:
+def spectral_norm_multiply_a(n: usize, input: view[f64], output: mutable view[f64]) -> void:
     i: mutable usize = 0
     while i < n:
         total: mutable f64 = 0.0
@@ -18,7 +18,7 @@ def spectral_norm_multiply_a(n: usize, input: f64&, output: mutable f64&) -> voi
         output[i] <- total
         i <- i + 1
 
-def spectral_norm_multiply_at(n: usize, input: f64&, output: mutable f64&) -> void:
+def spectral_norm_multiply_at(n: usize, input: view[f64], output: mutable view[f64]) -> void:
     i: mutable usize = 0
     while i < n:
         total: mutable f64 = 0.0
@@ -29,8 +29,8 @@ def spectral_norm_multiply_at(n: usize, input: f64&, output: mutable f64&) -> vo
         output[i] <- total
         i <- i + 1
 
-def spectral_norm_multiply_ata(n: usize, input: f64&, output: mutable f64&,
-        temporary: mutable f64&) -> void:
+def spectral_norm_multiply_ata(n: usize, input: view[f64], output: mutable view[f64],
+        temporary: mutable view[f64]) -> void:
     spectral_norm_multiply_a(n, input, temporary)
     spectral_norm_multiply_at(n, temporary, output)
 
@@ -47,8 +47,8 @@ def spectral_norm_impl(values: i64&, length: usize) -> f64:
         i <- i + 1
     iteration: mutable usize = 0
     while iteration < 10:
-        spectral_norm_multiply_ata(n, &u[0], &v[0], &temporary[0])
-        spectral_norm_multiply_ata(n, &v[0], &u[0], &temporary[0])
+        spectral_norm_multiply_ata(n, u[0:n], v[0:n], temporary[0:n])
+        spectral_norm_multiply_ata(n, v[0:n], u[0:n], temporary[0:n])
         iteration <- iteration + 1
     v_b_v: mutable f64 = 0.0
     v_v: mutable f64 = 0.0

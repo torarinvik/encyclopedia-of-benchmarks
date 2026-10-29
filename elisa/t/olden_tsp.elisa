@@ -5,7 +5,7 @@ const MAX_CITIES: i64 = 7
 const CONQUER_THRESHOLD: usize = 3
 const SCALE: f64 = 1000.0
 
-def city_distance(x: i64&, y: i64&, a: usize, b: usize) -> f64:
+def city_distance(x: view[i64], y: view[i64], a: usize, b: usize) -> f64:
     dx: f64 = (x[a] - x[b]).f64()
     dy: f64 = (y[a] - y[b]).f64()
     sqrt(dx * dx + dy * dy)
@@ -14,14 +14,14 @@ def subtree_size(node: usize, count: usize) -> usize:
     if node >= count: return 0
     1 + subtree_size(2 * node + 1, count) + subtree_size(2 * node + 2, count)
 
-def collect_postorder(node: usize, count: usize, order: mutable i64&, length: mutable usize&) -> void:
+def collect_postorder(node: usize, count: usize, order: mutable view[i64], length: mutable usize&) -> void:
     if node >= count: return
     collect_postorder(2 * node + 1, count, order, length)
     collect_postorder(2 * node + 2, count, order, length)
     order[length] <- node.i64()
     length <- length + 1
 
-def reverse_cycle(start: usize, size: usize, next: mutable usize&, prev: mutable usize&) -> void:
+def reverse_cycle(start: usize, size: usize, next: mutable view[usize], prev: mutable view[usize]) -> void:
     current: mutable usize = start
     i: mutable usize = 0
     while i < size:
@@ -32,7 +32,8 @@ def reverse_cycle(start: usize, size: usize, next: mutable usize&, prev: mutable
         current <- old_next
         i <- i + 1
 
-def conquer(order: i64&, count: usize, x: i64&, y: i64&, next: mutable usize&, prev: mutable usize&) -> usize:
+def conquer(order: view[i64], count: usize, x: view[i64], y: view[i64],
+        next: mutable view[usize], prev: mutable view[usize]) -> usize:
     cycle: usize = order[0].usize()
     next[cycle] <- cycle
     prev[cycle] <- cycle
@@ -68,7 +69,7 @@ def conquer(order: i64&, count: usize, x: i64&, y: i64&, next: mutable usize&, p
     cycle
 
 def merge_cycles(a: usize, b: usize, point: usize, size_a: usize, size_b: usize,
-                 x: i64&, y: i64&, next: mutable usize&, prev: mutable usize&) -> usize:
+                 x: view[i64], y: view[i64], next: mutable view[usize], prev: mutable view[usize]) -> usize:
     min: mutable usize = a
     mindist: mutable f64 = city_distance(x, y, point, a)
     tmp: mutable usize = next[a]
@@ -175,13 +176,14 @@ def merge_cycles(a: usize, b: usize, point: usize, size_a: usize, size_b: usize,
         prev[p1] <- p2
     point
 
-def solve_subtree(node: usize, count: usize, x: i64&, y: i64&, next: mutable usize&, prev: mutable usize&) -> usize:
+def solve_subtree(node: usize, count: usize, x: view[i64], y: view[i64],
+        next: mutable view[usize], prev: mutable view[usize]) -> usize:
     size: usize = subtree_size(node, count)
     if size <= CONQUER_THRESHOLD:
         order: mutable [7]i64 = [0,0,0,0,0,0,0]
         order_count: mutable usize = 0
-        collect_postorder(node, count, &order[0], &order_count)
-        return conquer(&order[0], order_count, x, y, next, prev)
+        collect_postorder(node, count, order[0:7], order_count)
+        return conquer(order[0:7], order_count, x, y, next, prev)
     left: usize = 2 * node + 1
     right: usize = 2 * node + 2
     left_cycle: usize = solve_subtree(left, count, x, y, next, prev)
@@ -204,13 +206,13 @@ def olden_tsp_impl(input: i64&, length: usize) -> i64:
         y[city] <- input[2 + 2 * city]
         if x[city] < -8 or x[city] > 8 or y[city] < -8 or y[city] > 8: return -1
         city <- city + 1
-    solve_subtree(0, count, &x[0], &y[0], &next[0], &prev[0])
+    solve_subtree(0, count, x[0:7], y[0:7], next[0:7], prev[0:7])
     tour_length: mutable f64 = 0.0
     city <- 0
     edge: mutable usize = 0
     while edge < count:
         following: usize = next[city]
-        tour_length <- tour_length + city_distance(&x[0], &y[0], city, following)
+        tour_length <- tour_length + city_distance(x[0:7], y[0:7], city, following)
         city <- following
         edge <- edge + 1
     floor(tour_length * SCALE + 0.5).i64()

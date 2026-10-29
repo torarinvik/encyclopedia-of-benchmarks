@@ -1,6 +1,6 @@
 const MAX_VERTICES: usize = 1000
 
-def find_root(parents: mutable i32&, node_value: usize) -> usize:
+def find_root(parents: mutable view[i32], node_value: usize) -> usize:
     root: mutable usize = node_value
     while parents[root].usize() != root:
         root <- parents[root].usize()
@@ -41,8 +41,8 @@ def redundant_connection_impl(values: i64&, length: usize,
     while edge < edge_count:
         left: usize = values[2 * edge].usize()
         right: usize = values[2 * edge + 1].usize()
-        left_root: usize = find_root(&parents[0], left)
-        right_root: usize = find_root(&parents[0], right)
+        left_root: usize = find_root(parents[0:edge_count + 1], left)
+        right_root: usize = find_root(parents[0:edge_count + 1], right)
         if left_root == right_root:
             redundant_left <- left
             redundant_right <- right

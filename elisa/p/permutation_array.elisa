@@ -2,15 +2,15 @@
 const MAX_LENGTH: usize = 6
 const MAX_PARSEABLE_LENGTH: usize = 8
 
-def permutation_array_store_i32(value: i64, output: mutable u8&, position: usize) -> void:
+def permutation_array_store_i32(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
     output[position + 2] <- ((bits >> 16) & 255).u8()
     output[position + 3] <- ((bits >> 24) & 255).u8()
 
-def permutation_array_generate(values: mutable i64&, n: usize, index: usize,
-        output: mutable u8&, result_count: mutable usize&) -> void:
+def permutation_array_generate(values: mutable view[i64], n: usize, index: usize,
+        output: mutable view[u8], result_count: mutable usize&) -> void:
     if index == n:
         row_start: usize = result_count * n * 4
         column: usize = 0
@@ -54,7 +54,7 @@ def permutation_array_impl(input: i64&, length: usize, output: mutable u8&, outp
     if output_capacity < required or (required > 0 and output.is_null()):
         return -2
     result_count: mutable usize = 0
-    permutation_array_generate(values, n, 0, output, result_count)
+    permutation_array_generate(values[0:n], n, 0, output[0:output_capacity], result_count)
     result_count.i64()
 
 export fn permutation_array(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = permutation_array_impl

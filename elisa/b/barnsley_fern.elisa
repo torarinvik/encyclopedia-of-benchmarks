@@ -14,7 +14,7 @@ def barnsley_fern_round_div_even(numerator: i64, denominator: i64) -> i64:
         return -rounded
     rounded
 
-def barnsley_fern_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def barnsley_fern_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits >> (byte * 8)).u8()
@@ -36,8 +36,8 @@ def barnsley_fern_impl(input: i64&, length: usize, output: mutable u8&, capacity
 
     x: mutable i64 = 0
     y: mutable i64 = 0
-    barnsley_fern_put_i64(output, 0, 0)
-    barnsley_fern_put_i64(output, 8, 0)
+    barnsley_fern_put_i64(output[0:output_length], 0, 0)
+    barnsley_fern_put_i64(output[0:output_length], 8, 0)
     for step in 1..<iterations:
         sample: i64 = input[step]
         a: mutable i64 = 0
@@ -69,8 +69,8 @@ def barnsley_fern_impl(input: i64&, length: usize, output: mutable u8&, capacity
         next_y: i64 = barnsley_fern_round_div_even(c * x + d * y, 100) + f * 10000000000
         x <- next_x
         y <- next_y
-        barnsley_fern_put_i64(output, step * 16, barnsley_fern_round_div_even(x, 1000000))
-        barnsley_fern_put_i64(output, step * 16 + 8, barnsley_fern_round_div_even(y, 1000000))
+        barnsley_fern_put_i64(output[0:output_length], step * 16, barnsley_fern_round_div_even(x, 1000000))
+        barnsley_fern_put_i64(output[0:output_length], step * 16 + 8, barnsley_fern_round_div_even(y, 1000000))
     output_length.i64()
 
 export fn barnsley_fern(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = barnsley_fern_impl

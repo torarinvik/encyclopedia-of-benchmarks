@@ -2,7 +2,7 @@ const MAX_LEAVES = 32
 const MAX_INPUT_LENGTH = 2 + MAX_LEAVES
 const INVALID_RESULT = -2147483649
 
-def minimax_eval(values: i64&, index: usize, depth: usize, height: usize, maximizing: bool) -> i64:
+def minimax_eval(values: view[i64], index: usize, depth: usize, height: usize, maximizing: bool) -> i64:
     if depth == height:
         return values[2 + index]
     left = minimax_eval(values, index * 2, depth + 1, height, not maximizing)
@@ -30,6 +30,6 @@ def minimax_impl(values: i64&, length: usize) -> i64:
     while width > 1:
         width <- width / 2
         height <- height + 1
-    minimax_eval(values, 0, 0, height, first_turn_is_max == 1)
+    minimax_eval(values[0:length], 0, 0, height, first_turn_is_max == 1)
 
 export fn minimax(values: i64&, length: usize) -> i64 = minimax_impl

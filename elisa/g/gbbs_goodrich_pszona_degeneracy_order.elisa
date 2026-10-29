@@ -3,7 +3,7 @@ const GBBS_GOODRICH_MAX_N: usize = 20
 const GBBS_GOODRICH_MAX_M: usize = 190
 const GBBS_GOODRICH_MAX_INPUT: usize = 382
 
-def gbbs_goodrich_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def gbbs_goodrich_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -59,6 +59,6 @@ def gbbs_goodrich_pszona_degeneracy_order(input: i64&, length: usize,
         position <- position + 1
     vertex <- 0
     while vertex < n:
-        gbbs_goodrich_store_i64_le(rank[vertex], output, 8 * vertex)
+        gbbs_goodrich_store_i64_le(rank[vertex], output[0:8 * n], 8 * vertex)
         vertex <- vertex + 1
     return (8 * n).i64()

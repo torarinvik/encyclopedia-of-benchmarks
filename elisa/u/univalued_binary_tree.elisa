@@ -1,5 +1,5 @@
 # Recursively check each node against its parent value.
-def univalued_binary_tree_visit(nodes: i64&, node_count: usize, node: i64) -> i64:
+def univalued_binary_tree_visit(nodes: view[i64], node_count: usize, node: i64) -> i64:
     if node == -1:
         return 1
     if node < 0 or node.u64() >= node_count.u64():
@@ -26,6 +26,6 @@ def univalued_binary_tree_impl(nodes: i64&, node_count: usize, root_index: i64) 
         return 1 if root_index == -1 else -1
     if root_index < 0 or root_index.u64() >= node_count.u64():
         return -1
-    univalued_binary_tree_visit(nodes, node_count, root_index)
+    univalued_binary_tree_visit(nodes[0:3 * node_count], node_count, root_index)
 
 export fn univalued_binary_tree(nodes: i64&, node_count: usize, root_index: i64) -> i64 = univalued_binary_tree_impl

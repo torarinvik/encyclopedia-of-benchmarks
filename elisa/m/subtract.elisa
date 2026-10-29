@@ -1,4 +1,4 @@
-def store_i32_le(value: u32, output: mutable u8&, position: usize) -> void:
+def store_i32_le(value: u32, output: mutable view[u8], position: usize) -> void:
     byte: mutable usize = 0
     while byte < 4:
         output[position + byte] <- ((value >> (byte * 8)) & 255).u8()
@@ -38,12 +38,13 @@ def subtract_impl(input: i64&, length: usize, output: mutable u8&, output_capaci
         return 0
     if output == null or output_capacity < cells_a * 4:
         return -3
+    output_view: mutable view[u8] = output[0:cells_a * 4]
     index <- 0
     while index < cells_a:
         left: u32 = subtract_u32_bits(input[index + 2])
         right: u32 = subtract_u32_bits(input[b_dimensions + 2 + index])
         difference: u64 = (left.u64() + 4_294_967_296.u64() - right.u64()) & 4_294_967_295.u64()
-        store_i32_le(difference.u32(), output, index * 4)
+        store_i32_le(difference.u32(), output_view, index * 4)
         index <- index + 1
     cells_a.i64()
 

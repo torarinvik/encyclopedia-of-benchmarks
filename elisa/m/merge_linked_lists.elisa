@@ -2,7 +2,7 @@ const MAX_LIST_LENGTH: usize = 32
 const MAX_TOTAL_NODES: usize = 64
 const MAX_PARSEABLE_INPUT_LENGTH: usize = 67
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits % 256.u64()).u8()
@@ -69,10 +69,11 @@ def merge_linked_lists_impl(values: i64&, length: usize,
     required: usize = output_count * 8
     if output == null or output_capacity < required:
         return -2
+    output_view: mutable view[u8] = output[0:required]
 
     node <- head1
     for index in 0..<output_count:
-        store_i64_le(node_values[node.usize()], output, 8 * index)
+        store_i64_le(node_values[node.usize()], output_view, 8 * index)
         node <- next[node.usize()]
     required.i64()
 

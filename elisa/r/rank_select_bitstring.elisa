@@ -4,7 +4,7 @@ const MAX_QUERIES: usize = 16
 const MAX_INPUT: usize = 35
 const MAX_OUTPUT_BYTES: usize = 128
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -68,9 +68,10 @@ def rank_select_bitstring_impl(input: i64&, length: usize, output: mutable u8&, 
     output_bytes: usize = 8 * queries
     if output.is_null() or capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT_BYTES]
     query <- 0
     while query < queries:
-        store_i64_le(answers[query], staged&, 8 * query)
+        store_i64_le(answers[query], staged_view, 8 * query)
         query <- query + 1
     byte: mutable usize = 0
     while byte < output_bytes:

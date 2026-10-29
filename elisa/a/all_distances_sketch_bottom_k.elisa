@@ -1,4 +1,4 @@
-def all_distances_sketch_bottom_k_put_i64(output: mutable u8&, offset: usize, x: i64) -> void:
+def all_distances_sketch_bottom_k_put_i64(output: mutable view[u8], offset: usize, x: i64) -> void:
     bits: u64=x.u64()
     for b in 0..<8: output[offset+b] <- (bits>>(8*b)).u8()
 
@@ -32,7 +32,7 @@ def all_distances_sketch_bottom_k_impl(input: i64&, length: usize, output: mutab
             if less<k:staged[1+2*count]<-v.i64();staged[2+2*count]<-dist[v];count<-count+1
     staged[0]<-count.i64();words:usize=1+2*count;bytes:usize=8*words
     if output==null or capacity<bytes:return -2
-    for i in 0..<words:all_distances_sketch_bottom_k_put_i64(output,8*i,staged[i])
+    for i in 0..<words:all_distances_sketch_bottom_k_put_i64(output[0:bytes],8*i,staged[i])
     bytes.i64()
 
 export fn all_distances_sketch_bottom_k(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = all_distances_sketch_bottom_k_impl

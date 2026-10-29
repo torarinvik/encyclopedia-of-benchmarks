@@ -7,7 +7,7 @@ const VALUE_MAX: i64 = 1000000
 const FNV_OFFSET: u64 = 14695981039346656037.u64()
 const FNV_PRIME: u64 = 1099511628211.u64()
 
-def segment_tree_update_query_sum(tree: i32&, node: usize, segment_left: usize, segment_right: usize,
+def segment_tree_update_query_sum(tree: view[i32], node: usize, segment_left: usize, segment_right: usize,
                                   query_left: usize, query_right: usize) -> i32:
     if query_left <= segment_left and segment_right <= query_right:
         return tree[node]
@@ -96,7 +96,7 @@ def segment_tree_update_impl(input: i64&, length: usize) -> i64:
         second: i64 = input[offset + 2]
         if kind == 0:
             sum: i32 = segment_tree_update_query_sum(
-                &tree[0], 1, 1, power, first.usize() + 1, second.usize() + 1)
+                tree[0:MAX_TREE_LENGTH], 1, 1, power, first.usize() + 1, second.usize() + 1)
             hash <- segment_tree_update_hash_word(hash, sum.i64())
         else:
             leaf: mutable usize = power + first.usize()

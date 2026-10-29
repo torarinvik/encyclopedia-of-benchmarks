@@ -1,14 +1,14 @@
 const MAX_N: usize = 8
 const MAX_OUTPUT_WORDS: usize = 737
 
-def safe(rows: i64&, column: usize, row: usize) -> bool:
+def safe(rows: view[i64], column: usize, row: usize) -> bool:
     for previous_column in 0..<column:
         previous_row: usize = rows[previous_column].usize()
         if previous_row == row or previous_row + column == row + previous_column or previous_row + previous_column == row + column:
             return false
     true
 
-def enumerate(n: usize, column: usize, rows: mutable i64&, values: mutable i64&, used: mutable usize&) -> void:
+def enumerate(n: usize, column: usize, rows: mutable view[i64], values: mutable view[i64], used: mutable usize&) -> void:
     if column == n:
         for current_column in 0..<n:
             values[used] <- rows[current_column]
@@ -27,7 +27,7 @@ def n_queens_backtracking_csharp_impl(n: i64, output: mutable u8&, capacity: usi
     used: mutable usize = 1
     if n > 0:
         rows: mutable i64[MAX_N] = zeroed
-        enumerate(n.usize(), 0, rows, values, used)
+        enumerate(n.usize(), 0, rows[0:MAX_N], values[0:MAX_OUTPUT_WORDS], used)
     required: usize = used * 8
     if output.is_null() or capacity < required:
         return -2

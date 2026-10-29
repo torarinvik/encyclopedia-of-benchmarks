@@ -4,7 +4,7 @@ const TSVC_S171_MAX_N: usize = 32
 const TSVC_S171_MAX_STRIDE: usize = 4
 const TSVC_S171_MAX_INPUT_LENGTH: usize = 159
 
-def tsvc_s171_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s171_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -34,14 +34,14 @@ def tsvc_s171_stride_indexed_accumulate_impl(input: i64&, length: usize,
         return -2
     i <- 0
     while i < a_length:
-        tsvc_s171_store_i64_le(input[2 + i], output, 8 * i)
+        tsvc_s171_store_i64_le(input[2 + i], output[0:capacity], 8 * i)
         i <- i + 1
     b_offset: usize = 2 + a_length
     i <- 0
     while i < n:
         destination: usize = i * stride
         value: i64 = input[2 + destination] + input[b_offset + i]
-        tsvc_s171_store_i64_le(value, output, 8 * destination)
+        tsvc_s171_store_i64_le(value, output[0:capacity], 8 * destination)
         i <- i + 1
     a_length.i64()
 

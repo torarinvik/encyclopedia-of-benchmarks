@@ -8,7 +8,7 @@ def fast_subset_convolution_rank(mask: usize) -> usize:
         bits <- bits >> 1
     return count
 
-def fast_subset_convolution_put(output: mutable u8&, offset: usize, value: i64) -> void:
+def fast_subset_convolution_put(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -78,7 +78,7 @@ def fast_subset_convolution_impl(input: i64&, length: usize, output: mutable u8&
     if capacity < required or output.is_null(): return -2
     mask <- 0
     while mask < size:
-        fast_subset_convolution_put(output, 8 * mask, h[fast_subset_convolution_rank(mask)][mask])
+        fast_subset_convolution_put(output[0:required], 8 * mask, h[fast_subset_convolution_rank(mask)][mask])
         mask <- mask + 1
     return required.i64()
 

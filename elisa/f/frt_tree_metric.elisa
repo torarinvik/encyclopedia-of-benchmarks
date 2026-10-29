@@ -3,7 +3,7 @@ def frt_tree_metric_within(distance: i64, beta: i64, level: i64) -> bool:
         return distance * 1024 <= beta * (1.i64() << level.usize())
     return distance * 1024 * (1.i64() << (-level).usize()) <= beta
 
-def frt_tree_metric_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def frt_tree_metric_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits >> (byte * 8)).u8()
@@ -83,7 +83,7 @@ def frt_tree_metric_impl(input: i64&, length: usize, output: mutable u8&, capaci
         level <- level - 1
     bytes: usize = 8 * n * n
     if output == null or capacity < bytes: return -2
-    for i in 0..<(n*n): frt_tree_metric_put_i64(output, i*8, staged[i])
+    for i in 0..<(n*n): frt_tree_metric_put_i64(output[0:bytes], i*8, staged[i])
     bytes.i64()
 
 export fn frt_tree_metric(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = frt_tree_metric_impl

@@ -1,5 +1,5 @@
 # Validate and serialize a strict BST reconstructed from preorder values.
-def bst_preorder_valid(values: i64&, start: usize, end: usize, lower: i64, upper: i64) -> bool:
+def bst_preorder_valid(values: view[i64], start: usize, end: usize, lower: i64, upper: i64) -> bool:
     if start == end:
         return true
     root: i64 = values[start]
@@ -10,7 +10,7 @@ def bst_preorder_valid(values: i64&, start: usize, end: usize, lower: i64, upper
         split <- split + 1
     return bst_preorder_valid(values, start + 1, split, lower, root) and bst_preorder_valid(values, split, end, root, upper)
 
-def bst_preorder_emit(values: i64&, start: usize, end: usize, output: mutable u8&, position: usize) -> usize:
+def bst_preorder_emit(values: view[i64], start: usize, end: usize, output: mutable view[u8], position: usize) -> usize:
     if start == end:
         output[position] <- 0
         return position + 1
@@ -37,12 +37,12 @@ def bst_from_preorder_impl(values: i64&, length: usize, output: mutable u8&, out
         if values[index] < -2147483648 or values[index] > 2147483647:
             return -1
         index <- index + 1
-    if not bst_preorder_valid(values, 0, length, -2147483649, 2147483648):
+    if not bst_preorder_valid(values[0:length], 0, length, -2147483649, 2147483648):
         return -1
     required: usize = 6 * length + 1
     if output_capacity < required:
         return -2
-    bst_preorder_emit(values, 0, length, output, 0)
+    bst_preorder_emit(values[0:length], 0, length, output[0:required], 0)
     length.i64()
 
 export fn bst_from_preorder(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = bst_from_preorder_impl

@@ -1,7 +1,7 @@
 const MAX_INPUT: usize = 128
 const MAX_TOKENS: usize = 128
 
-def words_to_number_match(input: i64&, start: usize, finish: usize, word: &str) -> bool:
+def words_to_number_match(input: view[i64], start: usize, finish: usize, word: &str) -> bool:
     if finish - start != word.len(): return false
     index: mutable usize = 0
     while index < word.len():
@@ -11,7 +11,7 @@ def words_to_number_match(input: i64&, start: usize, finish: usize, word: &str) 
         index <- index + 1
     return true
 
-def words_to_number_word_id(input: i64&, start: usize, finish: usize) -> i64:
+def words_to_number_word_id(input: view[i64], start: usize, finish: usize) -> i64:
     if words_to_number_match(input, start, finish, "zero"): return 1
     if words_to_number_match(input, start, finish, "one"): return 2
     if words_to_number_match(input, start, finish, "two"): return 3
@@ -63,7 +63,7 @@ def words_to_number_digits(value: i64) -> i64:
         count <- count + 1
     return count
 
-def words_to_number_append_uint(out: mutable u8&, position: mutable usize&, value: i64) -> void:
+def words_to_number_append_uint(out: mutable view[u8], position: mutable usize&, value: i64) -> void:
     digits: mutable u8[24] = zeroed
     count: mutable usize = 0
     magnitude: mutable i64 = value
@@ -79,7 +79,8 @@ def words_to_number_append_uint(out: mutable u8&, position: mutable usize&, valu
 
 def words_to_number_separator(value: i64) -> bool = value == 32 or value == 44 or value == 45
 
-def words_to_number_parse(input: i64&, byte_count: usize, text: mutable u8&, text_length: mutable usize&) -> i64:
+def words_to_number_parse(input: view[i64], byte_count: usize, text: mutable view[u8],
+        text_length: mutable usize&) -> i64:
     tokens: mutable i64[MAX_TOKENS] = zeroed
     count: mutable usize = 0
     start: mutable usize = MAX_INPUT + 1
@@ -214,7 +215,7 @@ def words_to_number_impl(input: i64&, length: usize, output: mutable u8&, capaci
     if byte_length < 0 or byte_length > MAX_INPUT or length != byte_length.usize() + 1: return -1
     text: mutable u8[64] = zeroed
     text_length: mutable usize = 0
-    status: i64 = words_to_number_parse(input, byte_length.usize(), text, text_length&)
+    status: i64 = words_to_number_parse(input[0:length], byte_length.usize(), text[0:64], text_length&)
     if status != 0: return status
     if output == null or capacity < text_length: return -2
     index: mutable usize = 0

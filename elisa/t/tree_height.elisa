@@ -2,8 +2,8 @@
 const MAX_NODES: usize = 1023
 const MAX_ARCS: usize = 2 * (MAX_NODES - 1)
 
-def tree_height_visit(node: usize, head: i64&, arc_to: i64&, arc_next: i64&,
-        visited: mutable i64&, dp: mutable i64&, reached: mutable usize&) -> i64:
+def tree_height_visit(node: usize, head: view[i64], arc_to: view[i64], arc_next: view[i64],
+        visited: mutable view[i64], dp: mutable view[i64], reached: mutable usize&) -> i64:
     visited[node] <- 1
     reached <- reached + 1
     child_height: mutable i64 = 1
@@ -52,7 +52,8 @@ def tree_height_impl(values: i64&, length: usize) -> i64:
         head[b] <- arcs.i64()
         arcs <- arcs + 1
     reached: mutable usize = 0
-    result: i64 = tree_height_visit(1, head, arc_to, arc_next, visited, dp, reached)
+    result: i64 = tree_height_visit(1, head[0:MAX_NODES + 1], arc_to[0:MAX_ARCS],
+        arc_next[0:MAX_ARCS], visited[0:MAX_NODES + 1], dp[0:MAX_NODES + 1], reached)
     if result < 0 or reached != count:
         return -1
     result

@@ -4,7 +4,7 @@ const ANT_LIMIT: usize = 64
 const ITERATION_LIMIT: usize = 64
 const INVALID_RESULT: f64 = -1.0e300
 
-def city_distance(cities: i64&, first: usize, second: usize) -> f64:
+def city_distance(cities: view[i64], first: usize, second: usize) -> f64:
     dx: f64 = cities[2 * first].f64() - cities[2 * second].f64()
     dy: f64 = cities[2 * first + 1].f64() - cities[2 * second + 1].f64()
     sqrt(dx * dx + dy * dy)
@@ -14,7 +14,7 @@ def next_random_fraction(random_state: mutable i64&) -> f64:
     random_state.f64() / 2147483647.0
 
 def select_next_city(current: usize, candidate_a: i64, candidate_b: i64,
-                     cities: i64&, pheromones: f64&, random_state: mutable i64&) -> usize:
+                     cities: view[i64], pheromones: view[f64], random_state: mutable i64&) -> usize:
     scores: mutable f64[3] = zeroed
     total: mutable f64 = 0.0
     first: usize = candidate_a.usize()
@@ -79,19 +79,19 @@ def ant_colony_optimization_impl(input: i64&, length: usize) -> f64:
             route_start: usize = ant * 4
             routes[route_start] <- 0
             current: mutable usize = 0
-            first_city: usize = select_next_city(current, 1, 2, cities[0], pheromones[0], random_state)
+            first_city: usize = select_next_city(current, 1, 2, cities[0:6], pheromones[0:9], random_state)
             routes[route_start + 1] <- first_city
             current <- first_city
             second_city: mutable usize = 1
             if first_city == 1:
                 second_city <- 2
-            _ = select_next_city(current, second_city.i64(), -1, cities[0], pheromones[0], random_state)
+            _ = select_next_city(current, second_city.i64(), -1, cities[0:6], pheromones[0:9], random_state)
             routes[route_start + 2] <- second_city
             routes[route_start + 3] <- 0
             distance: mutable f64 = 0.0
             edge: mutable usize = 0
             while edge < 3:
-                distance <- distance + city_distance(cities[0], routes[route_start + edge], routes[route_start + edge + 1])
+                distance <- distance + city_distance(cities[0:6], routes[route_start + edge], routes[route_start + edge + 1])
                 edge <- edge + 1
             if distance < best_distance:
                 best_distance <- distance
@@ -106,7 +106,7 @@ def ant_colony_optimization_impl(input: i64&, length: usize) -> f64:
             distance: mutable f64 = 0.0
             edge: mutable usize = 0
             while edge < 3:
-                distance <- distance + city_distance(cities[0], routes[route_start + edge], routes[route_start + edge + 1])
+                distance <- distance + city_distance(cities[0:6], routes[route_start + edge], routes[route_start + edge + 1])
                 edge <- edge + 1
             deposit: f64 = 10.0 / distance
             edge <- 0

@@ -1,23 +1,23 @@
 const MAX_POINTS: usize = 64
 
-def convex_hull_cross(a: usize, b: usize, c: usize, values: i64&) -> i64:
+def convex_hull_cross(a: usize, b: usize, c: usize, values: view[i64]) -> i64:
     dx1: i64 = values[2 * b] - values[2 * a]
     dy1: i64 = values[2 * b + 1] - values[2 * a + 1]
     dx2: i64 = values[2 * c] - values[2 * a]
     dy2: i64 = values[2 * c + 1] - values[2 * a + 1]
     dx1 * dy2 - dy1 * dx2
 
-def convex_hull_orientation(a: usize, b: usize, c: usize, values: i64&) -> i64:
+def convex_hull_orientation(a: usize, b: usize, c: usize, values: view[i64]) -> i64:
     turn: i64 = convex_hull_cross(a, b, c, values)
     if turn < 0: return 1
     if turn > 0: return -1
     0
 
-def convex_hull_before_x(left: usize, right: usize, values: i64&) -> bool:
+def convex_hull_before_x(left: usize, right: usize, values: view[i64]) -> bool:
     values[2 * left] < values[2 * right]
 
-def convex_hull_sort(indices: mutable usize&, scratch: mutable usize&,
-        begin: usize, ending: usize, values: i64&) -> void:
+def convex_hull_sort(indices: mutable view[usize], scratch: mutable view[usize],
+        begin: usize, ending: usize, values: view[i64]) -> void:
     if ending - begin < 2: return
     middle: usize = begin + (ending - begin) / 2
     convex_hull_sort(indices, scratch, begin, middle, values)
@@ -46,7 +46,7 @@ def convex_hull_sort(indices: mutable usize&, scratch: mutable usize&,
         indices[index] <- scratch[index]
         index <- index + 1
 
-def convex_hull_put_index(output: mutable u8&, position: usize, id: usize) -> void:
+def convex_hull_put_index(output: mutable view[u8], position: usize, id: usize) -> void:
     value: u32 = id.u32()
     byte: mutable usize = 0
     while byte < 4:
@@ -65,12 +65,12 @@ def convex_hull_graham_impl(values: i64&, length: usize, output: mutable u8&, ca
     upper: mutable usize[MAX_POINTS] = zeroed
     lower: mutable usize[MAX_POINTS] = zeroed
     for index in 0..count: order[index] <- index
-    convex_hull_sort(&order[0], &scratch[0], 0, count, values)
+    convex_hull_sort(order[0:count], scratch[0:count], 0, count, values[0:length])
     for index in 1..count:
         if values[2 * order[index - 1]] == values[2 * order[index]]: return -1
     index: mutable usize = 1
     while index + 1 < count:
-        if convex_hull_cross(order[0], order[index], order[count - 1], values) == 0: return -1
+        if convex_hull_cross(order[0], order[index], order[count - 1], values[0:length]) == 0: return -1
         index <- index + 1
 
     upper_count: mutable usize = 1
@@ -78,16 +78,16 @@ def convex_hull_graham_impl(values: i64&, length: usize, output: mutable u8&, ca
     upper[0] <- 0
     lower[0] <- 0
     for index in 1..count:
-        turn: i64 = convex_hull_orientation(order[0], order[index], order[count - 1], values)
+        turn: i64 = convex_hull_orientation(order[0], order[index], order[count - 1], values[0:length])
         if index == count - 1 or turn != -1:
             while upper_count >= 2 and convex_hull_orientation(order[upper[upper_count - 2]],
-                    order[upper[upper_count - 1]], order[index], values) == -1:
+                    order[upper[upper_count - 1]], order[index], values[0:length]) == -1:
                 upper_count <- upper_count - 1
             upper[upper_count] <- index
             upper_count <- upper_count + 1
         if index == count - 1 or turn != 1:
             while lower_count >= 2 and convex_hull_orientation(order[lower[lower_count - 2]],
-                    order[lower[lower_count - 1]], order[index], values) == 1:
+                    order[lower[lower_count - 1]], order[index], values[0:length]) == 1:
                 lower_count <- lower_count - 1
             lower[lower_count] <- index
             lower_count <- lower_count + 1
@@ -96,13 +96,13 @@ def convex_hull_graham_impl(values: i64&, length: usize, output: mutable u8&, ca
     written: mutable usize = 0
     index <- 1
     while index + 1 < upper_count:
-        convex_hull_put_index(output, written, order[upper[index]])
+        convex_hull_put_index(output[0:capacity], written, order[upper[index]])
         written <- written + 1
         index <- index + 1
     index <- lower_count
     while index > 0:
         index <- index - 1
-        convex_hull_put_index(output, written, order[lower[index]])
+        convex_hull_put_index(output[0:capacity], written, order[lower[index]])
         written <- written + 1
     hull_count.i64()
 

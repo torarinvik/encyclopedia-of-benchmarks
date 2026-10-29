@@ -1,5 +1,5 @@
 # Deterministic bogo sort for the shared, bounded portable workload.
-def bogo_is_sorted(values: i64&, length: usize) -> bool:
+def bogo_is_sorted(values: view[i64], length: usize) -> bool:
     index: mutable usize = 1
     while index < length:
         if values[index - 1] > values[index]:
@@ -11,7 +11,7 @@ def bogo_sort_impl(values: mutable i64&, length: usize) -> void:
     if length < 2:
         return
     state: mutable u64 = 2654435769.u64()
-    while not bogo_is_sorted(values, length):
+    while not bogo_is_sorted(values[0:length], length):
         index: mutable usize = length - 1
         while index > 0:
             state <- (state * 1664525.u64() + 1013904223.u64()) % 4294967296.u64()

@@ -1,5 +1,5 @@
-def crossword_puzzle_solver_search(grid: mutable i64&, rows: usize, cols: usize,
-                                   words: i64&, word_lengths: usize&, order: usize&,
+def crossword_puzzle_solver_search(grid: mutable view[i64], rows: usize, cols: usize,
+                                   words: view[i64], word_lengths: view[usize], order: view[usize],
                                    depth: usize, word_count: usize) -> bool:
     if depth == word_count:
         return true
@@ -33,7 +33,7 @@ def crossword_puzzle_solver_search(grid: mutable i64&, rows: usize, cols: usize,
                             added[i] <- grid[cells[i]] == 0
                             grid[cells[i]] <- words[word_index * 8 + i]
                             i <- i + 1
-                        if crossword_puzzle_solver_search(&grid[0], rows, cols, &words[0], &word_lengths[0], &order[0], depth + 1, word_count):
+                        if crossword_puzzle_solver_search(grid[0:rows * cols], rows, cols, words[0:word_count * 8], word_lengths[0:word_count], order[0:word_count], depth + 1, word_count):
                             return true
                         i <- 0
                         while i < word_length:
@@ -106,7 +106,7 @@ def crossword_puzzle_solver_impl(values: i64&, length: usize, output: mutable u8
         order[j] <- value
         i <- i + 1
 
-    solved: bool = crossword_puzzle_solver_search(&grid[0], rows, cols, &words[0], &word_lengths[0], &order[0], 0, word_count)
+    solved: bool = crossword_puzzle_solver_search(grid[0:rows * cols], rows, cols, words[0:word_count * 8], word_lengths[0:word_count], order[0:word_count], 0, word_count)
     required: usize = (1 + rows * cols) * 8
     if output.is_null() or output_capacity < required:
         return -2

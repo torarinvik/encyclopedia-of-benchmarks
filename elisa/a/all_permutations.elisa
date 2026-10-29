@@ -1,15 +1,15 @@
 const MAX_LENGTH: usize = 6
 const BYTES_PER_VALUE: usize = 4
 
-def all_permutations_store_i32(value: i64, output: mutable u8&, position: usize) -> void:
+def all_permutations_store_i32(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
     output[position + 2] <- ((bits >> 16) & 255).u8()
     output[position + 3] <- ((bits >> 24) & 255).u8()
 
-def all_permutations_generate(values: i64&, n: usize, depth: usize,
-        current: mutable i64&, used: mutable bool&, output: mutable u8&,
+def all_permutations_generate(values: view[i64], n: usize, depth: usize,
+        current: mutable view[i64], used: mutable view[bool], output: mutable view[u8],
         result_count: mutable usize&) -> void:
     if depth == n:
         row_start: usize = result_count * n * BYTES_PER_VALUE
@@ -54,7 +54,7 @@ def all_permutations_impl(input: i64&, length: usize, output: mutable u8&, outpu
     current: mutable i64[MAX_LENGTH] = zeroed
     used: mutable bool[MAX_LENGTH] = zeroed
     result_count: mutable usize = 0
-    all_permutations_generate(&values[0], n, 0, &current[0], &used[0], output, result_count)
+    all_permutations_generate(values[0:n], n, 0, current[0:n], used[0:n], output[0:required], result_count)
     result_count.i64()
 
 export fn all_permutations(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = all_permutations_impl

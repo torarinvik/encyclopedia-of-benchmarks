@@ -24,7 +24,7 @@ def bezier_curve_round_scaled(value: f64) -> i64:
         return (scaled + 0.5).i64()
     (scaled - 0.5).i64()
 
-def bezier_curve_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def bezier_curve_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255.u64()).u8()
@@ -62,10 +62,10 @@ def bezier_curve_impl(values: i64&, length: usize, output: mutable u8&,
             bezier_curve_power(1.0 - t, degree - 1 - index) * bezier_curve_power(t, index))
         dx <- dx + weight * (values[4 + 2 * index] - values[2 + 2 * index]).f64()
         dy <- dy + weight * (values[5 + 2 * index] - values[3 + 2 * index]).f64()
-    bezier_curve_write_i64(output, 0, bezier_curve_round_scaled(x))
-    bezier_curve_write_i64(output, 8, bezier_curve_round_scaled(y))
-    bezier_curve_write_i64(output, 16, bezier_curve_round_scaled(dx))
-    bezier_curve_write_i64(output, 24, bezier_curve_round_scaled(dy))
+    bezier_curve_write_i64(output[0:32], 0, bezier_curve_round_scaled(x))
+    bezier_curve_write_i64(output[0:32], 8, bezier_curve_round_scaled(y))
+    bezier_curve_write_i64(output[0:32], 16, bezier_curve_round_scaled(dx))
+    bezier_curve_write_i64(output[0:32], 24, bezier_curve_round_scaled(dy))
     32
 
 export fn bezier_curve(values: i64&, length: usize, output: mutable u8&,

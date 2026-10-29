@@ -11,14 +11,14 @@ def fvs_bits(value: u64) -> usize:
         remaining <- remaining >> 1
     count
 
-def fvs_root(parent: mutable usize&, value: usize) -> usize:
+def fvs_root(parent: mutable view[usize], value: usize) -> usize:
     current: mutable usize = value
     while parent[current] != current:
         parent[current] <- parent[parent[current]]
         current <- parent[current]
     current
 
-def fvs_is_forest(adj: mutable bool&, n: usize, vertices: u64) -> bool:
+def fvs_is_forest(adj: view[bool], n: usize, vertices: u64) -> bool:
     parent: mutable usize[8] = zeroed
     i: mutable usize = 0
     while i < n:
@@ -30,24 +30,24 @@ def fvs_is_forest(adj: mutable bool&, n: usize, vertices: u64) -> bool:
             v: mutable usize = u + 1
             while v < n:
                 if (vertices & (1.u64() << v)) != 0 and adj[u * MAX_N + v]:
-                    left: usize = fvs_root(parent&, u)
-                    right: usize = fvs_root(parent&, v)
+                    left: usize = fvs_root(parent[0:8], u)
+                    right: usize = fvs_root(parent[0:8], v)
                     if left == right: return false
                     parent[left] <- right
                 v <- v + 1
         u <- u + 1
     true
 
-def fvs_compress(adj: mutable bool&, n: usize, prefix: u64, budget: usize, current: u64) -> u64:
+def fvs_compress(adj: view[bool], n: usize, prefix: u64, budget: usize, current: u64) -> u64:
     x: mutable u64 = current
     while true:
         x_count: usize = fvs_bits(x)
         excluded: u64 = current & ~x
-        if x_count <= budget and fvs_is_forest(adj&, n, excluded):
+        if x_count <= budget and fvs_is_forest(adj, n, excluded):
             eligible: u64 = prefix & ~current
             subset: mutable u64 = eligible
             while true:
-                if fvs_bits(subset) <= budget - x_count and fvs_is_forest(adj&, n, prefix & ~(x | subset)):
+                if fvs_bits(subset) <= budget - x_count and fvs_is_forest(adj, n, prefix & ~(x | subset)):
                     return x | subset
                 if subset == 0: break
                 subset <- (subset - 1) & eligible
@@ -55,7 +55,7 @@ def fvs_compress(adj: mutable bool&, n: usize, prefix: u64, budget: usize, curre
         x <- (x - 1) & current
     FVS_FAILURE
 
-def fvs_solve_budget(adj: mutable bool&, n: usize, budget: usize) -> u64:
+def fvs_solve_budget(adj: view[bool], n: usize, budget: usize) -> u64:
     fvs: mutable u64 = 0
     i: mutable usize = 0
     while i < n:
@@ -64,19 +64,19 @@ def fvs_solve_budget(adj: mutable bool&, n: usize, budget: usize) -> u64:
         if fvs_bits(candidate) <= budget:
             fvs <- candidate
         else:
-            fvs <- fvs_compress(adj&, n, prefix, budget, candidate)
+            fvs <- fvs_compress(adj, n, prefix, budget, candidate)
             if fvs == FVS_FAILURE: return FVS_FAILURE
         i <- i + 1
     fvs
 
-def fvs_minimum(adj: mutable bool&, n: usize, limit: usize) -> i64:
+def fvs_minimum(adj: view[bool], n: usize, limit: usize) -> i64:
     budget: mutable usize = 0
     while budget <= limit:
-        if fvs_solve_budget(adj&, n, budget) != FVS_FAILURE: return budget.i64()
+        if fvs_solve_budget(adj, n, budget) != FVS_FAILURE: return budget.i64()
         budget <- budget + 1
     -1
 
-def fvs_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def fvs_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -105,7 +105,7 @@ def undirected_feedback_vertex_set(input: i64&, length: usize, output: mutable u
         previous_v <- v
         edge <- edge + 1
     if output.is_null() or capacity < 16: return -2
-    minimum: i64 = fvs_minimum(adj&, n, limit.usize())
-    fvs_put(if minimum < 0: 0 else: 1, output&, 0)
-    fvs_put(minimum, output&, 8)
+    minimum: i64 = fvs_minimum(adj[0:MAX_N * MAX_N], n, limit.usize())
+    fvs_put(if minimum < 0: 0 else: 1, output[0:capacity], 0)
+    fvs_put(minimum, output[0:capacity], 8)
     16

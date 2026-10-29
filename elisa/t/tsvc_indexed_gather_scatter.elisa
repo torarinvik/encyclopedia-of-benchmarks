@@ -4,7 +4,7 @@ const TSVC_INDEXED_MAX_N: usize = 16
 const TSVC_INDEXED_MAX_INPUT_LENGTH: usize = 82
 const TSVC_INDEXED_MAX_OPERAND: i64 = 1000000
 
-def tsvc_indexed_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_indexed_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -50,7 +50,7 @@ def tsvc_indexed_gather_scatter_impl(input: i64&, length: usize,
         else:
             state[index] <- input[b_start + index] + input[c_start + i]
     for i in 0..n:
-        tsvc_indexed_store_i64(state[i], output, 8 * i)
+        tsvc_indexed_store_i64(state[i], output[0:capacity], 8 * i)
     n.i64()
 
 export fn tsvc_indexed_gather_scatter(input: i64&, length: usize,

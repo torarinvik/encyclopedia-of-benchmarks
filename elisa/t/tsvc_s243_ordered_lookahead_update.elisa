@@ -4,7 +4,7 @@ const TSVC_S243_MAX_N: usize = 64
 const TSVC_S243_MAX_INPUT_LENGTH: usize = 321
 const TSVC_S243_MAX_VALUE: i64 = 2
 
-def tsvc_s243_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s243_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -45,8 +45,8 @@ def tsvc_s243_impl(input: i64&, length: usize, output: mutable u8&, capacity: us
         b[i] <- a[i] + d_value * input[e_start + i]
         a[i] <- b[i] + next_a * d_value
     for i in 0..n:
-        tsvc_s243_store(a[i], output, 8 * i)
-        tsvc_s243_store(b[i], output, 8 * (n + i))
+        tsvc_s243_store(a[i], output[0:capacity], 8 * i)
+        tsvc_s243_store(b[i], output[0:capacity], 8 * (n + i))
     (2 * n).i64()
 
 export fn tsvc_s243_ordered_lookahead_update(input: i64&, length: usize,

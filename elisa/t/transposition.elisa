@@ -4,7 +4,7 @@ const MAX_TEXT: usize = 512
 const MAX_INPUT: usize = 3 + MAX_KEY + MAX_TEXT
 const MAX_PADDED: usize = MAX_TEXT + MAX_KEY
 
-def transposition_hash(bytes: u8&, count: usize) -> i64:
+def transposition_hash(bytes: view[u8], count: usize) -> i64:
     hash: mutable u64 = 14695981039346656037
     for shift in 0..<8:
         byte: u64 = (count.u64() >> (shift * 8)) & 255
@@ -84,6 +84,6 @@ def transposition_impl(input: i64&, length: usize) -> i64:
             start <- start + key_length
         while result_length > 0 and result[result_length - 1] == 32:
             result_length <- result_length - 1
-    transposition_hash(result, result_length)
+    transposition_hash(result[0:result_length], result_length)
 
 export fn transposition(input: i64&, length: usize) -> i64 = transposition_impl

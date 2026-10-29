@@ -1,7 +1,7 @@
 const MAX_N: usize = 64
 const MAX_INPUT_LENGTH: usize = 65
 
-def reverse_links(next: mutable i64&, previous: i64, current: i64) -> i64:
+def reverse_links(next: mutable view[i64], previous: i64, current: i64) -> i64:
     if next[current.usize()] >= 0:
         head: i64 = reverse_links(next, current, next[current.usize()])
         next[current.usize()] <- previous
@@ -11,7 +11,7 @@ def reverse_links(next: mutable i64&, previous: i64, current: i64) -> i64:
     next[previous.usize()] <- -1
     current
 
-def store_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i32_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u32 = value.u32()
     output[offset] <- (bits & 255).u8()
     output[offset + 1] <- ((bits >> 8) & 255).u8()
@@ -38,10 +38,11 @@ def reverse_a_linked_list_using_recusion_impl(input: i64&, length: usize, output
         if index + 1 < n: next[index] <- (index + 1).i64()
         else: next[index] <- -1
         index <- index + 1
-    node: i64 = reverse_links(next, 0, next[0])
+    node: i64 = reverse_links(next[0:n], 0, next[0])
+    output_view: mutable view[u8] = output[0:capacity]
     index <- 0
     while index < n:
-        store_i32_le(nodes[node.usize()], output, index * 4)
+        store_i32_le(nodes[node.usize()], output_view, index * 4)
         if index + 1 < n: node <- next[node.usize()]
         index <- index + 1
     bytes.i64()

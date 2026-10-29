@@ -1,4 +1,4 @@
-def graph_lua_directed_weighted_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+def graph_lua_directed_weighted_put_i64(output: mutable view[u8], word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -61,13 +61,13 @@ def graph_lua_directed_weighted_impl(input: i64&, length: usize, output: mutable
         from_index <- from_index + 1
     words: usize = 2 + 2 * operations + 4 * edges
     if output.is_null() or capacity < words * 8: return -2
-    graph_lua_directed_weighted_put_i64(output, 0, operations.i64())
+    graph_lua_directed_weighted_put_i64(output[0:words * 8], 0, operations.i64())
     index <- 0
     while index < operations:
-        graph_lua_directed_weighted_put_i64(output, 1 + 2 * index, result_kind[index])
-        graph_lua_directed_weighted_put_i64(output, 2 + 2 * index, result_value[index])
+        graph_lua_directed_weighted_put_i64(output[0:words * 8], 1 + 2 * index, result_kind[index])
+        graph_lua_directed_weighted_put_i64(output[0:words * 8], 2 + 2 * index, result_value[index])
         index <- index + 1
-    graph_lua_directed_weighted_put_i64(output, 1 + 2 * operations, edges.i64())
+    graph_lua_directed_weighted_put_i64(output[0:words * 8], 1 + 2 * operations, edges.i64())
     word: mutable usize = 2 + 2 * operations
     from_index <- 0
     while from_index < n:
@@ -75,10 +75,10 @@ def graph_lua_directed_weighted_impl(input: i64&, length: usize, output: mutable
         while to_index < n:
             slot: usize = from_index * 16 + to_index
             if kind[slot] != 0:
-                graph_lua_directed_weighted_put_i64(output, word, from_index.i64())
-                graph_lua_directed_weighted_put_i64(output, word + 1, to_index.i64())
-                graph_lua_directed_weighted_put_i64(output, word + 2, kind[slot])
-                graph_lua_directed_weighted_put_i64(output, word + 3, weight[slot])
+                graph_lua_directed_weighted_put_i64(output[0:words * 8], word, from_index.i64())
+                graph_lua_directed_weighted_put_i64(output[0:words * 8], word + 1, to_index.i64())
+                graph_lua_directed_weighted_put_i64(output[0:words * 8], word + 2, kind[slot])
+                graph_lua_directed_weighted_put_i64(output[0:words * 8], word + 3, weight[slot])
                 word <- word + 4
             to_index <- to_index + 1
         from_index <- from_index + 1

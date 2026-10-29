@@ -3,7 +3,7 @@ const PMST_MAX_M: usize = 28
 const PMST_MAX_INPUT: usize = 95
 const PMST_MAX_OUTPUT: usize = 176
 
-def pmst_find(parent: mutable usize[PMST_MAX_N]&, value: usize) -> usize:
+def pmst_find(parent: mutable view[usize], value: usize) -> usize:
     root: mutable usize = value
     while parent[root] != root: root <- parent[root]
     while parent[value] != value:
@@ -12,7 +12,7 @@ def pmst_find(parent: mutable usize[PMST_MAX_N]&, value: usize) -> usize:
         value <- next
     root
 
-def pmst_put_i64(output: mutable u8&, offset: usize, value: i64):
+def pmst_put_i64(output: mutable view[u8], offset: usize, value: i64):
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -80,8 +80,8 @@ def truthful_multicast_pmst_tree_impl(input: i64&, length: usize, output: mutabl
     z: mutable usize = 0
     while z < m and tree_count < n - 1:
         edge: usize = order[z]
-        a: usize = pmst_find(dsu, eu[edge])
-        b: usize = pmst_find(dsu, ev[edge])
+        a: usize = pmst_find(dsu[0:PMST_MAX_N], eu[edge])
+        b: usize = pmst_find(dsu[0:PMST_MAX_N], ev[edge])
         if a != b:
             dsu[a] <- b
             tu[tree_count] <- eu[edge]
@@ -143,13 +143,13 @@ def truthful_multicast_pmst_tree_impl(input: i64&, length: usize, output: mutabl
     bytes: usize = 8 * (1 + 3 * count)
     if output.is_null() or capacity < bytes: return -2
     staged: mutable u8[PMST_MAX_OUTPUT] = zeroed
-    pmst_put_i64(staged, 0, count.i64())
+    pmst_put_i64(staged[0:output_bytes], 0, count.i64())
     i <- 0
     while i < count:
         edge <- selected[i]
-        pmst_put_i64(staged, 8 * (1 + 3 * i), tu[edge].i64())
-        pmst_put_i64(staged, 8 * (2 + 3 * i), tv[edge].i64())
-        pmst_put_i64(staged, 8 * (3 + 3 * i), tw[edge])
+        pmst_put_i64(staged[0:output_bytes], 8 * (1 + 3 * i), tu[edge].i64())
+        pmst_put_i64(staged[0:output_bytes], 8 * (2 + 3 * i), tv[edge].i64())
+        pmst_put_i64(staged[0:output_bytes], 8 * (3 + 3 * i), tw[edge])
         i <- i + 1
     i <- 0
     while i < bytes: output[i] <- staged[i]; i <- i + 1

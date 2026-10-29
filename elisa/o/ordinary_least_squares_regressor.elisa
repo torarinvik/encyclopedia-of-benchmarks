@@ -1,5 +1,5 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
-def putd(output: mutable u8&, offset: usize, value: f64):
+def putd(output: mutable view[u8], offset: usize, value: f64):
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     k: mutable usize = 0
@@ -53,6 +53,6 @@ def ordinary_least_squares_regressor_impl(v: i64&, length: usize, output: mutabl
     while r < t.usize():
         x: i64 = v[p]; y: i64 = v[p+1]; p <- p+2
         if x < -100 or x > 100 or y < -100 or y > 100: return -1
-        putd(output,r*8,x.f64()*rhs[0]+y.f64()*rhs[1]+rhs[2]); r <- r+1
+        putd(output[0:capacity],r*8,x.f64()*rhs[0]+y.f64()*rhs[1]+rhs[2]); r <- r+1
     (t*8)
 export ordinary_least_squares_regressor(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = ordinary_least_squares_regressor_impl

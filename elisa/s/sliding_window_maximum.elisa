@@ -1,5 +1,5 @@
 # Emit each fixed-width window maximum using a monotone deque of indices.
-def sliding_window_maximum_store(output: mutable u8&, offset: usize, value: i64) -> void:
+def sliding_window_maximum_store(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value as u64
     byte: mutable usize = 0
     while byte < 8:
@@ -39,7 +39,7 @@ def sliding_window_maximum_impl(input: i64&, length: usize, output: mutable u8&,
         deque[tail] <- index
         tail <- tail + 1
         if index + 1 >= k:
-            sliding_window_maximum_store(output, written * 8, input[2 + deque[head]])
+            sliding_window_maximum_store(output[0:windows * 8], written * 8, input[2 + deque[head]])
             written <- written + 1
         index <- index + 1
     windows as i64

@@ -1,5 +1,5 @@
 # Midpoint circle rasterization with the source's eight-point emission order.
-def midpoint_circle_write_i32(output: mutable u8&, position: usize, value: i64) -> void:
+def midpoint_circle_write_i32(output: mutable view[u8], position: usize, value: i64) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -23,7 +23,7 @@ def midpoint_circle_count_points(radius: i64) -> usize:
         count <- count + 8
     count
 
-def midpoint_circle_write_symmetric(output: mutable u8&, position: mutable usize&,
+def midpoint_circle_write_symmetric(output: mutable view[u8], position: mutable usize&,
         center_x: i64, center_y: i64, x: i64, y: i64) -> void:
     midpoint_circle_write_i32(output, position, center_x + x)
     midpoint_circle_write_i32(output, position + 4, center_y + y)
@@ -64,16 +64,17 @@ def midpoint_circle_impl(input: i64&, length: usize, output: mutable u8&,
     required: usize = count * 8
     if output_capacity < required:
         return -2
+    output_view: mutable view[u8] = output[0:required]
     if radius == 0:
-        midpoint_circle_write_i32(output, 0, center_x)
-        midpoint_circle_write_i32(output, 4, center_y)
+        midpoint_circle_write_i32(output_view, 0, center_x)
+        midpoint_circle_write_i32(output_view, 4, center_y)
         return 1
 
     position: mutable usize = 0
     x: mutable i64 = radius
     y: mutable i64 = 0
     decision: mutable i64 = 1 - radius
-    midpoint_circle_write_symmetric(output, position, center_x, center_y, x, y)
+    midpoint_circle_write_symmetric(output_view, position, center_x, center_y, x, y)
     while x > y:
         y <- y + 1
         if decision <= 0:
@@ -81,7 +82,7 @@ def midpoint_circle_impl(input: i64&, length: usize, output: mutable u8&,
         else:
             x <- x - 1
             decision <- decision + 2 * y - 2 * x + 1
-        midpoint_circle_write_symmetric(output, position, center_x, center_y, x, y)
+        midpoint_circle_write_symmetric(output_view, position, center_x, center_y, x, y)
     count.i64()
 
 export fn midpoint_circle(input: i64&, length: usize, output: mutable u8&,

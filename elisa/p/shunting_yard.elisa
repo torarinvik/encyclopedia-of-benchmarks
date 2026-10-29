@@ -26,7 +26,7 @@ def shunting_yard_precedence(operator: u8) -> usize:
     if operator == 42.u8() or operator == 47.u8(): return 2
     1
 
-def shunting_yard_apply(numbers: mutable f64&, number_count: mutable usize&,
+def shunting_yard_apply(numbers: mutable view[f64], number_count: mutable usize&,
                         operator: u8) -> bool:
     if number_count < 2: return false
     number_count <- number_count - 1
@@ -113,7 +113,7 @@ export fn shunting_yard(input: i64&, length: usize) -> f64:
                     (top_precedence == current_precedence and character == 94.u8()):
                     break
                 operator_count <- operator_count - 1
-                if not shunting_yard_apply(&numbers, number_count&, top): return INVALID_RESULT
+                if not shunting_yard_apply(numbers[0:MAX_OPERANDS], number_count&, top): return INVALID_RESULT
             if operator_count >= MAX_OPERATORS: return INVALID_RESULT
             operators[operator_count] <- character
             operator_count <- operator_count + 1
@@ -124,6 +124,6 @@ export fn shunting_yard(input: i64&, length: usize) -> f64:
         return INVALID_RESULT
     while operator_count > 0:
         operator_count <- operator_count - 1
-        if not shunting_yard_apply(&numbers, number_count&, operators[operator_count]): return INVALID_RESULT
+        if not shunting_yard_apply(numbers[0:MAX_OPERANDS], number_count&, operators[operator_count]): return INVALID_RESULT
     if number_count != 1: return INVALID_RESULT
     numbers[0]

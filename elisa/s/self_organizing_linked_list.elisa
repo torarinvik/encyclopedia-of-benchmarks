@@ -1,8 +1,8 @@
-def append_i64(records: mutable i64&, count: mutable usize&, value: i64) -> void:
+def append_i64(records: mutable view[i64], count: mutable usize&, value: i64) -> void:
     records[count] <- value
     count <- count + 1
 
-def write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -32,16 +32,16 @@ def self_organizing_linked_list_impl(input: i64&, length: usize,
             if item_count == 64: return -1
             items[item_count] <- value
             item_count <- item_count + 1
-            append_i64(records[0], record_count, 0)
-            append_i64(records[0], record_count, 0)
+            append_i64(records[0:194], record_count, 0)
+            append_i64(records[0:194], record_count, 0)
         elif opcode == 1:
             found_at: mutable usize = 0
             while found_at < item_count and items[found_at] != value:
                 found_at <- found_at + 1
             found: i64 = if found_at < item_count: 1 else: 0
-            append_i64(records[0], record_count, 1)
-            append_i64(records[0], record_count, 1)
-            append_i64(records[0], record_count, found)
+            append_i64(records[0:194], record_count, 1)
+            append_i64(records[0:194], record_count, 1)
+            append_i64(records[0:194], record_count, found)
             if found != 0 and found_at != 0:
                 index: mutable usize = found_at
                 while index > 0:
@@ -52,17 +52,17 @@ def self_organizing_linked_list_impl(input: i64&, length: usize,
             return -1
         step <- step + 1
 
-    append_i64(records[0], record_count, 2)
-    append_i64(records[0], record_count, item_count.i64())
+    append_i64(records[0:194], record_count, 2)
+    append_i64(records[0:194], record_count, item_count.i64())
     index: mutable usize = 0
     while index < item_count:
-        append_i64(records[0], record_count, items[index])
+        append_i64(records[0:194], record_count, items[index])
         index <- index + 1
     output_bytes: usize = record_count * 8
     if output.is_null() or capacity < output_bytes: return -2
     index <- 0
     while index < record_count:
-        write_i64_le(output, index * 8, records[index])
+        write_i64_le(output[0:capacity], index * 8, records[index])
         index <- index + 1
     return output_bytes.i64()
 

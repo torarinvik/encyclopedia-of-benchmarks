@@ -10,7 +10,7 @@ struct PersistentNode:
     left: i64
     right: i64
 
-def persistent_make_node(nodes: mutable PersistentNode&, used: mutable usize&, sum: i64, left: i64, right: i64) -> i64:
+def persistent_make_node(nodes: mutable view[PersistentNode], used: mutable usize&, sum: i64, left: i64, right: i64) -> i64:
     if used >= NODE_CAP: return -1
     index: i64 = used.i64()
     nodes[used].sum <- sum
@@ -19,7 +19,7 @@ def persistent_make_node(nodes: mutable PersistentNode&, used: mutable usize&, s
     used <- used + 1
     index
 
-def persistent_build(nodes: mutable PersistentNode&, used: mutable usize&, values: i64&, left: usize, right: usize) -> i64:
+def persistent_build(nodes: mutable view[PersistentNode], used: mutable usize&, values: view[i64], left: usize, right: usize) -> i64:
     if left == right: return persistent_make_node(nodes, used, values[left], -1, -1)
     mid: usize = left + (right - left) / 2
     a: i64 = persistent_build(nodes, used, values, left, mid)
@@ -27,7 +27,7 @@ def persistent_build(nodes: mutable PersistentNode&, used: mutable usize&, value
     if a < 0 or b < 0: return -1
     persistent_make_node(nodes, used, nodes[a.usize()].sum + nodes[b.usize()].sum, a, b)
 
-def persistent_point_set(nodes: mutable PersistentNode&, used: mutable usize&, root: i64, left: usize, right: usize, index: usize, value: i64) -> i64:
+def persistent_point_set(nodes: mutable view[PersistentNode], used: mutable usize&, root: i64, left: usize, right: usize, index: usize, value: i64) -> i64:
     if left == right: return persistent_make_node(nodes, used, value, -1, -1)
     mid: usize = left + (right - left) / 2
     a: mutable i64 = nodes[root.usize()].left
@@ -39,7 +39,7 @@ def persistent_point_set(nodes: mutable PersistentNode&, used: mutable usize&, r
     if a < 0 or b < 0: return -1
     persistent_make_node(nodes, used, nodes[a.usize()].sum + nodes[b.usize()].sum, a, b)
 
-def persistent_range_sum(nodes: PersistentNode&, node: i64, left: usize, right: usize, ql: usize, qr: usize) -> i64:
+def persistent_range_sum(nodes: view[PersistentNode], node: i64, left: usize, right: usize, ql: usize, qr: usize) -> i64:
     if ql <= left and right <= qr: return nodes[node.usize()].sum
     mid: usize = left + (right - left) / 2
     total: mutable i64 = 0
@@ -69,9 +69,11 @@ def persistent_segment_tree_impl(input: i64&, length: usize) -> i64:
         if input[2 + i] < -1000 or input[2 + i] > 1000: return -1
 
     nodes: mutable PersistentNode[NODE_CAP] = zeroed
+    nodes_view: mutable view[PersistentNode] = nodes[0:NODE_CAP]
+    values_view: view[i64] = input[2:2 + n]
     used: mutable usize = 0
     roots: mutable i64[MAX_Q + 1] = zeroed
-    roots[0] <- persistent_build(&nodes[0], used, &input[2], 0, n - 1)
+    roots[0] <- persistent_build(nodes_view, used, values_view, 0, n - 1)
     if roots[0] < 0: return -1
     versions: mutable usize = 1
     query_count: mutable usize = 0
@@ -85,13 +87,13 @@ def persistent_segment_tree_impl(input: i64&, length: usize) -> i64:
         offset <- offset + 4
         if op == 0:
             if a < 0 or a >= versions.i64() or b < 0 or b >= n64 or c < -1000 or c > 1000: return -1
-            next: i64 = persistent_point_set(&nodes[0], used, roots[a.usize()], 0, n - 1, b.usize(), c)
+            next: i64 = persistent_point_set(nodes_view, used, roots[a.usize()], 0, n - 1, b.usize(), c)
             if next < 0: return -1
             roots[versions] <- next
             versions <- versions + 1
         elif op == 1:
             if a < 0 or a >= versions.i64() or b < 0 or c < b or c >= n64: return -1
-            query_sums[query_count] <- persistent_range_sum(nodes[0], roots[a.usize()], 0, n - 1, b.usize(), c.usize())
+            query_sums[query_count] <- persistent_range_sum(nodes_view, roots[a.usize()], 0, n - 1, b.usize(), c.usize())
             query_count <- query_count + 1
         else:
             return -1

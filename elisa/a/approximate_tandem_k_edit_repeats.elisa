@@ -6,7 +6,7 @@ def minimum(a: usize, b: usize) -> usize:
     if a < b: return a
     b
 
-def edit_distance(text: i64&, a: usize, a_length: usize, b: usize, b_length: usize) -> usize:
+def edit_distance(text: view[i64], a: usize, a_length: usize, b: usize, b_length: usize) -> usize:
     row: mutable usize[13] = zeroed
     j: mutable usize = 0
     while j <= b_length:
@@ -29,7 +29,7 @@ def edit_distance(text: i64&, a: usize, a_length: usize, b: usize, b_length: usi
         i <- i + 1
     row[b_length]
 
-def minimum_edit_cost(text: i64&, start: usize, length: usize) -> usize:
+def minimum_edit_cost(text: view[i64], start: usize, length: usize) -> usize:
     best: mutable usize = 1000
     piece_start: mutable usize[12] = zeroed
     piece_length: mutable usize[12] = zeroed
@@ -83,7 +83,7 @@ def minimum_edit_cost(text: i64&, start: usize, length: usize) -> usize:
         prefix <- prefix + 1
     best
 
-def count_records(text: i64&, n: usize, budget: usize) -> usize:
+def count_records(text: view[i64], n: usize, budget: usize) -> usize:
     count: mutable usize = 0
     start: mutable usize = 0
     while start < n:
@@ -95,7 +95,7 @@ def count_records(text: i64&, n: usize, budget: usize) -> usize:
         start <- start + 1
     count
 
-def store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -115,22 +115,22 @@ def approximate_tandem_k_edit_repeats(input: i64&, length: usize,
     while i < n:
         if input[2 + i] < 0 or input[2 + i] > 3: return -1
         i <- i + 1
-    count: usize = count_records(input, n, budget)
+    count: usize = count_records(input[0:length], n, budget)
     bytes: usize = 8 * (1 + 3 * count)
     if bytes > MAX_OUTPUT: return -1
     if output.is_null() or capacity < bytes: return -2
-    store_i64(count.i64(), output, 0)
+    store_i64(count.i64(), output[0:capacity], 0)
     record: mutable usize = 0
     start: mutable usize = 0
     while start < n:
         factor_length: mutable usize = 2
         while factor_length <= n - start:
-            cost: usize = minimum_edit_cost(input, 2 + start, factor_length)
+            cost: usize = minimum_edit_cost(input[0:length], 2 + start, factor_length)
             if cost <= budget:
                 offset: usize = 8 * (1 + 3 * record)
-                store_i64(start.i64(), output, offset)
-                store_i64(factor_length.i64(), output, offset + 8)
-                store_i64(cost.i64(), output, offset + 16)
+                store_i64(start.i64(), output[0:capacity], offset)
+                store_i64(factor_length.i64(), output[0:capacity], offset + 8)
+                store_i64(cost.i64(), output[0:capacity], offset + 16)
                 record <- record + 1
             factor_length <- factor_length + 1
         start <- start + 1

@@ -1,5 +1,5 @@
 # Clean-room bounded GARDENIA Forward-Backward-Trim SCC profile.
-def gardenia_fb_trim_scc_reach(active: u64, pivot: usize, adjacent: bool[256]&, reverse: bool, n: usize) -> u64:
+def gardenia_fb_trim_scc_reach(active: u64, pivot: usize, adjacent: view[bool], reverse: bool, n: usize) -> u64:
     seen: mutable u64 = 1.u64() << pivot
     while true:
         expanded: mutable u64 = seen
@@ -13,7 +13,7 @@ def gardenia_fb_trim_scc_reach(active: u64, pivot: usize, adjacent: bool[256]&, 
         if expanded==seen: return seen
         seen <- expanded
 
-def gardenia_fb_trim_scc_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def gardenia_fb_trim_scc_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset+byte] <- ((bits >> (8*byte)) & 255.u64()).u8()
@@ -57,8 +57,8 @@ def gardenia_fb_trim_scc(input: i64&, length: usize, output: mutable u8&, capaci
         if active==0: continue
         pivot: mutable usize=0
         while (active & (1.u64()<<pivot))==0: pivot <- pivot+1
-        forward: u64=gardenia_fb_trim_scc_reach(active,pivot,adjacent&,false,n)
-        backward: u64=gardenia_fb_trim_scc_reach(active,pivot,adjacent&,true,n)
+        forward: u64=gardenia_fb_trim_scc_reach(active,pivot,adjacent[0:256],false,n)
+        backward: u64=gardenia_fb_trim_scc_reach(active,pivot,adjacent[0:256],true,n)
         component: u64=forward & backward
         representative: mutable usize=0
         while (component & (1.u64()<<representative))==0: representative <- representative+1
@@ -70,5 +70,5 @@ def gardenia_fb_trim_scc(input: i64&, length: usize, output: mutable u8&, capaci
                 if task_count>=34: return -1
                 tasks[task_count] <- children[child]
                 task_count <- task_count+1
-    for u in 0..<n: gardenia_fb_trim_scc_store(labels[u],output&,8*u)
+    for u in 0..<n: gardenia_fb_trim_scc_store(labels[u],output[0:output_bytes],8*u)
     output_bytes.i64()

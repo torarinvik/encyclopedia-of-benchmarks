@@ -5,7 +5,7 @@ const GAPBS_DELTA_STEP_BUCKETS: usize = 481
 const GAPBS_DELTA_STEP_EVENTS: usize = 8192
 const GAPBS_DELTA_STEP_INF: i64 = 1073741823
 
-def gapbs_delta_step_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def gapbs_delta_step_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -91,6 +91,6 @@ def gapbs_delta_step_sssp(input: i64&, length: usize, output: mutable u8&, capac
         bucket <- bucket + 1
     vertex <- 0
     while vertex < n:
-        gapbs_delta_step_store_i64_le(distance[vertex], output, 8 * vertex)
+        gapbs_delta_step_store_i64_le(distance[vertex], output[0:output_bytes], 8 * vertex)
         vertex <- vertex + 1
     output_bytes.i64()

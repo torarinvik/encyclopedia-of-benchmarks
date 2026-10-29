@@ -25,7 +25,7 @@ def unit_disk_wspd_split(mask: u64, left: mutable u64&, right: mutable u64&) -> 
             seen <- seen + 1
         index <- index + 1
 
-def unit_disk_wspd_diameter(n: usize, distance: mutable i64&, mask: u64) -> i64:
+def unit_disk_wspd_diameter(n: usize, distance: view[i64], mask: u64) -> i64:
     best: mutable i64 = 0
     i: mutable usize = 0
     while i < n:
@@ -38,7 +38,7 @@ def unit_disk_wspd_diameter(n: usize, distance: mutable i64&, mask: u64) -> i64:
         i <- i + 1
     best
 
-def unit_disk_wspd_set_distance(n: usize, distance: mutable i64&, left: u64, right: u64) -> i64:
+def unit_disk_wspd_set_distance(n: usize, distance: view[i64], left: u64, right: u64) -> i64:
     best: mutable i64 = INF
     i: mutable usize = 0
     while i < n:
@@ -51,8 +51,8 @@ def unit_disk_wspd_set_distance(n: usize, distance: mutable i64&, left: u64, rig
         i <- i + 1
     best
 
-def unit_disk_wspd_cross(n: usize, factor: i64, distance: mutable i64&,
-                         pair_left: mutable u64&, pair_right: mutable u64&,
+def unit_disk_wspd_cross(n: usize, factor: i64, distance: view[i64],
+                         pair_left: mutable view[u64], pair_right: mutable view[u64],
                          pair_count: mutable usize&, left: u64, right: u64) -> void:
     left_diameter: i64 = unit_disk_wspd_diameter(n, distance, left)
     right_diameter: i64 = unit_disk_wspd_diameter(n, distance, right)
@@ -77,8 +77,8 @@ def unit_disk_wspd_cross(n: usize, factor: i64, distance: mutable i64&,
         unit_disk_wspd_cross(n, factor, distance, pair_left, pair_right, pair_count, left, first)
         unit_disk_wspd_cross(n, factor, distance, pair_left, pair_right, pair_count, left, second)
 
-def unit_disk_wspd_visit(n: usize, factor: i64, distance: mutable i64&,
-                         pair_left: mutable u64&, pair_right: mutable u64&,
+def unit_disk_wspd_visit(n: usize, factor: i64, distance: view[i64],
+                         pair_left: mutable view[u64], pair_right: mutable view[u64],
                          pair_count: mutable usize&, mask: u64) -> void:
     if unit_disk_wspd_count(mask) < 2: return
     left: mutable u64 = 0
@@ -88,7 +88,7 @@ def unit_disk_wspd_visit(n: usize, factor: i64, distance: mutable i64&,
     unit_disk_wspd_visit(n, factor, distance, pair_left, pair_right, pair_count, right)
     unit_disk_wspd_cross(n, factor, distance, pair_left, pair_right, pair_count, left, right)
 
-def unit_disk_wspd_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def unit_disk_wspd_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -153,15 +153,15 @@ def unit_disk_graph_wspd(input: i64&, length: usize, output: mutable u8&, capaci
     pair_left: mutable u64[MAX_PAIRS] = zeroed
     pair_right: mutable u64[MAX_PAIRS] = zeroed
     pair_count: mutable usize = 0
-    unit_disk_wspd_visit(n, factor, distance, pair_left, pair_right, pair_count, (1.u64() << n) - 1)
+    unit_disk_wspd_visit(n, factor, distance[0:MAX_N * MAX_N], pair_left[0:MAX_PAIRS], pair_right[0:MAX_PAIRS], pair_count, (1.u64() << n) - 1)
     required: usize = 8 + 16 * pair_count
     if output.is_null() or capacity < required: return -2
     staged: mutable u8[456] = zeroed
-    unit_disk_wspd_put(pair_count.i64(), staged, 0)
+    unit_disk_wspd_put(pair_count.i64(), staged[0:456], 0)
     i <- 0
     while i < pair_count:
-        unit_disk_wspd_put(pair_left[i].i64(), staged, 8 + 16 * i)
-        unit_disk_wspd_put(pair_right[i].i64(), staged, 16 + 16 * i)
+        unit_disk_wspd_put(pair_left[i].i64(), staged[0:456], 8 + 16 * i)
+        unit_disk_wspd_put(pair_right[i].i64(), staged[0:456], 16 + 16 * i)
         i <- i + 1
     i <- 0
     while i < required:

@@ -2,7 +2,7 @@
 def is_digit(value: i64) -> bool:
     value >= 48 and value <= 57
 
-def valid_string(input: i64&, start: usize, count: usize) -> bool:
+def valid_string(input: view[i64], start: usize, count: usize) -> bool:
     i: mutable usize = 0
     while i < count:
         value: i64 = input[start + i]
@@ -28,7 +28,7 @@ def alpha_numerical_sort_impl(input: i64&, length: usize) -> i64:
     second_length: usize = second_value.usize()
     if length != 2 + first_length + second_length:
         return -2
-    if not valid_string(input, 2, first_length) or not valid_string(input, 2 + first_length, second_length):
+    if not valid_string(input[0:length], 2, first_length) or not valid_string(input[0:length], 2 + first_length, second_length):
         return -2
     i: mutable usize = 0
     j: mutable usize = 0

@@ -4,19 +4,19 @@ const PADDED: usize = 2048
 const SCRATCH_SIZE: usize = 4096
 const OUTPUT_BYTES: usize = 129
 
-def ss_zero(a: mutable i64&, n: usize) -> void:
+def ss_zero(a: mutable view[i64], n: usize) -> void:
     for i in 0..<n: a[i] <- 0
 
-def ss_copy(dst: mutable i64&, src: i64&, n: usize) -> void:
+def ss_copy(dst: mutable view[i64], src: view[i64], n: usize) -> void:
     for i in 0..<n: dst[i] <- src[i]
 
-def ss_add(dst: mutable i64&, src: i64&, n: usize) -> void:
+def ss_add(dst: mutable view[i64], src: view[i64], n: usize) -> void:
     for i in 0..<n: dst[i] <- dst[i] + src[i]
 
-def ss_sub(dst: mutable i64&, src: i64&, n: usize) -> void:
+def ss_sub(dst: mutable view[i64], src: view[i64], n: usize) -> void:
     for i in 0..<n: dst[i] <- dst[i] - src[i]
 
-def ss_rot(dst: mutable i64&, src: i64&, size: usize, shift: usize) -> void:
+def ss_rot(dst: mutable view[i64], src: view[i64], size: usize, shift: usize) -> void:
     d: mutable usize = shift
     wrapped: bool = d >= size
     if wrapped: d <- d - size
@@ -44,7 +44,7 @@ def ss_ctz(value: usize) -> usize:
         x <- x >> 1
     bits
 
-def ss_fft(a: mutable i64&, l: usize, m: usize, buf: mutable i64&) -> void:
+def ss_fft(a: mutable view[i64], l: usize, m: usize, buf: mutable view[i64]) -> void:
     if l == 0: return
     len: usize = 1 << l
     block: usize = 1 << m
@@ -61,12 +61,12 @@ def ss_fft(a: mutable i64&, l: usize, m: usize, buf: mutable i64&) -> void:
         k: mutable usize = 0
         while true:
             for i in s..<s + d:
-                ai: mutable i64& = &a[i * block]
-                aj: mutable i64& = &a[(i + d) * block]
-                ss_rot(buf, aj, block, w.usize())
+                ai: mutable view[i64] = a[i * block:i * block + block]
+                aj: mutable view[i64] = a[(i + d) * block:(i + d) * block + block]
+                ss_rot(buf[0:block], aj, block, w.usize())
                 ss_copy(aj, ai, block)
-                ss_add(ai, buf, block)
-                ss_sub(aj, buf, block)
+                ss_add(ai, buf[0:block], block)
+                ss_sub(aj, buf[0:block], block)
             s <- s + 2 * d
             if s >= len: break
             k <- k + 1
@@ -74,7 +74,7 @@ def ss_fft(a: mutable i64&, l: usize, m: usize, buf: mutable i64&) -> void:
             if w >= 2 * block.i64(): w <- w - 2 * block.i64()
         d <- d / 2
 
-def ss_ifft(a: mutable i64&, l: usize, m: usize, buf: mutable i64&) -> void:
+def ss_ifft(a: mutable view[i64], l: usize, m: usize, buf: mutable view[i64]) -> void:
     if l == 0: return
     len: usize = 1 << l
     block: usize = 1 << m
@@ -91,12 +91,12 @@ def ss_ifft(a: mutable i64&, l: usize, m: usize, buf: mutable i64&) -> void:
         k: mutable usize = 0
         while true:
             for i in s..<s + d:
-                ai: mutable i64& = &a[i * block]
-                aj: mutable i64& = &a[(i + d) * block]
-                ss_copy(buf, ai, block)
+                ai: mutable view[i64] = a[i * block:i * block + block]
+                aj: mutable view[i64] = a[(i + d) * block:(i + d) * block + block]
+                ss_copy(buf[0:block], ai, block)
                 ss_add(ai, aj, block)
-                ss_sub(buf, aj, block)
-                ss_rot(aj, buf, block, w.usize())
+                ss_sub(buf[0:block], aj, block)
+                ss_rot(aj, buf[0:block], block, w.usize())
             s <- s + 2 * d
             if s >= len: break
             k <- k + 1
@@ -104,9 +104,9 @@ def ss_ifft(a: mutable i64&, l: usize, m: usize, buf: mutable i64&) -> void:
             if w < 0: w <- w + 2 * block.i64()
         d <- d * 2
 
-def ss_naive(a: mutable i64&, b: i64&, n: usize, buf: mutable i64&) -> void:
+def ss_naive(a: mutable view[i64], b: view[i64], n: usize, buf: mutable view[i64]) -> void:
     size: usize = 1 << n
-    ss_zero(buf, size)
+    ss_zero(buf[0:size], size)
     for i in 0..<size:
         j: mutable usize = 0
         while j < size - i:
@@ -115,9 +115,9 @@ def ss_naive(a: mutable i64&, b: i64&, n: usize, buf: mutable i64&) -> void:
         while j < size:
             buf[i + j - size] <- buf[i + j - size] - a[i] * b[j]
             j <- j + 1
-    ss_copy(a, buf, size)
+    ss_copy(a[0:size], buf[0:size], size)
 
-def ss_mul(a: mutable i64&, b: i64&, n: usize, buf: mutable i64&) -> void:
+def ss_mul(a: mutable view[i64], b: view[i64], n: usize, buf: mutable view[i64]) -> void:
     if n <= 5:
         ss_naive(a, b, n, buf)
         return
@@ -127,28 +127,28 @@ def ss_mul(a: mutable i64&, b: i64&, n: usize, buf: mutable i64&) -> void:
     block: usize = 1 << m
     aa: mutable i64[SCRATCH_SIZE] = zeroed
     bb: mutable i64[SCRATCH_SIZE] = zeroed
-    ss_zero(&buf[block], block)
+    ss_zero(buf[block:2 * block], block)
     for i in 0..<len:
         s: usize = i * (2 * block / len)
-        ss_copy(buf, &a[i * block], block)
-        ss_rot(&aa[i * block * 2], buf, 2 * block, s)
-        ss_copy(buf, &b[i * block], block)
-        ss_rot(&bb[i * block * 2], buf, 2 * block, s)
-    ss_fft(&aa[0], l, m + 1, buf)
-    ss_fft(&bb[0], l, m + 1, buf)
-    for i in 0..<len: ss_mul(&aa[i * block * 2], &bb[i * block * 2], m + 1, buf)
-    ss_ifft(&aa[0], l, m + 1, buf)
+        ss_copy(buf[0:block], a[i * block:i * block + block], block)
+        ss_rot(aa[i * block * 2:i * block * 2 + 2 * block], buf[0:2 * block], 2 * block, s)
+        ss_copy(buf[0:block], b[i * block:i * block + block], block)
+        ss_rot(bb[i * block * 2:i * block * 2 + 2 * block], buf[0:2 * block], 2 * block, s)
+    ss_fft(aa[0:SCRATCH_SIZE], l, m + 1, buf)
+    ss_fft(bb[0:SCRATCH_SIZE], l, m + 1, buf)
+    for i in 0..<len: ss_mul(aa[i * block * 2:i * block * 2 + 2 * block], bb[i * block * 2:i * block * 2 + 2 * block], m + 1, buf)
+    ss_ifft(aa[0:SCRATCH_SIZE], l, m + 1, buf)
     for i in 0..<len:
         s: usize = i * (2 * block / len)
-        ss_copy(buf, &aa[i * block * 2], 2 * block)
-        ss_rot(&aa[i * block * 2], buf, 2 * block, s)
+        ss_copy(buf[0:2 * block], aa[i * block * 2:i * block * 2 + 2 * block], 2 * block)
+        ss_rot(aa[i * block * 2:i * block * 2 + 2 * block], buf[0:2 * block], 2 * block, s)
     for i in 0..<len:
         for j in 0..<block:
             a[i * block + j] <- aa[i * block * 2 + j]
             if i == 0: a[i * block + j] <- a[i * block + j] - aa[(len - 1) * block * 2 + block + j]
             else: a[i * block + j] <- a[i * block + j] + aa[(i - 1) * block * 2 + block + j]
 
-def ss_mul_cyclic(a: mutable i64&, b: i64&, n: usize, buf: mutable i64&) -> void:
+def ss_mul_cyclic(a: mutable view[i64], b: view[i64], n: usize, buf: mutable view[i64]) -> void:
     if n <= 5:
         ss_naive(a, b, n, buf)
         return
@@ -159,12 +159,12 @@ def ss_mul_cyclic(a: mutable i64&, b: i64&, n: usize, buf: mutable i64&) -> void
     aa: mutable i64[SCRATCH_SIZE] = zeroed
     bb: mutable i64[SCRATCH_SIZE] = zeroed
     for i in 0..<len:
-        ss_copy(&aa[i * block * 2], &a[i * block], block)
-        ss_copy(&bb[i * block * 2], &b[i * block], block)
-    ss_fft(&aa[0], l, m + 1, buf)
-    ss_fft(&bb[0], l, m + 1, buf)
-    for i in 0..<len: ss_mul(&aa[i * block * 2], &bb[i * block * 2], m + 1, buf)
-    ss_ifft(&aa[0], l, m + 1, buf)
+        ss_copy(aa[i * block * 2:i * block * 2 + 2 * block], a[i * block:i * block + block], block)
+        ss_copy(bb[i * block * 2:i * block * 2 + 2 * block], b[i * block:i * block + block], block)
+    ss_fft(aa[0:SCRATCH_SIZE], l, m + 1, buf)
+    ss_fft(bb[0:SCRATCH_SIZE], l, m + 1, buf)
+    for i in 0..<len: ss_mul(aa[i * block * 2:i * block * 2 + 2 * block], bb[i * block * 2:i * block * 2 + 2 * block], m + 1, buf)
+    ss_ifft(aa[0:SCRATCH_SIZE], l, m + 1, buf)
     for i in 0..<len:
         previous: usize = if i == 0: len - 1 else: i - 1
         for j in 0..<block:
@@ -183,7 +183,7 @@ def schoenhage_strassen_multiply_impl(input: i64&, length: usize, output: mutabl
         b[i] <- y
     if a[LIMB_COUNT - 1] != 1 || b[LIMB_COUNT - 1] != 1: return -1
     if output.is_null() || capacity < OUTPUT_BYTES: return -2
-    ss_mul_cyclic(&a[0], &b[0], 11, &scratch[0])
+    ss_mul_cyclic(a[0:PADDED], b[0:PADDED], 11, scratch[0:PADDED])
     result: mutable u8[OUTPUT_BYTES] = zeroed
     carry: mutable i64 = 0
     for i in 0..<1025:

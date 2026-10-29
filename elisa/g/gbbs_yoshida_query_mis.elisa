@@ -15,14 +15,14 @@ def gbbs_yoshida_query_mis_hash64(value: u64) -> u64:
     mixed <- mixed ^ (mixed << 5)
     mixed
 
-def gbbs_yoshida_query_mis_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def gbbs_yoshida_query_mis_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255.u64()).u8()
         bits <- bits >> 8
 
-def gbbs_yoshida_query_mis_query(vertex: usize, degree: usize[12]&,
-        neighbors: usize[144]&, priority: u64[12]&,
+def gbbs_yoshida_query_mis_query(vertex: usize, degree: view[usize],
+        neighbors: view[usize], priority: view[u64],
         work: mutable usize&, cutoff: usize) -> i64:
     index: mutable usize = 0
     while index < degree[vertex]:
@@ -82,7 +82,7 @@ export fn gbbs_yoshida_query_mis(input: i64&, length: usize,
                 neighbors[vertex * MAX_N + position] <- other
                 inserted <- inserted + 1
     work: mutable usize = 0
-    status: i64 = gbbs_yoshida_query_mis_query(root64.usize(), degree&, neighbors&, priority&, work&, cutoff64.usize())
-    gbbs_yoshida_query_mis_store(status, output&, 0)
-    gbbs_yoshida_query_mis_store(work.i64(), output&, 8)
+    status: i64 = gbbs_yoshida_query_mis_query(root64.usize(), degree[0:n], neighbors[0:n * MAX_N], priority[0:n], work&, cutoff64.usize())
+    gbbs_yoshida_query_mis_store(status, output[0:16], 0)
+    gbbs_yoshida_query_mis_store(work.i64(), output[0:16], 8)
     16

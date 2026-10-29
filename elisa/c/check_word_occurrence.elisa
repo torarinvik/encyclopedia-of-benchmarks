@@ -3,7 +3,7 @@ const MAX_ENTRIES: usize = 1025
 
 def word_ws(c: u8) -> bool: (c >= 9 and c <= 13) or c == 32
 def word_lower(c: u8) -> u8: if c >= 65 and c <= 90: (c + 32).u8() else: c
-def word_forbidden(text: u8&, start: usize, length: usize) -> bool:
+def word_forbidden(text: view[u8], start: usize, length: usize) -> bool:
     names: [&str; 7] = ["constructor", "tostring", "tolocalestring", "valueof", "hasownproperty", "isprototypeof", "propertyisenumerable"]
     x: mutable usize = 0
     while x < 7:
@@ -13,7 +13,7 @@ def word_forbidden(text: u8&, start: usize, length: usize) -> bool:
             if i == length: return true
         x <- x+1
     false
-def word_put32(output: mutable u8&, position: mutable usize&, value: u32) -> void:
+def word_put32(output: mutable view[u8], position: mutable usize&, value: u32) -> void:
     bits: mutable u32 = value
     i: mutable usize = 0
     while i < 4: output[position] <- (bits & 255).u8(); position <- position+1; bits <- bits >> 8; i <- i+1
@@ -39,7 +39,7 @@ def check_word_occurrence_impl(input: i64&, length: usize, output: mutable u8&, 
     loop:
         if i == n or word_ws(text[i]):
             len: usize = i-start
-            if word_forbidden(text,start,len): return -1
+            if word_forbidden(text[0:MAX_INPUT],start,len): return -1
             j: mutable usize = 0
             while j<entries:
                 if lens[j] == len:
@@ -58,13 +58,13 @@ def check_word_occurrence_impl(input: i64&, length: usize, output: mutable u8&, 
     while j<entries: need <- need+8+lens[j]; j <- j+1
     if capacity<need: return -2
     position: mutable usize = 0
-    word_put32(output,position,entries.u32())
+    word_put32(output[0:need],position,entries.u32())
     j <- 0
     while j<entries:
-        word_put32(output,position,lens[j].u32())
+        word_put32(output[0:need],position,lens[j].u32())
         i <- 0
         while i<lens[j]: output[position] <- text[starts[j]+i]; position <- position+1; i <- i+1
-        word_put32(output,position,counts[j])
+        word_put32(output[0:need],position,counts[j])
         j <- j+1
     position.i64()
 

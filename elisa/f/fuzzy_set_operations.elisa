@@ -1,5 +1,5 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
-def putd(output: mutable u8&, offset: usize, value: f64):
+def putd(output: mutable view[u8], offset: usize, value: f64):
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     k: mutable usize = 0
@@ -47,6 +47,6 @@ def fuzzy_set_operations_impl(v: i64&, length: usize, output: mutable u8&, capac
             if op == 6: z <- a*b
             if op == 7: z <- min(1.0,a+b)
             if op == 8: z <- max(0.0,a+b-1.0)
-        putd(output,i*8,z); i <- i+1
+        putd(output[0:n.usize()*8],i*8,z); i <- i+1
     (n*8)
 export fuzzy_set_operations(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = fuzzy_set_operations_impl

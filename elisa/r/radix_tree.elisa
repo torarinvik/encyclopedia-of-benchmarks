@@ -10,17 +10,17 @@ struct RadixTreeNode:
     is_leaf: bool
     children: usize[26]
 
-def radix_tree_prefix_byte(nodes: RadixTreeNode&, root_prefix: u8&,
+def radix_tree_prefix_byte(nodes: view[RadixTreeNode], root_prefix: view[u8],
                            node: usize, index: usize) -> u8:
     if node == 0: return root_prefix[index]
     nodes[node].prefix[index]
 
-def radix_tree_prefix_set(nodes: mutable RadixTreeNode&, root_prefix: mutable u8&,
+def radix_tree_prefix_set(nodes: mutable view[RadixTreeNode], root_prefix: mutable view[u8],
                           node: usize, index: usize, value: u8) -> void:
     if node == 0: root_prefix[index] <- value
     else: nodes[node].prefix[index] <- value
 
-def radix_tree_child_count(nodes: RadixTreeNode&, node: usize,
+def radix_tree_child_count(nodes: view[RadixTreeNode], node: usize,
                            only_child: mutable usize&) -> usize:
     count: mutable usize = 0
     letter: mutable usize = 0
@@ -31,7 +31,7 @@ def radix_tree_child_count(nodes: RadixTreeNode&, node: usize,
         letter <- letter + 1
     count
 
-def radix_tree_merge(nodes: mutable RadixTreeNode&, root_prefix: mutable u8&,
+def radix_tree_merge(nodes: mutable view[RadixTreeNode], root_prefix: mutable view[u8],
                      destination: usize, source: usize) -> bool:
     destination_length: usize = nodes[destination].prefix_length
     source_length: usize = nodes[source].prefix_length
@@ -51,9 +51,9 @@ def radix_tree_merge(nodes: mutable RadixTreeNode&, root_prefix: mutable u8&,
         letter <- letter + 1
     true
 
-def radix_tree_insert(nodes: mutable RadixTreeNode&, root_prefix: mutable u8&,
+def radix_tree_insert(nodes: mutable view[RadixTreeNode], root_prefix: mutable view[u8],
                       next_node: mutable usize&, node_index: usize,
-                      word: u8&, start: usize, length: usize) -> bool:
+                      word: view[u8], start: usize, length: usize) -> bool:
     remaining_length: usize = length - start
     if remaining_length == 0:
         nodes[node_index].is_leaf <- true
@@ -113,8 +113,8 @@ def radix_tree_insert(nodes: mutable RadixTreeNode&, root_prefix: mutable u8&,
         return true
     radix_tree_insert(nodes, root_prefix, next_node, middle, word, start + matched, length)
 
-def radix_tree_find(nodes: RadixTreeNode&, root_prefix: u8&, node_index: usize,
-                    word: u8&, start: usize, length: usize) -> bool:
+def radix_tree_find(nodes: view[RadixTreeNode], root_prefix: view[u8], node_index: usize,
+                    word: view[u8], start: usize, length: usize) -> bool:
     if start >= length: return nodes[node_index].is_leaf
     letter: usize = (word[start] - 97.u8()).usize()
     child_plus_one: usize = nodes[node_index].children[letter]
@@ -129,8 +129,8 @@ def radix_tree_find(nodes: RadixTreeNode&, root_prefix: u8&, node_index: usize,
     if next_start == length: return nodes[child].is_leaf
     radix_tree_find(nodes, root_prefix, child, word, next_start, length)
 
-def radix_tree_delete(nodes: mutable RadixTreeNode&, root_prefix: mutable u8&,
-                      node_index: usize, word: u8&, start: usize, length: usize) -> i64:
+def radix_tree_delete(nodes: mutable view[RadixTreeNode], root_prefix: mutable view[u8],
+                      node_index: usize, word: view[u8], start: usize, length: usize) -> i64:
     if start >= length: return 0
     letter: usize = (word[start] - 97.u8()).usize()
     child_plus_one: usize = nodes[node_index].children[letter]
@@ -190,13 +190,13 @@ def radix_tree_impl(input: i64&, length: usize) -> i64:
         offset <- offset + word_length
 
         if opcode == 0:
-            if not radix_tree_insert(nodes, &root_prefix[0], next_node, 0, &word[0], 0, word_length): return -1
+            if not radix_tree_insert(nodes[0:RADIX_TREE_NODE_CAPACITY], root_prefix[0:RADIX_TREE_MAX_PREFIX_LENGTH], next_node, 0, word[0:word_length], 0, word_length): return -1
         else:
             observed: i64 = 0
             if opcode == 1:
-                if radix_tree_find(nodes, &root_prefix[0], 0, &word[0], 0, word_length): observed <- 1
+                if radix_tree_find(nodes[0:RADIX_TREE_NODE_CAPACITY], root_prefix[0:RADIX_TREE_MAX_PREFIX_LENGTH], 0, word[0:word_length], 0, word_length): observed <- 1
             else:
-                observed <- radix_tree_delete(nodes, &root_prefix[0], 0, &word[0], 0, word_length)
+                observed <- radix_tree_delete(nodes[0:RADIX_TREE_NODE_CAPACITY], root_prefix[0:RADIX_TREE_MAX_PREFIX_LENGTH], 0, word[0:word_length], 0, word_length)
             if observed < 0: return -1
             checksum <- checksum + (operation.i64() + 1) * (1 + observed)
         operation <- operation + 1

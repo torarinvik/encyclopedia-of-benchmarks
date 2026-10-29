@@ -76,18 +76,18 @@ def susan_e_symmetry_orientation(gx: i64, gy: i64, cross: i64) -> SusanESymmetry
     if cross > 0: return SusanESymmetryDirection{a: -1, b: 1}
     SusanESymmetryDirection{a: 1, b: 1}
 
-def susan_e_active(middle: u8[256]&, index: usize) -> i64:
+def susan_e_active(middle: view[u8], index: usize) -> i64:
     if middle[index] < 8: return 1
     0
 
-def susan_e_edge_maximum(response: i64[256]&, side: usize, y: i64, x: i64, a: i64, b: i64) -> bool:
+def susan_e_edge_maximum(response: view[i64], side: usize, y: i64, x: i64, a: i64, b: i64) -> bool:
     value: i64 = response[y.usize() * side + x.usize()]
     value > response[(y + a).usize() * side + (x + b).usize()] and
         value >= response[(y - a).usize() * side + (x - b).usize()] and
         value > response[(y + 2 * a).usize() * side + (x + 2 * b).usize()] and
         value >= response[(y - 2 * a).usize() * side + (x - 2 * b).usize()]
 
-def susan_e_thin_edges(response: i64[256]&, middle: mutable u8[256]&, side: usize) -> void:
+def susan_e_thin_edges(response: view[i64], middle: mutable view[u8], side: usize) -> void:
     y: mutable i64 = 4
     while y < side.i64() - 4:
         x: mutable i64 = 4
@@ -222,7 +222,7 @@ def susan_e_thin_edges(response: i64[256]&, middle: mutable u8[256]&, side: usiz
             x <- x + 1
         y <- y + 1
 
-def susan_e_edges(image: mutable u8[256]&, side: usize, brightness: u8[513]&) -> void:
+def susan_e_edges(image: mutable view[u8], side: usize, brightness: view[u8]) -> void:
     response: mutable i64[256] = zeroed
     middle: mutable u8[256] = [100; 256]
     y: mutable usize = 3
@@ -267,7 +267,7 @@ def susan_e_edges(image: mutable u8[256]&, side: usize, brightness: u8[513]&) ->
                 if magnitude.f64() > 0.9 * area.f32().f64():
                     do_symmetry <- false
                     direction: SusanEDirection = susan_e_edge_orientation(gx, gy)
-                    if susan_e_edge_maximum(response, side, y.i64(), x.i64(), direction.a, direction.b):
+                    if susan_e_edge_maximum(response[0:256], side, y.i64(), x.i64(), direction.a, direction.b):
                         middle[at] <- 1
                 else:
                     do_symmetry <- true
@@ -287,11 +287,11 @@ def susan_e_edges(image: mutable u8[256]&, side: usize, brightness: u8[513]&) ->
                     cross <- cross + dx * dy * value
                     k <- k + 1
                 direction: SusanESymmetryDirection = susan_e_symmetry_orientation(gx, gy, cross)
-                if susan_e_edge_maximum(response, side, y.i64(), x.i64(), direction.a, direction.b):
+                if susan_e_edge_maximum(response[0:256], side, y.i64(), x.i64(), direction.a, direction.b):
                     middle[at] <- 2
             x <- x + 1
         y <- y + 1
-    susan_e_thin_edges(response, middle, side)
+    susan_e_thin_edges(response[0:256], middle[0:256], side)
     y <- 0
     while y < side:
         x <- 0
@@ -325,7 +325,7 @@ def susan_e_impl(input: i64&, input_length: usize, output: mutable u8&, output_c
     if output == null or output_capacity < count: return -2
     brightness: mutable u8[513] = zeroed
     susan_e_brightness_table(brightness)
-    susan_e_edges(image, side, brightness)
+    susan_e_edges(image[0:256], side, brightness[0:513])
     index <- 0
     while index < count:
         output[index] <- image[index]

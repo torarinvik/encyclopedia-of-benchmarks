@@ -3,7 +3,7 @@ const MAX_CLAUSES: usize = 12
 const MAX_INPUT: usize = 54
 const MAX_OUTPUT: usize = 72
 
-def ppsz_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def ppsz_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -146,9 +146,9 @@ def ppsz_k_sat_trace(input: i64&, length: usize, output: mutable u8&, capacity: 
     bytes: usize = 8 * (n + 1)
     if output.is_null() or capacity < bytes: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
-    ppsz_put(verdict, staged, 0)
+    ppsz_put(verdict, staged[0:MAX_OUTPUT], 0)
     variable <- 0
-    while variable < n: ppsz_put(assigned[variable], staged, 8 * (variable + 1)); variable <- variable + 1
+    while variable < n: ppsz_put(assigned[variable], staged[0:MAX_OUTPUT], 8 * (variable + 1)); variable <- variable + 1
     variable <- 0
     while variable < bytes: output[variable] <- staged[variable]; variable <- variable + 1
     bytes.i64()

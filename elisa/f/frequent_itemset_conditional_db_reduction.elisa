@@ -1,4 +1,4 @@
-def conditional_reduction_put_u64(output: mutable u8&, word: usize, value: u64) -> void:
+def conditional_reduction_put_u64(output: mutable view[u8], word: usize, value: u64) -> void:
     for byte in 0..<8:
         output[word * 8 + byte] <- (value >> (byte * 8)).u8()
 
@@ -70,10 +70,10 @@ def frequent_itemset_conditional_db_reduction_impl(input: i64&, length: usize, o
         return -1
     if output == null or capacity < bytes:
         return -2
-    conditional_reduction_put_u64(output, 0, distinct.u64())
+    conditional_reduction_put_u64(output[0:bytes], 0, distinct.u64())
     for i in 0..<distinct:
-        conditional_reduction_put_u64(output, 1 + 2 * i, masks[i])
-        conditional_reduction_put_u64(output, 2 + 2 * i, counts[i])
+        conditional_reduction_put_u64(output[0:bytes], 1 + 2 * i, masks[i])
+        conditional_reduction_put_u64(output[0:bytes], 2 + 2 * i, counts[i])
     bytes.i64()
 
 export fn frequent_itemset_conditional_db_reduction(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = frequent_itemset_conditional_db_reduction_impl

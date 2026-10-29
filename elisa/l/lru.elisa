@@ -1,4 +1,4 @@
-def append_record(records: mutable i64&, count: mutable usize&, value: i64) -> void:
+def append_record(records: mutable view[i64], count: mutable usize&, value: i64) -> void:
     records[count] <- value
     count <- count + 1
 
@@ -51,8 +51,8 @@ def lru_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -
             values[slot] <- value
             order[cache_count] <- slot
             cache_count <- cache_count + 1
-            append_record(records[0], record_count, 0)
-            append_record(records[0], record_count, 0)
+            append_record(records[0:114], record_count, 0)
+            append_record(records[0:114], record_count, 0)
         elif opcode == 1:
             if value != 0: return -1
             position: mutable usize = 0
@@ -66,19 +66,19 @@ def lru_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -
                 order[index] <- order[index + 1]
                 index <- index + 1
             order[cache_count - 1] <- slot
-            append_record(records[0], record_count, 1)
-            append_record(records[0], record_count, 1)
-            append_record(records[0], record_count, cached_value)
+            append_record(records[0:114], record_count, 1)
+            append_record(records[0:114], record_count, 1)
+            append_record(records[0:114], record_count, cached_value)
         else:
             return -1
         step <- step + 1
-    append_record(records[0], record_count, 2)
-    append_record(records[0], record_count, cache_count.i64())
+    append_record(records[0:114], record_count, 2)
+    append_record(records[0:114], record_count, cache_count.i64())
     index: mutable usize = 0
     while index < cache_count:
         slot: usize = order[index]
-        append_record(records[0], record_count, keys[slot])
-        append_record(records[0], record_count, values[slot])
+        append_record(records[0:114], record_count, keys[slot])
+        append_record(records[0:114], record_count, values[slot])
         index <- index + 1
     output_bytes: usize = record_count * 8
     if output.is_null() or capacity < output_bytes: return -2

@@ -3,7 +3,7 @@ const MAX_EDGES: usize = 120
 const MAX_INPUT: usize = 242
 const MAX_OUTPUT: usize = 2064
 
-def treewidth_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def treewidth_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -82,14 +82,14 @@ def treewidth_min_degree_elimination(input: i64&, length: usize,
     bytes: usize = 8 * (n + 2 + 2 * fill_count)
     if output.is_null() or capacity < bytes or bytes > MAX_OUTPUT: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
-    treewidth_put(width.i64(), staged, 0)
+    treewidth_put(width.i64(), staged[0:MAX_OUTPUT], 0)
     index <- 0
-    while index < n: treewidth_put(order[index], staged, 8 * (index + 1)); index <- index + 1
-    treewidth_put(fill_count.i64(), staged, 8 * (n + 1))
+    while index < n: treewidth_put(order[index], staged[0:MAX_OUTPUT], 8 * (index + 1)); index <- index + 1
+    treewidth_put(fill_count.i64(), staged[0:MAX_OUTPUT], 8 * (n + 1))
     index <- 0
     while index < fill_count:
-        treewidth_put(fill_u[index], staged, 8 * (n + 2 + 2 * index))
-        treewidth_put(fill_v[index], staged, 8 * (n + 3 + 2 * index))
+        treewidth_put(fill_u[index], staged[0:MAX_OUTPUT], 8 * (n + 2 + 2 * index))
+        treewidth_put(fill_v[index], staged[0:MAX_OUTPUT], 8 * (n + 3 + 2 * index))
         index <- index + 1
     index <- 0
     while index < bytes: output[index] <- staged[index]; index <- index + 1

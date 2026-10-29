@@ -1,4 +1,4 @@
-def next_fit_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+def next_fit_put_i64(output: mutable view[u8], word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[word * 8 + byte] <- (bits >> (byte * 8)).u8()
@@ -29,9 +29,9 @@ def next_fit_bin_packing_impl(input: i64&, length: usize, output: mutable u8&, c
     bytes: usize = 8 * (n + 1)
     if output == null or capacity < bytes:
         return -2
-    next_fit_put_i64(output, 0, bins)
+    next_fit_put_i64(output[0:capacity], 0, bins)
     for i in 0..<n:
-        next_fit_put_i64(output, i + 1, assignments[i])
+        next_fit_put_i64(output[0:capacity], i + 1, assignments[i])
     bytes.i64()
 
 export fn next_fit_bin_packing(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = next_fit_bin_packing_impl

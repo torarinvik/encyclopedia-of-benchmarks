@@ -2,7 +2,7 @@ const MAX_PATTERN: usize = 6
 const MAX_TARGET: usize = 8
 const MAX_COORD: i64 = 16
 
-def ppls_put64(output: mutable u8&, offset: usize, value: i64): void:
+def ppls_put64(output: mutable view[u8], offset: usize, value: i64): void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -62,9 +62,9 @@ def point_pattern_translation_lex_scan_impl(input: i64&, length: usize,
             best_y <- dy
             break
     staged: mutable u8[24] = zeroed
-    ppls_put64(staged&, 0, found)
-    ppls_put64(staged&, 8, best_x)
-    ppls_put64(staged&, 16, best_y)
+    ppls_put64(staged[0:24], 0, found)
+    ppls_put64(staged[0:24], 8, best_x)
+    ppls_put64(staged[0:24], 16, best_y)
     for byte in 0..<24: output[byte] <- staged[byte]
     24
 

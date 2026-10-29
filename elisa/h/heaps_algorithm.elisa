@@ -1,14 +1,14 @@
 const MAX_VALUES: usize = 6
 const BYTES_PER_VALUE: usize = 8
 
-def heaps_store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def heaps_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < BYTES_PER_VALUE:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def heaps_emit_row(values: i64&, n: usize, output: mutable u8&, rows: mutable usize&) -> void:
+def heaps_emit_row(values: mutable view[i64], n: usize, output: mutable view[u8], rows: mutable usize&) -> void:
     row_offset: usize = rows * n * BYTES_PER_VALUE
     index: mutable usize = 0
     while index < n:
@@ -16,8 +16,8 @@ def heaps_emit_row(values: i64&, n: usize, output: mutable u8&, rows: mutable us
         index <- index + 1
     rows <- rows + 1
 
-def heaps_generate(values: i64&, n: usize, k: usize,
-                   output: mutable u8&, rows: mutable usize&) -> void:
+def heaps_generate(values: mutable view[i64], n: usize, k: usize,
+                   output: mutable view[u8], rows: mutable usize&) -> void:
     if k == 1:
         heaps_emit_row(values, n, output, rows)
         return
@@ -49,7 +49,7 @@ def heaps_algorithm_impl(values: i64&, length: usize, output: mutable u8&,
         items[index] <- values[index]
         index <- index + 1
     rows: mutable usize = 0
-    heaps_generate(items, length, length, output, rows)
+    heaps_generate(items[0:length], length, length, output[0:required], rows)
     rows.i64()
 
 export fn heaps_algorithm(values: i64&, length: usize,

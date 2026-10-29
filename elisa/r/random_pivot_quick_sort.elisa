@@ -8,7 +8,7 @@ def random_pivot_quick_sort_next(state: mutable u64&) -> u64:
     low: u64 = random_pivot_quick_sort_next31(state)
     high * 2147483647.u64() + low
 
-def random_pivot_quick_sort_partition(values: mutable i64&, low: usize, high: usize, state: mutable u64&) -> usize:
+def random_pivot_quick_sort_partition(values: mutable view[i64], low: usize, high: usize, state: mutable u64&) -> usize:
     width: usize = high - low
     pivot_index: usize = low + (random_pivot_quick_sort_next(state) % width).usize()
     pivot_value: i64 = values[pivot_index]
@@ -31,6 +31,7 @@ def random_pivot_quick_sort_partition(values: mutable i64&, low: usize, high: us
 def random_pivot_quick_sort_impl(values: mutable i64&, length: usize) -> void:
     if length < 2:
         return
+    values_view: mutable view[i64] = values[0:length]
     stack_low: mutable usize[128] = zeroed
     stack_high: mutable usize[128] = zeroed
     stack_size: mutable usize = 0
@@ -40,7 +41,7 @@ def random_pivot_quick_sort_impl(values: mutable i64&, length: usize) -> void:
     finished: mutable bool = false
     while not finished:
         while high - low > 1:
-            pivot: usize = random_pivot_quick_sort_partition(values, low, high, random_state)
+            pivot: usize = random_pivot_quick_sort_partition(values_view, low, high, random_state)
             left_size: usize = pivot - low
             right_size: usize = high - pivot - 1
             if left_size < right_size:

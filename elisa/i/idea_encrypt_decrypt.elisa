@@ -29,7 +29,7 @@ def idea_add16(a: u16, b: u16) -> u16:
 def idea_sub16(a: u16, b: u16) -> u16:
     ((a.i32() - b.i32() + 65536) % 65536).u16()
 
-def idea_expand_key(key: u16&, keys: mutable u16&) -> void:
+def idea_expand_key(key: view[u16], keys: mutable view[u16]) -> void:
     state: mutable u16[8]
     for i in 0..8: state[i] <- key[i]
     offset: mutable usize = 0
@@ -43,7 +43,7 @@ def idea_expand_key(key: u16&, keys: mutable u16&) -> void:
         for i in 0..8: state[i] <- rotated[i]
         offset <- offset + amount
 
-def idea_encrypt(keys: u16&, plain_words: u16&, cipher: mutable u16&) -> void:
+def idea_encrypt(keys: view[u16], plain_words: view[u16], cipher: mutable view[u16]) -> void:
     x1: mutable u16 = plain_words[0]; x2: mutable u16 = plain_words[1]
     x3: mutable u16 = plain_words[2]; x4: mutable u16 = plain_words[3]
     for round in 0..8:
@@ -58,7 +58,7 @@ def idea_encrypt(keys: u16&, plain_words: u16&, cipher: mutable u16&) -> void:
     cipher[0] <- idea_mul(x1, keys[48]); cipher[1] <- idea_add16(x3, keys[49])
     cipher[2] <- idea_add16(x2, keys[50]); cipher[3] <- idea_mul(x4, keys[51])
 
-def idea_decrypt(keys: u16&, cipher: u16&, plain: mutable u16&) -> void:
+def idea_decrypt(keys: view[u16], cipher: view[u16], plain: mutable view[u16]) -> void:
     x1: mutable u16 = idea_mul(cipher[0], idea_inverse(keys[48]))
     x2: mutable u16 = idea_sub16(cipher[2], keys[50])
     x3: mutable u16 = idea_sub16(cipher[1], keys[49])
@@ -76,7 +76,7 @@ def idea_decrypt(keys: u16&, cipher: u16&, plain: mutable u16&) -> void:
         x4 <- idea_mul(d, idea_inverse(keys[k + 3]))
     plain[0] <- x1; plain[1] <- x2; plain[2] <- x3; plain[3] <- x4
 
-def idea_write_word(out: mutable u8&, offset: usize, word: u16) -> void:
+def idea_write_word(out: mutable view[u8], offset: usize, word: u16) -> void:
     out[offset] <- (word & 255).u8()
     out[offset + 1] <- (word >> 8).u8()
 
@@ -92,12 +92,12 @@ def idea_encrypt_decrypt_impl(input: i64&, length: usize, output: mutable u8&, c
     keys: mutable u16[52]
     encrypted: mutable u16[4]
     recovered: mutable u16[4]
-    idea_expand_key(&key[0], &keys[0])
-    idea_encrypt(&keys[0], &plain_words[0], &encrypted[0])
-    idea_decrypt(&keys[0], &encrypted[0], &recovered[0])
+    idea_expand_key(key[0:8], keys[0:52])
+    idea_encrypt(keys[0:52], plain_words[0:4], encrypted[0:4])
+    idea_decrypt(keys[0:52], encrypted[0:4], recovered[0:4])
     for i in 0..4:
-        idea_write_word(output, i * 2, encrypted[i])
-        idea_write_word(output, 8 + i * 2, recovered[i])
+        idea_write_word(output[0:16], i * 2, encrypted[i])
+        idea_write_word(output[0:16], 8 + i * 2, recovered[i])
     16
 
 export fn idea_encrypt_decrypt(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = idea_encrypt_decrypt_impl

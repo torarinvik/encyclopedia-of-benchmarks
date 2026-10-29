@@ -1,6 +1,6 @@
 const MAX_LENGTH: usize = 6
 
-def sjt_emit_row(values: i32&, length: usize, output: mutable u8&, offset: mutable usize&) -> void:
+def sjt_emit_row(values: mutable view[i32], length: usize, output: mutable view[u8], offset: mutable usize&) -> void:
     for index in 0..<length |values, output, offset|:
         bits: u32 = values[index].u32()
         for byte in 0..<4 |output, offset, bits|:
@@ -27,7 +27,7 @@ def steinhaus_johnson_trotter_impl(input: i32&, length: usize,
         values[index] <- input[index]
         index <- index + 1
     offset: mutable usize = 0
-    sjt_emit_row(values, length, output, offset)
+    sjt_emit_row(values[0:length], length, output[0:required], offset)
 
     index <- 1
     while index < length |values, inversion, output, offset, index|:
@@ -36,7 +36,7 @@ def steinhaus_johnson_trotter_impl(input: i32&, length: usize,
             temporary: i32 = values[swap_index]
             values[swap_index] <- values[index]
             values[index] <- temporary
-            sjt_emit_row(values, length, output, offset)
+            sjt_emit_row(values[0:length], length, output[0:required], offset)
             inversion[index] <- inversion[index] + 1
             index <- 1
         else:

@@ -1,5 +1,5 @@
 # Clean-room interval-graph minimal-dominating-set count via pair-state DAG.
-def interval_intersects(s: i64&, e: i64&, a: usize, b: usize) -> bool:
+def interval_intersects(s: view[i64], e: view[i64], a: usize, b: usize) -> bool:
     s[a] <= e[b] and s[b] <= e[a]
 
 def minimal_dominating_sets_interval_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
@@ -36,7 +36,7 @@ def minimal_dominating_sets_interval_impl(input: i64&, length: usize, output: mu
     while i < n |i: mutable usize = 0, s, e, has_next, ncs, nce, p_single| -> has_next, ncs, nce, p_single:
         p_single[i] <- 0x7fffffffffffffff.i64()
         while z < n |z: mutable usize = 0, s, e, has_next, ncs, nce, p_single| -> has_next, ncs, nce, p_single:
-            if interval_intersects(s, e, i, z) and e[z] < p_single[i]:
+            if interval_intersects(s[0:12], e[0:12], i, z) and e[z] < p_single[i]:
                 p_single[i] <- e[z]
             if s[z] > e[i]:
                 if not has_next[i] or s[z] < ncs[i]: ncs[i] <- s[z]
@@ -53,7 +53,7 @@ def minimal_dominating_sets_interval_impl(input: i64&, length: usize, output: mu
         while j < n |j, s, e, p_single, ncs, nce, has_next, valid, p_pair| -> valid, p_pair:
             p_pair[i][j] <- 0x7fffffffffffffff.i64()
             while z < n |z: mutable usize = 0, s, e, p_pair| -> p_pair:
-                if interval_intersects(s, e, j, z) and not interval_intersects(s, e, i, z) and e[z] < p_pair[i][j]:
+                if interval_intersects(s[0:12], e[0:12], j, z) and not interval_intersects(s[0:12], e[0:12], i, z) and e[z] < p_pair[i][j]:
                     p_pair[i][j] <- e[z]
                 z <- z + 1
                 p_pair

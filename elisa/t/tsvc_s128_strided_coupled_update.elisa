@@ -3,7 +3,7 @@
 const TSVC_S128_MAX_N: usize = 16
 const TSVC_S128_MAX_INPUT_LENGTH: usize = 81
 
-def tsvc_s128_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s128_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -52,11 +52,11 @@ def tsvc_s128_strided_coupled_update_impl(input: i64&, length: usize,
         i <- i + 1
     i <- 0
     while i < n:
-        tsvc_s128_store_i64_le(a[i], output, 8 * i)
+        tsvc_s128_store_i64_le(a[i], output[0:capacity], 8 * i)
         i <- i + 1
     i <- 0
     while i < b_count:
-        tsvc_s128_store_i64_le(b[i], output, 8 * (n + i))
+        tsvc_s128_store_i64_le(b[i], output[0:capacity], 8 * (n + i))
         i <- i + 1
     output_values.i64()
 

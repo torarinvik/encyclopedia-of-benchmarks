@@ -1,4 +1,4 @@
-def domination_local_reduction_put_word(output: mutable u8&, offset: usize, value: i64) -> void:
+def domination_local_reduction_put_word(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for b in 0..<8: output[offset + b] <- (bits >> (8 * b)).u8()
 
@@ -37,7 +37,7 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
     rp:usize=remap[p].usize();words[1+k+rp]<-words[1+k+rp] or (1'i64 << leaf);words[1+k+leaf]<-1'i64 << rp
     count:usize=1+2*k;bytes:usize=count*8
     if output==null or capacity<bytes:return -2
-    for i in 0..<count:domination_local_reduction_put_word(output,i*8,words[i])
+    for i in 0..<count:domination_local_reduction_put_word(output[0:bytes],i*8,words[i])
     bytes.i64()
 
 export fn domination_local_reduction(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = domination_local_reduction_impl

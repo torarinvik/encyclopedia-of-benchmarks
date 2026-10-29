@@ -1,10 +1,10 @@
 # Count four-neighbor vertex-simple grid paths by recursive DFS.
-def count_from(values: i64&, rows: usize, cols: usize, row: i64, col: i64, visited: u64) -> i64:
+def count_from(values: view[i64], rows: usize, cols: usize, row: i64, col: i64, visited: u64) -> i64:
     if row < 0 or col < 0 or row >= i64(rows) or col >= i64(cols):
         return 0
     index: usize = usize(row) * cols + usize(col)
     mask: u64 = u64(1) << index
-    if values[2 + index] == 1 or (visited & mask) != 0:
+    if values[index] == 1 or (visited & mask) != 0:
         return 0
     if usize(row) == rows - 1 and usize(col) == cols - 1:
         return 1
@@ -28,6 +28,6 @@ def count_paths_impl(values: i64&, length: usize) -> i64:
         if values[i] != 0 and values[i] != 1:
             return -1
         i <- i + 1
-    count_from(values, rows, cols, 0, 0, 0)
+    count_from(values[2:length], rows, cols, 0, 0, 0)
 
 export fn count_paths(values: i64&, length: usize) -> i64 = count_paths_impl

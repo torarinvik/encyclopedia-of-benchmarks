@@ -1,7 +1,7 @@
 extern memcpy(destination: mutable u64&, source: i64&, length: usize) -> mutable u64&
 def node_base(d: usize, i: usize) -> usize:
     2 + d + i * (d + 2)
-def put_i64(output: mutable u8&, offset: usize, value: i64):
+def put_i64(output: mutable view[u8], offset: usize, value: i64):
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     b: mutable usize = 0
@@ -9,7 +9,7 @@ def put_i64(output: mutable u8&, offset: usize, value: i64):
         output[offset+b] <- (bits & 255).u8()
         bits <- bits >> 8
         b <- b + 1
-def validate_tree(values: i64&, d: usize, n: usize, node: i64, seen: mutable bool[15]&, reached: mutable usize&) -> bool:
+def validate_tree(values: view[i64], d: usize, n: usize, node: i64, seen: mutable view[bool], reached: mutable usize&) -> bool:
     if node < 0: return true
     index: usize = node.usize()
     if index >= n or seen[index]: return false
@@ -20,7 +20,7 @@ def validate_tree(values: i64&, d: usize, n: usize, node: i64, seen: mutable boo
     right: i64 = values[base+d+1]
     if left >= 0 and left == right: return false
     validate_tree(values,d,n,left,seen,reached) and validate_tree(values,d,n,right,seen,reached)
-def search_tree(values: i64&, d: usize, node: i64, depth: usize, query: i64[3]&, best: mutable i64[3]&, best_distance: mutable i64&, visited: mutable i64&) -> void:
+def search_tree(values: view[i64], d: usize, node: i64, depth: usize, query: view[i64], best: mutable view[i64], best_distance: mutable i64&, visited: mutable i64&) -> void:
     if node < 0: return
     visited <- visited + 1
     base: usize = node_base(d,node.usize())
@@ -71,14 +71,15 @@ def nearest_neighbour_search_impl(values: i64&, length: usize, output: mutable u
         i <- i+1
     seen: mutable [15]bool = [false;15]
     reached: mutable usize = 0
-    if not validate_tree(values,d,count,0,seen,reached) or reached != count: return -1
+    if not validate_tree(values[0:length],d,count,0,seen[0:count],reached) or reached != count: return -1
     best_distance: mutable i64 = 9223372036854775807
     visited: mutable i64 = 0
-    search_tree(values,d,0,0,query,best,best_distance,visited)
+    search_tree(values[0:length],d,0,0,query[0:d],best[0:d],best_distance,visited)
     if capacity < 48: return -2
     result: i64[6] = [dim_value,best[0],best[1],0,best_distance,visited]
     if d == 3: result[3] <- best[2]
+    output_view: mutable view[u8] = output[0:capacity]
     i <- 0
-    while i < 6: put_i64(output,i*8,result[i]); i <- i+1
+    while i < 6: put_i64(output_view,i*8,result[i]); i <- i+1
     return 48
 export fn nearest_neighbour_search(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = nearest_neighbour_search_impl

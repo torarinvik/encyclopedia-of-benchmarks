@@ -8,7 +8,7 @@ const FINAL_OFFSET: i64 = 512000001
 def binary_indexed_tree_lowbit(index: usize) -> usize:
     index & (~index + 1)
 
-def binary_indexed_tree_prefix(tree: i64&, initial: usize) -> i64:
+def binary_indexed_tree_prefix(tree: view[i64], initial: usize) -> i64:
     count: mutable usize = initial
     sum: mutable i64 = 0
     while count > 0:
@@ -58,7 +58,7 @@ def binary_indexed_tree_impl(values: i64&, length: usize) -> i64:
                 tree[start] <- tree[start] + second
                 start <- start + binary_indexed_tree_lowbit(start)
         else:
-            result: i64 = binary_indexed_tree_prefix(tree, second.usize() + 1) - binary_indexed_tree_prefix(tree, first)
+            result: i64 = binary_indexed_tree_prefix(tree[0:n + 2], second.usize() + 1) - binary_indexed_tree_prefix(tree[0:n + 2], first)
             checksum <- checksum + (op.i64() + 1) * (result + QUERY_OFFSET)
         op <- op + 1
     index: mutable usize = 0

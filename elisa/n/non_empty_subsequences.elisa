@@ -5,20 +5,20 @@ const BYTES_PER_VALUE: usize = 4
 def non_empty_subsequences_is_unicode_scalar(value: i64) -> bool:
     value >= 0 and value <= 0x10ffff and not (value >= 0xd800 and value <= 0xdfff)
 
-def non_empty_subsequences_store_u32(value: usize, output: mutable u8&, position: usize) -> void:
+def non_empty_subsequences_store_u32(value: usize, output: mutable view[u8], position: usize) -> void:
     output[position] <- (value.u32() & 255).u8()
     output[position + 1] <- ((value.u32() >> 8) & 255).u8()
     output[position + 2] <- ((value.u32() >> 16) & 255).u8()
     output[position + 3] <- ((value.u32() >> 24) & 255).u8()
 
-def non_empty_subsequences_store_rune(value: i64, output: mutable u8&, position: usize) -> void:
+def non_empty_subsequences_store_rune(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
     output[position + 2] <- ((bits >> 16) & 255).u8()
     output[position + 3] <- ((bits >> 24) & 255).u8()
 
-def non_empty_subsequences_emit(current: i64&, length: usize, output: mutable u8&,
+def non_empty_subsequences_emit(current: view[i64], length: usize, output: mutable view[u8],
         output_cursor: mutable usize&, row_count: mutable usize&) -> void:
     non_empty_subsequences_store_u32(length, output, output_cursor)
     output_cursor <- output_cursor + BYTES_PER_VALUE
@@ -29,14 +29,14 @@ def non_empty_subsequences_emit(current: i64&, length: usize, output: mutable u8
         item <- item + 1
     row_count <- row_count + 1
 
-def non_empty_subsequences_generate(values: i64&, n: usize, start: usize,
-        current: mutable i64&, current_length: usize, output: mutable u8&,
+def non_empty_subsequences_generate(values: view[i64], n: usize, start: usize,
+        current: mutable view[i64], current_length: usize, output: mutable view[u8],
         output_cursor: mutable usize&, row_count: mutable usize&) -> void:
     index: mutable usize = start
     while index < n:
         current[current_length] <- values[index]
-        non_empty_subsequences_emit(&current[0], current_length + 1, output, output_cursor, row_count)
-        non_empty_subsequences_generate(values, n, index + 1, &current[0], current_length + 1,
+        non_empty_subsequences_emit(current, current_length + 1, output, output_cursor, row_count)
+        non_empty_subsequences_generate(values, n, index + 1, current, current_length + 1,
             output, output_cursor, row_count)
         index <- index + 1
 
@@ -70,8 +70,8 @@ def non_empty_subsequences_impl(input: i64&, length: usize, output: mutable u8&,
     current: mutable i64[MAX_RUNES] = zeroed
     output_cursor: mutable usize = 0
     emitted: mutable usize = 0
-    non_empty_subsequences_generate(&values[0], count, 0, &current[0], 0,
-        output, output_cursor, emitted)
+    non_empty_subsequences_generate(values[0:count], count, 0, current[0:MAX_RUNES], 0,
+        output[0:required], output_cursor, emitted)
     emitted.i64()
 
 export fn non_empty_subsequences(input: i64&, length: usize, output: mutable u8&,

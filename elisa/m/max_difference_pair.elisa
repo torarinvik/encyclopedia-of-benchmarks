@@ -1,5 +1,5 @@
 # Recursive maximum-difference pair with the pinned Python tie order.
-def solve(values: i64&, start: usize, n: usize, small_out: mutable i64&, big_out: mutable i64&) -> void:
+def solve(values: view[i64], start: usize, n: usize, small_out: mutable i64&, big_out: mutable i64&) -> void:
     if n == 1:
         small_out <- values[start]
         big_out <- values[start]
@@ -34,7 +34,7 @@ def solve(values: i64&, start: usize, n: usize, small_out: mutable i64&, big_out
         small_out <- min_left
         big_out <- max_right
 
-def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def put_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     b: mutable usize = 0
     while b < 8:
@@ -51,11 +51,12 @@ def max_difference_pair_impl(input: i64&, length: usize, output: mutable u8&, ca
         if input[i + 1] < -1000000 or input[i + 1] > 1000000: return -1
         i <- i + 1
     if capacity < 16: return -2
+    output_view: mutable view[u8] = output[0:16]
     small: mutable i64 = 0
     big: mutable i64 = 0
-    solve(input, 1, n, small, big)
-    put_i64_le(small, output, 0)
-    put_i64_le(big, output, 8)
+    solve(input[0:length], 1, n, small, big)
+    put_i64_le(small, output_view, 0)
+    put_i64_le(big, output_view, 8)
     16
 
 export fn max_difference_pair(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = max_difference_pair_impl

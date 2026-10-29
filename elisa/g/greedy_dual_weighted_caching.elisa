@@ -2,7 +2,7 @@ const MAX_REQUESTS: usize = 7
 const MAX_FILES: usize = 8
 const MAX_INPUT: usize = 16
 
-def greedy_dual_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+def greedy_dual_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -82,11 +82,11 @@ def greedy_dual_weighted_caching_impl(input: i64&, length: usize,
         position <- position + 1
     if output.is_null() or output_capacity < 40: return -2
     staged: mutable u8[40] = zeroed
-    greedy_dual_store_i64(misses, &staged[0], 0)
-    greedy_dual_store_i64(total_cost, &staged[0], 8)
-    greedy_dual_store_i64(hit_signature.i64(), &staged[0], 16)
-    greedy_dual_store_i64(eviction_signature.i64(), &staged[0], 24)
-    greedy_dual_store_i64(resident_mask.i64(), &staged[0], 32)
+    greedy_dual_store_i64(misses, staged[0:40], 0)
+    greedy_dual_store_i64(total_cost, staged[0:40], 8)
+    greedy_dual_store_i64(hit_signature.i64(), staged[0:40], 16)
+    greedy_dual_store_i64(eviction_signature.i64(), staged[0:40], 24)
+    greedy_dual_store_i64(resident_mask.i64(), staged[0:40], 32)
     byte: mutable usize = 0
     while byte < 40:
         output[byte] <- staged[byte]

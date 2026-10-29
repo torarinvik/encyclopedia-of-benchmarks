@@ -8,7 +8,7 @@ def mccat_bisect_abs(value: f64) -> f64:
     if value < 0.0: return -value
     value
 
-def mccat_bisect_sturm(diagonal: f64&, off_diagonal: f64&, beta: f64&,
+def mccat_bisect_sturm(diagonal: view[f64], off_diagonal: view[f64], beta: view[f64],
         n: usize, x: f64) -> usize:
     negative_count: mutable usize = 0
     q: mutable f64 = 1.0
@@ -22,7 +22,7 @@ def mccat_bisect_sturm(diagonal: f64&, off_diagonal: f64&, beta: f64&,
         index <- index + 1
     negative_count
 
-def mccat_bisect_store_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def mccat_bisect_store_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     index: mutable usize = 0
@@ -30,7 +30,7 @@ def mccat_bisect_store_f64(output: mutable u8&, offset: usize, value: f64) -> vo
         output[offset + index] <- ((bits >> (8 * index)) & 255).u8()
         index <- index + 1
 
-def mccat_bisect_solve(n: usize, output: mutable u8&) -> usize:
+def mccat_bisect_solve(n: usize, output: mutable view[u8]) -> usize:
     diagonal: mutable f64[MCCAT_BISECT_MAX_N] = zeroed
     off_diagonal: mutable f64[MCCAT_BISECT_MAX_N] = zeroed
     beta: mutable f64[MCCAT_BISECT_MAX_N] = zeroed
@@ -82,7 +82,7 @@ def mccat_bisect_solve(n: usize, output: mutable u8&) -> usize:
         x1: mutable f64 = (xu + x0) / 2.0
         while x0 - xu > 2.0 * MCCAT_BISECT_EPSILON * (mccat_bisect_abs(xu) + mccat_bisect_abs(x0)) + eps1:
             iterations <- iterations + 1
-            count: usize = mccat_bisect_sturm(&diagonal[0], &off_diagonal[0], &beta[0], n, x1)
+            count: usize = mccat_bisect_sturm(diagonal[0:n], off_diagonal[0:n], beta[0:n], n, x1)
             if count < k:
                 if count < 1:
                     xu <- x1
@@ -116,7 +116,8 @@ def mccat_bisect_impl(values: i64&, length: usize, output: mutable u8&,
     required: usize = (n + 1) * 8
     if output.is_null() or output_capacity < required: return -2
     staged: mutable u8[MCCAT_BISECT_MAX_OUTPUT_BYTES] = zeroed
-    used: usize = mccat_bisect_solve(n, staged)
+    staged_view: mutable view[u8] = staged[0:required]
+    used: usize = mccat_bisect_solve(n, staged_view)
     for index in 0..<used: output[index] <- staged[index]
     used.i64()
 

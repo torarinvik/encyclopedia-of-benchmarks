@@ -4,7 +4,7 @@ const TSVC_S2102_MAX_SIDE: usize = 8
 const TSVC_S2102_MAX_PASSES: usize = 8
 const TSVC_S2102_MAX_CELLS: usize = 64
 
-def tsvc_s2102_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s2102_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -28,7 +28,7 @@ def tsvc_s2102_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
                 matrix[row * side + col] <- 0
             matrix[col * side + col] <- 1
     for cell in 0..cells:
-        tsvc_s2102_store(matrix[cell], output, 8 * cell)
+        tsvc_s2102_store(matrix[cell], output[0:capacity], 8 * cell)
     cells.i64()
 
 export fn tsvc_s2102_identity_matrix_initialize(input: i64&, length: usize,

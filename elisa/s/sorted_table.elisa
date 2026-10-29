@@ -4,7 +4,7 @@ const SORTED_TABLE_MIN_KEY: i64 = -1000000
 const SORTED_TABLE_KEY_OFFSET: i64 = 1000001
 const SORTED_TABLE_HASH_MODULUS: i64 = 1000000007
 
-def sorted_table_lower_bound(values: i64&, size: usize, target: i64) -> usize:
+def sorted_table_lower_bound(values: view[i64], size: usize, target: i64) -> usize:
     left: mutable usize = 0
     right: mutable usize = size
     while left < right:
@@ -15,7 +15,7 @@ def sorted_table_lower_bound(values: i64&, size: usize, target: i64) -> usize:
             right <- middle
     left
 
-def sorted_table_upper_bound(values: i64&, size: usize, target: i64) -> usize:
+def sorted_table_upper_bound(values: view[i64], size: usize, target: i64) -> usize:
     left: mutable usize = 0
     right: mutable usize = size
     while left < right:
@@ -29,7 +29,7 @@ def sorted_table_upper_bound(values: i64&, size: usize, target: i64) -> usize:
 def sorted_table_key_code(key: i64) -> i64:
     key + SORTED_TABLE_KEY_OFFSET
 
-def sorted_table_sequence_code(values: i64&, first: usize, last: usize, descending: bool) -> i64:
+def sorted_table_sequence_code(values: view[i64], first: usize, last: usize, descending: bool) -> i64:
     count: usize = last - first
     hash: mutable i64 = 0
     if descending:
@@ -80,7 +80,7 @@ def sorted_table_impl(input: i64&, length: usize) -> i64:
 
         if opcode == 0 or opcode == 1 or opcode == 4 or opcode == 5 or opcode == 7:
             if b != 0 or a < SORTED_TABLE_MIN_KEY or a > SORTED_TABLE_MAX_KEY: return -1
-            position <- sorted_table_lower_bound(items, size, a)
+            position <- sorted_table_lower_bound(items[0:256], size, a)
             found: bool = position < size and items[position] == a
             if opcode == 0:
                 if found: observed <- sorted_table_key_code(a)
@@ -105,7 +105,7 @@ def sorted_table_impl(input: i64&, length: usize) -> i64:
                 else: observed <- sorted_table_key_code(items[size - 1])
         elif opcode == 6:
             if a < SORTED_TABLE_MIN_KEY or a > SORTED_TABLE_MAX_KEY or (b != 0 and b != 1): return -1
-            position <- sorted_table_lower_bound(items, size, a)
+            position <- sorted_table_lower_bound(items[0:256], size, a)
             found: bool = position < size and items[position] == a
             if found:
                 observed <- sorted_table_key_code(a)
@@ -121,12 +121,12 @@ def sorted_table_impl(input: i64&, length: usize) -> i64:
             if a < SORTED_TABLE_MIN_KEY or a > SORTED_TABLE_MAX_KEY or
                b < SORTED_TABLE_MIN_KEY or b > SORTED_TABLE_MAX_KEY: return -1
             if a <= b:
-                first: usize = sorted_table_lower_bound(items, size, a)
-                last: usize = sorted_table_upper_bound(items, size, b)
-                observed <- sorted_table_sequence_code(items, first, last, opcode == 9)
+                first: usize = sorted_table_lower_bound(items[0:256], size, a)
+                last: usize = sorted_table_upper_bound(items[0:256], size, b)
+                observed <- sorted_table_sequence_code(items[0:256], first, last, opcode == 9)
         elif opcode == 10 or opcode == 11:
             if a != 0 or b != 0: return -1
-            observed <- sorted_table_sequence_code(items, 0, size, opcode == 11)
+            observed <- sorted_table_sequence_code(items[0:256], 0, size, opcode == 11)
         elif opcode == 12:
             if a != 0 or b != 0: return -1
             if size == 0: observed <- 1

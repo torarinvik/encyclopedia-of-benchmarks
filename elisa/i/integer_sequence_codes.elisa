@@ -3,21 +3,21 @@ const MAX_INPUT: usize = 35
 const MAX_OUTPUT: usize = 4096
 const MAX_RESULT: usize = 512
 
-def emit_bit(output: mutable u8&, used: mutable usize&, value: bool) -> void:
+def emit_bit(output: mutable view[u8], used: mutable usize&, value: bool) -> void:
     output[used] <- if value: 49 else: 48
     used <- used + 1
 
-def emit_byte(output: mutable u8&, used: mutable usize&, value: u8) -> void:
+def emit_byte(output: mutable view[u8], used: mutable usize&, value: u8) -> void:
     output[used] <- value
     used <- used + 1
 
-def emit_number(output: mutable u8&, used: mutable usize&, value: u64, width: usize) -> void:
+def emit_number(output: mutable view[u8], used: mutable usize&, value: u64, width: usize) -> void:
     shift: mutable i64 = width.i64() - 1
     while shift >= 0:
         emit_bit(output, used, ((value >> shift.usize()) & 1.u64()) != 0.u64())
         shift <- shift - 1
 
-def emit_unary(output: mutable u8&, used: mutable usize&, value: u64) -> void:
+def emit_unary(output: mutable view[u8], used: mutable usize&, value: u64) -> void:
     for _ in 0..<value.usize():
         emit_bit(output, used, true)
     emit_bit(output, used, false)
@@ -30,7 +30,7 @@ def floor_log2(value: u64) -> usize:
         width <- width + 1
     width
 
-def emit_minimal(output: mutable u8&, used: mutable usize&, value: u64, universe: u64) -> void:
+def emit_minimal(output: mutable view[u8], used: mutable usize&, value: u64, universe: u64) -> void:
     if universe == 1.u64(): return
     low_width: usize = floor_log2(universe)
     short_count: u64 = (1.u64() << (low_width + 1)) - universe
@@ -39,19 +39,19 @@ def emit_minimal(output: mutable u8&, used: mutable usize&, value: u64, universe
     else:
         emit_number(output, used, value + short_count, low_width + 1)
 
-def emit_gamma(output: mutable u8&, used: mutable usize&, value: u64) -> void:
+def emit_gamma(output: mutable view[u8], used: mutable usize&, value: u64) -> void:
     shifted: u64 = value + 1.u64()
     width: usize = floor_log2(shifted)
     emit_unary(output, used, width.u64())
     emit_number(output, used, shifted - (1.u64() << width), width)
 
-def emit_delta(output: mutable u8&, used: mutable usize&, value: u64) -> void:
+def emit_delta(output: mutable view[u8], used: mutable usize&, value: u64) -> void:
     shifted: u64 = value + 1.u64()
     width: usize = floor_log2(shifted)
     emit_gamma(output, used, width.u64())
     emit_number(output, used, shifted - (1.u64() << width), width)
 
-def emit_interpolative(output: mutable u8&, used: mutable usize&, input: i64&,
+def emit_interpolative(output: mutable view[u8], used: mutable usize&, input: i64&,
                        left: usize, right: usize, low: i64, high: i64) -> void:
     if left >= right: return
     middle: usize = left + (right - left - 1) / 2
@@ -84,7 +84,7 @@ def s9_width(selector: usize) -> usize:
     elif selector == 7: 14
     else: 28
 
-def emit_simple9(output: mutable u8&, used: mutable usize&, input: i64&, n: usize) -> void:
+def emit_simple9(output: mutable view[u8], used: mutable usize&, input: i64&, n: usize) -> void:
     position: mutable usize = 0
     while position < n:
         selector: mutable usize = 0
@@ -149,21 +149,22 @@ def integer_sequence_codes_impl(input: i64&, length: usize, output: mutable u8&,
         for i in 0..<n:
             if input[3 + i] < 0 or input[3 + i] >= parameter or (i > 0 and input[2 + i] >= input[3 + i]): return -1
     staged: mutable u8[MAX_OUTPUT] = zeroed
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT]
     used: mutable usize = 0
     if mode == 0:
-        for i in 0..<n: emit_unary(&staged[0], used, input[3 + i].u64())
+        for i in 0..<n: emit_unary(staged_view, used, input[3 + i].u64())
     elif mode == 1:
-        for i in 0..<n: emit_minimal(&staged[0], used, input[3 + i].u64(), parameter.u64())
+        for i in 0..<n: emit_minimal(staged_view, used, input[3 + i].u64(), parameter.u64())
     elif mode == 2:
-        for i in 0..<n: emit_gamma(&staged[0], used, input[3 + i].u64())
+        for i in 0..<n: emit_gamma(staged_view, used, input[3 + i].u64())
     elif mode == 3:
-        for i in 0..<n: emit_delta(&staged[0], used, input[3 + i].u64())
+        for i in 0..<n: emit_delta(staged_view, used, input[3 + i].u64())
     elif mode == 4:
         b: u64 = parameter.u64()
         for i in 0..<n:
             x: u64 = input[3 + i].u64()
-            emit_unary(&staged[0], used, x / b)
-            emit_minimal(&staged[0], used, x % b, b)
+            emit_unary(staged_view, used, x / b)
+            emit_minimal(staged_view, used, x % b, b)
     elif mode == 5:
         width: mutable usize = 0
         while n.u64() * (1.u64() << (width + 1)) <= parameter.u64(): width <- width + 1
@@ -171,10 +172,10 @@ def integer_sequence_codes_impl(input: i64&, length: usize, output: mutable u8&,
         buckets: usize = ((parameter.u64() + bucket_size - 1.u64()) / bucket_size).usize()
         counts: mutable u8[4096] = zeroed
         for i in 0..<n: counts[(input[3 + i].u64() / bucket_size).usize()] <- counts[(input[3 + i].u64() / bucket_size).usize()] + 1
-        for bucket in 0..<buckets: emit_unary(&staged[0], used, counts[bucket].u64())
-        for i in 0..<n: emit_number(&staged[0], used, input[3 + i].u64() % bucket_size, width)
+        for bucket in 0..<buckets: emit_unary(staged_view, used, counts[bucket].u64())
+        for i in 0..<n: emit_number(staged_view, used, input[3 + i].u64() % bucket_size, width)
     elif mode == 6:
-        emit_interpolative(&staged[0], used, input, 0, n, 0, parameter)
+        emit_interpolative(staged_view, used, input, 0, n, 0, parameter)
     elif mode == 7:
         for i in 0..<n:
             value: u64 = input[3 + i].u64()
@@ -184,26 +185,26 @@ def integer_sequence_codes_impl(input: i64&, length: usize, output: mutable u8&,
             while shift >= 0:
                 byte: mutable u8 = ((value >> shift.usize()) & 0x7F.u64()).u8()
                 if shift != 0: byte <- byte | 0x80
-                emit_byte(&staged[0], used, byte)
+                emit_byte(staged_view, used, byte)
                 shift <- shift - 7
     elif mode == 8:
-        emit_simple9(&staged[0], used, input, n)
+        emit_simple9(staged_view, used, input, n)
     else:
         width: usize = parameter.usize()
         low_mask: u64 = (1.u64() << width) - 1.u64()
         exceptions: mutable usize = 0
         for i in 0..<n:
             value: u64 = input[3 + i].u64()
-            emit_number(&staged[0], used, value & low_mask, width)
+            emit_number(staged_view, used, value & low_mask, width)
             if value >= (1.u64() << width): exceptions <- exceptions + 1
-        emit_number(&staged[0], used, exceptions.u64(), 6)
+        emit_number(staged_view, used, exceptions.u64(), 6)
         position_width: mutable usize = 0
         while (1 << position_width) < n: position_width <- position_width + 1
         for i in 0..<n:
             value: u64 = input[3 + i].u64()
             if value >= (1.u64() << width):
-                emit_number(&staged[0], used, i.u64(), position_width)
-                emit_number(&staged[0], used, value, 20)
+                emit_number(staged_view, used, i.u64(), position_width)
+                emit_number(staged_view, used, value, 20)
     if output == null: return -2
     if mode == 7:
         if capacity < used: return -2

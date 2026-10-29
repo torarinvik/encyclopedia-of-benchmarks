@@ -1,4 +1,4 @@
-def merge_sort_linked_list_merge(values: mutable i32&, links: mutable i32&, left: i32, right: i32) -> i32:
+def merge_sort_linked_list_merge(values: mutable view[i32], links: mutable view[i32], left: i32, right: i32) -> i32:
     if left < 0: return right
     if right < 0: return left
     if values[left.usize()] <= values[right.usize()]:
@@ -7,7 +7,7 @@ def merge_sort_linked_list_merge(values: mutable i32&, links: mutable i32&, left
     links[right.usize()] <- merge_sort_linked_list_merge(values, links, left, links[right.usize()])
     return right
 
-def merge_sort_linked_list_sort(values: mutable i32&, links: mutable i32&, head: i32) -> i32:
+def merge_sort_linked_list_sort(values: mutable view[i32], links: mutable view[i32], head: i32) -> i32:
     if head < 0: return head
     if links[head.usize()] < 0: return head
     slow: mutable i32 = head
@@ -44,7 +44,7 @@ def merge_sort_linked_list_impl(input: i64&, length: usize, output: mutable u8&,
         else: links[i] <- -1
         i <- i + 1
     head: mutable i32 = -1
-    if count > 0: head <- merge_sort_linked_list_sort(values, links, 0)
+    if count > 0: head <- merge_sort_linked_list_sort(values[0:count], links[0:count], 0)
     required: usize = 4 * count
     if output.is_null() or output_capacity < required: return -2
     node: mutable i32 = head

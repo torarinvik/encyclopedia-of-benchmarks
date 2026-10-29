@@ -15,7 +15,7 @@ def before(left_a: usize, right_a: usize, left_b: usize, right_b: usize, block_s
     if a_block != b_block: return a_block < b_block
     return right_a < right_b
 
-def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+def put_i32_le(value: i32, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.i64().u64()
     byte: mutable usize = 0
     while byte < 4:
@@ -101,9 +101,10 @@ def mo_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) ->
         index <- index + 1
     if bytes == 0: return 0
     buffer: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    buffer_view: mutable view[u8] = buffer[0:bytes]
     index <- 0
     while index < q_count:
-        put_i32_le(answers[index], buffer[0], index * 4)
+        put_i32_le(answers[index], buffer_view, index * 4)
         index <- index + 1
     index <- 0
     while index < bytes:

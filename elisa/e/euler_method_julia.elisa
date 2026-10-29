@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def put_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
+def put_f64_le(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte_index: mutable usize = 0
@@ -30,8 +30,8 @@ def euler_method_julia_impl(input: i64&, length: usize, output: mutable u8&, cap
         index <- index + 1
     index <- 0
     while index < steps:
-        put_f64_le(output, 8 * index, states[index])
-        put_f64_le(output, 8 * (steps + index), times[index])
+        put_f64_le(output[0:required], 8 * index, states[index])
+        put_f64_le(output[0:required], 8 * (steps + index), times[index])
         index <- index + 1
     required.i64()
 

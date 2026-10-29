@@ -2,7 +2,7 @@
 def is_ascii_alphanumeric(value: i64) -> bool:
     (value >= 48 and value <= 57) or (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
 
-def transformed_equal(values: i64&, left: usize, right: usize) -> bool:
+def transformed_equal(values: view[i64], left: usize, right: usize) -> bool:
     if left % 2 != right % 2:
         return false
     if left % 2 == 0:
@@ -35,7 +35,7 @@ def manacher_impl(values: i64&, length: usize,
                 radius <- radii[mirror]
             else:
                 radius <- remaining
-        while radius < index and radius < transformed_length - 1 - index and transformed_equal(values, index - radius - 1, index + radius + 1):
+        while radius < index and radius < transformed_length - 1 - index and transformed_equal(values[0:length], index - radius - 1, index + radius + 1):
             radius <- radius + 1
         radii[index] <- radius
         if index + radius > right:

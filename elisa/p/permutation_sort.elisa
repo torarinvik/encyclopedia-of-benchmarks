@@ -1,7 +1,7 @@
 const MAX_LENGTH: usize = 8
 const INVALID_RESULT: i64 = -1
 
-def permutation_sort_is_sorted(values: i64&, length: usize) -> bool:
+def permutation_sort_is_sorted(values: view[i64], length: usize) -> bool:
     index: mutable usize = 1
     while index < length:
         if values[index - 1] > values[index]:
@@ -19,7 +19,7 @@ def permutation_sort_impl(input: i64&, length: usize) -> i64:
         working[index] <- input[index]
 
     checked: mutable i64 = 1
-    if permutation_sort_is_sorted(&working[0], length):
+    if permutation_sort_is_sorted(working[0:length], length):
         return checked
 
     index: mutable usize = 0
@@ -33,7 +33,7 @@ def permutation_sort_impl(input: i64&, length: usize) -> i64:
             working[index] <- temporary
             counters[index] <- counters[index] + 1
             checked <- checked + 1
-            if permutation_sort_is_sorted(&working[0], length):
+            if permutation_sort_is_sorted(working[0:length], length):
                 return checked
             index <- 0
         else:

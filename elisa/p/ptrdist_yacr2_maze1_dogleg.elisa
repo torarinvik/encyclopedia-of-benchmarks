@@ -2,7 +2,7 @@
 const MAX_COLUMNS: usize = 16
 const MAX_TRACKS: usize = 16
 
-def free_vertical(input: i64&, plane: usize, columns: usize, x: usize, y1: usize, y2: usize) -> bool:
+def free_vertical(input: view[i64], plane: usize, columns: usize, x: usize, y1: usize, y2: usize) -> bool:
     low: usize = if y1 < y2: y1 else: y2
     high: usize = if y1 < y2: y2 else: y1
     y: mutable usize = low
@@ -11,7 +11,7 @@ def free_vertical(input: i64&, plane: usize, columns: usize, x: usize, y1: usize
         y <- y + 1
     true
 
-def free_horizontal(input: i64&, plane: usize, columns: usize, x1: usize, x2: usize, y: usize) -> bool:
+def free_horizontal(input: view[i64], plane: usize, columns: usize, x1: usize, x2: usize, y: usize) -> bool:
     low: usize = if x1 < x2: x1 else: x2
     high: usize = if x1 < x2: x2 else: x1
     x: mutable usize = low
@@ -20,7 +20,7 @@ def free_horizontal(input: i64&, plane: usize, columns: usize, x1: usize, x2: us
         x <- x + 1
     true
 
-def try_dogleg(input: i64&, plane: usize, vcv: usize, columns: usize, tracks: usize,
+def try_dogleg(input: view[i64], plane: usize, vcv: usize, columns: usize, tracks: usize,
                column: usize, bottom: usize, top: usize, dx: i64, upper: bool) -> bool:
     neighbor: usize = (column.i64() + dx).usize()
     if upper:
@@ -50,10 +50,10 @@ def ptrdist_yacr2_maze1_dogleg_impl(input: i64&, length: usize) -> i64:
     while i < length:
         if input[i] != 0 and input[i] != 1: return -1
         i <- i + 1
-    if bottom > 1 and column > 1 and try_dogleg(input, plane, vcv, columns, tracks, column, bottom, top, -1, true): return 1
-    if bottom > 1 and column < columns and try_dogleg(input, plane, vcv, columns, tracks, column, bottom, top, 1, true): return 2
-    if top < tracks and column > 1 and try_dogleg(input, plane, vcv, columns, tracks, column, bottom, top, -1, false): return 3
-    if top < tracks and column < columns and try_dogleg(input, plane, vcv, columns, tracks, column, bottom, top, 1, false): return 4
+    if bottom > 1 and column > 1 and try_dogleg(input[0:length], plane, vcv, columns, tracks, column, bottom, top, -1, true): return 1
+    if bottom > 1 and column < columns and try_dogleg(input[0:length], plane, vcv, columns, tracks, column, bottom, top, 1, true): return 2
+    if top < tracks and column > 1 and try_dogleg(input[0:length], plane, vcv, columns, tracks, column, bottom, top, -1, false): return 3
+    if top < tracks and column < columns and try_dogleg(input[0:length], plane, vcv, columns, tracks, column, bottom, top, 1, false): return 4
     0
 
 export fn ptrdist_yacr2_maze1_dogleg(input: i64&, length: usize) -> i64 = ptrdist_yacr2_maze1_dogleg_impl

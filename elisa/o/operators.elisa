@@ -1,4 +1,4 @@
-def put_i32(output: mutable u8&, offset: usize, value: i64):
+def put_i32(output: mutable view[u8], offset: usize, value: i64):
     bits: mutable u32 = value.i32().u32()
     k: mutable usize = 0
     while k < 4:
@@ -33,7 +33,7 @@ def operators_impl(values: i64&, length: usize, output: mutable u8&, capacity: u
         b: i64 = values[pos_b+2+i]
         value: i64 = a+b
         if operation == 1: value <- a-b
-        put_i32(output,i*4,value)
+        put_i32(output[0:capacity],i*4,value)
         i <- i+1
     return count.i64()
 export fn operators(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = operators_impl

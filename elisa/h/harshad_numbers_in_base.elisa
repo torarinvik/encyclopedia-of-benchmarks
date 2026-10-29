@@ -30,7 +30,7 @@ def digit_byte(digit: i64) -> u8:
         return (48 + digit).u8()
     (55 + digit).u8()
 
-def append_base(number_value: i64, base: i64, output: mutable u8&, position_value: usize) -> usize:
+def append_base(number_value: i64, base: i64, output: mutable view[u8], position_value: usize) -> usize:
     digits: mutable u8[64]
     count: mutable usize = 0
     remaining: mutable i64 = number_value
@@ -59,7 +59,7 @@ def harshad_numbers_in_base_impl(values: i64&, length: usize, output: mutable u8
     number: mutable i64 = 1
     while number < limit:
         if number % digit_sum(number, base) == 0:
-            position <- append_base(number, base, output, position)
+            position <- append_base(number, base, output[0:required], position)
             output[position] <- 0.u8()
             position <- position + 1
         number <- number + 1

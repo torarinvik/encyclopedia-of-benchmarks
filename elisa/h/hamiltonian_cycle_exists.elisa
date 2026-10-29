@@ -1,7 +1,7 @@
 const MAX_VERTICES: usize = 8
 const MAX_INPUT_LENGTH: usize = 58
 
-def has_cycle(n: usize, graph: i64&, visited: mutable i64&, current: usize, position: usize) -> bool:
+def has_cycle(n: usize, graph: view[i64], visited: mutable view[i64], current: usize, position: usize) -> bool:
     if position == n:
         return graph[current * MAX_VERTICES] != 0
     next: mutable usize = 0
@@ -43,7 +43,7 @@ def hamiltonian_cycle_exists_impl(input: i64&, length: usize) -> i64:
         edge <- edge + 1
     visited: mutable i64[MAX_VERTICES] = zeroed
     visited[0] <- 1
-    if has_cycle(n, graph, visited, 0, 1):
+    if has_cycle(n, graph[0:MAX_VERTICES * MAX_VERTICES], visited[0:n], 0, 1):
         return 1
     0
 

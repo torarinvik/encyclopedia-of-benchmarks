@@ -1,6 +1,6 @@
 extern sqrt(value: f64) -> f64
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
-def put_double(output: mutable u8&, offset: usize, value: f64):
+def put_double(output: mutable view[u8], offset: usize, value: f64):
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     k: mutable usize = 0
@@ -73,10 +73,10 @@ def n_body_simulation_impl(values: i64&, length: usize, output: mutable u8&, cap
     if capacity < byte_count: return -2
     i <- 0
     while i < count:
-        put_double(output,(4*i)*8,x[i])
-        put_double(output,(4*i+1)*8,y[i])
-        put_double(output,(4*i+2)*8,vx[i])
-        put_double(output,(4*i+3)*8,vy[i])
+        put_double(output[0:capacity],(4*i)*8,x[i])
+        put_double(output[0:capacity],(4*i+1)*8,y[i])
+        put_double(output[0:capacity],(4*i+2)*8,vx[i])
+        put_double(output[0:capacity],(4*i+3)*8,vy[i])
         i <- i+1
     return byte_count.i64()
 export fn n_body_simulation(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = n_body_simulation_impl

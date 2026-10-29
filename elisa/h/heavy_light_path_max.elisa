@@ -1,7 +1,7 @@
 const MAX_N: usize = 64
 const MAX_Q: usize = 128
 
-def heavy_light_path_max_put(output: mutable u8&, slot: usize, value: i64) -> void:
+def heavy_light_path_max_put(output: mutable view[u8], slot: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[slot * 8 + byte] <- (bits & 255).u8()
@@ -12,7 +12,7 @@ def heavy_light_path_max_value(left: i64, right: i64) -> i64:
         return left
     right
 
-def heavy_light_path_max_range(tree: i64&, n: usize, left: usize, right: usize) -> i64:
+def heavy_light_path_max_range(tree: view[i64], n: usize, left: usize, right: usize) -> i64:
     l: mutable usize = left + n
     r: mutable usize = right + n + 1
     maximum: mutable i64 = -2147483648
@@ -27,14 +27,14 @@ def heavy_light_path_max_range(tree: i64&, n: usize, left: usize, right: usize) 
         r <- r / 2
     maximum
 
-def heavy_light_path_max_set(tree: mutable i64&, n: usize, position: usize, value: i64) -> void:
+def heavy_light_path_max_set(tree: mutable view[i64], n: usize, position: usize, value: i64) -> void:
     p: mutable usize = position + n
     tree[p] <- value
     while p > 1:
         p <- p / 2
         tree[p] <- heavy_light_path_max_value(tree[p * 2], tree[p * 2 + 1])
 
-def heavy_light_path_max_path(tree: i64&, n: usize, parent: i64&, depth: i64&, head: i64&, position: i64&, a_value: usize, b_value: usize) -> i64:
+def heavy_light_path_max_path(tree: view[i64], n: usize, parent: view[i64], depth: view[i64], head: view[i64], position: view[i64], a_value: usize, b_value: usize) -> i64:
     a: mutable usize = a_value
     b: mutable usize = b_value
     maximum: mutable i64 = -2147483648
@@ -182,11 +182,11 @@ def heavy_light_path_max_impl(input: i64&, length: usize, output: mutable u8&, c
             if av < 0 or av >= n_value or bv < -2147483648 or bv > 2147483647:
                 return -1
             values[av.usize()] <- bv
-            heavy_light_path_max_set(segment, n, position[av.usize()].usize(), bv)
+            heavy_light_path_max_set(segment[0:2 * n], n, position[av.usize()].usize(), bv)
         else if op == 1:
             if av < 0 or av >= n_value or bv < 0 or bv >= n_value:
                 return -1
-            results[result_count] <- heavy_light_path_max_path(segment, n, parent, depth, head, position, av.usize(), bv.usize())
+            results[result_count] <- heavy_light_path_max_path(segment[0:2 * n], n, parent[0:n], depth[0:n], head[0:n], position[0:n], av.usize(), bv.usize())
             result_count <- result_count + 1
         else:
             return -1
@@ -195,7 +195,7 @@ def heavy_light_path_max_impl(input: i64&, length: usize, output: mutable u8&, c
     if output_bytes > 0 and (output.is_null() or capacity < output_bytes):
         return -2
     for i in 0..<result_count:
-        heavy_light_path_max_put(output, i, results[i])
+        heavy_light_path_max_put(output[0:output_bytes], i, results[i])
     output_bytes.i64()
 
 export fn heavy_light_path_max(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = heavy_light_path_max_impl

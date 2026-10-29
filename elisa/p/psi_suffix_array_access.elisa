@@ -1,4 +1,4 @@
-def psi_access_put_u64(output: mutable u8&, word: usize, value: u64) -> void:
+def psi_access_put_u64(output: mutable view[u8], word: usize, value: u64) -> void:
     for byte in 0..<8:
         output[word * 8 + byte] <- (value >> (byte * 8)).u8()
 
@@ -60,8 +60,8 @@ def psi_suffix_array_access_impl(input: i64&, length: usize, output: mutable u8&
         position0 <- position0 + n0
     if output == null or capacity < 16:
         return -2
-    psi_access_put_u64(output, 0, (position0 + 1).u64())
-    psi_access_put_u64(output, 1, hops.u64())
+    psi_access_put_u64(output[0:capacity], 0, (position0 + 1).u64())
+    psi_access_put_u64(output[0:capacity], 1, hops.u64())
     16.i64()
 
 export fn psi_suffix_array_access(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = psi_suffix_array_access_impl

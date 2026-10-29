@@ -4,7 +4,7 @@ const MAX_INPUT_LENGTH: usize = 2 * MAX_NODES - 1
 const MAX_DIRECTED_EDGES: usize = 2 * (MAX_NODES - 1)
 const INVALID_PARENT: i64 = -2
 
-def centroid_find_set(parent: usize&, node: usize) -> usize:
+def centroid_find_set(parent: view[usize], node: usize) -> usize:
     root: mutable usize = node
     while parent[root] != root:
         root <- parent[root]
@@ -36,8 +36,8 @@ def centroid_decomposition_impl(input: i64&, length: usize,
         if left_value < 0 or left_value >= node_count.i64() or right_value < 0 or right_value >= node_count.i64() or left_value == right_value: return -1
         left: usize = left_value.usize()
         right: usize = right_value.usize()
-        left_root: usize = centroid_find_set(&set_parent[0], left)
-        right_root: usize = centroid_find_set(&set_parent[0], right)
+        left_root: usize = centroid_find_set(set_parent[0:node_count], left)
+        right_root: usize = centroid_find_set(set_parent[0:node_count], right)
         if left_root == right_root: return -1
         set_parent[right_root] <- left_root
 

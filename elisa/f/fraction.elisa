@@ -6,7 +6,7 @@ def gcd_pos(a0: i64, b0: i64) -> i64:
         a <- b
         b <- r
     a
-def put64(output: mutable u8&, offset: usize, value: i64):
+def put64(output: mutable view[u8], offset: usize, value: i64):
     bits: mutable u64 = value.u64()
     i: mutable usize = 0
     while i < 8:
@@ -27,7 +27,7 @@ def fraction_impl(v: i64&, length: usize, output: mutable u8&, capacity: usize) 
     if denominator < 0:
         numerator <- -numerator
         denominator <- -denominator
-    put64(output,0,numerator)
-    put64(output,8,denominator)
+    put64(output[0:16],0,numerator)
+    put64(output[0:16],8,denominator)
     16
 export fraction(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = fraction_impl

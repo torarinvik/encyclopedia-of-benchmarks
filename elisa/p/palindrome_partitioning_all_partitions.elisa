@@ -1,7 +1,7 @@
 const MAX_LENGTH: usize = 12
 const OUT_I64_CAP: usize = 16000
 
-def is_palindrome(input: i64&, start: usize, end: usize) -> bool:
+def is_palindrome(input: view[i64], start: usize, end: usize) -> bool:
     left: mutable usize = start
     right: mutable usize = end
     while left < right:
@@ -11,8 +11,8 @@ def is_palindrome(input: i64&, start: usize, end: usize) -> bool:
         right <- right - 1
     true
 
-def enumerate_partitions(input: i64&, length: usize, start: usize, depth: usize,
-                         ends: mutable usize&, packed: mutable i64&, used: mutable usize&,
+def enumerate_partitions(input: view[i64], length: usize, start: usize, depth: usize,
+                         ends: mutable view[usize], packed: mutable view[i64], used: mutable usize&,
                          partitions: mutable usize&) -> void:
     if start == length:
         partitions <- partitions + 1
@@ -43,7 +43,7 @@ def palindrome_partitioning_all_partitions_impl(input: i64&, length: usize,
     packed: mutable i64[OUT_I64_CAP] = zeroed
     used: mutable usize = 1
     partitions: mutable usize = 0
-    enumerate_partitions(input, text_length, 0, 0, ends, packed, used, partitions)
+    enumerate_partitions(input[0:length], text_length, 0, 0, ends[0:MAX_LENGTH], packed[0:OUT_I64_CAP], used, partitions)
     packed[0] <- partitions.i64()
     required: usize = used * 8
     if output == null or capacity < required:

@@ -40,7 +40,7 @@ def problem59_lower(value: i64) -> i64:
     if value >= 65 and value <= 90: return value + 32
     value
 
-def problem59_contains(input: i64&, length: usize, keys: u8[52728], index: usize, word: usize) -> bool:
+def problem59_contains(input: view[i64], length: usize, keys: u8[52728], index: usize, word: usize) -> bool:
     width: usize = problem59_word_length(word)
     if length < width: return false
     start: mutable usize = 0
@@ -79,7 +79,7 @@ def problem59_impl(input: i64&, length: usize) -> i64:
     for word in 0..<8:
         kept: mutable usize = 0
         for i in 0..<count:
-            if problem59_contains(input, length, keys, i, word):
+            if problem59_contains(input[0:length], length, keys, i, word):
                 if kept != i:
                     keys[kept * 3] <- keys[i * 3]
                     keys[kept * 3 + 1] <- keys[i * 3 + 1]

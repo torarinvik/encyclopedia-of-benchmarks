@@ -1,6 +1,6 @@
 const N:usize=16
 const L:usize=18
-def put64(x:i64,o:mutable u8&,p:usize)->void:
+def put64(x:i64,o:mutable view[u8],p:usize)->void:
     b:u64=x.u64();j:mutable usize=0
     while j<8:
         o[p+j]<-((b>>(8*j))&255).u8()
@@ -18,6 +18,7 @@ def max_minimum_machine_load_lpt(input:i64&,length:usize,output:mutable u8&,capa
         order[i]<-i.i64()
         i<-i+1
     bytes:usize=8*(1+n+m);if output.is_null() or capacity<bytes:return -2
+    output_view:mutable view[u8]=output[0:bytes]
     i<-1
     while i<n:
         key:i64=order[i];j:mutable usize=i
@@ -42,12 +43,12 @@ def max_minimum_machine_load_lpt(input:i64&,length:usize,output:mutable u8&,capa
     while i<m:
         if loads[i]<low:low<-loads[i]
         i<-i+1
-    put64(low,output&,0);i<-0
+    put64(low,output_view,0);i<-0
     while i<n:
-        put64(assign[i],output&,8*(1+i))
+        put64(assign[i],output_view,8*(1+i))
         i<-i+1
     i<-0
     while i<m:
-        put64(loads[i],output&,8*(1+n+i))
+        put64(loads[i],output_view,8*(1+n+i))
         i<-i+1
     bytes.i64()

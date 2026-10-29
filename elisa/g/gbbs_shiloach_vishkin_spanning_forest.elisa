@@ -3,7 +3,7 @@ const GBBS_SV_FOREST_N: usize = 12
 const GBBS_SV_FOREST_M: usize = 24
 const GBBS_SV_FOREST_INPUT: usize = 50
 
-def gbbs_sv_forest_find_root(parent: mutable usize[12]&, vertex_in: usize) -> usize:
+def gbbs_sv_forest_find_root(parent: mutable view[usize], vertex_in: usize) -> usize:
     vertex: mutable usize = vertex_in
     while parent[vertex] != vertex:
         parent[vertex] <- parent[parent[vertex]]
@@ -51,7 +51,7 @@ def gbbs_shiloach_vishkin_spanning_forest_impl(input: i64&, length: usize,
     while round < n:
         vertex <- 0
         while vertex < n:
-            previous[vertex] <- gbbs_sv_forest_find_root(parent&, vertex)
+            previous[vertex] <- gbbs_sv_forest_find_root(parent[0:n], vertex)
             next_parent[vertex] <- previous[vertex]
             best_lower[vertex] <- n
             vertex <- vertex + 1
@@ -84,7 +84,7 @@ def gbbs_shiloach_vishkin_spanning_forest_impl(input: i64&, length: usize,
             higher <- higher + 1
         vertex <- 0
         while vertex < n:
-            parent[vertex] <- gbbs_sv_forest_find_root(next_parent&, vertex)
+            parent[vertex] <- gbbs_sv_forest_find_root(next_parent[0:n], vertex)
             vertex <- vertex + 1
         if not changed: break
         round <- round + 1

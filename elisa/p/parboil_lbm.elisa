@@ -8,18 +8,18 @@ const DY: i32[19] = [0,1,-1,0,0,0,0,1,1,-1,-1,1,1,-1,-1,0,0,0,0]
 const DZ: i32[19] = [0,0,0,0,0,1,-1,0,0,0,0,1,-1,1,-1,1,-1,1,-1]
 const OPP: i32[19] = [0,2,1,4,3,6,5,10,9,8,7,14,13,12,11,18,17,16,15]
 
-def fn i64 parboil_lbm_cell_index(i64 x, i64 y, i64 z):
+def parboil_lbm_cell_index(x: i64, y: i64, z: i64) -> i64:
     return x + 3 * y + 9 * z
 
-def fn i64 parboil_lbm_halo_index(i64 x, i64 y, i64 z, i64 q):
+def parboil_lbm_halo_index(x: i64, y: i64, z: i64, q: i64) -> i64:
     return (((z + 1) * 5 + (y + 1)) * 5 + (x + 1)) * Q + q
 
-def fn f32 parboil_lbm_initial_weight(i64 q):
+def parboil_lbm_initial_weight(q: i64) -> f32:
     if q == 0: return (1.0 / 3.0).f32()
     if q <= 6: return (1.0 / 18.0).f32()
     return (1.0 / 36.0).f32()
 
-def fn f32 parboil_lbm_axis_factor(f32 u, bool positive, f32 u2):
+def parboil_lbm_axis_factor(u: f32, positive: bool, u2: f32) -> f32:
     product: mutable f32 = 4.5.f32() * u
     if positive: product <- product + 3.0.f32()
     else: product <- product - 3.0.f32()
@@ -27,14 +27,14 @@ def fn f32 parboil_lbm_axis_factor(f32 u, bool positive, f32 u2):
     product <- 1.0.f32() + product
     product - u2
 
-def fn f32 parboil_lbm_diagonal_factor(f32 cu, f32 u2):
-    product: f32 = 4.5.f32() * cu
-    product = product + 3.0.f32()
-    product = cu * product
-    product = 1.0.f32() + product
+def parboil_lbm_diagonal_factor(cu: f32, u2: f32) -> f32:
+    product: mutable f32 = 4.5.f32() * cu
+    product <- product + 3.0.f32()
+    product <- cu * product
+    product <- 1.0.f32() + product
     product - u2
 
-def fn f32 parboil_lbm_collide(f32 source, f32 rho, f32 factor, f64 weight):
+def parboil_lbm_collide(source: f32, rho: f32, factor: f32, weight: f64) -> f32:
     omega: f32 = 1.95.f32()
     base: f32 = (1.0.f32() - omega) * source
     equilibrium: mutable f64 = weight * omega.f64()
@@ -42,7 +42,7 @@ def fn f32 parboil_lbm_collide(f32 source, f32 rho, f32 factor, f64 weight):
     equilibrium <- equilibrium * factor.f64()
     (base.f64() + equilibrium).f32()
 
-def fn void parboil_lbm_collide_cell(f32* f, f32* post):
+def parboil_lbm_collide_cell(f: view[f32], post: mutable view[f32]) -> void:
     rho: mutable f32 = f[0]
     q: mutable i64 = 1
     while q < Q:
@@ -76,7 +76,7 @@ def fn void parboil_lbm_collide_cell(f32* f, f32* post):
     cu <- -ux + uz; post[17] <- parboil_lbm_collide(f[17], rho, parboil_lbm_diagonal_factor(cu, u2), 1.0 / 36.0)
     cu <- -ux - uz; post[18] <- parboil_lbm_collide(f[18], rho, parboil_lbm_diagonal_factor(cu, u2), 1.0 / 36.0)
 
-def fn i64 parboil_lbm_quantize(f32 value):
+def parboil_lbm_quantize(value: f32) -> i64:
     scaled: f32 = value * 1000000.0.f32()
     magnitude: f32 = if scaled < 0.0.f32(): -scaled else: scaled
     whole: mutable i64 = magnitude.i64()
@@ -84,9 +84,9 @@ def fn i64 parboil_lbm_quantize(f32 value):
     if scaled < 0.0.f32(): return -whole
     whole
 
-/* Clean-room Parboil D3Q19 profile; Illinois Open Source License is in package docs. */
-export fn parboil_lbm(i64* input, usize length) -> i64:
-    if input == null or length != 19: return -1
+# Clean-room Parboil D3Q19 profile; Illinois Open Source License is in package docs.
+export fn parboil_lbm(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 19: return -1
     nonzero: mutable bool = false
     q: mutable i64 = 0
     while q < Q:
@@ -127,7 +127,9 @@ export fn parboil_lbm(i64* input, usize length) -> i64:
                 cell: i64 = parboil_lbm_cell_index(x, y, z)
                 obstacle: bool = x == 0 or x == 2 or y == 0 or y == 2 or z == 0 or z == 2
                 post: mutable f32[Q] = zeroed
-                if not obstacle: parboil_lbm_collide_cell(&source[cell * Q], &post[0])
+                if not obstacle:
+                    start: usize = (cell * Q).usize()
+                    parboil_lbm_collide_cell(source[start:start + Q.usize()], post[0:Q.usize()])
                 q <- 0
                 while q < Q:
                     target_x: i64 = x + DX[q].i64()

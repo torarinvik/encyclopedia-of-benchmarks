@@ -1,6 +1,6 @@
 const MAX_NODES: usize = 1024
 
-def remove_chain_impl(input: i64&, next_node: mutable usize&, node: usize, none: usize, target: i64) -> usize:
+def remove_chain_impl(input: view[i64], next_node: mutable view[usize], node: usize, none: usize, target: i64) -> usize:
     if node == none:
         return none
     next: usize = next_node[node]
@@ -26,7 +26,7 @@ def remove_linked_list_elements_impl(input: i64&, length: usize, output: mutable
     head: mutable usize = 0
     if node_count == 0:
         head <- node_count
-    head <- remove_chain_impl(input, &next_node[0], head, node_count, target)
+    head <- remove_chain_impl(input[0:length], next_node[0:node_count + 1], head, node_count, target)
     survivor_count: mutable usize = 0
     node: mutable usize = head
     while node != node_count |node, survivor_count, next_node|:

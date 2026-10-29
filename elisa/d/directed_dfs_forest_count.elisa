@@ -4,7 +4,7 @@ const MAX_VERTEX_ID: i64 = 63
 const MAX_NODE_COUNT: usize = 128
 const MAX_INPUT_LENGTH: usize = 1 + 2 * MAX_EDGE_COUNT
 
-def directed_dfs_forest_count_find_last(label: i64, labels: i64&, node_count: usize) -> usize:
+def directed_dfs_forest_count_find_last(label: i64, labels: view[i64], node_count: usize) -> usize:
     found: mutable usize = MAX_NODE_COUNT
     node: mutable usize = 0
     while node < node_count:
@@ -14,7 +14,7 @@ def directed_dfs_forest_count_find_last(label: i64, labels: i64&, node_count: us
     found
 
 def directed_dfs_forest_count_visit(current: usize, edge_count: usize,
-        edge_starts: usize&, edge_ends: usize&, visited: mutable bool&) -> void:
+        edge_starts: view[usize], edge_ends: view[usize], visited: mutable view[bool]) -> void:
     visited[current] <- true
     edge: mutable usize = 0
     while edge < edge_count:
@@ -44,7 +44,7 @@ def directed_dfs_forest_count_impl(input: i64&, length: usize) -> i64:
         if start_label < 0 or start_label > MAX_VERTEX_ID or end_label < 0 or end_label > MAX_VERTEX_ID:
             return -1
 
-        start: mutable usize = directed_dfs_forest_count_find_last(start_label, labels, node_count)
+        start: mutable usize = directed_dfs_forest_count_find_last(start_label, labels[0:node_count], node_count)
         end: mutable usize = MAX_NODE_COUNT
         if start_label == end_label:
             if start == MAX_NODE_COUNT:
@@ -55,7 +55,7 @@ def directed_dfs_forest_count_impl(input: i64&, length: usize) -> i64:
             labels[node_count] <- end_label
             node_count <- node_count + 1
         else:
-            end <- directed_dfs_forest_count_find_last(end_label, labels, node_count)
+            end <- directed_dfs_forest_count_find_last(end_label, labels[0:node_count], node_count)
             if start == MAX_NODE_COUNT:
                 start <- node_count
                 labels[node_count] <- start_label
@@ -74,7 +74,7 @@ def directed_dfs_forest_count_impl(input: i64&, length: usize) -> i64:
     while root < node_count:
         if not marked[root]:
             visited: mutable bool[MAX_NODE_COUNT] = zeroed
-            directed_dfs_forest_count_visit(root, edge_count, edge_starts, edge_ends, visited)
+            directed_dfs_forest_count_visit(root, edge_count, edge_starts[0:edge_count], edge_ends[0:edge_count], visited[0:node_count])
             node: mutable usize = 0
             while node < node_count:
                 if visited[node]:

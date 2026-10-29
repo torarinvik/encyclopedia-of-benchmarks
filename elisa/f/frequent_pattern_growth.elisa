@@ -1,5 +1,5 @@
-def frequent_pattern_growth_grow(masks: i64&, weights: i64&, length: usize,
-    order: i64&, rank_limit: usize, minimum_support: i64) -> i64:
+def frequent_pattern_growth_grow(masks: view[i64], weights: view[i64], length: usize,
+    order: view[i64], rank_limit: usize, minimum_support: i64) -> i64:
     total: i64 = while rank > 0 |rank: mutable usize = rank_limit, total: mutable i64 = 0| -> total:
         rank <- rank - 1
         item: usize = order[rank].usize()
@@ -26,7 +26,7 @@ def frequent_pattern_growth_grow(masks: i64&, weights: i64&, length: usize,
                     next_weights[next_length] <- weights[row]
                     next_length <- next_length + 1
                 row <- row + 1
-            total <- total + 1 + frequent_pattern_growth_grow(&next_masks[0], &next_weights[0], next_length,
+            total <- total + 1 + frequent_pattern_growth_grow(next_masks[0:next_length], next_weights[0:next_length], next_length,
                 order, rank, minimum_support)
     total
 
@@ -71,6 +71,6 @@ def frequent_pattern_growth_impl(values: i64&, length: usize) -> i64:
             j <- j - 1
         order[j] <- value
         item <- item + 1
-    frequent_pattern_growth_grow(&masks[0], &weights[0], rows.usize(), &order[0], items.usize(), minimum)
+    frequent_pattern_growth_grow(masks[0:rows.usize()], weights[0:rows.usize()], rows.usize(), order[0:items.usize()], items.usize(), minimum)
 
 export fn frequent_pattern_growth(values: i64&, length: usize) -> i64 = frequent_pattern_growth_impl

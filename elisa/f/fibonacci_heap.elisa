@@ -6,7 +6,7 @@ struct FibonacciHeapNode:
     left: i64
     right: i64
 
-def fibonacci_heap_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def fibonacci_heap_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -48,7 +48,7 @@ def fibonacci_heap_impl(input: i64&, length: usize, output: mutable u8&, capacit
     index <- 0
     while index < length:
         removed: i64 = minimum
-        fibonacci_heap_store(nodes[removed.usize()].key, output, index * 8)
+        fibonacci_heap_store(nodes[removed.usize()].key, output[0:length*8], index * 8)
         # Snapshot the circular child ring before splicing children into the root ring.
         children: mutable i64[128] = zeroed
         child_count: mutable usize = 0

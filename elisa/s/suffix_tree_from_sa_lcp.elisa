@@ -4,7 +4,7 @@ const MAX_SUFFIXES: usize = 9
 const MAX_NODES: usize = 17
 const MAX_OUTPUT_WORDS: usize = 86
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -12,17 +12,17 @@ def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
         bits <- bits >> 8
         byte <- byte + 1
 
-def symbol_at(input: i64&, n: usize, position: usize) -> usize:
+def symbol_at(input: view[i64], n: usize, position: usize) -> usize:
     if position == n: return 0
     input[position + 1].usize()
 
-def suffix_less(input: i64&, n: usize, left_start: usize, right_start: usize) -> bool:
+def suffix_less(input: view[i64], n: usize, left_start: usize, right_start: usize) -> bool:
     left: mutable usize = left_start
     right: mutable usize = right_start
     total: usize = n + 1
     while left < total and right < total:
-        a: usize = symbol_at(input&, n, left)
-        b: usize = symbol_at(input&, n, right)
+        a: usize = symbol_at(input, n, left)
+        b: usize = symbol_at(input, n, right)
         if a != b: return a < b
         left <- left + 1
         right <- right + 1
@@ -33,6 +33,7 @@ def suffix_tree_from_sa_lcp_impl(input: i64&, length: usize, output: mutable u8&
     n_raw: i64 = input[0]
     if n_raw < 0 or n_raw > MAX_TEXT.i64() or length != n_raw.usize() + 1: return -1
     n: usize = n_raw.usize()
+    packed_input: view[i64] = input[0:length]
     index: mutable usize = 0
     while index < n:
         if input[index + 1] < 1 or input[index + 1] > 255: return -1
@@ -49,7 +50,7 @@ def suffix_tree_from_sa_lcp_impl(input: i64&, length: usize, output: mutable u8&
     while index < suffix_count:
         value: usize = suffix_array[index]
         j: mutable usize = index
-        while j > 0 and suffix_less(input&, n, value, suffix_array[j - 1]):
+        while j > 0 and suffix_less(packed_input, n, value, suffix_array[j - 1]):
             suffix_array[j] <- suffix_array[j - 1]
             j <- j - 1
         suffix_array[j] <- value
@@ -60,7 +61,7 @@ def suffix_tree_from_sa_lcp_impl(input: i64&, length: usize, output: mutable u8&
         right: usize = suffix_array[rank]
         common: mutable usize = 0
         while left + common < suffix_count and right + common < suffix_count and
-            symbol_at(input&, n, left + common) == symbol_at(input&, n, right + common):
+            symbol_at(packed_input, n, left + common) == symbol_at(packed_input, n, right + common):
             common <- common + 1
         lcp[rank] <- common
         rank <- rank + 1
@@ -168,7 +169,7 @@ def suffix_tree_from_sa_lcp_impl(input: i64&, length: usize, output: mutable u8&
     if output.is_null() or capacity < output_bytes: return -2
     byte: mutable usize = 0
     while byte < output_bytes:
-        store_i64_le(staged[byte / 8], output&, byte - (byte % 8))
+        store_i64_le(staged[byte / 8], output[0:capacity], byte - (byte % 8))
         byte <- byte + 8
     output_bytes.i64()
 

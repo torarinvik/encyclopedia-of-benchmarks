@@ -50,7 +50,7 @@ def susan_c_brightness_table(table: mutable u8[513]) -> void:
         table[(difference + 256).usize()] <- (100.0 * exp(-term)).u8()
         difference <- difference + 1
 
-def susan_c_local_corner(response: i64[256]&, side: usize, y: i64, x: i64) -> bool:
+def susan_c_local_corner(response: view[i64], side: usize, y: i64, x: i64) -> bool:
     value: i64 = response[(y.usize() * side + x.usize())]
     dy: mutable i64 = -3
     while dy <= 3:
@@ -68,7 +68,7 @@ def susan_c_local_corner(response: i64[256]&, side: usize, y: i64, x: i64) -> bo
         dy <- dy + 1
     true
 
-def susan_c_corners(image: mutable u8[256]&, side: usize, brightness: u8[513]&) -> void:
+def susan_c_corners(image: mutable view[u8], side: usize, brightness: view[u8]) -> void:
     response: mutable i64[256] = zeroed
     gradient_x: mutable i64[256] = zeroed
     gradient_y: mutable i64[256] = zeroed
@@ -138,7 +138,7 @@ def susan_c_corners(image: mutable u8[256]&, side: usize, brightness: u8[513]&) 
         x <- 5
         while x < side - 5:
             at: usize = y * side + x
-            if response[at] > 0 and susan_c_local_corner(response, side, y.i64(), x.i64()):
+            if response[at] > 0 and susan_c_local_corner(response[0:side*side], side, y.i64(), x.i64()):
                 points_x[point_count] <- x.i64()
                 points_y[point_count] <- y.i64()
                 point_count <- point_count + 1
@@ -180,7 +180,7 @@ def susan_c_impl(input: i64&, input_length: usize, output: mutable u8&, output_c
     if output == null or output_capacity < count: return -2
     brightness: mutable u8[513] = zeroed
     susan_c_brightness_table(brightness)
-    susan_c_corners(image, side, brightness)
+    susan_c_corners(image[0:count], side, brightness[0:513])
     index <- 0
     while index < count:
         output[index] <- image[index]

@@ -7,7 +7,7 @@ const TSVC_S452_MAX_VALUE: i64 = 2
 def tsvc_s452_bounded(value: i64) -> bool:
     value >= -TSVC_S452_MAX_VALUE and value <= TSVC_S452_MAX_VALUE
 
-def tsvc_s452_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s452_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -33,7 +33,7 @@ def tsvc_s452_impl(input: i64&, length: usize, output: mutable u8&, capacity: us
     for i in 0..n:
         index_weight: i64 = (i + 1).i64()
         value: i64 = input[b_start + i] + input[c_start + i] * index_weight
-        tsvc_s452_store(value, output, 8 * i)
+        tsvc_s452_store(value, output[0:capacity], 8 * i)
     n.i64()
 
 export fn tsvc_s452_index_weighted_vector_map(input: i64&, length: usize,

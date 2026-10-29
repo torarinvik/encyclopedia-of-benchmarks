@@ -26,7 +26,7 @@ extern sqrt(value: f64) -> f64
 const MAX_POINTS: usize = 128
 const MAX_COORD: i64 = 1000000
 
-def shortsort(ids: mutable usize&, scores: f64&, lo: usize, hi: usize) -> void:
+def shortsort(ids: mutable view[usize], scores: view[f64], lo: usize, hi: usize) -> void:
     end_index: mutable usize = hi
     while end_index > lo:
         maximum: mutable usize = lo
@@ -37,7 +37,7 @@ def shortsort(ids: mutable usize&, scores: f64&, lo: usize, hi: usize) -> void:
         ids[end_index] <- temporary
         end_index <- end_index - 1
 
-def sort_range(ids: mutable usize&, scores: f64&, lo: usize, hi: usize) -> void:
+def sort_range(ids: mutable view[usize], scores: view[f64], lo: usize, hi: usize) -> void:
     if hi <= lo: return
     if hi - lo + 1 <= 8:
         shortsort(ids, scores, lo, hi)
@@ -87,7 +87,7 @@ def cbench_automotive_qsort1_impl(values: i64&, length: usize, output: mutable u
         z: f64 = coords[i][2].f64()
         scores[i] <- sqrt(x*x + y*y + z*z)
     if output.is_null() or output_capacity < 12*n: return -2
-    sort_range(ids, scores, 0, n-1)
+    sort_range(ids[0:n], scores[0:n], 0, n-1)
     staged: mutable u8[1536] = zeroed
     for r in 0..<n:
         for axis in 0..<3:

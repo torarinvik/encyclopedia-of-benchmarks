@@ -1,4 +1,4 @@
-def write_i32_le(output: mutable u8&, offset: usize, value: i32) -> void:
+def write_i32_le(output: mutable view[u8], offset: usize, value: i32) -> void:
     bits: mutable u32 = value.u32()
     byte: mutable usize = 0
     while byte < 4:
@@ -54,7 +54,7 @@ def sjfscheduling_impl(input: i32&, length: usize, output: mutable u8&,
     if output.is_null() or capacity < output_bytes: return -2
     index <- 0
     while index < process_count:
-        write_i32_le(output, index * 4, order[index])
+        write_i32_le(output[0:output_bytes], index * 4, order[index])
         index <- index + 1
     output_bytes.i64()
 

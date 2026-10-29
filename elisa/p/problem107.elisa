@@ -1,7 +1,7 @@
 const MAX_VERTICES: usize = 40
 const MAX_EDGE_WEIGHT: i64 = 999
 
-def edge_weight(input: i64&, left: usize, right: usize) -> i64:
+def edge_weight(input: view[i64], left: usize, right: usize) -> i64:
     if left == right:
         return -1
     row: usize = if left > right: left else: right
@@ -52,7 +52,7 @@ def problem107_impl(input: i64&, length: usize) -> i64:
         vertex <- 0
         while vertex < vertex_count:
             if not selected[vertex]:
-                weight: i64 = edge_weight(input, next_vertex, vertex)
+                weight: i64 = edge_weight(input[0:length], next_vertex, vertex)
                 if weight >= 0 and weight < best_weight[vertex]:
                     best_weight[vertex] <- weight
             vertex <- vertex + 1

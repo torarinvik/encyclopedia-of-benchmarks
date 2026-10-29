@@ -4,7 +4,7 @@ def idea_mul(a: u16, b: u16) -> u16:
     z: u64 = (x*y) % 65537
     if z == 65536 then 0 else z.u16()
 def idea_add(a: u16, b: u16) -> u16: ((a.u32()+b.u32()) & 65535).u16()
-def idea_expand(key: u8&, subkeys: u16&) -> void:
+def idea_expand(key: view[u8], subkeys: mutable view[u16]) -> void:
     state: mutable [8]u16 = [0;8]
     for i in 0..<8: state[i] <- ((key[2*i].u16() << 8) | key[2*i+1].u16())
     offset: mutable usize = 0
@@ -15,7 +15,7 @@ def idea_expand(key: u8&, subkeys: u16&) -> void:
         for i in 0..<8: rotated[i] <- ((state[(i+1)&7].u32() << 9) | (state[(i+2)&7].u32() >> 7)).u16()
         for i in 0..<8: state[i] <- rotated[i]
         offset <- offset+8
-def idea_encrypt(subkeys: u16&, block: u8&, output: u8&) -> void:
+def idea_encrypt(subkeys: view[u16], block: view[u8], output: mutable view[u8]) -> void:
     x1: mutable u16 = ((block[0].u16()<<8)|block[1].u16())
     x2: mutable u16 = ((block[2].u16()<<8)|block[3].u16())
     x3: mutable u16 = ((block[4].u16()<<8)|block[5].u16())
@@ -49,12 +49,15 @@ def idea_cfb64_impl(values: i64&, length: usize, output: u8&, capacity: usize) -
         if values[26+i] < 0 or values[26+i] > 255: return -1
         text[i] <- values[26+i].u8()
     subkeys: mutable [52]u16 = [0;52]
-    idea_expand(&key[0],&subkeys[0])
+    key_view: view[u8] = key[0:16]
+    state_view: mutable view[u8] = state[0:8]
+    subkeys_view: mutable view[u16] = subkeys[0:52]
+    idea_expand(key_view,subkeys_view)
     result: mutable [24]u8 = [0;24]
     pos: mutable usize = 0
     while pos < text_len:
         stream: mutable [8]u8 = [0;8]
-        idea_encrypt(&subkeys[0],&state[0],&stream[0])
+        idea_encrypt(subkeys_view,state_view,stream[0:8])
         take: usize = if text_len-pos < 8 then text_len-pos else 8
         for j in 0..<take:
             result[pos+j] <- text[pos+j] ^ stream[j]

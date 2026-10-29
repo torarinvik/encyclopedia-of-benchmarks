@@ -13,8 +13,8 @@ def bdk_box(node: BdkNode, qx: i64, qy: i64) -> i64:
     dy: i64 = if qy < node.miny: node.miny - qy else: if qy > node.maxy: qy - node.maxy else: 0
     dx * dx + dy * dy
 
-def bdk_build(ids: mutable usize[32]&, count: usize, depth: usize,
-              x: i64[32]&, y: i64[32]&, nodes: mutable BdkNode[32]&, used: mutable usize&) -> i64:
+def bdk_build(ids: mutable view[usize], count: usize, depth: usize,
+              x: view[i64], y: view[i64], nodes: mutable view[BdkNode], used: mutable usize&) -> i64:
     if count == 0: return -1
     axis: usize = depth % 2
     i: mutable usize = 1
@@ -38,7 +38,7 @@ def bdk_build(ids: mutable usize[32]&, count: usize, depth: usize,
     id: usize = ids[mid]
     left: mutable i64 = -1
     right: mutable i64 = -1
-    left <- bdk_build(ids, mid, depth + 1, x, y, nodes, used)
+    left <- bdk_build(ids[0:32], mid, depth + 1, x, y, nodes, used)
     rest: mutable usize[32] = zeroed
     rest_count: mutable usize = 0
     i <- mid + 1
@@ -46,7 +46,7 @@ def bdk_build(ids: mutable usize[32]&, count: usize, depth: usize,
         rest[rest_count] <- ids[i]
         rest_count <- rest_count + 1
         i <- i + 1
-    right <- bdk_build(rest, rest_count, depth + 1, x, y, nodes, used)
+    right <- bdk_build(rest[0:32], rest_count, depth + 1, x, y, nodes, used)
     nodes[root].id <- id
     nodes[root].left <- left
     nodes[root].right <- right
@@ -66,7 +66,7 @@ def bdk_build(ids: mutable usize[32]&, count: usize, depth: usize,
         nodes[root].maxy <- if nodes[right.usize()].maxy > nodes[root].maxy: nodes[right.usize()].maxy else: nodes[root].maxy
     root.i64()
 
-def bdk_query(at: i64, nodes: BdkNode[32]&, x: i64[32]&, y: i64[32]&, active: bool[32]&, qx: i64, qy: i64,
+def bdk_query(at: i64, nodes: view[BdkNode], x: view[i64], y: view[i64], active: view[bool], qx: i64, qy: i64,
               found: mutable bool&, best_id: mutable usize&, best: mutable i64&) -> void:
     if at < 0: return
     node: BdkNode = nodes[at.usize()]
@@ -85,8 +85,8 @@ def bdk_query(at: i64, nodes: BdkNode[32]&, x: i64[32]&, y: i64[32]&, active: bo
     if first >= 0 and second >= 0 and bdk_box(nodes[second.usize()], qx, qy) < bdk_box(nodes[first.usize()], qx, qy):
         first <- node.right
         second <- node.left
-    bdk_query(first, nodes, x, y, active, qx, qy, found, best_id, best)
-    bdk_query(second, nodes, x, y, active, qx, qy, found, best_id, best)
+    bdk_query(first, nodes[0:32], x[0:32], y[0:32], active[0:32], qx, qy, found, best_id, best)
+    bdk_query(second, nodes[0:32], x[0:32], y[0:32], active[0:32], qx, qy, found, best_id, best)
 def batch_dynamic_kd_tree_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() || length < 2 || length > 250: return -1
     initial: i64 = input[0]
@@ -217,8 +217,8 @@ def batch_dynamic_kd_tree_impl(input: i64&, length: usize, output: mutable u8&, 
                 for z in 0..sizes[lev]: ids[z] <- levels[lev][z]
                 nodes: mutable BdkNode[32] = zeroed
                 used: mutable usize = 0
-                root: i64 = bdk_build(ids, sizes[lev], 0, x, y, nodes, used)
-                bdk_query(root, nodes, x, y, active, qx, qy, found, best_id, best)
+                root: i64 = bdk_build(ids[0:32], sizes[lev], 0, x[0:32], y[0:32], nodes[0:32], used)
+                bdk_query(root, nodes[0:32], x[0:32], y[0:32], active[0:32], qx, qy, found, best_id, best)
         if not found: return -1
         answers[batch] <- best
         batch <- batch + 1

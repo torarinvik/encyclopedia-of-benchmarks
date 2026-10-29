@@ -10,13 +10,13 @@ struct McCatTrieNode:
     postfix: usize
     other_char: usize
 
-def mccat_trie_new_node(nodes: mutable McCatTrieNode&, used: mutable usize&, value: u8) -> usize:
+def mccat_trie_new_node(nodes: mutable view[McCatTrieNode], used: mutable usize&, value: u8) -> usize:
     used <- used + 1
     nodes[used].value <- value
     used
 
-def mccat_trie_new_suffix(nodes: mutable McCatTrieNode&, used: mutable usize&,
-                          input: i64&, start: usize, word_length: usize) -> usize:
+def mccat_trie_new_suffix(nodes: mutable view[McCatTrieNode], used: mutable usize&,
+                          input: view[i64], start: usize, word_length: usize) -> usize:
     root: usize = mccat_trie_new_node(nodes, used, input[start].u8())
     current: mutable usize = root
     offset: mutable usize = 1
@@ -28,8 +28,8 @@ def mccat_trie_new_suffix(nodes: mutable McCatTrieNode&, used: mutable usize&,
     nodes[current].terminal <- true
     root
 
-def mccat_trie_insert_word(nodes: mutable McCatTrieNode&, used: mutable usize&, current: usize,
-                           input: i64&, start: usize, word_length: usize, offset: usize) -> void:
+def mccat_trie_insert_word(nodes: mutable view[McCatTrieNode], used: mutable usize&, current: usize,
+                           input: view[i64], start: usize, word_length: usize, offset: usize) -> void:
     if nodes[current].value == input[start + offset].u8():
         if offset + 1 == word_length:
             nodes[current].terminal <- true
@@ -42,15 +42,15 @@ def mccat_trie_insert_word(nodes: mutable McCatTrieNode&, used: mutable usize&, 
     else:
         mccat_trie_insert_word(nodes, used, nodes[current].other_char, input, start, word_length, offset)
 
-def mccat_trie_measure(nodes: McCatTrieNode&, current: usize, depth: usize,
+def mccat_trie_measure(nodes: view[McCatTrieNode], current: usize, depth: usize,
                        output_length: mutable usize&) -> void:
     if current == 0: return
     if nodes[current].terminal: output_length <- output_length + depth + 2
     mccat_trie_measure(nodes, nodes[current].postfix, depth + 1, output_length)
     mccat_trie_measure(nodes, nodes[current].other_char, depth, output_length)
 
-def mccat_trie_emit(nodes: McCatTrieNode&, current: usize, depth: usize,
-                    prefix: mutable u8&, output: mutable u8&, position: mutable usize&) -> void:
+def mccat_trie_emit(nodes: view[McCatTrieNode], current: usize, depth: usize,
+                    prefix: mutable view[u8], output: mutable view[u8], position: mutable usize&) -> void:
     if current == 0: return
     prefix[depth] <- nodes[current].value
     if nodes[current].terminal:
@@ -90,23 +90,27 @@ def mccat_trie_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
     if position != length: return -1
 
     nodes: mutable McCatTrieNode[MCCAT_TRIE_MAX_NODES + 1] = zeroed
+    nodes_view: mutable view[McCatTrieNode] = nodes[0:MCCAT_TRIE_MAX_NODES + 1]
+    input_view: view[i64] = input[0:length]
     used: mutable usize = 0
     root: mutable usize = 0
     index <- 0
     while index < word_count:
         if root == 0:
-            root <- mccat_trie_new_suffix(nodes, used, input, starts[index], lengths[index])
+            root <- mccat_trie_new_suffix(nodes_view, used, input_view, starts[index], lengths[index])
         else:
-            mccat_trie_insert_word(nodes, used, root, input, starts[index], lengths[index], 0)
+            mccat_trie_insert_word(nodes_view, used, root, input_view, starts[index], lengths[index], 0)
         index <- index + 1
     output_length: mutable usize = 0
-    mccat_trie_measure(nodes, root, 0, output_length)
+    mccat_trie_measure(nodes_view, root, 0, output_length)
     if output_length > MCCAT_TRIE_MAX_OUTPUT_BYTES: return -1
     if output_length > 0 and (output == null or capacity < output_length): return -2
     if output_length == 0: return 0
     prefix: mutable u8[MCCAT_TRIE_MAX_WORD_LENGTH] = zeroed
+    prefix_view: mutable view[u8] = prefix[0:MCCAT_TRIE_MAX_WORD_LENGTH]
+    output_view: mutable view[u8] = output[0:output_length]
     position <- 0
-    mccat_trie_emit(nodes, root, 0, prefix, output, position)
+    mccat_trie_emit(nodes_view, root, 0, prefix_view, output_view, position)
     position.i64()
 
 export fn mccat_trie(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = mccat_trie_impl

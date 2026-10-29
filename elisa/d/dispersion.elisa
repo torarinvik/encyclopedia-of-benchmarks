@@ -1,7 +1,7 @@
 extern sqrt(value: f64) -> f64
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def dispersion_put_f64_le(value: f64, output: mutable u8&, offset: usize) -> void:
+def dispersion_put_f64_le(value: f64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for byte in 0..<8:
@@ -21,8 +21,8 @@ def dispersion_impl(values: i64&, length: usize, output: mutable u8&, capacity: 
         deviation: f64 = values[i].f64() - mean
         squared_deviations <- squared_deviations + deviation * deviation
     variance: f64 = squared_deviations / length.f64()
-    dispersion_put_f64_le(variance, output, 0)
-    dispersion_put_f64_le(sqrt(variance), output, 8)
+    dispersion_put_f64_le(variance, output[0:16], 0)
+    dispersion_put_f64_le(sqrt(variance), output[0:16], 8)
     16
 
 export fn dispersion(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = dispersion_impl

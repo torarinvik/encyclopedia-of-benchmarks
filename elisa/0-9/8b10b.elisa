@@ -8,7 +8,8 @@ const RAW5: u32[32] = [
 ]
 const RAW3: u32[8] = [0x0c08, 0x0c04, 0x1009, 0x100c, 0x1011, 0x1014, 0x0018, 0x041c]
 
-def encode_one(packed_word: u32, disparity: mutable u32&) -> u32:
+def encode_one(packed_word: u32, initial_disparity: u32) -> (u32, u32):
+    disparity: mutable u32 = initial_disparity
     data: u32 = packed_word & 255
     k: u32 = packed_word >> 8
     index5: usize = (data >> 3).usize()
@@ -44,9 +45,9 @@ def encode_one(packed_word: u32, disparity: mutable u32&) -> u32:
         flip3: u32 = if (lookup3 & 0x0400) != 0: 1 else: 0
         if disparity1 == plus3: result <- result | code3 else: result <- result | (code3 ^ 0x001d)
         disparity <- disparity1 ^ flip3
-    result
+    (result, disparity)
 
-def append_line(value: u32, staged: mutable u8&, used: mutable usize&) -> void:
+def append_line(value: u32, staged: mutable view[u8], used: usize) -> usize:
     digit: mutable usize = 0
     while digit < 8:
         shift: usize = (7 - digit) * 4
@@ -59,18 +60,16 @@ def append_line(value: u32, staged: mutable u8&, used: mutable usize&) -> void:
         digit <- digit + 1
     staged[used] <- 10.u8()
     used <- used + 1
+    used
 
-def versabench_8b10b_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if length > MAX_WORDS or (length > 0 and input.is_null()): return -1
-    index: mutable usize = 0
-    while index < length:
-        if input[index] < 0 or input[index] > 511: return -1
-        index <- index + 1
+def versabench_8b10b_impl(input: view[i64], length: usize,
+        output: mutable view[u8], capacity: usize) -> i64:
+    if length > MAX_WORDS: return -1
 
     sample_count: usize = 0
     if length > 0: sample_count <- 1 + (length - 1) / 128
     required: usize = sample_count * 9
-    if required > 0 and (output.is_null() or capacity < required): return -2
+    if required > 0 and capacity < required: return -2
 
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
     used: mutable usize = 0
@@ -79,9 +78,10 @@ def versabench_8b10b_impl(input: i64&, length: usize, output: mutable u8&, capac
     while pass_index < length:
         index <- 0
         while index < length:
-            encoded: u32 = encode_one(input[index].u32(), disparity&)
+            (encoded, next_disparity): (u32, u32) = encode_one(input[index].u32(), disparity)
+            disparity <- next_disparity
             if pass_index + 1 == length and index % 128 == 0:
-                append_line(encoded, staged&, used&)
+                used <- append_line(encoded, staged[0:MAX_OUTPUT_BYTES], used)
             index <- index + 1
         pass_index <- pass_index + 1
 
@@ -92,4 +92,14 @@ def versabench_8b10b_impl(input: i64&, length: usize, output: mutable u8&, capac
     used.i64()
 
 export fn versabench_8b10b(input: i64&, length: usize,
-    output: mutable u8&, capacity: usize) -> i64 = versabench_8b10b_impl
+    output: mutable u8&, capacity: usize) -> i64:
+    if length > MAX_WORDS or (length > 0 and input.is_null()): return -1
+    if length == 0: return 0
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < 0 or input[index] > 511: return -1
+        index <- index + 1
+    sample_count: usize = 1 + (length - 1) / 128
+    required: usize = sample_count * 9
+    if output.is_null() or capacity < required: return -2
+    versabench_8b10b_impl(input[0:length], length, output[0:capacity], capacity)

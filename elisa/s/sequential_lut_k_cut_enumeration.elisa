@@ -32,7 +32,7 @@ def cut_add(cuts: mutable u64[MAX_N*MAX_CUTS], counts: mutable usize[MAX_N], nod
         cuts[node*MAX_CUTS+counts[node]] <- mask
         counts[node] <- counts[node]+1
 
-def cut_put_i64(value: i64, output: mutable u8&, word: usize):
+def cut_put_i64(value: i64, output: mutable view[u8], word: usize):
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -95,9 +95,9 @@ def sequential_lut_k_cut_enumeration(input: i64&, length: usize, output: mutable
     while v<n:words<-words+1+counts[v];v<-v+1
     bytes:=words*8
     if output.is_null() or capacity<bytes:return -2
-    cut_put_i64(n.i64(),output&,0);at:mutable usize=1;v<-0
+    cut_put_i64(n.i64(),output[0:bytes],0);at:mutable usize=1;v<-0
     while v<n:
-        cut_put_i64(counts[v].i64(),output&,at);at<-at+1;i<-0
-        while i<counts[v]:cut_put_i64(cuts[v*MAX_CUTS+i].i64(),output&,at);at<-at+1;i<-i+1
+        cut_put_i64(counts[v].i64(),output[0:bytes],at);at<-at+1;i<-0
+        while i<counts[v]:cut_put_i64(cuts[v*MAX_CUTS+i].i64(),output[0:bytes],at);at<-at+1;i<-i+1
         v<-v+1
     bytes.i64()

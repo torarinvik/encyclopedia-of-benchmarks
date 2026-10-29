@@ -1,7 +1,7 @@
 const MAX_TOTAL: usize = 36
 const SCALE: i64 = 10000000
 
-def problem205_distribution(sides: i64, dice: i64, output: mutable i64&) -> bool:
+def problem205_distribution(sides: i64, dice: i64, output: mutable view[i64]) -> bool:
     current: mutable i64[37] = zeroed
     next: mutable i64[37] = zeroed
     current[0] <- 1
@@ -35,8 +35,8 @@ def problem205_impl(placeholder: i64) -> i64:
         return -1
     peter: mutable i64[37] = zeroed
     colin: mutable i64[37] = zeroed
-    problem205_distribution(4, 9, peter)
-    problem205_distribution(6, 6, colin)
+    problem205_distribution(4, 9, peter[0:MAX_TOTAL + 1])
+    problem205_distribution(6, 6, colin[0:MAX_TOTAL + 1])
     wins: mutable i64 = 0
     colin_below: mutable i64 = 0
     total: mutable usize = 0

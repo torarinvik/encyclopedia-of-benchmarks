@@ -1,4 +1,4 @@
-def put_i64(output: mutable u8&, offset: usize, value: i64):
+def put_i64(output: mutable view[u8], offset: usize, value: i64):
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -31,8 +31,8 @@ def simplest_radical_form_impl(values: i64&, length: usize, output: mutable u8&,
             if count % 2 != 0: root_term <- root_term * factor
             factor <- factor + 1
         root_term <- root_term * remainder
-    put_i64(output, 0, coefficient)
-    put_i64(output, 8, root_term)
+    put_i64(output[0:16], 0, coefficient)
+    put_i64(output[0:16], 8, root_term)
     16
 
 export fn simplest_radical_form(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = simplest_radical_form_impl

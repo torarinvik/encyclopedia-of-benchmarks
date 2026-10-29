@@ -3,7 +3,7 @@
 const MPI_MAX_N: usize = 256
 const MPI_MAX_OUTPUT: usize = 527
 
-def mpi_write_i64(output: mutable u8&, position_value: usize, value: i64) -> usize:
+def mpi_write_i64(output: mutable view[u8], position_value: usize, value: i64) -> usize:
     position: mutable usize = position_value
     bits: u64 = value.u64()
     for byte in 0..<8:
@@ -69,9 +69,10 @@ def min_palindromic_insert_impl(input: i64&, length: usize,
         out_right <- out_right - 1
 
     payload: mutable u8[MPI_MAX_OUTPUT] = zeroed
+    payload_view: mutable view[u8] = payload[0:MPI_MAX_OUTPUT]
     written: mutable usize = 0
-    written <- mpi_write_i64(payload[0], written, insertions.i64())
-    written <- mpi_write_i64(payload[0], written, palindrome_length.i64())
+    written <- mpi_write_i64(payload_view, written, insertions.i64())
+    written <- mpi_write_i64(payload_view, written, palindrome_length.i64())
     for index in 0..<palindrome_length:
         payload[written] <- palindrome[index]
         written <- written + 1

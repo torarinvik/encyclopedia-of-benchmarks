@@ -1,7 +1,7 @@
 def ipv6_is_hex_digit(value: i64) -> bool:
     (value >= 48 and value <= 57) or (value >= 97 and value <= 102) or (value >= 65 and value <= 70)
 
-def ipv6_valid_text(input: i64&, text_length: usize) -> bool:
+def ipv6_valid_text(input: view[i64], text_length: usize) -> bool:
     if text_length == 0:
         return false
     groups: mutable usize = 0
@@ -10,10 +10,10 @@ def ipv6_valid_text(input: i64&, text_length: usize) -> bool:
     in_group: mutable bool = false
     index: mutable usize = 0
     while index < text_length:
-        value: i64 = input[index + 1]
+        value: i64 = input[index]
         if value == 58:
-            if index + 1 < text_length and input[index + 2] == 58:
-                if (index > 0 and input[index] == 58) or (index + 2 < text_length and input[index + 3] == 58) or compression_count != 0:
+            if index + 1 < text_length and input[index + 1] == 58:
+                if (index > 0 and input[index - 1] == 58) or (index + 2 < text_length and input[index + 2] == 58) or compression_count != 0:
                     return false
                 if in_group:
                     groups <- groups + 1
@@ -53,6 +53,6 @@ def is_ipv6_address_valid_impl(input: i64&, length: usize) -> i64:
         if input[index + 1] < 0 or input[index + 1] > 127:
             return -1
         index <- index + 1
-    if ipv6_valid_text(input, text_length): 1 else: 0
+    if ipv6_valid_text(input[1:text_length + 1], text_length): 1 else: 0
 
 export fn is_ipv6_address_valid(input: i64&, length: usize) -> i64 = is_ipv6_address_valid_impl

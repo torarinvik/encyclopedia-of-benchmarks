@@ -4,7 +4,7 @@ const MAX_M: usize = 64
 const MAX_INPUT: usize = 131
 const MAX_FIELDS: usize = 133
 
-def vc_put_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+def vc_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -142,6 +142,6 @@ def vertex_cover_kernelization(input: i64&, length: usize, output: mutable u8&, 
     if capacity < 8 * count: return -2
     i: mutable usize = 0
     while i < count:
-        vc_put_i64(staged[i], output&, 8 * i)
+        vc_put_i64(staged[i], output[0:capacity], 8 * i)
         i <- i + 1
     (8 * count).i64()

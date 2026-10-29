@@ -7,7 +7,7 @@ extern pow(base: f64, exponent: f64) -> f64
 extern fabs(value: f64) -> f64
 extern trunc(value: f64) -> f64
 
-def mean_shift_distance(a: f64&, b: f64&, a_start: usize, b_start: usize, dimensions: usize) -> f64:
+def mean_shift_distance(a: view[f64], b: view[f64], a_start: usize, b_start: usize, dimensions: usize) -> f64:
     sum: mutable f64 = 0.0
     for dimension in 0..<dimensions:
         difference: f64 = a[a_start + dimension] - b[b_start + dimension]
@@ -45,7 +45,7 @@ def mean_shift_impl(input: f64&, length: usize, output: mutable f64&, capacity: 
             sums: mutable f64[3] = zeroed
             neighbor_count: mutable usize = 0
             for point_index in 0..<n:
-                distance: f64 = mean_shift_distance(&data[0], &candidates[0], point_index * dimensions, candidate_index * dimensions, dimensions)
+                distance: f64 = mean_shift_distance(data[0:n * dimensions], candidates[0:n * dimensions], point_index * dimensions, candidate_index * dimensions, dimensions)
                 if mean_shift_near(distance, bandwidth): return -1
                 if distance <= bandwidth:
                     neighbor_count <- neighbor_count + 1
@@ -54,7 +54,7 @@ def mean_shift_impl(input: f64&, length: usize, output: mutable f64&, capacity: 
                 next[candidate_index * dimensions + dimension] <- if neighbor_count == 0: candidates[candidate_index * dimensions + dimension] else: sums[dimension] / neighbor_count.f64()
         all_converged: mutable bool = true
         for candidate_index in 0..<n:
-            movement: f64 = mean_shift_distance(&candidates[0], &next[0], candidate_index * dimensions, candidate_index * dimensions, dimensions)
+            movement: f64 = mean_shift_distance(candidates[0:n * dimensions], next[0:n * dimensions], candidate_index * dimensions, candidate_index * dimensions, dimensions)
             if mean_shift_near(movement, tolerance): return -1
             if movement >= tolerance:
                 all_converged <- false
@@ -66,7 +66,7 @@ def mean_shift_impl(input: f64&, length: usize, output: mutable f64&, capacity: 
     for candidate_index in 0..<n:
         keep: mutable bool = true
         for existing in 0..<centroid_count:
-            distance: f64 = mean_shift_distance(&candidates[0], &centroids[0], candidate_index * dimensions, existing * dimensions, dimensions)
+            distance: f64 = mean_shift_distance(candidates[0:n * dimensions], centroids[0:centroid_count * dimensions], candidate_index * dimensions, existing * dimensions, dimensions)
             if mean_shift_near(distance, bandwidth): return -1
             if distance < bandwidth:
                 keep <- false
@@ -77,9 +77,9 @@ def mean_shift_impl(input: f64&, length: usize, output: mutable f64&, capacity: 
     labels: mutable f64[16] = zeroed
     for point_index in 0..<n:
         best_index: mutable usize = 0
-        best_distance: mutable f64 = mean_shift_distance(&data[0], &centroids[0], point_index * dimensions, 0, dimensions)
+        best_distance: mutable f64 = mean_shift_distance(data[0:n * dimensions], centroids[0:centroid_count * dimensions], point_index * dimensions, 0, dimensions)
         for centroid_index in 1..<centroid_count:
-            distance: f64 = mean_shift_distance(&data[0], &centroids[0], point_index * dimensions, centroid_index * dimensions, dimensions)
+            distance: f64 = mean_shift_distance(data[0:n * dimensions], centroids[0:centroid_count * dimensions], point_index * dimensions, centroid_index * dimensions, dimensions)
             if distance != best_distance and mean_shift_near(distance, best_distance): return -1
             if distance < best_distance:
                 best_index <- centroid_index

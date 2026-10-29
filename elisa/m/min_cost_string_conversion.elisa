@@ -1,6 +1,6 @@
 const MAX_CELLS: usize = 1089
 
-def min_cost_string_conversion_put_i64(output: mutable u8&, position: mutable usize&, value: i64) -> void:
+def min_cost_string_conversion_put_i64(output: mutable view[u8], position: mutable usize&, value: i64) -> void:
     bits: mutable u64 = value.u64()
     index: mutable usize = 0
     while index < 8:
@@ -90,20 +90,21 @@ def min_cost_string_conversion_impl(input: i64&, length: usize, output: mutable 
         i <- i + 1
     needed: usize = 32 + cells * 32
     if output == null or capacity < needed: return -2
+    output_view: mutable view[u8] = output[0:needed]
     position: mutable usize = 0
-    min_cost_string_conversion_put_i64(output, position&, rows.i64())
-    min_cost_string_conversion_put_i64(output, position&, cols.i64())
+    min_cost_string_conversion_put_i64(output_view, position&, rows.i64())
+    min_cost_string_conversion_put_i64(output_view, position&, cols.i64())
     index <- 0
     while index < cells:
-        min_cost_string_conversion_put_i64(output, position&, dp[index])
+        min_cost_string_conversion_put_i64(output_view, position&, dp[index])
         index <- index + 1
-    min_cost_string_conversion_put_i64(output, position&, rows.i64())
-    min_cost_string_conversion_put_i64(output, position&, cols.i64())
+    min_cost_string_conversion_put_i64(output_view, position&, rows.i64())
+    min_cost_string_conversion_put_i64(output_view, position&, cols.i64())
     index <- 0
     while index < cells:
-        min_cost_string_conversion_put_i64(output, position&, codes[index])
-        min_cost_string_conversion_put_i64(output, position&, chars_a[index])
-        min_cost_string_conversion_put_i64(output, position&, chars_b[index])
+        min_cost_string_conversion_put_i64(output_view, position&, codes[index])
+        min_cost_string_conversion_put_i64(output_view, position&, chars_a[index])
+        min_cost_string_conversion_put_i64(output_view, position&, chars_b[index])
         index <- index + 1
     position.i64()
 

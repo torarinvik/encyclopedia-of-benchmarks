@@ -5,7 +5,7 @@ const MAX_TRIALS: usize = 8
 const MAX_INPUT: usize = 232
 const MAX_OUTPUT: usize = 64
 
-def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -99,15 +99,15 @@ def color_coding_random_k_path(input: i64&, length: usize,
             byte_count: usize = 8 * (k + 2)
             if output == null or capacity < byte_count: return -2
             staged: mutable u8[MAX_OUTPUT] = zeroed
-            put_i64(&staged[0], 0, 1)
-            put_i64(&staged[0], 8, (trial + 1).i64())
-            for position in 0..<k: put_i64(&staged[0], 8 * (position + 2), paths[full][best.usize()][position])
+            put_i64(staged[0:byte_count], 0, 1)
+            put_i64(staged[0:byte_count], 8, (trial + 1).i64())
+            for position in 0..<k: put_i64(staged[0:byte_count], 8 * (position + 2), paths[full][best.usize()][position])
             for byte in 0..<byte_count: output[byte] <- staged[byte]
             return byte_count.i64()
         trial <- trial + 1
     if output == null or capacity < 16: return -2
     staged: mutable u8[16] = zeroed
-    put_i64(&staged[0], 0, 0)
-    put_i64(&staged[0], 8, 0)
+    put_i64(staged[0:16], 0, 0)
+    put_i64(staged[0:16], 8, 0)
     for byte in 0..<16: output[byte] <- staged[byte]
     16

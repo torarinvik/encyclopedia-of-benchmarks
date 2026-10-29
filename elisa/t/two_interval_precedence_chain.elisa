@@ -1,6 +1,6 @@
 // Clean-room longest precedence chain of 2-intervals.
 const MAX_N: usize = 16
-def interval_before(input: i64&, a: usize, b: usize) -> bool:
+def interval_before(input: view[i64], a: usize, b: usize) -> bool:
     field: mutable usize = 0
     while field < 4:
         x: i64 = input[1+4*a+field]
@@ -8,9 +8,9 @@ def interval_before(input: i64&, a: usize, b: usize) -> bool:
         if x != y: return x < y
         field <- field+1
     a < b
-def interval_precedes(input: i64&, a: usize, b: usize) -> bool:
+def interval_precedes(input: view[i64], a: usize, b: usize) -> bool:
     input[1+4*a+1] < input[1+4*b] and input[1+4*a+3] < input[1+4*b+2]
-def path_lex_less(a: usize[MAX_N], an: usize, b: usize[MAX_N], bn: usize) -> bool:
+def path_lex_less(a: view[usize], an: usize, b: view[usize], bn: usize) -> bool:
     limit: usize = if an < bn: an else: bn
     i: mutable usize = 0
     while i < limit:
@@ -21,6 +21,7 @@ def two_interval_precedence_chain(input: i64&, length: usize, output: mutable u8
     if input.is_null() or length < 5 or length > 65 or input[0] < 1 or input[0] > MAX_N.i64(): return -1
     n: usize = input[0].usize()
     if length != 1+4*n: return -1
+    data: view[i64] = input[0:length]
     i: mutable usize = 0
     while i < n:
         p: usize = 1+4*i
@@ -37,7 +38,7 @@ def two_interval_precedence_chain(input: i64&, length: usize, output: mutable u8
     while i < n:
         value: usize = order[i]
         j: mutable usize = i
-        while j > 0 and interval_before(input&, value, order[j-1]): order[j] <- order[j-1]; j <- j-1
+        while j > 0 and interval_before(data, value, order[j-1]): order[j] <- order[j-1]; j <- j-1
         order[j] <- value
         i <- i+1
     paths: mutable usize[MAX_N*MAX_N] = zeroed
@@ -48,7 +49,7 @@ def two_interval_precedence_chain(input: i64&, length: usize, output: mutable u8
         lengths[i] <- 1
         j: mutable usize = 0
         while j < i:
-            if interval_precedes(input&, order[j], order[i]):
+            if interval_precedes(data, order[j], order[i]):
                 candidate: mutable usize[MAX_N] = zeroed
                 q <- 0
                 while q < lengths[j]: candidate[q] <- paths[j*MAX_N+q]; q <- q+1
@@ -57,7 +58,7 @@ def two_interval_precedence_chain(input: i64&, length: usize, output: mutable u8
                 current: mutable usize[MAX_N] = zeroed
                 q <- 0
                 while q < lengths[i]: current[q] <- paths[i*MAX_N+q]; q <- q+1
-                if m > lengths[i] or (m == lengths[i] and path_lex_less(candidate, m, current, lengths[i])):
+                if m > lengths[i] or (m == lengths[i] and path_lex_less(candidate[0:MAX_N], m, current[0:MAX_N], lengths[i])):
                     q <- 0
                     while q < m: paths[i*MAX_N+q] <- candidate[q]; q <- q+1
                     lengths[i] <- m
@@ -72,7 +73,7 @@ def two_interval_precedence_chain(input: i64&, length: usize, output: mutable u8
         while j < lengths[i]: current[j] <- paths[i*MAX_N+j]; j <- j+1
         j <- 0
         while j < lengths[best]: previous[j] <- paths[best*MAX_N+j]; j <- j+1
-        if lengths[i] > lengths[best] or (lengths[i] == lengths[best] and path_lex_less(current, lengths[i], previous, lengths[best])): best <- i
+        if lengths[i] > lengths[best] or (lengths[i] == lengths[best] and path_lex_less(current[0:MAX_N], lengths[i], previous[0:MAX_N], lengths[best])): best <- i
         i <- i+1
     fields: mutable i64[MAX_N+1] = zeroed
     fields[0] <- lengths[best].i64()

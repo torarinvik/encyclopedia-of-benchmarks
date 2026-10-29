@@ -4,7 +4,7 @@ const GBBS_WIDEST_MAX_M: usize = 64
 const GBBS_WIDEST_MAX_INPUT: usize = 195
 const GBBS_WIDEST_SOURCE_INFINITY: i64 = 2147483647
 
-def gbbs_widest_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def gbbs_widest_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -62,6 +62,6 @@ def gbbs_ss_widest_path(input: i64&, length: usize, output: mutable u8&, capacit
         step <- step + 1
     vertex <- 0
     while vertex < n:
-        gbbs_widest_store_i64_le(width[vertex], output, 8 * vertex)
+        gbbs_widest_store_i64_le(width[vertex], output[0:capacity], 8 * vertex)
         vertex <- vertex + 1
     output_bytes.i64()

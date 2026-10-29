@@ -1,6 +1,6 @@
 # Circle sort compares mirrored pairs, recurses into both halves, and repeats
 # until a complete pass makes no swaps.
-def circle_sort_range(values: mutable i64&, left_value: usize, right_value: usize) -> bool:
+def circle_sort_range(values: mutable view[i64], left_value: usize, right_value: usize) -> bool:
     if left_value >= right_value:
         return false
 
@@ -28,7 +28,7 @@ def circle_sort_range(values: mutable i64&, left_value: usize, right_value: usiz
 
 def circle_sort_impl(values: mutable i64&, length: usize) -> void:
     if length > 1:
-        while circle_sort_range(values, 0, length - 1):
+        while circle_sort_range(values[0:length], 0, length - 1):
             pass
 
 export fn circle_sort(values: mutable i64&, length: usize) -> void = circle_sort_impl

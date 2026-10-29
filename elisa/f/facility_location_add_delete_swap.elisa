@@ -2,7 +2,7 @@ const FL_MAX_TOTAL: usize = 8
 const FL_MAX_M: usize = 7
 const FL_MAX_INPUT: usize = 75
 
-def fl_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def fl_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -120,13 +120,13 @@ def facility_location_add_delete_swap(input: i64&, length: usize,
         j <- j + 1
     out_bytes: usize = 8 * (2 + n + count)
     if output.is_null() or capacity < out_bytes: return -2
-    fl_put(current_cost, output, 0)
-    fl_put(count.i64(), output, 8)
+    fl_put(current_cost, output[0:out_bytes], 0)
+    fl_put(count.i64(), output[0:out_bytes], 8)
     at: mutable usize = 16
     j <- 0
     while j < m:
         if (current & (1u64 << j)) != 0:
-            fl_put(j.i64(), output, at)
+            fl_put(j.i64(), output[0:out_bytes], at)
             at <- at + 8
         j <- j + 1
     u: mutable usize = 0
@@ -139,7 +139,7 @@ def facility_location_add_delete_swap(input: i64&, length: usize,
                 dist <- d[u * q + n + j]
                 best_facility <- j
             j <- j + 1
-        fl_put(best_facility.i64(), output, at)
+        fl_put(best_facility.i64(), output[0:out_bytes], at)
         at <- at + 8
         u <- u + 1
     at.i64()

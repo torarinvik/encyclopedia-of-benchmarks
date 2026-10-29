@@ -1,4 +1,4 @@
-def put64(output: mutable u8&, pos: mutable usize&, value: i64) -> void:
+def put64(output: mutable view[u8], pos: mutable usize&, value: i64) -> void:
     bits: u64 = value.u64()
     for j in 0..<8: output[pos] <- ((bits >> (8*j)) & 255).u8(); pos <- pos+1
 
@@ -41,6 +41,6 @@ def stack_tracking_min_max_impl(input: i64&, length: usize, output: mutable u8&,
     if output == null || capacity < need: return -2
     pos: mutable usize = 0
     for i in 0..<rc:
-        for j in 0..<3: put64(output,pos,records[i][j])
+        for j in 0..<3: put64(output[0:capacity],pos,records[i][j])
     pos.i64()
 export fn stack_tracking_min_max(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = stack_tracking_min_max_impl

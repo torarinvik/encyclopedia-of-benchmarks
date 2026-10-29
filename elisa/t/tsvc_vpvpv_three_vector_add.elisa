@@ -1,7 +1,7 @@
 # Clean-room implementation of TSVC vpvpv; see package rights note.
 const TSVC_VTV_MAX_N: usize = 32
 const TSVC_VTV_MAX_INPUT_LENGTH: usize = 98
-def tsvc_vtv_store_i64_le(value:i64,out:mutable u8&,offset:usize)->void:
+def tsvc_vtv_store_i64_le(value:i64,out:mutable view[u8],offset:usize)->void:
  bits:u64=value.u64();j:mutable usize=0
  while j<8: out[offset+j]<-((bits>>(8*j))&255).u8();j<-j+1
 def tsvc_vpvpv_three_vector_add_impl(input:i64&,length:usize,out:mutable u8&,capacity:usize)->i64:
@@ -22,6 +22,6 @@ def tsvc_vpvpv_three_vector_add_impl(input:i64&,length:usize,out:mutable u8&,cap
   while i<n:a[i]<-a[i]+b[i]+c[i];i<-i+1
   p<-p+1
  i<-0
- while i<n:tsvc_vtv_store_i64_le(a[i].i64(),out,8*i);i<-i+1
+ while i<n:tsvc_vtv_store_i64_le(a[i].i64(),out[0:capacity],8*i);i<-i+1
  output_bytes.i64()
 export fn tsvc_vpvpv_three_vector_add(input:i64&,length:usize,out:mutable u8&,capacity:usize)->i64=tsvc_vpvpv_three_vector_add_impl

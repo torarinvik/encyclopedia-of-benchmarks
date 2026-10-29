@@ -22,7 +22,7 @@ def gp(a0: u8, n0: u32) -> u8:
         n <- n >> 1
     r
 
-def decrypt_block(key: u8&, input: u8&) -> u8[16]:
+def decrypt_block(key: view[u8], input: view[u8]) -> u8[16]:
     s: mutable u8[256] = zeroed
     inv: mutable u8[256] = zeroed
     for x in 0..<256:
@@ -85,7 +85,7 @@ def cbench_security_rijndael_decrypt_impl(input: i64&, input_length: usize,
     block: mutable u8[16] = zeroed
     for i in 0..<32: key[i] <- input[i].u8()
     for i in 0..<16: block[i] <- input[32+i].u8()
-    plain: u8[16] = decrypt_block(key[0], block[0])
+    plain: u8[16] = decrypt_block(key[0:32], block[0:16])
     for i in 0..<16: output[i] <- plain[i]
     16
 

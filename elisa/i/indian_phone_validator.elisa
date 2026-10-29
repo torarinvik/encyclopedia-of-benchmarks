@@ -1,7 +1,7 @@
 def is_ascii_whitespace(value: i64) -> bool:
     value == 9 or value == 10 or value == 11 or value == 12 or value == 13 or value == 32
 
-def mobile_tail(phone: i64&, end: usize, position: usize) -> bool:
+def mobile_tail(phone: view[i64], end: usize, position: usize) -> bool:
     if position > end or end - position != 10:
         return false
     if phone[position] < 55 or phone[position] > 57:
@@ -47,7 +47,7 @@ def indian_phone_validator_impl(phone: i64&, length: usize) -> i64:
                     country <- country + 1
                     continue
                 position <- position + 2
-            if mobile_tail(phone, end, position):
+            if mobile_tail(phone[0:length], end, position):
                 return 1
             country <- country + 1
         zero <- zero + 1

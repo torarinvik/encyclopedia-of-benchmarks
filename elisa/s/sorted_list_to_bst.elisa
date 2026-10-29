@@ -1,5 +1,6 @@
 # Build a height-balanced BST from a sorted linked-list value sequence and serialize it.
-def sorted_list_to_bst_emit(values: i64&, start: usize, end: usize, output: mutable u8&, position: usize) -> usize:
+def sorted_list_to_bst_emit(values: view[i64], start: usize, end: usize,
+        output: mutable view[u8], position: usize) -> usize:
     if start == end:
         output[position] <- 0
         return position + 1
@@ -32,7 +33,7 @@ def sorted_list_to_bst_impl(values: i64&, length: usize, output: mutable u8&, ou
     required: usize = 6 * length + 1
     if output_capacity < required:
         return -2
-    sorted_list_to_bst_emit(values, 0, length, output, 0)
+    sorted_list_to_bst_emit(values[0:length], 0, length, output[0:required], 0)
     length.i64()
 
 export fn sorted_list_to_bst(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = sorted_list_to_bst_impl

@@ -1,4 +1,4 @@
-def sierpinski_triangle_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def sierpinski_triangle_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -6,7 +6,7 @@ def sierpinski_triangle_write_i64(output: mutable u8&, offset: usize, value: i64
         bits <- bits >> 8
         byte <- byte + 1
 
-def sierpinski_triangle_emit(output: mutable u8&, position: mutable usize&,
+def sierpinski_triangle_emit(output: mutable view[u8], position: mutable usize&,
                              x0: i64, y0: i64, x1: i64, y1: i64) -> void:
     sierpinski_triangle_write_i64(output, position, x0)
     position <- position + 8
@@ -17,7 +17,7 @@ def sierpinski_triangle_emit(output: mutable u8&, position: mutable usize&,
     sierpinski_triangle_write_i64(output, position, y1)
     position <- position + 8
 
-def sierpinski_triangle_draw(output: mutable u8&, position: mutable usize&,
+def sierpinski_triangle_draw(output: mutable view[u8], position: mutable usize&,
                              x1: i64, y1: i64, x2: i64, y2: i64,
                              x3: i64, y3: i64, depth: i64) -> void:
     sierpinski_triangle_emit(output, position, x1, y1, x2, y2)
@@ -47,7 +47,7 @@ def sierpinski_triangle_impl(input: i64&, length: usize, output: mutable u8&, ca
     if needed > 11616: return -1
     if output == null or capacity < needed: return -2
     position: mutable usize = 0
-    sierpinski_triangle_draw(output, position, -2800, -2000, 0, 2800, 2800, -2000, depth)
+    sierpinski_triangle_draw(output[0:needed], position, -2800, -2000, 0, 2800, 2800, -2000, depth)
     needed.i64()
 
 export fn sierpinski_triangle(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = sierpinski_triangle_impl

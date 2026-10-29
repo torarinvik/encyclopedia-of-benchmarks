@@ -1,7 +1,7 @@
 const MAX_N:usize=8
 const MAX_INPUT:usize=76
 
-def put64(value:i64,output:mutable u8&,pos:usize)->void:
+def put64(value:i64,output:mutable view[u8],pos:usize)->void:
     bits:u64=value.u64()
     j:mutable usize=0
     while j<8:
@@ -44,5 +44,5 @@ def distributed_coupon_collection_replay(input:i64&,length:usize,output:mutable 
             b<-b+1
         if open_count==1:singleton_steps<-singleton_steps+1; collected<-collected|bins[opened_bin]
         step<-step+1
-    put64(collected.i64(),output&,0); put64(singleton_steps,output&,8)
+    put64(collected.i64(),output[0:16],0); put64(singleton_steps,output[0:16],8)
     16

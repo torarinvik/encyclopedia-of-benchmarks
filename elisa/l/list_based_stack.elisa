@@ -4,7 +4,7 @@ const MAX_INPUT_LENGTH: usize = 162
 const MAX_STACK_SIZE: usize = 96
 const MAX_OUTPUT_BYTES: usize = 1024
 
-def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def put_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -103,8 +103,8 @@ def list_based_stack_impl(input: i64&, length: usize, output: mutable u8&, capac
                 item <- item + 1
         else:
             stack_size <- 0
-        put_i64_le(opcode, buffer, written)
-        put_i64_le(result, buffer, written + 8)
+        put_i64_le(opcode, buffer[0:MAX_OUTPUT_BYTES], written)
+        put_i64_le(result, buffer[0:MAX_OUTPUT_BYTES], written + 8)
         written <- written + 16
         index <- index + 1
 

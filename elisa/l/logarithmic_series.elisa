@@ -7,7 +7,7 @@ def logarithmic_series_decimal_width(value_input: i64) -> usize:
         width <- width + 1
     width
 
-def logarithmic_series_append_decimal(output: mutable u8&, position_input: usize, value_input: i64) -> usize:
+def logarithmic_series_append_decimal(output: mutable view[u8], position_input: usize, value_input: i64) -> usize:
     value: mutable i64 = value_input
     digits: mutable u8[20] = zeroed
     count: mutable usize = 0
@@ -52,15 +52,15 @@ def logarithmic_series_impl(values: i64&, length: usize, output: mutable u8&, ou
             position <- position + 1
         output[position] <- 40u8
         position <- position + 1
-        position <- logarithmic_series_append_decimal(output, position, base)
+        position <- logarithmic_series_append_decimal(output[0:needed], position, base)
         output[position] <- 94u8
         position <- position + 1
-        position <- logarithmic_series_append_decimal(output, position, term)
+        position <- logarithmic_series_append_decimal(output[0:needed], position, term)
         output[position] <- 41u8
         position <- position + 1
         output[position] <- 47u8
         position <- position + 1
-        position <- logarithmic_series_append_decimal(output, position, term)
+        position <- logarithmic_series_append_decimal(output[0:needed], position, term)
         output[position] <- 10u8
         position <- position + 1
         term <- term + 1

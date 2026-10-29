@@ -1,6 +1,6 @@
 const N: usize = 1023
 
-def diff_views_impl(a: i64&, n: usize, root: i64, view: i64, out: mutable i64&, cap: usize) -> i64:
+def diff_views_impl(a: view[i64], n: usize, root: i64, view: i64, out: mutable view[i64], cap: usize) -> i64:
     if n > N or view < 0 or view > 3:
         return -1
     if n == 0:
@@ -92,4 +92,5 @@ def diff_views_impl(a: i64&, n: usize, root: i64, view: i64, out: mutable i64&, 
     return written.i64()
 
 export fn diff_views_of_binary_tree(a: i64&, n: usize, root: i64, view: i64,
-        out: mutable i64&, cap: usize) -> i64 = diff_views_impl
+        out: mutable i64&, cap: usize) -> i64:
+    diff_views_impl(a[0:3 * n], n, root, view, out[0:cap], cap)

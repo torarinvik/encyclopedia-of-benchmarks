@@ -2,7 +2,7 @@ const MAX_TEXT: usize = 24
 const MAX_INPUT: usize = 26
 const MAX_OUTPUT: usize = 34504
 
-def max_window_mismatches(text: i64&, start: usize, length: usize, period: usize) -> usize:
+def max_window_mismatches(text: view[i64], start: usize, length: usize, period: usize) -> usize:
     maximum: mutable usize = 0
     window: mutable usize = 0
     while window < length - 2 * period + 1:
@@ -16,7 +16,7 @@ def max_window_mismatches(text: i64&, start: usize, length: usize, period: usize
         window <- window + 1
     maximum
 
-def run_count(text: i64&, n: usize, budget: usize) -> usize:
+def run_count(text: view[i64], n: usize, budget: usize) -> usize:
     count: mutable usize = 0
     start: mutable usize = 0
     while start < n:
@@ -32,7 +32,7 @@ def run_count(text: i64&, n: usize, budget: usize) -> usize:
         start <- start + 1
     count
 
-def run_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def run_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -52,11 +52,11 @@ def approximate_tandem_k_runs(input: i64&, length: usize,
     while i < n:
         if input[2 + i] < 0 or input[2 + i] > 3: return -1
         i <- i + 1
-    count: usize = run_count(input, n, budget)
+    count: usize = run_count(input[0:length], n, budget)
     bytes: usize = 8 * (1 + 4 * count)
     if bytes > MAX_OUTPUT: return -1
     if output.is_null() or capacity < bytes: return -2
-    run_store(count.i64(), output, 0)
+    run_store(count.i64(), output[0:bytes], 0)
     record: mutable usize = 0
     start: mutable usize = 0
     while start < n:
@@ -65,13 +65,13 @@ def approximate_tandem_k_runs(input: i64&, length: usize,
         while 2 * period + 1 <= remaining:
             factor_length: mutable usize = 2 * period + 1
             while factor_length <= remaining:
-                errors: usize = max_window_mismatches(input, 2 + start, factor_length, period)
+                errors: usize = max_window_mismatches(input[0:length], 2 + start, factor_length, period)
                 if errors <= budget:
                     offset: usize = 8 * (1 + 4 * record)
-                    run_store(start.i64(), output, offset)
-                    run_store(factor_length.i64(), output, offset + 8)
-                    run_store(period.i64(), output, offset + 16)
-                    run_store(errors.i64(), output, offset + 24)
+                    run_store(start.i64(), output[0:bytes], offset)
+                    run_store(factor_length.i64(), output[0:bytes], offset + 8)
+                    run_store(period.i64(), output[0:bytes], offset + 16)
+                    run_store(errors.i64(), output[0:bytes], offset + 24)
                     record <- record + 1
                 factor_length <- factor_length + 1
             period <- period + 1

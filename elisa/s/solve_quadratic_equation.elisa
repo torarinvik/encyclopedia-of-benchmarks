@@ -1,7 +1,7 @@
 extern sqrt(value: f64) -> f64
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def put_f64_le(value: f64, output: mutable u8&, offset: usize) -> void:
+def put_f64_le(value: f64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -22,11 +22,11 @@ def solve_quadratic_equation_impl(input: i64&, length: usize, output: mutable u8
     x2: f64 = -p / 2.0 + root
     if x1 == x2:
         if output.is_null() or capacity < 8: return -2
-        put_f64_le(x1, output, 0)
+        put_f64_le(x1, output[0:capacity], 0)
         return 1
     if output.is_null() or capacity < 16: return -2
-    put_f64_le(x1, output, 0)
-    put_f64_le(x2, output, 8)
+    put_f64_le(x1, output[0:capacity], 0)
+    put_f64_le(x2, output[0:capacity], 8)
     return 2
 
 export fn solve_quadratic_equation(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = solve_quadratic_equation_impl

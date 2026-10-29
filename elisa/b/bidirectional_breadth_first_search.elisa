@@ -3,7 +3,7 @@ const MAX_CELLS: usize = MAX_DIMENSION * MAX_DIMENSION
 const MAX_INPUT_LENGTH: usize = 5 + MAX_CELLS
 const MAX_OUTPUT_VALUES: usize = 1 + MAX_CELLS
 
-def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -114,7 +114,7 @@ def bidirectional_breadth_first_search_impl(input: i64&, length: usize, output: 
     if output.is_null() or capacity < required: return -2
     index <- 0
     while index < value_count:
-        put_i64(output, index * 8, encoded[index])
+        put_i64(output[0:required], index * 8, encoded[index])
         index <- index + 1
     required.i64()
 

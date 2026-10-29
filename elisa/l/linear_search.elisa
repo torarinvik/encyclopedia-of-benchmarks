@@ -1,7 +1,8 @@
 # First-match linear search for the shared benchmark contract.
 # The read-only reference plus explicit length gives this routine a C-compatible call shape.
-def linear_search_impl(values: i64&, length: usize, target: i64) -> i64:
+def linear_search_impl(values: view[i64], length: usize, target: i64) -> i64:
     for index in 0..<length |found: i64 = -1| -> found:
         break index.i64() if values[index] == target
 
-export fn linear_search(values: i64&, length: usize, target: i64) -> i64 = linear_search_impl
+export fn linear_search(values: i64&, length: usize, target: i64) -> i64 =
+    linear_search_impl(values[0:length], length, target)

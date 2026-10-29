@@ -236,16 +236,16 @@ const INITIAL: u32[1042] = [
 const KEY0 = "abcdefghijklmnopqrstuvwxyz"
 const KEY1 = "Who is John Galt?"
 
-def bf_f(x: u32, s: u32[4][256]&) -> u32:
+def bf_f(x: u32, s: view[u32]) -> u32:
     a: usize = ((x >> 24) & 255).usize()
     b: usize = ((x >> 16) & 255).usize()
     c: usize = ((x >> 8) & 255).usize()
     d: usize = (x & 255).usize()
-    first: u64 = (s[0][a].u64() + s[1][b].u64()) & 4294967295
-    second: u64 = (first.u32() ^ s[2][c]).u64() + s[3][d].u64()
+    first: u64 = (s[a].u64() + s[256 + b].u64()) & 4294967295
+    second: u64 = (first.u32() ^ s[512 + c]).u64() + s[768 + d].u64()
     (second & 4294967295).u32()
 
-def bf_enc(left: mutable u32&, right: mutable u32&, p: u32[18]&, s: u32[4][256]&) -> void:
+def bf_enc(left: mutable u32&, right: mutable u32&, p: view[u32], s: view[u32]) -> void:
     x: mutable u32 = left ^ p[0]
     y: mutable u32 = right
     for index in 1..<17:
@@ -260,10 +260,10 @@ def bf_enc(left: mutable u32&, right: mutable u32&, p: u32[18]&, s: u32[4][256]&
     left <- x
     right <- y
 
-def setup(key_id: usize, p: mutable u32[18]&, s: mutable u32[4][256]&) -> void:
+def setup(key_id: usize, p: mutable view[u32], s: mutable view[u32]) -> void:
     for index in 0..<18: p[index] <- INITIAL[index]
     for group in 0..<4:
-        for index in 0..<256: s[group][index] <- INITIAL[18 + group * 256 + index]
+        for index in 0..<256: s[group * 256 + index] <- INITIAL[18 + group * 256 + index]
     key: str = KEY0 if key_id == 0 else KEY1
     key_len: usize = 26 if key_id == 0 else 17
     key_pos: mutable usize = 0
@@ -277,7 +277,7 @@ def setup(key_id: usize, p: mutable u32[18]&, s: mutable u32[4][256]&) -> void:
     right: mutable u32 = 0
     index: mutable usize = 0
     while index < 18:
-        bf_enc(left, right, p, s)
+        bf_enc(left, right, p[0:18], s)
         p[index] <- left
         p[index + 1] <- right
         index <- index + 2
@@ -285,15 +285,15 @@ def setup(key_id: usize, p: mutable u32[18]&, s: mutable u32[4][256]&) -> void:
     while group < 4:
         index <- 0
         while index < 256:
-            bf_enc(left, right, p, s)
-            s[group][index] <- left
-            s[group][index + 1] <- right
+            bf_enc(left, right, p[0:18], s)
+            s[group * 256 + index] <- left
+            s[group * 256 + index + 1] <- right
             index <- index + 2
         group <- group + 1
 
-def bf_block(left: mutable u32&, right: mutable u32&, p: u32[18]&, s: u32[4][256]&, decrypt: bool) -> void:
+def bf_block(left: mutable u32&, right: mutable u32&, p: view[u32], s: view[u32], decrypt: bool) -> void:
     if not decrypt:
-        bf_enc(left, right, p, s)
+        bf_enc(left, right, p[0:18], s)
         return
     x: mutable u32 = left ^ p[17]
     y: mutable u32 = right
@@ -318,7 +318,7 @@ def cbench_blowfish_cbc_impl(input: i64&, length: usize, output: mutable u8&, ca
     if input[0] > 1 or input[1] > 1 or input[2] < 1 or input[2] > 4 or length != 11 + 8 * input[2].usize(): return -1
     blocks: usize = input[2].usize(); needed: usize = 8 * blocks
     if output == null or capacity < needed: return -2
-    p: mutable u32[18] = zeroed; s: mutable u32[4][256] = zeroed; setup(input[1].usize(), p, s)
+    p: mutable u32[18] = zeroed; s: mutable u32[1024] = zeroed; setup(input[1].usize(), p[0:18], s[0:1024])
     previous_left: mutable u32 = 0; previous_right: mutable u32 = 0
     for index in 0..<4:
         previous_left <- (previous_left << 8) | input[3 + index].u32()
@@ -329,10 +329,10 @@ def cbench_blowfish_cbc_impl(input: i64&, length: usize, output: mutable u8&, ca
             left <- (left << 8) | input[base + index].u32()
             right <- (right << 8) | input[base + 4 + index].u32()
         if input[0] == 0:
-            left <- left ^ previous_left; right <- right ^ previous_right; bf_block(left, right, p, s, false)
+            left <- left ^ previous_left; right <- right ^ previous_right; bf_block(left, right, p[0:18], s[0:1024], false)
             previous_left <- left; previous_right <- right
         else:
-            current_left: u32 = left; current_right: u32 = right; bf_block(left, right, p, s, true)
+            current_left: u32 = left; current_right: u32 = right; bf_block(left, right, p[0:18], s[0:1024], true)
             left <- left ^ previous_left; right <- right ^ previous_right
             previous_left <- current_left; previous_right <- current_right
         for index in 0..<4:

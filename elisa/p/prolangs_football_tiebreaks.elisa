@@ -11,7 +11,7 @@ struct FootballGroup:
     hi: usize
     stage: usize
 
-def football_same_division(input: i64&, order: usize[8]&, lo: usize, hi: usize) -> bool:
+def football_same_division(input: view[i64], order: view[usize], lo: usize, hi: usize) -> bool:
     first: usize = 1 + 12 * order[lo]
     position: mutable usize = lo + 1
     while position < hi:
@@ -20,7 +20,7 @@ def football_same_division(input: i64&, order: usize[8]&, lo: usize, hi: usize) 
         position <- position + 1
     true
 
-def football_score(input: i64&, n: usize, order: usize[8]&, lo: usize, hi: usize,
+def football_score(input: view[i64], n: usize, order: view[usize], lo: usize, hi: usize,
                    team: usize, stage: usize, same_div: bool) -> FootballFraction:
     if stage == 0:
         cells: usize = n * n
@@ -58,8 +58,8 @@ def football_compare(a: FootballFraction, b: FootballFraction) -> i64:
     if left < right: return -1
     0
 
-def football_refine(input: i64&, n: usize, order: mutable usize[8]&, lo: usize, hi: usize,
-                    stage: usize, same_div: bool, output: mutable FootballGroup[8]&, output_count: mutable usize&) -> void:
+def football_refine(input: view[i64], n: usize, order: mutable view[usize], lo: usize, hi: usize,
+                    stage: usize, same_div: bool, output: mutable view[FootballGroup], output_count: mutable usize&) -> void:
     index: mutable usize = lo + 1
     while index < hi:
         item: usize = order[index]
@@ -93,7 +93,7 @@ def football_refine(input: i64&, n: usize, order: mutable usize[8]&, lo: usize, 
         output_count <- output_count + 1
         start <- finish
 
-def football_sweep(input: i64&, n: usize, order: usize[8]&, lo: usize, hi: usize) -> i64:
+def football_sweep(input: view[i64], n: usize, order: view[usize], lo: usize, hi: usize) -> i64:
     cells: usize = n * n
     wins_start: usize = 1 + 12 * n
     ties_start: usize = wins_start + cells
@@ -193,12 +193,12 @@ def football_impl(input: i64&, length: usize) -> i64:
                 group_index <- group_index + 1
                 continue
             active <- true
-            same: bool = football_same_division(input, order, lo, hi)
+            same: bool = football_same_division(input[0:length], order[0:n], lo, hi)
             if stage == 0:
                 if same or hi - lo == 2:
-                    football_refine(input, n, order&, lo, hi, 0, same, next&, next_count&)
+                    football_refine(input[0:length], n, order[0:n], lo, hi, 0, same, next[0:8], next_count&)
                 else:
-                    sweep: i64 = football_sweep(input, n, order, lo, hi)
+                    sweep: i64 = football_sweep(input[0:length], n, order[0:n], lo, hi)
                     if sweep > 0:
                         position: usize = lo + (sweep - 1).usize()
                         first: usize = order[lo]
@@ -233,9 +233,9 @@ def football_impl(input: i64&, length: usize) -> i64:
                     next[next_count] <- FootballGroup{lo: lo, hi: hi, stage: 4}
                     next_count <- next_count + 1
                 else:
-                    football_refine(input, n, order&, lo, hi, stage, same, next&, next_count&)
+                    football_refine(input[0:length], n, order[0:n], lo, hi, stage, same, next[0:8], next_count&)
             else:
-                football_refine(input, n, order&, lo, hi, stage, same, next&, next_count&)
+                football_refine(input[0:length], n, order[0:n], lo, hi, stage, same, next[0:8], next_count&)
             group_index <- group_index + 1
         group_index <- 0
         while group_index < next_count:

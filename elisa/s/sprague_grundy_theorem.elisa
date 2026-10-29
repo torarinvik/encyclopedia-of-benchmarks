@@ -4,7 +4,7 @@ const MAX_MOVE_COUNT: usize = 32
 const MAX_MOVE_SIZE: i64 = 32
 const MAX_INPUT_LENGTH: usize = 34
 
-def calculate_grundy(position: i64, memo: mutable i64&, values: i64&, move_count: usize) -> i64:
+def calculate_grundy(position: i64, memo: mutable view[i64], values: view[i64], move_count: usize) -> i64:
     index: usize = position.usize()
     if memo[index] != -1:
         return memo[index]
@@ -48,6 +48,6 @@ def sprague_grundy_theorem_impl(values: i64&, length: usize) -> i64:
     while index <= position.usize():
         memo[index] <- -1
         index <- index + 1
-    return calculate_grundy(position, memo, values, move_count)
+    return calculate_grundy(position, memo[0:65], values[0:length], move_count)
 
 export fn sprague_grundy_theorem(values: i64&, length: usize) -> i64 = sprague_grundy_theorem_impl

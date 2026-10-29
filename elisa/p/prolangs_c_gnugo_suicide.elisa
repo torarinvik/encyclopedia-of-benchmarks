@@ -1,7 +1,7 @@
 ## GNU Go 1.1 provenance: Copyright (C) Free Software Foundation, Inc.
 ## Written by Man L. Li, modified by Wayne Iba, documented by Bob Webber.
 ## Upstream suicide/eval/countlib/count are under GNU GPL version 1; derivative under GPLv1.
-def group_liberties(board: u8&, start: usize, color: u8) -> usize:
+def group_liberties(board: view[u8], start: usize, color: u8) -> usize:
     seen: mutable bool[361] = zeroed
     lib_seen: mutable bool[361] = zeroed
     stack: mutable usize[361] = zeroed
@@ -53,11 +53,11 @@ def prolangs_c_gnugo_suicide_impl(input: i64&, length: usize) -> i64:
     target: usize = (row * 19 + col).usize()
     if board[target] != 0: return -1
     board[target] <- opponent.u8()
-    if group_liberties(board, target, opponent.u8()) > 0: return 0
+    if group_liberties(board[0:361], target, opponent.u8()) > 0: return 0
     dead: mutable i64 = 0
     i: mutable usize = 0
     while i < 361:
-        if board[i] == own.u8() and group_liberties(board, i, own.u8()) == 0: dead <- dead + 1
+        if board[i] == own.u8() and group_liberties(board[0:361], i, own.u8()) == 0: dead <- dead + 1
         i <- i + 1
     if dead == 0 or (dead == 1 and ko == target.i64()): return 1
     0

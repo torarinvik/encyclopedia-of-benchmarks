@@ -1,5 +1,5 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
-def put64(out: mutable u8&, slot: usize, value: f64):
+def put64(out: mutable view[u8], slot: usize, value: f64):
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for k in 0..8:
@@ -28,6 +28,6 @@ def iir_filter_impl(v: i64&, n: usize, out: mutable u8&, capacity: usize) -> i64
         while i > 1:
             i <- i - 1; xh[i] <- xh[i - 1]; yh[i] <- yh[i - 1]
         xh[0] <- x; yh[0] <- y
-        put64(out, sample, y)
+        put64(out[0:bytes], sample, y)
     bytes.i64()
 export fn iir_filter(v: i64&, n: usize, out: mutable u8&, capacity: usize) -> i64 = iir_filter_impl

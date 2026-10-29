@@ -1,4 +1,4 @@
-def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = value.u64()
     byte: usize = 0
     while byte < 8:
@@ -40,7 +40,7 @@ def cross_correlation_impl(values: i64&, length: usize, output: mutable u8&, out
             y_index: usize = y_start + (k - k_min)
             sum <- sum + values[k + 2] * values[x_count + y_index + 2]
             k <- k + 1
-        store_i64_le(sum, output, result_index * 8)
+        store_i64_le(sum, output[0:byte_count], result_index * 8)
         result_index <- result_index + 1
     byte_count.i64()
 

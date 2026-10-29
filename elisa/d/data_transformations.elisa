@@ -29,7 +29,7 @@ def data_transformations_round_three_decimals(value: f64) -> f64:
     if negative: return -result
     return result
 
-def data_transformations_put_f64_le(value: f64, output: mutable u8&, offset: usize) -> void:
+def data_transformations_put_f64_le(value: f64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for byte in 0..<8:
@@ -60,7 +60,7 @@ def data_transformations_impl(values: i64&, length: usize,
         span: f64 = (maximum - minimum).f64()
         for index in 0..<count:
             normalized: f64 = (values[index + 2] - minimum).f64() / span
-            data_transformations_put_f64_le(data_transformations_round_three_decimals(normalized), output, index * 8)
+            data_transformations_put_f64_le(data_transformations_round_three_decimals(normalized), output[0:output_bytes], index * 8)
     else:
         average: f64 = sum.f64() / count.f64()
         variance_numerator: i64 = count.i64() * sum_squares - sum * sum
@@ -68,7 +68,7 @@ def data_transformations_impl(values: i64&, length: usize,
         deviation: f64 = sqrt(variance_numerator.f64() / variance_denominator)
         for index in 0..<count:
             standardized: f64 = (values[index + 2].f64() - average) / deviation
-            data_transformations_put_f64_le(data_transformations_round_three_decimals(standardized), output, index * 8)
+            data_transformations_put_f64_le(data_transformations_round_three_decimals(standardized), output[0:output_bytes], index * 8)
     output_bytes.i64()
 
 export fn data_transformations(values: i64&, length: usize,

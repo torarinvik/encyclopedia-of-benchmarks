@@ -3,7 +3,7 @@ extern sqrt(value: f64) -> f64
 def finite(value: f64) -> bool:
     return value == value and value < 1e300 and value > -1e300
 
-def diagonalize(a: f64&, vectors: mutable f64&, n: usize,
+def diagonalize(a: mutable view[f64], vectors: mutable view[f64], n: usize,
         values: mutable f64[4]) -> bool:
     i: mutable usize = 0
     while i < n:
@@ -179,7 +179,7 @@ def principle_component_analysis_impl(input: f64&, input_length: usize,
         i <- i + 1
     vectors: mutable f64[16] = zeroed
     eigenvalues: mutable f64[4] = zeroed
-    if not diagonalize(&covariance[0], &vectors[0], features, eigenvalues): return -1
+    if not diagonalize(covariance[0:16], vectors[0:16], features, eigenvalues): return -1
     i <- 0
     while i < features:
         if eigenvalues[i] <= 0.0 or not finite(eigenvalues[i]): return -1

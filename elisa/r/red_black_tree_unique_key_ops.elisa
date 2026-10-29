@@ -1,7 +1,7 @@
 const MAX_OPS: usize = 128
 
-def rb_left_rotate(x: usize, root: mutable usize&, left: mutable usize&, right: mutable usize&,
-                   parent: mutable usize&, red: mutable bool&) -> void:
+def rb_left_rotate(x: usize, root: mutable usize&, left: mutable view[usize], right: mutable view[usize],
+                   parent: mutable view[usize], red: mutable view[bool]) -> void:
     y: usize = right[x]
     right[x] <- left[y]
     if left[y] != 0: parent[left[y]] <- x
@@ -12,8 +12,8 @@ def rb_left_rotate(x: usize, root: mutable usize&, left: mutable usize&, right: 
     left[y] <- x
     parent[x] <- y
 
-def rb_right_rotate(y: usize, root: mutable usize&, left: mutable usize&, right: mutable usize&,
-                    parent: mutable usize&, red: mutable bool&) -> void:
+def rb_right_rotate(y: usize, root: mutable usize&, left: mutable view[usize], right: mutable view[usize],
+                    parent: mutable view[usize], red: mutable view[bool]) -> void:
     x: usize = left[y]
     left[y] <- right[x]
     if right[x] != 0: parent[right[x]] <- y
@@ -24,15 +24,15 @@ def rb_right_rotate(y: usize, root: mutable usize&, left: mutable usize&, right:
     right[x] <- y
     parent[y] <- x
 
-def rb_find(root_value: usize, key: i64, keys: i64&, left: usize&, right: usize&) -> usize:
+def rb_find(root_value: usize, key: i64, keys: view[i64], left: view[usize], right: view[usize]) -> usize:
     cursor: mutable usize = root_value
     while cursor != 0 and keys[cursor] != key:
         if key < keys[cursor]: cursor <- left[cursor]
         else: cursor <- right[cursor]
     cursor
 
-def rb_insert(z_value: usize, root: mutable usize&, keys: i64&, left: mutable usize&, right: mutable usize&,
-              parent: mutable usize&, red: mutable bool&) -> void:
+def rb_insert(z_value: usize, root: mutable usize&, keys: view[i64], left: mutable view[usize], right: mutable view[usize],
+              parent: mutable view[usize], red: mutable view[bool]) -> void:
     z: mutable usize = z_value
     y: mutable usize = 0
     x: mutable usize = root
@@ -84,20 +84,20 @@ def rb_insert(z_value: usize, root: mutable usize&, keys: i64&, left: mutable us
                 rb_left_rotate(g, root, left, right, parent, red)
     red[root] <- false
 
-def rb_minimum(start: usize, left: usize&) -> usize:
+def rb_minimum(start: usize, left: view[usize]) -> usize:
     cursor: mutable usize = start
     while left[cursor] != 0: cursor <- left[cursor]
     cursor
 
-def rb_transplant(u: usize, v: usize, root: mutable usize&, left: mutable usize&,
-                  right: mutable usize&, parent: mutable usize&) -> void:
+def rb_transplant(u: usize, v: usize, root: mutable usize&, left: mutable view[usize],
+                  right: mutable view[usize], parent: mutable view[usize]) -> void:
     if parent[u] == 0: root <- v
     elif u == left[parent[u]]: left[parent[u]] <- v
     else: right[parent[u]] <- v
     parent[v] <- parent[u]
 
-def rb_delete_fix(start: usize, root: mutable usize&, left: mutable usize&, right: mutable usize&,
-                  parent: mutable usize&, red: mutable bool&) -> void:
+def rb_delete_fix(start: usize, root: mutable usize&, left: mutable view[usize], right: mutable view[usize],
+                  parent: mutable view[usize], red: mutable view[bool]) -> void:
     x: mutable usize = start
     while x != root and not red[x]:
         p: usize = parent[x]
@@ -147,8 +147,8 @@ def rb_delete_fix(start: usize, root: mutable usize&, left: mutable usize&, righ
                 x <- root
     red[x] <- false
 
-def rb_delete(z: usize, root: mutable usize&, left: mutable usize&, right: mutable usize&,
-              parent: mutable usize&, red: mutable bool&) -> void:
+def rb_delete(z: usize, root: mutable usize&, left: mutable view[usize], right: mutable view[usize],
+              parent: mutable view[usize], red: mutable view[bool]) -> void:
     y: mutable usize = z
     x: mutable usize = 0
     was_red: mutable bool = red[y]
@@ -173,7 +173,7 @@ def rb_delete(z: usize, root: mutable usize&, left: mutable usize&, right: mutab
         red[y] <- red[z]
     if not was_red: rb_delete_fix(x, root, left, right, parent, red)
 
-def rb_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def rb_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -208,6 +208,11 @@ def red_black_tree_unique_key_ops_impl(input: i64&, length: usize, output: mutab
     right: mutable usize[MAX_OPS + 1] = zeroed
     parent: mutable usize[MAX_OPS + 1] = zeroed
     red: mutable bool[MAX_OPS + 1] = zeroed
+    keys_view: mutable view[i64] = keys[0:MAX_OPS + 1]
+    left_view: mutable view[usize] = left[0:MAX_OPS + 1]
+    right_view: mutable view[usize] = right[0:MAX_OPS + 1]
+    parent_view: mutable view[usize] = parent[0:MAX_OPS + 1]
+    red_view: mutable view[bool] = red[0:MAX_OPS + 1]
     root: mutable usize = 0
     next: mutable usize = 1
     results: mutable i64[MAX_OPS] = zeroed
@@ -217,16 +222,17 @@ def red_black_tree_unique_key_ops_impl(input: i64&, length: usize, output: mutab
         key: i64 = input[2 + 2 * i]
         if op == 0:
             keys[next] <- key
-            rb_insert(next, root, keys, left, right, parent, red)
+            rb_insert(next, root, keys_view, left_view, right_view, parent_view, red_view)
             next <- next + 1
         elif op == 1:
-            if rb_find(root, key, keys, left, right) != 0: results[result_count] <- 1
+            if rb_find(root, key, keys_view, left_view, right_view) != 0: results[result_count] <- 1
             else: results[result_count] <- 0
             result_count <- result_count + 1
-        else: rb_delete(rb_find(root, key, keys, left, right), root, left, right, parent, red)
+        else: rb_delete(rb_find(root, key, keys_view, left_view, right_view), root, left_view, right_view, parent_view, red_view)
     required: usize = (2 + active_count + search_count) * 8
     if output.is_null() or capacity < required: return -2
-    rb_put_i64(output, 0, active_count.i64())
+    output_view: mutable view[u8] = output[0:required]
+    rb_put_i64(output_view, 0, active_count.i64())
     stack: mutable usize[MAX_OPS] = zeroed
     top: mutable usize = 0
     current: mutable usize = root
@@ -238,13 +244,13 @@ def red_black_tree_unique_key_ops_impl(input: i64&, length: usize, output: mutab
             current <- left[current]
         top <- top - 1
         current <- stack[top]
-        rb_put_i64(output, out * 8, keys[current])
+        rb_put_i64(output_view, out * 8, keys[current])
         out <- out + 1
         current <- right[current]
-    rb_put_i64(output, out * 8, search_count.i64())
+    rb_put_i64(output_view, out * 8, search_count.i64())
     out <- out + 1
     for i in 0..<search_count:
-        rb_put_i64(output, out * 8, results[i])
+        rb_put_i64(output_view, out * 8, results[i])
         out <- out + 1
     required.i64()
 

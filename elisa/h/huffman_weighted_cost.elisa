@@ -1,7 +1,7 @@
 const MAX_SYMBOLS: usize = 26
 const MAX_TOTAL_FREQUENCY: i64 = 2147483647
 
-def huffman_weighted_cost_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def huffman_weighted_cost_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -57,7 +57,7 @@ def huffman_weighted_cost_impl(values: i64&, length: usize, output: mutable u8&,
 
     if output == null or capacity < 8:
         return -2
-    huffman_weighted_cost_store(cost, output, 0)
+    huffman_weighted_cost_store(cost, output[0:8], 0)
     cost
 
 export fn huffman_weighted_cost(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = huffman_weighted_cost_impl

@@ -1,6 +1,6 @@
 const INVALID_RESULT: i64 = -9223372036854775808
 
-def sift_down(heap: mutable i64&, heap_size: usize, root0: usize, min_heap: bool) -> void:
+def sift_down(heap: mutable view[i64], heap_size: usize, root0: usize, min_heap: bool) -> void:
     root: mutable usize = root0
     while true:
         best: mutable usize = root
@@ -35,12 +35,12 @@ def kth_element_finder_impl(input: i64&, length: usize) -> i64:
     start: mutable usize = k / 2
     while start > 0:
         start <- start - 1
-        sift_down(&heap[0], k, start, min_heap)
+        sift_down(heap[0:k], k, start, min_heap)
     for i in k..n:
         value: i64 = input[i + 3]
         if (min_heap and value > heap[0]) or (not min_heap and value < heap[0]):
             heap[0] <- value
-            sift_down(&heap[0], k, 0, min_heap)
+            sift_down(heap[0:k], k, 0, min_heap)
     heap[0]
 
 export fn kth_element_finder(input: i64&, length: usize) -> i64 = kth_element_finder_impl

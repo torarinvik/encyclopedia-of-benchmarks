@@ -60,7 +60,7 @@ def next_frame(frame: u32) -> u32:
         result <- result & ~mask
     result
 
-def store_bit(output: mutable u8&, block_offset: usize, bit: usize, value: u32) -> void:
+def store_bit(output: mutable view[u8], block_offset: usize, bit: usize, value: u32) -> void:
     position: usize = block_offset + bit / 8
     output[position] <- output[position] | (value.u8() << (bit % 8))
 

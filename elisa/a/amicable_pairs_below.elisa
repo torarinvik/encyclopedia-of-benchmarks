@@ -1,5 +1,5 @@
 # Enumerate amicable pairs below an exclusive upper limit using a divisor-sum sieve.
-def write_u32_le(output: mutable u8&, position: mutable usize&, value: i64):
+def write_u32_le(output: mutable view[u8], position: mutable usize&, value: i64):
     encoded: mutable i64 = value
     byte: mutable usize = 0
     while byte < 4:
@@ -41,8 +41,8 @@ def amicable_pairs_below_impl(values: i64&, length: usize, output: mutable u8&,
     while smaller < limit:
         larger: i64 = divisor_sums[smaller]
         if larger > smaller.i64() and larger < limit.i64() and divisor_sums[larger.usize()] == smaller.i64():
-            write_u32_le(output, position, smaller.i64())
-            write_u32_le(output, position, larger)
+            write_u32_le(output[0:required], position, smaller.i64())
+            write_u32_le(output[0:required], position, larger)
         smaller <- smaller + 1
     pair_count.i64()
 

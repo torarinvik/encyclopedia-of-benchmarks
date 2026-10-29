@@ -30,13 +30,13 @@ def bacon_python_letter_for_code(code: i64) -> i64:
         return 97 + code + 2
     -1
 
-def bacon_decode_code(values: i64&, start: usize) -> i64:
+def bacon_decode_code(values: view[i64], start: usize) -> i64:
     code: mutable i64 = 0
     for bit in 0..<5 |bit, values, code|:
         code <- (code * 2) + (values[start + bit] == 66).i64()
     code
 
-def bacon_write_code(output: mutable u8&, position: usize, code: i64) -> usize:
+def bacon_write_code(output: mutable view[u8], position: usize, code: i64) -> usize:
     for bit in 0..<5 |bit, output, code|:
         letter: mutable i64 = 65
         if ((code >> (4 - bit)) % 2) == 1:
@@ -44,7 +44,7 @@ def bacon_write_code(output: mutable u8&, position: usize, code: i64) -> usize:
         output[position + bit] <- letter.u8()
     position + 5
 
-def bacon_python_decode_length(values: i64&, start: usize, length: usize) -> i64:
+def bacon_python_decode_length(values: view[i64], start: usize, length: usize) -> i64:
     words: mutable usize = 0
     letters: mutable usize = 0
     used: mutable usize = 0
@@ -89,6 +89,7 @@ def baconian_cipher_impl(values: i64&, length: usize, output: mutable u8&, outpu
     if (mode != 0 and mode != 1) or dialect < 0 or dialect > 2:
         return -1
     n: usize = length - 2
+    text: view[i64] = values[2:length]
     for index in 0..<n |index, values|:
         if values[index + 2] < 0 or values[index + 2] > 127:
             return -1
@@ -130,12 +131,12 @@ def baconian_cipher_impl(values: i64&, length: usize, output: mutable u8&, outpu
                 return -1
         index: mutable usize = 0
         while index < n:
-            if bacon_decode_code(values, index + 2) > 25:
+            if bacon_decode_code(text, index) > 25:
                 return -1
             index <- index + 5
         output_length <- n / 5
     elif dialect == 1:
-        decoded_length: i64 = bacon_python_decode_length(values, 2, n)
+        decoded_length: i64 = bacon_python_decode_length(text, 0, n)
         if decoded_length < 0:
             return -1
         output_length <- decoded_length.usize()
@@ -154,23 +155,23 @@ def baconian_cipher_impl(values: i64&, length: usize, output: mutable u8&, outpu
                     code: mutable i64 = upper - 65
                     if upper == 73:
                         code <- 9
-                    write <- bacon_write_code(output, write, code)
+                    write <- bacon_write_code(output[0:output_length], write, code)
             elif dialect == 1:
                 if value == 32:
                     output[write] <- 32.u8()
                     write <- write + 1
                 else:
-                    write <- bacon_write_code(output, write, bacon_python_code_for_letter(upper))
+                    write <- bacon_write_code(output[0:output_length], write, bacon_python_code_for_letter(upper))
             else:
                 if upper >= 65 and upper <= 90:
-                    write <- bacon_write_code(output, write, upper - 65)
+                    write <- bacon_write_code(output[0:output_length], write, upper - 65)
                 else:
                     output[write] <- value.u8()
                     write <- write + 1
     elif dialect == 0:
         index: mutable usize = 0
         while index < n:
-            code: i64 = bacon_decode_code(values, index + 2)
+            code: i64 = bacon_decode_code(text, index)
             value: mutable i64 = 65 + code
             if code == 8 or code == 9:
                 value <- 73
@@ -190,7 +191,7 @@ def baconian_cipher_impl(values: i64&, length: usize, output: mutable u8&, outpu
                 write <- write + 1
             first_word <- false
             while index < n and values[index + 2] != 32:
-                output[write] <- bacon_python_letter_for_code(bacon_decode_code(values, index + 2)).u8()
+                output[write] <- bacon_python_letter_for_code(bacon_decode_code(text, index)).u8()
                 write <- write + 1
                 index <- index + 5
     else:

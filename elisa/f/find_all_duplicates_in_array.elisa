@@ -1,6 +1,6 @@
 const MAX_LENGTH: usize = 100000
 
-def sift_down(values: mutable i32&, root_value: usize, end: usize) -> void:
+def sift_down(values: mutable view[i32], root_value: usize, end: usize) -> void:
     root: mutable usize = root_value
     while root * 2 + 1 < end:
         child: mutable usize = root * 2 + 1
@@ -13,7 +13,7 @@ def sift_down(values: mutable i32&, root_value: usize, end: usize) -> void:
         values[child] <- temporary
         root <- child
 
-def heap_sort(values: mutable i32&, length: usize) -> void:
+def heap_sort(values: mutable view[i32], length: usize) -> void:
     start: mutable usize = length / 2
     while start > 0:
         start <- start - 1
@@ -42,7 +42,7 @@ def find_all_duplicates_in_array_impl(values: i64&, length: usize,
             return -1
         sorted_values[index] <- value.i32()
         index <- index + 1
-    heap_sort(&sorted_values[0], length)
+    heap_sort(sorted_values[0:length], length)
 
     duplicate_count: mutable usize = 0
     index <- 0

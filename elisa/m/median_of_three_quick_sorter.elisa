@@ -7,7 +7,7 @@ def median_of_three(a: i64, b: i64, c: i64) -> i64:
     if a >= c: return c
     a
 
-def partition_range(values: mutable i64&, left: usize, right: usize) -> usize:
+def partition_range(values: mutable view[i64], left: usize, right: usize) -> usize:
     middle: usize = left + (right - left) / 2
     pivot: i64 = median_of_three(values[left], values[middle], values[right])
     nleft: mutable usize = left
@@ -26,7 +26,7 @@ def partition_range(values: mutable i64&, left: usize, right: usize) -> usize:
         nright <- nright - 1
     nright
 
-def sort_range(values: mutable i64&, left: usize, right: usize) -> void:
+def sort_range(values: mutable view[i64], left: usize, right: usize) -> void:
     if left >= right:
         return
     pivot: usize = partition_range(values, left, right)
@@ -35,6 +35,6 @@ def sort_range(values: mutable i64&, left: usize, right: usize) -> void:
 
 def median_of_three_quick_sorter_impl(values: mutable i64&, length: usize) -> void:
     if length > 1:
-        sort_range(values, 0, length - 1)
+        sort_range(values[0:length], 0, length - 1)
 
 export fn median_of_three_quick_sorter(values: mutable i64&, length: usize) -> void = median_of_three_quick_sorter_impl

@@ -1,7 +1,7 @@
 extern exp(value: f64) -> f64
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def put_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for byte in 0..<8:
@@ -46,7 +46,7 @@ def logistic_regression_rust_binary_gd_impl(input: i64&, length: usize, output: 
                 gradient[feature + 1] <- gradient[feature + 1] + error * x
         for parameter in 0..<(d + 1): next_theta[parameter] <- theta[parameter] - alpha * gradient[parameter]
         for parameter in 0..<(d + 1): theta[parameter] <- next_theta[parameter]
-    for parameter in 0..<(d + 1): put_f64(output, parameter * 8, theta[parameter])
+    for parameter in 0..<(d + 1): put_f64(output[0:required], parameter * 8, theta[parameter])
     required.i64()
 
 export fn logistic_regression_rust_binary_gd(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = logistic_regression_rust_binary_gd_impl

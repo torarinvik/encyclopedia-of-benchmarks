@@ -2,7 +2,7 @@ const MAX_LIMIT: i64 = 1000
 const MOD_LIMIT: i64 = 1000000000
 const DIVISOR_CAPACITY: usize = 128
 
-def problem401_contains(value: i64, divisors: i64&, length: i64) -> bool:
+def problem401_contains(value: i64, divisors: view[i64], length: i64) -> bool:
     index: mutable i64 = 0
     while index < length:
         if divisors[index.usize()] == value:
@@ -10,7 +10,7 @@ def problem401_contains(value: i64, divisors: i64&, length: i64) -> bool:
         index <- index + 1
     false
 
-def problem401_get_divisors(number: i64, divisors: mutable i64&) -> i64:
+def problem401_get_divisors(number: i64, divisors: mutable view[i64]) -> i64:
     if number == 1:
         divisors[0] <- 1
         return 1
@@ -30,7 +30,7 @@ def problem401_get_divisors(number: i64, divisors: mutable i64&) -> i64:
 
 def problem401_sigma2(number: i64) -> i64:
     divisors: mutable i64[DIVISOR_CAPACITY] = zeroed
-    count: i64 = problem401_get_divisors(number, divisors)
+    count: i64 = problem401_get_divisors(number, divisors[0:DIVISOR_CAPACITY])
     sum: mutable i64 = 0
     index: mutable usize = 1
     while index < count.usize():

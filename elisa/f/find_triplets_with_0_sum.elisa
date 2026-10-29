@@ -1,14 +1,14 @@
 const MAX_ITEMS: usize = 64
 const BYTES_PER_TRIPLET: usize = 12
 
-def write_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def write_i32_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u32 = value.u32()
     output[offset] <- (bits & 255).u8()
     output[offset + 1] <- ((bits >> 8) & 255).u8()
     output[offset + 2] <- ((bits >> 16) & 255).u8()
     output[offset + 3] <- ((bits >> 24) & 255).u8()
 
-def enumerate(values: i64&, length: usize, output: mutable u8&, write_output: bool) -> usize:
+def enumerate(values: view[i64], length: usize, output: mutable view[u8], write_output: bool) -> usize:
     count: mutable usize = 0
     has_last: mutable bool = false
     last_a: mutable i64 = 0
@@ -37,8 +37,9 @@ def enumerate(values: i64&, length: usize, output: mutable u8&, write_output: bo
                 count <- count + 1
     count
 
-def find_triplets_with_0_sum_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if length > MAX_ITEMS or (length > 0 and input == null):
+def find_triplets_with_0_sum_impl(input: view[i64], length: usize,
+        output: mutable view[u8], output_capacity: usize) -> i64:
+    if length > MAX_ITEMS:
         return -1
     values: mutable i64[MAX_ITEMS]
     for i in 0..<length:
@@ -52,12 +53,24 @@ def find_triplets_with_0_sum_impl(input: i64&, length: usize, output: mutable u8
             values[j] <- values[j - 1]
             j <- j - 1
         values[j] <- key
-    count: usize = enumerate(values, length, output, false)
+    count_scratch: mutable u8[1] = zeroed
+    count: usize = enumerate(values[0:length], length, count_scratch[0:1], false)
     if count == 0:
         return 0
     needed: usize = count * BYTES_PER_TRIPLET
-    if output == null or output_capacity < needed:
+    if output_capacity < needed:
         return -2
-    enumerate(values, length, output, true).i64()
+    enumerate(values[0:length], length, output, true).i64()
 
-export fn find_triplets_with_0_sum(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = find_triplets_with_0_sum_impl
+export fn find_triplets_with_0_sum(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_ITEMS or (length > 0 and input == null):
+        return -1
+    if length == 0:
+        empty_input: i64[1] = zeroed
+        empty_output_zero_length: mutable u8[1] = zeroed
+        return find_triplets_with_0_sum_impl(empty_input[0:0], 0,
+                                             empty_output_zero_length[0:0], output_capacity)
+    if output == null:
+        empty_output_null: mutable u8[1] = zeroed
+        return find_triplets_with_0_sum_impl(input[0:length], length, empty_output_null[0:0], 0)
+    find_triplets_with_0_sum_impl(input[0:length], length, output[0:output_capacity], output_capacity)

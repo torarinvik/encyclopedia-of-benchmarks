@@ -1,4 +1,4 @@
-def heap_push(heap: mutable i64[256], count: mutable usize&, is_max: bool, value: i64) -> void:
+def heap_push(heap: mutable view[i64], count: mutable usize&, is_max: bool, value: i64) -> void:
     index: mutable usize = count
     heap[index] <- value
     count <- count + 1
@@ -11,7 +11,7 @@ def heap_push(heap: mutable i64[256], count: mutable usize&, is_max: bool, value
         heap[index] <- temp
         index <- parent
 
-def heap_pop(heap: mutable i64[256], count: mutable usize&, is_max: bool) -> i64:
+def heap_pop(heap: mutable view[i64], count: mutable usize&, is_max: bool) -> i64:
     result: i64 = heap[0]
     count <- count - 1
     heap[0] <- heap[count]
@@ -33,7 +33,7 @@ def heap_pop(heap: mutable i64[256], count: mutable usize&, is_max: bool) -> i64
         index <- best
     result
 
-def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = if value < 0: (value + 18_446_744_073_709_551_616).u64() else: value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -51,17 +51,19 @@ def median_of_running_array_integer_impl(input: i64&, length: usize, output: mut
     if output_capacity < n.usize() * 8: return -2
     lower: mutable i64[256] = zeroed
     upper: mutable i64[256] = zeroed
+    lower_view: mutable view[i64] = lower[0:256]
+    upper_view: mutable view[i64] = upper[0:256]
     lower_count: mutable usize = 0
     upper_count: mutable usize = 0
     index <- 0
     while index < n.usize():
         value: i64 = input[index + 1]
-        if upper_count > 0 and value < upper[0]: heap_push(lower, lower_count, true, value)
-        else: heap_push(upper, upper_count, false, value)
-        if lower_count > upper_count + 1: heap_push(upper, upper_count, false, heap_pop(lower, lower_count, true))
-        else if upper_count > lower_count + 1: heap_push(lower, lower_count, true, heap_pop(upper, upper_count, false))
+        if upper_count > 0 and value < upper[0]: heap_push(lower_view, lower_count, true, value)
+        else: heap_push(upper_view, upper_count, false, value)
+        if lower_count > upper_count + 1: heap_push(upper_view, upper_count, false, heap_pop(lower_view, lower_count, true))
+        else if upper_count > lower_count + 1: heap_push(lower_view, lower_count, true, heap_pop(upper_view, upper_count, false))
         median: i64 = if lower_count == upper_count: (lower[0] + upper[0]) / 2 else if lower_count > upper_count: lower[0] else: upper[0]
-        store_i64_le(median, output, index * 8)
+        store_i64_le(median, output[0:output_capacity], index * 8)
         index <- index + 1
     n.i64() * 8
 

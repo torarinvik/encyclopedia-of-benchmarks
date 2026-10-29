@@ -11,7 +11,7 @@ struct PersistentLazyNode:
     left: i64
     right: i64
 
-def persistent_lazy_make(nodes: mutable PersistentLazyNode&, used: mutable usize&, sum: i64, prop: i64, left: i64, right: i64) -> i64:
+def persistent_lazy_make(nodes: mutable view[PersistentLazyNode], used: mutable usize&, sum: i64, prop: i64, left: i64, right: i64) -> i64:
     if used >= NODE_CAP: return -1
     index: i64 = used.i64()
     nodes[used].sum <- sum
@@ -21,7 +21,7 @@ def persistent_lazy_make(nodes: mutable PersistentLazyNode&, used: mutable usize
     used <- used + 1
     index
 
-def persistent_lazy_clone(nodes: mutable PersistentLazyNode&, used: mutable usize&, source: i64) -> i64:
+def persistent_lazy_clone(nodes: mutable view[PersistentLazyNode], used: mutable usize&, source: i64) -> i64:
     if source < 0 or used >= NODE_CAP: return -1
     index: i64 = used.i64()
     nodes[used].sum <- nodes[source.usize()].sum
@@ -31,7 +31,7 @@ def persistent_lazy_clone(nodes: mutable PersistentLazyNode&, used: mutable usiz
     used <- used + 1
     index
 
-def persistent_lazy_push(nodes: mutable PersistentLazyNode&, used: mutable usize&, node: i64, left: usize, right: usize) -> bool:
+def persistent_lazy_push(nodes: mutable view[PersistentLazyNode], used: mutable usize&, node: i64, left: usize, right: usize) -> bool:
     prop: i64 = nodes[node.usize()].prop
     if prop == 0: return true
     nodes[node.usize()].sum <- nodes[node.usize()].sum + (right - left + 1).i64() * prop
@@ -46,7 +46,7 @@ def persistent_lazy_push(nodes: mutable PersistentLazyNode&, used: mutable usize
     nodes[node.usize()].prop <- 0
     true
 
-def persistent_lazy_build(nodes: mutable PersistentLazyNode&, used: mutable usize&, values: i64&, left: usize, right: usize) -> i64:
+def persistent_lazy_build(nodes: mutable view[PersistentLazyNode], used: mutable usize&, values: view[i64], left: usize, right: usize) -> i64:
     if left == right: return persistent_lazy_make(nodes, used, values[2 + left], 0, -1, -1)
     mid: usize = left + (right - left) / 2
     a: i64 = persistent_lazy_build(nodes, used, values, left, mid)
@@ -54,7 +54,7 @@ def persistent_lazy_build(nodes: mutable PersistentLazyNode&, used: mutable usiz
     if a < 0 or b < 0: return -1
     persistent_lazy_make(nodes, used, nodes[a.usize()].sum + nodes[b.usize()].sum, 0, a, b)
 
-def persistent_lazy_add(nodes: mutable PersistentLazyNode&, used: mutable usize&, current: i64, left: usize, right: usize, ql: usize, qr: usize, delta: i64) -> i64:
+def persistent_lazy_add(nodes: mutable view[PersistentLazyNode], used: mutable usize&, current: i64, left: usize, right: usize, ql: usize, qr: usize, delta: i64) -> i64:
     if not persistent_lazy_push(nodes, used, current, left, right): return -1
     if left >= ql and right <= qr:
         copy: i64 = persistent_lazy_clone(nodes, used, current)
@@ -74,7 +74,7 @@ def persistent_lazy_add(nodes: mutable PersistentLazyNode&, used: mutable usize&
     nodes[copy.usize()].sum <- nodes[a.usize()].sum + nodes[b.usize()].sum
     copy
 
-def persistent_lazy_sum(nodes: mutable PersistentLazyNode&, used: mutable usize&, node: i64, left: usize, right: usize, ql: usize, qr: usize) -> i64?:
+def persistent_lazy_sum(nodes: mutable view[PersistentLazyNode], used: mutable usize&, node: i64, left: usize, right: usize, ql: usize, qr: usize) -> i64?:
     if not persistent_lazy_push(nodes, used, node, left, right): return null
     if right < ql or qr < left: return 0
     if ql <= left and right <= qr: return nodes[node.usize()].sum
@@ -103,9 +103,11 @@ def persistent_seg_tree_lazy_prop_impl(input: i64&, length: usize) -> i64:
         if input[2 + i] < -1000 or input[2 + i] > 1000: return -1
 
     nodes: mutable PersistentLazyNode[NODE_CAP] = zeroed
+    nodes_view: mutable view[PersistentLazyNode] = nodes[0:NODE_CAP]
+    input_view: view[i64] = input[0:length]
     used: mutable usize = 0
     roots: mutable i64[MAX_Q + 1] = zeroed
-    roots[0] <- persistent_lazy_build(&nodes[0], used, input, 0, n - 1)
+    roots[0] <- persistent_lazy_build(nodes_view, used, input_view, 0, n - 1)
     if roots[0] < 0: return -1
     versions: mutable usize = 1
     query_count: mutable usize = 0
@@ -119,13 +121,13 @@ def persistent_seg_tree_lazy_prop_impl(input: i64&, length: usize) -> i64:
         offset <- offset + 4
         if op == 0:
             if a < 0 or a > b or b >= n64 or c < -1000 or c > 1000: return -1
-            next: i64 = persistent_lazy_add(&nodes[0], used, roots[versions - 1], 0, n - 1, a.usize(), b.usize(), c)
+            next: i64 = persistent_lazy_add(nodes_view, used, roots[versions - 1], 0, n - 1, a.usize(), b.usize(), c)
             if next < 0: return -1
             roots[versions] <- next
             versions <- versions + 1
         elif op == 1:
             if a < 0 or a >= versions.i64() or b < 0 or c < b or c >= n64: return -1
-            sum: i64 = persistent_lazy_sum(&nodes[0], used, roots[a.usize()], 0, n - 1, b.usize(), c.usize()) ?? return -1
+            sum: i64 = persistent_lazy_sum(nodes_view, used, roots[a.usize()], 0, n - 1, b.usize(), c.usize()) ?? return -1
             query_sums[query_count] <- sum
             query_count <- query_count + 1
         else:

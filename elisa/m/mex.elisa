@@ -1,6 +1,6 @@
 const MAX_VALUES: usize = 100000
 
-def sift_down(values: mutable i64&, root_start: usize, end: usize) -> void:
+def sift_down(values: mutable view[i64], root_start: usize, end: usize) -> void:
     root: mutable usize = root_start
     while root < end / 2:
         child: mutable usize = root * 2 + 1
@@ -13,7 +13,7 @@ def sift_down(values: mutable i64&, root_start: usize, end: usize) -> void:
         values[child] <- temporary
         root <- child
 
-def heap_sort(values: mutable i64&, length: usize) -> void:
+def heap_sort(values: mutable view[i64], length: usize) -> void:
     start: mutable usize = length / 2
     while start > 0:
         start <- start - 1
@@ -39,7 +39,7 @@ def mex_impl(input: i64&, length: usize) -> i64:
         if value < -2147483648 or value > 2147483647:
             return -1
         values[index] <- value
-    heap_sort(&values[0], count)
+    heap_sort(values[0:count], count)
     candidate: mutable i64 = 0
     for index in 0..<count |values, candidate|:
         if values[index] == candidate:

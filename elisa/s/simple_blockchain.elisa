@@ -7,8 +7,8 @@ def sha256_add32(left: u32, right: u32) -> u32:
 def sha256_rotr(value: u32, amount: usize) -> u32:
     (value >> amount) | (value << (32 - amount))
 
-def bc_sha256(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if length > MAX_INPUT_LENGTH or (length > 0 and input == null):
+def bc_sha256(input: view[i64], length: usize, output: mutable view[u8], capacity: usize) -> i64:
+    if length > MAX_INPUT_LENGTH:
         return -1
     for index in 0..<length:
         if input[index] < 0 or input[index] > 255:
@@ -74,7 +74,7 @@ def bc_sha256(input: i64&, length: usize, output: mutable u8&, capacity: usize) 
         state[5] <- sha256_add32(state[5], f)
         state[6] <- sha256_add32(state[6], g)
         state[7] <- sha256_add32(state[7], h)
-    if output == null or capacity < 32:
+    if capacity < 32:
         return -2
     for word in 0..<8:
         for byte in 0..<4:
@@ -93,7 +93,7 @@ const BC_MAX_OUTPUT: usize = 728
 const BC_HEX: u8[16] = [48,49,50,51,52,53,54,55,56,57,97,98,99,100,101,102]
 const BC_GENESIS: u8[13] = [71,101,110,101,115,105,115,32,66,108,111,99,107]
 
-def bc_append_decimal(buffer: mutable i64&, position_value: usize, value_value: i64) -> usize:
+def bc_append_decimal(buffer: mutable view[i64], position_value: usize, value_value: i64) -> usize:
     digits: mutable i64[20]
     count: mutable usize = 0
     value: mutable i64 = value_value
@@ -110,9 +110,9 @@ def bc_append_decimal(buffer: mutable i64&, position_value: usize, value_value: 
         position <- position + 1
     position
 
-def bc_make_header(index: usize, timestamp_sec: i64, data: u8&, data_length: usize,
-        previous_hash: u8&, previous_hash_length: usize, nonce: i64,
-        header: mutable i64&) -> usize:
+def bc_make_header(index: usize, timestamp_sec: i64, data: view[u8], data_length: usize,
+        previous_hash: view[u8], previous_hash_length: usize, nonce: i64,
+        header: mutable view[i64]) -> usize:
     length: mutable usize = bc_append_decimal(header, 0, index.i64())
     length <- bc_append_decimal(header, length, timestamp_sec)
     header[length] <- 46
@@ -127,14 +127,14 @@ def bc_make_header(index: usize, timestamp_sec: i64, data: u8&, data_length: usi
         length <- length + 1
     bc_append_decimal(header, length, nonce)
 
-def bc_compute_hash(index: usize, timestamp_sec: i64, data: u8&, data_length: usize,
-        previous_hash: u8&, previous_hash_length: usize, nonce: i64,
-        output: mutable u8&) -> bool:
+def bc_compute_hash(index: usize, timestamp_sec: i64, data: view[u8], data_length: usize,
+        previous_hash: view[u8], previous_hash_length: usize, nonce: i64,
+        output: mutable view[u8]) -> bool:
     header: mutable i64[BC_MAX_HEADER] = zeroed
     digest: mutable u8[32] = zeroed
     length: usize = bc_make_header(index, timestamp_sec, data, data_length,
-        previous_hash, previous_hash_length, nonce, header[0])
-    if bc_sha256(header[0], length, digest[0], 32) != 32:
+        previous_hash, previous_hash_length, nonce, header[0:BC_MAX_HEADER])
+    if bc_sha256(header[0:length], length, digest[0:32], 32) != 32:
         return false
     for i in 0..<32:
         byte: usize = digest[i].usize()
@@ -142,33 +142,33 @@ def bc_compute_hash(index: usize, timestamp_sec: i64, data: u8&, data_length: us
         output[2 * i + 1] <- BC_HEX[byte & 15]
     true
 
-def bc_has_prefix(hash: u8&, difficulty: i64) -> bool:
+def bc_has_prefix(hash: view[u8], difficulty: i64) -> bool:
     for i in 0..<difficulty.usize():
         if hash[i] != 48:
             return false
     true
 
-def bc_is_valid(timestamps: i64&, data_lengths: usize&, data: u8&,
-        previous_hashes: u8&, previous_lengths: usize&, nonces: i64&,
-        hashes: u8&, chain_length: usize, difficulty: i64) -> bool:
+def bc_is_valid(timestamps: view[i64], data_lengths: view[usize], data: view[u8],
+        previous_hashes: view[u8], previous_lengths: view[usize], nonces: view[i64],
+        hashes: view[u8], chain_length: usize, difficulty: i64) -> bool:
     for i in 1..<chain_length:
         if previous_lengths[i] != 64:
             return false
         for j in 0..<64:
             if previous_hashes[i * 64 + j] != hashes[(i - 1) * 64 + j]:
                 return false
-        if not bc_has_prefix(hashes[i * 64], difficulty):
+        if not bc_has_prefix(hashes[i * 64:i * 64 + 64], difficulty):
             return false
         recomputed: mutable u8[64] = zeroed
-        if not bc_compute_hash(i, timestamps[i], data[i * BC_MAX_DATA], data_lengths[i],
-                previous_hashes[i * 64], previous_lengths[i], nonces[i], recomputed[0]):
+        if not bc_compute_hash(i, timestamps[i], data[i * BC_MAX_DATA:i * BC_MAX_DATA + data_lengths[i]], data_lengths[i],
+                previous_hashes[i * 64:i * 64 + previous_lengths[i]], previous_lengths[i], nonces[i], recomputed[0:64]):
             return false
         for j in 0..<64:
             if hashes[i * 64 + j] != recomputed[j]:
                 return false
     true
 
-def bc_write_i64(output: mutable u8&, position_value: usize, value: i64) -> usize:
+def bc_write_i64(output: mutable view[u8], position_value: usize, value: i64) -> usize:
     position: mutable usize = position_value
     bits: u64 = value.u64()
     for i in 0..<8:
@@ -235,10 +235,10 @@ def simple_blockchain_impl(input: i64&, length: usize, output: mutable u8&,
         nonce: mutable i64 = 0
         while nonce < BC_NONCE_ATTEMPTS:
             candidate: mutable u8[64] = zeroed
-            if not bc_compute_hash(i, timestamps[i], data[i * BC_MAX_DATA], data_lengths[i],
-                    previous_hashes[i * 64], previous_lengths[i], nonce, candidate[0]):
+            if not bc_compute_hash(i, timestamps[i], data[i * BC_MAX_DATA:i * BC_MAX_DATA + data_lengths[i]], data_lengths[i],
+                    previous_hashes[i * 64:i * 64 + previous_lengths[i]], previous_lengths[i], nonce, candidate[0:64]):
                 return -1
-            if bc_has_prefix(candidate[0], difficulty):
+            if bc_has_prefix(candidate[0:64], difficulty):
                 nonces[i] <- nonce
                 for j in 0..<64:
                     hashes[i * 64 + j] <- candidate[j]
@@ -248,20 +248,22 @@ def simple_blockchain_impl(input: i64&, length: usize, output: mutable u8&,
         if not mined:
             return -3
 
-    valid: i64 = if bc_is_valid(timestamps[0], data_lengths[0], data[0], previous_hashes[0],
-        previous_lengths[0], nonces[0], hashes[0], chain_length, difficulty) then 1 else 0
+    valid: i64 = if bc_is_valid(timestamps[0:BC_MAX_CHAIN], data_lengths[0:BC_MAX_CHAIN],
+        data[0:BC_MAX_CHAIN * BC_MAX_DATA], previous_hashes[0:BC_MAX_CHAIN * 64],
+        previous_lengths[0:BC_MAX_CHAIN], nonces[0:BC_MAX_CHAIN], hashes[0:BC_MAX_CHAIN * 64],
+        chain_length, difficulty) then 1 else 0
     payload: mutable u8[BC_MAX_OUTPUT] = zeroed
     written: mutable usize = 0
-    written <- bc_write_i64(payload[0], written, 0)
-    written <- bc_write_i64(payload[0], written, chain_length_value)
+    written <- bc_write_i64(payload[0:BC_MAX_OUTPUT], written, 0)
+    written <- bc_write_i64(payload[0:BC_MAX_OUTPUT], written, chain_length_value)
     for i in 0..<chain_length:
-        written <- bc_write_i64(payload[0], written, i.i64())
-        written <- bc_write_i64(payload[0], written, timestamps[i])
-        written <- bc_write_i64(payload[0], written, nonces[i])
+        written <- bc_write_i64(payload[0:BC_MAX_OUTPUT], written, i.i64())
+        written <- bc_write_i64(payload[0:BC_MAX_OUTPUT], written, timestamps[i])
+        written <- bc_write_i64(payload[0:BC_MAX_OUTPUT], written, nonces[i])
         for j in 0..<64:
             payload[written] <- hashes[i * 64 + j]
             written <- written + 1
-    written <- bc_write_i64(payload[0], written, valid)
+    written <- bc_write_i64(payload[0:BC_MAX_OUTPUT], written, valid)
     if output == null or output_capacity < written:
         return -2
     for i in 0..<written:

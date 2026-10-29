@@ -2,7 +2,7 @@ const SR_MAX_N: usize = 5
 const SR_MAX_M: usize = 4
 const SR_MAX_INPUT: usize = 131
 
-def sr_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def sr_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -52,6 +52,7 @@ def submodular_ranking_greedy(input: i64&, length: usize,
         i <- i + 1
     out_bytes: usize = 8 * (1 + n + m)
     if output.is_null() or capacity < out_bytes: return -2
+    output_view: mutable view[u8] = output[0:out_bytes]
     order: mutable usize[5] = zeroed
     times: mutable i64[4] = zeroed
     total: mutable i64 = 0
@@ -90,13 +91,13 @@ def submodular_ranking_greedy(input: i64&, length: usize,
                 total <- total + t.i64()
             i <- i + 1
         t <- t + 1
-    sr_store_i64_le(total, output, 0)
+    sr_store_i64_le(total, output_view, 0)
     i <- 0
     while i < n:
-        sr_store_i64_le(order[i].i64(), output, 8 * (1 + i))
+        sr_store_i64_le(order[i].i64(), output_view, 8 * (1 + i))
         i <- i + 1
     i <- 0
     while i < m:
-        sr_store_i64_le(times[i], output, 8 * (1 + n + i))
+        sr_store_i64_le(times[i], output_view, 8 * (1 + n + i))
         i <- i + 1
     out_bytes.i64()

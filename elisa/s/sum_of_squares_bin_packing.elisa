@@ -1,4 +1,4 @@
-def ss_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+def ss_put_i64(output: mutable view[u8], word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[word * 8 + byte] <- (bits >> (byte * 8)).u8()
@@ -62,9 +62,9 @@ def sum_of_squares_bin_packing_impl(input: i64&, length: usize, output: mutable 
     bytes: usize = 8 * (n + 1)
     if output == null or output_capacity < bytes:
         return -2
-    ss_put_i64(output, 0, bins.i64())
+    ss_put_i64(output[0:bytes], 0, bins.i64())
     for item in 0..<n:
-        ss_put_i64(output, item + 1, assignments[item])
+        ss_put_i64(output[0:bytes], item + 1, assignments[item])
     bytes.i64()
 
 export fn sum_of_squares_bin_packing(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = sum_of_squares_bin_packing_impl

@@ -1,11 +1,11 @@
-def find_key(keys: i64[32]&, count: usize, key: i64) -> usize:
+def find_key(keys: view[i64], count: usize, key: i64) -> usize:
     index: usize = 0
     while index < count:
         if keys[index] == key: return index
         index <- index + 1
     count
 
-def swap_items(keys: mutable i64[32]&, priorities: mutable i64[32]&, a: usize, b: usize):
+def swap_items(keys: mutable view[i64], priorities: mutable view[i64], a: usize, b: usize):
     key: i64 = keys[a]
     keys[a] <- keys[b]
     keys[b] <- key
@@ -13,7 +13,7 @@ def swap_items(keys: mutable i64[32]&, priorities: mutable i64[32]&, a: usize, b
     priorities[a] <- priorities[b]
     priorities[b] <- priority
 
-def shift_up(keys: mutable i64[32]&, priorities: mutable i64[32]&, start: usize):
+def shift_up(keys: mutable view[i64], priorities: mutable view[i64], start: usize):
     index: mutable usize = start
     while index > 0:
         parent: usize = (index - 1) / 2
@@ -21,7 +21,7 @@ def shift_up(keys: mutable i64[32]&, priorities: mutable i64[32]&, start: usize)
         swap_items(keys, priorities, parent, index)
         index <- parent
 
-def shift_down(keys: mutable i64[32]&, priorities: mutable i64[32]&, count: usize, start: usize):
+def shift_down(keys: mutable view[i64], priorities: mutable view[i64], count: usize, start: usize):
     index: mutable usize = start
     while 2 * index + 1 < count:
         left: usize = 2 * index + 1
@@ -55,41 +55,41 @@ def key_priority_queue_impl(input: i64&, length: usize, output: mutable u8&, cap
             priority: i64 = input[position + 2]
             if key < -1000000000 or key > 1000000000 or priority < -1000000000 or priority > 1000000000: return -1
             position <- position + 3
-            found: usize = find_key(keys, heap_size, key)
+            found: usize = find_key(keys[0:32], heap_size, key)
             if operation == 0:
                 if found != heap_size: return -1
                 keys[heap_size] <- key
                 priorities[heap_size] <- priority
-                shift_up(keys, priorities, heap_size)
+                shift_up(keys[0:32], priorities[0:32], heap_size)
                 heap_size <- heap_size + 1
             elif found == heap_size:
                 keys[heap_size] <- key
                 priorities[heap_size] <- priority
-                shift_up(keys, priorities, heap_size)
+                shift_up(keys[0:32], priorities[0:32], heap_size)
                 heap_size <- heap_size + 1
             else:
                 priorities[found] <- priority
                 if found > 0 and priorities[(found - 1) / 2] > priority:
-                    shift_up(keys, priorities, found)
+                    shift_up(keys[0:32], priorities[0:32], found)
                 else:
                     left: usize = 2 * found + 1
                     right: usize = left + 1
                     if (left < heap_size and priorities[left] < priority) or (right < heap_size and priorities[right] < priority):
-                        shift_down(keys, priorities, heap_size, found)
+                        shift_down(keys[0:32], priorities[0:32], heap_size, found)
         elif operation == 2:
             position <- position + 1
             if heap_size == 0: return -1
-            swap_items(keys, priorities, 0, heap_size - 1)
+            swap_items(keys[0:32], priorities[0:32], 0, heap_size - 1)
             heap_size <- heap_size - 1
             answers[answer_count] <- keys[heap_size]
             answer_count <- answer_count + 1
-            if heap_size > 0: shift_down(keys, priorities, heap_size, 0)
+            if heap_size > 0: shift_down(keys[0:32], priorities[0:32], heap_size, 0)
         elif operation == 3:
             if position + 1 >= length: return -1
             key: i64 = input[position + 1]
             if key < -1000000000 or key > 1000000000: return -1
             position <- position + 2
-            answers[answer_count] <- if find_key(keys, heap_size, key) < heap_size then 1 else 0
+            answers[answer_count] <- if find_key(keys[0:32], heap_size, key) < heap_size then 1 else 0
             answer_count <- answer_count + 1
         elif operation == 4:
             position <- position + 1

@@ -13,7 +13,7 @@ def yds_gcd(a0: i64, b0: i64) -> i64:
         b <- r
     a
 
-def yds_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def yds_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -120,7 +120,7 @@ def yds_speed_scaling(input: i64&, length: usize, output: mutable u8&, capacity:
     if output.is_null() or capacity < output_bytes: return -2
     bytes: mutable u8[MAX_OUTPUT] = zeroed
     i: mutable usize = 0
-    while i < output_values: yds_put(staged[i],bytes&,8*i); i <- i+1
+    while i < output_values: yds_put(staged[i], bytes[0:MAX_OUTPUT], 8*i); i <- i+1
     i <- 0
     while i < output_bytes: output[i] <- bytes[i]; i <- i+1
     output_bytes.i64()

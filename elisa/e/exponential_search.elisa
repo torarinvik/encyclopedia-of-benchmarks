@@ -1,5 +1,5 @@
 # Exponential search in an ascending sequence for the shared benchmark contract.
-def binary_search_range(values: i64&, low: usize, high: usize, target: i64) -> i64:
+def binary_search_range(values: view[i64], low: usize, high: usize, target: i64) -> i64:
     found: i64 =
         while search_low < search_high |search_low: usize = low, search_high: usize = high, result: i64 = -1| -> result:
             middle: usize = search_low + (search_high - search_low) / 2
@@ -20,6 +20,6 @@ def exponential_search_impl(values: i64&, length: usize, target: i64) -> i64:
             break bound if values[bound] > target
             break length if bound > length / 2
             bound <- bound * 2
-    binary_search_range(values, upper / 2, upper, target)
+    binary_search_range(values[0:length], upper / 2, upper, target)
 
 export fn exponential_search(values: i64&, length: usize, target: i64) -> i64 = exponential_search_impl

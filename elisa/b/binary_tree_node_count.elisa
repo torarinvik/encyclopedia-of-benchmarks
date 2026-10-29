@@ -1,7 +1,7 @@
 # Count nodes reachable from the root of a bounded indexed binary tree.
 const INVALID_RESULT: i64 = -9000000000000000000
 
-def binary_tree_node_count_visit(nodes: i64&, node_count: usize, node: i64, depth: usize) -> i64:
+def binary_tree_node_count_visit(nodes: view[i64], node_count: usize, node: i64, depth: usize) -> i64:
     if node < 0 or node.u64() >= node_count.u64() or depth >= node_count:
         return INVALID_RESULT
     index: usize = node.usize()
@@ -26,6 +26,6 @@ def binary_tree_node_count_visit(nodes: i64&, node_count: usize, node: i64, dept
 def binary_tree_node_count_impl(nodes: i64&, node_count: usize, root_index: i64) -> i64:
     if node_count == 0 or node_count > 900 or root_index < 0 or root_index.u64() >= node_count.u64():
         return INVALID_RESULT
-    binary_tree_node_count_visit(nodes, node_count, root_index, 0)
+    binary_tree_node_count_visit(nodes[0:3 * node_count], node_count, root_index, 0)
 
 export fn binary_tree_node_count(nodes: i64&, node_count: usize, root_index: i64) -> i64 = binary_tree_node_count_impl

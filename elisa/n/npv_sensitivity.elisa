@@ -2,7 +2,7 @@
 extern pow(base: f64, exponent: f64) -> f64
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def store_f64_le(value: f64, output: mutable u8&, offset: usize) -> void:
+def store_f64_le(value: f64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     b: mutable usize = 0
@@ -34,7 +34,7 @@ def npv_sensitivity_impl(input: i64&, length: usize, output: mutable u8&, capaci
             term: f64 = input[2 + t].f64() / pow(1.0 + rate, t.f64())
             total <- total + term
             t <- t + 1
-        store_f64_le(total, output, rate_index * 8)
+        store_f64_le(total, output[0:capacity], rate_index * 8)
         rate_index <- rate_index + 1
     (rate_count * 8).i64()
 

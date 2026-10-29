@@ -2,14 +2,14 @@ const MAX_INPUT_VALUES: usize = 227
 const MAX_NODES: usize = 96
 const MAX_OUTPUT_BYTES: usize = 1808
 
-def singlylinkedlist_allocate(values: mutable i64&, links: mutable i64&, used: mutable usize&, value: i64) -> i64:
+def singlylinkedlist_allocate(values: mutable view[i64], links: mutable view[i64], used: mutable usize&, value: i64) -> i64:
     node: usize = used
     used <- used + 1
     values[node] <- value
     links[node] <- -1
     node.i64()
 
-def singlylinkedlist_add_head(values: mutable i64&, links: mutable i64&, used: mutable usize&,
+def singlylinkedlist_add_head(values: mutable view[i64], links: mutable view[i64], used: mutable usize&,
     head: mutable i64&, tail: mutable i64&, count: mutable usize&, value: i64) -> void:
     node: i64 = singlylinkedlist_allocate(values, links, used, value)
     links[node.usize()] <- head
@@ -17,7 +17,7 @@ def singlylinkedlist_add_head(values: mutable i64&, links: mutable i64&, used: m
     head <- node
     count <- count + 1
 
-def singlylinkedlist_add_tail(values: mutable i64&, links: mutable i64&, used: mutable usize&,
+def singlylinkedlist_add_tail(values: mutable view[i64], links: mutable view[i64], used: mutable usize&,
     head: mutable i64&, tail: mutable i64&, count: mutable usize&, value: i64) -> void:
     node: i64 = singlylinkedlist_allocate(values, links, used, value)
     if tail < 0: head <- node
@@ -25,7 +25,7 @@ def singlylinkedlist_add_tail(values: mutable i64&, links: mutable i64&, used: m
     tail <- node
     count <- count + 1
 
-def singlylinkedlist_delete_head(values: i64&, links: mutable i64&, head: mutable i64&,
+def singlylinkedlist_delete_head(values: view[i64], links: mutable view[i64], head: mutable i64&,
     tail: mutable i64&, count: mutable usize&, deleted: mutable i64&, found: mutable bool&) -> void:
     if head < 0:
         deleted <- 0
@@ -38,7 +38,7 @@ def singlylinkedlist_delete_head(values: i64&, links: mutable i64&, head: mutabl
     if count == 0: tail <- -1
     found <- true
 
-def singlylinkedlist_delete_tail(values: i64&, links: mutable i64&, head: mutable i64&,
+def singlylinkedlist_delete_tail(values: view[i64], links: mutable view[i64], head: mutable i64&,
     tail: mutable i64&, count: mutable usize&, deleted: mutable i64&, found: mutable bool&) -> void:
     if tail < 0:
         deleted <- 0
@@ -57,7 +57,7 @@ def singlylinkedlist_delete_tail(values: i64&, links: mutable i64&, head: mutabl
     count <- count - 1
     found <- true
 
-def singlylinkedlist_delete_position(values: i64&, links: mutable i64&, head: mutable i64&,
+def singlylinkedlist_delete_position(values: view[i64], links: mutable view[i64], head: mutable i64&,
     tail: mutable i64&, count: mutable usize&, position: usize,
     deleted: mutable i64&, found: mutable bool&) -> void:
     if count == 0:
@@ -79,7 +79,7 @@ def singlylinkedlist_delete_position(values: i64&, links: mutable i64&, head: mu
         count <- count - 1
         found <- true
 
-def singlylinkedlist_reverse(links: mutable i64&, head: mutable i64&, tail: mutable i64&) -> void:
+def singlylinkedlist_reverse(links: mutable view[i64], head: mutable i64&, tail: mutable i64&) -> void:
     previous: mutable i64 = -1
     current: mutable i64 = head
     tail <- head
@@ -91,7 +91,7 @@ def singlylinkedlist_reverse(links: mutable i64&, head: mutable i64&, tail: muta
         current <- following
     head <- previous
 
-def singlylinkedlist_reverse_range(links: mutable i64&, head: mutable i64&, tail: mutable i64&,
+def singlylinkedlist_reverse_range(links: mutable view[i64], head: mutable i64&, tail: mutable i64&,
     count: usize, left: usize, right: usize) -> void:
     before: mutable i64 = -1
     start: mutable i64 = head
@@ -115,7 +115,7 @@ def singlylinkedlist_reverse_range(links: mutable i64&, head: mutable i64&, tail
     else: links[before.usize()] <- previous
     if right == count: tail <- start
 
-def singlylinkedlist_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+def singlylinkedlist_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -142,7 +142,7 @@ def singlylinkedlist_impl(input: i64&, length: usize, output: mutable u8&, capac
     while i < initial_count:
         value: i64 = input[2 + i]
         if value < -1000000 or value > 1000000: return -1
-        singlylinkedlist_add_tail(&values, &links, used&, head&, tail&, list_count&, value)
+        singlylinkedlist_add_tail(values[0:MAX_NODES], links[0:MAX_NODES], used&, head&, tail&, list_count&, value)
         i <- i + 1
 
     results: mutable i64[128] = zeroed
@@ -171,14 +171,14 @@ def singlylinkedlist_impl(input: i64&, length: usize, output: mutable u8&, capac
         if opcode == 0 or opcode == 1:
             if arg1 < -1000000 or arg1 > 1000000: return -1
             if opcode == 0:
-                singlylinkedlist_add_head(&values, &links, used&, head&, tail&, list_count&, arg1)
+                singlylinkedlist_add_head(values[0:MAX_NODES], links[0:MAX_NODES], used&, head&, tail&, list_count&, arg1)
             else:
-                singlylinkedlist_add_tail(&values, &links, used&, head&, tail&, list_count&, arg1)
+                singlylinkedlist_add_tail(values[0:MAX_NODES], links[0:MAX_NODES], used&, head&, tail&, list_count&, arg1)
         elif opcode == 2:
-            singlylinkedlist_delete_head(values, links&, head&, tail&, list_count&, deleted&, found&)
+            singlylinkedlist_delete_head(values[0:MAX_NODES], links[0:MAX_NODES], head&, tail&, list_count&, deleted&, found&)
             if not found: success <- 0
         elif opcode == 3:
-            singlylinkedlist_delete_tail(values, links&, head&, tail&, list_count&, deleted&, found&)
+            singlylinkedlist_delete_tail(values[0:MAX_NODES], links[0:MAX_NODES], head&, tail&, list_count&, deleted&, found&)
             if not found: success <- 0
         elif opcode == 4:
             if list_count == 0:
@@ -186,12 +186,12 @@ def singlylinkedlist_impl(input: i64&, length: usize, output: mutable u8&, capac
                 success <- 0
             else:
                 if arg1 < 1 or arg1 > (list_count + 1).i64(): return -1
-                singlylinkedlist_delete_position(values, links&, head&, tail&, list_count&, arg1.usize(), deleted&, found&)
+                singlylinkedlist_delete_position(values[0:MAX_NODES], links[0:MAX_NODES], head&, tail&, list_count&, arg1.usize(), deleted&, found&)
         elif opcode == 5:
-            singlylinkedlist_reverse(links&, head&, tail&)
+            singlylinkedlist_reverse(links[0:MAX_NODES], head&, tail&)
         else:
             if arg1 < 1 or arg2 < arg1 or arg2 > list_count.i64(): return -1
-            singlylinkedlist_reverse_range(links&, head&, tail&, list_count, arg1.usize(), arg2.usize())
+            singlylinkedlist_reverse_range(links[0:MAX_NODES], head&, tail&, list_count, arg1.usize(), arg2.usize())
         results[operation * 2] <- success
         results[operation * 2 + 1] <- deleted
         operation <- operation + 1
@@ -200,18 +200,18 @@ def singlylinkedlist_impl(input: i64&, length: usize, output: mutable u8&, capac
     output_bytes: usize = output_values * 8
     if output_bytes > MAX_OUTPUT_BYTES: return -1
     if output.is_null() or capacity < output_bytes: return -2
-    singlylinkedlist_store_i64(list_count.i64(), output, 0)
+    singlylinkedlist_store_i64(list_count.i64(), output[0:capacity], 0)
     offset: mutable usize = 8
     node: mutable i64 = head
     while node >= 0:
-        singlylinkedlist_store_i64(values[node.usize()], output, offset)
+        singlylinkedlist_store_i64(values[node.usize()], output[0:capacity], offset)
         offset <- offset + 8
         node <- links[node.usize()]
-    singlylinkedlist_store_i64(operation_count.i64(), output, offset)
+    singlylinkedlist_store_i64(operation_count.i64(), output[0:capacity], offset)
     offset <- offset + 8
     i <- 0
     while i < operation_count * 2:
-        singlylinkedlist_store_i64(results[i], output, offset)
+        singlylinkedlist_store_i64(results[i], output[0:capacity], offset)
         offset <- offset + 8
         i <- i + 1
     output_bytes.i64()

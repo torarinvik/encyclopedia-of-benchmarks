@@ -6,8 +6,8 @@ const MAX_QUERIES: usize = 1024
 const MAX_DELETES: usize = 1024
 const MAX_OUTPUT_VALUES: usize = 2 + MAX_QUERIES + MAX_INSERTS
 
-def btree_unique_key_set_search(keys: i32&, children: usize&, key_count: usize&,
-        leaf: bool&, root: usize, key: i32) -> bool:
+def btree_unique_key_set_search(keys: view[i32], children: view[usize], key_count: view[usize],
+        leaf: view[bool], root: usize, key: i32) -> bool:
     node: mutable usize = root
     while true |node, keys, children, key_count, leaf, key|:
         index: mutable usize = 0
@@ -20,8 +20,8 @@ def btree_unique_key_set_search(keys: i32&, children: usize&, key_count: usize&,
         node <- children[node * (MAX_NODE_KEYS + 1) + index]
     false
 
-def btree_unique_key_set_split(keys: mutable i32&, children: mutable usize&,
-        key_count: mutable usize&, leaf: mutable bool&, used_nodes: mutable usize&,
+def btree_unique_key_set_split(keys: mutable view[i32], children: mutable view[usize],
+        key_count: mutable view[usize], leaf: mutable view[bool], used_nodes: mutable usize&,
         parent: usize, child_index: usize) -> bool:
     if used_nodes >= MAX_NODE_COUNT:
         return false
@@ -50,8 +50,8 @@ def btree_unique_key_set_split(keys: mutable i32&, children: mutable usize&,
     key_count[parent] <- parent_count + 1
     true
 
-def btree_unique_key_set_insert_non_full(keys: mutable i32&, children: mutable usize&,
-        key_count: mutable usize&, leaf: mutable bool&, used_nodes: mutable usize&,
+def btree_unique_key_set_insert_non_full(keys: mutable view[i32], children: mutable view[usize],
+        key_count: mutable view[usize], leaf: mutable view[bool], used_nodes: mutable usize&,
         node: usize, key: i32) -> bool:
     index: mutable usize = key_count[node]
     if leaf[node]:
@@ -72,8 +72,8 @@ def btree_unique_key_set_insert_non_full(keys: mutable i32&, children: mutable u
     btree_unique_key_set_insert_non_full(keys, children, key_count, leaf, used_nodes,
         children[node * (MAX_NODE_KEYS + 1) + index], key)
 
-def btree_unique_key_set_insert(keys: mutable i32&, children: mutable usize&,
-        key_count: mutable usize&, leaf: mutable bool&, used_nodes: mutable usize&,
+def btree_unique_key_set_insert(keys: mutable view[i32], children: mutable view[usize],
+        key_count: mutable view[usize], leaf: mutable view[bool], used_nodes: mutable usize&,
         root: mutable usize&, key: i32) -> bool:
     if key_count[root] == MAX_NODE_KEYS:
         if used_nodes >= MAX_NODE_COUNT:
@@ -88,22 +88,22 @@ def btree_unique_key_set_insert(keys: mutable i32&, children: mutable usize&,
             return false
     btree_unique_key_set_insert_non_full(keys, children, key_count, leaf, used_nodes, root, key)
 
-def btree_unique_key_set_predecessor(keys: i32&, children: usize&, key_count: usize&,
-        leaf: bool&, start: usize) -> i32:
+def btree_unique_key_set_predecessor(keys: view[i32], children: view[usize], key_count: view[usize],
+        leaf: view[bool], start: usize) -> i32:
     node: mutable usize = start
     while not leaf[node] |node, children, key_count, leaf|:
         node <- children[node * (MAX_NODE_KEYS + 1) + key_count[node]]
     keys[node * MAX_NODE_KEYS + key_count[node] - 1]
 
-def btree_unique_key_set_successor(keys: i32&, children: usize&, key_count: usize&,
-        leaf: bool&, start: usize) -> i32:
+def btree_unique_key_set_successor(keys: view[i32], children: view[usize], key_count: view[usize],
+        leaf: view[bool], start: usize) -> i32:
     node: mutable usize = start
     while not leaf[node] |node, children, leaf|:
         node <- children[node * (MAX_NODE_KEYS + 1)]
     keys[node * MAX_NODE_KEYS]
 
-def btree_unique_key_set_merge(keys: mutable i32&, children: mutable usize&,
-        key_count: mutable usize&, leaf: bool&, parent: usize, index: usize) -> void:
+def btree_unique_key_set_merge(keys: mutable view[i32], children: mutable view[usize],
+        key_count: mutable view[usize], leaf: view[bool], parent: usize, index: usize) -> void:
     left: usize = children[parent * (MAX_NODE_KEYS + 1) + index]
     right: usize = children[parent * (MAX_NODE_KEYS + 1) + index + 1]
     left_count: mutable usize = key_count[left]
@@ -130,8 +130,8 @@ def btree_unique_key_set_merge(keys: mutable i32&, children: mutable usize&,
         i <- i + 1
     key_count[parent] <- parent_count - 1
 
-def btree_unique_key_set_borrow_previous(keys: mutable i32&, children: mutable usize&,
-        key_count: mutable usize&, leaf: bool&, parent: usize, index: usize) -> void:
+def btree_unique_key_set_borrow_previous(keys: mutable view[i32], children: mutable view[usize],
+        key_count: mutable view[usize], leaf: view[bool], parent: usize, index: usize) -> void:
     child: usize = children[parent * (MAX_NODE_KEYS + 1) + index]
     sibling: usize = children[parent * (MAX_NODE_KEYS + 1) + index - 1]
     count: usize = key_count[child]
@@ -151,8 +151,8 @@ def btree_unique_key_set_borrow_previous(keys: mutable i32&, children: mutable u
     key_count[child] <- key_count[child] + 1
     key_count[sibling] <- key_count[sibling] - 1
 
-def btree_unique_key_set_borrow_next(keys: mutable i32&, children: mutable usize&,
-        key_count: mutable usize&, leaf: bool&, parent: usize, index: usize) -> void:
+def btree_unique_key_set_borrow_next(keys: mutable view[i32], children: mutable view[usize],
+        key_count: mutable view[usize], leaf: view[bool], parent: usize, index: usize) -> void:
     child: usize = children[parent * (MAX_NODE_KEYS + 1) + index]
     sibling: usize = children[parent * (MAX_NODE_KEYS + 1) + index + 1]
     child_count: usize = key_count[child]
@@ -173,8 +173,8 @@ def btree_unique_key_set_borrow_next(keys: mutable i32&, children: mutable usize
     key_count[child] <- child_count + 1
     key_count[sibling] <- sibling_count - 1
 
-def btree_unique_key_set_fill(keys: mutable i32&, children: mutable usize&,
-        key_count: mutable usize&, leaf: mutable bool&, parent: usize, index: usize) -> void:
+def btree_unique_key_set_fill(keys: mutable view[i32], children: mutable view[usize],
+        key_count: mutable view[usize], leaf: mutable view[bool], parent: usize, index: usize) -> void:
     if index > 0 and key_count[children[parent * (MAX_NODE_KEYS + 1) + index - 1]] >= MIN_DEGREE:
         btree_unique_key_set_borrow_previous(keys, children, key_count, leaf, parent, index)
     elif index < key_count[parent] and key_count[children[parent * (MAX_NODE_KEYS + 1) + index + 1]] >= MIN_DEGREE:
@@ -183,8 +183,8 @@ def btree_unique_key_set_fill(keys: mutable i32&, children: mutable usize&,
         merge_index: usize = if index < key_count[parent] then index else index - 1
         btree_unique_key_set_merge(keys, children, key_count, leaf, parent, merge_index)
 
-def btree_unique_key_set_delete_from(keys: mutable i32&, children: mutable usize&,
-        key_count: mutable usize&, leaf: mutable bool&, node: usize, key: i32) -> bool:
+def btree_unique_key_set_delete_from(keys: mutable view[i32], children: mutable view[usize],
+        key_count: mutable view[usize], leaf: mutable view[bool], node: usize, key: i32) -> bool:
     index: mutable usize = 0
     while index < key_count[node] and keys[node * MAX_NODE_KEYS + index] < key |index, keys, node, key, key_count|:
         index <- index + 1
@@ -219,16 +219,16 @@ def btree_unique_key_set_delete_from(keys: mutable i32&, children: mutable usize
     btree_unique_key_set_delete_from(keys, children, key_count, leaf,
         children[node * (MAX_NODE_KEYS + 1) + index], key)
 
-def btree_unique_key_set_delete(keys: mutable i32&, children: mutable usize&,
-        key_count: mutable usize&, leaf: mutable bool&, root: mutable usize&, key: i32) -> bool:
+def btree_unique_key_set_delete(keys: mutable view[i32], children: mutable view[usize],
+        key_count: mutable view[usize], leaf: mutable view[bool], root: mutable usize&, key: i32) -> bool:
     if not btree_unique_key_set_delete_from(keys, children, key_count, leaf, root, key):
         return false
     if key_count[root] == 0 and not leaf[root]:
         root <- children[root * (MAX_NODE_KEYS + 1)]
     true
 
-def btree_unique_key_set_traverse(keys: i32&, children: usize&, key_count: usize&,
-        leaf: bool&, node: usize, result: mutable i64&, length: mutable usize&) -> void:
+def btree_unique_key_set_traverse(keys: view[i32], children: view[usize], key_count: view[usize],
+        leaf: view[bool], node: usize, result: mutable view[i64], length: mutable usize&) -> void:
     i: mutable usize = 0
     while i < key_count[node] |i, keys, children, key_count, leaf, node, result, length|:
         if not leaf[node]:
@@ -241,7 +241,7 @@ def btree_unique_key_set_traverse(keys: i32&, children: usize&, key_count: usize
         btree_unique_key_set_traverse(keys, children, key_count, leaf,
             children[node * (MAX_NODE_KEYS + 1) + key_count[node]], result, length)
 
-def btree_unique_key_set_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def btree_unique_key_set_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -279,9 +279,9 @@ def btree_unique_key_set_impl(values: i64&, length: usize, output: mutable u8&, 
         if raw < -2147483648 or raw > 2147483647:
             return -1
         key: i32 = raw.i32()
-        if btree_unique_key_set_search(keys, children, key_count, leaf, root, key):
+        if btree_unique_key_set_search(keys[0:MAX_NODE_COUNT * MAX_NODE_KEYS], children[0:MAX_NODE_COUNT * (MAX_NODE_KEYS + 1)], key_count[0:MAX_NODE_COUNT], leaf[0:MAX_NODE_COUNT], root, key):
             return -1
-        if not btree_unique_key_set_insert(keys, children, key_count, leaf, used_nodes, root, key):
+        if not btree_unique_key_set_insert(keys[0:MAX_NODE_COUNT * MAX_NODE_KEYS], children[0:MAX_NODE_COUNT * (MAX_NODE_KEYS + 1)], key_count[0:MAX_NODE_COUNT], leaf[0:MAX_NODE_COUNT], used_nodes, root, key):
             return -1
         i <- i + 1
 
@@ -295,7 +295,7 @@ def btree_unique_key_set_impl(values: i64&, length: usize, output: mutable u8&, 
         raw: i64 = values[query_start + i]
         if raw < -2147483648 or raw > 2147483647:
             return -1
-        present: bool = btree_unique_key_set_search(keys, children, key_count, leaf, root, raw.i32())
+        present: bool = btree_unique_key_set_search(keys[0:MAX_NODE_COUNT * MAX_NODE_KEYS], children[0:MAX_NODE_COUNT * (MAX_NODE_KEYS + 1)], key_count[0:MAX_NODE_COUNT], leaf[0:MAX_NODE_COUNT], root, raw.i32())
         result[result_length] <- if present then 1 else 0
         result_length <- result_length + 1
         i <- i + 1
@@ -306,20 +306,20 @@ def btree_unique_key_set_impl(values: i64&, length: usize, output: mutable u8&, 
         raw: i64 = values[delete_start + i]
         if raw < -2147483648 or raw > 2147483647:
             return -1
-        if not btree_unique_key_set_delete(keys, children, key_count, leaf, root, raw.i32()):
+        if not btree_unique_key_set_delete(keys[0:MAX_NODE_COUNT * MAX_NODE_KEYS], children[0:MAX_NODE_COUNT * (MAX_NODE_KEYS + 1)], key_count[0:MAX_NODE_COUNT], leaf[0:MAX_NODE_COUNT], root, raw.i32()):
             return -1
         i <- i + 1
 
     count_slot: usize = result_length
     result_length <- result_length + 1
-    btree_unique_key_set_traverse(keys, children, key_count, leaf, root, result, result_length)
+    btree_unique_key_set_traverse(keys[0:MAX_NODE_COUNT * MAX_NODE_KEYS], children[0:MAX_NODE_COUNT * (MAX_NODE_KEYS + 1)], key_count[0:MAX_NODE_COUNT], leaf[0:MAX_NODE_COUNT], root, result[0:MAX_OUTPUT_VALUES], result_length)
     result[count_slot] <- (result_length - count_slot - 1).i64()
     output_bytes: usize = result_length * 8
     if output == null or capacity < output_bytes:
         return -2
     i <- 0
     while i < result_length |i, result, output|:
-        btree_unique_key_set_store(result[i], output, i * 8)
+        btree_unique_key_set_store(result[i], output[0:output_bytes], i * 8)
         i <- i + 1
     output_bytes.i64()
 

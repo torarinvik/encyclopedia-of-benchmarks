@@ -1,6 +1,6 @@
 extern round(value: f64) -> f64
 
-def put_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
+def put_f64_le(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     b: mutable usize = 0
@@ -76,7 +76,7 @@ def gauss_seidel_method_impl(input: i64&, length: usize, output: mutable u8&, ca
         iteration <- iteration + 1
     row <- 0
     while row < n:
-        put_f64_le(output, row*8, round(x[row]*1.0e10)/1.0e10)
+        put_f64_le(output[0:n*8], row*8, round(x[row]*1.0e10)/1.0e10)
         row <- row + 1
     (n*8).i64()
 

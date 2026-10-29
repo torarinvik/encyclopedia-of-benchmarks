@@ -3,8 +3,8 @@ const MAX_ITEMS: usize = 16
 const WIDTH: usize = 801
 const STATES: usize = 17 * WIDTH
 
-def subset_sum_dynamic_search(input: i64&, item_count: usize, index: usize,
-                              remaining: i64, memo: mutable i64&) -> i64:
+def subset_sum_dynamic_search(input: view[i64], item_count: usize, index: usize,
+                              remaining: i64, memo: mutable view[i64]) -> i64:
     if remaining == 0:
         return 1
     if index == item_count:
@@ -35,6 +35,6 @@ def subset_sum_dynamic_impl(input: i64&, length: usize) -> i64:
     while index < STATES:
         memo[index] <- -2
         index <- index + 1
-    subset_sum_dynamic_search(input, length - 1, 0, target, memo)
+    subset_sum_dynamic_search(input[0:length], length - 1, 0, target, memo[0:STATES])
 
 export fn subset_sum_dynamic(input: i64&, length: usize) -> i64 = subset_sum_dynamic_impl

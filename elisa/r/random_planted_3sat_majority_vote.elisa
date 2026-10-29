@@ -3,7 +3,7 @@ const MAX_CLAUSES: usize = 32
 const MAX_INPUT: usize = 98
 const MAX_OUTPUT: usize = 96
 
-def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -35,10 +35,11 @@ def random_planted_3sat_majority_vote(input: i64&, length: usize,
     byte_count: usize = 8 * n
     if output == null or capacity < byte_count: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT]
     variable: mutable usize = 0
     while variable < n:
         value: i64 = if positive[variable] > negative[variable]: 1 else: -1
-        put_i64(&staged[0], 8 * variable, value)
+        put_i64(staged_view, 8 * variable, value)
         variable <- variable + 1
     for i in 0..<byte_count: output[i] <- staged[i]
     byte_count.i64()

@@ -1,4 +1,4 @@
-def bdd_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def bdd_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits >> (byte * 8)).u8()
@@ -54,12 +54,12 @@ def binary_decision_graph_impl(input: i64&, length: usize, output: mutable u8&, 
     output_length: usize = 8 * (2 + 3 * nodes)
     if output == null or capacity < output_length:
         return -2
-    bdd_put_i64(output, 0, ids[0])
-    bdd_put_i64(output, 8, nodes.i64())
+    bdd_put_i64(output[0:output_length], 0, ids[0])
+    bdd_put_i64(output[0:output_length], 8, nodes.i64())
     for i in 0..<nodes:
-        bdd_put_i64(output, (2 + 3 * i) * 8, vars[i])
-        bdd_put_i64(output, (3 + 3 * i) * 8, lows[i])
-        bdd_put_i64(output, (4 + 3 * i) * 8, highs[i])
+        bdd_put_i64(output[0:output_length], (2 + 3 * i) * 8, vars[i])
+        bdd_put_i64(output[0:output_length], (3 + 3 * i) * 8, lows[i])
+        bdd_put_i64(output[0:output_length], (4 + 3 * i) * 8, highs[i])
     output_length.i64()
 
 export fn binary_decision_graph(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = binary_decision_graph_impl

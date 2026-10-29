@@ -1,6 +1,6 @@
 extern exp(value: f64) -> f64
 
-def nn_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def nn_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for b in 0..8: output[offset+b] <- ((bits >> (b*8)) & 255).u8()
 
@@ -70,7 +70,7 @@ def nbench_neural_network_impl(input: i64&, length: usize, output: mutable u8&, 
         for w in 0..8: os <- os+ow[n*8+w]
     result[9] <- (ms*1000000.0).i64()
     result[10] <- (os*1000000.0).i64()
-    for i in 0..11: nn_put_i64(output, i*8, result[i])
+    for i in 0..11: nn_put_i64(output[0:capacity], i*8, result[i])
     88
 
 export fn nbench_neural_network(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = nbench_neural_network_impl

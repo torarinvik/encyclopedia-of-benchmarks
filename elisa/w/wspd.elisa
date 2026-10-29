@@ -118,7 +118,7 @@ def wspd_visit_node(context: mutable WspdContext&, id: usize) -> void:
     wspd_visit_node(context&, right.usize())
     wspd_cross_nodes(context&, left.usize(), right.usize())
 
-def wspd_put_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+def wspd_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -146,10 +146,10 @@ def wspd_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize)
     if context.overflow: return -2
     required: usize = 8 + 16 * context.pair_count
     staged: mutable u8[456] = zeroed
-    wspd_put_i64(context.pair_count.i64(), staged[0]&, 0)
+    wspd_put_i64(context.pair_count.i64(), staged[0:MAX_OUTPUT_BYTES], 0)
     for i in 0..<context.pair_count:
-        wspd_put_i64(context.left_masks[i].i64(), staged[0]&, 8 + 16 * i)
-        wspd_put_i64(context.right_masks[i].i64(), staged[0]&, 16 + 16 * i)
+        wspd_put_i64(context.left_masks[i].i64(), staged[0:MAX_OUTPUT_BYTES], 8 + 16 * i)
+        wspd_put_i64(context.right_masks[i].i64(), staged[0:MAX_OUTPUT_BYTES], 16 + 16 * i)
     if output == null or capacity < required: return -2
     for i in 0..<required: output[i] <- staged[i]
     required.i64()

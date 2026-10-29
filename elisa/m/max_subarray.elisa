@@ -1,5 +1,5 @@
 # Divide-and-conquer maximum nonempty contiguous-subarray sum.
-def max_subarray_range(values: i64&, start: usize, end: usize) -> i64:
+def max_subarray_range(values: view[i64], start: usize, end: usize) -> i64:
     if end - start == 1:
         return values[start]
     middle: usize = start + (end - start) / 2
@@ -37,6 +37,6 @@ def max_subarray_impl(values: i64&, length: usize) -> i64:
         if values[index] < -2147483648 or values[index] > 2147483647:
             return -1
         index <- index + 1
-    max_subarray_range(values, 0, length)
+    max_subarray_range(values[0:length], 0, length)
 
 export fn max_subarray(values: i64&, length: usize) -> i64 = max_subarray_impl

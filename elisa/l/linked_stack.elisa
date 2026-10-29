@@ -2,7 +2,7 @@ const MAX_OPERATIONS: usize = 64
 const MAX_INPUT_LENGTH: usize = 129
 const MAX_OUTPUT_BYTES: usize = 1536
 
-def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def put_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -10,7 +10,7 @@ def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
         bits <- bits >> 8
         byte <- byte + 1
 
-def put_record(output: mutable u8&, offset: usize, opcode: i64, tag: i64, value: i64) -> void:
+def put_record(output: mutable view[u8], offset: usize, opcode: i64, tag: i64, value: i64) -> void:
     put_i64_le(opcode, output, offset)
     put_i64_le(tag, output, offset + 8)
     put_i64_le(value, output, offset + 16)
@@ -70,7 +70,7 @@ def linked_stack_impl(input: i64&, length: usize, output: mutable u8&, capacity:
         else:
             tag <- 1
             value <- if head == 0 then 1 else 0
-        put_record(buffer, written, opcode, tag, value)
+        put_record(buffer[0:written + 24], written, opcode, tag, value)
         written <- written + 24
         index <- index + 1
 

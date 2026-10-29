@@ -1,4 +1,4 @@
-def search_path(input: i32&, path: mutable i32&, n: usize, row: usize, col: usize) -> bool:
+def search_path(input: view[i32], path: mutable view[i32], n: usize, row: usize, col: usize) -> bool:
     index: usize = row * n + col
     path[index] <- 1
     if row == n - 1 and col == n - 1: return true
@@ -7,7 +7,7 @@ def search_path(input: i32&, path: mutable i32&, n: usize, row: usize, col: usiz
     path[index] <- 0
     return false
 
-def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+def put_i32_le(value: i32, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.i64().u64()
     byte: mutable usize = 0
     while byte < 4:
@@ -27,7 +27,7 @@ def rat_maze_impl(input: i32&, length: usize, output: mutable u8&, capacity: usi
         if input[1 + index] < 0 or input[1 + index] > 1: return -1
         index <- index + 1
     path: mutable i32[64] = zeroed
-    found: bool = search_path(input, path[0], n, 0, 0)
+    found: bool = search_path(input[0:length], path[0:cells], n, 0, 0)
     word_count: usize = 1
     if found: word_count <- word_count + cells
     found_word: i32 = 0
@@ -35,11 +35,12 @@ def rat_maze_impl(input: i32&, length: usize, output: mutable u8&, capacity: usi
     bytes: usize = word_count * 4
     if output.is_null() or capacity < bytes: return -2
     buffer: mutable u8[260] = zeroed
-    put_i32_le(found_word, buffer[0], 0)
+    buffer_view: mutable view[u8] = buffer[0:260]
+    put_i32_le(found_word, buffer_view, 0)
     if found:
         index <- 0
         while index < cells:
-            put_i32_le(path[index], buffer[0], (index + 1) * 4)
+            put_i32_le(path[index], buffer_view, (index + 1) * 4)
             index <- index + 1
     index <- 0
     while index < bytes:

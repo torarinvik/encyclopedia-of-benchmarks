@@ -14,7 +14,7 @@ def fraction_gcd(a: u64, b: u64) -> u64:
         right <- remainder
     return left
 
-def fraction_put_i64_le(output: mutable u8&, offset: usize, value: i64):
+def fraction_put_i64_le(output: mutable view[u8], offset: usize, value: i64):
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -33,8 +33,8 @@ def simplify_fraction_impl(input: i64&, input_length: usize,
     reduced_numerator: i64 = numerator / divisor.i64()
     reduced_denominator: i64 = denominator / divisor.i64()
     staged: mutable u8[OUTPUT_BYTES] = zeroed
-    fraction_put_i64_le(staged[0], 0, reduced_numerator)
-    fraction_put_i64_le(staged[0], 8, reduced_denominator)
+    fraction_put_i64_le(staged[0:OUTPUT_BYTES], 0, reduced_numerator)
+    fraction_put_i64_le(staged[0:OUTPUT_BYTES], 8, reduced_denominator)
     if output.is_null() or capacity < OUTPUT_BYTES: return -2
     i: mutable usize = 0
     while i < OUTPUT_BYTES:

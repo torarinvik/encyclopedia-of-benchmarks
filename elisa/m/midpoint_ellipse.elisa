@@ -1,5 +1,5 @@
 # Midpoint ellipse rasterization preserving Java's point order and duplicates.
-def midpoint_ellipse_write_i32(output: mutable u8&, position: usize, value: i64) -> void:
+def midpoint_ellipse_write_i32(output: mutable view[u8], position: usize, value: i64) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -46,7 +46,7 @@ def midpoint_ellipse_count(center_x: i64, center_y: i64, a: i64, b: i64) -> usiz
             d2 <- d2 + dx - dy + a * a
     count
 
-def midpoint_ellipse_write_symmetric(output: mutable u8&, position: mutable usize&,
+def midpoint_ellipse_write_symmetric(output: mutable view[u8], position: mutable usize&,
         center_x: i64, center_y: i64, x: i64, y: i64) -> void:
     midpoint_ellipse_write_i32(output, position, center_x + x)
     midpoint_ellipse_write_i32(output, position + 4, center_y + y)
@@ -76,19 +76,20 @@ def midpoint_ellipse_impl(input: i64&, length: usize, output: mutable u8&,
     required: usize = count * 8
     if output_capacity < required:
         return -2
+    output_view: mutable view[u8] = output[0:required]
     if a == 0 and b == 0:
-        midpoint_ellipse_write_i32(output, 0, center_x)
-        midpoint_ellipse_write_i32(output, 4, center_y)
+        midpoint_ellipse_write_i32(output_view, 0, center_x)
+        midpoint_ellipse_write_i32(output_view, 4, center_y)
         return 1
     if a == 0:
-        for index in 0..<count |output|:
-            midpoint_ellipse_write_i32(output, index * 8, center_x)
-            midpoint_ellipse_write_i32(output, index * 8 + 4, center_y - b + index.i64())
+        for index in 0..<count |output_view|:
+            midpoint_ellipse_write_i32(output_view, index * 8, center_x)
+            midpoint_ellipse_write_i32(output_view, index * 8 + 4, center_y - b + index.i64())
         return count.i64()
     if b == 0:
-        for index in 0..<count |output|:
-            midpoint_ellipse_write_i32(output, index * 8, center_x - a + index.i64())
-            midpoint_ellipse_write_i32(output, index * 8 + 4, center_y)
+        for index in 0..<count |output_view|:
+            midpoint_ellipse_write_i32(output_view, index * 8, center_x - a + index.i64())
+            midpoint_ellipse_write_i32(output_view, index * 8 + 4, center_y)
         return count.i64()
     x: mutable i64 = 0
     y: mutable i64 = b
@@ -97,7 +98,7 @@ def midpoint_ellipse_impl(input: i64&, length: usize, output: mutable u8&,
     dy: mutable f64 = 2.0 * a * a * y
     position: mutable usize = 0
     while dx < dy:
-        midpoint_ellipse_write_symmetric(output, position, center_x, center_y, x, y)
+        midpoint_ellipse_write_symmetric(output_view, position, center_x, center_y, x, y)
         if d1 < 0:
             x <- x + 1
             dx <- dx + 2 * b * b
@@ -110,7 +111,7 @@ def midpoint_ellipse_impl(input: i64&, length: usize, output: mutable u8&,
             d1 <- d1 + dx - dy + b * b
     d2: mutable f64 = b * b * (x + 0.5) * (x + 0.5) + a * a * (y - 1) * (y - 1) - a * a * b * b
     while y >= 0:
-        midpoint_ellipse_write_symmetric(output, position, center_x, center_y, x, y)
+        midpoint_ellipse_write_symmetric(output_view, position, center_x, center_y, x, y)
         if d2 > 0:
             y <- y - 1
             dy <- dy - 2 * a * a

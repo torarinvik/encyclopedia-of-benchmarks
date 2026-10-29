@@ -3,7 +3,7 @@ const MAX_PARSEABLE_INPUT_LENGTH: usize = 38
 const SCORE_STRIDE: usize = 17
 const MAX_OUTPUT_BYTES: usize = 1233
 
-def sw_put_u32le(output: mutable u8&, position: mutable usize&, value: u32) -> void:
+def sw_put_u32le(output: mutable view[u8], position: mutable usize&, value: u32) -> void:
     bits: mutable u32 = value
     byte: mutable usize = 0
     while byte < 4:
@@ -12,7 +12,7 @@ def sw_put_u32le(output: mutable u8&, position: mutable usize&, value: u32) -> v
         position <- position + 1
         byte <- byte + 1
 
-def sw_put_i32le(output: mutable u8&, position: mutable usize&, value: i64) -> void:
+def sw_put_i32le(output: mutable view[u8], position: mutable usize&, value: i64) -> void:
     sw_put_u32le(output, position, value.i32().u32())
 
 def smith_waterman_python_impl(input: i64&, input_length: usize,
@@ -109,16 +109,16 @@ def smith_waterman_python_impl(input: i64&, input_length: usize,
     if trace_length > 0: alignment_length <- trace_length * 2 + 1
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
     position: mutable usize = 0
-    sw_put_u32le(staged, position, (query_length + 1).u32())
-    sw_put_u32le(staged, position, (subject_length + 1).u32())
+    sw_put_u32le(staged[0:MAX_OUTPUT_BYTES], position, (query_length + 1).u32())
+    sw_put_u32le(staged[0:MAX_OUTPUT_BYTES], position, (subject_length + 1).u32())
     row <- 0
     while row <= query_length:
         column <- 0
         while column <= subject_length:
-            sw_put_i32le(staged, position, scores[row * SCORE_STRIDE + column])
+            sw_put_i32le(staged[0:MAX_OUTPUT_BYTES], position, scores[row * SCORE_STRIDE + column])
             column <- column + 1
         row <- row + 1
-    sw_put_u32le(staged, position, alignment_length.u32())
+    sw_put_u32le(staged[0:MAX_OUTPUT_BYTES], position, alignment_length.u32())
     index <- 0
     while index < trace_length:
         staged[position] <- trace_query[trace_length - 1 - index]

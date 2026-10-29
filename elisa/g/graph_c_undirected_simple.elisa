@@ -2,7 +2,7 @@
 const MAX_VERTICES: usize = 32
 const MAX_EDGES: usize = 2047
 
-def graph_c_simple_put_i64(output: mutable u8&, slot: usize, value: i64) -> void:
+def graph_c_simple_put_i64(output: mutable view[u8], slot: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[slot * 8 + byte] <- (bits & 255).u8()
@@ -37,7 +37,7 @@ def graph_c_undirected_simple_impl(input: i64&, length: usize,
         return -2
     for row in 0..<vertices:
         for column in 0..<vertices:
-            graph_c_simple_put_i64(output, row * vertices + column, adjacency[row * vertices + column])
+            graph_c_simple_put_i64(output[0:count * 8], row * vertices + column, adjacency[row * vertices + column])
     (count * 8).i64()
 
 export fn graph_c_undirected_simple(input: i64&, length: usize,

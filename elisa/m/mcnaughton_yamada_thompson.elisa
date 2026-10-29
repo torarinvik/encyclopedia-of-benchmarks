@@ -26,7 +26,7 @@ struct MtFragment:
     accept: usize
     valid: bool
 
-def mt_add_node(nodes: mutable MtNode&, node_count: mutable usize&, fragments: mutable usize&,
+def mt_add_node(nodes: mutable view[MtNode], node_count: mutable usize&, fragments: mutable usize&,
         kind: i64, value: u8, left: usize, right: usize) -> i64:
     if node_count >= MT_MAX_AST_NODES: return -1
     index: usize = node_count
@@ -39,8 +39,8 @@ def mt_add_node(nodes: mutable MtNode&, node_count: mutable usize&, fragments: m
         fragments <- fragments + 1
     index.i64()
 
-def mt_parse_union(pattern: u8&, pattern_length: usize, position: mutable usize&,
-        nodes: mutable MtNode&, node_count: mutable usize&, fragments: mutable usize&) -> i64:
+def mt_parse_union(pattern: view[u8], pattern_length: usize, position: mutable usize&,
+        nodes: mutable view[MtNode], node_count: mutable usize&, fragments: mutable usize&) -> i64:
     left: i64 = mt_parse_concat(pattern, pattern_length, position, nodes, node_count, fragments)
     if left < 0: return -1
     while position < pattern_length and pattern[position] == 124:
@@ -51,8 +51,8 @@ def mt_parse_union(pattern: u8&, pattern_length: usize, position: mutable usize&
         if left < 0: return -1
     left
 
-def mt_parse_concat(pattern: u8&, pattern_length: usize, position: mutable usize&,
-        nodes: mutable MtNode&, node_count: mutable usize&, fragments: mutable usize&) -> i64:
+def mt_parse_concat(pattern: view[u8], pattern_length: usize, position: mutable usize&,
+        nodes: mutable view[MtNode], node_count: mutable usize&, fragments: mutable usize&) -> i64:
     if position >= pattern_length or pattern[position] == 41 or pattern[position] == 124:
         return -1
     left: i64 = mt_parse_repeat(pattern, pattern_length, position, nodes, node_count, fragments)
@@ -64,8 +64,8 @@ def mt_parse_concat(pattern: u8&, pattern_length: usize, position: mutable usize
         if left < 0: return -1
     left
 
-def mt_parse_repeat(pattern: u8&, pattern_length: usize, position: mutable usize&,
-        nodes: mutable MtNode&, node_count: mutable usize&, fragments: mutable usize&) -> i64:
+def mt_parse_repeat(pattern: view[u8], pattern_length: usize, position: mutable usize&,
+        nodes: mutable view[MtNode], node_count: mutable usize&, fragments: mutable usize&) -> i64:
     node: i64 = mt_parse_atom(pattern, pattern_length, position, nodes, node_count, fragments)
     if node < 0: return -1
     if position < pattern_length and pattern[position] == 42:
@@ -73,8 +73,8 @@ def mt_parse_repeat(pattern: u8&, pattern_length: usize, position: mutable usize
         node <- mt_add_node(nodes, node_count, fragments, MT_STAR, 0.u8(), node.usize(), 0)
     node
 
-def mt_parse_atom(pattern: u8&, pattern_length: usize, position: mutable usize&,
-        nodes: mutable MtNode&, node_count: mutable usize&, fragments: mutable usize&) -> i64:
+def mt_parse_atom(pattern: view[u8], pattern_length: usize, position: mutable usize&,
+        nodes: mutable view[MtNode], node_count: mutable usize&, fragments: mutable usize&) -> i64:
     if position >= pattern_length: return -1
     token: u8 = pattern[position]
     if token == 97 or token == 98 or token == 99:
@@ -88,7 +88,7 @@ def mt_parse_atom(pattern: u8&, pattern_length: usize, position: mutable usize&,
         return node
     -1
 
-def mt_source_compatible(source: u8&, start: usize, length: usize) -> bool:
+def mt_source_compatible(source: view[u8], start: usize, length: usize) -> bool:
     if length <= 1: return true
     if source[start] == 40 and source[start + length - 1] == 41:
         depth: mutable i64 = 0
@@ -128,7 +128,7 @@ def mt_new_state(state_count: mutable usize&) -> i64:
     state_count <- state_count + 1
     state.i64()
 
-def mt_add_edge(edges: mutable MtEdge&, edge_count: mutable usize&, from: usize, to: usize, label: u8) -> bool:
+def mt_add_edge(edges: mutable view[MtEdge], edge_count: mutable usize&, from: usize, to: usize, label: u8) -> bool:
     if edge_count >= MT_MAX_EDGES: return false
     edges[edge_count].from <- from
     edges[edge_count].to <- to
@@ -136,8 +136,8 @@ def mt_add_edge(edges: mutable MtEdge&, edge_count: mutable usize&, from: usize,
     edge_count <- edge_count + 1
     true
 
-def mt_compile(node_index: usize, nodes: MtNode&, state_count: mutable usize&,
-        edges: mutable MtEdge&, edge_count: mutable usize&) -> MtFragment:
+def mt_compile(node_index: usize, nodes: view[MtNode], state_count: mutable usize&,
+        edges: mutable view[MtEdge], edge_count: mutable usize&) -> MtFragment:
     kind: i64 = nodes[node_index].kind
     if kind == MT_EMPTY or kind == MT_LITERAL:
         start: i64 = mt_new_state(state_count)
@@ -180,7 +180,7 @@ def mt_compile(node_index: usize, nodes: MtNode&, state_count: mutable usize&,
         return MtFragment{start: 0, accept: 0, valid: false}
     MtFragment{start: start.usize(), accept: accept.usize(), valid: true}
 
-def mt_epsilon_closure(states: u64, edges: MtEdge&, edge_count: usize) -> u64:
+def mt_epsilon_closure(states: u64, edges: view[MtEdge], edge_count: usize) -> u64:
     active: mutable u64 = states
     changed: mutable bool = true
     while changed:
@@ -236,25 +236,27 @@ def mcnaughton_yamada_thompson_impl(input: i64&, input_length: usize) -> i64:
                 preprocessed[processed_length] <- 10.u8()
                 processed_length <- processed_length + 1
         index <- index + 1
-    if not mt_source_compatible(preprocessed, 0, processed_length): return -1
+    if not mt_source_compatible(preprocessed[0:processed_length], 0, processed_length): return -1
 
     nodes: mutable MtNode[MT_MAX_AST_NODES] = zeroed
+    nodes_view: mutable view[MtNode] = nodes[0:MT_MAX_AST_NODES]
     node_count: mutable usize = 0
     fragments: mutable usize = 0
     position: mutable usize = 0
     root: mutable i64 = -1
     if pattern_length == 0:
-        root <- mt_add_node(nodes, node_count, fragments, MT_EMPTY, 0.u8(), 0, 0)
+        root <- mt_add_node(nodes_view, node_count, fragments, MT_EMPTY, 0.u8(), 0, 0)
     else:
-        root <- mt_parse_union(pattern, pattern_length, position, nodes, node_count, fragments)
+        root <- mt_parse_union(pattern[0:pattern_length], pattern_length, position, nodes_view, node_count, fragments)
     if root < 0 or position != pattern_length or fragments > 4: return -1
 
     state_count: mutable usize = 0
     edges: mutable MtEdge[MT_MAX_EDGES] = zeroed
+    edges_view: mutable view[MtEdge] = edges[0:MT_MAX_EDGES]
     edge_count: mutable usize = 0
-    fragment: MtFragment = mt_compile(root.usize(), nodes, state_count, edges, edge_count)
+    fragment: MtFragment = mt_compile(root.usize(), nodes_view, state_count, edges_view, edge_count)
     if not fragment.valid: return -1
-    active: mutable u64 = mt_epsilon_closure(1.u64() << fragment.start, edges, edge_count)
+    active: mutable u64 = mt_epsilon_closure(1.u64() << fragment.start, edges_view, edge_count)
     index <- 0
     while index < text_length:
         symbol: u8 = input[2 + pattern_length + index].u8()
@@ -265,7 +267,7 @@ def mcnaughton_yamada_thompson_impl(input: i64&, input_length: usize) -> i64:
                     (active & (1.u64() << edges[edge].from)) != 0:
                 next_states <- next_states | (1.u64() << edges[edge].to)
             edge <- edge + 1
-        active <- mt_epsilon_closure(next_states, edges, edge_count)
+        active <- mt_epsilon_closure(next_states, edges_view, edge_count)
         index <- index + 1
     if (active & (1.u64() << fragment.accept)) != 0: 1 else: 0
 

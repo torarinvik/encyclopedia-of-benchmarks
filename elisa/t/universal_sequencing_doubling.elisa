@@ -4,7 +4,7 @@ const MAX_LEVELS: usize = 6
 const MAX_INPUT: usize = 25
 const MAX_OUTPUT: usize = 104
 
-def universal_sequencing_doubling_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def universal_sequencing_doubling_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -100,7 +100,7 @@ def universal_sequencing_doubling(input: i64&, length: usize,
     staged: mutable u8[MAX_OUTPUT] = zeroed
     index: mutable usize = 0
     while index < count:
-        universal_sequencing_doubling_put(words[index], staged, 8 * index)
+        universal_sequencing_doubling_put(words[index], staged[0:bytes], 8 * index)
         index <- index + 1
     index <- 0
     while index < bytes:

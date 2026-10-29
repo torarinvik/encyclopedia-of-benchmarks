@@ -11,12 +11,12 @@ const MAX_COEFFICIENT: f64 = 1000000.0
 const MAX_CONTRACT_BYTES: usize = 124
 const SCRATCH_BYTES: usize = 125
 
-def append_text(buffer: mutable u8&, position: mutable usize&, text: &str) -> void:
+def append_text(buffer: mutable view[u8], position: mutable usize&, text: &str) -> void:
     for index in 0..<text.length():
         buffer[position] <- text[index].u8()
         position <- position + 1
 
-def append_i64(buffer: mutable u8&, position: mutable usize&, value_value: i64) -> void:
+def append_i64(buffer: mutable view[u8], position: mutable usize&, value_value: i64) -> void:
     value: mutable i64 = value_value
     digits: mutable u8[24] = zeroed
     count: mutable usize = 0
@@ -35,7 +35,7 @@ def append_i64(buffer: mutable u8&, position: mutable usize&, value_value: i64) 
         buffer[position] <- digits[count]
         position <- position + 1
 
-def append_coefficient(buffer: mutable u8&, position: mutable usize&, value: f64) -> void:
+def append_coefficient(buffer: mutable view[u8], position: mutable usize&, value: f64) -> void:
     if value == 0.0:
         bits: mutable u64 = 0
         memcpy(&bits, &value, 8)
@@ -113,16 +113,16 @@ def polynom_for_points_impl(values: i64&, length: usize, output: mutable u8&,
 
     buffer: mutable u8[SCRATCH_BYTES] = zeroed
     position: mutable usize = 0
-    append_text(buffer, position, "f(x)=")
+    append_text(buffer[0:SCRATCH_BYTES], position, "f(x)=")
     for index in 0..<n:
         if index != 0:
             buffer[position] <- '+'.u8()
             position <- position + 1
-        append_text(buffer, position, "x^")
-        append_i64(buffer, position, (n - index - 1).i64())
+        append_text(buffer[0:SCRATCH_BYTES], position, "x^")
+        append_i64(buffer[0:SCRATCH_BYTES], position, (n - index - 1).i64())
         buffer[position] <- '*'.u8()
         position <- position + 1
-        append_coefficient(buffer, position, coefficients[index])
+        append_coefficient(buffer[0:SCRATCH_BYTES], position, coefficients[index])
     if position > MAX_CONTRACT_BYTES:
         return -1
     if output.is_null() or output_capacity < position:

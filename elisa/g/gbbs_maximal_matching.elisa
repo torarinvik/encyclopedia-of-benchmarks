@@ -2,7 +2,7 @@ const GBBS_MM_MAX_N: usize = 16
 const GBBS_MM_MAX_M: usize = 64
 const GBBS_MM_MAX_INPUT: usize = 194
 
-def gbbs_mm_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def gbbs_mm_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -51,6 +51,6 @@ def gbbs_maximal_matching(input: i64&, length: usize,
         rank <- rank + 1
     edge <- 0
     while edge < m:
-        gbbs_mm_store_i64_le(selected[edge], output, 8 * edge)
+        gbbs_mm_store_i64_le(selected[edge], output[0:output_bytes], 8 * edge)
         edge <- edge + 1
     output_bytes.i64()

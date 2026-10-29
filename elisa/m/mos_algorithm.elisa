@@ -7,7 +7,7 @@ const FNV_PRIME: u64 = 1099511628211
 def mos_hash_byte(hash: u64, byte: u64) -> u64:
     (hash ^ byte) * FNV_PRIME
 
-def mos_query_before(a: usize, b: usize, lefts: i32&, rights: i32&, block_size: usize) -> bool:
+def mos_query_before(a: usize, b: usize, lefts: view[i32], rights: view[i32], block_size: usize) -> bool:
     block_a: i64 = lefts[a].i64() / block_size.i64()
     block_b: i64 = lefts[b].i64() / block_size.i64()
     if block_a != block_b:
@@ -70,7 +70,7 @@ def mos_algorithm_impl(input: i64&, length: usize) -> i64:
         current: usize = order[query]
         position: mutable usize = query
         while position > 0:
-            if not mos_query_before(current, order[position - 1], &lefts[0], &rights[0], block_size):
+            if not mos_query_before(current, order[position - 1], lefts[0:q], rights[0:q], block_size):
                 break
             order[position] <- order[position - 1]
             position <- position - 1

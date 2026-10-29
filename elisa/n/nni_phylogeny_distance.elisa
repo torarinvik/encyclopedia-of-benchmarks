@@ -12,7 +12,7 @@ def nni_bit_count(value: u16, n: usize) -> usize:
         bit <- bit + 1
     count
 
-def nni_valid_tree(input: i64&, offset: usize, n: usize, edges: usize) -> bool:
+def nni_valid_tree(input: view[i64], offset: usize, n: usize, edges: usize) -> bool:
     splits: mutable u16[MAX_EDGES] = zeroed
     internal: mutable u16[MAX_EDGES] = zeroed
     internal_count: mutable usize = 0
@@ -73,7 +73,7 @@ def nni_sort(state: mutable u16[MAX_EDGES], count: usize) -> void:
         state[j] <- value
         i <- i + 1
 
-def nni_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def nni_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -86,7 +86,7 @@ def nni_phylogeny_distance(input: i64&, length: usize, output: mutable u8&, capa
     if leaf_value < 3 or leaf_value > MAX_LEAVES.i64(): return -1
     leaves: usize = leaf_value.usize()
     edges: usize = 2 * leaves - 3
-    if length != 1 + 2 * edges or not nni_valid_tree(input&, 1, leaves, edges) or not nni_valid_tree(input&, 1 + edges, leaves, edges): return -1
+    if length != 1 + 2 * edges or not nni_valid_tree(input[0:length], 1, leaves, edges) or not nni_valid_tree(input[0:length], 1 + edges, leaves, edges): return -1
 
     states_a: mutable u16[MAX_STATES * MAX_EDGES] = zeroed
     states_b: mutable u16[MAX_STATES * MAX_EDGES] = zeroed
@@ -227,5 +227,5 @@ def nni_phylogeny_distance(input: i64&, length: usize, output: mutable u8&, capa
             i <- i + 1
     if distance[goal_index] < 0: return -1
     if output.is_null() or capacity < 8: return -2
-    nni_put(distance[goal_index].i64(), output&, 0)
+    nni_put(distance[goal_index].i64(), output[0:capacity], 0)
     8

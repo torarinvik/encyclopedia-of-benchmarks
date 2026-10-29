@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def procentual_proximity_write_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def procentual_proximity_write_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for byte in 0..<8:
@@ -59,9 +59,9 @@ def procentual_proximity_impl(input: i64&, length: usize, output: mutable u8&, c
     offset: mutable usize = 0
     for row in 0..<rows:
         for column in 0..<columns:
-            procentual_proximity_write_f64(output, offset, data[row * 8 + column])
+            procentual_proximity_write_f64(output[0:capacity], offset, data[row * 8 + column])
             offset <- offset + 8
-        procentual_proximity_write_f64(output, offset, scores[row])
+        procentual_proximity_write_f64(output[0:capacity], offset, scores[row])
         offset <- offset + 8
     output_length.i64()
 

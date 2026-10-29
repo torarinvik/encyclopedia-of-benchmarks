@@ -1,5 +1,5 @@
 # Pancake sort using prefix reversals for the shared sorting contract.
-def flip_prefix(values: mutable i64&, last: usize) -> void:
+def flip_prefix(values: mutable view[i64], last: usize) -> void:
     first: mutable usize = 0
     end: mutable usize = last
     while first < end:
@@ -19,8 +19,8 @@ def pancake_sort_impl(values: mutable i64&, length: usize) -> void:
                 maximum <- probe
             probe <- probe + 1
         if maximum != prefix - 1:
-            flip_prefix(values, maximum)
-            flip_prefix(values, prefix - 1)
+            flip_prefix(values[0:length], maximum)
+            flip_prefix(values[0:length], prefix - 1)
         prefix <- prefix - 1
 
 export fn pancake_sort(values: mutable i64&, length: usize) -> void = pancake_sort_impl

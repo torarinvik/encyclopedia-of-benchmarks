@@ -1,7 +1,7 @@
 const MAX_KEYS: usize = 64
 const WIDTH: usize = 4
 
-def sift_down(keys: mutable u32&, root_value: usize, end: usize) -> void:
+def sift_down(keys: mutable view[u32], root_value: usize, end: usize) -> void:
     root: mutable usize = root_value
     while root < end / 2:
         child: mutable usize = 2 * root + 1
@@ -32,14 +32,14 @@ def string_heap_sort_impl(values: i64&, length: usize, output: mutable u8&, capa
     start: mutable usize = count / 2
     while start > 0:
         start <- start - 1
-        sift_down(keys, start, count)
+        sift_down(keys[0:MAX_KEYS], start, count)
     end: mutable usize = count
     while end > 1:
         end <- end - 1
         temp: u32 = keys[0]
         keys[0] <- keys[end]
         keys[end] <- temp
-        sift_down(keys, 0, end)
+        sift_down(keys[0:MAX_KEYS], 0, end)
     byte_count: usize = count * WIDTH
     if output.is_null() or capacity < byte_count: return -2
     index <- 0

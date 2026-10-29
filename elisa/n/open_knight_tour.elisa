@@ -14,7 +14,7 @@ def search(board: mutable [25]i64, n: i64, row: i64, col: i64, step: i64) -> boo
                 board[index] <- 0
         move <- move+1
     false
-def put_i32(output: mutable u8&, offset: usize, value: i64):
+def put_i32(output: mutable view[u8], offset: usize, value: i64):
     bits: mutable u32 = value.i32().u32()
     k: mutable usize = 0
     while k < 4:
@@ -40,7 +40,7 @@ def open_knight_tour_impl(values: i64&, length: usize, output: mutable u8&, capa
         row <- row+1
     i: mutable usize = 0
     while i < (n*n).usize():
-        put_i32(output,i*4,board[i.i64()])
+        put_i32(output[0:capacity],i*4,board[i.i64()])
         i <- i+1
     bytes.i64()
 export open_knight_tour(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = open_knight_tour_impl

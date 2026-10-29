@@ -1,4 +1,4 @@
-def lru_page_reference_put_i64(output: mutable u8&, index: usize, value: i64) -> void:
+def lru_page_reference_put_i64(output: mutable view[u8], index: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -40,14 +40,14 @@ def lru_page_reference_impl(input: i64&, length: usize, output: mutable u8&, cap
         index <- index + 1
     words: usize = n * 2 + 2 + used
     if output.is_null() or capacity < words * 8: return -2
-    lru_page_reference_put_i64(output, 0, n.i64())
+    lru_page_reference_put_i64(output[0:words * 8], 0, n.i64())
     index <- 0
     while index < n * 2:
-        lru_page_reference_put_i64(output, index + 1, events[index])
+        lru_page_reference_put_i64(output[0:words * 8], index + 1, events[index])
         index <- index + 1
-    lru_page_reference_put_i64(output, n * 2 + 1, used.i64())
+    lru_page_reference_put_i64(output[0:words * 8], n * 2 + 1, used.i64())
     index <- 0
     while index < used:
-        lru_page_reference_put_i64(output, n * 2 + 2 + index, cache[index])
+        lru_page_reference_put_i64(output[0:words * 8], n * 2 + 2 + index, cache[index])
         index <- index + 1
     (words * 8).i64()

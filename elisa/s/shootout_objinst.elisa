@@ -32,7 +32,7 @@ def nth_toggle_activate(toggle: mutable NthToggle&) -> void:
 def nth_toggle_value(toggle: NthToggle&) -> bool:
     toggle.state
 
-def append_state(staged: mutable u8&, used: mutable usize&, state: bool) -> void:
+def append_state(staged: mutable view[u8], used: mutable usize&, state: bool) -> void:
     if state:
         staged[used] <- 116u8
         used <- used + 1
@@ -72,7 +72,7 @@ def shootout_objinst_impl(n: i64, output: mutable u8&, output_capacity: usize) -
         toggle_activate_fn: fn(mutable Toggle&) -> void = toggle.activate
         toggle_activate_fn(toggle)
         toggle_value_fn: fn(Toggle&) -> bool = toggle.value
-        append_state(staged[0], used, toggle_value_fn(toggle))
+        append_state(staged[0:OUTPUT_BYTES], used, toggle_value_fn(toggle))
     free(toggle_raw)
 
     iterations: usize = 0
@@ -100,7 +100,7 @@ def shootout_objinst_impl(n: i64, output: mutable u8&, output_capacity: usize) -
         nth_toggle_activate_fn: fn(mutable NthToggle&) -> void = nth_toggle.activate
         nth_toggle_activate_fn(nth_toggle)
         nth_toggle_value_fn: fn(NthToggle&) -> bool = nth_toggle.value
-        append_state(staged[0], used, nth_toggle_value_fn(nth_toggle))
+        append_state(staged[0:OUTPUT_BYTES], used, nth_toggle_value_fn(nth_toggle))
     free(nth_raw)
 
     for _ in 0..<iterations:

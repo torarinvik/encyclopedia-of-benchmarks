@@ -9,11 +9,11 @@ def cross(ax:i64,ay:i64,bx:i64,by:i64,cx:i64,cy:i64)->i64:
 def on_segment(ax:i64,ay:i64,bx:i64,by:i64,px:i64,py:i64)->bool:
     return cross(ax,ay,bx,by,px,py)==0 and px>=(if ax<bx:ax else:bx) and px<=(if ax>bx:ax else:bx) and py>=(if ay<by:ay else:by) and py<=(if ay>by:ay else:by)
 
-def inside(qx:i64,qy:i64,t:i64&,xy:i64&)->bool:
+def inside(qx:i64,qy:i64,t:view[i64],xy:view[i64])->bool:
     a:i64=t[0]*2; b:i64=t[1]*2; c:i64=t[2]*2
     return cross(xy[a],xy[a+1],xy[b],xy[b+1],qx,qy)>0 and cross(xy[b],xy[b+1],xy[c],xy[c+1],qx,qy)>0 and cross(xy[c],xy[c+1],xy[a],xy[a+1],qx,qy)>0
 
-def boundary(qx:i64,qy:i64,t:i64&,xy:i64&)->bool:
+def boundary(qx:i64,qy:i64,t:view[i64],xy:view[i64])->bool:
     e:mutable usize=0
     while e<3:
         a:i64=t[e]*2; b:i64=t[(e+1)%3]*2
@@ -29,7 +29,7 @@ def seg_hit(ax:i64,ay:i64,bx:i64,by:i64,cx:i64,cy:i64,dx:i64,dy:i64)->bool:
     if o4==0 and on_segment(cx,cy,dx,dy,bx,by):return true
     return o1*o2<0 and o3*o4<0
 
-def closed_inside(px:i64,py:i64,t:i64&,xy:i64&)->bool:
+def closed_inside(px:i64,py:i64,t:view[i64],xy:view[i64])->bool:
     e:mutable usize=0
     while e<3:
         a:i64=t[e]*2; b:i64=t[(e+1)%3]*2
@@ -37,7 +37,7 @@ def closed_inside(px:i64,py:i64,t:i64&,xy:i64&)->bool:
         e<-e+1
     return true
 
-def tri_hit(a:i64&,b:i64&,xy:i64&)->bool:
+def tri_hit(a:view[i64],b:view[i64],xy:view[i64])->bool:
     i:mutable usize=0
     while i<3:
         p:i64=a[i]*2
@@ -55,7 +55,7 @@ def tri_hit(a:i64&,b:i64&,xy:i64&)->bool:
         i<-i+1
     return false
 
-def put64(value:i64,output:mutable u8&,pos:usize)->void:
+def put64(value:i64,output:mutable view[u8],pos:usize)->void:
     bits:u64=value.u64()
     j:mutable usize=0
     while j<8:
@@ -109,7 +109,7 @@ def kirkpatrick_hierarchical_point_location(input:i64&,length:usize,output:mutab
             j:mutable usize=0
             while j<cc[level*8+f].usize():
                 child:i64=ids[(level*8+f)*8+j]
-                if child>=face_counts[level+1] or not tri_hit(faces[(level*8+f)*3]&,faces[((level+1)*8+child.usize())*3]&,xy[0]&):return -1
+                if child>=face_counts[level+1] or not tri_hit(faces[(level*8+f)*3:(level*8+f)*3+3],faces[((level+1)*8+child.usize())*3:((level+1)*8+child.usize())*3+3],xy[0:2*nv.usize()]):return -1
                 j<-j+1
             f<-f+1
         level<-level+1
@@ -118,8 +118,8 @@ def kirkpatrick_hierarchical_point_location(input:i64&,length:usize,output:mutab
         hits:mutable i64=0; f<-0
         while f<face_counts[level].usize():
             base:usize=(level*8+f)*3
-            if boundary(qx,qy,faces[base]&,xy[0]&):return -1
-            if inside(qx,qy,faces[base]&,xy[0]&):hits<-hits+1
+            if boundary(qx,qy,faces[base:base+3],xy[0:2*nv.usize()]):return -1
+            if inside(qx,qy,faces[base:base+3],xy[0:2*nv.usize()]):hits<-hits+1
             f<-f+1
         if hits!=1:return -1
         level<-level+1
@@ -128,12 +128,13 @@ def kirkpatrick_hierarchical_point_location(input:i64&,length:usize,output:mutab
         found:mutable i64=-1; j:mutable usize=0
         while j<cc[level*8+face.usize()].usize():
             child:i64=ids[(level*8+face.usize())*8+j]; predicates<-predicates+1
-            if inside(qx,qy,faces[((level+1)*8+child.usize())*3]&,xy[0]&):found<-child;break
+            child_base:usize=((level+1)*8+child.usize())*3
+            if inside(qx,qy,faces[child_base:child_base+3],xy[0:2*nv.usize()]):found<-child;break
             j<-j+1
         if found<0:return -1
         face<-found;level<-level+1
     if output.is_null() or capacity<16:return -2
-    staged:mutable u8[16]=zeroed;put64(face,staged&,0);put64(predicates,staged&,8)
+    staged:mutable u8[16]=zeroed;put64(face,staged[0:16],0);put64(predicates,staged[0:16],8)
     i:mutable usize=0
     while i<16:output[i]<-staged[i];i<-i+1
     return 16

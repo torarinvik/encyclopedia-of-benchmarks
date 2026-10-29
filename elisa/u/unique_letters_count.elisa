@@ -1,4 +1,4 @@
-def unique_letters_count_store_i32(value: i64, output: mutable u8&, position: usize) -> void:
+def unique_letters_count_store_i32(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -49,8 +49,8 @@ def unique_letters_count_impl(input: i64&, length: usize,
     index <- 0
     while index < unique_count:
         letter: i64 = first_seen[index]
-        unique_letters_count_store_i32(letter, output, index * 8)
-        unique_letters_count_store_i32(frequencies[(letter - 97).usize()], output, index * 8 + 4)
+        unique_letters_count_store_i32(letter, output[0:output_capacity], index * 8)
+        unique_letters_count_store_i32(frequencies[(letter - 97).usize()], output[0:output_capacity], index * 8 + 4)
         index <- index + 1
     unique_count.i64()
 

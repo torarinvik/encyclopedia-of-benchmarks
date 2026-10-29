@@ -6,7 +6,7 @@ def sha3_rotate_left(value: u64, amount: usize) -> u64:
     if amount == 0: return value
     (value << amount) | (value >> (64 - amount))
 
-def sha3_keccak_f(state: mutable u64&) -> void:
+def sha3_keccak_f(state: mutable view[u64]) -> void:
     constants: u64[24] = [
         0x0000000000000001,0x0000000000008082,0x800000000000808A,0x8000000080008000,
         0x000000000000808B,0x0000000080000001,0x8000000080008081,0x8000000000008009,
@@ -55,7 +55,7 @@ def sha3_keccak_f(state: mutable u64&) -> void:
         state[0] <- state[0] ^ constants[round]
         round <- round + 1
 
-def sha3_absorb_byte(state: mutable u64&, offset: usize, value: u8) -> void:
+def sha3_absorb_byte(state: mutable view[u64], offset: usize, value: u8) -> void:
     state[offset / 8] <- state[offset / 8] ^ (value.u64() << ((offset % 8) * 8))
 
 def sha3_impl(input: i64&, input_length: usize,
@@ -81,9 +81,9 @@ def sha3_impl(input: i64&, input_length: usize,
     while message_length - offset >= rate:
         index <- 0
         while index < rate:
-            sha3_absorb_byte(state&, index, input[2 + offset + index].u8())
+            sha3_absorb_byte(state[0:25], index, input[2 + offset + index].u8())
             index <- index + 1
-        sha3_keccak_f(state&)
+        sha3_keccak_f(state[0:25])
         offset <- offset + rate
 
     block: mutable u8[144] = zeroed
@@ -96,9 +96,9 @@ def sha3_impl(input: i64&, input_length: usize,
     block[rate - 1] <- block[rate - 1] ^ 0x80.u8()
     index <- 0
     while index < rate:
-        sha3_absorb_byte(state&, index, block[index])
+        sha3_absorb_byte(state[0:25], index, block[index])
         index <- index + 1
-    sha3_keccak_f(state&)
+    sha3_keccak_f(state[0:25])
 
     index <- 0
     while index < digest_length:

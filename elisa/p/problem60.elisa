@@ -22,7 +22,7 @@ def problem60_concatenate(left: i64, right: i64) -> i64:
         scale <- scale * 10
     left * scale + right
 
-def problem60_pair_works(primes: i64&, cache: mutable u8&, left_index: usize,
+def problem60_pair_works(primes: view[i64], cache: mutable view[u8], left_index: usize,
                          right_index: usize) -> bool:
     key: usize = left_index * MAX_PRIMES + right_index
     if cache[key] != 0:
@@ -39,8 +39,8 @@ def problem60_pair_works(primes: i64&, cache: mutable u8&, left_index: usize,
     cache[reverse_key] <- state
     result
 
-def problem60_search_set(primes: i64&, prime_count: usize, cache: mutable u8&,
-                         chain: mutable usize&, depth: usize, start: usize,
+def problem60_search_set(primes: view[i64], prime_count: usize, cache: mutable view[u8],
+                         chain: mutable view[usize], depth: usize, start: usize,
                          sum: i64) -> i64:
     if depth == TARGET_SIZE:
         return sum
@@ -80,10 +80,13 @@ def problem60_impl(placeholder: i64) -> i64:
         prime_count <- prime_count + 1
     cache: mutable u8[PAIR_CACHE_SIZE] = zeroed
     chain: mutable usize[TARGET_SIZE] = zeroed
+    primes_view: mutable view[i64] = primes[0:MAX_PRIMES]
+    cache_view: mutable view[u8] = cache[0:PAIR_CACHE_SIZE]
+    chain_view: mutable view[usize] = chain[0:TARGET_SIZE]
     start: mutable usize = 0
     while start < prime_count:
         chain[0] <- start
-        result: i64 = problem60_search_set(primes, prime_count, cache, chain,
+        result: i64 = problem60_search_set(primes_view, prime_count, cache_view, chain_view,
                                            1, start + 1, primes[start])
         if result != 0:
             return result

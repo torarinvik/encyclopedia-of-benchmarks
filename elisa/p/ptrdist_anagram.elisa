@@ -3,8 +3,8 @@
 # This program may be freely distributed provided all alterations to the original are clearly indicated as such.
 # Alterations: bounded packed-array input, portable 64-bit packed letter counts, and scalar decomposition count.
 
-def ptrdist_anagram_search(candidate_masks: mutable u64&, candidate_lengths: i32&,
-        candidate_count: usize, order: i32&, letter_masks: u64&, sign_mask: u64,
+def ptrdist_anagram_search(candidate_masks: mutable view[u64], candidate_lengths: mutable view[i32],
+        candidate_count: usize, order: view[i32], letter_masks: view[u64], sign_mask: u64,
         remaining_mask: u64, remaining_length: usize, start_value: usize,
         first_letter: usize) -> i64:
     if remaining_length == 0:
@@ -159,7 +159,7 @@ def ptrdist_anagram_impl(input: i64&, length: usize) -> i64:
             j <- j - 1
         order[j] <- key
         index <- index + 1
-    ptrdist_anagram_search(&candidate_masks[0], &candidate_lengths[0], candidate_count,
-        &order[0], &letter_masks[0], sign_mask, phrase_mask, phrase_length, 0, 0)
+    ptrdist_anagram_search(candidate_masks[0:12], candidate_lengths[0:12], candidate_count,
+        order[0:26], letter_masks[0:26], sign_mask, phrase_mask, phrase_length, 0, 0)
 
 export fn ptrdist_anagram(input: i64&, length: usize) -> i64 = ptrdist_anagram_impl

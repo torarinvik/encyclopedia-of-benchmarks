@@ -8,7 +8,7 @@ def median_float_less(left: f32, right: f32) -> bool:
         return (1.0.f32() / left < 0.0.f32()) and (1.0.f32() / right >= 0.0.f32())
     false
 
-def median_float_push_max(heap: mutable f32&, count: mutable usize&, value: f32) -> void:
+def median_float_push_max(heap: mutable view[f32], count: mutable usize&, value: f32) -> void:
     position: mutable usize = count
     count <- count + 1
     while position > 0 and median_float_less(heap[(position - 1) / 2], value):
@@ -17,7 +17,7 @@ def median_float_push_max(heap: mutable f32&, count: mutable usize&, value: f32)
         position <- parent
     heap[position] <- value
 
-def median_float_pop_max(heap: mutable f32&, count: mutable usize&) -> f32:
+def median_float_pop_max(heap: mutable view[f32], count: mutable usize&) -> f32:
     result: f32 = heap[0]
     count <- count - 1
     value: f32 = heap[count]
@@ -33,7 +33,7 @@ def median_float_pop_max(heap: mutable f32&, count: mutable usize&) -> f32:
     heap[position] <- value
     result
 
-def median_float_push_min(heap: mutable f32&, count: mutable usize&, value: f32) -> void:
+def median_float_push_min(heap: mutable view[f32], count: mutable usize&, value: f32) -> void:
     position: mutable usize = count
     count <- count + 1
     while position > 0 and median_float_less(value, heap[(position - 1) / 2]):
@@ -42,7 +42,7 @@ def median_float_push_min(heap: mutable f32&, count: mutable usize&, value: f32)
         position <- parent
     heap[position] <- value
 
-def median_float_pop_min(heap: mutable f32&, count: mutable usize&) -> f32:
+def median_float_pop_min(heap: mutable view[f32], count: mutable usize&) -> f32:
     result: f32 = heap[0]
     count <- count - 1
     value: f32 = heap[count]
@@ -80,13 +80,13 @@ def median_of_running_array_float_impl(input: f64&, length: usize, output: mutab
         if narrowed.f64() != sample or (sample == 0.0 and ((1.0 / sample < 0.0) != (1.0 / narrowed.f64() < 0.0))):
             return -1
         if upper_count > 0 and median_float_less(narrowed, upper[0]):
-            median_float_push_max(&lower[0], &lower_count, narrowed)
+            median_float_push_max(lower[0:count], &lower_count, narrowed)
         else:
-            median_float_push_min(&upper[0], &upper_count, narrowed)
+            median_float_push_min(upper[0:count], &upper_count, narrowed)
         if lower_count > upper_count + 1:
-            median_float_push_min(&upper[0], &upper_count, median_float_pop_max(&lower[0], &lower_count))
+            median_float_push_min(upper[0:count], &upper_count, median_float_pop_max(lower[0:count], &lower_count))
         else if upper_count > lower_count + 1:
-            median_float_push_max(&lower[0], &lower_count, median_float_pop_min(&upper[0], &upper_count))
+            median_float_push_max(lower[0:count], &lower_count, median_float_pop_min(upper[0:count], &upper_count))
         if lower_count > upper_count:
             medians[index] <- lower[0]
         else if upper_count > lower_count:

@@ -2,7 +2,7 @@ const MAX_ARRAY_LENGTH: usize = 1024
 const MAX_INPUT_LENGTH: usize = 1025
 const MAX_SHIFT: i64 = 1024
 
-def write_i32_le(output: mutable u8&, index: usize, value: i64) -> void:
+def write_i32_le(output: mutable view[u8], index: usize, value: i64) -> void:
     bits: u32 = value.u32()
     output[index * 4] <- (bits & 255).u8()
     output[index * 4 + 1] <- ((bits >> 8) & 255).u8()
@@ -33,11 +33,11 @@ def array_right_rotation_impl(input: i64&, length: usize, output: mutable u8&, o
         return -2
     index <- 0
     while index < shift:
-        write_i32_le(output, index, values[count - shift + index])
+        write_i32_le(output[0:output_bytes], index, values[count - shift + index])
         index <- index + 1
     index <- shift
     while index < count:
-        write_i32_le(output, index, values[index - shift])
+        write_i32_le(output[0:output_bytes], index, values[index - shift])
         index <- index + 1
     count.i64()
 

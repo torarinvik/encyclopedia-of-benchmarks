@@ -1,5 +1,5 @@
 # Allocate a fixed resource total using the pinned Java double calculation.
-def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -44,8 +44,8 @@ def proportional_fair_scheduling_impl(values: i64&, length: usize,
         quotient: f64 = weights[process].f64() / total_weight.f64()
         share: f64 = quotient * total_resources.f64()
         allocation: i64 = share.i64()
-        store_i64_le(name_ids[process], output, process * 16)
-        store_i64_le(allocation, output, process * 16 + 8)
+        store_i64_le(name_ids[process], output[0:output_capacity], process * 16)
+        store_i64_le(allocation, output[0:output_capacity], process * 16 + 8)
         process <- process + 1
     required.i64()
 

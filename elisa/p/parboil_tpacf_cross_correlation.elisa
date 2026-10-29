@@ -1,16 +1,14 @@
-module parboil_tpacf_cross_correlation;
-
 extern cos(value: f64) -> f64
 extern log10(value: f64) -> f64
 extern pow(base: f64, exponent: f64) -> f64
 
-def fn f32 parboil_tpacf_coordinate(i64* input, i64 offset):
+def parboil_tpacf_coordinate(input: view[i64], offset: i64) -> f32:
     return input[offset].f32() / 1000000.0.f32()
 
-/* Parboil TPACF, Illinois Open Source License; see package LICENSE.txt. */
-def fn i64 parboil_tpacf_cross_correlation(i64* input, i64 input_length,
-        u8* output, i64 output_capacity):
-    if input == null or input_length < 8 or input_length > 26: return -1
+# Parboil TPACF, Illinois Open Source License; see package LICENSE.txt.
+def parboil_tpacf_cross_correlation_impl(input: i64&, input_length: i64,
+        output: mutable u8&, output_capacity: i64) -> i64:
+    if input.is_null() or input_length < 8 or input_length > 26: return -1
     data_value: i64 = input[0]
     random_value: i64 = input[1]
     if data_value < 1 or data_value > 4 or random_value < 1 or random_value > 4: return -1
@@ -21,7 +19,7 @@ def fn i64 parboil_tpacf_cross_correlation(i64* input, i64 input_length,
     while i < input_length:
         if input[i] < -1000000 or input[i] > 1000000: return -1
         i <- i + 1
-    if output == null or output_capacity < 20: return -2
+    if output.is_null() or output_capacity < 20: return -2
 
     boundaries: mutable f32[21] = zeroed
     k: mutable i64 = 0
@@ -35,14 +33,14 @@ def fn i64 parboil_tpacf_cross_correlation(i64* input, i64 input_length,
     random_base: i64 = 2 + 3 * data_count
     j: mutable i64 = 0
     while j < random_count:
-        rx: f32 = parboil_tpacf_coordinate(input, random_base + 3 * j)
-        ry: f32 = parboil_tpacf_coordinate(input, random_base + 3 * j + 1)
-        rz: f32 = parboil_tpacf_coordinate(input, random_base + 3 * j + 2)
+        rx: f32 = parboil_tpacf_coordinate(input[0:input_length.usize()], random_base + 3 * j)
+        ry: f32 = parboil_tpacf_coordinate(input[0:input_length.usize()], random_base + 3 * j + 1)
+        rz: f32 = parboil_tpacf_coordinate(input[0:input_length.usize()], random_base + 3 * j + 2)
         i <- 0
         while i < data_count:
-            dx: f32 = parboil_tpacf_coordinate(input, 2 + 3 * i)
-            dy: f32 = parboil_tpacf_coordinate(input, 2 + 3 * i + 1)
-            dz: f32 = parboil_tpacf_coordinate(input, 2 + 3 * i + 2)
+            dx: f32 = parboil_tpacf_coordinate(input[0:input_length.usize()], 2 + 3 * i)
+            dy: f32 = parboil_tpacf_coordinate(input[0:input_length.usize()], 2 + 3 * i + 1)
+            dz: f32 = parboil_tpacf_coordinate(input[0:input_length.usize()], 2 + 3 * i + 2)
             px: f32 = dx * rx
             py: f32 = dy * ry
             pz: f32 = dz * rz
@@ -64,4 +62,5 @@ def fn i64 parboil_tpacf_cross_correlation(i64* input, i64 input_length,
         bin <- bin + 1
     return 20
 
-export fn parboil_tpacf_cross_correlation
+export fn parboil_tpacf_cross_correlation(input: i64&, input_length: i64,
+        output: mutable u8&, output_capacity: i64) -> i64 = parboil_tpacf_cross_correlation_impl

@@ -1,6 +1,6 @@
 const MAX_LENGTH: usize = 128
 
-def next_permutation_reverse(values: mutable i64&, left: usize, right: usize) -> void:
+def next_permutation_reverse(values: mutable view[i64], left: usize, right: usize) -> void:
     low: mutable usize = left
     high: mutable usize = right
     while low < high:
@@ -10,7 +10,7 @@ def next_permutation_reverse(values: mutable i64&, left: usize, right: usize) ->
         low <- low + 1
         high <- high - 1
 
-def next_permutation_store(value: i64, output: mutable u8&, position: usize) -> void:
+def next_permutation_store(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -35,6 +35,7 @@ def next_permutation_impl(input: i64&, length: usize, output: mutable u8&, outpu
     required: usize = n * 4
     if output_capacity < required:
         return -2
+    output_view: mutable view[u8] = output[0:output_capacity]
     pivot: mutable usize = n
     index <- n
     while index > 1:
@@ -44,7 +45,7 @@ def next_permutation_impl(input: i64&, length: usize, output: mutable u8&, outpu
             break
     if pivot == n:
         if n > 1:
-            next_permutation_reverse(&values[0], 0, n - 1)
+            next_permutation_reverse(values[0:n], 0, n - 1)
     else:
         successor: mutable usize = n - 1
         while values[successor] <= values[pivot]:
@@ -52,10 +53,10 @@ def next_permutation_impl(input: i64&, length: usize, output: mutable u8&, outpu
         temporary: i64 = values[pivot]
         values[pivot] <- values[successor]
         values[successor] <- temporary
-        next_permutation_reverse(&values[0], pivot + 1, n - 1)
+        next_permutation_reverse(values[0:n], pivot + 1, n - 1)
     index <- 0
     while index < n:
-        next_permutation_store(values[index], output, index * 4)
+        next_permutation_store(values[index], output_view, index * 4)
         index <- index + 1
     n.i64()
 

@@ -13,7 +13,7 @@ def particle_swarm_optimization_next_uniform(state: mutable u64&) -> f64:
     state <- state ^ (state << 17)
     (state >> 11).f64() * 1.1102230246251565e-16
 
-def particle_swarm_optimization_sphere(point: f64&) -> f64:
+def particle_swarm_optimization_sphere(point: view[f64]) -> f64:
     cost: mutable f64 = 0.0
     coordinate: mutable usize = 0
     while coordinate < DIMENSION_COUNT:
@@ -21,7 +21,7 @@ def particle_swarm_optimization_sphere(point: f64&) -> f64:
         coordinate <- coordinate + 1
     cost
 
-def particle_swarm_optimization_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
+def particle_swarm_optimization_write_f64(output: mutable view[u8], position: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -53,7 +53,7 @@ def particle_swarm_optimization_impl(input: i64&, length: usize,
             positions[particle][coordinate] <- -10.0 + 20.0 * particle_swarm_optimization_next_uniform(random_state)
             personal_positions[particle][coordinate] <- positions[particle][coordinate]
             coordinate <- coordinate + 1
-        cost <- particle_swarm_optimization_sphere(&positions[particle][0])
+        cost <- particle_swarm_optimization_sphere(positions[particle][0:DIMENSION_COUNT])
         personal_costs[particle] <- cost
         if cost < global_cost:
             global_cost <- cost
@@ -89,7 +89,7 @@ def particle_swarm_optimization_impl(input: i64&, length: usize,
                 positions[particle][coordinate] <- positions[particle][coordinate] + velocities[particle][coordinate]
                 coordinate <- coordinate + 1
 
-            cost <- particle_swarm_optimization_sphere(&positions[particle][0])
+            cost <- particle_swarm_optimization_sphere(positions[particle][0:DIMENSION_COUNT])
             if cost < personal_costs[particle]:
                 personal_costs[particle] <- cost
                 coordinate <- 0
@@ -108,16 +108,16 @@ def particle_swarm_optimization_impl(input: i64&, length: usize,
         iteration <- iteration + 1
 
     offset: mutable usize = 0
-    particle_swarm_optimization_write_f64(output, offset, global_cost)
+    particle_swarm_optimization_write_f64(output[0:output_capacity], offset, global_cost)
     offset <- offset + 8
     coordinate <- 0
     while coordinate < DIMENSION_COUNT:
-        particle_swarm_optimization_write_f64(output, offset, global_position[coordinate])
+        particle_swarm_optimization_write_f64(output[0:output_capacity], offset, global_position[coordinate])
         offset <- offset + 8
         coordinate <- coordinate + 1
     iteration <- 0
     while iteration < ITERATION_COUNT:
-        particle_swarm_optimization_write_f64(output, offset, history[iteration])
+        particle_swarm_optimization_write_f64(output[0:output_capacity], offset, history[iteration])
         offset <- offset + 8
         iteration <- iteration + 1
     OUTPUT_BYTES.i64()

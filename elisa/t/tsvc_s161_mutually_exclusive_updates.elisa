@@ -7,7 +7,7 @@ const TSVC_S161_MAX_VALUE: i64 = 2
 def tsvc_s161_bounded(value: i64) -> bool:
     value >= -TSVC_S161_MAX_VALUE and value <= TSVC_S161_MAX_VALUE
 
-def tsvc_s161_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s161_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -46,8 +46,8 @@ def tsvc_s161_impl(input: i64&, length: usize, output: mutable u8&, capacity: us
         else:
             a[i] <- c[i] + input[d_start + i] * input[e_start + i]
     for i in 0..n:
-        tsvc_s161_store(a[i], output, 8 * i)
-        tsvc_s161_store(c[i], output, 8 * (n + i))
+        tsvc_s161_store(a[i], output[0:capacity], 8 * i)
+        tsvc_s161_store(c[i], output[0:capacity], 8 * (n + i))
     (2 * n).i64()
 
 export fn tsvc_s161_mutually_exclusive_updates(input: i64&, length: usize,

@@ -1,7 +1,7 @@
 const INVALID_RESULT: i64 = -1
 const MAX_SIZE: usize = 16
 
-def tiling_problem_fill(board: mutable i32&, width: usize, row: usize, col: usize, missing_row: usize, missing_col: usize, tile: mutable i32&) -> void:
+def tiling_problem_fill(board: mutable view[i32], width: usize, row: usize, col: usize, missing_row: usize, missing_col: usize, tile: mutable i32&) -> void:
     if width == 1:
         return
     half: usize = width / 2
@@ -32,7 +32,7 @@ def tiling_problem_impl(values: i64&, length: usize, output: mutable u8&, output
     size: usize = size_value.usize()
     board: mutable i32[256] = zeroed
     tile: mutable i32 = 1
-    tiling_problem_fill(board, size, 0, 0, values[1].usize(), values[2].usize(), tile)
+    tiling_problem_fill(board[0:256], size, 0, 0, values[1].usize(), values[2].usize(), tile)
     byte_count: usize = size * size * 4
     if output.is_null() or output_capacity < byte_count:
         return -2

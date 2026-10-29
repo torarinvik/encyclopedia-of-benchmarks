@@ -2,7 +2,7 @@ const MAX_TEXT: usize = 24
 const MAX_INPUT: usize = 26
 const MAX_OUTPUT: usize = 34504
 
-def repetition_mismatches(text: i64&, start: usize, length: usize, period: usize) -> usize:
+def repetition_mismatches(text: view[i64], start: usize, length: usize, period: usize) -> usize:
     count: mutable usize = 0
     offset: mutable usize = 0
     while offset < length - period:
@@ -11,7 +11,7 @@ def repetition_mismatches(text: i64&, start: usize, length: usize, period: usize
         offset <- offset + 1
     count
 
-def repetition_count(text: i64&, n: usize, budget: usize) -> usize:
+def repetition_count(text: view[i64], n: usize, budget: usize) -> usize:
     count: mutable usize = 0
     start: mutable usize = 0
     while start < n:
@@ -27,7 +27,7 @@ def repetition_count(text: i64&, n: usize, budget: usize) -> usize:
         start <- start + 1
     count
 
-def repetition_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def repetition_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -47,11 +47,11 @@ def approximate_tandem_k_repetitions(input: i64&, length: usize,
     while i < n:
         if input[2 + i] < 0 or input[2 + i] > 3: return -1
         i <- i + 1
-    count: usize = repetition_count(input, n, budget)
+    count: usize = repetition_count(input[0:length], n, budget)
     bytes: usize = 8 * (1 + 4 * count)
     if bytes > MAX_OUTPUT: return -1
     if output.is_null() or capacity < bytes: return -2
-    repetition_store(count.i64(), output, 0)
+    repetition_store(count.i64(), output[0:bytes], 0)
     record: mutable usize = 0
     start: mutable usize = 0
     while start < n:
@@ -60,13 +60,13 @@ def approximate_tandem_k_repetitions(input: i64&, length: usize,
         while 2 * period + 1 <= remaining:
             factor_length: mutable usize = 2 * period + 1
             while factor_length <= remaining:
-                errors: usize = repetition_mismatches(input, 2 + start, factor_length, period)
+                errors: usize = repetition_mismatches(input[0:length], 2 + start, factor_length, period)
                 if errors <= budget:
                     offset: usize = 8 * (1 + 4 * record)
-                    repetition_store(start.i64(), output, offset)
-                    repetition_store(factor_length.i64(), output, offset + 8)
-                    repetition_store(period.i64(), output, offset + 16)
-                    repetition_store(errors.i64(), output, offset + 24)
+                    repetition_store(start.i64(), output[0:bytes], offset)
+                    repetition_store(factor_length.i64(), output[0:bytes], offset + 8)
+                    repetition_store(period.i64(), output[0:bytes], offset + 16)
+                    repetition_store(errors.i64(), output[0:bytes], offset + 24)
                     record <- record + 1
                 factor_length <- factor_length + 1
             period <- period + 1

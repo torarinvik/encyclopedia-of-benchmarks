@@ -1,4 +1,4 @@
-def put_i32_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def put_i32_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u32 = value.u32()
     for byte in 0..<4:
         output[offset + byte] <- (bits & 255).u8()
@@ -30,7 +30,7 @@ def dilation_operation_impl(input: i64&, length: usize, output: mutable u8&, out
                     image_x: i64 = x.i64() + kx.i64() - 1
                     if image_y >= 0 and image_y < rows.i64() and image_x >= 0 and image_x < columns.i64():
                         sum <- sum + input[2 + image_y.usize() * columns + image_x.usize()] * input[2 + cells + ky * 3 + kx]
-            put_i32_le(output, (y * columns + x) * 4, if sum > 0 then 1 else 0)
+            put_i32_le(output[0:cells * 4], (y * columns + x) * 4, if sum > 0 then 1 else 0)
     cells.i64()
 
 export fn dilation_operation(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = dilation_operation_impl

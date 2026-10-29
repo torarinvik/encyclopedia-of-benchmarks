@@ -1,4 +1,4 @@
-def sort_population_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def sort_population_write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -55,8 +55,8 @@ def sort_population_impl(input: i64&, length: usize, output: mutable u8&, capaci
         return -2
     index <- 0
     while index < count:
-        sort_population_write_i64_le(output, index * 16, costs[index])
-        sort_population_write_i64_le(output, index * 16 + 8, identifiers[index])
+        sort_population_write_i64_le(output[0:capacity], index * 16, costs[index])
+        sort_population_write_i64_le(output[0:capacity], index * 16 + 8, identifiers[index])
         index <- index + 1
     output_length.i64()
 

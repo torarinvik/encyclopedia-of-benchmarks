@@ -7,7 +7,7 @@ const MAX_INPUT: usize = 17
 def wire_sizing_abs(value: double) -> double:
     if value < 0.0: -value else: value
 
-def wire_sizing_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def wire_sizing_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -134,7 +134,7 @@ def wire_sizing(input: i64&, length: usize, output: mutable u8&, capacity: usize
     if output.is_null() or capacity < bytes: return -2
     staged: mutable u8[8 * MAX_FIELDS] = zeroed
     i <- 0
-    while i < n + 1: wire_sizing_put(fields[i], staged, 8 * i); i <- i + 1
+    while i < n + 1: wire_sizing_put(fields[i], staged[0:8 * MAX_FIELDS], 8 * i); i <- i + 1
     i <- 0
     while i < bytes: output[i] <- staged[i]; i <- i + 1
     bytes.i64()

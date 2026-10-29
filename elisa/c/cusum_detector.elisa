@@ -1,5 +1,5 @@
 # Two-sided CUSUM detector over a bounded integer-valued input domain.
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     b: mutable usize = 0
     while b < 8:
@@ -36,7 +36,7 @@ def cusum_detector_impl(input: i64&, length: usize, output: mutable u8&, capacit
         if signal != 0:
             upper <- 0.0
             lower <- 0.0
-        store_i64_le(signal, output, i * 8)
+        store_i64_le(signal, output[0:n*8], i * 8)
         i <- i + 1
     (n * 8).i64()
 

@@ -18,7 +18,7 @@ def decimal_length(value: i64) -> usize:
         return 2
     1
 
-def write_decimal(value: i64, output: mutable u8&, offset: mutable usize&) -> void:
+def write_decimal(value: i64, output: mutable view[u8], offset: mutable usize&) -> void:
     remaining: mutable i64 = value
     if remaining >= 100:
         output[offset] <- (48 + remaining / 100).u8()
@@ -66,7 +66,7 @@ def get_primes_between_impl(values: i64&, length: usize, output: mutable u8&, ou
         if index != 0:
             output[written] <- 44
             written <- written + 1
-        write_decimal(primes[index], output, written)
+        write_decimal(primes[index], output[0:required], written)
         index <- index + 1
     written.i64()
 

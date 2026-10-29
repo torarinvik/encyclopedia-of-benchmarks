@@ -3,17 +3,17 @@ const GBBS_BC_N: usize = 12
 const GBBS_BC_M: usize = 24
 const GBBS_BC_INPUT: usize = 50
 
-def gbbs_bc_tree_edge(u: usize, v: usize, parent: usize[12]&): bool:
+def gbbs_bc_tree_edge(u: usize, v: usize, parent: view[usize]): bool:
     parent[u] == v or parent[v] == u
 
-def gbbs_bc_critical_edge(u: usize, v: usize, parent: usize[12]&,
-        critical: bool[12]&): bool:
+def gbbs_bc_critical_edge(u: usize, v: usize, parent: view[usize],
+        critical: view[bool]): bool:
     if parent[u] == v: return critical[u]
     if parent[v] == u: return critical[v]
     false
 
-def gbbs_bc_parents_bfs(n: usize, adjacent: bool[144]&,
-        parent: mutable usize[12]&, seen: mutable bool[12]&): void:
+def gbbs_bc_parents_bfs(n: usize, adjacent: view[bool],
+        parent: mutable view[usize], seen: mutable view[bool]): void:
     frontier: mutable usize[12] = zeroed
     following: mutable usize[12] = zeroed
     candidate: mutable usize[12] = zeroed
@@ -42,9 +42,9 @@ def gbbs_bc_parents_bfs(n: usize, adjacent: bool[144]&,
             for i in 0..<next_count: frontier[i] <- following[i]
             count <- next_count
 
-def gbbs_bc_preorder(n: usize, parent: usize[12]&,
-        pn: mutable usize[12]&, order: mutable usize[12]&,
-        size: mutable usize[12]&): void:
+def gbbs_bc_preorder(n: usize, parent: view[usize],
+        pn: mutable view[usize], order: mutable view[usize],
+        size: mutable view[usize]): void:
     stack: mutable usize[12] = zeroed
     global: mutable usize = 0
     for root in 0..<n:
@@ -103,8 +103,8 @@ export fn gbbs_biconnectivity(input: i64&, length: usize,
     for v in 0..<n:
         parent[v] <- v
         size[v] <- 1
-    gbbs_bc_parents_bfs(n, adjacent&, parent&, seen&)
-    gbbs_bc_preorder(n, parent&, pn&, order&, size&)
+    gbbs_bc_parents_bfs(n, adjacent[0:144], parent[0:12], seen[0:12])
+    gbbs_bc_preorder(n, parent[0:12], pn[0:12], order[0:12], size[0:12])
     low: mutable usize[12] = zeroed
     high: mutable usize[12] = zeroed
     for v in 0..<n:
@@ -113,7 +113,7 @@ export fn gbbs_biconnectivity(input: i64&, length: usize,
     for edge in 0..<m:
         u: usize = input[2 + 2 * edge].usize()
         v: usize = input[3 + 2 * edge].usize()
-        if not gbbs_bc_tree_edge(u, v, parent&):
+        if not gbbs_bc_tree_edge(u, v, parent[0:12]):
             if pn[u] < low[v]: low[v] <- pn[u]
             else if pn[u] > high[v]: high[v] <- pn[u]
             if pn[v] < low[u]: low[u] <- pn[v]
@@ -145,7 +145,7 @@ export fn gbbs_biconnectivity(input: i64&, length: usize,
             head <- head + 1
             for other in 0..<n:
                 if adjacent[vertex * GBBS_BC_N + other] and
-                    not gbbs_bc_critical_edge(vertex, other, parent&, critical&) and
+                    not gbbs_bc_critical_edge(vertex, other, parent[0:12], critical[0:12]) and
                     component[other] == GBBS_BC_N:
                     component[other] <- root
                     queue[tail] <- other

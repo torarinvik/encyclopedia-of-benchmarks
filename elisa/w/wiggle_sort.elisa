@@ -1,7 +1,7 @@
 # One-pass alternating local swaps: <= >= <= wave.
 const MAX_ARRAY_LENGTH: usize = 4096
 
-def store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i32_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -30,7 +30,7 @@ def wiggle_sort_impl(input: i64&, length: usize, output: mutable u8&, output_cap
         index <- index + 1
     index <- 0
     while index < length:
-        store_i32_le(values[index], output, index * 4)
+        store_i32_le(values[index], output[0:output_capacity], index * 4)
         index <- index + 1
     length.i64()
 

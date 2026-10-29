@@ -9,7 +9,7 @@ struct TimSorterItem:
     key: i64
     id: i64
 
-def tim_sorter_binary_sort(items: mutable TimSorterItem&, start: usize, finish: usize, first_arg: usize) -> void:
+def tim_sorter_binary_sort(items: mutable view[TimSorterItem], start: usize, finish: usize, first_arg: usize) -> void:
     first: mutable usize = first_arg
     if first >= finish or first <= start: first <- start + 1
     while first < finish:
@@ -27,7 +27,7 @@ def tim_sorter_binary_sort(items: mutable TimSorterItem&, start: usize, finish: 
         items[left] <- target
         first <- first + 1
 
-def tim_sorter_count_run(items: mutable TimSorterItem&, start: usize, length: usize) -> usize:
+def tim_sorter_count_run(items: mutable view[TimSorterItem], start: usize, length: usize) -> usize:
     finish: mutable usize = start + 1
     if finish == length: return 1
     if items[finish].key < items[start].key:
@@ -54,8 +54,8 @@ def tim_sorter_min_run(total_arg: usize) -> usize:
         total <- total >> 1
     total + remainder
 
-def tim_sorter_merge_at(items: mutable TimSorterItem&, temp: mutable TimSorterItem&,
-                        run_base: mutable usize&, run_length: mutable usize&,
+def tim_sorter_merge_at(items: mutable view[TimSorterItem], temp: mutable view[TimSorterItem],
+                        run_base: mutable view[usize], run_length: mutable view[usize],
                         stack_size: mutable usize&, index: usize) -> void:
     base_a: usize = run_base[index]
     len_a: usize = run_length[index]
@@ -84,22 +84,22 @@ def tim_sorter_merge_at(items: mutable TimSorterItem&, temp: mutable TimSorterIt
         left <- left + 1
         dest <- dest + 1
 
-def tim_sorter_merge_collapse(items: mutable TimSorterItem&, temp: mutable TimSorterItem&,
-                              run_base: mutable usize&, run_length: mutable usize&,
+def tim_sorter_merge_collapse(items: mutable view[TimSorterItem], temp: mutable view[TimSorterItem],
+                              run_base: mutable view[usize], run_length: mutable view[usize],
                               stack_size: mutable usize&) -> void:
     while stack_size > 1:
         n: mutable usize = stack_size - 2
         if n > 0 and run_length[n - 1] <= run_length[n] + run_length[n + 1]:
             if run_length[n - 1] < run_length[n + 1]: n <- n - 1
-            tim_sorter_merge_at(&items[0], &temp[0], &run_base[0], &run_length[0], &stack_size, n)
+            tim_sorter_merge_at(items, temp, run_base, run_length, &stack_size, n)
         else if run_length[n] <= run_length[n + 1]:
-            tim_sorter_merge_at(&items[0], &temp[0], &run_base[0], &run_length[0], &stack_size, n)
+            tim_sorter_merge_at(items, temp, run_base, run_length, &stack_size, n)
         else:
             break
 
-def tim_sorter_sort(items: mutable TimSorterItem&, length: usize) -> void:
+def tim_sorter_sort(items: mutable view[TimSorterItem], length: usize) -> void:
     if length < TIM_SORTER_MIN_MERGE:
-        tim_sorter_binary_sort(&items[0], 0, length, 0)
+        tim_sorter_binary_sort(items, 0, length, 0)
         return
     min_run: usize = tim_sorter_min_run(length)
     run_base: mutable usize[TIM_SORTER_RUN_STACK] = zeroed
@@ -109,21 +109,23 @@ def tim_sorter_sort(items: mutable TimSorterItem&, length: usize) -> void:
     start: mutable usize = 0
     remaining: mutable usize = length
     while remaining > 0:
-        current_run: mutable usize = tim_sorter_count_run(&items[0], start, length)
+        current_run: mutable usize = tim_sorter_count_run(items, start, length)
         if current_run < min_run:
             force: usize = if min_run < remaining: min_run else: remaining
-            tim_sorter_binary_sort(&items[0], start, start + force, start + current_run)
+            tim_sorter_binary_sort(items, start, start + force, start + current_run)
             current_run <- force
         run_base[stack_size] <- start
         run_length[stack_size] <- current_run
         stack_size <- stack_size + 1
-        tim_sorter_merge_collapse(&items[0], &temp[0], &run_base[0], &run_length[0], &stack_size)
+        tim_sorter_merge_collapse(items, temp[0:TIM_SORTER_MAX_ITEMS],
+            run_base[0:TIM_SORTER_RUN_STACK], run_length[0:TIM_SORTER_RUN_STACK], &stack_size)
         start <- start + current_run
         remaining <- remaining - current_run
     while stack_size > 1:
         n: mutable usize = stack_size - 2
         if n > 0 and run_length[n - 1] < run_length[n + 1]: n <- n - 1
-        tim_sorter_merge_at(&items[0], &temp[0], &run_base[0], &run_length[0], &stack_size, n)
+        tim_sorter_merge_at(items, temp[0:TIM_SORTER_MAX_ITEMS],
+            run_base[0:TIM_SORTER_RUN_STACK], run_length[0:TIM_SORTER_RUN_STACK], &stack_size, n)
 
 def tim_sorter_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 1 or length > TIM_SORTER_MAX_PARSEABLE_INPUT_LENGTH: return -1
@@ -140,7 +142,7 @@ def tim_sorter_impl(input: i64&, length: usize) -> i64:
         if seen[id]: return -1
         seen[id] <- true
         items[index] <- TimSorterItem{key: key, id: id_value}
-    tim_sorter_sort(&items[0], count)
+    tim_sorter_sort(items[0:TIM_SORTER_MAX_ITEMS], count)
     checksum: mutable i64 = 0
     for index in 0..<count:
         token: i64 = (items[index].key + 1000) * 513 + items[index].id + 1

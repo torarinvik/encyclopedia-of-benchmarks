@@ -3,7 +3,7 @@
 const TSVC_S162_MAX_N: usize = 64
 const TSVC_S162_MAX_INPUT_LENGTH: usize = 194
 
-def tsvc_s162_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s162_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -34,13 +34,13 @@ def tsvc_s162_guarded_shifted_fma_impl(input: i64&, length: usize,
     c_offset: usize = b_offset + n
     i <- 0
     while i < n:
-        tsvc_s162_store_i64_le(input[a_offset + i], output, 8 * i)
+        tsvc_s162_store_i64_le(input[a_offset + i], output[0:capacity], 8 * i)
         i <- i + 1
     if k > 0:
         i <- 0
         while i + 1 < n:
             value: i64 = input[a_offset + i + 1] + input[b_offset + i] * input[c_offset + i]
-            tsvc_s162_store_i64_le(value, output, 8 * i)
+            tsvc_s162_store_i64_le(value, output[0:capacity], 8 * i)
             i <- i + 1
     n.i64()
 

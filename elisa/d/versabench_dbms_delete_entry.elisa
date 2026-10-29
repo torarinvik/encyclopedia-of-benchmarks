@@ -1,13 +1,13 @@
 const MAX_INPUT: usize = 189
 const MAX_WORDS: usize = 181
 
-def delete_box_valid(b: i64&) -> bool:
+def delete_box_valid(b: view[i64]) -> bool:
     for d in 0..<4: if b[d] < -8 or b[d] > 8 or b[4+d] < -8 or b[4+d] > 8 or b[d] >= b[4+d]: return false
     true
-def delete_hit(b: i64&, q: i64&) -> bool:
+def delete_hit(b: view[i64], q: view[i64]) -> bool:
     for d in 0..<4: if q[d] > b[4+d] or b[d] > q[4+d]: return false
     true
-def delete_union(boxes: i64&, count: usize, stride: usize, out: i64&) -> void:
+def delete_union(boxes: view[i64], count: usize, stride: usize, out: mutable view[i64]) -> void:
     for d in 0..<8: out[d] <- boxes[d]
     for i in 1..<count:
         for d in 0..<4:
@@ -20,7 +20,7 @@ def versabench_dbms_delete_entry_impl(values: i64&, length: usize, output: u8&, 
     child_count: usize = child_value.usize()
     query: mutable [8]i64 = [0;8]
     for d in 0..<8: query[d] <- values[1+d]
-    if not delete_box_valid(&query[0]): return -1
+    if not delete_box_valid(query[0:8]): return -1
     boxes: mutable [128]i64 = [0;128]
     ids: mutable [16]i64 = [0;16]
     mbrs: mutable [32]i64 = [0;32]
@@ -37,18 +37,18 @@ def versabench_dbms_delete_entry_impl(values: i64&, length: usize, output: u8&, 
         counts[c] <- count
         mb: usize = c*8
         for d in 0..<8: mbrs[mb+d] <- values[pos+d]
-        if not delete_box_valid(&mbrs[mb]): return -1
+        if not delete_box_valid(mbrs[mb:mb+8]): return -1
         pos <- pos+8
         for r in 0..<count:
             base: usize = c*32+r*8
             for d in 0..<8: boxes[base+d] <- values[pos+d]
-            if not delete_box_valid(&boxes[base]): return -1
+            if not delete_box_valid(boxes[base:base+8]): return -1
             pos <- pos+8
             rid: i64 = values[pos]; pos <- pos+1
             if rid < 0 or rid >= 32 or seen[rid.usize()]: return -1
             ids[c*4+r] <- rid; seen[rid.usize()] <- true
         actual: mutable [8]i64 = [0;8]
-        delete_union(&boxes[c*32],count,8,&actual[0])
+        delete_union(boxes[c*32:c*32+count*8],count,8,actual[0:8])
         for d in 0..<8: if actual[d] != mbrs[mb+d]: return -1
     if pos != length: return -1
     kept: mutable [128]i64 = [0;128]
@@ -60,7 +60,7 @@ def versabench_dbms_delete_entry_impl(values: i64&, length: usize, output: u8&, 
         k: mutable usize = 0
         for r in 0..<counts[c]:
             base: usize = c*32+r*8
-            if delete_hit(&mbrs[c*8],&query[0]) and delete_hit(&boxes[base],&query[0]): continue
+            if delete_hit(mbrs[c*8:c*8+8],query[0:8]) and delete_hit(boxes[base:base+8],query[0:8]): continue
             for d in 0..<8: kept[c*32+k*8+d] <- boxes[base+d]
             kept_ids[c*4+k] <- ids[c*4+r]
             k <- k+1
@@ -69,7 +69,7 @@ def versabench_dbms_delete_entry_impl(values: i64&, length: usize, output: u8&, 
             for r in 0..<k:
                 for d in 0..<8: kept[remaining*32+r*8+d] <- kept[c*32+r*8+d]
                 kept_ids[remaining*4+r] <- kept_ids[c*4+r]
-            delete_union(&kept[remaining*32],k,8,&kept_mbr[remaining*8])
+            delete_union(kept[remaining*32:remaining*32+k*8],k,8,kept_mbr[remaining*8:remaining*8+8])
             remaining <- remaining+1
     words: mutable [MAX_WORDS]i64 = [0;MAX_WORDS]
     outn: mutable usize = 0

@@ -3,7 +3,7 @@ const MAX_TARGET: usize = 8
 const MAX_PAIRS: usize = 48
 const MAX_COORD: i64 = 16
 
-def ptv_put64(output: mutable u8&, offset: usize, value: i64): void:
+def ptv_put64(output: mutable view[u8], offset: usize, value: i64): void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -72,9 +72,9 @@ def point_pattern_translation_voting_impl(input: i64&, length: usize,
         i <- ending
     if capacity < 24: return -2
     staged: mutable u8[24] = zeroed
-    ptv_put64(staged&, 0, best_count.i64())
-    ptv_put64(staged&, 8, best_x)
-    ptv_put64(staged&, 16, best_y)
+    ptv_put64(staged[0:24], 0, best_count.i64())
+    ptv_put64(staged[0:24], 8, best_x)
+    ptv_put64(staged[0:24], 16, best_y)
     for byte in 0..<24: output[byte] <- staged[byte]
     24
 

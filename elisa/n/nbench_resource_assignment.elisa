@@ -2,7 +2,7 @@ const NMAX: usize = 8
 const CELLS: usize = 64
 const MAX_ADJUST: usize = 2048
 
-def first_assignment(a: mutable i64&, mark: mutable u8&, n: usize) -> usize:
+def first_assignment(a: mutable view[i64], mark: mutable view[u8], n: usize) -> usize:
     i: usize = 0
     while i < n*n:
         mark[i] <- 0
@@ -73,7 +73,7 @@ def first_assignment(a: mutable i64&, mark: mutable u8&, n: usize) -> usize:
         i <- i+1
     total
 
-def adjust_tableau(a: mutable i64&, mark: mutable u8&, n: usize) -> bool:
+def adjust_tableau(a: mutable view[i64], mark: mutable view[u8], n: usize) -> bool:
     rows: mutable u8[NMAX] = zeroed
     cols: mutable u8[NMAX] = zeroed
     i: usize = 0
@@ -167,10 +167,10 @@ def nbench_resource_assignment_impl(input: i64&, length: usize, output: mutable 
     done: mutable bool = false
     iteration: usize = 0
     while iteration <= MAX_ADJUST:
-        if first_assignment(a, mark, n) == n:
+        if first_assignment(a[0:n * n], mark[0:n * n], n) == n:
             done <- true
             break
-        if not adjust_tableau(a, mark, n): return -1
+        if not adjust_tableau(a[0:n * n], mark[0:n * n], n): return -1
         iteration <- iteration+1
     if not done: return -1
     columns: mutable i32[NMAX] = zeroed

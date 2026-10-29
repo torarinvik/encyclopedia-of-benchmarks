@@ -4,7 +4,7 @@ const MAX_P:usize=8
 const MAX_HOPS:usize=56
 const MAX_INPUT:usize=99
 
-def pr_put_i64(value:i64,output:mutable u8&,word:usize):
+def pr_put_i64(value:i64,output:mutable view[u8],word:usize):
     bits:u64=value.u64();b:mutable usize=0
     while b<8:output[word*8+b]<-((bits>>(8*b))&255).u8();b<-b+1
 
@@ -53,6 +53,6 @@ def packet_routing_work_conserving_schedule(input:i64&,length:usize,output:mutab
         time<-time+1;if time>MAX_N*MAX_P:return -1
     words:usize=2+3*count;bytes:=words*8
     if output.is_null() or capacity<bytes:return -2
-    pr_put_i64(time.i64(),output&,0);pr_put_i64(count.i64(),output&,1);q<-0
-    while q<count:pr_put_i64(tt[q],output&,2+3*q);pr_put_i64(te[q],output&,3+3*q);pr_put_i64(tp[q],output&,4+3*q);q<-q+1
+    pr_put_i64(time.i64(),output[0:capacity],0);pr_put_i64(count.i64(),output[0:capacity],1);q<-0
+    while q<count:pr_put_i64(tt[q],output[0:capacity],2+3*q);pr_put_i64(te[q],output[0:capacity],3+3*q);pr_put_i64(tp[q],output[0:capacity],4+3*q);q<-q+1
     bytes.i64()

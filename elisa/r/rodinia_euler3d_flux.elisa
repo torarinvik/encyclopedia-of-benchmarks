@@ -40,7 +40,7 @@ def e3_bits(raw: i64) -> f32:
     if bits >= 2147483648: mantissa <- -mantissa
     mantissa.f32()
 
-def e3_read_state(input: i64&, flow: mutable E3Flow&) -> bool:
+def e3_read_state(input: view[i64], flow: mutable E3Flow&) -> bool:
     raw: mutable f32[5] = zeroed
     for i in 0..<5:
         if input[i] < 0 or input[i] > 4294967295: return false
@@ -101,7 +101,7 @@ def e3_round_away(value: f32) -> i64:
 def rodinia_euler3d_flux_impl(input: i64&, length: usize) -> i64:
     if input.is_null() or length != INPUTS: return -1
     center: mutable E3Flow = zeroed
-    if not e3_read_state(input, center&): return -1
+    if not e3_read_state(input[0:5], center&): return -1
     kinds: mutable i64[4] = zeroed
     normals: mutable f32[4][3] = zeroed
     neighbors: mutable E3Flow[4] = zeroed
@@ -115,7 +115,7 @@ def rodinia_euler3d_flux_impl(input: i64&, length: usize) -> i64:
             if ((raw.u32() >> 23) & 255) == 255: return -1
             normals[face][d] <- e3_bits(raw)
             if normals[face][d] < -1.0.f32() or normals[face][d] > 1.0.f32(): return -1
-        if not e3_read_state(&input[at + 4], neighbors[face]&): return -1
+        if not e3_read_state(input[at + 4:at + 9], neighbors[face]&): return -1
     far: mutable E3Flow = zeroed
     e3_farfield(far&)
     flux_density: mutable f32 = 0.0.f32()

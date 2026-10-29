@@ -21,7 +21,7 @@ const MEDIABENCH_GSM_RPE_MAX_INPUT: usize = 15
 const MEDIABENCH_GSM_RPE_OUTPUT_COUNT: usize = 40
 const MEDIABENCH_GSM_RPE_OUTPUT_BYTES: usize = 80
 
-def mediabench_gsm_rpe_store_i16_le(output: mutable u8&, offset: usize, value: i64):
+def mediabench_gsm_rpe_store_i16_le(output: mutable view[u8], offset: usize, value: i64):
     bits: mutable u64 = value.u64()
     output[offset] <- (bits & 255).u8()
     output[offset + 1] <- ((bits >> 8) & 255).u8()
@@ -45,9 +45,10 @@ def mediabench_gsm_rpe_impl(input: i64&, input_length: usize,
         index <- index + 1
     if output.is_null() or output_capacity < MEDIABENCH_GSM_RPE_OUTPUT_BYTES:
         return -2
+    output_view: mutable view[u8] = output[0:MEDIABENCH_GSM_RPE_OUTPUT_BYTES]
     index <- 0
     while index < MEDIABENCH_GSM_RPE_OUTPUT_COUNT:
-        mediabench_gsm_rpe_store_i16_le(output, 2 * index, staged[index])
+        mediabench_gsm_rpe_store_i16_le(output_view, 2 * index, staged[index])
         index <- index + 1
     MEDIABENCH_GSM_RPE_OUTPUT_BYTES.i64()
 

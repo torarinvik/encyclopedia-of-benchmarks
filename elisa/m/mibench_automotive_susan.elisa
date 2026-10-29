@@ -34,7 +34,7 @@ def mibench_automotive_susan_reflect(index: i64, side: usize) -> usize:
     if index >= side.i64(): return (2 * side.i64() - index - 1).usize()
     index.usize()
 
-def mibench_automotive_susan_median(image: i64[256]&, side: usize, y: usize, x: usize) -> u8:
+def mibench_automotive_susan_median(image: view[i64], side: usize, y: usize, x: usize) -> u8:
     values: mutable i64[8] = zeroed
     count: mutable usize = 0
     dy: mutable i64 = -1
@@ -120,7 +120,7 @@ def mibench_automotive_susan_impl(input: i64&, input_length: usize,
                 dy <- dy + 1
             denominator: i64 = area - 10000
             value: u8 = if denominator == 0:
-                mibench_automotive_susan_median(image[0]&, side, y, x)
+                mibench_automotive_susan_median(image[0:pixel_count], side, y, x)
             else:
                 ((total - center * 10000) / denominator).u8()
             output[y * side + x] <- value

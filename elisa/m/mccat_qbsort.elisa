@@ -1,4 +1,4 @@
-def mccat_qbsort_bubble(a: mutable i32&, n: usize):
+def mccat_qbsort_bubble(a: mutable view[i32], n: usize):
     if n < 2: return
     end: mutable usize = n
     while end > 1:
@@ -11,7 +11,7 @@ def mccat_qbsort_bubble(a: mutable i32&, n: usize):
                 a[i + 1] <- t
             i <- i + 1
 
-def mccat_qbsort_quick(a: mutable i32&, n: usize):
+def mccat_qbsort_quick(a: mutable view[i32], n: usize):
     if n < 2: return
     pivot: i32 = a[0]
     lower: mutable i32[32] = zeroed
@@ -27,8 +27,8 @@ def mccat_qbsort_quick(a: mutable i32&, n: usize):
             upper[nu] <- a[i]
             nu <- nu + 1
         i <- i + 1
-    mccat_qbsort_quick(lower, nl)
-    mccat_qbsort_quick(upper, nu)
+    mccat_qbsort_quick(lower[0:nl], nl)
+    mccat_qbsort_quick(upper[0:nu], nu)
     k: mutable usize = 0
     i <- 0
     while i < nl: a[k] <- lower[i]; k <- k + 1; i <- i + 1
@@ -55,8 +55,8 @@ def mccat_qbsort_impl(input: i64&, length: usize, output: mutable u8&, output_ca
     while pass < 1000:
         i <- 0
         while i < count: values[i] <- input[i + 2].i32(); i <- i + 1
-        if mode == 0: mccat_qbsort_bubble(values, count)
-        else: mccat_qbsort_quick(values, count)
+        if mode == 0: mccat_qbsort_bubble(values[0:count], count)
+        else: mccat_qbsort_quick(values[0:count], count)
         pass <- pass + 1
     required: usize = 4 * count
     if output.is_null() or output_capacity < required: return -2

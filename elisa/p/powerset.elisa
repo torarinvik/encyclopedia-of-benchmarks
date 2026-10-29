@@ -1,8 +1,8 @@
-def powerset_put64(output: mutable u8&, position: usize, value: i64):
+def powerset_put64(output: mutable view[u8], position: usize, value: i64):
     i: mutable usize = 0
     while i < 8: output[position + i] <- (value >> (i * 8)).u8(); i <- i + 1
 
-def powerset_emit(input: i64&, count: usize, at: usize, selected: mutable i64&, used: usize, output: mutable u8&, cursor: mutable usize&):
+def powerset_emit(input: view[i64], count: usize, at: usize, selected: mutable view[i64], used: usize, output: mutable view[u8], cursor: mutable usize&):
     if at == count:
         output[cursor] <- used.u8(); cursor <- cursor + 1
         j: mutable usize = 0
@@ -20,5 +20,5 @@ export fn powerset(input: i64&, length: usize, output: mutable u8&, capacity: us
     if output.is_null() or capacity < needed: return -2
     output[0] <- subsets.u8(); output[1] <- (subsets >> 8).u8()
     selected: mutable i64[6]; cursor: mutable usize = 2
-    powerset_emit(input, count, 0, selected, 0, output, cursor)
+    powerset_emit(input[0:length], count, 0, selected[0:6], 0, output[0:capacity], cursor)
     needed.i64()

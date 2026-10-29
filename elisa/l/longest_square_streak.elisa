@@ -2,7 +2,7 @@ const MAX_INPUT_LENGTH: usize = 100000
 const MAX_VALUE: usize = 100000
 const REQUIRED_WORKSPACE: usize = 4 * (MAX_VALUE + 1)
 
-def longest_square_streak_read_state(workspace: u8&, value: usize) -> i64:
+def longest_square_streak_read_state(workspace: view[u8], value: usize) -> i64:
     position: usize = 4 * value
     state: mutable i64 = workspace[position].i64()
     state <- state + workspace[position + 1].i64() * 256
@@ -10,7 +10,7 @@ def longest_square_streak_read_state(workspace: u8&, value: usize) -> i64:
     state <- state + workspace[position + 3].i64() * 16777216
     state
 
-def longest_square_streak_write_state(workspace: mutable u8&, value: usize, state: i64) -> void:
+def longest_square_streak_write_state(workspace: mutable view[u8], value: usize, state: i64) -> void:
     encoded: mutable i64 = state
     if encoded < 0:
         encoded <- encoded + 4294967296
@@ -20,7 +20,7 @@ def longest_square_streak_write_state(workspace: mutable u8&, value: usize, stat
     workspace[position + 2] <- ((encoded / 65536) & 255).u8()
     workspace[position + 3] <- ((encoded / 16777216) & 255).u8()
 
-def longest_square_streak_from(workspace: mutable u8&, value: usize) -> i64:
+def longest_square_streak_from(workspace: mutable view[u8], value: usize) -> i64:
     state: i64 = longest_square_streak_read_state(workspace, value)
     if state > 1:
         return state - 1
@@ -47,10 +47,10 @@ def longest_square_streak_impl(values: i64&, length: usize,
     for byte_index in 0..<REQUIRED_WORKSPACE |workspace|:
         workspace[byte_index] <- 0
     for index in 0..<count |values, workspace|:
-        longest_square_streak_write_state(workspace, usize(values[index + 1]), 1)
+        longest_square_streak_write_state(workspace[0:REQUIRED_WORKSPACE], usize(values[index + 1]), 1)
     longest: mutable i64 = 1
     for index in 0..<count |values, workspace, longest|:
-        found: i64 = longest_square_streak_from(workspace, usize(values[index + 1]))
+        found: i64 = longest_square_streak_from(workspace[0:REQUIRED_WORKSPACE], usize(values[index + 1]))
         if found > longest:
             longest <- found
     if longest >= 2:

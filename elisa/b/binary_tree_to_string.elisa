@@ -10,7 +10,7 @@ def binary_tree_to_string_decimal_length(value: i64) -> usize:
             return length
     0
 
-def binary_tree_to_string_append_value(value: i64, output: mutable u8&, position: mutable usize&) -> void:
+def binary_tree_to_string_append_value(value: i64, output: mutable view[u8], position: mutable usize&) -> void:
     magnitude: mutable i64 = if value < 0 then -value else value
     if value < 0:
         output[position] <- 45
@@ -29,7 +29,7 @@ def binary_tree_to_string_append_value(value: i64, output: mutable u8&, position
         output[position] <- digits[count]
         position <- position + 1
 
-def binary_tree_to_string_emit(values: i64&, index: usize, output: mutable u8&, position: mutable usize&) -> void:
+def binary_tree_to_string_emit(values: view[i64], index: usize, output: mutable view[u8], position: mutable usize&) -> void:
     base: usize = 2 + 3 * index
     left: i64 = values[base + 1]
     right: i64 = values[base + 2]
@@ -52,7 +52,7 @@ def binary_tree_to_string_emit(values: i64&, index: usize, output: mutable u8&, 
         output[position] <- 41
         position <- position + 1
 
-def binary_tree_to_string_valid(values: i64&, count: usize, root: usize) -> bool:
+def binary_tree_to_string_valid(values: view[i64], count: usize, root: usize) -> bool:
     parents: mutable usize[127] = zeroed
     seen: mutable bool[127] = zeroed
     stack: mutable usize[127] = zeroed
@@ -113,7 +113,7 @@ def binary_tree_to_string_impl(values: i64&, length: usize, output: mutable u8&,
     if root_value < 0 or root_value.u64() >= count.u64():
         return -1
     root: usize = root_value.usize()
-    if not binary_tree_to_string_valid(values, count, root):
+    if not binary_tree_to_string_valid(values[0:length], count, root):
         return -1
     required: mutable usize = 2 * (count - 1)
     for index in 0..<count:
@@ -124,7 +124,7 @@ def binary_tree_to_string_impl(values: i64&, length: usize, output: mutable u8&,
     if output_capacity < required:
         return -2
     position: mutable usize = 0
-    binary_tree_to_string_emit(values, root, output, position)
+    binary_tree_to_string_emit(values[0:length], root, output[0:output_capacity], position)
     position.i64()
 
 export fn binary_tree_to_string(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = binary_tree_to_string_impl

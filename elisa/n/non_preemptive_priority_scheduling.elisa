@@ -1,4 +1,4 @@
-def put_i32(output: mutable u8&, offset: usize, value: i64):
+def put_i32(output: mutable view[u8], offset: usize, value: i64):
     bits: mutable u32 = value.i32().u32()
     k: mutable usize = 0
     while k < 4:
@@ -43,7 +43,7 @@ def non_preemptive_priority_scheduling_impl(values: i64&, length: usize, output:
             now <- next
         else:
             done[pick.usize()] <- true
-            put_i32(output,z,pick)
+            put_i32(output[0:capacity],z,pick)
             now <- now+bursts[pick.usize()]
             z <- z+1
     (count*4).i64()

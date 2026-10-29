@@ -1,7 +1,7 @@
 # Gaussian elimination for bounded, symmetric, strictly diagonally dominant systems.
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def put_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
+def put_f64_le(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     b: mutable usize = 0
@@ -58,7 +58,7 @@ def gaussian_elimination_impl(input: i64&, length: usize, output: mutable u8&, c
         solution[row] <- (matrix[row][n] - sum) / matrix[row][row]
     row <- 0
     while row < n:
-        put_f64_le(output, row*8, solution[row])
+        put_f64_le(output[0:n*8], row*8, solution[row])
         row <- row + 1
     (n*8).i64()
 

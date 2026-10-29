@@ -3,7 +3,7 @@ def collatz_sequence_next_term(value: i64) -> i64:
         return value / 2
     3 * value + 1
 
-def collatz_sequence_store_i64_le(output: mutable u8&, offset_value: usize, value: i64) -> usize:
+def collatz_sequence_store_i64_le(output: mutable view[u8], offset_value: usize, value: i64) -> usize:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -26,7 +26,7 @@ def collatz_sequence_impl(input: i64&, length: usize, output: mutable u8&, outpu
     current <- input[0]
     written: mutable usize = 0
     while true:
-        written <- collatz_sequence_store_i64_le(output, written, current)
+        written <- collatz_sequence_store_i64_le(output[0:required], written, current)
         if current == 1:
             break
         current <- collatz_sequence_next_term(current)

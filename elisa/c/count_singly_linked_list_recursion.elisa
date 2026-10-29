@@ -3,7 +3,7 @@ const MAX_NODES: usize = 64
 const MIN_PAYLOAD: i64 = -2147483648
 const MAX_PAYLOAD: i64 = 2147483647
 
-def count_recursive(input: i64&, index: usize, remaining: usize) -> i64:
+def count_recursive(input: view[i64], index: usize, remaining: usize) -> i64:
     if remaining == 0:
         return 0
     payload: i64 = input[index]
@@ -20,6 +20,6 @@ def count_singly_linked_list_recursion_impl(input: i64&, length: usize) -> i64:
     count: usize = input[0].usize()
     if length != count + 1:
         return -1
-    count_recursive(input, 1, count)
+    count_recursive(input[1:length], 0, count)
 
 export fn count_singly_linked_list_recursion(input: i64&, length: usize) -> i64 = count_singly_linked_list_recursion_impl

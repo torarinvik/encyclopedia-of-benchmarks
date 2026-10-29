@@ -3,8 +3,8 @@ const MAX_VERTEX_COUNT: usize = 64
 const MAX_EDGE_COUNT: usize = 2047
 const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_EDGE_COUNT
 
-def articulation_points_visit(adjacency: u64&, discovery: mutable i64&, low: mutable i64&,
-        parent: mutable i64&, is_articulation: mutable u8&, vertex_count: usize,
+def articulation_points_visit(adjacency: view[u64], discovery: mutable view[i64], low: mutable view[i64],
+        parent: mutable view[i64], is_articulation: mutable view[u8], vertex_count: usize,
         vertex: usize, time: mutable usize&) -> void:
     discovery[vertex] <- time.i64()
     low[vertex] <- time.i64()
@@ -64,7 +64,7 @@ def articulation_points_impl(input: i64&, length: usize,
     vertex <- 0
     while vertex < vertex_count |vertex, discovery, adjacency, low, parent, is_articulation, time|:
         if discovery[vertex] == -1:
-            articulation_points_visit(&adjacency[0], &discovery[0], &low[0], &parent[0], &is_articulation[0],
+            articulation_points_visit(adjacency[0:vertex_count], discovery[0:vertex_count], low[0:vertex_count], parent[0:vertex_count], is_articulation[0:vertex_count],
                 vertex_count, vertex, time)
         vertex <- vertex + 1
     point_count: mutable usize = 0

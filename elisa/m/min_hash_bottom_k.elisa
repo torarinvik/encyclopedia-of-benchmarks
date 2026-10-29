@@ -1,5 +1,5 @@
 const MAX_INPUT:usize=35
-def put64(value:i64,output:mutable u8&,pos:usize)->void:
+def put64(value:i64,output:mutable view[u8],pos:usize)->void:
     bits:u64=value.u64();j:mutable usize=0
     while j<8:
         output[pos+j]<-((bits>>(8*j))&255).u8()
@@ -28,8 +28,9 @@ def min_hash_bottom_k(input:i64&,length:usize,output:mutable u8&,capacity:usize)
         i<-i+1
     bytes:usize=8*(1+2*count)
     if output.is_null() or capacity<bytes:return -2
-    put64(count.i64(),output&,0)
+    output_view:mutable view[u8]=output[0:bytes]
+    put64(count.i64(),output_view,0)
     i<-0
     while i<count:
-        put64(ids[i].i64(),output&,8+16*i);put64(ranks[i],output&,16+16*i);i<-i+1
+        put64(ids[i].i64(),output_view,8+16*i);put64(ranks[i],output_view,16+16*i);i<-i+1
     bytes.i64()

@@ -14,7 +14,7 @@ def sum_digit_factorials(value: i64) -> i64:
         total <- 1
     total
 
-def chain_length(start: i64, cache: mutable u8&) -> i64:
+def chain_length(start: i64, cache: mutable view[u8]) -> i64:
     path: mutable i64[MAX_PATH_LENGTH] = zeroed
     path_length: mutable usize = 0
     current: mutable i64 = start
@@ -60,7 +60,7 @@ def problem74_impl(num_terms: i64, max_start: i64) -> i64:
     count: mutable i64 = 0
     start: mutable i64 = 1
     while start < max_start:
-        if chain_length(start, cache) == num_terms:
+        if chain_length(start, cache[0:CACHE_SIZE]) == num_terms:
             count <- count + 1
         start <- start + 1
     count

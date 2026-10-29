@@ -7,7 +7,7 @@ def decimal_length(value: i64) -> usize:
         length <- length + 1
     length
 
-def append_decimal(value_input: i64, output: mutable u8&, position_input: usize) -> usize:
+def append_decimal(value_input: i64, output: mutable view[u8], position_input: usize) -> usize:
     digits: mutable u8[3] = zeroed
     count: mutable usize = 0
     value: mutable i64 = value_input
@@ -54,7 +54,7 @@ def compute_totient_impl(n: i64, output: mutable u8&, output_capacity: usize) ->
         if i > 0:
             output[position] <- 44
             position <- position + 1
-        position <- append_decimal(phi[i.usize()], output, position)
+        position <- append_decimal(phi[i.usize()], output[0:required], position)
         i <- i + 1
     position.i64()
 

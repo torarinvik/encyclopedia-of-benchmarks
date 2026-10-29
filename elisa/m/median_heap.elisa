@@ -3,13 +3,13 @@ const MAX_INPUT_LENGTH: usize = 514
 const MAX_LIVE_VALUES: usize = 64
 const NIL_SENTINEL: i64 = -9223372036854775807 - 1
 
-def median_heap_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def median_heap_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255.u64()).u8()
         bits <- bits >> 8
 
-def median_heap_push_max(heap: mutable i32&, count: mutable usize&, value: i32) -> void:
+def median_heap_push_max(heap: mutable view[i32], count: mutable usize&, value: i32) -> void:
     position: mutable usize = count
     count <- count + 1
     while position > 0 and heap[(position - 1) / 2] < value:
@@ -18,7 +18,7 @@ def median_heap_push_max(heap: mutable i32&, count: mutable usize&, value: i32) 
         position <- parent
     heap[position] <- value
 
-def median_heap_pop_max(heap: mutable i32&, count: mutable usize&) -> i32:
+def median_heap_pop_max(heap: mutable view[i32], count: mutable usize&) -> i32:
     result: i32 = heap[0]
     count <- count - 1
     value: i32 = heap[count]
@@ -33,7 +33,7 @@ def median_heap_pop_max(heap: mutable i32&, count: mutable usize&) -> i32:
     heap[position] <- value
     result
 
-def median_heap_push_min(heap: mutable i32&, count: mutable usize&, value: i32) -> void:
+def median_heap_push_min(heap: mutable view[i32], count: mutable usize&, value: i32) -> void:
     position: mutable usize = count
     count <- count + 1
     while position > 0 and heap[(position - 1) / 2] > value:
@@ -42,7 +42,7 @@ def median_heap_push_min(heap: mutable i32&, count: mutable usize&, value: i32) 
         position <- parent
     heap[position] <- value
 
-def median_heap_pop_min(heap: mutable i32&, count: mutable usize&) -> i32:
+def median_heap_pop_min(heap: mutable view[i32], count: mutable usize&) -> i32:
     result: i32 = heap[0]
     count <- count - 1
     value: i32 = heap[count]
@@ -74,15 +74,15 @@ def median_heap_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
             if argument < -2147483648 or argument > 2147483647 or lower_count + upper_count >= MAX_LIVE_VALUES: return -1
             value: i32 = argument.i32()
             if lower_count == 0:
-                median_heap_push_max(&lower[0], &lower_count, value)
+                median_heap_push_max(lower[0:64], &lower_count, value)
             else if value < lower[0]:
-                median_heap_push_max(&lower[0], &lower_count, value)
+                median_heap_push_max(lower[0:64], &lower_count, value)
                 if lower_count > upper_count + 1:
-                    median_heap_push_min(&upper[0], &upper_count, median_heap_pop_max(&lower[0], &lower_count))
+                    median_heap_push_min(upper[0:64], &upper_count, median_heap_pop_max(lower[0:64], &lower_count))
             else:
-                median_heap_push_min(&upper[0], &upper_count, value)
+                median_heap_push_min(upper[0:64], &upper_count, value)
                 if lower_count < upper_count:
-                    median_heap_push_max(&lower[0], &lower_count, median_heap_pop_min(&upper[0], &upper_count))
+                    median_heap_push_max(lower[0:64], &lower_count, median_heap_pop_min(upper[0:64], &upper_count))
             results[index] <- NIL_SENTINEL
         else if opcode >= 1 and opcode <= 4:
             if argument != 0: return -1
@@ -92,9 +92,9 @@ def median_heap_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
                 if lower_count == 0:
                     results[index] <- NIL_SENTINEL
                 else:
-                    results[index] <- median_heap_pop_max(&lower[0], &lower_count).i64()
+                    results[index] <- median_heap_pop_max(lower[0:64], &lower_count).i64()
                     if lower_count < upper_count:
-                        median_heap_push_max(&lower[0], &lower_count, median_heap_pop_min(&upper[0], &upper_count))
+                        median_heap_push_max(lower[0:64], &lower_count, median_heap_pop_min(upper[0:64], &upper_count))
             else if opcode == 3:
                 results[index] <- (lower_count + upper_count).i64()
             else:
@@ -104,7 +104,7 @@ def median_heap_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
     output_bytes: usize = operation_count * 8
     if output == null or capacity < output_bytes: return -2
     for index in 0..<operation_count:
-        median_heap_store_i64(&output[0], index * 8, results[index])
+        median_heap_store_i64(output[0:output_bytes], index * 8, results[index])
     output_bytes.i64()
 
 export fn median_heap(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = median_heap_impl

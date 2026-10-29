@@ -22,7 +22,7 @@ def power_of_ten(exponent: u32) -> u32:
         remaining <- remaining - 1
     value
 
-def leading_nine_digits(limbs: u32&, length: usize) -> u32:
+def leading_nine_digits(limbs: view[u32], length: usize) -> u32:
     top: u32 = limbs[length - 1]
     width: mutable u32 = 0
     temp: mutable u32 = top
@@ -70,7 +70,7 @@ def problem104_impl(placeholder: i64) -> i64:
         current <- temporary
         previous_length <- current_length
         current_length <- next_length
-        if is_pandigital_1_to_9(current[0]) and is_pandigital_1_to_9(leading_nine_digits(current, current_length)):
+        if is_pandigital_1_to_9(current[0]) and is_pandigital_1_to_9(leading_nine_digits(current[0:current_length], current_length)):
             return index.i64()
         index <- index + 1
     -1

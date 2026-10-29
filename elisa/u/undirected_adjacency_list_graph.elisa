@@ -1,9 +1,9 @@
-def undirected_adjacency_list_graph_push_word(words: mutable i64[144]&, count: mutable usize&, value: i64) -> void:
+def undirected_adjacency_list_graph_push_word(words: mutable view[i64], count: mutable usize&, value: i64) -> void:
     words[count] <- value
     count <- count + 1
 
-def undirected_adjacency_list_graph_push_record(words: mutable i64[144]&, count: mutable usize&,
-        opcode: i64, payload: i64[9]&, payload_count: usize) -> void:
+def undirected_adjacency_list_graph_push_record(words: mutable view[i64], count: mutable usize&,
+        opcode: i64, payload: view[i64], payload_count: usize) -> void:
     undirected_adjacency_list_graph_push_word(words, count, opcode)
     undirected_adjacency_list_graph_push_word(words, count, payload_count.i64())
     index: mutable usize = 0
@@ -11,7 +11,7 @@ def undirected_adjacency_list_graph_push_record(words: mutable i64[144]&, count:
         undirected_adjacency_list_graph_push_word(words, count, payload[index])
         index <- index + 1
 
-def undirected_adjacency_list_graph_store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def undirected_adjacency_list_graph_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -64,7 +64,7 @@ def undirected_adjacency_list_graph_impl(input: i64&, length: usize,
                 return -1
             payload: mutable i64[9] = zeroed
             payload[0] <- node_count.i64()
-            undirected_adjacency_list_graph_push_record(words, word_count, opcode, payload, 1)
+            undirected_adjacency_list_graph_push_record(words[0:144], word_count, opcode, payload[0:9], 1)
             node_count <- node_count + 1
         elif opcode == 1:
             added: mutable bool = false
@@ -81,7 +81,7 @@ def undirected_adjacency_list_graph_impl(input: i64&, length: usize,
                     added <- true
             payload: mutable i64[9] = zeroed
             payload[0] <- if added: 1 else: 0
-            undirected_adjacency_list_graph_push_record(words, word_count, opcode, payload, 1)
+            undirected_adjacency_list_graph_push_record(words[0:144], word_count, opcode, payload[0:9], 1)
         elif opcode == 2:
             if first < 0 or first >= node_count.i64():
                 return -1
@@ -95,7 +95,7 @@ def undirected_adjacency_list_graph_impl(input: i64&, length: usize,
                     neighbor_count <- neighbor_count + 1
                 neighbor <- neighbor + 1
             payload[0] <- neighbor_count.i64()
-            undirected_adjacency_list_graph_push_record(words, word_count, opcode, payload, neighbor_count + 1)
+            undirected_adjacency_list_graph_push_record(words[0:144], word_count, opcode, payload[0:9], neighbor_count + 1)
         elif opcode == 3:
             if first < 0 or first >= node_count.i64():
                 return -1
@@ -110,11 +110,11 @@ def undirected_adjacency_list_graph_impl(input: i64&, length: usize,
             payload: mutable i64[9] = zeroed
             payload[0] <- if present: 1 else: 0
             payload[1] <- weight
-            undirected_adjacency_list_graph_push_record(words, word_count, opcode, payload, 2)
+            undirected_adjacency_list_graph_push_record(words[0:144], word_count, opcode, payload[0:9], 2)
         else:
             payload: mutable i64[9] = zeroed
             payload[0] <- node_count.i64()
-            undirected_adjacency_list_graph_push_record(words, word_count, opcode, payload, 1)
+            undirected_adjacency_list_graph_push_record(words[0:144], word_count, opcode, payload[0:9], 1)
         operation_index <- operation_index + 1
 
     output_bytes: usize = word_count * 8
@@ -122,7 +122,7 @@ def undirected_adjacency_list_graph_impl(input: i64&, length: usize,
         return -2
     index: usize = 0
     while index < word_count:
-        undirected_adjacency_list_graph_store_i64_le(output, index * 8, words[index])
+        undirected_adjacency_list_graph_store_i64_le(output[0:output_bytes], index * 8, words[index])
         index <- index + 1
     output_bytes.i64()
 

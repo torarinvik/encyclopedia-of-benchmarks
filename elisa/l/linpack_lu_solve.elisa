@@ -1,7 +1,7 @@
 // ANSIbench LINPACK dgefa/dgesl profile; upstream source and stated modifications are public domain.
 const INVALID_RESULT:f64 = -1e300
 
-def dgefa(a:f64[16]&,n:i64,pivots:i64[4]&)->i64:
+def dgefa(a:mutable view[f64],n:i64,pivots:mutable view[i64])->i64:
     info:i64=0
     for k in 0..(n-1):
         l=k; maximum=abs(a[n*k+k])
@@ -23,7 +23,7 @@ def dgefa(a:f64[16]&,n:i64,pivots:i64[4]&)->i64:
     if a[n*(n-1)+n-1]==0.0:info=n-1
     info
 
-def dgesl(a:f64[16]&,n:i64,pivots:i64[4]&,b:f64[4]&):
+def dgesl(a:view[f64],n:i64,pivots:view[i64],b:mutable view[f64]):
     for k in 0..(n-1):
         l=pivots[k];t=b[l]
         if l!=k:swap(b[l],b[k])
@@ -49,8 +49,8 @@ def linpack_lu_solve_impl(input:i64&,length:usize)->f64:
         value=input[1+n*n+i]
         if value < -32 or value>32:return INVALID_RESULT
         b[i]=value.f64()
-    if dgefa(a,n,pivots)!=0:return INVALID_RESULT
-    dgesl(a,n,pivots,b)
+    if dgefa(a[0:16],n,pivots[0:4])!=0:return INVALID_RESULT
+    dgesl(a[0:16],n,pivots[0:4],b[0:4])
     result:f64=0.0
     for i in 0..n:result=result+(i+1).f64()*b[i]
     if not result.is_finite():return INVALID_RESULT

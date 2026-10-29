@@ -34,7 +34,7 @@ def decimal_length(value: i64) -> usize:
         magnitude <- magnitude / 10
     return length
 
-def append_decimal(value: i64, output: mutable u8&, offset: usize) -> usize:
+def append_decimal(value: i64, output: mutable view[u8], offset: usize) -> usize:
     index: mutable usize = offset
     magnitude: mutable i64 = value
     if magnitude < 0:
@@ -112,10 +112,10 @@ def complex_number_multiply_impl(input: i64&, length: usize, output: mutable u8&
     needed: usize = decimal_length(real) + decimal_length(imaginary) + 2
     if output.is_null() or output_capacity < needed:
         return -2
-    written: mutable usize = append_decimal(real, output, 0)
+    written: mutable usize = append_decimal(real, output[0:needed], 0)
     output[written] <- 43.u8()
     written <- written + 1
-    written <- append_decimal(imaginary, output, written)
+    written <- append_decimal(imaginary, output[0:needed], written)
     output[written] <- 105.u8()
     return (written + 1).i64()
 

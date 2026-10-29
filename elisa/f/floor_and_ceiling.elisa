@@ -1,4 +1,4 @@
-def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def put_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -39,8 +39,8 @@ def floor_and_ceiling_impl(input: i64&, length: usize, output: mutable u8&, capa
             else: current <- right.usize()
         step <- step + 1
     if output.is_null() or capacity < 16: return -2
-    put_i64_le(floor, output, 0)
-    put_i64_le(ceiling, output, 8)
+    put_i64_le(floor, output[0:16], 0)
+    put_i64_le(ceiling, output[0:16], 8)
     return 16
 
 export fn floor_and_ceiling(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = floor_and_ceiling_impl

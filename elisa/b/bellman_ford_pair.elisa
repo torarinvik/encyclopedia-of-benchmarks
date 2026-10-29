@@ -4,19 +4,19 @@ const BFP_MAX_INPUT_EDGES: usize = 256
 const BFP_MAX_NORMALIZED_EDGES: usize = 128
 const BFP_MAX_WEIGHT: i64 = 1000
 
-def bellman_ford_pair_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+def bellman_ford_pair_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def bellman_ford_pair_write_record(status: i64, target_reachable: i64, distance: i64,
-                                   output: mutable u8&, capacity: usize) -> i64:
+                                   output: mutable view[u8], capacity: usize) -> i64:
     if output.is_null() or capacity < 24:
         return -2
-    bellman_ford_pair_store_i64(status, output, 0)
-    bellman_ford_pair_store_i64(target_reachable, output, 8)
-    bellman_ford_pair_store_i64(distance, output, 16)
+    bellman_ford_pair_store_i64(status, output[0:24], 0)
+    bellman_ford_pair_store_i64(target_reachable, output[0:24], 8)
+    bellman_ford_pair_store_i64(distance, output[0:24], 16)
     24
 
 def bellman_ford_pair_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
@@ -95,11 +95,11 @@ def bellman_ford_pair_impl(input: i64&, length: usize, output: mutable u8&, capa
     edge <- 0
     while edge < edge_count:
         if reachable[from[edge]] and distance[to[edge]] > distance[from[edge]] + weight[edge]:
-            return bellman_ford_pair_write_record(-1, 0, 0, output, capacity)
+            return bellman_ford_pair_write_record(-1, 0, 0, output[0:capacity], capacity)
         edge <- edge + 1
     target_reachable: i64 = if reachable[target]: 1 else: 0
     target_distance: i64 = if reachable[target]: distance[target] else: 0
-    bellman_ford_pair_write_record(0, target_reachable, target_distance, output, capacity)
+    bellman_ford_pair_write_record(0, target_reachable, target_distance, output[0:capacity], capacity)
 
 export fn bellman_ford_pair(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 =
     bellman_ford_pair_impl

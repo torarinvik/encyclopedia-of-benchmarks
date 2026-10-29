@@ -1,4 +1,4 @@
-def write_i64_le(output: mutable u8&, offset: mutable usize&, value: i64) -> usize:
+def write_i64_le(output: mutable view[u8], offset: mutable usize&, value: i64) -> usize:
     shift: mutable usize = 0
     while shift < 64:
         output[offset] <- ((value >> shift) & 255).u8()
@@ -75,11 +75,11 @@ def astar_rust_directed_graph_impl(input: i64&, length: usize, output: mutable u
     required: usize = 8 * (path_length + 2)
     if output.is_null() or capacity < required: return -2
     position: mutable usize = 0
-    write_i64_le(output, &position, distance[goal.usize()])
-    write_i64_le(output, &position, path_length.i64())
+    write_i64_le(output[0:required], &position, distance[goal.usize()])
+    write_i64_le(output[0:required], &position, path_length.i64())
     index <- 0
     while index < path_length:
-        write_i64_le(output, &position, reversed[path_length - 1 - index])
+        write_i64_le(output[0:required], &position, reversed[path_length - 1 - index])
         index <- index + 1
     required.i64()
 

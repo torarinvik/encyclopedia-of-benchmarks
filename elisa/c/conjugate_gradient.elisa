@@ -5,7 +5,7 @@ const TOLERANCE: f64 = 1.0e-10
 const MAX_ITERATIONS: usize = 1000
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def conjugate_gradient_write_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def conjugate_gradient_write_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -105,7 +105,7 @@ def conjugate_gradient_impl(input: i64&, length: usize, output: mutable u8&, out
         iteration <- iteration + 1
     index <- 0
     while index < n:
-        conjugate_gradient_write_f64(output, index * 8, solution[index])
+        conjugate_gradient_write_f64(output[0:output_bytes], index * 8, solution[index])
         index <- index + 1
     return output_bytes.i64()
 

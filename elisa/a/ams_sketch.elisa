@@ -1,4 +1,4 @@
-def ams_sketch_put(output: mutable u8&, value: i64) -> void:
+def ams_sketch_put(output: mutable view[u8], value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -63,7 +63,7 @@ def ams_sketch_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
         estimates[position]<-value
         index<-index+1
     if capacity<8 or output.is_null():return -2
-    ams_sketch_put(output,estimates[d/2])
+    ams_sketch_put(output[0:8],estimates[d/2])
     return 8
 
 @export("ams_sketch")

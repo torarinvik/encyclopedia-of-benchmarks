@@ -2,7 +2,7 @@ const MAX_TREE_SLOTS: usize = 255
 const MAX_INPUT_LENGTH: usize = 512
 const NULL_SLOT: i64 = -1000001
 
-def valid_tree(input: i64&, start: usize, count: usize) -> bool:
+def valid_tree(input: view[i64], start: usize, count: usize) -> bool:
     for index in 0..<count |input|:
         value: i64 = input[start + index]
         if value != NULL_SLOT and (value < -100000 or value > 100000):
@@ -27,7 +27,7 @@ def merge_two_binary_trees_impl(input: i64&, length: usize, output: mutable u8&,
     second_start: usize = second_count_position + 1
     if length != second_start + second_count:
         return -1
-    if not valid_tree(input, first_start, first_count) or not valid_tree(input, second_start, second_count):
+    if not valid_tree(input[0:length], first_start, first_count) or not valid_tree(input[0:length], second_start, second_count):
         return -1
 
     maximum_slots: usize = first_count if first_count > second_count else second_count

@@ -3,8 +3,8 @@ const MAX_SIDE: usize = 64
 const MAX_EDGES: usize = 4096
 const INF_DISTANCE: i64 = 1000000
 
-def dfs_augment(left: usize, right_count: usize, adjacency: i64&, distance: mutable i64&,
-    nil_distance: i64, pair_left: mutable i64&, pair_right: mutable i64&) -> bool:
+def dfs_augment(left: usize, right_count: usize, adjacency: view[i64], distance: mutable view[i64],
+    nil_distance: i64, pair_left: mutable view[i64], pair_right: mutable view[i64]) -> bool:
     right: mutable usize = 0
     while right < right_count:
         if adjacency[left * MAX_SIDE + right] != 0:
@@ -25,8 +25,8 @@ def dfs_augment(left: usize, right_count: usize, adjacency: i64&, distance: muta
     distance[left] <- INF_DISTANCE
     false
 
-def bfs_layers(left_count: usize, right_count: usize, adjacency: i64&,
-    pair_right: i64&, distance: mutable i64&) -> i64:
+def bfs_layers(left_count: usize, right_count: usize, adjacency: view[i64],
+    pair_right: view[i64], distance: mutable view[i64]) -> i64:
     queue: mutable usize[64] = zeroed
     head: mutable usize = 0
     queue_end: mutable usize = 0
@@ -99,13 +99,15 @@ export fn hopcroft_karp_cardinality(input: i64&, length: usize) -> i64:
             else:
                 distance[left] <- -1
             left <- left + 1
-        nil_distance: i64 = bfs_layers(left_count, right_count, adjacency, pair_right, distance)
+        nil_distance: i64 = bfs_layers(left_count, right_count,
+            adjacency[0:4096], pair_right[0:64], distance[0:64])
         if nil_distance == INF_DISTANCE:
             break
         left <- 0
         while left < left_count:
-            if pair_left[left] < 0 and dfs_augment(left, right_count, adjacency, distance,
-                nil_distance, pair_left, pair_right):
+            if pair_left[left] < 0 and dfs_augment(left, right_count,
+                adjacency[0:4096], distance[0:64],
+                nil_distance, pair_left[0:64], pair_right[0:64]):
                 matching <- matching + 1
             left <- left + 1
     matching

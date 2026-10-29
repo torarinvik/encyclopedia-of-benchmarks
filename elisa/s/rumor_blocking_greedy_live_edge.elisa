@@ -34,7 +34,7 @@ def rb_infected_count(n:usize,m:usize,world:usize,sources:u64,protectors:u64,edg
         v<-v+1
     count
 
-def rb_put_i64(value:i64,output:mutable u8&,word:usize):
+def rb_put_i64(value:i64,output:mutable view[u8],word:usize):
     bits:u64=value.u64();b:mutable usize=0
     while b<8:output[word*8+b]<-((bits>>(8*b))&255).u8();b<-b+1
 
@@ -75,6 +75,6 @@ def rumor_blocking_greedy_live_edge(input:i64&,length:usize,output:mutable u8&,c
         selected<-selected|(1.u64()<<best.usize());chosen[round]<-best.usize();scores[round]<-best_score;round<-round+1
     bytes:usize=(1+2*k)*8
     if output.is_null() or capacity<bytes:return -2
-    rb_put_i64(k.i64(),output&,0);round<-0
-    while round<k:rb_put_i64(chosen[round].i64(),output&,1+2*round);rb_put_i64(scores[round],output&,2+2*round);round<-round+1
+    rb_put_i64(k.i64(),output[0:bytes],0);round<-0
+    while round<k:rb_put_i64(chosen[round].i64(),output[0:bytes],1+2*round);rb_put_i64(scores[round],output[0:bytes],2+2*round);round<-round+1
     bytes.i64()

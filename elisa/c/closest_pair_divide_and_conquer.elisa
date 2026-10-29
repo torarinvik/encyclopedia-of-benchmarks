@@ -1,6 +1,6 @@
 const MAX_POINTS: usize = 1024
 
-def closest_pair_before(left: usize, right: usize, points: i64&, by_y: bool) -> bool:
+def closest_pair_before(left: usize, right: usize, points: view[i64], by_y: bool) -> bool:
     if by_y:
         if points[2 * left + 1] != points[2 * right + 1]:
             return points[2 * left + 1] < points[2 * right + 1]
@@ -13,8 +13,8 @@ def closest_pair_before(left: usize, right: usize, points: i64&, by_y: bool) -> 
             return points[2 * left + 1] < points[2 * right + 1]
     left < right
 
-def closest_pair_sort_indices(indices: mutable usize&, scratch: mutable usize&,
-        begin: usize, end: usize, points: i64&, by_y: bool) -> void:
+def closest_pair_sort_indices(indices: mutable view[usize], scratch: mutable view[usize],
+        begin: usize, end: usize, points: view[i64], by_y: bool) -> void:
     if end - begin < 2:
         return
     middle: usize = begin + (end - begin) / 2
@@ -44,18 +44,18 @@ def closest_pair_sort_indices(indices: mutable usize&, scratch: mutable usize&,
         indices[index] <- scratch[index]
         index <- index + 1
 
-def closest_pair_squared_distance(left: usize, right: usize, points: i64&) -> i64:
+def closest_pair_squared_distance(left: usize, right: usize, points: view[i64]) -> i64:
     dx: i64 = points[2 * left] - points[2 * right]
     dy: i64 = points[2 * left + 1] - points[2 * right + 1]
     dx * dx + dy * dy
 
-def closest_pair_copy_result(source: i64&, destination: mutable i64&) -> void:
+def closest_pair_copy_result(source: view[i64], destination: mutable view[i64]) -> void:
     index: mutable usize = 0
     while index < 4:
         destination[index] <- source[index]
         index <- index + 1
 
-def closest_pair_choose(left: i64&, right: i64&, result: mutable i64&) -> void:
+def closest_pair_choose(left: view[i64], right: view[i64], result: mutable view[i64]) -> void:
     if left[0] == 0:
         closest_pair_copy_result(right, result)
         return
@@ -69,8 +69,8 @@ def closest_pair_choose(left: i64&, right: i64&, result: mutable i64&) -> void:
     else:
         closest_pair_copy_result(right, result)
 
-def closest_pair_make_candidate(left_value: usize, right_value: usize, points: i64&,
-        result: mutable i64&) -> void:
+def closest_pair_make_candidate(left_value: usize, right_value: usize, points: view[i64],
+        result: mutable view[i64]) -> void:
     left: mutable usize = left_value
     right: mutable usize = right_value
     if left > right:
@@ -82,9 +82,9 @@ def closest_pair_make_candidate(left_value: usize, right_value: usize, points: i
     result[2] <- left.i64()
     result[3] <- right.i64()
 
-def closest_pair_search(x_order: usize&, begin: usize, end: usize,
-        y_order: usize&, y_count: usize, rank: usize&, points: i64&,
-        result: mutable i64&) -> void:
+def closest_pair_search(x_order: view[usize], begin: usize, end: usize,
+        y_order: view[usize], y_count: usize, rank: view[usize], points: view[i64],
+        result: mutable view[i64]) -> void:
     count: usize = end - begin
     if count <= 3:
         result[0] <- 0
@@ -97,9 +97,9 @@ def closest_pair_search(x_order: usize&, begin: usize, end: usize,
             while j < end:
                 current: mutable i64[4] = zeroed
                 chosen: mutable i64[4] = zeroed
-                closest_pair_make_candidate(x_order[i], x_order[j], points, &current[0])
-                closest_pair_choose(&result[0], &current[0], &chosen[0])
-                closest_pair_copy_result(&chosen[0], &result[0])
+                closest_pair_make_candidate(x_order[i], x_order[j], points, current[0:4])
+                closest_pair_choose(result, current[0:4], chosen[0:4])
+                closest_pair_copy_result(chosen[0:4], result)
                 j <- j + 1
             i <- i + 1
         return
@@ -123,9 +123,9 @@ def closest_pair_search(x_order: usize&, begin: usize, end: usize,
     left_result: mutable i64[4] = zeroed
     right_result: mutable i64[4] = zeroed
     best: mutable i64[4] = zeroed
-    closest_pair_search(x_order, begin, middle, &y_left[0], left_count, rank, points, &left_result[0])
-    closest_pair_search(x_order, middle, end, &y_right[0], right_count, rank, points, &right_result[0])
-    closest_pair_choose(&left_result[0], &right_result[0], &best[0])
+    closest_pair_search(x_order, begin, middle, y_left[0:left_count], left_count, rank, points, left_result[0:4])
+    closest_pair_search(x_order, middle, end, y_right[0:right_count], right_count, rank, points, right_result[0:4])
+    closest_pair_choose(left_result[0:4], right_result[0:4], best[0:4])
 
     strip: mutable usize[MAX_POINTS] = zeroed
     strip_count: mutable usize = 0
@@ -147,14 +147,14 @@ def closest_pair_search(x_order: usize&, begin: usize, end: usize,
                 break
             current: mutable i64[4] = zeroed
             chosen: mutable i64[4] = zeroed
-            closest_pair_make_candidate(strip[i], strip[j], points, &current[0])
-            closest_pair_choose(&best[0], &current[0], &chosen[0])
-            closest_pair_copy_result(&chosen[0], &best[0])
+            closest_pair_make_candidate(strip[i], strip[j], points, current[0:4])
+            closest_pair_choose(best[0:4], current[0:4], chosen[0:4])
+            closest_pair_copy_result(chosen[0:4], best[0:4])
             j <- j + 1
         i <- i + 1
-    closest_pair_copy_result(&best[0], result)
+    closest_pair_copy_result(best[0:4], result)
 
-def closest_pair_write_index(output: mutable u8&, start: usize, value: i64) -> void:
+def closest_pair_write_index(output: mutable view[u8], start: usize, value: i64) -> void:
     byte: mutable usize = 0
     while byte < 4:
         output[start + byte] <- ((value >> (byte * 8)) & 255).u8()
@@ -181,7 +181,7 @@ def closest_pair_divide_and_conquer_impl(values: i64&, length: usize,
         index <- index + 1
     if point_count < 2:
         return 0
-    closest_pair_sort_indices(&x_order[0], &scratch[0], 0, point_count, values, false)
+    closest_pair_sort_indices(x_order[0:point_count], scratch[0:point_count], 0, point_count, values[0:length], false)
     index <- 0
     while index < point_count:
         rank[x_order[index]] <- index
@@ -212,23 +212,23 @@ def closest_pair_divide_and_conquer_impl(values: i64&, length: usize,
             current[0] <- 1
             current[2] <- first.i64()
             current[3] <- second.i64()
-            closest_pair_choose(&duplicate[0], &current[0], &chosen[0])
-            closest_pair_copy_result(&chosen[0], &duplicate[0])
+            closest_pair_choose(duplicate[0:4], current[0:4], chosen[0:4])
+            closest_pair_copy_result(chosen[0:4], duplicate[0:4])
         begin <- end
 
     best: mutable i64[4] = zeroed
     if duplicate[0] != 0:
-        closest_pair_copy_result(&duplicate[0], &best[0])
+        closest_pair_copy_result(duplicate[0:4], best[0:4])
     else:
-        closest_pair_sort_indices(&y_order[0], &scratch[0], 0, point_count, values, true)
-        closest_pair_search(&x_order[0], 0, point_count, &y_order[0], point_count,
-            &rank[0], values, &best[0])
+        closest_pair_sort_indices(y_order[0:point_count], scratch[0:point_count], 0, point_count, values[0:length], true)
+        closest_pair_search(x_order[0:point_count], 0, point_count, y_order[0:point_count], point_count,
+            rank[0:point_count], values[0:length], best[0:4])
     if best[0] == 0:
         return -1
     if output_capacity < 8:
         return -2
-    closest_pair_write_index(output, 0, best[2])
-    closest_pair_write_index(output, 4, best[3])
+    closest_pair_write_index(output[0:8], 0, best[2])
+    closest_pair_write_index(output[0:8], 4, best[3])
     2
 
 export fn closest_pair_divide_and_conquer(values: i64&, length: usize,

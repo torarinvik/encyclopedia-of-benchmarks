@@ -1,7 +1,7 @@
 const MEDIAN_FILTER_MAX_WINDOW: usize = 16
 const MEDIAN_FILTER_MAX_SAMPLES: usize = 64
 
-def median_filter_lower_bound(sorted: f64&, size: usize, value: f64) -> usize:
+def median_filter_lower_bound(sorted: view[f64], size: usize, value: f64) -> usize:
     low: mutable usize = 0
     high: mutable usize = size
     while low < high:
@@ -42,13 +42,13 @@ def median_filter_impl(input: f64&, length: usize, output: mutable f64&, output_
     for index in 0..<count:
         value: f64 = samples[index]
         if size == window:
-            position: usize = median_filter_lower_bound(sorted, size, arrival[oldest])
+            position: usize = median_filter_lower_bound(sorted[0:size], size, arrival[oldest])
             shift: mutable usize = position + 1
             while shift < size:
                 sorted[shift - 1] <- sorted[shift]
                 shift <- shift + 1
             size <- size - 1
-        position: usize = median_filter_lower_bound(sorted, size, value)
+        position: usize = median_filter_lower_bound(sorted[0:size], size, value)
         shift: mutable usize = size
         while shift > position:
             sorted[shift] <- sorted[shift - 1]

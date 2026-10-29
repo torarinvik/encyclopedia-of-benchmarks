@@ -4,7 +4,7 @@ const MAX_STEPS: usize = 64
 const MAX_INPUT: usize = 79
 const MAX_OUTPUT: usize = 208
 
-def ring_exact_covering_protocol_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def ring_exact_covering_protocol_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -47,17 +47,18 @@ def ring_exact_covering_protocol(input: i64&, length: usize, output: mutable u8&
     bytes: usize = 8 * (2 + 2 * n)
     if output.is_null() or capacity < bytes: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
-    ring_exact_covering_protocol_put(n.i64(), staged, 0)
-    ring_exact_covering_protocol_put(moved, staged, 8)
+    staged_view: mutable view[u8] = staged[0:bytes]
+    ring_exact_covering_protocol_put(n.i64(), staged_view, 0)
+    ring_exact_covering_protocol_put(moved, staged_view, 8)
     i <- 0
     while i < n:
-        ring_exact_covering_protocol_put(position[i], staged, 8 * (2 + i))
+        ring_exact_covering_protocol_put(position[i], staged_view, 8 * (2 + i))
         i <- i + 1
     i <- 0
     while i < n:
         successor: usize = (i + 1) % n
         gap: i64 = (position[successor] - position[i] + circumference) % circumference
-        ring_exact_covering_protocol_put(gap, staged, 8 * (2 + n + i))
+        ring_exact_covering_protocol_put(gap, staged_view, 8 * (2 + n + i))
         i <- i + 1
     i <- 0
     while i < bytes:

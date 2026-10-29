@@ -2,7 +2,7 @@
 const MAX_ITEMS: usize = 257
 const BYTES_PER_TRIPLET: usize = 12
 
-def sift_down(values: mutable i64&, root_start: usize, end: usize) -> void:
+def sift_down(values: mutable view[i64], root_start: usize, end: usize) -> void:
     root: mutable usize = root_start
     while root < end / 2:
         child: mutable usize = root * 2 + 1
@@ -15,7 +15,7 @@ def sift_down(values: mutable i64&, root_start: usize, end: usize) -> void:
         values[child] <- temporary
         root <- child
 
-def heap_sort(values: mutable i64&, length: usize) -> void:
+def heap_sort(values: mutable view[i64], length: usize) -> void:
     start: mutable usize = length / 2
     while start > 0:
         start <- start - 1
@@ -28,14 +28,14 @@ def heap_sort(values: mutable i64&, length: usize) -> void:
         values[ending] <- temporary
         sift_down(values, 0, ending)
 
-def store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i32_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
     output[position + 2] <- ((bits >> 16) & 255).u8()
     output[position + 3] <- ((bits >> 24) & 255).u8()
 
-def enumerate_triplets(values: i64&, length: usize, output: mutable u8&,
+def enumerate_triplets(values: view[i64], length: usize, output: mutable view[u8],
         write_output: bool) -> usize:
     result_count: mutable usize = 0
     first: mutable usize = 0
@@ -67,7 +67,7 @@ def enumerate_triplets(values: i64&, length: usize, output: mutable u8&,
         first <- first + 1
     result_count
 
-def three_sum_impl(input: i64&, length: usize, output: mutable u8&,
+def three_sum_impl(input: view[i64], length: usize, output: mutable view[u8],
         output_capacity: usize) -> i64:
     if length > MAX_ITEMS:
         return -1
@@ -78,16 +78,27 @@ def three_sum_impl(input: i64&, length: usize, output: mutable u8&,
             return -1
         values[index] <- input[index]
         index <- index + 1
-    heap_sort(&values[0], length)
+    heap_sort(values[0:length], length)
 
     maximum_bytes: mutable usize = 0
     if length > 1:
         maximum_bytes <- (length * (length - 1) / 2) * BYTES_PER_TRIPLET
     if output_capacity < maximum_bytes:
-        needed: usize = enumerate_triplets(&values[0], length, output, false) * BYTES_PER_TRIPLET
+        count_scratch: mutable u8[1] = zeroed
+        needed: usize = enumerate_triplets(values[0:length], length, count_scratch[0:1], false) * BYTES_PER_TRIPLET
         if output_capacity < needed:
             return -2
-    enumerate_triplets(&values[0], length, output, true).i64()
+        if needed == 0:
+            return 0
+    enumerate_triplets(values[0:length], length, output, true).i64()
 
 export fn three_sum(input: i64&, length: usize, output: mutable u8&,
-        output_capacity: usize) -> i64 = three_sum_impl
+        output_capacity: usize) -> i64:
+    if length > MAX_ITEMS or (length > 0 and input.is_null()):
+        return -1
+    if length == 0:
+        return 0
+    if output.is_null():
+        scratch_output: mutable u8[1] = zeroed
+        return three_sum_impl(input[0:length], length, scratch_output[0:1], 1)
+    three_sum_impl(input[0:length], length, output[0:output_capacity], output_capacity)

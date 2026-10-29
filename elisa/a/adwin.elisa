@@ -36,7 +36,7 @@ def adwin_ln(input_value: f64) -> f64:
         iteration <- iteration + 1
     2.0 * sum + f64(exponent) * 0.693147180559945309417232121458176568
 
-def adwin_write_i64(output: mutable u8&, word_index: usize, value: i64) -> void:
+def adwin_write_i64(output: mutable view[u8], word_index: usize, value: i64) -> void:
     for byte in 0..<8 |output|:
         output[8 * word_index + byte] <- ((value >> (8 * byte)) & 255).u8()
 
@@ -154,8 +154,8 @@ def adwin_impl(input: i64&, length: usize, output: mutable u8&, output_capacity:
                 level <- level - 1
         flag: mutable i64 = 0
         flag <- 1 if changed
-        adwin_write_i64(output, 2 * sample, flag)
-        adwin_write_i64(output, 2 * sample + 1, width)
+        adwin_write_i64(output[0:16*sample_count], 2 * sample, flag)
+        adwin_write_i64(output[0:16*sample_count], 2 * sample + 1, width)
     return (2 * sample_count).i64()
 
 export fn adwin(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = adwin_impl

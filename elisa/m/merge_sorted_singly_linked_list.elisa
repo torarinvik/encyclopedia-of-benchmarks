@@ -4,7 +4,7 @@ struct MergeSinglyNode:
     origin: i32
     position: i32
 
-def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+def put_i32_le(value: i32, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.i64().u64()
     byte: mutable usize = 0
     while byte < 4:
@@ -70,12 +70,13 @@ def merge_sorted_singly_linked_list_impl(input: i64&, length: usize, output: mut
     bytes: usize = 12 * total
     if output.is_null() or capacity < bytes: return -2
     buffer: mutable u8[1536] = zeroed
+    buffer_view: mutable view[u8] = buffer[0:bytes]
     written: mutable usize = 0
     node: mutable i32 = merged_head
     while node >= 0:
-        put_i32_le(nodes[node.usize()].value, buffer[0], written)
-        put_i32_le(nodes[node.usize()].origin, buffer[0], written + 4)
-        put_i32_le(nodes[node.usize()].position, buffer[0], written + 8)
+        put_i32_le(nodes[node.usize()].value, buffer_view, written)
+        put_i32_le(nodes[node.usize()].origin, buffer_view, written + 4)
+        put_i32_le(nodes[node.usize()].position, buffer_view, written + 8)
         written <- written + 12
         node <- nodes[node.usize()].next
     index: mutable usize = 0

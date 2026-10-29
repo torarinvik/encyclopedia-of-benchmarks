@@ -6,7 +6,7 @@ const MAX_INPUT_LENGTH: usize = 131
 const MAX_FFT_LENGTH: usize = 128
 const PI: f64 = 3.14159265358979323846264338327950288
 
-def convolution_fft_write_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def convolution_fft_write_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -14,7 +14,7 @@ def convolution_fft_write_f64(output: mutable u8&, offset: usize, value: f64) ->
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def convolution_fft_transform(real: mutable f64&, imag: mutable f64&, n: usize, inverse: bool) -> void:
+def convolution_fft_transform(real: mutable view[f64], imag: mutable view[f64], n: usize, inverse: bool) -> void:
     reverse: mutable usize = 0
     position: mutable usize = 1
     while position < n:
@@ -103,18 +103,18 @@ def convolution_fft_impl(input: i64&, length: usize, output: mutable u8&, capaci
     while index < b_count:
         b_real[index] <- input[a_count + index + 2].f64() / 16.0
         index <- index + 1
-    convolution_fft_transform(a_real[0], a_imag[0], fft_length, false)
-    convolution_fft_transform(b_real[0], b_imag[0], fft_length, false)
+    convolution_fft_transform(a_real[0:fft_length], a_imag[0:fft_length], fft_length, false)
+    convolution_fft_transform(b_real[0:fft_length], b_imag[0:fft_length], fft_length, false)
     index <- 0
     while index < fft_length:
         product_real[index] <- a_real[index] * b_real[index] - a_imag[index] * b_imag[index]
         product_imag[index] <- a_real[index] * b_imag[index] + a_imag[index] * b_real[index]
         index <- index + 1
-    convolution_fft_transform(product_real[0], product_imag[0], fft_length, true)
+    convolution_fft_transform(product_real[0:fft_length], product_imag[0:fft_length], fft_length, true)
     index <- 0
     while index < result_count:
-        convolution_fft_write_f64(output, index * 16, product_real[index])
-        convolution_fft_write_f64(output, index * 16 + 8, product_imag[index])
+        convolution_fft_write_f64(output[0:capacity], index * 16, product_real[index])
+        convolution_fft_write_f64(output[0:capacity], index * 16 + 8, product_imag[index])
         index <- index + 1
     byte_count.i64()
 

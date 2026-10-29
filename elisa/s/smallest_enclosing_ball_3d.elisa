@@ -12,7 +12,7 @@ def seb3_dot(a: Seb3Point,b: Seb3Point)->f64: a.x*b.x+a.y*b.y+a.z*b.z
 def seb3_cross(a: Seb3Point,b: Seb3Point)->Seb3Point: Seb3Point(x:a.y*b.z-a.z*b.y,y:a.z*b.x-a.x*b.z,z:a.x*b.y-a.y*b.x)
 def seb3_det(a: Seb3Point,b: Seb3Point,c: Seb3Point)->f64: seb3_dot(a,seb3_cross(b,c))
 def seb3_invalid()->Seb3Sphere: Seb3Sphere(c:Seb3Point(x:0,y:0,z:0),r:-1)
-def seb3_through(p: Seb3Point[4]&,n: usize)->Seb3Sphere:
+def seb3_through(p: view[Seb3Point],n: usize)->Seb3Sphere:
     if n==1: return Seb3Sphere(c:p[0],r:0)
     if n==2:
         c: Seb3Point=seb3_mul(seb3_add(p[0],p[1]),0.5);d: Seb3Point=seb3_sub(p[0],c)
@@ -30,13 +30,13 @@ def seb3_through(p: Seb3Point[4]&,n: usize)->Seb3Sphere:
 def seb3_contains(s: Seb3Sphere,p: Seb3Point)->bool:
     if s.r<0:return false
     d: Seb3Point=seb3_sub(p,s.c);seb3_dot(d,d)<=(s.r+1e-10)*(s.r+1e-10)
-def seb3_fit(r: Seb3Point[4]&,m: usize)->Seb3Sphere:
+def seb3_fit(r: view[Seb3Point],m: usize)->Seb3Sphere:
     best: mutable Seb3Sphere=seb3_invalid();mask: mutable usize=1
     while mask<(1<<m):
         q: mutable Seb3Point[4]=zeroed;n: mutable usize=0
         for i in 0..m:
             if (mask&(1<<i))!=0:q[n]<-r[i];n<-n+1
-        candidate: Seb3Sphere=seb3_through(q,n)
+        candidate: Seb3Sphere=seb3_through(q[0:n],n)
         if candidate.r>=0:
             valid: mutable bool=true
             for i in 0..m:
@@ -44,8 +44,8 @@ def seb3_fit(r: Seb3Point[4]&,m: usize)->Seb3Sphere:
             if valid and (best.r<0 or candidate.r<best.r-1e-12):best<-candidate
         mask<-mask+1
     best
-def seb3_welzl(p: Seb3Point[8]&,n: usize,r: mutable Seb3Point[4]&,m: usize)->Seb3Sphere:
-    if n==0 or m==4:return seb3_fit(r,m)
+def seb3_welzl(p: view[Seb3Point],n: usize,r: mutable view[Seb3Point],m: usize)->Seb3Sphere:
+    if n==0 or m==4:return seb3_fit(r[0:4],m)
     s: Seb3Sphere=seb3_welzl(p,n-1,r,m)
     if seb3_contains(s,p[n-1]):return s
     r[m]<-p[n-1]
@@ -65,7 +65,7 @@ def smallest_enclosing_ball_3d_impl(input: f64&,length: usize,output: mutable f6
         v: Seb3Point=p[i];j: mutable usize=i
         while j>0 and (p[j-1].x>v.x or (p[j-1].x==v.x and (p[j-1].y>v.y or (p[j-1].y==v.y and p[j-1].z>v.z)))):p[j]<-p[j-1];j<-j-1
         p[j]<-v;i<-i+1
-    boundary: mutable Seb3Point[4]=zeroed;sphere: Seb3Sphere=seb3_welzl(p,n,boundary,0)
+    boundary: mutable Seb3Point[4]=zeroed;sphere: Seb3Sphere=seb3_welzl(p[0:8],n,boundary[0:4],0)
     if sphere.r<0 or not (sphere.r==sphere.r):return -1
     if output.is_null() or capacity<4:return -2
     output[0]<-sphere.c.x;output[1]<-sphere.c.y;output[2]<-sphere.c.z;output[3]<-sphere.r

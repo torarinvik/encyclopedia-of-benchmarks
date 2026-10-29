@@ -4,7 +4,7 @@ const UP_MAX_F: usize = 12
 const UP_MAX_INPUT: usize = 124
 const UP_MAX_OUTPUT_WORDS: usize = 26
 
-def up_store_i64(output: mutable u8&, offset: usize, value: i64): void:
+def up_store_i64(output: mutable view[u8], offset: usize, value: i64): void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -257,7 +257,7 @@ def upward_planarity_angle_assignment_impl(input: i64&, length: usize,
             words[position + 1] <- -1
             words[position + 2] <- -1
         position <- position + 3
-    for word in 0..<position: up_store_i64(output&, 8 * word, words[word])
+    for word in 0..<position: up_store_i64(output[0:capacity], 8 * word, words[word])
     output_bytes.i64()
 
 export fn upward_planarity_angle_assignment(input: i64&, length: usize,

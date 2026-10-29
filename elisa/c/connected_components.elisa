@@ -1,5 +1,5 @@
 # Count undirected graph components by depth first search.
-def connected_components_visit(vertex: usize, n: usize, adjacency: bool&, seen: mutable bool&) -> void:
+def connected_components_visit(vertex: usize, n: usize, adjacency: view[bool], seen: mutable view[bool]) -> void:
     seen[vertex] <- true
     next: mutable usize = 0
     while next < n:
@@ -31,7 +31,7 @@ def connected_components_impl(input: i64&, length: usize) -> i64:
     vertex: mutable usize = 0
     while vertex < n:
         if not seen[vertex]:
-            connected_components_visit(vertex, n, adjacency, seen)
+            connected_components_visit(vertex, n, adjacency[0:256 * 256], seen[0:n])
             components <- components + 1
         vertex <- vertex + 1
     components

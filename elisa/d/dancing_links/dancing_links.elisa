@@ -1,6 +1,6 @@
-def dancing_links_search(columns: usize, row_count: usize, rows: u64&,
+def dancing_links_search(columns: usize, row_count: usize, rows: view[u64],
                          covered: u64, selected: usize,
-                         found: mutable bool&, solution_count: mutable usize&) -> void:
+                         found: mutable view[bool], solution_count: mutable usize&) -> void:
     full_mask: u64 = (1.u64() << columns) - 1.u64()
     if covered == full_mask:
         if not found[selected]:
@@ -60,7 +60,7 @@ def dancing_links_impl(input: i64&, length: usize,
 
     found: mutable bool[256] = zeroed
     solution_count: mutable usize = 0
-    dancing_links_search(universe, row_count, &rows[0], 0, 0, &found[0], solution_count)
+    dancing_links_search(universe, row_count, rows[0:row_count], 0, 0, found[0:256], solution_count)
     if output_capacity < solution_count or (solution_count > 0 and output.is_null()):
         return -2
     position: mutable usize = 0

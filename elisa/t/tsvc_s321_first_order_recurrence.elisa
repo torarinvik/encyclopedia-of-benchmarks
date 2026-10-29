@@ -6,7 +6,7 @@ const TSVC_S321_MAX_INPUT_LENGTH: usize = 129
 def tsvc_s321_bounded(value: i64) -> bool:
     value >= -1 and value <= 1
 
-def tsvc_s321_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s321_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -35,7 +35,7 @@ def tsvc_s321_impl(input: i64&, length: usize, output: mutable u8&, capacity: us
     for i in 1..n:
         a[i] <- a[i] + a[i - 1] * input[b_start + i]
     for i in 0..n:
-        tsvc_s321_store(a[i], output, 8 * i)
+        tsvc_s321_store(a[i], output[0:capacity], 8 * i)
     n.i64()
 
 export fn tsvc_s321_first_order_recurrence(input: i64&, length: usize,

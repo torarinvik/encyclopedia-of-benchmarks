@@ -3,7 +3,7 @@ const MAX_CLAUSES: usize = 10
 const MAX_CLAUSE_LENGTH: usize = 5
 const MAX_INPUT_LENGTH: usize = 62
 
-def davis_putnam_logemann_loveland_dpll(positive: u8[10]&, negative: u8[10]&,
+def davis_putnam_logemann_loveland_dpll(positive: view[u8], negative: view[u8],
         variable_count: usize, clause_count: usize, assigned_input: u8, truth_input: u8) -> bool:
     universe: u8 = ((1.u16() << variable_count) - 1).u8()
     assigned: mutable u8 = assigned_input
@@ -79,7 +79,7 @@ def davis_putnam_logemann_loveland_impl(values: i64&, length: usize) -> i64:
             else:
                 negative[clause] <- negative[clause] | bit
     if position != length: return -1
-    if davis_putnam_logemann_loveland_dpll(positive, negative, variable_count, clause_count, 0, 0): return 1
+    if davis_putnam_logemann_loveland_dpll(positive[0:clause_count], negative[0:clause_count], variable_count, clause_count, 0, 0): return 1
     return 0
 
 export fn davis_putnam_logemann_loveland(values: i64&, length: usize) -> i64 = davis_putnam_logemann_loveland_impl

@@ -5,7 +5,7 @@ const PARITY_BYTES: usize = 16
 const CODEWORD_BYTES: usize = 204
 const FULL_BYTES: usize = 255
 
-def rs_make_tables(alpha: mutable i32[255]&, index_of: mutable i32[256]&) -> void:
+def rs_make_tables(alpha: mutable view[i32], index_of: mutable view[i32]) -> void:
     polynomial: i32[8] = [1, 0, 1, 1, 1, 0, 0, 0]
     for index in 0..<256:
         index_of[index] <- -1
@@ -28,7 +28,7 @@ def rs_make_tables(alpha: mutable i32[255]&, index_of: mutable i32[256]&) -> voi
         index_of[alpha[index].usize()] <- index.i32()
     index_of[0] <- -1
 
-def rs_make_generator(alpha: i32[255]&, index_of: i32[256]&, generator: mutable i32[17]&) -> void:
+def rs_make_generator(alpha: view[i32], index_of: view[i32], generator: mutable view[i32]) -> void:
     generator[0] <- 2
     generator[1] <- 1
     for root in 2..<17:
@@ -45,8 +45,8 @@ def rs_make_generator(alpha: i32[255]&, index_of: i32[256]&, generator: mutable 
     for index in 0..<17:
         generator[index] <- index_of[generator[index].usize()]
 
-def rs_encode(values: i64&, alpha: i32[255]&, index_of: i32[256]&, generator: i32[17]&,
-              codeword: mutable i32[204]&) -> void:
+def rs_encode(values: view[i64], alpha: view[i32], index_of: view[i32], generator: view[i32],
+              codeword: mutable view[i32]) -> void:
     data: mutable i32[239] = zeroed
     parity: mutable i32[16] = zeroed
     for index in 0..<MESSAGE_BYTES:
@@ -76,7 +76,7 @@ def rs_encode(values: i64&, alpha: i32[255]&, index_of: i32[256]&, generator: i3
     for index in 0..<PARITY_BYTES:
         codeword[MESSAGE_BYTES + index] <- parity[index]
 
-def rs_multiply(left: i32, right: i32, alpha: i32[255]&, index_of: i32[256]&) -> i32:
+def rs_multiply(left: i32, right: i32, alpha: view[i32], index_of: view[i32]) -> i32:
     if left == 0 or right == 0:
         return 0
     exponent: mutable i32 = index_of[left.usize()] + index_of[right.usize()]
@@ -84,7 +84,7 @@ def rs_multiply(left: i32, right: i32, alpha: i32[255]&, index_of: i32[256]&) ->
         exponent <- exponent - FULL_BYTES.i32()
     alpha[exponent.usize()]
 
-def rs_divide(left: i32, right: i32, alpha: i32[255]&, index_of: i32[256]&) -> i32:
+def rs_divide(left: i32, right: i32, alpha: view[i32], index_of: view[i32]) -> i32:
     if left == 0:
         return 0
     exponent: mutable i32 = index_of[left.usize()] - index_of[right.usize()]
@@ -92,8 +92,8 @@ def rs_divide(left: i32, right: i32, alpha: i32[255]&, index_of: i32[256]&) -> i
         exponent <- exponent + FULL_BYTES.i32()
     alpha[exponent.usize()]
 
-def rs_correct_one(codeword: mutable i32[204]&, expected_position: i32,
-                   alpha: i32[255]&, index_of: i32[256]&) -> bool:
+def rs_correct_one(codeword: mutable view[i32], expected_position: i32,
+                   alpha: view[i32], index_of: view[i32]) -> bool:
     syndrome_1: mutable i32 = 0
     syndrome_2: mutable i32 = 0
     for full_position in 0..<FULL_BYTES:
@@ -102,13 +102,13 @@ def rs_correct_one(codeword: mutable i32[204]&, expected_position: i32,
             symbol <- codeword[MESSAGE_BYTES + full_position]
         elif full_position >= 67:
             symbol <- codeword[full_position - 67]
-        syndrome_1 <- syndrome_1 ^ rs_multiply(symbol, alpha[full_position % FULL_BYTES], alpha&, index_of&)
-        syndrome_2 <- syndrome_2 ^ rs_multiply(symbol, alpha[(2 * full_position) % FULL_BYTES], alpha&, index_of&)
+        syndrome_1 <- syndrome_1 ^ rs_multiply(symbol, alpha[full_position % FULL_BYTES], alpha, index_of)
+        syndrome_2 <- syndrome_2 ^ rs_multiply(symbol, alpha[(2 * full_position) % FULL_BYTES], alpha, index_of)
     if syndrome_1 == 0 and syndrome_2 == 0:
         return true
     if syndrome_1 == 0:
         return false
-    location: i32 = rs_divide(syndrome_2, syndrome_1, alpha&, index_of&)
+    location: i32 = rs_divide(syndrome_2, syndrome_1, alpha, index_of)
     full_position: mutable i32 = -1
     for index in 0..<FULL_BYTES:
         if alpha[index] == location:
@@ -123,7 +123,7 @@ def rs_correct_one(codeword: mutable i32[204]&, expected_position: i32,
         transmitted_position <- full_position - 67
     if transmitted_position < 0 or transmitted_position != expected_position:
         return false
-    magnitude: i32 = rs_divide(syndrome_1, alpha[full_position.usize()], alpha&, index_of&)
+    magnitude: i32 = rs_divide(syndrome_1, alpha[full_position.usize()], alpha, index_of)
     codeword[transmitted_position.usize()] <- codeword[transmitted_position.usize()] ^ magnitude
     true
 
@@ -150,12 +150,16 @@ def misc_reed_solomon_impl(input: i64&, length: usize, output: mutable u8&, outp
     index_of: mutable i32[256] = zeroed
     generator: mutable i32[17] = zeroed
     staged: mutable i32[204] = zeroed
-    rs_make_tables(alpha&, index_of&)
-    rs_make_generator(alpha&, index_of&, generator&)
-    rs_encode(input, alpha&, index_of&, generator&, staged&)
+    alpha_view: mutable view[i32] = alpha[0:255]
+    index_of_view: mutable view[i32] = index_of[0:256]
+    generator_view: mutable view[i32] = generator[0:17]
+    staged_view: mutable view[i32] = staged[0:204]
+    rs_make_tables(alpha_view, index_of_view)
+    rs_make_generator(alpha_view, index_of_view, generator_view)
+    rs_encode(input[0:MESSAGE_BYTES], alpha_view, index_of_view, generator_view, staged_view)
     if error_count == 1:
         staged[error_position.usize()] <- input[190].i32()
-    if not rs_correct_one(staged&, error_position, alpha&, index_of&):
+    if not rs_correct_one(staged_view, error_position, alpha_view, index_of_view):
         return -1
     for index in 0..<CODEWORD_BYTES:
         output[index] <- staged[index].u8()

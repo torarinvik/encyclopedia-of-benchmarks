@@ -15,7 +15,7 @@ def squash(value0: i32) -> i32:
     index: i32 = (value0 >> 7) + 16
     ((ST[index.usize()] * (128 - weight) + ST[(index + 1).usize()] * weight + 64) >> 7)
 
-def make_stretch(table: mutable i32&) -> void:
+def make_stretch(table: mutable view[i32]) -> void:
     next_index: mutable usize = 0
     value: mutable i32 = -2047
     while value <= 2047:
@@ -28,7 +28,7 @@ def make_stretch(table: mutable i32&) -> void:
         value <- value + 1
     table[4095] <- 2047
 
-def dot8(inputs: i32&, input_base: usize, weights: i32&, weight_base: usize) -> i32:
+def dot8(inputs: view[i32], input_base: usize, weights: view[i32], weight_base: usize) -> i32:
     total: mutable i32 = 0
     index: mutable usize = 0
     while index < 8:
@@ -36,14 +36,14 @@ def dot8(inputs: i32&, input_base: usize, weights: i32&, weight_base: usize) -> 
         index <- index + 2
     total
 
-def train8(inputs: i32&, input_base: usize, weights: mutable i32&, weight_base: usize, error: i32) -> void:
+def train8(inputs: view[i32], input_base: usize, weights: mutable view[i32], weight_base: usize, error: i32) -> void:
     for index in 0..<8:
         value: mutable i32 = weights[weight_base + index] + (((inputs[input_base + index] * error * 2 >> 16) + 1) >> 1)
         if value < -32768: value <- -32768
         if value > 32767: value <- 32767
         weights[weight_base + index] <- value
 
-def store_prediction(value: i32, output: mutable u8&, position: usize) -> void:
+def store_prediction(value: i32, output: mutable view[u8], position: usize) -> void:
     output[position] <- (value & 255).u8()
     output[position + 1] <- ((value >> 8) & 255).u8()
 
@@ -70,7 +70,7 @@ def paq8p_context_mixer_impl(input: i64&, length: usize, output: mutable u8&, ca
     needed: usize = count * 2
     if output == null or capacity < needed: return -2
     stretch: mutable i32[4096]
-    make_stretch(stretch&)
+    make_stretch(stretch[0:4096])
     outer: mutable i32[32]
     inner: mutable i32[8]
     for index in 0..<8: inner[index] <- 32767
@@ -80,22 +80,22 @@ def paq8p_context_mixer_impl(input: i64&, length: usize, output: mutable u8&, ca
     for step in 0..<count:
         if step > 0:
             inner_error: i32 = ((previous_target << 12) - previous_prediction) * 7
-            train8(previous_inner&, 0, inner&, 0, inner_error)
+            train8(previous_inner[0:8], 0, inner[0:8], 0, inner_error)
         context0: usize = contexts0[step].usize()
         context1: usize = 2 + contexts1[step].usize()
         input_base: usize = step * 8
-        model0: i32 = squash(dot8(features&, input_base, outer&, context0 * 8) >> 5)
-        model1: i32 = squash(dot8(features&, input_base, outer&, context1 * 8) >> 5)
+        model0: i32 = squash(dot8(features[0:128], input_base, outer[0:32], context0 * 8) >> 5)
+        model1: i32 = squash(dot8(features[0:128], input_base, outer[0:32], context1 * 8) >> 5)
         inner_inputs: mutable i32[8]
         inner_inputs[0] <- stretch[model0.usize()]
         inner_inputs[1] <- stretch[model1.usize()]
         for j in 2..<8: inner_inputs[j] <- 0
-        prediction: i32 = squash(dot8(inner_inputs&, 0, inner&, 0) >> 8)
-        store_prediction(prediction, output, step * 2)
+        prediction: i32 = squash(dot8(inner_inputs[0:8], 0, inner[0:8], 0) >> 8)
+        store_prediction(prediction, output[0:capacity], step * 2)
         error0: i32 = ((targets[step] << 12) - model0) * 7
         error1: i32 = ((targets[step] << 12) - model1) * 7
-        train8(features&, input_base, outer&, context0 * 8, error0)
-        train8(features&, input_base, outer&, context1 * 8, error1)
+        train8(features[0:128], input_base, outer[0:32], context0 * 8, error0)
+        train8(features[0:128], input_base, outer[0:32], context1 * 8, error1)
         for j in 0..<8: previous_inner[j] <- inner_inputs[j]
         previous_prediction <- prediction
         previous_target <- targets[step]

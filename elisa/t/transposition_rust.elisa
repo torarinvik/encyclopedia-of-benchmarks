@@ -10,7 +10,7 @@ const LOW63_MASK: u64 = 9223372036854775807
 def transposition_rust_is_ascii_letter(value: i64) -> bool:
     (value >= 65 && value <= 90) || (value >= 97 && value <= 122)
 
-def transposition_rust_normalize(input: i64&, length: usize, output: i64&) -> usize:
+def transposition_rust_normalize(input: view[i64], length: usize, output: mutable view[i64]) -> usize:
     count: mutable usize = 0
     for index in 0..<length:
         value: i64 = input[index]
@@ -21,7 +21,7 @@ def transposition_rust_normalize(input: i64&, length: usize, output: i64&) -> us
             count <- count + 1
     count
 
-def transposition_rust_column_order(key: i64&, key_length: usize, order: usize&) -> void:
+def transposition_rust_column_order(key: view[i64], key_length: usize, order: mutable view[usize]) -> void:
     for index in 0..<key_length:
         order[index] <- index
     for index in 1..<key_length:
@@ -32,10 +32,10 @@ def transposition_rust_column_order(key: i64&, key_length: usize, order: usize&)
             position <- position - 1
         order[position] <- column
 
-def transposition_rust_encrypt_round(text: i64&, text_length: usize, key: i64&, key_length: usize, output: i64&) -> usize:
+def transposition_rust_encrypt_round(text: view[i64], text_length: usize, key: view[i64], key_length: usize, output: mutable view[i64]) -> usize:
     order: mutable usize[32] = zeroed
     columns: mutable i64[256] = zeroed
-    transposition_rust_column_order(key, key_length, order)
+    transposition_rust_column_order(key, key_length, order[0:32])
     ordered_length: mutable usize = 0
     for rank in 0..<key_length:
         position: mutable usize = order[rank]
@@ -53,11 +53,11 @@ def transposition_rust_encrypt_round(text: i64&, text_length: usize, key: i64&, 
             output_length <- output_length + 1
     output_length
 
-def transposition_rust_decrypt_round(text: i64&, text_length: usize, key: i64&, key_length: usize, output: i64&) -> usize:
+def transposition_rust_decrypt_round(text: view[i64], text_length: usize, key: view[i64], key_length: usize, output: mutable view[i64]) -> usize:
     order: mutable usize[32] = zeroed
     columns: mutable i64[8192] = zeroed
     column_lengths: mutable usize[32] = zeroed
-    transposition_rust_column_order(key, key_length, order)
+    transposition_rust_column_order(key, key_length, order[0:32])
     short_length: usize = text_length / key_length
     longer_columns: usize = text_length % key_length
     cursor: mutable usize = 0
@@ -146,21 +146,23 @@ def transposition_rust_impl(input: i64&, length: usize) -> i64:
     current: mutable i64[511] = zeroed
     filtered: mutable i64[256] = zeroed
     next: mutable i64[511] = zeroed
-    current_length: mutable usize = transposition_rust_normalize(message, message_length, current)
+    current_length: mutable usize = transposition_rust_normalize(message[0:MAX_MESSAGE_LENGTH], message_length, current[0:MAX_OUTPUT_LENGTH])
     if current_length < longest_key:
         return -1
     for pass in 0..<key_count:
         key_index: usize = pass
         if mode == 1:
             key_index <- key_count - 1 - pass
-        filtered_length: usize = transposition_rust_normalize(current, current_length, filtered)
+        filtered_length: usize = transposition_rust_normalize(current[0:MAX_OUTPUT_LENGTH], current_length, filtered[0:MAX_MESSAGE_LENGTH])
         key_offset: usize = key_offsets[key_index]
         key_length: usize = key_lengths[key_index]
         next_length: mutable usize = 0
         if mode == 0:
-            next_length <- transposition_rust_encrypt_round(filtered, filtered_length, keys[key_offset], key_length, next)
+            next_length <- transposition_rust_encrypt_round(filtered[0:MAX_MESSAGE_LENGTH], filtered_length,
+                    keys[key_offset:key_offset + key_length], key_length, next[0:MAX_OUTPUT_LENGTH])
         else:
-            next_length <- transposition_rust_decrypt_round(filtered, filtered_length, keys[key_offset], key_length, next)
+            next_length <- transposition_rust_decrypt_round(filtered[0:MAX_MESSAGE_LENGTH], filtered_length,
+                    keys[key_offset:key_offset + key_length], key_length, next[0:MAX_OUTPUT_LENGTH])
         for index in 0..<next_length:
             current[index] <- next[index]
         current_length <- next_length

@@ -2,7 +2,7 @@ const MAX_N: usize = 16
 const MAX_M: usize = 120
 const MAX_INPUT: usize = 362
 
-def max_cut_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def max_cut_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -34,6 +34,7 @@ def max_cut_sahni_gonzalez(input: i64&, length: usize,
         edge <- edge + 1
     output_bytes: usize = 8 * (n + 1)
     if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
     side: mutable i64[16] = zeroed
     vertex: mutable usize = 0
     while vertex < n:
@@ -54,9 +55,9 @@ def max_cut_sahni_gonzalez(input: i64&, length: usize,
             if side[u] != side[v]: cut <- cut + weights[u][v]
             v <- v + 1
         u <- u + 1
-    max_cut_store_i64_le(cut, output, 0)
+    max_cut_store_i64_le(cut, output_view, 0)
     vertex <- 0
     while vertex < n:
-        max_cut_store_i64_le(side[vertex], output, 8 * (vertex + 1))
+        max_cut_store_i64_le(side[vertex], output_view, 8 * (vertex + 1))
         vertex <- vertex + 1
     output_bytes.i64()

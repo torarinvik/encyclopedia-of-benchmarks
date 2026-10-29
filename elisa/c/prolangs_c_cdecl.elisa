@@ -22,7 +22,7 @@ struct CdeclOp:
     param_ptrs: i64[3]
 
 struct CdeclParser:
-    input: i64&
+    input: view[i64]
     length: usize
     pos: usize
 
@@ -48,7 +48,7 @@ def cdecl_word_start(c: i64) -> bool:
 def cdecl_word_part(c: i64) -> bool:
     cdecl_word_start(c) or (c >= 48 and c <= 57)
 
-def cdecl_read_word(p: mutable CdeclParser&, out: mutable u8[17]&) -> usize:
+def cdecl_read_word(p: mutable CdeclParser&, out: mutable view[u8]) -> usize:
     c: mutable i64 = cdecl_peek(p)
     if not cdecl_word_start(c): return 0
     used: mutable usize = 0
@@ -80,7 +80,7 @@ def cdecl_identifier_is_keyword(name: u8[17], n: usize) -> bool:
 
 def cdecl_base_type(p: mutable CdeclParser&) -> i64:
     token: mutable u8[17] = zeroed
-    n: usize = cdecl_read_word(p, token)
+    n: usize = cdecl_read_word(p, token[0:17])
     char_word: u8[17] = [99,104,97,114,0,0,0,0,0,0,0,0,0,0,0,0,0]
     int_word: u8[17] = [105,110,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     float_word: u8[17] = [102,108,111,97,116,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -107,7 +107,7 @@ def cdecl_decimal(p: mutable CdeclParser&, value: mutable i64&) -> bool:
     value <- result
     true
 
-def cdecl_append_op(ops: mutable CdeclOp[12]&, count: mutable usize&, item: CdeclOp) -> bool:
+def cdecl_append_op(ops: mutable view[CdeclOp], count: mutable usize&, item: CdeclOp) -> bool:
     if count >= MAX_OPS: return false
     ops[count] <- item
     count <- count + 1
@@ -138,7 +138,7 @@ def cdecl_parse_params(p: mutable CdeclParser&, item: mutable CdeclOp&) -> bool:
             a <- a + 1
     true
 
-def cdecl_parse_declarator(p: mutable CdeclParser&, name: mutable u8[17]&, ops: mutable CdeclOp[12]&, count: mutable usize&, depth: usize) -> bool:
+def cdecl_parse_declarator(p: mutable CdeclParser&, name: mutable view[u8], ops: mutable view[CdeclOp], count: mutable usize&, depth: usize) -> bool:
     if depth > MAX_DEPTH: return false
     stars: mutable i64 = 0
     while cdecl_consume(p,42):
@@ -189,12 +189,12 @@ def prolangs_c_cdecl_impl(input: i64&, input_length: usize, output: mutable u8&,
     while i < input_length:
         if input[i] <= 0 or input[i] > 127: return -1
         i <- i + 1
-    p: mutable CdeclParser = CdeclParser{input:input,length:input_length,pos:0}
+    p: mutable CdeclParser = CdeclParser{input:input[0:input_length],length:input_length,pos:0}
     base: i64 = cdecl_base_type(p)
     name: mutable u8[17] = zeroed
     ops: mutable CdeclOp[12] = zeroed
     count: mutable usize = 0
-    if base == 0 or not cdecl_parse_declarator(p,name,ops,count,0) or not cdecl_valid_order(base,ops,count) or (base == TYPE_VOID and count == 0) or cdecl_peek(p) != -1: return -1
+    if base == 0 or not cdecl_parse_declarator(p,name[0:17],ops[0:MAX_OPS],count,0) or not cdecl_valid_order(base,ops,count) or (base == TYPE_VOID and count == 0) or cdecl_peek(p) != -1: return -1
     name_length: mutable usize = 0
     while name_length < MAX_NAME and name[name_length] != 0: name_length <- name_length + 1
     if cdecl_identifier_is_keyword(name,name_length): return -1

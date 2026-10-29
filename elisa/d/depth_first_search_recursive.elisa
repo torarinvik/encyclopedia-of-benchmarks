@@ -2,8 +2,8 @@
 const MAX_VERTICES: usize = 64
 const MAX_EDGES: usize = 256
 
-def depth_first_search_recursive_visit(adjacency: usize&, degree: usize&, current: usize,
-                                       target: i64, visited: mutable bool&) -> bool:
+def depth_first_search_recursive_visit(adjacency: view[usize], degree: view[usize], current: usize,
+                                       target: i64, visited: mutable view[bool]) -> bool:
     if current.i64() == target:
         return true
     visited[current] <- true
@@ -56,7 +56,7 @@ def depth_first_search_recursive_impl(input: i64&, length: usize) -> i64:
             degree[right] <- degree[right] + 1
         edge <- edge + 1
     visited: mutable bool[64] = zeroed
-    if depth_first_search_recursive_visit(adjacency, degree, source_value.usize(), target, visited):
+    if depth_first_search_recursive_visit(adjacency[0:MAX_VERTICES * MAX_VERTICES], degree[0:MAX_VERTICES], source_value.usize(), target, visited[0:MAX_VERTICES]):
         return 1
     0
 

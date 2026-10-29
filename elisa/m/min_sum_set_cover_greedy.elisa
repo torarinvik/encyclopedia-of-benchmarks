@@ -2,7 +2,7 @@ const MAX_N: usize = 12
 const MAX_M: usize = 16
 const MAX_INPUT: usize = 18
 
-def min_sum_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def min_sum_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -26,6 +26,7 @@ def min_sum_set_cover_greedy(input: i64&, length: usize,
         set <- set + 1
     output_bytes: usize = 8 * (n + 1)
     if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
     covered: mutable bool[16] = zeroed
     used: mutable bool[12] = zeroed
     order: mutable i64[12] = zeroed
@@ -55,9 +56,9 @@ def min_sum_set_cover_greedy(input: i64&, length: usize,
                 total_time <- total_time + slot.i64()
             set <- set + 1
         slot <- slot + 1
-    min_sum_store_i64_le(total_time, output, 0)
+    min_sum_store_i64_le(total_time, output_view, 0)
     slot <- 0
     while slot < n:
-        min_sum_store_i64_le(order[slot], output, 8 * (slot + 1))
+        min_sum_store_i64_le(order[slot], output_view, 8 * (slot + 1))
         slot <- slot + 1
     output_bytes.i64()

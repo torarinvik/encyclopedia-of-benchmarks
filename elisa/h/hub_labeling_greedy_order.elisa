@@ -2,7 +2,7 @@ const HUB_MAX_N: usize = 8
 const HUB_MAX_M: usize = 28
 const HUB_MAX_OUT: usize = 81
 
-def hub_labeling_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def hub_labeling_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -170,6 +170,6 @@ def hub_labeling_greedy_order(input: i64&, length: usize, output: mutable u8&, c
     if output.is_null() or capacity < required: return -2
     index: mutable usize = 0
     while index < used:
-        hub_labeling_put_i64(output, index * 8, staged[index])
+        hub_labeling_put_i64(output[0:required], index * 8, staged[index])
         index <- index + 1
     return required.i64()

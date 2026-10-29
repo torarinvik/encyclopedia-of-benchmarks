@@ -2,11 +2,11 @@
 def dct_narrow(value: i64) -> i16:
     return value.i16()
 
-def dct_put64(output: mutable u8&, position: usize, value: i64) -> void:
+def dct_put64(output: mutable view[u8], position: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for j in 0..<8: output[position + j] <- ((bits >> (8 * j)) & 255).u8()
 
-def dct_line(block: mutable i16&, base: usize, stride: usize, shift: usize, product_shift: usize, factors: i16&) -> void:
+def dct_line(block: mutable view[i16], base: usize, stride: usize, shift: usize, product_shift: usize, factors: view[i16]) -> void:
     temp: mutable i64[12] = zeroed
     for j in 0..<4:
         left: i64 = block[base + stride * j].i64()
@@ -45,9 +45,9 @@ def edn_jpeg_dct_impl(values: i64&, length: usize, output: mutable u8&, capacity
         if values[64 + index] < -32 or values[64 + index] > 31: return -1
         factors[index] <- values[64 + index].i16()
     if output.is_null() or capacity < 512: return -2
-    for row in 0..<8: dct_line(block, row * 8, 1, 0, 13, factors)
-    for column in 0..<8: dct_line(block, column, 8, 3, 16, factors)
-    for index in 0..<64: dct_put64(output, 8 * index, block[index].i64())
+    for row in 0..<8: dct_line(block[0:64], row * 8, 1, 0, 13, factors[0:12])
+    for column in 0..<8: dct_line(block[0:64], column, 8, 3, 16, factors[0:12])
+    for index in 0..<64: dct_put64(output[0:512], 8 * index, block[index].i64())
     512
 
 export fn edn_jpeg_dct(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = edn_jpeg_dct_impl

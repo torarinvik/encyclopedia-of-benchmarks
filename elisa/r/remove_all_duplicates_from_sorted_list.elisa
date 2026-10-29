@@ -1,7 +1,7 @@
 const MAX_NODES: usize = 1024
 
 # Recursively skip duplicate runs and relink retained nodes.
-def remove_duplicate_runs(input: i64&, next_node: mutable usize&, node: usize, none: usize) -> usize:
+def remove_duplicate_runs(input: view[i64], next_node: mutable view[usize], node: usize, none: usize) -> usize:
     if node == none:
         return none
     next: usize = next_node[node]
@@ -32,7 +32,7 @@ def remove_all_duplicates_from_sorted_list_impl(input: i64&, length: usize, outp
     for index in 0..<length |next_node|:
         next_node[index] <- index + 1
     next_node[length] <- length
-    head: usize = remove_duplicate_runs(input, &next_node[0], 0, length)
+    head: usize = remove_duplicate_runs(input[0:length], next_node[0:length + 1], 0, length)
     survivor_count: usize =
         while node != length |node: mutable usize = head, count: mutable usize = 0, next_node| -> count:
             count <- count + 1

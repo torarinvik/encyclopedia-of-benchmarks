@@ -1,4 +1,4 @@
-def write_triplet(result: i64[4], output: mutable u8&, output_capacity: usize) -> void:
+def write_triplet(result: i64[4], output: mutable view[u8], output_capacity: usize) -> void:
     for position in 0..<24 |written: mutable usize = 0, output|:
         value: i64 = result[position / 8 + 1]
         bits: u64 = value.u64()
@@ -54,7 +54,7 @@ def triplet_sum_impl(values: i64&, length: usize, output: mutable u8&,
                 break result
             rank <- rank + 1
             result
-    write_triplet(result, output, output_capacity)
+    write_triplet(result, output[0:24], output_capacity)
     3
 
 export fn triplet_sum(values: i64&, length: usize, output: mutable u8&,

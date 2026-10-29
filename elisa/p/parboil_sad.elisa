@@ -21,7 +21,7 @@ def fn i64 type_count(i64 kind):
     if kind == 5 or kind == 6: return 8
     return 16
 
-def fn i64 pixel(i64& input, i64 image, i64 y, i64 x):
+def fn i64 pixel(view[i64] input, i64 image, i64 y, i64 x):
     word_index: usize = (image * 64 + y * 4 + x / 4).usize()
     packed: u32 = input[word_index].u32()
     return ((packed >> ((x % 4) * 8).u32()) & 255).i64()
@@ -55,7 +55,7 @@ def fn i64 parboil_sad_impl(i64& input, usize length) -> i64:
                             if ry > 15: ry <- 15
                             if rx < 0: rx <- 0
                             if rx > 15: rx <- 15
-                            delta: i64 = pixel(input, 0, fy, fx) - pixel(input, 1, ry, rx)
+                            delta: i64 = pixel(input[0:length], 0, fy, fx) - pixel(input[0:length], 1, ry, rx)
                             sad <- sad + (if delta < 0: -delta else: delta)
                             x <- x + 1
                         y <- y + 1

@@ -1,4 +1,4 @@
-def tsvc_s343_column_major_compaction_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s343_column_major_compaction_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -27,7 +27,7 @@ def tsvc_s343_column_major_compaction_impl(input: i64&, length: usize,
             index: usize = row * cols + col
             if input[mask_start + index] > 0:
                 tsvc_s343_column_major_compaction_store_i64(
-                    input[data_start + index], output, written * 8)
+                    input[data_start + index], output[0:output_capacity], written * 8)
                 written <- written + 1
     written.i64()
 

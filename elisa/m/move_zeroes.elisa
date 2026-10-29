@@ -1,6 +1,6 @@
 const MAX_LENGTH: usize = 4096
 
-def write_i32_le(output: mutable u8&, position: usize, value: i64) -> void:
+def write_i32_le(output: mutable view[u8], position: usize, value: i64) -> void:
     bits: u32 = value.u32()
     output[position * 4] <- (bits & 255).u8()
     output[position * 4 + 1] <- ((bits >> 8) & 255).u8()
@@ -18,14 +18,16 @@ def move_zeroes_impl(input: i64&, length: usize, output: mutable u8&, output_cap
     output_bytes: usize = length * 4
     if output_capacity < output_bytes:
         return -2
+    if output_bytes == 0: return 0
+    output_view: mutable view[u8] = output[0:output_bytes]
     write_index: mutable usize = 0
-    for index in 0..<length |input, output, write_index|:
+    for index in 0..<length |input, output_view, write_index|:
         value: i64 = input[index]
         if value != 0:
-            write_i32_le(output, write_index, value)
+            write_i32_le(output_view, write_index, value)
             write_index <- write_index + 1
-    while write_index < length |write_index, output|:
-        write_i32_le(output, write_index, 0)
+    while write_index < length |write_index, output_view|:
+        write_i32_le(output_view, write_index, 0)
         write_index <- write_index + 1
     length.i64()
 

@@ -1,4 +1,4 @@
-def graph_coloring_count(input: i64&, colors: mutable u8&, vertex_count: usize,
+def graph_coloring_count(input: view[i64], colors: mutable view[u8], vertex_count: usize,
                          color_count: usize, vertex: usize) -> i64:
     if vertex == vertex_count:
         return 1
@@ -18,7 +18,7 @@ def graph_coloring_count(input: i64&, colors: mutable u8&, vertex_count: usize,
         color <- color + 1
     count
 
-def graph_coloring_put_i64(output: mutable u8&, value: i64) -> void:
+def graph_coloring_put_i64(output: mutable view[u8], value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -56,8 +56,8 @@ def graph_coloring_impl(input: i64&, length: usize,
     if output.is_null() or capacity < 8:
         return -2
     colors: mutable u8[8] = zeroed
-    count: i64 = graph_coloring_count(input, &colors[0], n, m, 0)
-    graph_coloring_put_i64(output, count)
+    count: i64 = graph_coloring_count(input[0:length], colors[0:n], n, m, 0)
+    graph_coloring_put_i64(output[0:8], count)
     8
 
 export fn graph_coloring(input: i64&, length: usize,

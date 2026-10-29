@@ -1,7 +1,7 @@
 const MAX_N: usize = 64
 const MAX_INPUT_LENGTH: usize = 66
 
-def store_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i32_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u32 = value.u32()
     output[offset] <- (bits & 255).u8()
     output[offset + 1] <- ((bits >> 8) & 255).u8()
@@ -42,7 +42,7 @@ def singly_link_list_deletion_impl(input: i64&, length: usize, output: mutable u
     node: i64 = head
     index <- 0
     while index < n - 1:
-        store_i32_le(nodes[node.usize()], output, index * 4)
+        store_i32_le(nodes[node.usize()], output[0:capacity], index * 4)
         if index + 1 < n - 1: node <- next[node.usize()]
         index <- index + 1
     bytes.i64()

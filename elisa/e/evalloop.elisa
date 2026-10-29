@@ -6,7 +6,7 @@ const OUTPUT_CAPACITY: usize = 14
 def execute(sum: mutable u32&, opcode: i32) -> void:
     sum <- sum + opcode.u32()
 
-def format_output(sum_input: u32, staged: mutable u8&) -> usize:
+def format_output(sum_input: u32, staged: mutable view[u8]) -> usize:
     staged[0] <- 83u8
     staged[1] <- 117u8
     staged[2] <- 109u8
@@ -52,7 +52,7 @@ def evalloop_impl(passes: i64, output: mutable u8&, output_capacity: usize) -> i
         pass <- pass + 1
 
     staged: mutable u8[OUTPUT_CAPACITY] = zeroed
-    used: usize = format_output(sum, staged[0])
+    used: usize = format_output(sum, staged[0:OUTPUT_CAPACITY])
     if output_capacity < used: return -2
     for index in 0..<used:
         output[index] <- staged[index]

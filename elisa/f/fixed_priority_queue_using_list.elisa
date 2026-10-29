@@ -1,7 +1,7 @@
 const MAX_OPERATIONS: usize = 256
 const MAX_INPUT_LENGTH: usize = 770
 
-def fixed_priority_queue_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def fixed_priority_queue_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255.u64()).u8()
@@ -48,7 +48,7 @@ def fixed_priority_queue_using_list_impl(input: i64&, length: usize, output: mut
     if output == null or capacity < output_bytes:
         return -2
     for index in 0..<dequeued_count:
-        fixed_priority_queue_store_i64(&output[0], index * 8, dequeued[index])
+        fixed_priority_queue_store_i64(output[0:output_bytes], index * 8, dequeued[index])
     output_bytes.i64()
 
 export fn fixed_priority_queue_using_list(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = fixed_priority_queue_using_list_impl

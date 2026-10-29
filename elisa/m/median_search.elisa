@@ -1,7 +1,7 @@
 const MAX_VALUES: usize = 25
 const MAX_INPUT_LENGTH: usize = 28
 
-def insertion_sort(values: mutable i64&, start: usize, end: usize) -> void:
+def insertion_sort(values: mutable view[i64], start: usize, end: usize) -> void:
     for index in start + 1..<end:
         value: i64 = values[index]
         position: mutable usize = index
@@ -10,19 +10,19 @@ def insertion_sort(values: mutable i64&, start: usize, end: usize) -> void:
             position <- position - 1
         values[position] <- value
 
-def select_kth(values: mutable i64&, length: usize, rank: usize) -> i64:
+def select_kth(values: mutable view[i64], length: usize, rank: usize) -> i64:
     medians: mutable i64[5] = zeroed
     median_count: mutable usize = 0
     start: mutable usize = 0
     while start < length:
-        end: usize = start + 5
+        end: mutable usize = start + 5
         if end > length:
-            end = length
+            end <- length
         insertion_sort(values, start, end)
         medians[median_count] <- values[(start + end) / 2]
         median_count <- median_count + 1
         start <- start + 5
-    insertion_sort(&medians[0], 0, median_count)
+    insertion_sort(medians[0:median_count], 0, median_count)
     pivot: i64 = medians[(median_count - 1) / 2]
 
     lower: mutable i64[MAX_VALUES] = zeroed
@@ -37,9 +37,9 @@ def select_kth(values: mutable i64&, length: usize, rank: usize) -> i64:
             higher[higher_count] <- values[index]
             higher_count <- higher_count + 1
     if rank < lower_count:
-        return select_kth(&lower[0], lower_count, rank)
+        return select_kth(lower[0:lower_count], lower_count, rank)
     if rank > lower_count:
-        return select_kth(&higher[0], higher_count, rank - lower_count - 1)
+        return select_kth(higher[0:higher_count], higher_count, rank - lower_count - 1)
     pivot
 
 def median_search_impl(input: i64&, length: usize) -> i64:
@@ -62,6 +62,6 @@ def median_search_impl(input: i64&, length: usize) -> i64:
             if values[previous] == value:
                 return -1
         values[index] <- value
-    select_kth(&values[0], count, rank_value.usize())
+    select_kth(values[0:count], count, rank_value.usize())
 
 export fn median_search(input: i64&, length: usize) -> i64 = median_search_impl

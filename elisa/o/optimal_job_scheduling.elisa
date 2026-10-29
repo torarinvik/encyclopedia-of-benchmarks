@@ -1,4 +1,4 @@
-def append_unsigned(output: mutable u8&, position: mutable usize&, value: usize):
+def append_unsigned(output: mutable view[u8], position: mutable usize&, value: usize):
     digits: mutable [12]u8 = [0; 12]
     count: mutable usize = 0
     remaining: mutable usize = value
@@ -49,7 +49,7 @@ def optimal_job_scheduling_impl(values: i64&, length: usize, output: mutable u8&
         while col < machines:
             if col > 0: scratch[used] <- 44u8()
             if col > 0: used <- used + 1
-            append_unsigned(scratch[0]&, used&, cost[row * machines + col])
+            append_unsigned(scratch[0:2048], used&, cost[row * machines + col])
             col <- col + 1
         if row + 1 < processes: scratch[used] <- 10u8()
         if row + 1 < processes: used <- used + 1

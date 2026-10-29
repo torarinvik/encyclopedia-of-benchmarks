@@ -1,25 +1,25 @@
 def priority_for(key: i64) -> i64:
     ((key + 1000000) * 1103515245 + 12345) % 2147483648
 
-def contains(keys: i64&, lefts: usize&, rights: usize&, root: usize, key: i64) -> bool:
+def contains(keys: view[i64], lefts: view[usize], rights: view[usize], root: usize, key: i64) -> bool:
     if root == 0: return false
     if key == keys[root]: return true
     if key < keys[root]: return contains(keys, lefts, rights, lefts[root], key)
     contains(keys, lefts, rights, rights[root], key)
 
-def rotate_right(lefts: mutable usize&, rights: mutable usize&, root: usize) -> usize:
+def rotate_right(lefts: mutable view[usize], rights: mutable view[usize], root: usize) -> usize:
     pivot: usize = lefts[root]
     lefts[root] <- rights[pivot]
     rights[pivot] <- root
     pivot
 
-def rotate_left(lefts: mutable usize&, rights: mutable usize&, root: usize) -> usize:
+def rotate_left(lefts: mutable view[usize], rights: mutable view[usize], root: usize) -> usize:
     pivot: usize = rights[root]
     rights[root] <- lefts[pivot]
     lefts[pivot] <- root
     pivot
 
-def insert_node(keys: mutable i64&, priorities: mutable i64&, lefts: mutable usize&, rights: mutable usize&, next: mutable usize&, root: usize, key: i64) -> usize:
+def insert_node(keys: mutable view[i64], priorities: mutable view[i64], lefts: mutable view[usize], rights: mutable view[usize], next: mutable usize&, root: usize, key: i64) -> usize:
     if root == 0:
         node: usize = next
         next <- next + 1
@@ -39,7 +39,7 @@ def insert_node(keys: mutable i64&, priorities: mutable i64&, lefts: mutable usi
         if priorities[child] > priorities[root]: return rotate_left(lefts, rights, root)
     root
 
-def merge_nodes(priorities: i64&, lefts: mutable usize&, rights: mutable usize&, left: usize, right: usize) -> usize:
+def merge_nodes(priorities: view[i64], lefts: mutable view[usize], rights: mutable view[usize], left: usize, right: usize) -> usize:
     if left == 0: return right
     if right == 0: return left
     if priorities[left] > priorities[right]:
@@ -50,7 +50,7 @@ def merge_nodes(priorities: i64&, lefts: mutable usize&, rights: mutable usize&,
     lefts[right] <- child
     right
 
-def erase_node(keys: i64&, priorities: i64&, lefts: mutable usize&, rights: mutable usize&, root: usize, key: i64) -> usize:
+def erase_node(keys: view[i64], priorities: view[i64], lefts: mutable view[usize], rights: mutable view[usize], root: usize, key: i64) -> usize:
     if key < keys[root]:
         lefts[root] <- erase_node(keys, priorities, lefts, rights, lefts[root], key)
         return root
@@ -59,7 +59,7 @@ def erase_node(keys: i64&, priorities: i64&, lefts: mutable usize&, rights: muta
         return root
     merge_nodes(priorities, lefts, rights, lefts[root], rights[root])
 
-def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -81,12 +81,12 @@ def treap_unique_key_set_impl(input: i64&, length: usize, output: mutable u8&, c
     for index in 0..<operations:
         operation: i64 = input[1 + 2 * index]
         key: i64 = input[2 + 2 * index]
-        present: bool = contains(keys, lefts, rights, root, key)
+        present: bool = contains(keys[0:129], lefts[0:129], rights[0:129], root, key)
         if (operation == 0 and present) or (operation == 1 and not present): return -1
         if operation == 0:
-            root <- insert_node(keys, priorities, lefts, rights, next, root, key)
+            root <- insert_node(keys[0:129], priorities[0:129], lefts[0:129], rights[0:129], next, root, key)
         else:
-            root <- erase_node(keys, priorities, lefts, rights, root, key)
+            root <- erase_node(keys[0:129], priorities[0:129], lefts[0:129], rights[0:129], root, key)
     stack: mutable usize[128] = zeroed
     sorted: mutable i64[128] = zeroed
     top: mutable usize = 0
@@ -104,7 +104,7 @@ def treap_unique_key_set_impl(input: i64&, length: usize, output: mutable u8&, c
         current <- rights[current]
     required: usize = count * 8
     if output.is_null() or capacity < required: return -2
-    for index in 0..<count: put_i64(output, index * 8, sorted[index])
+    for index in 0..<count: put_i64(output[0:capacity], index * 8, sorted[index])
     count.i64()
 
 export fn treap_unique_key_set(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = treap_unique_key_set_impl

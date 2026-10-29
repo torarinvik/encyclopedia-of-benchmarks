@@ -3,9 +3,9 @@ const MAX_VERTEX_COUNT: usize = 40
 const MAX_EDGE_COUNT: usize = 2047
 const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_EDGE_COUNT
 
-def tarjan_scc_visit(adjacency: u64&, on_stack: mutable u8&, scc_stack: mutable usize&,
-        stack_length: mutable usize&, discovery: mutable i64&, low: mutable i64&,
-        component_id: mutable i64&, vertex_count: usize, vertex: usize,
+def tarjan_scc_visit(adjacency: view[u64], on_stack: mutable view[u8], scc_stack: mutable view[usize],
+        stack_length: mutable usize&, discovery: mutable view[i64], low: mutable view[i64],
+        component_id: mutable view[i64], vertex_count: usize, vertex: usize,
         time: mutable usize&, component_count: mutable usize&) -> void:
     discovery[vertex] <- time.i64()
     low[vertex] <- time.i64()
@@ -72,8 +72,9 @@ def tarjan_scc_impl(input: i64&, length: usize, output: mutable u8&,
     vertex <- 0
     while vertex < vertex_count |vertex, adjacency, on_stack, scc_stack, stack_length, discovery, low, component_id, time, component_count|:
         if discovery[vertex] == -1:
-            tarjan_scc_visit(&adjacency[0], &on_stack[0], &scc_stack[0], &stack_length,
-                &discovery[0], &low[0], &component_id[0],
+            tarjan_scc_visit(adjacency[0:MAX_VERTEX_COUNT], on_stack[0:MAX_VERTEX_COUNT],
+                scc_stack[0:MAX_VERTEX_COUNT], &stack_length,
+                discovery[0:MAX_VERTEX_COUNT], low[0:MAX_VERTEX_COUNT], component_id[0:MAX_VERTEX_COUNT],
                 vertex_count, vertex, time, component_count)
         vertex <- vertex + 1
     output_length: usize = 1 + vertex_count + component_count

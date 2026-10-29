@@ -2,7 +2,7 @@ const MAX_N: usize=16
 const MAX_M: usize=24
 const MAX_INPUT: usize=74
 
-def put32(value:i64,output:mutable u8&,pos:usize)->void:
+def put32(value:i64,output:mutable view[u8],pos:usize)->void:
     bits:u64=value.u64()
     j:mutable usize=0
     while j<4:
@@ -56,11 +56,13 @@ def randomized_contraction_edge_sampling(input:i64&,length:usize,output:mutable 
         i<-i+1
     bytes:usize=4*n
     if output.is_null() or capacity<bytes:return -2
-    staged:mutable u8[64]=zeroed;i<-0
+    staged:mutable u8[64]=zeroed
+    staged_view:mutable view[u8]=staged[0:bytes]
+    i<-0
     while i<n:
         root:mutable usize=i
         while parent[root]!=root:root<-parent[root]
-        put32(minimum[root].i64(),staged&,4*i)
+        put32(minimum[root].i64(),staged_view,4*i)
         i<-i+1
     i<-0
     while i<bytes:

@@ -1,6 +1,6 @@
 const MAX_VALUES: usize = 512
 
-def tournament_choose(values: i64&, tree: i64&, left: usize, right: usize) -> i64:
+def tournament_choose(values: view[i64], tree: view[i64], left: usize, right: usize) -> i64:
     l: i64 = tree[left]
     r: i64 = tree[right]
     if l < 0:
@@ -38,23 +38,23 @@ def tournament_sort_impl(input: i64&, length: usize, output: mutable u8&, capaci
     if leaves > 1:
         node: mutable usize = leaves - 1
         while node > 0:
-            tree[node] <- tournament_choose(values, tree, node * 2, node * 2 + 1)
+            tree[node] <- tournament_choose(values[0:n], tree[0:2 * leaves], node * 2, node * 2 + 1)
             node <- node - 1
     bytes: usize = (1 + n) * 8
     if output.is_null() or capacity < bytes:
         return -2
-    put_i64(output, 0, n.i64())
+    put_i64(output[0:capacity], 0, n.i64())
     for out in 0..<n:
         winner: usize = tree[1].usize()
-        put_i64(output, (1 + out) * 8, values[winner])
+        put_i64(output[0:capacity], (1 + out) * 8, values[winner])
         node: mutable usize = leaves + winner
         tree[node] <- -1
         while node > 1:
             node <- node / 2
-            tree[node] <- tournament_choose(values, tree, node * 2, node * 2 + 1)
+            tree[node] <- tournament_choose(values[0:n], tree[0:2 * leaves], node * 2, node * 2 + 1)
     bytes.i64()
 
-def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for b in 0..<8:
         output[offset + b] <- (bits & 255).u8()

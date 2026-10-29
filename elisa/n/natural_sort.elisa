@@ -4,7 +4,7 @@ def lower_ascii(value: i64) -> i64:
     if value >= 65 and value <= 90: return value + 32
     return value
 
-def natural_less(values: i64&, offsets: usize&, lengths: usize&, prefixes: usize&, a: usize, b: usize) -> bool:
+def natural_less(values: view[i64], offsets: view[usize], lengths: view[usize], prefixes: view[usize], a: usize, b: usize) -> bool:
     limit: usize = prefixes[a]
     if prefixes[b] < limit: limit <- prefixes[b]
     i: mutable usize = 0
@@ -66,7 +66,7 @@ def natural_sort_impl(values: i64&, n: usize, output: mutable u8&, capacity: usi
     while i < count:
         item: usize = order[i]
         j: mutable usize = i
-        while j > 0 and natural_less(values, offsets, lengths, prefixes, item, order[j - 1]):
+        while j > 0 and natural_less(values[0:n], offsets[0:count], lengths[0:count], prefixes[0:count], item, order[j - 1]):
             order[j] <- order[j - 1]
             j <- j - 1
         order[j] <- item

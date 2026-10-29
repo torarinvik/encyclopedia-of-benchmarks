@@ -1,7 +1,7 @@
 const MAX_INPUT_LENGTH: usize = 5
 
 ## Copyright (c) William Landi 1991. Permission to use this code is granted as long as the copyright notice remains in place.
-def store_u8(value: u8, output: mutable u8&, position: usize) -> void:
+def store_u8(value: u8, output: mutable view[u8], position: usize) -> void:
     output[position] <- value
 
 def prolangs_c_loader_relocation_add_impl(input: i64&, length: usize,
@@ -30,7 +30,7 @@ def prolangs_c_loader_relocation_add_impl(input: i64&, length: usize,
     index: mutable usize = width
     while index > 0:
         index <- index - 1
-        store_u8((result & 255).u8(), output, index)
+        store_u8((result & 255).u8(), output[0:capacity], index)
         result <- result >> 8
     width.i64()
 

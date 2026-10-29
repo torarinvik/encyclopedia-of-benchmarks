@@ -1,4 +1,4 @@
-def write_i32_le(output: mutable u8&, index: usize, value: i32) -> void:
+def write_i32_le(output: mutable view[u8], index: usize, value: i32) -> void:
     bits: mutable u32 = value.u32()
     offset: usize = index * 4
     byte: mutable usize = 0
@@ -11,9 +11,10 @@ def reverse_singly_linked_list_impl(input: i32&, length: usize, output: mutable 
     if input.is_null() or length > 256: return -1
     output_bytes: usize = length * 4
     if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
     index: mutable usize = 0
     while index < length:
-        write_i32_le(output, index, input[length - 1 - index])
+        write_i32_le(output_view, index, input[length - 1 - index])
         index <- index + 1
     return output_bytes.i64()
 

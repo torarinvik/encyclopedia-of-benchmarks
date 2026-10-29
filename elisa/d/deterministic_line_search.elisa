@@ -1,4 +1,4 @@
-def deterministic_line_search_put(output: mutable u8&, offset: usize, value: i64) -> void:
+def deterministic_line_search_put(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -24,8 +24,8 @@ def deterministic_line_search_impl(input: i64&, length: usize, output: mutable u
         depth <- depth * 2
         leg <- leg + 1
     if capacity < 16 or output.is_null(): return -2
-    deterministic_line_search_put(output, 0, traveled)
-    deterministic_line_search_put(output, 8, leg)
+    deterministic_line_search_put(output[0:16], 0, traveled)
+    deterministic_line_search_put(output[0:16], 8, leg)
     return 16
 
 @export("deterministic_line_search")

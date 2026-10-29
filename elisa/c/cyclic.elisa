@@ -36,7 +36,7 @@ def cyclic_append_record(records: mutable i64&, field_count: mutable usize&, val
     records[field_count] <- value
     field_count <- field_count + 1
 
-def cyclic_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def cyclic_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -137,19 +137,19 @@ def cyclic_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize
     if output.is_null() or capacity < required:
         return -2
     field: mutable usize = 0
-    cyclic_put_i64(&output[0], field * 8, query_count.i64())
+    cyclic_put_i64(output[0:required], field * 8, query_count.i64())
     field <- field + 1
     index <- 0
     while index < record_fields:
-        cyclic_put_i64(&output[0], field * 8, records[index])
+        cyclic_put_i64(output[0:required], field * 8, records[index])
         field <- field + 1
         index <- index + 1
-    cyclic_put_i64(&output[0], field * 8, size)
+    cyclic_put_i64(output[0:required], field * 8, size)
     field <- field + 1
     cursor: mutable i64 = head
     item: mutable i64 = 0
     while item < size:
-        cyclic_put_i64(&output[0], field * 8, node_values[cursor.usize()])
+        cyclic_put_i64(output[0:required], field * 8, node_values[cursor.usize()])
         field <- field + 1
         cursor <- next[cursor.usize()]
         item <- item + 1

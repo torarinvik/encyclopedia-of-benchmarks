@@ -1,7 +1,7 @@
 const N:usize=16
 const K:usize=4
 const L:usize=66
-def put64(x:i64,output:mutable u8&,pos:usize)->void:
+def put64(x:i64,output:mutable view[u8],pos:usize)->void:
     bits:u64=x.u64();j:mutable usize=0
     while j<8:
         output[pos+j]<-((bits>>(8*j))&255).u8()
@@ -15,12 +15,13 @@ def min_hash_k_mins(input:i64&,length:usize,output:mutable u8&,capacity:usize)->
         if input[2+i]<0 or input[2+i]>1000:return -1
         i<-i+1
     bytes:usize=8*k;if output.is_null() or capacity<bytes:return -2
+    output_view:mutable view[u8]=output[0:bytes]
     col:mutable usize=0
     while col<k:
         best:mutable usize=0;i<-1
         while i<n:
             if input[2+i*k+col]<input[2+best*k+col]:best<-i
             i<-i+1
-        put64(best.i64(),output&,8*col)
+        put64(best.i64(),output_view,8*col)
         col<-col+1
     bytes.i64()

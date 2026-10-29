@@ -1,6 +1,6 @@
 const TWO_SAT_MAX_LITS: usize = 80
 
-def two_sat_visit_order(graph: u8&, n: usize, vertex: usize, seen: mutable u8&, order: mutable usize&, count: mutable usize&) -> void:
+def two_sat_visit_order(graph: view[u8], n: usize, vertex: usize, seen: mutable view[u8], order: mutable view[usize], count: mutable usize&) -> void:
     seen[vertex] <- 1.u8()
     neighbor: mutable usize = 0
     while neighbor < n:
@@ -10,7 +10,7 @@ def two_sat_visit_order(graph: u8&, n: usize, vertex: usize, seen: mutable u8&, 
     order[count] <- vertex
     count <- count + 1
 
-def two_sat_visit_component(graph: u8&, n: usize, vertex: usize, component: mutable i32&, id: i32) -> void:
+def two_sat_visit_component(graph: view[u8], n: usize, vertex: usize, component: mutable view[i32], id: i32) -> void:
     component[vertex] <- id
     neighbor: mutable usize = 0
     while neighbor < n:
@@ -51,7 +51,7 @@ def two_sat_impl(input: i64&, length: usize, output: mutable u8&, capacity: usiz
     count: mutable usize = 0
     vertex: mutable usize = 0
     while vertex < n:
-        if seen[vertex] == 0.u8(): two_sat_visit_order(&graph[0], n, vertex, &seen[0], &order[0], count)
+        if seen[vertex] == 0.u8(): two_sat_visit_order(graph[0:6400], n, vertex, seen[0:80], order[0:80], count)
         vertex <- vertex + 1
     component: mutable i32[80] = zeroed
     vertex <- 0
@@ -63,7 +63,7 @@ def two_sat_impl(input: i64&, length: usize, output: mutable u8&, capacity: usiz
         count <- count - 1
         vertex <- order[count]
         if component[vertex] < 0:
-            two_sat_visit_component(&transpose[0], n, vertex, &component[0], id)
+            two_sat_visit_component(transpose[0:6400], n, vertex, component[0:80], id)
             id <- id + 1
     satisfiable: mutable bool = true
     index: mutable usize = 0

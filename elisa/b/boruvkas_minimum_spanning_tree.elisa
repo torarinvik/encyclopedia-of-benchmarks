@@ -1,5 +1,5 @@
 # Boruvka minimum spanning tree total for a bounded connected undirected graph.
-def boruvka_root(parent: usize&, x0: usize) -> usize:
+def boruvka_root(parent: view[usize], x0: usize) -> usize:
     x: usize = x0
     while parent[x] != x:
         parent[x] <- parent[parent[x]]
@@ -39,16 +39,16 @@ def boruvkas_minimum_spanning_tree_impl(input: i64&, length: usize) -> i64:
             for v in (u + 1)..<n:
                 x: i64 = weight[u * 16 + v]
                 if x != 9223372036854775807:
-                    a: usize = boruvka_root(parent, u)
-                    b: usize = boruvka_root(parent, v)
+                    a: usize = boruvka_root(parent[0:n], u)
+                    b: usize = boruvka_root(parent[0:n], v)
                     if a != b:
                         if x < best_w[a]: best_w[a] <- x; best_u[a] <- u; best_v[a] <- v
                         if x < best_w[b]: best_w[b] <- x; best_u[b] <- u; best_v[b] <- v
         merged: mutable bool = false
         for r in 0..<n:
             if best_u[r] < 16:
-                a: usize = boruvka_root(parent, best_u[r])
-                b: usize = boruvka_root(parent, best_v[r])
+                a: usize = boruvka_root(parent[0:n], best_u[r])
+                b: usize = boruvka_root(parent[0:n], best_v[r])
                 if a != b:
                     parent[a] <- b
                     components <- components - 1

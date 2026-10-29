@@ -2,14 +2,14 @@ const MAX_N: usize = 16
 const MAX_M: usize = 64
 const MAX_INPUT: usize = 130
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def similarity_parts(u: usize, v: usize, adjacent: bool[256]&, degree: usize[16]&,
+def similarity_parts(u: usize, v: usize, adjacent: view[bool], degree: view[usize],
                      numerator: mutable usize&, denominator_sq: mutable usize&) -> void:
     shared: mutable usize = 0
     w: mutable usize = 0
@@ -60,7 +60,7 @@ def gbbs_scan_structural_clustering_impl(input: i64&, length: usize,
             if adjacent[u * MAX_N + v]:
                 numerator: mutable usize = 0
                 denominator_sq: mutable usize = 1
-                similarity_parts(u, v, adjacent, degree, numerator, denominator_sq)
+                similarity_parts(u, v, adjacent[0:256], degree[0:16], numerator, denominator_sq)
                 if epsilon_similar(numerator, denominator_sq):
                     similar_count <- similar_count + 1
             v <- v + 1
@@ -84,7 +84,7 @@ def gbbs_scan_structural_clustering_impl(input: i64&, length: usize,
                     if core[neighbor] and labels[neighbor] == -1 and adjacent[node * MAX_N + neighbor]:
                         numerator: mutable usize = 0
                         denominator_sq: mutable usize = 1
-                        similarity_parts(node, neighbor, adjacent, degree, numerator, denominator_sq)
+                        similarity_parts(node, neighbor, adjacent[0:256], degree[0:16], numerator, denominator_sq)
                         if epsilon_similar(numerator, denominator_sq):
                             labels[neighbor] <- root.i64()
                             queue[tail] <- neighbor
@@ -103,7 +103,7 @@ def gbbs_scan_structural_clustering_impl(input: i64&, length: usize,
                 if core[v] and adjacent[u * MAX_N + v]:
                     numerator: mutable usize = 0
                     denominator_sq: mutable usize = 1
-                    similarity_parts(u, v, adjacent, degree, numerator, denominator_sq)
+                    similarity_parts(u, v, adjacent[0:256], degree[0:16], numerator, denominator_sq)
                     if epsilon_similar(numerator, denominator_sq):
                         left: usize = numerator * numerator * best_den
                         right: usize = best_num * best_num * denominator_sq
@@ -117,7 +117,7 @@ def gbbs_scan_structural_clustering_impl(input: i64&, length: usize,
         u <- u + 1
     v: mutable usize = 0
     while v < n:
-        store_i64_le(labels[v], output, 8 * v)
+        store_i64_le(labels[v], output[0:output_bytes], 8 * v)
         v <- v + 1
     output_bytes.i64()
 

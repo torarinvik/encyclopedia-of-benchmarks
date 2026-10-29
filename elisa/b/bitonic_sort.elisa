@@ -1,11 +1,11 @@
 # Portable bitonic sorting network for power-of-two lengths.
-def bitonic_compare(values: mutable i64&, left: usize, right: usize, ascending: bool) -> void:
+def bitonic_compare(values: mutable view[i64], left: usize, right: usize, ascending: bool) -> void:
     if (ascending and values[left] > values[right]) or (not ascending and values[left] < values[right]):
         temporary: i64 = values[left]
         values[left] <- values[right]
         values[right] <- temporary
 
-def bitonic_merge(values: mutable i64&, low: usize, length: usize, ascending: bool) -> void:
+def bitonic_merge(values: mutable view[i64], low: usize, length: usize, ascending: bool) -> void:
     if length < 2:
         return
     half: usize = length / 2
@@ -16,7 +16,7 @@ def bitonic_merge(values: mutable i64&, low: usize, length: usize, ascending: bo
     bitonic_merge(values, low, half, ascending)
     bitonic_merge(values, low + half, half, ascending)
 
-def bitonic_sort_range(values: mutable i64&, low: usize, length: usize, ascending: bool) -> void:
+def bitonic_sort_range(values: mutable view[i64], low: usize, length: usize, ascending: bool) -> void:
     if length < 2:
         return
     half: usize = length / 2
@@ -27,6 +27,6 @@ def bitonic_sort_range(values: mutable i64&, low: usize, length: usize, ascendin
 def bitonic_sort_impl(values: mutable i64&, length: usize) -> void:
     if length < 2:
         return
-    bitonic_sort_range(values, 0, length, true)
+    bitonic_sort_range(values[0:length], 0, length, true)
 
 export fn bitonic_sort(values: mutable i64&, length: usize) -> void = bitonic_sort_impl

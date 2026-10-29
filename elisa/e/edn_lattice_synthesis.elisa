@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later; see package NOTICE.txt.
-def edn_latsynth_put64(output: mutable u8&, position: usize, value: i64) -> void:
+def edn_latsynth_put64(output: mutable view[u8], position: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte_index in 0..<8:
         output[position + byte_index] <- ((bits >> (8 * byte_index)) & 255).u8()
@@ -26,9 +26,9 @@ def edn_lattice_synthesis_impl(values: i64&, length: usize, output: mutable u8&,
         accumulator <- accumulator - state[index] * coefficient[index]
         state[index + 1] <- state[index] + ((coefficient[index] * (accumulator >> 16)) >> 16)
     state[0] <- accumulator >> 16
-    edn_latsynth_put64(output, 0, accumulator)
+    edn_latsynth_put64(output[0:output_bytes], 0, accumulator)
     for index in 0..<order:
-        edn_latsynth_put64(output, 8 * (index + 1), state[index])
+        edn_latsynth_put64(output[0:output_bytes], 8 * (index + 1), state[index])
     output_bytes.i64()
 
 export fn edn_lattice_synthesis(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = edn_lattice_synthesis_impl

@@ -31,7 +31,7 @@ def npb_is_decimal_width(value: u32) -> usize:
         width <- width + 1
     width
 
-def npb_is_append_decimal(value: u32, output: mutable u8&, position: mutable usize&) -> void:
+def npb_is_append_decimal(value: u32, output: mutable view[u8], position: mutable usize&) -> void:
     digits: mutable u8[10] = zeroed
     count: mutable usize = 0
     remaining: mutable u32 = value
@@ -59,7 +59,7 @@ def npb_is_generate_keys() -> void:
             NPB_IS_KEY_ARRAY[index] <- (four_state_sum >> 32).u32()
             index <- index + 1
 
-def npb_is_rank_pass(iteration: u32, partials: mutable u32&) -> void:
+def npb_is_rank_pass(iteration: u32, partials: mutable view[u32]) -> void:
     can Global.Read, Global.Write:
         NPB_IS_KEY_ARRAY[iteration.usize()] <- iteration
         NPB_IS_KEY_ARRAY[(iteration + 10u32).usize()] <- 65536u32 - iteration
@@ -131,12 +131,12 @@ def npb_is_impl(pass_count: i64, output: mutable u8&, output_capacity: usize) ->
     staged: mutable u8[353] = zeroed
     npb_is_generate_keys()
     partials: mutable u32[5] = zeroed
-    npb_is_rank_pass(1u32, partials&)
+    npb_is_rank_pass(1u32, partials[0:5])
     passed_verification: mutable u32 = 0u32
     position: mutable usize = 0
     iteration: mutable u32 = 1u32
     while iteration <= passes:
-        npb_is_rank_pass(iteration, partials&)
+        npb_is_rank_pass(iteration, partials[0:5])
         row_required: mutable usize = 5
         row_test: mutable usize = 0
         while row_test < 5:
@@ -147,7 +147,7 @@ def npb_is_impl(pass_count: i64, output: mutable u8&, output_capacity: usize) ->
         while test < 5:
             if partials[test] == npb_is_expected_rank(test, iteration):
                 passed_verification <- passed_verification + 1u32
-            npb_is_append_decimal(partials[test], staged&, position&)
+            npb_is_append_decimal(partials[test], staged[0:MAX_OUTPUT_BYTES], position&)
             if test + 1 < 5:
                 staged[position] <- 44u8
                 position <- position + 1
@@ -159,7 +159,7 @@ def npb_is_impl(pass_count: i64, output: mutable u8&, output_capacity: usize) ->
     if npb_is_full_verify(): passed_verification <- passed_verification + 1u32
     if passed_verification != 5u32 * passes + 1u32: passed_verification <- 0u32
     if position + npb_is_decimal_width(passed_verification) + 1 > 353: return -2
-    npb_is_append_decimal(passed_verification, staged&, position&)
+    npb_is_append_decimal(passed_verification, staged[0:MAX_OUTPUT_BYTES], position&)
     staged[position] <- 10u8
     position <- position + 1
     if output_capacity < position: return -2

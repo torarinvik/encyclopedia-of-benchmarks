@@ -8,7 +8,7 @@ const MAX_MATCHES: usize = MAX_REF * MAX_QUERY
 def child_index(node: usize, symbol: usize) -> usize:
     return node * ALPHABET + symbol
 
-def suffix_less(reference: i64&, ref_length: usize, left: usize, right: usize) -> bool:
+def suffix_less(reference: view[i64], ref_length: usize, left: usize, right: usize) -> bool:
     a: mutable usize = left
     b: mutable usize = right
     while a < ref_length and b < ref_length and reference[a] == reference[b]:
@@ -19,7 +19,7 @@ def suffix_less(reference: i64&, ref_length: usize, left: usize, right: usize) -
     if b == ref_length: return true
     return reference[a] < reference[b]
 
-def put_i64(output: mutable u8&, offset: usize, value: i64):
+def put_i64(output: mutable view[u8], offset: usize, value: i64):
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -102,7 +102,7 @@ def rodinia_mummergpu_impl(input: i64&, length: usize, output: mutable u8&, capa
     while i < ref_length:
         key: usize = suffix_order[i]
         j: mutable usize = i
-        while j > 0 and suffix_less(reference, ref_length, key, suffix_order[j - 1]):
+        while j > 0 and suffix_less(reference[0:ref_length], ref_length, key, suffix_order[j - 1]):
             suffix_order[j] <- suffix_order[j - 1]
             j <- j - 1
         suffix_order[j] <- key
@@ -150,7 +150,7 @@ def rodinia_mummergpu_impl(input: i64&, length: usize, output: mutable u8&, capa
     if output.is_null() or capacity < output_bytes: return -2
     i <- 0
     while i < 3 * match_count:
-        put_i64(output, i * 8, records[i])
+        put_i64(output[0:output_bytes], i * 8, records[i])
         i <- i + 1
     return output_bytes.i64()
 

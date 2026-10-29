@@ -1,5 +1,5 @@
 extern floor(value: f64) -> f64
-def store_i64_le(value: i64, output: mutable u8&) -> void:
+def store_i64_le(value: i64, output: mutable view[u8]) -> void:
     bits: u64 = if value < 0: (value + 18_446_744_073_709_551_616).u64() else: value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -15,6 +15,7 @@ def midpoint_integration_impl(input: i64&, length: usize, output: mutable u8&, o
     if function_id < 0 or function_id > 2 or steps < 1 or steps > 256: return -1
     if lower < -1_000_000 or lower > 1_000_000 or upper < lower or upper > 1_000_000: return -1
     if output_capacity < 8: return -2
+    output_view: mutable view[u8] = output[0:8]
     a: f64 = lower.f64() / 1_000_000.0
     b: f64 = upper.f64() / 1_000_000.0
     h: f64 = (b - a) / steps.f64()
@@ -26,7 +27,7 @@ def midpoint_integration_impl(input: i64&, length: usize, output: mutable u8&, o
         sum <- sum + y
         i <- i + 1
     result: i64 = floor(h * sum * 1_000_000_000.0 + 0.5).i64()
-    store_i64_le(result, output)
+    store_i64_le(result, output_view)
     8
 
 export fn midpoint_integration(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = midpoint_integration_impl

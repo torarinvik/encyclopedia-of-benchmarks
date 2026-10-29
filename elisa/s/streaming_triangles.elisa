@@ -3,7 +3,7 @@ def streaming_triangles_power(base: i64, exponent: usize) -> i64:
     for i in 0..<exponent: result <- result * base
     result
 
-def streaming_triangles_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def streaming_triangles_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8: output[offset + byte] <- (bits >> (byte * 8)).u8()
 
@@ -111,7 +111,7 @@ def streaming_triangles_impl(input: i64&, length: usize, output: mutable u8&, ca
         at <- at + 3
     bytes: usize = 24 * m
     if output == null or capacity < bytes: return -2
-    for i in 0..<at: streaming_triangles_put_i64(output, i * 8, staged[i])
+    for i in 0..<at: streaming_triangles_put_i64(output[0:capacity], i * 8, staged[i])
     bytes.i64()
 
 export fn streaming_triangles(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = streaming_triangles_impl

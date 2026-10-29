@@ -9,7 +9,7 @@ def flash_sort_valid_length(length: usize) -> bool:
 def flash_sort_class(value: i64, minimum: i64, range: i64, classes: usize) -> usize:
     (((classes - 1).i64() * (value - minimum)) / range).usize()
 
-def flash_sort_values(values: mutable i64&, length: usize) -> bool:
+def flash_sort_values(values: mutable view[i64], length: usize) -> bool:
     if length <= 1:
         return true
     minimum: mutable i64 = values[0]
@@ -63,7 +63,7 @@ def flash_sort_impl(input: i64&, length: usize, output: mutable u8&, output_capa
         values[index] <- input[index]
     output_bytes: usize = length * 4
     if output_capacity < output_bytes or (output_bytes != 0 and output.is_null()): return -2
-    if not flash_sort_values(&values[0], length): return -1
+    if not flash_sort_values(values[0:length], length): return -1
     for index in 0..<length:
         bits: u32 = values[index].u32()
         for byte in 0..<4:

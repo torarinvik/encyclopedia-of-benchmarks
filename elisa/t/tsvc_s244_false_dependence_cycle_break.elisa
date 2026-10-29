@@ -3,7 +3,7 @@
 const TSVC_S244_MAX_N: usize = 32
 const TSVC_S244_MAX_INPUT_LENGTH: usize = 129
 
-def tsvc_s244_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s244_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -49,17 +49,17 @@ def tsvc_s244_false_dependence_cycle_break_impl(input: i64&, length: usize,
     offset: mutable usize = 0
     i <- 0
     while i < n:
-        tsvc_s244_store_i64_le(a[i], output, 8 * offset)
+        tsvc_s244_store_i64_le(a[i], output[0:capacity], 8 * offset)
         offset <- offset + 1
         i <- i + 1
     i <- 0
     while i < n:
-        tsvc_s244_store_i64_le(b[i], output, 8 * offset)
+        tsvc_s244_store_i64_le(b[i], output[0:capacity], 8 * offset)
         offset <- offset + 1
         i <- i + 1
     i <- 0
     while i < n - 1:
-        tsvc_s244_store_i64_le(trace[i], output, 8 * offset)
+        tsvc_s244_store_i64_le(trace[i], output[0:capacity], 8 * offset)
         offset <- offset + 1
         i <- i + 1
     output_values.i64()

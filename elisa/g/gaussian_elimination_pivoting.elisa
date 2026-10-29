@@ -1,5 +1,5 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
-def put_f64(out: mutable u8&, offset: usize, value: f64) -> void:
+def put_f64(out: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for k in 0..8:
@@ -41,6 +41,6 @@ def gaussian_elimination_pivoting_impl(v: i64&, length: usize, out: mutable u8&,
             row <- row-1
             a[row*(dimension+1)+dimension] <- a[row*(dimension+1)+dimension]-a[row*(dimension+1)+column]*solution[column]
     if out.is_null() or capacity < bytes: return -2
-    for i in 0..dimension: put_f64(out, i.usize()*8, solution[i])
+    for i in 0..dimension: put_f64(out[0:bytes], i.usize()*8, solution[i])
     bytes.i64()
 export gaussian_elimination_pivoting(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64 = gaussian_elimination_pivoting_impl

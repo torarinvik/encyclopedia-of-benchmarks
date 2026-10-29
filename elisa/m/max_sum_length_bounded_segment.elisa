@@ -1,7 +1,7 @@
 const MAX_N: usize = 32
 const MAX_INPUT: usize = 35
 
-def max_sum_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def max_sum_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -26,6 +26,7 @@ def max_sum_length_bounded_segment(input: i64&, length: usize,
         prefix[i + 1] <- prefix[i] + value
         i <- i + 1
     if output.is_null() or capacity < 24: return -2
+    output_view: mutable view[u8] = output[0:24]
     deque: mutable usize[33] = zeroed
     head: mutable usize = 0
     tail: mutable usize = 0
@@ -49,7 +50,7 @@ def max_sum_length_bounded_segment(input: i64&, length: usize,
             best_end <- end
             have_best <- true
         end <- end + 1
-    max_sum_store_i64_le(best_sum, output, 0)
-    max_sum_store_i64_le(best_start.i64(), output, 8)
-    max_sum_store_i64_le(best_end.i64(), output, 16)
+    max_sum_store_i64_le(best_sum, output_view, 0)
+    max_sum_store_i64_le(best_start.i64(), output_view, 8)
+    max_sum_store_i64_le(best_end.i64(), output_view, 16)
     24.i64()

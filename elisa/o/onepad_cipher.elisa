@@ -1,5 +1,5 @@
 # Deterministic onepad transform with the source's key supplied in the input.
-def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[position + byte] <- (bits % 256.u64()).u8()
@@ -28,7 +28,7 @@ def onepad_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_c
         if mode == 0:
             if data < 32 or data > 126:
                 return -1
-            store_i64_le((data + key) * key, output, 8 * index)
+            store_i64_le((data + key) * key, output[0:output_capacity], 8 * index)
         else:
             key_square: i64 = key * key
             if data < key_square or (data - key_square) % key != 0:

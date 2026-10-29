@@ -4,7 +4,7 @@ const CA_MAX_BIDDERS: usize = 12
 const CA_MAX_INPUT: usize = 32
 const CA_MAX_OUTPUT: usize = 104
 
-def ca_put_i64(output: mutable u8&, offset: usize, value: i64):
+def ca_put_i64(output: mutable view[u8], offset: usize, value: i64):
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -76,10 +76,10 @@ def truthful_multiunit_ca_greedy2_impl(input: i64&, length: usize, output: mutab
     bytes: usize = 8 * (1 + count)
     if output.is_null() or capacity < bytes: return -2
     staged: mutable u8[CA_MAX_OUTPUT] = zeroed
-    ca_put_i64(staged, 0, count.i64())
+    ca_put_i64(staged[0:bytes], 0, count.i64())
     i <- 0
     while i < count:
-        ca_put_i64(staged, 8 * (i + 1), order[i].i64())
+        ca_put_i64(staged[0:bytes], 8 * (i + 1), order[i].i64())
         i <- i + 1
     i <- 0
     while i < bytes: output[i] <- staged[i]; i <- i + 1

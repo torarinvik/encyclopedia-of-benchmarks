@@ -18,7 +18,7 @@ def qrduino_gf_multiply(left_input: u8, right_input: u8) -> u8:
         if (left & 0x100) != 0: left <- left ^ 0x11d
     product.u8()
 
-def qrduino_put_bits(target: mutable u8&, position: mutable usize&, value_input: u32, width: usize) -> void:
+def qrduino_put_bits(target: mutable view[u8], position: mutable usize&, value_input: u32, width: usize) -> void:
     bit: mutable usize = width
     while bit > 0:
         bit <- bit - 1
@@ -26,13 +26,13 @@ def qrduino_put_bits(target: mutable u8&, position: mutable usize&, value_input:
             target[position >> 3] <- target[position >> 3] | (0x80 >> (position & 7)).u8()
         position <- position + 1
 
-def qrduino_mark(frame: mutable u8&, reserved: mutable u8&, x: i64, y: i64, dark: bool) -> void:
+def qrduino_mark(frame: mutable view[u8], reserved: mutable view[u8], x: i64, y: i64, dark: bool) -> void:
     if x < 0 or x >= QR_SIDE.i64() or y < 0 or y >= QR_SIDE.i64(): return
     index: usize = (y * QR_SIDE.i64() + x).usize()
     reserved[index] <- 1
     if dark: frame[index] <- 1
 
-def qrduino_finder(frame: mutable u8&, reserved: mutable u8&, left: i64, top: i64) -> void:
+def qrduino_finder(frame: mutable view[u8], reserved: mutable view[u8], left: i64, top: i64) -> void:
     qrduino_mark(frame, reserved, left + 3, top + 3, true)
     j: mutable i64 = 0
     while j < 6:
@@ -56,7 +56,7 @@ def qrduino_finder(frame: mutable u8&, reserved: mutable u8&, left: i64, top: i6
         qrduino_mark(frame, reserved, left + j + 1, top + 4, true)
         j <- j + 1
 
-def qrduino_alignment(frame: mutable u8&, reserved: mutable u8&, cx: i64, cy: i64) -> void:
+def qrduino_alignment(frame: mutable view[u8], reserved: mutable view[u8], cx: i64, cy: i64) -> void:
     qrduino_mark(frame, reserved, cx, cy, true)
     offset: mutable i64 = -2
     while offset < 2:
@@ -73,7 +73,7 @@ def qrduino_alignment(frame: mutable u8&, reserved: mutable u8&, cx: i64, cy: i6
         qrduino_mark(frame, reserved, cx + offset, cy + 1, false)
         offset <- offset + 1
 
-def qrduino_base_frame(frame: mutable u8&, reserved: mutable u8&) -> void:
+def qrduino_base_frame(frame: mutable view[u8], reserved: mutable view[u8]) -> void:
     qrduino_finder(frame, reserved, 0, 0)
     qrduino_finder(frame, reserved, 18, 0)
     qrduino_finder(frame, reserved, 0, 18)
@@ -107,22 +107,22 @@ def qrduino_base_frame(frame: mutable u8&, reserved: mutable u8&) -> void:
             x <- x + 1
         y <- y + 1
 
-def qrduino_make_codewords(message: u8&, message_length: usize, words: mutable u8&) -> void:
+def qrduino_make_codewords(message: view[u8], message_length: usize, words: mutable view[u8]) -> void:
     data: mutable u8[DATA_WORDS] = zeroed
     position: mutable usize = 0
-    qrduino_put_bits(data[0]&, position&, 4, 4)
-    qrduino_put_bits(data[0]&, position&, message_length.u32(), 8)
+    qrduino_put_bits(data[0:DATA_WORDS], position&, 4, 4)
+    qrduino_put_bits(data[0:DATA_WORDS], position&, message_length.u32(), 8)
     i: mutable usize = 0
     while i < message_length:
-        qrduino_put_bits(data[0]&, position&, message[i].u32(), 8)
+        qrduino_put_bits(data[0:DATA_WORDS], position&, message[i].u32(), 8)
         i <- i + 1
     remaining: usize = DATA_WORDS * 8 - position
     terminator: usize = if remaining < 4 then remaining else 4
-    qrduino_put_bits(data[0]&, position&, 0, terminator)
-    while (position & 7) != 0: qrduino_put_bits(data[0]&, position&, 0, 1)
+    qrduino_put_bits(data[0:DATA_WORDS], position&, 0, terminator)
+    while (position & 7) != 0: qrduino_put_bits(data[0:DATA_WORDS], position&, 0, 1)
     pad: mutable u32 = 0xec
     while position < DATA_WORDS * 8:
-        qrduino_put_bits(data[0]&, position&, pad, 8)
+        qrduino_put_bits(data[0:DATA_WORDS], position&, pad, 8)
         pad <- if pad == 0xec then 0x11 else 0xec
     generator: mutable u8[ECC_WORDS + 1] = zeroed
     generator[0] <- 1
@@ -160,7 +160,7 @@ def qrduino_make_codewords(message: u8&, message_length: usize, words: mutable u
         words[DATA_WORDS + i] <- ecc[i]
         i <- i + 1
 
-def qrduino_place_data(frame: mutable u8&, reserved: u8&, words: u8&) -> void:
+def qrduino_place_data(frame: mutable view[u8], reserved: view[u8], words: view[u8]) -> void:
     x: mutable i64 = 24
     y: mutable i64 = 24
     moving_up: mutable bool = true
@@ -207,7 +207,7 @@ def qrduino_masked(mask: usize, x: usize, y: usize) -> bool:
     if mask == 6: return ((product % 2 + product % 3) & 1) == 0
     ((x + y) % 2 + product % 3) % 2 == 0
 
-def qrduino_add_format(candidate: mutable u8&, mask: usize) -> void:
+def qrduino_add_format(candidate: mutable view[u8], mask: usize) -> void:
     data: u32 = 8 | mask.u32()
     remainder: mutable u32 = data << 10
     bit: mutable i64 = 14
@@ -237,7 +237,7 @@ def qrduino_add_format(candidate: mutable u8&, mask: usize) -> void:
         bit_index <- bit_index + 1
     candidate[17 * 25 + 8] <- 1
 
-def qrduino_penalty(matrix: u8&) -> u32:
+def qrduino_penalty(matrix: view[u8]) -> u32:
     score: mutable u32 = 0
     dark: mutable u32 = 0
     i: mutable usize = 0
@@ -284,7 +284,7 @@ def qrduino_penalty(matrix: u8&) -> u32:
     balance: u32 = if dark * 20 > total * 10 then dark * 20 - total * 10 else total * 10 - dark * 20
     score + (balance / total) * 10
 
-def qrduino_evaluate_masks(frame: u8&, reserved: u8&) -> usize:
+def qrduino_evaluate_masks(frame: view[u8], reserved: view[u8]) -> usize:
     best_score: mutable u32 = 0xffffffff
     best_mask: mutable usize = 0
     mask: mutable usize = 0
@@ -296,8 +296,8 @@ def qrduino_evaluate_masks(frame: u8&, reserved: u8&) -> usize:
             if reserved[i] == 0 and qrduino_masked(mask, i % 25, i / 25):
                 candidate[i] <- candidate[i] ^ 1
             i <- i + 1
-        qrduino_add_format(candidate[0]&, mask)
-        score: u32 = qrduino_penalty(candidate[0]&)
+        qrduino_add_format(candidate[0:QR_CELLS], mask)
+        score: u32 = qrduino_penalty(candidate[0:QR_CELLS])
         if score < best_score:
             best_score <- score
             best_mask <- mask
@@ -319,9 +319,9 @@ def qrduino_impl(input: i64&, input_length: usize, output: mutable u8&, output_c
     frame: mutable u8[QR_CELLS] = zeroed
     reserved: mutable u8[QR_CELLS] = zeroed
     staged: mutable u8[PREFIX_BYTES] = zeroed
-    qrduino_make_codewords(message[0]&, message_length, words[0]&)
-    qrduino_base_frame(frame[0]&, reserved[0]&)
-    qrduino_place_data(frame[0]&, reserved[0]&, words[0]&)
+    qrduino_make_codewords(message[0:message_length], message_length, words[0:DATA_WORDS + ECC_WORDS])
+    qrduino_base_frame(frame[0:QR_CELLS], reserved[0:QR_CELLS])
+    qrduino_place_data(frame[0:QR_CELLS], reserved[0:QR_CELLS], words[0:DATA_WORDS + ECC_WORDS])
     y: mutable usize = 0
     while y < 6:
         x: mutable usize = 0
@@ -331,7 +331,7 @@ def qrduino_impl(input: i64&, input_length: usize, output: mutable u8&, output_c
                 staged[byte_index] <- staged[byte_index] | (0x80 >> (x & 7)).u8()
             x <- x + 1
         y <- y + 1
-    _ = qrduino_evaluate_masks(frame[0]&, reserved[0]&)
+    _ = qrduino_evaluate_masks(frame[0:QR_CELLS], reserved[0:QR_CELLS])
     i <- 0
     while i < PREFIX_BYTES:
         output[i] <- staged[i]

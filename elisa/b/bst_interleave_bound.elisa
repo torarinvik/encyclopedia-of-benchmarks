@@ -3,7 +3,7 @@ const MAX_ACCESSES: usize = 16
 const MAX_INPUT: usize = 36
 const NONE: usize = 8
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -110,7 +110,7 @@ def bst_interleave_bound_impl(input: i64&, length: usize, output: mutable u8&, c
         pivot <- pivot + 1
     if output.is_null() or capacity < 8: return -2
     staged: mutable u8[8] = zeroed
-    store_i64_le(bound, staged&, 0)
+    store_i64_le(bound, staged[0:8], 0)
     index <- 0
     while index < 8:
         output[index] <- staged[index]

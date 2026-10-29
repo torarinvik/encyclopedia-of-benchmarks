@@ -2,7 +2,7 @@ const MAX_OPERATIONS: usize = 128
 const MAX_ELEMENTS: usize = 64
 const MAX_INPUT_LENGTH: usize = 385
 
-def dynamic_array_write_i64(output: mutable u8&, word_index: usize, value: i64) -> void:
+def dynamic_array_write_i64(output: mutable view[u8], word_index: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -97,16 +97,16 @@ def dynamic_array_impl(input: i64&, length: usize, output: mutable u8&, output_c
     output_bytes: usize = output_words * 8
     if output_capacity < output_bytes:
         return -2
-    dynamic_array_write_i64(output, 0, query_count.i64())
+    dynamic_array_write_i64(output[0:output_bytes], 0, query_count.i64())
     index: mutable usize = 0
     while index < query_count:
-        dynamic_array_write_i64(output, index + 1, query_results[index])
+        dynamic_array_write_i64(output[0:output_bytes], index + 1, query_results[index])
         index <- index + 1
-    dynamic_array_write_i64(output, query_count + 1, size.i64())
+    dynamic_array_write_i64(output[0:output_bytes], query_count + 1, size.i64())
     index <- 0
     while index < size:
         value: i64 = if active_first: first[index] else: second[index]
-        dynamic_array_write_i64(output, query_count + 2 + index, value)
+        dynamic_array_write_i64(output[0:output_bytes], query_count + 2 + index, value)
         index <- index + 1
     output_words.i64()
 

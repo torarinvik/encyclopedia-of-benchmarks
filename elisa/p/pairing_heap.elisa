@@ -3,7 +3,7 @@ const MAX_PARSEABLE_INPUT_LENGTH: usize = 130
 const FNV_OFFSET_BASIS: u64 = 14695981039346656037.u64()
 const FNV_PRIME: u64 = 1099511628211.u64()
 
-def pairing_heap_meld(first_root: i64, second_root: i64, keys: i64&, first_child: i64&, next_sibling: i64&) -> i64:
+def pairing_heap_meld(first_root: i64, second_root: i64, keys: view[i64], first_child: mutable view[i64], next_sibling: mutable view[i64]) -> i64:
     if first_root < 0: return second_root
     if second_root < 0: return first_root
     first: mutable i64 = first_root
@@ -55,7 +55,7 @@ def pairing_heap_impl(values: i64&, length: usize) -> i64:
     root: mutable i64 = -1
     index <- 0
     while index < count:
-        root <- pairing_heap_meld(root, index.i64(), &keys[0], &first_child[0], &next_sibling[0])
+        root <- pairing_heap_meld(root, index.i64(), keys[0:MAX_ITEMS], first_child[0:MAX_ITEMS], next_sibling[0:MAX_ITEMS])
         index <- index + 1
 
     hash: mutable u64 = FNV_OFFSET_BASIS
@@ -78,13 +78,13 @@ def pairing_heap_impl(values: i64&, length: usize) -> i64:
         index <- 0
         while index < forest_count:
             right: i64 = if index + 1 < forest_count: forest[index + 1] else: -1
-            paired[paired_count] <- pairing_heap_meld(forest[index], right, &keys[0], &first_child[0], &next_sibling[0])
+            paired[paired_count] <- pairing_heap_meld(forest[index], right, keys[0:MAX_ITEMS], first_child[0:MAX_ITEMS], next_sibling[0:MAX_ITEMS])
             paired_count <- paired_count + 1
             index <- index + 2
         rebuilt: mutable i64 = -1
         while paired_count > 0:
             paired_count <- paired_count - 1
-            rebuilt <- pairing_heap_meld(rebuilt, paired[paired_count], &keys[0], &first_child[0], &next_sibling[0])
+            rebuilt <- pairing_heap_meld(rebuilt, paired[paired_count], keys[0:MAX_ITEMS], first_child[0:MAX_ITEMS], next_sibling[0:MAX_ITEMS])
         root <- rebuilt
         extraction <- extraction + 1
     (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()

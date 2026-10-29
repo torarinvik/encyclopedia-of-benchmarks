@@ -7,7 +7,7 @@ def versabench_bmm_next_random(state: mutable u32&) -> u32:
     state[0] <- ((state[0].u64() * 1664525.u64() + 1013904223.u64()) & 0xffffffff.u64()).u32()
     (state[0] >> 16) & 0x7fff.u32()
 
-def versabench_bmm_append_unsigned(buffer: mutable u8&, used: mutable usize&, input_value: u32) -> void:
+def versabench_bmm_append_unsigned(buffer: mutable view[u8], used: mutable usize&, input_value: u32) -> void:
     remaining: mutable u32 = input_value
     reverse: mutable u8[10] = zeroed
     count: mutable usize = 0
@@ -92,7 +92,7 @@ def versabench_bmm_impl(input: i64&, length: usize, output: mutable u8&, output_
         staged[used] <- prefix[i].u8()
         used <- used + 1
         i <- i + 1
-    versabench_bmm_append_unsigned(staged&, used&, total.u32())
+    versabench_bmm_append_unsigned(staged[0:VERSABENCH_BMM_MAX_OUTPUT_BYTES], used&, total.u32())
     suffix: string = ".000000\n"
     i <- 0
     while i < 8:

@@ -1,7 +1,7 @@
 const MAX_N: usize=8
 const MAX_INPUT: usize=75
 
-def put64(value:i64,output:mutable u8&,pos:usize)->void:
+def put64(value:i64,output:mutable view[u8],pos:usize)->void:
     bits:u64=value.u64()
     j:mutable usize=0
     while j<8:
@@ -62,5 +62,5 @@ def radio_network_decay_phase(input:i64&,length:usize,output:mutable u8&,capacit
             if active[u] and (input[tape_at+u*k+slot]==0 or slot+1==k):active[u]<-false
             u<-u+1
         slot<-slot+1
-    put64(newly.i64(),output&,0); put64(transmissions,output&,8)
+    put64(newly.i64(),output[0:16],0); put64(transmissions,output[0:16],8)
     16

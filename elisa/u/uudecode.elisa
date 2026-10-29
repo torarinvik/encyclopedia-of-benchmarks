@@ -1,8 +1,8 @@
 const MAX_INPUT_BYTES: usize = 4096
 const MAX_OUTPUT_BYTES: usize = 2949
 
-def scan_input(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > MAX_INPUT_BYTES:
+def scan_input(input: view[i64], length: usize) -> i64:
+    if length > MAX_INPUT_BYTES:
         return -1
     index: mutable usize = 0
     while index < length:
@@ -50,7 +50,9 @@ def scan_input(input: i64&, length: usize) -> i64:
     return -1
 
 def uudecode_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    decoded_length: i64 = scan_input(input, length)
+    if input.is_null() or length > MAX_INPUT_BYTES:
+        return -1
+    decoded_length: i64 = scan_input(input[0:length], length)
     if decoded_length < 0:
         return -1
     if output.is_null() or capacity < decoded_length.usize():

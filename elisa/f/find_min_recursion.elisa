@@ -1,5 +1,5 @@
 # Divide an inclusive range recursively and return the smaller half minimum.
-def find_min_recursion_range(values: i64&, low: usize, high: usize) -> i64:
+def find_min_recursion_range(values: view[i64], low: usize, high: usize) -> i64:
     if low == high:
         return values[low]
     middle: usize = low + (high - low) / 2
@@ -17,6 +17,6 @@ def find_min_recursion_impl(values: i64&, length: usize) -> i64:
         if values[index] < -2147483648 or values[index] > 2147483647:
             return -1
         index <- index + 1
-    find_min_recursion_range(values, 0, length - 1)
+    find_min_recursion_range(values[0:length], 0, length - 1)
 
 export fn find_min_recursion(values: i64&, length: usize) -> i64 = find_min_recursion_impl

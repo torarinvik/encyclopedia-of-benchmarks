@@ -17,7 +17,7 @@ def floor_sqrt(value:i64)->i64:
         if middle<=value/middle:low<-middle else:high<-middle
     low
 
-def put64(value:i64,output:mutable u8&,pos:usize)->void:
+def put64(value:i64,output:mutable view[u8],pos:usize)->void:
     bits:u64=value.u64()
     j:mutable usize=0
     while j<8:
@@ -80,7 +80,7 @@ def private_noisy_power_iteration(input:i64&,length:usize,output:mutable u8&,cap
     if output.is_null() or capacity<bytes:return -2
     staged:mutable u8[32]=zeroed;i<-0
     while i<n:
-        put64(x[i],staged&,8*i)
+        put64(x[i],staged[0:32],8*i)
         i<-i+1
     i<-0
     while i<bytes:

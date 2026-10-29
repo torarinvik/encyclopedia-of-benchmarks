@@ -60,7 +60,7 @@ def qph_insert_key(table: mutable Table&, key: i64) -> bool:
     if table.size * 2 >= table.capacity: return qph_rehash(table)
     true
 
-def qph_put_i64_le(output: mutable u8&, offset: usize, value: i64):
+def qph_put_i64_le(output: mutable view[u8], offset: usize, value: i64):
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -105,16 +105,17 @@ def qph_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: us
     output_bytes: usize = output_words * 8
     if output_bytes > MAX_OUTPUT_BYTES: return -1
     if output.is_null() or capacity < output_bytes: return -2
-    qph_put_i64_le(output, 0, table.capacity.i64())
-    qph_put_i64_le(output, 8, table.size.i64())
-    qph_put_i64_le(output, 16, find_count.i64())
+    output_view: mutable view[u8] = output[0:capacity]
+    qph_put_i64_le(output_view, 0, table.capacity.i64())
+    qph_put_i64_le(output_view, 8, table.size.i64())
+    qph_put_i64_le(output_view, 16, find_count.i64())
     index: mutable usize = 0
     while index < find_count:
-        qph_put_i64_le(output, (3 + index) * 8, find_results[index])
+        qph_put_i64_le(output_view, (3 + index) * 8, find_results[index])
         index <- index + 1
     index <- 0
     while index < table.capacity:
-        qph_put_i64_le(output, (3 + find_count + index) * 8, table.slots[index])
+        qph_put_i64_le(output_view, (3 + find_count + index) * 8, table.slots[index])
         index <- index + 1
     output_bytes.i64()
 

@@ -1,8 +1,8 @@
 const MAX_NODE_COUNT: usize = 1023
 const MAX_TREE_HEIGHT: usize = 512
 
-def invert_tree_validate(values: i64&, node_count: usize, index: i64, depth: usize,
-        visited: mutable u8&) -> bool:
+def invert_tree_validate(values: view[i64], node_count: usize, index: i64, depth: usize,
+        visited: mutable view[u8]) -> bool:
     if index == -1:
         return true
     if index < 0 or index.u64() >= node_count.u64() or depth > MAX_TREE_HEIGHT:
@@ -22,7 +22,7 @@ def invert_tree_validate(values: i64&, node_count: usize, index: i64, depth: usi
     (invert_tree_validate(values, node_count, left, depth + 1, visited) and
         invert_tree_validate(values, node_count, right, depth + 1, visited))
 
-def invert_tree_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
+def invert_tree_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -30,7 +30,7 @@ def invert_tree_store_i64(value: i64, output: mutable u8&, position: usize) -> v
         bits <- bits / 256.u64()
         byte <- byte + 1
 
-def invert_tree_emit(values: i64&, index: i64, output: mutable u8&) -> void:
+def invert_tree_emit(values: view[i64], index: i64, output: mutable view[u8]) -> void:
     if index == -1:
         return
     input_offset: usize = 1 + 3 * index.usize()
@@ -55,7 +55,7 @@ def invert_binary_tree_impl(values: i64&, length: usize, output: mutable u8&, ou
     if root < 0 or root.u64() >= node_count.u64():
         return -1
     visited: mutable u8[MAX_NODE_COUNT] = zeroed
-    if not invert_tree_validate(values, node_count, root, 1, &visited[0]):
+    if not invert_tree_validate(values[0:length], node_count, root, 1, visited[0:MAX_NODE_COUNT]):
         return -1
     index: mutable usize = 0
     while index < node_count:
@@ -65,7 +65,7 @@ def invert_binary_tree_impl(values: i64&, length: usize, output: mutable u8&, ou
     required: usize = 24 * node_count
     if output_capacity < required:
         return -2
-    invert_tree_emit(values, root, output)
+    invert_tree_emit(values[0:length], root, output[0:output_capacity])
     node_count.i64()
 
 export fn invert_binary_tree(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = invert_binary_tree_impl

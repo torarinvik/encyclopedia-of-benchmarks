@@ -8,7 +8,7 @@ const MAX_PARSEABLE_INPUT_LENGTH: usize = 258
 const MAX_OUTPUT_ELEMENTS: usize = 512
 const MAX_OUTPUT_BYTES: usize = 4096
 
-def sobel_filter_write_f64_le(value: f64, output: mutable u8&, offset: usize):
+def sobel_filter_write_f64_le(value: f64, output: mutable view[u8], offset: usize):
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -106,8 +106,8 @@ def sobel_filter_impl(input: i64&, input_length: usize,
     if output.is_null() or capacity < output_bytes: return -2
     index <- 0
     while index < pixel_count:
-        sobel_filter_write_f64_le(magnitude[index], output, index * 8)
-        sobel_filter_write_f64_le(theta[index], output, (pixel_count + index) * 8)
+        sobel_filter_write_f64_le(magnitude[index], output[0:output_bytes], index * 8)
+        sobel_filter_write_f64_le(theta[index], output[0:output_bytes], (pixel_count + index) * 8)
         index <- index + 1
     output_elements.i64()
 

@@ -1,4 +1,4 @@
-def astar_java_write_i64(output: mutable u8&, position: mutable usize&, value: i64) -> usize:
+def astar_java_write_i64(output: mutable view[u8], position: mutable usize&, value: i64) -> usize:
     shift: mutable usize = 0
     while shift < 64:
         output[position] <- ((value >> shift) & 255).u8()
@@ -136,7 +136,7 @@ def astar_java_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
     result_index: mutable usize = 0
     write_position: mutable usize = 0
     while result_index < result_words:
-        astar_java_write_i64(output, &write_position, result[result_index])
+        astar_java_write_i64(output[0:output_bytes], &write_position, result[result_index])
         result_index <- result_index + 1
     output_bytes.i64()
 

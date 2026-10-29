@@ -1,4 +1,4 @@
-def bfd_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+def bfd_put_i64(output: mutable view[u8], word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[word * 8 + byte] <- (bits >> (byte * 8)).u8()
@@ -48,9 +48,9 @@ def best_fit_decreasing_bin_packing_impl(input: i64&, length: usize, output: mut
     bytes: usize = 8 * (n + 1)
     if output == null or capacity < bytes:
         return -2
-    bfd_put_i64(output, 0, bins.i64())
+    bfd_put_i64(output[0:bytes], 0, bins.i64())
     for i in 0..<n:
-        bfd_put_i64(output, i + 1, assignments[i])
+        bfd_put_i64(output[0:bytes], i + 1, assignments[i])
     bytes.i64()
 
 export fn best_fit_decreasing_bin_packing(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = best_fit_decreasing_bin_packing_impl

@@ -5,7 +5,7 @@ def bucket_order_key(value: i64) -> u64:
         return sign_bit - 1.u64() - (-(value + 1)).u64()
     return sign_bit + value.u64()
 
-def bucket_sort_insertion(values: mutable i64&, base: usize, low: usize, high: usize) -> void:
+def bucket_sort_insertion(values: mutable view[i64], base: usize, low: usize, high: usize) -> void:
     index: mutable usize = low
     if low < high:
         index <- index + 1
@@ -48,7 +48,7 @@ def bucket_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize)
     bucket <- 0
     while bucket < 256:
         high: usize = scratch[bucket].usize()
-        bucket_sort_insertion(scratch, 256, low, high)
+        bucket_sort_insertion(scratch[0:256 + length], 256, low, high)
         low <- high
         bucket <- bucket + 1
     index <- 0

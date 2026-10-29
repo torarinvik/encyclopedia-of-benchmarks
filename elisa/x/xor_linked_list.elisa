@@ -1,4 +1,4 @@
-def xor_linked_list_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def xor_linked_list_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -31,12 +31,12 @@ def xor_linked_list_impl(input: i64&, length: usize, output: mutable u8&, capaci
         tail <- node_id
         index <- index + 1
 
-    xor_linked_list_write_i64(output, 0, count_value)
+    xor_linked_list_write_i64(output[0:capacity], 0, count_value)
     out: mutable usize = 8
     previous: mutable usize = 0
     current: mutable usize = if count == 0: 0 else: 1
     while current != 0:
-        xor_linked_list_write_i64(output, out, node_values[current])
+        xor_linked_list_write_i64(output[0:capacity], out, node_values[current])
         out <- out + 8
         next_id: usize = previous ^ both[current]
         previous <- current

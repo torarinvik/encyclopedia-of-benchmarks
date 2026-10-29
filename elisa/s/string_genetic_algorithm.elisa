@@ -3,7 +3,7 @@ def string_genetic_algorithm_next_random(state: mutable u64&) -> u64:
     state <- (state * 48271.u64()) % 2147483647.u64()
     state
 
-def string_genetic_algorithm_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def string_genetic_algorithm_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255.u64()).u8()
@@ -74,8 +74,8 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
             if score.usize() == target_length:
                 if output_capacity < 16:
                     return -2
-                string_genetic_algorithm_write_i64(output, 0, generation.i64())
-                string_genetic_algorithm_write_i64(output, 8, total_population)
+                string_genetic_algorithm_write_i64(output[0:16], 0, generation.i64())
+                string_genetic_algorithm_write_i64(output[0:16], 8, total_population)
                 return 16
         for index in 1..<200:
             selected: usize = order[index]

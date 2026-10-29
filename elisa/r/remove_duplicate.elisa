@@ -1,4 +1,4 @@
-def compare_words(values: i64&, start_a: usize, length_a: usize, start_b: usize, length_b: usize) -> i64:
+def compare_words(values: view[i64], start_a: usize, length_a: usize, start_b: usize, length_b: usize) -> i64:
     common: mutable usize = length_a
     if length_b < common:
         common <- length_b
@@ -45,7 +45,7 @@ def remove_duplicate_impl(values: i64&, length: usize, output: mutable u8&, outp
         key_start: usize = starts[index]
         key_length: usize = word_lengths[index]
         position: mutable usize = index
-        while position > 0 and compare_words(values, starts[position - 1], word_lengths[position - 1],
+        while position > 0 and compare_words(values[0:length], starts[position - 1], word_lengths[position - 1],
                                               key_start, key_length) > 0:
             starts[position] <- starts[position - 1]
             word_lengths[position] <- word_lengths[position - 1]
@@ -58,7 +58,7 @@ def remove_duplicate_impl(values: i64&, length: usize, output: mutable u8&, outp
     unique_count: mutable usize = 0
     index <- 0
     while index < word_count:
-        if index == 0 or compare_words(values, starts[index - 1], word_lengths[index - 1],
+        if index == 0 or compare_words(values[0:length], starts[index - 1], word_lengths[index - 1],
                                       starts[index], word_lengths[index]) != 0:
             if unique_count > 0:
                 output_length <- output_length + 1
@@ -72,7 +72,7 @@ def remove_duplicate_impl(values: i64&, length: usize, output: mutable u8&, outp
     emitted: mutable usize = 0
     index <- 0
     while index < word_count:
-        if index == 0 or compare_words(values, starts[index - 1], word_lengths[index - 1],
+        if index == 0 or compare_words(values[0:length], starts[index - 1], word_lengths[index - 1],
                                       starts[index], word_lengths[index]) != 0:
             if emitted > 0:
                 output[written] <- 32

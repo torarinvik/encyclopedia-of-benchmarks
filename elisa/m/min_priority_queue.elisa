@@ -1,4 +1,4 @@
-def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+def put_i32_le(value: i32, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.i64().u64()
     byte: mutable usize = 0
     while byte < 4:
@@ -81,9 +81,10 @@ def min_priority_queue_impl(input: i64&, length: usize, output: mutable u8&, out
     bytes: usize = word_count * 4
     if output.is_null() or output_capacity < bytes: return -2
     buffer: mutable u8[516] = zeroed
+    buffer_view: mutable view[u8] = buffer[0:bytes]
     i: mutable usize = 0
     while i < word_count:
-        put_i32_le(words[i], buffer[0], i * 4)
+        put_i32_le(words[i], buffer_view, i * 4)
         i <- i + 1
     i <- 0
     while i < bytes:

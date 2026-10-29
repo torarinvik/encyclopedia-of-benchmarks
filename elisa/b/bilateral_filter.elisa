@@ -1,9 +1,9 @@
 extern exp(value: f64) -> f64
 
 # Calculate the bilateral weight for each sample around one image center.
-def bilateral_filter_pixel(values: i64&, width: usize, row: usize, column: usize,
+def bilateral_filter_pixel(values: view[i64], width: usize, row: usize, column: usize,
         radius: usize, spatial_variance: f64, intensity_variance: f64) -> i64:
-    center: f64 = values[5 + row * width + column].f64() / 1000000.0
+    center: f64 = values[row * width + column].f64() / 1000000.0
     weighted_sum: mutable f64 = 0.0
     weight_sum: mutable f64 = 0.0
     dy: mutable i64 = -(radius.i64())
@@ -12,7 +12,7 @@ def bilateral_filter_pixel(values: i64&, width: usize, row: usize, column: usize
         while dx <= radius.i64() |dx, dy, width, row, column, radius, values, center, spatial_variance, intensity_variance, weighted_sum, weight_sum|:
             sample_row: usize = (row.i64() + dy).usize()
             sample_column: usize = (column.i64() + dx).usize()
-            sample: f64 = values[5 + sample_row * width + sample_column].f64() / 1000000.0
+            sample: f64 = values[sample_row * width + sample_column].f64() / 1000000.0
             distance_squared: f64 = (dx * dx + dy * dy).f64()
             difference: f64 = sample - center
             weight: mutable f64 = exp(-distance_squared / (2.0 * spatial_variance))
@@ -23,7 +23,7 @@ def bilateral_filter_pixel(values: i64&, width: usize, row: usize, column: usize
         dy <- dy + 1
     (weighted_sum / weight_sum * 1000000.0 + 0.5).i64()
 
-def bilateral_filter_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def bilateral_filter_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255.u64()).u8()
@@ -65,12 +65,12 @@ def bilateral_filter_impl(values: i64&, length: usize, output: mutable u8&,
         while row < height - radius |row, filtered, values, width, radius, spatial_variance, intensity_variance|:
             column: mutable usize = radius
             while column < width - radius |column, row, filtered, values, width, radius, spatial_variance, intensity_variance|:
-                filtered[row * width + column] <- bilateral_filter_pixel(values, width, row, column,
+                filtered[row * width + column] <- bilateral_filter_pixel(values[5:length], width, row, column,
                     radius, spatial_variance, intensity_variance)
                 column <- column + 1
             row <- row + 1
     for index in 0..<pixels:
-        bilateral_filter_write_i64(output, index * 8, filtered[index])
+        bilateral_filter_write_i64(output[0:required], index * 8, filtered[index])
     required.i64()
 
 export fn bilateral_filter(values: i64&, length: usize, output: mutable u8&,

@@ -4,7 +4,7 @@ const MAX_STATES: usize = 256
 const MAX_INPUT_LENGTH: usize = 9
 const INF_COST: usize = 99
 
-def qm_cube_valid(care: u32, value: u32, input: i64&, size: usize) -> bool:
+def qm_cube_valid(care: u32, value: u32, input: view[i64], size: usize) -> bool:
     cover: mutable u32 = 0
     minterm: mutable usize = 0
     while minterm < size:
@@ -47,12 +47,12 @@ def quine_mccluskey_minimization_impl(input: i64&, length: usize, output: mutabl
     while care <= full:
         cube_value: mutable u32 = 0
         while cube_value <= full:
-            if (cube_value & ~care) == 0 and qm_cube_valid(care, cube_value, input&, size):
+            if (cube_value & ~care) == 0 and qm_cube_valid(care, cube_value, input[0:length], size):
                 prime: mutable bool = true
                 variable: mutable usize = 0
                 while variable < n:
                     bit: u32 = 1 << variable
-                    if (care & bit) != 0 and qm_cube_valid(care ^ bit, cube_value & ~bit, input&, size):
+                    if (care & bit) != 0 and qm_cube_valid(care ^ bit, cube_value & ~bit, input[0:length], size):
                         prime <- false
                         break
                     variable <- variable + 1

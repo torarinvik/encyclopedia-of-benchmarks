@@ -1,17 +1,17 @@
-def integer_to_english_append_text(buffer: mutable u8&, position: mutable usize&, text: &str) -> void:
+def integer_to_english_append_text(buffer: mutable view[u8], position: mutable usize&, text: &str) -> void:
     index: usize = 0
     while index < text.len():
         buffer[position] <- text.byte(index)
         position <- position + 1
         index <- index + 1
 
-def integer_to_english_append_word(buffer: mutable u8&, position: mutable usize&, text: &str) -> void:
+def integer_to_english_append_word(buffer: mutable view[u8], position: mutable usize&, text: &str) -> void:
     if position > 0:
         buffer[position] <- 32u8
         position <- position + 1
     integer_to_english_append_text(buffer, position, text)
 
-def integer_to_english_append_small(buffer: mutable u8&, position: mutable usize&, value: i64) -> void:
+def integer_to_english_append_small(buffer: mutable view[u8], position: mutable usize&, value: i64) -> void:
     word: &str = ""
     if value == 1: word = "One"
     else if value == 2: word = "Two"
@@ -35,7 +35,7 @@ def integer_to_english_append_small(buffer: mutable u8&, position: mutable usize
     else if value == 20: word = "Twenty"
     if word.len() > 0: integer_to_english_append_word(buffer, position, word)
 
-def integer_to_english_append_group(buffer: mutable u8&, position: mutable usize&, value_input: i64) -> void:
+def integer_to_english_append_group(buffer: mutable view[u8], position: mutable usize&, value_input: i64) -> void:
     value: mutable i64 = value_input
     if value >= 100:
         integer_to_english_append_small(buffer, position, value / 100)
@@ -62,10 +62,11 @@ def integer_to_english_impl(input: i64&, length: usize, output: mutable u8&, out
     if input[0] < -2147483648 or input[0] > 2147483647:
         return -1
     buffer: mutable u8[128] = zeroed
+    buffer_view: mutable view[u8] = buffer[0:128]
     position: mutable usize = 0
     value: mutable i64 = input[0]
     if value == 0:
-        integer_to_english_append_word(buffer, position, "Zero")
+        integer_to_english_append_word(buffer_view, position, "Zero")
     else if value > 0:
         groups: mutable i64[4] = zeroed
         count: mutable usize = 0
@@ -76,12 +77,12 @@ def integer_to_english_impl(input: i64&, length: usize, output: mutable u8&, out
         while count > 0:
             count <- count - 1
             if groups[count] != 0:
-                integer_to_english_append_group(buffer, position, groups[count])
+                integer_to_english_append_group(buffer_view, position, groups[count])
                 scale: &str = ""
                 if count == 1: scale = "Thousand"
                 else if count == 2: scale = "Million"
                 else if count == 3: scale = "Billion"
-                if scale.len() > 0: integer_to_english_append_word(buffer, position, scale)
+                if scale.len() > 0: integer_to_english_append_word(buffer_view, position, scale)
     if position > output_capacity or (position != 0 and output == null):
         return -2
     index: usize = 0

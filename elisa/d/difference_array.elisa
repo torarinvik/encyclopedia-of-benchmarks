@@ -1,4 +1,4 @@
-def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def put_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -41,11 +41,11 @@ def difference_array_impl(input: i64&, length: usize, output: mutable u8&, capac
         diff[right+1] <- diff[right+1] - delta
         u <- u + 1
     current: mutable i64 = diff[0]
-    put_i64_le(current, output, 0)
+    put_i64_le(current, output[0:bytes], 0)
     i <- 1
     while i < n:
         current <- current + diff[i]
-        put_i64_le(current, output, i*8)
+        put_i64_le(current, output[0:bytes], i*8)
         i <- i + 1
     bytes.i64()
 

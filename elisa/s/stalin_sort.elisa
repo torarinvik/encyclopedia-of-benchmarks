@@ -1,6 +1,6 @@
 const MAX_INPUT_LENGTH: usize = 128
 
-def store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i32_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -34,7 +34,7 @@ def stalin_sort_impl(values: i64&, length: usize,
     index <- 0
     while index < length:
         if output_index == 0 or values[index] >= last:
-            store_i32_le(values[index], output, output_index * 4)
+            store_i32_le(values[index], output[0:output_capacity], output_index * 4)
             output_index <- output_index + 1
             last <- values[index]
         index <- index + 1

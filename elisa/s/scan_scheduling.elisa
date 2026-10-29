@@ -1,7 +1,7 @@
 const MAX_REQUESTS: usize = 64
 const MAX_OUTPUT_VALUES: usize = 65
 
-def put_i32_le(output: mutable u8&, offset: usize, value: i32) -> void:
+def put_i32_le(output: mutable view[u8], offset: usize, value: i32) -> void:
     bits: mutable u32 = value.u32()
     byte: mutable usize = 0
     while byte < 4:
@@ -88,7 +88,7 @@ def scan_scheduling_impl(input: i32&, length: usize, output: mutable u8&, capaci
     if output.is_null() or capacity < bytes: return -2
     index <- 0
     while index < count:
-        put_i32_le(output, index * 4, ordered[index])
+        put_i32_le(output[0:bytes], index * 4, ordered[index])
         index <- index + 1
     bytes.i64()
 

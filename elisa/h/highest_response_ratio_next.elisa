@@ -1,4 +1,4 @@
-def put64(out: u8&, slot: usize, value: i64):
+def put64(out: mutable view[u8], slot: usize, value: i64):
     bits: u64 = value.u64()
     for b in 0..8:
         out[slot * 8 + b] <- (bits & 255).u8()
@@ -34,6 +34,6 @@ def highest_response_ratio_next_impl(v: i64&, n: usize, out: u8&, capacity: usiz
             now <- a[best.usize()]
         else:
             k: usize = best.usize(); tat[k] <- now + b[k] - a[k]; now <- now + b[k]; done[k] <- true; finished <- finished + 1
-    for i in 0..<count.usize(): put64(out, i, tat[i])
+    for i in 0..<count.usize(): put64(out[0:count.usize() * 8], i, tat[i])
     (count.usize()*8).i64()
 export fn highest_response_ratio_next(v: i64&, n: usize, out: u8&, capacity: usize) -> i64 = highest_response_ratio_next_impl

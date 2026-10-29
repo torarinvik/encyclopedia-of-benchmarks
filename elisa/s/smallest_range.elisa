@@ -1,12 +1,12 @@
 # Heap traversal for the narrowest interval covering all sorted lists.
 const MAX_INPUT_LENGTH: usize = 273
 
-def less_head(values: i64&, positions: usize&, a: usize, b: usize) -> bool:
+def less_head(values: view[i64], positions: view[usize], a: usize, b: usize) -> bool:
     left: i64 = values[a * 16 + positions[a]]
     right: i64 = values[b * 16 + positions[b]]
     left < right or (left == right and a < b)
 
-def sift_down(heap: mutable usize&, size: usize, initial_root: usize, values: i64&, positions: usize&) -> void:
+def sift_down(heap: mutable view[usize], size: usize, initial_root: usize, values: view[i64], positions: mutable view[usize]) -> void:
     root: mutable usize = initial_root
     while true:
         child: mutable usize = root * 2 + 1
@@ -55,7 +55,7 @@ def smallest_range_impl(input: i64&, length: usize) -> i64:
     start: mutable usize = heap_size / 2
     while start > 0:
         start <- start - 1
-        sift_down(&heap[0], heap_size, start, &values[0], &positions[0])
+        sift_down(heap[0:16], heap_size, start, values[0:256], positions[0:16])
     best_lo: mutable i64 = 0
     best_hi: mutable i64 = 0
     best_width: mutable i64 = 9223372036854775807
@@ -72,7 +72,7 @@ def smallest_range_impl(input: i64&, length: usize) -> i64:
             break
         if values[list * 16 + positions[list]] > current_max:
             current_max <- values[list * 16 + positions[list]]
-        sift_down(&heap[0], heap_size, 0, &values[0], &positions[0])
+        sift_down(heap[0:16], heap_size, 0, values[0:256], positions[0:16])
     (best_lo + 1000000000) * 2000000001 + best_hi + 1000000000
 
 export fn smallest_range(input: i64&, length: usize) -> i64 = smallest_range_impl

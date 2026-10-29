@@ -3,7 +3,7 @@ const MAX_EDGES: usize = MAX_VERTICES * (MAX_VERTICES - 1)
 const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_EDGES
 const MAX_CELLS: usize = MAX_VERTICES * MAX_VERTICES
 
-def transitive_closure_reflexive_matrix_put_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def transitive_closure_reflexive_matrix_put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -47,7 +47,7 @@ def transitive_closure_reflexive_matrix_impl(input: i64&, length: usize, output:
     if output.is_null() or capacity < output_bytes: return -2
     index <- 0
     while index < n * n:
-        transitive_closure_reflexive_matrix_put_i64_le(output, index * 8, reach[index])
+        transitive_closure_reflexive_matrix_put_i64_le(output[0:capacity], index * 8, reach[index])
         index <- index + 1
     output_bytes.i64()
 

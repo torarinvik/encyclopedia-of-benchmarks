@@ -2,7 +2,7 @@
 const MAX_VERTICES: usize = 40
 const MAX_EDGES: usize = 780
 
-def bfs_connected_put_i64(output: mutable u8&, slot: usize, value: i64) -> void:
+def bfs_connected_put_i64(output: mutable view[u8], slot: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[slot * 8 + byte] <- (bits & 255).u8()
@@ -58,7 +58,7 @@ def bfs_connected_undirected_visit_order_impl(input: i64&, length: usize,
     if output.is_null() or capacity < vertices * 8:
         return -2
     for index in 0..<count:
-        bfs_connected_put_i64(output, index, order[index].i64())
+        bfs_connected_put_i64(output[0:vertices * 8], index, order[index].i64())
     count.i64()
 
 export fn bfs_connected_undirected_visit_order(input: i64&, length: usize,

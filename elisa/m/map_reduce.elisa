@@ -6,13 +6,13 @@ const TABLE_SIZE: usize = 512
 def map_reduce_is_space(value: i64) -> bool:
     value == 9 or value == 10 or value == 11 or value == 12 or value == 13 or value == 32
 
-def map_reduce_hash(input: i64&, start: usize, length: usize) -> usize:
+def map_reduce_hash(input: view[i64], start: usize, length: usize) -> usize:
     hash: mutable usize = 0
     for offset in 0..<length:
         hash <- (hash * 31 + input[start + offset].usize()) % 1000003
     hash
 
-def map_reduce_equal(input: i64&, start: usize, length: usize,
+def map_reduce_equal(input: view[i64], start: usize, length: usize,
         other_start: usize, other_length: usize) -> bool:
     if length != other_length:
         return false
@@ -21,7 +21,7 @@ def map_reduce_equal(input: i64&, start: usize, length: usize,
             return false
     true
 
-def map_reduce_write_count(count_value: usize, output: mutable u8&, position_value: usize) -> usize:
+def map_reduce_write_count(count_value: usize, output: mutable view[u8], position_value: usize) -> usize:
     digits: mutable u8[3]
     digit_count: mutable usize = 0
     remaining: mutable usize = count_value
@@ -76,10 +76,10 @@ def map_reduce_impl(input: i64&, length: usize, output: mutable u8&,
             while cursor < ending and not map_reduce_is_space(input[cursor]):
                 cursor <- cursor + 1
             token_length: usize = cursor - start
-            slot: mutable usize = map_reduce_hash(input, start, token_length) % TABLE_SIZE
+            slot: mutable usize = map_reduce_hash(input[0:length], start, token_length) % TABLE_SIZE
             while table[slot] != 0:
                 item: usize = table[slot] - 1
-                if map_reduce_equal(input, start, token_length, starts[item], lengths[item]):
+                if map_reduce_equal(input[0:length], start, token_length, starts[item], lengths[item]):
                     counts[item] <- counts[item] + 1
                     break
                 slot <- (slot + 1) % TABLE_SIZE
@@ -115,7 +115,7 @@ def map_reduce_impl(input: i64&, length: usize, output: mutable u8&,
         written <- written + 1
         output[written] <- 32.u8()
         written <- written + 1
-        written <- map_reduce_write_count(counts[item], output, written)
+        written <- map_reduce_write_count(counts[item], output[0:required], written)
     written.i64()
 
 export fn map_reduce(input: i64&, length: usize, output: mutable u8&,

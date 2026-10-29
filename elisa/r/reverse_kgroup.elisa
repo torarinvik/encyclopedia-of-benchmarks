@@ -1,4 +1,4 @@
-def write_i32_le(output: mutable u8&, index: usize, value: i32) -> void:
+def write_i32_le(output: mutable view[u8], index: usize, value: i32) -> void:
     bits: mutable u32 = value.u32()
     offset: usize = index * 4
     byte: mutable usize = 0
@@ -15,15 +15,16 @@ def reverse_kgroup_impl(input: i32&, length: usize, output: mutable u8&, capacit
     group_size: usize = group_size_value.usize()
     output_bytes: usize = list_length * 4
     if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
     start: mutable usize = 0
     while start + group_size <= list_length:
         offset: mutable usize = 0
         while offset < group_size:
-            write_i32_le(output, start + offset, input[1 + start + group_size - 1 - offset])
+            write_i32_le(output_view, start + offset, input[1 + start + group_size - 1 - offset])
             offset <- offset + 1
         start <- start + group_size
     while start < list_length:
-        write_i32_le(output, start, input[1 + start])
+        write_i32_le(output_view, start, input[1 + start])
         start <- start + 1
     return output_bytes.i64()
 

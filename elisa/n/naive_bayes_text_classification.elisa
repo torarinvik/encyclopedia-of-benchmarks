@@ -1,5 +1,5 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
-def putd(output: mutable u8&, offset: usize, value: f64):
+def putd(output: mutable view[u8], offset: usize, value: f64):
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     k: mutable usize = 0
@@ -7,7 +7,7 @@ def putd(output: mutable u8&, offset: usize, value: f64):
         output[offset+k] <- (bits & 255).u8()
         bits <- bits >> 8
         k <- k+1
-def token(values: i64&, start: usize, count: usize, key: mutable u64&) -> bool:
+def token(values: view[i64], start: usize, count: usize, key: mutable u64&) -> bool:
     key <- 0
     i: mutable usize = 0
     while i < count:
@@ -19,6 +19,7 @@ def token(values: i64&, start: usize, count: usize, key: mutable u64&) -> bool:
     true
 def naive_bayes_text_classification_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if length < 7: return -1
+    values_view: view[i64] = values[0:length]
     d: i64 = values[0]; alpha: i64 = values[1]
     if d < 2 or d > 6 or alpha < 1 or alpha > 10000: return -1
     words: [6]u64; labels: [6]usize; seen: [2]bool; totals: [2]usize
@@ -28,7 +29,7 @@ def naive_bayes_text_classification_impl(values: i64&, length: usize, output: mu
         if pos+2 > length: return -1
         lab: i64 = values[pos]; n: i64 = values[pos+1]; pos <- pos+2
         if lab < 0 or lab > 1 or n < 0 or n > 8 or pos+n.usize() > length: return -1
-        if not token(values,pos,n.usize(),words[i]): return -1
+        if not token(values_view,pos,n.usize(),words[i]): return -1
         labels[i] <- lab.usize(); seen[labels[i]] <- true
         if n > 0: totals[labels[i]] <- totals[labels[i]]+1
         pos <- pos+n.usize(); i <- i+1
@@ -36,7 +37,7 @@ def naive_bayes_text_classification_impl(values: i64&, length: usize, output: mu
     qlen: i64 = values[pos]; pos <- pos+1
     if qlen < 0 or qlen > 8 or pos+qlen.usize() != length or not seen[0] or not seen[1]: return -1
     query: mutable u64 = 0
-    if not token(values,pos,qlen.usize(),query): return -1
+    if not token(values_view,pos,qlen.usize(),query): return -1
     vocab: mutable usize = 0
     i <- 0
     while i < d.usize():
@@ -50,6 +51,7 @@ def naive_bayes_text_classification_impl(values: i64&, length: usize, output: mu
         i <- i+1
     if vocab == 0 and qlen > 0: return -1
     if capacity < 16: return -2
+    output_view: mutable view[u8] = output[0:capacity]
     score: [2]f64
     c: mutable usize = 0
     while c < 2:
@@ -66,5 +68,5 @@ def naive_bayes_text_classification_impl(values: i64&, length: usize, output: mu
         c <- c+1
     high: f64 = if score[0] > score[1]: score[0] else: score[1]
     a: f64 = exp(score[0]-high); b: f64 = exp(score[1]-high)
-    putd(output,0,a/(a+b)); putd(output,8,b/(a+b)); 16
+    putd(output_view,0,a/(a+b)); putd(output_view,8,b/(a+b)); 16
 export naive_bayes_text_classification(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = naive_bayes_text_classification_impl

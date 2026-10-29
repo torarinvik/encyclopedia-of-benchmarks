@@ -1,12 +1,12 @@
 # Preserve the six integer weight-conversion strings from the pinned Ruby source.
-def weight_conversions_append_text(buffer: mutable u8&, position: mutable usize&, text: &str) -> void:
+def weight_conversions_append_text(buffer: mutable view[u8], position: mutable usize&, text: &str) -> void:
     index: mutable usize = 0
     while index < text.len():
         buffer[position] <- text.byte(index)
         position <- position + 1
         index <- index + 1
 
-def weight_conversions_append_i64(buffer: mutable u8&, position: mutable usize&, value: i64) -> void:
+def weight_conversions_append_i64(buffer: mutable view[u8], position: mutable usize&, value: i64) -> void:
     digits: mutable u8[24] = zeroed
     count: mutable usize = 0
     magnitude: mutable i64 = value
@@ -24,7 +24,7 @@ def weight_conversions_append_i64(buffer: mutable u8&, position: mutable usize&,
         buffer[position] <- digits[count]
         position <- position + 1
 
-def weight_conversions_append_fixed(buffer: mutable u8&, position: mutable usize&, value: f64) -> void:
+def weight_conversions_append_fixed(buffer: mutable view[u8], position: mutable usize&, value: f64) -> void:
     scaled: f64 = value * 100.0
     cents: mutable i64 = if scaled < 0.0: -((-scaled + 0.5).i64()) else: (scaled + 0.5).i64()
     if value > 0.0 and ((cents.f64() + 0.5) / 100.0) <= value:
@@ -35,7 +35,7 @@ def weight_conversions_append_fixed(buffer: mutable u8&, position: mutable usize
         buffer[position] <- 45u8
         position <- position + 1
         cents <- -cents
-    weight_conversions_append_i64(buffer, position, cents / 100)
+        weight_conversions_append_i64(buffer, position, cents / 100)
     fraction: i64 = cents % 100
     buffer[position] <- 46u8
     position <- position + 1
@@ -59,37 +59,37 @@ def weight_conversions_impl(input: i64&, length: usize, output: mutable u8&, out
     buffer: mutable u8[64] = zeroed
     position: mutable usize = 0
     if operation == 0:
-        weight_conversions_append_i64(buffer, position, amount)
-        weight_conversions_append_text(buffer, position, " kg = ")
-        weight_conversions_append_i64(buffer, position, amount * 1000)
-        weight_conversions_append_text(buffer, position, " g")
+        weight_conversions_append_i64(buffer[0:64], position, amount)
+        weight_conversions_append_text(buffer[0:64], position, " kg = ")
+        weight_conversions_append_i64(buffer[0:64], position, amount * 1000)
+        weight_conversions_append_text(buffer[0:64], position, " g")
     else if operation == 1:
         converted <- if amount >= 0: amount / 1000 else: -((-amount + 999) / 1000)
-        weight_conversions_append_i64(buffer, position, amount)
-        weight_conversions_append_text(buffer, position, " g = ")
-        weight_conversions_append_i64(buffer, position, converted)
-        weight_conversions_append_text(buffer, position, " kg")
+        weight_conversions_append_i64(buffer[0:64], position, amount)
+        weight_conversions_append_text(buffer[0:64], position, " g = ")
+        weight_conversions_append_i64(buffer[0:64], position, converted)
+        weight_conversions_append_text(buffer[0:64], position, " kg")
     else if operation == 2:
-        weight_conversions_append_i64(buffer, position, amount)
-        weight_conversions_append_text(buffer, position, " lb = ")
-        weight_conversions_append_i64(buffer, position, amount * 16)
-        weight_conversions_append_text(buffer, position, " oz")
+        weight_conversions_append_i64(buffer[0:64], position, amount)
+        weight_conversions_append_text(buffer[0:64], position, " lb = ")
+        weight_conversions_append_i64(buffer[0:64], position, amount * 16)
+        weight_conversions_append_text(buffer[0:64], position, " oz")
     else if operation == 3:
         converted <- if amount >= 0: amount / 16 else: -((-amount + 15) / 16)
-        weight_conversions_append_i64(buffer, position, amount)
-        weight_conversions_append_text(buffer, position, " oz = ")
-        weight_conversions_append_i64(buffer, position, converted)
-        weight_conversions_append_text(buffer, position, " lb")
+        weight_conversions_append_i64(buffer[0:64], position, amount)
+        weight_conversions_append_text(buffer[0:64], position, " oz = ")
+        weight_conversions_append_i64(buffer[0:64], position, converted)
+        weight_conversions_append_text(buffer[0:64], position, " lb")
     else if operation == 4:
-        weight_conversions_append_i64(buffer, position, amount)
-        weight_conversions_append_text(buffer, position, " kg = ")
-        weight_conversions_append_fixed(buffer, position, amount.f64() * 2.205)
-        weight_conversions_append_text(buffer, position, " lb")
+        weight_conversions_append_i64(buffer[0:64], position, amount)
+        weight_conversions_append_text(buffer[0:64], position, " kg = ")
+        weight_conversions_append_fixed(buffer[0:64], position, amount.f64() * 2.205)
+        weight_conversions_append_text(buffer[0:64], position, " lb")
     else:
-        weight_conversions_append_i64(buffer, position, amount)
-        weight_conversions_append_text(buffer, position, " lb = ")
-        weight_conversions_append_fixed(buffer, position, amount.f64() / 2.205)
-        weight_conversions_append_text(buffer, position, " kg")
+        weight_conversions_append_i64(buffer[0:64], position, amount)
+        weight_conversions_append_text(buffer[0:64], position, " lb = ")
+        weight_conversions_append_fixed(buffer[0:64], position, amount.f64() / 2.205)
+        weight_conversions_append_text(buffer[0:64], position, " kg")
     if output_capacity < position + 1:
         return -2
     index: usize = 0

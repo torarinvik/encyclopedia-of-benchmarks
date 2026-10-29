@@ -3,7 +3,7 @@ const MAX_PAGES: usize = 16
 const MAX_INPUT: usize = 67
 const MAX_OUTPUT_BYTES: usize = 536
 
-def marking_store64(output: mutable u8&, offset: usize, value: i64): void:
+def marking_store64(output: mutable view[u8], offset: usize, value: i64): void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -85,7 +85,8 @@ def randomized_marking_page_caching_impl(input: i64&, length: usize,
     output_bytes: usize = 8 * (3 + 2 * request_count)
     if output.is_null() or capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    for word in 0..<(3 + 2 * request_count): marking_store64(staged&, 8 * word, words[word])
+    staged_view: mutable view[u8] = staged[0:output_bytes]
+    for word in 0..<(3 + 2 * request_count): marking_store64(staged_view, 8 * word, words[word])
     for byte in 0..<output_bytes: output[byte] <- staged[byte]
     output_bytes.i64()
 

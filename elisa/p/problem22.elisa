@@ -2,7 +2,7 @@ const MAX_NAMES: usize = 6000
 const MAX_NAME_LENGTH: usize = 19
 const MAX_INPUT_LENGTH: usize = 100001
 
-def problem22_compare(input: i64&, offsets: mutable usize&, name_lengths: mutable usize&,
+def problem22_compare(input: view[i64], offsets: view[usize], name_lengths: view[usize],
         first: usize, second: usize) -> i64:
     first_length: usize = name_lengths[first]
     second_length: usize = name_lengths[second]
@@ -59,7 +59,7 @@ def problem22_impl(input: i64&, length: usize) -> i64:
         for index in gap..<count:
             key: usize = order[index]
             position: mutable usize = index
-            while position >= gap and problem22_compare(input, &offsets[0], &name_lengths[0], order[position - gap], key) > 0:
+            while position >= gap and problem22_compare(input[0:length], offsets[0:MAX_NAMES], name_lengths[0:MAX_NAMES], order[position - gap], key) > 0:
                 order[position] <- order[position - gap]
                 position <- position - gap
             order[position] <- key

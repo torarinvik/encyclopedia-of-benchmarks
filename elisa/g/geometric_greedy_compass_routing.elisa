@@ -3,7 +3,7 @@ const MAX_INPUT: usize = 84
 const MAX_OUTPUT: usize = 80
 const OUTPUT_VALUES: usize = 10
 
-def put64(value: i64, output: mutable u8&, position: usize) -> void:
+def put64(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -110,7 +110,7 @@ def geometric_greedy_compass_routing(input: i64&, length: usize, output: mutable
     staged: mutable u8[MAX_OUTPUT] = zeroed
     i <- 0
     while i < OUTPUT_VALUES:
-        put64(record[i], staged, 8 * i)
+        put64(record[i], staged[0:MAX_OUTPUT], 8 * i)
         i <- i + 1
     i <- 0
     while i < MAX_OUTPUT:

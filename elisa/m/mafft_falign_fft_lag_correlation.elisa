@@ -30,7 +30,7 @@ def amino_channel(code: i64) -> i64:
     if code == 86: return 19
     return -1
 
-def fft(real: mutable f64&, imag: mutable f64&, offset: usize, n: usize, inverse: bool) -> void:
+def fft(real: mutable view[f64], imag: mutable view[f64], offset: usize, n: usize, inverse: bool) -> void:
     j: mutable usize = 0
     for i in 1..<n:
         bit: mutable usize = n >> 1
@@ -123,12 +123,12 @@ def mafft_falign_fft_lag_correlation_impl(input: f64&, length: usize, output: mu
         ch: usize = amino_channel(input[2 + n1 + p].i64()).usize()
         r2[p] <- (POLARITY[ch] - mp) / sp
         i2[p] <- (VOLUME[ch] - mv) / sv
-    fft(r1&, i1&, 0, n, false)
-    fft(r2&, i2&, 0, n, false)
+    fft(r1[0:n], i1[0:n], 0, n, false)
+    fft(r2[0:n], i2[0:n], 0, n, false)
     for k in 0..<n:
         re[k] <- r1[k] * r2[k] + i1[k] * i2[k]
         im[k] <- -r1[k] * i2[k] + i1[k] * r2[k]
-    fft(re&, im&, 0, n, true)
+    fft(re[0:n], im[0:n], 0, n, true)
     for q in 0..<n:
         source_index: usize = (n / 2 + n - q) % n
         output[q] <- re[source_index]

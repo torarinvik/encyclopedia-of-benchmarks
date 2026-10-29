@@ -8,8 +8,8 @@ const MAX_PARSEABLE_INPUT_LENGTH: usize = 272
 def finite_value(value: f64) -> bool:
     value == value and value >= -1.7976931348623157e308 and value <= 1.7976931348623157e308
 
-def orthogonalize(gradient: f64&, rows: usize, columns: usize, ns_steps: usize,
-        result: mutable f64&) -> void:
+def orthogonalize(gradient: view[f64], rows: usize, columns: usize, ns_steps: usize,
+        result: mutable view[f64]) -> void:
     transposed: bool = rows < columns
     working_rows: usize = if transposed then columns else rows
     working_columns: usize = if transposed then rows else columns
@@ -149,7 +149,7 @@ export fn muon_optimizer(input: f64&, input_length: usize,
         id: usize = ids[event]
         state_offset: usize = id * matrix_elements
         orthogonalized: mutable [16]f64 = zeroed
-        orthogonalize(&event_gradients[event * matrix_elements], rows, columns, ns_steps, &orthogonalized[0])
+        orthogonalize(event_gradients[event * matrix_elements:event * matrix_elements + matrix_elements], rows, columns, ns_steps, orthogonalized[0:16])
         index <- 0
         while index < matrix_elements:
             state_index: usize = state_offset + index

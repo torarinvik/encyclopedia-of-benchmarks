@@ -2,14 +2,14 @@ const TE_MAX_N: usize = 8
 const TE_MAX_M: usize = 28
 const TE_MAX_INPUT: usize = 59
 
-def te_put(value: i64, output: mutable u8&, offset: usize) -> void:
+def te_put(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def te_connected(n: usize, m: usize, u: usize&, v: usize&, active: bool&, skip: i64) -> bool:
+def te_connected(n: usize, m: usize, u: view[usize], v: view[usize], active: view[bool], skip: i64) -> bool:
     seen: mutable bool[8] = zeroed
     queue: mutable usize[8] = zeroed
     head: mutable usize = 0
@@ -36,7 +36,7 @@ def te_connected(n: usize, m: usize, u: usize&, v: usize&, active: bool&, skip: 
         vertex <- vertex + 1
     true
 
-def te_edge_connected(n: usize, m: usize, u: usize&, v: usize&, active: bool&) -> bool:
+def te_edge_connected(n: usize, m: usize, u: view[usize], v: view[usize], active: view[bool]) -> bool:
     if not te_connected(n, m, u, v, active, -1): return false
     edge: mutable usize = 0
     while edge < m:
@@ -69,11 +69,11 @@ def two_edge_connected_spanning_subgraph_greedy(input: i64&, length: usize,
             if u[prior] == u[edge] and v[prior] == v[edge]: return -1
             prior <- prior + 1
         edge <- edge + 1
-    if not te_edge_connected(n, m, u, v, active): return -1
+    if not te_edge_connected(n, m, u[0:m], v[0:m], active[0:m]): return -1
     edge <- 0
     while edge < m:
         active[edge] <- false
-        if not te_edge_connected(n, m, u, v, active): active[edge] <- true
+        if not te_edge_connected(n, m, u[0:m], v[0:m], active[0:m]): active[edge] <- true
         edge <- edge + 1
     count: mutable usize = 0
     edge <- 0
@@ -82,7 +82,7 @@ def two_edge_connected_spanning_subgraph_greedy(input: i64&, length: usize,
         edge <- edge + 1
     bytes: usize = 8 * (1 + 2 * count)
     if output.is_null() or capacity < bytes: return -2
-    te_put(count.i64(), output, 0)
+    te_put(count.i64(), output[0:bytes], 0)
     at: mutable usize = 8
     a: mutable usize = 0
     while a < n:
@@ -91,8 +91,8 @@ def two_edge_connected_spanning_subgraph_greedy(input: i64&, length: usize,
             edge <- 0
             while edge < m:
                 if active[edge] and u[edge] == a and v[edge] == b:
-                    te_put(a.i64(), output, at)
-                    te_put(b.i64(), output, at + 8)
+                    te_put(a.i64(), output[0:bytes], at)
+                    te_put(b.i64(), output[0:bytes], at + 8)
                     at <- at + 16
                 edge <- edge + 1
             b <- b + 1

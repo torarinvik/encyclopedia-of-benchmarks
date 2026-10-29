@@ -1,4 +1,4 @@
-def delivery_put_u64(output: mutable u8&, word: usize, value: u64) -> void:
+def delivery_put_u64(output: mutable view[u8], word: usize, value: u64) -> void:
     for byte in 0..<8:
         output[word * 8 + byte] <- (value >> (byte * 8)).u8()
 
@@ -52,7 +52,7 @@ def frequent_itemset_delivery_impl(input: i64&, length: usize, output: mutable u
     if output == null or capacity < bytes:
         return -2
     for word in 0..<word_count:
-        delivery_put_u64(output, word, words[word])
+        delivery_put_u64(output[0:bytes], word, words[word])
     bytes.i64()
 
 export fn frequent_itemset_delivery(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = frequent_itemset_delivery_impl

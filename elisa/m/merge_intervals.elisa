@@ -1,7 +1,7 @@
 const MAX_INTERVALS: usize = 256
 const MAX_INPUT_LENGTH: usize = 513
 
-def store_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i32_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u32 = value.u32()
     output[offset] <- (bits & 255).u8()
     output[offset + 1] <- ((bits >> 8) & 255).u8()
@@ -56,10 +56,11 @@ def merge_intervals_impl(values: i64&, length: usize, output: mutable u8&, outpu
     byte_count: usize = 8 * merged
     if output.is_null() or output_capacity < byte_count:
         return -2
+    output_view: mutable view[u8] = output[0:byte_count]
     index <- 0
     while index < merged:
-        store_i32_le(starts[index], output, 8 * index)
-        store_i32_le(ends[index], output, 8 * index + 4)
+        store_i32_le(starts[index], output_view, 8 * index)
+        store_i32_le(ends[index], output_view, 8 * index + 4)
         index <- index + 1
     byte_count.i64()
 

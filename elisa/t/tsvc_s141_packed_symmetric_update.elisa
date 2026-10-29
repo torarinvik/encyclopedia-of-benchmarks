@@ -9,7 +9,7 @@ const TSVC_S141_MAX_ROUNDS: i64 = 32
 def tsvc_s141_bounded(value: i64) -> bool:
     value >= -TSVC_S141_MAX_VALUE and value <= TSVC_S141_MAX_VALUE
 
-def tsvc_s141_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s141_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -44,7 +44,7 @@ def tsvc_s141_impl(input: i64&, length: usize, output: mutable u8&, capacity: us
                 k: usize = j * (j + 1) / 2 + i
                 packed[k] <- packed[k] + input[matrix_start + j * n + i]
     for p in 0..triangle:
-        tsvc_s141_store(packed[p], output, 8 * p)
+        tsvc_s141_store(packed[p], output[0:capacity], 8 * p)
     triangle.i64()
 
 export fn tsvc_s141_packed_symmetric_update(input: i64&, length: usize,

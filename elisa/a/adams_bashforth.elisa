@@ -28,7 +28,7 @@ def coefficient(order: i64, offset: usize) -> i64:
         return -1274
     return 251
 
-def append_integer(value_input: i64, output: mutable u8&, position_input: usize) -> usize:
+def append_integer(value_input: i64, output: mutable view[u8], position_input: usize) -> usize:
     digits: mutable u8[24] = zeroed
     count: mutable usize = 0
     value: mutable i64 = value_input
@@ -96,7 +96,7 @@ def adams_bashforth_impl(values: i64&, length: usize, output: mutable u8&, outpu
         if index > 0:
             encoded[position] <- 44
             position <- position + 1
-        position <- append_integer((y[index] * 1000000.0).i64(), &encoded[0], position)
+        position <- append_integer((y[index] * 1000000.0).i64(), encoded[0:256], position)
         index <- index + 1
     if output_capacity < position:
         return -2

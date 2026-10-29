@@ -2,7 +2,7 @@
 const TSVC_S293_MAX_N: usize = 32
 const TSVC_S293_MAX_INPUT_LENGTH: usize = 33
 
-def tsvc_s293_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s293_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -33,7 +33,7 @@ def tsvc_s293_first_element_broadcast_impl(input: i64&, length: usize,
         i <- i + 1
     i <- 0
     while i < n:
-        tsvc_s293_store_i64_le(staged[i], output, 8 * i)
+        tsvc_s293_store_i64_le(staged[i], output[0:capacity], 8 * i)
         i <- i + 1
     output_bytes.i64()
 

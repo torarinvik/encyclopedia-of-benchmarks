@@ -1,4 +1,4 @@
-def convert_number_to_words_append_word(output: mutable u8&, position_input: usize, id: usize, separate: bool, word_bytes: u8&, word_offsets: usize&, word_lengths: usize&) -> usize:
+def convert_number_to_words_append_word(output: mutable view[u8], position_input: usize, id: usize, separate: bool, word_bytes: view[u8], word_offsets: view[usize], word_lengths: view[usize]) -> usize:
     position: mutable usize = position_input
     if separate and position > 0: output[position] <- 32; position <- position + 1
     byte_index: mutable usize = 0
@@ -7,7 +7,7 @@ def convert_number_to_words_append_word(output: mutable u8&, position_input: usi
         byte_index <- byte_index + 1
     position + word_lengths[id]
 
-def convert_number_to_words_append_small(n: i64, output: mutable u8&, position_input: usize, word_bytes: u8&, word_offsets: usize&, word_lengths: usize&) -> usize:
+def convert_number_to_words_append_small(n: i64, output: mutable view[u8], position_input: usize, word_bytes: view[u8], word_offsets: view[usize], word_lengths: view[usize]) -> usize:
     if n < 10: return convert_number_to_words_append_word(output, position_input, n.usize(), true, word_bytes, word_offsets, word_lengths)
     if n < 20: return convert_number_to_words_append_word(output, position_input, n.usize() + 10, true, word_bytes, word_offsets, word_lengths)
     position: mutable usize = convert_number_to_words_append_word(output, position_input, (n / 10).usize() + 18, true, word_bytes, word_offsets, word_lengths)
@@ -40,7 +40,7 @@ def convert_number_to_words_scale_word(system: usize, index: usize) -> usize:
     ids: usize[6] = [36,37,38,39,32,33]
     ids[index]
 
-def convert_number_to_words_append_number(n_input: i64, system: usize, output: mutable u8&, position_input: usize, depth: usize, word_bytes: u8&, word_offsets: usize&, word_lengths: usize&) -> usize:
+def convert_number_to_words_append_number(n_input: i64, system: usize, output: mutable view[u8], position_input: usize, depth: usize, word_bytes: view[u8], word_offsets: view[usize], word_lengths: view[usize]) -> usize:
     if depth > 8: return position_input
     n: mutable i64 = n_input
     position: mutable usize = position_input
@@ -72,8 +72,8 @@ def convert_number_to_words_impl(input: i64&, length: usize, output: mutable u8&
     word_offsets: usize[41] = [0, 4, 7, 10, 15, 19, 23, 26, 31, 36, 40, 43, 49, 55, 63, 71, 78, 85, 94, 102, 110, 116, 122, 127, 132, 137, 144, 150, 156, 167, 175, 182, 189, 197, 204, 212, 220, 231, 241, 246, 250]
     word_lengths: usize[41] = [4, 3, 3, 5, 4, 4, 3, 5, 5, 4, 3, 6, 6, 8, 8, 7, 7, 9, 8, 8, 6, 6, 5, 5, 5, 7, 6, 6, 11, 8, 7, 7, 8, 7, 8, 8, 11, 10, 5, 4, 8]
     position: mutable usize = 0
-    if number < 0: position <- convert_number_to_words_append_word(output, position, 40, true, word_bytes, word_offsets, word_lengths)
-    position <- convert_number_to_words_append_number(magnitude, system, output, position, 0, word_bytes, word_offsets, word_lengths)
+    if number < 0: position <- convert_number_to_words_append_word(output[0:capacity], position, 40, true, word_bytes[0:258], word_offsets[0:41], word_lengths[0:41])
+    position <- convert_number_to_words_append_number(magnitude, system, output[0:capacity], position, 0, word_bytes[0:258], word_offsets[0:41], word_lengths[0:41])
     if capacity < position or output.is_null(): return -2
     position.i64()
 

@@ -3,7 +3,7 @@ module correlation_matrix_analysis;
 extern sqrt(value: f64) -> f64
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def corr_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def corr_put_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     b: mutable usize = 0
@@ -12,7 +12,7 @@ def corr_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
         bits <- bits >> 8
         b <- b + 1
 
-def corr_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def corr_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     b: mutable usize = 0
     while b < 8:
@@ -128,19 +128,19 @@ def correlation_matrix_analysis_impl(input: i64&, length: usize, output: mutable
         i <- i + 1
     offset: mutable usize = 0
     i <- 0
-    while i < p * p: corr_put_f64(output, offset, corr[i]); offset <- offset + 8; i <- i + 1
+    while i < p * p: corr_put_f64(output[0:output_bytes], offset, corr[i]); offset <- offset + 8; i <- i + 1
     i <- 0
-    while i < p * p: corr_put_f64(output, offset, raw[i]); offset <- offset + 8; i <- i + 1
+    while i < p * p: corr_put_f64(output[0:output_bytes], offset, raw[i]); offset <- offset + 8; i <- i + 1
     i <- 0
-    while i < p * p: corr_put_f64(output, offset, bonf[i]); offset <- offset + 8; i <- i + 1
+    while i < p * p: corr_put_f64(output[0:output_bytes], offset, bonf[i]); offset <- offset + 8; i <- i + 1
     i <- 0
-    while i < p * p: corr_put_f64(output, offset, fdr[i]); offset <- offset + 8; i <- i + 1
-    corr_put_i64(output, offset, 4); offset <- offset + 8
-    corr_put_i64(output, offset, p.i64()); offset <- offset + 8
-    corr_put_i64(output, offset, 0); offset <- offset + 8
-    corr_put_i64(output, offset, sig_raw); offset <- offset + 8
-    corr_put_i64(output, offset, sig_bonf); offset <- offset + 8
-    corr_put_i64(output, offset, sig_fdr); offset <- offset + 8
+    while i < p * p: corr_put_f64(output[0:output_bytes], offset, fdr[i]); offset <- offset + 8; i <- i + 1
+    corr_put_i64(output[0:output_bytes], offset, 4); offset <- offset + 8
+    corr_put_i64(output[0:output_bytes], offset, p.i64()); offset <- offset + 8
+    corr_put_i64(output[0:output_bytes], offset, 0); offset <- offset + 8
+    corr_put_i64(output[0:output_bytes], offset, sig_raw); offset <- offset + 8
+    corr_put_i64(output[0:output_bytes], offset, sig_bonf); offset <- offset + 8
+    corr_put_i64(output[0:output_bytes], offset, sig_fdr); offset <- offset + 8
     offset.i64()
 
 export fn correlation_matrix_analysis(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = correlation_matrix_analysis_impl

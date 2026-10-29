@@ -1,5 +1,5 @@
 # Emit the nearest strictly smaller value to the left of every input value.
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     b: mutable usize = 0
     while b < 8:
@@ -24,7 +24,7 @@ def next_smaller_element_impl(input: i64&, length: usize, output: mutable u8&, c
         while top > 0 and stack[top - 1] >= value: top <- top - 1
         previous: i64 = -1
         if top > 0: previous <- stack[top - 1]
-        store_i64_le(previous, output, i * 8)
+        store_i64_le(previous, output[0:capacity], i * 8)
         stack[top] <- value
         top <- top + 1
         i <- i + 1

@@ -1,7 +1,7 @@
 # Cross two bounded integer vectors and encode components plus magnitude.
 extern sqrt(value: f64) -> f64
 
-def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[position + byte] <- (bits % 256.u64()).u8()
@@ -20,10 +20,10 @@ def vector_cross_product_impl(input: i64&, input_length: usize, output: mutable 
     magnitude_micro: i64 = (magnitude * 1000000.0 + 0.5).i64()
     if output_capacity < 32:
         return -2
-    store_i64_le(x, output, 0)
-    store_i64_le(y, output, 8)
-    store_i64_le(z, output, 16)
-    store_i64_le(magnitude_micro, output, 24)
+    store_i64_le(x, output[0:output_capacity], 0)
+    store_i64_le(y, output[0:output_capacity], 8)
+    store_i64_le(z, output[0:output_capacity], 16)
+    store_i64_le(magnitude_micro, output[0:output_capacity], 24)
     32
 
 export fn vector_cross_product(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = vector_cross_product_impl

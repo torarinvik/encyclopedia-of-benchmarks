@@ -2,7 +2,7 @@
 const MAX_VERTICES: usize = 32
 const MAX_EDGES: usize = 256
 
-def eulerian_path_put_i64(output: mutable u8&, byte_offset: usize, value: i64) -> void:
+def eulerian_path_put_i64(output: mutable view[u8], byte_offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -86,7 +86,7 @@ def eulerian_path_impl(input: i64&, length: usize, output: mutable u8&, capacity
         return -2
     index: mutable usize = 0
     while index < path_count:
-        eulerian_path_put_i64(output, index * 8, reverse_path[path_count - index - 1].i64())
+        eulerian_path_put_i64(output[0:bytes], index * 8, reverse_path[path_count - index - 1].i64())
         index <- index + 1
     bytes.i64()
 

@@ -1,4 +1,4 @@
-def tabu_search_store_i32(value: i64, output: mutable u8&, position: usize) -> void:
+def tabu_search_store_i32(value: i64, output: mutable view[u8], position: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 4:
@@ -165,12 +165,12 @@ def tabu_search_impl(input: i64&, input_length: usize, output: mutable u8&, outp
         epoch <- epoch + 1
 
     staged: mutable u8[36] = zeroed
-    tabu_search_store_i32(solution_length.i64(), staged, 0)
+    tabu_search_store_i32(solution_length.i64(), staged[0:36], 0)
     i <- 0
     while i < solution_length:
-        tabu_search_store_i32(best_solution[i], staged, 4 * (i + 1))
+        tabu_search_store_i32(best_solution[i], staged[0:36], 4 * (i + 1))
         i <- i + 1
-    tabu_search_store_i32(best_cost, staged, 4 * (solution_length + 1))
+    tabu_search_store_i32(best_cost, staged[0:36], 4 * (solution_length + 1))
     output_bytes: usize = 4 * (solution_length + 2)
     if output.is_null() or output_capacity < output_bytes: return -2
     i <- 0

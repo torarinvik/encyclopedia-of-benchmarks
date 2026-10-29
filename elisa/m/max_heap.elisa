@@ -1,7 +1,7 @@
 const MAX_OPERATIONS: usize = 512
 const MAX_INSERTIONS: usize = 256
 
-def max_heap_store(output: mutable u8&, offset: usize, value: i64) -> void:
+def max_heap_store(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value as u64
     byte: mutable usize = 0
     while byte < 8:
@@ -64,7 +64,7 @@ export fn max_heap(input: mutable i64&, length: usize, output: mutable u8&, capa
                         heap[at] <- heap[child]
                         heap[child] <- temporary
                         at <- child
-            max_heap_store(output, out_index * 8, result)
+            max_heap_store(output[0:words * 8], out_index * 8, result)
             out_index <- out_index + 1
         i <- i + 1
     words as i64

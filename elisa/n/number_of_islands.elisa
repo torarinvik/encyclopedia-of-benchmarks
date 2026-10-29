@@ -1,5 +1,5 @@
 # Count four-connected land components using row-major scan and recursive flood fill.
-def flood(values: i64&, visited: mutable u8&, rows: usize, cols: usize, row: i64, col: i64) -> void:
+def flood(values: view[i64], visited: mutable view[u8], rows: usize, cols: usize, row: i64, col: i64) -> void:
     if row < 0 or col < 0 or row >= i64(rows) or col >= i64(cols):
         return
     index: usize = usize(row) * cols + usize(col)
@@ -32,7 +32,7 @@ def number_of_islands_impl(values: i64&, length: usize) -> i64:
             index: usize = row * cols + col
             if values[2 + index] == 1 and visited[index] == 0:
                 count <- count + 1
-                flood(values, &visited[0], rows, cols, i64(row), i64(col))
+                flood(values[0:length], visited[0:rows * cols], rows, cols, i64(row), i64(col))
             col <- col + 1
         row <- row + 1
     count

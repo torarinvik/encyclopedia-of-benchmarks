@@ -8,7 +8,7 @@ const TSVC_S131_MAX_PASSES: i64 = 32
 def tsvc_s131_bounded(value: i64) -> bool:
     value >= -TSVC_S131_MAX_VALUE and value <= TSVC_S131_MAX_VALUE
 
-def tsvc_s131_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s131_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -38,7 +38,7 @@ def tsvc_s131_impl(input: i64&, length: usize, output: mutable u8&, capacity: us
         for i in 0..n - 1:
             a[i] <- a[i + 1] + b[i]
     for i in 0..n:
-        tsvc_s131_store(a[i], output, 8 * i)
+        tsvc_s131_store(a[i], output[0:capacity], 8 * i)
     n.i64()
 
 export fn tsvc_s131_forward_neighbor_update(input: i64&, length: usize,

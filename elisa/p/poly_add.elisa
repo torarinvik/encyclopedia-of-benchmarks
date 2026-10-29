@@ -2,12 +2,12 @@ const MAX_TERMS: usize = 16
 const MAX_INPUT_VALUES: usize = 67
 const MAX_OUTPUT_TERMS: usize = 32
 
-def poly_add_put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def poly_add_put_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
 
-def poly_add_validate_terms(input: i64&, start: usize, count: usize) -> bool:
+def poly_add_validate_terms(input: view[i64], start: usize, count: usize) -> bool:
     previous_degree: mutable i64 = 64
     for index in 0..<count:
         coefficient: i64 = input[start + 2 * index]
@@ -36,7 +36,7 @@ def poly_add_impl(input: i64&, length: usize, output: mutable u8&, output_capaci
 
     start_a: usize = 1
     start_b: usize = count_b_index + 1
-    if not poly_add_validate_terms(input, start_a, count_a) or not poly_add_validate_terms(input, start_b, count_b):
+    if not poly_add_validate_terms(input[0:length], start_a, count_a) or not poly_add_validate_terms(input[0:length], start_b, count_b):
         return -1
 
     coefficients: mutable i64[MAX_OUTPUT_TERMS] = zeroed
@@ -80,8 +80,8 @@ def poly_add_impl(input: i64&, length: usize, output: mutable u8&, output_capaci
     if output.is_null() or output_capacity < required:
         return -2
     for term in 0..<terms:
-        poly_add_put_i64_le(coefficients[term], output, term * 16)
-        poly_add_put_i64_le(degrees[term], output, term * 16 + 8)
+        poly_add_put_i64_le(coefficients[term], output[0:output_capacity], term * 16)
+        poly_add_put_i64_le(degrees[term], output[0:output_capacity], term * 16 + 8)
     required.i64()
 
 export fn poly_add(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = poly_add_impl

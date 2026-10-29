@@ -20,7 +20,7 @@ def rrcache_next_int(state: mutable u64&, bound: usize) -> usize:
             return value.usize()
     return 0
 
-def rrcache_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def rrcache_write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -83,10 +83,11 @@ def rrcache_impl(input: i64&, input_length: usize,
     output_bytes: usize = operation_count * 8
     if output.is_null() or output_capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    staged_view: mutable view[u8] = staged[0:output_bytes]
     position: mutable usize = 0
     operation <- 0
     while operation < operation_count:
-        rrcache_write_i64_le(staged[0]&, position&, results[operation])
+        rrcache_write_i64_le(staged_view, position&, results[operation])
         operation <- operation + 1
     byte: mutable usize = 0
     while byte < output_bytes:

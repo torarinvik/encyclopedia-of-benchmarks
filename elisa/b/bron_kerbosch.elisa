@@ -7,7 +7,7 @@ def bron_kerbosch_population_count(value: u64) -> usize:
         bits <- bits >> 1
     count
 
-def bron_kerbosch_search(adjacency: u64&, vertex_count: usize,
+def bron_kerbosch_search(adjacency: view[u64], vertex_count: usize,
                          clique: u64, possible: u64, excluded: u64) -> u64:
     if possible == 0 and excluded == 0:
         return u64(1) << clique
@@ -69,7 +69,7 @@ def bron_kerbosch_impl(input: i64&, length: usize) -> i64:
                 return -1
             right <- right + 1
         left <- left + 1
-    result: u64 = bron_kerbosch_search(&adjacency[0], vertex_count, 0, vertex_mask, 0)
+    result: u64 = bron_kerbosch_search(adjacency[0:vertex_count], vertex_count, 0, vertex_mask, 0)
     result.i64()
 
 export fn bron_kerbosch(input: i64&, length: usize) -> i64 = bron_kerbosch_impl

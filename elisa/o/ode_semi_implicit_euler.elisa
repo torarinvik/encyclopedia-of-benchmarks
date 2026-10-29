@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def store_f64_le(value: f64, output: mutable u8&, position: usize) -> void:
+def store_f64_le(value: f64, output: mutable view[u8], position: usize) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for byte in 0..<8:
@@ -22,8 +22,8 @@ def ode_semi_implicit_euler_impl(values: i64&, length: usize, output: mutable u8
         old_v: f64 = v
         u <- old_u + dt * old_v
         v <- old_v - dt * u
-    store_f64_le(u, output, 0)
-    store_f64_le(v, output, 8)
+    store_f64_le(u, output[0:output_capacity], 0)
+    store_f64_le(v, output[0:output_capacity], 8)
     16.i64()
 
 export fn ode_semi_implicit_euler(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = ode_semi_implicit_euler_impl

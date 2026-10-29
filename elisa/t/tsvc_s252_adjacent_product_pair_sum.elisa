@@ -3,7 +3,7 @@
 const TSVC_S252_MAX_N: usize = 64
 const TSVC_S252_MAX_INPUT_LENGTH: usize = 129
 
-def tsvc_s252_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s252_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -35,7 +35,7 @@ def tsvc_s252_adjacent_product_pair_sum_impl(input: i64&, length: usize,
     i <- 0
     while i < n:
         product: i64 = b[i] * c[i]
-        tsvc_s252_store_i64_le(product + previous_product, output, 8 * i)
+        tsvc_s252_store_i64_le(product + previous_product, output[0:capacity], 8 * i)
         previous_product <- product
         i <- i + 1
     n.i64()

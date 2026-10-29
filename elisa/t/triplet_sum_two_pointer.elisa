@@ -31,7 +31,7 @@ def heap_sort(source: i64[1024], length: usize) -> i64[1024]:
             values
     sorted
 
-def write_triplet(result: i64[4], output: mutable u8&) -> void:
+def write_triplet(result: i64[4], output: mutable view[u8]) -> void:
     for position in 0..<24 |written: mutable usize = 0, output|:
         value: i64 = result[position / 8 + 1]
         bits: u64 = value.u64()
@@ -87,7 +87,7 @@ def triplet_sum_two_pointer_impl(values: i64&, length: usize, output: mutable u8
                 break result
             first <- first + 1
             result
-    write_triplet(result, output)
+    write_triplet(result, output[0:24])
     3
 
 export fn triplet_sum_two_pointer(values: i64&, length: usize, output: mutable u8&,

@@ -1,7 +1,7 @@
 const MAX_LIMIT: i64 = 10000
 const MAX_DIGITS: usize = 64
 
-def problem55_reverse_add(digits: mutable u8&, length: usize) -> usize:
+def problem55_reverse_add(digits: mutable view[u8], length: usize) -> usize:
     reverse_length: mutable usize = length
     while reverse_length > 0 and digits[length - reverse_length] == 0:
         reverse_length <- reverse_length - 1
@@ -22,7 +22,7 @@ def problem55_reverse_add(digits: mutable u8&, length: usize) -> usize:
         digits[index] <- next[index]
     next_length
 
-def problem55_is_palindrome(digits: u8&, length: usize) -> bool:
+def problem55_is_palindrome(digits: view[u8], length: usize) -> bool:
     for left in 0..<length / 2:
         if digits[left] != digits[length - 1 - left]:
             return false
@@ -43,8 +43,8 @@ def problem55_impl(limit: i64) -> i64:
             value <- value / 10
         became_palindrome: mutable bool = false
         for iteration in 0..<50:
-            length <- problem55_reverse_add(&digits[0], length)
-            if problem55_is_palindrome(digits, length):
+            length <- problem55_reverse_add(digits[0:MAX_DIGITS], length)
+            if problem55_is_palindrome(digits[0:MAX_DIGITS], length):
                 became_palindrome <- true
                 break
         if not became_palindrome:

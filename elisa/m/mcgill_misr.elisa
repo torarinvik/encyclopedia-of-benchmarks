@@ -9,7 +9,7 @@ def mcgill_misr_next_lrand48(state: mutable u64&) -> u32:
     state[0] <- (low * 0x5deece66d.u64() + (high_product << 24) + 0xbu64()) & 0xffffffffffff.u64()
     (state[0] >> 17).u32()
 
-def mcgill_misr_different_experiment(random_state: mutable u64&, free_state: mutable u8&) -> bool:
+def mcgill_misr_different_experiment(random_state: mutable u64&, free_state: mutable view[u8]) -> bool:
     faulty_state: mutable u8[10] = zeroed
     cell: mutable usize = 0
     while cell < 10:
@@ -40,14 +40,14 @@ def mcgill_misr_different_experiment(random_state: mutable u64&, free_state: mut
         cell <- cell + 1
     false
 
-def mcgill_misr_append_text(buffer: mutable u8&, used: mutable usize&, text: string) -> void:
+def mcgill_misr_append_text(buffer: mutable view[u8], used: mutable usize&, text: string) -> void:
     index: mutable usize = 0
     while index < text.length():
         buffer[used] <- text[index].u8()
         used <- used + 1
         index <- index + 1
 
-def mcgill_misr_append_unsigned(buffer: mutable u8&, used: mutable usize&, value_input: u64) -> void:
+def mcgill_misr_append_unsigned(buffer: mutable view[u8], used: mutable usize&, value_input: u64) -> void:
     remaining: mutable u64 = value_input
     reverse: mutable u8[24] = zeroed
     count: mutable usize = 0
@@ -61,7 +61,7 @@ def mcgill_misr_append_unsigned(buffer: mutable u8&, used: mutable usize&, value
         buffer[used] <- reverse[count]
         used <- used + 1
 
-def mcgill_misr_append_probability(buffer: mutable u8&, used: mutable usize&,
+def mcgill_misr_append_probability(buffer: mutable view[u8], used: mutable usize&,
                                    same_count: u64, experiments: u64) -> void:
     mantissa: mutable u64 = 0.u64()
     exponent: mutable i64 = 0
@@ -114,16 +114,17 @@ def mcgill_misr_impl(experiments: i64, output: mutable u8&, output_capacity: usi
     different_count: mutable u64 = 0.u64()
     experiment: mutable i64 = 0
     while experiment < experiments:
-        if mcgill_misr_different_experiment(random_state, free_state): different_count <- different_count + 1.u64()
+        if mcgill_misr_different_experiment(random_state, free_state[0:10]): different_count <- different_count + 1.u64()
         experiment <- experiment + 1
 
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT_BYTES]
     used: mutable usize = 0
-    mcgill_misr_append_text(staged, used, "reg_len #_vect prob #_tms struct seed1 seed2 seed3 Prob same output\n ")
-    mcgill_misr_append_text(staged, used, "10 10 2.500e-01 ")
-    mcgill_misr_append_unsigned(staged, used, experiments.u64())
-    mcgill_misr_append_text(staged, used, " 1000000000 1 0 0 ")
-    mcgill_misr_append_probability(staged, used, experiments.u64() - different_count, experiments.u64())
+    mcgill_misr_append_text(staged_view, used, "reg_len #_vect prob #_tms struct seed1 seed2 seed3 Prob same output\n ")
+    mcgill_misr_append_text(staged_view, used, "10 10 2.500e-01 ")
+    mcgill_misr_append_unsigned(staged_view, used, experiments.u64())
+    mcgill_misr_append_text(staged_view, used, " 1000000000 1 0 0 ")
+    mcgill_misr_append_probability(staged_view, used, experiments.u64() - different_count, experiments.u64())
     staged[used] <- 10.u8()
     used <- used + 1
     if output_capacity < used: return -2

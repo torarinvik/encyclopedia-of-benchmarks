@@ -2,7 +2,7 @@ const MAX_VERTICES: usize = 10
 const MAX_EDGES: usize = 64
 const MAX_DEGREE: usize = 128
 
-def depth_first_search_iterative_order_put(output: mutable u8&, word: usize, value: i64) -> void:
+def depth_first_search_iterative_order_put(output: mutable view[u8], word: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -63,10 +63,10 @@ def depth_first_search_iterative_order_impl(input: i64&, length: usize,
 
     words: usize = order_count + 1
     if output.is_null() or capacity < words * 8: return -2
-    depth_first_search_iterative_order_put(output, 0, order_count.i64())
+    depth_first_search_iterative_order_put(output[0:words * 8], 0, order_count.i64())
     index: mutable usize = 0
     while index < order_count:
-        depth_first_search_iterative_order_put(output, index + 1, order[index].i64())
+        depth_first_search_iterative_order_put(output[0:words * 8], index + 1, order[index].i64())
         index <- index + 1
     (words * 8).i64()
 

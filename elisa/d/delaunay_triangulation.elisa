@@ -41,7 +41,7 @@ def delaunay_incircle(ax: i64, ay: i64, bx: i64, by: i64,
 def delaunay_same_edge(a: DelaunayEdge, b: DelaunayEdge) -> bool:
     (a.a == b.a and a.b == b.b) or (a.a == b.b and a.b == b.a)
 
-def delaunay_make_triangle(points: DelaunayPoint&, a: usize, b: usize, c: usize) -> DelaunayTriangle:
+def delaunay_make_triangle(points: view[DelaunayPoint], a: usize, b: usize, c: usize) -> DelaunayTriangle:
     p0: DelaunayPoint = points[a]
     p1: DelaunayPoint = points[b]
     p2: DelaunayPoint = points[c]
@@ -76,7 +76,7 @@ def delaunay_triangle_less(a: DelaunayTriangle, b: DelaunayTriangle) -> bool:
         return a.b < b.b
     a.c < b.c
 
-def delaunay_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def delaunay_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -179,7 +179,7 @@ def delaunay_triangulation_impl(values: i64&, length: usize,
     next: mutable DelaunayTriangle[MAX_WORK_TRIANGLES] = zeroed
     edges: mutable DelaunayEdge[MAX_WORK_EDGES] = zeroed
     current_count: mutable usize = 1
-    current[0] <- delaunay_make_triangle(points, s0, s1, s2)
+    current[0] <- delaunay_make_triangle(points[0:n + 3], s0, s1, s2)
     p: mutable usize = 0
     while p < n:
         edge_count: mutable usize = 0
@@ -215,7 +215,7 @@ def delaunay_triangulation_impl(values: i64&, length: usize,
             if not remove[i]:
                 if next_count >= MAX_WORK_TRIANGLES:
                     return -1
-                next[next_count] <- delaunay_make_triangle(points, edges[i].a, edges[i].b, p)
+                next[next_count] <- delaunay_make_triangle(points[0:n + 3], edges[i].a, edges[i].b, p)
                 next_count <- next_count + 1
             i <- i + 1
         i <- 0
@@ -244,12 +244,12 @@ def delaunay_triangulation_impl(values: i64&, length: usize,
     if result_count == 0:
         return -1
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    delaunay_put_i64(staged, 0, result_count.i64())
+    delaunay_put_i64(staged[0:MAX_OUTPUT_BYTES], 0, result_count.i64())
     i <- 0
     while i < result_count:
-        delaunay_put_i64(staged, 8 + 24 * i, result[i].a.i64())
-        delaunay_put_i64(staged, 16 + 24 * i, result[i].b.i64())
-        delaunay_put_i64(staged, 24 + 24 * i, result[i].c.i64())
+        delaunay_put_i64(staged[0:MAX_OUTPUT_BYTES], 8 + 24 * i, result[i].a.i64())
+        delaunay_put_i64(staged[0:MAX_OUTPUT_BYTES], 16 + 24 * i, result[i].b.i64())
+        delaunay_put_i64(staged[0:MAX_OUTPUT_BYTES], 24 + 24 * i, result[i].c.i64())
         i <- i + 1
     required: usize = 8 + 24 * result_count
     if output == null or output_capacity < required:

@@ -1,7 +1,7 @@
 const MAX_OPS: usize = 128
 const ROOT_COUNT: usize = 9
 
-def link_tree(values: i64&, children: mutable i64&, siblings: mutable i64&, degrees: mutable i64&, a: usize, b: usize) -> usize:
+def link_tree(values: view[i64], children: mutable view[i64], siblings: mutable view[i64], degrees: mutable view[i64], a: usize, b: usize) -> usize:
     parent: usize = a
     child: usize = b
     if values[a] >= values[b]:
@@ -12,7 +12,7 @@ def link_tree(values: i64&, children: mutable i64&, siblings: mutable i64&, degr
     degrees[parent] <- degrees[parent] + 1
     parent
 
-def add_tree(values: i64&, children: mutable i64&, siblings: mutable i64&, degrees: mutable i64&, roots: mutable i64&, initial: usize) -> void:
+def add_tree(values: view[i64], children: mutable view[i64], siblings: mutable view[i64], degrees: mutable view[i64], roots: mutable view[i64], initial: usize) -> void:
     root: mutable usize = initial
     degree: mutable usize = degrees[root].usize()
     while roots[degree] >= 0:
@@ -21,7 +21,7 @@ def add_tree(values: i64&, children: mutable i64&, siblings: mutable i64&, degre
         degree <- degree + 1
     roots[degree] <- root.i64()
 
-def insert(values: mutable i64&, children: mutable i64&, siblings: mutable i64&, degrees: mutable i64&, roots: mutable i64&, used: mutable usize&, size: mutable usize&, value: i64) -> void:
+def insert(values: mutable view[i64], children: mutable view[i64], siblings: mutable view[i64], degrees: mutable view[i64], roots: mutable view[i64], used: mutable usize&, size: mutable usize&, value: i64) -> void:
     root: usize = used
     used <- used + 1
     values[root] <- value
@@ -31,7 +31,7 @@ def insert(values: mutable i64&, children: mutable i64&, siblings: mutable i64&,
     size <- size + 1
     add_tree(values, children, siblings, degrees, roots, root)
 
-def min_root(values: i64&, roots: i64&) -> i64:
+def min_root(values: view[i64], roots: view[i64]) -> i64:
     best: mutable i64 = -1
     for degree in 0..<ROOT_COUNT:
         root: i64 = roots[degree]
@@ -39,7 +39,7 @@ def min_root(values: i64&, roots: i64&) -> i64:
             best <- root
     best
 
-def extract_min(values: i64&, children: mutable i64&, siblings: mutable i64&, degrees: mutable i64&, roots: mutable i64&, size: mutable usize&) -> i64:
+def extract_min(values: view[i64], children: mutable view[i64], siblings: mutable view[i64], degrees: mutable view[i64], roots: mutable view[i64], size: mutable usize&) -> i64:
     best: i64 = min_root(values, roots)
     root: usize = best.usize()
     degree: usize = degrees[root].usize()
@@ -55,7 +55,7 @@ def extract_min(values: i64&, children: mutable i64&, siblings: mutable i64&, de
     size <- size - 1
     value
 
-def put_i64(output: mutable u8&, index: usize, value: i64) -> void:
+def put_i64(output: mutable view[u8], index: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[index * 8 + byte] <- (bits & 255).u8()
@@ -98,17 +98,17 @@ export fn binomial_heap_impl(input: i64&, length: usize, output: mutable u8&, ca
         code: i64 = input[1 + 2 * op]
         value: i64 = input[2 + 2 * op]
         if code == 0:
-            insert(values, children, siblings, degrees, roots, used, size, value)
+            insert(values[0:MAX_OPS], children[0:MAX_OPS], siblings[0:MAX_OPS], degrees[0:MAX_OPS], roots[0:ROOT_COUNT], used, size, value)
         else:
             result: mutable i64 = 0
             if code == 1:
-                root: i64 = min_root(values, roots)
+                root: i64 = min_root(values[0:MAX_OPS], roots[0:ROOT_COUNT])
                 result <- values[root.usize()]
             else if code == 2:
-                result <- extract_min(values, children, siblings, degrees, roots, size)
+                result <- extract_min(values[0:MAX_OPS], children[0:MAX_OPS], siblings[0:MAX_OPS], degrees[0:MAX_OPS], roots[0:ROOT_COUNT], size)
             else if size == 0:
                 result <- 1
-            put_i64(output, written, result)
+            put_i64(output[0:output_bytes], written, result)
             written <- written + 1
     written.i64()
 

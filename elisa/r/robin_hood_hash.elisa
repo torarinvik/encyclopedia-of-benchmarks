@@ -10,8 +10,8 @@ def robin_hood_hash_index(key: u64) -> usize:
     product: u64 = key *% GOLDEN_RATIO
     return ((product >> 32) & (TABLE_CAPACITY - 1).u64()).usize()
 
-def robin_hood_hash_put(keys: mutable u64&, values: mutable u64&,
-                        psls: mutable usize&, occupied: mutable u8&,
+def robin_hood_hash_put(keys: mutable view[u64], values: mutable view[u64],
+                        psls: mutable view[usize], occupied: mutable view[u8],
                         count: mutable usize&, key: u64, value: u64) -> bool:
     if (count * 100) / TABLE_CAPACITY >= 90: return false
     entry_key: mutable u64 = key
@@ -45,8 +45,8 @@ def robin_hood_hash_put(keys: mutable u64&, values: mutable u64&,
         probes <- probes + 1
     false
 
-def robin_hood_hash_get(keys: u64&, values: u64&, psls: usize&,
-                        occupied: u8&, key: u64) -> i64:
+def robin_hood_hash_get(keys: view[u64], values: view[u64], psls: view[usize],
+                        occupied: view[u8], key: u64) -> i64:
     index: mutable usize = robin_hood_hash_index(key)
     psl: mutable usize = 0
     while psl < MAX_PROBE_DISTANCE:
@@ -57,8 +57,8 @@ def robin_hood_hash_get(keys: u64&, values: u64&, psls: usize&,
         psl <- psl + 1
     -1
 
-def robin_hood_hash_backshift(keys: mutable u64&, values: mutable u64&,
-                              psls: mutable usize&, occupied: mutable u8&,
+def robin_hood_hash_backshift(keys: mutable view[u64], values: mutable view[u64],
+                              psls: mutable view[usize], occupied: mutable view[u8],
                               start: usize) -> void:
     index: mutable usize = start
     iteration: mutable usize = 0
@@ -74,8 +74,8 @@ def robin_hood_hash_backshift(keys: mutable u64&, values: mutable u64&,
         index <- next
         iteration <- iteration + 1
 
-def robin_hood_hash_remove(keys: mutable u64&, values: mutable u64&,
-                           psls: mutable usize&, occupied: mutable u8&,
+def robin_hood_hash_remove(keys: mutable view[u64], values: mutable view[u64],
+                           psls: mutable view[usize], occupied: mutable view[u8],
                            count: mutable usize&, key: u64) -> bool:
     index: mutable usize = robin_hood_hash_index(key)
     psl: mutable usize = 0
@@ -90,7 +90,7 @@ def robin_hood_hash_remove(keys: mutable u64&, values: mutable u64&,
         psl <- psl + 1
     false
 
-def robin_hood_hash_clear(occupied: mutable u8&, psls: mutable usize&,
+def robin_hood_hash_clear(occupied: mutable view[u8], psls: mutable view[usize],
                           count: mutable usize&) -> void:
     index: mutable usize = 0
     while index < TABLE_CAPACITY:
@@ -99,7 +99,7 @@ def robin_hood_hash_clear(occupied: mutable u8&, psls: mutable usize&,
         index <- index + 1
     count <- 0
 
-def robin_hood_hash_max_psl(psls: usize&, occupied: u8&) -> usize:
+def robin_hood_hash_max_psl(psls: view[usize], occupied: view[u8]) -> usize:
     maximum: mutable usize = 0
     index: mutable usize = 0
     while index < TABLE_CAPACITY:
@@ -107,7 +107,7 @@ def robin_hood_hash_max_psl(psls: usize&, occupied: u8&) -> usize:
         index <- index + 1
     maximum
 
-def robin_hood_hash_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def robin_hood_hash_write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -127,6 +127,10 @@ def robin_hood_hash_impl(input: i64&, input_length: usize,
     psls: mutable usize[TABLE_CAPACITY] = zeroed
     occupied: mutable u8[TABLE_CAPACITY] = zeroed
     results: mutable i64[MAX_OPERATIONS] = zeroed
+    keys_view: mutable view[u64] = keys[0:TABLE_CAPACITY]
+    values_view: mutable view[u64] = values[0:TABLE_CAPACITY]
+    psls_view: mutable view[usize] = psls[0:TABLE_CAPACITY]
+    occupied_view: mutable view[u8] = occupied[0:TABLE_CAPACITY]
     count: mutable usize = 0
     operation: mutable usize = 0
     while operation < operation_count:
@@ -136,7 +140,7 @@ def robin_hood_hash_impl(input: i64&, input_length: usize,
         raw_value: i64 = input[offset + 2]
         if opcode == 0:
             if raw_key < 0 or raw_key > 4294967295 or raw_value < 100 or raw_value > 1000000: return -1
-            if not robin_hood_hash_put(keys[0]&, values[0]&, psls[0]&, occupied[0]&, count&,
+            if not robin_hood_hash_put(keys_view, values_view, psls_view, occupied_view, count&,
                                        raw_key.u64(), raw_value.u64()): return -1
             if count > MAX_ACTIVE_ENTRIES: return -1
             results[operation] <- -2
@@ -144,8 +148,8 @@ def robin_hood_hash_impl(input: i64&, input_length: usize,
             if raw_key < 0 or raw_key > 4294967295 or raw_value != 0: return -1
             key: u64 = raw_key.u64()
             if opcode == 1:
-                results[operation] <- robin_hood_hash_get(keys[0]&, values[0]&, psls[0]&, occupied[0]&, key)
-            elif robin_hood_hash_remove(keys[0]&, values[0]&, psls[0]&, occupied[0]&, count&, key):
+                results[operation] <- robin_hood_hash_get(keys_view, values_view, psls_view, occupied_view, key)
+            elif robin_hood_hash_remove(keys_view, values_view, psls_view, occupied_view, count&, key):
                 results[operation] <- 1
             else:
                 results[operation] <- 0
@@ -153,9 +157,9 @@ def robin_hood_hash_impl(input: i64&, input_length: usize,
             if raw_key != 0 or raw_value != 0: return -1
             if opcode == 3: results[operation] <- count.i64()
             elif opcode == 4: results[operation] <- ((count * 100) / TABLE_CAPACITY).i64()
-            elif opcode == 5: results[operation] <- robin_hood_hash_max_psl(psls[0]&, occupied[0]&).i64()
+            elif opcode == 5: results[operation] <- robin_hood_hash_max_psl(psls_view, occupied_view).i64()
             elif opcode == 6:
-                robin_hood_hash_clear(occupied[0]&, psls[0]&, count&)
+                robin_hood_hash_clear(occupied_view, psls_view, count&)
                 results[operation] <- -3
             elif count == 0: results[operation] <- 1
             else: results[operation] <- 0
@@ -166,9 +170,10 @@ def robin_hood_hash_impl(input: i64&, input_length: usize,
     output_bytes: usize = operation_count * 8
     if output.is_null() or output_capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    staged_view: mutable view[u8] = staged[0:output_bytes]
     operation <- 0
     while operation < operation_count:
-        robin_hood_hash_write_i64_le(staged[0]&, operation * 8, results[operation])
+        robin_hood_hash_write_i64_le(staged_view, operation * 8, results[operation])
         operation <- operation + 1
     byte: mutable usize = 0
     while byte < output_bytes:

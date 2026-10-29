@@ -8,7 +8,7 @@ def maskwords_is_word(value: u8) -> bool:
     (value >= 97.u8() and value <= 122.u8()) or
     (value >= 48.u8() and value <= 57.u8()) or value == 95.u8()
 
-def maskwords_is_normalized_target(text: u8&, start: usize, finish: usize) -> bool:
+def maskwords_is_normalized_target(text: view[u8], start: usize, finish: usize) -> bool:
     length: usize = finish - start
     if length == 5:
         return (text[start] == 98.u8() and text[start + 1] == 105.u8() and
@@ -41,7 +41,7 @@ def maskwords_is_normalized_target(text: u8&, start: usize, finish: usize) -> bo
                 text[start + 4] == 101.u8() and text[start + 5] == 116.u8())
     false
 
-def maskwords_match_length(text: u8&, start: usize, finish: usize, position: usize) -> usize:
+def maskwords_match_length(text: view[u8], start: usize, finish: usize, position: usize) -> usize:
     matched: mutable usize = 0
     if position + 5 <= finish and text[position] == 98.u8() and text[position + 1] == 105.u8() and
         text[position + 2] == 114.u8() and text[position + 3] == 100.u8() and text[position + 4] == 115.u8():
@@ -59,8 +59,8 @@ def maskwords_match_length(text: u8&, start: usize, finish: usize, position: usi
     if position + matched < finish and maskwords_is_word(text[position + matched]): return 0
     matched
 
-def maskwords_append_token(text: u8&, start: usize, finish: usize, mask: u8&,
-        mask_length: usize, output: mutable u8&, output_start: usize) -> usize:
+def maskwords_append_token(text: view[u8], start: usize, finish: usize, mask: view[u8],
+        mask_length: usize, output: mutable view[u8], output_start: usize) -> usize:
     written: mutable usize = output_start
     if maskwords_is_normalized_target(text, start, finish):
         index: mutable usize = 0
@@ -121,8 +121,8 @@ def maskwords_impl(values: i64&, length: usize, output: mutable u8&, capacity: u
             if have_token:
                 scratch[written] <- 32.u8()
                 written <- written + 1
-            written <- maskwords_append_token(text[0], start, index, mask[0],
-                mask_length, scratch[0], written)
+            written <- maskwords_append_token(text[0:MAX_TEXT_BYTES], start, index, mask[0:MAX_MASK_BYTES],
+                mask_length, scratch[0:MAX_OUTPUT_BYTES], written)
             have_token <- true
             start <- index + 1
         index <- index + 1
@@ -130,8 +130,8 @@ def maskwords_impl(values: i64&, length: usize, output: mutable u8&, capacity: u
         if have_token:
             scratch[written] <- 32.u8()
             written <- written + 1
-        written <- maskwords_append_token(text[0], start, text_length, mask[0],
-            mask_length, scratch[0], written)
+        written <- maskwords_append_token(text[0:MAX_TEXT_BYTES], start, text_length, mask[0:MAX_MASK_BYTES],
+            mask_length, scratch[0:MAX_OUTPUT_BYTES], written)
     if written > MAX_OUTPUT_BYTES: return -1
     if capacity < written or (written != 0 and output == null): return -2
     index <- 0

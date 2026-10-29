@@ -37,7 +37,7 @@ def eks_givens(a: f64, b: f64, s: mutable f64&, c: mutable f64&) -> void:
         c <- 1.0 / sqrt(1.0 + t * t)
         s <- c * t
 
-def eks_apply_givens(a: mutable f64[64]&, n: usize, s: f64, c: f64,
+def eks_apply_givens(a: mutable view[f64], n: usize, s: f64, c: f64,
         i: usize, j: usize, start: usize, end: usize) -> void:
     k: mutable usize = start
     while k <= end:
@@ -54,7 +54,7 @@ def eks_apply_givens(a: mutable f64[64]&, n: usize, s: f64, c: f64,
         a[k * n + j] <- s * x + c * y
         k <- k + 1
 
-def eks_reduce_band(a: mutable f64[64]&, n: usize, bandwidth: usize) -> void:
+def eks_reduce_band(a: mutable view[f64], n: usize, bandwidth: usize) -> void:
     i: mutable usize = bandwidth
     while i >= 2:
         j: mutable usize = 0
@@ -73,7 +73,7 @@ def eks_reduce_band(a: mutable f64[64]&, n: usize, bandwidth: usize) -> void:
             j <- j + 1
         i <- i - 1
 
-def eks_qr_iterate(a: mutable f64[64]&, n: usize) -> bool:
+def eks_qr_iterate(a: mutable view[f64], n: usize) -> bool:
     steps: mutable usize = 0
     while true:
         i: mutable usize = 0
@@ -132,7 +132,7 @@ def eks_before(left: f64, right: f64) -> bool:
     if eks_abs(left) < eks_abs(right): return false
     left < right
 
-def eks_put_i32(value: i64, output: mutable u8[32]&, offset: usize) -> void:
+def eks_put_i32(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u32 = value.u32()
     output[offset] <- bits.u8()
     output[offset + 1] <- (bits >> 8).u8()
@@ -163,8 +163,9 @@ def mccat_05_eks_impl(input: i64&, input_length: usize,
         row <- row + 1
     required: usize = n * 4
     if output.is_null() or capacity < required: return -2
-    eks_reduce_band(a, n, bandwidth)
-    if not eks_qr_iterate(a, n): return -1
+    matrix_view: mutable view[f64] = a[0:64]
+    eks_reduce_band(matrix_view, n, bandwidth)
+    if not eks_qr_iterate(matrix_view, n): return -1
     eigenvalues: mutable f64[8] = zeroed
     for i in 0..<n: eigenvalues[i] <- a[i * n + i]
     for i in 1..<n:
@@ -175,7 +176,8 @@ def mccat_05_eks_impl(input: i64&, input_length: usize,
             j <- j - 1
         eigenvalues[j] <- value
     staged: mutable u8[32] = zeroed
-    for i in 0..<n: eks_put_i32(eks_project(eigenvalues[i]), staged, 4 * i)
+    staged_view: mutable view[u8] = staged[0:32]
+    for i in 0..<n: eks_put_i32(eks_project(eigenvalues[i]), staged_view, 4 * i)
     for i in 0..<required: output[i] <- staged[i]
     required.i64()
 

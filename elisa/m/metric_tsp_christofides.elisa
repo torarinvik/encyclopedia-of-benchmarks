@@ -1,4 +1,4 @@
-def metric_tsp_christofides_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def metric_tsp_christofides_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -33,6 +33,7 @@ def metric_tsp_christofides(input: i64&, length: usize, output: mutable u8&, cap
         u <- u + 1
     output_bytes: usize = 8 * (n + 2)
     if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
     used: mutable bool[8][8] = zeroed
     tree: mutable bool[8][8] = zeroed
     parent: mutable usize[8] = zeroed
@@ -123,8 +124,8 @@ def metric_tsp_christofides(input: i64&, length: usize, output: mutable u8&, cap
     cost: mutable i64 = 0; u <- 0
     while u + 1 < n: cost <- cost + d[order[u]][order[u + 1]]; u <- u + 1
     cost <- cost + d[order[n - 1]][0]
-    metric_tsp_christofides_store(cost, output, 0)
+    metric_tsp_christofides_store(cost, output_view, 0)
     u <- 0
-    while u < n: metric_tsp_christofides_store(order[u].i64(), output, 8 * (u + 1)); u <- u + 1
-    metric_tsp_christofides_store(0, output, 8 * (n + 1))
+    while u < n: metric_tsp_christofides_store(order[u].i64(), output_view, 8 * (u + 1)); u <- u + 1
+    metric_tsp_christofides_store(0, output_view, 8 * (n + 1))
     output_bytes.i64()

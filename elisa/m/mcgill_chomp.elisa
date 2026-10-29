@@ -11,7 +11,7 @@ def chomp_choose(n: usize, k: usize) -> usize:
         index <- index + 1
     result
 
-def chomp_state_rank(rows: usize, heights: usize&) -> usize:
+def chomp_state_rank(rows: usize, heights: view[usize]) -> usize:
     rank: mutable usize = 0
     previous_height: mutable usize = 0
     position: mutable usize = 0
@@ -26,8 +26,8 @@ def chomp_state_rank(rows: usize, heights: usize&) -> usize:
         position <- position + 1
     rank
 
-def chomp_evaluate_state(rows: usize, heights: usize&,
-                         values: mutable u8&) -> void:
+def chomp_evaluate_state(rows: usize, heights: view[usize],
+                         values: mutable view[u8]) -> void:
     state_id: usize = chomp_state_rank(rows, heights)
     has_move: mutable bool = false
     winning: mutable bool = false
@@ -47,7 +47,7 @@ def chomp_evaluate_state(rows: usize, heights: usize&,
                 index <- index + 1
             if changed:
                 has_move <- true
-                child_id: usize = chomp_state_rank(rows, child)
+                child_id: usize = chomp_state_rank(rows, child[0:CHOMP_COLUMNS])
                 if values[child_id] == 0: winning <- true
             column <- column + 1
         row <- row + 1
@@ -57,8 +57,8 @@ def chomp_evaluate_state(rows: usize, heights: usize&,
 
 def chomp_enumerate_states(rows: usize, column: i64,
                            minimum_height: usize,
-                           heights: mutable usize&,
-                           values: mutable u8&) -> void:
+                           heights: mutable view[usize],
+                           values: mutable view[u8]) -> void:
     if column < 0:
         chomp_evaluate_state(rows, heights, values)
         return
@@ -73,12 +73,12 @@ def mcgill_chomp_impl(rows: i64) -> i64:
     row_count: usize = rows.usize()
     heights: mutable usize[7] = zeroed
     values: mutable u8[6435] = zeroed
-    chomp_enumerate_states(row_count, 6, 0, heights, values)
+    chomp_enumerate_states(row_count, 6, 0, heights[0:CHOMP_COLUMNS], values[0:CHOMP_MAX_STATES])
     full_board: mutable usize[7] = zeroed
     column: mutable usize = 0
     while column < CHOMP_COLUMNS:
         full_board[column] <- row_count
         column <- column + 1
-    values[chomp_state_rank(row_count, full_board)].i64()
+    values[chomp_state_rank(row_count, full_board[0:CHOMP_COLUMNS])].i64()
 
 export fn mcgill_chomp(rows: i64) -> i64 = mcgill_chomp_impl

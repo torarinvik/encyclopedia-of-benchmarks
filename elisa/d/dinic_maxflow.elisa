@@ -1,5 +1,5 @@
 # Dinic maximum flow using BFS level graphs and blocking-flow DFS.
-def dinic_maxflow_dfs(u: usize, sink: usize, pushed: i64, residual: i64&, level: i64&, next: usize&, n: usize) -> i64:
+def dinic_maxflow_dfs(u: usize, sink: usize, pushed: i64, residual: mutable view[i64], level: view[i64], next: mutable view[usize], n: usize) -> i64:
     if u == sink: return pushed
     while next[u] < n:
         v: usize = next[u]
@@ -56,7 +56,7 @@ def dinic_maxflow_impl(input: i64&, length: usize) -> i64:
         if level[t] < 0: break
         next: mutable usize[16] = zeroed
         while true:
-            pushed: i64 = dinic_maxflow_dfs(s, t, 6401, residual, level, next, n)
+            pushed: i64 = dinic_maxflow_dfs(s, t, 6401, residual[0:n * 16], level[0:n], next[0:n], n)
             if pushed == 0: break
             flow <- flow + pushed
     flow

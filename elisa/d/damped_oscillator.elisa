@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def put_f64_le(value: f64, output: mutable u8&, offset: usize) -> void:
+def put_f64_le(value: f64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -20,8 +20,8 @@ def damped_oscillator_impl(input: i64&, length: usize, output: mutable u8&, capa
     acceleration: f64 = -2.0 * gamma * v - omega0 * omega0 * x
     x_next: f64 = x + dt * v
     v_next: f64 = v + dt * acceleration
-    put_f64_le(x_next, output, 0)
-    put_f64_le(v_next, output, 8)
+    put_f64_le(x_next, output[0:16], 0)
+    put_f64_le(v_next, output[0:16], 8)
     16
 
 export fn damped_oscillator(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = damped_oscillator_impl

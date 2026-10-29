@@ -1,6 +1,6 @@
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def ode_midpoint_euler_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+def ode_midpoint_euler_put_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -36,8 +36,8 @@ def ode_midpoint_euler_impl(input: i64&, length: usize,
         u <- next_u
         v <- next_v
         step <- step + 1
-    ode_midpoint_euler_put_f64(output, 0, u)
-    ode_midpoint_euler_put_f64(output, 8, v)
+    ode_midpoint_euler_put_f64(output[0:capacity], 0, u)
+    ode_midpoint_euler_put_f64(output[0:capacity], 8, v)
     16
 
 export fn ode_midpoint_euler(input: i64&, length: usize,

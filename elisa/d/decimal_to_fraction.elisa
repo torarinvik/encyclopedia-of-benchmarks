@@ -7,7 +7,7 @@ def gcd_positive(a: i64, b: i64) -> i64:
         right <- remainder
     left
 
-def store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+def store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     for byte in 0..<8:
         output[offset + byte] <- ((value >> (8 * byte)) & 255).u8()
 
@@ -44,8 +44,8 @@ def decimal_to_fraction_impl(values: i64&, length: usize, output: mutable u8&, c
         gcd: i64 = gcd_positive(if numerator < 0: -numerator else: numerator, denominator)
         numerator <- numerator / gcd
         denominator <- denominator / gcd
-    store_i64_le(output, 0, numerator)
-    store_i64_le(output, 8, denominator)
+    store_i64_le(output[0:16], 0, numerator)
+    store_i64_le(output[0:16], 8, denominator)
     16
 
 export fn decimal_to_fraction(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = decimal_to_fraction_impl

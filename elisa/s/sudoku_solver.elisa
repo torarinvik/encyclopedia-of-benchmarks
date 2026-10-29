@@ -1,6 +1,6 @@
 # Row-major backtracking Sudoku solver with row, column, and box masks.
-def sudoku_search(board: mutable i64&, rows: mutable i64&, columns: mutable i64&,
-        boxes: mutable i64&, position: usize) -> bool:
+def sudoku_search(board: mutable view[i64], rows: mutable view[i64], columns: mutable view[i64],
+        boxes: mutable view[i64], position: usize) -> bool:
     current: mutable usize = position
     while current < 81 and board[current] != 0:
         current <- current + 1
@@ -53,7 +53,7 @@ def sudoku_solver_impl(values: i64&, length: usize,
         position <- position + 1
     if output_capacity < 324:
         return -2
-    if not sudoku_search(&board[0], &rows[0], &columns[0], &boxes[0], 0):
+    if not sudoku_search(board[0:81], rows[0:9], columns[0:9], boxes[0:9], 0):
         return -1
     position <- 0
     while position < 81:

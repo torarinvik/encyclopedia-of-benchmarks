@@ -5,12 +5,12 @@ const SWR_MATRIX_STRIDE: usize = 17
 const SWR_MATRIX_CELLS: usize = 289
 const SWR_MAX_TRACE_STEPS: usize = 32
 
-def smith_waterman_rust_write_u32(output: mutable u8&, position: usize, value: i64) -> void:
+def smith_waterman_rust_write_u32(output: mutable view[u8], position: usize, value: i64) -> void:
     bits: u32 = value.u32()
     for byte in 0..<4:
         output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
 
-def smith_waterman_rust_write_i32(output: mutable u8&, position: usize, value: i64) -> void:
+def smith_waterman_rust_write_i32(output: mutable view[u8], position: usize, value: i64) -> void:
     bits: u32 = value.i32().u32()
     for byte in 0..<4:
         output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -118,16 +118,16 @@ def smith_waterman_rust_impl(input: i64&, length: usize,
 
     payload: mutable u8[SWR_MAX_OUTPUT_BYTES] = zeroed
     position: mutable usize = 0
-    smith_waterman_rust_write_u32(&payload[0], position, rows.i64())
+    smith_waterman_rust_write_u32(payload[0:SWR_MAX_OUTPUT_BYTES], position, rows.i64())
     position <- position + 4
-    smith_waterman_rust_write_u32(&payload[0], position, columns.i64())
+    smith_waterman_rust_write_u32(payload[0:SWR_MAX_OUTPUT_BYTES], position, columns.i64())
     position <- position + 4
     for matrix_row in 0..<rows:
         for matrix_column in 0..<columns:
-            smith_waterman_rust_write_i32(&payload[0], position,
+            smith_waterman_rust_write_i32(payload[0:SWR_MAX_OUTPUT_BYTES], position,
                 scores[matrix_row * SWR_MATRIX_STRIDE + matrix_column])
             position <- position + 4
-    smith_waterman_rust_write_u32(&payload[0], position, alignment_length.i64())
+    smith_waterman_rust_write_u32(payload[0:SWR_MAX_OUTPUT_BYTES], position, alignment_length.i64())
     position <- position + 4
     if trace_count > 0:
         for index in 0..<trace_count:

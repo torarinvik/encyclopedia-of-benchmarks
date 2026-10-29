@@ -21,7 +21,7 @@ def letter_base(digit: i64) -> u8:
         return 116
     119
 
-def expand(digits: i64&, length: usize, index: usize, output: mutable u8&,
+def expand(digits: view[i64], length: usize, index: usize, output: mutable view[u8],
            output_offset: usize, combination_count: usize) -> void:
     if index == length:
         return
@@ -55,7 +55,7 @@ def letter_combinations_of_phone_number_impl(digits: i64&, length: usize,
     required: usize = count * length
     if output_capacity < required:
         return -2
-    expand(digits, length, 0, output, 0, count)
+    expand(digits[0:length], length, 0, output[0:required], 0, count)
     count.i64()
 
 export fn letter_combinations_of_phone_number(digits: i64&, length: usize,

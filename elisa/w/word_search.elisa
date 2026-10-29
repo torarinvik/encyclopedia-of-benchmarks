@@ -4,9 +4,9 @@ const MAX_WORD_LENGTH: usize = 15
 def word_search_is_letter(value: i64) -> bool:
     (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
 
-def word_search_visit(input: i64&, columns: usize, rows: usize, word_start: usize,
+def word_search_visit(input: view[i64], columns: usize, rows: usize, word_start: usize,
                       word_length: usize, position: usize, word_index: usize,
-                      visited: mutable u8&) -> bool:
+                      visited: mutable view[u8]) -> bool:
     if visited[position] != 0 or input[2 + position] != input[word_start + word_index]:
         return false
     visited[position] <- 1.u8()
@@ -61,8 +61,8 @@ def word_search_impl(input: i64&, length: usize) -> i64:
     visited: mutable u8[36] = zeroed
     index <- 0
     while index < cells:
-        if word_search_visit(input, columns, rows, word_start, word_length,
-                             index, 0, &visited[0]):
+        if word_search_visit(input[0:length], columns, rows, word_start, word_length,
+                             index, 0, visited[0:36]):
             return 1
         index <- index + 1
     0

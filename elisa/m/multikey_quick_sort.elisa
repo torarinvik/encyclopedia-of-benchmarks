@@ -5,7 +5,7 @@ const MAX_PARSEABLE_INPUT_WORDS: usize = MAX_INPUT_WORDS + 1
 const MAX_OUTPUT_BYTES: usize = 4 * MAX_INPUT_WORDS
 const RECORD_WORDS: usize = 1 + MAX_STRING_LENGTH
 
-def char_at(values: i32[544]&, index: usize, depth: usize) -> i32:
+def char_at(values: view[i32], index: usize, depth: usize) -> i32:
     base: usize = index * RECORD_WORDS
     if depth < values[base].usize(): return values[base + 1 + depth]
     0
@@ -19,7 +19,7 @@ def median3(a: i32, b: i32, c: i32) -> i32:
     if a < c: return a
     c
 
-def compare_from_depth(values: i32[544]&, left: usize, right: usize, depth_start: usize) -> i32:
+def compare_from_depth(values: view[i32], left: usize, right: usize, depth_start: usize) -> i32:
     depth: mutable usize = depth_start
     left_base: usize = left * RECORD_WORDS
     right_base: usize = right * RECORD_WORDS
@@ -30,7 +30,7 @@ def compare_from_depth(values: i32[544]&, left: usize, right: usize, depth_start
     b: i32 = char_at(values, right, depth)
     (if a > b: 1 else: 0) - (if a < b: 1 else: 0)
 
-def swap_records(values: mutable i32[544]&, left: usize, right: usize) -> void:
+def swap_records(values: mutable view[i32], left: usize, right: usize) -> void:
     if left == right: return
     left_base: usize = left * RECORD_WORDS
     right_base: usize = right * RECORD_WORDS
@@ -41,7 +41,7 @@ def swap_records(values: mutable i32[544]&, left: usize, right: usize) -> void:
         values[right_base + offset] <- temp
         offset <- offset + 1
 
-def insertion_sort(values: mutable i32[544]&, lo: usize, hi: usize, depth: usize) -> void:
+def insertion_sort(values: mutable view[i32], lo: usize, hi: usize, depth: usize) -> void:
     i: mutable usize = lo + 1
     while i < hi |i| -> void:
         j: mutable usize = i
@@ -50,7 +50,7 @@ def insertion_sort(values: mutable i32[544]&, lo: usize, hi: usize, depth: usize
             j <- j - 1
         i <- i + 1
 
-def multikey_sort(values: mutable i32[544]&, lo: usize, hi: usize, depth: usize) -> void:
+def multikey_sort(values: mutable view[i32], lo: usize, hi: usize, depth: usize) -> void:
     count: usize = hi - lo
     if count < 10:
         insertion_sort(values, lo, hi, depth)
@@ -83,7 +83,7 @@ def multikey_sort(values: mutable i32[544]&, lo: usize, hi: usize, depth: usize)
     if pivot != 0: multikey_sort(values, less, greater, depth + 1)
     multikey_sort(values, greater, hi, depth)
 
-def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+def put_i32_le(value: i32, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.i64().u64()
     byte: mutable usize = 0
     while byte < 4:
@@ -124,20 +124,22 @@ def multikey_quick_sort_impl(input: i32&, length: usize, output: mutable u8&, ca
     if not valid or index != count or position != length: return -1
     bytes: usize = length * 4
     if output.is_null() or capacity < bytes: return -2
-    multikey_sort(values, 0, count, 0)
+    values_view: mutable view[i32] = values[0:544]
+    multikey_sort(values_view, 0, count, 0)
     buffer: mutable u8[2180] = zeroed
+    buffer_view: mutable view[u8] = buffer[0:2180]
     word: mutable usize = 0
-    put_i32_le(count_raw, buffer[0], word * 4)
+    put_i32_le(count_raw, buffer_view, word * 4)
     word <- word + 1
     index <- 0
     while index < count |index| -> void:
         base: usize = index * RECORD_WORDS
         string_length: usize = values[base].usize()
-        put_i32_le(values[base], buffer[0], word * 4)
+        put_i32_le(values[base], buffer_view, word * 4)
         word <- word + 1
         char_index: mutable usize = 0
         while char_index < string_length |char_index| -> void:
-            put_i32_le(values[base + 1 + char_index], buffer[0], word * 4)
+            put_i32_le(values[base + 1 + char_index], buffer_view, word * 4)
             word <- word + 1
             char_index <- char_index + 1
         index <- index + 1

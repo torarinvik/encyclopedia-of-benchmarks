@@ -4,7 +4,7 @@ const MAX_Q: usize = 512
 const MAX_INPUT: usize = 2306
 const CHECKSUM_OFFSET: i64 = 1000001
 
-def build(values: i64&, tree: mutable i64&, node: usize, left: usize, right: usize) -> void:
+def build(values: view[i64], tree: mutable view[i64], node: usize, left: usize, right: usize) -> void:
     if left == right:
         tree[node] <- values[left]
         return
@@ -13,7 +13,7 @@ def build(values: i64&, tree: mutable i64&, node: usize, left: usize, right: usi
     build(values, tree, node * 2 + 1, mid + 1, right)
     tree[node] <- if tree[node * 2] > tree[node * 2 + 1] then tree[node * 2] else tree[node * 2 + 1]
 
-def push(tree: mutable i64&, lazy: mutable i64&, pending: mutable u8&, node: usize, left: usize, right: usize) -> void:
+def push(tree: mutable view[i64], lazy: mutable view[i64], pending: mutable view[u8], node: usize, left: usize, right: usize) -> void:
     if pending[node] == 0: return
     tree[node] <- lazy[node]
     pending[node] <- 0
@@ -24,7 +24,7 @@ def push(tree: mutable i64&, lazy: mutable i64&, pending: mutable u8&, node: usi
         pending[child] <- 1
         pending[child + 1] <- 1
 
-def assign_range(tree: mutable i64&, lazy: mutable i64&, pending: mutable u8&, node: usize, left: usize, right: usize, ql: usize, qr: usize, value: i64) -> void:
+def assign_range(tree: mutable view[i64], lazy: mutable view[i64], pending: mutable view[u8], node: usize, left: usize, right: usize, ql: usize, qr: usize, value: i64) -> void:
     push(tree, lazy, pending, node, left, right)
     if right < ql or left > qr: return
     if ql <= left and right <= qr:
@@ -41,7 +41,7 @@ def assign_range(tree: mutable i64&, lazy: mutable i64&, pending: mutable u8&, n
     assign_range(tree, lazy, pending, node * 2 + 1, mid + 1, right, ql, qr, value)
     tree[node] <- if tree[node * 2] > tree[node * 2 + 1] then tree[node * 2] else tree[node * 2 + 1]
 
-def range_max(tree: mutable i64&, lazy: mutable i64&, pending: mutable u8&, node: usize, left: usize, right: usize, ql: usize, qr: usize) -> i64:
+def range_max(tree: mutable view[i64], lazy: mutable view[i64], pending: mutable view[u8], node: usize, left: usize, right: usize, ql: usize, qr: usize) -> i64:
     push(tree, lazy, pending, node, left, right)
     if right < ql or left > qr: return -9223372036854775807 - 1
     if ql <= left and right <= qr: return tree[node]
@@ -86,14 +86,14 @@ def lazy_segment_tree_range_set_max_impl(input: i64&, length: usize) -> i64:
     tree: mutable i64[1024] = zeroed
     lazy: mutable i64[1024] = zeroed
     pending: mutable u8[1024] = zeroed
-    build(&initial[0], &tree[0], 1, 0, n - 1)
+    build(initial[0:n], tree[0:1024], 1, 0, n - 1)
     checksum: mutable i64 = 0
     ordinal: mutable i64 = 0
     for i in 0..<q:
         if opcodes[i] == 1:
-            assign_range(&tree[0], &lazy[0], &pending[0], 1, 0, n - 1, lefts[i], rights[i] - 1, assigned[i])
+            assign_range(tree[0:1024], lazy[0:1024], pending[0:1024], 1, 0, n - 1, lefts[i], rights[i] - 1, assigned[i])
         else:
-            answer: i64 = range_max(&tree[0], &lazy[0], &pending[0], 1, 0, n - 1, lefts[i], rights[i] - 1)
+            answer: i64 = range_max(tree[0:1024], lazy[0:1024], pending[0:1024], 1, 0, n - 1, lefts[i], rights[i] - 1)
             ordinal <- ordinal + 1
             checksum <- checksum + ordinal * (answer + CHECKSUM_OFFSET)
     checksum

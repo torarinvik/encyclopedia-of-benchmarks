@@ -1,7 +1,7 @@
 extern sqrt(value: f64) -> f64
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def quadratic_roots_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
+def quadratic_roots_write_f64(output: mutable view[u8], position: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -31,14 +31,16 @@ def quadratic_roots_impl(values: i64&, length: usize,
     if discriminant == 0.0:
         if output_capacity < 8:
             return -2
-        quadratic_roots_write_f64(output, 0, -b / (2.0 * a))
+        single_output_view: mutable view[u8] = output[0:output_capacity]
+        quadratic_roots_write_f64(single_output_view, 0, -b / (2.0 * a))
         return 1
 
     if output_capacity < 16:
         return -2
+    pair_output_view: mutable view[u8] = output[0:output_capacity]
     square_root: f64 = sqrt(discriminant)
-    quadratic_roots_write_f64(output, 0, (-b + square_root) / (2.0 * a))
-    quadratic_roots_write_f64(output, 8, (-b - square_root) / (2.0 * a))
+    quadratic_roots_write_f64(pair_output_view, 0, (-b + square_root) / (2.0 * a))
+    quadratic_roots_write_f64(pair_output_view, 8, (-b - square_root) / (2.0 * a))
     return 2
 
 export fn quadratic_roots(values: i64&, length: usize,

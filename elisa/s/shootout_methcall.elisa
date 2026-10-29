@@ -29,7 +29,7 @@ def nth_toggle_activate(toggle: mutable NthToggle&) -> void:
 def nth_toggle_value(toggle: NthToggle&) -> bool:
     toggle.state
 
-def append_state(staged: mutable u8&, used: mutable usize&, state: bool) -> void:
+def append_state(staged: mutable view[u8], used: mutable usize&, state: bool) -> void:
     if state:
         staged[used] <- 116u8
         used <- used + 1
@@ -79,8 +79,8 @@ def shootout_methcall_impl(calls: i64, output: mutable u8&, output_capacity: usi
         nth_result <- nth_toggle_value_fn(nth_toggle)
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
     used: mutable usize = 0
-    append_state(staged[0], used, toggle_result)
-    append_state(staged[0], used, nth_result)
+    append_state(staged[0:MAX_OUTPUT_BYTES], used, toggle_result)
+    append_state(staged[0:MAX_OUTPUT_BYTES], used, nth_result)
     if output_capacity < used: return -2
     for index in 0..<used:
         output[index] <- staged[index]

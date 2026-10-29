@@ -1,5 +1,5 @@
 # Direct include-or-exclude recursion for the shared 0/1 knapsack contract.
-def knapsack_01_recursive_solve(items_data: i64&, item_count: usize, capacity: i64) -> i64:
+def knapsack_01_recursive_solve(items_data: view[i64], item_count: usize, capacity: i64) -> i64:
     if item_count == 0 or capacity == 0:
         return 0
     offset: usize = 2 + 2 * (item_count - 1)
@@ -13,7 +13,7 @@ def knapsack_01_recursive_solve(items_data: i64&, item_count: usize, capacity: i
         return skip
     knapsack_01_recursive_solve(items_data, item_count - 1, capacity)
 
-def knapsack_01_recursive_impl(items_data: i64&, length: usize) -> i64:
+def knapsack_01_recursive_impl(items_data: view[i64], length: usize) -> i64:
     if length < 2 or length > 34:
         return -1
     capacity: i64 = items_data[0]
@@ -29,4 +29,6 @@ def knapsack_01_recursive_impl(items_data: i64&, length: usize) -> i64:
         return -1
     knapsack_01_recursive_solve(items_data, item_count.usize(), capacity)
 
-export fn knapsack_01_recursive_benchmark(items_data: i64&, length: usize) -> i64 = knapsack_01_recursive_impl(items_data, length)
+export fn knapsack_01_recursive_benchmark(items_data: i64&, length: usize) -> i64:
+    if items_data.is_null() or length < 2 or length > 34: return -1
+    knapsack_01_recursive_impl(items_data[0:length], length)

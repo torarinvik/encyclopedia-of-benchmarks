@@ -3,7 +3,7 @@ const MAX_OPERATIONS: usize = 256
 const MAX_INPUT_VALUES: usize = 515
 const MAX_OUTPUT_BYTES: usize = 4096
 
-def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -89,8 +89,8 @@ def priority_queues_impl(input: i64&, length: usize, output: mutable u8&, output
         else:
             value <- size.i64()
 
-        store_i64_le(status, output, operation * 16)
-        store_i64_le(value, output, operation * 16 + 8)
+        store_i64_le(status, output[0:output_capacity], operation * 16)
+        store_i64_le(value, output[0:output_capacity], operation * 16 + 8)
     needed.i64()
 
 export fn priority_queues(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = priority_queues_impl

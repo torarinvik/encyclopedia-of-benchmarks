@@ -1,6 +1,6 @@
 const GENERATE_SUBSETS_RECURSIVE_MAX_ITEMS: usize = 12
 
-def generate_subsets_recursive_put32(output: mutable u8&, position: mutable usize&, value: u32) -> void:
+def generate_subsets_recursive_put32(output: mutable view[u8], position: mutable usize&, value: u32) -> void:
     bits: mutable u32 = value
     index: mutable usize = 0
     while index < 4:
@@ -9,8 +9,8 @@ def generate_subsets_recursive_put32(output: mutable u8&, position: mutable usiz
         bits <- bits >> 8
         index <- index + 1
 
-def generate_subsets_recursive_emit(input: i64&, n: usize, index: usize, mask: usize,
-                                    selected: u32, output: mutable u8&, position: mutable usize&) -> void:
+def generate_subsets_recursive_emit(input: view[i64], n: usize, index: usize, mask: usize,
+                                    selected: u32, output: mutable view[u8], position: mutable usize&) -> void:
     if index == n:
         generate_subsets_recursive_put32(output, position&, selected)
         item: mutable usize = 0
@@ -37,8 +37,8 @@ def generate_subsets_recursive_impl(input: i64&, length: usize, output: mutable 
     needed: usize = 4 + 4 * subsets + n * (subsets / 2)
     if output == null or capacity < needed: return -2
     position: mutable usize = 0
-    generate_subsets_recursive_put32(output, position&, subsets.u32())
-    generate_subsets_recursive_emit(input, n, 0, 0, 0, output, position&)
+    generate_subsets_recursive_put32(output[0:needed], position&, subsets.u32())
+    generate_subsets_recursive_emit(input[0:length], n, 0, 0, 0, output[0:needed], position&)
     position.i64()
 
 export fn generate_subsets_recursive(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = generate_subsets_recursive_impl

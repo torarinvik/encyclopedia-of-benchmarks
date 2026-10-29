@@ -5,7 +5,7 @@ const TSVC_S2111_MAX_PASSES: usize = 4
 const TSVC_S2111_MAX_CELLS: usize = 64
 const TSVC_S2111_MAX_INPUT_LENGTH: usize = 66
 
-def tsvc_s2111_store(value: i64, output: mutable u8&, offset: usize) -> void:
+def tsvc_s2111_store(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -36,7 +36,7 @@ def tsvc_s2111_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
             for col in 1..side:
                 matrix[row * side + col] <- matrix[row * side + col - 1] + matrix[(row - 1) * side + col]
     for cell in 0..cells:
-        tsvc_s2111_store(matrix[cell], output, 8 * cell)
+        tsvc_s2111_store(matrix[cell], output[0:capacity], 8 * cell)
     cells.i64()
 
 export fn tsvc_s2111_wavefront_add_recurrence(input: i64&, length: usize,

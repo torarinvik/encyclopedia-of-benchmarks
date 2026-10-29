@@ -1,6 +1,6 @@
 const TN_MAX_INPUT: usize = 86
 
-def tn_put_i64(output: mutable u8&, word: usize, value: i64): void:
+def tn_put_i64(output: mutable view[u8], word: usize, value: i64): void:
     bits: u64 = value.u64()
     for b in 0..<8:
         output[word * 8 + b] <- (bits & 255).u8()
@@ -66,7 +66,7 @@ def transit_node_routing_table_query(input: i64&, length: usize,
                 bestu <- forward[i]
                 bestv <- backward[j]
     if output.is_null() or capacity < 24: return -2
-    tn_put_i64(output, 0, best)
-    tn_put_i64(output, 1, bestu.i64())
-    tn_put_i64(output, 2, bestv.i64())
+    tn_put_i64(output[0:24], 0, best)
+    tn_put_i64(output[0:24], 1, bestu.i64())
+    tn_put_i64(output[0:24], 2, bestv.i64())
     24

@@ -1,4 +1,4 @@
-def store_le(output: mutable u8&, offset: usize, x: i64):
+def store_le(output: mutable view[u8], offset: usize, x: i64):
     bits: u64 = x.u64()
     b: mutable usize = 0
     while b < 8:
@@ -48,7 +48,7 @@ def double_ended_selection_sort_impl(values: i64&, length: usize, output: mutabl
     bytes: usize = 8 * out_n
     if output.is_null() or capacity < bytes: return -2
     i <- 0
-    while i < out_n: store_le(output, 8 * i, result[i]); i <- i + 1
+    while i < out_n: store_le(output[0:bytes], 8 * i, result[i]); i <- i + 1
     bytes.i64()
 
 export fn double_ended_selection_sort(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = double_ended_selection_sort_impl
