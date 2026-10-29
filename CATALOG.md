@@ -2645,9 +2645,9 @@ Both pinned C++ sources use directed graphs with nonnegative edge weights; they 
 The pinned Python routine mutates its search targets and uses identity-based node membership, which can change route selection and may fail to terminate on some unreachable cyclic grids. The nine-port contract keeps goals fixed, tracks coordinates, and guarantees a shortest path; its no-route `[start]` result is benchmark-defined. See the [guide](benchmarks/b/bidirectional_a_star/README.md).
 
 
-## Binary indexed tree
+## Binary indexed tree alias
 
-The pinned C# implementation supports point additions and prefix sums, but its update bound can overrun the backing array on arbitrary lengths. The shared contract restricts array sizes to powers of two from 2 through 256 and preserves point updates and inclusive range-sum queries. See the [guide](benchmarks/b/binary_indexed_tree/README.md).
+The pinned C# `BinaryIndexedTree` uses the same Fenwick point-add and prefix-sum algorithm as the canonical [`fenwick_tree`](benchmarks/f/fenwick_tree/README.md) benchmark. Its source has a bounds defect outside power-of-two lengths; this source is retained as alternate provenance, not a separate benchmark.
 
 ## Binary lifting kth ancestor
 
@@ -3070,7 +3070,7 @@ The pinned Rust `detect_cycle.rs` contains both directed and undirected graph ro
 
 ## Directed Eulerian path
 
-The pinned Rust `eulerian_path.rs` uses degree balance to select a start vertex and Hierholzer traversal to consume every directed edge exactly once. The new nine-language benchmark retains its adjacency-list order, accepts parallel edges and self-loops, and returns the vertex sequence or an empty result when no Eulerian path exists. See the [benchmark guide](benchmarks/e/eulerian_path/README.md) and [pinned Rust source](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/graph/eulerian_path.rs).
+The pinned Rust `eulerian_path.rs` uses degree balance to select a start vertex and Hierholzer traversal to consume every directed edge exactly once. The nine-language benchmark retains its adjacency-list order, accepts parallel edges and self-loops, and returns the vertex sequence or an empty result when no Eulerian path exists. The equivalent Java `HierholzerEulerianPath` benchmark was consolidated here; its count-prefixed output and narrower profile were adapter differences, not a separate algorithm. See the [benchmark guide](benchmarks/e/eulerian_path/README.md), [pinned Rust source](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/graph/eulerian_path.rs), and [Java source](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/graph/HierholzerEulerianPath.java).
 
 ## Horizontal projectile motion
 
@@ -3861,7 +3861,7 @@ The pinned Clojure queue uses `conj` to place new values at the list head, `drop
 
 ## Sparse table range minimum query (`sparse_table`)
 
-The pinned C++ implementation builds an index-based sparse table and answers one inclusive range-minimum query, preserving the leftmost index when values tie. [`sparse_table`](benchmarks/s/sparse_table/README.md) uses the safe source-compatible array bound of 12,344 and follows the C++ index-returning variant; the Python value-returning variant and broken C++-1 implementation are separate or excluded. See the [workload](benchmarks/s/sparse_table/workload.json), [linear-scan oracle](benchmarks/sparse_table_oracle.py), and pinned [C++ source](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/data_structures/sparse_table.cpp).
+The pinned C++ implementation builds an index-based sparse table and answers one inclusive range-minimum query, preserving the leftmost index when values tie. [`sparse_table`](benchmarks/s/sparse_table/README.md) uses the safe source-compatible array bound of 12,344 and follows the C++ index-returning variant. Python's value-returning `sparse_table` and Rust's `range_minimum_query` use the same sparse-table algorithm and are aliases of this canonical benchmark; the broken C++-1 implementation is excluded. See the [workload](benchmarks/s/sparse_table/workload.json), [linear-scan oracle](benchmarks/sparse_table_oracle.py), and pinned [C++ source](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/data_structures/sparse_table.cpp).
 
 ## Merge-find set (`merge_find_set`)
 

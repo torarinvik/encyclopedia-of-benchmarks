@@ -1,0 +1,125 @@
+{
+  "schema_version": "1.0.0",
+  "id": "rooted-tree-isomorphism-classification-bounded-v1",
+  "algorithm": "rooted_tree_isomorphism_classification",
+  "function_symbol": "rooted_tree_isomorphism_classification",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "Library Checker",
+    "problem": "Rooted Tree Isomorphism Classification",
+    "url": "https://judge.yosupo.jp/problem/rooted_tree_isomorphism_classification",
+    "source_type": "algorithm_problem_specification",
+    "reuse": "Algorithm reference only; implementations and oracle are independently written."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[tree_count, (vertex_count, root, edge_u, edge_v...)*]",
+    "tree_count_range": [1, 16],
+    "vertex_count_per_tree_range": [1, 32],
+    "total_vertex_count_range": [1, 128],
+    "maximum_parseable_length": 1025,
+    "maximum_valid_length": 257,
+    "edge_semantics": "Undirected simple edge; each tree must be connected and have exactly vertex_count minus one edges.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "One class label per input tree, assigned in first-occurrence order.",
+    "maximum_bytes": 16,
+    "success_result": "tree_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "paths-with-endpoint-middle-and-singleton-roots",
+      "input_values": [4, 3, 0, 0, 1, 1, 2, 3, 2, 2, 1, 1, 0, 3, 1, 0, 1, 1, 2, 1, 0],
+      "input_length": 21,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "00000102"
+    },
+    {
+      "id": "reordered-eight-vertex-paths-with-distinct-root-shapes",
+      "input_values": [3, 8, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 3, 6, 7, 4, 5, 2, 3, 0, 1, 5, 6, 3, 4, 1, 2, 8, 4, 7, 6, 5, 4, 3, 2, 1, 0, 6, 5, 4, 3, 2, 1],
+      "input_length": 49,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output_hex": "000101"
+    },
+    {
+      "id": "star-center-versus-leaf-and-reordered-isomorphic-star",
+      "input_values": [3, 4, 0, 0, 1, 0, 2, 0, 3, 4, 1, 0, 1, 0, 2, 0, 3, 4, 3, 3, 2, 3, 1, 3, 0],
+      "input_length": 25,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output_hex": "000100"
+    },
+    {
+      "id": "disconnected-cyclic-input-invalid",
+      "input_values": [1, 4, 0, 0, 1, 1, 2, 2, 0],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-undirected-edge-invalid",
+      "input_values": [1, 3, 0, 0, 1, 1, 0],
+      "input_length": 7,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "root-out-of-range-invalid",
+      "input_values": [1, 2, 2, 0, 1],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-value-invalid",
+      "input_values": [1, 1, 0, 99],
+      "input_length": 4,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 1, 0],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1, 0],
+      "input_length": 3,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

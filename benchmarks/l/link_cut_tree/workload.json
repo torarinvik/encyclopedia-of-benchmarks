@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "link-cut-tree-bounded-dynamic-forest-v1",
+  "algorithm": "link_cut_tree",
+  "function_symbol": "link_cut_tree",
+  "abi": "i64_array_bytes_output",
+  "description": "Link-cut tree operations over a bounded weighted dynamic forest.",
+  "source": {
+    "name": "OI Wiki Link-Cut Tree",
+    "url": "https://en.oi-wiki.org/ds/lct/",
+    "implementation_note": "clean-room splay-based dynamic forest ports"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n, q, vertex_weights..., (operation, u, v)*q]",
+    "vertex_count_range": [1, 16],
+    "operation_count_range": [1, 64],
+    "maximum_valid_length": 210,
+    "vertex_ids": "zero-based",
+    "initial_forest": "no edges",
+    "weight_range": [0, 1000000],
+    "operations": {
+      "0": "link distinct disconnected vertices; output 1 if linked, otherwise 0",
+      "1": "cut an existing edge; output 1 if cut, otherwise 0",
+      "2": "sum weights on the path, or -1 when disconnected"
+    },
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_array",
+    "encoding": "one little-endian signed i64 per operation, in operation order",
+    "maximum_bytes": 512,
+    "success_result": "8 * operation_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Fixed link-cut-tree node storage and bounded splay ancestor stacks."
+  },
+  "contract": {
+    "operation": "Maintain a weighted forest under link, cut, and path-sum operations.",
+    "algorithm": "Splay-based link-cut tree with path reversal and sum aggregation.",
+    "complexity": "O(log n) amortized per operation and O(n) data-structure storage.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"link-and-path-sums","input_values":[3,4,1,2,3,0,0,1,0,1,2,2,0,2,2,1,1],"input_length":17,"expected_result":32,"expected_output_hex":"0100000000000000010000000000000006000000000000000200000000000000"},
+    {"id":"cycle-link-rejected-then-cut","input_values":[3,5,10,20,30,0,0,1,0,1,2,0,2,0,1,1,2,2,0,2],"input_length":20,"expected_result":40,"expected_output_hex":"0100000000000000010000000000000000000000000000000100000000000000ffffffffffffffff"},
+    {"id":"path-sum-after-links","input_values":[4,4,5,7,2,4,0,0,1,0,1,2,0,2,3,2,0,3],"input_length":18,"expected_result":32,"expected_output_hex":"0100000000000000010000000000000001000000000000001200000000000000"},
+    {"id":"missing-cut-and-disconnected-query","input_values":[2,3,9,11,1,0,1,2,0,1,2,1,1],"input_length":13,"expected_result":24,"expected_output_hex":"0000000000000000ffffffffffffffff0b00000000000000"},
+    {"id":"singleton-query-and-self-cut","input_values":[1,2,4,2,0,0,1,0,0],"input_length":9,"expected_result":16,"expected_output_hex":"04000000000000000000000000000000"},
+    {"id":"unknown-operation","input_values":[2,1,0,0,9,0,1],"input_length":7,"expected_result":-1,"expected_output_hex":""},
+    {"id":"weight-out-of-range","input_values":[1,1,1000001,2,0,0],"input_length":6,"expected_result":-1,"expected_output_hex":""},
+    {"id":"wrong-length","input_values":[2,1,4,5,2,0],"input_length":6,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,4,2,0,0],"input_length":6,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,1,4,2,0,0],"input_length":6,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":6,"input_is_null":true,"output_capacity":8,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

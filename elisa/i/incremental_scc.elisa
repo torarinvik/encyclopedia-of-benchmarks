@@ -1,0 +1,56 @@
+# Maintain reflexive reachability after each inserted directed arc.
+const MAX_VERTICES: usize = 8
+const MAX_EDGES: usize = 32
+const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_EDGES
+const REACHABILITY_CELLS: usize = MAX_VERTICES * MAX_VERTICES
+
+def incremental_scc_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    if input[0] < 1 or input[0] > i64(MAX_VERTICES) or input[1] < 0 or input[1] > i64(MAX_EDGES):
+        return -1
+    vertex_count: usize = input[0].usize()
+    edge_count: usize = input[1].usize()
+    if length != 2 + 2 * edge_count:
+        return -1
+
+    sources: mutable usize[MAX_EDGES] = zeroed
+    destinations: mutable usize[MAX_EDGES] = zeroed
+    for edge in 0..<edge_count |input, sources, destinations|:
+        source: i64 = input[2 + 2 * edge]
+        destination: i64 = input[3 + 2 * edge]
+        if source < 0 or destination < 0 or source >= vertex_count.i64() or destination >= vertex_count.i64():
+            return -1
+        sources[edge] <- source.usize()
+        destinations[edge] <- destination.usize()
+
+    reachable: mutable u8[REACHABILITY_CELLS] = zeroed
+    for vertex in 0..<vertex_count |reachable|:
+        reachable[vertex * MAX_VERTICES + vertex] <- 1.u8()
+    checksum: mutable i64 = 0
+    for edge in 0..<edge_count |sources, destinations, reachable, checksum|:
+        source: usize = sources[edge]
+        destination: usize = destinations[edge]
+        predecessors: mutable u8[MAX_VERTICES] = zeroed
+        successors: mutable u8[MAX_VERTICES] = zeroed
+        for vertex in 0..<vertex_count |vertex, predecessors, successors, reachable|:
+            predecessors[vertex] <- reachable[vertex * MAX_VERTICES + source]
+            successors[vertex] <- reachable[destination * MAX_VERTICES + vertex]
+        for first in 0..<vertex_count |first, predecessors, successors, reachable|:
+            for second in 0..<vertex_count |second, first, predecessors, successors, reachable|:
+                if predecessors[first] != 0 and successors[second] != 0:
+                    reachable[first * MAX_VERTICES + second] <- 1.u8()
+
+        assigned: mutable u8[MAX_VERTICES] = zeroed
+        component_count: mutable usize = 0
+        for first in 0..<vertex_count |first, assigned, component_count, reachable|:
+            if assigned[first] != 0:
+                continue
+            component_count <- component_count + 1
+            for vertex in first..<vertex_count |vertex, first, assigned, reachable|:
+                if reachable[first * MAX_VERTICES + vertex] != 0 and reachable[vertex * MAX_VERTICES + first] != 0:
+                    assigned[vertex] <- 1.u8()
+        checksum <- checksum + (edge + 1).i64() * component_count.i64()
+    checksum
+
+export fn incremental_scc(input: i64&, length: usize) -> i64 = incremental_scc_impl

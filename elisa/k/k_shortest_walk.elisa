@@ -1,0 +1,121 @@
+# Enumerate distinct directed walks with a bounded multi-pop Dijkstra frontier.
+const MAX_VERTICES: usize = 6
+const MAX_EDGES: usize = 12
+const MAX_K: usize = 8
+const MAX_INPUT_LENGTH: usize = 41
+const MAX_FRONTIER: usize = 97
+
+def k_shortest_walk_write(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8 |byte, output, bits|:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255.u64()).u8()
+
+def k_shortest_walk_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    source_value: i64 = input[2]
+    target_value: i64 = input[3]
+    k_value: i64 = input[4]
+    if n_value < 1 or n_value > 6 or m_value < 0 or m_value > 12 or
+       k_value < 1 or k_value > 8 or source_value < 0 or source_value >= n_value or
+       target_value < 0 or target_value >= n_value:
+        return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    source: usize = source_value.usize()
+    target: usize = target_value.usize()
+    k: usize = k_value.usize()
+    if length != 5 + 3 * m:
+        return -1
+
+    head: mutable i64[6] = zeroed
+    edge_to: mutable i64[12] = zeroed
+    edge_weight: mutable i64[12] = zeroed
+    edge_next: mutable i64[12] = zeroed
+    for vertex in 0..<n |vertex, head|:
+        head[vertex] <- -1
+    edge: mutable usize = 0
+    while edge < m |edge, head, edge_to, edge_weight, edge_next| -> edge, head, edge_to, edge_weight, edge_next:
+        u: i64 = input[5 + 3 * edge]
+        v: i64 = input[6 + 3 * edge]
+        weight: i64 = input[7 + 3 * edge]
+        if u < 0 or u >= n_value or v < 0 or v >= n_value or weight < 0 or weight > 1000:
+            return -1
+        edge_to[edge] <- v
+        edge_weight[edge] <- weight
+        edge_next[edge] <- head[u.usize()]
+        head[u.usize()] <- edge.i64()
+        edge <- edge + 1
+        edge, head, edge_to, edge_weight, edge_next
+    if output.is_null() or output_capacity < 8 * k:
+        return -2
+
+    queue_distance: mutable i64[97] = zeroed
+    queue_vertex: mutable i64[97] = zeroed
+    queue_order: mutable i64[97] = zeroed
+    expanded: mutable i64[6] = zeroed
+    answers: mutable i64[8] = zeroed
+    queue_count: mutable usize = 1
+    answer_count: mutable usize = 0
+    next_order: mutable i64 = 1
+    queue_distance[0] <- 0
+    queue_vertex[0] <- source.i64()
+    queue_order[0] <- 0
+
+    while queue_count > 0 and answer_count < k |queue_count, answer_count, queue_distance, queue_vertex, queue_order, expanded, answers, next_order| -> queue_count, answer_count, queue_distance, queue_vertex, queue_order, expanded, answers, next_order:
+        distance: i64 = queue_distance[0]
+        vertex: usize = queue_vertex[0].usize()
+        slot: mutable usize = 1
+        while slot < queue_count |slot, queue_count, queue_distance, queue_vertex, queue_order|:
+            queue_distance[slot - 1] <- queue_distance[slot]
+            queue_vertex[slot - 1] <- queue_vertex[slot]
+            queue_order[slot - 1] <- queue_order[slot]
+            slot <- slot + 1
+            slot, queue_distance, queue_vertex, queue_order
+        queue_count <- queue_count - 1
+        if expanded[vertex] >= k.i64():
+            queue_count, answer_count, queue_distance, queue_vertex, queue_order, expanded, answers, next_order
+            continue
+        expanded[vertex] <- expanded[vertex] + 1
+        if vertex == target:
+            answers[answer_count] <- distance
+            answer_count <- answer_count + 1
+            if answer_count == k:
+                queue_count, answer_count, queue_distance, queue_vertex, queue_order, expanded, answers, next_order
+                break
+        edge: mutable i64 = head[vertex]
+        while edge >= 0 |edge, queue_count, queue_distance, queue_vertex, queue_order, next_order, edge_to, edge_weight, edge_next|:
+            edge_index: usize = edge.usize()
+            candidate_distance: i64 = distance + edge_weight[edge_index]
+            candidate_vertex: i64 = edge_to[edge_index]
+            candidate_order: i64 = next_order
+            next_order <- next_order + 1
+            position: mutable usize = queue_count
+            while position > 0 and (queue_distance[position - 1] > candidate_distance or
+                  (queue_distance[position - 1] == candidate_distance and queue_order[position - 1] > candidate_order)) |position, queue_distance, queue_vertex, queue_order, candidate_distance, candidate_vertex, candidate_order|:
+                queue_distance[position] <- queue_distance[position - 1]
+                queue_vertex[position] <- queue_vertex[position - 1]
+                queue_order[position] <- queue_order[position - 1]
+                position <- position - 1
+                position, queue_distance, queue_vertex, queue_order
+            queue_distance[position] <- candidate_distance
+            queue_vertex[position] <- candidate_vertex
+            queue_order[position] <- candidate_order
+            queue_count <- queue_count + 1
+            edge <- edge_next[edge_index]
+            edge, queue_count, queue_distance, queue_vertex, queue_order, next_order, edge_to, edge_weight, edge_next
+        queue_count, answer_count, queue_distance, queue_vertex, queue_order, expanded, answers, next_order
+
+    while answer_count < k |answer_count, answers| -> answer_count, answers:
+        answers[answer_count] <- -1
+        answer_count <- answer_count + 1
+        answer_count, answers
+    for index in 0..<k |index, output, answers|:
+        k_shortest_walk_write(output, 8 * index, answers[index])
+    (8 * k).i64()
+
+export fn k_shortest_walk(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = k_shortest_walk_impl

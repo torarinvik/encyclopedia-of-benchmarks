@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "eertree-distinct-palindrome-prefixes-v1",
+  "algorithm": "eertree",
+  "function_symbol": "eertree",
+  "source_basis": [
+    {
+      "organization": "Library Checker",
+      "title": "Eertree",
+      "url": "https://judge.yosupo.jp/problem/eertree",
+      "role": "problem_taxonomy"
+    },
+    {
+      "organization": "Mikhail Rubinchik and Arseny M. Shur",
+      "title": "EERTREE: An Efficient Data Structure for Processing Palindromes in Strings",
+      "url": "https://arxiv.org/abs/1506.04862",
+      "role": "algorithm_description"
+    }
+  ],
+  "input": {
+    "kind": "packed_lowercase_ascii_letter_code_array",
+    "encoding": "[text_length, letter_0, ..., letter_(n-1)]",
+    "minimum_text_length": 0,
+    "maximum_text_length": 128,
+    "maximum_valid_input_length": 129,
+    "maximum_parseable_input_length": 129,
+    "letter_code_range": [0, 25],
+    "letter_code_mapping": "0=a through 25=z",
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Sum over one-based prefixes of prefix_length times the number of distinct nonempty palindromic substrings in that prefix.",
+    "empty_text_result": 0,
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"empty_text","input_values":[0],"expected_result":0},
+    {"id":"single_letter","input_values":[1,0],"expected_result":1},
+    {"id":"one_repeated_letter","input_values":[5,0,0,0,0,0],"expected_result":55},
+    {"id":"alternating_odd_palindromes","input_values":[5,0,1,0,1,0],"expected_result":55},
+    {"id":"nested_palindrome_growth","input_values":[7,0,1,0,2,0,1,0],"expected_result":140},
+    {"id":"even_palindrome_extension","input_values":[4,0,1,1,0],"expected_result":30},
+    {"id":"new_character_only","input_values":[3,0,1,2],"expected_result":14},
+    {"id":"prefix_adds_no_new_palindrome","input_values":[4,0,1,2,0],"expected_result":26},
+    {"id":"distinct_palindrome_count_after_branching","input_values":[5,0,0,1,0,0],"expected_result":55},
+    {"id":"all_lowercase_letters_once","input_values":[26,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],"expected_result":6201},
+    {"id":"invalid_negative_letter_code","input_values":[1,-1],"expected_result":-1},
+    {"id":"invalid_letter_code_above_alphabet","input_values":[1,26],"expected_result":-1},
+    {"id":"mismatched_text_length","input_values":[2,0],"expected_result":-1},
+    {"id":"text_length_above_limit","input_values":[129],"expected_result":-1},
+    {"id":"null_input_pointer_with_positive_length","input_values":[],"input_length":1,"input_is_null":true,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  }
+}

@@ -952,6 +952,13 @@ from run_i64_array_scalar import validate_mcoloring_workload
 from run_i64_array_scalar import validate_graph_enumeration_workload
 from run_i64_array_scalar import validate_lca_workload
 from run_i64_array_scalar import validate_knapsack_zero_one_tabulation_workload
+from run_i64_array_scalar import validate_li_chao_tree_workload
+from run_i64_array_scalar import validate_three_edge_connected_components_workload
+from run_i64_array_scalar import validate_incremental_scc_workload
+from run_i64_array_scalar import validate_segment_tree_beats_workload
+from run_i64_array_scalar import validate_eertree_workload
+from run_i64_array_scalar import validate_segment_add_get_min_workload
+from run_i64_array_scalar import validate_manhattan_mst_workload
 from run_i64_array_scalar import validate_matrix_exponentiation_workload
 from run_i64_array_scalar import validate_miller_rabin_primality_checker_workload
 from run_i64_array_scalar import validate_logistic_regression_predict_workload
@@ -1645,6 +1652,39 @@ from knapsack_zero_one_tabulation_oracle import MAX_ITEMS as KNAPSACK_ZERO_ONE_T
 from knapsack_zero_one_tabulation_oracle import MAX_VALUE as KNAPSACK_ZERO_ONE_TABULATION_MAX_VALUE
 from knapsack_zero_one_tabulation_oracle import MAX_WEIGHT as KNAPSACK_ZERO_ONE_TABULATION_MAX_WEIGHT
 from knapsack_zero_one_tabulation_oracle import expected_result as knapsack_zero_one_tabulation_oracle
+from li_chao_tree_oracle import MAX_INPUT_LENGTH as LI_CHAO_TREE_MAX_INPUT_LENGTH
+from li_chao_tree_oracle import MAX_OPERATIONS as LI_CHAO_TREE_MAX_OPERATIONS
+from li_chao_tree_oracle import expected_result as li_chao_tree_oracle
+from three_edge_connected_components_oracle import INVALID_RESULT as THREE_EDGE_CONNECTED_COMPONENTS_INVALID_RESULT
+from three_edge_connected_components_oracle import MAX_EDGES as THREE_EDGE_CONNECTED_COMPONENTS_MAX_EDGES
+from three_edge_connected_components_oracle import MAX_INPUT_LENGTH as THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
+from three_edge_connected_components_oracle import MAX_VERTICES as THREE_EDGE_CONNECTED_COMPONENTS_MAX_VERTICES
+from three_edge_connected_components_oracle import expected_result as three_edge_connected_components_oracle
+from incremental_scc_oracle import INVALID_RESULT as INCREMENTAL_SCC_INVALID_RESULT
+from incremental_scc_oracle import MAX_EDGES as INCREMENTAL_SCC_MAX_EDGES
+from incremental_scc_oracle import MAX_INPUT_LENGTH as INCREMENTAL_SCC_MAX_INPUT_LENGTH
+from incremental_scc_oracle import MAX_VERTICES as INCREMENTAL_SCC_MAX_VERTICES
+from incremental_scc_oracle import expected_result as incremental_scc_oracle
+from segment_tree_beats_oracle import MAX_ITEMS as SEGMENT_TREE_BEATS_MAX_ITEMS
+from segment_tree_beats_oracle import MAX_OPERATIONS as SEGMENT_TREE_BEATS_MAX_OPERATIONS
+from segment_tree_beats_oracle import VALUE_LIMIT as SEGMENT_TREE_BEATS_VALUE_LIMIT
+from segment_tree_beats_oracle import expected_output as segment_tree_beats_oracle
+from eertree_oracle import MAX_TEXT_LENGTH as EERTREE_MAX_TEXT_LENGTH
+from eertree_oracle import expected_result as eertree_oracle
+from segment_add_get_min_oracle import CHECKSUM_OFFSET as SEGMENT_ADD_GET_MIN_CHECKSUM_OFFSET
+from segment_add_get_min_oracle import COEFFICIENT_LIMIT as SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT
+from segment_add_get_min_oracle import DOMAIN_HIGH as SEGMENT_ADD_GET_MIN_DOMAIN_HIGH
+from segment_add_get_min_oracle import DOMAIN_LOW as SEGMENT_ADD_GET_MIN_DOMAIN_LOW
+from segment_add_get_min_oracle import DOMAIN_RIGHT as SEGMENT_ADD_GET_MIN_DOMAIN_RIGHT
+from segment_add_get_min_oracle import INFINITY_VALUE as SEGMENT_ADD_GET_MIN_INFINITY_VALUE
+from segment_add_get_min_oracle import INVALID_RESULT as SEGMENT_ADD_GET_MIN_INVALID_RESULT
+from segment_add_get_min_oracle import MAX_INITIAL_SEGMENTS as SEGMENT_ADD_GET_MIN_MAX_INITIAL_SEGMENTS
+from segment_add_get_min_oracle import MAX_INPUT_LENGTH as SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
+from segment_add_get_min_oracle import MAX_OPERATIONS as SEGMENT_ADD_GET_MIN_MAX_OPERATIONS
+from manhattan_mst_oracle import MAX_COORDINATE as MANHATTAN_MST_MAX_COORDINATE
+from manhattan_mst_oracle import MAX_INPUT_LENGTH as MANHATTAN_MST_MAX_INPUT_LENGTH
+from manhattan_mst_oracle import MAX_POINTS as MANHATTAN_MST_MAX_POINTS
+from manhattan_mst_oracle import expected_output as manhattan_mst_oracle
 
 ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "frequency_finder", "multiply_digit", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "edmonds_karp", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
 ALGORITHMS += ("trimaran_netbench_url_internet_checksum",)
@@ -1890,6 +1930,11 @@ ALGORITHMS += ("mcgill_exptree",)
 ALGORITHMS += ("freebench_neural_hopfield",)
 ALGORITHMS += ("rle_lcs_block_dp",)
 ALGORITHMS += ("rle_levenshtein_block_dp",)
+ALGORITHMS += ("li_chao_tree", "segment_tree_beats", "eertree")
+ALGORITHMS += ("three_edge_connected_components",)
+ALGORITHMS += ("incremental_scc",)
+ALGORITHMS += ("manhattan_mst",)
+ALGORITHMS += ("segment_add_get_min",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -3248,6 +3293,88 @@ def prolangs_c_gnugo_verifier_oracle(values: list[int]) -> int:
     return len(free_points)
 
 
+def segment_add_get_min_verifier_oracle(
+    values: list[int] | tuple[int, ...] | None,
+    *,
+    input_is_null: bool = False,
+    input_length: int | None = None,
+) -> int:
+    """Independent bounded reference that scans all active intervals per query."""
+    if type(input_is_null) is not bool:
+        return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+    if input_length is not None and (
+        type(input_length) is not int
+        or not 0 <= input_length <= SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
+    ):
+        return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+    if input_is_null or not isinstance(values, (list, tuple)):
+        return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+    if input_length is not None and input_length != len(values):
+        return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+    if (not 2 <= len(values) <= SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                   for value in values)):
+        return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+
+    initial_count, operation_count = values[0], values[1]
+    if (not 0 <= initial_count <= SEGMENT_ADD_GET_MIN_MAX_INITIAL_SEGMENTS
+            or not 0 <= operation_count <= SEGMENT_ADD_GET_MIN_MAX_OPERATIONS):
+        return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+
+    def valid_segment(left: int, right: int, slope: int, intercept: int) -> bool:
+        return (
+            SEGMENT_ADD_GET_MIN_DOMAIN_LOW <= left < right <= SEGMENT_ADD_GET_MIN_DOMAIN_RIGHT
+            and -SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT <= slope <= SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT
+            and -SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT <= intercept <= SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT
+        )
+
+    cursor = 2
+    active: list[tuple[int, int, int, int]] = []
+    for _ in range(initial_count):
+        if len(values) - cursor < 4:
+            return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+        left, right, slope, intercept = values[cursor:cursor + 4]
+        if not valid_segment(left, right, slope, intercept):
+            return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+        active.append((left, right, slope, intercept))
+        cursor += 4
+
+    checksum = 0
+    query_number = 0
+    for _ in range(operation_count):
+        if cursor >= len(values):
+            return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+        opcode = values[cursor]
+        cursor += 1
+        if opcode == 0:
+            if len(values) - cursor < 4:
+                return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+            left, right, slope, intercept = values[cursor:cursor + 4]
+            if not valid_segment(left, right, slope, intercept):
+                return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+            active.append((left, right, slope, intercept))
+            cursor += 4
+        elif opcode == 1:
+            if cursor >= len(values):
+                return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+            point = values[cursor]
+            cursor += 1
+            if not SEGMENT_ADD_GET_MIN_DOMAIN_LOW <= point <= SEGMENT_ADD_GET_MIN_DOMAIN_HIGH:
+                return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+            minimum = SEGMENT_ADD_GET_MIN_INFINITY_VALUE
+            for left, right, slope, intercept in active:
+                if left <= point < right:
+                    minimum = min(minimum, slope * point + intercept)
+            query_number += 1
+            checksum += query_number * (minimum + SEGMENT_ADD_GET_MIN_CHECKSUM_OFFSET)
+        else:
+            return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+
+    if cursor != len(values):
+        return SEGMENT_ADD_GET_MIN_INVALID_RESULT
+    return checksum
+
+
 def oracle(algorithm: str, values: list[int]) -> int:
     if algorithm == "mccat_08_main":
         return mccat_08_main_oracle(values)
@@ -3453,6 +3580,20 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return mono_alphabetic_cipher_oracle(values)
     if algorithm == "mono_alphabetic":
         return mono_alphabetic_oracle(values)
+    if algorithm == "li_chao_tree":
+        return li_chao_tree_oracle(values)
+    if algorithm == "three_edge_connected_components":
+        return three_edge_connected_components_oracle(values)
+    if algorithm == "incremental_scc":
+        return incremental_scc_oracle(values)
+    if algorithm == "segment_tree_beats":
+        return segment_tree_beats_oracle(values)
+    if algorithm == "eertree":
+        return eertree_oracle(values)
+    if algorithm == "segment_add_get_min":
+        return segment_add_get_min_verifier_oracle(values)
+    if algorithm == "manhattan_mst":
+        return manhattan_mst_oracle(values)
     if algorithm == "knapsack_zero_one_tabulation":
         return knapsack_zero_one_tabulation_oracle(values)
     if algorithm == "sparse_matrix":
@@ -4533,6 +4674,31 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_lca_workload(workload)
     elif algorithm == "knapsack_zero_one_tabulation":
         validate_knapsack_zero_one_tabulation_workload(workload)
+    elif algorithm == "li_chao_tree":
+        validate_li_chao_tree_workload(workload)
+    elif algorithm == "three_edge_connected_components":
+        validate_three_edge_connected_components_workload(workload)
+    elif algorithm == "incremental_scc":
+        validate_incremental_scc_workload(workload)
+    elif algorithm == "segment_tree_beats":
+        validate_segment_tree_beats_workload(workload)
+    elif algorithm == "eertree":
+        validate_eertree_workload(workload)
+    elif algorithm == "segment_add_get_min":
+        validate_segment_add_get_min_workload(workload)
+        for fixture in workload.get("cases", []):
+            fixture_values = fixture.get("input_values", [])
+            fixture_result = segment_add_get_min_verifier_oracle(
+                fixture_values,
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length", len(fixture_values)),
+            )
+            if fixture_result != fixture.get("expected_result"):
+                raise ValueError(
+                    f"segment_add_get_min fixture differs from the independent scan oracle: {fixture.get('id')}"
+                )
+    elif algorithm == "manhattan_mst":
+        validate_manhattan_mst_workload(workload)
     elif algorithm == "matrix_exponentiation":
         validate_matrix_exponentiation_workload(workload)
     elif algorithm == "miller_rabin_primality_checker":
@@ -6359,6 +6525,349 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for packed in malformed:
             cases[packed] = KNAPSACK_ZERO_ONE_TABULATION_INVALID_RESULT
+    elif algorithm == "li_chao_tree":
+        rng_li_chao = random.Random(0x1C4A0)
+        for _ in range(128):
+            operation_count = rng_li_chao.randrange(LI_CHAO_TREE_MAX_OPERATIONS + 1)
+            packed = [operation_count]
+            has_line = False
+            for _operation in range(operation_count):
+                if not has_line or rng_li_chao.randrange(3) != 0:
+                    packed.extend((0,
+                                   rng_li_chao.randint(-1000, 1000),
+                                   rng_li_chao.randint(-1000, 1000)))
+                    has_line = True
+                else:
+                    packed.extend((1, rng_li_chao.randint(-1_000_000, 1_000_000), 0))
+            values = tuple(packed)
+            if len(values) > LI_CHAO_TREE_MAX_INPUT_LENGTH:
+                raise ValueError("li_chao_tree generated trace exceeds its parser bound")
+            cases[values] = li_chao_tree_oracle(list(values))
+
+        maximum_trace = [LI_CHAO_TREE_MAX_OPERATIONS]
+        for operation in range(LI_CHAO_TREE_MAX_OPERATIONS):
+            if operation % 2 == 0:
+                maximum_trace.extend((0, operation % 2001 - 1000,
+                                      (operation * 37) % 2001 - 1000))
+            else:
+                maximum_trace.extend((1, operation * 3907 % 2_000_001 - 1_000_000, 0))
+        maximum_values = tuple(maximum_trace)
+        if len(maximum_values) != LI_CHAO_TREE_MAX_INPUT_LENGTH:
+            raise ValueError("li_chao_tree maximum trace does not fill its parser bound")
+        cases[maximum_values] = li_chao_tree_oracle(list(maximum_values))
+
+        malformed_li_chao = (
+            (), (0, 0), (513,), (1, 0), (1, 2, 0, 0),
+            (1, 0, 1001, 0), (1, 0, 0, -1001),
+            (2, 0, 0, 1, -1_000_001, 0), (2, 0, 0, 1, 0, 1),
+            (1, 7, 0, 0),
+        )
+        for values in malformed_li_chao:
+            if len(values) <= LI_CHAO_TREE_MAX_INPUT_LENGTH:
+                cases[values] = li_chao_tree_oracle(list(values))
+    elif algorithm == "three_edge_connected_components":
+        def add_three_edge_case(values: tuple[int, ...], *, require_valid: bool = False) -> int:
+            values = tuple(values)
+            if (len(values) > THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("three_edge_connected_components generated input exceeds its signed-i64 parser bound")
+            result = three_edge_connected_components_oracle(list(values))
+            if require_valid and result == THREE_EDGE_CONNECTED_COMPONENTS_INVALID_RESULT:
+                raise ValueError("three_edge_connected_components generated graph is invalid")
+            cases[values] = result
+            return result
+
+        maximum_edges = tuple(
+            endpoint
+            for second in range(THREE_EDGE_CONNECTED_COMPONENTS_MAX_VERTICES // 2)
+            for first in range(THREE_EDGE_CONNECTED_COMPONENTS_MAX_VERTICES)
+            for endpoint in (first, second)
+        )
+        maximum_values = (
+            THREE_EDGE_CONNECTED_COMPONENTS_MAX_VERTICES,
+            THREE_EDGE_CONNECTED_COMPONENTS_MAX_EDGES,
+            *maximum_edges,
+        )
+        if len(maximum_values) != THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH:
+            raise ValueError("three_edge_connected_components maximum graph does not fill its parser bound")
+        add_three_edge_case(maximum_values, require_valid=True)
+
+        rng_three_edge = random.Random(0x3ED6C0DE)
+        for _ in range(128):
+            vertex_count = rng_three_edge.randint(1, THREE_EDGE_CONNECTED_COMPONENTS_MAX_VERTICES)
+            edge_count = rng_three_edge.randint(0, THREE_EDGE_CONNECTED_COMPONENTS_MAX_EDGES)
+            packed = [vertex_count, edge_count]
+            for _edge in range(edge_count):
+                packed.extend((rng_three_edge.randrange(vertex_count),
+                               rng_three_edge.randrange(vertex_count)))
+            add_three_edge_case(tuple(packed), require_valid=True)
+
+        malformed_three_edge = (
+            (), (1,), (0, 0), (THREE_EDGE_CONNECTED_COMPONENTS_MAX_VERTICES + 1, 0),
+            (1, -1), (1, THREE_EDGE_CONNECTED_COMPONENTS_MAX_EDGES + 1),
+            (2, 1, 0, 2), (2, 1, -1, 0), (2, 1, 0), (1, 1, 0, 0, 0),
+            (I64_MIN, 0), (1, I64_MAX),
+            (THREE_EDGE_CONNECTED_COMPONENTS_MAX_VERTICES,
+             THREE_EDGE_CONNECTED_COMPONENTS_MAX_EDGES - 1,
+             *([0, 0] * THREE_EDGE_CONNECTED_COMPONENTS_MAX_EDGES)),
+            (THREE_EDGE_CONNECTED_COMPONENTS_MAX_VERTICES,
+             THREE_EDGE_CONNECTED_COMPONENTS_MAX_EDGES,
+             *([0, 0] * (THREE_EDGE_CONNECTED_COMPONENTS_MAX_EDGES - 1)), 0,
+             THREE_EDGE_CONNECTED_COMPONENTS_MAX_VERTICES),
+        )
+        for malformed in malformed_three_edge:
+            if (len(malformed) <= THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
+                    and add_three_edge_case(malformed) != THREE_EDGE_CONNECTED_COMPONENTS_INVALID_RESULT):
+                raise ValueError("three_edge_connected_components oracle accepted malformed input")
+
+        for null_length in (0, 1, THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH):
+            result = three_edge_connected_components_oracle(
+                [], input_is_null=True, input_length=null_length)
+            if result != THREE_EDGE_CONNECTED_COMPONENTS_INVALID_RESULT:
+                raise ValueError("three_edge_connected_components oracle accepted a null input pointer")
+            special_records.append(f"NULL {null_length} {result}\n")
+    elif algorithm == "incremental_scc":
+        def add_incremental_scc_case(values: tuple[int, ...], *, require_valid: bool = False) -> int:
+            values = tuple(values)
+            if (len(values) > INCREMENTAL_SCC_MAX_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("incremental_scc generated input exceeds its signed-i64 parser bound")
+            result = incremental_scc_oracle(list(values))
+            if require_valid and result == INCREMENTAL_SCC_INVALID_RESULT:
+                raise ValueError("incremental_scc generated insertion sequence is invalid")
+            cases[values] = result
+            return result
+
+        maximum_edges = tuple(
+            endpoint
+            for edge in range(INCREMENTAL_SCC_MAX_EDGES)
+            for endpoint in (edge % INCREMENTAL_SCC_MAX_VERTICES,
+                             (edge + 1) % INCREMENTAL_SCC_MAX_VERTICES)
+        )
+        maximum_values = (
+            INCREMENTAL_SCC_MAX_VERTICES,
+            INCREMENTAL_SCC_MAX_EDGES,
+            *maximum_edges,
+        )
+        if len(maximum_values) != INCREMENTAL_SCC_MAX_INPUT_LENGTH:
+            raise ValueError("incremental_scc maximum insertion sequence does not fill its parser bound")
+        add_incremental_scc_case(maximum_values, require_valid=True)
+
+        rng_incremental_scc = random.Random(0x1AC5CC)
+        for _ in range(128):
+            vertex_count = rng_incremental_scc.randint(1, INCREMENTAL_SCC_MAX_VERTICES)
+            edge_count = rng_incremental_scc.randint(0, INCREMENTAL_SCC_MAX_EDGES)
+            packed = [vertex_count, edge_count]
+            for _edge in range(edge_count):
+                packed.extend((rng_incremental_scc.randrange(vertex_count),
+                               rng_incremental_scc.randrange(vertex_count)))
+            add_incremental_scc_case(tuple(packed), require_valid=True)
+
+        malformed_incremental_scc = (
+            (), (1,), (0, 0), (INCREMENTAL_SCC_MAX_VERTICES + 1, 0),
+            (1, -1), (1, INCREMENTAL_SCC_MAX_EDGES + 1),
+            (2, 1, 0, 2), (2, 1, -1, 0), (2, 1, 0), (1, 0, 0),
+            (I64_MIN, 0), (1, I64_MAX),
+            (INCREMENTAL_SCC_MAX_VERTICES, INCREMENTAL_SCC_MAX_EDGES - 1,
+             *([0, 0] * INCREMENTAL_SCC_MAX_EDGES)),
+            (INCREMENTAL_SCC_MAX_VERTICES, INCREMENTAL_SCC_MAX_EDGES,
+             *([0, 0] * (INCREMENTAL_SCC_MAX_EDGES - 1)), 0,
+             INCREMENTAL_SCC_MAX_VERTICES),
+        )
+        for malformed in malformed_incremental_scc:
+            if (len(malformed) <= INCREMENTAL_SCC_MAX_INPUT_LENGTH
+                    and add_incremental_scc_case(malformed) != INCREMENTAL_SCC_INVALID_RESULT):
+                raise ValueError("incremental_scc oracle accepted malformed input")
+
+        for null_length in (0, 1, 2, INCREMENTAL_SCC_MAX_INPUT_LENGTH):
+            result = incremental_scc_oracle([], input_is_null=True, input_length=null_length)
+            if result != INCREMENTAL_SCC_INVALID_RESULT:
+                raise ValueError("incremental_scc oracle accepted a null input pointer")
+            special_records.append(f"NULL {null_length} {result}\n")
+    elif algorithm == "manhattan_mst":
+        rng_manhattan = random.Random(0x4D414E48)
+        for _ in range(128):
+            point_count = rng_manhattan.randint(1, MANHATTAN_MST_MAX_POINTS)
+            packed = [point_count]
+            for _point in range(point_count):
+                packed.extend((rng_manhattan.randint(-MANHATTAN_MST_MAX_COORDINATE,
+                                                     MANHATTAN_MST_MAX_COORDINATE),
+                               rng_manhattan.randint(-MANHATTAN_MST_MAX_COORDINATE,
+                                                     MANHATTAN_MST_MAX_COORDINATE)))
+            values = tuple(packed)
+            if len(values) > MANHATTAN_MST_MAX_INPUT_LENGTH:
+                raise ValueError("manhattan_mst generated point set exceeds its parser bound")
+            cases[values] = manhattan_mst_oracle(list(values))
+
+        maximum_values = (MANHATTAN_MST_MAX_POINTS,
+                          *(coordinate
+                            for point in range(MANHATTAN_MST_MAX_POINTS)
+                            for coordinate in ((point * 7919) % 2_000_001 - 1_000_000,
+                                               (point * 104729) % 2_000_001 - 1_000_000)))
+        if len(maximum_values) != MANHATTAN_MST_MAX_INPUT_LENGTH:
+            raise ValueError("manhattan_mst maximum point set does not fill its parser bound")
+        cases[maximum_values] = manhattan_mst_oracle(list(maximum_values))
+
+        malformed_manhattan = (
+            (), (0,), (MANHATTAN_MST_MAX_POINTS + 1,),
+            (2, 0, 0), (1, -MANHATTAN_MST_MAX_COORDINATE - 1, 0),
+            (1, 0, MANHATTAN_MST_MAX_COORDINATE + 1),
+            (1, 0), (1, 0, 0, 7),
+        )
+        for values in malformed_manhattan:
+            if len(values) <= MANHATTAN_MST_MAX_INPUT_LENGTH:
+                cases[values] = manhattan_mst_oracle(list(values))
+    elif algorithm == "segment_tree_beats":
+        rng_segment_beats = random.Random(0x5E6BEA75)
+        for _ in range(128):
+            item_count = rng_segment_beats.randint(1, 16)
+            operation_count = rng_segment_beats.randint(0, 32)
+            packed = [item_count]
+            packed.extend(rng_segment_beats.randint(-64, 64) for _ in range(item_count))
+            packed.append(operation_count)
+            for _operation in range(operation_count):
+                opcode = rng_segment_beats.randrange(4)
+                left = rng_segment_beats.randrange(item_count)
+                right = rng_segment_beats.randint(left + 1, item_count)
+                argument = 0 if opcode == 3 else rng_segment_beats.randint(-64, 64)
+                packed.extend((opcode, left, right, argument))
+            values = tuple(packed)
+            cases[values] = segment_tree_beats_oracle(list(values))
+
+        maximum_trace = [SEGMENT_TREE_BEATS_MAX_ITEMS]
+        maximum_trace.extend((index * 31) % (2 * SEGMENT_TREE_BEATS_VALUE_LIMIT + 1)
+                             - SEGMENT_TREE_BEATS_VALUE_LIMIT
+                             for index in range(SEGMENT_TREE_BEATS_MAX_ITEMS))
+        maximum_trace.append(SEGMENT_TREE_BEATS_MAX_OPERATIONS)
+        for operation in range(SEGMENT_TREE_BEATS_MAX_OPERATIONS):
+            opcode = operation % 4
+            left, right = operation % SEGMENT_TREE_BEATS_MAX_ITEMS, SEGMENT_TREE_BEATS_MAX_ITEMS
+            argument = 0 if opcode == 3 else (operation * 97) % 2_000_001 - 1_000_000
+            maximum_trace.extend((opcode, left, right, argument))
+        maximum_values = tuple(maximum_trace)
+        cases[maximum_values] = segment_tree_beats_oracle(list(maximum_values))
+
+        malformed_segment_beats = (
+            (), (0, 0), (SEGMENT_TREE_BEATS_MAX_ITEMS + 1, 0),
+            (1, 0), (1, 0, -1), (1, 0, 1, 4, 0, 1, 0),
+            (1, 0, 1, 3, 0, 1, 1), (1, SEGMENT_TREE_BEATS_VALUE_LIMIT + 1, 0),
+            (1, 0, 1),
+        )
+        for values in malformed_segment_beats:
+            cases[values] = segment_tree_beats_oracle(list(values))
+    elif algorithm == "eertree":
+        rng_eertree = random.Random(0xEE771EE)
+        for _ in range(96):
+            text_length = rng_eertree.randint(0, min(EERTREE_MAX_TEXT_LENGTH, 64))
+            values = (text_length, *(rng_eertree.randrange(4) for _ in range(text_length)))
+            cases[values] = eertree_oracle(list(values))
+
+        maximum_text = tuple((index * 11 + index // 3) % 26
+                             for index in range(EERTREE_MAX_TEXT_LENGTH))
+        maximum_values = (EERTREE_MAX_TEXT_LENGTH, *maximum_text)
+        cases[maximum_values] = eertree_oracle(list(maximum_values))
+
+        malformed_eertree = (
+            (), (0, 0), (EERTREE_MAX_TEXT_LENGTH + 1,), (1, -1),
+            (1, 26), (2, 0), (1, 0, 1),
+        )
+        for values in malformed_eertree:
+            cases[values] = eertree_oracle(list(values))
+    elif algorithm == "segment_add_get_min":
+        def add_segment_add_get_min_case(
+            values: tuple[int, ...], *, require_valid: bool = False
+        ) -> int:
+            values = tuple(values)
+            if (len(values) > SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("segment_add_get_min generated input exceeds its signed-i64 capacity probe")
+            result = segment_add_get_min_verifier_oracle(list(values))
+            if require_valid and result == SEGMENT_ADD_GET_MIN_INVALID_RESULT:
+                raise ValueError("segment_add_get_min generated trace is invalid")
+            cases[values] = result
+            return result
+
+        maximum_trace = [SEGMENT_ADD_GET_MIN_MAX_INITIAL_SEGMENTS,
+                         SEGMENT_ADD_GET_MIN_MAX_OPERATIONS]
+        for index in range(SEGMENT_ADD_GET_MIN_MAX_INITIAL_SEGMENTS):
+            maximum_trace.extend((SEGMENT_ADD_GET_MIN_DOMAIN_LOW,
+                                  SEGMENT_ADD_GET_MIN_DOMAIN_RIGHT,
+                                  index * 17 % (2 * SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT + 1)
+                                  - SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT,
+                                  index * 31 % (2 * SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT + 1)
+                                  - SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT))
+        for index in range(SEGMENT_ADD_GET_MIN_MAX_OPERATIONS):
+            maximum_trace.extend((0, SEGMENT_ADD_GET_MIN_DOMAIN_LOW,
+                                  SEGMENT_ADD_GET_MIN_DOMAIN_RIGHT,
+                                  index * 43 % (2 * SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT + 1)
+                                  - SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT,
+                                  index * 59 % (2 * SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT + 1)
+                                  - SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT))
+        if len(maximum_trace) != SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH:
+            raise ValueError("segment_add_get_min maximum trace does not fill its parser bound")
+        add_segment_add_get_min_case(tuple(maximum_trace), require_valid=True)
+        malformed_maximum = maximum_trace.copy()
+        malformed_maximum[-5] = 2
+        if (add_segment_add_get_min_case(tuple(malformed_maximum))
+                != SEGMENT_ADD_GET_MIN_INVALID_RESULT):
+            raise ValueError("segment_add_get_min oracle accepted a malformed maximum-size trace")
+
+        rng_segment_add_get_min = random.Random(0x5E6ADD)
+        for _ in range(128):
+            initial_count = rng_segment_add_get_min.randint(
+                0, SEGMENT_ADD_GET_MIN_MAX_INITIAL_SEGMENTS)
+            operation_count = rng_segment_add_get_min.randint(
+                0, SEGMENT_ADD_GET_MIN_MAX_OPERATIONS)
+            packed = [initial_count, operation_count]
+            for _segment in range(initial_count):
+                left = rng_segment_add_get_min.randint(
+                    SEGMENT_ADD_GET_MIN_DOMAIN_LOW, SEGMENT_ADD_GET_MIN_DOMAIN_HIGH)
+                right = rng_segment_add_get_min.randint(left + 1, SEGMENT_ADD_GET_MIN_DOMAIN_RIGHT)
+                packed.extend((left, right,
+                               rng_segment_add_get_min.randint(-SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT,
+                                                               SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT),
+                               rng_segment_add_get_min.randint(-SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT,
+                                                               SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT)))
+            for _operation in range(operation_count):
+                if rng_segment_add_get_min.randrange(2):
+                    point = rng_segment_add_get_min.randint(
+                        SEGMENT_ADD_GET_MIN_DOMAIN_LOW, SEGMENT_ADD_GET_MIN_DOMAIN_HIGH)
+                    packed.extend((1, point))
+                else:
+                    left = rng_segment_add_get_min.randint(
+                        SEGMENT_ADD_GET_MIN_DOMAIN_LOW, SEGMENT_ADD_GET_MIN_DOMAIN_HIGH)
+                    right = rng_segment_add_get_min.randint(left + 1,
+                                                             SEGMENT_ADD_GET_MIN_DOMAIN_RIGHT)
+                    packed.extend((0, left, right,
+                                   rng_segment_add_get_min.randint(-SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT,
+                                                                   SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT),
+                                   rng_segment_add_get_min.randint(-SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT,
+                                                                   SEGMENT_ADD_GET_MIN_COEFFICIENT_LIMIT)))
+            add_segment_add_get_min_case(tuple(packed), require_valid=True)
+
+        malformed_segment_add_get_min = (
+            (), (0,), (17, 0), (0, 33),
+            (1, 0, -33, -31, 0, 0), (1, 0, 0, 0, 0, 0),
+            (1, 0, 0, 1, 1001, 0), (0, 1, 0, 5, 4, 0, 0),
+            (0, 1, 2), (0, 1, 1, 32),
+            (1, 0, 0, 1, 0), (0, 1, 0, 0, 1), (0, 1, 1),
+            (0, 0, 9), (I64_MIN, 0), (0, I64_MAX),
+            tuple([0] * (SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH + 1)),
+        )
+        for malformed in malformed_segment_add_get_min:
+            if (add_segment_add_get_min_case(malformed)
+                    != SEGMENT_ADD_GET_MIN_INVALID_RESULT):
+                raise ValueError("segment_add_get_min oracle accepted malformed input")
+
+        for null_length in (0, 1, SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH):
+            result = segment_add_get_min_verifier_oracle(
+                [], input_is_null=True, input_length=null_length)
+            if result != SEGMENT_ADD_GET_MIN_INVALID_RESULT:
+                raise ValueError("segment_add_get_min verifier oracle accepted a null input pointer")
+            special_records.append(f"NULL {null_length} {result}\n")
     if algorithm == "lca":
         def add_lca_case(values: tuple[int, ...]) -> None:
             if len(values) > LCA_MAX_INPUT_LENGTH:

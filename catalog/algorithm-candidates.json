@@ -11307,7 +11307,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -11317,9 +11317,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "binary_indexed_tree",
-      "benchmark_contract": "benchmarks/b/binary_indexed_tree/README.md",
-      "review_notes": "The pinned C# source exposes point additions and prefix sums. Its update bound can index past the array for arbitrary lengths; the shared contract restricts length to powers of two from 2 through 256, preserving source operations and keeping 32-bit tree cells in range."
+      "alias_of": "fenwick_tree",
+      "benchmark_name": "fenwick_tree",
+      "benchmark_contract": "benchmarks/f/fenwick_tree/README.md",
+      "review_notes": "The pinned C# BinaryIndexedTree uses the same Fenwick low-bit point-add and prefix-sum algorithm as the canonical fenwick_tree benchmark. Its source-specific index bound and zero-initialized profile are not a distinct algorithm; preserve this source as alternate provenance under the canonical workload."
     },
     {
       "candidate_id": "binary_insertion_sort",
@@ -41497,9 +41498,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "hierholzer_eulerian_path",
-      "benchmark_contract": "benchmarks/h/hierholzer_eulerian_path/README.md",
-      "review_notes": "The pinned Java Hierholzer source operates on a directed insertion-ordered multigraph. The bounded contract uses n=0..16, m=0..48, validates endpoints, requires Euler degree conditions and weak connectivity over nonzero-degree vertices, and preserves source start selection and FIFO edge order. n=0 returns an empty path; n>0 with no edges returns [0]; a graph with no Euler route returns an empty path. Output is a vertex count followed by little-endian i64 vertices. Source and nine-port review CLEAR; README, workload, oracle, and ports are present. Runner/verifier integration CLEAR; no tests or builds were run."
+      "alias_of": "eulerian_path",
+      "benchmark_name": "eulerian_path",
+      "benchmark_contract": "benchmarks/e/eulerian_path/README.md",
+      "review_notes": "Duplicate removed: the pinned Java source uses the same directed Hierholzer algorithm as the canonical `eulerian_path` benchmark. Its narrower graph bounds, adjacency consumption order, edgeless output `[0]`, and count-prefixed serialization are profile or adapter differences, not a distinct algorithm. The Java source is retained as alternate provenance; the canonical benchmark uses the wider bounds and normalized vertex-sequence output."
     },
     {
       "candidate_id": "higher_lower_power_of_two",
@@ -82684,21 +82686,21 @@
       "source_repositories": [
         "Rust"
       ],
-      "local_source_folders": [
-        "rust"
-      ],
-      "review_status": "reviewed_algorithm_semantics",
+      "local_source_folders": [],
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Rust",
           "language": "Rust",
           "path": "src/data_structures/range_minimum_query.rs",
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/data_structures/range_minimum_query.rs",
-          "local_folder_source": "rust"
+          "local_folder_source": null
         }
       ],
-      "benchmark_contract": "benchmarks/r/range_minimum_query/README.md",
-      "review_notes": "The pinned Rust source builds a range-minimum query structure. The benchmark accepts bounded values and half-open queries; invalid individual ranges emit INT64_MIN while malformed packed input is rejected."
+      "alias_of": "sparse_table",
+      "benchmark_name": "sparse_table",
+      "benchmark_contract": "benchmarks/s/sparse_table/README.md",
+      "review_notes": "The pinned Rust RangeMinimumQuery uses the same static sparse-table preprocessing and O(1) two-block query algorithm as the canonical sparse_table benchmark. Half-open ranges, batched output, and per-query error sentinels are adapter/profile differences, not a distinct algorithm; retain the Rust source as alternate provenance."
     },
     {
       "candidate_id": "range_sum_query",

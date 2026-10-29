@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "id": "counting-spanning-trees-directed-matrix-tree-i64-array-bytes-output-v1",
+  "algorithm": "counting_spanning_trees_directed",
+  "function_symbol": "counting_spanning_trees_directed",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "Library Checker",
+    "problem": "Counting Spanning Trees (Directed)",
+    "url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/counting_spanning_tree_directed/task.md",
+    "source_type": "official_algorithm_task_specification",
+    "reuse": "Task definition only; all implementations and the oracle are independently written."
+  },
+  "contract": {
+    "operation": "Count outward spanning arborescences rooted at r in a bounded directed multigraph modulo 998244353.",
+    "input_layout": "[n, m, r, (u, v)*m]",
+    "vertex_count_range": [1, 6],
+    "edge_count_range": [0, 12],
+    "vertex_ids": "zero-based",
+    "root_semantics": "Every vertex must be reachable from r; each non-root vertex has exactly one selected incoming arc and r has none.",
+    "graph_semantics": "Directed multigraph; arc order and multiplicity are preserved.",
+    "parallel_edges": "Each input arc is distinct and contributes separately.",
+    "self_loops": "Accepted but cannot belong to an outward spanning arborescence.",
+    "algorithm": "Directed Matrix-Tree theorem: form the in-degree Laplacian, delete the root row and column, and compute the determinant by modular Gaussian elimination.",
+    "modulus": 998244353,
+    "output_encoding": "one unsigned 64-bit count in eight little-endian bytes",
+    "unreachable_graph_result": 0,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input framing and endpoint validation precede output pointer and capacity checks."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 27,
+    "maximum_parseable_length": 27,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_unsigned_64_bit_scalar",
+    "maximum_bytes": 8,
+    "success_result": 8,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Bounded directed Laplacian cofactor and modular-elimination scratch matrix."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "singleton-with-loops",
+      "input_values": [1, 2, 0, 0, 0, 0, 0],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "outward-path",
+      "input_values": [4, 3, 0, 0, 1, 1, 2, 1, 3],
+      "input_length": 9,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "complete-bidirected-three",
+      "input_values": [3, 6, 0, 0, 1, 0, 2, 1, 0, 1, 2, 2, 0, 2, 1],
+      "input_length": 15,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0300000000000000"
+    },
+    {
+      "id": "parallel-arcs-chain",
+      "input_values": [3, 5, 0, 0, 1, 0, 1, 1, 2, 1, 2, 1, 2],
+      "input_length": 13,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0600000000000000"
+    },
+    {
+      "id": "loop-does-not-contribute",
+      "input_values": [3, 4, 0, 0, 0, 0, 1, 1, 2, 1, 2],
+      "input_length": 11,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0200000000000000"
+    },
+    {
+      "id": "disconnected-root",
+      "input_values": [3, 2, 0, 1, 0, 0, 2],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "maximum-parallel-arc-bound",
+      "input_values": [2, 12, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+      "input_length": 27,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0c00000000000000"
+    },
+    {
+      "id": "vertex-count-out-of-range",
+      "input_values": [0, 0, 0],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "edge-count-out-of-range",
+      "input_values": [6, 13, 0],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "root-out-of-range",
+      "input_values": [3, 0, 3],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "endpoint-out-of-range",
+      "input_values": [2, 1, 0, 0, 2],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-edge-frame",
+      "input_values": [3, 2, 0, 0, 1],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-before-output-error",
+      "input_values": [2, 1, 0, 0, 2],
+      "input_length": 5,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 1, 0, 0, 1],
+      "input_length": 5,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 1, 0, 0, 1],
+      "input_length": 5,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 8,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

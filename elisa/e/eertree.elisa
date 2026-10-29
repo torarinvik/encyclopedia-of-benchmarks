@@ -1,0 +1,74 @@
+# Online distinct-palindrome counts with a fixed lowercase alphabet.
+const EERTREE_MAX_TEXT_LENGTH: usize = 128
+const EERTREE_MAX_NODES: usize = EERTREE_MAX_TEXT_LENGTH + 2
+const EERTREE_ALPHABET_SIZE: usize = 26
+
+struct EertreeNode:
+    length: i64
+    suffix_link: i64
+    next: i64[26]
+
+def eertree_initialize_node(nodes: mutable view[EertreeNode], id: usize,
+                            node_length: i64, suffix_link: i64) -> void:
+    nodes[id].length <- node_length
+    nodes[id].suffix_link <- suffix_link
+    letter: mutable usize = 0
+    while letter < EERTREE_ALPHABET_SIZE:
+        nodes[id].next[letter] <- -1
+        letter <- letter + 1
+
+def eertree_find_extendable(nodes: view[EertreeNode], text: view[i64],
+                            position: usize, start: i64) -> i64:
+    node: mutable i64 = start
+    while true:
+        preceding: i64 = position.i64() - 1 - nodes[node.usize()].length
+        if preceding >= 0 and text[preceding.usize()] == text[position]: return node
+        node <- nodes[node.usize()].suffix_link
+    -1
+
+def eertree_impl(input_values: i64&, length: usize) -> i64:
+    if input_values.is_null() or length < 1 or length > EERTREE_MAX_TEXT_LENGTH + 1: return -1
+    if input_values[0] < 0 or input_values[0] > EERTREE_MAX_TEXT_LENGTH.i64(): return -1
+    text_length: usize = input_values[0].usize()
+    if length != text_length + 1: return -1
+
+    text: mutable i64[EERTREE_MAX_TEXT_LENGTH] = zeroed
+    position: mutable usize = 0
+    while position < text_length:
+        value: i64 = input_values[position + 1]
+        if value < 0 or value >= EERTREE_ALPHABET_SIZE.i64(): return -1
+        text[position] <- value
+        position <- position + 1
+
+    nodes: mutable EertreeNode[EERTREE_MAX_NODES] = zeroed
+    eertree_initialize_node(nodes[0:EERTREE_MAX_NODES], 0, -1, 0)
+    eertree_initialize_node(nodes[0:EERTREE_MAX_NODES], 1, 0, 0)
+    node_count: mutable usize = 2
+    longest_suffix: mutable i64 = 1
+    checksum: mutable i64 = 0
+    position <- 0
+    while position < text_length:
+        letter: usize = text[position].usize()
+        parent: i64 = eertree_find_extendable(nodes[0:EERTREE_MAX_NODES],
+                                               text[0:text_length], position, longest_suffix)
+        next: mutable i64 = nodes[parent.usize()].next[letter]
+        if next < 0:
+            next <- node_count.i64()
+            node_count <- node_count + 1
+            eertree_initialize_node(nodes[0:EERTREE_MAX_NODES], next.usize(),
+                                    nodes[parent.usize()].length + 2, 0)
+            nodes[parent.usize()].next[letter] <- next
+            if nodes[next.usize()].length == 1:
+                nodes[next.usize()].suffix_link <- 1
+            else:
+                suffix_parent: i64 = eertree_find_extendable(nodes[0:EERTREE_MAX_NODES],
+                    text[0:text_length], position, nodes[parent.usize()].suffix_link)
+                suffix: i64 = nodes[suffix_parent.usize()].next[letter]
+                if suffix < 0: return -1
+                nodes[next.usize()].suffix_link <- suffix
+        longest_suffix <- next
+        checksum <- checksum + (position.i64() + 1) * (node_count.i64() - 2)
+        position <- position + 1
+    checksum
+
+export fn eertree(input_values: i64&, length: usize) -> i64 = eertree_impl

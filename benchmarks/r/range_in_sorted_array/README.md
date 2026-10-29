@@ -9,7 +9,7 @@ This benchmark ports the Java `sortedRange` method, which returns the first and 
 - The output buffer contains two little-endian signed 32-bit indices: first occurrence, then last occurrence. A missing key and an empty array produce `[-1,-1]`. Successful calls return `8` bytes; malformed inputs return `-1`; insufficient output capacity returns `-2`.
 - The ports preserve the source's two iterative binary searches and its left/right neighbor checks. The small array bound keeps Java-style indices and midpoint arithmetic in range.
 
-This is a paired occurrence-range search, distinct from `lower_bound` and `upper_bound`, which each return one boundary, and `range_minimum_query`, which returns an array minimum. The Java source also exposes a count-less-than helper; this package benchmarks its primary `sortedRange` operation.
+This is a paired occurrence-range search, distinct from `lower_bound` and `upper_bound`, which each return one boundary, and `sparse_table`, which answers static array minimum queries. The Java source also exposes a count-less-than helper; this package benchmarks its primary `sortedRange` operation.
 
 ## Pinned source
 

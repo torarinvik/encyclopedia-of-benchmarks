@@ -1,6 +1,6 @@
 # Directed Eulerian path
 
-Find a directed walk that uses every edge exactly once. This benchmark follows the pinned Rust Hierholzer implementation and is separate from [`eulerian_trail_undirected_simple`](../eulerian_trail_undirected_simple/README.md).
+Find a directed walk that uses every edge exactly once. This is the canonical directed Hierholzer benchmark; it consolidates the equivalent Java `hierholzer_eulerian_path` profile under one workload and normalized output contract. It is separate from [`eulerian_trail_undirected_simple`](../eulerian_trail_undirected_simple/README.md), which operates on a simple undirected graph.
 
 ## Contract
 
@@ -22,6 +22,7 @@ python3 benchmarks/verify_i64_array_bytes_output.py --algorithms eulerian_path
 ## Source
 
 - [Rust `eulerian_path.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/graph/eulerian_path.rs)
+- [Java `HierholzerEulerianPath.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/graph/HierholzerEulerianPath.java) (same directed Hierholzer algorithm; its vertex-count prefix and narrower bounds are normalized here)
 
 ## Implementations
 

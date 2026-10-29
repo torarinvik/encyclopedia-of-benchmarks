@@ -1,0 +1,135 @@
+const MAX_TREES: usize = 16
+const MAX_TREE_VERTICES: usize = 32
+const MAX_TOTAL_VERTICES: usize = 128
+const MAX_INPUT_LENGTH: usize = 1 + 2 * MAX_TREES * MAX_TREE_VERTICES
+
+struct RootedTreeSignature:
+    child_count: usize
+    child_types: usize[32]
+
+def rooted_tree_isomorphism_intern(signatures: mutable view[RootedTreeSignature],
+                                   signature_count: mutable usize&, children: view[usize],
+                                   child_count: usize) -> usize:
+    signature: mutable usize = 0
+    while signature < signature_count:
+        if signatures[signature].child_count == child_count:
+            index: mutable usize = 0
+            while index < child_count and signatures[signature].child_types[index] == children[index]:
+                index <- index + 1
+            if index == child_count: return signature
+        signature <- signature + 1
+    if signature_count >= MAX_TOTAL_VERTICES: return MAX_TOTAL_VERTICES
+    result: usize = signature_count
+    signatures[result].child_count <- child_count
+    for index in 0..<child_count:
+        signatures[result].child_types[index] <- children[index]
+    signature_count <- signature_count + 1
+    result
+
+def rooted_tree_isomorphism_canonical_root(adjacency: view[u64], vertex_count: usize,
+    root: usize, signatures: mutable view[RootedTreeSignature],
+    signature_count: mutable usize&) -> i64:
+    parent: mutable usize[32] = zeroed
+    order: mutable usize[32] = zeroed
+    stack: mutable usize[32] = zeroed
+    node_type: mutable usize[32] = zeroed
+    visited: mutable u8[32] = zeroed
+    for vertex in 0..<vertex_count: parent[vertex] <- MAX_TREE_VERTICES
+    parent[root] <- root
+    visited[root] <- 1
+    stack_size: mutable usize = 1
+    order_size: mutable usize = 0
+    stack[0] <- root
+    while stack_size > 0:
+        stack_size <- stack_size - 1
+        vertex: usize = stack[stack_size]
+        order[order_size] <- vertex
+        order_size <- order_size + 1
+        for neighbor in 0..<vertex_count:
+            bit: u64 = u64(1) << neighbor
+            if (adjacency[vertex] & bit) == 0 or neighbor == parent[vertex]: continue
+            if visited[neighbor] != 0: return -1
+            visited[neighbor] <- 1
+            parent[neighbor] <- vertex
+            stack[stack_size] <- neighbor
+            stack_size <- stack_size + 1
+    if order_size != vertex_count: return -1
+
+    reverse: mutable usize = order_size
+    while reverse > 0:
+        reverse <- reverse - 1
+        vertex: usize = order[reverse]
+        children: mutable usize[32] = zeroed
+        child_count: mutable usize = 0
+        for candidate in 0..<vertex_count:
+            if candidate != vertex and parent[candidate] == vertex:
+                children[child_count] <- node_type[candidate]
+                child_count <- child_count + 1
+        index: mutable usize = 1
+        while index < child_count:
+            value: usize = children[index]
+            place: mutable usize = index
+            while place > 0 and children[place - 1] > value:
+                children[place] <- children[place - 1]
+                place <- place - 1
+            children[place] <- value
+            index <- index + 1
+        node_type[vertex] <- rooted_tree_isomorphism_intern(signatures, signature_count,
+            children[0:child_count], child_count)
+        if node_type[vertex] >= MAX_TOTAL_VERTICES: return -1
+    node_type[root].i64()
+
+def rooted_tree_isomorphism_classification_impl(values: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    tree_count_value: i64 = values[0]
+    if tree_count_value < 1 or tree_count_value > MAX_TREES.i64(): return -1
+    tree_count: usize = tree_count_value.usize()
+    signatures: mutable RootedTreeSignature[MAX_TOTAL_VERTICES] = zeroed
+    signature_count: mutable usize = 0
+    root_types: mutable usize[MAX_TREES] = zeroed
+    labels: mutable u8[MAX_TREES] = zeroed
+    position: mutable usize = 1
+    total_vertices: mutable usize = 0
+    class_count: mutable usize = 0
+    for tree in 0..<tree_count:
+        if position + 2 > length: return -1
+        n_value: i64 = values[position]
+        root_value: i64 = values[position + 1]
+        position <- position + 2
+        if n_value < 1 or n_value > MAX_TREE_VERTICES.i64() or root_value < 0 or root_value >= n_value: return -1
+        n: usize = n_value.usize()
+        total_vertices <- total_vertices + n
+        if total_vertices > MAX_TOTAL_VERTICES: return -1
+        edge_count: usize = n - 1
+        if 2 * edge_count > length - position: return -1
+        adjacency: mutable u64[32] = zeroed
+        for edge in 0..<edge_count:
+            left_value: i64 = values[position]
+            right_value: i64 = values[position + 1]
+            position <- position + 2
+            if left_value < 0 or right_value < 0 or left_value >= n_value or right_value >= n_value or left_value == right_value: return -1
+            left: usize = left_value.usize()
+            right: usize = right_value.usize()
+            left_bit: u64 = u64(1) << left
+            right_bit: u64 = u64(1) << right
+            if (adjacency[left] & right_bit) != 0: return -1
+            adjacency[left] <- adjacency[left] | right_bit
+            adjacency[right] <- adjacency[right] | left_bit
+        root_type: i64 = rooted_tree_isomorphism_canonical_root(adjacency[0:32], n,
+            root_value.usize(), signatures[0:MAX_TOTAL_VERTICES], signature_count)
+        if root_type < 0: return -1
+        root_types[tree] <- root_type.usize()
+        prior: mutable usize = 0
+        while prior < tree and root_types[prior] != root_types[tree]: prior <- prior + 1
+        if prior < tree: labels[tree] <- labels[prior]
+        else:
+            labels[tree] <- class_count.u8()
+            class_count <- class_count + 1
+    if position != length: return -1
+    if output.is_null() or output_capacity < tree_count: return -2
+    for tree in 0..<tree_count: output[tree] <- labels[tree]
+    tree_count.i64()
+
+export fn rooted_tree_isomorphism_classification(values: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = rooted_tree_isomorphism_classification_impl

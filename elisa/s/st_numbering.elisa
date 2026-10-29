@@ -1,0 +1,204 @@
+# Even-Tarjan DFS/lowpoint st-numbering with a fixed linked adjacency list.
+def st_numbering(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 @export("st_numbering"):
+    if input.is_null() or input_length < 4 or input_length > 60:
+        return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    s_value: i64 = input[2]
+    t_value: i64 = input[3]
+    if n_value < 2 or n_value > 8 or m_value < 0 or m_value > 28 or s_value < 0 or s_value >= n_value or t_value < 0 or t_value >= n_value or s_value == t_value:
+        return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    s: usize = s_value.usize()
+    t: usize = t_value.usize()
+    if input_length != 4 + 2 * m:
+        return -1
+
+    edge_u: mutable i64[28] = zeroed
+    edge_v: mutable i64[28] = zeroed
+    adjacent: mutable u64[8] = zeroed
+    st_edge: mutable i64 = -1
+    edge: mutable usize = 0
+    while edge < m:
+        u_value: i64 = input[4 + 2 * edge]
+        v_value: i64 = input[5 + 2 * edge]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value:
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        u_bit: u64 = 1 << v
+        v_bit: u64 = 1 << u
+        if (adjacent[u] & u_bit) != 0:
+            return -1
+        adjacent[u] <- adjacent[u] | u_bit
+        adjacent[v] <- adjacent[v] | v_bit
+        edge_u[edge] <- u_value
+        edge_v[edge] <- v_value
+        if (u == s and v == t) or (u == t and v == s):
+            st_edge <- edge.i64()
+        edge <- edge + 1
+    if st_edge < 0:
+        return -1
+
+    head: mutable i64[8] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        head[vertex] <- -1
+        vertex <- vertex + 1
+    arc_to: mutable i64[56] = zeroed
+    arc_next: mutable i64[56] = zeroed
+    arc_count: mutable usize = 0
+    edge <- 0
+    while edge < m:
+        if edge.i64() != st_edge:
+            u: usize = edge_u[edge].usize()
+            v: usize = edge_v[edge].usize()
+            arc_to[arc_count] <- v.i64()
+            arc_next[arc_count] <- head[u]
+            head[u] <- arc_count.i64()
+            arc_count <- arc_count + 1
+            arc_to[arc_count] <- u.i64()
+            arc_next[arc_count] <- head[v]
+            head[v] <- arc_count.i64()
+            arc_count <- arc_count + 1
+        edge <- edge + 1
+    arc_to[arc_count] <- t.i64()
+    arc_next[arc_count] <- head[s]
+    head[s] <- arc_count.i64()
+    arc_count <- arc_count + 1
+    arc_to[arc_count] <- s.i64()
+    arc_next[arc_count] <- head[t]
+    head[t] <- arc_count.i64()
+
+    parent: mutable i64[8] = zeroed
+    discovery: mutable i64[8] = zeroed
+    low_vertex: mutable usize[8] = zeroed
+    children: mutable usize[8] = zeroed
+    next_arc: mutable i64[8] = zeroed
+    preorder: mutable usize[8] = zeroed
+    vertex <- 0
+    while vertex < n:
+        parent[vertex] <- -1
+        low_vertex[vertex] <- vertex
+        next_arc[vertex] <- -1
+        vertex <- vertex + 1
+    stack: mutable usize[8] = zeroed
+    top: mutable usize = 0
+    clock: mutable i64 = 1
+    preorder_count: mutable usize = 1
+    discovery[s] <- clock
+    preorder[0] <- s
+    next_arc[s] <- head[s]
+    stack[top] <- s
+    top <- top + 1
+    while top > 0:
+        vertex <- stack[top - 1]
+        arc_value: i64 = next_arc[vertex]
+        if arc_value < 0:
+            top <- top - 1
+            ancestor_value: i64 = parent[vertex]
+            if ancestor_value >= 0:
+                ancestor: usize = ancestor_value.usize()
+                if discovery[low_vertex[vertex]] < discovery[low_vertex[ancestor]]:
+                    low_vertex[ancestor] <- low_vertex[vertex]
+            continue
+        arc: usize = arc_value.usize()
+        next_arc[vertex] <- arc_next[arc]
+        neighbor: usize = arc_to[arc].usize()
+        if parent[vertex] >= 0 and neighbor == parent[vertex].usize():
+            continue
+        if discovery[neighbor] == 0:
+            parent[neighbor] <- vertex.i64()
+            children[vertex] <- children[vertex] + 1
+            clock <- clock + 1
+            discovery[neighbor] <- clock
+            low_vertex[neighbor] <- neighbor
+            preorder[preorder_count] <- neighbor
+            preorder_count <- preorder_count + 1
+            next_arc[neighbor] <- head[neighbor]
+            stack[top] <- neighbor
+            top <- top + 1
+        else if discovery[neighbor] < discovery[vertex] and discovery[neighbor] < discovery[low_vertex[vertex]]:
+            low_vertex[vertex] <- neighbor
+    if preorder_count != n or children[s] != 1:
+        return -1
+    vertex <- 0
+    while vertex < n:
+        if vertex != s:
+            child: mutable usize = 0
+            while child < n:
+                if parent[child] == vertex.i64() and discovery[low_vertex[child]] >= discovery[vertex]:
+                    return -1
+                child <- child + 1
+        vertex <- vertex + 1
+
+    previous: mutable i64[8] = zeroed
+    following: mutable i64[8] = zeroed
+    sign: mutable i64[8] = zeroed
+    vertex <- 0
+    while vertex < n:
+        previous[vertex] <- -1
+        following[vertex] <- -1
+        vertex <- vertex + 1
+    sign[s] <- -1
+    following[s] <- t.i64()
+    previous[t] <- s.i64()
+    list_head: mutable usize = s
+    order: mutable usize = 2
+    while order < n:
+        vertex <- preorder[order]
+        ancestor: usize = parent[vertex].usize()
+        if sign[low_vertex[vertex]] == -1:
+            left_value: i64 = previous[ancestor]
+            previous[vertex] <- left_value
+            following[vertex] <- ancestor.i64()
+            previous[ancestor] <- vertex.i64()
+            if left_value >= 0:
+                following[left_value.usize()] <- vertex.i64()
+            else:
+                list_head <- vertex
+            sign[ancestor] <- 1
+        else:
+            right_value: i64 = following[ancestor]
+            previous[vertex] <- ancestor.i64()
+            following[vertex] <- right_value
+            following[ancestor] <- vertex.i64()
+            if right_value >= 0:
+                previous[right_value.usize()] <- vertex.i64()
+            sign[ancestor] <- -1
+        order <- order + 1
+
+    rank: mutable i64[8] = zeroed
+    staged: mutable u8[8] = zeroed
+    rank_value: mutable i64 = 1
+    vertex_value: mutable i64 = list_head.i64()
+    while vertex_value >= 0 and rank_value <= n.i64():
+        vertex <- vertex_value.usize()
+        rank[vertex] <- rank_value
+        staged[vertex] <- rank_value.u8()
+        rank_value <- rank_value + 1
+        vertex_value <- following[vertex]
+    if rank_value != n.i64() + 1 or rank[s] != 1 or rank[t] != n.i64():
+        return -1
+    vertex <- 0
+    while vertex < n:
+        if vertex != s and vertex != t:
+            lower: mutable bool = false
+            higher: mutable bool = false
+            arc_value: i64 = head[vertex]
+            while arc_value >= 0:
+                neighbor: usize = arc_to[arc_value.usize()].usize()
+                lower <- lower or rank[neighbor] < rank[vertex]
+                higher <- higher or rank[neighbor] > rank[vertex]
+                arc_value <- arc_next[arc_value.usize()]
+            if not lower or not higher:
+                return -1
+        vertex <- vertex + 1
+    if output.is_null() or output_capacity < n:
+        return -2
+    vertex <- 0
+    while vertex < n:
+        output[vertex] <- staged[vertex]
+        vertex <- vertex + 1
+    n.i64()

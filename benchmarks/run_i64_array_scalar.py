@@ -1511,6 +1511,93 @@ from knapsack_zero_one_tabulation_oracle import MAX_VALUE as KNAPSACK_ZERO_ONE_T
 from knapsack_zero_one_tabulation_oracle import MAX_WEIGHT as KNAPSACK_ZERO_ONE_TABULATION_MAX_WEIGHT
 from knapsack_zero_one_tabulation_oracle import PINNED_SOURCE as KNAPSACK_ZERO_ONE_TABULATION_PINNED_SOURCE
 from knapsack_zero_one_tabulation_oracle import expected_result as knapsack_zero_one_tabulation_expected
+from li_chao_tree_oracle import MAX_INPUT_LENGTH as LI_CHAO_TREE_MAX_INPUT_LENGTH
+from li_chao_tree_oracle import SOURCE_BASIS as LI_CHAO_TREE_SOURCE_BASIS
+from li_chao_tree_oracle import expected_result as li_chao_tree_expected
+from three_edge_connected_components_oracle import MAX_INPUT_LENGTH as THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
+from three_edge_connected_components_oracle import SOURCE_BASIS as THREE_EDGE_CONNECTED_COMPONENTS_SOURCE_BASIS
+from three_edge_connected_components_oracle import expected_result as three_edge_connected_components_expected
+from incremental_scc_oracle import MAX_INPUT_LENGTH as INCREMENTAL_SCC_MAX_INPUT_LENGTH
+from incremental_scc_oracle import SOURCE_BASIS as INCREMENTAL_SCC_SOURCE_BASIS
+from incremental_scc_oracle import expected_result as incremental_scc_expected
+from segment_tree_beats_oracle import MAX_ITEMS as SEGMENT_TREE_BEATS_MAX_ITEMS
+from segment_tree_beats_oracle import MAX_OPERATIONS as SEGMENT_TREE_BEATS_MAX_OPERATIONS
+from segment_tree_beats_oracle import QUERY_OFFSET as SEGMENT_TREE_BEATS_QUERY_OFFSET
+from segment_tree_beats_oracle import VALUE_LIMIT as SEGMENT_TREE_BEATS_VALUE_LIMIT
+from segment_tree_beats_oracle import expected_output as segment_tree_beats_expected
+from eertree_oracle import MAX_INPUT_LENGTH as EERTREE_MAX_INPUT_LENGTH
+from eertree_oracle import SOURCE_BASIS as EERTREE_SOURCE_BASIS
+from eertree_oracle import expected_result as eertree_expected
+from segment_add_get_min_oracle import MAX_INPUT_LENGTH as SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
+from segment_add_get_min_oracle import TASK_URL as SEGMENT_ADD_GET_MIN_TASK_URL
+from segment_add_get_min_oracle import SPECIFICATION_URL as SEGMENT_ADD_GET_MIN_SPECIFICATION_URL
+from segment_add_get_min_oracle import expected_result as segment_add_get_min_expected
+from manhattan_mst_oracle import MAX_INPUT_LENGTH as MANHATTAN_MST_MAX_INPUT_LENGTH
+from manhattan_mst_oracle import expected_output as manhattan_mst_expected
+from verify_li_chao_tree import validate_sources as validate_li_chao_tree_sources
+from verify_li_chao_tree import validate_workload as validate_li_chao_tree_package_workload
+from verify_three_edge_connected_components import validate_sources as validate_three_edge_connected_components_sources
+from verify_three_edge_connected_components import validate_workload as validate_three_edge_connected_components_package_workload
+from verify_incremental_scc import validate_sources as validate_incremental_scc_sources
+from verify_incremental_scc import validate_workload as validate_incremental_scc_package_workload
+from verify_eertree import validate_sources as validate_eertree_sources
+from verify_eertree import validate_workload as validate_eertree_package_workload
+from verify_segment_add_get_min import validate_workload as validate_segment_add_get_min_package_workload
+from verify_manhattan_mst_oracle import validate_workload as validate_manhattan_mst_package_workload
+
+
+def validate_three_edge_connected_components_workload(workload: dict) -> None:
+    validate_three_edge_connected_components_package_workload(workload)
+    validate_three_edge_connected_components_sources()
+    readme = (ROOT / "benchmarks" / "t" / "three_edge_connected_components" / "README.md").read_text(
+        encoding="utf-8")
+    if THREE_EDGE_CONNECTED_COMPONENTS_SOURCE_BASIS["url"] not in readme:
+        raise ValueError("three_edge_connected_components README is missing its Library Checker provenance URL")
+
+
+def validate_incremental_scc_workload(workload: dict) -> None:
+    validate_incremental_scc_package_workload(workload)
+    validate_incremental_scc_sources()
+    readme = (ROOT / "benchmarks" / "i" / "incremental_scc" / "README.md").read_text(
+        encoding="utf-8")
+    if any(source["url"] not in readme for source in INCREMENTAL_SCC_SOURCE_BASIS):
+        raise ValueError("incremental_scc README is missing algorithm provenance")
+
+
+def validate_li_chao_tree_workload(workload: dict) -> None:
+    validate_li_chao_tree_package_workload(workload)
+    validate_li_chao_tree_sources()
+    readme = (ROOT / "benchmarks" / "l" / "li_chao_tree" / "README.md").read_text(
+        encoding="utf-8")
+    if any(source["url"] not in readme for source in LI_CHAO_TREE_SOURCE_BASIS):
+        raise ValueError("li_chao_tree README is missing algorithm provenance")
+
+
+def validate_eertree_workload(workload: dict) -> None:
+    validate_eertree_package_workload(workload)
+    validate_eertree_sources()
+    readme = (ROOT / "benchmarks" / "e" / "eertree" / "README.md").read_text(
+        encoding="utf-8")
+    if any(source["url"] not in readme for source in EERTREE_SOURCE_BASIS):
+        raise ValueError("eertree README is missing algorithm provenance")
+
+
+def validate_segment_add_get_min_workload(workload: dict) -> None:
+    validate_segment_add_get_min_package_workload(workload)
+    readme = (ROOT / "benchmarks" / "s" / "segment_add_get_min" / "README.md").read_text(
+        encoding="utf-8")
+    if (SEGMENT_ADD_GET_MIN_TASK_URL not in readme
+            or SEGMENT_ADD_GET_MIN_SPECIFICATION_URL not in readme):
+        raise ValueError("segment_add_get_min README is missing official task provenance")
+
+
+def validate_manhattan_mst_workload(workload: dict) -> None:
+    if (not isinstance(workload, dict)
+            or workload.get("algorithm") != "manhattan_mst"
+            or workload.get("function_symbol") != "manhattan_mst"
+            or workload.get("abi") != "i64_array_scalar"):
+        raise ValueError("manhattan_mst workload does not identify the scalar benchmark")
+    validate_manhattan_mst_package_workload()
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_POWER_USING_RECURSION_PARSEABLE_INPUT_LENGTH = 3
@@ -2837,6 +2924,84 @@ def validate_knapsack_zero_one_tabulation_workload(workload: dict) -> None:
         expected = knapsack_zero_one_tabulation_expected(values)
         if type(case.get("expected_result")) is not int or expected != case.get("expected_result"):
             raise ValueError(f"knapsack_zero_one_tabulation workload mismatch: {case.get('id')}")
+
+
+SEGMENT_TREE_BEATS_CASE_IDS = frozenset({
+    "mixed_clamps_additions_and_queries", "repeated_extreme_clamps_and_full_queries",
+    "single_element_clamp_add_and_query", "updates_without_queries", "empty_range_invalid",
+    "query_argument_must_be_zero", "update_argument_out_of_range", "invalid_opcode",
+    "initial_value_out_of_range", "trailing_payload_invalid",
+})
+
+
+def validate_segment_tree_beats_workload(workload: dict) -> None:
+    """Validate the bounded range-clamp workload against its direct-array oracle."""
+    source_url = "https://judge.yosupo.jp/problem/range_chmin_chmax_add_range_sum"
+    if (workload.get("schema_version") != "1.0.0"
+            or workload.get("id") != "segment-tree-beats-range-clamp-add-sum-v1"
+            or workload.get("algorithm") != "segment_tree_beats"
+            or workload.get("function_symbol") != "segment_tree_beats"
+            or workload.get("pinned_source") != {
+                "repository": "Library Checker",
+                "problem": "Range Chmin Chmax Add Range Sum",
+                "url": source_url,
+                "source_type": "algorithm_problem_specification",
+                "reuse": "Algorithm reference only; implementations are independently written.",
+            }
+            or workload.get("input") != {
+                "encoding": "[n, initial_values[n], q, (opcode, left, right, argument)*]",
+                "length_range": [3, 2 + SEGMENT_TREE_BEATS_MAX_ITEMS + 4 * SEGMENT_TREE_BEATS_MAX_OPERATIONS],
+                "n_range": [1, SEGMENT_TREE_BEATS_MAX_ITEMS],
+                "operation_count_range": [0, SEGMENT_TREE_BEATS_MAX_OPERATIONS],
+                "initial_value_and_update_argument_range": [-SEGMENT_TREE_BEATS_VALUE_LIMIT, SEGMENT_TREE_BEATS_VALUE_LIMIT],
+                "range_semantics": "zero-based nonempty half-open [left, right)",
+                "opcodes": {
+                    "0": "replace each value by min(value, argument)",
+                    "1": "replace each value by max(value, argument)",
+                    "2": "add argument to each value",
+                    "3": "sum the range; argument must be zero",
+                },
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64",
+                "meaning": f"sum of query_ordinal * (range_sum + {SEGMENT_TREE_BEATS_QUERY_OFFSET}), with query ordinals starting at one",
+                "invalid_input_result": -1,
+                "no_query_result": 0,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call",
+                "sample_count": 7,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 1000,
+            }):
+        raise ValueError("segment_tree_beats workload metadata differs from its reviewed contract")
+
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (not isinstance(cases, list)
+            or len(case_ids) != len(cases)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SEGMENT_TREE_BEATS_CASE_IDS):
+        raise ValueError("segment_tree_beats workload fixture IDs differ from the reviewed contract")
+    readme = (ROOT / "benchmarks" / "s" / "segment_tree_beats" / "README.md").read_text(
+        encoding="utf-8")
+    if source_url not in readme:
+        raise ValueError("segment_tree_beats README is missing its algorithm provenance URL")
+    for language, extension in {
+            "c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+            "nim": "nim", "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}.items():
+        source = ROOT / language / "s" / f"segment_tree_beats.{extension}"
+        if not source.is_file() or "segment_tree_beats" not in source.read_text(encoding="utf-8"):
+            raise ValueError(f"segment_tree_beats {language} implementation is missing its exported symbol")
+    for case in cases:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or len(values) > 2 + SEGMENT_TREE_BEATS_MAX_ITEMS + 4 * SEGMENT_TREE_BEATS_MAX_OPERATIONS
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or segment_tree_beats_expected(values) != case.get("expected_result")):
+            raise ValueError(f"segment_tree_beats workload mismatch: {case.get('id')}")
 
 
 MATRIX_EXPONENTIATION_CASE_IDS = frozenset({
@@ -6096,6 +6261,16 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         MAX_FEISTEL_CIPHER_INPUT_LENGTH if algorithm == "feistel_cipher_normalized" else
                         MAX_EDMONDS_KARP_INPUT_LENGTH if algorithm == "edmonds_karp" else
                         MAX_GRAPH_ENUMERATION_INPUT_LENGTH if algorithm == "graph_enumeration" else
+                        LI_CHAO_TREE_MAX_INPUT_LENGTH if algorithm == "li_chao_tree" else
+                        MANHATTAN_MST_MAX_INPUT_LENGTH if algorithm == "manhattan_mst" else
+                        THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
+                        if algorithm == "three_edge_connected_components" else
+                        INCREMENTAL_SCC_MAX_INPUT_LENGTH if algorithm == "incremental_scc" else
+                        EERTREE_MAX_INPUT_LENGTH if algorithm == "eertree" else
+                        SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
+                        if algorithm == "segment_add_get_min" else
+                        2 + SEGMENT_TREE_BEATS_MAX_ITEMS + 4 * SEGMENT_TREE_BEATS_MAX_OPERATIONS
+                        if algorithm == "segment_tree_beats" else
                         KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH
                         if algorithm == "knapsack_zero_one_tabulation" else
                         LCA_MAX_INPUT_LENGTH if algorithm == "lca" else
@@ -7183,6 +7358,54 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = graph_enumeration_expected(values)
         if expected != expected_from_source:
             raise ValueError("graph_enumeration expected_result must match sorted-label adjacency enumeration")
+    elif algorithm == "li_chao_tree":
+        expected_from_source = li_chao_tree_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("li_chao_tree expected_result must match direct scans of inserted lines")
+    elif algorithm == "three_edge_connected_components":
+        expected_from_source = three_edge_connected_components_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("three_edge_connected_components expected_result must match edge-removal connectivity")
+    elif algorithm == "incremental_scc":
+        expected_from_source = incremental_scc_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("incremental_scc expected_result must match prefix SCC counts")
+    elif algorithm == "manhattan_mst":
+        expected_from_source = manhattan_mst_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("manhattan_mst expected_result must match the complete Manhattan metric MST")
+    elif algorithm == "segment_tree_beats":
+        expected_from_source = segment_tree_beats_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("segment_tree_beats expected_result must match direct range updates and sums")
+    elif algorithm == "eertree":
+        expected_from_source = eertree_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("eertree expected_result must match direct substring enumeration")
+    elif algorithm == "segment_add_get_min":
+        expected_from_source = segment_add_get_min_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("segment_add_get_min expected_result must match direct interval scans")
     elif algorithm == "knapsack_zero_one_tabulation":
         expected_from_source = knapsack_zero_one_tabulation_expected(values)
         if expected != expected_from_source:
@@ -8268,43 +8491,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                 expected_from_source = distances[target]
         if expected != expected_from_source:
             raise ValueError("bidirectional_dijkstra expected_result must match bounded directed nonnegative Dijkstra distance")
-    elif algorithm == "binary_indexed_tree":
-        valid = (len(values) >= 2 and 2 <= values[0] <= 256
-                 and values[0] & (values[0] - 1) == 0
-                 and 0 <= values[1] <= 512
-                 and len(values) == 2 + 3 * values[1])
-        expected_from_source = -1
-        if valid:
-            item_count, operation_count = values[:2]
-            operations = [values[index:index + 3] for index in range(2, len(values), 3)]
-            for opcode, first, second in operations:
-                if opcode == 0:
-                    if not 0 <= first < item_count or not -1_000_000 <= second <= 1_000_000:
-                        valid = False
-                        break
-                elif opcode == 1:
-                    if not 0 <= first <= second < item_count:
-                        valid = False
-                        break
-                else:
-                    valid = False
-                    break
-        if valid:
-            data = [0] * item_count
-            checksum = 0
-            query_offset = 131_072_000_001
-            final_offset = 512_000_001
-            for operation_index, (opcode, first, second) in enumerate(operations):
-                if opcode == 0:
-                    data[first] += second
-                else:
-                    range_sum = sum(data[first:second + 1])
-                    checksum += (operation_index + 1) * (range_sum + query_offset)
-            for index, value in enumerate(data):
-                checksum += (operation_count + index + 1) * (value + final_offset)
-            expected_from_source = checksum
-        if expected != expected_from_source:
-            raise ValueError("binary_indexed_tree expected_result must match its bounded weighted point-update/range-sum checksum")
     elif algorithm == "binary_tree_is_full":
         valid = (len(values) >= 2 and 1 <= values[0] <= 1024
                  and len(values) == 2 + 2 * values[0])
@@ -20960,6 +21146,20 @@ def main() -> int:
         validate_lca_workload(workload)
     elif algorithm == "knapsack_zero_one_tabulation":
         validate_knapsack_zero_one_tabulation_workload(workload)
+    elif algorithm == "li_chao_tree":
+        validate_li_chao_tree_workload(workload)
+    elif algorithm == "three_edge_connected_components":
+        validate_three_edge_connected_components_workload(workload)
+    elif algorithm == "incremental_scc":
+        validate_incremental_scc_workload(workload)
+    elif algorithm == "manhattan_mst":
+        validate_manhattan_mst_workload(workload)
+    elif algorithm == "segment_tree_beats":
+        validate_segment_tree_beats_workload(workload)
+    elif algorithm == "eertree":
+        validate_eertree_workload(workload)
+    elif algorithm == "segment_add_get_min":
+        validate_segment_add_get_min_workload(workload)
     elif algorithm == "matrix_exponentiation":
         validate_matrix_exponentiation_workload(workload)
     elif algorithm == "miller_rabin_primality_checker":
@@ -21012,8 +21212,15 @@ def main() -> int:
                 "prolangs_c_assembler", "prolangs_c_bison_nullable",
                 "versabench_dbms_choose_entry", "tsvc_s424_alias_overlap_feedback",
                 "tsvc_s423_antidependence_offset64", "tsvc_s258_wrapped_scalar_expansion",
-                "beebs_bit_compress") else 1
-            if values or type(input_length) is not int or not minimum_null_length <= input_length <= 100002:
+                "beebs_bit_compress", "three_edge_connected_components", "incremental_scc",
+                "segment_add_get_min") else 1
+            maximum_null_length = (SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
+                                   if algorithm == "segment_add_get_min" else
+                                   THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
+                                   if algorithm == "three_edge_connected_components" else
+                                   INCREMENTAL_SCC_MAX_INPUT_LENGTH if algorithm == "incremental_scc" else 100002)
+            if (values or type(input_length) is not int
+                    or not minimum_null_length <= input_length <= maximum_null_length):
                 raise ValueError(f"null input length is outside the supported range for {case['id']}")
         elif input_length != len(values):
             raise ValueError(f"declared input length differs for {case['id']}")

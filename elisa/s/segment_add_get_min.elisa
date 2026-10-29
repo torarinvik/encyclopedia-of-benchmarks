@@ -1,0 +1,123 @@
+# Segment-restricted lower envelope using a segment tree of Li Chao insertions.
+const MAX_INITIAL_SEGMENTS: usize = 16
+const MAX_OPERATIONS: usize = 32
+const DOMAIN_LOW: i64 = -32
+const DOMAIN_HIGH: i64 = 31
+const DOMAIN_RIGHT: i64 = 32
+const COEFFICIENT_LIMIT: i64 = 1000
+const INFINITY_VALUE: i64 = 1000000000000
+const CHECKSUM_OFFSET: i64 = 33001
+const TREE_CAPACITY: usize = 264
+const MAX_INPUT_LENGTH: usize = 226
+
+struct LineNode:
+    slope: i64
+    intercept: i64
+    occupied: bool
+
+def evaluate(slope: i64, intercept: i64, x: i64) -> i64:
+    slope * x + intercept
+
+def add_line(tree: mutable view[LineNode], node: usize,
+             low: i64, high: i64, slope_arg: i64, intercept_arg: i64) -> void:
+    if not tree[node].occupied:
+        tree[node].slope <- slope_arg
+        tree[node].intercept <- intercept_arg
+        tree[node].occupied <- true
+        return
+    middle: i64 = low + (high - low) / 2
+    slope: mutable i64 = slope_arg
+    intercept: mutable i64 = intercept_arg
+    if evaluate(slope, intercept, middle) < evaluate(tree[node].slope, tree[node].intercept, middle):
+        old_slope: i64 = tree[node].slope
+        old_intercept: i64 = tree[node].intercept
+        tree[node].slope <- slope
+        tree[node].intercept <- intercept
+        slope <- old_slope
+        intercept <- old_intercept
+    if low == high: return
+    if evaluate(slope, intercept, low) < evaluate(tree[node].slope, tree[node].intercept, low):
+        add_line(tree, 2 * node, low, middle, slope, intercept)
+    else if evaluate(slope, intercept, high) < evaluate(tree[node].slope, tree[node].intercept, high):
+        add_line(tree, 2 * node + 1, middle + 1, high, slope, intercept)
+
+def add_segment(tree: mutable view[LineNode], node: usize,
+                low: i64, high: i64, query_low: i64, query_high: i64,
+                slope: i64, intercept: i64) -> void:
+    if query_high <= low or high < query_low: return
+    if query_low <= low and high < query_high:
+        add_line(tree, node, low, high, slope, intercept)
+        return
+    middle: i64 = low + (high - low) / 2
+    add_segment(tree, 2 * node, low, middle, query_low, query_high, slope, intercept)
+    add_segment(tree, 2 * node + 1, middle + 1, high, query_low, query_high, slope, intercept)
+
+def minimum_at(tree: view[LineNode], node: usize,
+               low: i64, high: i64, x: i64) -> i64:
+    best: mutable i64 = INFINITY_VALUE
+    if tree[node].occupied:
+        best <- evaluate(tree[node].slope, tree[node].intercept, x)
+    if low == high: return best
+    middle: i64 = low + (high - low) / 2
+    go_left: bool = x <= middle
+    nested: i64 = minimum_at(tree, if go_left: 2 * node else: 2 * node + 1,
+                             if go_left: low else: middle + 1,
+                             if go_left: middle else: high, x)
+    if nested < best: best <- nested
+    best
+
+def valid_segment(left: i64, right: i64, slope: i64, intercept: i64) -> bool:
+    left >= DOMAIN_LOW and left < right and right <= DOMAIN_RIGHT and
+        slope >= -COEFFICIENT_LIMIT and slope <= COEFFICIENT_LIMIT and
+        intercept >= -COEFFICIENT_LIMIT and intercept <= COEFFICIENT_LIMIT
+
+def segment_add_get_min_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    initial_value: i64 = input[0]
+    operation_value: i64 = input[1]
+    if initial_value < 0 or initial_value > 16 or operation_value < 0 or operation_value > 32:
+        return -1
+    initial_count: usize = initial_value.usize()
+    operation_count: usize = operation_value.usize()
+
+    tree: mutable LineNode[TREE_CAPACITY] = zeroed
+    position: mutable usize = 2
+    for index in 0..<initial_count:
+        if length - position < 4: return -1
+        left: i64 = input[position]
+        right: i64 = input[position + 1]
+        slope: i64 = input[position + 2]
+        intercept: i64 = input[position + 3]
+        if not valid_segment(left, right, slope, intercept): return -1
+        add_segment(tree[0:TREE_CAPACITY], 1, DOMAIN_LOW, DOMAIN_HIGH, left, right, slope, intercept)
+        position <- position + 4
+
+    checksum: mutable i64 = 0
+    query_number: mutable i64 = 0
+    for operation in 0..<operation_count:
+        if position >= length: return -1
+        opcode: i64 = input[position]
+        position <- position + 1
+        if opcode == 0:
+            if length - position < 4: return -1
+            left: i64 = input[position]
+            right: i64 = input[position + 1]
+            slope: i64 = input[position + 2]
+            intercept: i64 = input[position + 3]
+            if not valid_segment(left, right, slope, intercept): return -1
+            add_segment(tree[0:TREE_CAPACITY], 1, DOMAIN_LOW, DOMAIN_HIGH, left, right, slope, intercept)
+            position <- position + 4
+        else if opcode == 1:
+            if position >= length: return -1
+            x: i64 = input[position]
+            position <- position + 1
+            if x < DOMAIN_LOW or x > DOMAIN_HIGH: return -1
+            answer: i64 = minimum_at(tree[0:TREE_CAPACITY], 1, DOMAIN_LOW, DOMAIN_HIGH, x)
+            query_number <- query_number + 1
+            checksum <- checksum + query_number * (answer + CHECKSUM_OFFSET)
+        else:
+            return -1
+    if position != length: return -1
+    checksum
+
+export fn segment_add_get_min(input: i64&, length: usize) -> i64 = segment_add_get_min_impl

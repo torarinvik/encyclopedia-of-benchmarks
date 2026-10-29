@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "id": "counting-spanning-trees-undirected-matrix-tree-i64-array-bytes-output-v1",
+  "algorithm": "counting_spanning_trees_undirected",
+  "function_symbol": "counting_spanning_trees_undirected",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "Library Checker",
+    "problem": "Counting Spanning Trees (Undirected)",
+    "url": "https://judge.yosupo.jp/",
+    "source_type": "official_problem_index_taxonomy",
+    "reuse": "Problem taxonomy and name only; all implementations and the oracle are independently written."
+  },
+  "contract": {
+    "operation": "Count spanning trees of a bounded simple undirected graph modulo 1,000,000,007.",
+    "input_layout": "[n, m, (u, v)*m]",
+    "vertex_count_range": [1, 7],
+    "edge_count_range": [0, 21],
+    "vertex_ids": "zero-based",
+    "graph_semantics": "simple undirected graph; self-loops and duplicate edges are invalid",
+    "algorithm": "Kirchhoff's Matrix-Tree theorem: take any Laplacian cofactor and compute its determinant by modular Gaussian elimination.",
+    "modulus": 1000000007,
+    "output_encoding": "one unsigned 64-bit count in eight little-endian bytes",
+    "disconnected_graph_result": 0,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input framing and graph validation precede output pointer and capacity checks."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 44,
+    "maximum_parseable_length": 44,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_unsigned_64_bit_scalar",
+    "maximum_bytes": 8,
+    "success_result": 8,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Bounded adjacency matrix, Laplacian cofactor, and modular-elimination scratch arrays."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "singleton-empty-graph",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "four-vertex-path-tree",
+      "input_values": [4, 3, 0, 1, 1, 2, 2, 3],
+      "input_length": 8,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "five-cycle",
+      "input_values": [5, 5, 0, 1, 1, 2, 2, 3, 3, 4, 4, 0],
+      "input_length": 12,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0500000000000000"
+    },
+    {
+      "id": "complete-four-vertex-graph",
+      "input_values": [4, 6, 0, 1, 0, 2, 0, 3, 1, 2, 1, 3, 2, 3],
+      "input_length": 14,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "1000000000000000"
+    },
+    {
+      "id": "complete-seven-vertex-graph",
+      "input_values": [7, 21, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 2, 3, 2, 4, 2, 5, 2, 6, 3, 4, 3, 5, 3, 6, 4, 5, 4, 6, 5, 6],
+      "input_length": 44,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "a741000000000000"
+    },
+    {
+      "id": "disconnected-two-edge-graph",
+      "input_values": [4, 2, 0, 1, 2, 3],
+      "input_length": 6,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "vertex-count-below-bound",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "vertex-count-above-bound",
+      "input_values": [8, 0],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "edge-count-above-bound",
+      "input_values": [7, 22],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "endpoint-out-of-range",
+      "input_values": [2, 1, 0, 2],
+      "input_length": 4,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "self-loop-invalid",
+      "input_values": [1, 1, 0, 0],
+      "input_length": 4,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-undirected-edge-invalid",
+      "input_values": [3, 2, 0, 1, 1, 0],
+      "input_length": 6,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-edge-frame",
+      "input_values": [3, 2, 0, 1],
+      "input_length": 4,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [4, 6, 0, 1, 0, 2, 0, 3, 1, 2, 1, 3, 2, 3],
+      "input_length": 14,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [4, 3, 0, 1, 1, 2, 2, 3],
+      "input_length": 8,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 8,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

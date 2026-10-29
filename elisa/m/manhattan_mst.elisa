@@ -1,0 +1,60 @@
+# Prim's algorithm over the complete Manhattan metric graph.
+def manhattan_mst_impl(values: i64&, length: usize) -> i64:
+    if length < 1 or length > 65:
+        return -1
+    count_value: i64 = values[0]
+    if count_value < 1 or count_value > 32:
+        return -1
+    count: usize = count_value.usize()
+    if length != 1 + 2 * count:
+        return -1
+
+    x: mutable i64[32] = zeroed
+    y: mutable i64[32] = zeroed
+    point: mutable usize = 0
+    while point < count:
+        x[point] <- values[1 + 2 * point]
+        y[point] <- values[2 + 2 * point]
+        if x[point] < -1000000 or x[point] > 1000000 or y[point] < -1000000 or y[point] > 1000000:
+            return -1
+        point <- point + 1
+
+    in_tree: mutable bool[32] = zeroed
+    has_best: mutable bool[32] = zeroed
+    best: mutable i64[32] = zeroed
+    has_best[0] <- true
+    total: mutable i64 = 0
+    step: mutable usize = 0
+    while step < count:
+        selected: mutable usize = count
+        point <- 0
+        while point < count:
+            if not in_tree[point] and has_best[point]:
+                if selected == count:
+                    selected <- point
+                else:
+                    if best[point] < best[selected]:
+                        selected <- point
+            point <- point + 1
+        if selected == count:
+            return -1
+        in_tree[selected] <- true
+        total <- total + best[selected]
+        point <- 0
+        while point < count:
+            if not in_tree[point]:
+                dx: mutable i64 = x[selected] - x[point]
+                dy: mutable i64 = y[selected] - y[point]
+                if dx < 0:
+                    dx <- -dx
+                if dy < 0:
+                    dy <- -dy
+                distance: i64 = dx + dy
+                if not has_best[point] or distance < best[point]:
+                    has_best[point] <- true
+                    best[point] <- distance
+            point <- point + 1
+        step <- step + 1
+    total
+
+export fn manhattan_mst(values: i64&, length: usize) -> i64 = manhattan_mst_impl

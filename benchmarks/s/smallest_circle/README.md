@@ -20,6 +20,22 @@ Build with the `i64_array_bytes_output` ABI family:
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm smallest_circle --language rust
 ```
 
+## Language ports
+
+The current repository contains the same bounded exhaustive candidate enumeration in all nine supported languages.
+
+| Language | Source |
+| --- | --- |
+| C | [c/s/smallest_circle.c](../../../c/s/smallest_circle.c) |
+| C3 | [c3/s/smallest_circle.c3](../../../c3/s/smallest_circle.c3) |
+| C++ | [cpp/s/smallest_circle.cpp](../../../cpp/s/smallest_circle.cpp) |
+| Elisa | [elisa/s/smallest_circle.elisa](../../../elisa/s/smallest_circle.elisa) |
+| Nim | [nim/s/smallest_circle.nim](../../../nim/s/smallest_circle.nim) |
+| Odin | [odin/s/smallest_circle.odin](../../../odin/s/smallest_circle.odin) |
+| Rust | [rust/s/smallest_circle.rs](../../../rust/s/smallest_circle.rs) |
+| V | [v/s/smallest_circle.v](../../../v/s/smallest_circle.v) |
+| Zig | [zig/s/smallest_circle.zig](../../../zig/s/smallest_circle.zig) |
+
 ## Upstream references
 
 - [TheAlgorithms/C++ `smallest_circle.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/others/smallest_circle.cpp)

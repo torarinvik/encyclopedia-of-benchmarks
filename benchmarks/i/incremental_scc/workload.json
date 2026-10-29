@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "incremental-scc-prefix-checksum-v1",
+  "algorithm": "incremental_scc",
+  "function_symbol": "incremental_scc",
+  "source_basis": [
+    {
+      "organization": "Library Checker",
+      "title": "Strongly Connected Components (Incremental)",
+      "url": "https://judge.yosupo.jp/",
+      "role": "problem_taxonomy"
+    },
+    {
+      "authors": "Valerie King and Garry Sagert",
+      "title": "A Fully Dynamic Algorithm for Maintaining the Transitive Closure",
+      "url": "https://doi.org/10.1006/jcss.2002.1883",
+      "role": "primary_dynamic_transitive_closure_reference"
+    },
+    {
+      "authors": "Thomas Schwentick, Nils Vortmeier, and Thomas Zeume",
+      "title": "Sketches of Dynamic Complexity",
+      "url": "https://sigmodrecord.org/2020/09/04/sketches-of-dynamic-complexity/",
+      "role": "insertion_update_rule_exposition"
+    }
+  ],
+  "input": {
+    "kind": "packed_insertion_only_directed_multigraph_edge_list",
+    "encoding": "[n, m, (u, v)...]",
+    "vertex_count_range": [1, 8],
+    "edge_count_range": [0, 32],
+    "maximum_valid_input_length": 66,
+    "maximum_parseable_input_length": 66,
+    "vertex_numbering": "0 through n-1",
+    "edge_semantics": "Each edge record inserts one directed arc; loops and parallel arcs are allowed.",
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Sum over one-based insertion steps of step times the SCC count after that insertion.",
+    "empty_sequence_result": 0,
+    "invalid_result": -1
+  },
+  "algorithm_contract": {
+    "closure_update": "Before inserting u->v, snapshot all x reaching u and all y reachable from v; add every pair x reaches y.",
+    "scc_relation": "Vertices are in the same component iff each reaches the other.",
+    "time_complexity": "O(m*n^2)",
+    "space_complexity": "O(n^2+m)"
+  },
+  "cases": [
+    {"id":"one_vertex_no_arcs","input_values":[1,0],"expected_result":0},
+    {"id":"isolated_vertices_no_arcs","input_values":[4,0],"expected_result":0},
+    {"id":"single_forward_arc","input_values":[2,1,0,1],"expected_result":2},
+    {"id":"cycle_closes_on_second_arc","input_values":[2,2,0,1,1,0],"expected_result":4},
+    {"id":"self_loops_do_not_merge_vertices","input_values":[3,3,0,0,1,1,2,2],"expected_result":18},
+    {"id":"parallel_arcs_then_reverse_arc","input_values":[2,3,0,1,0,1,1,0],"expected_result":9},
+    {"id":"cycle_with_one_outgoing_tail","input_values":[4,4,0,1,1,2,2,0,2,3],"expected_result":26},
+    {"id":"two_cycles_merge_after_bridge_back","input_values":[4,6,0,1,1,0,2,3,3,2,1,2,3,0],"expected_result":43},
+    {"id":"eight_vertex_cycle_max_vertices","input_values":[8,8,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,0],"expected_result":232},
+    {"id":"thirty_two_loop_insertions_max_edges","input_values":[8,32,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7],"expected_result":4224},
+    {"id":"invalid_zero_vertices","input_values":[0,0],"expected_result":-1},
+    {"id":"invalid_vertex_limit","input_values":[9,0],"expected_result":-1},
+    {"id":"invalid_negative_edge_count","input_values":[1,-1],"expected_result":-1},
+    {"id":"invalid_edge_limit","input_values":[1,33],"expected_result":-1},
+    {"id":"endpoint_out_of_range","input_values":[2,1,0,2],"expected_result":-1},
+    {"id":"truncated_edge_record","input_values":[2,1,0],"expected_result":-1},
+    {"id":"extra_payload","input_values":[1,0,0],"expected_result":-1},
+    {"id":"null_input_pointer_with_positive_length","input_values":[],"input_length":2,"input_is_null":true,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  }
+}

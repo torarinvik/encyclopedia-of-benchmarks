@@ -1,0 +1,115 @@
+# Canonical 3-edge-connected labels via small-graph edge-removal refinements.
+const THREE_EDGE_MAX_VERTICES: usize = 8
+const THREE_EDGE_MAX_EDGES: usize = 32
+const THREE_EDGE_MAX_INPUT_LENGTH: usize = 2 + 2 * THREE_EDGE_MAX_EDGES
+
+def three_edge_refine(from_values: view[i64], to_values: view[i64],
+                      vertex_count: usize, edge_count: usize,
+                      removed_first: i64, removed_second: i64,
+                      same: mutable view[bool]) -> void:
+    component: mutable i64[8] = zeroed
+    vertex: mutable usize = 0
+    while vertex < vertex_count:
+        component[vertex] <- -1
+        vertex <- vertex + 1
+    queue: mutable usize[8] = zeroed
+    next_component: mutable i64 = 0
+    start: mutable usize = 0
+    while start < vertex_count:
+        if component[start] >= 0:
+            start <- start + 1
+            continue
+        head: mutable usize = 0
+        tail: mutable usize = 0
+        component[start] <- next_component
+        queue[tail] <- start
+        tail <- tail + 1
+        while head < tail:
+            current: usize = queue[head]
+            head <- head + 1
+            edge: mutable usize = 0
+            while edge < edge_count:
+                if edge.i64() != removed_first and edge.i64() != removed_second:
+                    neighbor: mutable i64 = -1
+                    if from_values[edge] == current.i64(): neighbor <- to_values[edge]
+                    else if to_values[edge] == current.i64(): neighbor <- from_values[edge]
+                    if neighbor >= 0 and component[neighbor.usize()] < 0:
+                        component[neighbor.usize()] <- next_component
+                        queue[tail] <- neighbor.usize()
+                        tail <- tail + 1
+                edge <- edge + 1
+        next_component <- next_component + 1
+        start <- start + 1
+
+    first: mutable usize = 0
+    while first < vertex_count:
+        second: mutable usize = first + 1
+        while second < vertex_count:
+            if component[first] != component[second]:
+                same[first * THREE_EDGE_MAX_VERTICES + second] <- false
+                same[second * THREE_EDGE_MAX_VERTICES + first] <- false
+            second <- second + 1
+        first <- first + 1
+
+def three_edge_connected_components_impl(input_values: i64&, length: usize) -> i64:
+    if input_values.is_null() or length < 2 or length > THREE_EDGE_MAX_INPUT_LENGTH: return -1
+    if input_values[0] < 1 or input_values[0] > THREE_EDGE_MAX_VERTICES.i64()
+        or input_values[1] < 0 or input_values[1] > THREE_EDGE_MAX_EDGES.i64(): return -1
+    vertex_count: usize = input_values[0].usize()
+    edge_count: usize = input_values[1].usize()
+    if length != 2 + 2 * edge_count: return -1
+
+    edge_from: mutable i64[THREE_EDGE_MAX_EDGES] = zeroed
+    edge_to: mutable i64[THREE_EDGE_MAX_EDGES] = zeroed
+    edge: mutable usize = 0
+    while edge < edge_count:
+        edge_from[edge] <- input_values[2 + 2 * edge]
+        edge_to[edge] <- input_values[3 + 2 * edge]
+        if edge_from[edge] < 0 or edge_from[edge] >= vertex_count.i64()
+            or edge_to[edge] < 0 or edge_to[edge] >= vertex_count.i64(): return -1
+        edge <- edge + 1
+
+    same: mutable bool[64] = zeroed
+    index: mutable usize = 0
+    while index < 64:
+        same[index] <- true
+        index <- index + 1
+    three_edge_refine(edge_from[0:THREE_EDGE_MAX_EDGES], edge_to[0:THREE_EDGE_MAX_EDGES],
+                      vertex_count, edge_count, -1, -1, same[0:64])
+    first: mutable usize = 0
+    while first < edge_count:
+        three_edge_refine(edge_from[0:THREE_EDGE_MAX_EDGES], edge_to[0:THREE_EDGE_MAX_EDGES],
+                          vertex_count, edge_count, first.i64(), -1, same[0:64])
+        second: mutable usize = first + 1
+        while second < edge_count:
+            three_edge_refine(edge_from[0:THREE_EDGE_MAX_EDGES], edge_to[0:THREE_EDGE_MAX_EDGES],
+                              vertex_count, edge_count, first.i64(), second.i64(), same[0:64])
+            second <- second + 1
+        first <- first + 1
+
+    labels: mutable i64[8] = zeroed
+    vertex <- 0
+    while vertex < vertex_count:
+        labels[vertex] <- -1
+        vertex <- vertex + 1
+    next_label: mutable i64 = 0
+    first <- 0
+    while first < vertex_count:
+        if labels[first] < 0:
+            vertex <- first
+            while vertex < vertex_count:
+                if labels[vertex] < 0 and same[first * THREE_EDGE_MAX_VERTICES + vertex]:
+                    labels[vertex] <- next_label
+                vertex <- vertex + 1
+            next_label <- next_label + 1
+        first <- first + 1
+    encoded: mutable i64 = 0
+    place: mutable i64 = 1
+    vertex <- 0
+    while vertex < vertex_count:
+        encoded <- encoded + labels[vertex] * place
+        place <- place * 8
+        vertex <- vertex + 1
+    encoded
+
+export fn three_edge_connected_components(input_values: i64&, length: usize) -> i64 = three_edge_connected_components_impl

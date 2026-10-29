@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "static-range-mode-query-bounded-v1",
+  "algorithm": "static_range_mode_query",
+  "function_symbol": "static_range_mode_query",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "name": "Library Checker Static Range Mode Query proposal",
+    "url": "https://github.com/yosupo06/library-checker-problems/issues/959",
+    "algorithm_reference": "https://cs.au.dk/~larsen/papers/linear_mode.pdf",
+    "reuse": "Problem taxonomy and algorithm reference only; no source code or prose copied."
+  },
+  "contract": {
+    "operation": "For each half-open static array range, return a mode and its frequency.",
+    "input_layout": "[n, q, A_0, ..., A_(n-1), (l, r)*q]",
+    "n_range": [1, 32],
+    "q_range": [1, 16],
+    "value_range": [0, 1000000000],
+    "query_range": "0 <= l < r <= n",
+    "tie_rule": "Choose the smallest numeric value among modes.",
+    "output_encoding": "For each query, little-endian signed i64 (mode, frequency).",
+    "success_result": "16*q bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 66,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_pairs",
+    "maximum_bytes": 256,
+    "success_result": "16*q bytes",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Rank compression, occurrence positions, and the bounded block-mode table."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single-element","input_values":[1,1,7,0,1],"input_length":5,"output_capacity":16,"expected_result":16,"expected_output_hex":"07000000000000000100000000000000"},
+    {"id":"smallest-value-breaks-frequency-tie","input_values":[6,1,9,2,9,2,5,5,0,6],"input_length":10,"output_capacity":16,"expected_result":16,"expected_output_hex":"02000000000000000200000000000000"},
+    {"id":"boundary-candidate-beats-block-mode","input_values":[16,1,99,1,1,1,2,2,3,3,4,4,5,5,1,1,1,88,1,15],"input_length":20,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000600000000000000"},
+    {"id":"whole-block-mode-tie","input_values":[16,1,8,2,8,2,8,3,8,4,2,2,7,6,9,10,11,12,0,16],"input_length":20,"output_capacity":16,"expected_result":16,"expected_output_hex":"02000000000000000400000000000000"},
+    {"id":"range-with-no-whole-block","input_values":[4,1,5,3,5,3,1,3],"input_length":8,"output_capacity":16,"expected_result":16,"expected_output_hex":"03000000000000000100000000000000"},
+    {"id":"four-mixed-ranges","input_values":[8,4,4,1,4,2,1,2,4,2,0,8,0,4,4,8,2,7],"input_length":18,"output_capacity":64,"expected_result":64,"expected_output_hex":"02000000000000000300000000000000040000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000"},
+    {"id":"maximum-array-and-query-batch","input_values":[32,16,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,0,32,0,32,0,32,0,32,0,32,0,32,0,32,0,32,0,32,0,32,0,32,0,32,0,32,0,32,0,32],"input_length":66,"output_capacity":256,"expected_result":256,"expected_output_hex":"00000000000000000400000000000000000000000000000004000000000000000000000000000000040000000000000000000000000000000400000000000000000000000000000004000000000000000000000000000000040000000000000000000000000000000400000000000000000000000000000004000000000000000000000000000000040000000000000000000000000000000040000000000000000000000000000000400000000000000000000000000000000400000000000000000000000000000004000000000000000000000000000000004000000000000000000000000000000004000000000000000000000000000000040000000000000000"},
+    {"id":"n-out-of-range","input_values":[0,1,0,1],"input_length":4,"output_capacity":256,"expected_result":-1,"expected_output_hex":""},
+    {"id":"q-out-of-range","input_values":[1,0,7],"input_length":3,"output_capacity":256,"expected_result":-1,"expected_output_hex":""},
+    {"id":"value-out-of-range","input_values":[1,1,1000000001,0,1],"input_length":5,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"empty-range-invalid","input_values":[2,1,1,2,1,1],"input_length":6,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"range-end-out-of-range","input_values":[2,1,1,2,0,3],"input_length":6,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-query-frame","input_values":[1,1,7,0],"input_length":4,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-input-value","input_values":[1,1,7,0,1,9],"input_length":6,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,7,0,1],"input_length":5,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,1,7,0,1],"input_length":5,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":256,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

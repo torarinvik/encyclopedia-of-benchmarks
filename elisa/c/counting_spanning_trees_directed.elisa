@@ -1,0 +1,103 @@
+# Directed Matrix-Tree cofactor determinant over the prime field.
+const MAX_VERTICES: usize = 6
+const MAX_EDGES: usize = 12
+const MAX_INPUT_LENGTH: usize = 27
+const MODULUS: i64 = 998244353
+
+def counting_spanning_trees_directed_modular_power(base_value: i64, exponent_value: i64) -> i64:
+    result: mutable i64 = 1
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    while exponent > 0 |exponent, base, result| -> exponent, base, result:
+        if exponent % 2 == 1:
+            result <- (result * base) % MODULUS
+        base <- (base * base) % MODULUS
+        exponent <- exponent / 2
+        exponent, base, result
+    result
+
+def counting_spanning_trees_directed_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    root_value: i64 = input[2]
+    if n_value < 1 or n_value > 6 or m_value < 0 or m_value > 12 or root_value < 0 or root_value >= n_value:
+        return -1
+    n: usize = n_value.usize()
+    edge_count: usize = m_value.usize()
+    root: usize = root_value.usize()
+    if length != 3 + 2 * edge_count:
+        return -1
+
+    dimension: usize = n - 1
+    matrix: mutable i64[6][6] = zeroed
+    edge: mutable usize = 0
+    while edge < edge_count |edge, matrix| -> edge, matrix:
+        u_value: i64 = input[3 + 2 * edge]
+        v_value: i64 = input[4 + 2 * edge]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value:
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        if u != v and v != root:
+            row: usize = if v < root then v else v - 1
+            matrix[row][row] <- (matrix[row][row] + 1) % MODULUS
+            if u != root:
+                column: usize = if u < root then u else u - 1
+                matrix[row][column] <- (matrix[row][column] + MODULUS - 1) % MODULUS
+        edge <- edge + 1
+        edge, matrix
+
+    if output.is_null() or output_capacity < 8:
+        return -2
+
+    determinant: mutable i64 = 1
+    column: mutable usize = 0
+    while column < dimension |column, matrix, determinant| -> column, matrix, determinant:
+        pivot: mutable usize = column
+        pivot_found: mutable bool = false
+        while pivot < dimension and not pivot_found |pivot, pivot_found, column, matrix|:
+            if matrix[pivot][column] != 0:
+                pivot_found <- true
+            else:
+                pivot <- pivot + 1
+            pivot, pivot_found, matrix
+        if not pivot_found:
+            determinant <- 0
+            column <- dimension
+            column, matrix, determinant
+        else:
+            if pivot != column:
+                swap_column: mutable usize = 0
+                while swap_column < dimension |swap_column, matrix, column, pivot|:
+                    temporary: i64 = matrix[column][swap_column]
+                    matrix[column][swap_column] <- matrix[pivot][swap_column]
+                    matrix[pivot][swap_column] <- temporary
+                    swap_column <- swap_column + 1
+                    swap_column, matrix
+                determinant <- (MODULUS - determinant) % MODULUS
+            pivot_value: i64 = matrix[column][column]
+            determinant <- (determinant * pivot_value) % MODULUS
+            inverse: i64 = counting_spanning_trees_directed_modular_power(pivot_value, MODULUS - 2)
+            row: mutable usize = column + 1
+            while row < dimension |row, matrix, column, inverse| -> row, matrix:
+                factor: i64 = (matrix[row][column] * inverse) % MODULUS
+                j: mutable usize = column
+                while j < dimension |j, matrix, row, column, factor|:
+                    matrix[row][j] <- (matrix[row][j] - factor * matrix[column][j] % MODULUS + MODULUS) % MODULUS
+                    j <- j + 1
+                    j, matrix
+                row <- row + 1
+                row, matrix
+            column <- column + 1
+            column, matrix, determinant
+
+    answer: u64 = determinant.u64()
+    for byte in 0..<8 |byte, output, answer|:
+        output[byte] <- ((answer >> (byte * 8)) & 255.u64()).u8()
+    8
+
+export fn counting_spanning_trees_directed(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = counting_spanning_trees_directed_impl

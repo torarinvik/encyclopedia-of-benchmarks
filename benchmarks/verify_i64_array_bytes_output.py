@@ -10,7 +10,7 @@ import datetime as dt
 from decimal import Decimal, ROUND_HALF_UP
 import hashlib
 import heapq
-from itertools import product
+from itertools import combinations, product
 import json
 import math
 from pathlib import Path
@@ -1219,13 +1219,6 @@ from skytale_cipher_oracle import MAX_KEY as SKYTALE_CIPHER_MAX_KEY
 from skytale_cipher_oracle import MAX_PARSEABLE_INPUT_LENGTH as SKYTALE_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
 from skytale_cipher_oracle import MAX_TEXT_LENGTH as SKYTALE_CIPHER_MAX_TEXT_LENGTH
 from skytale_cipher_oracle import expected_output as skytale_cipher_oracle
-from hierholzer_eulerian_path_oracle import I64_MAX as HIERHOLZER_EULERIAN_PATH_I64_MAX
-from hierholzer_eulerian_path_oracle import I64_MIN as HIERHOLZER_EULERIAN_PATH_I64_MIN
-from hierholzer_eulerian_path_oracle import MAX_EDGES as HIERHOLZER_EULERIAN_PATH_MAX_EDGES
-from hierholzer_eulerian_path_oracle import MAX_INPUT_LENGTH as HIERHOLZER_EULERIAN_PATH_MAX_INPUT_LENGTH
-from hierholzer_eulerian_path_oracle import MAX_OUTPUT_BYTES as HIERHOLZER_EULERIAN_PATH_MAX_OUTPUT_BYTES
-from hierholzer_eulerian_path_oracle import MAX_VERTICES as HIERHOLZER_EULERIAN_PATH_MAX_VERTICES
-from hierholzer_eulerian_path_oracle import expected_output as hierholzer_eulerian_path_oracle
 from prefix_aggregate_list_oracle import I64_MAX as PREFIX_AGGREGATE_LIST_I64_MAX
 from prefix_aggregate_list_oracle import I64_MIN as PREFIX_AGGREGATE_LIST_I64_MIN
 from prefix_aggregate_list_oracle import MAX_INITIAL_VALUES as PREFIX_AGGREGATE_LIST_MAX_INITIAL_VALUES
@@ -1287,6 +1280,27 @@ from logarithmic_series_oracle import expected_output as logarithmic_series_orac
 from p_series_oracle import expected_output as p_series_oracle
 from proper_fractions_oracle import expected_output as proper_fractions_oracle
 from sumset_oracle import expected_output as sumset_oracle
+from link_cut_tree_oracle import MAX_INPUT_LENGTH as LINK_CUT_TREE_VERIFIER_MAX_INPUT_LENGTH
+from link_cut_tree_oracle import MAX_OPERATIONS as LINK_CUT_TREE_VERIFIER_MAX_OPERATIONS
+from link_cut_tree_oracle import MAX_OUTPUT_BYTES as LINK_CUT_TREE_VERIFIER_MAX_OUTPUT_BYTES
+from link_cut_tree_oracle import MAX_VERTICES as LINK_CUT_TREE_VERIFIER_MAX_VERTICES
+from st_numbering_oracle import MAX_EDGES as ST_NUMBERING_VERIFIER_MAX_EDGES
+from st_numbering_oracle import MAX_INPUT_LENGTH as ST_NUMBERING_VERIFIER_MAX_INPUT_LENGTH
+from st_numbering_oracle import MAX_OUTPUT_BYTES as ST_NUMBERING_VERIFIER_MAX_OUTPUT_BYTES
+from st_numbering_oracle import MAX_VERTICES as ST_NUMBERING_VERIFIER_MAX_VERTICES
+from st_numbering_oracle import expected_output as st_numbering_package_oracle
+from k_shortest_walk_oracle import MAX_EDGES as K_SHORTEST_WALK_VERIFIER_MAX_EDGES
+from k_shortest_walk_oracle import MAX_INPUT_LENGTH as K_SHORTEST_WALK_VERIFIER_MAX_INPUT_LENGTH
+from k_shortest_walk_oracle import MAX_K as K_SHORTEST_WALK_VERIFIER_MAX_K
+from k_shortest_walk_oracle import MAX_OUTPUT_BYTES as K_SHORTEST_WALK_VERIFIER_MAX_OUTPUT_BYTES
+from k_shortest_walk_oracle import MAX_VERTICES as K_SHORTEST_WALK_VERIFIER_MAX_VERTICES
+from k_shortest_walk_oracle import MAX_WEIGHT as K_SHORTEST_WALK_VERIFIER_MAX_WEIGHT
+from d_esopo_pape_oracle import MAX_EDGES as D_ESOPO_PAPE_VERIFIER_MAX_EDGES
+from d_esopo_pape_oracle import MAX_INPUT_LENGTH as D_ESOPO_PAPE_VERIFIER_MAX_INPUT_LENGTH
+from d_esopo_pape_oracle import MAX_OUTPUT_BYTES as D_ESOPO_PAPE_VERIFIER_MAX_OUTPUT_BYTES
+from d_esopo_pape_oracle import MAX_VERTICES as D_ESOPO_PAPE_VERIFIER_MAX_VERTICES
+from d_esopo_pape_oracle import MAX_WEIGHT as D_ESOPO_PAPE_VERIFIER_MAX_WEIGHT
+from d_esopo_pape_oracle import expected_output as d_esopo_pape_package_oracle
 from run_i64_array_bytes_output import MAX_OUTPUT_CAPACITY
 from run_i64_array_bytes_output import RECORDER_WORKSPACE_ALGORITHMS
 from run_i64_array_bytes_output import EXTERNAL_BYTE_OUTPUT_BOUNDS
@@ -3535,6 +3549,10 @@ from thorup_zwick_distance_verifier_oracle import expected_output as thorup_zwic
 from stochastic_knapsack_greedy_verifier_oracle import expected_output as stochastic_knapsack_greedy_independent_oracle
 from fm_index_count_oracle import MAX_INPUT_LENGTH as FM_INDEX_COUNT_MAX_INPUT_LENGTH
 from fm_index_count_verifier_oracle import evaluate as fm_index_count_independent_check
+from counting_spanning_trees_undirected_oracle import MAX_INPUT_LENGTH as COUNTING_SPANNING_TREES_MAX_INPUT_LENGTH
+from counting_spanning_trees_undirected_oracle import OUTPUT_BYTES as COUNTING_SPANNING_TREES_OUTPUT_BYTES
+from counting_spanning_trees_directed_oracle import MAX_INPUT_LENGTH as COUNTING_SPANNING_TREES_DIRECTED_MAX_INPUT_LENGTH
+from counting_spanning_trees_directed_oracle import OUTPUT_BYTES as COUNTING_SPANNING_TREES_DIRECTED_OUTPUT_BYTES
 from bst_interleave_bound_verifier_oracle import expected_output as bst_interleave_bound_independent_oracle
 from ring_exact_covering_protocol_oracle import expected_output as ring_exact_covering_protocol_independent_oracle
 from ppsz_k_sat_trace_verifier_oracle import expected_output as ppsz_k_sat_trace_independent_oracle
@@ -3685,6 +3703,106 @@ from st_planar_leftmost_augmenting_flow_verifier_oracle import expected_output a
 from crust_pole_triangle_filter_verifier_oracle import expected_output as crust_pole_triangle_filter_independent_oracle
 from sensor_energy_balance_estimator_trace_verifier_oracle import expected_output as sensor_energy_balance_estimator_trace_independent_oracle
 from packet_routing_work_conserving_schedule_verifier_oracle import expected_output as packet_routing_work_conserving_schedule_independent_oracle
+
+ROOTED_TREE_ISOMORPHISM_MAX_TREES = 16
+ROOTED_TREE_ISOMORPHISM_MAX_VERTICES = 32
+ROOTED_TREE_ISOMORPHISM_MAX_TOTAL_VERTICES = 128
+ROOTED_TREE_ISOMORPHISM_MAX_INPUT_LENGTH = 1025
+ROOTED_TREE_ISOMORPHISM_MAX_OUTPUT_BYTES = ROOTED_TREE_ISOMORPHISM_MAX_TREES
+
+
+def rooted_tree_isomorphism_classification_independent_oracle(
+        values: tuple[int, ...] | list[int] | None,
+        capacity: int | None = None,
+        output_is_null: bool = False,
+        input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    """Classify rooted trees through recursive nested-tuple signatures."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= ROOTED_TREE_ISOMORPHISM_MAX_INPUT_LENGTH))):
+        return -1, b""
+    if input_is_null or values is None:
+        return -1, b""
+    if (not isinstance(values, (tuple, list))
+            or len(values) > ROOTED_TREE_ISOMORPHISM_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None and input_length != len(values))
+            or not values):
+        return -1, b""
+
+    tree_count = values[0]
+    if not 1 <= tree_count <= ROOTED_TREE_ISOMORPHISM_MAX_TREES:
+        return -1, b""
+    position = 1
+    total_vertices = 0
+    signatures: list[tuple[object, ...]] = []
+    for _ in range(tree_count):
+        if position + 2 > len(values):
+            return -1, b""
+        vertex_count, root = values[position:position + 2]
+        position += 2
+        if (not 1 <= vertex_count <= ROOTED_TREE_ISOMORPHISM_MAX_VERTICES
+                or not 0 <= root < vertex_count):
+            return -1, b""
+        total_vertices += vertex_count
+        if total_vertices > ROOTED_TREE_ISOMORPHISM_MAX_TOTAL_VERTICES:
+            return -1, b""
+        edge_count = vertex_count - 1
+        if position + 2 * edge_count > len(values):
+            return -1, b""
+        adjacency: list[list[int]] = [[] for _ in range(vertex_count)]
+        edges: set[tuple[int, int]] = set()
+        for _edge_index in range(edge_count):
+            left, right = values[position:position + 2]
+            position += 2
+            if (not 0 <= left < vertex_count or not 0 <= right < vertex_count
+                    or left == right):
+                return -1, b""
+            edge = (min(left, right), max(left, right))
+            if edge in edges:
+                return -1, b""
+            edges.add(edge)
+            adjacency[left].append(right)
+            adjacency[right].append(left)
+
+        visited: set[int] = set()
+
+        def signature_at(vertex: int, parent: int) -> tuple[object, ...] | None:
+            visited.add(vertex)
+            child_signatures: list[tuple[object, ...]] = []
+            for neighbor in adjacency[vertex]:
+                if neighbor == parent:
+                    continue
+                if neighbor in visited:
+                    return None
+                child_signature = signature_at(neighbor, vertex)
+                if child_signature is None:
+                    return None
+                child_signatures.append(child_signature)
+            return tuple(sorted(child_signatures))
+
+        root_signature = signature_at(root, -1)
+        if root_signature is None or len(visited) != vertex_count:
+            return -1, b""
+        signatures.append(root_signature)
+    if position != len(values):
+        return -1, b""
+
+    class_labels: dict[tuple[object, ...], int] = {}
+    result = bytearray()
+    for signature in signatures:
+        if signature not in class_labels:
+            class_labels[signature] = len(class_labels)
+        result.append(class_labels[signature])
+    output = bytes(result)
+    if output_is_null or (capacity is not None and capacity < len(output)):
+        return -2, b""
+    return len(output), output
+
 
 ALGORITHMS = ("letter_combinations_of_phone_number", "blake2b", "charoccurrence", "swap_case", "binary_and_operator", "entropy", "rna_transcription", "reverse_words", "string_switch_case", "reverse_complement", "reverse_string", "reverse_letters", "bresenham_line", "check_polygon", "red_black_tree_insert_search", "unique_permutation", "infix_to_prefix", "inverse_fast_fourier_transform", "naive_search", "next_permutation", "gronsfeld_cipher", "a5_cipher", "a5_key_stream_generator", "aatree", "title_case_conversion", "change_brightness", "change_contrast",
               "chaos_machine", "convert_to_negative", "canny", "red_black_tree_unique_key_ops", "weight_conversions", "brainfuck", "p_series",
@@ -3987,8 +4105,6 @@ ALGORITHMS = (*ALGORITHMS, "print_reverse")
 ALGORITHMS = (*ALGORITHMS, "rotate_to_the_right")
 SKYTALE_CIPHER_MAX_OUTPUT_BYTES = SKYTALE_CIPHER_MAX_TEXT_LENGTH
 ALGORITHMS = (*ALGORITHMS, "skytale_cipher")
-HIERHOLZER_EULERIAN_PATH_MAX_PARSEABLE_INPUT_LENGTH = HIERHOLZER_EULERIAN_PATH_MAX_INPUT_LENGTH + 2
-ALGORITHMS = (*ALGORITHMS, "hierholzer_eulerian_path")
 ALGORITHMS = (*ALGORITHMS, "prefix_aggregate_list")
 REVERSE_LINKED_LIST_MAX_INPUT_LENGTH = REVERSE_LINKED_LIST_MAX_N + 1
 REVERSE_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH = REVERSE_LINKED_LIST_MAX_INPUT_LENGTH + 1
@@ -4244,7 +4360,6 @@ WORKSPACE_ALGORITHMS.add("kahns_algorithm")
 WORKSPACE_ALGORITHMS.add("print_reverse")
 WORKSPACE_ALGORITHMS.add("rotate_to_the_right")
 WORKSPACE_ALGORITHMS.add("skytale_cipher")
-WORKSPACE_ALGORITHMS.add("hierholzer_eulerian_path")
 WORKSPACE_ALGORITHMS.add("prefix_aggregate_list")
 WORKSPACE_ALGORITHMS.add("reverse_linked_list")
 WORKSPACE_ALGORITHMS.add("string_match_finite_automata")
@@ -4382,6 +4497,7 @@ ALGORITHMS = (*ALGORITHMS, "gardenia_fb_trim_scc", "gardenia_gm_vertex_coloring"
 ALGORITHMS = (*ALGORITHMS, "gbbs_scan_structural_clustering")
 ALGORITHMS = (*ALGORITHMS, "gbbs_maximal_matching")
 ALGORITHMS = (*ALGORITHMS, "gbbs_biconnectivity")
+ALGORITHMS = (*ALGORITHMS, "rooted_tree_isomorphism_classification")
 ALGORITHMS = (*ALGORITHMS, "gbbs_approximate_set_cover",
               "gbbs_low_diameter_decomposition", "tsvc_s2711_nonzero_branch_axpy",
               "gbbs_shiloach_vishkin_spanning_forest",
@@ -4404,6 +4520,7 @@ WORKSPACE_ALGORITHMS.update({"gardenia_fb_trim_scc", "gardenia_gm_vertex_colorin
 WORKSPACE_ALGORITHMS.add("gbbs_scan_structural_clustering")
 WORKSPACE_ALGORITHMS.add("gbbs_maximal_matching")
 WORKSPACE_ALGORITHMS.add("gbbs_biconnectivity")
+WORKSPACE_ALGORITHMS.add("rooted_tree_isomorphism_classification")
 WORKSPACE_ALGORITHMS.update({"gbbs_approximate_set_cover",
                              "gbbs_low_diameter_decomposition",
                              "tsvc_s2711_nonzero_branch_axpy",
@@ -4554,6 +4671,8 @@ ALGORITHMS = (*ALGORITHMS, "technology_mapping_minimum_area_tree_cover")
 ALGORITHMS = (*ALGORITHMS, "thorup_zwick_distance_oracle")
 ALGORITHMS = (*ALGORITHMS, "stochastic_knapsack_greedy")
 ALGORITHMS = (*ALGORITHMS, "fm_index_count")
+ALGORITHMS = (*ALGORITHMS, "counting_spanning_trees_undirected")
+ALGORITHMS = (*ALGORITHMS, "counting_spanning_trees_directed")
 ALGORITHMS = (*ALGORITHMS, "bst_interleave_bound", "ring_exact_covering_protocol",
               "ppsz_k_sat_trace")
 ALGORITHMS = (*ALGORITHMS, "random_3sat_greedy_dpll")
@@ -4586,6 +4705,8 @@ WORKSPACE_ALGORITHMS.add("technology_mapping_minimum_area_tree_cover")
 WORKSPACE_ALGORITHMS.add("thorup_zwick_distance_oracle")
 WORKSPACE_ALGORITHMS.add("stochastic_knapsack_greedy")
 WORKSPACE_ALGORITHMS.add("fm_index_count")
+WORKSPACE_ALGORITHMS.add("counting_spanning_trees_undirected")
+WORKSPACE_ALGORITHMS.add("counting_spanning_trees_directed")
 WORKSPACE_ALGORITHMS.add("weighted_greedy_spanner")
 WORKSPACE_ALGORITHMS.add("ski_rental_deterministic")
 WORKSPACE_ALGORITHMS.add("shortest_elapsed_time_first")
@@ -4664,6 +4785,9 @@ ALGORITHMS = (*ALGORITHMS, "distributed_coupon_collection_replay",
 ALGORITHMS = (*ALGORITHMS, "sensor_energy_balance_estimator_trace")
 ALGORITHMS = (*ALGORITHMS, "packet_routing_work_conserving_schedule")
 ALGORITHMS = (*ALGORITHMS, "lz78_flexible_parsing")
+ALGORITHMS = (*ALGORITHMS, "dominator_tree", "st_numbering", "link_cut_tree")
+ALGORITHMS = (*ALGORITHMS, "k_shortest_walk")
+ALGORITHMS = (*ALGORITHMS, "d_esopo_pape")
 WORKSPACE_ALGORITHMS.update({
     "ams_sketch", "count_min_sketch_affine", "deterministic_line_search",
     "color_coding_k_path",
@@ -4924,6 +5048,10 @@ WORKSPACE_ALGORITHMS.update({
     "nbench_resource_assignment", "nbench_emulated_float_arithmetic",
     "nbench_neural_network", "coremark_matrix_manipulation",
 })
+WORKSPACE_ALGORITHMS.add("dominator_tree")
+WORKSPACE_ALGORITHMS.update({"st_numbering", "link_cut_tree"})
+WORKSPACE_ALGORITHMS.add("k_shortest_walk")
+WORKSPACE_ALGORITHMS.add("d_esopo_pape")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
 
 MISC_LOWERCASE_MAX_CHARACTERS = 31
@@ -11149,6 +11277,126 @@ def rodinia_heartwall_template_match_verifier_suite_oracle(
     return result, output
 
 
+def counting_spanning_trees_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    """Count connected (n-1)-edge subsets by traversal, independent of determinants/DSU."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or capacity is not None and (type(capacity) is not int or capacity < 0)
+            or input_length is not None
+            and (type(input_length) is not int
+                 or not 0 <= input_length <= COUNTING_SPANNING_TREES_MAX_INPUT_LENGTH)
+            or not isinstance(values, (list, tuple))
+            or len(values) > COUNTING_SPANNING_TREES_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or input_is_null and values
+            or not input_is_null and input_length is not None and input_length != len(values)):
+        return -1, b""
+    if input_is_null or len(values) < 2:
+        return -1, b""
+
+    vertex_count, edge_count = values[:2]
+    if not 1 <= vertex_count <= 7 or not 0 <= edge_count <= 21:
+        return -1, b""
+    if len(values) != 2 + 2 * edge_count:
+        return -1, b""
+    edges: list[tuple[int, int]] = []
+    seen_edges: set[tuple[int, int]] = set()
+    for edge_index in range(edge_count):
+        left, right = values[2 + 2 * edge_index:4 + 2 * edge_index]
+        if not (0 <= left < vertex_count and 0 <= right < vertex_count) or left == right:
+            return -1, b""
+        canonical = (min(left, right), max(left, right))
+        if canonical in seen_edges:
+            return -1, b""
+        seen_edges.add(canonical)
+        edges.append((left, right))
+
+    tree_count = 0
+    for selected_edges in combinations(range(edge_count), vertex_count - 1):
+        adjacency: list[list[int]] = [[] for _ in range(vertex_count)]
+        for edge_index in selected_edges:
+            left, right = edges[edge_index]
+            adjacency[left].append(right)
+            adjacency[right].append(left)
+        reached = {0}
+        pending = [0]
+        while pending:
+            vertex = pending.pop()
+            for neighbor in adjacency[vertex]:
+                if neighbor not in reached:
+                    reached.add(neighbor)
+                    pending.append(neighbor)
+        if len(reached) == vertex_count:
+            tree_count += 1
+
+    payload = struct.pack("<Q", tree_count % 1_000_000_007)
+    if output_is_null or (capacity is not None and capacity < COUNTING_SPANNING_TREES_OUTPUT_BYTES):
+        return -2, b""
+    return COUNTING_SPANNING_TREES_OUTPUT_BYTES, payload
+
+
+def counting_spanning_trees_directed_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    """Enumerate incoming-parent choices and verify every parent chain reaches the root."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or capacity is not None and (type(capacity) is not int or capacity < 0)
+            or input_length is not None
+            and (type(input_length) is not int
+                 or not 0 <= input_length <= COUNTING_SPANNING_TREES_DIRECTED_MAX_INPUT_LENGTH)
+            or not isinstance(values, (list, tuple))
+            or len(values) > COUNTING_SPANNING_TREES_DIRECTED_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or input_is_null and values
+            or not input_is_null and input_length is not None and input_length != len(values)):
+        return -1, b""
+    if input_is_null or len(values) < 3:
+        return -1, b""
+
+    vertex_count, edge_count, root = values[:3]
+    if not 1 <= vertex_count <= 6 or not 0 <= edge_count <= 12:
+        return -1, b""
+    if not 0 <= root < vertex_count or len(values) != 3 + 2 * edge_count:
+        return -1, b""
+
+    incoming: list[list[int]] = [[] for _ in range(vertex_count)]
+    for edge_index in range(edge_count):
+        source = values[3 + 2 * edge_index]
+        target = values[4 + 2 * edge_index]
+        if not (0 <= source < vertex_count and 0 <= target < vertex_count):
+            return -1, b""
+        incoming[target].append(source)
+
+    non_root_vertices = [vertex for vertex in range(vertex_count) if vertex != root]
+    parent_options = [incoming[vertex] for vertex in non_root_vertices]
+    count = 0
+    if all(parent_options):
+        for selected_parents in product(*parent_options):
+            parent = [-1] * vertex_count
+            for vertex, source in zip(non_root_vertices, selected_parents):
+                parent[vertex] = source
+            is_rooted = True
+            for vertex in non_root_vertices:
+                seen: set[int] = set()
+                current = vertex
+                while current != root and current not in seen:
+                    seen.add(current)
+                    current = parent[current]
+                if current != root:
+                    is_rooted = False
+                    break
+            if is_rooted:
+                count += 1
+
+    payload = struct.pack("<Q", count % 998_244_353)
+    if output_is_null or (capacity is not None and capacity < COUNTING_SPANNING_TREES_DIRECTED_OUTPUT_BYTES):
+        return -2, b""
+    return COUNTING_SPANNING_TREES_DIRECTED_OUTPUT_BYTES, payload
+
+
 def _adapt_array_verifier(verifier, max_parseable_input_length):
     """Add shared null-pointer and output-capacity behavior to a pure verifier."""
     def expected_output(values, capacity=None, output_is_null=False,
@@ -11172,6 +11420,262 @@ def _adapt_array_verifier(verifier, max_parseable_input_length):
     return expected_output
 
 
+def link_cut_tree_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    """Resolve dynamic-forest operations directly with BFS, not a link-cut tree."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or capacity is not None and (type(capacity) is not int or capacity < 0)
+            or not isinstance(values, (list, tuple))
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or input_is_null and values):
+        return -1, b""
+    if input_length is None:
+        input_length = len(values)
+    if (type(input_length) is not int
+            or not 0 <= input_length <= LINK_CUT_TREE_VERIFIER_MAX_INPUT_LENGTH
+            or not input_is_null and input_length != len(values)):
+        return -1, b""
+    if input_is_null or len(values) < 2:
+        return -1, b""
+
+    n, operation_count = values[:2]
+    if (not 1 <= n <= LINK_CUT_TREE_VERIFIER_MAX_VERTICES
+            or not 1 <= operation_count <= LINK_CUT_TREE_VERIFIER_MAX_OPERATIONS
+            or len(values) != 2 + n + 3 * operation_count):
+        return -1, b""
+    weights = values[2:2 + n]
+    if any(weight < 0 or weight > 1_000_000 for weight in weights):
+        return -1, b""
+    adjacency = [set() for _ in range(n)]
+
+    def path_between(start: int, target: int) -> list[int] | None:
+        parent = [-1] * n
+        parent[start] = start
+        queue = [start]
+        cursor = 0
+        while cursor < len(queue):
+            vertex = queue[cursor]
+            cursor += 1
+            if vertex == target:
+                break
+            for neighbor in adjacency[vertex]:
+                if parent[neighbor] == -1:
+                    parent[neighbor] = vertex
+                    queue.append(neighbor)
+        if parent[target] == -1:
+            return None
+        result = [target]
+        while result[-1] != start:
+            result.append(parent[result[-1]])
+        return result
+
+    answers: list[int] = []
+    offset = 2 + n
+    for index in range(operation_count):
+        operation, u, v = values[offset + 3 * index:offset + 3 * index + 3]
+        if operation not in (0, 1, 2) or not (0 <= u < n and 0 <= v < n):
+            return -1, b""
+        path = path_between(u, v)
+        if operation == 0:
+            if u != v and path is None:
+                adjacency[u].add(v)
+                adjacency[v].add(u)
+                answers.append(1)
+            else:
+                answers.append(0)
+        elif operation == 1:
+            if u != v and v in adjacency[u]:
+                adjacency[u].remove(v)
+                adjacency[v].remove(u)
+                answers.append(1)
+            else:
+                answers.append(0)
+        elif path is None:
+            answers.append(-1)
+        else:
+            answers.append(sum(weights[vertex] for vertex in path))
+
+    output = b"".join(value.to_bytes(8, "little", signed=True) for value in answers)
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return len(output), output
+
+
+def st_numbering_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    """Use the package reference to produce bytes, then independently check the numbering certificate."""
+    result, output = st_numbering_package_oracle(
+        values, capacity, output_is_null, input_is_null, input_length)
+    if result < 0:
+        return result, output
+    if not isinstance(values, (list, tuple)) or len(values) < 4:
+        raise ValueError("st_numbering reference returned output for malformed framing")
+    n, _m, start, end = values[:4]
+    adjacency = [set() for _ in range(n)]
+    for edge in range(values[1]):
+        u, v = values[4 + 2 * edge:6 + 2 * edge]
+        adjacency[u].add(v)
+        adjacency[v].add(u)
+    ranks = tuple(output)
+    if (len(ranks) != n or sorted(ranks) != list(range(1, n + 1))
+            or ranks[start] != 1 or ranks[end] != n
+            or any(not any(ranks[neighbor] < ranks[vertex] for neighbor in adjacency[vertex])
+                   or not any(ranks[neighbor] > ranks[vertex] for neighbor in adjacency[vertex])
+                   for vertex in range(n) if vertex not in (start, end))):
+        raise ValueError("st_numbering reference output is not a valid st-numbering certificate")
+    return result, output
+
+
+def k_shortest_walk_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    """Enumerate ranked walks with a bounded best-first expansion per vertex."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, b""
+    if input_is_null:
+        if values not in (None, [], ()):
+            return -1, b""
+        if input_length is not None and (
+                type(input_length) is not int
+                or not 0 <= input_length <= K_SHORTEST_WALK_VERIFIER_MAX_INPUT_LENGTH):
+            return -1, b""
+        return -1, b""
+    if (not isinstance(values, (list, tuple))
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)):
+        return -1, b""
+    if input_length is None:
+        input_length = len(values)
+    if (type(input_length) is not int
+            or not 0 <= input_length <= K_SHORTEST_WALK_VERIFIER_MAX_INPUT_LENGTH
+            or input_length != len(values)
+            or len(values) < 5):
+        return -1, b""
+
+    vertex_count, edge_count, source, target, k = values[:5]
+    if (not 1 <= vertex_count <= K_SHORTEST_WALK_VERIFIER_MAX_VERTICES
+            or not 0 <= edge_count <= K_SHORTEST_WALK_VERIFIER_MAX_EDGES
+            or not 1 <= k <= K_SHORTEST_WALK_VERIFIER_MAX_K
+            or not 0 <= source < vertex_count or not 0 <= target < vertex_count
+            or len(values) != 5 + 3 * edge_count):
+        return -1, b""
+    outgoing = [[] for _ in range(vertex_count)]
+    for edge_index in range(edge_count):
+        u, v, weight = values[5 + 3 * edge_index:8 + 3 * edge_index]
+        if (not 0 <= u < vertex_count or not 0 <= v < vertex_count
+                or not 0 <= weight <= K_SHORTEST_WALK_VERIFIER_MAX_WEIGHT):
+            return -1, b""
+        outgoing[u].append((v, weight))
+
+    output_length = 8 * k
+    if output_is_null or capacity is not None and capacity < output_length:
+        return -2, b""
+
+    queue = [(0, source)]
+    popped = [0] * vertex_count
+    answers = []
+    while queue and len(answers) < k:
+        distance, vertex = heapq.heappop(queue)
+        if popped[vertex] >= k:
+            continue
+        popped[vertex] += 1
+        if vertex == target:
+            answers.append(distance)
+        for neighbor, weight in outgoing[vertex]:
+            heapq.heappush(queue, (distance + weight, neighbor))
+    answers.extend([-1] * (k - len(answers)))
+    payload = struct.pack(f"<{k}q", *answers)
+    return len(payload), payload
+
+
+DOMINATOR_TREE_VERIFIER_MAX_VERTICES = 63
+DOMINATOR_TREE_VERIFIER_MAX_EDGES = 2047
+DOMINATOR_TREE_VERIFIER_MAX_INPUT_LENGTH = 3 + 2 * DOMINATOR_TREE_VERIFIER_MAX_EDGES
+DOMINATOR_TREE_VERIFIER_MAX_OUTPUT_BYTES = DOMINATOR_TREE_VERIFIER_MAX_VERTICES
+
+
+def dominator_tree_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    """Check dominators through vertex-removal reachability, independently of set iteration."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or capacity is not None and (type(capacity) is not int or capacity < 0)
+            or not isinstance(values, (list, tuple))
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or input_is_null and values):
+        return -1, b""
+    if input_length is None:
+        input_length = len(values)
+    if (type(input_length) is not int or not 0 <= input_length <= DOMINATOR_TREE_VERIFIER_MAX_INPUT_LENGTH
+            or not input_is_null and input_length != len(values)):
+        return -1, b""
+    if input_is_null or len(values) < 3 or len(values) > DOMINATOR_TREE_VERIFIER_MAX_INPUT_LENGTH:
+        return -1, b""
+
+    vertex_count, root, edge_count = values[:3]
+    if (not 1 <= vertex_count <= DOMINATOR_TREE_VERIFIER_MAX_VERTICES
+            or not 0 <= root < vertex_count
+            or not 0 <= edge_count <= DOMINATOR_TREE_VERIFIER_MAX_EDGES
+            or len(values) != 3 + 2 * edge_count):
+        return -1, b""
+    successors = [set() for _ in range(vertex_count)]
+    for edge_index in range(edge_count):
+        source, target = values[3 + 2 * edge_index:5 + 2 * edge_index]
+        if not 0 <= source < vertex_count or not 0 <= target < vertex_count:
+            return -1, b""
+        successors[source].add(target)
+
+    reachable = {root}
+    pending = [root]
+    while pending:
+        source = pending.pop()
+        for target in successors[source]:
+            if target not in reachable:
+                reachable.add(target)
+                pending.append(target)
+
+    dominates = [[False] * vertex_count for _ in range(vertex_count)]
+    for candidate in reachable:
+        after_removal = set()
+        if candidate != root:
+            after_removal.add(root)
+            pending = [root]
+            while pending:
+                source = pending.pop()
+                for target in successors[source]:
+                    if target != candidate and target not in after_removal:
+                        after_removal.add(target)
+                        pending.append(target)
+        for vertex in reachable:
+            dominates[candidate][vertex] = candidate == vertex or vertex not in after_removal
+
+    output = [255] * vertex_count
+    output[root] = root
+    for vertex in reachable:
+        if vertex == root:
+            continue
+        strict_dominators = [candidate for candidate in reachable
+                             if candidate != vertex and dominates[candidate][vertex]]
+        if not strict_dominators:
+            return -1, b""
+        output[vertex] = max(
+            strict_dominators,
+            key=lambda candidate: sum(dominates[ancestor][candidate] for ancestor in reachable),
+        )
+
+    required = vertex_count
+    if output_is_null and required:
+        return -2, b""
+    if capacity is not None and capacity < required:
+        return -2, b""
+    return required, bytes(output)
+
+
 def _negative_cycle_detection_independent_oracle(
         values, capacity=None, output_is_null=False, input_is_null=False,
         input_length=None):
@@ -11181,6 +11685,19 @@ def _negative_cycle_detection_independent_oracle(
             None if input_is_null else values, result, output, input_is_null)):
         raise ValueError("negative-cycle witness failed the independent all-pairs check")
     return result, output
+
+
+def d_esopo_pape_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    oracle_arguments = {
+        "input_is_null": input_is_null,
+        "input_length": input_length,
+        "output_is_null": output_is_null,
+    }
+    if capacity is not None:
+        oracle_arguments["output_capacity"] = capacity
+    return d_esopo_pape_package_oracle(values, **oracle_arguments)
 
 
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
@@ -11258,6 +11775,11 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "domination_local_reduction": _adapt_array_verifier(
         domination_local_reduction_independent_check,
         DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH + 1),
+    "dominator_tree": dominator_tree_independent_oracle,
+    "st_numbering": st_numbering_independent_oracle,
+    "link_cut_tree": link_cut_tree_independent_oracle,
+    "k_shortest_walk": k_shortest_walk_independent_oracle,
+    "d_esopo_pape": d_esopo_pape_independent_oracle,
     "weighted_connected_dominating_set": weighted_connected_dominating_set_independent_oracle,
     "weighted_popular_matching": weighted_popular_matching_independent_oracle,
     "ranked_matching_popular_matching": ranked_matching_popular_matching_independent_oracle,
@@ -11299,6 +11821,8 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "stochastic_knapsack_greedy": stochastic_knapsack_greedy_independent_oracle,
     "fm_index_count": _adapt_array_verifier(
         fm_index_count_independent_check, FM_INDEX_COUNT_MAX_INPUT_LENGTH),
+    "counting_spanning_trees_undirected": counting_spanning_trees_independent_oracle,
+    "counting_spanning_trees_directed": counting_spanning_trees_directed_independent_oracle,
     "bst_interleave_bound": bst_interleave_bound_independent_oracle,
     "ring_exact_covering_protocol": ring_exact_covering_protocol_independent_oracle,
     "ppsz_k_sat_trace": ppsz_k_sat_trace_independent_oracle,
@@ -11492,6 +12016,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "gbbs_scan_structural_clustering": gbbs_scan_structural_clustering_verifier_oracle,
     "gbbs_maximal_matching": gbbs_maximal_matching_verifier_oracle,
     "gbbs_biconnectivity": gbbs_biconnectivity_verifier_oracle,
+    "rooted_tree_isomorphism_classification": rooted_tree_isomorphism_classification_independent_oracle,
     "gbbs_approximate_set_cover": gbbs_approximate_set_cover_verifier_oracle,
     "gbbs_low_diameter_decomposition": gbbs_low_diameter_decomposition_verifier_oracle,
     "tsvc_s2711_nonzero_branch_axpy": tsvc_s2711_nonzero_branch_axpy_verifier_oracle,
@@ -14808,7 +15333,9 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                        "gbbs_low_diameter_decomposition",
                        "tsvc_s2711_nonzero_branch_axpy",
                        "gbbs_shiloach_vishkin_spanning_forest",
-                       "rodinia_heartwall_template_match"}:
+                       "rodinia_heartwall_template_match",
+                       "st_numbering", "link_cut_tree", "k_shortest_walk",
+                       "d_esopo_pape"}:
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
     elif algorithm in GENERIC_BYTE_OUTPUT_BOUNDS:
@@ -19905,7 +20432,491 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     add(values, 0)
                     add(values, result - 1)
                 add(values, output_is_null=True)
-        if algorithm == "domination_local_reduction":
+        if algorithm == "counting_spanning_trees_undirected":
+            if (max_input != COUNTING_SPANNING_TREES_MAX_INPUT_LENGTH
+                    or max_output != COUNTING_SPANNING_TREES_OUTPUT_BYTES
+                    or workspace_bytes != 512):
+                raise ValueError("counting_spanning_trees_undirected bounds or workspace differ from its contract")
+
+            def pack_graph(vertex_count: int, edges: list[tuple[int, int]]) -> tuple[int, ...]:
+                return (vertex_count, len(edges),
+                        *(endpoint for edge in edges for endpoint in edge))
+
+            maximum_edges = [(left, right) for left in range(7) for right in range(left + 1, 7)]
+            maximum_input = pack_graph(7, maximum_edges)
+            result, output = add(maximum_input)
+            if (len(maximum_input) != max_input or result != max_output
+                    or len(output) != max_output or output != bytes.fromhex("a741000000000000")):
+                raise ValueError("counting_spanning_trees_undirected maximum graph has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum_input, capacity)
+            short_result, short_output = add(maximum_input, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("counting_spanning_trees_undirected accepted short output capacity")
+            null_result, null_output = add(maximum_input, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("counting_spanning_trees_undirected accepted null output")
+
+            # Exhaust every simple graph through four vertices, then add seeded larger graphs.
+            for vertex_count in range(1, 5):
+                possible_edges = [(left, right)
+                                  for left in range(vertex_count)
+                                  for right in range(left + 1, vertex_count)]
+                for mask in range(1 << len(possible_edges)):
+                    edges = [edge for bit, edge in enumerate(possible_edges)
+                             if mask & (1 << bit)]
+                    add(pack_graph(vertex_count, edges))
+
+            rng = random.Random(0x4D41545249585452)
+            for vertex_count in range(5, 8):
+                possible_edges = [(left, right)
+                                  for left in range(vertex_count)
+                                  for right in range(left + 1, vertex_count)]
+                path_edges = [(vertex - 1, vertex) for vertex in range(1, vertex_count)]
+                cycle_edges = path_edges + [(vertex_count - 1, 0)]
+                add(pack_graph(vertex_count, path_edges))
+                add(pack_graph(vertex_count, cycle_edges))
+                add(pack_graph(vertex_count, possible_edges))
+                for _sample in range(6):
+                    edge_count = rng.randrange(len(possible_edges) + 1)
+                    edges = rng.sample(possible_edges, edge_count)
+                    rng.shuffle(edges)
+                    oriented = [(right, left) if rng.randrange(2) else (left, right)
+                                for left, right in edges]
+                    add(pack_graph(vertex_count, oriented))
+
+            malformed = (
+                (), (0, 0), (8, 0), (7, 22),
+                (2, 1, 0, 2), (1, 1, 0, 0),
+                (3, 2, 0, 1, 1, 0), (3, 2, 0, 1),
+                (1, 1, 0), tuple([0] * max_input),
+                (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("counting_spanning_trees_undirected accepted generated malformed input")
+            mismatch_result, mismatch_output = add((1, 0), input_length=1)
+            if mismatch_result != -1 or mismatch_output:
+                raise ValueError("counting_spanning_trees_undirected accepted a declared-length mismatch")
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=max_input)
+        elif algorithm == "counting_spanning_trees_directed":
+            if (max_input != COUNTING_SPANNING_TREES_DIRECTED_MAX_INPUT_LENGTH
+                    or max_output != COUNTING_SPANNING_TREES_DIRECTED_OUTPUT_BYTES
+                    or workspace_bytes != 512):
+                raise ValueError("counting_spanning_trees_directed bounds or workspace differ from its contract")
+
+            def pack_directed_graph(
+                    vertex_count: int, root: int,
+                    arcs: list[tuple[int, int]]) -> tuple[int, ...]:
+                return (vertex_count, len(arcs), root,
+                        *(endpoint for arc in arcs for endpoint in arc))
+
+            maximum_arcs = [(0, 1)] * 12
+            maximum_input = pack_directed_graph(2, 0, maximum_arcs)
+            result, output = add(maximum_input)
+            if (len(maximum_input) != max_input or result != max_output
+                    or len(output) != max_output or output != bytes.fromhex("0c00000000000000")):
+                raise ValueError("counting_spanning_trees_directed maximum multigraph has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum_input, capacity)
+            short_result, short_output = add(maximum_input, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("counting_spanning_trees_directed accepted short output capacity")
+            null_result, null_output = add(maximum_input, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("counting_spanning_trees_directed accepted null output")
+
+            # Enumerate every loop-inclusive simple digraph through three vertices for every root.
+            for vertex_count in range(1, 4):
+                possible_arcs = [(source, target)
+                                 for source in range(vertex_count)
+                                 for target in range(vertex_count)]
+                for mask in range(1 << len(possible_arcs)):
+                    arcs = [arc for bit, arc in enumerate(possible_arcs)
+                            if mask & (1 << bit)]
+                    for root in range(vertex_count):
+                        add(pack_directed_graph(vertex_count, root, arcs))
+
+            rng = random.Random(0x4449524D41545249)
+            for vertex_count in range(4, 7):
+                for _sample in range(20):
+                    edge_count = rng.randrange(13)
+                    arcs = [(rng.randrange(vertex_count), rng.randrange(vertex_count))
+                            for _ in range(edge_count)]
+                    rng.shuffle(arcs)
+                    add(pack_directed_graph(vertex_count, rng.randrange(vertex_count), arcs))
+
+            malformed = (
+                (), (0, 0, 0), (7, 0, 0), (6, 13, 0), (3, 0, 3),
+                (2, 1, 0, 0, 2), (2, 1, 0, -1, 1),
+                (3, 2, 0, 0, 1), (1, 0, 0, 0), tuple([0] * max_input),
+                (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("counting_spanning_trees_directed accepted generated malformed input")
+            precedence_result, precedence_output = add((2, 1, 0, 0, 2), 0)
+            if precedence_result != -1 or precedence_output:
+                raise ValueError("counting_spanning_trees_directed output errors took precedence over invalid input")
+            mismatch_result, mismatch_output = add((2, 1, 0, 0, 1), input_length=4)
+            if mismatch_result != -1 or mismatch_output:
+                raise ValueError("counting_spanning_trees_directed accepted a declared-length mismatch")
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=max_input)
+        elif algorithm == "rooted_tree_isomorphism_classification":
+            if (max_input != ROOTED_TREE_ISOMORPHISM_MAX_INPUT_LENGTH
+                    or max_output != ROOTED_TREE_ISOMORPHISM_MAX_OUTPUT_BYTES
+                    or workspace_bytes != ROOTED_TREE_ISOMORPHISM_MAX_OUTPUT_BYTES):
+                raise ValueError("rooted tree isomorphism bounds or workspace differ from its contract")
+
+            def pack_trees(
+                    trees: list[tuple[int, int, tuple[tuple[int, int], ...]]]) -> tuple[int, ...]:
+                packed: list[int] = [len(trees)]
+                for vertex_count, root, edges in trees:
+                    packed.extend((vertex_count, root))
+                    for left, right in edges:
+                        packed.extend((left, right))
+                return tuple(packed)
+
+            def relabel_tree(
+                    tree: tuple[int, int, tuple[tuple[int, int], ...]],
+                    rng: random.Random) -> tuple[int, int, tuple[tuple[int, int], ...]]:
+                vertex_count, root, edges = tree
+                permutation = list(range(vertex_count))
+                rng.shuffle(permutation)
+                relabeled_edges = []
+                for left, right in edges:
+                    mapped_left, mapped_right = permutation[left], permutation[right]
+                    if rng.randrange(2):
+                        mapped_left, mapped_right = mapped_right, mapped_left
+                    relabeled_edges.append((mapped_left, mapped_right))
+                rng.shuffle(relabeled_edges)
+                return vertex_count, permutation[root], tuple(relabeled_edges)
+
+            rng = random.Random(0x52544953)
+            paired_trees: list[tuple[int, int, tuple[tuple[int, int], ...]]] = []
+            for shape_index, vertex_count in enumerate(range(1, 9)):
+                edges = tuple((vertex, rng.randrange(vertex))
+                              for vertex in range(1, vertex_count))
+                base_tree = (vertex_count, shape_index % vertex_count, edges)
+                paired_trees.extend((base_tree, relabel_tree(base_tree, rng)))
+            generated_pairs = pack_trees(paired_trees)
+            result, output = add(generated_pairs)
+            if result != ROOTED_TREE_ISOMORPHISM_MAX_TREES or len(output) != result:
+                raise ValueError("rooted tree isomorphism generated pair corpus has invalid framing")
+            if any(output[index] != output[index + 1]
+                   for index in range(0, ROOTED_TREE_ISOMORPHISM_MAX_TREES, 2)):
+                raise ValueError("rooted tree isomorphism changed a class under vertex relabeling")
+
+            path_edges = tuple((vertex - 1, vertex) for vertex in range(1, 8))
+            star_edges = tuple((0, vertex) for vertex in range(1, 8))
+            balanced_edges = tuple((vertex, (vertex - 1) // 2)
+                                   for vertex in range(1, 8))
+            shape_trees = (
+                (8, 0, path_edges), (8, 0, star_edges),
+                (8, 0, balanced_edges), paired_trees[-2],
+            )
+            maximum_trees: list[tuple[int, int, tuple[tuple[int, int], ...]]] = []
+            for tree_index in range(ROOTED_TREE_ISOMORPHISM_MAX_TREES):
+                shape = shape_trees[tree_index % len(shape_trees)]
+                root = tree_index % shape[0]
+                maximum_trees.append(relabel_tree((shape[0], root, shape[2]), rng))
+            maximum_valid_input = pack_trees(maximum_trees)
+            result, output = add(maximum_valid_input)
+            if (len(maximum_valid_input) != 257
+                    or result != ROOTED_TREE_ISOMORPHISM_MAX_OUTPUT_BYTES
+                    or len(output) != ROOTED_TREE_ISOMORPHISM_MAX_OUTPUT_BYTES):
+                raise ValueError("rooted tree isomorphism maximum valid profile has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum_valid_input, capacity)
+            short_result, short_output = add(maximum_valid_input, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("rooted tree isomorphism accepted insufficient output capacity")
+            null_result, null_output = add(maximum_valid_input, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("rooted tree isomorphism accepted null output")
+
+            too_many_trees = tuple([ROOTED_TREE_ISOMORPHISM_MAX_TREES + 1]
+                                   + [value for _ in range(ROOTED_TREE_ISOMORPHISM_MAX_TREES + 1)
+                                      for value in (1, 0)])
+            too_many_vertices = tuple([1, ROOTED_TREE_ISOMORPHISM_MAX_VERTICES + 1, 0]
+                                      + [value for vertex in range(1, ROOTED_TREE_ISOMORPHISM_MAX_VERTICES + 1)
+                                         for value in (vertex - 1, vertex)])
+            excessive_total = [5]
+            for _tree_index in range(5):
+                excessive_total.extend((32, 0))
+                for vertex in range(1, 32):
+                    excessive_total.extend((vertex - 1, vertex))
+            malformed = (
+                (), (0,), too_many_trees, too_many_vertices, tuple(excessive_total),
+                (1, 2, 0, 0, 0), (1, 2, 0, 0, 2),
+                (1, 3, 0, 0, 1, 1, 0),
+                (1, 2, 2, 0, 1), (1, 1, 0, 0),
+                tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                result, encoded = add(invalid_values)
+                if result != -1 or encoded:
+                    raise ValueError("rooted tree isomorphism accepted generated malformed input")
+            mismatch_result, mismatch_output = add((1, 1, 0), input_length=2)
+            if mismatch_result != -1 or mismatch_output:
+                raise ValueError("rooted tree isomorphism accepted a declared-length mismatch")
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=max_input)
+        elif algorithm == "dominator_tree":
+            if (max_input != DOMINATOR_TREE_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != DOMINATOR_TREE_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != DOMINATOR_TREE_VERIFIER_MAX_OUTPUT_BYTES):
+                raise ValueError("dominator_tree bounds or workspace differ from its contract")
+            vertex_count = DOMINATOR_TREE_VERIFIER_MAX_VERTICES
+            edges = [(source, target)
+                     for source in range(vertex_count)
+                     for target in range(vertex_count)
+                     if source != target][:DOMINATOR_TREE_VERIFIER_MAX_EDGES]
+            maximum = (vertex_count, 0, len(edges),
+                       *(vertex for edge in edges for vertex in edge))
+            result, output = add(maximum)
+            if (len(maximum) != DOMINATOR_TREE_VERIFIER_MAX_INPUT_LENGTH
+                    or result != DOMINATOR_TREE_VERIFIER_MAX_OUTPUT_BYTES
+                    or len(output) != DOMINATOR_TREE_VERIFIER_MAX_OUTPUT_BYTES):
+                raise ValueError("dominator_tree maximum graph did not fill its declared bounds")
+            for capacity in (0, result - 1, result, workspace_bytes):
+                add(maximum, capacity)
+            add(maximum, output_is_null=True)
+            too_many_edges = (vertex_count, 0, DOMINATOR_TREE_VERIFIER_MAX_EDGES + 1,
+                              *((0,) * (2 * DOMINATOR_TREE_VERIFIER_MAX_EDGES)))
+            for malformed in (
+                    (), (-1, 0, 0), (vertex_count + 1, 0, 0),
+                    (2, -1, 0), (2, 2, 0), (1, 0, -1),
+                    (2, 0, 1, 0, 2), (2, 0, 1, 0),
+                    (3, 0, 1, 0, 1, 2), too_many_edges):
+                result, encoded = add(malformed)
+                if result != -1 or encoded:
+                    raise ValueError("dominator_tree accepted malformed graph input")
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=max_input)
+        elif algorithm == "st_numbering":
+            if (max_input != ST_NUMBERING_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != ST_NUMBERING_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != ST_NUMBERING_VERIFIER_MAX_OUTPUT_BYTES):
+                raise ValueError("st_numbering bounds or workspace differ from its contract")
+
+            for n in range(2, ST_NUMBERING_VERIFIER_MAX_VERTICES + 1):
+                edges = [(0, 1)] if n == 2 else (
+                    [(vertex, vertex + 1) for vertex in range(n - 1)] + [(n - 1, 0)])
+                case = (n, len(edges), 0, 1,
+                        *(vertex for edge in edges for vertex in edge))
+                result, output = add(case)
+                if result != n or len(output) != n:
+                    raise ValueError("st_numbering cycle generator produced an invalid certificate")
+
+            maximum_edges = [(left, right)
+                             for left in range(ST_NUMBERING_VERIFIER_MAX_VERTICES)
+                             for right in range(left + 1, ST_NUMBERING_VERIFIER_MAX_VERTICES)]
+            maximum = (ST_NUMBERING_VERIFIER_MAX_VERTICES, len(maximum_edges), 0, 1,
+                       *(vertex for edge in maximum_edges for vertex in edge))
+            result, output = add(maximum)
+            if (len(maximum) != max_input or result != max_output or len(output) != max_output):
+                raise ValueError("st_numbering maximum graph has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("st_numbering accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("st_numbering accepted null output")
+
+            too_many_edges = (ST_NUMBERING_VERIFIER_MAX_VERTICES, 29, 0, 1,
+                              *((0,) * (2 * ST_NUMBERING_VERIFIER_MAX_EDGES)))
+            malformed = (
+                (), (1, 0, 0, 0), (9, 0, 0, 1),
+                (3, 2, 0, 1, 0, 1, 1, 2),  # articulation vertex
+                (4, 2, 0, 1, 0, 1, 2, 3),  # disconnected
+                (4, 4, 0, 2, 0, 1, 1, 2, 2, 3, 3, 0),  # terminals not adjacent
+                (3, 3, 0, 1, 0, 1, 1, 2, 2, 2),  # self-loop
+                (3, 4, 0, 1, 0, 1, 0, 1, 1, 2, 2, 0),  # duplicate edge
+                (3, 2, 0, 1, 0, 1, 1, 3),  # endpoint out of range
+                (3, 3, 0, 1, 0, 1, 1, 2),  # truncated frame
+                (2, 1, 0, 0, 0, 1), too_many_edges,
+                tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                result, encoded = add(invalid_values)
+                if result != -1 or encoded:
+                    raise ValueError("st_numbering accepted generated malformed input")
+            for null_length in (0, max_input):
+                result, encoded = add((), input_is_null=True, input_length=null_length)
+                if result != -1 or encoded:
+                    raise ValueError("st_numbering accepted null input")
+        elif algorithm == "link_cut_tree":
+            if (max_input != LINK_CUT_TREE_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != LINK_CUT_TREE_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != 2048):
+                raise ValueError("link_cut_tree bounds or workspace differ from its contract")
+
+            n = LINK_CUT_TREE_VERIFIER_MAX_VERTICES
+            operations = [(0, vertex, vertex + 1) for vertex in range(n - 1)]
+            for round_index in range(16):
+                edge = round_index % (n - 1)
+                operations.extend(((1, edge, edge + 1), (0, edge, edge + 1),
+                                   (2, 0, n - 1)))
+            operations.append((2, 0, n - 1))
+            if len(operations) != LINK_CUT_TREE_VERIFIER_MAX_OPERATIONS:
+                raise ValueError("link_cut_tree generator did not reach its operation bound")
+            maximum = (n, len(operations), *range(n),
+                       *(value for operation in operations for value in operation))
+            result, output = add(maximum)
+            if (len(maximum) != max_input or result != max_output or len(output) != max_output):
+                raise ValueError("link_cut_tree maximum-operation profile has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("link_cut_tree accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("link_cut_tree accepted null output")
+
+            too_many_operations = (1, LINK_CUT_TREE_VERIFIER_MAX_OPERATIONS + 1, 0,
+                                   *((0, 0, 0) * (LINK_CUT_TREE_VERIFIER_MAX_OPERATIONS + 1)))
+            malformed = (
+                (), (0, 1, 0, 2, 0, 0), (n + 1, 1, *((0,) * (n + 1)), 2, 0, 1),
+                (1, 0, 0), too_many_operations,
+                (2, 1, -1, 0, 2, 0, 1),
+                (1, 1, 1000001, 2, 0, 0),
+                (2, 1, 0, 0, 9, 0, 1),
+                (2, 1, 0, 0, 2, 0, 2),
+                (2, 1, 0, 0, 2, 0),  # truncated operation frame
+                tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                result, encoded = add(invalid_values)
+                if result != -1 or encoded:
+                    raise ValueError("link_cut_tree accepted generated malformed input")
+            for null_length in (0, max_input):
+                result, encoded = add((), input_is_null=True, input_length=null_length)
+                if result != -1 or encoded:
+                    raise ValueError("link_cut_tree accepted null input")
+        elif algorithm == "k_shortest_walk":
+            if (max_input != K_SHORTEST_WALK_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != K_SHORTEST_WALK_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != 8192):
+                raise ValueError("k_shortest_walk bounds or workspace differ from its contract")
+            edges = (
+                (0, 1, 1), (0, 1, 2), (1, 5, 1), (1, 5, 2),
+                (0, 2, 1), (2, 5, 3), (0, 3, 2), (3, 5, 2),
+                (0, 4, 3), (4, 5, 2), (2, 3, 0), (3, 4, 0),
+            )
+            maximum = (6, len(edges), 0, 5, K_SHORTEST_WALK_VERIFIER_MAX_K,
+                       *(value for edge in edges for value in edge))
+            result, output = add(maximum)
+            if (len(maximum) != max_input or result != max_output
+                    or len(output) != max_output):
+                raise ValueError("k_shortest_walk maximum graph has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("k_shortest_walk accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("k_shortest_walk accepted null output")
+
+            malformed = (
+                (), (0, 0, 0, 0, 1), (7, 0, 0, 1, 1),
+                (2, -1, 0, 1, 1), (6, 13, 0, 1, 1),
+                (2, 0, 0, 1, 0), (2, 0, 0, 1, 9),
+                (2, 0, 2, 1, 1), (2, 0, 0, 2, 1),
+                (2, 1, 0, 1, 1, 0, 2, 1),
+                (2, 1, 0, 1, 1, 0, 1, -1),
+                (2, 1, 0, 1, 1, 0, 1, 1001),
+                (2, 1, 0, 1, 1, 0, 1),
+                (1, 0, 0, 0, 1, 0),
+                tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                result, encoded = add(invalid_values)
+                if result != -1 or encoded:
+                    raise ValueError("k_shortest_walk accepted generated malformed input")
+            invalid_precedence = (2, 1, 0, 1, 1, 0, 2, 1)
+            precedence_result, precedence_output = add(
+                invalid_precedence, 0, output_is_null=True)
+            if precedence_result != -1 or precedence_output:
+                raise ValueError("k_shortest_walk output errors took precedence over invalid input")
+            for null_length in (0, max_input):
+                result, encoded = add((), input_is_null=True, input_length=null_length)
+                if result != -1 or encoded:
+                    raise ValueError("k_shortest_walk accepted null input")
+        elif algorithm == "d_esopo_pape":
+            if (max_input != D_ESOPO_PAPE_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != D_ESOPO_PAPE_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != D_ESOPO_PAPE_VERIFIER_MAX_OUTPUT_BYTES):
+                raise ValueError("d_esopo_pape bounds differ from its package contract")
+
+            n = D_ESOPO_PAPE_VERIFIER_MAX_VERTICES
+            m = D_ESOPO_PAPE_VERIFIER_MAX_EDGES
+            edges = tuple((vertex, vertex + 1, 1) for vertex in range(n - 1))
+            edges += tuple((0, 0, 0) for _ in range(m - len(edges)))
+            maximum = (n, m, 0, *(value for edge in edges for value in edge))
+            result, output = add(maximum)
+            if (len(maximum) != max_input or result != max_output
+                    or len(output) != max_output):
+                raise ValueError("d_esopo_pape maximum graph does not fill its input/output bounds")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("d_esopo_pape accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("d_esopo_pape accepted null output")
+
+            malformed = (
+                (), (0, 0, 0), (D_ESOPO_PAPE_VERIFIER_MAX_VERTICES + 1, 0, 0),
+                (1, -1, 0), (1, D_ESOPO_PAPE_VERIFIER_MAX_EDGES + 1, 0),
+                (2, 0, 2),
+                (2, 1, 0, 0, 2, 0),
+                (2, 1, 0, 0, 1, -1),
+                (2, 1, 0, 0, 1, D_ESOPO_PAPE_VERIFIER_MAX_WEIGHT + 1),
+                (2, 1, 0, 0, 1),  # truncated arc record
+                (1, 0, 0, 1),  # trailing value
+                tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                result, encoded = add(invalid_values)
+                if result != -1 or encoded:
+                    raise ValueError("d_esopo_pape accepted malformed graph input")
+            invalid_precedence = (2, 1, 0, 0, 2, 1)
+            precedence_result, precedence_output = add(
+                invalid_precedence, 0, output_is_null=True)
+            if precedence_result != -1 or precedence_output:
+                raise ValueError("d_esopo_pape output errors took precedence over invalid input")
+            for null_length in (0, max_input):
+                result, encoded = add((), input_is_null=True, input_length=null_length)
+                if result != -1 or encoded:
+                    raise ValueError("d_esopo_pape accepted null input")
+
+            rng = random.Random(20261029)
+            for case_index in range(96):
+                vertex_count = rng.randrange(1, D_ESOPO_PAPE_VERIFIER_MAX_VERTICES + 1)
+                edge_count = rng.randrange(D_ESOPO_PAPE_VERIFIER_MAX_EDGES + 1)
+                generated_edges = tuple(
+                    (rng.randrange(vertex_count), rng.randrange(vertex_count),
+                     rng.randrange(D_ESOPO_PAPE_VERIFIER_MAX_WEIGHT + 1))
+                    for _ in range(edge_count))
+                source = rng.randrange(vertex_count)
+                generated = (vertex_count, edge_count, source,
+                             *(value for edge in generated_edges for value in edge))
+                add(generated)
+                if case_index % 2 == 0:
+                    reversed_edges = tuple(reversed(generated_edges))
+                    add((vertex_count, edge_count, source,
+                         *(value for edge in reversed_edges for value in edge)))
+        elif algorithm == "domination_local_reduction":
             if (max_input != DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH + 1
                     or max_output != DOMINATION_LOCAL_REDUCTION_MAX_OUTPUT_BYTES
                     or workspace_bytes != 4096):
@@ -40018,207 +41029,6 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             extra_count = rng_kahns.randint(0, min(KAHNS_MAX_EDGES - len(edges), 32))
             edges.extend(rng_kahns.choice(forward_edges) for _ in range(extra_count))
             packed = (len(edges), *(label for edge in edges for label in edge))
-            add(tuple(packed))
-
-        records.extend((values, result, output, capacity, output_is_null, input_is_null)
-                       for (values, capacity, output_is_null, input_is_null), (result, output)
-                       in sorted(cases.items()))
-    elif algorithm == "hierholzer_eulerian_path":
-        input_spec = workload.get("input", {})
-        output_spec = workload.get("output", {})
-        workspace_spec = workload.get("workspace", {})
-        measurement = workload.get("measurement", {})
-        expected_source = {
-            "repository": "TheAlgorithms/Java",
-            "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
-            "path": "src/main/java/com/thealgorithms/graph/HierholzerEulerianPath.java",
-            "symbol": "HierholzerEulerianPath.findEulerianPath",
-            "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/graph/HierholzerEulerianPath.java",
-        }
-        required_case_ids = {
-            "empty_graph", "empty_graph_null_output", "empty_graph_short_capacity",
-            "edgeless_graph_returns_vertex_zero", "single_directed_edge", "directed_chain",
-            "degree_selects_open_path_start", "fifo_circuit_edge_order",
-            "circuit_starts_at_first_nonempty_vertex", "isolated_vertices_ignored_for_connectivity",
-            "parallel_directed_edges", "single_self_loop", "maximum_sixteen_vertex_path",
-            "maximum_48_self_loops", "disconnected_circuits_have_no_route",
-            "degree_difference_too_large", "multiple_open_path_starts", "negative_vertex_count",
-            "vertex_count_above_bound", "negative_edge_count", "edge_count_above_bound",
-            "missing_edge_endpoint", "trailing_input_value", "negative_endpoint",
-            "endpoint_equal_to_vertex_count", "empty_graph_with_edge",
-            "valid_path_null_output", "invalid_endpoint_precedes_null_output",
-            "short_path_output_capacity", "exact_path_output_capacity",
-        }
-        case_ids = [case.get("id") for case in workload.get("cases", [])]
-        if (workload.get("schema_version") != 1
-                or workload.get("id") != "thealgorithms-java-hierholzer-eulerian-path-i64-le-bytes-v1"
-                or workload.get("algorithm") != "hierholzer_eulerian_path"
-                or workload.get("function_symbol") != "hierholzer_eulerian_path"
-                or workload.get("pinned_source") != expected_source
-                or input_spec != {
-                    "kind": "signed_64_bit_integer_array",
-                    "encoding": "[vertex_count, edge_count, (source, destination)...]",
-                    "vertex_count_range": [0, HIERHOLZER_EULERIAN_PATH_MAX_VERTICES],
-                    "edge_count_range": [0, HIERHOLZER_EULERIAN_PATH_MAX_EDGES],
-                    "exact_length": "2 + 2*edge_count",
-                    "endpoint_range": "0 <= endpoint < vertex_count",
-                    "directed_edges": "Preserved in input order, including parallel edges and self-loops.",
-                    "invalid_input_result": -1,
-                }
-                or output_spec != {
-                    "kind": "little_endian_signed_64_bit_integer_array",
-                    "encoding": "[path_vertex_count, path_vertex_0, ...], each value as little-endian i64",
-                    "success_result": "8*(path_vertex_count+1) bytes",
-                    "maximum_output_bytes": HIERHOLZER_EULERIAN_PATH_MAX_OUTPUT_BYTES,
-                    "empty_graph": "path_vertex_count=0",
-                    "nonempty_edgeless_graph": "path [0]",
-                    "no_euler_path": "path_vertex_count=0",
-                    "null_output_result": -2,
-                    "insufficient_output_capacity_result": -2,
-                    "no_write_on_error": True,
-                }
-                or workspace_spec != {
-                    "bytes": HIERHOLZER_EULERIAN_PATH_MAX_OUTPUT_BYTES,
-                    "meaning": "Maximum output for a count plus 49 path vertices, each signed i64.",
-                }
-                or measurement != {
-                    "comparison_model": "i64_array_bytes_output_call",
-                    "sample_count": 5,
-                    "warmup_rounds": 1,
-                    "repetitions_per_sample": 1000,
-                }
-                or HIERHOLZER_EULERIAN_PATH_MAX_VERTICES != 16
-                or HIERHOLZER_EULERIAN_PATH_MAX_EDGES != 48
-                or HIERHOLZER_EULERIAN_PATH_MAX_INPUT_LENGTH != 98
-                or HIERHOLZER_EULERIAN_PATH_MAX_PARSEABLE_INPUT_LENGTH != 100
-                or HIERHOLZER_EULERIAN_PATH_MAX_OUTPUT_BYTES != 400
-                or HIERHOLZER_EULERIAN_PATH_I64_MIN != -(1 << 63)
-                or HIERHOLZER_EULERIAN_PATH_I64_MAX != (1 << 63) - 1
-                or len(case_ids) != len(required_case_ids)
-                or len(case_ids) != len(set(case_ids))
-                or set(case_ids) != required_case_ids):
-            raise ValueError("hierholzer_eulerian_path workload metadata does not match its reviewed contract")
-
-        readme = (ROOT / "benchmarks" / "h" / "hierholzer_eulerian_path" / "README.md").read_text(
-            encoding="utf-8")
-        if (expected_source["url"] not in readme
-                or "first vertex with outgoing edges" not in readme
-                or "weakly connected" not in readme):
-            raise ValueError("hierholzer_eulerian_path README is missing its source or graph contract")
-
-        default_capacity = HIERHOLZER_EULERIAN_PATH_MAX_OUTPUT_BYTES
-        cases: dict[tuple[tuple[int, ...], int, bool, bool], tuple[int, bytes]] = {}
-
-        def add(values: tuple[int, ...], capacity: int = default_capacity,
-                output_is_null: bool = False, input_is_null: bool = False) -> None:
-            if len(values) > HIERHOLZER_EULERIAN_PATH_MAX_PARSEABLE_INPUT_LENGTH:
-                raise ValueError("hierholzer_eulerian_path input exceeds its parseable-length bound")
-            if type(capacity) is not int or not 0 <= capacity <= HIERHOLZER_EULERIAN_PATH_MAX_OUTPUT_BYTES:
-                raise ValueError("hierholzer_eulerian_path output capacity is out of range")
-            if type(output_is_null) is not bool or type(input_is_null) is not bool:
-                raise ValueError("hierholzer_eulerian_path null-pointer probe flag is invalid")
-            if input_is_null:
-                result, output = -1, b""
-            else:
-                result, output = hierholzer_eulerian_path_oracle(values, capacity, output_is_null)
-            if result >= 0:
-                if (result != len(output) or result > HIERHOLZER_EULERIAN_PATH_MAX_OUTPUT_BYTES
-                        or result < 8 or result % 8 != 0):
-                    raise ValueError("hierholzer_eulerian_path result must be bounded little-endian i64 bytes")
-                decoded = tuple(value[0] for value in struct.iter_unpack("<q", output))
-                path_count = decoded[0]
-                vertex_count = values[0]
-                if (path_count < 0 or path_count + 1 != len(decoded)
-                        or path_count > HIERHOLZER_EULERIAN_PATH_MAX_EDGES + 1
-                        or any(not 0 <= vertex < vertex_count for vertex in decoded[1:])):
-                    raise ValueError("hierholzer_eulerian_path output path framing is invalid")
-            elif output:
-                raise ValueError("hierholzer_eulerian_path errors must not write output")
-            key = (values, capacity, output_is_null, input_is_null)
-            value = (result, output)
-            if key in cases and cases[key] != value:
-                raise ValueError("hierholzer_eulerian_path probe collides with a distinct output call")
-            cases[key] = value
-            if output_is_null:
-                null_output_cases.add((values, capacity))
-            if input_is_null:
-                null_input_cases.add((values, capacity))
-
-        for case in workload["cases"]:
-            values = tuple(case["input_values"])
-            capacity = case.get("workspace_bytes", case.get("output_capacity", default_capacity))
-            output_is_null = case.get("output_is_null", False)
-            if (not isinstance(case.get("input_values"), list)
-                    or any(type(value) is not int for value in values)
-                    or case.get("input_length") != len(values)
-                    or type(capacity) is not int or type(output_is_null) is not bool):
-                raise ValueError(f"hierholzer_eulerian_path workload call metadata is invalid: {case['id']}")
-            result, output = hierholzer_eulerian_path_oracle(values, capacity, output_is_null)
-            if (case.get("expected_result") != result
-                    or case.get("expected_output_hex", "").lower() != output.hex()):
-                raise ValueError(f"hierholzer_eulerian_path workload mismatch: {case['id']}")
-            add(values, capacity, output_is_null=output_is_null)
-
-        maximum_case = next((case for case in workload["cases"]
-                             if case.get("id") == "maximum_48_self_loops"), None)
-        empty_case = next((case for case in workload["cases"]
-                           if case.get("id") == "empty_graph"), None)
-        empty_null_case = next((case for case in workload["cases"]
-                                if case.get("id") == "empty_graph_null_output"), None)
-        invalid_null_case = next((case for case in workload["cases"]
-                                  if case.get("id") == "invalid_endpoint_precedes_null_output"), None)
-        short_case = next((case for case in workload["cases"]
-                           if case.get("id") == "short_path_output_capacity"), None)
-        exact_case = next((case for case in workload["cases"]
-                           if case.get("id") == "exact_path_output_capacity"), None)
-        if (maximum_case is None
-                or maximum_case.get("input_length") != HIERHOLZER_EULERIAN_PATH_MAX_INPUT_LENGTH
-                or maximum_case.get("input_values", ())[1] != HIERHOLZER_EULERIAN_PATH_MAX_EDGES
-                or maximum_case.get("expected_result") != HIERHOLZER_EULERIAN_PATH_MAX_OUTPUT_BYTES
-                or len(bytes.fromhex(maximum_case.get("expected_output_hex", "")))
-                    != HIERHOLZER_EULERIAN_PATH_MAX_OUTPUT_BYTES
-                or empty_case is None or empty_case.get("input_values") != [0, 0]
-                or empty_case.get("expected_result") != 8
-                or empty_null_case is None or empty_null_case.get("output_is_null") is not True
-                or empty_null_case.get("expected_result") != -2
-                or invalid_null_case is None or invalid_null_case.get("output_is_null") is not True
-                or invalid_null_case.get("expected_result") != -1
-                or short_case is None or short_case.get("expected_result") != -2
-                or exact_case is None or exact_case.get("expected_result") != 24):
-            raise ValueError("hierholzer_eulerian_path workload is missing graph-bound/null/capacity coverage")
-
-        maximum_values = tuple(maximum_case["input_values"])
-        for capacity in (0, HIERHOLZER_EULERIAN_PATH_MAX_OUTPUT_BYTES - 1,
-                         HIERHOLZER_EULERIAN_PATH_MAX_OUTPUT_BYTES):
-            add(maximum_values, capacity)
-        add((0, 0), 8)
-        add((0, 0), 0, output_is_null=True)
-        add((1, 1, 0, 1), 0, output_is_null=True)
-        add((), 0, input_is_null=True)
-
-        oversized = (HIERHOLZER_EULERIAN_PATH_MAX_VERTICES,
-                     HIERHOLZER_EULERIAN_PATH_MAX_EDGES + 1,
-                     *tuple(value for _ in range(HIERHOLZER_EULERIAN_PATH_MAX_EDGES + 1)
-                            for value in (0, 0)))
-        malformed = (
-            (), (0,), (0, 1), (-1, 0), (HIERHOLZER_EULERIAN_PATH_MAX_VERTICES + 1, 0),
-            (1, -1), (1, HIERHOLZER_EULERIAN_PATH_MAX_EDGES + 1), (1, 1, 0),
-            (1, 0, 0, 0), (1, 1, HIERHOLZER_EULERIAN_PATH_I64_MIN, 0),
-            (1, 1, 0, HIERHOLZER_EULERIAN_PATH_I64_MAX), (0, 1, 0, 0),
-            tuple([0] * HIERHOLZER_EULERIAN_PATH_MAX_PARSEABLE_INPUT_LENGTH),
-            oversized,
-        )
-        for values in malformed:
-            add(tuple(values))
-
-        rng_hierholzer = random.Random(20261017)
-        for _ in range(96):
-            vertex_count = rng_hierholzer.randint(0, HIERHOLZER_EULERIAN_PATH_MAX_VERTICES)
-            edge_count = (0 if vertex_count == 0 else
-                          rng_hierholzer.randint(0, HIERHOLZER_EULERIAN_PATH_MAX_EDGES))
-            edges = [(rng_hierholzer.randrange(vertex_count), rng_hierholzer.randrange(vertex_count))
-                     for _ in range(edge_count)]
-            packed = (vertex_count, edge_count, *(label for edge in edges for label in edge))
             add(tuple(packed))
 
         records.extend((values, result, output, capacity, output_is_null, input_is_null)

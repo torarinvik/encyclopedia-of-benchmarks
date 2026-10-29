@@ -1,0 +1,93 @@
+const MAX_VERTICES: usize = 16
+const MAX_EDGES: usize = 64
+const MAX_INPUT_LENGTH: usize = 3 + 3 * MAX_EDGES
+
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def d_esopo_pape_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_n: i64 = values[0]
+    raw_m: i64 = values[1]
+    raw_source: i64 = values[2]
+    if raw_n < 1 or raw_n > MAX_VERTICES.i64() or raw_m < 0 or raw_m > MAX_EDGES.i64() or raw_source < 0 or raw_source >= raw_n or length != 3 + 3 * raw_m.usize():
+        return -1
+
+    n: usize = raw_n.usize()
+    m: usize = raw_m.usize()
+    head: mutable i64[MAX_VERTICES] = zeroed
+    to: mutable i64[MAX_EDGES] = zeroed
+    next: mutable i64[MAX_EDGES] = zeroed
+    weights: mutable i64[MAX_EDGES] = zeroed
+    vertex: usize = 0
+    while vertex < n:
+        head[vertex] <- -1
+        vertex <- vertex + 1
+    edge: usize = 0
+    while edge < m:
+        u: i64 = values[3 + 3 * edge]
+        v: i64 = values[4 + 3 * edge]
+        weight: i64 = values[5 + 3 * edge]
+        if u < 0 or u >= raw_n or v < 0 or v >= raw_n or weight < 0 or weight > 1000:
+            return -1
+        to[edge] <- v
+        weights[edge] <- weight
+        next[edge] <- head[u.usize()]
+        head[u.usize()] <- edge.i64()
+        edge <- edge + 1
+
+    distances: mutable i64[MAX_VERTICES] = zeroed
+    reachable: mutable bool[MAX_VERTICES] = zeroed
+    queued: mutable bool[MAX_VERTICES] = zeroed
+    removed_before: mutable bool[MAX_VERTICES] = zeroed
+    deque: mutable i64[MAX_VERTICES] = zeroed
+    front: mutable usize = 0
+    size: mutable usize = 1
+    source: usize = raw_source.usize()
+    deque[0] <- source.i64()
+    distances[source] <- 0
+    reachable[source] <- true
+    queued[source] <- true
+    while size > 0:
+        current: usize = deque[front].usize()
+        front <- (front + 1) % n
+        size <- size - 1
+        queued[current] <- false
+        removed_before[current] <- true
+        current_edge: mutable i64 = head[current]
+        while current_edge >= 0:
+            edge_index: usize = current_edge.usize()
+            neighbor: usize = to[edge_index].usize()
+            candidate: i64 = distances[current] + weights[edge_index]
+            if not reachable[neighbor] or candidate < distances[neighbor]:
+                distances[neighbor] <- candidate
+                reachable[neighbor] <- true
+                if not queued[neighbor]:
+                    if removed_before[neighbor]:
+                        front <- (front + n - 1) % n
+                        deque[front] <- neighbor.i64()
+                    else:
+                        deque[(front + size) % n] <- neighbor.i64()
+                    size <- size + 1
+                    queued[neighbor] <- true
+            current_edge <- next[edge_index]
+
+    byte_count: usize = 8 * n
+    if output.is_null() or output_capacity < byte_count:
+        return -2
+    output_view: mutable view[u8] = output[0:byte_count]
+    vertex <- 0
+    while vertex < n:
+        result: i64 = -1
+        if reachable[vertex]:
+            result <- distances[vertex]
+        store_i64_le(result, output_view, 8 * vertex)
+        vertex <- vertex + 1
+    byte_count.i64()
+
+export fn d_esopo_pape(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = d_esopo_pape_impl

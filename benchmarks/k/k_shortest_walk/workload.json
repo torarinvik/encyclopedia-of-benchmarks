@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "id": "k-shortest-walk-bounded-i64-array-bytes-output-v1",
+  "algorithm": "k_shortest_walk",
+  "function_symbol": "k_shortest_walk",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "Library Checker",
+    "problem": "K Shortest Walk",
+    "url": "https://judge.yosupo.jp/problem/k_shortest_walk",
+    "specification_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/k_shortest_walk/task.md",
+    "source_type": "official_algorithm_task_specification",
+    "reuse": "Task definition and taxonomy only; no statement text or source code copied. Implementations and oracle are independently written."
+  },
+  "contract": {
+    "operation": "Return the k shortest directed walk lengths from s to t, counting edge-distinct walks separately.",
+    "input_layout": "[n, m, s, t, k, (u, v, w)*m]",
+    "vertex_count_range": [1, 6],
+    "edge_count_range": [0, 12],
+    "k_range": [1, 8],
+    "vertex_ids": "zero-based",
+    "weight_range": [0, 1000],
+    "graph_semantics": "Directed multigraph; parallel arcs are distinct and may be reused.",
+    "walk_semantics": "Vertices and edges may repeat; the zero-edge walk from s to s has length zero.",
+    "exact_input_length": "5 + 3*m",
+    "output_encoding": "k signed 64-bit distances in little-endian order; missing ranks are -1",
+    "success_result": "8*k bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input framing and graph validation precede output pointer and capacity checks."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 41,
+    "maximum_parseable_length": 41,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_vector",
+    "maximum_bytes": 64,
+    "success_result": "8*k bytes",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Bounded edge arrays, per-vertex expansion counts, sorted walk frontier, and output scratch."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "parallel-arc-walks",
+      "input_values": [2, 3, 0, 1, 5, 0, 1, 2, 0, 1, 2, 1, 0, 0],
+      "input_length": 14,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000200000000000000040000000000000004000000000000000400000000000000"
+    },
+    {
+      "id": "three-equal-cost-routes-with-shortfall",
+      "input_values": [4, 5, 0, 3, 4, 0, 3, 4, 0, 1, 1, 1, 3, 3, 0, 2, 2, 2, 3, 2],
+      "input_length": 20,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "040000000000000004000000000000000400000000000000ffffffffffffffff"
+    },
+    {
+      "id": "zero-cost-loop-generates-repeated-walks",
+      "input_values": [2, 2, 0, 1, 5, 0, 0, 0, 0, 1, 3],
+      "input_length": 11,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "03000000000000000300000000000000030000000000000003000000000000000300000000000000"
+    },
+    {
+      "id": "zero-cost-singleton-loop",
+      "input_values": [1, 1, 0, 0, 4, 0, 0, 0],
+      "input_length": 8,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "unreachable-target",
+      "input_values": [3, 1, 0, 2, 3, 0, 1, 1],
+      "input_length": 8,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "ffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "source-equals-target-without-cycle",
+      "input_values": [2, 1, 0, 0, 4, 0, 1, 5],
+      "input_length": 8,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000ffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "finite-routes-fill-with-minus-one",
+      "input_values": [3, 3, 0, 2, 5, 0, 1, 1, 1, 2, 2, 0, 2, 4],
+      "input_length": 14,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "03000000000000000400000000000000ffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "maximum-output-vector",
+      "input_values": [1, 1, 0, 0, 8, 0, 0, 0],
+      "input_length": 8,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "vertex-count-out-of-range",
+      "input_values": [0, 0, 0, 0, 1],
+      "input_length": 5,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "edge-count-out-of-range",
+      "input_values": [6, 13, 0, 1, 1],
+      "input_length": 5,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "k-out-of-range",
+      "input_values": [2, 0, 0, 1, 9],
+      "input_length": 5,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "source-out-of-range",
+      "input_values": [2, 0, 2, 1, 1],
+      "input_length": 5,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "target-out-of-range",
+      "input_values": [2, 0, 0, 2, 1],
+      "input_length": 5,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "endpoint-out-of-range",
+      "input_values": [2, 1, 0, 1, 1, 0, 2, 1],
+      "input_length": 8,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-weight",
+      "input_values": [2, 1, 0, 1, 1, 0, 1, -1],
+      "input_length": 8,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "weight-above-bound",
+      "input_values": [2, 1, 0, 1, 1, 0, 1, 1001],
+      "input_length": 8,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-edge-frame",
+      "input_values": [2, 1, 0, 1, 1, 0, 1],
+      "input_length": 7,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-input-value",
+      "input_values": [1, 0, 0, 0, 1, 0],
+      "input_length": 6,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-input-precedes-output-error",
+      "input_values": [2, 1, 0, 1, 1, 0, 2, 1],
+      "input_length": 8,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 3, 0, 1, 5, 0, 1, 2, 0, 1, 2, 1, 0, 0],
+      "input_length": 14,
+      "output_capacity": 39,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 0, 0, 0, 1],
+      "input_length": 5,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 64,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

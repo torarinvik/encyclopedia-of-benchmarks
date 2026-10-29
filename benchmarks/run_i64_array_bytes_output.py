@@ -113,6 +113,26 @@ from domination_local_reduction_oracle import MAX_OUTPUT_BYTES as DOMINATION_LOC
 from domination_local_reduction_oracle import evaluate as domination_local_reduction_core_oracle
 from weighted_connected_dominating_set_oracle import MAX_INPUT as WEIGHTED_CONNECTED_DOMINATING_SET_MAX_INPUT
 from weighted_connected_dominating_set_oracle import expected_output as weighted_connected_dominating_set_oracle
+from dominator_tree_oracle import MAX_INPUT_LENGTH as DOMINATOR_TREE_MAX_INPUT_LENGTH
+from dominator_tree_oracle import MAX_OUTPUT_BYTES as DOMINATOR_TREE_MAX_OUTPUT_BYTES
+from dominator_tree_oracle import expected_output as dominator_tree_oracle
+from link_cut_tree_oracle import MAX_INPUT_LENGTH as LINK_CUT_TREE_MAX_INPUT_LENGTH
+from link_cut_tree_oracle import MAX_OUTPUT_BYTES as LINK_CUT_TREE_MAX_OUTPUT_BYTES
+from link_cut_tree_oracle import expected_output as link_cut_tree_oracle
+from st_numbering_oracle import MAX_INPUT_LENGTH as ST_NUMBERING_MAX_INPUT_LENGTH
+from st_numbering_oracle import MAX_OUTPUT_BYTES as ST_NUMBERING_MAX_OUTPUT_BYTES
+from st_numbering_oracle import expected_output as st_numbering_oracle
+from k_shortest_walk_oracle import MAX_INPUT_LENGTH as K_SHORTEST_WALK_MAX_INPUT_LENGTH
+from k_shortest_walk_oracle import MAX_OUTPUT_BYTES as K_SHORTEST_WALK_MAX_OUTPUT_BYTES
+from k_shortest_walk_oracle import expected_output as k_shortest_walk_oracle
+from d_esopo_pape_oracle import MAX_INPUT_LENGTH as D_ESOPO_PAPE_MAX_INPUT_LENGTH
+from d_esopo_pape_oracle import MAX_OUTPUT_BYTES as D_ESOPO_PAPE_MAX_OUTPUT_BYTES
+from d_esopo_pape_oracle import expected_output as d_esopo_pape_package_oracle
+from verify_d_esopo_pape import validate_sources as validate_d_esopo_pape_sources
+from verify_d_esopo_pape import validate_workload as validate_d_esopo_pape_package_workload
+from s.static_range_mode_query.oracle import MAX_INPUT_LENGTH as STATIC_RANGE_MODE_QUERY_MAX_INPUT_LENGTH
+from s.static_range_mode_query.oracle import MAX_OUTPUT_BYTES as STATIC_RANGE_MODE_QUERY_MAX_OUTPUT_BYTES
+from s.static_range_mode_query.oracle import expected_output as static_range_mode_query_oracle
 from weighted_popular_matching_oracle import MAX_INPUT as WEIGHTED_POPULAR_MATCHING_MAX_INPUT
 from weighted_popular_matching_oracle import expected_output as weighted_popular_matching_oracle
 from ranked_matching_popular_matching_oracle import MAX_INPUT as RANKED_MATCHING_POPULAR_MATCHING_MAX_INPUT
@@ -226,6 +246,12 @@ from signed_permutation_reversal_sequence_oracle import expected_output as signe
 from fm_index_count_oracle import MAX_INPUT_LENGTH as FM_INDEX_COUNT_MAX_INPUT_LENGTH
 from fm_index_count_oracle import MAX_OUTPUT_BYTES as FM_INDEX_COUNT_MAX_OUTPUT_BYTES
 from fm_index_count_oracle import evaluate as fm_index_count_core_oracle
+from counting_spanning_trees_undirected_oracle import MAX_INPUT_LENGTH as COUNTING_SPANNING_TREES_MAX_INPUT_LENGTH
+from counting_spanning_trees_undirected_oracle import OUTPUT_BYTES as COUNTING_SPANNING_TREES_OUTPUT_BYTES
+from counting_spanning_trees_undirected_oracle import expected_output as counting_spanning_trees_undirected_oracle
+from counting_spanning_trees_directed_oracle import MAX_INPUT_LENGTH as COUNTING_SPANNING_TREES_DIRECTED_MAX_INPUT_LENGTH
+from counting_spanning_trees_directed_oracle import OUTPUT_BYTES as COUNTING_SPANNING_TREES_DIRECTED_OUTPUT_BYTES
+from counting_spanning_trees_directed_oracle import expected_output as counting_spanning_trees_directed_oracle
 from bst_interleave_bound_oracle import MAX_INPUT_LENGTH as BST_INTERLEAVE_BOUND_MAX_INPUT_LENGTH
 from bst_interleave_bound_oracle import expected_output as bst_interleave_bound_oracle
 from ring_exact_covering_protocol_oracle import MAX_INPUT as RING_EXACT_COVERING_PROTOCOL_MAX_INPUT
@@ -2400,13 +2426,10 @@ from rotate_to_the_right_oracle import MAX_PARSEABLE_INPUT_LENGTH as ROTATE_TO_T
 from rotate_to_the_right_oracle import expected_output as rotate_to_the_right_expected_output
 from skytale_cipher_oracle import MAX_PARSEABLE_INPUT_LENGTH as SKYTALE_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
 from skytale_cipher_oracle import expected_output as skytale_cipher_expected_output
-from hierholzer_eulerian_path_oracle import MAX_INPUT_LENGTH as HIERHOLZER_EULERIAN_PATH_MAX_INPUT_LENGTH
-from hierholzer_eulerian_path_oracle import expected_output as hierholzer_eulerian_path_expected_output
 from prefix_aggregate_list_oracle import MAX_PARSEABLE_INPUT_LENGTH as PREFIX_AGGREGATE_LIST_MAX_PARSEABLE_INPUT_LENGTH
 from prefix_aggregate_list_oracle import expected_output as prefix_aggregate_list_expected_output
 
 KAHNS_MAX_PARSEABLE_INPUT_LENGTH = KAHNS_MAX_INPUT_LENGTH + 2
-HIERHOLZER_EULERIAN_PATH_MAX_PARSEABLE_INPUT_LENGTH = HIERHOLZER_EULERIAN_PATH_MAX_INPUT_LENGTH + 2
 from minimizing_lateness_oracle import MAX_INPUT_VALUES as MINIMIZING_LATENESS_MAX_INPUT_VALUES
 from minimizing_lateness_oracle import expected_output as minimizing_lateness_expected_output
 from minimum_coin_change_greedy_oracle import MAX_INPUT_VALUES as MINIMUM_COIN_CHANGE_GREEDY_MAX_INPUT_VALUES
@@ -3126,6 +3149,11 @@ from gbbs_biconnectivity_oracle import (
     expected_output as gbbs_biconnectivity_oracle,
 )
 GBBS_BICONNECTIVITY_MAX_OUTPUT_BYTES = GBBS_BICONNECTIVITY_MAX_EDGES
+from rooted_tree_isomorphism_classification_oracle import (
+    MAX_INPUT_LENGTH as ROOTED_TREE_ISOMORPHISM_CLASSIFICATION_MAX_INPUT_LENGTH,
+    MAX_TREES as ROOTED_TREE_ISOMORPHISM_CLASSIFICATION_MAX_TREES,
+    expected_output as rooted_tree_isomorphism_classification_oracle,
+)
 from gbbs_approximate_set_cover_oracle import (
     MAX_SETS as GBBS_SET_COVER_MAX_SETS,
     MAX_INPUT_LENGTH as GBBS_SET_COVER_MAX_INPUT_LENGTH,
@@ -4635,7 +4663,6 @@ RECORDER_WORKSPACE_ALGORITHMS.add('split')
 RECORDER_WORKSPACE_ALGORITHMS.add('word_frequency_bst')
 RECORDER_WORKSPACE_ALGORITHMS.add('subtract')
 RECORDER_WORKSPACE_ALGORITHMS.add('kahns_algorithm')
-RECORDER_WORKSPACE_ALGORITHMS.add('hierholzer_eulerian_path')
 RECORDER_WORKSPACE_ALGORITHMS.add('prefix_aggregate_list')
 RECORDER_WORKSPACE_ALGORITHMS.add('shuf')
 RECORDER_WORKSPACE_ALGORITHMS.add('table_list')
@@ -5891,6 +5918,18 @@ def _adapt_array_evaluator(evaluator, max_parseable_input_length):
     return expected_output
 
 
+def d_esopo_pape_oracle(values, capacity=None, output_is_null=False,
+                        input_is_null=False, input_length=None):
+    oracle_arguments = {
+        "input_is_null": input_is_null,
+        "input_length": input_length,
+        "output_is_null": output_is_null,
+    }
+    if capacity is not None:
+        oracle_arguments["output_capacity"] = capacity
+    return d_esopo_pape_package_oracle(values, **oracle_arguments)
+
+
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "vector_scheduling": vector_scheduling_oracle,
     "vector_bin_packing": vector_bin_packing_oracle,
@@ -5969,6 +6008,12 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
         domination_local_reduction_core_oracle,
         DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH + 1),
     "weighted_connected_dominating_set": weighted_connected_dominating_set_oracle,
+    "dominator_tree": dominator_tree_oracle,
+    "link_cut_tree": link_cut_tree_oracle,
+    "st_numbering": st_numbering_oracle,
+    "k_shortest_walk": k_shortest_walk_oracle,
+    "d_esopo_pape": d_esopo_pape_oracle,
+    "static_range_mode_query": static_range_mode_query_oracle,
     "weighted_popular_matching": weighted_popular_matching_oracle,
     "ranked_matching_popular_matching": ranked_matching_popular_matching_oracle,
     "extended_gs_general_stable_allocation": extended_gs_general_stable_allocation_oracle,
@@ -6007,6 +6052,8 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "stochastic_knapsack_greedy": stochastic_knapsack_greedy_oracle,
     "fm_index_count": _adapt_array_evaluator(
         fm_index_count_core_oracle, FM_INDEX_COUNT_MAX_INPUT_LENGTH),
+    "counting_spanning_trees_undirected": counting_spanning_trees_undirected_oracle,
+    "counting_spanning_trees_directed": counting_spanning_trees_directed_oracle,
     "bst_interleave_bound": bst_interleave_bound_oracle,
     "ring_exact_covering_protocol": ring_exact_covering_protocol_oracle,
     "ppsz_k_sat_trace": ppsz_k_sat_trace_oracle,
@@ -6201,6 +6248,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "gbbs_scan_structural_clustering": gbbs_scan_structural_clustering_oracle,
     "gbbs_maximal_matching": gbbs_maximal_matching_oracle,
     "gbbs_biconnectivity": gbbs_biconnectivity_oracle,
+    "rooted_tree_isomorphism_classification": rooted_tree_isomorphism_classification_oracle,
     "gbbs_approximate_set_cover": gbbs_approximate_set_cover_oracle,
     "gbbs_low_diameter_decomposition": gbbs_low_diameter_decomposition_oracle,
     "gbbs_shiloach_vishkin_spanning_forest": gbbs_shiloach_vishkin_spanning_forest_oracle,
@@ -6500,6 +6548,19 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
         DOMINATION_LOCAL_REDUCTION_MAX_OUTPUT_BYTES),
     "weighted_connected_dominating_set": (
         WEIGHTED_CONNECTED_DOMINATING_SET_MAX_INPUT, 16),
+    "dominator_tree": (
+        DOMINATOR_TREE_MAX_INPUT_LENGTH, DOMINATOR_TREE_MAX_OUTPUT_BYTES),
+    "link_cut_tree": (
+        LINK_CUT_TREE_MAX_INPUT_LENGTH, LINK_CUT_TREE_MAX_OUTPUT_BYTES),
+    "st_numbering": (
+        ST_NUMBERING_MAX_INPUT_LENGTH, ST_NUMBERING_MAX_OUTPUT_BYTES),
+    "k_shortest_walk": (
+        K_SHORTEST_WALK_MAX_INPUT_LENGTH, K_SHORTEST_WALK_MAX_OUTPUT_BYTES),
+    "d_esopo_pape": (
+        D_ESOPO_PAPE_MAX_INPUT_LENGTH, D_ESOPO_PAPE_MAX_OUTPUT_BYTES),
+    "static_range_mode_query": (
+        STATIC_RANGE_MODE_QUERY_MAX_INPUT_LENGTH,
+        STATIC_RANGE_MODE_QUERY_MAX_OUTPUT_BYTES),
     "weighted_popular_matching": (WEIGHTED_POPULAR_MATCHING_MAX_INPUT, 48),
     "ranked_matching_popular_matching": (
         RANKED_MATCHING_POPULAR_MATCHING_MAX_INPUT,
@@ -6596,6 +6657,12 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
         STOCHASTIC_KNAPSACK_GREEDY_MAX_INPUT_LENGTH,
         STOCHASTIC_KNAPSACK_GREEDY_MAX_OUTPUT_BYTES),
     "fm_index_count": (FM_INDEX_COUNT_MAX_INPUT_LENGTH, FM_INDEX_COUNT_MAX_OUTPUT_BYTES),
+    "counting_spanning_trees_undirected": (
+        COUNTING_SPANNING_TREES_MAX_INPUT_LENGTH,
+        COUNTING_SPANNING_TREES_OUTPUT_BYTES),
+    "counting_spanning_trees_directed": (
+        COUNTING_SPANNING_TREES_DIRECTED_MAX_INPUT_LENGTH,
+        COUNTING_SPANNING_TREES_DIRECTED_OUTPUT_BYTES),
     "bst_interleave_bound": (BST_INTERLEAVE_BOUND_MAX_INPUT_LENGTH, 8),
     "ring_exact_covering_protocol": (
         RING_EXACT_COVERING_PROTOCOL_MAX_INPUT, RING_EXACT_COVERING_PROTOCOL_MAX_OUTPUT),
@@ -6900,6 +6967,9 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
                                GBBS_MAXIMAL_MATCHING_MAX_OUTPUT_BYTES),
     "gbbs_biconnectivity": (GBBS_BICONNECTIVITY_MAX_INPUT_LENGTH,
                               GBBS_BICONNECTIVITY_MAX_OUTPUT_BYTES),
+    "rooted_tree_isomorphism_classification": (
+        ROOTED_TREE_ISOMORPHISM_CLASSIFICATION_MAX_INPUT_LENGTH,
+        ROOTED_TREE_ISOMORPHISM_CLASSIFICATION_MAX_TREES),
     "gbbs_approximate_set_cover": (GBBS_SET_COVER_MAX_PARSEABLE_LENGTH,
                                     GBBS_SET_COVER_MAX_OUTPUT_BYTES),
     "gbbs_low_diameter_decomposition": (GBBS_LDD_MAX_INPUT_LENGTH,
@@ -7335,8 +7405,6 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return poly1305_expected_output(values)
     if algorithm == "kahns_algorithm":
         return kahns_algorithm_expected_output(values)
-    if algorithm == "hierholzer_eulerian_path":
-        return hierholzer_eulerian_path_expected_output(values)
     if algorithm == "prefix_aggregate_list":
         return prefix_aggregate_list_expected_output(values)
     if algorithm == "tea":
@@ -10442,29 +10510,6 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
                 return -1, b""
         output = b"".join(struct.pack("<q", result) for result in results)
         return len(results), output
-
-    if algorithm == "range_minimum_query":
-        if (not isinstance(values, list) or len(values) < 5
-                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
-            return -1, b""
-        count = values[0]
-        if not 1 <= count <= 64 or len(values) < count + 3:
-            return -1, b""
-        array = values[1:1 + count]
-        if any(not -1000 <= value <= 1000 for value in array):
-            return -1, b""
-        query_count = values[1 + count]
-        if not 1 <= query_count <= 64 or len(values) != 2 + count + 2 * query_count:
-            return -1, b""
-        answers = []
-        for index in range(query_count):
-            start, end = values[2 + count + 2 * index:4 + count + 2 * index]
-            if not 0 <= start < end <= count:
-                answers.append(-(2**63))
-            else:
-                answers.append(min(array[start:end]))
-        output = b"".join(struct.pack("<q", answer) for answer in answers)
-        return len(output), output
 
     if algorithm == "windowed_median":
         if (not isinstance(values, list) or len(values) < 3
@@ -36611,6 +36656,816 @@ def _saga_base_state_is_valid(values: list[int]) -> bool:
 def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     if not isinstance(workload.get("cases"), list) or not workload["cases"]:
         raise ValueError(f"{algorithm} workload must contain fixture cases")
+    if algorithm == "d_esopo_pape":
+        expected_keys = {
+            "schema_version", "id", "algorithm", "function_symbol", "source_basis",
+            "input", "output", "measurement", "cases",
+        }
+        if (set(workload) != expected_keys
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "d-esopo-pape-directed-shortest-paths-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm):
+            raise ValueError("d_esopo_pape workload identity or top-level fields differ from its package contract")
+        validate_d_esopo_pape_package_workload(workload)
+        validate_d_esopo_pape_sources()
+        readme = (ROOT / "benchmarks" / "d" / algorithm / "README.md").read_text(encoding="utf-8")
+        if ("https://cp-algorithms.com/graph/desopo_pape.html" not in readme
+                or "https://web.mit.edu/dimitrib/www/SLF.pdf" not in readme
+                or "O(1)" not in readme or "O(n+m)" not in readme
+                or "exponential" not in readme.lower()
+                or "no polynomial worst-case claim" not in readme.lower()):
+            raise ValueError("d_esopo_pape README is missing provenance or honest complexity bounds")
+        for support_file in (
+                ROOT / "benchmarks" / "d_esopo_pape_oracle.py",
+                ROOT / "benchmarks" / "verify_d_esopo_pape.py"):
+            if not support_file.is_file():
+                raise ValueError(f"d_esopo_pape support file is missing: {support_file.name}")
+        return
+    if algorithm == "counting_spanning_trees_directed":
+        expected_source = {
+            "repository": "Library Checker",
+            "problem": "Counting Spanning Trees (Directed)",
+            "url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/counting_spanning_tree_directed/task.md",
+            "source_type": "official_algorithm_task_specification",
+            "reuse": "Task definition only; all implementations and the oracle are independently written.",
+        }
+        expected_contract = {
+            "operation": "Count outward spanning arborescences rooted at r in a bounded directed multigraph modulo 998244353.",
+            "input_layout": "[n, m, r, (u, v)*m]",
+            "vertex_count_range": [1, 6],
+            "edge_count_range": [0, 12],
+            "vertex_ids": "zero-based",
+            "root_semantics": "Every vertex must be reachable from r; each non-root vertex has exactly one selected incoming arc and r has none.",
+            "graph_semantics": "Directed multigraph; arc order and multiplicity are preserved.",
+            "parallel_edges": "Each input arc is distinct and contributes separately.",
+            "self_loops": "Accepted but cannot belong to an outward spanning arborescence.",
+            "algorithm": "Directed Matrix-Tree theorem: form the in-degree Laplacian, delete the root row and column, and compute the determinant by modular Gaussian elimination.",
+            "modulus": 998244353,
+            "output_encoding": "one unsigned 64-bit count in eight little-endian bytes",
+            "unreachable_graph_result": 0,
+            "invalid_input_result": -1,
+            "null_output_result": -2,
+            "insufficient_output_capacity_result": -2,
+            "no_write_on_error": True,
+            "error_precedence": "Input framing and endpoint validation precede output pointer and capacity checks.",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "maximum_valid_length": COUNTING_SPANNING_TREES_DIRECTED_MAX_INPUT_LENGTH,
+            "maximum_parseable_length": COUNTING_SPANNING_TREES_DIRECTED_MAX_INPUT_LENGTH,
+            "invalid_result": -1,
+            "null_input_result": -1,
+        }
+        expected_output_spec = {
+            "kind": "little_endian_unsigned_64_bit_scalar",
+            "maximum_bytes": COUNTING_SPANNING_TREES_DIRECTED_OUTPUT_BYTES,
+            "success_result": COUNTING_SPANNING_TREES_DIRECTED_OUTPUT_BYTES,
+            "invalid_input_result": -1,
+            "null_output_result": -2,
+            "insufficient_output_capacity_result": -2,
+            "no_write_on_error": True,
+        }
+        expected_workspace = {
+            "bytes": 512,
+            "meaning": "Bounded directed Laplacian cofactor and modular-elimination scratch matrix.",
+        }
+        expected_case_ids = {
+            "singleton-with-loops", "outward-path", "complete-bidirected-three",
+            "parallel-arcs-chain", "loop-does-not-contribute", "disconnected-root",
+            "maximum-parallel-arc-bound", "vertex-count-out-of-range",
+            "edge-count-out-of-range", "root-out-of-range", "endpoint-out-of-range",
+            "truncated-edge-frame", "invalid-before-output-error", "short-output-capacity",
+            "null-output", "null-input",
+        }
+        port_paths = (
+            "c/c/counting_spanning_trees_directed.c",
+            "c3/c/counting_spanning_trees_directed.c3",
+            "cpp/c/counting_spanning_trees_directed.cpp",
+            "elisa/c/counting_spanning_trees_directed.elisa",
+            "nim/c/counting_spanning_trees_directed.nim",
+            "odin/c/counting_spanning_trees_directed.odin",
+            "rust/c/counting_spanning_trees_directed.rs",
+            "v/c/counting_spanning_trees_directed.v",
+            "zig/c/counting_spanning_trees_directed.zig",
+        )
+        if (set(workload) != {
+                    "schema_version", "id", "algorithm", "function_symbol", "abi", "source",
+                    "contract", "input", "output", "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "counting-spanning-trees-directed-matrix-tree-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("source") != expected_source
+                or workload.get("contract") != expected_contract
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output_spec
+                or workload.get("workspace") != expected_workspace
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload["cases"] if isinstance(case, dict)}
+                    != expected_case_ids
+                or len(workload["cases"]) != len(expected_case_ids)):
+            raise ValueError("counting_spanning_trees_directed metadata differs from its bounded contract")
+
+        package = ROOT / "benchmarks" / "c" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "directed Matrix-Tree theorem" not in readme
+                or "O(n^3 + m)" not in readme
+                or "O(n^2)" not in readme
+                or "edge-subset enumeration" not in readme
+                or "implementations and oracle here are independently written" not in readme
+                or "Parallel arcs are distinct choices" not in readme
+                or "Self-loops are valid input but cannot contribute" not in readme
+                or any(relative not in readme for relative in port_paths)):
+            raise ValueError("counting_spanning_trees_directed README is missing its source or bounded algorithm contract")
+        for relative in port_paths:
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"counting_spanning_trees_directed port is missing its exported symbol: {relative}")
+        for support_file in (
+                ROOT / "benchmarks" / "counting_spanning_trees_directed_oracle.py",
+                ROOT / "benchmarks" / "counting_spanning_trees_directed_verifier.py"):
+            if not support_file.is_file():
+                raise ValueError(f"counting_spanning_trees_directed support file is missing: {support_file.name}")
+
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            input_length = case.get("input_length")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", COUNTING_SPANNING_TREES_DIRECTED_OUTPUT_BYTES)
+            if (not isinstance(values, list)
+                    or len(values) > COUNTING_SPANNING_TREES_DIRECTED_MAX_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= COUNTING_SPANNING_TREES_DIRECTED_MAX_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or (input_is_null and (values or output_is_null))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(f"counting_spanning_trees_directed fixture framing is invalid: {case.get('id')}")
+            result, output = counting_spanning_trees_directed_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"counting_spanning_trees_directed fixture differs from its oracle: {case.get('id')}")
+        return
+    if algorithm == "counting_spanning_trees_undirected":
+        expected_source = {
+            "repository": "Library Checker",
+            "problem": "Counting Spanning Trees (Undirected)",
+            "url": "https://judge.yosupo.jp/",
+            "source_type": "official_problem_index_taxonomy",
+            "reuse": "Problem taxonomy and name only; all implementations and the oracle are independently written.",
+        }
+        expected_contract = {
+            "operation": "Count spanning trees of a bounded simple undirected graph modulo 1,000,000,007.",
+            "input_layout": "[n, m, (u, v)*m]",
+            "vertex_count_range": [1, 7],
+            "edge_count_range": [0, 21],
+            "vertex_ids": "zero-based",
+            "graph_semantics": "simple undirected graph; self-loops and duplicate edges are invalid",
+            "algorithm": "Kirchhoff's Matrix-Tree theorem: take any Laplacian cofactor and compute its determinant by modular Gaussian elimination.",
+            "modulus": 1000000007,
+            "output_encoding": "one unsigned 64-bit count in eight little-endian bytes",
+            "disconnected_graph_result": 0,
+            "invalid_input_result": -1,
+            "null_output_result": -2,
+            "insufficient_output_capacity_result": -2,
+            "no_write_on_error": True,
+            "error_precedence": "Input framing and graph validation precede output pointer and capacity checks.",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "maximum_valid_length": COUNTING_SPANNING_TREES_MAX_INPUT_LENGTH,
+            "maximum_parseable_length": COUNTING_SPANNING_TREES_MAX_INPUT_LENGTH,
+            "invalid_result": -1,
+            "null_input_result": -1,
+        }
+        expected_output_spec = {
+            "kind": "little_endian_unsigned_64_bit_scalar",
+            "maximum_bytes": COUNTING_SPANNING_TREES_OUTPUT_BYTES,
+            "success_result": COUNTING_SPANNING_TREES_OUTPUT_BYTES,
+            "invalid_input_result": -1,
+            "null_output_result": -2,
+            "insufficient_output_capacity_result": -2,
+            "no_write_on_error": True,
+        }
+        expected_workspace = {
+            "bytes": 512,
+            "meaning": "Bounded adjacency matrix, Laplacian cofactor, and modular-elimination scratch arrays.",
+        }
+        expected_case_ids = {
+            "singleton-empty-graph", "four-vertex-path-tree", "five-cycle",
+            "complete-four-vertex-graph", "complete-seven-vertex-graph",
+            "disconnected-two-edge-graph", "vertex-count-below-bound",
+            "vertex-count-above-bound", "edge-count-above-bound",
+            "endpoint-out-of-range", "self-loop-invalid",
+            "duplicate-undirected-edge-invalid", "truncated-edge-frame",
+            "short-output-capacity", "null-output", "null-input",
+        }
+        if (set(workload) != {
+                    "schema_version", "id", "algorithm", "function_symbol", "abi", "source",
+                    "contract", "input", "output", "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "counting-spanning-trees-undirected-matrix-tree-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("source") != expected_source
+                or workload.get("contract") != expected_contract
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output_spec
+                or workload.get("workspace") != expected_workspace
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload["cases"] if isinstance(case, dict)}
+                    != expected_case_ids
+                or len(workload["cases"]) != len(expected_case_ids)):
+            raise ValueError("counting_spanning_trees_undirected metadata differs from its bounded contract")
+
+        package = ROOT / "benchmarks" / "c" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "Kirchhoff's Matrix-Tree theorem" not in readme
+                or "O(n^3 + m)" not in readme
+                or "O(n^2)" not in readme
+                or "subset-enumeration oracle" not in readme
+                or "no submission code or problem text was copied" not in readme):
+            raise ValueError("counting_spanning_trees_undirected README is missing its source or bounded algorithm contract")
+        for relative in (
+                "c/c/counting_spanning_trees_undirected.c",
+                "c3/c/counting_spanning_trees_undirected.c3",
+                "cpp/c/counting_spanning_trees_undirected.cpp",
+                "elisa/c/counting_spanning_trees_undirected.elisa",
+                "nim/c/counting_spanning_trees_undirected.nim",
+                "odin/c/counting_spanning_trees_undirected.odin",
+                "rust/c/counting_spanning_trees_undirected.rs",
+                "v/c/counting_spanning_trees_undirected.v",
+                "zig/c/counting_spanning_trees_undirected.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"counting_spanning_trees_undirected port is missing its exported symbol: {relative}")
+
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            input_length = case.get("input_length")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", COUNTING_SPANNING_TREES_OUTPUT_BYTES)
+            if (not isinstance(values, list)
+                    or len(values) > COUNTING_SPANNING_TREES_MAX_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= COUNTING_SPANNING_TREES_MAX_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or (input_is_null and (values or output_is_null))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(f"counting_spanning_trees_undirected fixture framing is invalid: {case.get('id')}")
+            result, output = counting_spanning_trees_undirected_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"counting_spanning_trees_undirected fixture differs from its oracle: {case.get('id')}")
+        return
+    if algorithm == "rooted_tree_isomorphism_classification":
+        expected_source = {
+            "repository": "Library Checker",
+            "problem": "Rooted Tree Isomorphism Classification",
+            "url": "https://judge.yosupo.jp/problem/rooted_tree_isomorphism_classification",
+            "source_type": "algorithm_problem_specification",
+            "reuse": "Algorithm reference only; implementations and oracle are independently written.",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "encoding": "[tree_count, (vertex_count, root, edge_u, edge_v...)*]",
+            "tree_count_range": [1, 16],
+            "vertex_count_per_tree_range": [1, 32],
+            "total_vertex_count_range": [1, 128],
+            "maximum_parseable_length": ROOTED_TREE_ISOMORPHISM_CLASSIFICATION_MAX_INPUT_LENGTH,
+            "maximum_valid_length": 257,
+            "edge_semantics": "Undirected simple edge; each tree must be connected and have exactly vertex_count minus one edges.",
+            "invalid_input_result": -1,
+        }
+        expected_output_spec = {
+            "kind": "byte_array",
+            "encoding": "One class label per input tree, assigned in first-occurrence order.",
+            "maximum_bytes": ROOTED_TREE_ISOMORPHISM_CLASSIFICATION_MAX_TREES,
+            "success_result": "tree_count bytes written",
+            "invalid_input_result": -1,
+            "null_output_result": -2,
+            "insufficient_capacity_result": -2,
+            "output_untouched_on_error": True,
+        }
+        expected_case_ids = {
+            "paths-with-endpoint-middle-and-singleton-roots",
+            "reordered-eight-vertex-paths-with-distinct-root-shapes",
+            "star-center-versus-leaf-and-reordered-isomorphic-star",
+            "disconnected-cyclic-input-invalid", "duplicate-undirected-edge-invalid",
+            "root-out-of-range-invalid", "trailing-value-invalid",
+            "short-output-capacity", "null-output", "null-input",
+        }
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "source", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != "1.0.0"
+                or workload.get("id") != "rooted-tree-isomorphism-classification-bounded-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output_spec
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 8, "warmup_rounds": 2, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload["cases"]
+                    if isinstance(case, dict)} != expected_case_ids
+                or len(workload["cases"]) != len(expected_case_ids)):
+            raise ValueError("rooted tree isomorphism metadata differs from its bounded contract")
+
+        package = ROOT / "benchmarks" / "r" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "bottom-up child-type signatures" not in readme
+                or "exact tuple equality" not in readme
+                or "O(V²)" not in readme
+                or "1,025 values" not in readme
+                or "Compilation and runtime verification have not been performed." not in readme):
+            raise ValueError("rooted tree isomorphism README is missing its source or bounded algorithm contract")
+        for relative in (
+                "c/r/rooted_tree_isomorphism_classification.c",
+                "c3/r/rooted_tree_isomorphism_classification.c3",
+                "cpp/r/rooted_tree_isomorphism_classification.cpp",
+                "elisa/r/rooted_tree_isomorphism_classification.elisa",
+                "nim/r/rooted_tree_isomorphism_classification.nim",
+                "odin/r/rooted_tree_isomorphism_classification.odin",
+                "rust/r/rooted_tree_isomorphism_classification.rs",
+                "v/r/rooted_tree_isomorphism_classification.v",
+                "zig/r/rooted_tree_isomorphism_classification.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"rooted tree isomorphism port is missing its exported symbol: {relative}")
+
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            input_length = case.get("input_length")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", ROOTED_TREE_ISOMORPHISM_CLASSIFICATION_MAX_TREES)
+            if (not isinstance(values, list) or type(input_length) is not int
+                    or not 0 <= input_length <= ROOTED_TREE_ISOMORPHISM_CLASSIFICATION_MAX_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or (input_is_null and values)
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(f"rooted tree isomorphism fixture framing is invalid: {case.get('id')}")
+            result, output = rooted_tree_isomorphism_classification_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (case.get("expected_result") != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"rooted tree isomorphism fixture differs from its oracle: {case.get('id')}")
+        return
+    if algorithm == "st_numbering":
+        expected_source = {
+            "name": "Library Checker st-Numbering and Even-Tarjan construction",
+            "problem_list_url": "https://judge.yosupo.jp/",
+            "algorithm_reference": "https://www.sciencedirect.com/science/article/pii/0304397576900864",
+            "implementation_note": "clean-room DFS/lowpoint and ordered insertion ports",
+        }
+        expected_input = {
+            "kind": "signed_i64_array",
+            "encoding": "[n, m, s, t, (u, v)*m]",
+            "vertex_count_range": [2, 8], "edge_count_range": [0, 28],
+            "maximum_valid_length": ST_NUMBERING_MAX_INPUT_LENGTH,
+            "vertex_ids": "zero-based",
+            "graph": "simple undirected graph; self-loops and duplicate edges are invalid",
+            "terminals": "s and t must be distinct, in range, and adjacent",
+            "biconnectivity": "the graph must be connected and have no articulation vertex",
+            "invalid_input_result": -1,
+        }
+        expected_output = {
+            "kind": "vertex_rank_byte_array",
+            "encoding": "one byte per vertex in vertex-ID order; each byte is that vertex's rank in 1..n",
+            "maximum_bytes": ST_NUMBERING_MAX_OUTPUT_BYTES,
+            "success_result": "vertex_count bytes written",
+            "invalid_input_result": -1,
+            "null_output_result": -2,
+            "insufficient_capacity_result": -2,
+            "output_untouched_on_error": True,
+            "st_conditions": "rank[s]=1, rank[t]=n, and every other vertex has a neighbor of lower rank and a neighbor of higher rank",
+        }
+        expected_contract = {
+            "operation": "Return an st-numbering for the selected adjacent terminals when the input graph is biconnected.",
+            "algorithm": "Even-Tarjan DFS/lowpoint construction with an order list updated by parent-relative insertion.",
+            "complexity": "O(n + m) time and O(n + m) auxiliary space.",
+            "invalid_input_result": -1, "output_error_result": -2,
+        }
+        expected_case_ids = {
+            "two-vertex-edge", "triangle", "four-cycle", "complete-four",
+            "nonzero-terminals-cycle", "complete-eight-maximum-edges",
+            "path-has-articulation", "disconnected", "terminals-not-adjacent",
+            "self-loop-invalid", "duplicate-edge-invalid", "endpoint-out-of-range",
+            "wrong-length", "same-terminal-invalid", "null-output",
+            "short-output-capacity", "null-input",
+        }
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "source", "input", "output", "workspace",
+                              "contract", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "st-numbering-even-tarjan-bounded-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Even-Tarjan DFS/lowpoint st-numbering for a small simple biconnected graph."
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("workspace") != {
+                    "bytes": ST_NUMBERING_MAX_OUTPUT_BYTES,
+                    "meaning": "Staged byte ranks for at most eight vertices.",
+                }
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 6, "warmup_rounds": 2, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_case_ids
+                or len(workload.get("cases", [])) != len(expected_case_ids)):
+            raise ValueError("st_numbering metadata differs from its bounded contract")
+        package = ROOT / "benchmarks" / "s" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        if ("https://judge.yosupo.jp/" not in readme
+                or "0304397576900864" not in readme or "O(n + m)" not in readme):
+            raise ValueError("st_numbering README is missing taxonomy, provenance, or complexity")
+        for relative in (
+                "c/s/st_numbering.c", "c3/s/st_numbering.c3", "cpp/s/st_numbering.cpp",
+                "elisa/s/st_numbering.elisa", "nim/s/st_numbering.nim",
+                "odin/s/st_numbering.odin", "rust/s/st_numbering.rs",
+                "v/s/st_numbering.v", "zig/s/st_numbering.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"st_numbering language port is missing its exported symbol: {relative}")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            input_length = case.get("input_length")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", ST_NUMBERING_MAX_OUTPUT_BYTES)
+            if (not isinstance(values, list)
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= ST_NUMBERING_MAX_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or (input_is_null and values)
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(f"st_numbering fixture framing is invalid: {case.get('id')}")
+            result, output = st_numbering_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"st_numbering fixture differs from its oracle: {case.get('id')}")
+        return
+    if algorithm == "link_cut_tree":
+        expected_source = {
+            "name": "OI Wiki Link-Cut Tree",
+            "url": "https://en.oi-wiki.org/ds/lct/",
+            "implementation_note": "clean-room splay-based dynamic forest ports",
+        }
+        expected_input = {
+            "kind": "signed_i64_array",
+            "encoding": "[n, q, vertex_weights..., (operation, u, v)*q]",
+            "vertex_count_range": [1, 16], "operation_count_range": [1, 64],
+            "maximum_valid_length": LINK_CUT_TREE_MAX_INPUT_LENGTH,
+            "vertex_ids": "zero-based", "initial_forest": "no edges",
+            "weight_range": [0, 1000000],
+            "operations": {
+                "0": "link distinct disconnected vertices; output 1 if linked, otherwise 0",
+                "1": "cut an existing edge; output 1 if cut, otherwise 0",
+                "2": "sum weights on the path, or -1 when disconnected",
+            },
+            "invalid_input_result": -1,
+        }
+        expected_output = {
+            "kind": "signed_i64_array",
+            "encoding": "one little-endian signed i64 per operation, in operation order",
+            "maximum_bytes": LINK_CUT_TREE_MAX_OUTPUT_BYTES,
+            "success_result": "8 * operation_count bytes written",
+            "invalid_input_result": -1, "null_output_result": -2,
+            "insufficient_capacity_result": -2, "output_untouched_on_error": True,
+        }
+        expected_contract = {
+            "operation": "Maintain a weighted forest under link, cut, and path-sum operations.",
+            "algorithm": "Splay-based link-cut tree with path reversal and sum aggregation.",
+            "complexity": "O(log n) amortized per operation and O(n) data-structure storage.",
+            "invalid_input_result": -1, "output_error_result": -2,
+        }
+        expected_case_ids = {
+            "link-and-path-sums", "cycle-link-rejected-then-cut", "path-sum-after-links",
+            "missing-cut-and-disconnected-query", "singleton-query-and-self-cut",
+            "unknown-operation", "weight-out-of-range", "wrong-length", "null-output",
+            "short-output-capacity", "null-input",
+        }
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "source", "input", "output", "workspace",
+                              "contract", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "link-cut-tree-bounded-dynamic-forest-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Link-cut tree operations over a bounded weighted dynamic forest."
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("workspace") != {
+                    "bytes": 2048,
+                    "meaning": "Fixed link-cut-tree node storage and bounded splay ancestor stacks.",
+                }
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_case_ids
+                or len(workload.get("cases", [])) != len(expected_case_ids)):
+            raise ValueError("link_cut_tree metadata differs from its bounded contract")
+        package = ROOT / "benchmarks" / "l" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme or "O(log n) amortized" not in readme
+                or "BFS" not in readme or "little-endian" not in readme):
+            raise ValueError("link_cut_tree README is missing provenance, contract, or oracle details")
+        for relative in (
+                "c/l/link_cut_tree.c", "c3/l/link_cut_tree.c3", "cpp/l/link_cut_tree.cpp",
+                "elisa/l/link_cut_tree.elisa", "nim/l/link_cut_tree.nim",
+                "odin/l/link_cut_tree.odin", "rust/l/link_cut_tree.rs",
+                "v/l/link_cut_tree.v", "zig/l/link_cut_tree.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"link_cut_tree language port is missing its exported symbol: {relative}")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            input_length = case.get("input_length")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", 2048)
+            if (not isinstance(values, list)
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= LINK_CUT_TREE_MAX_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or (input_is_null and values)
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(f"link_cut_tree fixture framing is invalid: {case.get('id')}")
+            result, output = link_cut_tree_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"link_cut_tree fixture differs from its oracle: {case.get('id')}")
+        return
+    if algorithm == "k_shortest_walk":
+        task_url = "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/k_shortest_walk/task.md"
+        expected_source = {
+            "repository": "Library Checker",
+            "problem": "K Shortest Walk",
+            "url": "https://judge.yosupo.jp/problem/k_shortest_walk",
+            "specification_url": task_url,
+            "source_type": "official_algorithm_task_specification",
+            "reuse": "Task definition and taxonomy only; no statement text or source code copied. Implementations and oracle are independently written.",
+        }
+        expected_contract = {
+            "operation": "Return the k shortest directed walk lengths from s to t, counting edge-distinct walks separately.",
+            "input_layout": "[n, m, s, t, k, (u, v, w)*m]",
+            "vertex_count_range": [1, 6], "edge_count_range": [0, 12],
+            "k_range": [1, 8], "vertex_ids": "zero-based", "weight_range": [0, 1000],
+            "graph_semantics": "Directed multigraph; parallel arcs are distinct and may be reused.",
+            "walk_semantics": "Vertices and edges may repeat; the zero-edge walk from s to s has length zero.",
+            "exact_input_length": "5 + 3*m",
+            "output_encoding": "k signed 64-bit distances in little-endian order; missing ranks are -1",
+            "success_result": "8*k bytes written", "invalid_input_result": -1,
+            "null_output_result": -2, "insufficient_output_capacity_result": -2,
+            "no_write_on_error": True,
+            "error_precedence": "Input framing and graph validation precede output pointer and capacity checks.",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "maximum_valid_length": K_SHORTEST_WALK_MAX_INPUT_LENGTH,
+            "maximum_parseable_length": K_SHORTEST_WALK_MAX_INPUT_LENGTH,
+            "invalid_result": -1, "null_input_result": -1,
+        }
+        expected_output_spec = {
+            "kind": "little_endian_signed_64_bit_vector",
+            "maximum_bytes": K_SHORTEST_WALK_MAX_OUTPUT_BYTES,
+            "success_result": "8*k bytes", "invalid_input_result": -1,
+            "null_output_result": -2, "insufficient_output_capacity_result": -2,
+            "no_write_on_error": True,
+        }
+        expected_case_ids = {
+            "parallel-arc-walks", "three-equal-cost-routes-with-shortfall",
+            "zero-cost-loop-generates-repeated-walks", "zero-cost-singleton-loop",
+            "unreachable-target", "source-equals-target-without-cycle",
+            "finite-routes-fill-with-minus-one", "maximum-output-vector",
+            "vertex-count-out-of-range", "edge-count-out-of-range", "k-out-of-range",
+            "source-out-of-range", "target-out-of-range", "endpoint-out-of-range",
+            "negative-weight", "weight-above-bound", "truncated-edge-frame",
+            "trailing-input-value", "invalid-input-precedes-output-error",
+            "short-output-capacity", "null-output", "null-input",
+        }
+        if (set(workload) != {
+                    "schema_version", "id", "algorithm", "function_symbol", "abi", "source",
+                    "contract", "input", "output", "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "k-shortest-walk-bounded-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("source") != expected_source
+                or workload.get("contract") != expected_contract
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output_spec
+                or workload.get("workspace") != {
+                    "bytes": 8192,
+                    "meaning": "Bounded edge arrays, per-vertex expansion counts, sorted walk frontier, and output scratch.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_case_ids
+                or len(workload.get("cases", [])) != len(expected_case_ids)):
+            raise ValueError("k_shortest_walk metadata differs from its bounded contract")
+
+        package = ROOT / "benchmarks" / "k" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        if (task_url not in readme
+                or expected_source["url"] not in readme
+                or "O((K*M)^2 + K*N + M)" not in readme
+                or "dynamic programming by exact" not in readme
+                or "no statement text or source code" not in readme):
+            raise ValueError("k_shortest_walk README is missing provenance, complexity, or oracle details")
+        source_paths = (
+            "c/k/k_shortest_walk.c", "c3/k/k_shortest_walk.c3", "cpp/k/k_shortest_walk.cpp",
+            "elisa/k/k_shortest_walk.elisa", "nim/k/k_shortest_walk.nim",
+            "odin/k/k_shortest_walk.odin", "rust/k/k_shortest_walk.rs",
+            "v/k/k_shortest_walk.v", "zig/k/k_shortest_walk.zig",
+        )
+        for relative in source_paths:
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"k_shortest_walk language port is missing its exported symbol: {relative}")
+            if relative not in readme:
+                raise ValueError(f"k_shortest_walk README is missing its language link: {relative}")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            input_length = case.get("input_length")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity")
+            if (not isinstance(values, list)
+                    or len(values) > K_SHORTEST_WALK_MAX_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= K_SHORTEST_WALK_MAX_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or (input_is_null and (values or output_is_null))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(f"k_shortest_walk fixture framing is invalid: {case.get('id')}")
+            result, output = k_shortest_walk_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"k_shortest_walk fixture differs from its oracle: {case.get('id')}")
+        return
+    if algorithm == "dominator_tree":
+        expected_source = {
+            "name": "Library Checker Dominator Tree",
+            "url": "https://judge.yosupo.jp/problem/dominatortree",
+            "algorithm_reference": "https://hipersoft.cs.rice.edu/grads/publications/dom14.pdf",
+            "implementation_note": "clean-room iterative set-dataflow algorithm represented as fixed-width bitsets",
+        }
+        expected_input = {
+            "kind": "signed_64_bit_integer_array",
+            "encoding": "[vertex_count, root, edge_count, (from, to)*edge_count]",
+            "node_count_range": [1, 63],
+            "edge_count_range": [0, 2047],
+            "maximum_valid_length": DOMINATOR_TREE_MAX_INPUT_LENGTH,
+            "vertex_ids": "zero-based",
+            "graph_semantics": "directed; repeated edges are coalesced; self-loops are allowed",
+            "edge_semantics": "Directed graph; parallel arcs are coalesced and self-loops are permitted.",
+            "root_range": "0 <= root < vertex_count",
+            "invalid_input_result": -1,
+        }
+        expected_output = {
+            "kind": "immediate_dominator_id_byte_array",
+            "encoding": "one byte per vertex in vertex-ID order; immediate-dominator ID for reachable vertices, root is its own parent, and 255 marks unreachable vertices",
+            "maximum_values": 63,
+            "maximum_bytes": DOMINATOR_TREE_MAX_OUTPUT_BYTES,
+            "success_result": "vertex_count bytes written",
+            "invalid_input_result": -1,
+            "null_output_result": -2,
+            "insufficient_capacity_result": -2,
+            "output_untouched_on_error": True,
+        }
+        expected_contract = {
+            "operation": "Compute root-relative immediate dominators using reachable-vertex data-flow sets and return one parent ID per vertex.",
+            "unreachable_rule": "Emit 255 for every vertex not reachable from the selected root.",
+            "root_rule": "The root's immediate dominator is the root itself.",
+            "invalid_input_result": -1,
+            "output_error_result": -2,
+        }
+        expected_case_ids = {
+            "single_vertex_root", "rooted_chain", "diamond_join",
+            "cycle_with_shared_exit", "unreachable_components_and_cycle",
+            "multiple_root_branches_join", "nonzero_root_self_loop_and_duplicate_edge",
+            "unreachable_vertices_around_isolated_root", "wrong-length-invalid",
+            "endpoint-out-of-range-invalid", "invalid-root", "short-output-buffer",
+            "null-output-buffer", "null-input-buffer",
+        }
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "input", "output", "workspace", "contract",
+                              "measurement", "source", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "dominator-tree-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("description") != "Bounded bitset data-flow computation of a directed graph's immediate dominators."
+                or workload.get("source") != expected_source
+                or workload.get("input") != expected_input
+                or workload.get("output") != expected_output
+                or workload.get("workspace") != {
+                    "bytes": DOMINATOR_TREE_MAX_OUTPUT_BYTES,
+                    "meaning": "Maximum-sized byte output containing one immediate-dominator ID per vertex.",
+                }
+                or workload.get("contract") != expected_contract
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 1000,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_case_ids
+                or len(workload.get("cases", [])) != len(expected_case_ids)):
+            raise ValueError("dominator_tree metadata differs from its bounded contract")
+
+        package = ROOT / "benchmarks" / "d" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or expected_source["algorithm_reference"] not in readme
+                or "O(V^4)" not in readme or "unreachable" not in readme
+                or "255" not in readme):
+            raise ValueError("dominator_tree README is missing its source, bounds, or reachability contract")
+        for relative in (
+                "c/d/dominator_tree.c", "c3/d/dominator_tree.c3",
+                "cpp/d/dominator_tree.cpp", "elisa/d/dominator_tree.elisa",
+                "nim/d/dominator_tree.nim", "odin/d/dominator_tree.odin",
+                "rust/d/dominator_tree.rs", "v/d/dominator_tree.v",
+                "zig/d/dominator_tree.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"dominator_tree language port is missing its exported symbol: {relative}")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            input_length = case.get("input_length")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", DOMINATOR_TREE_MAX_OUTPUT_BYTES)
+            if (not isinstance(values, list) or type(input_length) is not int
+                    or not 0 <= input_length <= DOMINATOR_TREE_MAX_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or (input_is_null and values)
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(f"dominator_tree fixture framing is invalid: {case.get('id')}")
+            result, output = dominator_tree_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (case.get("expected_result") != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"dominator_tree fixture mismatch: {case.get('id')}")
+        return
     if algorithm == "gbbs_shiloach_vishkin_spanning_forest":
         pinned = "dbd1dcad582c0a316c5ba0d5524319d596dd82da"
         source = workload.get("source", {})
@@ -48011,8 +48866,6 @@ def main() -> int:
                             WORD_FREQUENCY_BST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "word_frequency_bst" else
                             SUBTRACT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "subtract" else
                             KAHNS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kahns_algorithm" else
-                            HIERHOLZER_EULERIAN_PATH_MAX_PARSEABLE_INPUT_LENGTH
-                            if algorithm == "hierholzer_eulerian_path" else
                             PREFIX_AGGREGATE_LIST_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "prefix_aggregate_list" else
                             VEB_TREE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "veb_tree" else
@@ -48841,15 +49694,6 @@ def main() -> int:
                     raise ValueError(f"invalid round_robin null-output contract for {case['id']}")
                 expected_count, expected = null_result, b""
         elif output_is_null and algorithm == "kahns_algorithm":
-            null_result = workload.get("output", {}).get("null_output_result")
-            if required_count < 0:
-                expected_count, expected = required_count, b""
-            elif (type(null_result) is not int or null_result != -2
-                    or required_count != len(required_output)):
-                raise ValueError(f"invalid null-output contract for {case['id']}")
-            else:
-                expected_count, expected = null_result, b""
-        elif output_is_null and algorithm == "hierholzer_eulerian_path":
             null_result = workload.get("output", {}).get("null_output_result")
             if required_count < 0:
                 expected_count, expected = required_count, b""

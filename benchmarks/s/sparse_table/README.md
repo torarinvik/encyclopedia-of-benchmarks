@@ -24,13 +24,17 @@ negative and extreme values, singleton ranges, and malformed inputs.
 ## Source variants
 
 This package follows the C++ index-returning API. The Python file with the same
-name returns minimum values instead of indices, so it is a separate result
-contract. The similarly named `C-Plus-Plus-1/range_queries/sparse_table.cpp`
-source is broken and is excluded from this benchmark.
+name returns minimum values instead of indices, and Rust's
+`RangeMinimumQuery` accepts half-open batched queries; these are source/API
+variants of the same sparse-table algorithm, not separate benchmarks. The Rust
+`range_minimum_query` catalog name aliases this canonical benchmark. The
+similarly named `C-Plus-Plus-1/range_queries/sparse_table.cpp` source is broken
+and is excluded from the implementation set.
 
 ## Pinned source
 
 - TheAlgorithms/C-Plus-Plus [`data_structures/sparse_table.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/data_structures/sparse_table.cpp), commit `fdcc29b0ac2848e9d1a8d926e171cc5b39f97759`
+- TheAlgorithms/Rust [`src/data_structures/range_minimum_query.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/data_structures/range_minimum_query.rs), commit `fed66cb0c74c4a939ec5163648458a8c2b46fd4c`
 
 ## Workload
 
