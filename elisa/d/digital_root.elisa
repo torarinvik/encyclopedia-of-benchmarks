@@ -10,4 +10,4 @@ def digital_root_impl(n: i64) -> i64:
             total <- 0
     result
 
-export fn digital_root(n: i64) -> i64 = digital_root_impl(n)
+export fn digital_root(n: i64) -> i64 = digital_root_impl
