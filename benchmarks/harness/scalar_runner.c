@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #ifndef BENCHMARK_FUNCTION
@@ -58,8 +59,34 @@ static int64_t run_batch(int64_t input, size_t repetitions, uint64_t *checksum)
     return result;
 }
 
+/* Check the same linked function and indirect call used by timed samples. */
+static int check_corpus(void)
+{
+    uint64_t count = 0;
+    int64_t input, expected;
+    int fields;
+    while ((fields = scanf("%" SCNd64 " %" SCNd64, &input, &expected)) == 2) {
+        int64_t observed = run_algorithm(input);
+        if (observed != expected) {
+            fprintf(stderr, "input=%" PRId64 ": expected %" PRId64 ", observed %" PRId64 "\n",
+                    input, expected, observed);
+            return 3;
+        }
+        ++count;
+    }
+    if (fields != EOF || count == 0 || ferror(stdin)) {
+        fprintf(stderr, "expected nonempty INPUT EXPECTED pairs on stdin\n");
+        return 2;
+    }
+    printf("{\"cases_checked\":%" PRIu64 "}\n", count);
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
+    if (argc == 2 && strcmp(argv[1], "--check-corpus") == 0) {
+        return check_corpus();
+    }
     int64_t input;
     int64_t expected;
     uint64_t samples_arg;

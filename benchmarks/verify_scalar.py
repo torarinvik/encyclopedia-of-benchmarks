@@ -4154,12 +4154,20 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
     if count != len(data.splitlines()):
         raise RuntimeError("checker did not consume the entire oracle corpus")
 
+    runner = manifest["binaries"]["scalar_runner"]["path"]
+    checked_runner = subprocess.run([runner, "--check-corpus"], input=data,
+                                    capture_output=True, text=True, timeout=60)
+    if checked_runner.returncode:
+        raise RuntimeError(f"timed runner correctness check failed: {checked_runner.stderr}")
+    if json.loads(checked_runner.stdout)["cases_checked"] != count:
+        raise RuntimeError("timed runner did not consume the entire oracle corpus")
+
     records_path = directory / "verification-records.jsonl"
     records_path.unlink(missing_ok=True)
     command = [sys.executable, str(ROOT / "benchmarks/run_scalar.py"),
                "--algorithm", algorithm, "--language", language,
                "--source", str(ROOT / manifest["source_path"]),
-               "--executable", manifest["binaries"]["scalar_runner"]["path"],
+               "--executable", runner,
                "--compiler", manifest["compiler"], "--compiler-version", manifest["compiler_version"],
                "--build-flags=" + manifest["build_flags"],
                "--build-command", "\n".join(shlex.join(c) for c in manifest["commands"]),
