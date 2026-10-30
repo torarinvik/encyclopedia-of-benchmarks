@@ -3854,6 +3854,10 @@ def main() -> int:
         "build_flags": build_flags,
         "build_command": build_command,
     }
+    if manifest is not None:
+        # Preserve the build-time identity: the compiler may have been replaced
+        # since this binary was built, even when its version text is unchanged.
+        implementation["compiler_sha256"] = manifest.get("compiler_sha256")
 
     spec_sha256 = sha256_file(workload_path)
     records: list[dict[str, Any]] = []
