@@ -12,6 +12,7 @@ import json
 import math
 import os
 import platform
+import re
 import shlex
 import subprocess
 import sys
@@ -3759,7 +3760,9 @@ def main() -> int:
         if not manifest_path.is_file():
             parser.error(f"build manifest file does not exist: {manifest_path}")
         try:
-            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest_bytes = manifest_path.read_bytes()
+            manifest = json.loads(manifest_bytes.decode("utf-8"))
+            manifest_sha256 = hashlib.sha256(manifest_bytes).hexdigest()
             if manifest.get("family") != "scalar":
                 parser.error("build manifest must declare the scalar ABI family")
             algorithm = manifest["algorithm"]
@@ -3811,6 +3814,11 @@ def main() -> int:
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if workload["algorithm"] != algorithm:
         parser.error(f"workload algorithm is {workload['algorithm']!r}, not {algorithm!r}")
+    function_symbol = workload.get("function_symbol", algorithm)
+    if not isinstance(function_symbol, str) or re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", function_symbol) is None:
+        parser.error("workload function_symbol must be a valid C identifier")
+    if manifest is not None and manifest.get("function_symbol", algorithm) != function_symbol:
+        parser.error("workload function_symbol differs from the function bound into the build manifest")
     if algorithm == "pollards_rho_factorizing":
         validate_pollards_rho_workload(workload)
     elif algorithm == "multiple_of_3_or_5_term":
@@ -3853,11 +3861,13 @@ def main() -> int:
         "compiler_version": compiler_version,
         "build_flags": build_flags,
         "build_command": build_command,
+        "function_symbol": function_symbol,
     }
     if manifest is not None:
         # Preserve the build-time identity: the compiler may have been replaced
         # since this binary was built, even when its version text is unchanged.
         implementation["compiler_sha256"] = manifest.get("compiler_sha256")
+        implementation["build_manifest_sha256"] = manifest_sha256
 
     spec_sha256 = sha256_file(workload_path)
     records: list[dict[str, Any]] = []
