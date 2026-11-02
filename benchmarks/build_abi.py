@@ -303,7 +303,8 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         "compiler_sha256": compiler_hash, "version_command": version_command,
         "version_exit_code": version.returncode,
         "build_flags": shlex.join(flags), "commands": commands,
-        "native_link_flags": native_link_flags, "artifact": str(artifact), "binaries": binaries,
+        "native_link_flags": native_link_flags, "artifact": str(artifact),
+        "artifact_sha256": sha256_file(artifact), "binaries": binaries,
         "extra_link_sources": [
             {"path": path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else str(path),
              "sha256": sha256_file(path)}
