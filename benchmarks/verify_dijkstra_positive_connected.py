@@ -3,6 +3,7 @@
 import argparse
 import itertools
 import json
+from pathlib import Path
 import struct
 import subprocess
 
@@ -44,6 +45,17 @@ def corpus():
         expected = output if result >= 0 else b""
         rows.append(f"{len(values)} {result} {len(expected)} {capacity} {int(null_input)} {int(null_output)}\n"
                     + " ".join(map(str, values)) + "\n" + (expected.hex() or "-") + "\n")
+
+    workload = json.loads((Path(__file__).parent / "d/dijkstra_positive_connected/workload.json").read_text())
+    for case in workload["cases"]:
+        values = case["input_values"]
+        output = oracle(values)
+        result = -1 if output is None else len(output)
+        encoded = "" if output is None else output.hex()
+        if (case["input_length"] != len(values) or case["expected_result"] != result
+                or case["expected_output_hex"] != encoded):
+            raise ValueError(f"published workload disagrees with independent oracle: {case['id']}")
+        add(values)
 
     for n in range(2, 5):
         pairs = list(itertools.combinations(range(n), 2))
