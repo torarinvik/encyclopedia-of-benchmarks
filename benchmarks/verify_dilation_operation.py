@@ -23,6 +23,30 @@ def oracle(values):
     return b''.join(struct.pack('<i', int((y, x) in active)) for y in range(rows) for x in range(columns))
 
 
+def add_representative_workloads():
+    """Extend the timing matrix before profiling, using deterministic inputs."""
+    path = Path(__file__).parent / 'd/dilation_operation/workload.json'
+    workload = json.loads(path.read_text())
+    rng = random.Random(16391)
+    shapes = [('horizontal-strip', 1, 16), ('vertical-strip', 16, 1),
+              ('maximum-grid-dense', 16, 16), ('maximum-grid-sparse', 16, 16),
+              ('rectangular-grid', 15, 13)]
+    existing = {case['id'] for case in workload['cases']}
+    for name, rows, columns in shapes:
+        if name == 'maximum-grid-dense':
+            image, kernel = [1] * (rows * columns), [1] * 9
+        else:
+            image = [int(rng.randrange(5) == 0) for _ in range(rows * columns)]
+            kernel = [0, 1, 0, 1, 1, 1, 0, 1, 0]
+        values = [rows, columns, *image, *kernel]
+        output = oracle(values)
+        if name not in existing:
+            workload['cases'].append({'id': name, 'input_values': values,
+                                      'input_length': len(values), 'expected_result': rows * columns,
+                                      'expected_output_hex': output.hex()})
+    path.write_text(json.dumps(workload, indent=2) + '\n')
+
+
 def corpus():
     records = []
 
@@ -73,8 +97,13 @@ def corpus():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--checker', action='append', required=True)
+    parser.add_argument('--checker', action='append', default=[])
+    parser.add_argument('--extend-workload', action='store_true', help='Add deterministic strip and full-grid timing inputs')
     args = parser.parse_args()
+    if args.extend_workload:
+        add_representative_workloads()
+    if not args.checker and not args.extend_workload:
+        parser.error('supply --checker or --extend-workload')
     data, count = corpus()
     for checker in args.checker:
         result = subprocess.run([checker], input=data, text=True, capture_output=True, timeout=15)
