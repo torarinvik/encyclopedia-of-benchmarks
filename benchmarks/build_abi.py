@@ -72,7 +72,10 @@ def resolve_tool(name: str) -> str:
 
 def build(algorithm: str, language: str, directory: Path, *, compiler: str | None = None,
           cc: str = "cc", with_checker: bool = False, family: str = "scalar",
-          extra_link_sources: tuple[Path, ...] = ()) -> dict:
+          extra_link_sources: tuple[Path, ...] = (),
+          implementation_flags: tuple[str, ...] = ()) -> dict:
+    if implementation_flags and language not in {"c", "cpp"}:
+        raise ValueError("implementation flags currently support C and C++ only")
     if re.fullmatch(r"[a-z0-9]+(?:_[a-z0-9]+)*", algorithm) is None:
         raise ValueError("algorithm must be a normalized catalog name")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
@@ -169,6 +172,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
             flags.append("-ffp-contract=off")
         if algorithm == "mandelbrot":
             flags.append("-fno-fast-math")
+        flags.extend(implementation_flags)
         run([compiler, *flags, str(source), "-o", str(artifact)])
     elif language == "c3":
         flags = ["-O3", "--no-entry"]
@@ -327,12 +331,15 @@ def main(family: str | None = None) -> int:
     parser.add_argument("--cc", default="cc", help="C compiler used for the harness and C ABI link")
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--with-checker", action="store_true")
+    parser.add_argument("--implementation-flag", action="append", default=[],
+                        help="Additional C/C++ implementation flag; recorded in the manifest (repeatable)")
     args = parser.parse_args()
     letter = args.algorithm[0] if args.algorithm and args.algorithm[0].isalpha() else "0-9"
     directory = args.output_dir or ROOT / "build" / args.family / letter / args.algorithm / args.language
     try:
         manifest = build(args.algorithm, args.language, directory, compiler=args.compiler,
-                         cc=args.cc, with_checker=args.with_checker, family=args.family)
+                         cc=args.cc, with_checker=args.with_checker, family=args.family,
+                         implementation_flags=tuple(args.implementation_flag))
     except (ValueError, RuntimeError, OSError, subprocess.TimeoutExpired) as error:
         parser.exit(1, f"{error}\n")
     print(manifest["binaries"][FAMILIES[args.family][1][0]]["path"])
