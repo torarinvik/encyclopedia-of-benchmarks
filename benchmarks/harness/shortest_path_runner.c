@@ -172,7 +172,7 @@ int main(int argc, char **argv)
     uint64_t samples, warmups, repetitions;
     if (argc != 4 || !parse_count(argv[1], &samples) || !parse_count(argv[2], &warmups) ||
         !parse_count(argv[3], &repetitions) || samples == 0 || samples > 10000 ||
-        warmups > 100000 || repetitions == 0 || repetitions > 1000000) {
+        warmups > 100000 || repetitions == 0 || repetitions > 100000000) {
         fprintf(stderr, "usage: shortest_path_runner SAMPLES WARMUPS REPETITIONS | --check\n");
         return 2;
     }

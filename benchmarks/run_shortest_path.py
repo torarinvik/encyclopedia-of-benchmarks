@@ -97,7 +97,7 @@ def main() -> int:
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
     repetitions = args.repetitions if args.repetitions is not None else timing["repetitions_per_sample"]
-    if not 1 <= samples <= 10000 or not 0 <= warmups <= 100000 or not 1 <= repetitions <= 1000000:
+    if not 1 <= samples <= 10000 or not 0 <= warmups <= 100000 or not 1 <= repetitions <= 100000000:
         parser.error("sample/warmup/repetition counts exceed the runner limits")
     if len({case["id"] for case in workload["cases"]}) != len(workload["cases"]):
         parser.error("workload case IDs must be unique")
