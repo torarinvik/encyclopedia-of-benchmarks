@@ -1,4 +1,4 @@
-def dijkstra_positive_connected_put_i64(output: mutable view[u8], index: usize, value: i64) -> void:
+def dijkstra_positive_connected_put_i64(output: mutable u8&, index: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -6,7 +6,7 @@ def dijkstra_positive_connected_put_i64(output: mutable view[u8], index: usize, 
         byte <- byte + 1
 
 def dijkstra_positive_connected_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if length < 2 or input[0] < 1 or input[0] > 4 or input[1] < 0 or input[1] > 6: return -1
+    if input == null or length < 2 or input[0] < 2 or input[0] > 4 or input[1] < 0 or input[1] > 6: return -1
     n: usize = input[0].usize()
     m: usize = input[1].usize()
     if length != 2 + 3 * m or m < n - 1 or m > n * (n - 1) / 2: return -1
@@ -32,20 +32,21 @@ def dijkstra_positive_connected_impl(input: i64&, length: usize, output: mutable
         neighbors[vi * 6 + degree[vi]] <- ui
         degree[vi] <- degree[vi] + 1
         edge <- edge + 1
+    index: mutable usize = 0
     seen: mutable bool[4] = zeroed
-    stack: mutable usize[4] = zeroed
+    visit_stack: mutable usize[4] = zeroed
     top: mutable usize = 1
-    stack[0] <- 0
+    visit_stack[0] <- 0
     seen[0] <- true
     while top > 0:
         top <- top - 1
-        u: usize = stack[top]
+        u: usize = visit_stack[top]
         index: mutable usize = 0
         while index < degree[u]:
             v: usize = neighbors[u * 6 + index]
             if not seen[v]:
                 seen[v] <- true
-                stack[top] <- v
+                visit_stack[top] <- v
                 top <- top + 1
             index <- index + 1
     index <- 0
@@ -76,9 +77,11 @@ def dijkstra_positive_connected_impl(input: i64&, length: usize, output: mutable
             if not done[v] and candidate < distance[v]: distance[v] <- candidate
             index <- index + 1
         step <- step + 1
-    if output.is_null() or capacity < n * 8: return -2
+    if output == null or capacity < n * 8: return -2
     index <- 0
     while index < n:
-        dijkstra_positive_connected_put_i64(output[0:n*8], index, distance[index])
+        dijkstra_positive_connected_put_i64(output, index, distance[index])
         index <- index + 1
     (n * 8).i64()
+
+export fn dijkstra_positive_connected(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = dijkstra_positive_connected_impl
