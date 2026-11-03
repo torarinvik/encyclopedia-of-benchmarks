@@ -24,7 +24,7 @@ def directed_dfs_forest_count_visit(current: usize, edge_count: usize,
         edge <- edge + 1
 
 def directed_dfs_forest_count_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH + 1:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH + 1:
         return -1
     edge_count_value: i64 = input[0]
     if edge_count_value < 0 or edge_count_value > MAX_EDGE_COUNT.i64():
