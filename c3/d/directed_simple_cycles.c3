@@ -11,7 +11,7 @@ fn long directed_simple_cycles(long* input, usz length, char* output, usz capaci
     usz edges = (usz)input[1];
     if (length != 2 + 2 * edges) return -1;
 
-    bool[MAX_VERTICES][MAX_VERTICES] adjacency = zeroed;
+    bool[MAX_VERTICES][MAX_VERTICES] adjacency = {};
     for (usz edge = 0; edge < edges; edge++) {
         long source = input[2 + 2 * edge];
         long destination = input[3 + 2 * edge];
@@ -19,16 +19,16 @@ fn long directed_simple_cycles(long* input, usz length, char* output, usz capaci
         adjacency[(usz)source][(usz)destination] = true;
     }
 
-    char[MAX_OUTPUT_BYTES] scratch = zeroed;
+    char[MAX_OUTPUT_BYTES] scratch = {};
     usz output_length = 0;
     for (usz start = 0; start < vertices; start++) {
-        usz[MAX_VERTICES] path = zeroed;
-        usz[MAX_VERTICES] next_neighbor = zeroed;
-        bool[MAX_VERTICES] visited = zeroed;
+        usz[MAX_VERTICES] path = {};
+        usz[MAX_VERTICES] next_neighbor = {};
+        bool[MAX_VERTICES] visited = {};
         usz depth = 0;
         path[0] = start;
         visited[start] = true;
-        while true {
+        while (true) {
             usz current = path[depth];
             if (next_neighbor[depth] == vertices) {
                 visited[current] = false;
@@ -57,6 +57,6 @@ fn long directed_simple_cycles(long* input, usz length, char* output, usz capaci
     }
     if (output_length == 0) return 0;
     if (output == null || capacity < output_length) return -2;
-    for (usz index = 0; index < output_length; index++) output[index] = (u8)scratch[index];
+    for (usz index = 0; index < output_length; index++) output[index] = scratch[index];
     return (long)output_length;
 }
