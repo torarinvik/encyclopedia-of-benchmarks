@@ -23,7 +23,7 @@ def directed_perfect_phylogeny_impl(input: i64&, length: usize, output: mutable 
                 feasible <- false
     if output == null or capacity < 8:
         return -2
-    result: i64 = 0
+    result: mutable i64 = 0
     if feasible:
         result <- 1
     bits: u64 = result.u64()
