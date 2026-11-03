@@ -54,7 +54,7 @@ def corpus():
         for value in (math.nan, math.inf, -math.inf, -1e300, 1e300):
             values = valid.copy(); values[slot] = value
             add(values)
-    for count in (-1, 0, 3, 4.5, 8.5, 9):
+    for count in (-1, 0, 3, 4.5, 5, 6, 7, 8, 8.5, 9):
         values = valid.copy(); values[1] = count
         add(values)
     for axis in (0, 1):
