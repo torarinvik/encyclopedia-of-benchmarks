@@ -200,7 +200,7 @@ static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
         const clock_t before = clock();
         if (before == (clock_t)-1) {
             fprintf(stderr, "clock() failed before a sample\n");
-            free(values); free(expected); free(output); free(sample_ns); return 4;
+            free(values); free(output); free(sample_ns); return 4;
         }
         for (size_t repetition = 0; repetition < repetitions; ++repetition)
             observed_count = run_algorithm(values, length,
