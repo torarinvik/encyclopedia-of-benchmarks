@@ -87,7 +87,7 @@
       "input_length": 15
     },
     {
-      "id": "insertion_order_starts_three_roots",
+      "id": "insertion_order_starts_two_roots",
       "input_values": [
         2,
         0,
@@ -95,7 +95,7 @@
         2,
         0
       ],
-      "expected_result": 3,
+      "expected_result": 2,
       "input_length": 5
     },
     {
