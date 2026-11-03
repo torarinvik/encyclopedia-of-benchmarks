@@ -23,7 +23,8 @@ def directed_simple_cycles_impl(input: i64&, length: usize, output: mutable u8&,
         adjacency[source * MAX_VERTICES + destination] <- 1
         edge <- edge + 1
 
-    scratch: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    # Only the prefix [0, output_length) is read; each byte is written before the length advances.
+    scratch: mutable u8[MAX_OUTPUT_BYTES]
     output_length: mutable usize = 0
     start: mutable usize = 0
     while start < vertices:
