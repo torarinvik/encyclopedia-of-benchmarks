@@ -2,6 +2,7 @@ package directed_perfect_phylogeny
 
 import "core:c"
 
+@(export)
 directed_perfect_phylogeny :: proc "c" (input: [^]i64, length: c.size_t, output: [^]u8, capacity: c.size_t) -> i64 {
 	if input == nil || length < 3 || length > 146 do return -1
 	n0, m0 := input[0], input[1]
@@ -12,7 +13,7 @@ directed_perfect_phylogeny :: proc "c" (input: [^]i64, length: c.size_t, output:
 		for col := 0; col < m; col += 1 {
 			bit := input[2+row*m+col]
 			if bit != 0 && bit != 1 do return -1
-			if bit == 1 do sets[col] |= u16(1) << u(row)
+			if bit == 1 do sets[col] |= u16(1) << uint(row)
 		}
 	}
 	feasible := true

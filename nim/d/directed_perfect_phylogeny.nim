@@ -1,6 +1,6 @@
 proc directed_perfect_phylogeny*(input: ptr UncheckedArray[int64], length: csize_t,
     output: ptr UncheckedArray[uint8], capacity: csize_t): int64
-    {.cdecl, exportc: "directed_perfect_phylogeny".} =
+    {.cdecl, dynlib, exportc: "directed_perfect_phylogeny".} =
   if input.isNil or length < 3 or length > 146: return -1
   let n0 = input[0]; let m0 = input[1]
   if n0 < 1 or n0 > 12 or m0 < 1 or m0 > 12 or int(length) != 2 + int(n0 * m0): return -1

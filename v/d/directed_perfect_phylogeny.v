@@ -2,12 +2,12 @@ module directed_perfect_phylogeny
 
 @[export: 'directed_perfect_phylogeny']
 pub fn directed_perfect_phylogeny(input &i64, length usize, mut output &u8, capacity usize) i64 {
-	if input == nil || length < 3 || length > 146 { return -1 }
 	unsafe {
+		if input == nil || length < 3 || length > 146 { return -1 }
 		n0, m0 := input[0], input[1]
 		if n0 < 1 || n0 > 12 || m0 < 1 || m0 > 12 || length != usize(2 + n0 * m0) { return -1 }
 		n, m := int(n0), int(m0)
-		mut sets := []u16{len: 12, init: 0}
+		mut sets := [12]u16{}
 		for row in 0 .. n {
 			for col in 0 .. m {
 				bit := input[2 + row*m + col]

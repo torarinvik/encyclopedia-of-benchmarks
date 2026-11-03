@@ -3,7 +3,7 @@ export fn directed_perfect_phylogeny(input: [*c]const i64, length: usize, output
     const n0 = input[0]; const m0 = input[1];
     if (n0 < 1 or n0 > 12 or m0 < 1 or m0 > 12 or length != 2 + @as(usize, @intCast(n0 * m0))) return -1;
     const n: usize = @intCast(n0); const m: usize = @intCast(m0);
-    var sets = [_]u16{0} ** 12;
+    var sets: [12]u16 = @splat(0);
     for (0..n) |row| {
         for (0..m) |col| {
             const bit = input[2 + row * m + col];
