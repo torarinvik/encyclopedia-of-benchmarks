@@ -5,7 +5,7 @@ import "core:c"
 MAX_DIMENSION :: 16
 MAX_INPUT_LENGTH :: 2 + MAX_DIMENSION * MAX_DIMENSION + 9
 
-put_i32_le :: proc(output: [^]u8, offset: int, value: i32) {
+put_i32_le :: proc "contextless" (output: [^]u8, offset: int, value: i32) {
 	bits := u32(value)
 	for byte := 0; byte < 4; byte += 1 {
 		output[offset + byte] = u8((bits >> u32(8 * byte)) & 255)
@@ -35,7 +35,7 @@ dilation_operation :: proc "c" (input: [^]i64, length: c.size_t, output: [^]u8, 
 					}
 				}
 			}
-			put_i32_le(output, (y * columns + x) * 4, i32(if sum > 0 { 1 } else { 0 }))
+			put_i32_le(output, (y * columns + x) * 4, i32(1 if sum > 0 else 0))
 		}
 	}
 	return i64(cells)

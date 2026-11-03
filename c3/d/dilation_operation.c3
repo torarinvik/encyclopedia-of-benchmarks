@@ -28,8 +28,9 @@ fn long dilation_operation(long* input, usz length, char* output, usz output_cap
                 for (usz kx = 0; kx < 3; kx++) {
                     long image_y = (long)y + (long)ky - 1;
                     long image_x = (long)x + (long)kx - 1;
-                    if (image_y >= 0 && image_y < (long)rows && image_x >= 0 && image_x < (long)columns)
+                    if (image_y >= 0 && image_y < (long)rows && image_x >= 0 && image_x < (long)columns) {
                         sum += (int)(input[2 + (usz)image_y * columns + (usz)image_x] * input[2 + cells + ky * 3 + kx]);
+                    }
                 }
             }
             put_i32_le(output, (y * columns + x) * 4, sum > 0 ? 1 : 0);

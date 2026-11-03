@@ -13,7 +13,7 @@ fn put_i32_le(output &u8, offset int, value i32) {
 
 @[export: 'dilation_operation']
 pub fn dilation_operation(input &i64, length usize, output &u8, output_capacity usize) i64 {
-	if input == nil || length < 12 || length > max_input_length { return -1 }
+	if input == unsafe { nil } || length < 12 || length > max_input_length { return -1 }
 	unsafe {
 		rows_value := input[0]
 		columns_value := input[1]
