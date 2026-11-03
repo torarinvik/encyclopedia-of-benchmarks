@@ -1,3 +1,7 @@
+extern atan2(y: f64, x: f64) -> f64
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+
 def dimensionality_reduction_pca(input: f64&, input_len: usize, output: mutable f64&, output_capacity: usize) -> i64:
     if input == null or input_len < 7 or input[0] != 2.0 or input[2] != 1.0: return -1
     samples: mutable usize = 0
@@ -51,23 +55,9 @@ def dimensionality_reduction_pca(input: f64&, input_len: usize, output: mutable 
     b <- b / count
     d <- d / count
     if b <= 0.0: return -1
-    discriminant: f64 = (a-d)*(a-d)+4.0*b*b
-    root: mutable f64 = discriminant
-    i <- 0
-    while i < 64:
-        root <- 0.5 * (root + discriminant / root)
-        i <- i + 1
-    eigenvalue: f64 = 0.5 * (a+d+root)
-    vx: mutable f64 = b
-    vy: mutable f64 = eigenvalue-a
-    norm2: f64 = vx*vx+vy*vy
-    scale: mutable f64 = 1.0
-    i <- 0
-    while i < 64:
-        scale <- 0.5 * (scale + 1.0/(norm2*scale))
-        i <- i+1
-    vx <- vx*scale
-    vy <- vy*scale
+    angle: f64 = 0.5 * atan2(2.0*b, a-d)
+    vx: f64 = cos(angle)
+    vy: f64 = sin(angle)
     if output == null or output_capacity < samples: return -2
     i <- 0
     while i < samples:

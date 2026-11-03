@@ -22,4 +22,4 @@ The shared float64-slice ABI provides the bounded input/output arrays and checks
 | V | [`v/d/dimensionality_reduction_pca.v`](../../../v/d/dimensionality_reduction_pca.v) |
 | Zig | [`zig/d/dimensionality_reduction_pca.zig`](../../../zig/d/dimensionality_reduction_pca.zig) |
 
-Run the focused verifier with `python3 benchmarks/verify_float64_slice_io.py --algorithm dimensionality_reduction_pca`.
+Run the focused verifier with `python3 benchmarks/verify_dimensionality_reduction_pca.py --checker /path/to/float64_slice_io_check`.
