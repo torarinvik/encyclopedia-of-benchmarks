@@ -17,7 +17,7 @@ The sources use different residual representations and iteration details: Java s
 
 ## Workload
 
-[`workload.json`](workload.json) covers the classic six-vertex network, disconnected flow, parallel and antiparallel edges, zero capacity, empty edge lists, and malformed graph inputs. The source-backed expected-value check is in [`benchmarks/run_i64_array_scalar.py`](../../run_i64_array_scalar.py).
+[`workload.json`](workload.json) covers the classic six-vertex network, disconnected flow, parallel and antiparallel edges, zero capacity, empty edge lists, and malformed graph inputs. Run `python3 benchmarks/verify_dinic_maxflow.py --checker /path/to/i64_array_scalar_check` to compare the workload and 3,000 deterministic generated cases with an independent Edmonds–Karp oracle.
 
 ## Pinned sources
 
