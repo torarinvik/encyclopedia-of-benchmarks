@@ -24,4 +24,6 @@ See [`workload.json`](workload.json), the [oracle](../../dimensionality_reductio
 | V | [`v/d/dimensionality_reduction_lda.v`](../../../v/d/dimensionality_reduction_lda.v) |
 | Zig | [`zig/d/dimensionality_reduction_lda.zig`](../../../zig/d/dimensionality_reduction_lda.zig) |
 
-Run `python3 benchmarks/verify_float64_slice_io.py --algorithm dimensionality_reduction_lda` to verify all nine ports.
+Build each port with `benchmarks/build_abi.py --family float64_slice_io --algorithm dimensionality_reduction_lda --language LANGUAGE --with-checker`, then pass each resulting `float64_slice_io_check` path to `python3 benchmarks/verify_dimensionality_reduction_lda.py --checker PATH` (repeat `--checker` for more ports). The independent corpus includes invalid and nonfinite metadata, capacity and null-pointer checks, and a valid near-threshold covariance case that exposes inaccurate fixed-iteration square roots.
+
+The Elisa port uses the same square-root primitive as the native competitors. This source-level alignment is separate from measured compiler optimizations.

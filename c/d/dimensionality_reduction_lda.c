@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 int64_t dimensionality_reduction_lda(const double *v,size_t n,double *out,size_t cap){
- if(!v||n<16||v[0]!=2||v[2]!=2||v[3]!=1||v[1]!=(double)(size_t)v[1]||v[1]<4||v[1]>8||n!=4+3*(size_t)v[1])return -1;
+ if(!v||n<16||v[0]!=2||v[2]!=2||v[3]!=1||!(v[1]>=4&&v[1]<=8)||v[1]!=(double)(size_t)v[1]||n!=4+3*(size_t)v[1])return -1;
  size_t m=(size_t)v[1], base=4+2*m;double x[8],y[8],labels[8],mu[2][2]={{0}},overall[2]={0};size_t counts[2]={0,0};
  for(size_t i=0;i<m;i++){x[i]=v[4+i];y[i]=v[4+m+i];labels[i]=v[base+i];if(!isfinite(x[i])||!isfinite(y[i])||fabs(x[i])>10000||fabs(y[i])>10000||(labels[i]!=0&&labels[i]!=1))return -1;size_t c=(size_t)labels[i];counts[c]++;mu[c][0]+=x[i];mu[c][1]+=y[i];overall[0]+=x[i];overall[1]+=y[i];}
  if(counts[0]<2||counts[1]<2)return -1;for(size_t c=0;c<2;c++){mu[c][0]/=counts[c];mu[c][1]/=counts[c];}overall[0]/=m;overall[1]/=m;

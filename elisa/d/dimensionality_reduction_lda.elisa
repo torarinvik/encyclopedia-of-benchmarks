@@ -1,3 +1,5 @@
+extern sqrt(value: f64) -> f64
+
 def dimensionality_reduction_lda_impl(input: f64&, input_len: usize, output: mutable f64&, output_capacity: usize) -> i64:
     if input == null or input_len < 16 or input[0] != 2.0 or input[2] != 2.0 or input[3] != 1.0: return -1
     samples: mutable usize = 0
@@ -73,13 +75,8 @@ def dimensionality_reduction_lda_impl(input: f64&, input_len: usize, output: mut
     dy: f64 = my1-my0
     w0: mutable f64 = (d*dx-b*dy)/det
     w1: mutable f64 = (a*dy-b*dx)/det
-    norm2: f64 = w0*w0+w1*w1
-    if norm2 <= 1.0e-24: return -1
-    norm: mutable f64 = norm2
-    i <- 0
-    while i < 64:
-        norm <- 0.5*(norm+norm2/norm)
-        i <- i+1
+    norm: f64 = sqrt(w0*w0+w1*w1)
+    if norm <= 1.0e-12: return -1
     w0 <- w0/norm
     w1 <- w1/norm
     if w0 < 0.0 or (w0 <= 1.0e-14 and w1 < 0.0):
