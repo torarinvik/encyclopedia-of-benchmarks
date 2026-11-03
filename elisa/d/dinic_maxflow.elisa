@@ -5,7 +5,7 @@ def dinic_maxflow_dfs(u: usize, sink: usize, pushed: i64, residual: mutable view
         v: usize = next[u]
         index: usize = u * 16 + v
         if level[v] == level[u] + 1 and residual[index] > 0:
-            bound: i64 = pushed
+            bound: mutable i64 = pushed
             if residual[index] < bound: bound <- residual[index]
             sent: i64 = dinic_maxflow_dfs(v, sink, bound, residual, level, next, n)
             if sent > 0:
@@ -39,20 +39,21 @@ def dinic_maxflow_impl(input: i64&, length: usize) -> i64:
     while true:
         level: mutable i64[16] = zeroed
         queue: mutable usize[16] = zeroed
-        for i in 0..<16: level[i] <- -1
+        for i in 0..<16:
+            level[i] <- -1
         head: mutable usize = 0
-        tail: mutable usize = 0
+        queue_end: mutable usize = 0
         level[s] <- 0
-        queue[tail] <- s
-        tail <- tail + 1
-        while head < tail:
+        queue[queue_end] <- s
+        queue_end <- queue_end + 1
+        while head < queue_end:
             u: usize = queue[head]
             head <- head + 1
             for v in 0..<n:
                 if residual[u * 16 + v] > 0 and level[v] < 0:
                     level[v] <- level[u] + 1
-                    queue[tail] <- v
-                    tail <- tail + 1
+                    queue[queue_end] <- v
+                    queue_end <- queue_end + 1
         if level[t] < 0: break
         next: mutable usize[16] = zeroed
         while true:
