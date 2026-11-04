@@ -15,7 +15,7 @@ pub fn disarium_number(number i64) i64 {
 	for remaining > 0 {
 		digit := remaining % 10
 		mut power := i64(1)
-		for mut exponent := i64(0); exponent < position; exponent++ { power *= digit }
+		for exponent := i64(0); exponent < position; exponent++ { power *= digit }
 		sum += power
 		position--
 		remaining /= 10
