@@ -218,6 +218,20 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
             flags.append("-enable-globals")
         run([compiler, *flags,
              "-dump-c-flags", str(directory / "v-c-flags.txt"), "-o", str(artifact), str(source)])
+        # V -prod may emit LLVM bitcode for LTO. Keep that optimization and
+        # use the matching LLVM linker rather than passing bitcode to GNU ld.
+        with artifact.open("rb") as emitted:
+            bitcode = emitted.read(4) in {b"BC\xc0\xde", b"\xde\xc0\x17\x0b"}
+        if bitcode:
+            native_link_flags.append("-flto")
+            if sys.platform.startswith("linux"):
+                lld = Path(c_compiler).parent / "ld.lld"
+                if not lld.is_file():
+                    found = shutil.which("ld.lld")
+                    if not found:
+                        raise RuntimeError("V production bitcode requires an LLVM LTO linker (ld.lld)")
+                    lld = Path(found)
+                native_link_flags.append("-fuse-ld=" + str(lld))
     elif language == "zig":
         flags = ["-O", "ReleaseFast", "-mcpu=baseline"]
         run([compiler, "build-obj", *flags, f"-femit-bin={artifact}", str(source)])
