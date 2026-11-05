@@ -4,3 +4,5 @@
 # Local benchmark builds, validation reports, and Python bytecode
 /build/
 __pycache__/
+/benchmark-results
+BENCHMARK_RESULTS.md
