@@ -20,12 +20,21 @@ WORKLOAD = ROOT / "benchmarks/d/distance_formula/workload.json"
 
 def corpus(workload: dict) -> list[tuple[int, ...]]:
     cases = {tuple(case["input_values"]) for case in workload["cases"]}
-    palette = (-COORDINATE_BOUND, -1, 0, 1, COORDINATE_BOUND)
+    palette = (-2**63, -COORDINATE_BOUND - 1, -COORDINATE_BOUND,
+               -1, 0, 1, COORDINATE_BOUND, COORDINATE_BOUND + 1, 2**63 - 1)
     cases.update(product(palette, repeat=4))
     generator = random.Random(0xD157F04)
     for _ in range(256):
         cases.add(tuple(generator.randint(-COORDINATE_BOUND, COORDINATE_BOUND)
                         for _ in range(4)))
+    # Exercise truncation and power-of-two range shortcuts at adjacent boundaries.
+    for bit in range(63):
+        for sign in (-1, 1):
+            for offset in (-1, 0, 1):
+                for index in range(4):
+                    values = [2, 10, 5, 14]
+                    values[index] = sign * (1 << bit) + offset
+                    cases.add(tuple(values))
     for length in range(8):
         cases.add(tuple(range(length)))
     for index in range(4):
