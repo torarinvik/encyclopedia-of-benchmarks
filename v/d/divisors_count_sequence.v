@@ -1,6 +1,6 @@
 module divisors_count_sequence
 
-const max_index = i64(9999)
+const max_index = 9999
 
 @[export: 'divisors_count_sequence']
 pub fn divisors_count_sequence(index i64) i64 {
