@@ -73,6 +73,58 @@ def resolve_tool(name: str) -> str:
     return str(Path(found).absolute())
 
 
+def probe_compile_target(command: list[str]) -> dict:
+    """Record Clang/GCC's resolved target without executing its compile steps.
+
+    Physical host identity does not establish what `-mcpu=native` selects in
+    a VM. Keep the internal driver targets, including universal-build targets,
+    and report missing information rather than guessing a CPU.
+    """
+    probe = [*command, "-###"]
+    result = {"method": "compiler-driver-dry-run", "command": probe,
+              "status": "unavailable", "targets": []}
+    try:
+        completed = subprocess.run(probe, cwd=ROOT, capture_output=True,
+                                   text=True, timeout=2)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        result["reason"] = type(error).__name__
+        return result
+    result["returncode"] = completed.returncode
+    if completed.returncode:
+        result["reason"] = completed.stderr.strip()
+        return result
+    for line in completed.stderr.splitlines():
+        try:
+            args = shlex.split(line)
+        except ValueError:
+            continue
+        if not args or ("-cc1" not in args and Path(args[0]).name not in {"cc1", "cc1plus"}):
+            continue
+        target = {"cpu": None, "tune_cpu": None, "triple": None,
+                  "architecture": None, "features": []}
+        separated = {"-target-cpu": "cpu", "-tune-cpu": "tune_cpu",
+                     "-triple": "triple"}
+        joined = {"-mcpu=": "cpu", "-mtune=": "tune_cpu", "-march=": "architecture"}
+        for index, arg in enumerate(args):
+            if arg in separated and index + 1 < len(args):
+                target[separated[arg]] = args[index + 1]
+            if arg == "-target-feature" and index + 1 < len(args):
+                target["features"].append(args[index + 1])
+            for prefix, field in joined.items():
+                if arg.startswith(prefix):
+                    target[field] = arg[len(prefix):]
+        result["targets"].append(target)
+    result["status"] = "not-reported"
+    if result["targets"]:
+        names = [target[field] for target in result["targets"]
+                 for field in ("cpu", "tune_cpu", "architecture") if target[field]]
+        if "native" in names:
+            result["status"] = "native-unresolved"
+        elif names:
+            result["status"] = "resolved"
+    return result
+
+
 def build(algorithm: str, language: str, directory: Path, *, compiler: str | None = None,
           cc: str = "cc", with_checker: bool = False, family: str = "scalar",
           extra_link_sources: tuple[Path, ...] = (),
@@ -338,6 +390,8 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
             for path in (source.resolve() for source in extra_link_sources)
         ],
     }
+    if language in {"c", "cpp"}:
+        manifest["target_cpu_probe"] = probe_compile_target(commands[0])
     (directory / "build.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return manifest
 
