@@ -18,6 +18,9 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 EXTENSIONS = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "nim": "nim",
               "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+# Opt-in until every catalog port supports the current Mojo API. Keep the
+# existing verifier defaults independent of optional compiler installations.
+OPTIONAL_EXTENSIONS = {"mojo": "mojo"}
 FAMILIES = {"scalar": ("scalar_call", ["scalar_runner", "scalar_check"]),
             "binary_scalar": ("binary_scalar_call", ["binary_scalar_runner", "binary_scalar_check"]),
             "float64_i32": ("float64_i32_call", ["float64_i32_runner"]),
@@ -56,7 +59,7 @@ FAMILIES = {"scalar": ("scalar_call", ["scalar_runner", "scalar_check"]),
                                  ["tree_value_output_runner", "tree_value_output_check"]),
             "tree_trim": ("tree_trim_call", ["tree_trim_runner", "tree_trim_check"])}
 COMPILERS = {"c": "cc", "c3": "c3c", "cpp": "c++", "elisa": "elisac", "nim": "nim",
-             "odin": "odin", "rust": "rustc", "v": "v", "zig": "zig"}
+             "odin": "odin", "rust": "rustc", "v": "v", "zig": "zig", "mojo": "mojo"}
 
 
 def sha256_file(path: Path) -> str:
@@ -80,7 +83,8 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         raise ValueError("algorithm must be a normalized catalog name")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
     language_root = ROOT / language / letter
-    source_name = f"{algorithm}.{EXTENSIONS[language]}"
+    source_extension = {**EXTENSIONS, **OPTIONAL_EXTENSIONS}[language]
+    source_name = f"{algorithm}.{source_extension}"
     # Prefer the conventional first-letter layout when present, preserving
     # existing build resolution. Some source-backed packages keep a port in
     # its original language category directory; below, an explicit README link
@@ -131,7 +135,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
                 except (OSError, RuntimeError, ValueError):
                     continue
                 if (linked_source.is_file() and linked_source.name == source_name
-                        and linked_source.suffix == f".{EXTENSIONS[language]}"):
+                        and linked_source.suffix == f".{source_extension}"):
                     linked_sources.add(linked_source)
             if len(linked_sources) > 1:
                 raise ValueError(f"README links multiple {language} sources named {source_name}")
@@ -181,6 +185,11 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     elif language == "elisa":
         flags = ["-O3", "-emit", "obj"]
         run([compiler, *flags, "-o", str(artifact), str(source)])
+    elif language == "mojo":
+        # Mojo defaults to the host CPU and features; preserve that optimized
+        # object output and link it with the same C ABI harness as other ports.
+        flags = ["--emit", "object", "-O3"]
+        run([compiler, "build", *flags, "-o", str(artifact), str(source)])
     elif language == "nim":
         flags = ["--app:staticlib", "--noMain", "--mm:none", "-d:release"]
         if algorithm in {"pi_monte_carlo_estimation", "shunting_yard", "mandelbrot", "floatmm",
@@ -340,7 +349,7 @@ def main(family: str | None = None) -> int:
     else:
         parser.set_defaults(family=family)
     parser.add_argument("--algorithm", required=True)
-    parser.add_argument("--language", required=True, choices=EXTENSIONS)
+    parser.add_argument("--language", required=True, choices={**EXTENSIONS, **OPTIONAL_EXTENSIONS})
     parser.add_argument("--compiler", help="Override the language compiler executable, including Elisa")
     parser.add_argument("--cc", default="cc", help="C compiler used for the harness and C ABI link")
     parser.add_argument("--output-dir", type=Path)
