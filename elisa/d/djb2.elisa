@@ -1,5 +1,5 @@
 def djb2_impl(input: i64&, length: usize) -> i64:
-    if length > 65 or (length > 0 and input.is_null()):
+    if length > 65 or (length > 0 and input == null):
         return -1
     if length > 64:
         return -1

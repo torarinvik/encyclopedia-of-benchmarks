@@ -1,8 +1,7 @@
 module djb2
 
-const max_bytes = usize(64)
-const max_parsed_bytes = usize(65)
-const uint32_modulus = u64(4_294_967_296)
+const max_bytes = 64
+const max_parsed_bytes = 65
 
 @[export: 'djb2']
 pub fn djb2(input &i64, length usize) i64 {
@@ -13,7 +12,7 @@ pub fn djb2(input &i64, length usize) i64 {
 		for index in 0 .. int(length) {
 			code_point := input[index]
 			if code_point < 0 || code_point > 255 { return -1 }
-			hash = (hash * 33 + u64(code_point)) % uint32_modulus
+			hash = (hash * 33 + u64(code_point)) & u64(0xffff_ffff)
 		}
 	}
 	return i64(hash)
