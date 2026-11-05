@@ -18,17 +18,24 @@ proc distributed_coupon_collection_replay*(input:ptr UncheckedArray[int64],lengt
     bins[b]=cast[uint64](raw)
   for coupon in 0..<coupons:
     var count=0
-    for b in 0..<n:if ((bins[b] shr coupon) and 1)!=0:inc count
+    for b in 0..<n:
+      if ((bins[b] shr coupon) and 1)!=0: inc count
     if count<int(copies):return -1
   let tapeAt=4+n
-  for i in 0..<(n*steps):if input[tapeAt+i]!=0 and input[tapeAt+i]!=1:return -1
+  for i in 0..<(n*steps):
+    if input[tapeAt+i]!=0 and input[tapeAt+i]!=1: return -1
   if output.isNil or capacity<16:return -2
   var collected=0'u64;var singletonSteps=0'i64
   for step in 0..<steps:
     var openCount=0;var openedBin=0
-    for bin in 0..<n:if input[tapeAt+step*n+bin]==1:inc openCount;openedBin=bin
-    if openCount==1:inc singletonSteps;collected=collected or bins[openedBin]
+    for bin in 0..<n:
+      if input[tapeAt+step*n+bin]==1:
+        inc openCount
+        openedBin=bin
+    if openCount==1:
+      inc singletonSteps
+      collected=collected or bins[openedBin]
   var staged:array[16,uint8]
-  put64(addr staged[0],0,cast[int64](collected));put64(addr staged[0],8,singletonSteps)
+  put64(cast[ptr UncheckedArray[uint8]](addr staged[0]),0,cast[int64](collected));put64(cast[ptr UncheckedArray[uint8]](addr staged[0]),8,singletonSteps)
   for b in 0..<16:output[b]=staged[b]
   16
