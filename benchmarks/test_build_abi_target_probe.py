@@ -53,6 +53,19 @@ class TargetProbeTest(unittest.TestCase):
         self.assertNotEqual(result["returncode"], 0)
         self.assertEqual(result["targets"], [])
 
+    def test_elisa_explicit_cpu_build_passes_oracle(self):
+        compiler = Path.home() / ".elisac/elisac-stage0"
+        if not compiler.is_file():
+            self.skipTest("installed Stage0 is required")
+        with tempfile.TemporaryDirectory(prefix="elisa target build ") as tmp:
+            directory = Path(tmp)
+            manifest = build("distance_formula", "elisa", directory, compiler=str(compiler),
+                             cc=self.clang, family="i64_array_float64", with_checker=True,
+                             implementation_flags=("-mcpu=generic",))
+            self.assertIn("-mcpu=generic", manifest["commands"][0])
+            data, count = batch(json.loads(WORKLOAD.read_text()))
+            self.assertEqual(verify(directory / "build.json", data, count)["cases_checked"], count)
+
     def test_real_build_records_target_and_still_passes_independent_oracle(self):
         with tempfile.TemporaryDirectory(prefix="target build ") as tmp:
             directory = Path(tmp)
