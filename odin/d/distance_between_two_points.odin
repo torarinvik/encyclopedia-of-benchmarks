@@ -4,7 +4,7 @@ import "core:c"
 import "core:math"
 
 MAX_COORDINATE :: i64(1_000_000)
-INVALID_RESULT :: f64 = -1.0e300
+INVALID_RESULT :: f64(-1.0e300)
 
 @(export)
 distance_between_two_points :: proc "c" (values: [^]i64, length: c.size_t) -> f64 {
