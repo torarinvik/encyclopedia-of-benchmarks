@@ -9,6 +9,7 @@ MAX_N = 8
 MAX_COUPONS = 8
 MAX_STEPS = 8
 MAX_INPUT = 76
+MAX_OUTPUT_BYTES = 16
 
 
 def _decode(values: Sequence[int] | None):
