@@ -15,9 +15,9 @@ proc doitgen*(values: ptr UncheckedArray[int64], length: csize_t): float64
   let nr = int(values[0])
   let nq = int(values[1])
   let np = int(values[2])
-  var a: Tensor
-  var c4: Matrix
-  var sums: Vector
+  var a {.noinit.}: Tensor
+  var c4 {.noinit.}: Matrix
+  var sums {.noinit.}: Vector
   for r in 0 ..< nr:
     for q in 0 ..< nq:
       for p in 0 ..< np: a[(r * nq + q) * np + p] = float64((r * q + p) mod np) / float64(np)

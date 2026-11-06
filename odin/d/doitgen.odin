@@ -12,9 +12,9 @@ doitgen :: proc "c" (values: [^]i64, length: uint) -> f64 {
         return INVALID_RESULT
     }
     nr, nq, np := int(values[0]), int(values[1]), int(values[2])
-    a: [MAX_A_CELLS]f64
-    c4: [MAX_C4_CELLS]f64
-    sums: [MAX_DIMENSION]f64
+    a: [MAX_A_CELLS]f64 = ---
+    c4: [MAX_C4_CELLS]f64 = ---
+    sums: [MAX_DIMENSION]f64 = ---
     for r := 0; r < nr; r += 1 {
         for q := 0; q < nq; q += 1 {
             for p := 0; p < np; p += 1 { a[(r * nq + q) * np + p] = f64((r * q + p) % np) / f64(np) }
