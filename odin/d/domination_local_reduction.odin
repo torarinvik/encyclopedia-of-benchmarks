@@ -2,11 +2,12 @@ package domination_local_reduction
 
 import "core:c"
 
-put_word :: proc(out: [^]u8, offset: int, x: i64) {
+put_word :: proc "contextless" (out: [^]u8, offset: int, x: i64) {
 	b := cast(u64)x
 	for i := 0; i < 8; i += 1 { out[offset+i] = u8((b >> u64(8*i)) & 255) }
 }
 
+@(export)
 domination_local_reduction :: proc "c" (input: [^]i64, length: c.size_t, output: [^]u8, capacity: c.size_t) -> i64 {
 	if input == nil || length < 3 || length > 135 do return -1
 	n0,m0,p0 := input[0],input[1],input[2]
