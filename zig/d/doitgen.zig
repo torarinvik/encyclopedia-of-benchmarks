@@ -12,9 +12,12 @@ export fn doitgen(values_opt: ?[*]const i64, length: usize) f64 {
     const nr: usize = @intCast(values[0]);
     const nq: usize = @intCast(values[1]);
     const np: usize = @intCast(values[2]);
-    var a: [MAX_A_CELLS]f64 = [_]f64{0} ** MAX_A_CELLS;
-    var c4: [MAX_C4_CELLS]f64 = [_]f64{0} ** MAX_C4_CELLS;
-    var sums: [MAX_DIMENSION]f64 = [_]f64{0} ** MAX_DIMENSION;
+    var a: [MAX_A_CELLS]f64 = undefined;
+    @memset(&a, 0);
+    var c4: [MAX_C4_CELLS]f64 = undefined;
+    @memset(&c4, 0);
+    var sums: [MAX_DIMENSION]f64 = undefined;
+    @memset(&sums, 0);
     for (0..nr) |r| {
         for (0..nq) |q| {
             for (0..np) |p| a[(r * nq + q) * np + p] = @as(f64, @floatFromInt((r * q + p) % np)) / @as(f64, @floatFromInt(np));
