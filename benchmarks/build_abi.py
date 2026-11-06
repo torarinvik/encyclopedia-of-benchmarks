@@ -125,6 +125,15 @@ def probe_compile_target(command: list[str]) -> dict:
     return result
 
 
+def workload_declares_model(spec: dict, model: str) -> bool:
+    """Accept either documented location, rejecting conflicting declarations."""
+    measurement_model = spec.get("measurement", {}).get("comparison_model")
+    top_level_model = spec.get("comparison_model")
+    return (measurement_model is not None or top_level_model is not None) and all(
+        value is None or value == model for value in (measurement_model, top_level_model)
+    )
+
+
 def build(algorithm: str, language: str, directory: Path, *, compiler: str | None = None,
           cc: str = "cc", with_checker: bool = False, family: str = "scalar",
           extra_link_sources: tuple[Path, ...] = (),
@@ -199,7 +208,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     if family not in FAMILIES:
         raise ValueError(f"unknown C ABI family: {family}")
     model, family_harnesses = FAMILIES[family]
-    if spec.get("measurement", {}).get("comparison_model") != model:
+    if not workload_declares_model(spec, model):
         raise ValueError(f"{algorithm} does not declare the {family} C ABI workload")
     function_symbol = spec.get("function_symbol", algorithm)
     if not isinstance(function_symbol, str) or re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", function_symbol) is None:
