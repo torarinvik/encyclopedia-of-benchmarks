@@ -35,7 +35,9 @@ doe_miniamr_stencil_average :: proc "c" (values: [^]i64, length: c.size_t) -> f6
 	if (stencil != 7 && stencil != 27) ||
 		nx_raw < 2 || nx_raw > 4 || nx_raw % 2 != 0 ||
 		ny_raw < 2 || ny_raw > 4 || ny_raw % 2 != 0 ||
-		nz_raw < 2 || nz_raw > 4 || nz_raw % 2 != 0 do return -1.0e300
+		nz_raw < 2 || nz_raw > 4 || nz_raw % 2 != 0 {
+        return -1.0e300
+    }
 
 	nx, ny, nz := int(nx_raw), int(ny_raw), int(nz_raw)
 	grid_cells := (nx + 2) * (ny + 2) * (nz + 2)
@@ -46,7 +48,7 @@ doe_miniamr_stencil_average :: proc "c" (values: [^]i64, length: c.size_t) -> f6
 
 	stride_i := (ny + 2) * (nz + 2)
 	stride_j := nz + 2
-	var work: [64]f64
+	work: [64]f64
 	count := 0
 	for i := 1; i <= nx; i += 1 {
 		for j := 1; j <= ny; j += 1 {

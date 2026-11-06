@@ -29,20 +29,21 @@ module doe_miniamr_stencil_average;
 fn double doe_miniamr_stencil_average(long* values, usz length) @export("doe_miniamr_stencil_average") {
     if (values == null || length < 68 || length > 220) return -1.0e300;
     long stencil = values[0];
-    long nx_raw = values[1], ny_raw = values[2], nz_raw = values[3];
+    long nx_raw = values[1]; long ny_raw = values[2]; long nz_raw = values[3];
     if ((stencil != 7 && stencil != 27) ||
         nx_raw < 2 || nx_raw > 4 || nx_raw % 2 != 0 ||
         ny_raw < 2 || ny_raw > 4 || ny_raw % 2 != 0 ||
         nz_raw < 2 || nz_raw > 4 || nz_raw % 2 != 0) return -1.0e300;
 
-    usz nx = (usz)nx_raw, ny = (usz)ny_raw, nz = (usz)nz_raw;
+    usz nx = (usz)nx_raw; usz ny = (usz)ny_raw; usz nz = (usz)nz_raw;
     usz grid_cells = (nx + 2) * (ny + 2) * (nz + 2);
     if (length != 4 + grid_cells) return -1.0e300;
-    for (usz q = 0; q < grid_cells; q++)
+    for (usz q = 0; q < grid_cells; q++) {
         if (values[4 + q] < -1000 || values[4 + q] > 1000) return -1.0e300;
+    }
 
-    usz stride_i = (ny + 2) * (nz + 2), stride_j = nz + 2;
-    double work[64];
+    usz stride_i = (ny + 2) * (nz + 2); usz stride_j = nz + 2;
+    double[64] work;
     usz count = 0;
     for (usz i = 1; i <= nx; i++) {
         for (usz j = 1; j <= ny; j++) {

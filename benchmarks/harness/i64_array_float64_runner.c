@@ -89,7 +89,7 @@ int main(int argc, char **argv)
         }
     } else if (null_mode) {
         if (argc != 9 || !parse_u64(argv[2], &length_arg) ||
-            length_arg == 0 || length_arg > MAX_INPUT_LENGTH) {
+            length_arg > MAX_INPUT_LENGTH) {
             fprintf(stderr, "usage: i64_array_float64_runner --null LENGTH EXPECTED ABS_TOL REL_TOL SAMPLES WARMUPS REPETITIONS\n");
             return 2;
         }

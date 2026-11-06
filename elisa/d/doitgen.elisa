@@ -4,7 +4,7 @@ const DOITGEN_MAX_C4_CELLS: usize = DOITGEN_MAX_DIMENSION * DOITGEN_MAX_DIMENSIO
 const DOITGEN_INVALID_RESULT: f64 = -1e300
 
 def doitgen_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 3:
+    if values == null or length != 3:
         return DOITGEN_INVALID_RESULT
     if values[0] < 1 or values[0] > DOITGEN_MAX_DIMENSION.i64() or
        values[1] < 1 or values[1] > DOITGEN_MAX_DIMENSION.i64() or
@@ -35,7 +35,7 @@ def doitgen_impl(values: i64&, length: usize) -> f64:
         i <- i + 1
     r <- 0
     while r < nr:
-        q <- 0
+        q: mutable usize = 0
         while q < nq:
             p: mutable usize = 0
             while p < np:
@@ -54,7 +54,7 @@ def doitgen_impl(values: i64&, length: usize) -> f64:
     checksum: mutable f64 = 0.0
     r <- 0
     while r < nr:
-        q <- 0
+        q: mutable usize = 0
         while q < nq:
             p: mutable usize = 0
             while p < np:

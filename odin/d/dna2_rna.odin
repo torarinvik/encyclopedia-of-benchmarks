@@ -15,7 +15,11 @@ dna2_rna :: proc "c" (values: [^]i64, length: c.size_t,
 	if output_capacity < count || (count > 0 && output == nil) do return -2
 	for index := c.size_t(0); index < count; index += 1 {
 		base := values[index + 1]
-		if base == 'T' do output[index] = 'U' else do output[index] = u8(base)
+		if base == 'T' {
+            output[index] = 'U'
+        } else {
+            output[index] = u8(base)
+        }
 	}
 	return i64(count)
 }

@@ -32,10 +32,7 @@ def doe_minigmg_restriction_impl(values: i64&, length: usize) -> f64:
             i: mutable usize = 0
             while i < coarse_nx:
                 base: usize = 3 + 2 * i + 2 * j * nx + 2 * k * plane
-                sum: f64 = values[base].f64() + values[base + 1].f64() +
-                    values[base + nx].f64() + values[base + nx + 1].f64() +
-                    values[base + plane].f64() + values[base + plane + 1].f64() +
-                    values[base + plane + nx].f64() + values[base + plane + nx + 1].f64()
+                sum: f64 = values[base].f64() + values[base + 1].f64() + values[base + nx].f64() + values[base + nx + 1].f64() + values[base + plane].f64() + values[base + plane + 1].f64() + values[base + plane + nx].f64() + values[base + plane + nx + 1].f64()
                 restricted: f64 = sum * 0.125
                 weight: f64 = (coarse_index + 1).f64()
                 checksum <- checksum + weight * restricted * restricted

@@ -4,18 +4,25 @@ const double INVALID_RESULT = -1.0e300;
 
 fn double doe_minigmg_restriction(long* values, usz length) @export("doe_minigmg_restriction") {
     if (values == null || length < 11 || length > 515) return INVALID_RESULT;
-    long nx_raw = values[0], ny_raw = values[1], nz_raw = values[2];
+    long nx_raw = values[0];
+    long ny_raw = values[1];
+    long nz_raw = values[2];
     if (nx_raw < 2 || nx_raw > 8 || nx_raw % 2 != 0 ||
         ny_raw < 2 || ny_raw > 8 || ny_raw % 2 != 0 ||
         nz_raw < 2 || nz_raw > 8 || nz_raw % 2 != 0) return INVALID_RESULT;
 
-    usz nx = (usz)nx_raw, ny = (usz)ny_raw, nz = (usz)nz_raw;
+    usz nx = (usz)nx_raw;
+    usz ny = (usz)ny_raw;
+    usz nz = (usz)nz_raw;
     usz cells = nx * ny * nz;
     if (length != 3 + cells) return INVALID_RESULT;
-    for (usz q = 0; q < cells; q++)
+    for (usz q = 0; q < cells; q++) {
         if (values[3 + q] < -32768 || values[3 + q] > 32767) return INVALID_RESULT;
+    }
 
-    usz coarse_nx = nx / 2, coarse_ny = ny / 2, coarse_nz = nz / 2;
+    usz coarse_nx = nx / 2;
+    usz coarse_ny = ny / 2;
+    usz coarse_nz = nz / 2;
     usz plane = nx * ny;
     double checksum = 0.0;
     usz coarse_index = 0;

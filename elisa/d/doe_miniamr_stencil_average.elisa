@@ -48,7 +48,7 @@ def doe_miniamr_stencil_average_impl(values: i64&, length: usize) -> f64:
 
     stride_i: usize = (ny + 2) * (nz + 2)
     stride_j: usize = nz + 2
-    work: mutable [64]f64 = [0.0; 64]
+    work: mutable f64[64] = zeroed
     count: mutable usize = 0
     i: mutable usize = 1
     while i <= nx:
@@ -58,22 +58,12 @@ def doe_miniamr_stencil_average_impl(values: i64&, length: usize) -> f64:
             while k <= nz:
                 base: usize = 4 + i * stride_i + j * stride_j + k
                 if stencil == 7:
-                    sum: f64 = values[base - stride_i].f64() +
-                        values[base - stride_j].f64() + values[base - 1].f64() +
-                        values[base].f64() + values[base + 1].f64() +
-                        values[base + stride_j].f64() + values[base + stride_i].f64()
+                    sum: f64 = values[base - stride_i].f64() + values[base - stride_j].f64() + values[base - 1].f64() + values[base].f64() + values[base + 1].f64() + values[base + stride_j].f64() + values[base + stride_i].f64()
                     work[count] <- sum / 7.0
                 else:
-                    sb: f64 = values[base - stride_i - stride_j - 1].f64() +
-                        values[base - stride_i - stride_j].f64() + values[base - stride_i - stride_j + 1].f64() +
-                        values[base - stride_i - 1].f64() + values[base - stride_i].f64() + values[base - stride_i + 1].f64() +
-                        values[base - stride_i + stride_j - 1].f64() + values[base - stride_i + stride_j].f64() + values[base - stride_i + stride_j + 1].f64()
-                    sm: f64 = values[base - stride_j - 1].f64() + values[base - stride_j].f64() + values[base - stride_j + 1].f64() +
-                        values[base - 1].f64() + values[base].f64() + values[base + 1].f64() +
-                        values[base + stride_j - 1].f64() + values[base + stride_j].f64() + values[base + stride_j + 1].f64()
-                    sf: f64 = values[base + stride_i - stride_j - 1].f64() + values[base + stride_i - stride_j].f64() + values[base + stride_i - stride_j + 1].f64() +
-                        values[base + stride_i - 1].f64() + values[base + stride_i].f64() + values[base + stride_i + 1].f64() +
-                        values[base + stride_i + stride_j - 1].f64() + values[base + stride_i + stride_j].f64() + values[base + stride_i + stride_j + 1].f64()
+                    sb: f64 = values[base - stride_i - stride_j - 1].f64() + values[base - stride_i - stride_j].f64() + values[base - stride_i - stride_j + 1].f64() + values[base - stride_i - 1].f64() + values[base - stride_i].f64() + values[base - stride_i + 1].f64() + values[base - stride_i + stride_j - 1].f64() + values[base - stride_i + stride_j].f64() + values[base - stride_i + stride_j + 1].f64()
+                    sm: f64 = values[base - stride_j - 1].f64() + values[base - stride_j].f64() + values[base - stride_j + 1].f64() + values[base - 1].f64() + values[base].f64() + values[base + 1].f64() + values[base + stride_j - 1].f64() + values[base + stride_j].f64() + values[base + stride_j + 1].f64()
+                    sf: f64 = values[base + stride_i - stride_j - 1].f64() + values[base + stride_i - stride_j].f64() + values[base + stride_i - stride_j + 1].f64() + values[base + stride_i - 1].f64() + values[base + stride_i].f64() + values[base + stride_i + 1].f64() + values[base + stride_i + stride_j - 1].f64() + values[base + stride_i + stride_j].f64() + values[base + stride_i + stride_j + 1].f64()
                     work[count] <- (sb + sm + sf) / 27.0
                 count <- count + 1
                 k <- k + 1

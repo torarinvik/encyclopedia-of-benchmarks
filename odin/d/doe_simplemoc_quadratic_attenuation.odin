@@ -32,13 +32,13 @@ MAX_RAW :: i64(10_000_000)
 MAX_GROUPS :: i64(4)
 TABLE_SIZE :: f32(353.0)
 
-add32 :: proc(a, b: f32) -> f32 { return f32(a + b) }
-sub32 :: proc(a, b: f32) -> f32 { return f32(a - b) }
-mul32 :: proc(a, b: f32) -> f32 { return f32(a * b) }
-div32 :: proc(a, b: f32) -> f32 { return f32(a / b) }
-fixed :: proc(raw: i64) -> f32 { return div32(f32(raw), FIXED_SCALE) }
+add32 :: proc "contextless" (a, b: f32) -> f32 { return f32(a + b) }
+sub32 :: proc "contextless" (a, b: f32) -> f32 { return f32(a - b) }
+mul32 :: proc "contextless" (a, b: f32) -> f32 { return f32(a * b) }
+div32 :: proc "contextless" (a, b: f32) -> f32 { return f32(a / b) }
+fixed :: proc "contextless" (raw: i64) -> f32 { return div32(f32(raw), FIXED_SCALE) }
 
-exp_table :: proc(tau: f32) -> f32 {
+exp_table :: proc "contextless" (tau: f32) -> f32 {
 	dx := div32(f32(10.0), TABLE_SIZE)
 	max_value := sub32(f32(10.0), dx)
 	if tau > max_value do return f32(1.0)
@@ -70,7 +70,9 @@ doe_simplemoc_quadratic_attenuation :: proc "c" (input: [^]i64, length: c.size_t
 	if dz_raw < 10_000 || ds_raw < 1_000 ||
 		mu_raw < 0 || mu_raw > 1_000_000 ||
 		az_weight_raw < 0 || az_weight_raw > 1_000_000 ||
-		polar_weight_raw < 0 || polar_weight_raw > 1_000_000 do return INVALID_RESULT
+		polar_weight_raw < 0 || polar_weight_raw > 1_000_000 {
+        return INVALID_RESULT
+    }
 
 	zin, dz, ds := fixed(zin_raw), fixed(dz_raw), fixed(ds_raw)
 	mu, az_weight, polar_weight := fixed(mu_raw), fixed(az_weight_raw), fixed(polar_weight_raw)

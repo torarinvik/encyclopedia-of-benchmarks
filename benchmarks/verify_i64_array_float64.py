@@ -6547,6 +6547,9 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "doe_simplemoc_quadratic_attenuation":
+        # The SimpleMOC corpus is populated above, including random and malformed cases.
+        pass
     else:
         raise ValueError(f"no corpus for {algorithm}")
 

@@ -2,7 +2,7 @@
 extern sqrt(value: f64) -> f64
 
 def dodecahedron_impl(values: i64&, length: usize) -> f64:
-    if length != 2:
+    if values == null or length != 2:
         return -1.0e300
     edge: i64 = values[0]
     quantity: i64 = values[1]

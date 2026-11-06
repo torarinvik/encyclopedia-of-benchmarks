@@ -59,7 +59,7 @@ def smoc_exp_table(tau: f32) -> f32:
     smoc_add(smoc_mul(slope, tau), intercept)
 
 def doe_simplemoc_quadratic_attenuation_impl(input: i64&, length: usize) -> f64:
-    if input.is_null() or length < 13 or length > 31:
+    if input == null or length < 13 or length > 31:
         return INVALID_RESULT
     groups_raw: i64 = input[0]
     if groups_raw < 1 or groups_raw > MAX_GROUPS:
@@ -68,7 +68,7 @@ def doe_simplemoc_quadratic_attenuation_impl(input: i64&, length: usize) -> f64:
     if length != 7 + 6 * groups:
         return INVALID_RESULT
 
-    raw_index: usize = 1
+    raw_index: mutable usize = 1
     while raw_index < length:
         if input[raw_index] < -MAX_RAW or input[raw_index] > MAX_RAW:
             return INVALID_RESULT
@@ -176,5 +176,4 @@ def doe_simplemoc_quadratic_attenuation_impl(input: i64&, length: usize) -> f64:
 
     checksum.f64()
 
-export fn doe_simplemoc_quadratic_attenuation(input: i64&, length: usize) -> f64 =
-    doe_simplemoc_quadratic_attenuation_impl
+export fn doe_simplemoc_quadratic_attenuation(input: i64&, length: usize) -> f64 = doe_simplemoc_quadratic_attenuation_impl
