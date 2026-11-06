@@ -13,30 +13,49 @@ proc domination_local_reduction*(input: ptr UncheckedArray[int64], length: csize
   for e in 0 ..< m:
     let u0=input[3+2*e];let v0=input[4+2*e]
     if u0<0 or v0<=u0 or v0>=n0:return -1
-    let u=int(u0);let v=int(v0);if a[u][v]:return -1;a[u][v]=true;a[v][u]=true
+    let u = int(u0)
+    let v = int(v0)
+    if a[u][v]: return -1
+    a[u][v] = true
+    a[v][u] = true
   var closed,exits,guards,prisoners: array[12,bool]
   closed[p]=true
-  for u in 0 ..< n: if a[p][u]: closed[u]=true
+  for u in 0 ..< n:
+    if a[p][u]: closed[u] = true
   for u in 0 ..< n:
     if a[p][u]:
       for x in 0 ..< n:
-        if a[u][x] and not closed[x]: exits[u]=true;break
+        if a[u][x] and not closed[x]:
+          exits[u] = true
+          break
   for u in 0 ..< n:
     if a[p][u] and not exits[u]:
       for x in 0 ..< n:
-        if exits[x] and a[u][x]: guards[u]=true;break
+        if exits[x] and a[u][x]:
+          guards[u] = true
+          break
   var np=0
-  for u in 0 ..< n: if a[p][u] and not exits[u] and not guards[u]: prisoners[u]=true;inc np
+  for u in 0 ..< n:
+    if a[p][u] and not exits[u] and not guards[u]:
+      prisoners[u] = true
+      inc np
   if np==0:return -1
-  var ids: array[12,int];var remap: array[12,int];for u in 0 ..< n:remap[u]= -1
+  var ids: array[12,int]
+  var remap: array[12,int]
+  for u in 0 ..< n: remap[u] = -1
   var kept=0
-  for u in 0 ..< n: if not guards[u] and not prisoners[u]:ids[kept]=u;remap[u]=kept;inc kept
+  for u in 0 ..< n:
+    if not guards[u] and not prisoners[u]:
+      ids[kept] = u
+      remap[u] = kept
+      inc kept
   let k=kept+1;let leaf=k-1
   var words: array[25,int64];words[0]=int64(k)
   for i in 0 ..< kept:words[1+i]=int64(ids[i])
   words[1+kept]= -1
   for i in 0 ..< kept:
-    for j in 0 ..< kept:if a[ids[i]][ids[j]]:words[1+k+i]=words[1+k+i] or (1'i64 shl j)
+    for j in 0 ..< kept:
+      if a[ids[i]][ids[j]]: words[1+k+i] = words[1+k+i] or (1'i64 shl j)
   words[1+k+remap[p]]=words[1+k+remap[p]] or (1'i64 shl leaf)
   words[1+k+leaf]=1'i64 shl remap[p]
   let count=1+2*k;let bytes=count*8

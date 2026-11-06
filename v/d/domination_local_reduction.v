@@ -7,7 +7,7 @@ fn put_word(mut output &u8, offset int, value i64) {
 
 @[export: 'domination_local_reduction']
 pub fn domination_local_reduction(input &i64, length usize, mut output &u8, capacity usize) i64 {
-	if input==nil || length<3 || length>135 { return -1 }
+	if unsafe { input == nil } || length<3 || length>135 { return -1 }
 	unsafe {
 		n0,m0,p0:=input[0],input[1],input[2]
 		if n0<1 || n0>12 || m0<0 || m0>66 || p0<0 || p0>=n0 || length!=usize(3+2*m0) { return -1 }
