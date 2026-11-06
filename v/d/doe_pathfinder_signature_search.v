@@ -6,10 +6,10 @@ const max_signature_length = 4
 const max_label = 7
 
 fn search_leg(values &i64, edge_count int, labels_start int, signature_start int,
-	signature_length int, node int, signature_index int, mut visited u16) bool {
+	signature_length int, node int, signature_index int, visited &u16) bool {
 	bit := u16(1) << u16(node)
-	if visited & bit != 0 { return false }
-	visited |= bit
+	if unsafe { *visited } & bit != 0 { return false }
+	unsafe { *visited = *visited | bit }
 	target_label := unsafe { values[signature_start + signature_index] }
 
 	for edge in 0 .. edge_count {
@@ -19,21 +19,21 @@ fn search_leg(values &i64, edge_count int, labels_start int, signature_start int
 		if signature_index + 1 == signature_length { return true }
 		mut next_visited := u16(0)
 		if search_leg(values, edge_count, labels_start, signature_start, signature_length,
-			target, signature_index + 1, mut next_visited) { return true }
+			target, signature_index + 1, &next_visited) { return true }
 	}
 
 	for edge in 0 .. edge_count {
 		if int(unsafe { values[3 + 2 * edge] }) != node { continue }
 		target := int(unsafe { values[4 + 2 * edge] })
 		if search_leg(values, edge_count, labels_start, signature_start, signature_length,
-			target, signature_index, mut visited) { return true }
+			target, signature_index, visited) { return true }
 	}
 	return false
 }
 
 @[export: 'doe_pathfinder_signature_search']
 pub fn doe_pathfinder_signature_search(values &i64, length usize) i64 {
-	if length < 3 { return -2 }
+	if isnil(values) || length < 3 { return -2 }
 	node_value := unsafe { values[0] }
 	edge_value := unsafe { values[1] }
 	signature_value := unsafe { values[2] }
@@ -70,7 +70,7 @@ pub fn doe_pathfinder_signature_search(values &i64, length usize) i64 {
 		if unsafe { values[labels_start + node] } == first_label {
 			mut visited := u16(0)
 			if search_leg(values, edge_count, labels_start, signature_start, signature_length,
-				node, 1, mut visited) { return 1 }
+				node, 1, &visited) { return 1 }
 		}
 	}
 	return 0

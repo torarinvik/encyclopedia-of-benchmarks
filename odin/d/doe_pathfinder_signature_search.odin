@@ -7,7 +7,7 @@ MAX_EDGES :: 100
 MAX_SIGNATURE_LENGTH :: 4
 MAX_LABEL :: 7
 
-search_leg :: proc(values: [^]i64, edge_count, labels_start, signature_start,
+search_leg :: proc "contextless" (values: [^]i64, edge_count, labels_start, signature_start,
 		signature_length, node, signature_index: int, visited: ^u16) -> bool {
 	bit := u16(1) << u16(node)
 	if (visited^ & bit) != 0 { return false }

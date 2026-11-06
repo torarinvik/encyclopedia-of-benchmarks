@@ -37,7 +37,7 @@ export fn doe_pathfinder_signature_search(values: [*c]const i64, length: usize) 
     const node_count: usize = @intCast(values[0]);
     const edge_count: usize = @intCast(values[1]);
     const signature_length: usize = @intCast(values[2]);
-    if (edge_count > node_count * node_count ||
+    if (edge_count > node_count * node_count or
         length != 3 + 2 * edge_count + node_count + signature_length) return -2;
 
     for (0..edge_count) |edge| {

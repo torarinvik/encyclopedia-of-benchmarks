@@ -45,15 +45,18 @@ fn long doe_pathfinder_signature_search(long* values, usz length) @export("doe_p
         long from = values[3 + 2 * edge];
         long to = values[4 + 2 * edge];
         if (from < 0 || from >= (long)node_count || to < 0 || to >= (long)node_count) return -2;
-        for (usz previous = 0; previous < edge; previous++)
+        for (usz previous = 0; previous < edge; previous++) {
             if (values[3 + 2 * previous] == from && values[4 + 2 * previous] == to) return -2;
+        }
     }
     usz labels_start = 3 + 2 * edge_count;
     usz signature_start = labels_start + node_count;
-    for (usz node = 0; node < node_count; node++)
+    for (usz node = 0; node < node_count; node++) {
         if (values[labels_start + node] < -1 || values[labels_start + node] > MAX_LABEL) return -2;
-    for (usz index = 0; index < signature_length; index++)
+    }
+    for (usz index = 0; index < signature_length; index++) {
         if (values[signature_start + index] < 0 || values[signature_start + index] > MAX_LABEL) return -2;
+    }
 
     long first_label = values[signature_start];
     for (usz node = 0; node < node_count; node++) {
