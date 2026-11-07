@@ -12,7 +12,7 @@ fn long liouville_lambda(long input) @export("liouville_lambda")
             remaining /= factor;
             sign = -sign;
         }
-        if (factor == 2) factor = 3; else factor += 2;
+        if (factor == 2) { factor = 3; } else { factor += 2; }
     }
     if (remaining > 1) sign = -sign;
     return sign;
