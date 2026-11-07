@@ -14,6 +14,7 @@
     {"id":"one","input_value":1,"expected_result":0},
     {"id":"small_prime","input_value":2,"expected_result":0},
     {"id":"composite_not_sphenic","input_value":12,"expected_result":0},
+    {"id":"source_false_positive_24","input_value":24,"expected_result":1},
     {"id":"first_sphenic","input_value":30,"expected_result":1},
     {"id":"sphenic_42","input_value":42,"expected_result":1},
     {"id":"sphenic_370","input_value":370,"expected_result":1},

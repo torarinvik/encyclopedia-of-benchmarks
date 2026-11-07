@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 MAX_COUNT_SET_BITS_INPUT = (1 << 26) - 1
 INT32_MIN = -(1 << 31)
 INT32_MAX = (1 << 31) - 1
@@ -174,21 +176,26 @@ def smith_number(value: int) -> int:
 
 
 def sphenic_number(value: int) -> int:
-    """Check for exactly three distinct prime factors through the sieve bound."""
+    """Reproduce the source's divisor-count and sieve rule, including its false positives."""
     if not 0 <= value <= MAX_SPHENIC_INPUT:
         return -1
     if value < 2:
         return 0
 
-    remaining, distinct_factors = value, 0
+    remaining, divisors = value, [1]
     factor = 2
     while factor <= remaining // factor:
         if remaining % factor == 0:
-            distinct_factors += 1
-            remaining //= factor
-            if remaining % factor == 0:
-                return 0
+            power, prior = 1, list(divisors)
+            while remaining % factor == 0:
+                remaining //= factor
+                power *= factor
+                divisors.extend(d * power for d in prior)
         factor = 3 if factor == 2 else factor + 2
     if remaining > 1:
-        distinct_factors += 1
-    return int(distinct_factors == 3)
+        divisors.extend(d * remaining for d in list(divisors))
+    if len(divisors) != 8:
+        return 0
+    def sieve_flag(n: int) -> bool:
+        return n < 2 or all(n % divisor for divisor in range(2, math.isqrt(n) + 1))
+    return int(all(sieve_flag(d) for d in sorted(divisors)[:3]))

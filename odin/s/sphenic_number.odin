@@ -1,6 +1,6 @@
 package sphenic_number
 
-source_sieve_flag :: proc(value: i64) -> bool {
+source_sieve_flag :: proc "c" (value: i64) -> bool {
 	if value < 2 do return true
 	for divisor := i64(2); divisor <= value / divisor; divisor += 1 {
 		if value % divisor == 0 do return false

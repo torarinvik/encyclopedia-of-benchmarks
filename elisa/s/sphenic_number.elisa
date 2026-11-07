@@ -11,16 +11,22 @@ def source_sieve_flag(value: i64) -> bool:
 def sphenic_number_impl(value: i64) -> i64:
     if value < 0 or value > 1000:
         return -1
+    if value < 2:
+        return 0
     first: mutable i64[3] = zeroed
     count: mutable i64 = 0
     divisor: mutable i64 = 1
-    while divisor <= value:
-        if value % divisor == 0 and count < 9:
+    while divisor <= value / 2:
+        if value % divisor == 0:
+            if count == 8:
+                return 0
             if count < 3:
                 first[count.usize()] <- divisor
             count <- count + 1
         divisor <- divisor + 1
-    if count == 8 and source_sieve_flag(first[0]) and source_sieve_flag(first[1]) and source_sieve_flag(first[2]):
+    # The remaining divisor is value itself, which makes eight total when
+    # exactly seven proper divisors were found.
+    if count == 7 and source_sieve_flag(first[0]) and source_sieve_flag(first[1]) and source_sieve_flag(first[2]):
         return 1
     0
 
