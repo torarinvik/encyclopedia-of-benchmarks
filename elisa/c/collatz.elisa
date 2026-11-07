@@ -2,7 +2,7 @@
 def collatz_impl(n: i64) -> i64:
     if n < 1 or n > 1000000:
         return -1
-    current: mutable i64 = n
+    current: mutable u64 = n.u64()
     steps: mutable i64 = 0
     while current != 1:
         if current % 2 == 0:
