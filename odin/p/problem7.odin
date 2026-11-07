@@ -1,6 +1,6 @@
 package problem7
 
-is_prime :: proc(value: i64) -> bool {
+is_prime :: proc "c" (value: i64) -> bool {
 	if value < 2 do return false
 	for factor := i64(2); factor <= value / factor; factor += 1 {
 		if value % factor == 0 do return false
