@@ -17,7 +17,8 @@ pub fn largest_rectangle_histogram(heights &i64, length usize) i64 {
 				top--
 				bar := stack[top]
 				left := if top == 0 { usize(0) } else { stack[top - 1] + 1 }
-				best = max(best, heights[bar] * i64(usize(index) - left))
+				area := heights[bar] * i64(usize(index) - left)
+				if area > best { best = area }
 			}
 			stack[top] = usize(index)
 			top++
@@ -26,7 +27,8 @@ pub fn largest_rectangle_histogram(heights &i64, length usize) i64 {
 			top--
 			bar := stack[top]
 			left := if top == 0 { usize(0) } else { stack[top - 1] + 1 }
-			best = max(best, heights[bar] * i64(length - left))
+			area := heights[bar] * i64(length - left)
+			if area > best { best = area }
 		}
 		return best
 	}

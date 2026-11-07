@@ -10,7 +10,7 @@ fn long largest_rectangle_histogram(long* heights, usz length) @export("largest_
         if (heights[index] < 0 || heights[index] > 1000000) return INVALID_RESULT;
     }
 
-    usz[64] stack = {0};
+    usz[64] stack = {};
     usz top = 0;
     long best = 0;
     for (usz index = 0; index < length; index++) {
