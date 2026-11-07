@@ -14,7 +14,7 @@ fn upper_bound_range(values &i64, target i64, left i64, right i64) i64 {
 
 @[export: 'upper_bound']
 pub fn upper_bound(values &i64, length usize) i64 {
-	if values == nil || length == 0 || length > 513 {
+	if unsafe { values == nil } || length == 0 || length > 513 {
 		return -1
 	}
 	target := unsafe { values[0] }
