@@ -2,18 +2,21 @@
 def problem3_impl(number: i64) -> i64:
     if number < 2 or number > 600851475143:
         return -1
-    remaining: mutable i64 = number
-    largest: mutable i64 = 1
-    factor: mutable i64 = 2
-    while factor <= remaining / factor:
-        if remaining % factor == 0:
+    remaining: mutable u64 = number.u64()
+    largest: mutable u64 = 1
+    while remaining % 2 == 0:
+        largest <- 2
+        remaining <- remaining / 2
+    factor: mutable u64 = 3
+    # The input bound keeps factor below 775,000, so its square fits in u64.
+    while factor * factor <= remaining:
+        while remaining % factor == 0:
             largest <- factor
             remaining <- remaining / factor
-        else:
-            factor <- factor + 1
+        factor <- factor + 2
     if remaining > 1:
-        remaining
+        remaining.i64()
     else:
-        largest
+        largest.i64()
 
 export fn problem3(number: i64) -> i64 = problem3_impl
