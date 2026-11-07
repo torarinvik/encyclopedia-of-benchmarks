@@ -1,6 +1,6 @@
 # Binary exponentiation under a positive signed 32-bit modulus.
 def modular_exponentiation_impl(values: i64&, length: usize) -> i64:
-    if length != 3:
+    if values == null or length != 3:
         return -1
     base_input: i64 = values[0]
     exponent_input: i64 = values[1]
