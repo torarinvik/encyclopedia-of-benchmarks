@@ -9,12 +9,15 @@ def is_composite(n: i64) -> bool:
     false
 
 def modular_power(base: i64, exponent: i64, modulus: i64) -> i64:
-    if exponent == 0:
-        return 1
-    half: i64 = modular_power(base, exponent / 2, modulus) % modulus
-    result: mutable i64 = (half * half) % modulus
-    if exponent % 2 != 0:
-        result <- (result * base) % modulus
+    result: mutable i64 = 1
+    power: mutable i64 = base
+    remaining: mutable i64 = exponent
+    while remaining > 0:
+        if remaining % 2 != 0:
+            result <- (result * power) % modulus
+        remaining <- remaining / 2
+        if remaining > 0:
+            power <- (power * power) % modulus
     result
 
 def gcd(left_value: i64, right_value: i64) -> i64:

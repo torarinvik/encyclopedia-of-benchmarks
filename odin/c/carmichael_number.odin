@@ -1,6 +1,6 @@
 package carmichael_number
 
-is_composite :: proc(n: i64) -> bool {
+is_composite :: proc "c" (n: i64) -> bool {
 	if n < 4 do return false
 	for divisor := i64(2); divisor <= n / divisor; divisor += 1 {
 		if n % divisor == 0 do return true
@@ -8,7 +8,7 @@ is_composite :: proc(n: i64) -> bool {
 	return false
 }
 
-modular_power :: proc(base, exponent, modulus: i64) -> i64 {
+modular_power :: proc "c" (base, exponent, modulus: i64) -> i64 {
 	if exponent == 0 do return 1
 	half := modular_power(base, exponent / 2, modulus) % modulus
 	result := (half * half) % modulus
@@ -16,7 +16,7 @@ modular_power :: proc(base, exponent, modulus: i64) -> i64 {
 	return result
 }
 
-gcd :: proc(left_value, right_value: i64) -> i64 {
+gcd :: proc "c" (left_value, right_value: i64) -> i64 {
 	left := left_value
 	right := right_value
 	for right != 0 {
