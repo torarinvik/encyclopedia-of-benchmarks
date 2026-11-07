@@ -2,9 +2,11 @@
 def problem10_impl(limit: i64) -> i64:
     if limit < 0 or limit > 2000000:
         return -1
+    if limit <= 2:
+        return 0
     composite: mutable bool[1000000] = zeroed
     odd_count: i64 = limit / 2
-    sum: mutable i64 = if limit > 2: 2 else: 0
+    sum: mutable i64 = 2 if limit > 2 else 0
     prime: mutable i64 = 3
     while prime * prime < limit:
         if not composite[(prime / 2).usize()]:
