@@ -1,6 +1,6 @@
 package problem4
 
-is_palindrome :: proc(value: i64) -> bool {
+is_palindrome :: proc "c" (value: i64) -> bool {
 	remaining := value
 	reversed := i64(0)
 	for remaining > 0 {
