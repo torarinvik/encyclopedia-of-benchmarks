@@ -1,6 +1,6 @@
 package smith_number
 
-is_prime :: proc(value: i64) -> bool {
+is_prime :: proc "c" (value: i64) -> bool {
 	if value == 2 do return true
 	if value < 2 || value % 2 == 0 do return false
 	for divisor := i64(3); divisor <= value / divisor; divisor += 2 {
@@ -9,7 +9,7 @@ is_prime :: proc(value: i64) -> bool {
 	return true
 }
 
-digit_sum :: proc(value_arg: i64) -> i64 {
+digit_sum :: proc "c" (value_arg: i64) -> i64 {
 	value := value_arg
 	sum: i64 = 0
 	for value != 0 {
@@ -19,7 +19,7 @@ digit_sum :: proc(value_arg: i64) -> i64 {
 	return sum
 }
 
-prime_factor_digit_sum :: proc(value: i64) -> i64 {
+prime_factor_digit_sum :: proc "c" (value: i64) -> i64 {
 	sum: i64 = 0
 	remainder := value
 	for factor := i64(2); factor <= value / factor; factor += 1 {

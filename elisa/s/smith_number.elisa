@@ -22,7 +22,7 @@ def prime_factor_digit_sum(value: i64) -> i64:
     sum: mutable i64 = 0
     remainder: mutable i64 = value
     factor: mutable i64 = 2
-    while factor <= value / factor:
+    while factor <= remainder / factor:
         while remainder % factor == 0:
             sum <- sum + digit_sum(factor)
             remainder <- remainder / factor
