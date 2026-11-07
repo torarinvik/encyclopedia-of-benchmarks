@@ -19,7 +19,7 @@
     {"id": "perfect_twenty_eight", "input_value": 28, "expected_result": 0},
     {"id": "odd_abundant", "input_value": 945, "expected_result": 1},
     {"id": "large_abundant", "input_value": 100000000, "expected_result": 1},
-    {"id": "large_prime", "input_value": 999999937, "expected_result": 0},
+    {"id": "large_prime", "input_value": 99999989, "expected_result": 0},
     {"id": "above_limit", "input_value": 100000001, "expected_result": -1}
   ],
   "measurement": {
