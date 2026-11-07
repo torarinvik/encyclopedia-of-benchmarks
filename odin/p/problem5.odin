@@ -1,6 +1,6 @@
 package problem5
 
-gcd :: proc(left, right: i64) -> i64 {
+gcd :: proc "c" (left, right: i64) -> i64 {
 	a := left
 	b := right
 	for b != 0 {

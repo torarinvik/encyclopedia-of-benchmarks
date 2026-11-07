@@ -1,8 +1,8 @@
-def problem5_gcd(left: i64, right: i64) -> i64:
-    a: mutable i64 = left
-    b: mutable i64 = right
+def problem5_gcd(left: u64, right: u64) -> u64:
+    a: mutable u64 = left
+    b: mutable u64 = right
     while b != 0:
-        remainder: i64 = a % b
+        remainder: u64 = a % b
         a <- b
         b <- remainder
     a
@@ -10,11 +10,11 @@ def problem5_gcd(left: i64, right: i64) -> i64:
 def problem5_impl(limit: i64) -> i64:
     if limit < 1 or limit > 20:
         return -1
-    result: mutable i64 = 1
-    value: mutable i64 = 2
-    while value <= limit:
+    result: mutable u64 = 1
+    value: mutable u64 = 2
+    while value <= limit.u64():
         result <- (result / problem5_gcd(result, value)) * value
         value <- value + 1
-    result
+    result.i64()
 
 export fn problem5(limit: i64) -> i64 = problem5_impl
