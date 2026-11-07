@@ -21,10 +21,11 @@ fn long problem12(long minimum_divisors) @export("problem12") {
     for (long index = 1; index <= 12375; index++) {
         long left = index;
         long right = index + 1;
-        if (index % 2 == 0) left /= 2;
-        else right /= 2;
-        if (divisor_count(left) * divisor_count(right) >= minimum_divisors)
+        if (index % 2 == 0) { left /= 2; }
+        else { right /= 2; }
+        if (divisor_count(left) * divisor_count(right) >= minimum_divisors) {
             return index * (index + 1) / 2;
+        }
     }
     return -1;
 }

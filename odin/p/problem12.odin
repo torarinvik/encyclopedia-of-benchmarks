@@ -1,6 +1,6 @@
 package problem12
 
-divisor_count :: proc(value: i64) -> i64 {
+divisor_count :: proc "c" (value: i64) -> i64 {
 	remaining := value
 	factor := i64(2)
 	count := i64(1)
@@ -30,8 +30,9 @@ problem12 :: proc "c" (minimum_divisors: i64) -> i64 {
 		} else {
 			right /= 2
 		}
-		if divisor_count(left) * divisor_count(right) >= minimum_divisors
-			do return index * (index + 1) / 2
+		if divisor_count(left) * divisor_count(right) >= minimum_divisors {
+			return index * (index + 1) / 2
+		}
 	}
 	return -1
 }
