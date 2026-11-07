@@ -10,22 +10,21 @@ def keith_number_impl(number: i64) -> i64:
         digit_count <- digit_count + 1
         value <- value / 10
     i: mutable i64 = 0
+    total: mutable i64 = 0
     while i < digit_count:
         digits[i.usize()] <- reversed[(digit_count - 1 - i).usize()]
+        total <- total + digits[i.usize()]
         i <- i + 1
 
     oldest: mutable i64 = 0
     while true:
-        next: mutable i64 = 0
-        i <- 0
-        while i < digit_count:
-            next <- next + digits[((oldest + i) % digit_count).usize()]
-            i <- i + 1
+        next: i64 = total
         if next >= number:
             if next == number:
                 return 1
             else:
                 return 0
+        total <- total - digits[oldest.usize()] + next
         digits[oldest.usize()] <- next
         oldest <- (oldest + 1) % digit_count
     0
