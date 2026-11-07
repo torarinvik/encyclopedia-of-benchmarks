@@ -10,11 +10,13 @@ pub fn perrin_number(index i64) i64 {
 	mut b := i64(0)
 	mut c := i64(2)
 	mut result := i64(0)
-	for mut i := i64(3); i <= index; i++ {
+	mut i := i64(3)
+	for i <= index {
 		result = a + b
 		a = b
 		b = c
 		c = result
+		i++
 	}
 	return result
 }
