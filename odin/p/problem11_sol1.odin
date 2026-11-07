@@ -32,17 +32,13 @@ problem11_sol1 :: proc "c" (ignored: i64) -> i64 {
     rl_diag_product: i64 = 0
     for i in 0..<20 {
         for j in 0..<17 {
-            vertical := GRID[j * 20 + i] * GRID[(j + 1) * 20 + i]
-                     * GRID[(j + 2) * 20 + i] * GRID[(j + 3) * 20 + i]
-            horizontal := GRID[i * 20 + j] * GRID[i * 20 + j + 1]
-                       * GRID[i * 20 + j + 2] * GRID[i * 20 + j + 3]
+            vertical := GRID[j * 20 + i] * GRID[(j + 1) * 20 + i] * GRID[(j + 2) * 20 + i] * GRID[(j + 3) * 20 + i]
+            horizontal := GRID[i * 20 + j] * GRID[i * 20 + j + 1] * GRID[i * 20 + j + 2] * GRID[i * 20 + j + 3]
             if i < 17 {
-                lr_diag_product = GRID[i * 20 + j] * GRID[(i + 1) * 20 + j + 1]
-                               * GRID[(i + 2) * 20 + j + 2] * GRID[(i + 3) * 20 + j + 3]
+                lr_diag_product = GRID[i * 20 + j] * GRID[(i + 1) * 20 + j + 1] * GRID[(i + 2) * 20 + j + 2] * GRID[(i + 3) * 20 + j + 3]
             }
             if i > 2 {
-                rl_diag_product = GRID[i * 20 + j] * GRID[(i - 1) * 20 + j + 1]
-                               * GRID[(i - 2) * 20 + j + 2] * GRID[(i - 3) * 20 + j + 3]
+                rl_diag_product = GRID[i * 20 + j] * GRID[(i - 1) * 20 + j + 1] * GRID[(i - 2) * 20 + j + 2] * GRID[(i - 3) * 20 + j + 3]
             }
             candidate := vertical
             if horizontal > candidate do candidate = horizontal
