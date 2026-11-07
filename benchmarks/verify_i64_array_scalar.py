@@ -150,7 +150,7 @@ from tsvc_s331_last_negative_index_oracle import (
 from tsvc_s258_wrapped_scalar_expansion_oracle import (
     MAX_INPUT_LENGTH as TSVC_S258_MAX_INPUT_LENGTH,
     MAX_N as TSVC_S258_MAX_N,
-    MAX_VALUE as TSVC_S258_MAX_VALUE,
+    VALUE_MAX as TSVC_S258_MAX_VALUE,
 )
 from tsvc_s424_alias_overlap_feedback_oracle import (
     MAX_INPUT_LENGTH as TSVC_S424_MAX_INPUT_LENGTH,
@@ -995,7 +995,7 @@ from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_PATTERN_LENGTH
 from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_TEXT_LENGTH
 from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_VALID_INPUT_LENGTH
 from mcnaughton_yamada_thompson_oracle import expected_result as mcnaughton_yamada_thompson_oracle
-from olden_perimeter_oracle import expected_result as olden_perimeter_oracle
+from o.olden_perimeter_oracle import expected_result as olden_perimeter_oracle
 from olden_power_oracle import MAX_LEAVES as OLDEN_POWER_MAX_LEAVES
 from olden_power_oracle import MAX_COMPUTE_PASSES as OLDEN_POWER_MAX_COMPUTE_PASSES
 from olden_power_oracle import expected_result as olden_power_oracle

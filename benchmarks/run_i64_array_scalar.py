@@ -132,7 +132,7 @@ from stanford_puzzle_oracle import expected_output as stanford_puzzle_expected
 from drop3_oracle import INVALID_RESULT as DROP3_INVALID_RESULT
 from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT_LENGTH
 from drop3_oracle import expected_result as drop3_expected
-from olden_perimeter_oracle import expected_result as olden_perimeter_expected
+from o.olden_perimeter_oracle import expected_result as olden_perimeter_expected
 from olden_power_oracle import MAX_INPUT_LENGTH as OLDEN_POWER_MAX_INPUT_LENGTH
 from olden_power_oracle import expected_result as olden_power_expected
 from olden_health_oracle import MAX_LEVEL as OLDEN_HEALTH_MAX_LEVEL
@@ -312,7 +312,7 @@ from tsvc_s331_last_negative_index_oracle import (
 from tsvc_s258_wrapped_scalar_expansion_oracle import (
     MAX_INPUT_LENGTH as TSVC_S258_MAX_INPUT_LENGTH,
     MAX_N as TSVC_S258_MAX_N,
-    MAX_VALUE as TSVC_S258_MAX_VALUE,
+    VALUE_MAX as TSVC_S258_MAX_VALUE,
     expected_result as tsvc_s258_wrapped_scalar_expansion_expected,
 )
 from tsvc_s424_alias_overlap_feedback_oracle import (
@@ -391,9 +391,9 @@ from five11_oracle import MAX_RESULT as FIVE11_MAX_RESULT
 from five11_oracle import MAX_VALID_INPUT_LENGTH as FIVE11_MAX_VALID_INPUT_LENGTH
 from five11_oracle import REPETITIONS as FIVE11_REPETITIONS
 from five11_oracle import expected_result as five11_expected
-from fannkuch_oracle import INVALID_RESULT as FANNKUCH_INVALID_RESULT
-from fannkuch_oracle import MAX_PARSEABLE_INPUT_LENGTH as FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH
-from fannkuch_oracle import expected_result as fannkuch_expected
+from f.fannkuch_oracle import INVALID_RESULT as FANNKUCH_INVALID_RESULT
+from f.fannkuch_oracle import MAX_PARSEABLE_INPUT_LENGTH as FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH
+from f.fannkuch_oracle import expected_result as fannkuch_expected
 from nussinov_oracle import INVALID_RESULT as NUSSINOV_INVALID_RESULT
 from nussinov_oracle import MAX_INPUT_LENGTH as NUSSINOV_MAX_INPUT_LENGTH
 from nussinov_oracle import MAX_N as NUSSINOV_MAX_N

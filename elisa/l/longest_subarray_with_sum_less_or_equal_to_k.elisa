@@ -3,7 +3,7 @@ const MAX_DOMAIN_VALUE: i64 = 2147483647
 const MAX_INPUT_LENGTH: usize = 259
 
 def longest_subarray_with_sum_less_or_equal_to_k_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
     target: i64 = input[0]
     raw_count: i64 = input[1]
@@ -33,9 +33,9 @@ def longest_subarray_with_sum_less_or_equal_to_k_impl(input: i64&, length: usize
         while window_sum > target and left <= right:
             window_sum <- window_sum - input[left + 2]
             left <- left + 1
-        current_length: usize = 0
+        current_length: mutable usize = 0
         if left <= right:
-            current_length = right - left + 1
+            current_length <- right - left + 1
         if current_length > best_length:
             best_length <- current_length
         right <- right + 1
