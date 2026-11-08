@@ -10,7 +10,7 @@ def nthprime_impl(nth: i64) -> i64:
     while total_prime < nth.u64():
         if size > 1600:
             return -1
-        sieve.resize(size) if sieve.count < size
+        sieve.resize(size)
         index <- 0
         while index < size:
             sieve[index] <- 1
