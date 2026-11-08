@@ -24,7 +24,7 @@ def knuth_morris_pratt_impl(input_values: i64&, length: usize) -> i64:
         return 0
 
     pattern_start: usize = 2 + text_length
-    prefix: mutable usize[4096] = zeroed
+    prefix: mutable darray[usize] = [0.usize() for _ in 0..<pattern_length]
     index: mutable usize = 1
     matched: mutable usize = 0
     while index < pattern_length:

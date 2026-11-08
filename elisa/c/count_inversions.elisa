@@ -7,12 +7,9 @@ def count_inversions_impl(values: i64&, length: usize) -> i64:
     if length < 2:
         return 0
 
-    source: mutable i64[4096] = zeroed
-    scratch: mutable i64[4096] = zeroed
+    source: mutable darray[i64] = [values[i] for i in 0..<length]
+    scratch: mutable darray[i64] = [0 for _ in 0..<length]
     index: mutable usize = 0
-    while index < length:
-        source[index] <- values[index]
-        index <- index + 1
 
     inversions: mutable i64 = 0
     width: mutable usize = 1

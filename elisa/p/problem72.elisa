@@ -4,13 +4,8 @@ def problem72_impl(limit: i64) -> i64:
         return -1
     if limit < 2:
         return 0
-    phi: mutable i32[1000001] = zeroed
-    if limit >= 1:
-        phi[1] <- 1
-    value: mutable i64 = 2
-    while value <= limit:
-        phi[value.usize()] <- value.i32()
-        value <- value + 1
+    # phi[v] = v for every v in [0, limit]; the sieve below only ever touches that prefix.
+    phi: mutable darray[i32] = [v.i32() for v in 0..<(limit + 1).usize()]
     prime: mutable i64 = 2
     while prime <= limit:
         if phi[prime.usize()] == prime.i32():

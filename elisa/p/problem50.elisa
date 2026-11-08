@@ -1,11 +1,7 @@
 def problem50_impl(ceiling: i64) -> i64:
     if ceiling < 3 or ceiling > 1000000:
         return -1
-    is_prime: mutable u8[1000000] = zeroed
-    index: mutable i64 = 0
-    while index < ceiling:
-        is_prime[index.usize()] <- 1
-        index <- index + 1
+    is_prime: mutable darray[u8] = [1.u8() for _ in 0..<ceiling.usize()]
     is_prime[0] <- 0
     is_prime[1] <- 0
     value: mutable i64 = 2
@@ -16,14 +12,8 @@ def problem50_impl(ceiling: i64) -> i64:
                 is_prime[multiple.usize()] <- 0
                 multiple <- multiple + value
         value <- value + 1
-    primes: mutable i64[100000] = zeroed
-    prime_count: mutable i64 = 0
-    candidate: mutable i64 = 2
-    while candidate < ceiling:
-        if is_prime[candidate.usize()] != 0:
-            primes[prime_count.usize()] <- candidate
-            prime_count <- prime_count + 1
-        candidate <- candidate + 1
+    primes: darray[i64] = [candidate.i64() for candidate in 2..<ceiling.usize() if is_prime[candidate] != 0]
+    prime_count: i64 = primes.count.i64()
     longest: mutable i64 = 0
     largest: mutable i64 = 0
     start: mutable i64 = 0
