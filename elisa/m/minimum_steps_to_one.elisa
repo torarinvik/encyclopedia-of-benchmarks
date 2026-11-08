@@ -1,11 +1,7 @@
 def minimum_steps_to_one_impl(n: i64) -> i64:
     if n < 1 or n > 10000:
         return -1
-    table: mutable i64[10001] = zeroed
-    index: mutable usize = 0
-    while index <= n.usize():
-        table[index] <- n + 1
-        index <- index + 1
+    table: mutable darray[i64] = [n + 1 for _ in 0..<(n + 1).usize()]
     table[1] <- 0
     i: mutable i64 = 1
     while i < n:
