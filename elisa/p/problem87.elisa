@@ -7,7 +7,7 @@ def problem87_impl(limit: i64) -> i64:
         root_limit <- root_limit + 1
     if root_limit < 2:
         root_limit <- 2
-    prime: mutable bool[7072] = zeroed
+    prime: mutable darray[bool] = [false for _ in 0..<(root_limit + 1).usize()]
     p: mutable i64 = 2
     while p <= root_limit:
         prime[p.usize()] <- true
@@ -20,8 +20,8 @@ def problem87_impl(limit: i64) -> i64:
                 prime[multiple.usize()] <- false
                 multiple <- multiple + p
         p <- p + 1
-    seen: mutable u8[6250000] = zeroed
     byte_count: i64 = (limit + 7) / 8
+    seen: mutable darray[u8] = [0.u8() for _ in 0..<byte_count.usize()]
     count: mutable i64 = 0
     p1: mutable i64 = 2
     while p1 <= root_limit:
@@ -40,7 +40,7 @@ def problem87_impl(limit: i64) -> i64:
                             if total >= limit:
                                 break
                             index: usize = total.usize()
-                            seen[index / 8] <- seen[index / 8] | (1.u8 << (index % 8).i64())
+                            seen[index / 8] <- seen[index / 8] | (1.u8() << (index % 8).i64())
                         p3 <- p3 + 1
                 p2 <- p2 + 1
         p1 <- p1 + 1

@@ -15,17 +15,17 @@ def problem59_word_char(id: usize, index: usize) -> i64:
         if index == 1: return 104
         return 101
     if id == 1:
-        return if index == 0 then 98 else 101
+        return 98 if index == 0 else 101
     if id == 2:
-        return if index == 0 then 116 else 111
+        return 116 if index == 0 else 111
     if id == 3:
-        return if index == 0 then 111 else 102
+        return 111 if index == 0 else 102
     if id == 4:
         if index == 0: return 97
         if index == 1: return 110
         return 100
     if id == 5:
-        return if index == 0 then 105 else 110
+        return 105 if index == 0 else 110
     if id == 6:
         if index == 0: return 116
         if index == 1: return 104
@@ -40,7 +40,7 @@ def problem59_lower(value: i64) -> i64:
     if value >= 65 and value <= 90: return value + 32
     value
 
-def problem59_contains(input: view[i64], length: usize, keys: u8[52728], index: usize, word: usize) -> bool:
+def problem59_contains(input: i64&, length: usize, keys: darray[u8]&, index: usize, word: usize) -> bool:
     width: usize = problem59_word_length(word)
     if length < width: return false
     start: mutable usize = 0
@@ -62,24 +62,24 @@ def problem59_impl(input: i64&, length: usize) -> i64:
     if input == null or length == 0 or length > MAX_CIPHER: return -1
     for i in 0..<length:
         if input[i] < 0 or input[i] > 255: return -1
-    keys: mutable u8[52728] = zeroed
+    keys: mutable darray[u8] = []
     count: mutable usize = 0
-    for a in 97..123:
-        for b in 97..123:
-            for c in 97..123:
+    for a in 97..<123:
+        for b in 97..<123:
+            for c in 97..<123:
                 valid: mutable bool = true
                 for i in 0..<length:
-                    key: usize = if i % 3 == 0 then a.usize() else if i % 3 == 1 then b.usize() else c.usize()
+                    key: usize = a.usize() if i % 3 == 0 else (b.usize() if i % 3 == 1 else c.usize())
                     if not problem59_allowed(input[i] ^ key.i64()):
                         valid <- false
                         break
                 if valid:
-                    keys[count * 3] <- a.u8(); keys[count * 3 + 1] <- b.u8(); keys[count * 3 + 2] <- c.u8()
+                    keys.extend([a.u8(), b.u8(), c.u8()])
                     count <- count + 1
     for word in 0..<8:
         kept: mutable usize = 0
         for i in 0..<count:
-            if problem59_contains(input[0:length], length, keys, i, word):
+            if problem59_contains(input, length, &keys, i, word):
                 if kept != i:
                     keys[kept * 3] <- keys[i * 3]
                     keys[kept * 3 + 1] <- keys[i * 3 + 1]
@@ -89,7 +89,8 @@ def problem59_impl(input: i64&, length: usize) -> i64:
         if count == 1: break
     if count == 0: return -1
     total: mutable i64 = 0
-    for i in 0..<length: total <- total + (input[i] ^ keys[i % 3].i64())
+    for i in 0..<length:
+        total <- total + (input[i] ^ keys[i % 3].i64())
     total
 
 export fn problem59(input: i64&, length: usize) -> i64 = problem59_impl

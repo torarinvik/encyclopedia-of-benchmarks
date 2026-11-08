@@ -4,7 +4,7 @@ const MAX_INPUT_LENGTH: usize = 4 + 3 * MAX_EDGES
 const MAX_DEQUE_CAPACITY: usize = MAX_VERTICES * MAX_VERTICES + 1
 
 def breadth_first_search_zero_one_shortest_path_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 4 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 4 or length > MAX_INPUT_LENGTH:
         return -2
     vertex_value: i64 = input[0]
     edge_value: i64 = input[1]
@@ -81,5 +81,4 @@ def breadth_first_search_zero_one_shortest_path_impl(input: i64&, length: usize)
         return -1
     distance[finish]
 
-export fn breadth_first_search_zero_one_shortest_path(input: i64&, length: usize) -> i64 =
-    breadth_first_search_zero_one_shortest_path_impl
+export fn breadth_first_search_zero_one_shortest_path(input: i64&, length: usize) -> i64 = breadth_first_search_zero_one_shortest_path_impl

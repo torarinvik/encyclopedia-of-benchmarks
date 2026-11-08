@@ -15,17 +15,17 @@ def monotonic_queue_impl(input: i64&, length: usize) -> i64:
     for index in 0..<n:
         if input[2 + index] < -2147483648 or input[2 + index] > 2147483647:
             return -1
-    deque: mutable usize[4096] = zeroed
+    deque: mutable darray[usize] = [0.usize() for _ in 0..<n]
     head: mutable usize = 0
-    tail: mutable usize = 0
+    back: mutable usize = 0
     hash: mutable u64 = FNV_OFFSET
     for index in 0..<n:
-        while head < tail and deque[head] + window <= index:
+        while head < back and deque[head] + window <= index:
             head <- head + 1
-        while head < tail and input[2 + deque[tail - 1]] <= input[2 + index]:
-            tail <- tail - 1
-        deque[tail] <- index
-        tail <- tail + 1
+        while head < back and input[2 + deque[back - 1]] <= input[2 + index]:
+            back <- back - 1
+        deque[back] <- index
+        back <- back + 1
         if index + 1 >= window:
             bits: u32 = input[2 + deque[head]].i32().u32()
             for byte_index in 0..<4:

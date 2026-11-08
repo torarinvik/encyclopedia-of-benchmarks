@@ -17,7 +17,7 @@ def depth_first_search_recursive_visit(adjacency: view[usize], degree: view[usiz
     false
 
 def depth_first_search_recursive_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 4 or length > 518:
+    if input == null or length < 4 or length > 518:
         return -1
     vertex_count: i64 = input[0]
     edge_count_value: i64 = input[1]
@@ -37,7 +37,8 @@ def depth_first_search_recursive_impl(input: i64&, length: usize) -> i64:
         if left < 0 or left >= vertex_count or right < 0 or right >= vertex_count:
             return -1
         edge <- edge + 1
-    adjacency: mutable usize[4096] = zeroed
+    rows: usize = vertex_count.usize()
+    adjacency: mutable darray[usize] = [0 for _ in 0..<rows * MAX_VERTICES]
     degree: mutable usize[64] = zeroed
     seen: mutable u64[64] = zeroed
     edge <- 0
@@ -56,7 +57,7 @@ def depth_first_search_recursive_impl(input: i64&, length: usize) -> i64:
             degree[right] <- degree[right] + 1
         edge <- edge + 1
     visited: mutable bool[64] = zeroed
-    if depth_first_search_recursive_visit(adjacency[0:MAX_VERTICES * MAX_VERTICES], degree[0:MAX_VERTICES], source_value.usize(), target, visited[0:MAX_VERTICES]):
+    if depth_first_search_recursive_visit(adjacency[0:rows * MAX_VERTICES], degree[0:MAX_VERTICES], source_value.usize(), target, visited[0:MAX_VERTICES]):
         return 1
     0
 

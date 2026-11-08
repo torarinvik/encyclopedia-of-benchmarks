@@ -2,7 +2,7 @@
 def problem95_impl(limit: i64) -> i64:
     if limit < 1 or limit > 1000000:
         return -1
-    sums: mutable u32[1000001] = zeroed
+    sums: mutable darray[u32] = [0.u32() for _ in 0..<(limit + 1).usize()]
     divisor: mutable i64 = 1
     while divisor <= limit / 2:
         multiple: mutable i64 = 2 * divisor
@@ -17,11 +17,11 @@ def problem95_impl(limit: i64) -> i64:
         current: mutable u32 = sums[start.usize()]
         length: mutable i64 = 1
         sums[start.usize()] <- sums[start.usize()] | 2147483648.u32()
-        while current > 1 && current.i64() <= limit && (sums[current.usize()] & 2147483648.u32()) == 0:
+        while current > 1 and current.i64() <= limit and (sums[current.usize()] & 2147483648.u32()) == 0:
             sums[current.usize()] <- sums[current.usize()] | 2147483648.u32()
             current <- sums[current.usize()] & 2147483647.u32()
             length <- length + 1
-        if current.i64() == start && length > best_length:
+        if current.i64() == start and length > best_length:
             best_length <- length
             answer <- start
         current <- start.u32()
