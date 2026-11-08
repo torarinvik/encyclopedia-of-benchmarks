@@ -2,9 +2,12 @@
 def hamming_weight_impl(value: i64) -> i64:
     if value < 0 or value > 4294967295:
         return -1
-    number: u32 = value.u32()
-    count: i64 = for bit in 0..<32 |count: mutable i64 = 0| -> count:
-        count <- count + ((number >> bit) & 1.u32()).i64()
-    count
+    bits: mutable u32 = value.u32()
+    bits <- bits - ((bits >> 1) & 1431655765.u32())
+    bits <- (bits & 858993459.u32()) + ((bits >> 2) & 858993459.u32())
+    bits <- (bits + (bits >> 4)) & 252645135.u32()
+    bits <- bits + (bits >> 8)
+    bits <- bits + (bits >> 16)
+    (bits & 63.u32()).i64()
 
 export fn hamming_weight(value: i64) -> i64 = hamming_weight_impl

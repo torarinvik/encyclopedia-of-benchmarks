@@ -134,6 +134,43 @@ def workload_declares_model(spec: dict, model: str) -> bool:
     )
 
 
+def object_symbols(path: Path, *, undefined: bool) -> set[str]:
+    """Global symbols an object references but does not define (undefined) or defines."""
+    command = ["nm", "-u", str(path)] if undefined else ["nm", "-g", "--defined-only", str(path)]
+    listing = subprocess.run(command, capture_output=True, text=True, timeout=60)
+    if listing.returncode != 0:
+        raise RuntimeError(f"nm failed on {path}: {listing.stderr.strip()}")
+    return {line.split()[-1] for line in listing.stdout.splitlines() if line.strip()}
+
+
+def elisa_runtime_link_objects(compiler: str, artifact: Path, c_compiler: str) -> list[Path]:
+    """The Elisa runtime objects an Elisa port's object needs, or [] when it needs none.
+
+    The runtime is compiled by the same elisac (its native_runtime_support.elisa, plus the
+    profiler-hook fallbacks native executables link) and cached per compiler binary hash.
+    """
+    compiler_path = Path(shutil.which(compiler) or compiler).resolve()
+    runtime_source = compiler_path.parents[1] / "runtime" / "elisacore_std" / "native_runtime_support.elisa"
+    hooks_source = compiler_path.parents[1] / "runtime" / "profile_hooks.c"
+    if not runtime_source.is_file() or not hooks_source.is_file():
+        return []
+    cache = ROOT / "build" / "elisa-runtime" / sha256_file(compiler_path)[:16]
+    runtime_object, hooks_object = cache / "elisacore_runtime.o", cache / "profile_hooks.o"
+    if not runtime_object.is_file() or not hooks_object.is_file():
+        cache.mkdir(parents=True, exist_ok=True)
+        staged = cache / f"elisacore_runtime.{os.getpid()}.o"
+        subprocess.run([str(compiler_path), "-O3", "-emit", "obj", "-o", str(staged), str(runtime_source)],
+                       check=True, capture_output=True, text=True, timeout=600)
+        staged_hooks = cache / f"profile_hooks.{os.getpid()}.o"
+        subprocess.run([c_compiler, "-O2", "-c", "-o", str(staged_hooks), str(hooks_source)],
+                       check=True, capture_output=True, text=True, timeout=120)
+        os.replace(staged, runtime_object)
+        os.replace(staged_hooks, hooks_object)
+    if not object_symbols(artifact, undefined=True) & object_symbols(runtime_object, undefined=False):
+        return []
+    return [runtime_object, hooks_object]
+
+
 def build(algorithm: str, language: str, directory: Path, *, compiler: str | None = None,
           cc: str = "cc", with_checker: bool = False, family: str = "scalar",
           extra_link_sources: tuple[Path, ...] = (),
@@ -246,6 +283,10 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     elif language == "elisa":
         flags = ["-O3", "-emit", "obj", *implementation_flags]
         run([compiler, *flags, "-o", str(artifact), str(source)])
+        # `-emit obj` leaves out the Elisa runtime. A port that allocates (a darray sized
+        # to its input) references runtime symbols such as arena_alloc; link the runtime
+        # built by the same compiler only then, so every other port links exactly as before.
+        native_link_flags.extend(str(path) for path in elisa_runtime_link_objects(compiler, artifact, c_compiler))
     elif language == "mojo":
         # Mojo defaults to the host CPU and features; preserve that optimized
         # object output and link it with the same C ABI harness as other ports.

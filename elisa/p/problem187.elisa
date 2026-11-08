@@ -5,7 +5,8 @@ def problem187_impl(max_number: i64) -> i64:
     if prime_limit <= 2:
         return 0
 
-    composite: mutable u64[781250] = zeroed
+    words: usize = (prime_limit / 64 + 1).usize()
+    composite: mutable darray[u64] = [0.u64() for _ in 0..<words]
     prime: mutable i64 = 2
     while prime <= (prime_limit - 1) / prime:
         prime_word: usize = (prime / 64).usize()
