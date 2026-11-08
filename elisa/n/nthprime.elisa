@@ -5,9 +5,9 @@ def nthprime_impl(nth: i64) -> i64:
     sieve: mutable darray[u64] = []
     total_prime: mutable u64 = 0
     size_factor: mutable u64 = 2
-    size: mutable usize = (nth * 2).usize()
     index: mutable usize = 0
     while total_prime < nth.u64():
+        size: usize = (nth.u64() * size_factor).usize()
         if size > 1600:
             return -1
         sieve.resize(size)
@@ -33,10 +33,9 @@ def nthprime_impl(nth: i64) -> i64:
             total_prime <- total_prime + sieve[index]
             index <- index + 1
         size_factor <- size_factor + 1
-        size <- (nth.u64() * size_factor).usize()
     count: mutable u64 = 0
     index <- 2
-    used_size: usize = size - nth.usize()
+    used_size: usize = (nth.u64() * size_factor).usize() - nth.usize()
     while index < used_size:
         count <- count + sieve[index]
         if count == nth.u64():
