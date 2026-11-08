@@ -18,16 +18,11 @@ def breadth_first_search_zero_one_shortest_path_impl(input: i64&, length: usize)
        finish_value < 0 or finish_value >= vertex_value:
         return -2
 
-    edge_to: mutable usize[256] = zeroed
-    edge_weight: mutable i64[256] = zeroed
-    next_edge: mutable i64[256] = zeroed
-    head_edge: mutable i64[64] = zeroed
-    tail_edge: mutable i64[64] = zeroed
-    vertex: mutable usize = 0
-    while vertex < vertices:
-        head_edge[vertex] <- -1
-        tail_edge[vertex] <- -1
-        vertex <- vertex + 1
+    edge_to: mutable darray[usize] = [0 for _ in 0..<edges]
+    edge_weight: mutable darray[i64] = [0 for _ in 0..<edges]
+    next_edge: mutable darray[i64] = [-1 for _ in 0..<edges]
+    head_edge: mutable darray[i64] = [-1 for _ in 0..<vertices]
+    tail_edge: mutable darray[i64] = [-1 for _ in 0..<vertices]
     edge: mutable usize = 0
     while edge < edges:
         from_value: i64 = input[4 + 3 * edge]
@@ -49,19 +44,16 @@ def breadth_first_search_zero_one_shortest_path_impl(input: i64&, length: usize)
 
     start: usize = start_value.usize()
     finish: usize = finish_value.usize()
-    distance: mutable i64[64] = zeroed
-    vertex <- 0
-    while vertex < vertices:
-        distance[vertex] <- 1000000000
-        vertex <- vertex + 1
-    deque: mutable usize[4097] = zeroed
+    distance: mutable darray[i64] = [1000000000 for _ in 0..<vertices]
+    capacity: usize = vertices * vertices + 1
+    deque: mutable darray[usize] = [0 for _ in 0..<capacity]
     deque_head: mutable usize = 0
     deque_count: mutable usize = 1
     distance[start] <- 0
     deque[0] <- start
     while deque_count > 0:
         node: usize = deque[deque_head]
-        deque_head <- (deque_head + 1) % MAX_DEQUE_CAPACITY
+        deque_head <- (deque_head + 1) % capacity
         deque_count <- deque_count - 1
         edge_index: mutable i64 = head_edge[node]
         while edge_index >= 0:
@@ -71,10 +63,10 @@ def breadth_first_search_zero_one_shortest_path_impl(input: i64&, length: usize)
             if candidate < distance[neighbor]:
                 distance[neighbor] <- candidate
                 if edge_weight[edge] == 0:
-                    deque_head <- (deque_head + MAX_DEQUE_CAPACITY - 1) % MAX_DEQUE_CAPACITY
+                    deque_head <- (deque_head + capacity - 1) % capacity
                     deque[deque_head] <- neighbor
                 else:
-                    deque[(deque_head + deque_count) % MAX_DEQUE_CAPACITY] <- neighbor
+                    deque[(deque_head + deque_count) % capacity] <- neighbor
                 deque_count <- deque_count + 1
             edge_index <- next_edge[edge]
     if distance[finish] == 1000000000:
