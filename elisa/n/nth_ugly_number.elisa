@@ -2,8 +2,7 @@
 def nth_ugly_number_impl(n: i64) -> i64:
     if n < 0 or n > 12690:
         return -1
-    values: mutable i64[12691] = zeroed
-    values[0] <- 1
+    values: mutable darray[i64] = [1 for _ in 0..<(n + 1).usize()]
     i2: mutable usize = 0
     i3: mutable usize = 0
     i5: mutable usize = 0
