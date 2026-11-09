@@ -5,10 +5,12 @@ def divisors_impl(values: i64&, length: usize) -> i64:
     n: i64 = values[0]
     if n < 1 or n > 62:
         return -1
-    divisor: mutable i64 = 1
+    # The validated divisor and input are both positive and at most 62.
+    bounded_n: u64 = n.u64()
+    divisor: mutable u64 = 1
     mask: mutable u64 = 0
-    while divisor <= n:
-        if n % divisor == 0:
+    while divisor <= bounded_n:
+        if bounded_n % divisor == 0:
             mask <- mask | (1.u64() << divisor.u32())
         divisor <- divisor + 1
     return mask.i64()
