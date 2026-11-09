@@ -2,12 +2,13 @@
 def hamming_distance_impl(left: u64, right: u64) -> i64:
     left_bit: mutable u64 = left
     right_bit: mutable u64 = right
-    count: mutable i64 = 0
+    # The loop visits at most 64 bits, so this counter fits in both types.
+    count: mutable u64 = 0
     while left_bit != 0 or right_bit != 0:
         if (left_bit & 1) != (right_bit & 1):
             count <- count + 1
         left_bit <- left_bit >> 1
         right_bit <- right_bit >> 1
-    count
+    count.i64()
 
 export fn hamming_distance(left: u64, right: u64) -> i64 = hamming_distance_impl
