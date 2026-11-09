@@ -2,9 +2,9 @@ package find_second_largest_element
 
 import "core:c"
 
-INVALID_RESULT :: i64 = -9_223_372_036_854_775_808
-INT32_MIN_VALUE :: i64 = -2_147_483_648
-INT32_MAX_VALUE :: i64 = 2_147_483_647
+INVALID_RESULT :: i64(-9_223_372_036_854_775_808)
+INT32_MIN_VALUE :: i64(-2_147_483_648)
+INT32_MAX_VALUE :: i64(2_147_483_647)
 
 @(export)
 find_second_largest_element :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
