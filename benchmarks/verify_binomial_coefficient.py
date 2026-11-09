@@ -42,7 +42,7 @@ def corpus(workload: dict) -> tuple[str, int]:
     rng = random.Random(20261014)
     pairs.update((rng.getrandbits(64), rng.getrandbits(64)) for _ in range(512))
     for case in workload["cases"]:
-        n, k, expected = encode_values(case)
+        n, k, expected = encode_values(case, ALGORITHM)
         if expected != oracle(n, k):
             raise ValueError(f"published workload disagrees with math.comb: {case['id']}")
         pairs.add((n, k))
@@ -75,7 +75,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
-        n, k, expected = encode_values(case)
+        n, k, expected = encode_values(case, ALGORITHM)
         if (record["algorithm"] != ALGORITHM
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]
