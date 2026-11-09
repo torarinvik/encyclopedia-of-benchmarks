@@ -1,5 +1,7 @@
 package number_of_positive_divisors
 
+import "core:c"
+
 // Count positive divisors of the absolute value of one signed integer.
 @(export)
 number_of_positive_divisors :: proc "c" (values: [^]i64, length: c.size_t) -> i64 {
