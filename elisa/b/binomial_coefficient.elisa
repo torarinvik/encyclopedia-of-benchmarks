@@ -8,18 +8,16 @@ def binomial_coefficient_impl(n: u64, k: u64) -> i64:
         return 1
     n_value: usize = n.usize()
     k_value: usize = k.usize()
-    coefficients: i64[67] =
-        while row <= n_value |row: mutable usize = 1, values: mutable i64[67] = zeroed| -> values:
-            values[0] <- 1
-            column: mutable usize = row
-            if k_value < row:
-                column <- k_value
-            updated: i64[67] =
-                while column > 0 |column: mutable usize = column, work_values: mutable i64[67] = values| -> work_values:
-                    work_values[column] <- work_values[column] + work_values[column - 1]
-                    column <- column - 1
-            rebind values = updated
-            row <- row + 1
-    coefficients[k_value]
+    # Every entry through row 66 fits in signed 64-bit as well as u64.
+    coefficients: mutable u64[67] = zeroed
+    coefficients[0] <- 1
+    row: mutable usize = 1
+    while row <= n_value:
+        column: mutable usize = k_value if k_value < row else row
+        while column > 0:
+            coefficients[column] <- coefficients[column] + coefficients[column - 1]
+            column <- column - 1
+        row <- row + 1
+    coefficients[k_value].i64()
 
 export fn binomial_coefficient(n: u64, k: u64) -> i64 = binomial_coefficient_impl
