@@ -17,14 +17,15 @@ def digit_dp_count_up_to(bound_value: i64, target: usize) -> i64:
         if bound == 0:
             break
 
-    loose: mutable i64[MAX_DIGIT_SUM + 1] = zeroed
-    tight: mutable i64[MAX_DIGIT_SUM + 1] = zeroed
+    # At most 10^18 + 1 numbers are counted, so every state fits u64 and i64.
+    loose: mutable u64[MAX_DIGIT_SUM + 1] = zeroed
+    tight: mutable u64[MAX_DIGIT_SUM + 1] = zeroed
     tight[0] <- 1
     while digit_count > 0:
         digit_count <- digit_count - 1
         limit: usize = digits[digit_count]
-        next_loose: mutable i64[MAX_DIGIT_SUM + 1] = zeroed
-        next_tight: mutable i64[MAX_DIGIT_SUM + 1] = zeroed
+        next_loose: mutable u64[MAX_DIGIT_SUM + 1] = zeroed
+        next_tight: mutable u64[MAX_DIGIT_SUM + 1] = zeroed
         sum: mutable usize = 0
         while sum <= target:
             digit: mutable usize = 0
@@ -44,7 +45,7 @@ def digit_dp_count_up_to(bound_value: i64, target: usize) -> i64:
             loose[sum] <- next_loose[sum]
             tight[sum] <- next_tight[sum]
             sum <- sum + 1
-    loose[target] + tight[target]
+    (loose[target] + tight[target]).i64()
 
 def digit_dp_impl(input: i64&, length: usize) -> i64:
     if input == null or length > MAX_INPUT_LENGTH or length != 3:
