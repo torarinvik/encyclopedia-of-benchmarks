@@ -16,17 +16,21 @@ def minimum_sum_partition_impl(input: i64&, length: usize) -> i64:
     target: usize = (total / 2).usize()
     reachable: mutable u8[MAX_TOTAL_SUM / 2 + 1] = zeroed
     reachable[0] <- 1
-    closest: mutable usize = 0
-    for index in 0..<length |input, target, reachable, closest|:
+    # Zero and above-target items cannot add a reachable sum below the target.
+    for index in 0..<length |input, target, reachable|:
         value: usize = input[index].usize()
+        if value == 0 or value > target:
+            continue
         sum: mutable usize = target
-        while sum > 0 |sum, value, reachable, closest|:
-            if value <= sum and reachable[sum - value] != 0:
+        while sum >= value |sum, value, reachable|:
+            if reachable[sum - value] != 0:
                 reachable[sum] <- 1
-            if reachable[sum] != 0 and sum > closest:
-                closest <- sum
             sum <- sum - 1
 
+    # Only the final reachable set determines the closest partition.
+    closest: mutable usize = target
+    while closest > 0 and reachable[closest] == 0:
+        closest <- closest - 1
     return total - 2 * closest.i64()
 
 export fn minimum_sum_partition(input: i64&, length: usize) -> i64 = minimum_sum_partition_impl
