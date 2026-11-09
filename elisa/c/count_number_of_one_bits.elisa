@@ -16,12 +16,12 @@ def count_number_of_one_bits_impl(number: i64, method: i64) -> i64:
                 count <- count + 1
             remaining <- remaining >> 1
         return count.i64()
-    lookup: mutable i64[256]
+    lookup: mutable u8[256]
     lookup[0] <- 0
     index: mutable usize = 1
     while index < 256:
-        lookup[index] <- lookup[index >> 1] + (index & 1).i64()
+        lookup[index] <- lookup[index >> 1] + (index & 1).u8()
         index <- index + 1
-    lookup[(remaining & 255).usize()] + lookup[((remaining >> 8) & 255).usize()] + lookup[((remaining >> 16) & 255).usize()] + lookup[((remaining >> 24) & 255).usize()]
+    lookup[(remaining & 255).usize()].i64() + lookup[((remaining >> 8) & 255).usize()].i64() + lookup[((remaining >> 16) & 255).usize()].i64() + lookup[((remaining >> 24) & 255).usize()].i64()
 
 export fn count_number_of_one_bits(number: i64, method: i64) -> i64 = count_number_of_one_bits_impl
