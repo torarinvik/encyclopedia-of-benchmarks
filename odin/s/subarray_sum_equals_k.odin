@@ -6,7 +6,7 @@ Invalid_Result :: i64(-9223372036854775807 - 1)
 Max_Items :: 512
 Table_Size :: 2048
 
-slot_for :: proc(value: i64) -> int {
+slot_for :: proc "c" (value: i64) -> int {
 	magnitude := value
 	if magnitude < 0 do magnitude = -magnitude
 	return int(magnitude % i64(Table_Size))
