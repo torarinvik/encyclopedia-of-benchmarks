@@ -2,19 +2,20 @@
 def count_number_of_one_bits_impl(number: i64, method: i64) -> i64:
     if number < 0 or number > 4294967295 or method < 0 or method > 2:
         return -1
-    remaining: mutable i64 = number
-    count: mutable i64 = 0
+    # The input is nonnegative and at most 32 bits; the count is at most 32.
+    remaining: mutable u64 = number.u64()
+    count: mutable u64 = 0
     if method == 0:
         while remaining != 0:
             remaining <- remaining & (remaining - 1)
             count <- count + 1
-        return count
+        return count.i64()
     if method == 1:
         while remaining != 0:
             if remaining % 2 == 1:
                 count <- count + 1
             remaining <- remaining >> 1
-        return count
+        return count.i64()
     lookup: mutable i64[256]
     lookup[0] <- 0
     index: mutable usize = 1
