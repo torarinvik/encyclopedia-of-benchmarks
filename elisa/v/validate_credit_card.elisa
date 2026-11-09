@@ -26,6 +26,6 @@ def validate_credit_card_impl(input: i64&, length: usize) -> i64:
             if digit > 9:
                 digit <- digit - 9
         sum <- sum + digit
-    sum % 10 == 0 ? 1 : 0
+    return 1 if sum % 10 == 0 else 0
 
 export fn validate_credit_card(input: i64&, length: usize) -> i64 = validate_credit_card_impl
