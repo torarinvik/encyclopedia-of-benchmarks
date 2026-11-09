@@ -14,13 +14,13 @@ breadth_first_search_zero_one_shortest_path :: proc "c" (input: [^]i64, length: 
 	if vertex_value < 1 || vertex_value > Max_Vertices || edge_value < 0 || edge_value > Max_Edges do return -2
 	vertices, edges := int(vertex_value), int(edge_value)
 	if length != c.size_t(4 + 3 * edges) || start_value < 0 || start_value >= vertex_value ||
-		finish_value < 0 || finish_value >= vertex_value do return -2
+		finish_value < 0 || finish_value >= vertex_value { return -2 }
 
-	var edge_to: [Max_Edges]int
-	var edge_weight: [Max_Edges]i64
-	var next_edge: [Max_Edges]int
-	var head_edge: [Max_Vertices]int
-	var tail_edge: [Max_Vertices]int
+	edge_to: [Max_Edges]int
+	edge_weight: [Max_Edges]i64
+	next_edge: [Max_Edges]int
+	head_edge: [Max_Vertices]int
+	tail_edge: [Max_Vertices]int
 	for vertex := 0; vertex < vertices; vertex += 1 {
 		head_edge[vertex] = -1
 		tail_edge[vertex] = -1
@@ -28,20 +28,23 @@ breadth_first_search_zero_one_shortest_path :: proc "c" (input: [^]i64, length: 
 	for edge := 0; edge < edges; edge += 1 {
 		from_value, to_value, weight_value := input[4 + 3 * edge], input[5 + 3 * edge], input[6 + 3 * edge]
 		if from_value < 0 || from_value >= vertex_value || to_value < 0 || to_value >= vertex_value ||
-			(weight_value != 0 && weight_value != 1) do return -2
+			(weight_value != 0 && weight_value != 1) { return -2 }
 		source := int(from_value)
 		edge_to[edge] = int(to_value)
 		edge_weight[edge] = weight_value
 		next_edge[edge] = -1
-		if head_edge[source] < 0 do head_edge[source] = edge
-		else next_edge[tail_edge[source]] = edge
+		if head_edge[source] < 0 {
+			head_edge[source] = edge
+		} else {
+			next_edge[tail_edge[source]] = edge
+		}
 		tail_edge[source] = edge
 	}
 
 	start, finish := int(start_value), int(finish_value)
-	var distance: [Max_Vertices]i64
+	distance: [Max_Vertices]i64
 	for vertex := 0; vertex < vertices; vertex += 1 do distance[vertex] = 1_000_000_000
-	var deque: [Max_Deque_Capacity]int
+	deque: [Max_Deque_Capacity]int
 	deque_head, deque_count := 0, 1
 	distance[start] = 0
 	deque[0] = start

@@ -12,7 +12,6 @@ pub export fn breadth_first_search_zero_one_shortest_path(input: [*c]const i64, 
     const finish_value = input[3];
     if (vertex_value < 1 or vertex_value > @as(i64, @intCast(MAX_VERTICES)) or
         edge_value < 0 or edge_value > @as(i64, @intCast(MAX_EDGES))) return -2;
-    const vertices: usize = @intCast(vertex_value);
     const edges: usize = @intCast(edge_value);
     if (length != 4 + 3 * edges or start_value < 0 or start_value >= vertex_value or
         finish_value < 0 or finish_value >= vertex_value) return -2;
