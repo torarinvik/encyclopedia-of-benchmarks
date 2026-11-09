@@ -22,6 +22,6 @@ The pinned Python source provides iterative and divide-and-conquer versions and 
 
 ## Workload and verification
 
-`workload.json` covers empty and singleton arrays, sorted and reversed inputs, duplicates, all-negative values, and signed 64-bit boundaries. [`verify_find_min_max.py`](../../verify_find_min_max.py) checks exhaustive short arrays, deterministic random arrays, the length limit, and every workload case in all nine languages.
+`workload.json` covers empty and singleton arrays, sorted and reversed inputs, duplicates, all-negative values, signed 64-bit boundaries, and a 512-element scan with the minimum at the end. [`verify_find_min_max.py`](../../verify_find_min_max.py) checks exhaustive short arrays, deterministic random arrays, the length limit, and every workload case in all nine languages.
 
 Build and record with the `i64_array_scalar` ABI family. Source ports are in `f/` in all nine language directories.
