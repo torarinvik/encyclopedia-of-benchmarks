@@ -19,7 +19,7 @@ validate_credit_card :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
 	first := input[1] - 48
 	second := input[2] - 48
 	if !(first == 4 || first == 5 || first == 6 ||
-		(first == 3 && (second == 4 || second == 5 || second == 7))) do return 0
+		(first == 3 && (second == 4 || second == 5 || second == 7))) { return 0 }
 	total: i64 = 0
 	for i := 0; i < int(n); i += 1 {
 		digit := input[i + 1] - 48
