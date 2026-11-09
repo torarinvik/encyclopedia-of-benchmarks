@@ -1,8 +1,8 @@
 package longest_subarray_with_sum_at_most
 import "core:c"
-INVALID_RESULT :: i64 = -1
-MAX_DOMAIN_VALUE :: i64 = 2_147_483_647
-MAX_INPUT_LENGTH :: c.size_t = 259
+INVALID_RESULT :: i64(-1)
+MAX_DOMAIN_VALUE :: i64(2_147_483_647)
+MAX_INPUT_LENGTH :: c.size_t(259)
 @(export)
 longest_subarray_with_sum_at_most :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
 	if input == nil || length < 2 || length > MAX_INPUT_LENGTH do return INVALID_RESULT
