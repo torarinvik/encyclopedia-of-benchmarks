@@ -1,6 +1,6 @@
 # Kadane-based maximum nonempty contiguous circular-subarray sum.
 def maximum_circular_subarray_impl(values: i64&, length: usize) -> i64:
-    if length == 0 or length > 64 or values.is_null():
+    if length == 0 or length > 64 or values == null:
         return -9223372036854775807 - 1
     index: mutable usize = 0
     while index < length:
