@@ -8,10 +8,10 @@ MAX_INPUT_LENGTH :: 4
 MIN_BOUND :: i64(-1)
 MAX_BOUND :: i64(1_000_000_000_000_000_000)
 
-count_up_to :: proc(bound_value: i64, target: int) -> i64 {
+count_up_to :: proc "c" (bound_value: i64, target: int) -> i64 {
 	if bound_value < 0 do return 0
 	bound := bound_value
-	var digits: [MAX_DIGITS]int
+	digits: [MAX_DIGITS]int
 	digit_count := 0
 	for {
 		digits[digit_count] = int(bound % 10)
@@ -20,14 +20,14 @@ count_up_to :: proc(bound_value: i64, target: int) -> i64 {
 		if bound == 0 do break
 	}
 
-	var loose: [MAX_DIGIT_SUM + 1]i64
-	var tight: [MAX_DIGIT_SUM + 1]i64
+	loose: [MAX_DIGIT_SUM + 1]i64
+	tight: [MAX_DIGIT_SUM + 1]i64
 	tight[0] = 1
 	for digit_count > 0 {
 		digit_count -= 1
 		limit := digits[digit_count]
-		var next_loose: [MAX_DIGIT_SUM + 1]i64
-		var next_tight: [MAX_DIGIT_SUM + 1]i64
+		next_loose: [MAX_DIGIT_SUM + 1]i64
+		next_tight: [MAX_DIGIT_SUM + 1]i64
 		for sum := 0; sum <= target; sum += 1 {
 			for digit := 0; digit <= 9 && sum + digit <= target; digit += 1 {
 				next_loose[sum + digit] += loose[sum]

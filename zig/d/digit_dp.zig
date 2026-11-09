@@ -1,3 +1,4 @@
+const std = @import("std");
 const MAX_DIGITS: usize = 19;
 const MAX_DIGIT_SUM: usize = 171;
 const MAX_INPUT_LENGTH: usize = 4;
