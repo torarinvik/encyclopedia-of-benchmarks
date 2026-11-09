@@ -1,6 +1,6 @@
 # Maximum product of a nonempty contiguous subarray.
 def maximum_product_subarray_impl(values: i64&, length: usize) -> i64:
-    if length == 0 or length > 9 or values.is_null():
+    if length == 0 or length > 9 or values == null:
         return -9223372036854775807 - 1
     index: mutable usize = 0
     while index < length:
@@ -19,13 +19,13 @@ def maximum_product_subarray_impl(values: i64&, length: usize) -> i64:
         from_max: i64 = prior_max * value
         from_min: i64 = prior_min * value
         if value > from_max:
-            current_max <- if value > from_min then value else from_min
+            current_max <- value if value > from_min else from_min
         else:
-            current_max <- if from_max > from_min then from_max else from_min
+            current_max <- from_max if from_max > from_min else from_min
         if value < from_max:
-            current_min <- if value < from_min then value else from_min
+            current_min <- value if value < from_min else from_min
         else:
-            current_min <- if from_max < from_min then from_max else from_min
+            current_min <- from_max if from_max < from_min else from_min
         if current_max > best:
             best <- current_max
         index <- index + 1
