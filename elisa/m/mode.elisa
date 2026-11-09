@@ -17,7 +17,7 @@ def mode_impl(values: i64&, length: usize) -> i64:
     mode_value: mutable i64 = -1
     maximum: mutable usize = 0
     unique: mutable bool = true
-    for value in 0..256:
+    for value in 0..<256:
         count: usize = counts[value]
         if count > maximum:
             maximum <- count
@@ -25,6 +25,6 @@ def mode_impl(values: i64&, length: usize) -> i64:
             unique <- true
         elif count != 0 and count == maximum:
             unique <- false
-    if unique: mode_value else: -1
+    return mode_value if unique else -1
 
 export fn mode(values: i64&, length: usize) -> i64 = mode_impl

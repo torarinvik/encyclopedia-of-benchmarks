@@ -24,5 +24,6 @@ mode :: proc "c" (values: [^]i64, length: c.size_t) -> i64 {
             unique = false
         }
     }
-    return if unique { result } else { -1 }
+	if unique do return result
+	return -1
 }
