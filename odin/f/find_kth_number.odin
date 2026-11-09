@@ -2,8 +2,8 @@ package find_kth_number
 
 import "core:c"
 
-INVALID_RESULT :: i64 = -9_223_372_036_854_775_808
-MAX_VALUES :: int = 1024
+INVALID_RESULT :: i64(-9_223_372_036_854_775_808)
+MAX_VALUES :: 1024
 
 @(export)
 find_kth_number :: proc "c" (values: [^]i64, length: c.size_t) -> i64 {

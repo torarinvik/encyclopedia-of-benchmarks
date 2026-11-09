@@ -7,7 +7,7 @@ export fn find_kth_number(values: [*]const i64, length: usize) i64 {
     const k = values[0];
     const count = length - 1;
     if (k < 1 or k > @as(i64, @intCast(count))) return INVALID_RESULT;
-    var heap = [_]i32{0} ** MAX_VALUES;
+    var heap: [MAX_VALUES]i32 = @splat(0);
     for (0..count) |i| {
         const input = values[i + 1];
         if (input < -2147483648 or input > 2147483647) return INVALID_RESULT;

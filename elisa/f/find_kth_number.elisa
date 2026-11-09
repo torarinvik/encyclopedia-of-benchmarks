@@ -8,40 +8,40 @@ def find_kth_number_impl(values: i64&, length: usize) -> i64:
     count: usize = length - 1
     if k < 1 or k > count.i64():
         return INVALID_RESULT
-    heap: mutable i32[1024] = [0; 1024]
+    heap_values: mutable i32[1024] = zeroed
     i: mutable usize = 0
     while i < count:
         input: i64 = values[i + 1]
         if input < -2147483648 or input > 2147483647:
             return INVALID_RESULT
         index: mutable usize = i
-        heap[index] <- input.i32()
+        heap_values[index] <- input.i32()
         while index > 0:
             parent: usize = (index - 1) / 2
-            if heap[parent] >= heap[index]:
+            if heap_values[parent] >= heap_values[index]:
                 break
-            temp: i32 = heap[parent]
-            heap[parent] <- heap[index]
-            heap[index] <- temp
+            temp: i32 = heap_values[parent]
+            heap_values[parent] <- heap_values[index]
+            heap_values[index] <- temp
             index <- parent
         i <- i + 1
     heap_size: mutable usize = count
     removed: mutable i64 = 1
     while removed < k:
         heap_size <- heap_size - 1
-        heap[0] <- heap[heap_size]
+        heap_values[0] <- heap_values[heap_size]
         index: mutable usize = 0
         while index * 2 + 1 < heap_size:
             child: mutable usize = index * 2 + 1
-            if child + 1 < heap_size and heap[child + 1] > heap[child]:
+            if child + 1 < heap_size and heap_values[child + 1] > heap_values[child]:
                 child <- child + 1
-            if heap[index] >= heap[child]:
+            if heap_values[index] >= heap_values[child]:
                 break
-            temp: i32 = heap[index]
-            heap[index] <- heap[child]
-            heap[child] <- temp
+            temp: i32 = heap_values[index]
+            heap_values[index] <- heap_values[child]
+            heap_values[child] <- temp
             index <- child
         removed <- removed + 1
-    heap[0].i64()
+    heap_values[0].i64()
 
 export fn find_kth_number(values: i64&, length: usize) -> i64 = find_kth_number_impl
