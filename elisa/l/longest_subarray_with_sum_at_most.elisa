@@ -18,14 +18,16 @@ def longest_subarray_with_sum_at_most_impl(input: i64&, length: usize) -> i64:
         if value < 0 or value > MAX_DOMAIN_VALUE:
             return INVALID_RESULT
         index <- index + 1
+    # Validated values are nonnegative, and 256 int32 values fit in u64.
+    unsigned_target: u64 = target.u64()
     left: mutable usize = 0
     best_length: mutable usize = 0
-    window_sum: mutable i64 = 0
+    window_sum: mutable u64 = 0
     right: mutable usize = 0
     while right < count:
-        window_sum <- window_sum + input[right + 2]
-        while window_sum > target and left <= right:
-            window_sum <- window_sum - input[left + 2]
+        window_sum <- window_sum + input[right + 2].u64()
+        while window_sum > unsigned_target and left <= right:
+            window_sum <- window_sum - input[left + 2].u64()
             left <- left + 1
         current_length: mutable usize = 0
         if left <= right:
