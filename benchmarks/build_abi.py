@@ -150,6 +150,21 @@ def elisa_runtime_link_objects(compiler: str, artifact: Path, c_compiler: str) -
     profiler-hook fallbacks native executables link) and cached per compiler binary hash.
     """
     compiler_path = Path(shutil.which(compiler) or compiler).resolve()
+    # Stage1's standalone runtime has a different layout and includes the host
+    # callback shims. Its builder verifies the compiler and all runtime inputs
+    # before reusing a cached object.
+    stage1_root = compiler_path.parent.parent
+    stage1_builder = stage1_root / "scripts" / "build_runtime_object.sh"
+    if compiler_path.name == "elisac-stage1" and stage1_builder.is_file():
+        cache = ROOT / "build" / "elisa-runtime" / sha256_file(compiler_path)[:16]
+        cache.mkdir(parents=True, exist_ok=True)
+        runtime_object = cache / "stage1_runtime.o"
+        env = os.environ.copy()
+        env.update(ELISA_STAGE1_BIN=str(compiler_path), ELISA_RUNTIME_OBJ=str(runtime_object),
+                   ELISA_CLANG=c_compiler)
+        subprocess.run(["bash", str(stage1_builder)], env=env, check=True,
+                       capture_output=True, text=True, timeout=600)
+        return [runtime_object] if object_symbols(artifact, undefined=True) & object_symbols(runtime_object, undefined=False) else []
     runtime_source = compiler_path.parents[1] / "runtime" / "elisacore_std" / "native_runtime_support.elisa"
     hooks_source = compiler_path.parents[1] / "runtime" / "profile_hooks.c"
     if not runtime_source.is_file() or not hooks_source.is_file():

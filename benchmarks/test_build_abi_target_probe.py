@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import platform
 import shutil
@@ -65,6 +66,22 @@ class TargetProbeTest(unittest.TestCase):
             self.assertIn("-mcpu=generic", manifest["commands"][0])
             data, count = batch(json.loads(WORKLOAD.read_text()))
             self.assertEqual(verify(directory / "build.json", data, count)["cases_checked"], count)
+
+    def test_stage1_allocating_port_links_its_runtime(self):
+        default = Path(__file__).resolve().parents[2] / "Elisa-compiler/bin/elisac-stage1"
+        compiler = Path(os.environ.get("ELISA_STAGE1_BIN", str(default)))
+        if not compiler.is_file():
+            self.skipTest("Stage1 checkout is required")
+        with tempfile.TemporaryDirectory(prefix="stage1 allocating build ") as tmp:
+            directory = Path(tmp)
+            manifest = build("breadth_first_search_zero_one_shortest_path", "elisa", directory,
+                             compiler=str(compiler), cc=self.clang, family="i64_array_scalar")
+            self.assertTrue(any("stage1_runtime.o" in flag for flag in manifest["native_link_flags"]))
+            runner = directory / "i64_array_scalar_runner"
+            # One vertex and no edges: the source is already the destination.
+            result = subprocess.run([str(runner), "4", "1", "0", "0", "0", "0", "1", "0", "1"],
+                                    capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_real_build_records_target_and_still_passes_independent_oracle(self):
         with tempfile.TemporaryDirectory(prefix="target build ") as tmp:
