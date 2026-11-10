@@ -10,7 +10,7 @@ The exported C ABI entry point is:
 int64_t hamming_weight(int64_t value);
 ```
 
-The local implementations scan all 32 bit positions. This matches the C LeetCode 191 contract and the shared unsigned 32-bit domain of the C++ and JavaScript references. Java's `CountSetBits` instead totals set bits over every integer from 1 through N, so it is a different algorithm.
+The local implementations count set bits across the full 32-bit word. Elisa and Mojo use fixed-width arithmetic and bitwise operations, and the other ports use their toolchain’s population-count operation. This matches the C LeetCode 191 contract and the shared unsigned 32-bit domain of the C++ and JavaScript references. Java's `CountSetBits` instead totals set bits over every integer from 1 through N, so it is a different algorithm.
 
 ## Workload and measurement
 
