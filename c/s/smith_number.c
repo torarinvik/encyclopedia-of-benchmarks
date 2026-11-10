@@ -24,7 +24,7 @@ static int64_t prime_factor_digit_sum(int64_t value)
 {
     int64_t sum = 0;
     int64_t remainder = value;
-    for (int64_t factor = 2; factor <= value / factor; ++factor) {
+    for (int64_t factor = 2; factor <= remainder / factor; ++factor) {
         while (remainder % factor == 0) {
             sum += digit_sum(factor);
             remainder /= factor;

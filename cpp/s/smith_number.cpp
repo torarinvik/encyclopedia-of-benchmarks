@@ -25,7 +25,7 @@ std::int64_t prime_factor_digit_sum(std::int64_t value)
 {
     std::int64_t sum = 0;
     auto remainder = value;
-    for (std::int64_t factor = 2; factor <= value / factor; ++factor) {
+    for (std::int64_t factor = 2; factor <= remainder / factor; ++factor) {
         while (remainder % factor == 0) {
             sum += digit_sum(factor);
             remainder /= factor;

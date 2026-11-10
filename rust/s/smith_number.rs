@@ -22,7 +22,7 @@ fn prime_factor_digit_sum(value: i64) -> i64 {
     let mut sum = 0;
     let mut remainder = value;
     let mut factor = 2;
-    while factor <= value / factor {
+    while factor <= remainder / factor {
         while remainder % factor == 0 {
             sum += digit_sum(factor);
             remainder /= factor;

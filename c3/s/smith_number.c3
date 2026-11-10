@@ -21,7 +21,7 @@ fn long digit_sum(long value) {
 fn long prime_factor_digit_sum(long value) {
     long sum = 0;
     long remainder = value;
-    for (long factor = 2; factor <= value / factor; factor++) {
+    for (long factor = 2; factor <= remainder / factor; factor++) {
         while (remainder % factor == 0) {
             sum += digit_sum(factor);
             remainder /= factor;

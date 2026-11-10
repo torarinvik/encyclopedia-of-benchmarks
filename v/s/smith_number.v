@@ -25,7 +25,7 @@ fn prime_factor_digit_sum(value i64) i64 {
 	mut sum := i64(0)
 	mut remainder := value
 	mut factor := i64(2)
-	for factor <= value / factor {
+	for factor <= remainder / factor {
 		for remainder % factor == 0 {
 			sum += digit_sum(factor)
 			remainder /= factor

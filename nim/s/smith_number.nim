@@ -16,7 +16,7 @@ proc digitSum(valueArg: int64): int64 =
 proc primeFactorDigitSum(value: int64): int64 =
   var remainder = value
   var factor = 2'i64
-  while factor <= value div factor:
+  while factor <= remainder div factor:
     while remainder mod factor == 0:
       result += digitSum(factor)
       remainder = remainder div factor

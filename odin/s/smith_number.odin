@@ -22,7 +22,7 @@ digit_sum :: proc "c" (value_arg: i64) -> i64 {
 prime_factor_digit_sum :: proc "c" (value: i64) -> i64 {
 	sum: i64 = 0
 	remainder := value
-	for factor := i64(2); factor <= value / factor; factor += 1 {
+	for factor := i64(2); factor <= remainder / factor; factor += 1 {
 		for remainder % factor == 0 {
 			sum += digit_sum(factor)
 			remainder /= factor

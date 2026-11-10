@@ -22,7 +22,7 @@ fn prime_factor_digit_sum(value: i64) i64 {
     var sum: i64 = 0;
     var remainder = value;
     var factor: i64 = 2;
-    while (factor <= @divTrunc(value, factor)) : (factor += 1) {
+    while (factor <= @divTrunc(remainder, factor)) : (factor += 1) {
         while (@rem(remainder, factor) == 0) {
             sum += digit_sum(factor);
             remainder = @divTrunc(remainder, factor);
