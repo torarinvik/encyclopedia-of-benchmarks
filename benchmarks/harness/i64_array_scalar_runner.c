@@ -115,7 +115,9 @@ int main(int argc, char **argv)
         free(values);
         return 2;
     }
-    if (run_algorithm(values, length) != expected) {
+    const int64_t empty = 0;
+    const int64_t *input = !null_input_mode && length == 0 ? &empty : values;
+    if (run_algorithm(input, length) != expected) {
         fprintf(stderr, "correctness mismatch for array input\n");
         free(sample_ns);
         free(values);
@@ -124,7 +126,7 @@ int main(int argc, char **argv)
     volatile uint64_t warmup_observer = 0;
     for (size_t warmup = 0; warmup < warmup_count; ++warmup) {
         uint64_t checksum = 0;
-        if (run_batch(values, length, repetitions, &checksum) != expected) {
+        if (run_batch(input, length, repetitions, &checksum) != expected) {
             fprintf(stderr, "algorithm result changed during warmup\n");
             free(sample_ns);
             free(values);
@@ -143,7 +145,7 @@ int main(int argc, char **argv)
             return 4;
         }
         uint64_t checksum = 0;
-        observed_result = run_batch(values, length, repetitions, &checksum);
+        observed_result = run_batch(input, length, repetitions, &checksum);
         const clock_t finish = clock();
         if (finish == (clock_t)-1 || finish < start || observed_result != expected) {
             fprintf(stderr, "clock() or result check failed during a sample\n");

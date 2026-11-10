@@ -59,7 +59,9 @@ int main(void)
                 return 2;
             }
         }
-        const int64_t observed = BENCHMARK_FUNCTION(null_input ? NULL : values, (size_t)length);
+        const int64_t empty = 0;
+        const int64_t *input = !null_input && length == 0 ? &empty : values;
+        const int64_t observed = BENCHMARK_FUNCTION(input, (size_t)length);
         free(values);
         if (observed != expected) {
             fprintf(stderr, "case=%" PRIu64 ": expected %" PRId64 ", observed %" PRId64 "\n",
