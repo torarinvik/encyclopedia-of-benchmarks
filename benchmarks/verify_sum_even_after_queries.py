@@ -15,7 +15,6 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
-from run_i64_array_bytes_output import expected_output
 
 ALGORITHM = "sum_even_after_queries"
 MAX_NUMBERS = 1000
@@ -103,18 +102,35 @@ def corpus(workload: dict) -> tuple[str, int]:
                      for index in range(MAX_QUERIES)]
     add(pack(large_numbers, large_queries))
 
-    lines = [f"{len(cases) + 1}\n"]
+    # Exercise both sides of the small-array cutoff and the largest signed sums.
+    for count in (16, 17):
+        add(pack([1000] * count, [(-999, count - 1), (-1000, count - 1)]))
+    for delta in (-1000, 1000):
+        add(pack([1000] * MAX_NUMBERS, [(delta, 0)] * MAX_QUERIES))
+
+    # An invalid late query must leave output untouched even with available space.
+    malformed = [
+        pack([2], [(2, 0), (delta, index)])
+        for delta, index in ((-(1 << 63), 0), ((1 << 63) - 1, 0),
+                             (0, -(1 << 63)), (0, (1 << 63) - 1))
+    ]
+
+    case_count = len(cases) + len(malformed) + 1
+    lines = [f"{case_count} bytes_with_capacity\n"]
     for values, (expected_count, output) in cases.items():
         values_text = "" if not values else " " + " ".join(map(str, values))
         encoded = output.hex() if output else "-"
-        lines.append(f"{len(values)} {expected_count} {len(output)}{values_text} {encoded}\n")
+        lines.append(f"{len(values)} {expected_count} {len(output)} {len(output)} 0 0{values_text} {encoded}\n")
 
-    # The shared checker supplies zero capacity when the expected output is empty.
-    # A valid one-query call must therefore report the ABI's insufficient-capacity result.
+    for values in malformed:
+        assert oracle(values) == (-1, b"")
+        lines.append(f"{len(values)} -1 0 8 0 0 " + " ".join(map(str, values)) + " -\n")
+
+    # The checker also verifies that the three available bytes stay untouched.
     capacity_case = [1, 1, 2, 0, 0]
-    lines.append(f"{len(capacity_case)} -2 0 "
+    lines.append(f"{len(capacity_case)} -2 0 3 0 0 "
                  + " ".join(map(str, capacity_case)) + " -\n")
-    return "".join(lines), len(cases) + 1
+    return "".join(lines), case_count
 
 
 def verify(language: str, directory: Path, elisa_compiler: str | None,
