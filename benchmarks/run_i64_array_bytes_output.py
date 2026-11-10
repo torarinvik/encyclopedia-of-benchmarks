@@ -48768,11 +48768,11 @@ def main() -> int:
         validate_skyline_algorithm_workload(workload)
     elif algorithm == "benchmarkgame_nbody":
         validate_benchmarkgame_nbody_workload(workload)
-    comparison_model = workload.get("measurement", {}).get("comparison_model")
-    if algorithm == "domination_local_reduction":
-        comparison_model = workload.get("comparison_model")
+    top_level_model = workload.get("comparison_model")
+    comparison_model = workload.get("measurement", {}).get("comparison_model", top_level_model)
     if (workload.get("algorithm") != algorithm
-            or comparison_model != "i64_array_bytes_output_call"):
+            or comparison_model != "i64_array_bytes_output_call"
+            or top_level_model is not None and top_level_model != comparison_model):
         parser.error("workload does not match the built byte-output algorithm")
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]

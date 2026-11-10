@@ -62,7 +62,7 @@
     },
     {
       "id": "banana-query-before-stride-three-sample",
-      "input_values": [7, 5, 3, 4, 0, 5, 6, 3, 1, 2, 0, 7, 0, 4, 0, 1, 0],
+      "input_values": [7, 3, 3, 4, 0, 5, 6, 3, 1, 2, 0, 0, 7, 0, 4, 1, 0],
       "input_length": 17,
       "output_capacity": 16,
       "expected_result": 16,
