@@ -1,74 +1,63 @@
-# Return the three-value sum nearest to the target, choosing the lower sum on a tie.
+# Return the nearest three-value sum, choosing the lower sum on a tie.
 const INVALID_RESULT: i64 = -9000000000000000000
 
-def abs_difference(left: i64, right: i64) -> i64:
-    difference: i64 = left - right
-    if difference < 0:
-        -difference
-    else:
-        difference
+def fits_i32(value: i64) -> bool:
+    value >= -2147483648 and value <= 2147483647
 
-def three_sum_closest_impl(input: i64&, length: usize) -> i64:
-    if length < 2 or length > 514:
-        return INVALID_RESULT
-    target: i64 = input[0]
-    count_value: i64 = input[1]
-    if target < -2147483648 or target > 2147483647 or count_value < 3 or count_value > 512:
-        return INVALID_RESULT
-    count: usize = count_value.usize()
-    if length != count + 2:
-        return INVALID_RESULT
-    values: mutable i64[512] = zeroed
-    index: mutable usize = 0
-    while index < count:
-        value: i64 = input[index + 2]
-        if value < -2147483648 or value > 2147483647:
-            return INVALID_RESULT
-        values[index] <- value
-        index <- index + 1
-    start: mutable usize = count / 2
-    while start > 0:
-        start <- start - 1
-        root: mutable usize = start
-        while root < count / 2:
-            child: mutable usize = root * 2 + 1
-            if child + 1 < count and values[child] < values[child + 1]:
-                child <- child + 1
-            if values[root] >= values[child]:
-                break
-            temporary: i64 = values[root]
-            values[root] <- values[child]
-            values[child] <- temporary
-            root <- child
-    ending: mutable usize = count
-    while ending > 1:
-        ending <- ending - 1
-        temporary: i64 = values[0]
-        values[0] <- values[ending]
-        values[ending] <- temporary
-        root: mutable usize = 0
-        while root < ending / 2:
-            child: mutable usize = root * 2 + 1
-            if child + 1 < ending and values[child] < values[child + 1]:
-                child <- child + 1
-            if values[root] >= values[child]:
-                break
-            inner_temporary: i64 = values[root]
-            values[root] <- values[child]
-            values[child] <- inner_temporary
-            root <- child
-    best: mutable i64 = values[0] + values[1] + values[2]
-    best_difference: mutable i64 = abs_difference(target, best)
+def sum_rank(sum: i64, target: i64) -> i64:
+    # Equal distances rank the lower sum first. The signed 32-bit input
+    # bounds leave ample headroom to double the largest possible distance.
+    delta: i64 = sum - target
+    -2 * delta if delta < 0 else 2 * delta + 1
+
+def ranked_sum(rank: i64, target: i64) -> i64:
+    target + rank / 2 if (rank & 1) != 0 else target - rank / 2
+
+def sift_down(values: mutable i32&, start: usize, count: usize) -> void:
+    root: mutable usize = start
+    value: i32 = values[start]
+    while root < count / 2:
+        child: mutable usize = root * 2 + 1
+        if child + 1 < count and values[child] < values[child + 1]:
+            child <- child + 1
+        if value >= values[child]:
+            break
+        values[root] <- values[child]
+        root <- child
+    values[root] <- value
+
+def closest_sorted(values: i32&, count: usize, target: i64) -> i64:
+    smallest: i64 = values[0].i64() + values[1].i64() + values[2].i64()
+    return smallest if target <= smallest
+    last_pair: i64 = values[count - 1].i64() + values[count - 2].i64()
+    largest: i64 = last_pair + values[count - 3].i64()
+    return largest if target >= largest
+    best_rank: mutable i64 = sum_rank(smallest, target)
     first: mutable usize = 0
     while first + 2 < count:
+        fixed: i64 = values[first].i64()
+        if first > 0 and fixed == values[first - 1].i64():
+            first <- first + 1
+            continue
+
+        # The smallest and largest pairs bound every sum for this first value.
+        minimum: i64 = fixed + values[first + 1].i64() + values[first + 2].i64()
+        if minimum >= target:
+            return minimum if sum_rank(minimum, target) < best_rank
+            return ranked_sum(best_rank, target)
+        maximum: i64 = fixed + last_pair
+        if maximum <= target:
+            rank: i64 = sum_rank(maximum, target)
+            best_rank <- rank if rank < best_rank else best_rank
+            first <- first + 1
+            continue
+
         left: mutable usize = first + 1
         right: mutable usize = count - 1
         while left < right:
-            sum: i64 = values[first] + values[left] + values[right]
-            difference: i64 = abs_difference(target, sum)
-            if difference < best_difference or (difference == best_difference and sum < best):
-                best <- sum
-                best_difference <- difference
+            sum: i64 = fixed + values[left].i64() + values[right].i64()
+            rank: i64 = sum_rank(sum, target)
+            best_rank <- rank if rank < best_rank else best_rank
             if sum < target:
                 left <- left + 1
             elif sum > target:
@@ -76,6 +65,51 @@ def three_sum_closest_impl(input: i64&, length: usize) -> i64:
             else:
                 return sum
         first <- first + 1
-    best
+    ranked_sum(best_rank, target)
+
+def sort_and_find(input: i64&, count: usize, target: i64, values: mutable i32&) -> i64:
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 2]
+        if not fits_i32(value):
+            return INVALID_RESULT
+        values[index] <- value.i32()
+        index <- index + 1
+    start: mutable usize = count / 2
+    while start > 0:
+        start <- start - 1
+        sift_down(values, start, count)
+    ending: mutable usize = count
+    while ending > 1:
+        ending <- ending - 1
+        temporary: i32 = values[0]
+        values[0] <- values[ending]
+        values[ending] <- temporary
+        sift_down(values, 0, ending)
+    closest_sorted(values, count, target)
+
+def three_sum_closest_impl(input: i64&, length: usize) -> i64:
+    if length < 5 or length > 514:
+        return INVALID_RESULT
+    target: i64 = input[0]
+    count_value: i64 = input[1]
+    if not fits_i32(target) or count_value < 3 or count_value > 512:
+        return INVALID_RESULT
+    count: usize = count_value.usize()
+    if length != count + 2:
+        return INVALID_RESULT
+
+    if count == 3:
+        first: i64 = input[2]
+        second: i64 = input[3]
+        third: i64 = input[4]
+        return INVALID_RESULT if not fits_i32(first) or not fits_i32(second) or not fits_i32(third)
+        return first + second + third
+    if count <= 16:
+        small: mutable i32[16] = zeroed
+        return sort_and_find(input, count, target, &small[0])
+    values: mutable i32[512] = zeroed
+    sort_and_find(input, count, target, &values[0])
+
 
 export fn three_sum_closest(input: i64&, length: usize) -> i64 = three_sum_closest_impl

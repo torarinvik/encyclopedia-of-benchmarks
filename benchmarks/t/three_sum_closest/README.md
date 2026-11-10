@@ -1,6 +1,6 @@
 # Three Sum Closest
 
-This benchmark returns the sum of three distinct array positions whose sum is closest to a target, following [TheAlgorithms/C LeetCode 16](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/16.c). The upstream implementation sorts the input in place and uses a two-pointer scan. These ports sort a private copy with portable heapsort so the ABI input remains unchanged.
+This benchmark returns the sum of three distinct array positions whose sum is closest to a target, following [TheAlgorithms/C LeetCode 16](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/16.c). The upstream implementation sorts the input in place and uses a two-pointer scan. These ports sort a private copy with portable heapsort so the ABI input remains unchanged. The Elisa, C, C++, and C3 ports use signed 32-bit storage and 64-bit sums. They skip duplicate first values and use the smallest and largest remaining pairs to prune the search.
 
 ## Contract
 

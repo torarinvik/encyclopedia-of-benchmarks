@@ -81,6 +81,10 @@ def corpus(workload: dict) -> tuple[str, int]:
     data = pack(0, maximum)
     cases[tuple(data)] = oracle(data)
     for data in (
+        pack(-2_000_000_000, maximum),
+        pack(2_000_000_000, maximum),
+        pack(35, [-200, -10, 0, 10, 20] * 100),
+        pack(3, [-5, 0, 0, 7, 7, 8, 9]),
         [], [0], [0, 3, 1, 2], [I32_MIN - 1, 3, 1, 2, 3],
         [0, 3, 1, 2, I32_MAX + 1], [0, MAX_ITEMS + 1, *([0] * (MAX_ITEMS + 1))],
         [0, 3, 1, 2, 3, 4], [0, 3, 1, 2, 3] + [0] * (MAX_ITEMS + 1),
