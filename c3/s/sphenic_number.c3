@@ -10,15 +10,17 @@ fn bool source_sieve_flag(long value) {
 
 fn long sphenic_number(long value) @export("sphenic_number") {
     if (value < 0 || value > 1000) return -1;
+    if (value < 2) return 0;
     long[3] first;
     long count = 0;
-    for (long divisor = 1; divisor <= value; divisor++) {
-        if (value % divisor == 0 && count < 9) {
+    for (long divisor = 1; divisor <= value / 2; divisor++) {
+        if (value % divisor == 0) {
+            if (count == 7) return 0;
             if (count < 3) first[(usz)count] = divisor;
             count++;
         }
     }
-    if (count == 8 && source_sieve_flag(first[0])
+    if (count == 7 && source_sieve_flag(first[0])
         && source_sieve_flag(first[1]) && source_sieve_flag(first[2])) return 1;
     return 0;
 }

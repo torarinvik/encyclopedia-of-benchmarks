@@ -18,7 +18,7 @@ def sphenic_number_impl(value: i64) -> i64:
     divisor: mutable i64 = 1
     while divisor <= value / 2:
         if value % divisor == 0:
-            if count == 8:
+            if count == 7:
                 return 0
             if count < 3:
                 first[count.usize()] <- divisor
