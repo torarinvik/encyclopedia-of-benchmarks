@@ -1,11 +1,6 @@
-/// Count low-order zero bits by shifting away factors of two.
+/// Count low-order zero bits.
 #[no_mangle]
-pub extern "C" fn binary_count_trailing_zeros(mut n: i64) -> i64 {
-    if n < 0 { return -1; }
-    let mut count = 0;
-    while n > 0 && (n & 1) == 0 {
-        n >>= 1;
-        count += 1;
-    }
-    count
+pub extern "C" fn binary_count_trailing_zeros(n: i64) -> i64 {
+    if n <= 0 { return if n < 0 { -1 } else { 0 }; }
+    i64::from(n.trailing_zeros())
 }
