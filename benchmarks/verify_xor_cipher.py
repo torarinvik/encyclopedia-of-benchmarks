@@ -74,7 +74,7 @@ def corpus(workload: dict) -> tuple[str, int]:
     for (values, _capacity), (result, output) in sorted(cases.items()):
         encoded = output.hex() if output else "-"
         values_text = "" if not values else " " + " ".join(map(str, values))
-        lines.append(f"{len(values)} {result} {len(output)}{values_text} {encoded}\n")
+        lines.append(f"{len(values)} {result} {len(output)} 0 0{values_text} {encoded}\n")
     return "".join(lines), len(cases)
 
 
