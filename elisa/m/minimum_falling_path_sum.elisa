@@ -13,24 +13,28 @@ def minimum_falling_path_sum_impl(input: i64&, length: usize) -> i64:
         if input[1 + index] < -100 or input[1 + index] > 100:
             return INVALID_RESULT
 
-    costs: mutable i64[100] = zeroed
-    next_costs: mutable i64[100] = zeroed
+    # Bias each cell by 100, so valid path costs stay in 0..20000.
+    # Padded ends exclude out-of-grid neighbors without branching per column.
+    costs: mutable u16[102] = zeroed
+    next_costs: mutable u16[100] = zeroed
+    costs[0] <- 32768
+    costs[n + 1] <- 32768
     for column in 0..<n |costs, input|:
-        costs[column] <- input[1 + column]
+        costs[column + 1] <- input[1 + column].u16() + 100
     for row in 1..<n |costs, next_costs, input|:
         for column in 0..<n |costs, next_costs, input|:
-            best: mutable i64 = costs[column]
-            if column > 0 and costs[column - 1] < best:
-                best <- costs[column - 1]
-            if column + 1 < n and costs[column + 1] < best:
-                best <- costs[column + 1]
-            next_costs[column] <- best + input[1 + row * n + column]
+            left: u16 = costs[column]
+            center: u16 = costs[column + 1]
+            right: u16 = costs[column + 2]
+            left_or_center: u16 = left if left < center else center
+            best: u16 = right if right < left_or_center else left_or_center
+            next_costs[column] <- best + (input[1 + row * n + column].u16() + 100)
         for column in 0..<n |costs, next_costs|:
-            costs[column] <- next_costs[column]
-    minimum: mutable i64 = costs[0]
+            costs[column + 1] <- next_costs[column]
+    minimum: mutable u16 = costs[1]
     for column in 1..<n |costs, minimum|:
-        if costs[column] < minimum:
-            minimum <- costs[column]
-    minimum
+        candidate: u16 = costs[column + 1]
+        minimum <- candidate if candidate < minimum else minimum
+    minimum.i64() - 100 * n.i64()
 
 export fn minimum_falling_path_sum(input: i64&, length: usize) -> i64 = minimum_falling_path_sum_impl

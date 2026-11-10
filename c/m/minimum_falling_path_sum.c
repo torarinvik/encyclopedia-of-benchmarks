@@ -12,20 +12,26 @@ int64_t minimum_falling_path_sum(const int64_t *input, size_t length)
     for (size_t index = 0; index < n * n; ++index)
         if (input[1 + index] < -100 || input[1 + index] > 100) return INVALID_RESULT;
 
-    int64_t costs[MAX_N];
-    int64_t next_costs[MAX_N];
-    for (size_t column = 0; column < n; ++column) costs[column] = input[1 + column];
+    uint16_t costs[MAX_N + 2];
+    uint16_t next_costs[MAX_N];
+    costs[0] = 32768;
+    costs[n + 1] = 32768;
+    for (size_t column = 0; column < n; ++column)
+        costs[column + 1] = (uint16_t)(input[1 + column] + 100);
     for (size_t row = 1; row < n; ++row) {
         for (size_t column = 0; column < n; ++column) {
-            int64_t best = costs[column];
-            if (column > 0 && costs[column - 1] < best) best = costs[column - 1];
-            if (column + 1 < n && costs[column + 1] < best) best = costs[column + 1];
-            next_costs[column] = best + input[1 + row * n + column];
+            const uint16_t left = costs[column];
+            const uint16_t center = costs[column + 1];
+            const uint16_t right = costs[column + 2];
+            const uint16_t left_or_center = left < center ? left : center;
+            const uint16_t best = right < left_or_center ? right : left_or_center;
+            next_costs[column] = best + (uint16_t)(input[1 + row * n + column] + 100);
         }
-        for (size_t column = 0; column < n; ++column) costs[column] = next_costs[column];
+        for (size_t column = 0; column < n; ++column)
+            costs[column + 1] = next_costs[column];
     }
-    int64_t minimum = costs[0];
+    uint16_t minimum = costs[1];
     for (size_t column = 1; column < n; ++column)
-        if (costs[column] < minimum) minimum = costs[column];
-    return minimum;
+        if (costs[column + 1] < minimum) minimum = costs[column + 1];
+    return (int64_t)(minimum) - 100 * (int64_t)(n);
 }

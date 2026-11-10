@@ -13,21 +13,23 @@ pub unsafe extern "C" fn minimum_falling_path_sum(input: *const i64, length: usi
         if !(-100..=100).contains(&value) { return INVALID_RESULT; }
     }
 
-    let mut costs = [0i64; MAX_N];
-    let mut next_costs = [0i64; MAX_N];
-    for column in 0..n { costs[column] = *input.add(1 + column); }
+    let mut costs = [0u16; MAX_N + 2];
+    let mut next_costs = [0u16; MAX_N];
+    costs[0] = 32768;
+    costs[n + 1] = 32768;
+    for column in 0..n {
+        costs[column + 1] = (*input.add(1 + column) + 100) as u16;
+    }
     for row in 1..n {
         for column in 0..n {
-            let mut best = costs[column];
-            if column > 0 && costs[column - 1] < best { best = costs[column - 1]; }
-            if column + 1 < n && costs[column + 1] < best { best = costs[column + 1]; }
-            next_costs[column] = best + *input.add(1 + row * n + column);
+            let best = costs[column].min(costs[column + 1]).min(costs[column + 2]);
+            next_costs[column] = best + (*input.add(1 + row * n + column) + 100) as u16;
         }
-        for column in 0..n { costs[column] = next_costs[column]; }
+        costs[1..n + 1].copy_from_slice(&next_costs[..n]);
     }
-    let mut minimum = costs[0];
+    let mut minimum = costs[1];
     for column in 1..n {
-        if costs[column] < minimum { minimum = costs[column]; }
+        minimum = minimum.min(costs[column + 1]);
     }
-    minimum
+    i64::from(minimum) - 100 * n as i64
 }

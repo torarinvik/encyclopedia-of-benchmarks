@@ -11,21 +11,25 @@ minimum_falling_path_sum :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
         if input[1 + index] < -100 || input[1 + index] > 100 do return -10001
     }
 
-    costs: [100]i64 = {}
-    next_costs: [100]i64 = {}
-    for column := 0; column < n; column += 1 do costs[column] = input[1 + column]
+    costs: [102]u16 = {}
+    next_costs: [100]u16 = {}
+    costs[0] = 32768
+    costs[n + 1] = 32768
+    for column := 0; column < n; column += 1 {
+        costs[column + 1] = u16(input[1 + column] + 100)
+    }
     for row := 1; row < n; row += 1 {
         for column := 0; column < n; column += 1 {
-            best := costs[column]
-            if column > 0 && costs[column - 1] < best do best = costs[column - 1]
-            if column + 1 < n && costs[column + 1] < best do best = costs[column + 1]
-            next_costs[column] = best + input[1 + row * n + column]
+            best := min(costs[column], costs[column + 1], costs[column + 2])
+            next_costs[column] = best + u16(input[1 + row * n + column] + 100)
         }
-        for column := 0; column < n; column += 1 do costs[column] = next_costs[column]
+        for column := 0; column < n; column += 1 {
+            costs[column + 1] = next_costs[column]
+        }
     }
-    minimum := costs[0]
+    minimum := costs[1]
     for column := 1; column < n; column += 1 {
-        if costs[column] < minimum do minimum = costs[column]
+        minimum = min(minimum, costs[column + 1])
     }
-    return minimum
+    return i64(minimum) - 100 * i64(n)
 }

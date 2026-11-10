@@ -7,11 +7,11 @@ Return the minimum sum of a falling path from the first row through the last row
 - The benchmark packs input as `[n, n*n row-major matrix values]`.
 - `n` is in `1..100`; each matrix value is in `-100..100`, matching the source problem constraints.
 - Invalid packed inputs return `-10001`, outside the valid result range `-10000..10000`. Input is read only.
-- Implementations keep one dynamic-programming row plus a next-row buffer. Time is O(n²); auxiliary space is O(n).
+- Implementations keep one dynamic-programming row plus a next-row buffer. Each cell contributes its value plus 100, so the biased path sum fits in 16 bits. Sentinel costs at both ends of the current row exclude out-of-grid neighbors. The result subtracts 100 per row. Time is O(n²) and auxiliary space is O(n).
 
 ## Workload
 
-[`workload.json`](workload.json) covers a single negative cell, both published examples, edge-column transitions, tied paths, and a 100×100 boundary matrix. All nine ports pass 20,812 oracle matrices and all six workload cases with [`verify_minimum_falling_path_sum.py`](../../verify_minimum_falling_path_sum.py).
+[`workload.json`](workload.json) covers a single negative cell, both published examples, edge-column transitions, tied paths, and a 100×100 boundary matrix. All ten ports pass 20,812 oracle matrices and all six workload cases with [`verify_minimum_falling_path_sum.py`](../../verify_minimum_falling_path_sum.py).
 
 ## Upstream source
 

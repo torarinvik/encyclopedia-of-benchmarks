@@ -1,19 +1,49 @@
 from std.ffi import c_size_t
-from std.memory import ImmutAnyOrigin, UnsafePointer
+from std.memory import Pointer
+from std.origin import ImmUntrackedOrigin
+
+
 @export("minimum_falling_path_sum")
-fn minimum_falling_path_sum(v:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->Int64:
-    if v==UnsafePointer[Int64,ImmutAnyOrigin]() or n<2 or v[0]<1 or v[0]>100 or Int(n)!=1+Int(v[0]*v[0]):return -10001
-    let dim=Int(v[0]);var cur=InlineArray[Int64,100](fill=0);var nxt=InlineArray[Int64,100](fill=0)
-    for c in range(dim):if v[c+1] < -100 or v[c+1]>100:return -10001;cur[c]=v[c+1]
-    for r in range(1,dim):
-        for c in range(dim):
-            let idx=1+r*dim+c;let x=v[idx]
-            if x < -100 or x>100:return -10001
-            var best=cur[c]
-            if c>0 and cur[c-1]<best:best=cur[c-1]
-            if c+1<dim and cur[c+1]<best:best=cur[c+1]
-            nxt[c]=best+x
-        for c in range(dim):cur[c]=nxt[c]
-    var best=cur[0]
-    for c in range(1,dim):if cur[c]<best:best=cur[c]
-    return best
+def minimum_falling_path_sum(
+    input: Optional[Pointer[Int64, ImmUntrackedOrigin]], length: c_size_t
+) abi("C") -> Int64:
+    if input == None or length < 1:
+        return -10001
+    var values = input.value()
+    var dimension = values[unsafe_offset=0]
+    if dimension < 1 or dimension > 100:
+        return -10001
+    var n = Int(dimension)
+    if Int(length) != 1 + n * n:
+        return -10001
+    for index in range(n * n):
+        var value = values[unsafe_offset=1 + index]
+        if value < -100 or value > 100:
+            return -10001
+
+    var costs = Array[UInt16, 102](fill=0)
+    var next_costs = Array[UInt16, 100](fill=0)
+    # Both buffers stay in place. Validation bounds every offset below.
+    var current = costs.unsafe_ptr()
+    var next_row = next_costs.unsafe_ptr()
+    current[unsafe_offset=0] = 32768
+    current[unsafe_offset=n + 1] = 32768
+    for column in range(n):
+        current[unsafe_offset=column + 1] = UInt16(values[unsafe_offset=1 + column] + 100)
+    for row in range(1, n):
+        for column in range(n):
+            var left = current[unsafe_offset=column]
+            var center = current[unsafe_offset=column + 1]
+            var right = current[unsafe_offset=column + 2]
+            var left_or_center = left if left < center else center
+            var best = right if right < left_or_center else left_or_center
+            var value = values[unsafe_offset=1 + row * n + column]
+            next_row[unsafe_offset=column] = best + UInt16(value + 100)
+        for column in range(n):
+            current[unsafe_offset=column + 1] = next_row[unsafe_offset=column]
+    var minimum = current[unsafe_offset=1]
+    for column in range(1, n):
+        var candidate = current[unsafe_offset=column + 1]
+        if candidate < minimum:
+            minimum = candidate
+    return Int64(minimum) - 100 * dimension

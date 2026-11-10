@@ -10,17 +10,19 @@ proc minimum_falling_path_sum*(input: ptr UncheckedArray[int64], length: csize_t
   for index in 0 ..< n * n:
     if input[1 + index] < -100 or input[1 + index] > 100: return InvalidResult
 
-  var costs: array[MaxN, int64]
-  var nextCosts: array[MaxN, int64]
-  for column in 0 ..< n: costs[column] = input[1 + column]
+  var costs: array[MaxN + 2, uint16]
+  var nextCosts: array[MaxN, uint16]
+  costs[0] = 32768
+  costs[n + 1] = 32768
+  for column in 0 ..< n:
+    costs[column + 1] = uint16(input[1 + column] + 100)
   for row in 1 ..< n:
     for column in 0 ..< n:
-      var best = costs[column]
-      if column > 0 and costs[column - 1] < best: best = costs[column - 1]
-      if column + 1 < n and costs[column + 1] < best: best = costs[column + 1]
-      nextCosts[column] = best + input[1 + row * n + column]
-    for column in 0 ..< n: costs[column] = nextCosts[column]
-  var minimum = costs[0]
+      let best = min(costs[column], min(costs[column + 1], costs[column + 2]))
+      nextCosts[column] = best + uint16(input[1 + row * n + column] + 100)
+    for column in 0 ..< n:
+      costs[column + 1] = nextCosts[column]
+  var minimum = costs[1]
   for column in 1 ..< n:
-    if costs[column] < minimum: minimum = costs[column]
-  minimum
+    minimum = min(minimum, costs[column + 1])
+  int64(minimum) - 100 * int64(n)
