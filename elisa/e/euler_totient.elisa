@@ -2,9 +2,10 @@
 def euler_totient_impl(n: i64) -> i64:
     if n < 1 or n > 1000000:
         return -1
-    result: mutable i64 = n
-    remaining: mutable i64 = n
-    factor: mutable i64 = 2
+    # Validated positive input keeps the factorization and result nonnegative.
+    result: mutable u64 = n.u64()
+    remaining: mutable u64 = n.u64()
+    factor: mutable u64 = 2
     while factor <= remaining / factor:
         if remaining % factor == 0:
             while remaining % factor == 0:
@@ -13,6 +14,6 @@ def euler_totient_impl(n: i64) -> i64:
         factor <- factor + 1
     if remaining > 1:
         result <- result - result / remaining
-    result
+    result.i64()
 
 export fn euler_totient(n: i64) -> i64 = euler_totient_impl
