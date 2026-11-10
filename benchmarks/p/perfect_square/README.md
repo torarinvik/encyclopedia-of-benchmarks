@@ -1,6 +1,6 @@
 # Perfect square
 
-This benchmark returns whether an integer is a perfect square. The reviewed sources include floating-point square-root checks, integer-square-root functions, and integer binary search. The shared contract uses an exact binary search over the full signed 64-bit input range. It compares `middle` with `number / middle`, then checks the remainder when the quotient equals `middle`, so neither floating-point rounding nor a potentially overflowing `middle * middle` determines the answer.
+This benchmark returns whether an integer is a perfect square. The reviewed sources include floating-point square-root checks, integer-square-root functions, and integer binary search. The ports reject impossible square residues modulo 16, then use an exact integer binary search. The upper bound is at most 3,037,000,499, the largest possible root of a signed 64-bit square, at most 65,535 for unsigned 32-bit inputs, and at most half the input after handling zero and one. Every candidate square fits in the input type, so the loop can compare it directly without dividing.
 
 ## Contract
 

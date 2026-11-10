@@ -36,13 +36,17 @@ def corpus() -> tuple[str, dict]:
         inputs.update(value for value in (square - 1, square, square + 1)
                       if 0 <= value <= I64_MAX)
     largest_root = math.isqrt(I64_MAX)
-    for root in (largest_root - 1, largest_root, largest_root + 1):
+    for root in (65535, 65536, largest_root - 1, largest_root, largest_root + 1):
         square = root * root
         inputs.update(value for value in (square - 1, square, square + 1)
                       if 0 <= value <= I64_MAX)
-    inputs.update([I64_MIN, I64_MIN + 1, -2, -1, 0, 1, 2, I64_MAX - 1, I64_MAX])
+    inputs.update([I64_MIN, I64_MIN + 1, -2, -1, 0, 1, 2, 2**32 - 1, I64_MAX - 1, I64_MAX])
     rng = random.Random(20261014)
     inputs.update(rng.getrandbits(64) - (1 << 63) for _ in range(1024))
+    for _ in range(1024):
+        root = rng.randrange(1, largest_root)
+        square = root * root
+        inputs.update((square - 1, square, square + 1))
     for case in workload["cases"]:
         if case["expected_result"] != oracle(case["input_value"]):
             raise ValueError(f"published workload disagrees with math.isqrt: {case['id']}")
