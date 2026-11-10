@@ -12,17 +12,17 @@ keith_number :: proc "c" (number: i64) -> i64 {
 		digit_count += 1
 		value /= 10
 	}
+	total := i64(0)
 	for i := i64(0); i < digit_count; i += 1 {
 		digits[i] = reversed[digit_count - 1 - i]
+		total += digits[i]
 	}
 
 	oldest := i64(0)
 	for {
-		next := i64(0)
-		for i := i64(0); i < digit_count; i += 1 {
-			next += digits[(oldest + i) % digit_count]
-		}
+		next := total
 		if next >= number do return i64(next == number)
+		total = total - digits[oldest] + next
 		digits[oldest] = next
 		oldest = (oldest + 1) % digit_count
 	}

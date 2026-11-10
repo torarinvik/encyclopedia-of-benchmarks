@@ -13,17 +13,17 @@ fn long keith_number(long number) @export("keith_number")
         digit_count += 1;
         value /= 10;
     }
+    long total = 0;
     for (long i = 0; i < digit_count; i += 1) {
         digits[i] = reversed[digit_count - 1 - i];
+        total += digits[i];
     }
 
     long oldest = 0;
     while (true) {
-        long next = 0;
-        for (long i = 0; i < digit_count; i += 1) {
-            next += digits[(oldest + i) % digit_count];
-        }
+        long next = total;
         if (next >= number) return next == number ? 1 : 0;
+        total = total - digits[oldest] + next;
         digits[oldest] = next;
         oldest = (oldest + 1) % digit_count;
     }

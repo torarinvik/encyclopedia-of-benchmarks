@@ -12,17 +12,17 @@ pub fn keith_number(number i64) i64 {
 		digit_count++
 		value /= 10
 	}
+	mut total := i64(0)
 	for i := i64(0); i < digit_count; i++ {
 		digits[i] = reversed[digit_count - 1 - i]
+		total += digits[i]
 	}
 
 	mut oldest := i64(0)
 	for {
-		mut next := i64(0)
-		for i := i64(0); i < digit_count; i++ {
-			next += digits[(oldest + i) % digit_count]
-		}
+		next := total
 		if next >= number { return if next == number { 1 } else { 0 } }
+		total = total - digits[oldest] + next
 		digits[oldest] = next
 		oldest = (oldest + 1) % digit_count
 	}

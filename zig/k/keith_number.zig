@@ -10,17 +10,17 @@ export fn keith_number(number: i64) i64 {
         digit_count += 1;
         value = @divTrunc(value, 10);
     }
+    var total: i64 = 0;
     for (0..digit_count) |i| {
         digits[i] = reversed[digit_count - 1 - i];
+        total += digits[i];
     }
 
     var oldest: usize = 0;
     while (true) {
-        var next: i64 = 0;
-        for (0..digit_count) |i| {
-            next += digits[(oldest + i) % digit_count];
-        }
+        const next = total;
         if (next >= number) return if (next == number) 1 else 0;
+        total = total - digits[oldest] + next;
         digits[oldest] = next;
         oldest = (oldest + 1) % digit_count;
     }

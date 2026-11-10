@@ -13,19 +13,19 @@ pub extern "C" fn keith_number(number: i64) -> i64 {
         digit_count += 1;
         value /= 10;
     }
+    let mut total = 0_i64;
     for i in 0..digit_count {
         digits[i] = reversed[digit_count - 1 - i];
+        total += digits[i];
     }
 
     let mut oldest = 0usize;
     loop {
-        let mut next = 0i64;
-        for i in 0..digit_count {
-            next += digits[(oldest + i) % digit_count];
-        }
+        let next = total;
         if next >= number {
             return if next == number { 1 } else { 0 };
         }
+        total = total - digits[oldest] + next;
         digits[oldest] = next;
         oldest = (oldest + 1) % digit_count;
     }
