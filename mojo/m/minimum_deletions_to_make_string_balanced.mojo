@@ -1,11 +1,25 @@
 from std.ffi import c_size_t
-from std.memory import ImmutAnyOrigin, UnsafePointer
+from std.memory import Pointer
+from std.origin import ImmUntrackedOrigin
+
+
 @export("minimum_deletions_to_make_string_balanced")
-fn minimum_deletions_to_make_string_balanced(v:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->Int64:
-    if n>256 or (n!=0 and v==UnsafePointer[Int64,ImmutAnyOrigin]()):return -1
-    var a:Int64=0;var b:Int64=0
-    for i in range(Int(n)):
-        let x=v[i]
-        if x<0 or x>1:return -1
-        let na=a+(1 if x==1 else 0);let with_a=b+(1 if x==0 else 0);b=if a<with_a:a else:with_a;a=na
-    return if a<b:a else:b
+def minimum_deletions_to_make_string_balanced(
+    values: Optional[Pointer[Int64, ImmUntrackedOrigin]], length: c_size_t
+) abi("C") -> Int64:
+    if length > 256 or (length != 0 and values == None):
+        return -1
+
+    if length == 0:
+        return 0
+    var data = values.value()
+    var a_state = Int64(0)
+    var b_state = Int64(0)
+    for index in range(Int(length)):
+        var value = data[unsafe_offset=index]
+        if value < 0 or value > 1:
+            return -1
+        if value == 0 and b_state < a_state:
+            b_state += 1
+        a_state += value
+    return b_state

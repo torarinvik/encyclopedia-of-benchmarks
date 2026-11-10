@@ -11,13 +11,9 @@ pub fn minimum_deletions_to_make_string_balanced(values &i64, length usize) i64 
         for index in 0 .. length {
             value := values[index]
             if value < 0 || value > 1 { return -1 }
-            next_a := a_state + (if value == 1 { i64(1) } else { i64(0) })
-            b_with_a := b_state + (if value == 0 { i64(1) } else { i64(0) })
-            mut next_b := a_state
-            if b_with_a < next_b { next_b = b_with_a }
-            a_state = next_a
-            b_state = next_b
+            if value == 0 && b_state < a_state { b_state++ }
+            a_state += value
         }
-        return if a_state < b_state { a_state } else { b_state }
+        return b_state
     }
 }

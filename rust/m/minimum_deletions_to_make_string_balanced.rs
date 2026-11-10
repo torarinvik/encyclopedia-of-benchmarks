@@ -14,11 +14,8 @@ pub extern "C" fn minimum_deletions_to_make_string_balanced(values: *const i64, 
         if !(0..=1).contains(&value) {
             return -1;
         }
-        let next_a = a_state + if value == 1 { 1 } else { 0 };
-        let b_with_a = b_state + if value == 0 { 1 } else { 0 };
-        let next_b = a_state.min(b_with_a);
-        a_state = next_a;
-        b_state = next_b;
+        b_state += i64::from(value == 0 && b_state < a_state);
+        a_state += value;
     }
-    a_state.min(b_state)
+    b_state
 }
