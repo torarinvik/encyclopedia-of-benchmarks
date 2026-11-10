@@ -1,13 +1,32 @@
 from std.ffi import c_size_t
-from std.memory import ImmutAnyOrigin, UnsafePointer
+from std.memory import Pointer
+from std.origin import ImmUntrackedOrigin
+
+
 @export("number_of_ways_to_select_buildings")
-fn number_of_ways_to_select_buildings(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->Int64:
-    if n>4096:return -1
-    var left0:Int64=0;var left1:Int64=0;var pairs01:Int64=0;var pairs10:Int64=0;var total:Int64=0
-    for i in range(Int(n)):
-        if a==UnsafePointer[Int64,ImmutAnyOrigin]():return -1
-        let x=a[i]
-        if x==48:total+=pairs10;pairs10+=left1;left0+=1
-        elif x==49:total+=pairs01;pairs01+=left0;left1+=1
-        else:return -1
-    return total
+def number_of_ways_to_select_buildings(
+    input: Optional[Pointer[Int64, ImmUntrackedOrigin]], length: c_size_t
+) abi("C") -> Int64:
+    if length == 0:
+        return 0
+    if input == None or length > 4096:
+        return -1
+    var values = input.value()
+    var different_bits: UInt64 = 0
+    var ways: UInt64 = 0
+    var zeros: UInt32 = 0
+    var ones: UInt32 = 0
+    var zero_one: UInt32 = 0
+    var one_zero: UInt32 = 0
+    for index in range(Int(length)):
+        var value = UInt64(values[unsafe_offset=index]) ^ 48
+        different_bits |= value
+        var is_one = (value & 1) != 0
+        ways += UInt64(one_zero if is_one else zero_one)
+        zero_one += zeros if is_one else 0
+        one_zero += 0 if is_one else ones
+        zeros += UInt32(0 if is_one else 1)
+        ones += UInt32(1 if is_one else 0)
+    if different_bits > 1:
+        return -1
+    return Int64(ways)

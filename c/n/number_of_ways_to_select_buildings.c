@@ -1,28 +1,28 @@
-/* Count alternating 0-1-0 and 1-0-1 subsequences with two linear scans. */
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #define MAX_LENGTH 4096
 
-static int64_t count_for_target(const int64_t *values, size_t length, int64_t target)
-{
-    int64_t first_count = 0, middle_count = 0, ways = 0;
-    for (size_t index = 0; index < length; ++index) {
-        if (values[index] == target) {
-            ways += middle_count;
-            ++first_count;
-        } else {
-            middle_count += first_count;
-        }
-    }
-    return ways;
-}
-
-int64_t number_of_ways_to_select_buildings(const int64_t *values, size_t length)
-{
+int64_t number_of_ways_to_select_buildings(const int64_t *values, size_t length) {
     if (length == 0) return 0;
     if (values == NULL || length > MAX_LENGTH) return -1;
-    for (size_t index = 0; index < length; ++index)
-        if (values[index] != 48 && values[index] != 49) return -1;
-    return count_for_target(values, length, 48) + count_for_target(values, length, 49);
+    uint64_t different_bits = 0;
+    uint32_t zeros = 0;
+    uint32_t ones = 0;
+    uint32_t zero_one = 0;
+    uint32_t one_zero = 0;
+    uint64_t ways = 0;
+    for (size_t index = 0; index < length; ++index) {
+        uint64_t byte = (uint64_t)values[index] ^ 48;
+        different_bits |= byte;
+        bool is_one = (byte & 1) != 0;
+        ways += (uint64_t)(is_one ? one_zero : zero_one);
+        zero_one += is_one ? zeros : 0;
+        one_zero += is_one ? 0 : ones;
+        zeros += is_one ? 0 : 1;
+        ones += is_one ? 1 : 0;
+    }
+    if (different_bits > 1) return -1;
+    return (int64_t)ways;
 }

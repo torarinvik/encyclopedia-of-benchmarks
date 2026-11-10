@@ -1,23 +1,20 @@
-## Count alternating 0-1-0 and 1-0-1 subsequences with two linear scans.
+## Count alternating triples as each possible last building arrives.
 const MaxLength = 4096
-
-proc countForTarget(values: ptr UncheckedArray[int64], length: int, target: int64): int64 =
-  var firstCount = 0'i64
-  var middleCount = 0'i64
-  var ways = 0'i64
-  for index in 0 ..< length:
-    if values[index] == target:
-      ways += middleCount
-      inc firstCount
-    else:
-      middleCount += firstCount
-  ways
 
 proc number_of_ways_to_select_buildings*(values: ptr UncheckedArray[int64], length: csize_t): int64
     {.cdecl, exportc: "number_of_ways_to_select_buildings".} =
   if length == 0: return 0
-  if values == nil or length > MaxLength: return -1
-  let n = int(length)
-  for index in 0 ..< n:
-    if values[index] != 48 and values[index] != 49: return -1
-  countForTarget(values, n, 48) + countForTarget(values, n, 49)
+  if values.isNil or length > MaxLength: return -1
+  var differentBits, ways: uint64
+  var zeros, ones, zeroOne, oneZero: uint32
+  for index in 0 ..< int(length):
+    let value = cast[uint64](values[index]) xor 48
+    differentBits = differentBits or value
+    let isOne = (value and 1) != 0
+    ways += uint64(if isOne: oneZero else: zeroOne)
+    zeroOne += (if isOne: zeros else: 0'u32)
+    oneZero += (if isOne: 0'u32 else: ones)
+    zeros += uint32(not isOne)
+    ones += uint32(isOne)
+  if differentBits > 1: return -1
+  int64(ways)

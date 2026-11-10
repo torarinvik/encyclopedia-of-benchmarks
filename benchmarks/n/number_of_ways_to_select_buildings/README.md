@@ -7,11 +7,11 @@ Count the length-three subsequences `010` and `101` in a binary string. Characte
 - Pass the string as an array of ASCII values: `'0'` is 48 and `'1'` is 49.
 - Inputs may contain 0 through 4096 characters. Other values or longer inputs return `-1`.
 - The input is read only. The result is the number of alternating subsequences of length three; an empty string returns 0.
-- Each implementation scans once for each possible outer character, tracking the number of matching first characters and the number of matching two-character prefixes. Time is O(n); auxiliary space is O(1).
+- Each implementation makes one pass, tracking single characters and ordered pairs. The incoming character first completes triples, then extends pairs, then increments its own count. The same pass validates ASCII input by accumulating the bits that differ from 48. Time is O(n) and auxiliary space is O(1).
 
 ## Workload and verification
 
-[`workload.json`](workload.json) covers empty, short, uniform, mixed, and alternating strings. [`benchmarks/verify_number_of_ways_to_select_buildings.py`](../../verify_number_of_ways_to_select_buildings.py) checks all nine implementations against an independent center-counting oracle, including exhaustive strings through length 12, deterministic random strings, the maximum input length, and malformed inputs.
+[`workload.json`](workload.json) covers empty, short, uniform, mixed, and alternating strings, plus alternating and seeded random strings at the 4,096-character limit. [`benchmarks/verify_number_of_ways_to_select_buildings.py`](../../verify_number_of_ways_to_select_buildings.py) checks nine implementations by default and supports Mojo with `--languages mojo`. It compares results against an independent center-counting oracle, including exhaustive strings through length 12, deterministic random strings, the maximum input length, and malformed inputs.
 
 ## Upstream source
 
