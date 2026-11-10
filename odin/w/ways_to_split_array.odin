@@ -10,16 +10,20 @@ MAX_VALUE :: i64(100_000)
 ways_to_split_array :: proc "c" (values: [^]i64, length: c.size_t) -> i64 {
 	if length < 2 || length > MAX_LENGTH do return -1
 	n := int(length)
-	total_sum := i64(0)
+	total := u64(0)
+	largest_biased_value := u64(0)
 	for index := 0; index < n; index += 1 {
-		if values[index] < -MAX_VALUE || values[index] > MAX_VALUE do return -1
-		total_sum += values[index]
+		value := u64(values[index])
+		largest_biased_value = max(largest_biased_value, value + u64(MAX_VALUE))
+		total += value
 	}
-	prefix_sum := i64(0)
+	if largest_biased_value > 2 * u64(MAX_VALUE) do return -1
+	threshold := i64(total + 1) >> 1
+	prefix := u64(0)
 	ways := i64(0)
 	for index := 0; index < n - 1; index += 1 {
-		prefix_sum += values[index]
-		if prefix_sum >= total_sum - prefix_sum do ways += 1
+		prefix += u64(values[index])
+		if i64(prefix) >= threshold do ways += 1
 	}
 	return ways
 }

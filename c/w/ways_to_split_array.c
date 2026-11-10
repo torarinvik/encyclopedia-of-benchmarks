@@ -8,16 +8,21 @@
 int64_t ways_to_split_array(const int64_t *values, size_t length)
 {
     if (values == NULL || length < 2 || length > MAX_LENGTH) return -1;
-    int64_t total_sum = 0;
+    uint64_t total = 0, largest_biased_value = 0;
     for (size_t index = 0; index < length; ++index) {
-        if (values[index] < -MAX_VALUE || values[index] > MAX_VALUE) return -1;
-        total_sum += values[index];
+        const uint64_t value = (uint64_t)values[index];
+        const uint64_t biased = value + MAX_VALUE;
+        largest_biased_value = biased > largest_biased_value ? biased : largest_biased_value;
+        total += value;
     }
-    int64_t prefix_sum = 0;
+    if (largest_biased_value > 2 * MAX_VALUE) return -1;
+    const int64_t signed_total = (int64_t)total;
+    const int64_t threshold = signed_total / 2 + (signed_total > 0 && signed_total % 2 != 0);
+    uint64_t prefix = 0;
     int64_t ways = 0;
-    for (size_t index = 0; index + 1 < length; ++index) {
-        prefix_sum += values[index];
-        if (prefix_sum >= total_sum - prefix_sum) ++ways;
+    for (size_t index = 0; index < length - 1; ++index) {
+        prefix += (uint64_t)values[index];
+        if ((int64_t)prefix >= threshold) ways++;
     }
     return ways;
 }

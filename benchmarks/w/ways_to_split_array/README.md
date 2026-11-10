@@ -7,7 +7,7 @@ Count the split positions where the sum on the left is at least the sum on the r
 - Input contains 2 through 100,000 signed values, each in `[-100,000, 100,000]`.
 - A split is placed after an element and before the final element. It counts when `left_sum >= right_sum`. Invalid lengths or values return `-1`.
 - The input is read only. The result is the number of qualifying split positions.
-- Each implementation sums the array, then scans all valid prefix positions once. Time is O(n); auxiliary space is O(1).
+- Each implementation sums the array and validates its range in the same pass. The maximum unsigned value after adding 100,000 must be at most 200,000. A second pass counts prefixes that reach the ceiling of half the total. The unsigned sums wrap, and the validated signed sums stay within ±10,000,000,000. Time is O(n) and auxiliary space is O(1).
 
 ## Workload and verification
 

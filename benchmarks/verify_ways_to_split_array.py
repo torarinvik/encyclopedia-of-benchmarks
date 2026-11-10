@@ -57,9 +57,12 @@ def corpus(workload: dict) -> tuple[str, int]:
     for _ in range(512):
         values = tuple(rng.choice(pool) for _ in range(rng.randint(2, 2048)))
         cases[values] = oracle(list(values))
-    maximum = tuple([MAX_VALUE, -MAX_VALUE] * (MAX_LENGTH // 2))
-    cases[maximum] = oracle(list(maximum))
-    for values in ((), (1,), (-MAX_VALUE - 1, 0), (0, MAX_VALUE + 1)):
+    for maximum in ((MAX_VALUE, -MAX_VALUE) * (MAX_LENGTH // 2),
+                    (MAX_VALUE,) * MAX_LENGTH, (-MAX_VALUE,) * MAX_LENGTH):
+        cases[maximum] = oracle(list(maximum))
+    extremes = (-(1 << 63), (1 << 63) - 1)
+    for values in ((), (1,), (-MAX_VALUE - 1, 0), (0, MAX_VALUE + 1),
+                   extremes, extremes[::-1], (0, extremes[0]), (extremes[1], 0)):
         cases[values] = -1
 
     lines = [str(len(cases)) + "\n"]

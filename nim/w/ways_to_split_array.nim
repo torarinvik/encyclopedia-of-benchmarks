@@ -6,13 +6,18 @@ proc ways_to_split_array*(values: ptr UncheckedArray[int64], length: csize_t): i
     {.cdecl, exportc: "ways_to_split_array".} =
   if values == nil or length < 2 or length > MaxLength: return -1
   let n = int(length)
-  var totalSum = 0'i64
+  var total = 0'u64
+  var largestBiasedValue = 0'u64
   for index in 0 ..< n:
-    if values[index] < -MaxValue or values[index] > MaxValue: return -1
-    totalSum += values[index]
-  var prefixSum = 0'i64
+    let value = cast[uint64](values[index])
+    largestBiasedValue = max(largestBiasedValue, value + uint64(MaxValue))
+    total += value
+  if largestBiasedValue > 2 * uint64(MaxValue): return -1
+  let signedTotal = cast[int64](total)
+  let threshold = signedTotal div 2 + int64(signedTotal > 0 and signedTotal mod 2 != 0)
+  var prefix = 0'u64
   var ways = 0'i64
   for index in 0 ..< n - 1:
-    prefixSum += values[index]
-    if prefixSum >= totalSum - prefixSum: inc ways
+    prefix += cast[uint64](values[index])
+    if cast[int64](prefix) >= threshold: inc ways
   ways

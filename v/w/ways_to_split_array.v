@@ -6,17 +6,21 @@ const max_length = 100000
 @[export: 'ways_to_split_array']
 pub fn ways_to_split_array(values &i64, length usize) i64 {
 	if length < 2 || length > max_length { return -1 }
-	mut total_sum := i64(0)
+	mut total := u64(0)
+	mut largest_biased_value := u64(0)
 	for index in 0 .. length {
-		value := unsafe { values[index] }
-		if value < -i64(100000) || value > i64(100000) { return -1 }
-		total_sum += value
+		value := u64(unsafe { values[index] })
+		biased := value + u64(100000)
+		largest_biased_value = if biased > largest_biased_value { biased } else { largest_biased_value }
+		total += value
 	}
-	mut prefix_sum := i64(0)
+	if largest_biased_value > 200000 { return -1 }
+	threshold := i64(total + 1) >> 1
+	mut prefix := u64(0)
 	mut ways := i64(0)
 	for index in 0 .. length - 1 {
-		prefix_sum += unsafe { values[index] }
-		if prefix_sum >= total_sum - prefix_sum { ways++ }
+		prefix += u64(unsafe { values[index] })
+		if i64(prefix) >= threshold { ways++ }
 	}
 	return ways
 }
