@@ -67,6 +67,11 @@ int main(void)
         return 2;
     }
     int float64_vector = 0;
+#ifdef BENCHMARK_WORKSPACE_BYTES
+    int explicit_capacity = 1;
+#else
+    int explicit_capacity = 0;
+#endif
     int have_first_length = 0;
     uint64_t first_length = 0;
     double absolute_tolerance = 0.0, relative_tolerance = 0.0;
@@ -83,6 +88,8 @@ int main(void)
             return 2;
         }
         float64_vector = 1;
+    } else if (strcmp(comparison_mode, "bytes_with_capacity") == 0) {
+        explicit_capacity = 1;
     } else {
         char *end = NULL;
         errno = 0;
@@ -114,14 +121,11 @@ int main(void)
             fprintf(stderr, "invalid output-array case header\n");
             return 2;
         }
-#ifdef BENCHMARK_WORKSPACE_BYTES
-        if (scanf("%" SCNu64, &output_capacity) != 1 ||
-            expected_bytes > output_capacity || output_capacity > MAX_OUTPUT_BYTES) {
-            fprintf(stderr, "invalid workspace capacity\n"); return 2;
-        }
-#else
         output_capacity = expected_bytes;
-#endif
+        if (explicit_capacity && (scanf("%" SCNu64, &output_capacity) != 1 ||
+                                  expected_bytes > output_capacity || output_capacity > MAX_OUTPUT_BYTES)) {
+            fprintf(stderr, "invalid output capacity\n"); return 2;
+        }
         if (scanf("%" SCNu64, &null_input_flag) != 1 || null_input_flag > 1 ||
             scanf("%" SCNu64, &null_output_flag) != 1 || null_output_flag > 1 ||
             (null_input_flag != 0 && null_output_flag != 0)) {

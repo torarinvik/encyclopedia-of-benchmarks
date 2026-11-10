@@ -73,11 +73,11 @@ def corpus(workload: dict) -> tuple[str, int]:
         length = rng.randrange(MAX_LENGTH + 1)
         add(tuple(rng.randrange(2) for _ in range(length)))
 
-    lines = [f"{len(cases)}\n"]
-    for (values, _capacity), (result, output) in sorted(cases.items()):
+    lines = [f"{len(cases)} bytes_with_capacity\n"]
+    for (values, capacity), (result, output) in sorted(cases.items()):
         encoded_values = "" if not values else " " + " ".join(map(str, values))
         encoded_output = output.hex() if output else "-"
-        lines.append(f"{len(values)} {result} {len(output)}{encoded_values} {encoded_output}\n")
+        lines.append(f"{len(values)} {result} {len(output)} {capacity} 0 0{encoded_values} {encoded_output}\n")
     return "".join(lines), len(cases)
 
 
