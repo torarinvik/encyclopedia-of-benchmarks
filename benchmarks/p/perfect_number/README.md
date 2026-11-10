@@ -4,7 +4,7 @@
 
 Return `1` when a signed integer equals the sum of its positive proper divisors, and `0` otherwise. Inputs from `2` through `1,000,000,000,000` are in range; larger positive inputs return `-1`. Values below `2` return `0`. The upper bound keeps the divisor-pair scan practical while leaving room for inputs much larger than the source examples.
 
-The exported C ABI entry point is `int64_t perfect_number(int64_t n);`. For in-range `n > 1`, start the proper-divisor sum at `1`, scan factors while `factor <= n / factor`, and add both members of each divisor pair. Add a square root only once. The division-based loop condition avoids multiplication overflow. The sum may return early once it exceeds `n`, since all remaining divisors are positive.
+The exported C ABI entry point is `int64_t perfect_number(int64_t n);`. For in-range `n > 1`, start the proper-divisor sum at `1` and account for the factor pair containing `2` with a shift. Scan the remaining candidates from `3`, skipping even factors when `n` is odd. One quotient per candidate bounds the search and identifies its partner. Add a square root only once. The sum may return early once it exceeds `n`, since all remaining divisors are positive.
 
 ## Source review
 

@@ -8,20 +8,23 @@ pub extern "C" fn perfect_number(n: i64) -> i64 {
         return -1;
     }
 
-    let mut divisor_sum = 1i64;
-    let mut factor = 2i64;
-    while factor <= n / factor {
-        if n % factor == 0 {
-            divisor_sum += factor;
-            let partner = n / factor;
-            if partner != factor {
-                divisor_sum += partner;
-            }
-            if divisor_sum > n {
-                return 0;
-            }
-        }
-        factor += 1;
+    let number = n as u64;
+    let stride = 1 + (number & 1);
+    let mut divisor_sum = 1;
+    if stride == 1 && number >= 4 {
+        let half = number >> 1;
+        divisor_sum = if half == 2 { 3 } else { 3 + half };
     }
-    (divisor_sum == n) as i64
+    let mut factor = 3;
+    loop {
+        let partner = number / factor;
+        if factor > partner { break; }
+        if partner * factor == number {
+            divisor_sum += factor;
+            if partner != factor { divisor_sum += partner; }
+            if divisor_sum > number { return 0; }
+        }
+        factor += stride;
+    }
+    (divisor_sum == number) as i64
 }

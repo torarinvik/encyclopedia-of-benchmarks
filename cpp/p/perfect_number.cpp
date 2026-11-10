@@ -6,14 +6,21 @@ extern "C" std::int64_t perfect_number(std::int64_t n) noexcept
     if (n <= 1) return 0;
     if (n > INT64_C(1000000000000)) return -1;
 
-    std::int64_t divisor_sum = 1;
-    for (std::int64_t factor = 2; factor <= n / factor; ++factor) {
-        if (n % factor == 0) {
+    const std::uint64_t number = static_cast<std::uint64_t>(n);
+    const std::uint64_t stride = 1 + (number & 1);
+    std::uint64_t divisor_sum = 1;
+    if (stride == 1 && number >= 4) {
+        const std::uint64_t half = number >> 1;
+        divisor_sum = half == 2 ? 3 : 3 + half;
+    }
+    for (std::uint64_t factor = 3; ; factor += stride) {
+        const std::uint64_t partner = number / factor;
+        if (factor > partner) break;
+        if (partner * factor == number) {
             divisor_sum += factor;
-            const std::int64_t partner = n / factor;
             if (partner != factor) divisor_sum += partner;
-            if (divisor_sum > n) return 0;
+            if (divisor_sum > number) return 0;
         }
     }
-    return divisor_sum == n;
+    return divisor_sum == number;
 }

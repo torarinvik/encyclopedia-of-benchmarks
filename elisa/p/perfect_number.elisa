@@ -4,18 +4,24 @@ def perfect_number_impl(n: i64) -> i64:
         return 0
     if n > 1000000000000:
         return -1
-    divisor_sum: i64 =
-        while factor <= n / factor |factor: i64 = 2, total: i64 = 1| -> total:
-            if n % factor == 0:
-                total <- total + factor
-                partner: i64 = n / factor
-                if partner != factor:
-                    total <- total + partner
-                if total > n:
-                    break total
-            factor <- factor + 1
-    if divisor_sum == n:
-        return 1
-    0
+    number: u64 = n.u64()
+    # Odd numbers have no even divisors.
+    stride: u64 = 1 + (number & 1)
+    factor: mutable u64 = 3
+    total: mutable u64 = 1
+    if stride == 1 and number >= 4:
+        half: u64 = number >> 1
+        total <- 3 if half == 2 else 3 + half
+    while true:
+        partner: u64 = number / factor
+        break if factor > partner
+        if partner * factor == number:
+            total <- total + factor
+            if partner != factor:
+                total <- total + partner
+            if total > number:
+                return 0
+        factor <- factor + stride
+    return 1 if total == number else 0
 
 export fn perfect_number(n: i64) -> i64 = perfect_number_impl

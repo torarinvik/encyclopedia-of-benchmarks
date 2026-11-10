@@ -6,16 +6,23 @@ pub fn perfect_number(n i64) i64 {
 	if n <= 1 { return 0 }
 	if n > 1_000_000_000_000 { return -1 }
 
-	mut divisor_sum := i64(1)
-	mut factor := i64(2)
-	for factor <= n / factor {
-		if n % factor == 0 {
-			divisor_sum += factor
-			partner := n / factor
-			if partner != factor { divisor_sum += partner }
-			if divisor_sum > n { return 0 }
-		}
-		factor++
+	number := u64(n)
+	stride := u64(1) + (number & 1)
+	mut divisor_sum := u64(1)
+	if stride == 1 && number >= 4 {
+		half := number >> 1
+		divisor_sum = if half == 2 { u64(3) } else { 3 + half }
 	}
-	return if divisor_sum == n { i64(1) } else { i64(0) }
+	mut factor := u64(3)
+	for {
+		partner := number / factor
+		if factor > partner { break }
+		if partner * factor == number {
+			divisor_sum += factor
+			if partner != factor { divisor_sum += partner }
+			if divisor_sum > number { return 0 }
+		}
+		factor += stride
+	}
+	return if divisor_sum == number { i64(1) } else { i64(0) }
 }
