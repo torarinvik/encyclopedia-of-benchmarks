@@ -333,9 +333,9 @@ from hub_labeling_greedy_order_oracle import MAX_OUTPUT_BYTES as HUB_LABELING_GR
 from hub_labeling_greedy_order_oracle import expected_output as hub_labeling_greedy_order_oracle
 from dense_graph_bipartiteness_tester_oracle import MAX_INPUT as DENSE_GRAPH_BIPARTITENESS_TESTER_MAX_INPUT
 from dense_graph_bipartiteness_tester_oracle import expected_output as dense_graph_bipartiteness_tester_oracle
-from all_distances_sketch_bottom_k_oracle import MAX_INPUT_LENGTH as ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_INPUT_LENGTH
-from all_distances_sketch_bottom_k_oracle import MAX_OUTPUT_BYTES as ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_OUTPUT_BYTES
-from all_distances_sketch_bottom_k_oracle import evaluate as all_distances_sketch_bottom_k_core_oracle
+from a.all_distances_sketch_bottom_k_oracle import MAX_INPUT_LENGTH as ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_INPUT_LENGTH
+from a.all_distances_sketch_bottom_k_oracle import MAX_OUTPUT_BYTES as ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_OUTPUT_BYTES
+from a.all_distances_sketch_bottom_k_oracle import evaluate as all_distances_sketch_bottom_k_core_oracle
 from sublinear_bipartiteness_walk_tester_oracle import MAX_INPUT as SUBLINEAR_BIPARTITENESS_WALK_TESTER_MAX_INPUT
 from sublinear_bipartiteness_walk_tester_oracle import expected_output as sublinear_bipartiteness_walk_tester_oracle
 from optimal_stable_marriage_oracle import MAX_INPUT as OPTIMAL_STABLE_MARRIAGE_MAX_INPUT
@@ -1097,7 +1097,7 @@ from morton_sort_oracle import expected_output as morton_sort_expected_output
 from number_theoretic_transform_oracle import MAX_PARSEABLE_INPUT_LENGTH as NUMBER_THEORETIC_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH
 from number_theoretic_transform_oracle import MAX_OUTPUT_BYTES as NUMBER_THEORETIC_TRANSFORM_MAX_OUTPUT_BYTES
 from number_theoretic_transform_oracle import expected_output as number_theoretic_transform_expected_output
-from seam_carving_oracle import MAX_PARSEABLE_INPUT_LENGTH as SEAM_CARVING_MAX_PARSEABLE_INPUT_LENGTH
+from seam_carving_oracle import MAX_PARSEABLE_INPUT_VALUES as SEAM_CARVING_MAX_PARSEABLE_INPUT_LENGTH
 from seam_carving_oracle import MAX_OUTPUT_BYTES as SEAM_CARVING_MAX_OUTPUT_BYTES
 from seam_carving_oracle import expected_output as seam_carving_expected_output
 from sqrt_tree_oracle import MAX_PARSEABLE_INPUT_VALUES as SQRT_TREE_MAX_PARSEABLE_INPUT_LENGTH
@@ -1194,9 +1194,9 @@ from nearest_neighbour_search_oracle import MAX_INPUT_LENGTH as MAX_NEAREST_NEIG
 from nearest_neighbour_search_oracle import expected_output as nearest_neighbour_search_expected_output
 from n_body_simulation_oracle import MAX_INPUT_LENGTH as MAX_N_BODY_SIMULATION_INPUT_LENGTH
 from n_body_simulation_oracle import expected_output as n_body_simulation_expected_output
-from benchmarkgame_nbody_oracle import MAX_INPUT_LENGTH as BENCHMARKGAME_NBODY_MAX_INPUT_LENGTH
-from benchmarkgame_nbody_oracle import MAX_STEPS as BENCHMARKGAME_NBODY_MAX_STEPS
-from benchmarkgame_nbody_oracle import expected_output as benchmarkgame_nbody_oracle
+from b.benchmarkgame_nbody_oracle import MAX_INPUT_LENGTH as BENCHMARKGAME_NBODY_MAX_INPUT_LENGTH
+from b.benchmarkgame_nbody_oracle import MAX_STEPS as BENCHMARKGAME_NBODY_MAX_STEPS
+from b.benchmarkgame_nbody_oracle import expected_output as benchmarkgame_nbody_oracle
 from benchmarkgame_puzzle_oracle import MAX_INPUT_LENGTH as BENCHMARKGAME_PUZZLE_MAX_INPUT_LENGTH
 from benchmarkgame_puzzle_oracle import expected_output as benchmarkgame_puzzle_oracle
 from polybench_adi_oracle import expected_output as polybench_adi_oracle
@@ -1340,10 +1340,10 @@ from sequence_oracle import MAX_OUTPUT_BYTES as SEQUENCE_MAX_OUTPUT_BYTES
 from sequence_oracle import OUTPUT_ERROR as SEQUENCE_OUTPUT_ERROR
 from sequence_oracle import expected_output as sequence_expected_output
 from sorted_linked_list_oracle import (
-    I32_MAX as SORTED_LINKED_LIST_I32_MAX,
-    I32_MIN as SORTED_LINKED_LIST_I32_MIN,
-    I64_MAX as SORTED_LINKED_LIST_I64_MAX,
-    I64_MIN as SORTED_LINKED_LIST_I64_MIN,
+    MAX_I32 as SORTED_LINKED_LIST_I32_MAX,
+    MIN_I32 as SORTED_LINKED_LIST_I32_MIN,
+    MAX_I64 as SORTED_LINKED_LIST_I64_MAX,
+    MIN_I64 as SORTED_LINKED_LIST_I64_MIN,
     INVALID_RESULT as SORTED_LINKED_LIST_INVALID_RESULT,
     MAX_INITIAL_COUNT as SORTED_LINKED_LIST_MAX_INITIAL_COUNT,
     MAX_OUTPUT_BYTES as SORTED_LINKED_LIST_MAX_OUTPUT_BYTES,
@@ -2543,7 +2543,7 @@ from singlylinkedlist_oracle import (
     INSUFFICIENT_CAPACITY_RESULT as SINGLYLINKEDLIST_OUTPUT_ERROR,
     INVALID_RESULT as SINGLYLINKEDLIST_INVALID_RESULT,
     MAX_INITIAL_NODES as SINGLYLINKEDLIST_MAX_INITIAL_NODES,
-    MAX_INPUT_VALUES as SINGLYLINKEDLIST_MAX_INPUT_VALUES,
+    MAX_PARSEABLE_INPUT_VALUES as SINGLYLINKEDLIST_MAX_INPUT_VALUES,
     MAX_LIST_NODES as SINGLYLINKEDLIST_MAX_LIST_NODES,
     MAX_OPERATIONS as SINGLYLINKEDLIST_MAX_OPERATIONS,
     MAX_OUTPUT_BYTES as SINGLYLINKEDLIST_MAX_OUTPUT_BYTES,
@@ -48158,6 +48158,8 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
                 raise ValueError(f"beebs_nettle_cast128 language port is missing its symbol: {relative}")
     elif algorithm == "domination_local_reduction":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
         expected_provenance = {
             "chapter": "Data Reduction for Domination in Graphs",
             "doi": "10.1007/978-1-4939-2864-4_99",
@@ -48209,7 +48211,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         if ("10.1007/978-1-4939-2864-4_99" not in readme
                 or "single-neighborhood reduction" not in readme
                 or "no book text" not in readme
-                or "no text, source code, images, or" not in rights):
+                or "no text, source code, images, or" not in rights.lower()):
             raise ValueError("domination_local_reduction README or rights note is incomplete")
         for relative in (
                 "c/d/domination_local_reduction.c", "c3/d/domination_local_reduction.c3",
@@ -48766,8 +48768,11 @@ def main() -> int:
         validate_skyline_algorithm_workload(workload)
     elif algorithm == "benchmarkgame_nbody":
         validate_benchmarkgame_nbody_workload(workload)
+    comparison_model = workload.get("measurement", {}).get("comparison_model")
+    if algorithm == "domination_local_reduction":
+        comparison_model = workload.get("comparison_model")
     if (workload.get("algorithm") != algorithm
-            or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"):
+            or comparison_model != "i64_array_bytes_output_call"):
         parser.error("workload does not match the built byte-output algorithm")
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]

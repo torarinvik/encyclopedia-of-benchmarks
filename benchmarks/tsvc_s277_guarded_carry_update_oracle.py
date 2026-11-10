@@ -11,6 +11,7 @@ MAX_INPUT_LENGTH = 2 + 5 * MAX_N
 I64_MIN = -(1 << 63)
 I64_MAX = (1 << 63) - 1
 
+MAX_OUTPUT_BYTES = 16 * MAX_N
 
 def expected_output(
     values: Sequence[int] | None,

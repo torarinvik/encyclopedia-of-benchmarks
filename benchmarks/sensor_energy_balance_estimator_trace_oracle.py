@@ -11,6 +11,7 @@ MAX_H = 8
 SCALE = 1_000_000
 MAX_INPUT = 82
 
+MAX_OUTPUT_BYTES = 8 * (MAX_N + 1)
 
 def _decode(values: Sequence[int] | None):
     if (not isinstance(values, (tuple, list)) or not 4 <= len(values) <= MAX_INPUT

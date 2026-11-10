@@ -11,6 +11,7 @@ MAX_VALUE = 1_000_000
 I64_MIN = -(1 << 63)
 I64_MAX = (1 << 63) - 1
 
+MAX_OUTPUT_BYTES = 16
 
 def expected_output(
     values: Sequence[int] | None,
