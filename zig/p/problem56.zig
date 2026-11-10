@@ -10,7 +10,7 @@ export fn problem56(a: i64, b: i64) i64 {
     var best: i64 = 0;
     var base: i64 = 0;
     while (base < a) : (base += 1) {
-        var digits = [_]u8{0} ** 512; digits[0] = 1;
+        var digits: [512]u8 = @splat(0); digits[0] = 1;
         var length: usize = 1;
         var power: i64 = 0;
         while (power < b) : (power += 1) {

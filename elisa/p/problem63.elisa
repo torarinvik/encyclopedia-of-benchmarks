@@ -1,6 +1,6 @@
 def problem63_impl(max_base: i64, max_power: i64) -> i64:
-    base_limit: i64 = if max_base > 10: 10 else: max_base
-    power_limit: i64 = if max_power > 22: 22 else: max_power
+    base_limit: i64 = 10 if max_base > 10 else max_base
+    power_limit: i64 = 22 if max_power > 22 else max_power
     count: mutable i64 = 0
     base: mutable i64 = 1
     while base < base_limit:

@@ -6,7 +6,7 @@ export fn problem63(max_base: i64, max_power: i64) i64 {
     while (base < base_limit) : (base += 1) {
         var power: i64 = 1;
         while (power < power_limit) : (power += 1) {
-            var digits = [_]i32{0} ** 32;
+            var digits: [32]i32 = @splat(0);
             digits[0] = 1;
             var length: usize = 1;
             var exponent: i64 = 0;

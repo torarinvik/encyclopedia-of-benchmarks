@@ -21,6 +21,7 @@ from uint53_xor_oracle import expected_result as uint53_xor_expected
 from trinomial_triangle_oracle import expected_result as trinomial_triangle_oracle
 from fermat_prime_checker_oracle import expected_result as fermat_prime_checker_oracle
 from exponentiation_oracle import expected_result as exponentiation_oracle
+from problem74_sol2_oracle import expected_result as problem74_sol2_oracle
 from run_binary_scalar import encode_values
 from ackermann_oracle import expected_result as ackermann_oracle
 
@@ -271,50 +272,6 @@ def problem74_chain_count(num_terms: int, max_start: int) -> int:
 
 
 @lru_cache(maxsize=16)
-def problem74_sol2_chain_count(chain_length: int, number_limit: int) -> int:
-    """Count sol2 chains using complete graph lengths and per-node cycle detection."""
-    if (type(chain_length) is not int or type(number_limit) is not int
-            or not I64_MIN <= chain_length <= I64_MAX
-            or not I64_MIN <= number_limit <= I64_MAX
-            or not 1 <= chain_length <= 60
-            or not 1 <= number_limit <= 1_000_000):
-        return -1
-
-    digit_factorials = (1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880)
-    known_lengths: dict[int, int] = {}
-
-    def successor(number: int) -> int:
-        return sum(digit_factorials[int(digit)] for digit in str(number))
-
-    count = 0
-    for start in range(1, number_limit):
-        path: list[int] = []
-        positions: dict[int, int] = {}
-        current = start
-        while current not in known_lengths and current not in positions:
-            positions[current] = len(path)
-            path.append(current)
-            current = successor(current)
-
-        if current in known_lengths:
-            length = known_lengths[current]
-            for value in reversed(path):
-                length += 1
-                known_lengths[value] = length
-        else:
-            cycle_start = positions[current]
-            cycle_length = len(path) - cycle_start
-            for value in path[cycle_start:]:
-                known_lengths[value] = cycle_length
-            length = cycle_length
-            for value in reversed(path[:cycle_start]):
-                length += 1
-                known_lengths[value] = length
-        count += known_lengths[start] == chain_length
-    return count
-
-
-@lru_cache(maxsize=16)
 def problem124_radical_order(n_max: int, rank: int) -> int:
     """Order by trial-factored radicals, independently of the ports' sieve buckets."""
     if not 1 <= rank <= n_max <= 100_000:
@@ -458,7 +415,7 @@ def result(algorithm: str, left: int, right: int) -> int:
             return -1
         return problem74_chain_count(left, right)
     if algorithm == "problem74_sol2":
-        return problem74_sol2_chain_count(left, right)
+        return problem74_sol2_oracle((left, right))
     if algorithm == "trinomial_triangle":
         return trinomial_triangle_oracle(left, right)
     raise ValueError(f"no independent oracle for {algorithm}")

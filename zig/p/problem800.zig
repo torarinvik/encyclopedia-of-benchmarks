@@ -1,3 +1,5 @@
+const std = @import("std");
+
 fn isComposite(bits: []u64, value: i64) bool {
     const word: usize = @intCast(value >> 6);
     const shift: u6 = @intCast(value & 63);

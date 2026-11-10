@@ -38,7 +38,7 @@ export fn problem74_sol2(chain_length: i64, number_limit: i64) i64 {
     var chains_counter: i64 = 0;
     var start: i64 = 1;
     while (start < number_limit) : (start += 1) {
-        var path = [_]i64{0} ** PATH_CAPACITY;
+        var path: [PATH_CAPACITY]i64 = @splat(0);
         var path_length: usize = 0;
         var chain_set_length: i64 = 0;
         var chain_element = start;

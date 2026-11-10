@@ -51,4 +51,4 @@ def problem74_sol2_impl(chain_length: i64, number_limit: i64) -> i64:
             chains_counter <- chains_counter + 1
     chains_counter
 
-export fn problem74_sol2(chain_length: i64, number_limit: i64) -> i64 = problem74_sol2_impl(chain_length, number_limit)
+export fn problem74_sol2(chain_length: i64, number_limit: i64) -> i64 = problem74_sol2_impl

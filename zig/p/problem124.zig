@@ -1,8 +1,8 @@
 export fn problem124(n_max: i64, k: i64) i64 {
     if (n_max < 1 or n_max > 100000 or k < 1 or k > n_max) return -1;
     const n: usize = @intCast(n_max);
-    var radicals = [_]i64{0} ** 100001;
-    var counts = [_]i64{0} ** 100001;
+    var radicals: [100001]i64 = @splat(0);
+    var counts: [100001]i64 = @splat(0);
     for (1..(n + 1)) |i| radicals[i] = 1;
     for (2..(n + 1)) |p| {
         if (radicals[p] == 1) {

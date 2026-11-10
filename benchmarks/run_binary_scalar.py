@@ -43,7 +43,7 @@ def problem800_source_result(base: int, degree: int) -> int:
     for prime in range(2, math.isqrt(max_prime - 1) + 1):
         if is_prime[prime]:
             start = prime * prime
-            is_prime[start:max_prime:prime] = b"\\x00" * (((max_prime - 1 - start) // prime) + 1)
+            is_prime[start:max_prime:prime] = bytes((max_prime - 1 - start) // prime + 1)
     primes = [value for value in range(2, max_prime) if is_prime[value]]
     count = 0
     left, right = 0, len(primes) - 1
