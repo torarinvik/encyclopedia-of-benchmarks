@@ -7,10 +7,11 @@ extern "C" std::int64_t search_insert_position(const std::int64_t *input, std::s
     const std::int64_t target = input[0];
     if (target < std::numeric_limits<std::int32_t>::min() ||
         target > std::numeric_limits<std::int32_t>::max()) return -1;
+    std::int64_t previous = std::int64_t{std::numeric_limits<std::int32_t>::min()} - 1;
     for (std::size_t index = 1; index < length; ++index) {
-        if (input[index] < std::numeric_limits<std::int32_t>::min() ||
-            input[index] > std::numeric_limits<std::int32_t>::max()) return -1;
-        if (index > 1 && input[index - 1] >= input[index]) return -1;
+        const std::int64_t value = input[index];
+        if (value > std::numeric_limits<std::int32_t>::max() || value <= previous) return -1;
+        previous = value;
     }
     std::size_t low = 0;
     std::size_t high = length - 1;

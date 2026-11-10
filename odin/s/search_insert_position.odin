@@ -8,9 +8,11 @@ search_insert_position :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
     if length < 1 || length > 257 do return -1
     target := input[0]
     if target < -2_147_483_648 || target > 2_147_483_647 do return -1
+    previous := i64(-2_147_483_649)
     for index := 1; index < int(length); index += 1 {
-        if input[index] < -2_147_483_648 || input[index] > 2_147_483_647 do return -1
-        if index > 1 && input[index - 1] >= input[index] do return -1
+        value := input[index]
+        if value > 2_147_483_647 || value <= previous do return -1
+        previous = value
     }
     low := 0
     high := int(length - 1)

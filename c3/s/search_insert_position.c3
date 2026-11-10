@@ -5,9 +5,11 @@ fn long search_insert_position(long* input, usz length) @export("search_insert_p
     if (length < 1 || length > 257 || input == null) return -1;
     long target = input[0];
     if (target < -2147483648 || target > 2147483647) return -1;
+    long previous = -2147483649;
     for (usz index = 1; index < length; index++) {
-        if (input[index] < -2147483648 || input[index] > 2147483647) return -1;
-        if (index > 1 && input[index - 1] >= input[index]) return -1;
+        long value = input[index];
+        if (value > 2147483647 || value <= previous) return -1;
+        previous = value;
     }
     usz low = 0;
     usz high = length - 1;

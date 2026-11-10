@@ -7,10 +7,11 @@ pub fn search_insert_position(input &i64, length usize) i64 {
     unsafe {
         target := input[0]
         if target < -2_147_483_648 || target > 2_147_483_647 { return -1 }
+        mut previous := i64(-2_147_483_649)
         for index in 1 .. length {
             value := input[index]
-            if value < -2_147_483_648 || value > 2_147_483_647 { return -1 }
-            if index > 1 && input[index - 1] >= value { return -1 }
+            if value > 2_147_483_647 || value <= previous { return -1 }
+            previous = value
         }
         mut low := 0
         mut high := int(length - 1)

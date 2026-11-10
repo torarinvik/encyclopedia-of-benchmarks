@@ -5,11 +5,13 @@ def search_insert_position_impl(input: i64&, length: usize) -> i64:
     target: i64 = input[0]
     if target < -2147483648 or target > 2147483647:
         return -1
-    for index in 1..<length |input|:
-        if input[index] < -2147483648 or input[index] > 2147483647:
+    # A sentinel below i32.min makes the ordering check enforce the lower bound.
+    previous: mutable i64 = -2147483649
+    for index in 1..<length |input, previous|:
+        value: i64 = input[index]
+        if value > 2147483647 or value <= previous:
             return -1
-        if index > 1 and input[index - 1] >= input[index]:
-            return -1
+        previous <- value
     low: mutable usize = 0
     high: mutable usize = length - 1
     while low < high |low, high, input, target|:

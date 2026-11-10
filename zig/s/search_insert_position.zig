@@ -2,10 +2,11 @@ export fn search_insert_position(input: [*]const i64, length: usize) i64 {
     if (length < 1 or length > 257) return -1;
     const target = input[0];
     if (target < -2_147_483_648 or target > 2_147_483_647) return -1;
+    var previous: i64 = -2_147_483_649;
     for (1..length) |index| {
         const value = input[index];
-        if (value < -2_147_483_648 or value > 2_147_483_647) return -1;
-        if (index > 1 and input[index - 1] >= value) return -1;
+        if (value > 2_147_483_647 or value <= previous) return -1;
+        previous = value;
     }
     var low: usize = 0;
     var high: usize = length - 1;

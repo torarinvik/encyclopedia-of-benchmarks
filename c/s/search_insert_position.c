@@ -5,9 +5,11 @@ int64_t search_insert_position(const int64_t *input, size_t length) {
     if (length < 1 || length > 257 || input == NULL) return -1;
     const int64_t target = input[0];
     if (target < INT32_MIN || target > INT32_MAX) return -1;
+    int64_t previous = (int64_t)INT32_MIN - 1;
     for (size_t index = 1; index < length; ++index) {
-        if (input[index] < INT32_MIN || input[index] > INT32_MAX) return -1;
-        if (index > 1 && input[index - 1] >= input[index]) return -1;
+        const int64_t value = input[index];
+        if (value > INT32_MAX || value <= previous) return -1;
+        previous = value;
     }
     size_t low = 0;
     size_t high = length - 1;
