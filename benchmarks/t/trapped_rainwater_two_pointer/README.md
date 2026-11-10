@@ -13,3 +13,7 @@ Source: [TheAlgorithms/C-Plus-Plus `trapped_rainwater2.cpp`](https://github.com/
 - The maximum total is 4,094,000,000, within the source's unsigned 32-bit result range.
 
 The two-pointer tie rule matches the source: process the right side when left and right heights are equal.
+
+Each port keeps the two endpoint heights in local variables. It validates a height when an endpoint first loads it and advances only the selected side.
+
+The [shared rainwater verifier](../../verify_trapped_rainwater.py) checks this variant with `--algorithm trapped_rainwater_two_pointer`.

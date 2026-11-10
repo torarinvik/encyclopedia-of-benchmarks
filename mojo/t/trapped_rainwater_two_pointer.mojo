@@ -1,21 +1,43 @@
 from std.ffi import c_size_t
-from std.memory import ImmutAnyOrigin, UnsafePointer
+from std.memory import Pointer
+from std.origin import ImmUntrackedOrigin
+
+
 @export("trapped_rainwater_two_pointer")
-fn trapped_rainwater_two_pointer(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->Int64:
-    if n>4096 or (n>0 and a==UnsafePointer[Int64,ImmutAnyOrigin]()):return -1
-    for i in range(Int(n)):
-        if a[i]<0 or a[i]>1000000:return -1
-    if n<=2:return 0
-    var left=0;var right=Int(n)-1;var lm:UInt32=0;var rm:UInt32=0;var trapped:UInt32=0
-    while left<right:
-        if a[left]<a[right]:
-            let h=UInt32(a[left])
-            if h>=lm:lm=h
-            else:trapped+=lm-h
-            left+=1
+def trapped_rainwater_two_pointer(
+    input: Optional[Pointer[Int64, ImmUntrackedOrigin]], length: c_size_t
+) abi("C") -> Int64:
+    if length == 0:
+        return 0
+    if length > 4096 or input == None:
+        return -1
+
+    var heights = input.value()
+    var left = 0
+    var right = Int(length) - 1
+    var left_height = UInt64(heights[unsafe_offset=left])
+    var right_height = UInt64(heights[unsafe_offset=right])
+    if left_height > 1_000_000 or right_height > 1_000_000:
+        return -1
+
+    var left_max: UInt32 = 0
+    var right_max: UInt32 = 0
+    var trapped: UInt32 = 0
+    while left < right:
+        if left_height < right_height:
+            var height = UInt32(left_height)
+            left_max = max(left_max, height)
+            trapped += left_max - height
+            left += 1
+            left_height = UInt64(heights[unsafe_offset=left])
+            if left_height > 1_000_000:
+                return -1
         else:
-            let h=UInt32(a[right])
-            if h>=rm:rm=h
-            else:trapped+=rm-h
-            right-=1
+            var height = UInt32(right_height)
+            right_max = max(right_max, height)
+            trapped += right_max - height
+            right -= 1
+            right_height = UInt64(heights[unsafe_offset=right])
+            if right_height > 1_000_000:
+                return -1
     return Int64(trapped)
