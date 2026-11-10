@@ -6,7 +6,7 @@ This benchmark determines whether an integer is the cube of an integer.
 
 - The input is one signed 64-bit integer in `[-1,000,000,000,000, 1,000,000,000,000]`.
 - The result is `1` for a perfect cube, including zero and negative cubes, and `0` otherwise. Inputs outside the range return `-1`.
-- The ports use integer binary search over root magnitudes 0 through 10,000. The bound makes every intermediate cube fit signed 64-bit arithmetic and avoids floating-point rounding.
+- The ports search unsigned root magnitudes up to 10,000. The upper bound tightens for smaller inputs, and every candidate cube fits in 64 bits.
 
 The pinned Rust and Python implementations include a binary-search variant and agree that negative perfect cubes are valid. The Rust variant takes the signed absolute value and cubes its midpoint directly, which can overflow at the signed minimum or for large midpoints; the Python file also includes a floating-point cube-root variant. The bounded local contract uses exact integer arithmetic and gives all target languages one portable scalar comparison.
 

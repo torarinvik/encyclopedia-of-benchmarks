@@ -2,14 +2,24 @@
 def perfect_cube_impl(value: i64) -> i64:
     if value < -1000000000000 or value > 1000000000000:
         return -1
-    target: mutable i64 = value
-    if target < 0:
-        target <- -target
-    low: mutable i64 = 0
-    high: mutable i64 = 10000
+    target: u64 = (-value if value < 0 else value).u64()
+    if target < 2:
+        return 1
+    root_limit: u64 =
+        if target <= 1000:
+            10
+        elif target <= 1000000:
+            100
+        elif target <= 1000000000:
+            1000
+        else:
+            10000
+    half: u64 = target >> 1
+    low: mutable u64 = 1
+    high: mutable u64 = half if half < root_limit else root_limit
     while low <= high:
-        middle: i64 = low + (high - low) / 2
-        cube: i64 = middle * middle * middle
+        middle: u64 = (low + high) >> 1
+        cube: u64 = middle * middle * middle
         if cube == target:
             return 1
         if cube < target:
