@@ -17,16 +17,20 @@ def maximum_frequency_after_increments_impl(input: i64&, length: usize) -> i64:
             position <- position - 1
         values[position] <- value
     left: mutable usize = 0
-    window_sum: mutable i64 = 0
-    best: mutable i64 = 0
+    # At most 256 validated values contribute 10,000 each. The sorted
+    # window sum cannot exceed the rightmost value times its width.
+    window_sum: mutable u32 = 0
+    best: mutable usize = 0
+    available: u32 = budget.u32()
     for right in 0..<count |values, left, window_sum, best|:
-        window_sum <- window_sum + values[right]
-        while values[right] * (right - left + 1).i64() - window_sum > budget |values, left, window_sum|:
-            window_sum <- window_sum - values[left]
+        target: u32 = values[right].u32()
+        window_sum <- window_sum + target
+        while target * (right - left + 1).u32() - window_sum > available |values, left, window_sum|:
+            window_sum <- window_sum - values[left].u32()
             left <- left + 1
-        window_length: i64 = (right - left + 1).i64()
+        window_length: usize = right - left + 1
         if window_length > best:
             best <- window_length
-    best
+    best.i64()
 
 export fn maximum_frequency_after_increments(input: i64&, length: usize) -> i64 = maximum_frequency_after_increments_impl
