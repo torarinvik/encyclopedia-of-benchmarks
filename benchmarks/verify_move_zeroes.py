@@ -65,11 +65,12 @@ def corpus(workload: dict) -> tuple[str, int]:
 
     records = sorted(cases.items())
     records.append(((1,), (-2, b"")))
-    lines = [f"{len(records)}\n"]
+    lines = [f"{len(records)}\nbytes_with_capacity\n"]
     for values, (result, output) in records:
         values_text = "" if not values else " " + " ".join(map(str, values))
         encoded = output.hex() if output else "-"
-        lines.append(f"{len(values)} {result} {len(output)}{values_text} {encoded}\n")
+        capacity = 3 if result == -2 else len(output)
+        lines.append(f"{len(values)} {result} {len(output)} {capacity} 0 0{values_text} {encoded}\n")
     return "".join(lines), len(records)
 
 
