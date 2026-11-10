@@ -1,14 +1,5 @@
 package catalan_number
 
-gcd_i64 :: proc "contextless" (left_value, right_value: i64) -> i64 {
-	left, right := left_value, right_value
-	for right != 0 {
-		remainder := left % right
-		left, right = right, remainder
-	}
-	return left
-}
-
 // Return the exact zero-based Catalan number through the signed 64-bit range.
 @(export)
 catalan_number :: proc "c" (n: i64) -> i64 {
@@ -17,7 +8,7 @@ catalan_number :: proc "c" (n: i64) -> i64 {
 	for index := i64(1); index <= n; index += 1 {
 		numerator := 4 * index - 2
 		denominator := index + 1
-		common := gcd_i64(numerator, denominator)
+		common := (i64(3) if denominator % 3 == 0 else i64(1)) * (i64(2) if denominator % 2 == 0 else i64(1))
 		numerator /= common
 		denominator /= common
 		value = (value / denominator) * numerator

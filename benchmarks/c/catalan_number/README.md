@@ -4,13 +4,13 @@
 
 Return the exact zero-based Catalan number `C(n)`, where `C(0) = 1` and `C(n) = sum(C(i) * C(n-i-1))` for `0 <= i < n`. The benchmark accepts signed 64-bit indices from `0` through `35`; other indices return `-1`. `C(35)` fits in a signed 64-bit result, while `C(36)` does not.
 
-The exported C ABI entry point is `int64_t catalan_number(int64_t n);`. Ports use the exact ratio recurrence `C(n) = C(n-1) * (4n-2) / (n+1)`. They reduce numerator and denominator by their greatest common divisor before multiplying; the remaining denominator divides `C(n-1)`, so every intermediate stays within the exact signed 64-bit result range.
+The exported C ABI entry point is `int64_t catalan_number(int64_t n);`. Ports use the exact ratio recurrence `C(n) = C(n-1) * (4n-2) / (n+1)`. Since `4n-2 = 4(n+1)-6`, all ports find the common divisor by testing whether `n+1` is divisible by 3 and 2. They reduce the ratio before multiplying, and the remaining denominator divides `C(n-1)`, so every intermediate stays within the exact signed 64-bit result range.
 
 ## Source review and aliases
 
 The pinned C, C++, C-Sharp, Go, Java, JavaScript, Julia, Nim, Python, R, and Rust sources all cover the standard Catalan sequence, though some return a sequence and others a single indexed value. The benchmark selects the exact scalar `C(n)` contract. `catalan`, `catalan_numbers`, `catalan_sequence`, and `catalannumber` are cataloged as aliases of `catalan_number`. A separate Rust `math/catalan_numbers.rs` source computes values modulo `1,000,000,007`; that modular variant has a different output contract and is excluded from this exact benchmark.
 
-Some upstream factorial formulas overflow or lose precision at indices that fit the benchmark contract. The local ports use one exact recurrence across all nine languages so their measured work implements the same function over the entire declared input range.
+Some upstream factorial formulas overflow or lose precision at indices that fit the benchmark contract. The local ports use one exact recurrence across the implementations so their measured work implements the same function over the entire declared input range.
 
 ## Workload and verification
 
@@ -24,6 +24,7 @@ Some upstream factorial formulas overflow or lose precision at indices that fit 
 | C3 | [`c3/c/catalan_number.c3`](../../../c3/c/catalan_number.c3) |
 | C++ | [`cpp/c/catalan_number.cpp`](../../../cpp/c/catalan_number.cpp) |
 | Elisa | [`elisa/c/catalan_number.elisa`](../../../elisa/c/catalan_number.elisa) |
+| Mojo | [`mojo/c/catalan_number.mojo`](../../../mojo/c/catalan_number.mojo) |
 | Nim | [`nim/c/catalan_number.nim`](../../../nim/c/catalan_number.nim) |
 | Odin | [`odin/c/catalan_number.odin`](../../../odin/c/catalan_number.odin) |
 | Rust | [`rust/c/catalan_number.rs`](../../../rust/c/catalan_number.rs) |

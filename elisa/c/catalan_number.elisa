@@ -7,15 +7,9 @@ def catalan_number_impl(n: i64) -> i64:
             numerator: i64 = 4 * index - 2
             denominator: i64 = index + 1
             # gcd(4*index-2, index+1) = gcd(6, index+1).
-            common: i64 =
-                if denominator % 6 == 0:
-                    6
-                elif denominator % 3 == 0:
-                    3
-                elif denominator % 2 == 0:
-                    2
-                else:
-                    1
+            factor_three: i64 = 3 if denominator % 3 == 0 else 1
+            factor_two: i64 = 2 if denominator % 2 == 0 else 1
+            common: i64 = factor_three * factor_two
             reduced_numerator: i64 = numerator / common
             reduced_denominator: i64 = denominator / common
             current <- (current / reduced_denominator) * reduced_numerator
