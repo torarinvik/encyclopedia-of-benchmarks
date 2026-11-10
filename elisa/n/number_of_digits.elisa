@@ -5,10 +5,13 @@ def number_of_digits_impl(value: i64) -> i64:
         magnitude <- (-(value + 1)).u64() + 1.u64()
     else:
         magnitude <- value.u64()
-    digits: mutable i64 = 1
-    while magnitude >= 10.u64():
-        magnitude <- magnitude / 10.u64()
-        digits <- digits + 1
-    digits
+    return 1 if magnitude < 10.u64()
+    digits: mutable u32 = 1
+    while magnitude >= 10000.u64():
+        magnitude <- magnitude / 10000.u64()
+        digits <- digits + 4
+    return digits.i64() if magnitude < 10.u64()
+    return (digits + 1).i64() if magnitude < 100.u64()
+    (digits + (2.u32() if magnitude < 1000.u64() else 3.u32())).i64()
 
 export fn number_of_digits(value: i64) -> i64 = number_of_digits_impl

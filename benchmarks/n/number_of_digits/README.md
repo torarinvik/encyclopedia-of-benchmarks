@@ -4,7 +4,7 @@ This algorithm counts the base-10 digits of an integer. The inspected upstream c
 
 ## Contract
 
-The input is any signed 64-bit integer. The result is the number of decimal digits in its magnitude; zero has one digit. The sign is not counted. The implementation handles the signed 64-bit minimum without taking its unrepresentable positive absolute value, then repeatedly divides the unsigned magnitude by ten.
+The input is any signed 64-bit integer. The result is the number of decimal digits in its magnitude; zero has one digit. The sign is not counted. The implementation handles the signed 64-bit minimum without taking its unrepresentable positive absolute value, then divides the unsigned magnitude by 10,000 to count four digits at a time. The remaining value is below 10,000, so three comparisons determine its digit count.
 
 ## Reproduce
 
