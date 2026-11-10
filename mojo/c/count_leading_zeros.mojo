@@ -1,11 +1,7 @@
+from std.sys.intrinsics import llvm_intrinsic
+
 @export("count_leading_zeros")
-fn count_leading_zeros(value: Int64) abi("C") -> Int64:
-    if value < -2147483648 or value > 2147483647: return -1
-    if value == 0: return 32
-    let bits = bitcast[UInt32](Int32(value))
-    var mask: UInt32 = 1 << 31
-    var count: Int64 = 0
-    while (mask & bits) == 0:
-        count += 1
-        mask >>= 1
-    return count
+def count_leading_zeros(value: Int64) abi("C") -> Int64:
+    if value < -2147483648 or value > 2147483647:
+        return -1
+    return Int64(llvm_intrinsic["llvm.ctlz.i32", Int32](Int32(value), False))

@@ -13,6 +13,8 @@ Counts the zero bits before the first set bit in a signed 32-bit integer's two's
 
 The benchmark follows pinned [TheAlgorithms Java `CountLeadingZeros.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/bitmanipulation/CountLeadingZeros.java). Its input is Java `int`; zero is a special case returning 32. For any other value it scans a mask from bit 31 down until the mask intersects the input. Thus positive values count leading zero bits and negative values return zero. The shared scalar ABI widens inputs to signed 64-bit, so this benchmark explicitly restricts values to the source's int32 domain and returns `-1` for wider values.
 
+The ports use fixed-width leading-zero operations for this result. The C, C++, and Nim ports handle zero before invoking their count operation.
+
 ## Workload and build
 
 [`workload.json`](workload.json) covers zero, representative positive and negative bit patterns, both int32 limits, and out-of-domain values. Build and record with the scalar ABI:
@@ -26,3 +28,5 @@ Verify the nine ports against the fixed-width independent oracle with
 `python3 benchmarks/verify_scalar.py --algorithms count_leading_zeros`.
 
 The nine implementations are in `c/c/count_leading_zeros.c`, `c3/c/count_leading_zeros.c3`, `cpp/c/count_leading_zeros.cpp`, `elisa/c/count_leading_zeros.elisa`, `nim/c/count_leading_zeros.nim`, `odin/c/count_leading_zeros.odin`, `rust/c/count_leading_zeros.rs`, `v/c/count_leading_zeros.v`, and `zig/c/count_leading_zeros.zig`.
+
+The optional Mojo port is in `mojo/c/count_leading_zeros.mojo`.
