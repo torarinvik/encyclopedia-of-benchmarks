@@ -14,19 +14,17 @@ number_of_laser_beams :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
 	columns := int(input[1])
 	if length != c.size_t(rows * columns + 2) do return -1
 
-	previous_devices := i64(0)
-	beams := i64(0)
-	for row := 0; row < rows; row += 1 {
-		devices := i64(0)
+	invalid_bits, previous_devices, beams: u64
+	for row_start := 2; row_start < int(length); row_start += columns {
+		devices := u64(0)
 		for column := 0; column < columns; column += 1 {
-			cell := input[2 + row * columns + column]
-			if cell != 48 && cell != 49 do return -1
-			if cell == 49 do devices += 1
+			cell := u64(input[row_start + column])
+			invalid_bits |= cell ~ 48
+			devices += cell & 1
 		}
-		if devices != 0 {
-			beams += devices * previous_devices
-			previous_devices = devices
-		}
+		beams += devices * previous_devices
+		if devices != 0 do previous_devices = devices
 	}
-	return beams
+	if invalid_bits > 1 do return -1
+	return i64(beams)
 }

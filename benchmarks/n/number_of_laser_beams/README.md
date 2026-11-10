@@ -8,11 +8,11 @@ Each security device in one nonempty row connects to every device in the next no
 - The bank contains 1 through 64 rows and 1 through 64 columns. Every row has the same width.
 - Invalid dimensions, lengths, or cell values return `-1`.
 - The input is read only. The result is the total number of device-to-device beams.
-- Each implementation scans the input once and carries only the preceding nonempty row's device count. Time is O(rows × columns); auxiliary space is O(1).
+- Each implementation counts devices and validates cells in the same pass. It sums the low bits in each row and accumulates any bits that differ from ASCII 48. Empty rows add zero beams and preserve the preceding nonempty row's count. Time is O(rows × columns); auxiliary space is O(1).
 
 ## Workload and verification
 
-[`workload.json`](workload.json) includes all-zero banks, gaps of empty rows, varied device counts, and a 64 × 64 bank. [`benchmarks/verify_number_of_laser_beams.py`](../../verify_number_of_laser_beams.py) checks all nine implementations against an independent grid oracle, including exhaustive small banks, deterministic random grids, and malformed inputs.
+[`workload.json`](workload.json) includes all-zero banks, gaps of empty rows, varied device counts, and a 64 × 64 bank. [`benchmarks/verify_number_of_laser_beams.py`](../../verify_number_of_laser_beams.py) checks nine implementations by default and also supports Mojo via `--languages mojo`. It compares the results against an independent grid oracle, including exhaustive small banks, deterministic random grids, and malformed inputs.
 
 ## Upstream source
 

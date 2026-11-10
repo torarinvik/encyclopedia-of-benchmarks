@@ -10,15 +10,16 @@ proc number_of_laser_beams*(input: ptr UncheckedArray[int64], length: csize_t): 
   let columns = int(input[1])
   if int(length) != rows * columns + 2: return -1
 
-  var previousDevices = 0'i64
-  var beams = 0'i64
-  for row in 0 ..< rows:
-    var devices = 0'i64
+  var invalidBits, previousDevices, beams: uint64
+  var rowStart = 2
+  while rowStart < int(length):
+    var devices = 0'u64
     for column in 0 ..< columns:
-      let cell = input[2 + row * columns + column]
-      if cell != 48 and cell != 49: return -1
-      if cell == 49: inc devices
-    if devices != 0:
-      beams += devices * previousDevices
-      previousDevices = devices
-  beams
+      let cell = cast[uint64](input[rowStart + column])
+      invalidBits = invalidBits or (cell xor 48)
+      devices += cell and 1
+    beams += devices * previousDevices
+    if devices != 0: previousDevices = devices
+    rowStart += columns
+  if invalidBits > 1: return -1
+  int64(beams)

@@ -14,19 +14,21 @@ pub fn number_of_laser_beams(input &i64, length usize) i64 {
 	columns := usize(columns_value)
 	if length != rows * columns + 2 { return -1 }
 
-	mut previous_devices := i64(0)
-	mut beams := i64(0)
-	for row in 0 .. rows {
-		mut devices := i64(0)
+	mut invalid_bits := u64(0)
+	mut previous_devices := u64(0)
+	mut beams := u64(0)
+	mut row_start := usize(2)
+	for row_start < length {
+		mut devices := u64(0)
 		for column in 0 .. columns {
-			cell := unsafe { input[2 + row * columns + column] }
-			if cell != 48 && cell != 49 { return -1 }
-			if cell == 49 { devices++ }
+			cell := u64(unsafe { input[row_start + column] })
+			invalid_bits |= cell ^ 48
+			devices += cell & 1
 		}
-		if devices != 0 {
-			beams += devices * previous_devices
-			previous_devices = devices
-		}
+		beams += devices * previous_devices
+		if devices != 0 { previous_devices = devices }
+		row_start += columns
 	}
-	return beams
+	if invalid_bits > 1 { return -1 }
+	return i64(beams)
 }

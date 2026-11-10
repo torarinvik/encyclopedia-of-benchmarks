@@ -12,19 +12,19 @@ pub extern "C" fn number_of_laser_beams(input: *const i64, length: usize) -> i64
     let columns = values[1] as usize;
     if length != rows * columns + 2 { return -1; }
 
-    let mut previous_devices = 0i64;
-    let mut beams = 0i64;
-    for row in 0..rows {
-        let mut devices = 0i64;
-        for column in 0..columns {
-            let cell = values[2 + row * columns + column];
-            if cell != 48 && cell != 49 { return -1; }
-            if cell == 49 { devices += 1; }
+    let mut invalid_bits = 0u64;
+    let mut previous_devices = 0u64;
+    let mut beams = 0u64;
+    for row in values[2..].chunks_exact(columns) {
+        let mut devices = 0u64;
+        for &cell in row {
+            let byte = cell as u64;
+            invalid_bits |= byte ^ 48;
+            devices += byte & 1;
         }
-        if devices != 0 {
-            beams += devices * previous_devices;
-            previous_devices = devices;
-        }
+        beams += devices * previous_devices;
+        if devices != 0 { previous_devices = devices; }
     }
-    beams
+    if invalid_bits > 1 { return -1; }
+    beams as i64
 }

@@ -13,18 +13,19 @@ extern "C" std::int64_t number_of_laser_beams(const std::int64_t *input,
     const auto columns = static_cast<std::size_t>(input[1]);
     if (length != rows * columns + 2) return -1;
 
-    std::int64_t previous_devices = 0, beams = 0;
-    for (std::size_t row = 0; row < rows; ++row) {
-        std::int64_t devices = 0;
+    std::uint64_t invalid_bits = 0;
+    std::uint64_t previous_devices = 0;
+    std::uint64_t beams = 0;
+    for (std::size_t row_start = 2; row_start < length; row_start += columns) {
+        std::uint64_t devices = 0;
         for (std::size_t column = 0; column < columns; ++column) {
-            const auto cell = input[2 + row * columns + column];
-            if (cell != 48 && cell != 49) return -1;
-            if (cell == 49) ++devices;
+            const std::uint64_t byte = static_cast<std::uint64_t>(input[row_start + column]);
+            invalid_bits |= byte ^ 48;
+            devices += byte & 1;
         }
-        if (devices != 0) {
-            beams += devices * previous_devices;
-            previous_devices = devices;
-        }
+        beams += devices * previous_devices;
+        previous_devices = devices != 0 ? devices : previous_devices;
     }
-    return beams;
+    if (invalid_bits > 1) return -1;
+    return static_cast<std::int64_t>(beams);
 }

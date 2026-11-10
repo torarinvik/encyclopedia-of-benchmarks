@@ -11,19 +11,19 @@ fn long number_of_laser_beams(long* input, usz length) @export("number_of_laser_
     usz columns = (usz)input[1];
     if (length != rows * columns + 2) { return -1; }
 
-    long previous_devices = 0;
-    long beams = 0;
-    for (usz row = 0; row < rows; row++) {
-        long devices = 0;
+    ulong invalid_bits = 0;
+    ulong previous_devices = 0;
+    ulong beams = 0;
+    for (usz row_start = 2; row_start < length; row_start += columns) {
+        ulong devices = 0;
         for (usz column = 0; column < columns; column++) {
-            long cell = input[2 + row * columns + column];
-            if (cell != 48 && cell != 49) { return -1; }
-            if (cell == 49) { devices++; }
+            ulong byte = (ulong)input[row_start + column];
+            invalid_bits |= byte ^ 48;
+            devices += byte & 1;
         }
-        if (devices != 0) {
-            beams += devices * previous_devices;
-            previous_devices = devices;
-        }
+        beams += devices * previous_devices;
+        previous_devices = devices != 0 ? devices : previous_devices;
     }
-    return beams;
+    if (invalid_bits > 1) return -1;
+    return (long)beams;
 }

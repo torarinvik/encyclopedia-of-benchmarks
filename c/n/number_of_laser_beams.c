@@ -13,18 +13,19 @@ int64_t number_of_laser_beams(const int64_t *input, size_t length)
     const size_t rows = (size_t)input[0], columns = (size_t)input[1];
     if (length != rows * columns + 2) return -1;
 
-    int64_t previous_devices = 0, beams = 0;
-    for (size_t row = 0; row < rows; ++row) {
-        int64_t devices = 0;
+    uint64_t invalid_bits = 0;
+    uint64_t previous_devices = 0;
+    uint64_t beams = 0;
+    for (size_t row_start = 2; row_start < length; row_start += columns) {
+        uint64_t devices = 0;
         for (size_t column = 0; column < columns; ++column) {
-            const int64_t cell = input[2 + row * columns + column];
-            if (cell != 48 && cell != 49) return -1;
-            if (cell == 49) ++devices;
+            const uint64_t byte = (uint64_t)input[row_start + column];
+            invalid_bits |= byte ^ 48;
+            devices += byte & 1;
         }
-        if (devices != 0) {
-            beams += devices * previous_devices;
-            previous_devices = devices;
-        }
+        beams += devices * previous_devices;
+        previous_devices = devices != 0 ? devices : previous_devices;
     }
-    return beams;
+    if (invalid_bits > 1) return -1;
+    return (int64_t)beams;
 }

@@ -10,19 +10,20 @@ export fn number_of_laser_beams(input: [*c]const i64, length: usize) i64 {
     const columns: usize = @intCast(input[1]);
     if (length != rows * columns + 2) return -1;
 
-    var previous_devices: i64 = 0;
-    var beams: i64 = 0;
-    for (0..rows) |row| {
-        var devices: i64 = 0;
+    var invalid_bits: u64 = 0;
+    var previous_devices: u64 = 0;
+    var beams: u64 = 0;
+    var row_start: usize = 2;
+    while (row_start < length) : (row_start += columns) {
+        var devices: u64 = 0;
         for (0..columns) |column| {
-            const cell = input[2 + row * columns + column];
-            if (cell != 48 and cell != 49) return -1;
-            if (cell == 49) devices += 1;
+            const cell: u64 = @bitCast(input[row_start + column]);
+            invalid_bits |= cell ^ 48;
+            devices += cell & 1;
         }
-        if (devices != 0) {
-            beams += devices * previous_devices;
-            previous_devices = devices;
-        }
+        beams += devices * previous_devices;
+        if (devices != 0) previous_devices = devices;
     }
-    return beams;
+    if (invalid_bits > 1) return -1;
+    return @intCast(beams);
 }

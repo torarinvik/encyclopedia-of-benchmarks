@@ -14,7 +14,7 @@ import random
 import subprocess
 import sys
 
-from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
 from run_i64_array_scalar import encode_case
 
 ALGORITHM = "number_of_laser_beams"
@@ -66,6 +66,8 @@ def corpus(workload: dict) -> tuple[str, int]:
         cases[values] = oracle(list(values))
 
     invalid = [
+        (1, 2, 49, -(1 << 63)), (2, 1, (1 << 63) - 1, 48),
+        (1, 2, 49, 0),
         [], [0, 1], [1, 0], [65, 1, *([49] * 65)], [1, 65, *([49] * 65)],
         [1, 1], [1, 1, 0], [1, 1, 49, 49], [1, 2, 48, 50],
     ]
@@ -121,7 +123,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    parser.add_argument("--languages", nargs="+", choices={**EXTENSIONS, **OPTIONAL_EXTENSIONS}, default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build/number_of_laser_beams")
