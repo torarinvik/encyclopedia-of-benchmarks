@@ -8,7 +8,7 @@ INVALID_RESULT :: i64(-2_147_483_649)
 // Binary search the pair alignment around the unique value.
 @(export)
 single_non_duplicate :: proc "c" (values: [^]i64, length: c.size_t) -> i64 {
-	if values == nil || length == 0 || length > c.size_t(MAX_VALUES) || length % 2 == 0 do return INVALID_RESULT
+	if length == 0 || length > c.size_t(MAX_VALUES) || length % 2 == 0 do return INVALID_RESULT
 	left := 0
 	right := int(length) - 1
 	for left < right {

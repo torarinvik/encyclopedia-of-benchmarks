@@ -9,7 +9,7 @@ constexpr std::int64_t invalid_result = -2'147'483'649;
 
 extern "C" std::int64_t single_non_duplicate(const std::int64_t *values,
                                               std::size_t length) noexcept {
-    if (values == nullptr || length == 0 || length > max_values || length % 2 == 0)
+    if (length == 0 || length > max_values || length % 2 == 0)
         return invalid_result;
     std::size_t left = 0;
     std::size_t right = length - 1;

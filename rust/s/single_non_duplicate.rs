@@ -4,7 +4,7 @@ const INVALID_RESULT: i64 = -2_147_483_649;
 
 #[no_mangle]
 pub extern "C" fn single_non_duplicate(values: *const i64, length: usize) -> i64 {
-    if values.is_null() || length == 0 || length > MAX_VALUES || length % 2 == 0 {
+    if length == 0 || length > MAX_VALUES || length % 2 == 0 {
         return INVALID_RESULT;
     }
     let mut left = 0usize;

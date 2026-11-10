@@ -4,7 +4,7 @@ const InvalidResult = -2147483649'i64
 
 proc single_non_duplicate*(values: ptr UncheckedArray[int64], length: csize_t): int64
     {.cdecl, exportc: "single_non_duplicate".} =
-  if values == nil or length == 0 or length > csize_t(MaxValues) or length mod 2 == 0:
+  if length == 0 or length > csize_t(MaxValues) or length mod 2 == 0:
     return InvalidResult
   var left = 0
   var right = int(length) - 1

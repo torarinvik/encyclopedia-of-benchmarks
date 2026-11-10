@@ -5,7 +5,7 @@ const long INVALID_RESULT = -2147483649;
 
 // Binary search the pair alignment around the unique value.
 fn long single_non_duplicate(long* values, usz length) @export("single_non_duplicate") {
-    if (values == null || length == 0 || length > MAX_VALUES || length % 2 == 0) {
+    if (length == 0 || length > MAX_VALUES || length % 2 == 0) {
         return INVALID_RESULT;
     }
     usz left = 0;

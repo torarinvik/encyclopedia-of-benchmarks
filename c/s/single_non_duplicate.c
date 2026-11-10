@@ -7,7 +7,7 @@
 
 int64_t single_non_duplicate(const int64_t *values, size_t length)
 {
-    if (values == NULL || length == 0 || length > MAX_VALUES || length % 2 == 0)
+    if (length == 0 || length > MAX_VALUES || length % 2 == 0)
         return INVALID_RESULT;
     size_t left = 0;
     size_t right = length - 1;
