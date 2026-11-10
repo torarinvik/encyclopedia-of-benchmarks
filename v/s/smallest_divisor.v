@@ -4,27 +4,38 @@ module smallest_divisor
 @[export: 'smallest_divisor']
 pub fn smallest_divisor(input &i64, length usize) i64 {
 	if length < 2 || length > 257 { return -1 }
-	threshold := unsafe { input[0] }
-	if threshold < 1 || threshold > 1_000_000 { return -1 }
-	mut maximum := i64(0)
+	count := u64(length - 1)
+	threshold := u64(unsafe { input[0] })
+	if threshold < count || threshold > 1_000_000 { return -1 }
+	mut maximum := u64(0)
+	mut total := u64(0)
 	for index in 1 .. length {
-		value := unsafe { input[index] }
-		if value < 1 || value > 1_000_000 { return -1 }
+		value := u64(unsafe { input[index] })
+		if value == 0 || value > 1_000_000 { return -1 }
 		if value > maximum { maximum = value }
+		total += value
 	}
-	count := i64(length - 1)
-	if threshold < count { return -1 }
-	mut low := i64(1)
-	mut high := maximum
+	if threshold == count { return i64(maximum) }
+
+	mut low := (total - 1) / threshold + 1
+	upper_bound := (total - count) / (threshold - count + 1) + 1
+	mut high := if upper_bound < maximum { upper_bound } else { maximum }
 	for low < high {
-		middle := low + (high - low) / 2
-		mut sum := i64(0)
-		for index in 1 .. length {
-			value := unsafe { input[index] }
-			sum += (value + middle - 1) / middle
+		middle := low + ((high - low) >> 1)
+		mut rounded_sum := count
+		if count <= 4 {
+			for index in 1 .. length {
+				value := u32(unsafe { input[index] })
+				rounded_sum += u64((value - 1) / u32(middle))
+			}
+		} else {
+			reciprocal := (u64(1_099_511_627_775) / middle) + 1
+			for index in 1 .. length {
+				value := u64(unsafe { input[index] })
+				rounded_sum += ((value - 1) * reciprocal) >> 40
+			}
 		}
-		if sum <= threshold { high = middle }
-		else { low = middle + 1 }
+		if rounded_sum <= threshold { high = middle } else { low = middle + 1 }
 	}
-	return low
+	return i64(low)
 }

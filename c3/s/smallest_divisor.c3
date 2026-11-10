@@ -3,26 +3,37 @@ module smallest_divisor;
 // Find the least positive divisor whose rounded sum fits the threshold.
 fn long smallest_divisor(long* input, usz length) @export("smallest_divisor") {
     if (length < 2 || length > 257 || input == null) return -1;
-    long threshold = input[0];
-    if (threshold < 1 || threshold > 1000000) return -1;
-    long maximum = 0;
+    ulong count = (ulong)(length - 1);
+    ulong threshold = (ulong)input[0];
+    if (threshold < count || threshold > 1000000) return -1;
+    ulong maximum = 0;
+    ulong total = 0;
     for (usz index = 1; index < length; index++) {
-        long value = input[index];
-        if (value < 1 || value > 1000000) return -1;
-        if (value > maximum) maximum = value;
+        ulong value = (ulong)input[index];
+        if (value == 0 || value > 1000000) return -1;
+        maximum = value > maximum ? value : maximum;
+        total += value;
     }
-    usz count = length - 1;
-    if (threshold < (long)count) return -1;
-    long low = 1;
-    long high = maximum;
+    if (threshold == count) return (long)maximum;
+
+    ulong low = (total - 1) / threshold + 1;
+    ulong upper_bound = (total - count) / (threshold - count + 1) + 1;
+    ulong high = upper_bound < maximum ? upper_bound : maximum;
     while (low < high) {
-        long middle = low + (high - low) / 2;
-        long sum = 0;
-        for (usz index = 1; index < length; index++) {
-            sum += (input[index] + middle - 1) / middle;
+        ulong middle = low + ((high - low) >> 1);
+        ulong rounded_sum = count;
+        if (count <= 4) {
+            for (usz index = 1; index < length; index++) {
+                rounded_sum += (ulong)(((uint)input[index] - 1) / (uint)middle);
+            }
+        } else {
+            ulong reciprocal = (1099511627775 / middle) + 1;
+            for (usz index = 1; index < length; index++) {
+                rounded_sum += (((ulong)input[index] - 1) * reciprocal) >> 40;
+            }
         }
-        if (sum <= threshold) { high = middle; }
+        if (rounded_sum <= threshold) { high = middle; }
         else { low = middle + 1; }
     }
-    return low;
+    return (long)low;
 }

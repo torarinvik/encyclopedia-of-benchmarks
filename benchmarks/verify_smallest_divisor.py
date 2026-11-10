@@ -14,7 +14,7 @@ import random
 import subprocess
 import sys
 
-from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
 from run_i64_array_scalar import encode_case
 
 ALGORITHM = "smallest_divisor"
@@ -61,6 +61,8 @@ def corpus(workload: dict) -> tuple[str, int]:
         (MAX_VALUE + 1, 1),
         (2, 0),
         (2, MAX_VALUE + 1),
+        (2, -(1 << 63)),
+        ((1 << 63) - 1, 1),
         (1, *([1] * (MAX_ELEMENTS + 1))),
     ]
     cases.update({values: oracle(list(values)) for values in malformed})
@@ -71,6 +73,11 @@ def corpus(workload: dict) -> tuple[str, int]:
         numbers = tuple(rng.randrange(1, 201) for _ in range(length))
         threshold = rng.randrange(1, length * 5 + 1)
         values = (threshold, *numbers)
+        cases[values] = oracle(list(values))
+
+    for divisor in (257, 1_009, 65_537, 124_999):
+        numbers = tuple(7 * divisor + offset for offset in (-2, -1, 0, 1, 2))
+        values = (37, *numbers)
         cases[values] = oracle(list(values))
 
     lines = [f"{len(cases)}\n"]
@@ -150,7 +157,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    parser.add_argument("--languages", nargs="+", choices={**EXTENSIONS, **OPTIONAL_EXTENSIONS}, default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build/smallest_divisor")

@@ -6,29 +6,36 @@ import "core:c"
 @(export)
 smallest_divisor :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
 	if length < 2 || length > 257 do return -1
-	threshold := input[0]
-	if threshold < 1 || threshold > 1_000_000 do return -1
-	maximum := i64(0)
+	count := u64(length - 1)
+	threshold := u64(input[0])
+	if threshold < count || threshold > 1_000_000 do return -1
+	maximum := u64(0)
+	total := u64(0)
 	for index := 1; index < int(length); index += 1 {
-		value := input[index]
-		if value < 1 || value > 1_000_000 do return -1
-		if value > maximum do maximum = value
+		value := u64(input[index])
+		if value == 0 || value > 1_000_000 do return -1
+		maximum = max(maximum, value)
+		total += value
 	}
-	count := i64(length - 1)
-	if threshold < count do return -1
-	low := i64(1)
-	high := maximum
+	if threshold == count do return i64(maximum)
+
+	low := (total - 1) / threshold + 1
+	upper_bound := (total - count) / (threshold - count + 1) + 1
+	high := min(maximum, upper_bound)
 	for low < high {
-		middle := low + (high - low) / 2
-		sum := i64(0)
-		for index := 1; index < int(length); index += 1 {
-			sum += (input[index] + middle - 1) / middle
-		}
-		if sum <= threshold {
-			high = middle
+		middle := low + ((high - low) >> 1)
+		rounded_sum := count
+		if count <= 4 {
+			for index := 1; index < int(length); index += 1 {
+				rounded_sum += u64((u32(input[index]) - 1) / u32(middle))
+			}
 		} else {
-			low = middle + 1
+			reciprocal := (1_099_511_627_775 / middle) + 1
+			for index := 1; index < int(length); index += 1 {
+				rounded_sum += ((u64(input[index]) - 1) * reciprocal) >> 40
+			}
 		}
+		if rounded_sum <= threshold { high = middle } else { low = middle + 1 }
 	}
-	return low
+	return i64(low)
 }

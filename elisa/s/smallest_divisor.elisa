@@ -1,34 +1,51 @@
+const DIVISION_SCALE: u64 = 1099511627776
+
 # Find the least positive divisor whose rounded sum fits the threshold.
 def smallest_divisor_impl(input: i64&, length: usize) -> i64:
     if length < 2 or length > 257:
         return -1
-    threshold: i64 = input[0]
-    if threshold < 1 or threshold > 1000000:
+    threshold: u64 = input[0].u64()
+    if threshold < (length - 1).u64() or threshold > 1000000:
         return -1
-    maximum: mutable i64 = 0
+
+    maximum: mutable u64 = 0
+    total: mutable u64 = 0
     index: mutable usize = 1
     while index < length:
-        value: i64 = input[index]
-        if value < 1 or value > 1000000:
+        value: u64 = input[index].u64()
+        if value == 0 or value > 1000000:
             return -1
-        if value > maximum:
-            maximum <- value
+        maximum <- value if value > maximum else maximum
+        total <- total + value
         index <- index + 1
-    count: usize = length - 1
-    if threshold < count.i64():
-        return -1
-    answer: i64 =
-        while low < high |low: mutable i64 = 1, high: mutable i64 = maximum| -> low:
-            middle: i64 = low + (high - low) / 2
-            sum: i64 =
-                while index < length |index: mutable usize = 1, sum: mutable i64 = 0| -> sum:
-                    value: i64 = input[index]
-                    sum <- sum + (value + middle - 1) / middle
-                    index <- index + 1
-            if sum <= threshold:
-                high <- middle
-            else:
-                low <- middle + 1
-    answer
+
+    count: u64 = (length - 1).u64()
+    if threshold == count:
+        return maximum.i64()
+    # Each rounded sum is at least total/divisor and at most
+    # count + floor((total - count)/divisor).
+    low: mutable u64 = (total - 1) / threshold + 1
+    upper_bound: u64 = (total - count) / (threshold - count + 1) + 1
+    high: mutable u64 = upper_bound if upper_bound < maximum else maximum
+    while low < high:
+        middle: u64 = low + ((high - low) >> 1)
+        rounded_sum: mutable u64 = count
+        index <- 1
+        if count <= 4:
+            while index < length:
+                rounded_sum <- rounded_sum + ((input[index].u32() - 1) / middle.u32()).u64()
+                index <- index + 1
+        else:
+            # Rounding up cannot cross the next quotient: (value - 1) * middle < 2^40.
+            reciprocal: u64 = ((DIVISION_SCALE - 1) / middle) + 1
+            while index < length:
+                numerator: u64 = input[index].u64() - 1
+                rounded_sum <- rounded_sum + ((numerator * reciprocal) >> 40)
+                index <- index + 1
+        if rounded_sum <= threshold:
+            high <- middle
+        else:
+            low <- middle + 1
+    low.i64()
 
 export fn smallest_divisor(input: i64&, length: usize) -> i64 = smallest_divisor_impl
