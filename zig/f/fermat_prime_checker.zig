@@ -24,7 +24,7 @@ fn modPow(base_input: i64, exponent_input: i64, modulus: i64) i64 {
 
 export fn fermat_prime_checker(number: i64, times_to_check: i64) i64 {
     if (number < 2 or number > 1_000_000 or times_to_check < 2 or times_to_check > 64) return -1;
-    var seed = [_]i32{0} ** 56;
+    var seed: [56]i32 = @splat(0);
     var mj: i32 = 161_803_398;
     var mk: i32 = 1;
     seed[55] = mj;

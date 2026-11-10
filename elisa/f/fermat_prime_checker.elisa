@@ -1,9 +1,9 @@
 # Deterministic bounded port of C# FermatPrimeChecker using the legacy Random(0) stream.
 def fermat_prime_checker_impl(number: i64, times_to_check: i64) -> i64:
     if number < 2 or number > 1000000 or times_to_check < 2 or times_to_check > 64: return -1
-    seed: mutable i64[56] = zeroed
-    mj: mutable i64 = 161803398
-    mk: mutable i64 = 1
+    seed: mutable i32[56] = zeroed
+    mj: mutable i32 = 161803398
+    mk: mutable i32 = 1
     seed[55] <- mj
     index: mutable usize = 1
     while index < 55:
@@ -13,14 +13,14 @@ def fermat_prime_checker_impl(number: i64, times_to_check: i64) -> i64:
         if mk < 0: mk <- mk + 2147483647
         mj <- seed[slot]
         index <- index + 1
-    pass: mutable usize = 0
-    while pass < 4:
+    mix_round: mutable usize = 0
+    while mix_round < 4:
         index <- 1
         while index < 56:
             seed[index] <- seed[index] - seed[1 + (index + 30) % 55]
             if seed[index] < 0: seed[index] <- seed[index] + 2147483647
             index <- index + 1
-        pass <- pass + 1
+        mix_round <- mix_round + 1
     next: mutable usize = 0
     next_p: mutable usize = 21
     iteration: mutable i64 = 1
@@ -29,7 +29,7 @@ def fermat_prime_checker_impl(number: i64, times_to_check: i64) -> i64:
         if next >= 56: next <- 1
         next_p <- next_p + 1
         if next_p >= 56: next_p <- 1
-        sample: mutable i64 = seed[next] - seed[next_p]
+        sample: mutable i32 = seed[next] - seed[next_p]
         if sample == 2147483647: sample <- sample - 1
         if sample < 0: sample <- sample + 2147483647
         seed[next] <- sample
