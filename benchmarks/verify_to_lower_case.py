@@ -14,7 +14,7 @@ import random
 import subprocess
 import sys
 
-from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
 from run_i64_array_bytes_output import expected_output
 
 ALGORITHM = "to_lower_case"
@@ -42,6 +42,7 @@ def corpus(workload: dict) -> tuple[str, int]:
         add(tuple(rng.choice(choices) for _ in range(length)))
     add(tuple(1 + (index * 37) % 127 for index in range(MAX_INPUT_LENGTH)))
     add(tuple((65 + index % 26) for index in range(MAX_INPUT_LENGTH)))
+    add((65,) * (MAX_INPUT_LENGTH + 1))
 
     for case in workload["cases"]:
         values = tuple(case["input_values"])
@@ -50,14 +51,21 @@ def corpus(workload: dict) -> tuple[str, int]:
             raise ValueError(f"workload oracle mismatch: {case['id']}")
         add(values)
 
-    records = sorted(cases.items())
-    # A valid byte with zero output capacity must fail without writing.
-    records.append(((65,), (-2, b"")))
-    lines = [f"{len(records)}\n"]
-    for values, (result, output) in records:
+    records = [(values, result, output, len(output), 0, 0)
+               for values, (result, output) in sorted(cases.items())]
+    records.extend([
+        ((65,), -2, b"", 0, 0, 0),  # insufficient output capacity
+        ((65,), -1, b"", 1, 1, 0),  # null input with positive length
+        ((65,), -2, b"", 1, 0, 1),  # null output despite sufficient capacity
+        ((0,), -1, b"", 1, 0, 1),   # invalid input takes precedence
+        ((), 0, b"", 0, 0, 1),      # empty input permits null output
+    ])
+    lines = [f"{len(records)}\nbytes_with_capacity\n"]
+    for values, result, output, capacity, null_input, null_output in records:
         values_text = "" if not values else " " + " ".join(map(str, values))
         encoded = output.hex() if output else "-"
-        lines.append(f"{len(values)} {result} {len(output)}{values_text} {encoded}\n")
+        lines.append(f"{len(values)} {result} {len(output)} {capacity} "
+                     f"{null_input} {null_output}{values_text} {encoded}\n")
     return "".join(lines), len(records)
 
 
@@ -106,7 +114,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    parser.add_argument("--languages", nargs="+", choices=[*EXTENSIONS, *OPTIONAL_EXTENSIONS], default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build/to_lower_case")

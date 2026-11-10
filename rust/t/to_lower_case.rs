@@ -9,7 +9,7 @@ pub extern "C" fn to_lower_case(input: *const i64, length: usize,
         let value = unsafe { *input.add(index) };
         if !(1..=127).contains(&value) { return -1; }
     }
-    if output_capacity < length { return -2; }
+    if output_capacity < length || (length != 0 && output.is_null()) { return -2; }
     for index in 0..length {
         let mut value = unsafe { *input.add(index) };
         if (65..=90).contains(&value) { value += 32; }

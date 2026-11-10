@@ -1,6 +1,7 @@
 # Lowercase ASCII bytes without locale-dependent character handling.
-def to_lower_case_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if length > 4096:
+def to_lower_case_impl(input: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
+    if length == 0: return 0
+    if length > 4096 or input == null:
         return -1
     valid_input: bool =
         while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
@@ -11,7 +12,7 @@ def to_lower_case_impl(input: i64&, length: usize, output: mutable u8&, output_c
             valid
     if not valid_input:
         return -1
-    if output_capacity < length:
+    if output_capacity < length or output == null:
         return -2
     while index < length |index: mutable usize = 0, output|:
         value: i64 = input[index]
@@ -23,4 +24,4 @@ def to_lower_case_impl(input: i64&, length: usize, output: mutable u8&, output_c
         output
     length.i64()
 
-export fn to_lower_case(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = to_lower_case_impl
+export fn to_lower_case(input: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64 = to_lower_case_impl

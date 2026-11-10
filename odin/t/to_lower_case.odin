@@ -8,11 +8,11 @@ MAX_LENGTH :: 4096
 @(export)
 to_lower_case :: proc "c" (input: [^]i64, length: c.size_t,
         output: [^]u8, output_capacity: c.size_t) -> i64 {
-	if length > c.size_t(MAX_LENGTH) do return -1
+	if length > c.size_t(MAX_LENGTH) || (length != 0 && input == nil) do return -1
 	for index := c.size_t(0); index < length; index += 1 {
 		if input[index] < 1 || input[index] > 127 do return -1
 	}
-	if output_capacity < length do return -2
+	if output_capacity < length || (length != 0 && output == nil) do return -2
 	for index := c.size_t(0); index < length; index += 1 {
 		value := input[index]
 		if value >= 65 && value <= 90 do value += 32
