@@ -1,3 +1,6 @@
+extern calloc(count: usize, size: usize) -> mutable u8&
+extern free(memory: mutable u8&) -> void
+
 def problem174_ceil_sqrt(value: i64) -> i64:
     if value <= 0:
         return 0
@@ -15,7 +18,9 @@ def problem174_impl(t_limit: i64, n_limit: i64) -> i64:
         return -1
     if t_limit < 0:
         return 0
-    count: mutable u8[1000001] = zeroed
+    count: mutable u8& = calloc((t_limit + 1).usize(), 1)
+    if count == null:
+        return -1
     outer_width: mutable i64 = 3
     while outer_width < t_limit / 4 + 2:
         outer_area: i64 = outer_width * outer_width
@@ -35,9 +40,11 @@ def problem174_impl(t_limit: i64, n_limit: i64) -> i64:
     answer: mutable i64 = 0
     tiles: mutable i64 = 1
     while tiles <= t_limit:
-        if count[tiles.usize()] >= 1 && count[tiles.usize()] <= n_limit:
+        representations: i64 = count[tiles.usize()].i64()
+        if representations >= 1 and representations <= n_limit:
             answer <- answer + 1
         tiles <- tiles + 1
+    free(count)
     answer
 
 export fn problem174(t_limit: i64, n_limit: i64) -> i64 = problem174_impl
