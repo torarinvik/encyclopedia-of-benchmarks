@@ -190,8 +190,6 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
           cc: str = "cc", with_checker: bool = False, family: str = "scalar",
           extra_link_sources: tuple[Path, ...] = (),
           implementation_flags: tuple[str, ...] = ()) -> dict:
-    if implementation_flags and language not in {"c", "cpp", "elisa"}:
-        raise ValueError("implementation flags currently support C, C++, and Elisa only")
     if re.fullmatch(r"[a-z0-9]+(?:_[a-z0-9]+)*", algorithm) is None:
         raise ValueError("algorithm must be a normalized catalog name")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
@@ -292,7 +290,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         flags.extend(implementation_flags)
         run([compiler, *flags, str(source), "-o", str(artifact)])
     elif language == "c3":
-        flags = ["-O3", "--no-entry"]
+        flags = ["-O3", "--no-entry", *implementation_flags]
         run([compiler, "static-lib", str(source), *flags, "-o", "implementation",
              "--output-dir", str(directory), "--obj-out", str(directory)])
     elif language == "elisa":
@@ -305,7 +303,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     elif language == "mojo":
         # Mojo defaults to the host CPU and features; preserve that optimized
         # object output and link it with the same C ABI harness as other ports.
-        flags = ["--emit", "object", "-O3"]
+        flags = ["--emit", "object", "-O3", *implementation_flags]
         run([compiler, "build", *flags, "-o", str(artifact), str(source)])
     elif language == "nim":
         flags = ["--app:staticlib", "--noMain", "--mm:none", "-d:release"]
@@ -314,6 +312,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
             flags.append("--passC:-ffp-contract=off")
         if algorithm == "mandelbrot":
             flags.append("--passC:-fno-fast-math")
+        flags.extend(implementation_flags)
         compile_source = source
         if not algorithm[0].isalpha():
             compile_source = directory / f"module_{algorithm}.nim"
@@ -321,11 +320,12 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         run([compiler, "c", *flags,
              f"--nimcache:{directory / 'nimcache'}", f"--out:{artifact}", str(compile_source)])
     elif language == "odin":
-        flags = ["-file", "-build-mode:obj", "-no-entry-point", "-o:speed", "-microarch:generic"]
+        flags = ["-file", "-build-mode:obj", "-no-entry-point", "-o:speed", "-microarch:generic", *implementation_flags]
         run([compiler, "build", str(source), *flags, f"-out:{artifact}"])
     elif language == "rust":
         flags = ["--edition=2021", "--crate-type=staticlib", "--print=native-static-libs", "-C", "opt-level=3",
                  "-C", "panic=abort", "-C", "target-cpu=generic"]
+        flags.extend(implementation_flags)
         compiled = run([compiler, *flags, "-o", str(artifact), str(source)])
         libraries = [line.partition("native-static-libs:")[2].strip()
                      for line in (compiled.stdout + compiled.stderr).splitlines()
@@ -342,6 +342,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
             flags.extend(["-cflags", "-fno-fast-math"])
         if algorithm == "stream_sieve":
             flags.append("-enable-globals")
+        flags.extend(implementation_flags)
         run([compiler, *flags,
              "-dump-c-flags", str(directory / "v-c-flags.txt"), "-o", str(artifact), str(source)])
         # V -prod may emit LLVM bitcode for LTO. Keep that optimization and
@@ -359,7 +360,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
                     lld = Path(found)
                 native_link_flags.append("-fuse-ld=" + str(lld))
     elif language == "zig":
-        flags = ["-O", "ReleaseFast", "-mcpu=baseline"]
+        flags = ["-O", "ReleaseFast", "-mcpu=baseline", *implementation_flags]
         run([compiler, "build-obj", *flags, f"-femit-bin={artifact}", str(source)])
     if not artifact.is_file():
         raise RuntimeError(f"compiler completed without creating {artifact}")
@@ -474,7 +475,7 @@ def main(family: str | None = None) -> int:
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--with-checker", action="store_true")
     parser.add_argument("--implementation-flag", action="append", default=[],
-                        help="Additional C/C++/Elisa implementation flag; recorded in the manifest (repeatable)")
+                        help="Additional language-specific implementation compiler argument; recorded in the manifest (repeatable)")
     args = parser.parse_args()
     letter = args.algorithm[0] if args.algorithm and args.algorithm[0].isalpha() else "0-9"
     directory = args.output_dir or ROOT / "build" / args.family / letter / args.algorithm / args.language
