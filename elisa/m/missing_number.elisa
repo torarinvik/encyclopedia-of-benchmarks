@@ -3,7 +3,8 @@ def missing_number_impl(values: i64&, length: usize) -> i64:
     if length > 1024:
         return -1
     seen: mutable bool[1025] = zeroed
-    actual_sum: mutable i64 = 0
+    # At most 1024 validated values in 0..1024 contribute to the sum.
+    actual_sum: mutable u64 = 0
     index: mutable usize = 0
     while index < length:
         value: i64 = values[index]
@@ -12,9 +13,10 @@ def missing_number_impl(values: i64&, length: usize) -> i64:
         if seen[value.usize()]:
             return -1
         seen[value.usize()] <- true
-        actual_sum <- actual_sum + value
+        actual_sum <- actual_sum + value.u64()
         index <- index + 1
-    n: i64 = length.i64()
-    n * (n + 1) / 2 - actual_sum
+    # Distinct values form a subset of 0..n, so the difference is nonnegative.
+    n: u64 = length.u64()
+    (n * (n + 1) / 2 - actual_sum).i64()
 
 export fn missing_number(values: i64&, length: usize) -> i64 = missing_number_impl
