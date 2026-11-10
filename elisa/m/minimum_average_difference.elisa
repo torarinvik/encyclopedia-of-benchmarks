@@ -1,33 +1,28 @@
 const MAX_LENGTH: usize = 100000
-const MAX_VALUE: i64 = 100000
-const MAX_I64: i64 = 9223372036854775807
+const MAX_VALUE: u64 = 100000
 
 def minimum_average_difference_impl(values: i64&, length: usize) -> i64:
     if length == 0 or length > MAX_LENGTH:
         return -1
-    valid_values: bool =
-        while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
-            value: i64 = values[index]
-            if value < 0 or value > MAX_VALUE:
-                break false
-            index <- index + 1
-            valid
-    if not valid_values:
-        return -1
-    total_sum: i64 =
-        while index < length |index: mutable usize = 0, total: mutable i64 = 0| -> total:
-            total <- total + values[index]
-            index <- index + 1
-            total
+    # Validated nonnegative inputs bound both sums by MAX_LENGTH * MAX_VALUE.
+    total_sum: mutable u64 = 0
+    index: mutable usize = 0
+    while index < length:
+        value: u64 = values[index].u64()
+        if value > MAX_VALUE:
+            return -1
+        total_sum <- total_sum + value
+        index <- index + 1
     best_index: i64 =
-        while index < length |index: mutable usize = 0, prefix_sum: mutable i64 = 0, best_difference: mutable i64 = MAX_I64, best_index: mutable i64 = 0| -> best_index:
-            prefix_sum <- prefix_sum + values[index]
-            left_average: i64 = prefix_sum / (index + 1).i64()
+        while index < length |index: mutable usize = 0, prefix_sum: mutable u64 = 0, best_difference: mutable i64 = MAX_VALUE.i64() + 1, best_index: mutable i64 = 0| -> best_index:
+            prefix_sum <- prefix_sum + values[index].u64()
+            left_average: u64 = prefix_sum / (index + 1).u64()
             suffix_length: usize = length - index - 1
-            right_average: mutable i64 = 0
+            right_average: mutable u64 = 0
             if suffix_length > 0:
-                right_average <- (total_sum - prefix_sum) / suffix_length.i64()
-            difference: mutable i64 = left_average - right_average
+                right_average <- (total_sum - prefix_sum) / suffix_length.u64()
+            # The averages are at most MAX_VALUE, so their difference is signed and bounded.
+            difference: mutable i64 = (left_average - right_average).i64()
             if difference < 0:
                 difference <- -difference
             if difference < best_difference:
