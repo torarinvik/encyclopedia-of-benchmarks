@@ -4,11 +4,13 @@ module sum_of_digits;
 fn long sum_of_digits(long input) @export("sum_of_digits")
 {
     if (input < -2147483648 || input > 2147483647) return -1;
-    ulong remaining = input < 0 ? (ulong)(-input) : (ulong)input;
-    long total = 0;
-    while (remaining != 0) {
-        total += (long)(remaining % 10);
-        remaining /= 10;
+    uint magnitude = (uint)(input < 0 ? -input : input);
+    uint remaining = magnitude;
+    uint total = 0;
+    while (remaining >= 10) {
+        uint next_quotient = remaining / 10;
+        remaining /= 100;
+        total += next_quotient + remaining;
     }
-    return total;
+    return (long)(magnitude - 9 * total);
 }

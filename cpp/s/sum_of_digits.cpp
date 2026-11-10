@@ -4,11 +4,13 @@
 extern "C" std::int64_t sum_of_digits(std::int64_t input) noexcept
 {
     if (input < INT32_MIN || input > INT32_MAX) return -1;
-    auto remaining = static_cast<std::uint64_t>(input < 0 ? -input : input);
-    std::int64_t total = 0;
-    while (remaining != 0) {
-        total += static_cast<std::int64_t>(remaining % 10);
-        remaining /= 10;
+    const std::uint32_t magnitude = static_cast<std::uint32_t>(input < 0 ? -input : input);
+    std::uint32_t remaining = magnitude;
+    std::uint32_t total = 0;
+    while (remaining >= 10) {
+        const std::uint32_t next_quotient = remaining / 10;
+        remaining /= 100;
+        total += next_quotient + remaining;
     }
-    return total;
+    return magnitude - 9 * total;
 }

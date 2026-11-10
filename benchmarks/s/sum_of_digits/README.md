@@ -1,6 +1,6 @@
 # Sum of digits
 
-This benchmark sums the decimal digits of the magnitude of an integer. The C++ source explicitly ignores the negative sign, and the Rust source uses an unsigned magnitude so the minimum signed integer is handled safely. The shared contract follows the iterative decimal-remainder algorithm and defines behavior at the signed 32-bit boundaries.
+This benchmark sums the decimal digits of the magnitude of an integer. The C++ source explicitly ignores the negative sign, and the Rust source uses an unsigned magnitude so the minimum signed integer is handled safely. The shared contract defines behavior at the signed 32-bit boundaries.
 
 ## Contract
 
@@ -8,7 +8,7 @@ This benchmark sums the decimal digits of the magnitude of an integer. The C++ s
 - The negative sign is ignored; zero has digit sum zero.
 - Inputs outside `[-2,147,483,648, 2,147,483,647]` return `-1`.
 - The output is the sum of the decimal digits of the input's absolute value.
-- The nine implementations use division and remainder only; no architecture-specific operations or allocation are involved.
+The ports sum successive decimal quotients two at a time using 32-bit unsigned arithmetic. Each digit is the current quotient minus ten times the next quotient. Adding these differences yields the magnitude minus nine times the sum of all subsequent quotients. The result stays within the original magnitude, including at the minimum signed 32-bit input.
 
 ## Workload and verification
 

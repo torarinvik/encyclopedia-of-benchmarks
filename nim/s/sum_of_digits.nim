@@ -2,9 +2,11 @@
 proc sum_of_digits*(input: int64): int64 {.cdecl, exportc: "sum_of_digits".} =
   if input < int64(low(int32)) or input > int64(high(int32)):
     return -1
-  var remaining = uint64(if input < 0: -input else: input)
-  var total = 0'i64
-  while remaining != 0:
-    total += int64(remaining mod 10)
-    remaining = remaining div 10
-  total
+  let magnitude = uint32(if input < 0: -input else: input)
+  var remaining = magnitude
+  var total = 0'u32
+  while remaining >= 10:
+    let nextQuotient = remaining div 10
+    remaining = remaining div 100
+    total += nextQuotient + remaining
+  int64(magnitude - 9 * total)

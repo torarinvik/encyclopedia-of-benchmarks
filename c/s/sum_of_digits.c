@@ -4,11 +4,13 @@
 int64_t sum_of_digits(int64_t input)
 {
     if (input < INT32_MIN || input > INT32_MAX) return -1;
-    uint64_t remaining = input < 0 ? (uint64_t)(-input) : (uint64_t)input;
-    int64_t total = 0;
-    while (remaining != 0) {
-        total += (int64_t)(remaining % 10);
-        remaining /= 10;
+    const uint32_t magnitude = (uint32_t)(input < 0 ? -input : input);
+    uint32_t remaining = magnitude;
+    uint32_t total = 0;
+    while (remaining >= 10) {
+        const uint32_t next_quotient = remaining / 10;
+        remaining /= 100;
+        total += next_quotient + remaining;
     }
-    return total;
+    return magnitude - 9 * total;
 }

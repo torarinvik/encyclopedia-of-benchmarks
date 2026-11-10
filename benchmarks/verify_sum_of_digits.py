@@ -15,7 +15,7 @@ import shlex
 import subprocess
 import sys
 
-from build_scalar import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
 
 ALGORITHM = "sum_of_digits"
 I32_MIN, I32_MAX = -(2**31), 2**31 - 1
@@ -99,7 +99,8 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS | OPTIONAL_EXTENSIONS,
+                        default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build/scalar")
     parser.add_argument("--jobs", type=int, default=3)
