@@ -8,16 +8,14 @@ pub extern "C" fn single_non_duplicate(values: *const i64, length: usize) -> i64
         return INVALID_RESULT;
     }
     let mut left = 0usize;
-    let mut right = length - 1;
+    let mut right = length / 2;
     while left < right {
         let middle = left + (right - left) / 2;
-        if middle % 2 == 0 {
-            if unsafe { *values.add(middle) == *values.add(middle + 1) } { left = middle + 2; }
-            else { right = middle; }
+        if unsafe { *values.add(middle * 2) == *values.add(middle * 2 + 1) } {
+            left = middle + 1;
         } else {
-            if unsafe { *values.add(middle) == *values.add(middle - 1) } { left = middle + 1; }
-            else { right = middle - 1; }
+            right = middle;
         }
     }
-    unsafe { *values.add(left) }
+    unsafe { *values.add(left * 2) }
 }

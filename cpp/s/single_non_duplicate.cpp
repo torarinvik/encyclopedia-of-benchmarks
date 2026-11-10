@@ -12,16 +12,11 @@ extern "C" std::int64_t single_non_duplicate(const std::int64_t *values,
     if (length == 0 || length > max_values || length % 2 == 0)
         return invalid_result;
     std::size_t left = 0;
-    std::size_t right = length - 1;
+    std::size_t right = length / 2;
     while (left < right) {
         const std::size_t middle = left + (right - left) / 2;
-        if (middle % 2 == 0) {
-            if (values[middle] == values[middle + 1]) left = middle + 2;
-            else right = middle;
-        } else {
-            if (values[middle] == values[middle - 1]) left = middle + 1;
-            else right = middle - 1;
-        }
+        if (values[middle * 2] == values[middle * 2 + 1]) left = middle + 1;
+        else right = middle;
     }
-    return values[left];
+    return values[left * 2];
 }

@@ -7,13 +7,11 @@ proc single_non_duplicate*(values: ptr UncheckedArray[int64], length: csize_t): 
   if length == 0 or length > csize_t(MaxValues) or length mod 2 == 0:
     return InvalidResult
   var left = 0
-  var right = int(length) - 1
+  var right = int(length) div 2
   while left < right:
     let middle = left + (right - left) div 2
-    if middle mod 2 == 0:
-      if values[middle] == values[middle + 1]: left = middle + 2
-      else: right = middle
+    if values[middle * 2] == values[middle * 2 + 1]:
+      left = middle + 1
     else:
-      if values[middle] == values[middle - 1]: left = middle + 1
-      else: right = middle - 1
-  values[left]
+      right = middle
+  values[left * 2]

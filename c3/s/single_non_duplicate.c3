@@ -9,16 +9,11 @@ fn long single_non_duplicate(long* values, usz length) @export("single_non_dupli
         return INVALID_RESULT;
     }
     usz left = 0;
-    usz right = length - 1;
+    usz right = length / 2;
     while (left < right) {
         usz middle = left + (right - left) / 2;
-        if (middle % 2 == 0) {
-            if (values[middle] == values[middle + 1]) { left = middle + 2; }
-            else { right = middle; }
-        } else {
-            if (values[middle] == values[middle - 1]) { left = middle + 1; }
-            else { right = middle - 1; }
-        }
+        if (values[middle * 2] == values[middle * 2 + 1]) { left = middle + 1; }
+        else { right = middle; }
     }
-    return values[left];
+    return values[left * 2];
 }

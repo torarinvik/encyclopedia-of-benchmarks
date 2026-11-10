@@ -7,16 +7,14 @@ const max_values = 1025
 pub fn single_non_duplicate(values &i64, length usize) i64 {
 	if length == 0 || length > max_values || length % 2 == 0 { return -2147483649 }
 	mut left := 0
-	mut right := int(length) - 1
+	mut right := int(length) / 2
 	for left < right {
 		middle := left + (right - left) / 2
-		if middle % 2 == 0 {
-			if unsafe { values[middle] == values[middle + 1] } { left = middle + 2 }
-			else { right = middle }
+		if unsafe { values[middle * 2] == values[middle * 2 + 1] } {
+			left = middle + 1
 		} else {
-			if unsafe { values[middle] == values[middle - 1] } { left = middle + 1 }
-			else { right = middle - 1 }
+			right = middle
 		}
 	}
-	return unsafe { values[left] }
+	return unsafe { values[left * 2] }
 }
