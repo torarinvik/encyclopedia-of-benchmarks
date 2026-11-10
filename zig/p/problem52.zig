@@ -1,5 +1,5 @@
 fn digitCounts(value_in: i64) [10]u8 {
-    var counts = [_]u8{0} ** 10;
+    var counts: [10]u8 = @splat(0);
     var value = value_in;
     while (value > 0) { counts[@intCast(@rem(value, 10))] += 1; value = @divTrunc(value, 10); }
     return counts;

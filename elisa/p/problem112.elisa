@@ -17,7 +17,7 @@ def problem112_impl(percent: i64) -> i64:
     n: mutable i64 = 1
     while true:
         if is_bouncy(n): bouncy <- bouncy + 1
-        if bouncy * 100 >= percent * n: break n
+        if bouncy * 100 >= percent * n: return n
         n <- n + 1
 
 export fn problem112(percent: i64) -> i64 = problem112_impl

@@ -13,8 +13,14 @@ def problem52_impl(unused: i64) -> i64:
     while true:
         base_counts: i64[10] = digit_counts(value)
         matches: mutable bool = true
-        for multiplier in 2..7:
-            if digit_counts(value * multiplier) != base_counts: matches <- false
+        for multiplier in 2..=6:
+            counts: i64[10] = digit_counts(value * multiplier)
+            for index in 0..<10:
+                if counts[index.usize()] != base_counts[index.usize()]:
+                    matches <- false
+                    break
+            if not matches:
+                break
         if matches: return value
         value <- value + 1
     -1
