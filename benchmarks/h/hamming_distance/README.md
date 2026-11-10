@@ -8,7 +8,7 @@ Hamming distance counts differing positions between equal-width values. The pinn
 int64_t hamming_distance(uint64_t left, uint64_t right);
 ```
 
-Both inputs range from `0` through `2^64 - 1`. The result is the number of positions where the two 64-bit values differ, including leading zero positions, so it ranges from `0` to `64`. There are no invalid inputs or error results. The implementation compares the low bits and shifts both unsigned values until both are zero; it takes at most 64 iterations and constant auxiliary storage. It uses portable integer operations without architecture-specific population-count instructions.
+Both inputs range from `0` through `2^64 - 1`. The result is the number of positions where the two 64-bit values differ, including leading zero positions, so it ranges from `0` to `64`. There are no invalid inputs or error results. The ports XOR the two inputs and count the set bits in the resulting word. Elisa and Mojo use a fixed sequence of unsigned arithmetic and bitwise operations. The other ports use their toolchain’s population-count operation.
 
 The upstream C string function accepts two null-terminated strings and assumes the second has at least the first string's length. That string API has a different input contract, so the local benchmark selects the unsigned integer variant available in the reviewed C++ and Rust files and supplies the corresponding portable C implementation. The C++ `count_bits_flip` and Java `CountBitsFlip` sources also compute set-bit count of `A XOR B`; their alias is normalized to nonnegative signed 64-bit inputs.
 

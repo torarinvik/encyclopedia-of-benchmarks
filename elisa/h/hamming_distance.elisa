@@ -1,14 +1,9 @@
-# Portable Hamming distance over two unsigned 64-bit values.
+# Count differing bits with a fixed-width population count that LLVM recognizes.
 def hamming_distance_impl(left: u64, right: u64) -> i64:
-    left_bit: mutable u64 = left
-    right_bit: mutable u64 = right
-    # The loop visits at most 64 bits, so this counter fits in both types.
-    count: mutable u64 = 0
-    while left_bit != 0 or right_bit != 0:
-        if (left_bit & 1) != (right_bit & 1):
-            count <- count + 1
-        left_bit <- left_bit >> 1
-        right_bit <- right_bit >> 1
-    count.i64()
+    differing: u64 = left ^ right
+    pairs: u64 = differing - ((differing >> 1) & 0x5555555555555555.u64())
+    nibbles: u64 = (pairs & 0x3333333333333333.u64()) + ((pairs >> 2) & 0x3333333333333333.u64())
+    bytes: u64 = (nibbles + (nibbles >> 4)) & 0x0f0f0f0f0f0f0f0f.u64()
+    ((bytes * 0x0101010101010101.u64()) >> 56).i64()
 
 export fn hamming_distance(left: u64, right: u64) -> i64 = hamming_distance_impl
