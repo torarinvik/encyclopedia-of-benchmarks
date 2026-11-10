@@ -7,7 +7,7 @@ Given a square grid of building heights, return the largest total increase that 
 - Input is a signed 64-bit integer array: the first element is the grid dimension `n`, followed by `n × n` heights in row-major order.
 - The grid dimension is 2 through 50, and each height is 0 through 100.
 - Return the sum of all allowable height increases. Return -1 for an invalid dimension, array length, or height.
-- The implementation collects row and column maxima, then sums the permissible increase for each cell in O(n²) time and O(n) auxiliary space.
+- The implementation validates heights, sums them, and collects row and column maxima in one grid pass. Small grids sum the minima directly. Larger grids count row and column maxima by height. At each height, the product of the numbers of rows and columns that reach it counts every cell that can reach it. Subtracting the original height sum gives the increase. The grid scan takes O(n²) time and the histograms use 101 slots each.
 
 ## Workload and verification
 
@@ -19,4 +19,4 @@ The pinned C [LeetCode 807 implementation](https://github.com/TheAlgorithms/C/bl
 
 ## Implementations
 
-All nine ports use the shared i64-array/scalar ABI.
+All ten ports use the shared i64-array/scalar ABI. Select Mojo explicitly with `--languages mojo`.

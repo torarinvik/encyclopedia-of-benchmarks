@@ -8,23 +8,48 @@ pub extern "C" fn max_increase_keeping_skyline(values: *const i64, length: usize
     let size = values[0] as usize;
     if length != 1 + size * size { return -1; }
 
-    let mut row_max = [0i64; MAX_GRID_SIZE];
-    let mut column_max = [0i64; MAX_GRID_SIZE];
-    for row in 0..size {
-        for column in 0..size {
-            let height = values[1 + row * size + column];
-            if !(0..=100).contains(&height) { return -1; }
-            row_max[row] = row_max[row].max(height);
-            column_max[column] = column_max[column].max(height);
+    let mut row_max = [0u8; MAX_GRID_SIZE];
+    let mut column_max = [0u8; MAX_GRID_SIZE];
+    let mut tallest = 0u64;
+    let mut height_sum = 0u32;
+    for (row, heights) in values[1..].chunks_exact(size).enumerate() {
+        let mut row_tallest = 0u8;
+        for (&value, column_tallest) in heights.iter().zip(column_max.iter_mut()) {
+            let value = value as u64;
+            tallest = tallest.max(value);
+            height_sum = height_sum.wrapping_add(value as u32);
+            let height = value as u8;
+            row_tallest = row_tallest.max(height);
+            *column_tallest = (*column_tallest).max(height);
         }
+        row_max[row] = row_tallest;
     }
+    if tallest > 100 { return -1; }
 
-    let mut total = 0i64;
-    for row in 0..size {
-        for column in 0..size {
-            let height = values[1 + row * size + column];
-            total += row_max[row].min(column_max[column]) - height;
+    let mut skyline_sum = 0u32;
+    if size <= 10 {
+        for &row_height in &row_max[..size] {
+            for &column_height in &column_max[..size] {
+                skyline_sum += u32::from(row_height.min(column_height));
+            }
+        }
+    } else {
+        let mut row_counts = [0u8; 101];
+        let mut column_counts = [0u8; 101];
+        let mut lowest = 100u8;
+        for index in 0..size {
+            lowest = lowest.min(row_max[index]).min(column_max[index]);
+            row_counts[usize::from(row_max[index])] += 1;
+            column_counts[usize::from(column_max[index])] += 1;
+        }
+        let mut rows_above = size as u32;
+        let mut columns_above = size as u32;
+        skyline_sum = rows_above * columns_above * u32::from(lowest);
+        for height in usize::from(lowest)..tallest as usize {
+            rows_above -= u32::from(row_counts[height]);
+            columns_above -= u32::from(column_counts[height]);
+            skyline_sum += rows_above * columns_above;
         }
     }
-    total
+    i64::from(skyline_sum - height_sum)
 }

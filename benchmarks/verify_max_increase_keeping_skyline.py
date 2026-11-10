@@ -14,7 +14,7 @@ import random
 import subprocess
 import sys
 
-from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
 from run_i64_array_scalar import encode_case
 
 ALGORITHM = "max_increase_keeping_skyline"
@@ -73,6 +73,12 @@ def corpus(workload: dict) -> tuple[str, int]:
                  for _ in range(size * size)]
         values = [size, *cells]
         cases[tuple(values)] = oracle(values)
+    for size in (10, 11, 23, 50):
+        for _ in range(12):
+            cells = [rng.randrange(101) for _ in range(size * size)]
+            values = [size, *cells]
+            cases[tuple(values)] = oracle(values)
+    cases[(50, *([100] * 2499), 256)] = -1
     for size in (2, 7, 50):
         cells = [100 if row in (0, size - 1) or column in (0, size - 1) else 0
                  for row in range(size) for column in range(size)]
@@ -130,7 +136,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    parser.add_argument("--languages", nargs="+", choices={**EXTENSIONS, **OPTIONAL_EXTENSIONS}, default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build/max_increase_keeping_skyline")

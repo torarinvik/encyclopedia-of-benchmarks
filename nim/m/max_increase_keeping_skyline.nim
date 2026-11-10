@@ -8,18 +8,39 @@ proc max_increase_keeping_skyline*(values: ptr UncheckedArray[int64], length: cs
   let size = int(values[0])
   if length != csize_t(1 + size * size): return -1
 
-  var rowMax: array[MaxGridSize, int64]
-  var columnMax: array[MaxGridSize, int64]
+  var rowMax, columnMax: array[MaxGridSize, uint8]
+  var tallest: uint64
+  var heightSum: uint32
   for row in 0 ..< size:
+    var rowTallest: uint8
+    let start = 1 + row * size
     for column in 0 ..< size:
-      let height = values[1 + row * size + column]
-      if height < 0 or height > 100: return -1
-      if height > rowMax[row]: rowMax[row] = height
-      if height > columnMax[column]: columnMax[column] = height
+      let value = cast[uint64](values[start + column])
+      tallest = max(tallest, value)
+      heightSum += uint32(value)
+      let height = uint8(value)
+      rowTallest = max(rowTallest, height)
+      columnMax[column] = max(columnMax[column], height)
+    rowMax[row] = rowTallest
+  if tallest > 100: return -1
 
-  var total = 0'i64
-  for row in 0 ..< size:
-    for column in 0 ..< size:
-      let height = values[1 + row * size + column]
-      total += min(rowMax[row], columnMax[column]) - height
-  total
+  var skylineSum: uint32
+  if size <= 10:
+    for row in 0 ..< size:
+      for column in 0 ..< size:
+        skylineSum += uint32(min(rowMax[row], columnMax[column]))
+  else:
+    var rowCounts, columnCounts: array[101, uint8]
+    var lowest = 100
+    for index in 0 ..< size:
+      lowest = min(lowest, min(int(rowMax[index]), int(columnMax[index])))
+      inc rowCounts[int(rowMax[index])]
+      inc columnCounts[int(columnMax[index])]
+    var rowsAbove = uint32(size)
+    var columnsAbove = uint32(size)
+    skylineSum = rowsAbove * columnsAbove * uint32(lowest)
+    for height in lowest ..< int(tallest):
+      rowsAbove -= uint32(rowCounts[height])
+      columnsAbove -= uint32(columnCounts[height])
+      skylineSum += rowsAbove * columnsAbove
+  int64(skylineSum - heightSum)
