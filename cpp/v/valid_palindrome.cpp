@@ -2,30 +2,40 @@
 #include <cstddef>
 #include <cstdint>
 
-static bool is_ascii_alphanumeric(std::int64_t value)
+namespace {
+
+bool folded_alphanumeric(std::uint64_t value)
 {
-    return (value >= '0' && value <= '9') || (value >= 'A' && value <= 'Z') ||
-           (value >= 'a' && value <= 'z');
+    return value - 48 <= 9 || value - 97 <= 25;
 }
 
-static std::int64_t ascii_lower(std::int64_t value)
+std::int64_t mismatch_result(const std::int64_t *text, std::size_t left, std::size_t right)
 {
-    return value >= 'A' && value <= 'Z' ? value + ('a' - 'A') : value;
+    std::uint64_t bits = 0;
+    for (std::size_t index = left; index < right; ++index) bits |= static_cast<std::uint64_t>(text[index]);
+    return bits > 127 ? -1 : 0;
 }
 
-extern "C" std::int64_t valid_palindrome(const std::int64_t *text, std::size_t length)
-{
+}
+
+extern "C" std::int64_t valid_palindrome(const std::int64_t *text, std::size_t length) noexcept {
     if (length > 4096) return -1;
-    for (std::size_t index = 0; index < length; ++index) {
-        if (text[index] < 0 || text[index] > 127) return -1;
-    }
+    if (length <= 1) return length == 1 && static_cast<std::uint64_t>(text[0]) > 127 ? -1 : 1;
+
     std::size_t left = 0;
     std::size_t right = length;
     while (left < right) {
-        while (left < right && !is_ascii_alphanumeric(text[left])) ++left;
-        while (left < right && !is_ascii_alphanumeric(text[right - 1])) --right;
-        if (left < right && ascii_lower(text[left]) != ascii_lower(text[right - 1])) return 0;
-        if (left < right) { ++left; --right; }
+        const std::uint64_t first = static_cast<std::uint64_t>(text[left++]) | 32;
+        if (first > 127) return -1;
+        if (!folded_alphanumeric(first)) continue;
+        while (left < right) {
+            const std::uint64_t last = static_cast<std::uint64_t>(text[--right]) | 32;
+            if (last > 127) return -1;
+            if (folded_alphanumeric(last)) {
+                if (first != last) return mismatch_result(text, left, right);
+                break;
+            }
+        }
     }
     return 1;
 }

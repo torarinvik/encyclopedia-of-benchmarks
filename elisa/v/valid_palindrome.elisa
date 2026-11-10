@@ -1,31 +1,36 @@
-# ASCII alphanumeric palindrome check, ignoring case and punctuation.
-def valid_palindrome_is_alphanumeric(value: i64) -> i64:
-    letter: i64 = value | 32
-    if (value >= 48 and value <= 57) or (letter >= 97 and letter <= 122):
-        return 1
-    return 0
+# ASCII digits already have bit 5 set, so folding them leaves them unchanged.
+def folded_alphanumeric(value: u64) -> bool:
+    value - 48 <= 9 or value - 97 <= 25
+
+def mismatch_result(text: i64&, left: usize, right: usize) -> i64:
+    # A palindrome mismatch does not make an unvisited invalid byte acceptable.
+    bits: mutable u64 = 0
+    index: mutable usize = left
+    while index < right:
+        bits <- bits | text[index].u64()
+        index <- index + 1
+    -1 if bits > 127 else 0
 
 def valid_palindrome_impl(text: i64&, length: usize) -> i64:
-    if length > 4096:
-        return -1
-    index: mutable usize = 0
-    while index < length:
-        if text[index] < 0 or text[index] > 127:
-            return -1
-        index <- index + 1
+    return -1 if length > 4096
+    if length <= 1:
+        return -1 if length == 1 and text[0].u64() > 127
+        return 1
     left: mutable usize = 0
     right: mutable usize = length
     while left < right:
-        while left < right and valid_palindrome_is_alphanumeric(text[left]) == 0:
-            left <- left + 1
-        while left < right and valid_palindrome_is_alphanumeric(text[right - 1]) == 0:
+        first: u64 = text[left].u64() | 32
+        return -1 if first > 127
+        left <- left + 1
+        continue if not folded_alphanumeric(first)
+
+        while left < right:
             right <- right - 1
-        # Both ends are alphanumeric. ASCII digits already have bit 5 set.
-        if left < right and (text[left] | 32) != (text[right - 1] | 32):
-            return 0
-        if left < right:
-            left <- left + 1
-            right <- right - 1
+            last: u64 = text[right].u64() | 32
+            return -1 if last > 127
+            if folded_alphanumeric(last):
+                return mismatch_result(text, left, right) if first != last
+                break
     1
 
 export fn valid_palindrome(text: i64&, length: usize) -> i64 = valid_palindrome_impl

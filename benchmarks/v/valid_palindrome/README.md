@@ -1,6 +1,6 @@
 # Valid Palindrome
 
-Check whether the input reads the same in both directions after ignoring non-alphanumeric ASCII characters and ASCII letter case. Two pointers scan inward, skipping punctuation before each comparison.
+Check whether the input reads the same in both directions after ignoring non-alphanumeric ASCII characters and ASCII letter case. Two pointers scan inward, skipping punctuation before each comparison. The Elisa, C, C++, and Rust ports validate characters as the pointers consume them. After a mismatch, they validate the remaining interval before returning.
 
 ## Contract
 

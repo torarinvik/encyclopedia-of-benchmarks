@@ -46,6 +46,12 @@ def corpus(workload: dict) -> tuple[str, int]:
     cases.update({(left, right): oracle([left, right]) for left in boundaries for right in boundaries})
     cases[(33,) * MAX_LENGTH] = oracle([33] * MAX_LENGTH)
     cases[(33,) * (MAX_LENGTH + 1)] = -1
+    # An endpoint mismatch must still reject invalid input in the unvisited interval.
+    for invalid in (-1, 128, I64_MIN, I64_MAX, (1 << 32) + 65):
+        for length in (5, 33, MAX_LENGTH):
+            data = [65] + [32] * (length - 2) + [66]
+            data[length // 2] = invalid
+            cases[tuple(data)] = -1
     rng = random.Random(20261014)
     choices = [0, 1, 32, 33, 48, 49, 65, 66, 90, 97, 98, 122, 127, 128, -1]
     for _ in range(512):
