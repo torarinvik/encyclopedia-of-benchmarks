@@ -6,7 +6,7 @@ This benchmark finds the smallest prime strictly greater than a signed integer.
 
 - The input is one signed 64-bit integer from -4096 through 4096.
 - The result is the smallest prime strictly greater than the input. Inputs below 2 return 2; values outside the documented input range return `-1`.
-- Each candidate is checked by trial division through its square root. The implementation uses integer division for the bound and does not depend on architecture-specific instructions.
+- Candidates are checked by trial division. The C, C++, Elisa, Rust, and V ports skip even candidates, test divisibility by three, and visit the remaining trial divisors in pairs of the form `6k - 1` and `6k + 1`. Candidate values and trial squares fit in 32 bits. The ports use portable integer arithmetic.
 - The fixed input range bounds the candidate search; the largest valid input returns 4099.
 
 The pinned Python source documents the strict-greater-than behavior, including results of 2 for negative values and zero. The C# `PrimeNumber.NextPrime` method matches with its default factor and direction arguments. The shared contract bounds its arbitrary-precision input domain so that all nine target languages use the same signed 64-bit scalar ABI.

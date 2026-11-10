@@ -2,27 +2,25 @@
 def next_prime_number_impl(value: i64) -> i64:
     if value < -4096 or value > 4096:
         return -1
-
-    candidate: mutable i64 = value + 1
-    if candidate < 2:
-        candidate <- 2
-    answer: i64 =
-        while not is_prime(candidate) |candidate: mutable i64 = candidate| -> candidate:
-            candidate <- candidate + 1
-    answer
-
-def is_prime(value: i64) -> bool:
     if value < 2:
-        return false
+        return 2
     if value == 2:
-        return true
-    if value % 2 == 0:
+        return 3
+
+    candidate: mutable u32 = (value.u32() + 1) | 1
+    while not is_candidate_prime(candidate):
+        candidate <- candidate + 2
+    candidate.i64()
+
+def is_candidate_prime(value: u32) -> bool:
+    # 4099 is prime, so candidates and trial squares are bounded by the input contract.
+    if value % 3 == 0:
         return false
-    composite: bool =
-        while divisor <= value / divisor |divisor: mutable i64 = 3, found: bool = false| -> found:
-            if value % divisor == 0:
-                break true
-            divisor <- divisor + 2
-    not composite
+    divisor: mutable u32 = 5
+    while divisor * divisor <= value:
+        if value % divisor == 0 or value % (divisor + 2) == 0:
+            return false
+        divisor <- divisor + 6
+    true
 
 export fn next_prime_number(value: i64) -> i64 = next_prime_number_impl
