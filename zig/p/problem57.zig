@@ -14,8 +14,8 @@ fn addScaled(a: *[5000]u16, alen: usize, b: *[5000]u16, blen: usize,
 export fn problem57(n: i64) i64 {
     if (n > 10000) return -1;
     if (n < 1) return 0;
-    var prev_n = [_]u16{0} ** 5000; var prev_d = [_]u16{0} ** 5000;
-    var cur_n = [_]u16{0} ** 5000; var cur_d = [_]u16{0} ** 5000;
+    var prev_n: [5000]u16 = @splat(0); var prev_d: [5000]u16 = @splat(0);
+    var cur_n: [5000]u16 = @splat(0); var cur_d: [5000]u16 = @splat(0);
     prev_n[0]=1;prev_d[0]=1;
     var nlen: usize=1;var dlen: usize=1;var count: i64=0;
     var iteration: i64=0;

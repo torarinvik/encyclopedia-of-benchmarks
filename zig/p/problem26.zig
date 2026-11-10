@@ -4,7 +4,7 @@ export fn problem26(limit: i64) i64 {
     var longest_remainder_list: i64 = 0;
     var denominator: i64 = 1;
     while (denominator <= limit) : (denominator += 1) {
-        var seen = [_]bool{false} ** 1001;
+        var seen: [1001]bool = @splat(false);
         var remainder: i64 = 1;
         var remainder_count: i64 = 0;
         var step: i64 = 0;
