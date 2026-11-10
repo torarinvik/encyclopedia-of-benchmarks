@@ -1,6 +1,6 @@
 # Trapped rainwater with two pointers
 
-This package preserves the distinct O(1)-auxiliary-space algorithm in the pinned C++ `trapped_rainwater2.cpp` source. It advances the side with the smaller current boundary, maintains the maximum height seen from each side, and accumulates water as each index is finalized. The existing [`trapped_rainwater`](../trapped_rainwater/README.md) package uses prefix and suffix maximum arrays, so it has the same result contract but a different algorithm and space profile.
+This package preserves the distinct O(1)-auxiliary-space algorithm in the pinned C++ `trapped_rainwater2.cpp` source. It advances the side with the smaller current boundary, maintains the maximum height seen from each side, and accumulates water as each index is finalized. The existing [`trapped_rainwater`](../trapped_rainwater/README.md) package stores suffix maxima and computes prefix maxima during the forward scan, so it has the same result contract but a different algorithm and space profile.
 
 Source: [TheAlgorithms/C-Plus-Plus `trapped_rainwater2.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/dynamic_programming/trapped_rainwater2.cpp).
 

@@ -1,23 +1,31 @@
-/// Sum trapped water using per-position prefix and suffix maxima.
-export fn trapped_rainwater(heights: [*]const i64, length: usize) i64 {
-    if (length > 4096) return -1;
-    for (0..length) |index| {
-        if (heights[index] < 0 or heights[index] > 1_000_000) return -1;
-    }
-    if (length < 3) return 0;
-
-    var left_max: [4096]i64 = @splat(0);
-    var right_max: [4096]i64 = @splat(0);
-    left_max[0] = heights[0];
-    for (1..length) |index| left_max[index] = @max(left_max[index - 1], heights[index]);
-    right_max[length - 1] = heights[length - 1];
-    var index = length - 1;
+fn trappedWaterWithSuffix(heights: []const i64, suffix: []u32) i64 {
+    var boundary: u32 = 0;
+    var index = heights.len;
     while (index > 0) {
         index -= 1;
-        right_max[index] = @max(right_max[index + 1], heights[index]);
+        const raw: u64 = @bitCast(heights[index]);
+        if (raw > 1_000_000) return -1;
+        boundary = @max(boundary, @as(u32, @intCast(raw)));
+        suffix[index] = boundary;
     }
 
-    var water: i64 = 0;
-    for (0..length) |position| water += @min(left_max[position], right_max[position]) - heights[position];
+    var water: u32 = 0;
+    boundary = 0;
+    for (heights, suffix[0..heights.len]) |raw, right_max| {
+        const height: u32 = @intCast(raw);
+        boundary = @max(boundary, height);
+        water += @min(boundary, right_max) - height;
+    }
     return water;
+}
+
+/// Sum trapped water using stored suffix maxima and a running prefix maximum.
+export fn trapped_rainwater(heights: [*]const i64, length: usize) i64 {
+    if (length > 4096) return -1;
+    if (length <= 16) {
+        var suffix: [16]u32 = undefined;
+        return trappedWaterWithSuffix(heights[0..length], &suffix);
+    }
+    var suffix: [4096]u32 = undefined;
+    return trappedWaterWithSuffix(heights[0..length], &suffix);
 }

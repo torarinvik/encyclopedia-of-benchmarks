@@ -1,35 +1,37 @@
 module trapped_rainwater
 
-// Sum trapped water using per-position prefix and suffix maxima.
+fn trapped_water_with_suffix(heights &i64, length usize, suffix &u32) i64 {
+    mut boundary := u32(0)
+    mut index := length
+    for index > 0 {
+        index--
+        raw := u64(unsafe { heights[index] })
+        if raw > 1000000 { return -1 }
+        height := u32(raw)
+        boundary = if height > boundary { height } else { boundary }
+        unsafe { suffix[index] = boundary }
+    }
+
+    mut water := u32(0)
+    boundary = 0
+    for position in 0 .. length {
+        height := u32(unsafe { heights[position] })
+        boundary = if height > boundary { height } else { boundary }
+        right_max := unsafe { suffix[position] }
+        wall := if right_max < boundary { right_max } else { boundary }
+        water += wall - height
+    }
+    return i64(water)
+}
+
+// Sum trapped water using stored suffix maxima and a running prefix maximum.
 @[export: 'trapped_rainwater']
 pub fn trapped_rainwater(heights &i64, length usize) i64 {
-	if length > 4096 { return -1 }
-	for index in 0 .. length {
-		value := unsafe { heights[index] }
-		if value < 0 || value > 1000000 { return -1 }
-	}
-	if length < 3 { return 0 }
-
-	mut left_max := [4096]i64{}
-	mut right_max := [4096]i64{}
-	left_max[0] = unsafe { heights[0] }
-	for index in 1 .. length {
-		value := unsafe { heights[index] }
-		left_max[index] = if left_max[index - 1] > value { left_max[index - 1] } else { value }
-	}
-	last := length - 1
-	right_max[last] = unsafe { heights[last] }
-	mut index := last
-	for index > 0 {
-		index--
-		value := unsafe { heights[index] }
-		right_max[index] = if right_max[index + 1] > value { right_max[index + 1] } else { value }
-	}
-
-	mut water := i64(0)
-	for position in 0 .. length {
-		boundary := if left_max[position] < right_max[position] { left_max[position] } else { right_max[position] }
-		water += boundary - unsafe { heights[position] }
-	}
-	return water
+    if length > 4096 { return -1 }
+    if length <= 16 {
+        mut suffix := [16]u32{}
+        return trapped_water_with_suffix(heights, length, &suffix[0])
+    }
+    mut suffix := [4096]u32{}
+    return trapped_water_with_suffix(heights, length, &suffix[0])
 }

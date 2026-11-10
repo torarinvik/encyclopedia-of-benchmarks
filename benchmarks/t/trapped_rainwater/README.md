@@ -1,6 +1,6 @@
 # Trapped Rainwater
 
-The pinned C++ and Rust implementations compute left and right maximum-height arrays, then sum the water held at each position. They use unsigned 32-bit heights and return values. The benchmark adopts the same prefix/suffix-maxima method with an explicit bound that keeps all intermediate heights and the total safely representable.
+The pinned C++ and Rust implementations compute left and right maximum-height arrays, then sum the water held at each position. They use unsigned 32-bit heights and return values. The benchmark uses the same prefix/suffix-maxima method and keeps only the suffix maxima in an array. The forward pass computes each prefix maximum as it is used.
 
 ## Contract
 
@@ -8,11 +8,11 @@ The pinned C++ and Rust implementations compute left and right maximum-height ar
 - Each height must be from 0 through 1,000,000.
 - Return the total trapped water; inputs with fewer than three heights return 0.
 - Return `-1` for invalid heights or lengths. At the maximum length and height, the total is at most 4,094,000,000.
-- The implementations use linear time and two fixed local arrays; no floating-point or architecture-specific instructions are needed.
+- The implementations use linear time and one local array of unsigned 32-bit suffix maxima. Short profiles use a 16-element buffer. The reverse pass validates heights while filling the buffer.
 
 ## Workload and verification
 
-[`workload.json`](workload.json) includes the standard basin examples, monotone and flat profiles, invalid inputs, and a maximum-length basin. [`benchmarks/verify_trapped_rainwater.py`](../../verify_trapped_rainwater.py) checked 22,401 oracle arrays per language, including exhaustive short profiles, seeded random profiles, invalid heights, overlength arrays, and the large basin. All nine ports passed and each recorded all 13 workload cases.
+[`workload.json`](workload.json) includes the standard basin examples, monotone and flat profiles, invalid inputs, and a maximum-length basin. [`benchmarks/verify_trapped_rainwater.py`](../../verify_trapped_rainwater.py) checked 22,411 oracle arrays per language, including exhaustive short profiles, seeded random profiles, invalid heights, overlength arrays, and the large basin. All ten ports passed and each recorded all 13 workload cases.
 
 ## Upstream sources
 

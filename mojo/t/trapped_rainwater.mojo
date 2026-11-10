@@ -1,16 +1,41 @@
 from std.ffi import c_size_t
-from std.memory import ImmutAnyOrigin, UnsafePointer
+from std.memory import Pointer
+from std.origin import ImmUntrackedOrigin
+
+
+def trapped_water_with_suffix[capacity: Int](
+    heights: Pointer[Int64, ImmUntrackedOrigin], count: Int
+) -> Int64:
+    var storage = Array[UInt32, capacity](fill=0)
+    var suffix = storage.unsafe_ptr()
+    var boundary: UInt32 = 0
+    for step in range(count):
+        var index = count - 1 - step
+        var raw = UInt64(heights[unsafe_offset=index])
+        if raw > 1_000_000:
+            return -1
+        boundary = max(boundary, UInt32(raw))
+        suffix[unsafe_offset=index] = boundary
+
+    var water: UInt32 = 0
+    boundary = 0
+    for index in range(count):
+        var height = UInt32(heights[unsafe_offset=index])
+        boundary = max(boundary, height)
+        water += min(boundary, suffix[unsafe_offset=index]) - height
+    return Int64(water)
+
+
 @export("trapped_rainwater")
-fn trapped_rainwater(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->Int64:
-    if n>4096 or (n>0 and a==UnsafePointer[Int64,ImmutAnyOrigin]()):return -1
-    for i in range(Int(n)):
-        if a[i]<0 or a[i]>1000000:return -1
-    if n<3:return 0
-    let count=Int(n);var left=InlineArray[Int64,4096]();var right=InlineArray[Int64,4096]()
-    left[0]=a[0]
-    for i in range(1,count):left[i]=max(left[i-1],a[i])
-    right[count-1]=a[count-1]
-    for j in range(1,count):let i=count-j-1;right[i]=max(right[i+1],a[i])
-    var water:Int64=0
-    for i in range(count):water+=min(left[i],right[i])-a[i]
-    return water
+def trapped_rainwater(
+    input: Optional[Pointer[Int64, ImmUntrackedOrigin]], length: c_size_t
+) abi("C") -> Int64:
+    if length == 0:
+        return 0
+    if length > 4096 or input == None:
+        return -1
+    var heights = input.value()
+    var count = Int(length)
+    if count <= 16:
+        return trapped_water_with_suffix[16](heights, count)
+    return trapped_water_with_suffix[4096](heights, count)

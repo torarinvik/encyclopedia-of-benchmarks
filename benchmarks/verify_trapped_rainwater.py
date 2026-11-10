@@ -14,7 +14,7 @@ import random
 import subprocess
 import sys
 
-from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
 from run_i64_array_scalar import encode_case
 
 ALGORITHM = "trapped_rainwater"
@@ -59,6 +59,11 @@ def corpus(workload: dict) -> tuple[str, int]:
                       [0, -1, 0], [0, MAX_HEIGHT + 1, 0],
                       [0] * (MAX_LENGTH + 1),
                       [MAX_HEIGHT, *([0] * (MAX_LENGTH - 2)), MAX_HEIGHT]]
+    for length in (16, 17):
+        boundary_cases.append([MAX_HEIGHT, *([0] * (length - 2)), MAX_HEIGHT])
+        for invalid in (-(1 << 63), (1 << 63) - 1):
+            boundary_cases.append([invalid] + [0] * (length - 1))
+            boundary_cases.append([0] * (length - 1) + [invalid])
     for values in boundary_cases:
         cases[tuple(values)] = oracle(values)
 
@@ -119,7 +124,8 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS | OPTIONAL_EXTENSIONS,
+                        default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build/trapped_rainwater")
