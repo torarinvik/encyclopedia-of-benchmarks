@@ -6,13 +6,11 @@ def pell_number_impl(index: i64) -> i64:
     previous: mutable i64 = 0
     current: mutable i64 = 1
     i: mutable i64 = 2
-    while i + 1 <= index:
+    while i <= index:
         next: i64 = 2 * current + previous
-        current <- 2 * next + current
-        previous <- next
-        i <- i + 2
-    if i <= index:
-        current <- 2 * current + previous
+        previous <- current
+        current <- next
+        i <- i + 1
     current
 
 export fn pell_number(index: i64) -> i64 = pell_number_impl

@@ -6,18 +6,11 @@ def tribonacci_impl(n: i64) -> i64:
         return 0
     if n <= 2:
         return 1
-    index: mutable i64 = 3
-    previous_three: mutable i64 = 0
-    previous_two: mutable i64 = 1
-    previous_one: mutable i64 = 1
-    while index + 1 <= n:
+    while index <= n |index: i64 = 3, previous_three: i64 = 0, previous_two: i64 = 1, previous_one: i64 = 1| -> previous_one:
         next: i64 = previous_three + previous_two + previous_one
-        previous_three <- previous_one
-        previous_one <- previous_two + previous_one + next
-        previous_two <- next
-        index <- index + 2
-    if index <= n:
-        previous_one <- previous_three + previous_two + previous_one
-    previous_one
+        previous_three <- previous_two
+        previous_two <- previous_one
+        previous_one <- next
+        index <- index + 1
 
 export fn tribonacci(n: i64) -> i64 = tribonacci_impl
