@@ -62,6 +62,14 @@ def corpus(workload: dict) -> tuple[str, int]:
     ):
         cases[values] = oracle(list(values))
     cases[(40,) * (MAX_LENGTH + 1)] = -1
+    for depth in (16, 17, 128):
+        for values in (
+            (40,) * depth + (41,) * depth,
+            (40,) * (depth + 1) + (41,) * (depth - 1),
+            (40,) * (depth + 1) + (41,) * (depth - 2) + ((1 << 32) + 41,),
+            (41,) + (40,) * (2 * depth - 2) + (0,),
+        ):
+            cases[values] = oracle(list(values))
     for value in (-1, 0, 39, 42, 65, 127, 256, 2**31, -(2**63), 2**63 - 1):
         cases[(40, value, 41)] = -1
 
