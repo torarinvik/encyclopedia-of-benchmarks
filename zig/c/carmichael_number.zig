@@ -8,10 +8,14 @@ fn is_composite(n: i64) bool {
 }
 
 fn modular_power(base: i64, exponent: i64, modulus: i64) i64 {
-    if (exponent == 0) return 1;
-    const half = @rem(modular_power(base, @divTrunc(exponent, 2), modulus), modulus);
-    var result = @rem(half * half, modulus);
-    if (@rem(exponent, 2) != 0) result = @rem(result * base, modulus);
+    var result: i64 = 1;
+    var power = base;
+    var remaining = exponent;
+    while (remaining > 0) {
+        if (@rem(remaining, 2) != 0) result = @rem(result * power, modulus);
+        remaining = @divTrunc(remaining, 2);
+        if (remaining > 0) power = @rem(power * power, modulus);
+    }
     return result;
 }
 

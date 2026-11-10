@@ -7,10 +7,13 @@ proc isComposite(n: int64): bool =
   false
 
 proc modularPower(base, exponent, modulus: int64): int64 =
-  if exponent == 0: return 1
-  let half = modularPower(base, exponent div 2, modulus) mod modulus
-  result = (half * half) mod modulus
-  if exponent mod 2 != 0: result = (result * base) mod modulus
+  result = 1
+  var power = base
+  var remaining = exponent
+  while remaining > 0:
+    if remaining mod 2 != 0: result = (result * power) mod modulus
+    remaining = remaining div 2
+    if remaining > 0: power = (power * power) mod modulus
 
 proc gcd(leftValue, rightValue: int64): int64 =
   var left = leftValue

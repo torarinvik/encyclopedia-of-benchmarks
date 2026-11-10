@@ -9,10 +9,14 @@ fn bool is_composite(long n) {
 }
 
 fn long modular_power(long base, long exponent, long modulus) {
-    if (exponent == 0) return 1;
-    long half = modular_power(base, exponent / 2, modulus) % modulus;
-    long result = (half * half) % modulus;
-    if (exponent % 2 != 0) result = (result * base) % modulus;
+    long result = 1;
+    long power = base;
+    long remaining = exponent;
+    while (remaining > 0) {
+        if (remaining % 2 != 0) result = (result * power) % modulus;
+        remaining /= 2;
+        if (remaining > 0) power = (power * power) % modulus;
+    }
     return result;
 }
 

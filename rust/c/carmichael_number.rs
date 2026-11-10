@@ -9,10 +9,14 @@ fn is_composite(n: i64) -> bool {
 }
 
 fn modular_power(base: i64, exponent: i64, modulus: i64) -> i64 {
-    if exponent == 0 { return 1; }
-    let half = modular_power(base, exponent / 2, modulus) % modulus;
-    let mut result = (half * half) % modulus;
-    if exponent % 2 != 0 { result = (result * base) % modulus; }
+    let mut result = 1;
+    let mut power = base;
+    let mut remaining = exponent;
+    while remaining > 0 {
+        if remaining % 2 != 0 { result = (result * power) % modulus; }
+        remaining /= 2;
+        if remaining > 0 { power = (power * power) % modulus; }
+    }
     result
 }
 

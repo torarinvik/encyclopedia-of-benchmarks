@@ -11,10 +11,14 @@ static int is_composite(int64_t n)
 
 static int64_t modular_power(int64_t base, int64_t exponent, int64_t modulus)
 {
-    if (exponent == 0) return 1;
-    int64_t half = modular_power(base, exponent / 2, modulus) % modulus;
-    int64_t result = (half * half) % modulus;
-    if (exponent % 2 != 0) result = (result * base) % modulus;
+    int64_t result = 1;
+    int64_t power = base;
+    int64_t remaining = exponent;
+    while (remaining > 0) {
+        if (remaining % 2 != 0) result = (result * power) % modulus;
+        remaining /= 2;
+        if (remaining > 0) power = (power * power) % modulus;
+    }
     return result;
 }
 

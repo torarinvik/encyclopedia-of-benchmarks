@@ -9,10 +9,14 @@ is_composite :: proc "c" (n: i64) -> bool {
 }
 
 modular_power :: proc "c" (base, exponent, modulus: i64) -> i64 {
-	if exponent == 0 do return 1
-	half := modular_power(base, exponent / 2, modulus) % modulus
-	result := (half * half) % modulus
-	if exponent % 2 != 0 do result = (result * base) % modulus
+	result := i64(1)
+	power := base
+	remaining := exponent
+	for remaining > 0 {
+		if remaining % 2 != 0 do result = (result * power) % modulus
+		remaining /= 2
+		if remaining > 0 do power = (power * power) % modulus
+	}
 	return result
 }
 

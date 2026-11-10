@@ -12,10 +12,14 @@ bool is_composite(std::int64_t n)
 
 std::int64_t modular_power(std::int64_t base, std::int64_t exponent, std::int64_t modulus)
 {
-    if (exponent == 0) return 1;
-    const auto half = modular_power(base, exponent / 2, modulus) % modulus;
-    auto result = (half * half) % modulus;
-    if (exponent % 2 != 0) result = (result * base) % modulus;
+    std::int64_t result = 1;
+    std::int64_t power = base;
+    std::int64_t remaining = exponent;
+    while (remaining > 0) {
+        if (remaining % 2 != 0) result = (result * power) % modulus;
+        remaining /= 2;
+        if (remaining > 0) power = (power * power) % modulus;
+    }
     return result;
 }
 
