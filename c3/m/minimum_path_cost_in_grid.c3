@@ -1,6 +1,6 @@
 module minimum_path_cost_in_grid;
 
-const INF_COST = 1000000000;
+const uint INF_COST = 65536;
 
 fn long minimum_path_cost_in_grid(long* input, usz length) @export("minimum_path_cost_in_grid")
 {
@@ -16,25 +16,25 @@ fn long minimum_path_cost_in_grid(long* input, usz length) @export("minimum_path
     for (usz index = 0; index < cells * columns; index++) {
         if (input[move_offset + index] < 1 || input[move_offset + index] > 100) return -1;
     }
-    long[32] costs;
-    long[32] next_costs;
+    uint[32] costs;
+    uint[32] next_costs;
     for (usz column = 0; column < columns; column++) costs[column] = 0;
     for (usz row = 0; row + 1 < rows; row++) {
         for (usz target = 0; target < columns; target++) next_costs[target] = INF_COST;
         for (usz column = 0; column < columns; column++) {
             usz value = (usz)input[2 + row * columns + column];
-            long base = costs[column] + (long)value;
+            uint base = costs[column] + (uint)value;
             for (usz target = 0; target < columns; target++) {
-                long candidate = base + input[move_offset + value * columns + target];
-                if (candidate < next_costs[target]) next_costs[target] = candidate;
+                uint candidate = base + (uint)input[move_offset + value * columns + target];
+                next_costs[target] = candidate < next_costs[target] ? candidate : next_costs[target];
             }
         }
         for (usz column = 0; column < columns; column++) costs[column] = next_costs[column];
     }
-    long minimum = INF_COST;
+    uint minimum = INF_COST;
     usz last_row = 2 + (rows - 1) * columns;
     for (usz column = 0; column < columns; column++) {
-        long candidate = costs[column] + input[last_row + column];
+        uint candidate = costs[column] + (uint)input[last_row + column];
         if (candidate < minimum) minimum = candidate;
     }
     return minimum;

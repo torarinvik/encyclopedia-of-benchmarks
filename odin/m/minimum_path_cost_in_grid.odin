@@ -16,27 +16,27 @@ minimum_path_cost_in_grid :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
     for index := 0; index < cells * columns; index += 1 {
         if input[move_offset + index] < 1 || input[move_offset + index] > 100 do return -1
     }
-    costs: [32]i64 = {}
-    next_costs: [32]i64 = {}
+    costs: [32]u32 = {}
+    next_costs: [32]u32 = {}
     for row := 0; row < rows - 1; row += 1 {
         for target := 0; target < columns; target += 1 {
-            next_costs[target] = 1_000_000_000
+            next_costs[target] = 65536
         }
         for column := 0; column < columns; column += 1 {
             value := int(input[2 + row * columns + column])
-            base := costs[column] + i64(value)
+            base := costs[column] + u32(value)
             for target := 0; target < columns; target += 1 {
-                candidate := base + input[move_offset + value * columns + target]
-                if candidate < next_costs[target] do next_costs[target] = candidate
+                candidate := base + u32(input[move_offset + value * columns + target])
+                next_costs[target] = min(candidate, next_costs[target])
             }
         }
         for column := 0; column < columns; column += 1 do costs[column] = next_costs[column]
     }
-    minimum := i64(1_000_000_000)
+    minimum := u32(65536)
     last_row := 2 + (rows - 1) * columns
     for column := 0; column < columns; column += 1 {
-        candidate := costs[column] + input[last_row + column]
+        candidate := costs[column] + u32(input[last_row + column])
         if candidate < minimum do minimum = candidate
     }
-    return minimum
+    return i64(minimum)
 }

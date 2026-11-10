@@ -7,7 +7,7 @@ Find the least-cost path from the top row to the bottom row. Each move adds the 
 - The benchmark packs input as `[rows, columns, grid row-major, move_cost row-major]`. The move-cost table has `rows * columns` rows and `columns` values per row.
 - Rows and columns are each in `1..32`. Grid values are in `0..rows*columns-1`; move costs are in `1..100`.
 - Invalid packed inputs return `-1`. Input is read only.
-- Implementations keep only the current and next row of dynamic-programming costs. Time is O(rows * columns²); auxiliary space is O(columns).
+- Implementations keep only the current and next row of dynamic-programming costs. A valid path costs at most 35,836, so the rows use unsigned 32-bit costs. Time is O(rows * columns²) and auxiliary space is O(columns).
 
 ## Workload and verification
 

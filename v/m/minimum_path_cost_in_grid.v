@@ -16,26 +16,26 @@ pub fn minimum_path_cost_in_grid(input &i64, length usize) i64 {
 		for index in 0 .. cells * columns {
 			if input[move_offset + index] < 1 || input[move_offset + index] > 100 { return -1 }
 		}
-		mut costs := [32]i64{}
-		mut next_costs := [32]i64{}
+		mut costs := [32]u32{}
+		mut next_costs := [32]u32{}
 		for row in 0 .. rows - 1 {
-			for target in 0 .. columns { next_costs[target] = 1_000_000_000 }
+			for target in 0 .. columns { next_costs[target] = 65536 }
 			for column in 0 .. columns {
 				value := int(input[2 + row * columns + column])
-				base := costs[column] + i64(value)
+				base := costs[column] + u32(value)
 				for target in 0 .. columns {
-					candidate := base + input[move_offset + value * columns + target]
-					if candidate < next_costs[target] { next_costs[target] = candidate }
+					candidate := base + u32(input[move_offset + value * columns + target])
+					next_costs[target] = if candidate < next_costs[target] { candidate } else { next_costs[target] }
 				}
 			}
 			for column in 0 .. columns { costs[column] = next_costs[column] }
 		}
 		last_row := 2 + (rows - 1) * columns
-		mut minimum := i64(1_000_000_000)
+		mut minimum := u32(65536)
 		for column in 0 .. columns {
-			candidate := costs[column] + input[last_row + column]
+			candidate := costs[column] + u32(input[last_row + column])
 			if candidate < minimum { minimum = candidate }
 		}
-		return minimum
+		return i64(minimum)
 	}
 }

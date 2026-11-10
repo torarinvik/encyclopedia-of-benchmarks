@@ -18,25 +18,25 @@ pub unsafe extern "C" fn minimum_path_cost_in_grid(input: *const i64, length: us
         let cost = *input.add(move_offset + index);
         if !(1..=100).contains(&cost) { return -1; }
     }
-    let mut costs = [0i64; 32];
-    let mut next_costs = [0i64; 32];
+    let mut costs = [0u32; 32];
+    let mut next_costs = [0u32; 32];
     for row in 0..rows - 1 {
-        next_costs.fill(1_000_000_000);
+        next_costs.fill(65536);
         for column in 0..columns {
             let value = *input.add(2 + row * columns + column) as usize;
-            let base = costs[column] + value as i64;
+            let base = costs[column] + value as u32;
             for target in 0..columns {
-                let candidate = base + *input.add(move_offset + value * columns + target);
-                if candidate < next_costs[target] { next_costs[target] = candidate; }
+                let candidate = base + *input.add(move_offset + value * columns + target) as u32;
+                next_costs[target] = candidate.min(next_costs[target]);
             }
         }
         costs = next_costs;
     }
     let last_row = 2 + (rows - 1) * columns;
-    let mut minimum = 1_000_000_000i64;
+    let mut minimum = 65536u32;
     for column in 0..columns {
-        let candidate = costs[column] + *input.add(last_row + column);
+        let candidate = costs[column] + *input.add(last_row + column) as u32;
         if candidate < minimum { minimum = candidate; }
     }
-    minimum
+    i64::from(minimum)
 }

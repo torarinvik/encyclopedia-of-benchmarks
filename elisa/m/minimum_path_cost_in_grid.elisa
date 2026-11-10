@@ -1,6 +1,7 @@
 const MAX_ROWS: usize = 32
 const MAX_COLUMNS: usize = 32
-const INF_COST: i64 = 1000000000
+# A path has at most 32 cells of value 1023 and 31 moves of cost 100.
+const INF_COST: u32 = 65536
 
 def minimum_path_cost_in_grid_impl(input: i64&, length: usize) -> i64:
     if length < 2:
@@ -19,26 +20,26 @@ def minimum_path_cost_in_grid_impl(input: i64&, length: usize) -> i64:
     for index in 0..<(cells * columns):
         if input[move_offset + index] < 1 or input[move_offset + index] > 100:
             return -1
-    costs: mutable i64[32] = zeroed
-    next_costs: mutable i64[32] = zeroed
+    costs: mutable u32[32] = zeroed
+    next_costs: mutable u32[32] = zeroed
     for row in 0..<(rows - 1) |costs, next_costs, input|:
         for target in 0..<columns |next_costs|:
             next_costs[target] <- INF_COST
         for column in 0..<columns |costs, next_costs, input|:
             value: usize = usize(input[2 + row * columns + column])
-            base: i64 = costs[column] + i64(value)
+            base: u32 = costs[column] + value.u32()
             for target in 0..<columns |next_costs|:
-                candidate: i64 = base + input[move_offset + value * columns + target]
-                if candidate < next_costs[target]:
-                    next_costs[target] <- candidate
+                candidate: u32 = base + input[move_offset + value * columns + target].u32()
+                previous: u32 = next_costs[target]
+                next_costs[target] <- candidate if candidate < previous else previous
         for column in 0..<columns |costs, next_costs|:
             costs[column] <- next_costs[column]
-    minimum: mutable i64 = INF_COST
+    minimum: mutable u32 = INF_COST
     last_row: usize = 2 + (rows - 1) * columns
     for column in 0..<columns |costs, input, minimum|:
-        candidate: i64 = costs[column] + input[last_row + column]
+        candidate: u32 = costs[column] + input[last_row + column].u32()
         if candidate < minimum:
             minimum <- candidate
-    minimum
+    minimum.i64()
 
 export fn minimum_path_cost_in_grid(input: i64&, length: usize) -> i64 = minimum_path_cost_in_grid_impl

@@ -11,24 +11,24 @@ export fn minimum_path_cost_in_grid(input: [*]const i64, length: usize) i64 {
     for (0..cells * columns) |index| {
         if (input[move_offset + index] < 1 or input[move_offset + index] > 100) return -1;
     }
-    var costs: [32]i64 = @splat(0);
-    var next_costs: [32]i64 = @splat(0);
+    var costs: [32]u32 = @splat(0);
+    var next_costs: [32]u32 = @splat(0);
     for (0..(rows - 1)) |row| {
-        @memset(&next_costs, 1_000_000_000);
+        @memset(&next_costs, 65536);
         for (0..columns) |column| {
             const value: usize = @intCast(input[2 + row * columns + column]);
-            const base = costs[column] + @as(i64, @intCast(value));
+            const base = costs[column] + @as(u32, @intCast(value));
             for (0..columns) |target| {
-                const candidate = base + input[move_offset + value * columns + target];
-                if (candidate < next_costs[target]) next_costs[target] = candidate;
+                const candidate = base + @as(u32, @intCast(input[move_offset + value * columns + target]));
+                next_costs[target] = @min(candidate, next_costs[target]);
             }
         }
         costs = next_costs;
     }
     const last_row = 2 + (rows - 1) * columns;
-    var minimum: i64 = 1_000_000_000;
+    var minimum: u32 = 65536;
     for (0..columns) |column| {
-        const candidate = costs[column] + input[last_row + column];
+        const candidate = costs[column] + @as(u32, @intCast(input[last_row + column]));
         if (candidate < minimum) minimum = candidate;
     }
     return minimum;

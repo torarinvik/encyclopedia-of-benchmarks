@@ -3,7 +3,7 @@
 
 #define MAX_ROWS 32
 #define MAX_COLUMNS 32
-#define INF_COST INT64_C(1000000000)
+#define INF_COST UINT32_C(65536)
 
 int64_t minimum_path_cost_in_grid(const int64_t *input, size_t length)
 {
@@ -19,25 +19,25 @@ int64_t minimum_path_cost_in_grid(const int64_t *input, size_t length)
     for (size_t index = 0; index < cells * columns; ++index)
         if (input[move_offset + index] < 1 || input[move_offset + index] > 100) return -1;
 
-    int64_t costs[MAX_COLUMNS] = {0};
-    int64_t next_costs[MAX_COLUMNS];
+    uint32_t costs[MAX_COLUMNS] = {0};
+    uint32_t next_costs[MAX_COLUMNS];
     for (size_t row = 0; row + 1 < rows; ++row) {
         for (size_t target = 0; target < columns; ++target) next_costs[target] = INF_COST;
         for (size_t column = 0; column < columns; ++column) {
             const size_t grid_index = 2 + row * columns + column;
             const size_t value = (size_t)input[grid_index];
-            const int64_t base = costs[column] + (int64_t)value;
+            const uint32_t base = costs[column] + (uint32_t)value;
             for (size_t target = 0; target < columns; ++target) {
-                const int64_t candidate = base + input[move_offset + value * columns + target];
-                if (candidate < next_costs[target]) next_costs[target] = candidate;
+                const uint32_t candidate = base + (uint32_t)input[move_offset + value * columns + target];
+                next_costs[target] = candidate < next_costs[target] ? candidate : next_costs[target];
             }
         }
         for (size_t column = 0; column < columns; ++column) costs[column] = next_costs[column];
     }
-    int64_t minimum = INF_COST;
+    uint32_t minimum = INF_COST;
     const size_t last_row = 2 + (rows - 1) * columns;
     for (size_t column = 0; column < columns; ++column) {
-        const int64_t candidate = costs[column] + input[last_row + column];
+        const uint32_t candidate = costs[column] + (uint32_t)input[last_row + column];
         if (candidate < minimum) minimum = candidate;
     }
     return minimum;
