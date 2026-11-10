@@ -15,7 +15,7 @@ import random
 import subprocess
 import sys
 
-from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
 from run_i64_array_scalar import encode_case
 
 ALGORITHM = "unique_occurrences"
@@ -46,7 +46,12 @@ def corpus(workload: dict) -> tuple[str, int]:
     cases[tuple(range(-500, 500))] = 0
     cases[(0,) * MAX_LENGTH] = 1
     cases[(-1000, -1000, 1000)] = 1
+    distinct_frequencies = tuple(value for value in range(1, 45) for _ in range(value))
+    cases[distinct_frequencies] = oracle(list(distinct_frequencies))
+    cases[distinct_frequencies + (45,)] = 0
     malformed = [
+        (*range(999), -(1 << 63)),
+        (*range(999), (1 << 63) - 1),
         (),
         (-1001,),
         (1001,),
@@ -137,7 +142,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    parser.add_argument("--languages", nargs="+", choices={**EXTENSIONS, **OPTIONAL_EXTENSIONS}, default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build/unique_occurrences")

@@ -1,24 +1,50 @@
+const MAX_LENGTH: usize = 1000
+const MAX_DISTINCT: usize = 44
+
 # Return 1 when every present value has a unique occurrence count.
 def unique_occurrences_impl(values: i64&, length: usize) -> i64:
-    if length > 1000:
+    if length > MAX_LENGTH:
         return -1
-    counts: i64[2001] =
-        while index < length |index: mutable usize = 0, counts: mutable i64[2001] = zeroed| -> counts:
-            value: i64 = values[index]
-            if value < -1000 or value > 1000:
-                return -1
-            slot: usize = (value + 1000).usize()
-            counts[slot] <- counts[slot] + 1
-            index <- index + 1
-    result: i64 =
-        while index < 2001 |index: mutable usize = 0, seen_frequencies: mutable bool[1001] = zeroed, result: mutable i64 = 1| -> result:
-            frequency: i64 = counts[index]
-            if frequency > 0:
-                frequency_index: usize = frequency.usize()
-                if seen_frequencies[frequency_index]:
-                    result <- 0
-                seen_frequencies[frequency_index] <- true
-            index <- index + 1
-    result
+    if length == 0:
+        return 1
+
+    if length == 1:
+        return 1 if values[0].u64() + 1000 <= 2000 else -1
+
+    largest_biased: mutable u64 = 0
+    first: u64 = values[0].u64()
+    different_bits: mutable u64 = 0
+    for index in 0..<length |values, largest_biased, first, different_bits|:
+        value: u64 = values[index].u64()
+        different_bits <- different_bits | (value ^ first)
+        biased: u64 = value + 1000
+        largest_biased <- biased if biased > largest_biased else largest_biased
+    return -1 if largest_biased > 2000
+    return 1 if different_bits == 0
+
+    counts: mutable u16[2001] = zeroed
+    touched: mutable u16[MAX_DISTINCT] = zeroed
+    distinct: mutable usize = 0
+    for index in 0..<length |values, counts, touched, distinct|:
+        biased: u64 = values[index].u64() + 1000
+        slot: usize = biased.usize()
+        count: u16 = counts[slot]
+        if count == 0:
+            next_distinct: usize = distinct + 1
+            # These values need at least 1 + ... + next_distinct entries.
+            return 0 if next_distinct * (next_distinct + 1) > 2 * length
+            touched[distinct] <- slot.u16()
+            distinct <- next_distinct
+        counts[slot] <- count + 1
+
+    seen: mutable u64[16] = zeroed
+    for index in 0..<distinct |touched, counts, seen|:
+        frequency: usize = counts[touched[index].usize()].usize()
+        word: usize = frequency >> 6
+        bit: u64 = 1.u64() << (frequency & 63).u64()
+        prior: u64 = seen[word]
+        return 0 if (prior & bit) != 0
+        seen[word] <- prior | bit
+    1
 
 export fn unique_occurrences(values: i64&, length: usize) -> i64 = unique_occurrences_impl
