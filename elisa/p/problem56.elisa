@@ -1,15 +1,15 @@
 # Keep powers in little-endian decimal digits to avoid machine-integer overflow.
-def multiply_digits(digits: mutable i64[512]&, initial_length: i64, factor: i64) -> i64:
+def multiply_digits(digits: mutable u8[512]&, initial_length: i64, factor: u8) -> i64:
     length: mutable i64 = initial_length
     carry: mutable i64 = 0
     index: mutable i64 = 0
     while index < length:
-        value: i64 = digits[index.usize()] * factor + carry
-        digits[index.usize()] <- value % 10
+        value: i64 = digits[index.usize()].i64() * factor.i64() + carry
+        digits[index.usize()] <- (value % 10).u8()
         carry <- value / 10
         index <- index + 1
     while carry > 0:
-        digits[length.usize()] <- carry % 10
+        digits[length.usize()] <- (carry % 10).u8()
         length <- length + 1
         carry <- carry / 10
     length
@@ -19,16 +19,16 @@ def problem56_impl(a: i64, b: i64) -> i64:
     best: mutable i64 = 0
     base: mutable i64 = 0
     while base < a:
-        digits: mutable i64[512] = zeroed
+        digits: mutable u8[512] = zeroed
         digits[0] <- 1
         length: mutable i64 = 1
         power: mutable i64 = 0
         while power < b:
             sum: mutable i64 = 0
             for i in 0..<length:
-                sum <- sum + digits[i.usize()]
+                sum <- sum + digits[i.usize()].i64()
             if sum > best: best <- sum
-            if power + 1 < b: length <- multiply_digits(&digits, length, base)
+            if power + 1 < b: length <- multiply_digits(&digits, length, base.u8())
             power <- power + 1
         base <- base + 1
     best
