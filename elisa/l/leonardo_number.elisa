@@ -5,13 +5,11 @@ def leonardo_number_impl(input: i64) -> i64:
     previous: mutable i64 = 1
     current: mutable i64 = 1
     index: mutable i64 = 2
-    while index + 1 <= input:
+    while index <= input:
         next: i64 = current + previous + 1
-        current <- next + current + 1
-        previous <- next
-        index <- index + 2
-    if index <= input:
-        current <- current + previous + 1
+        previous <- current
+        current <- next
+        index <- index + 1
     current
 
 export fn leonardo_number(input: i64) -> i64 = leonardo_number_impl
