@@ -1,10 +1,11 @@
-def trailing_zeros(value: u64) -> i64:
-    count: mutable i64 = 0
-    current: mutable u64 = value
-    while (current & 1) == 0:
-        current <- current >> 1
-        count <- count + 1
-    count
+# The mask below has one bit set for each trailing zero. A parallel population
+# count lets LLVM lower the portable arithmetic to a trailing-zero instruction.
+def trailing_zeros(value: u64) -> u64:
+    low_bits: u64 = (value - 1) & ~value
+    pairs: u64 = low_bits - ((low_bits >> 1) & 0x5555555555555555.u64())
+    nibbles: u64 = (pairs & 0x3333333333333333.u64()) + ((pairs >> 2) & 0x3333333333333333.u64())
+    bytes: u64 = (nibbles + (nibbles >> 4)) & 0x0f0f0f0f0f0f0f0f.u64()
+    (bytes * 0x0101010101010101.u64()) >> 56
 
 def bitwise_gcd_impl(left: u64, right: u64) -> i64:
     if left == 0:
@@ -12,7 +13,7 @@ def bitwise_gcd_impl(left: u64, right: u64) -> i64:
     if right == 0:
         return left.i64()
 
-    common_twos: i64 = trailing_zeros(left | right)
+    common_twos: u64 = trailing_zeros(left | right)
     a: mutable u64 = left >> trailing_zeros(left)
     b: mutable u64 = right
     while b != 0:

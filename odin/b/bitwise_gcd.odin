@@ -1,7 +1,7 @@
 package bitwise_gcd
 
-trailing_zeros :: proc(value: u64) -> int {
-	count := 0
+trailing_zeros :: proc "contextless" (value: u64) -> uint {
+	count := uint(0)
 	current := value
 	for (current & 1) == 0 {
 		current >>= 1
