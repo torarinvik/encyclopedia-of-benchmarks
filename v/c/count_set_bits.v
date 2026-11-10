@@ -1,6 +1,6 @@
 module count_set_bits
 
-const max_input = i64(67108863)
+const max_input = 67108863
 
 fn highest_power_position(value i64) int {
 	mut position := 0

@@ -2,7 +2,7 @@ package count_set_bits
 
 MAX_INPUT :: i64(67108863)
 
-highest_power_position :: proc(value: i64) -> int {
+highest_power_position :: proc "contextless" (value: i64) -> int {
     position := 0
     power := i64(1)
     for power <= value / 2 {
@@ -12,10 +12,10 @@ highest_power_position :: proc(value: i64) -> int {
     return position
 }
 
-count_set_bits_recursive :: proc(value: i64) -> i64 {
+count_set_bits_recursive :: proc "contextless" (value: i64) -> i64 {
     if value == 0 do return 0
     position := highest_power_position(value)
-    power := i64(1) << position
+    power := i64(1) << u32(position)
     bits_at_position := i64(0)
     if position > 0 do bits_at_position = i64(position) * (power >> 1)
     remaining_numbers := value - power + 1
