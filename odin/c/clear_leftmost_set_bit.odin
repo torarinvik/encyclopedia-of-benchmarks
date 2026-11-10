@@ -10,6 +10,5 @@ clear_leftmost_set_bit :: proc "c" (value: i64) -> i64 {
 		temp >>= 1
 		position += 1
 	}
-	mask := ~(i64(1) << (position - 1))
-	return value & mask
+	return value &~ (i64(1) << u64(position - 1))
 }
