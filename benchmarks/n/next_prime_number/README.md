@@ -6,10 +6,10 @@ This benchmark finds the smallest prime strictly greater than a signed integer.
 
 - The input is one signed 64-bit integer from -4096 through 4096.
 - The result is the smallest prime strictly greater than the input. Inputs below 2 return 2; values outside the documented input range return `-1`.
-- Candidates are checked by trial division. The C, C++, Elisa, Rust, and V ports skip even candidates, test divisibility by three, and visit the remaining trial divisors in pairs of the form `6k - 1` and `6k + 1`. Candidate values and trial squares fit in 32 bits. The ports use portable integer arithmetic.
+- Candidates are checked by trial division. All ports skip even candidates, test divisibility by three, and visit the remaining trial divisors in pairs of the form `6k - 1` and `6k + 1`. Candidate values and trial squares fit in 32 bits. The ports use portable integer arithmetic.
 - The fixed input range bounds the candidate search; the largest valid input returns 4099.
 
-The pinned Python source documents the strict-greater-than behavior, including results of 2 for negative values and zero. The C# `PrimeNumber.NextPrime` method matches with its default factor and direction arguments. The shared contract bounds its arbitrary-precision input domain so that all nine target languages use the same signed 64-bit scalar ABI.
+The pinned Python source documents the strict-greater-than behavior, including results of 2 for negative values and zero. The C# `PrimeNumber.NextPrime` method matches with its default factor and direction arguments. The shared contract bounds its arbitrary-precision input domain so that all ports use the same signed 64-bit scalar ABI.
 
 ## Inspected upstream source
 
@@ -18,7 +18,7 @@ The pinned Python source documents the strict-greater-than behavior, including r
 
 ## Workload and verification
 
-`workload.json` covers negative inputs, 0 and 1, primes, composites, a square, the upper boundary, and invalid signed inputs. The verifier checks every supported input from -4096 through 4096 against an independent trial-division search and checks every published workload case in all nine languages.
+`workload.json` covers negative inputs, 0 and 1, primes, composites, a square, the upper boundary, and invalid signed inputs. The verifier checks every supported input from -4096 through 4096 against an independent trial-division search and checks every published workload case in the default verifier languages.
 
 ```sh
 python3 benchmarks/verify_next_prime_number.py --elisa-compiler /absolute/path/to/elisac
