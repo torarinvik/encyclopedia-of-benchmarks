@@ -21,8 +21,8 @@ def minimum_operations_to_move_all_balls_impl(boxes: i64&, length: usize, output
             right_ones <- right_ones - 1
             left_ones <- left_ones + 1
         distance: i64 = left_distance + right_distance
-        output[2 * index] <- (distance % 256).u8()
-        output[2 * index + 1] <- (distance / 256).u8()
+        output[2 * index] <- (distance & 255).u8()
+        output[2 * index + 1] <- (distance >> 8).u8()
         right_distance <- right_distance - right_ones
         left_distance <- left_distance + left_ones
     length.i64()
