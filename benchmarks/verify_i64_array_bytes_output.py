@@ -184,10 +184,10 @@ from sequence_oracle import MAX_INPUT_LENGTH as SEQUENCE_MAX_INPUT_LENGTH
 from sequence_oracle import MAX_PARSEABLE_INPUT_LENGTH as SEQUENCE_MAX_PARSEABLE_INPUT_LENGTH
 from sequence_oracle import MAX_OUTPUT_BYTES as SEQUENCE_MAX_OUTPUT_BYTES
 from sequence_oracle import expected_output as sequence_oracle
-from sorted_linked_list_oracle import I32_MAX as SORTED_LINKED_LIST_I32_MAX
-from sorted_linked_list_oracle import I32_MIN as SORTED_LINKED_LIST_I32_MIN
-from sorted_linked_list_oracle import I64_MAX as SORTED_LINKED_LIST_I64_MAX
-from sorted_linked_list_oracle import I64_MIN as SORTED_LINKED_LIST_I64_MIN
+from sorted_linked_list_oracle import MAX_I32 as SORTED_LINKED_LIST_I32_MAX
+from sorted_linked_list_oracle import MIN_I32 as SORTED_LINKED_LIST_I32_MIN
+from sorted_linked_list_oracle import MAX_I64 as SORTED_LINKED_LIST_I64_MAX
+from sorted_linked_list_oracle import MIN_I64 as SORTED_LINKED_LIST_I64_MIN
 from sorted_linked_list_oracle import INVALID_RESULT as SORTED_LINKED_LIST_INVALID_RESULT
 from sorted_linked_list_oracle import MAX_INITIAL_COUNT as SORTED_LINKED_LIST_MAX_INITIAL_COUNT
 from sorted_linked_list_oracle import MAX_OUTPUT_BYTES as SORTED_LINKED_LIST_MAX_OUTPUT_BYTES
@@ -895,7 +895,7 @@ from singlylinkedlist_oracle import (
     INSUFFICIENT_CAPACITY_RESULT as SINGLYLINKEDLIST_OUTPUT_ERROR,
     INVALID_RESULT as SINGLYLINKEDLIST_INVALID_RESULT,
     MAX_INITIAL_NODES as SINGLYLINKEDLIST_MAX_INITIAL_NODES,
-    MAX_INPUT_VALUES as SINGLYLINKEDLIST_MAX_INPUT_VALUES,
+    MAX_PARSEABLE_INPUT_VALUES as SINGLYLINKEDLIST_MAX_INPUT_VALUES,
     MAX_LIST_NODES as SINGLYLINKEDLIST_MAX_LIST_NODES,
     MAX_OPERATIONS as SINGLYLINKEDLIST_MAX_OPERATIONS,
     MAX_OUTPUT_BYTES as SINGLYLINKEDLIST_MAX_OUTPUT_BYTES,
@@ -3590,8 +3590,8 @@ from dc_tree_k_server_path_verifier_oracle import verify as dc_tree_k_server_pat
 from hub_labeling_pruned_verifier_oracle import expected_output as hub_labeling_pruned_independent_oracle
 from hub_labeling_greedy_order_verifier_oracle import expected_output as hub_labeling_greedy_order_independent_oracle
 from dense_graph_bipartiteness_tester_verifier_oracle import expected_output as dense_graph_bipartiteness_tester_independent_oracle
-from all_distances_sketch_bottom_k_oracle import MAX_INPUT_LENGTH as ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_INPUT_LENGTH
-from all_distances_sketch_bottom_k_verifier_oracle import verify as all_distances_sketch_bottom_k_independent_check
+from a.all_distances_sketch_bottom_k_oracle import MAX_INPUT_LENGTH as ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_INPUT_LENGTH
+from a.all_distances_sketch_bottom_k_verifier_oracle import verify as all_distances_sketch_bottom_k_independent_check
 from sublinear_bipartiteness_walk_tester_verifier_oracle import expected_output as sublinear_bipartiteness_walk_tester_independent_oracle
 from optimal_stable_marriage_verifier_oracle import expected_output as optimal_stable_marriage_independent_oracle
 from quine_mccluskey_minimization_verifier_oracle import expected_output as quine_mccluskey_minimization_independent_oracle
@@ -3599,9 +3599,9 @@ from general_graph_maximum_matching_oracle import MAX_INPUT_LENGTH as GENERAL_GR
 from general_graph_maximum_matching_verifier_oracle import verify as general_graph_maximum_matching_independent_check
 from orthogonal_range_reporting_2d_verifier_oracle import expected_output as orthogonal_range_reporting_2d_independent_oracle
 from k_median_p1_local_search_oracle import MAX_INPUT_LENGTH as K_MEDIAN_P1_LOCAL_SEARCH_MAX_INPUT_LENGTH
-from k_median_p1_local_search_verifier_oracle import expected_output as k_median_p1_local_search_independent_oracle
+from k_median_p1_local_search_verifier_oracle import verify as k_median_p1_local_search_independent_oracle
 from two_level_dynamic_maximal_matching_insertions_oracle import MAX_INPUT_LENGTH as TWO_LEVEL_DYNAMIC_MAXIMAL_MATCHING_INSERTIONS_MAX_INPUT_LENGTH
-from two_level_dynamic_maximal_matching_insertions_verifier_oracle import expected_output as two_level_dynamic_maximal_matching_insertions_independent_oracle
+from two_level_dynamic_maximal_matching_insertions_verifier_oracle import verify as two_level_dynamic_maximal_matching_insertions_independent_oracle
 from substring_parsimony_verifier_oracle import expected_output as substring_parsimony_independent_oracle
 from weighted_connected_dominating_set_verifier_oracle import expected_output as weighted_connected_dominating_set_independent_oracle
 from weighted_popular_matching_verifier_oracle import expected_output as weighted_popular_matching_independent_oracle
@@ -3673,7 +3673,8 @@ from submodular_ranking_greedy_verifier_oracle import expected_output as submodu
 from harmonic_k_bin_packing_verifier_oracle import expected_output as harmonic_k_bin_packing_independent_oracle
 from fm_index_locate_verifier_oracle import expected_output as fm_index_locate_independent_oracle
 from fm_index_display_verifier_oracle import expected_output as fm_index_display_independent_oracle
-from psi_suffix_array_access_verifier_oracle import expected_output as psi_suffix_array_access_independent_oracle
+from psi_suffix_array_access_verifier_oracle import MAX_INPUT_LENGTH as PSI_SUFFIX_ARRAY_ACCESS_MAX_INPUT_LENGTH
+from psi_suffix_array_access_verifier_oracle import verify as psi_suffix_array_access_independent_oracle
 from p2p_chord_finger_lookup_verifier_oracle import expected_output as p2p_chord_finger_lookup_independent_oracle
 from point_pattern_translation_voting_verifier_oracle import expected_output as point_pattern_translation_voting_independent_oracle
 from point_pattern_translation_lex_scan_verifier_oracle import expected_output as point_pattern_translation_lex_scan_independent_oracle
@@ -7104,8 +7105,8 @@ _AES_VERIFIER_SBOX = bytes.fromhex(
     "e7c8376d8dd54ea96c56f4ea657aae08"
     "ba78252e1ca6b4c6e8dd741f4bbd8b8a"
     "703eb5664803f60e613557b986c11d9e"
-    "e1e1f8981169d98e949b1e87e9ce5528"
-    "df8ca1890dbfe6426841992d0fb054bb"
+    "e1f8981169d98e949b1e87e9ce5528df"
+    "8ca1890dbfe6426841992d0fb054bb16"
 )
 _AES_VERIFIER_INVERSE_SBOX = bytes(
     _AES_VERIFIER_SBOX.index(value) for value in range(256))
@@ -11991,7 +11992,8 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "harmonic_k_bin_packing": harmonic_k_bin_packing_independent_oracle,
     "fm_index_locate": fm_index_locate_independent_oracle,
     "fm_index_display": fm_index_display_independent_oracle,
-    "psi_suffix_array_access": psi_suffix_array_access_independent_oracle,
+    "psi_suffix_array_access": _adapt_array_verifier(
+        psi_suffix_array_access_independent_oracle, PSI_SUFFIX_ARRAY_ACCESS_MAX_INPUT_LENGTH),
     "geometric_greedy_compass_routing": geometric_greedy_compass_routing_independent_oracle,
     "optimistic_flow_control_updates": optimistic_flow_control_updates_independent_oracle,
     "knapsack_profit_scaling_fptas": knapsack_profit_scaling_fptas_independent_oracle,
@@ -15550,6 +15552,8 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     for fixture in workload.get("cases", []):
         values = tuple(fixture["input_values"])
         capacity = fixture.get("output_capacity", workspace_bytes)
+        if algorithm == "domination_local_reduction":
+            capacity = fixture.get("workspace_bytes", capacity)
         output_is_null = fixture.get("output_is_null", False)
         input_is_null = fixture.get("input_is_null", False)
         input_length = fixture.get("input_length", len(values))

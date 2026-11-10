@@ -104,10 +104,32 @@ def _oracle(values: Sequence[int] | None) -> tuple[int, bytes]:
     return len(raw), raw
 
 
+
+def expected_output(values: Sequence[int] | None, capacity: int | None = None,
+                    output_is_null: bool = False, input_is_null: bool = False,
+                    input_length: int | None = None) -> tuple[int, bytes]:
+    if (values is not None and not isinstance(values, (list, tuple))
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or capacity is not None and (type(capacity) is not int or capacity < 0)
+            or input_length is not None and (type(input_length) is not int
+                                             or not 0 <= input_length <= MAX_INPUT_WORDS)
+            or input_is_null and values not in (None, [], ())
+            or not input_is_null and values is not None and input_length is not None
+            and input_length != len(values)):
+        return -1, b""
+    if input_is_null or values is None:
+        return -1, b""
+    length, output = _oracle(values)
+    if length < 0:
+        return length, output
+    if output_is_null or capacity is not None and capacity < length:
+        return -2, b""
+    return length, output
+
 def verify(values: Sequence[int] | None, actual_length: int, actual_output: bytes,
            capacity: int | None = None, output_is_null: bool = False,
            input_is_null: bool = False, input_length: int | None = None) -> bool:
-    if (type(actual_length) is not int or actual_length < 0 or not isinstance(actual_output, bytes)
+    if (type(actual_length) is not int or not isinstance(actual_output, bytes)
             or type(output_is_null) is not bool or type(input_is_null) is not bool
             or capacity is not None and (type(capacity) is not int or capacity < 0)
             or input_length is not None and (type(input_length) is not int

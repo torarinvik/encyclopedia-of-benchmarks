@@ -6,6 +6,7 @@ import math
 import struct
 
 MAX_NODES = 16
+MAX_OUTPUT_BYTES = 8 * MAX_NODES
 MAX_EDGES = 64
 MAX_INPUT_LENGTH = 2 + 2 * MAX_EDGES
 INVALID_RESULT = -1
