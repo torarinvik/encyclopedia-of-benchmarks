@@ -18,4 +18,4 @@ def single_number_impl(values: i64&, length: usize) -> i64:
         return bits - 4294967296
     bits
 
-export fn single_number(values: i64&, length: usize) -> i64 = single_number_impl(values, length)
+export fn single_number(values: i64&, length: usize) -> i64 = single_number_impl
