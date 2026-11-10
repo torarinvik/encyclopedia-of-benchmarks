@@ -12,19 +12,22 @@ pub unsafe extern "C" fn unique_paths_with_obstacles(input: *const i64, length: 
     let rows = rows_value as usize;
     let columns = columns_value as usize;
     if length != 2 + rows * columns { return -1; }
-    for index in 2..length {
-        let cell = *input.add(index);
-        if cell != 0 && cell != 1 { return -1; }
-    }
 
-    let mut paths = [0_i64; MAX_COLUMNS as usize];
+    let mut paths = [0_u64; MAX_COLUMNS as usize];
     paths[0] = 1;
-    for row in 0..rows {
+    let mut cells_seen = 0u64;
+    let mut left = 0u64;
+    let mut index = 2;
+    while index < length {
+        left = 0;
         for column in 0..columns {
-            let obstacle = *input.add(2 + row * columns + column);
-            if obstacle == 1 { paths[column] = 0; }
-            else if column > 0 { paths[column] += paths[column - 1]; }
+            let obstacle = *input.add(index) as u64;
+            cells_seen |= obstacle;
+            left = if obstacle == 0 { left + paths[column] } else { 0 };
+            paths[column] = left;
+            index += 1;
         }
     }
-    paths[columns - 1]
+    if cells_seen > 1 { return -1; }
+    left as i64
 }

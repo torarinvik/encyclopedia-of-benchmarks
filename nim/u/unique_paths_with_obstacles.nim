@@ -12,15 +12,19 @@ proc unique_paths_with_obstacles*(input: ptr UncheckedArray[int64],
   let rows = int(rowsValue)
   let columns = int(columnsValue)
   if length != csize_t(2 + rows * columns): return -1
-  for index in 2 ..< int(length):
-    if input[index] != 0 and input[index] != 1: return -1
 
-  var paths: array[MaxColumns, int64]
-  for column in 0 ..< columns: paths[column] = 0
+  var paths: array[MaxColumns, uint64]
   paths[0] = 1
-  for row in 0 ..< rows:
+  var cellsSeen = 0'u64
+  var left = 0'u64
+  var index = 2
+  while index < int(length):
+    left = 0
     for column in 0 ..< columns:
-      let obstacle = input[2 + row * columns + column]
-      if obstacle == 1: paths[column] = 0
-      elif column > 0: paths[column] += paths[column - 1]
-  paths[columns - 1]
+      let obstacle = cast[uint64](input[index])
+      cellsSeen = cellsSeen or obstacle
+      left = if obstacle == 0: left + paths[column] else: 0'u64
+      paths[column] = left
+      inc index
+  if cellsSeen > 1: return -1
+  int64(left)

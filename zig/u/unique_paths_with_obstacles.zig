@@ -11,18 +11,22 @@ export fn unique_paths_with_obstacles(input: [*]const i64, length: usize) i64 {
     const rows: usize = @intCast(rows_value);
     const columns: usize = @intCast(columns_value);
     if (length != 2 + rows * columns) return -1;
-    for (2..length) |index| {
-        if (input[index] != 0 and input[index] != 1) return -1;
-    }
 
-    var paths: [MAX_COLUMNS]i64 = @splat(0);
+    var paths: [MAX_COLUMNS]u64 = @splat(0);
     paths[0] = 1;
-    for (0..rows) |row| {
+    var cells_seen: u64 = 0;
+    var left: u64 = 0;
+    var index: usize = 2;
+    while (index < length) {
+        left = 0;
         for (0..columns) |column| {
-            const obstacle = input[2 + row * columns + column];
-            if (obstacle == 1) paths[column] = 0
-            else if (column > 0) paths[column] += paths[column - 1];
+            const obstacle: u64 = @bitCast(input[index]);
+            cells_seen |= obstacle;
+            left = if (obstacle == 0) left + paths[column] else 0;
+            paths[column] = left;
+            index += 1;
         }
     }
-    return paths[columns - 1];
+    if (cells_seen > 1) return -1;
+    return @intCast(left);
 }

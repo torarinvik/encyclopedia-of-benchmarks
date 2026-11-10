@@ -14,18 +14,22 @@ unique_paths_with_obstacles :: proc "c" (input: [^]i64, length: c.size_t) -> i64
        columns_value < 1 || columns_value > MAX_COLUMNS { return -1 }
     rows, columns := int(rows_value), int(columns_value)
     if int(length) != 2 + rows * columns { return -1 }
-    for index := 2; index < int(length); index += 1 {
-        if input[index] != 0 && input[index] != 1 { return -1 }
-    }
 
-    paths: [MAX_COLUMNS]i64 = {}
+    paths: [MAX_COLUMNS]u64 = {}
     paths[0] = 1
-    for row := 0; row < rows; row += 1 {
+    cells_seen := u64(0)
+    left := u64(0)
+    index := 2
+    for index < int(length) {
+        left = 0
         for column := 0; column < columns; column += 1 {
-            obstacle := input[2 + row * columns + column]
-            if obstacle == 1 { paths[column] = 0 }
-            else if column > 0 { paths[column] += paths[column - 1] }
+            obstacle := u64(input[index])
+            cells_seen |= obstacle
+            left = left + paths[column] if obstacle == 0 else 0
+            paths[column] = left
+            index += 1
         }
     }
-    return paths[columns - 1]
+    if cells_seen > 1 do return -1
+    return i64(left)
 }

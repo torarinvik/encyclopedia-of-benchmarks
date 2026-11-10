@@ -12,19 +12,21 @@ fn long unique_paths_with_obstacles(long* input, usz length) @export("unique_pat
     usz rows = (usz)rows_value;
     usz columns = (usz)columns_value;
     if (length != 2 + rows * columns) { return -1; }
-    for (usz index = 2; index < length; index++) {
-        if (input[index] != 0 && input[index] != 1) { return -1; }
-    }
 
-    long[20] paths;
-    for (usz column = 0; column < columns; column++) { paths[column] = 0; }
+    ulong[MAX_COLUMNS] paths = {};
     paths[0] = 1;
-    for (usz row = 0; row < rows; row++) {
+    ulong cells_seen = 0;
+    ulong left = 0;
+    usz index = 2;
+    while (index < length) {
+        left = 0;
         for (usz column = 0; column < columns; column++) {
-            long obstacle = input[2 + row * columns + column];
-            if (obstacle == 1) { paths[column] = 0; }
-            else if (column != 0) { paths[column] += paths[column - 1]; }
+            ulong obstacle = (ulong)input[index++];
+            cells_seen |= obstacle;
+            left = obstacle == 0 ? left + paths[column] : 0;
+            paths[column] = left;
         }
     }
-    return paths[columns - 1];
+    if (cells_seen > 1) return -1;
+    return (long)left;
 }

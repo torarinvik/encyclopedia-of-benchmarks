@@ -13,17 +13,21 @@ int64_t unique_paths_with_obstacles(const int64_t *input, size_t length)
         columns_value < 1 || columns_value > MAX_COLUMNS) return -1;
     const size_t rows = (size_t)rows_value, columns = (size_t)columns_value;
     if (length != 2 + rows * columns) return -1;
-    for (size_t index = 2; index < length; ++index)
-        if (input[index] != 0 && input[index] != 1) return -1;
 
-    int64_t paths[MAX_COLUMNS] = {0};
+    uint64_t paths[MAX_COLUMNS] = {0};
     paths[0] = 1;
-    for (size_t row = 0; row < rows; ++row) {
+    uint64_t cells_seen = 0;
+    uint64_t left = 0;
+    size_t index = 2;
+    while (index < length) {
+        left = 0;
         for (size_t column = 0; column < columns; ++column) {
-            const int64_t obstacle = input[2 + row * columns + column];
-            if (obstacle == 1) paths[column] = 0;
-            else if (column != 0) paths[column] += paths[column - 1];
+            const uint64_t obstacle = (uint64_t)input[index++];
+            cells_seen |= obstacle;
+            left = obstacle == 0 ? left + paths[column] : 0;
+            paths[column] = left;
         }
     }
-    return paths[columns - 1];
+    if (cells_seen > 1) return -1;
+    return (int64_t)left;
 }

@@ -17,17 +17,21 @@ extern "C" std::int64_t unique_paths_with_obstacles(const std::int64_t *input,
     const auto rows = static_cast<std::size_t>(rows_value);
     const auto columns = static_cast<std::size_t>(columns_value);
     if (length != 2 + rows * columns) return -1;
-    for (std::size_t index = 2; index < length; ++index)
-        if (input[index] != 0 && input[index] != 1) return -1;
 
-    std::int64_t paths[max_columns]{};
+    std::uint64_t paths[max_columns]{};
     paths[0] = 1;
-    for (std::size_t row = 0; row < rows; ++row) {
+    std::uint64_t cells_seen = 0;
+    std::uint64_t left = 0;
+    std::size_t index = 2;
+    while (index < length) {
+        left = 0;
         for (std::size_t column = 0; column < columns; ++column) {
-            const auto obstacle = input[2 + row * columns + column];
-            if (obstacle == 1) paths[column] = 0;
-            else if (column != 0) paths[column] += paths[column - 1];
+            const std::uint64_t obstacle = static_cast<std::uint64_t>(input[index++]);
+            cells_seen |= obstacle;
+            left = obstacle == 0 ? left + paths[column] : 0;
+            paths[column] = left;
         }
     }
-    return paths[columns - 1];
+    if (cells_seen > 1) return -1;
+    return static_cast<std::int64_t>(left);
 }
