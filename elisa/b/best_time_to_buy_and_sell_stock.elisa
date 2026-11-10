@@ -19,4 +19,4 @@ def best_time_to_buy_and_sell_stock_impl(prices: i64&, length: usize) -> i64:
         return -1
     best
 
-export fn best_time_to_buy_and_sell_stock(prices: i64&, length: usize) -> i64 = best_time_to_buy_and_sell_stock_impl(prices, length)
+export fn best_time_to_buy_and_sell_stock(prices: i64&, length: usize) -> i64 = best_time_to_buy_and_sell_stock_impl
