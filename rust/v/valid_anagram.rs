@@ -1,29 +1,26 @@
 /// Compare lowercase ASCII strings by their letter frequencies.
-const MAX_STRING_LENGTH: usize = 1024;
-const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_STRING_LENGTH;
-
 #[no_mangle]
 pub extern "C" fn valid_anagram(input: *const i64, length: usize) -> i64 {
-    if length < 2 || length > MAX_INPUT_LENGTH || input.is_null() { return -1; }
-    let first_length_value = unsafe { *input };
-    let second_length_value = unsafe { *input.add(1) };
-    if first_length_value < 0 || first_length_value > MAX_STRING_LENGTH as i64 ||
-        second_length_value < 0 || second_length_value > MAX_STRING_LENGTH as i64 { return -1; }
-    let first_length = first_length_value as usize;
-    let second_length = second_length_value as usize;
-    if length != 2 + first_length + second_length { return -1; }
-    let mut first_counts = [0usize; 26];
-    let mut second_counts = [0usize; 26];
-    for index in 0..first_length {
-        let value = unsafe { *input.add(2 + index) };
-        if !(97..=122).contains(&value) { return -1; }
-        first_counts[(value - 97) as usize] += 1;
+    if !(2..=2050).contains(&length) || input.is_null() { return -1; }
+    let values = unsafe { std::slice::from_raw_parts(input, length) };
+    let (first, second) = (values[0] as u64, values[1] as u64);
+    if first > 1024 || second > 1024 || length as u64 != 2 + first + second { return -1; }
+    let letters = &values[2..];
+    if first != second {
+        return if letters.iter().any(|&value| (value as u64).wrapping_sub(97) > 25) { -1 } else { 0 };
     }
-    for index in 0..second_length {
-        let value = unsafe { *input.add(2 + first_length + index) };
-        if !(97..=122).contains(&value) { return -1; }
-        second_counts[(value - 97) as usize] += 1;
+
+    let mut counts = [0u16; 26];
+    let (first, second) = letters.split_at(first as usize);
+    for (&left, &right) in first.iter().zip(second) {
+        let left = (left as u64).wrapping_sub(97);
+        let right = (right as u64).wrapping_sub(97);
+        if left > 25 || right > 25 { return -1; }
+        if left != right {
+            let (left, right) = (left as usize, right as usize);
+            counts[left] = counts[left].wrapping_add(1);
+            counts[right] = counts[right].wrapping_sub(1);
+        }
     }
-    if first_counts != second_counts { return 0; }
-    1
+    i64::from(counts.iter().all(|&balance| balance == 0))
 }

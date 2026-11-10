@@ -3,32 +3,34 @@
 #include <cstdint>
 
 namespace {
-constexpr std::size_t max_string_length = 1024;
-constexpr std::size_t max_input_length = 2 + 2 * max_string_length;
+constexpr std::size_t MAX_STRING_LENGTH = 1024;
+constexpr std::size_t MAX_INPUT_LENGTH = 2 + 2 * MAX_STRING_LENGTH;
 }
 
 extern "C" std::int64_t valid_anagram(const std::int64_t *input, std::size_t length) noexcept {
-    if (input == nullptr || length < 2 || length > max_input_length) return -1;
-    const std::int64_t first_length_value = input[0];
-    const std::int64_t second_length_value = input[1];
-    if (first_length_value < 0 || first_length_value > static_cast<std::int64_t>(max_string_length) ||
-        second_length_value < 0 || second_length_value > static_cast<std::int64_t>(max_string_length)) return -1;
-    const std::size_t first_length = static_cast<std::size_t>(first_length_value);
-    const std::size_t second_length = static_cast<std::size_t>(second_length_value);
-    if (length != 2 + first_length + second_length) return -1;
-    std::size_t first_counts[26]{};
-    std::size_t second_counts[26]{};
-    for (std::size_t index = 0; index < first_length; ++index) {
-        const std::int64_t value = input[2 + index];
-        if (value < 'a' || value > 'z') return -1;
-        ++first_counts[static_cast<std::size_t>(value - 'a')];
+    if (input == nullptr || length < 2 || length > MAX_INPUT_LENGTH) return -1;
+    const std::uint64_t first = static_cast<std::uint64_t>(input[0]);
+    const std::uint64_t second = static_cast<std::uint64_t>(input[1]);
+    if (first > MAX_STRING_LENGTH || second > MAX_STRING_LENGTH ||
+        length != 2 + first + second) return -1;
+    if (first != second) {
+        for (std::size_t i = 2; i < length; ++i)
+            if (static_cast<std::uint64_t>(input[i]) - 97 > 25) return -1;
+        return 0;
     }
-    for (std::size_t index = 0; index < second_length; ++index) {
-        const std::int64_t value = input[2 + first_length + index];
-        if (value < 'a' || value > 'z') return -1;
-        ++second_counts[static_cast<std::size_t>(value - 'a')];
+
+    std::uint16_t counts[26] = {0};
+    const std::size_t count = static_cast<std::size_t>(first);
+    for (std::size_t i = 2; i < 2 + count; ++i) {
+        const std::uint64_t left = static_cast<std::uint64_t>(input[i]) - 97;
+        const std::uint64_t right = static_cast<std::uint64_t>(input[i + count]) - 97;
+        if (left > 25 || right > 25) return -1;
+        if (left != right) {
+            ++counts[left];
+            --counts[right];
+        }
     }
-    for (std::size_t letter = 0; letter < 26; ++letter)
-        if (first_counts[letter] != second_counts[letter]) return 0;
+    for (std::size_t slot = 0; slot < 26; ++slot)
+        if (counts[slot] != 0) return 0;
     return 1;
 }

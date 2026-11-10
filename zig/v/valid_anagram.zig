@@ -1,30 +1,29 @@
 /// Compare lowercase ASCII strings by their letter frequencies.
-const MAX_STRING_LENGTH: usize = 1024;
-const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_STRING_LENGTH;
-
 export fn valid_anagram(input: [*]const i64, length: usize) i64 {
-    if (length < 2 or length > MAX_INPUT_LENGTH) return -1;
-    const first_length_value = input[0];
-    const second_length_value = input[1];
-    if (first_length_value < 0 or first_length_value > MAX_STRING_LENGTH or
-        second_length_value < 0 or second_length_value > MAX_STRING_LENGTH) return -1;
-    const first_length: usize = @intCast(first_length_value);
-    const second_length: usize = @intCast(second_length_value);
-    if (length != 2 + first_length + second_length) return -1;
-    var first_counts: [26]usize = @splat(0);
-    var second_counts: [26]usize = @splat(0);
-    for (0..first_length) |index| {
-        const value = input[2 + index];
-        if (value < 97 or value > 122) return -1;
-        first_counts[@intCast(value - 97)] += 1;
+    if (length < 2 or length > 2050) return -1;
+    const first: u64 = @bitCast(input[0]);
+    const second: u64 = @bitCast(input[1]);
+    if (first > 1024 or second > 1024 or length != 2 + first + second) return -1;
+    if (first != second) {
+        for (input[2..length]) |value| {
+            if (@as(u64, @bitCast(value)) -% 97 > 25) return -1;
+        }
+        return 0;
     }
-    for (0..second_length) |index| {
-        const value = input[2 + first_length + index];
-        if (value < 97 or value > 122) return -1;
-        second_counts[@intCast(value - 97)] += 1;
+
+    var counts: [26]u16 = @splat(0);
+    const count: usize = @intCast(first);
+    for (input[2 .. 2 + count], input[2 + count .. length]) |left_raw, right_raw| {
+        const left = @as(u64, @bitCast(left_raw)) -% 97;
+        const right = @as(u64, @bitCast(right_raw)) -% 97;
+        if (left > 25 or right > 25) return -1;
+        if (left != right) {
+            counts[@intCast(left)] +%= 1;
+            counts[@intCast(right)] -%= 1;
+        }
     }
-    for (0..26) |letter| {
-        if (first_counts[letter] != second_counts[letter]) return 0;
+    for (counts) |balance| {
+        if (balance != 0) return 0;
     }
     return 1;
 }

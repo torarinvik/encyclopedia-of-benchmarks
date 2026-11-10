@@ -15,7 +15,7 @@ import random
 import subprocess
 import sys
 
-from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
 from run_i64_array_scalar import encode_case
 
 ALGORITHM = "valid_anagram"
@@ -59,15 +59,26 @@ def corpus(workload: dict) -> tuple[str, int]:
         second = [rng.choice(alphabet) for _ in range(rng.randrange(0, 257))]
         values = [len(first), len(second), *first, *second]
         cases[tuple(values)] = oracle(values)
+    for length in (7, 31, 64, 127, 255, MAX_STRING_LENGTH):
+        first = [rng.randrange(97, 123) for _ in range(length)]
+        second = first.copy()
+        rng.shuffle(second)
+        for other in (second, second[:-1] + [97 + (second[-1] - 96) % 26]):
+            values = [length, length, *first, *other]
+            cases[tuple(values)] = oracle(values)
     max_string = [97] * MAX_STRING_LENGTH
     for first, second in ((max_string, max_string),
                           (max_string[:-1] + [98], max_string),
+                          (max_string, [122] * MAX_STRING_LENGTH),
                           (list(range(97, 123)) * 39 + [97], list(range(97, 123)) * 39 + [97])):
         values = [len(first), len(second), *first, *second]
         cases[tuple(values)] = oracle(values)
     malformed = (
         [], [0], [-1, 0], [MAX_STRING_LENGTH + 1, 0], [2, 2, 97, 98],
         [1, 1, 65, 97], [1, 1, 97, 127],
+        [1, 1, (1 << 32) + 97, 97], [1, 1, 65, 65],
+        [1, 1, I64_MIN, I64_MIN], [1, 1, I64_MAX, I64_MAX],
+        [1, 2, 97, 98, 0], [2, 1, 97, 0, 98],
         [MAX_STRING_LENGTH + 1, 0, *([97] * (MAX_STRING_LENGTH + 1))],
     )
     for values in malformed:
@@ -121,7 +132,8 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS | OPTIONAL_EXTENSIONS,
+                        default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build/valid_anagram")

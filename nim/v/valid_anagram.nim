@@ -1,27 +1,24 @@
 ## Compare lowercase ASCII strings by their letter frequencies.
-const MaxStringLength = 1024
-const MaxInputLength = 2 + 2 * MaxStringLength
-
 proc valid_anagram*(input: ptr UncheckedArray[int64], length: csize_t): int64
     {.cdecl, exportc: "valid_anagram".} =
-  if length < 2 or length > csize_t(MaxInputLength): return -1
-  let firstLengthValue = input[0]
-  let secondLengthValue = input[1]
-  if firstLengthValue < 0 or firstLengthValue > MaxStringLength or
-      secondLengthValue < 0 or secondLengthValue > MaxStringLength: return -1
-  let firstLength = int(firstLengthValue)
-  let secondLength = int(secondLengthValue)
-  if int(length) != 2 + firstLength + secondLength: return -1
-  var firstCounts: array[26, int]
-  var secondCounts: array[26, int]
-  for index in 0 ..< firstLength:
-    let value = input[2 + index]
-    if value < 97 or value > 122: return -1
-    inc firstCounts[int(value - 97)]
-  for index in 0 ..< secondLength:
-    let value = input[2 + firstLength + index]
-    if value < 97 or value > 122: return -1
-    inc secondCounts[int(value - 97)]
-  for letter in 0 ..< 26:
-    if firstCounts[letter] != secondCounts[letter]: return 0
+  if length < 2 or length > 2050: return -1
+  let first = cast[uint64](input[0])
+  let second = cast[uint64](input[1])
+  if first > 1024 or second > 1024 or length != 2 + first + second: return -1
+  if first != second:
+    for i in 2 ..< int(length):
+      if cast[uint64](input[i]) - 97 > 25: return -1
+    return 0
+
+  var counts: array[26, uint16]
+  let count = int(first)
+  for i in 2 ..< 2 + count:
+    let left = cast[uint64](input[i]) - 97
+    let right = cast[uint64](input[i + count]) - 97
+    if left > 25 or right > 25: return -1
+    if left != right:
+      counts[int(left)] += 1
+      counts[int(right)] -= 1
+  for balance in counts:
+    if balance != 0: return 0
   1
