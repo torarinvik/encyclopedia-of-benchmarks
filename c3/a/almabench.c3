@@ -1,6 +1,5 @@
 module almabench;
-import math;
-import "core:c";
+import std::math;
 
 const long MIN_DAYS = 1;
 const long MAX_DAYS = 36525;
@@ -123,7 +122,7 @@ fn double remainder_f64(double value, double divisor) {
 }
 fn double normalize_angle(double angle) {
     double value = remainder_f64(angle, TWOPI);
-    if (math.abs(value) >= PI) value -= if angle < 0.0 then -TWOPI else TWOPI;
+    if (math::abs(value) >= PI) value -= angle < 0.0 ? -TWOPI : TWOPI;
     return value;
 }
 fn void planet_position(int planet, long day, double[3]* result) {
@@ -138,37 +137,37 @@ fn void planet_position(int planet, long day, double[3]* result) {
     for (int term = 0; term < 8; term++) {
         double a_arg = table_value(144,9,planet,term) * secular_phase;
         double l_arg = table_value(360,10,planet,term) * secular_phase;
-        semi_major += (table_value(216,9,planet,term) * math.cos(a_arg) + table_value(288,9,planet,term) * math.sin(a_arg)) * 0.0000001;
-        mean_longitude += (table_value(440,10,planet,term) * math.cos(l_arg) + table_value(520,10,planet,term) * math.sin(l_arg)) * 0.0000001;
+        semi_major += (table_value(216,9,planet,term) * math::cos(a_arg) + table_value(288,9,planet,term) * math::sin(a_arg)) * 0.0000001;
+        mean_longitude += (table_value(440,10,planet,term) * math::cos(l_arg) + table_value(520,10,planet,term) * math::sin(l_arg)) * 0.0000001;
     }
     double a_arg = table_value(144,9,planet,8) * secular_phase;
-    semi_major += t * (table_value(216,9,planet,8) * math.cos(a_arg) + table_value(288,9,planet,8) * math.sin(a_arg)) * 0.0000001;
+    semi_major += t * (table_value(216,9,planet,8) * math::cos(a_arg) + table_value(288,9,planet,8) * math::sin(a_arg)) * 0.0000001;
     for (int term = 8; term <= 9; term++) {
         double l_arg = table_value(360,10,planet,term) * secular_phase;
-        mean_longitude += t * (table_value(440,10,planet,term) * math.cos(l_arg) + table_value(520,10,planet,term) * math.sin(l_arg)) * 0.0000001;
+        mean_longitude += t * (table_value(440,10,planet,term) * math::cos(l_arg) + table_value(520,10,planet,term) * math::sin(l_arg)) * 0.0000001;
     }
     mean_longitude = remainder_f64(mean_longitude, TWOPI);
     double mean_anomaly = mean_longitude - perihelion;
-    double eccentric_anomaly = mean_anomaly + eccentricity * math.sin(mean_anomaly);
+    double eccentric_anomaly = mean_anomaly + eccentricity * math::sin(mean_anomaly);
     for (int iteration = 0; iteration < 10; iteration++) {
-        double correction = (mean_anomaly - eccentric_anomaly + eccentricity * math.sin(eccentric_anomaly)) / (1.0 - eccentricity * math.cos(eccentric_anomaly));
+        double correction = (mean_anomaly - eccentric_anomaly + eccentricity * math::sin(eccentric_anomaly)) / (1.0 - eccentricity * math::cos(eccentric_anomaly));
         eccentric_anomaly += correction;
-        if (math.abs(correction) < 1.0e-12) break;
+        if (math::abs(correction) < 1.0e-12) break;
     }
-    double true_anomaly = 2.0 * math.atan2(math.sqrt((1.0 + eccentricity) / (1.0 - eccentricity)) * math.sin(eccentric_anomaly / 2.0), math.cos(eccentric_anomaly / 2.0));
-    double radius = semi_major * (1.0 - eccentricity * math.cos(eccentric_anomaly));
-    double speed = GAUSSK * math.sqrt((1.0 + 1.0 / AMAS[planet]) / (semi_major * semi_major * semi_major));
-    double half_sin = math.sin(inclination / 2.0);
-    double node_cos = half_sin * math.cos(node);
-    double node_sin = half_sin * math.sin(node);
+    double true_anomaly = 2.0 * math::atan2(math::sqrt((1.0 + eccentricity) / (1.0 - eccentricity)) * math::sin(eccentric_anomaly / 2.0), math::cos(eccentric_anomaly / 2.0));
+    double radius = semi_major * (1.0 - eccentricity * math::cos(eccentric_anomaly));
+    double speed = GAUSSK * math::sqrt((1.0 + 1.0 / AMAS[planet]) / (semi_major * semi_major * semi_major));
+    double half_sin = math::sin(inclination / 2.0);
+    double node_cos = half_sin * math::cos(node);
+    double node_sin = half_sin * math::sin(node);
     double longitude = true_anomaly + perihelion;
-    double longitude_sin = math.sin(longitude);
-    double longitude_cos = math.cos(longitude);
+    double longitude_sin = math::sin(longitude);
+    double longitude_cos = math::cos(longitude);
     double correction = 2.0 * (node_sin * longitude_cos - node_cos * longitude_sin);
-    double inclination_cos = math.cos(inclination / 2.0);
-    double xf = semi_major / math.sqrt(1.0 - eccentricity * eccentricity);
-    double xms = (eccentricity * math.sin(perihelion) + longitude_sin) * xf;
-    double xmc = (eccentricity * math.cos(perihelion) + longitude_cos) * xf;
+    double inclination_cos = math::cos(inclination / 2.0);
+    double xf = semi_major / math::sqrt(1.0 - eccentricity * eccentricity);
+    double xms = (eccentricity * math::sin(perihelion) + longitude_sin) * xf;
+    double xmc = (eccentricity * math::cos(perihelion) + longitude_cos) * xf;
     double xpxq2 = 2.0 * node_sin * node_cos;
     double velocity_x = speed * ((-1.0 + 2.0 * node_sin * node_sin) * xms + xpxq2 * xmc);
     double velocity_y = speed * ((1.0 - 2.0 * node_cos * node_cos) * xmc - xpxq2 * xms);
@@ -181,11 +180,11 @@ fn void planet_position(int planet, long day, double[3]* result) {
     double ecliptic_z = radius * (-correction * inclination_cos);
     double y = ecliptic_y * COSEPS - ecliptic_z * SINEPS;
     double z = ecliptic_y * SINEPS + ecliptic_z * COSEPS;
-    double distance = math.sqrt(x*x + y*y + z*z);
-    double right_ascension = math.atan2(y, x) * R2H;
+    double distance = math::sqrt(x*x + y*y + z*z);
+    double right_ascension = math::atan2(y, x) * R2H;
     if (right_ascension < 0.0) right_ascension += 24.0;
     (*result)[0] = right_ascension;
-    (*result)[1] = math.asin(z / distance) * R2D;
+    (*result)[1] = math::asin(z / distance) * R2D;
     (*result)[2] = distance;
 }
 fn void append_text(char* buffer, usz* used, char* text) { while (*text != 0) buffer[(*used)++] = *text++; }
@@ -227,8 +226,11 @@ fn ulong rounded_micro_units(ulong bits) {
     if (half_bit != 0 && (lower_nonzero || (quotient & 1ul) != 0)) quotient++;
     return quotient;
 }
+union DoubleBits { double value; ulong bits; }
+
 fn void append_fixed(char* buffer, usz* used, double value) {
-    ulong bits = @bitcast(ulong, value);
+    DoubleBits representation = { .value = value };
+    ulong bits = representation.bits;
     bool negative = (bits >> 63) != 0;
     long scaled = (long)rounded_micro_units(bits & ((1ul << 63) - 1ul));
     if (negative) buffer[(*used)++] = '-';
@@ -241,13 +243,13 @@ fn void append_fixed(char* buffer, usz* used, double value) {
 fn long almabench(long days, char* output, usz output_capacity) @export("almabench") {
     if (days < MIN_DAYS || days > MAX_DAYS) return -1;
     if (output == null) return -2;
-    double[8][3] positions;
+    double[3][8] positions;
     for (long day = 1; day <= days; day++) for (int planet = 0; planet < 8; planet++) planet_position(planet, day, &positions[planet]);
     char[MAX_OUTPUT_BYTES] staged; usz used = 0;
     for (int planet = 0; planet < 8; planet++) {
-        append_fixed(staged, &used, positions[planet][0]); append_text(staged, &used, " ");
-        append_fixed(staged, &used, positions[planet][1]); append_text(staged, &used, " ");
-        append_fixed(staged, &used, positions[planet][2]); append_text(staged, &used, "\n");
+        append_fixed(&staged[0], &used, positions[planet][0]); append_text(&staged[0], &used, " ");
+        append_fixed(&staged[0], &used, positions[planet][1]); append_text(&staged[0], &used, " ");
+        append_fixed(&staged[0], &used, positions[planet][2]); append_text(&staged[0], &used, "\n");
     }
     if (output_capacity < used) return -2;
     for (usz i = 0; i < used; i++) output[i] = staged[i];

@@ -120,16 +120,16 @@ DATA: [600]f64 = {
 	679.0, 0.0, -244.0, -419.0, -2531.0, 48.0
 }
 
-table_value :: proc(offset, width, planet, term: int) -> f64 { return DATA[offset + width * planet + term] }
-remainder_f64 :: proc(value, divisor: f64) -> f64 {
+table_value :: proc "contextless"(offset, width, planet, term: int) -> f64 { return DATA[offset + width * planet + term] }
+remainder_f64 :: proc "contextless"(value, divisor: f64) -> f64 {
 	return libc.fmod(value, divisor)
 }
-normalize_angle :: proc(angle: f64) -> f64 {
+normalize_angle :: proc "contextless"(angle: f64) -> f64 {
 	value := remainder_f64(angle, TWOPI)
-	if math.abs(value) >= PI { value -= if angle < 0.0 { -TWOPI } else { TWOPI } }
+	if math.abs(value) >= PI { value -= -TWOPI if angle < 0.0 else TWOPI }
 	return value
 }
-planet_position :: proc(planet: int, day: i64) -> [3]f64 {
+planet_position :: proc "contextless"(planet: int, day: i64) -> [3]f64 {
 	t := f64(day) / JMILLENIA
 	semi_major := table_value(0,3,planet,0) + (table_value(0,3,planet,1) + table_value(0,3,planet,2) * t) * t
 	mean_longitude := (3600.0 * table_value(24,3,planet,0) + (table_value(24,3,planet,1) + table_value(24,3,planet,2) * t) * t) * A2R
@@ -189,11 +189,11 @@ planet_position :: proc(planet: int, day: i64) -> [3]f64 {
 	if right_ascension < 0.0 { right_ascension += 24.0 }
 	return [3]f64{right_ascension, math.asin(z / distance) * R2D, distance}
 }
-append_text :: proc(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, text: string) {
+append_text :: proc "contextless"(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, text: string) {
 	for byte in transmute([]u8)text { buffer[used^] = byte; used^ += 1 }
 }
-append_integer :: proc(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: i64) {
-	var reverse: [20]u8
+append_integer :: proc "contextless"(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: i64) {
+	reverse: [20]u8
 	remaining := value
 	count := 0
 	for {
@@ -203,7 +203,7 @@ append_integer :: proc(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: i64) {
 	}
 	for count > 0 { count -= 1; buffer[used^] = reverse[count]; used^ += 1 }
 }
-rounded_micro_units :: proc(bits: u64) -> u64 {
+rounded_micro_units :: proc "contextless"(bits: u64) -> u64 {
 	exponent := int((bits >> 52) & 0x7ff)
 	if exponent == 0 do return 0
 	significand := (bits & 0x000f_ffff_ffff_ffff) | (u64(1) << 52)
@@ -237,7 +237,7 @@ rounded_micro_units :: proc(bits: u64) -> u64 {
 	return quotient
 }
 
-append_fixed :: proc(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: f64) {
+append_fixed :: proc "contextless"(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: f64) {
 	bits := transmute(u64)value
 	negative := (bits >> 63) != 0
 	scaled := i64(rounded_micro_units(bits & 0x7fff_ffff_ffff_ffff))
@@ -245,7 +245,7 @@ append_fixed :: proc(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: f64) {
 	append_integer(buffer, used, scaled / 1000000)
 	buffer[used^] = u8('.'); used^ += 1
 	fraction := scaled % 1000000
-	place := 100000
+	place: i64 = 100000
 	for place > 0 {
 		buffer[used^] = u8('0') + u8(fraction / place); used^ += 1
 		fraction %= place; place /= 10
@@ -256,11 +256,11 @@ append_fixed :: proc(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: f64) {
 almabench :: proc "c" (days: i64, output: [^]u8, output_capacity: c.size_t) -> i64 {
 	if days < MIN_DAYS || days > MAX_DAYS do return -1
 	if output == nil do return -2
-	var positions: [8][3]f64
+	positions: [8][3]f64
 	for day: i64 = 1; day <= days; day += 1 {
 		for planet := 0; planet < 8; planet += 1 { positions[planet] = planet_position(planet, day) }
 	}
-	var staged: [MAX_OUTPUT_BYTES]u8
+	staged: [MAX_OUTPUT_BYTES]u8
 	used := 0
 	for position in positions {
 		append_fixed(&staged, &used, position[0]); append_text(&staged, &used, " ")

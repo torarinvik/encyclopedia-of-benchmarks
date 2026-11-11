@@ -1,3 +1,4 @@
+const std = @import("std");
 const MIN_DAYS: i64 = 1;
 const MAX_DAYS: i64 = 36525;
 const MAX_OUTPUT_BYTES: usize = 248;
@@ -149,7 +150,7 @@ fn planetPosition(planet: usize, day: i64) [3]f64 {
         eccentric_anomaly += correction;
         if (@abs(correction) < 1.0e-12) break;
     }
-    const true_anomaly = 2.0 * @atan2(@sqrt((1.0 + eccentricity) / (1.0 - eccentricity)) * @sin(eccentric_anomaly / 2.0), @cos(eccentric_anomaly / 2.0));
+    const true_anomaly = 2.0 * std.math.atan2(@sqrt((1.0 + eccentricity) / (1.0 - eccentricity)) * @sin(eccentric_anomaly / 2.0), @cos(eccentric_anomaly / 2.0));
     const radius = semi_major * (1.0 - eccentricity * @cos(eccentric_anomaly));
     const half_sin = @sin(inclination / 2.0);
     const node_cos = half_sin * @cos(node);
@@ -178,9 +179,9 @@ fn planetPosition(planet: usize, day: i64) [3]f64 {
     const y = ecliptic_y * COSEPS - ecliptic_z * SINEPS;
     const z = ecliptic_y * SINEPS + ecliptic_z * COSEPS;
     const distance = @sqrt(x*x + y*y + z*z);
-    var right_ascension = @atan2(y, x) * R2H;
+    var right_ascension = std.math.atan2(y, x) * R2H;
     if (right_ascension < 0.0) right_ascension += 24.0;
-    return .{ right_ascension, @asin(z / distance) * R2D, distance };
+    return .{ right_ascension, std.math.asin(z / distance) * R2D, distance };
 }
 fn appendText(buffer: *[MAX_OUTPUT_BYTES]u8, used: *usize, text: []const u8) void {
     for (text) |byte| { buffer[used.*] = byte; used.* += 1; }

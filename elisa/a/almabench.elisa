@@ -3,6 +3,7 @@ extern cos(value: f64) -> f64
 extern sqrt(value: f64) -> f64
 extern atan2(y: f64, x: f64) -> f64
 extern asin(value: f64) -> f64
+extern fabs(value: f64) -> f64
 extern floor(value: f64) -> f64
 extern fmod(value: f64, divisor: f64) -> f64
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
@@ -131,8 +132,8 @@ def remainder_f64(value: f64, divisor: f64) -> f64:
 
 def normalize_angle(angle: f64) -> f64:
     value: mutable f64 = remainder_f64(angle, TWOPI)
-    if abs(value) >= PI:
-        value <- value - (if angle < 0.0 then -TWOPI else TWOPI)
+    if fabs(value) >= PI:
+        value <- value - (-TWOPI if angle < 0.0 else TWOPI)
     value
 
 def planet_position(planet: usize, day: i64, result: mutable f64&):
@@ -165,7 +166,7 @@ def planet_position(planet: usize, day: i64, result: mutable f64&):
     while iteration < 10:
         correction: f64 = (mean_anomaly - eccentric_anomaly + eccentricity * sin(eccentric_anomaly)) / (1.0 - eccentricity * cos(eccentric_anomaly))
         eccentric_anomaly <- eccentric_anomaly + correction
-        if abs(correction) < 1.0e-12:
+        if fabs(correction) < 1.0e-12:
             break
         iteration <- iteration + 1
     true_anomaly: f64 = 2.0 * atan2(sqrt((1.0 + eccentricity) / (1.0 - eccentricity)) * sin(eccentric_anomaly / 2.0), cos(eccentric_anomaly / 2.0))
@@ -201,10 +202,10 @@ def planet_position(planet: usize, day: i64, result: mutable f64&):
     result[1] <- asin(z / distance) * R2D
     result[2] <- distance
 
-def append_text(buffer: mutable view[u8], used: mutable usize&, text: string):
+def append_text(buffer: mutable view[u8], used: mutable usize&, text: sview):
     index: mutable usize = 0
-    while index < text.len():
-        buffer[used] <- text.byte_at(index)
+    while index < text.len:
+        buffer[used] <- text[index]
         used <- used + 1
         index <- index + 1
 
@@ -245,7 +246,7 @@ def rounded_micro_units(bits: u64) -> u64:
         quotient <- (limb1 >> part) | (limb2 << (32 - part))
         half_bit <- (limb1 >> (part - 1)) & 1.u64()
         lower_nonzero <- limb0 != 0.u64() or (limb1 & ((1.u64() << (part - 1)) - 1.u64())) != 0.u64()
-    else if shift == 64:
+    elif shift == 64:
         quotient <- limb2
         half_bit <- limb1 >> 31
         lower_nonzero <- limb0 != 0.u64() or (limb1 & ((1.u64() << 31) - 1.u64())) != 0.u64()
@@ -280,9 +281,9 @@ def append_fixed(buffer: mutable view[u8], used: mutable usize&, value: f64):
 def almabench_impl(days: i64, output: mutable u8&, output_capacity: usize) -> i64:
     if days < MIN_DAYS or days > MAX_DAYS:
         return -1
-    if output.is_null():
+    if output == null:
         return -2
-    positions: mutable f64[8][3] = zeroed
+    positions: mutable f64[3][8] = zeroed
     day: mutable i64 = 1
     while day <= days:
         planet: mutable usize = 0

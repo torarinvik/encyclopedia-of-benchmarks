@@ -2,8 +2,8 @@ module almabench
 
 import math
 
-const min_days = i64(1)
-const max_days = i64(36525)
+const min_days = 1
+const max_days = 36525
 const max_output_bytes = 248
 const pi = 3.14159265358979323846
 const two_pi = 2.0 * pi
@@ -14,8 +14,8 @@ const jmillenia = 365250.0
 const sineps = 0.3977771559319137
 const coseps = 0.9174820620691818
 const gaussk = 0.01720209895
-const amas = [8]f64{6023600.0, 408523.5, 328900.5, 3098710.0, 1047.355, 3498.5, 22869.0, 19314.0}
-const data = [600]f64{
+const amas = [6023600.0, 408523.5, 328900.5, 3098710.0, 1047.355, 3498.5, 22869.0, 19314.0]!
+const data = [
     0.3870983098, 0.0, 0.0, 0.72332982, 0.0, 0.0,
     1.0000010178, 0.0, 0.0, 1.5236793419, 3e-10, 0.0,
     5.2026032092, 1.9132e-06, -3.9e-09, 9.5549091915, -2.13896e-05, 4.44e-08,
@@ -116,7 +116,7 @@ const data = [600]f64{
     5334.0, -4935.0, -1848.0, 66.0, 434.0, -1748.0,
     3780.0, -701.0, -47645.0, 11647.0, 2166.0, 3194.0,
     679.0, 0.0, -244.0, -419.0, -2531.0, 48.0
-}
+]!
 
 fn table_value(offset int, width int, planet int, term int) f64 { return data[offset + width * planet + term] }
 fn remainder_f64(value f64, divisor f64) f64 {
@@ -169,8 +169,8 @@ fn planet_position(planet int, day i64) [3]f64 {
 	x := radius * (longitude_cos - correction * node_sin)
 	ecliptic_y := radius * (longitude_sin + correction * node_cos)
 	ecliptic_z := radius * (-correction * inclination_cos)
-	speed := gaussk * math.sqrt_f64((1.0 + 1.0 / amas[planet]) / (semi_major * semi_major * semi_major))
-	xf := semi_major / math.sqrt_f64(1.0 - eccentricity * eccentricity)
+	speed := gaussk * math.sqrt((1.0 + 1.0 / amas[planet]) / (semi_major * semi_major * semi_major))
+	xf := semi_major / math.sqrt(1.0 - eccentricity * eccentricity)
 	xms := (eccentricity * math.sin(perihelion) + longitude_sin) * xf
 	xmc := (eccentricity * math.cos(perihelion) + longitude_cos) * xf
 	xpxq2 := 2.0 * node_sin * node_cos
@@ -185,12 +185,15 @@ fn planet_position(planet int, day i64) [3]f64 {
 	distance := math.sqrt(x*x + y*y + z*z)
 	mut right_ascension := math.atan2(y, x) * r2h
 	if right_ascension < 0.0 { right_ascension += 24.0 }
-	return [3]f64{right_ascension, math.asin(z / distance) * r2d, distance}
+	return [right_ascension, math.asin(z / distance) * r2d, distance]!
 }
-fn append_text(mut buffer [max_output_bytes]u8, mut used int, text string) {
+fn append_text(mut buffer [max_output_bytes]u8, start int, text string) int {
+	mut used := start
 	for byte in text.bytes() { buffer[used] = byte; used++ }
+	return used
 }
-fn append_integer(mut buffer [max_output_bytes]u8, mut used int, value i64) {
+fn append_integer(mut buffer [max_output_bytes]u8, start int, value i64) int {
+	mut used := start
 	mut remaining := value
 	mut reversed := [20]u8{}
 	mut count := 0
@@ -201,6 +204,7 @@ fn append_integer(mut buffer [max_output_bytes]u8, mut used int, value i64) {
 		if remaining == 0 { break }
 	}
 	for count > 0 { count--; buffer[used] = reversed[count]; used++ }
+	return used
 }
 fn rounded_micro_units(bits u64) u64 {
 	exponent := int((bits >> 52) & u64(0x7ff))
@@ -236,12 +240,13 @@ fn rounded_micro_units(bits u64) u64 {
 	return quotient
 }
 
-fn append_fixed(mut buffer [max_output_bytes]u8, mut used int, value f64) {
+fn append_fixed(mut buffer [max_output_bytes]u8, start int, value f64) int {
+	mut used := start
 	bits := math.f64_bits(value)
 	negative := (bits >> 63) != 0
 	scaled := i64(rounded_micro_units(bits & u64(0x7fff_ffff_ffff_ffff)))
 	if negative { buffer[used] = u8(`-`); used++ }
-	append_integer(mut buffer, mut used, scaled / 1000000)
+	used = append_integer(mut buffer, used, scaled / 1000000)
 	buffer[used] = u8(`.`); used++
 	mut fraction := scaled % 1000000
 	mut place := i64(100000)
@@ -251,6 +256,7 @@ fn append_fixed(mut buffer [max_output_bytes]u8, mut used int, value f64) {
 		fraction %= place
 		place /= 10
 	}
+	return used
 }
 
 @[export: 'almabench']
@@ -266,9 +272,9 @@ pub fn almabench(days i64, mut output &u8, output_capacity usize) i64 {
 	mut staged := [max_output_bytes]u8{}
 	mut used := 0
 	for position in positions {
-		append_fixed(mut staged, mut used, position[0]); append_text(mut staged, mut used, ' ')
-		append_fixed(mut staged, mut used, position[1]); append_text(mut staged, mut used, ' ')
-		append_fixed(mut staged, mut used, position[2]); append_text(mut staged, mut used, '\n')
+		used = append_fixed(mut staged, used, position[0]); used = append_text(mut staged, used, ' ')
+		used = append_fixed(mut staged, used, position[1]); used = append_text(mut staged, used, ' ')
+		used = append_fixed(mut staged, used, position[2]); used = append_text(mut staged, used, '\n')
 	}
 	if output_capacity < usize(used) { return -2 }
 	for index in 0 .. used { unsafe { output[index] = staged[index] } }

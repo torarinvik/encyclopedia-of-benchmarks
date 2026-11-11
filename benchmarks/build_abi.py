@@ -294,7 +294,10 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         run([compiler, "static-lib", str(source), *flags, "-o", "implementation",
              "--output-dir", str(directory), "--obj-out", str(directory)])
     elif language == "elisa":
-        flags = ["-O3", "-emit", "obj", *implementation_flags]
+        flags = ["-O3", "-emit", "obj"]
+        if algorithm == "almabench":
+            flags.append("-fstrict-fp")
+        flags.extend(implementation_flags)
         run([compiler, *flags, "-o", str(artifact), str(source)])
         # `-emit obj` leaves out the Elisa runtime. A port that allocates (a darray sized
         # to its input) references runtime symbols such as arena_alloc; link the runtime
