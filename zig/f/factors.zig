@@ -23,7 +23,7 @@ fn appendDecimal(valueInput: i64, output: [*]u8, positionInput: usize) usize {
 }
 
 /// List all positive divisors in ascending decimal order.
-export fn factors(value: i64, output: [*]u8, output_capacity: usize) i64 {
+export fn factors(value: i64, buffer: ?[*]u8, output_capacity: usize) i64 {
     if (value < 1 or value > 256) return -1;
     var required: usize = 0;
     var count: usize = 0;
@@ -36,6 +36,7 @@ export fn factors(value: i64, output: [*]u8, output_capacity: usize) i64 {
         }
     }
     if (output_capacity < required) return -2;
+    const output = buffer orelse return -2;
     var position: usize = 0;
     count = 0;
     divisor = 1;

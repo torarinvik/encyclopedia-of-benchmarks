@@ -7,14 +7,14 @@ The pinned Dart, JavaScript, Python, Rust, and TypeScript sources enumerate posi
 - Input is a signed 64-bit integer `n` from 1 through 256.
 - Return the positive divisors of `n`, each once, in ascending order, separated by commas with no trailing comma. For example, `12` returns `1,2,3,4,6,12`.
 - Return `-1` outside the supported input range.
-- Return `-2` when the caller's output buffer is too small; do not write to the buffer in that case.
+- Return `-2` when the caller's output buffer is null or too small; do not write to the buffer in that case.
 - The largest result in the supported range is 54 bytes, so it fits the scalar byte-output ABI's 63-byte limit.
 
 The nine portable ports use integer trial division. Their behavior depends only on standard integer operations, not CPU-specific instructions.
 
 ## Workload and verification
 
-[`workload.json`](workload.json) covers one, prime and composite inputs, a highly composite input, the upper bound, and out-of-range signed values. [`benchmarks/verify_factors.py`](../../verify_factors.py) compares every value from 1 through 256 with a divisor oracle, checks invalid signed-64-bit boundaries and insufficient output capacities, and checks all 14 workload cases through the recorder. All nine languages passed 520 oracle cases each.
+[`workload.json`](workload.json) covers one, prime and composite inputs, a highly composite input, the upper bound, and out-of-range signed values. [`benchmarks/verify_factors.py`](../../verify_factors.py) compares every value from 1 through 256 with a divisor oracle, checks invalid signed-64-bit boundaries, null output buffers, and insufficient output capacities, and checks all 14 workload cases through the recorder. All nine languages passed 784 oracle cases each.
 
 ## Upstream sources
 

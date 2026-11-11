@@ -14,7 +14,7 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
-from run_i64_array_bytes_output import fnv1a
+from run_i64_scalar_bytes_output import fnv1a
 
 ALGORITHM = "factors"
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
@@ -39,15 +39,17 @@ def corpus(workload: dict) -> tuple[str, int]:
     records = []
     for value in range(1, 257):
         result, output = oracle(value)
-        records.append((value, result, len(output), len(output), output))
-        records.append((value, -2, len(output) - 1, 0, b""))
+        records.append((value, result, len(output), 0, len(output), output))
+        records.append((value, -2, len(output) - 1, 0, 0, b""))
+        records.append((value, -2, len(output), 1, 0, b""))
     for value in (I64_MIN, I64_MIN + 1, -257, -1, 0, 257, I64_MAX - 1, I64_MAX):
-        records.append((value, -1, MAX_OUTPUT, 0, b""))
+        records.append((value, -1, MAX_OUTPUT, 0, 0, b""))
+        records.append((value, -1, MAX_OUTPUT, 1, 0, b""))
     records.sort(key=lambda record: (record[0], record[2], record[1]))
     lines = [f"{len(records)}\n"]
-    for value, result, capacity, output_length, output in records:
+    for value, result, capacity, output_is_null, output_length, output in records:
         encoded = output.hex() if output else "-"
-        lines.append(f"{value} {result} {capacity} 0 {output_length} {encoded}\n")
+        lines.append(f"{value} {result} {capacity} {output_is_null} {output_length} {encoded}\n")
     return "".join(lines), len(records)
 
 

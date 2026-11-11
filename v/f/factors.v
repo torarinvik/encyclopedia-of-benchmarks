@@ -43,7 +43,7 @@ pub fn factors(value i64, output &u8, output_capacity usize) i64 {
         }
         divisor++
     }
-    if output_capacity < required { return -2 }
+    if unsafe { output == nil } || output_capacity < required { return -2 }
     mut position := usize(0)
     count = 0
     divisor = 1
