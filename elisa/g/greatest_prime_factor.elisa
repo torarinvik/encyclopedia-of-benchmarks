@@ -2,7 +2,7 @@
 def is_prime_trial(value: i64) -> bool:
     if value < 2:
         return false
-    divisor: i64 = 2
+    divisor: mutable i64 = 2
     while divisor <= value / divisor:
         if value % divisor == 0:
             return false
@@ -17,9 +17,9 @@ def greatest_prime_factor_impl(n: i64) -> i64:
     if is_prime_trial(n):
         return n
 
-    quotient: i64 = n
-    largest: i64 = 0
-    factor: i64 = 2
+    quotient: mutable i64 = n
+    largest: mutable i64 = 0
+    factor: mutable i64 = 2
     while quotient != 1:
         if is_prime_trial(factor) and quotient % factor == 0:
             largest <- factor

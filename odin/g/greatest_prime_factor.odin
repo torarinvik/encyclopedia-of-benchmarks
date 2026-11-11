@@ -1,6 +1,6 @@
 package greatest_prime_factor
 
-is_prime_trial :: proc(value: i64) -> bool {
+is_prime_trial :: proc "c" (value: i64) -> bool {
 	if value < 2 do return false
 	for divisor := i64(2); divisor <= value / divisor; divisor += 1 {
 		if value % divisor == 0 do return false
