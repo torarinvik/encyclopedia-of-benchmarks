@@ -5,8 +5,7 @@ def liouville_lambda_impl(input: i64) -> i64:
     remaining: mutable u64 = input.u64()
     sign: mutable i64 = 1
     factor: mutable u64 = 2
-    # The input bound keeps factor at most 46341, so the square fits in u64.
-    while factor * factor <= remaining:
+    while factor <= remaining / factor:
         while remaining % factor == 0:
             remaining <- remaining / factor
             sign <- -sign
