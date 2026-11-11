@@ -48,8 +48,8 @@ pub unsafe extern "C" fn shootout_objinst(n: i64, output: *mut u8, output_capaci
     let mut toggle = Box::new(Toggle { state: true, activate: toggle_activate, value: toggle_value });
     for _ in 0..5 {
         let activate = toggle.activate;
-        let active = activate(&mut toggle);
         let value = toggle.value;
+        let active = activate(&mut toggle);
         append_state(&mut staged, &mut used, value(active));
     }
     drop(toggle);
@@ -69,8 +69,8 @@ pub unsafe extern "C" fn shootout_objinst(n: i64, output: *mut u8, output_capaci
     });
     for _ in 0..8 {
         let activate = nth_toggle.activate;
-        let active = activate(&mut nth_toggle);
         let value = nth_toggle.value;
+        let active = activate(&mut nth_toggle);
         append_state(&mut staged, &mut used, value(active));
     }
     drop(nth_toggle);

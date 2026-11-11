@@ -1,6 +1,7 @@
 package shootout_objinst
 
 import "core:c"
+import "base:runtime"
 
 MIN_N :: i64(-100000)
 MAX_N :: i64(100000)
@@ -33,8 +34,8 @@ nth_toggle_activate :: proc(toggle: ^NthToggle) {
 }
 nth_toggle_value :: proc(toggle: ^NthToggle) -> bool { return toggle.state }
 
-append_state :: proc(staged: [^]u8, used: ^int, state: bool) {
-	word := if state { "true" } else { "false" }
+append_state :: proc(staged: []u8, used: ^int, state: bool) {
+	word := "true" if state else "false"
 	for byte in transmute([]u8)word {
 		staged[used^] = byte
 		used^ += 1
@@ -48,6 +49,7 @@ shootout_objinst :: proc "c" (n: i64, output: [^]u8, output_capacity: c.size_t) 
 	if n < MIN_N || n > MAX_N do return -1
 	if output == nil || output_capacity < c.size_t(OUTPUT_BYTES) do return -2
 
+	context = runtime.default_context()
 	staged: [OUTPUT_BYTES]u8
 	used := 0
 	toggle_memory := make([]Toggle, 1)
@@ -55,7 +57,7 @@ shootout_objinst :: proc "c" (n: i64, output: [^]u8, output_capacity: c.size_t) 
 	toggle^ = Toggle{state = true, activate = toggle_activate, value = toggle_value}
 	for _ in 0..<5 {
 		toggle.activate(toggle)
-		append_state(&staged[0], &used, toggle.value(toggle))
+		append_state(staged[:], &used, toggle.value(toggle))
 	}
 	delete(toggle_memory)
 
@@ -77,7 +79,7 @@ shootout_objinst :: proc "c" (n: i64, output: [^]u8, output_capacity: c.size_t) 
 	}
 	for _ in 0..<8 {
 		nth_toggle.activate(nth_toggle)
-		append_state(&staged[0], &used, nth_toggle.value(nth_toggle))
+		append_state(staged[:], &used, nth_toggle.value(nth_toggle))
 	}
 	delete(nth_memory)
 

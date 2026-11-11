@@ -6,16 +6,16 @@ const MAX_N: i64 = 100000
 const OUTPUT_BYTES: usize = 72
 
 struct Toggle:
-    state: bool
-    activate: fn(mutable Toggle&) -> void
-    value: fn(Toggle&) -> bool
+    state: mutable bool
+    activate: mutable fn(mutable Toggle&) -> void
+    value: mutable fn(Toggle&) -> bool
 
 struct NthToggle:
-    state: bool
-    count_max: i32
-    counter: i32
-    activate: fn(mutable NthToggle&) -> void
-    value: fn(NthToggle&) -> bool
+    state: mutable bool
+    count_max: mutable i32
+    counter: mutable i32
+    activate: mutable fn(mutable NthToggle&) -> void
+    value: mutable fn(NthToggle&) -> bool
 
 def toggle_activate(toggle: mutable Toggle&) -> void:
     toggle.state <- not toggle.state
@@ -57,14 +57,14 @@ def append_state(staged: mutable view[u8], used: mutable usize&, state: bool) ->
     used <- used + 1
 
 def shootout_objinst_impl(n: i64, output: mutable u8&, output_capacity: usize) -> i64:
-    if n < MIN_N || n > MAX_N: return -1
-    if output.is_null() || output_capacity < OUTPUT_BYTES: return -2
+    if n < MIN_N or n > MAX_N: return -1
+    if output == null or output_capacity < OUTPUT_BYTES: return -2
 
     staged: mutable u8[OUTPUT_BYTES] = zeroed
     used: mutable usize = 0
     toggle_raw: mutable u32& = calloc(1, 64)
-    if toggle_raw.is_null(): return -1
-    toggle: mutable Toggle& = toggle_raw.cast[mutable Toggle&]
+    if toggle_raw == null: return -1
+    toggle: mutable Toggle& = toggle_raw.cast[mutable Toggle&] can Unsafe.PointerCast
     toggle.state <- true
     toggle.activate <- toggle_activate
     toggle.value <- toggle_value
@@ -75,12 +75,12 @@ def shootout_objinst_impl(n: i64, output: mutable u8&, output_capacity: usize) -
         append_state(staged[0:OUTPUT_BYTES], used, toggle_value_fn(toggle))
     free(toggle_raw)
 
-    iterations: usize = 0
+    iterations: mutable usize = 0
     if n > 0: iterations <- n.usize()
     for _ in 0..<iterations:
         extra_raw: mutable u32& = calloc(1, 64)
-        if extra_raw.is_null(): return -1
-        extra: mutable Toggle& = extra_raw.cast[mutable Toggle&]
+        if extra_raw == null: return -1
+        extra: mutable Toggle& = extra_raw.cast[mutable Toggle&] can Unsafe.PointerCast
         extra.state <- true
         extra.activate <- toggle_activate
         extra.value <- toggle_value
@@ -89,8 +89,8 @@ def shootout_objinst_impl(n: i64, output: mutable u8&, output_capacity: usize) -
     staged[used] <- 10u8
     used <- used + 1
     nth_raw: mutable u32& = calloc(1, 64)
-    if nth_raw.is_null(): return -1
-    nth_toggle: mutable NthToggle& = nth_raw.cast[mutable NthToggle&]
+    if nth_raw == null: return -1
+    nth_toggle: mutable NthToggle& = nth_raw.cast[mutable NthToggle&] can Unsafe.PointerCast
     nth_toggle.state <- true
     nth_toggle.count_max <- 3
     nth_toggle.counter <- 0
@@ -105,8 +105,8 @@ def shootout_objinst_impl(n: i64, output: mutable u8&, output_capacity: usize) -
 
     for _ in 0..<iterations:
         extra_raw: mutable u32& = calloc(1, 64)
-        if extra_raw.is_null(): return -1
-        extra: mutable NthToggle& = extra_raw.cast[mutable NthToggle&]
+        if extra_raw == null: return -1
+        extra: mutable NthToggle& = extra_raw.cast[mutable NthToggle&] can Unsafe.PointerCast
         extra.state <- true
         extra.count_max <- 3
         extra.counter <- 0

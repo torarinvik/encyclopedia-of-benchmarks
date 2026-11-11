@@ -1,21 +1,23 @@
 module shootout_objinst
 
-const min_n = i64(-100000)
-const max_n = i64(100000)
+const min_n = -100000
+const max_n = 100000
 const output_bytes = 72
 
 struct Toggle {
+mut:
 	state bool
-	activate fn (mut Toggle)
-	value fn (&Toggle) bool
+	activate fn (mut Toggle) = unsafe { nil }
+	value fn (&Toggle) bool = unsafe { nil }
 }
 
 struct NthToggle {
+mut:
 	state bool
 	count_max int
 	counter int
-	activate fn (mut NthToggle)
-	value fn (&NthToggle) bool
+	activate fn (mut NthToggle) = unsafe { nil }
+	value fn (&NthToggle) bool = unsafe { nil }
 }
 
 fn toggle_activate(mut toggle Toggle) {
@@ -32,14 +34,17 @@ fn nth_toggle_activate(mut toggle NthToggle) {
 }
 fn nth_toggle_value(toggle &NthToggle) bool { return toggle.state }
 
-fn append_state(mut staged []u8, mut used int, state bool) {
+fn append_state(staged &u8, start int, state bool) int {
 	word := if state { 'true' } else { 'false' }
-	for byte in word.bytes() {
-		staged[used] = byte
-		used++
+	mut used := start
+	unsafe {
+		for index in 0 .. word.len {
+			staged[used] = word[index]
+			used++
+		}
+		staged[used] = 10
 	}
-	staged[used] = 10
-	used++
+	return used + 1
 }
 
 fn new_toggle() []Toggle {
@@ -62,21 +67,21 @@ pub fn shootout_objinst(n i64, mut output &u8, output_capacity usize) i64 {
 	if n < min_n || n > max_n { return -1 }
 	if unsafe { output == nil } || output_capacity < output_bytes { return -2 }
 
-	mut staged := []u8{len: output_bytes}
+	mut staged := [output_bytes]u8{}
 	mut used := 0
 	mut toggle_memory := new_toggle()
 	for _ in 0 .. 5 {
 		activate := toggle_memory[0].activate
 		activate(mut toggle_memory[0])
 		value := toggle_memory[0].value
-		append_state(mut staged, mut used, value(&toggle_memory[0]))
+		used = append_state(&staged[0], used, value(unsafe { &toggle_memory[0] }))
 	}
-	toggle_memory.free()
+	unsafe { toggle_memory.free() }
 
 	if n > 0 {
 		for _ in 0 .. int(n) {
 			mut extra := new_toggle()
-			extra.free()
+			unsafe { extra.free() }
 		}
 	}
 
@@ -87,14 +92,14 @@ pub fn shootout_objinst(n i64, mut output &u8, output_capacity usize) i64 {
 		activate := nth_memory[0].activate
 		activate(mut nth_memory[0])
 		value := nth_memory[0].value
-		append_state(mut staged, mut used, value(&nth_memory[0]))
+		used = append_state(&staged[0], used, value(unsafe { &nth_memory[0] }))
 	}
-	nth_memory.free()
+	unsafe { nth_memory.free() }
 
 	if n > 0 {
 		for _ in 0 .. int(n) {
 			mut extra := new_nth_toggle()
-			extra.free()
+			unsafe { extra.free() }
 		}
 	}
 
