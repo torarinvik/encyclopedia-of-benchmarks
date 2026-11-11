@@ -10,13 +10,13 @@ def ary3_impl(length: i64, output: mutable u8&, output_capacity: usize) -> i64:
         y[index] <- 0
         index <- index + 1
 
-    pass: mutable usize = 0
-    while pass < 1000:
+    round: mutable usize = 0
+    while round < 1000:
         index <- n
         while index > 0:
             index <- index - 1
             y[index] <- y[index] + x[index]
-        pass <- pass + 1
+        round <- round + 1
 
     first: mutable u32 = y[0].u32()
     last: mutable u32 = y[n - 1].u32()
@@ -33,7 +33,7 @@ def ary3_impl(length: i64, output: mutable u8&, output_capacity: usize) -> i64:
         digit_count <- digit_count + 1
         last <- last / 10
     required: usize = first_digit_count + 2 + digit_count
-    if output.is_null() or output_capacity < required:
+    if output == null or output_capacity < required:
         return -2
     index <- 0
     while index < first_digit_count:

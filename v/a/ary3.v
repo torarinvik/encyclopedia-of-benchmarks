@@ -43,7 +43,7 @@ pub fn ary3(length i64, mut output &u8, output_capacity usize) i64 {
 		}
 	}
 	required := first_digit_count + 2 + digit_count
-	if output == nil || output_capacity < required {
+	if unsafe { output == nil } || output_capacity < required {
 		return -2
 	}
 	unsafe {
