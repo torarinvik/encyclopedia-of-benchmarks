@@ -174,7 +174,7 @@ def corpus(workload: dict) -> tuple[str, int]:
     capacity_error_result = workload.get("output", {}).get(
         "capacity_error_result", workload.get("output", {}).get("insufficient_capacity_result", -2))
 
-    elif encoding == "shootout_random_ascii":
+    if encoding == "shootout_random_ascii":
         source_url = (
             "https://github.com/lac-dcc/Benchmarks/blob/"
             "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/random/random.c"
@@ -1887,7 +1887,7 @@ def corpus(workload: dict) -> tuple[str, int]:
             raise ValueError(f"workload oracle mismatch: {case['id']}")
         add(value, output_capacity, case.get("capacity_error_result"), output_is_null)
 
-    elif encoding == "evalloop_stdout_ascii":
+    if encoding == "evalloop_stdout_ascii":
         for value in (0, 1, 2, 999, EVALLOOP_MAX_PASSES):
             add(value)
         for value in (-1, EVALLOOP_MAX_PASSES + 1, I64_MIN, I64_MAX):

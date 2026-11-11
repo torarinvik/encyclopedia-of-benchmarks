@@ -31,7 +31,7 @@ def shootout_random_impl(call_count: i64, output: mutable u8&, output_capacity: 
         digit_count <- digit_count - 1
         staged[used] <- reversed_digits[digit_count]
         used <- used + 1
-    staged[used] <- 46u8
+    staged[used] <- 46
     used <- used + 1
     place: mutable i64 = 100000000
     while place > 0:
@@ -39,10 +39,10 @@ def shootout_random_impl(call_count: i64, output: mutable u8&, output_capacity: 
         used <- used + 1
         fraction <- fraction % place
         place <- place / 10
-    staged[used] <- 10u8
+    staged[used] <- 10
     used <- used + 1
 
-    if output.is_null() or output_capacity < used:
+    if output == null or output_capacity < used:
         return -2
     index: mutable usize = 0
     while index < used:

@@ -1,12 +1,12 @@
 module shootout_random
 
-const max_call_count = i64(1_000_000)
-const modulus = i64(139_968)
-const fraction_scale = i64(1_000_000_000)
+const max_call_count = 1_000_000
+const modulus = 139_968
+const fraction_scale = 1_000_000_000
 const max_output_bytes = 13
 
 @[export: 'shootout_random']
-pub fn shootout_random(call_count i64, mut output &u8, output_capacity usize) i64 {
+pub fn shootout_random(call_count i64, output &u8, output_capacity usize) i64 {
 	if call_count < 1 || call_count > max_call_count {
 		return -1
 	}
@@ -37,7 +37,7 @@ pub fn shootout_random(call_count i64, mut output &u8, output_capacity usize) i6
 		staged[used] = reversed_digits[digit_count]
 		used++
 	}
-	staged[used] = u8('.')
+	staged[used] = 46
 	used++
 	mut place := i64(100_000_000)
 	for place > 0 {
@@ -49,7 +49,7 @@ pub fn shootout_random(call_count i64, mut output &u8, output_capacity usize) i6
 	staged[used] = 10
 	used++
 
-	if output == nil || output_capacity < used {
+	if unsafe { output == nil } || output_capacity < used {
 		return -2
 	}
 	unsafe {

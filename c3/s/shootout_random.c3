@@ -9,8 +9,9 @@ fn long shootout_random(long call_count, char* output, usz output_capacity) @exp
     if (call_count < 1 || call_count > MAX_CALL_COUNT) return -1;
 
     long state = 42;
-    for (long call = 0; call < call_count; call++)
+    for (long call = 0; call < call_count; call++) {
         state = (state * 3877 + 29573) % MODULUS;
+    }
 
     long scaled = (100 * state * FRACTION_SCALE + MODULUS / 2) / MODULUS;
     long whole = scaled / FRACTION_SCALE;
