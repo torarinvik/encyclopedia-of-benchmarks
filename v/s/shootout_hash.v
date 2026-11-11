@@ -1,12 +1,11 @@
 module shootout_hash
 
-const max_n = i64(3500000)
-const bucket_primes = [28]u32{
-	53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593,
+const bucket_primes = [
+	u32(53), 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593,
 	49157, 98317, 196613, 393241, 786433, 1572869, 3145739,
 	6291469, 12582917, 25165843, 50331653, 100663319, 201326611,
 	402653189, 805306457, 1610612741, 3221225473, 4294967291,
-}
+]!
 
 fn bucket_count_for(n u32) int {
 	for prime in bucket_primes {
@@ -48,13 +47,13 @@ fn hex_key_matches_decimal(hex_value_input u32, decimal_value_input u32) bool {
 
 @[export: 'shootout_hash']
 pub fn shootout_hash(n i64) i64 {
-	if n < 0 || n > max_n { return -1 }
+	if n < 0 || n > 3500000 { return -1 }
 	bound := u32(n)
 	bucket_count := bucket_count_for(bound)
 	mut heads := []u32{len: bucket_count}
-	defer { heads.free() }
+	defer { unsafe { heads.free() } }
 	mut next := []u32{len: int(bound) + 1}
-	defer { next.free() }
+	defer { unsafe { next.free() } }
 
 	mut value := u32(1)
 	for value <= bound {

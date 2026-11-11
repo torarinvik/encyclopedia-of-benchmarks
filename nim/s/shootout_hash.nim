@@ -1,10 +1,13 @@
+proc calloc(count, size: csize_t): pointer {.importc, header: "<stdlib.h>".}
+proc free(memory: pointer) {.importc, header: "<stdlib.h>".}
+
 const
   MaxN = 3_500_000'i64
   BucketPrimes: array[28, uint32] = [
     53'u32, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593,
     49157, 98317, 196613, 393241, 786433, 1572869, 3145739,
     6291469, 12582917, 25165843, 50331653, 100663319, 201326611,
-    402653189, 805306457, 1610612741, 3221225473, 4294967291'u32
+    402653189, 805306457, 1610612741, 3221225473'u32, 4294967291'u32
   ]
 
 proc bucketCountFor(n: uint32): int =
@@ -42,8 +45,12 @@ proc shootout_hash*(n: int64): int64 {.cdecl, exportc: "shootout_hash".} =
   if n < 0 or n > MaxN: return -1
   let bound = uint32(n)
   let bucketCount = bucketCountFor(bound)
-  var heads = newSeq[uint32](bucketCount)
-  var next = newSeq[uint32](int(bound) + 1)
+  let heads = cast[ptr UncheckedArray[uint32]](calloc(csize_t(bucketCount), csize_t(sizeof(uint32))))
+  let next = cast[ptr UncheckedArray[uint32]](calloc(csize_t(bound) + 1, csize_t(sizeof(uint32))))
+  defer:
+    free(heads)
+    free(next)
+  if heads == nil or next == nil: return -1
 
   var value = 1'u32
   while value <= bound:

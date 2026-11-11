@@ -14,7 +14,7 @@ const uint[28] BUCKET_PRIMES = {
 fn usz bucket_count_for(uint n) {
     usz index = 0;
     while (BUCKET_PRIMES[index] < n) index++;
-    return BUCKET_PRIMES[index].usz();
+    return (usz)BUCKET_PRIMES[index];
 }
 
 fn usz hash_key(uint value, uint base, usz bucket_count) {
@@ -28,9 +28,9 @@ fn usz hash_key(uint value, uint base, usz bucket_count) {
     ulong hash = 0;
     while (length != 0) {
         length--;
-        hash = 5 * hash + reverse[length].u8();
+        hash = 5 * hash + reverse[length];
     }
-    return (hash % bucket_count).usz();
+    return (usz)(hash % bucket_count);
 }
 
 fn bool hex_key_matches_decimal(uint hex_value, uint decimal_value) {
@@ -45,10 +45,10 @@ fn bool hex_key_matches_decimal(uint hex_value, uint decimal_value) {
 
 fn long shootout_hash(long n) @export("shootout_hash") {
     if (n < 0 || n > MAX_N) return -1;
-    uint bound = n.uint();
+    uint bound = (uint)n;
     usz bucket_count = bucket_count_for(bound);
-    uint* heads = (uint*)calloc(bucket_count, sizeof(uint));
-    uint* next = (uint*)calloc((bound + 1).usz(), sizeof(uint));
+    uint* heads = (uint*)calloc(bucket_count, 4);
+    uint* next = (uint*)calloc((usz)bound + 1, 4);
     if (heads == null || next == null) {
         free(heads);
         free(next);
@@ -62,11 +62,14 @@ fn long shootout_hash(long n) @export("shootout_hash") {
         while (node != 0) {
             if (node == value) break;
             previous = node;
-            node = next[node.usz()];
+            node = next[(usz)node];
         }
         if (node == 0) {
-            if (previous == 0) heads[bucket] = value;
-            else next[previous.usz()] = value;
+            if (previous == 0) {
+                heads[bucket] = value;
+            } else {
+                next[(usz)previous] = value;
+            }
         }
     }
 
@@ -80,7 +83,7 @@ fn long shootout_hash(long n) @export("shootout_hash") {
                 found++;
                 break;
             }
-            node = next[node.usz()];
+            node = next[(usz)node];
         }
         value--;
     }

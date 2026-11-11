@@ -1,4 +1,4 @@
-extern calloc(count: usize, size: usize) -> mutable u32&
+extern calloc(count: usize, size: usize) -> mutable u32&?
 extern free(memory: mutable u32&) -> void
 
 const SHOOTOUT_HASH_MAX_N: i64 = 3500000
@@ -21,7 +21,7 @@ def shootout_hash_key(value_input: u32, base: u32, bucket_count: usize) -> usize
     length: mutable usize = 0
     while true:
         digit: u32 = value % base
-        reverse[length] <- (if digit < 10: 48 + digit else 87 + digit).u8()
+        reverse[length] <- ((48 + digit) if digit < 10 else (87 + digit)).u8()
         length <- length + 1
         value <- value / base
         if value == 0:
@@ -35,25 +35,25 @@ def shootout_hash_key(value_input: u32, base: u32, bucket_count: usize) -> usize
 def shootout_hash_key_matches_decimal(hex_value_input: u32, decimal_value_input: u32) -> bool:
     hex_value: mutable u32 = hex_value_input
     decimal_value: mutable u32 = decimal_value_input
-    while hex_value != 0 && decimal_value != 0:
+    while hex_value != 0 and decimal_value != 0:
         digit: u32 = hex_value & 15
-        if digit >= 10 || digit != decimal_value % 10:
+        if digit >= 10 or digit != decimal_value % 10:
             return false
         hex_value <- hex_value >> 4
         decimal_value <- decimal_value / 10
-    hex_value == 0 && decimal_value == 0
+    hex_value == 0 and decimal_value == 0
 
 def shootout_hash_impl(n: i64) -> i64:
-    if n < 0 || n > SHOOTOUT_HASH_MAX_N:
+    if n < 0 or n > SHOOTOUT_HASH_MAX_N:
         return -1
     bound: u32 = n.u32()
     bucket_count: usize = shootout_hash_bucket_count(bound)
-    heads: mutable u32& = calloc(bucket_count, 4)
-    next: mutable u32& = calloc((bound + 1).usize(), 4)
-    if heads.is_null() || next.is_null():
+    heads: mutable u32& = get calloc(bucket_count, 4) else return -1
+    allocated_next: mutable u32&? = calloc((bound + 1).usize(), 4)
+    if allocated_next == null:
         free(heads)
-        free(next)
         return -1
+    next: mutable u32& = allocated_next
 
     value: mutable u32 = 1
     while value <= bound:
