@@ -7,7 +7,7 @@ const usz NODE_COUNT = 203;
 
 struct ListNode { int value; int next; int prev; }
 
-void init_sequence(ListNode* nodes, int head, int base) {
+fn void init_sequence(ListNode* nodes, int head, int base) {
     nodes[head].value = LIST_SIZE;
     nodes[head].next = base;
     nodes[head].prev = base + LIST_SIZE - 1;
@@ -19,9 +19,9 @@ void init_sequence(ListNode* nodes, int head, int base) {
     }
 }
 
-int list_length(ListNode* nodes, int head) { return nodes[head].value; }
+fn int list_length(ListNode* nodes, int head) { return nodes[head].value; }
 
-int pop_head(ListNode* nodes, int head) {
+fn int pop_head(ListNode* nodes, int head) {
     if (list_length(nodes, head) == 0) return -1;
     int item = nodes[head].next;
     int next = nodes[item].next;
@@ -31,7 +31,7 @@ int pop_head(ListNode* nodes, int head) {
     return item;
 }
 
-int pop_tail(ListNode* nodes, int head) {
+fn int pop_tail(ListNode* nodes, int head) {
     if (list_length(nodes, head) == 0) return -1;
     int item = nodes[head].prev;
     int prev = nodes[item].prev;
@@ -41,7 +41,7 @@ int pop_tail(ListNode* nodes, int head) {
     return item;
 }
 
-void push_tail(ListNode* nodes, int head, int item) {
+fn void push_tail(ListNode* nodes, int head, int item) {
     int tail = nodes[head].prev;
     nodes[tail].next = item;
     nodes[item].next = head;
@@ -50,7 +50,7 @@ void push_tail(ListNode* nodes, int head, int item) {
     nodes[head].value++;
 }
 
-void reverse_list(ListNode* nodes, int head) {
+fn void reverse_list(ListNode* nodes, int head) {
     int current = head;
     do {
         int old_next = nodes[current].next;
@@ -60,9 +60,10 @@ void reverse_list(ListNode* nodes, int head) {
     } while (current != head);
 }
 
-bool lists_equal(ListNode* nodes, int left, int right) {
+fn bool lists_equal(ListNode* nodes, int left, int right) {
     if (list_length(nodes, left) != list_length(nodes, right)) return false;
-    int a = nodes[left].next, b = nodes[right].next;
+    int a = nodes[left].next;
+    int b = nodes[right].next;
     while (a != left && b != right) {
         if (nodes[a].value != nodes[b].value) return false;
         a = nodes[a].next;
@@ -71,9 +72,11 @@ bool lists_equal(ListNode* nodes, int left, int right) {
     return a == left && b == right;
 }
 
-int test_lists() {
-    ListNode[NODE_COUNT] nodes = zeroed;
-    int original = 0, copied = 101, staging = 202;
+fn int test_lists() {
+    ListNode[NODE_COUNT] nodes = {};
+    int original = 0;
+    int copied = 101;
+    int staging = 202;
     init_sequence(&nodes[0], original, 1);
     init_sequence(&nodes[0], copied, 102);
     nodes[staging].value = 0;

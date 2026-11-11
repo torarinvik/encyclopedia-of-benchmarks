@@ -9,21 +9,21 @@ NODE_COUNT :: 203
 
 ListNode :: struct { value: i32, next: int, prev: int }
 
-init_sequence :: proc(nodes: [^]ListNode, head, base: int) {
+init_sequence :: proc "contextless" (nodes: [^]ListNode, head, base: int) {
 	nodes[head].value = i32(LIST_SIZE)
 	nodes[head].next = base
 	nodes[head].prev = base + LIST_SIZE - 1
 	for offset in 0..<LIST_SIZE {
 		item := base + offset
 		nodes[item].value = i32(offset + 1)
-		nodes[item].prev = if offset == 0 { head } else { item - 1 }
-		nodes[item].next = if offset + 1 == LIST_SIZE { head } else { item + 1 }
+		nodes[item].prev = head if offset == 0 else item - 1
+		nodes[item].next = head if offset + 1 == LIST_SIZE else item + 1
 	}
 }
 
-list_length :: proc(nodes: [^]ListNode, head: int) -> i32 { return nodes[head].value }
+list_length :: proc "contextless" (nodes: [^]ListNode, head: int) -> i32 { return nodes[head].value }
 
-pop_head :: proc(nodes: [^]ListNode, head: int) -> int {
+pop_head :: proc "contextless" (nodes: [^]ListNode, head: int) -> int {
 	if list_length(nodes, head) == 0 do return -1
 	item := nodes[head].next
 	next := nodes[item].next
@@ -33,7 +33,7 @@ pop_head :: proc(nodes: [^]ListNode, head: int) -> int {
 	return item
 }
 
-pop_tail :: proc(nodes: [^]ListNode, head: int) -> int {
+pop_tail :: proc "contextless" (nodes: [^]ListNode, head: int) -> int {
 	if list_length(nodes, head) == 0 do return -1
 	item := nodes[head].prev
 	prev := nodes[item].prev
@@ -43,7 +43,7 @@ pop_tail :: proc(nodes: [^]ListNode, head: int) -> int {
 	return item
 }
 
-push_tail :: proc(nodes: [^]ListNode, head, item: int) {
+push_tail :: proc "contextless" (nodes: [^]ListNode, head, item: int) {
 	tail := nodes[head].prev
 	nodes[tail].next = item
 	nodes[item].next = head
@@ -52,7 +52,7 @@ push_tail :: proc(nodes: [^]ListNode, head, item: int) {
 	nodes[head].value += 1
 }
 
-reverse_list :: proc(nodes: [^]ListNode, head: int) {
+reverse_list :: proc "contextless" (nodes: [^]ListNode, head: int) {
 	current := head
 	for {
 		old_next := nodes[current].next
@@ -63,7 +63,7 @@ reverse_list :: proc(nodes: [^]ListNode, head: int) {
 	}
 }
 
-lists_equal :: proc(nodes: [^]ListNode, left, right: int) -> bool {
+lists_equal :: proc "contextless" (nodes: [^]ListNode, left, right: int) -> bool {
 	if list_length(nodes, left) != list_length(nodes, right) do return false
 	a, b := nodes[left].next, nodes[right].next
 	for a != left && b != right {
@@ -74,8 +74,8 @@ lists_equal :: proc(nodes: [^]ListNode, left, right: int) -> bool {
 	return a == left && b == right
 }
 
-test_lists :: proc() -> bool {
-	var nodes: [NODE_COUNT]ListNode
+test_lists :: proc "contextless" () -> bool {
+	nodes: [NODE_COUNT]ListNode
 	original, copied, staging := 0, 101, 202
 	init_sequence(&nodes[0], original, 1)
 	init_sequence(&nodes[0], copied, 102)
@@ -108,8 +108,7 @@ shootout_lists :: proc "c" (runs: i64, output: [^]u8, output_capacity: c.size_t)
 	if output == nil do return -2
 	staged: [4]u8
 	output_bytes := 4
-	if runs == 0 { staged[0] = '0'; staged[1] = '\n'; output_bytes = 2 }
-	else { staged[0] = '1'; staged[1] = '0'; staged[2] = '0'; staged[3] = '\n' }
+	if runs == 0 { staged[0] = '0'; staged[1] = '\n'; output_bytes = 2 } else { staged[0] = '1'; staged[1] = '0'; staged[2] = '0'; staged[3] = '\n' }
 	if output_capacity < c.size_t(output_bytes) do return -2
 	for _ in 0..<int(runs) { if !test_lists() do return -1 }
 	for index in 0..<output_bytes { output[index] = staged[index] }

@@ -15,7 +15,7 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
-from run_i64_scalar_bytes_output import MAX_OUTPUT_BYTES
+from run_i64_scalar_bytes_output import MAX_OUTPUT_BYTES, workload_oracle_encoding
 from run_i64_scalar_bytes_output import expected_output as _runner_expected_output
 from ary3_oracle import INVALID_RESULT as ARY3_INVALID_RESULT
 from ary3_oracle import MAX_LENGTH as ARY3_MAX_LENGTH
@@ -168,9 +168,7 @@ def expected_call(value: int, encoding: int | str, output_capacity: int,
 
 
 def corpus(workload: dict) -> tuple[str, int]:
-    encoding = workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2))
-    if workload.get("algorithm") in {"evalloop", "huffbench"}:
-        encoding = workload.get("output", {}).get("encoding")
+    encoding = workload_oracle_encoding(workload)
     capacity_error_result = workload.get("output", {}).get(
         "capacity_error_result", workload.get("output", {}).get("insufficient_capacity_result", -2))
 
@@ -2073,9 +2071,7 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
     records = [json.loads(line) for line in output.read_text(encoding="utf-8").splitlines()]
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
-    encoding = workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2))
-    if algorithm in {"evalloop", "huffbench"}:
-        encoding = workload.get("output", {}).get("encoding")
+    encoding = workload_oracle_encoding(workload)
     capacity_error_result = workload.get("output", {}).get(
         "capacity_error_result", workload.get("output", {}).get("insufficient_capacity_result", -2))
     for case, record in zip(workload["cases"], records):

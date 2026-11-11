@@ -507,6 +507,19 @@ def fnv1a(data: bytes) -> int:
     return result
 
 
+def workload_oracle_encoding(workload: dict) -> int | str:
+    algorithm = workload.get("algorithm")
+    if algorithm in {"hexagonal_numbers", "hexagonal_numbers_one_based",
+                     "decimal_to_hex", "decimal_to_gray", "n_queens_backtracking_csharp",
+                     "faster_perfect_numbers", "fizz_buzz", "magicdiamondpattern"}:
+        return algorithm
+    if algorithm in {"evalloop", "huffbench", "shootout_hello", "shootout_lists",
+                     "shootout_methcall", "shootout_objinst", "shootout_strcat"}:
+        return workload["output"]["encoding"]
+    input_spec = workload.get("input", {})
+    return input_spec.get("encoding", input_spec.get("radix", 2))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -537,13 +550,7 @@ def main() -> int:
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_scalar_bytes_output_call"):
         parser.error("workload does not match the built scalar byte-output algorithm")
-    encoding = (algorithm if algorithm in {"hexagonal_numbers", "hexagonal_numbers_one_based",
-                                          "decimal_to_hex", "decimal_to_gray",
-                                          "n_queens_backtracking_csharp",
-                                          "faster_perfect_numbers", "fizz_buzz", "magicdiamondpattern"}
-                else workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2)))
-    if algorithm in {"evalloop", "huffbench"}:
-        encoding = workload.get("output", {}).get("encoding")
+    encoding = workload_oracle_encoding(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
