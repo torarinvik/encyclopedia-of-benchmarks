@@ -1,6 +1,10 @@
 package shootout_objinst
 
 import "core:c"
+foreign import libc "system:c"
+foreign libc {
+	benchmark_observe_object :: proc "c" (object: rawptr) ---
+}
 import "base:runtime"
 
 MIN_N :: i64(-100000)
@@ -65,6 +69,7 @@ shootout_objinst :: proc "c" (n: i64, output: [^]u8, output_capacity: c.size_t) 
 		for _ in 0..<int(n) {
 			extra_memory := make([]Toggle, 1)
 			extra_memory[0] = Toggle{state = true, activate = toggle_activate, value = toggle_value}
+			benchmark_observe_object(&extra_memory[0])
 			delete(extra_memory)
 		}
 	}
@@ -90,6 +95,7 @@ shootout_objinst :: proc "c" (n: i64, output: [^]u8, output_capacity: c.size_t) 
 				state = true, count_max = 3, counter = 0,
 				activate = nth_toggle_activate, value = nth_toggle_value,
 			}
+			benchmark_observe_object(&extra_memory[0])
 			delete(extra_memory)
 		}
 	}

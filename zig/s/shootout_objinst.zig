@@ -1,3 +1,5 @@
+extern fn benchmark_observe_object(object: *const anyopaque) void;
+
 const std = @import("std");
 
 const min_n: i64 = -100_000;
@@ -59,6 +61,8 @@ export fn shootout_objinst(n: i64, output_opt: ?[*]u8, output_capacity: usize) i
         while (index < n) : (index += 1) {
             const extra = allocator.create(Toggle) catch return -1;
             extra.* = .{ .state = true, .activate = toggleActivate, .value = toggleValue };
+            benchmark_observe_object(extra);
+
             allocator.destroy(extra);
         }
     }
@@ -84,6 +88,8 @@ export fn shootout_objinst(n: i64, output_opt: ?[*]u8, output_capacity: usize) i
                 .state = true, .count_max = 3, .counter = 0,
                 .activate = nthToggleActivate, .value = nthToggleValue,
             };
+            benchmark_observe_object(extra);
+
             allocator.destroy(extra);
         }
     }

@@ -365,6 +365,9 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     if not artifact.is_file():
         raise RuntimeError(f"compiler completed without creating {artifact}")
 
+    if algorithm == "shootout_objinst":
+        extra_link_sources += (ROOT / "benchmarks" / "s" / algorithm / "observe_object.c",)
+
     for source_index, link_source in enumerate(extra_link_sources):
         link_source = link_source.resolve()
         if not link_source.is_file():

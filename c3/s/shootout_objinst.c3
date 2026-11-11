@@ -1,5 +1,6 @@
 module shootout_objinst;
 
+extern fn void benchmark_observe_object(void* object);
 extern fn void* malloc(usz size);
 extern fn void free(void* pointer);
 
@@ -74,6 +75,7 @@ fn long shootout_objinst(long n, char* output, usz output_capacity)
         Toggle* extra = (Toggle*)malloc(Toggle::size);
         if (extra == null) return -1;
         extra.state = 1; extra.activate = &toggle_activate; extra.value = &toggle_value;
+        benchmark_observe_object(extra);
         free(extra);
     }
 
@@ -93,6 +95,7 @@ fn long shootout_objinst(long n, char* output, usz output_capacity)
         if (extra == null) return -1;
         extra.state = 1; extra.count_max = 3; extra.counter = 0;
         extra.activate = &nth_toggle_activate; extra.value = &nth_toggle_value;
+        benchmark_observe_object(extra);
         free(extra);
     }
 

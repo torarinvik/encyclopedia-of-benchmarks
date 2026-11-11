@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <new>
 
+extern "C" void benchmark_observe_object(const void *object);
+
 namespace {
 constexpr int64_t MIN_N = -100000;
 constexpr int64_t MAX_N = 100000;
@@ -62,6 +64,7 @@ extern "C" int64_t shootout_objinst(int64_t n, uint8_t *output, size_t output_ca
     for (int64_t index = 0; index < n; ++index) {
         Toggle *extra = new (std::nothrow) Toggle{1, toggleActivate, toggleValue};
         if (extra == nullptr) return -1;
+        benchmark_observe_object(extra);
         delete extra;
     }
 
@@ -77,6 +80,7 @@ extern "C" int64_t shootout_objinst(int64_t n, uint8_t *output, size_t output_ca
     for (int64_t index = 0; index < n; ++index) {
         NthToggle *extra = new (std::nothrow) NthToggle{1, 3, 0, nthToggleActivate, nthToggleValue};
         if (extra == nullptr) return -1;
+        benchmark_observe_object(extra);
         delete extra;
     }
 

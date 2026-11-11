@@ -1,3 +1,4 @@
+extern benchmark_observe_object(object: u32&) -> void
 extern calloc(count: usize, size: usize) -> mutable u32&
 extern free(memory: mutable u32&) -> void
 
@@ -84,6 +85,7 @@ def shootout_objinst_impl(n: i64, output: mutable u8&, output_capacity: usize) -
         extra.state <- true
         extra.activate <- toggle_activate
         extra.value <- toggle_value
+        benchmark_observe_object(extra_raw)
         free(extra_raw)
 
     staged[used] <- 10u8
@@ -112,6 +114,7 @@ def shootout_objinst_impl(n: i64, output: mutable u8&, output_capacity: usize) -
         extra.counter <- 0
         extra.activate <- nth_toggle_activate
         extra.value <- nth_toggle_value
+        benchmark_observe_object(extra_raw)
         free(extra_raw)
 
     if used != OUTPUT_BYTES: return -1

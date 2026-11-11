@@ -7,6 +7,8 @@
 #define MAX_N INT64_C(100000)
 #define OUTPUT_BYTES 72
 
+extern void benchmark_observe_object(const void *object);
+
 typedef struct Toggle Toggle;
 typedef struct NthToggle NthToggle;
 typedef Toggle *(*ToggleActivate)(Toggle *);
@@ -70,6 +72,7 @@ int64_t shootout_objinst(int64_t n, uint8_t *output, size_t output_capacity) {
         Toggle *extra = (Toggle *)malloc(sizeof(*extra));
         if (extra == NULL) return -1;
         *extra = (Toggle){1, toggle_activate, toggle_value};
+        benchmark_observe_object(extra);
         free(extra);
     }
 
@@ -87,6 +90,7 @@ int64_t shootout_objinst(int64_t n, uint8_t *output, size_t output_capacity) {
         NthToggle *extra = (NthToggle *)malloc(sizeof(*extra));
         if (extra == NULL) return -1;
         *extra = (NthToggle){1, 3, 0, nth_toggle_activate, nth_toggle_value};
+        benchmark_observe_object(extra);
         free(extra);
     }
 

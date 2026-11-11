@@ -1,5 +1,9 @@
 module shootout_objinst
 
+@[c_extern]
+
+fn C.benchmark_observe_object(object voidptr)
+
 const min_n = -100000
 const max_n = 100000
 const output_bytes = 72
@@ -81,7 +85,10 @@ pub fn shootout_objinst(n i64, mut output &u8, output_capacity usize) i64 {
 	if n > 0 {
 		for _ in 0 .. int(n) {
 			mut extra := new_toggle()
-			unsafe { extra.free() }
+			unsafe {
+				C.benchmark_observe_object(&extra[0])
+				extra.free()
+			}
 		}
 	}
 
@@ -99,7 +106,10 @@ pub fn shootout_objinst(n i64, mut output &u8, output_capacity usize) i64 {
 	if n > 0 {
 		for _ in 0 .. int(n) {
 			mut extra := new_nth_toggle()
-			unsafe { extra.free() }
+			unsafe {
+				C.benchmark_observe_object(&extra[0])
+				extra.free()
+			}
 		}
 	}
 

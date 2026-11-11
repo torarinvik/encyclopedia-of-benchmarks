@@ -35,6 +35,8 @@ proc appendState(staged: var array[OutputBytes, uint8], used: var int, state: bo
   staged[used] = 10'u8
   inc used
 
+proc observeObject(value: pointer) {.importc: "benchmark_observe_object", cdecl.}
+
 proc shootout_objinst*(n: int64, output: ptr UncheckedArray[uint8], outputCapacity: csize_t): int64 {.cdecl, exportc: "shootout_objinst".} =
   if n < MinN or n > MaxN: return -1
   if output.isNil or outputCapacity < csize_t(OutputBytes): return -2
@@ -60,6 +62,7 @@ proc shootout_objinst*(n: int64, output: ptr UncheckedArray[uint8], outputCapaci
       extra[].state = true
       extra[].activate = toggleActivate
       extra[].value = toggleValue
+      observeObject(extra)
       deallocShared(extra)
 
   staged[used] = 10'u8
@@ -87,6 +90,7 @@ proc shootout_objinst*(n: int64, output: ptr UncheckedArray[uint8], outputCapaci
       extra[].counter = 0
       extra[].activate = nthToggleActivate
       extra[].value = nthToggleValue
+      observeObject(extra)
       deallocShared(extra)
 
   if used != OutputBytes: return -1

@@ -1,3 +1,7 @@
+extern "C" {
+    fn benchmark_observe_object(object: *const std::ffi::c_void);
+}
+
 const MIN_N: i64 = -100_000;
 const MAX_N: i64 = 100_000;
 const OUTPUT_BYTES: usize = 72;
@@ -57,6 +61,7 @@ pub unsafe extern "C" fn shootout_objinst(n: i64, output: *mut u8, output_capaci
     if n > 0 {
         for _ in 0..n {
             let extra = Box::new(Toggle { state: true, activate: toggle_activate, value: toggle_value });
+            benchmark_observe_object(std::ptr::from_ref(&*extra).cast());
             drop(extra);
         }
     }
@@ -81,6 +86,7 @@ pub unsafe extern "C" fn shootout_objinst(n: i64, output: *mut u8, output_capaci
                 state: true, count_max: 3, counter: 0,
                 activate: nth_toggle_activate, value: nth_toggle_value,
             });
+            benchmark_observe_object(std::ptr::from_ref(&*extra).cast());
             drop(extra);
         }
     }
