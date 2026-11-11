@@ -79,7 +79,7 @@ fn RayState trace_line(int line, double ray_height, bool paraxial) {
         from_index = to_index;
         if (surface < 3) object_distance = object_distance - thickness;
     }
-    return RayState{object_distance, axis_slope_angle};
+    return (RayState){object_distance, axis_slope_angle};
 }
 
 fn double one_pass_projection(double ray_height) {

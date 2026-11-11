@@ -31,9 +31,7 @@ proc traceLine(line: int, initialHeight: float64, paraxial: bool): RayState =
     let thickness = Lens[surface][3]
     var toIndex = nominalIndex
     if toIndex > 1.0:
-      toIndex += ((SpectralLine[4] - SpectralLine[line])
-        / (SpectralLine[3] - SpectralLine[6]))
-        * ((nominalIndex - 1.0) / abbeNumber)
+      toIndex += ((SpectralLine[4] - SpectralLine[line]) / (SpectralLine[3] - SpectralLine[6])) * ((nominalIndex - 1.0) / abbeNumber)
 
     if paraxial:
       if radius != 0.0:
@@ -64,12 +62,10 @@ proc traceLine(line: int, initialHeight: float64, paraxial: bool): RayState =
       axisSlopeAngle = axisSlopeAngle + incidenceAngle - arcsin(refractionSine)
       var sagitta = sin((oldAxisSlopeAngle + incidenceAngle) / 2.0)
       sagitta = 2.0 * radius * sagitta * sagitta
-      objectDistance = (radius * sin(oldAxisSlopeAngle + incidenceAngle))
-        * (1.0 / tan(axisSlopeAngle)) + sagitta
+      objectDistance = (radius * sin(oldAxisSlopeAngle + incidenceAngle)) * (1.0 / tan(axisSlopeAngle)) + sagitta
     else:
       let refractionAngle = -arcsin((fromIndex / toIndex) * sin(axisSlopeAngle))
-      objectDistance = objectDistance * ((toIndex * cos(-refractionAngle))
-        / (fromIndex * cos(axisSlopeAngle)))
+      objectDistance = objectDistance * ((toIndex * cos(-refractionAngle)) / (fromIndex * cos(axisSlopeAngle)))
       axisSlopeAngle = -refractionAngle
 
     fromIndex = toIndex
@@ -82,8 +78,7 @@ proc onePassProjection(rayHeight: float64): float64 =
   let marginalC = traceLine(3, rayHeight, false).objectDistance
   let marginalF = traceLine(6, rayHeight, false).objectDistance
   let sphericalAberration = paraxialD.objectDistance - marginalD.objectDistance
-  let sineConditionAberration = 1.0 - (paraxialD.objectDistance * paraxialD.axisSlopeAngle)
-    / (sin(marginalD.axisSlopeAngle) * marginalD.objectDistance)
+  let sineConditionAberration = 1.0 - (paraxialD.objectDistance * paraxialD.axisSlopeAngle) / (sin(marginalD.axisSlopeAngle) * marginalD.objectDistance)
   let chromaticAberration = marginalF - marginalC
   sphericalAberration + sineConditionAberration + chromaticAberration
 

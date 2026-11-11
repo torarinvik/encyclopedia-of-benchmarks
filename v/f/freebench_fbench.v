@@ -4,12 +4,18 @@
 // The source permits use, distribution, and modification when origin information is preserved.
 module freebench_fbench
 
-import math
+#include <math.h>
 
-const max_passes = i64(16)
+
+fn C.sin(value f64) f64
+fn C.cos(value f64) f64
+fn C.tan(value f64) f64
+fn C.asin(value f64) f64
+
+const max_passes = 16
 const invalid_result = -1.0e300
-const spectral_line = [9]f64{0.0, 7621.0, 6869.955, 6562.816, 5895.944, 5269.557, 4861.344, 4340.477, 3968.494}
-const lens = [16]f64{27.05, 1.5137, 63.6, 0.52, -16.68, 1.0, 0.0, 0.138, -16.68, 1.6164, 36.7, 0.38, -78.1, 1.0, 0.0, 0.0}
+const spectral_line = [f64(0.0), 7621.0, 6869.955, 6562.816, 5895.944, 5269.557, 4861.344, 4340.477, 3968.494]!
+const lens = [f64(27.05), 1.5137, 63.6, 0.52, -16.68, 1.0, 0.0, 0.138, -16.68, 1.6164, 36.7, 0.38, -78.1, 1.0, 0.0, 0.0]!
 
 struct RayState {
 	object_distance f64
@@ -28,9 +34,7 @@ fn trace_line(line int, initial_height f64, paraxial bool) RayState {
 		thickness := lens[surface * 4 + 3]
 		mut to_index := nominal_index
 		if to_index > 1.0 {
-			to_index += ((spectral_line[4] - spectral_line[line])
-				/ (spectral_line[3] - spectral_line[6]))
-				* ((nominal_index - 1.0) / abbe_number)
+			to_index += ((spectral_line[4] - spectral_line[line]) / (spectral_line[3] - spectral_line[6])) * ((nominal_index - 1.0) / abbe_number)
 		}
 		if paraxial {
 			if radius != 0.0 {
@@ -56,20 +60,18 @@ fn trace_line(line int, initial_height f64, paraxial bool) RayState {
 				axis_slope_angle = 0.0
 				incidence_sine = ray_height / radius
 			} else {
-				incidence_sine = ((object_distance - radius) / radius) * math.sin(axis_slope_angle)
+				incidence_sine = ((object_distance - radius) / radius) * C.sin(axis_slope_angle)
 			}
-			incidence_angle := math.asin(incidence_sine)
+			incidence_angle := C.asin(incidence_sine)
 			refraction_sine := (from_index / to_index) * incidence_sine
 			old_axis_slope_angle := axis_slope_angle
-			axis_slope_angle = axis_slope_angle + incidence_angle - math.asin(refraction_sine)
-			mut sagitta := math.sin((old_axis_slope_angle + incidence_angle) / 2.0)
+			axis_slope_angle = axis_slope_angle + incidence_angle - C.asin(refraction_sine)
+			mut sagitta := C.sin((old_axis_slope_angle + incidence_angle) / 2.0)
 			sagitta = 2.0 * radius * sagitta * sagitta
-			object_distance = (radius * math.sin(old_axis_slope_angle + incidence_angle))
-				* (1.0 / math.tan(axis_slope_angle)) + sagitta
+			object_distance = (radius * C.sin(old_axis_slope_angle + incidence_angle)) * (1.0 / C.tan(axis_slope_angle)) + sagitta
 		} else {
-			refraction_angle := -math.asin((from_index / to_index) * math.sin(axis_slope_angle))
-			object_distance = object_distance * ((to_index * math.cos(-refraction_angle))
-				/ (from_index * math.cos(axis_slope_angle)))
+			refraction_angle := -C.asin((from_index / to_index) * C.sin(axis_slope_angle))
+			object_distance = object_distance * ((to_index * C.cos(-refraction_angle)) / (from_index * C.cos(axis_slope_angle)))
 			axis_slope_angle = -refraction_angle
 		}
 		from_index = to_index
@@ -84,8 +86,7 @@ fn one_pass_projection(ray_height f64) f64 {
 	marginal_c := trace_line(3, ray_height, false).object_distance
 	marginal_f := trace_line(6, ray_height, false).object_distance
 	spherical_aberration := paraxial_d.object_distance - marginal_d.object_distance
-	sine_condition_aberration := 1.0 - (paraxial_d.object_distance * paraxial_d.axis_slope_angle)
-		/ (math.sin(marginal_d.axis_slope_angle) * marginal_d.object_distance)
+	sine_condition_aberration := 1.0 - (paraxial_d.object_distance * paraxial_d.axis_slope_angle) / (C.sin(marginal_d.axis_slope_angle) * marginal_d.object_distance)
 	chromatic_aberration := marginal_f - marginal_c
 	return spherical_aberration + sine_condition_aberration + chromatic_aberration
 }

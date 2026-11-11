@@ -31,9 +31,7 @@ trace_line :: proc "contextless" (line: int, initial_height: f64, paraxial: bool
 		thickness := LENS[surface][3]
 		to_index := nominal_index
 		if to_index > 1.0 {
-			to_index += ((SPECTRAL_LINE[4] - SPECTRAL_LINE[line])
-				/ (SPECTRAL_LINE[3] - SPECTRAL_LINE[6]))
-				* ((nominal_index - 1.0) / abbe_number)
+			to_index += ((SPECTRAL_LINE[4] - SPECTRAL_LINE[line]) / (SPECTRAL_LINE[3] - SPECTRAL_LINE[6])) * ((nominal_index - 1.0) / abbe_number)
 		}
 		if paraxial {
 			if radius != 0.0 {
@@ -67,12 +65,10 @@ trace_line :: proc "contextless" (line: int, initial_height: f64, paraxial: bool
 			axis_slope_angle = axis_slope_angle + incidence_angle - math.asin(refraction_sine)
 			sagitta := math.sin((old_axis_slope_angle + incidence_angle) / 2.0)
 			sagitta = 2.0 * radius * sagitta * sagitta
-			object_distance = (radius * math.sin(old_axis_slope_angle + incidence_angle))
-				* (1.0 / math.tan(axis_slope_angle)) + sagitta
+			object_distance = (radius * math.sin(old_axis_slope_angle + incidence_angle)) * (1.0 / math.tan(axis_slope_angle)) + sagitta
 		} else {
 			refraction_angle := -math.asin((from_index / to_index) * math.sin(axis_slope_angle))
-			object_distance = object_distance * ((to_index * math.cos(-refraction_angle))
-				/ (from_index * math.cos(axis_slope_angle)))
+			object_distance = object_distance * ((to_index * math.cos(-refraction_angle)) / (from_index * math.cos(axis_slope_angle)))
 			axis_slope_angle = -refraction_angle
 		}
 		from_index = to_index
@@ -87,8 +83,7 @@ one_pass_projection :: proc "contextless" (ray_height: f64) -> f64 {
 	marginal_c := trace_line(3, ray_height, false).object_distance
 	marginal_f := trace_line(6, ray_height, false).object_distance
 	spherical_aberration := paraxial_d.object_distance - marginal_d.object_distance
-	sine_condition_aberration := 1.0 - (paraxial_d.object_distance * paraxial_d.axis_slope_angle)
-		/ (math.sin(marginal_d.axis_slope_angle) * marginal_d.object_distance)
+	sine_condition_aberration := 1.0 - (paraxial_d.object_distance * paraxial_d.axis_slope_angle) / (math.sin(marginal_d.axis_slope_angle) * marginal_d.object_distance)
 	chromatic_aberration := marginal_f - marginal_c
 	return spherical_aberration + sine_condition_aberration + chromatic_aberration
 }

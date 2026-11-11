@@ -2,6 +2,8 @@
 // Interactive Lens Design System (December 1980). Pinned origin:
 // lac-dcc/Benchmarks/Misc/fbench/fbench.c at 5d7b75df749241efa7a6e6f5be613d3fcc5cce38.
 // The source permits use, distribution, and modification when origin information is preserved.
+extern "c" fn asin(value: f64) f64;
+
 const MAX_PASSES: i64 = 16;
 const INVALID_RESULT: f64 = -1.0e300;
 const SPECTRAL_LINE = [_]f64{ 0.0, 7621.0, 6869.955, 6562.816, 5895.944, 5269.557, 4861.344, 4340.477, 3968.494 };
@@ -60,16 +62,16 @@ fn traceLine(line: usize, initial_height: f64, paraxial: bool) RayState {
             } else {
                 incidence_sine = ((object_distance - radius) / radius) * @sin(axis_slope_angle);
             }
-            const incidence_angle = @asin(incidence_sine);
+            const incidence_angle = asin(incidence_sine);
             const refraction_sine = (from_index / to_index) * incidence_sine;
             const old_axis_slope_angle = axis_slope_angle;
-            axis_slope_angle = axis_slope_angle + incidence_angle - @asin(refraction_sine);
+            axis_slope_angle = axis_slope_angle + incidence_angle - asin(refraction_sine);
             var sagitta = @sin((old_axis_slope_angle + incidence_angle) / 2.0);
             sagitta = 2.0 * radius * sagitta * sagitta;
             object_distance = (radius * @sin(old_axis_slope_angle + incidence_angle))
                 * (1.0 / @tan(axis_slope_angle)) + sagitta;
         } else {
-            const refraction_angle = -@asin((from_index / to_index) * @sin(axis_slope_angle));
+            const refraction_angle = -asin((from_index / to_index) * @sin(axis_slope_angle));
             object_distance = object_distance * ((to_index * @cos(-refraction_angle))
                 / (from_index * @cos(axis_slope_angle)));
             axis_slope_angle = -refraction_angle;
