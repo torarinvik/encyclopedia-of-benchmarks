@@ -21,6 +21,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from newton_square_root_oracle import expected_result as newton_square_root_expected
 from fib2_oracle import expected_result as fib2_expected
 from nestedloop_oracle import expected_result as nestedloop_expected
 from mcgill_chomp_oracle import INVALID_RESULT as MCGILL_CHOMP_INVALID_RESULT
@@ -2195,6 +2196,10 @@ def validate_freebench_pifft_workload(workload: dict) -> None:
 
 
 def validate_expected_result(algorithm: str, input_value: int, expected_result: int) -> None:
+    if algorithm == "newton_square_root":
+        if expected_result != newton_square_root_expected(input_value):
+            raise ValueError("newton_square_root expected_result must match the bounded integer square root")
+        return
     if algorithm == "freebench_pifft":
         if expected_result != freebench_pifft_expected(input_value):
             raise ValueError("freebench_pifft expected_result must match the bounded fixed-point AGM oracle")

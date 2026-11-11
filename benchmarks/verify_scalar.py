@@ -22,6 +22,7 @@ import shlex
 import subprocess
 import sys
 
+from newton_square_root_oracle import expected_result as newton_square_root_expected, boundary_inputs as newton_square_root_inputs
 from build_scalar import EXTENSIONS, ROOT, build, sha256_file
 from freebench_pifft_oracle import expected_result as freebench_pifft_oracle
 from fib2_oracle import MAX_N as FIB2_MAX_N
@@ -2118,6 +2119,8 @@ def euler_totient_oracle(n: int) -> int:
 
 
 def oracle(algorithm: str, n: int) -> int:
+    if algorithm == "newton_square_root":
+        return newton_square_root_expected(n)
     if algorithm == "freebench_pifft":
         return freebench_pifft_oracle(n)
     if algorithm == "fib2":
@@ -3093,6 +3096,8 @@ def corpus(algorithm: str) -> tuple[str, dict]:
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     rng = random.Random(20261014)
     inputs = {case["input_value"] for case in workload["cases"]}
+    if algorithm == "newton_square_root":
+        inputs.update(newton_square_root_inputs())
     if algorithm == "fib2":
         inputs.update(range(0, FIB2_MAX_N + 1))
         inputs.update((I64_MIN, -1, FIB2_MAX_N + 1, I64_MAX))
