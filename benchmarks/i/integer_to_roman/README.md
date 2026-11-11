@@ -6,7 +6,7 @@ Convert a positive integer to its canonical uppercase Roman numeral using the st
 
 - Input is a signed 64-bit integer from 1 through 3,999.
 - Output is the corresponding canonical uppercase Roman numeral as ASCII bytes.
-- Inputs outside this range return -1. An output buffer shorter than the numeral returns -2, and errors leave the output buffer untouched.
+- Inputs outside this range return -1. A null output pointer or a buffer shorter than the numeral returns -2, and errors leave the output buffer untouched.
 
 ## Workload and verification
 

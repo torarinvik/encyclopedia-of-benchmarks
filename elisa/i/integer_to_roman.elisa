@@ -32,7 +32,7 @@ def integer_to_roman_impl(value: i64, output: mutable u8&, output_capacity: usiz
     if value < 1 or value > 3999:
         return -1
     width: usize = (value / 1000).usize() + roman_digit_length((value / 100) % 10) + roman_digit_length((value / 10) % 10) + roman_digit_length(value % 10)
-    if output_capacity < width:
+    if output == null or output_capacity < width:
         return -2
     position: mutable usize = 0
     thousands: mutable i64 = value / 1000

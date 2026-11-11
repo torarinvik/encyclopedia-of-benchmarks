@@ -31,11 +31,12 @@ fn appendRomanDigit(digitValue: i64, one: u8, five: u8, ten: u8,
 }
 
 /// Encode an integer in canonical uppercase Roman numerals.
-export fn integer_to_roman(value: i64, output: [*]u8, output_capacity: usize) i64 {
+export fn integer_to_roman(value: i64, output_opt: ?[*]u8, output_capacity: usize) i64 {
     if (value < 1 or value > 3999) return -1;
     const width = @as(usize, @intCast(@divTrunc(value, 1000))) + romanDigitLength(@mod(@divTrunc(value, 100), 10)) +
         romanDigitLength(@mod(@divTrunc(value, 10), 10)) + romanDigitLength(@mod(value, 10));
     if (output_capacity < width) return -2;
+    const output = output_opt orelse return -2;
     var position: usize = 0;
     for (0..@as(usize, @intCast(@divTrunc(value, 1000)))) |_| {
         output[position] = 'M';

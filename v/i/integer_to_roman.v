@@ -36,7 +36,7 @@ pub fn integer_to_roman(value i64, output &u8, output_capacity usize) i64 {
     if value < 1 || value > 3999 { return -1 }
     width := usize(value / 1000) + roman_digit_length((value / 100) % 10) +
         roman_digit_length((value / 10) % 10) + roman_digit_length(value % 10)
-    if output_capacity < width { return -2 }
+    if unsafe { output == nil } || output_capacity < width { return -2 }
     mut position := usize(0)
     for _ in 0 .. int(value / 1000) {
         unsafe { output[position] = u8(77) }
