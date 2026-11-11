@@ -361,6 +361,8 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
                 native_link_flags.append("-fuse-ld=" + str(lld))
     elif language == "zig":
         flags = ["-O", "ReleaseFast", "-mcpu=baseline", *implementation_flags]
+        if algorithm == "shootout_objinst":
+            flags.append("-lc")
         run([compiler, "build-obj", *flags, f"-femit-bin={artifact}", str(source)])
     if not artifact.is_file():
         raise RuntimeError(f"compiler completed without creating {artifact}")

@@ -45,7 +45,7 @@ export fn shootout_objinst(n: i64, output_opt: ?[*]u8, output_capacity: usize) i
     if (n < min_n or n > max_n) return -1;
     if (output_opt == null or output_capacity < output_bytes) return -2;
 
-    const allocator = std.heap.page_allocator;
+    const allocator = std.heap.c_allocator;
     var staged: [output_bytes]u8 = undefined;
     var used: usize = 0;
     const toggle = allocator.create(Toggle) catch return -1;

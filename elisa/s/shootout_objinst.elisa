@@ -1,5 +1,5 @@
 extern benchmark_observe_object(object: u32&) -> void
-extern calloc(count: usize, size: usize) -> mutable u32&
+extern malloc(size: usize) -> mutable u32&
 extern free(memory: mutable u32&) -> void
 
 const MIN_N: i64 = -100000
@@ -63,7 +63,7 @@ def shootout_objinst_impl(n: i64, output: mutable u8&, output_capacity: usize) -
 
     staged: mutable u8[OUTPUT_BYTES] = zeroed
     used: mutable usize = 0
-    toggle_raw: mutable u32& = calloc(1, 64)
+    toggle_raw: mutable u32& = malloc(size_of(Toggle))
     if toggle_raw == null: return -1
     toggle: mutable Toggle& = toggle_raw.cast[mutable Toggle&] can Unsafe.PointerCast
     toggle.state <- true
@@ -79,7 +79,7 @@ def shootout_objinst_impl(n: i64, output: mutable u8&, output_capacity: usize) -
     iterations: mutable usize = 0
     if n > 0: iterations <- n.usize()
     for _ in 0..<iterations:
-        extra_raw: mutable u32& = calloc(1, 64)
+        extra_raw: mutable u32& = malloc(size_of(Toggle))
         if extra_raw == null: return -1
         extra: mutable Toggle& = extra_raw.cast[mutable Toggle&] can Unsafe.PointerCast
         extra.state <- true
@@ -90,7 +90,7 @@ def shootout_objinst_impl(n: i64, output: mutable u8&, output_capacity: usize) -
 
     staged[used] <- 10u8
     used <- used + 1
-    nth_raw: mutable u32& = calloc(1, 64)
+    nth_raw: mutable u32& = malloc(size_of(NthToggle))
     if nth_raw == null: return -1
     nth_toggle: mutable NthToggle& = nth_raw.cast[mutable NthToggle&] can Unsafe.PointerCast
     nth_toggle.state <- true
@@ -106,7 +106,7 @@ def shootout_objinst_impl(n: i64, output: mutable u8&, output_capacity: usize) -
     free(nth_raw)
 
     for _ in 0..<iterations:
-        extra_raw: mutable u32& = calloc(1, 64)
+        extra_raw: mutable u32& = malloc(size_of(NthToggle))
         if extra_raw == null: return -1
         extra: mutable NthToggle& = extra_raw.cast[mutable NthToggle&] can Unsafe.PointerCast
         extra.state <- true
