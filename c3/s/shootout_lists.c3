@@ -1,5 +1,7 @@
 module shootout_lists;
 
+import std::core::mem;
+
 const int LIST_SIZE = 100;
 const long MIN_RUNS = 0;
 const long MAX_RUNS = 10000;
@@ -7,8 +9,8 @@ const usz NODE_COUNT = 203;
 
 struct ListNode { int value; int next; int prev; }
 
-fn void init_sequence(ListNode* nodes, int head, int base) {
-    nodes[head].value = LIST_SIZE;
+fn void init_sequence(ListNode* nodes, int head, int base, int count) {
+    nodes[head].value = count;
     nodes[head].next = base;
     nodes[head].prev = base + LIST_SIZE - 1;
     for (int offset = 0; offset < LIST_SIZE; offset++) {
@@ -77,8 +79,12 @@ fn int test_lists() {
     int original = 0;
     int copied = 101;
     int staging = 202;
-    init_sequence(&nodes[0], original, 1);
-    init_sequence(&nodes[0], copied, 102);
+    // The count is still 100 at runtime. A volatile read keeps each pass
+    // dependent on a fresh input so C3 cannot hoist the list test.
+    int list_size = LIST_SIZE;
+    int count = mem::@volatile_load(list_size);
+    init_sequence(&nodes[0], original, 1, count);
+    init_sequence(&nodes[0], copied, 102, count);
     nodes[staging].value = 0;
     nodes[staging].next = staging;
     nodes[staging].prev = staging;
