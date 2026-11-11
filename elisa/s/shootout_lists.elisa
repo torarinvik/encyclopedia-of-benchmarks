@@ -56,6 +56,7 @@ def reverse_list(nodes: mutable ListNode&, head: usize) -> void:
         current <- old_next
         if current == head: break
 
+@inline(always)
 def lists_equal(nodes: ListNode&, left: usize, right: usize) -> bool:
     if list_length(nodes, left) != list_length(nodes, right): return false
     a: mutable usize = nodes[left].next
