@@ -2,7 +2,7 @@ package harmonic_series
 
 import "core:c"
 
-append_decimal :: proc(output: [^]u8, position_input: int, value_input: int) -> int {
+append_decimal :: proc "contextless"(output: [^]u8, position_input: int, value_input: int) -> int {
 	value := value_input
 	digits: [4]u8
 	count := 0

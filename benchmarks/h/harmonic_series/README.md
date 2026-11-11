@@ -6,7 +6,7 @@ The pinned Python `harmonic_series(n_term)` converts its argument to an integer 
 
 - The `i64_scalar_bytes_output` ABI accepts a signed integer from -512 through 512. Values outside the range return `-1`.
 - A positive input `n` returns `1\n`, followed by `1/2\n` through `1/n\n`. Inputs at or below zero return an empty byte string, matching the source's empty list.
-- The return value is the number of output bytes. Insufficient capacity returns `-2` without writing; the maximum output is 2,962 bytes.
+- The return value is the number of output bytes. Insufficient capacity or a null output pointer for a nonempty series returns `-2` without writing. An empty series accepts a null output pointer. The maximum output is 2,962 bytes.
 
 [`workload.json`](workload.json) covers empty, single-term, multi-digit denominator, maximum-length, and out-of-range inputs.
 

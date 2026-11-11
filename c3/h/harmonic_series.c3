@@ -12,7 +12,8 @@ fn long harmonic_series(long n, char* output, usz capacity) @export("harmonic_se
     if (n <= 0) return 0;
     usz needed = 2;
     for (usz term = 2; term <= (usz)n; term++) {
-        usz value = term, digits = 0;
+        usz value = term;
+        usz digits = 0;
         do { digits++; value /= 10; } while (value != 0);
         needed += digits + 3;
     }

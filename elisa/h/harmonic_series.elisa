@@ -1,5 +1,5 @@
 # Emit the pinned source's harmonic-series list as newline-delimited ASCII.
-def harmonic_series_append_decimal(output: mutable view[u8], position_input: usize, value_input: usize) -> usize:
+def harmonic_series_append_decimal(output: mutable u8&, position_input: usize, value_input: usize) -> usize:
     value: mutable usize = value_input
     digits: mutable u8[4] = zeroed
     count: mutable usize = 0
@@ -11,7 +11,7 @@ def harmonic_series_append_decimal(output: mutable view[u8], position_input: usi
     position: mutable usize = position_input
     while count > 0:
         count <- count - 1
-        output[position] <- 48u8 + digits[count]
+        output[position] <- 48 + digits[count]
         position <- position + 1
     position
 
@@ -29,20 +29,20 @@ def harmonic_series_impl(n: i64, output: mutable u8&, capacity: usize) -> i64:
             if value == 0: break
         needed <- needed + digits + 3
         term <- term + 1
-    if capacity < needed: return -2
+    if output == null or capacity < needed: return -2
     position: mutable usize = 0
-    output[position] <- 49u8
+    output[position] <- 49
     position <- position + 1
-    output[position] <- 10u8
+    output[position] <- 10
     position <- position + 1
     term <- 2
     while term <= n.usize():
-        output[position] <- 49u8
+        output[position] <- 49
         position <- position + 1
-        output[position] <- 47u8
+        output[position] <- 47
         position <- position + 1
-        position <- harmonic_series_append_decimal(output[0:needed], position, term)
-        output[position] <- 10u8
+        position <- harmonic_series_append_decimal(output, position, term)
+        output[position] <- 10
         position <- position + 1
         term <- term + 1
     position.i64()

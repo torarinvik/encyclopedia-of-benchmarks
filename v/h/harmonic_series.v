@@ -15,7 +15,7 @@ pub fn harmonic_series(n i64, output &u8, capacity usize) i64 {
 		}
 		needed += digits + 3
 	}
-	if capacity < usize(needed) { return -2 }
+	if unsafe { output == nil } || capacity < usize(needed) { return -2 }
 	unsafe {
 		mut position := 0
 		output[position] = u8(`1`); position++
