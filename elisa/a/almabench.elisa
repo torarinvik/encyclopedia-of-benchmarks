@@ -1,4 +1,6 @@
+@intrinsic("llvm.sin.f64")
 extern sin(value: f64) -> f64
+@intrinsic("llvm.cos.f64")
 extern cos(value: f64) -> f64
 extern sqrt(value: f64) -> f64
 extern atan2(y: f64, x: f64) -> f64
