@@ -1,5 +1,5 @@
 /// Write the most-significant-first binary representation of a nonnegative i64.
-export fn decimal_to_binary(value: i64, output: [*]u8, output_capacity: usize) i64 {
+export fn decimal_to_binary(value: i64, output_opt: ?[*]u8, output_capacity: usize) i64 {
     if (value < 0) return -1;
 
     var width: usize = 1;
@@ -8,6 +8,7 @@ export fn decimal_to_binary(value: i64, output: [*]u8, output_capacity: usize) i
         width += 1;
     }
     if (output_capacity < width) return -2;
+    const output = output_opt orelse return -2;
 
     var position = width;
     remaining = value;

@@ -6,7 +6,7 @@ def decimal_to_octal_impl(value: i64, output: mutable u8&, output_capacity: usiz
         while remaining >= 8 |remaining: mutable i64 = value, count: mutable usize = 1| -> count:
             remaining <- remaining / 8
             count <- count + 1
-    if output_capacity < width:
+    if output == null or output_capacity < width:
         return -2
     while position > 0 |position: mutable usize = width, remaining: mutable i64 = value, output| -> output:
         position <- position - 1

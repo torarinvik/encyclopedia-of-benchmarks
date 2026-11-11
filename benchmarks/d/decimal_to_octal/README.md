@@ -5,7 +5,7 @@ Convert a nonnegative signed 64-bit integer to its octal digit string.
 ## Contract
 
 - Inputs from `0` through `INT64_MAX` write the most-significant-first ASCII octal digits without a prefix; zero is represented as `0`.
-- Negative inputs return `-1`. If the caller's output buffer is too small, return `-2` without writing.
+- Negative inputs return `-1`. If the output pointer is null or the buffer is too small, return `-2` without writing.
 - The result is the number of bytes written. The ports count digits by division, then fill the caller-owned buffer from right to left. They allocate no memory.
 
 The pinned Python source emits an `0o` prefix and computes place values with floating-point operations; the C example prints its output and does not handle zero correctly. The local workload standardizes representation and capacity handling so all nine languages share one scalar-to-byte-buffer ABI.

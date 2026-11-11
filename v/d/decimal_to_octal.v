@@ -10,7 +10,7 @@ pub fn decimal_to_octal(value i64, output &u8, output_capacity usize) i64 {
 		remaining /= 8
 		width++
 	}
-	if output_capacity < width { return -2 }
+	if unsafe { output == nil } || output_capacity < width { return -2 }
 	mut position := width
 	remaining = value
 	for position > 0 {

@@ -10,7 +10,7 @@ The exported C ABI entry point is:
 int64_t decimal_to_binary(int64_t value, uint8_t *output, size_t output_capacity);
 ```
 
-The local implementations find the digit count with division, then fill the caller-owned buffer from right to left using division and remainder. They allocate no memory and use no target-specific instructions. The inspected upstream sources differ on negative inputs and how zero is printed; the shared contract makes both cases explicit.
+A null output pointer returns `-2` for a valid input. The local implementations find the digit count with division, then fill the caller-owned buffer from right to left using division and remainder. They allocate no memory and use no target-specific instructions. The inspected upstream sources differ on negative inputs and how zero is printed; the shared contract makes both cases explicit.
 
 ## Workload and verification
 

@@ -10,7 +10,7 @@ pub fn decimal_to_binary(value i64, output &u8, output_capacity usize) i64 {
 		remaining /= 2
 		width++
 	}
-	if output_capacity < width { return -2 }
+	if unsafe { output == nil } || output_capacity < width { return -2 }
 
 	mut position := width
 	remaining = value

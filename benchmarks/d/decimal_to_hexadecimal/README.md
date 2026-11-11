@@ -5,7 +5,7 @@ Convert a nonnegative signed 64-bit integer to lowercase hexadecimal digits.
 ## Contract
 
 - Inputs from `0` through `INT64_MAX` write the most-significant-first ASCII hexadecimal digits without a prefix; zero is represented as `0` and digits 10 through 15 use lowercase `a` through `f`.
-- Negative inputs return `-1`. If the caller's output buffer is too small, return `-2` without writing.
+- Negative inputs return `-1`. If the output pointer is null or the buffer is too small, return `-2` without writing.
 - The result is the number of bytes written. The ports count digits by division, then fill the caller-owned buffer from right to left. They allocate no memory.
 
 The pinned C++ console example uses uppercase digits, while the Python implementation includes a `0x` prefix and supports negatives. The local contract normalizes these formatting differences to lowercase, prefix-free output and uses the shared scalar-to-byte-buffer ABI.
