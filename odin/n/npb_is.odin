@@ -17,7 +17,7 @@ bucket_ptrs: [NUM_BUCKETS]u32
 test_indices: [TEST_COUNT]u32 = {357773, 934767, 875723, 898999, 404505}
 baseline_ranks: [TEST_COUNT]u32 = {1249, 11698, 1039987, 1043896, 1048018}
 
-next_state :: proc(state: u64) -> u64 {
+next_state :: proc "contextless"(state: u64) -> u64 {
 	two23 := u64(1) << 23
 	low_mask := two23 - 1
 	state_mask := (u64(1) << 46) - 1
@@ -30,7 +30,7 @@ next_state :: proc(state: u64) -> u64 {
 	return ((z << 23) + multiplier_low * x2) & state_mask
 }
 
-generate_keys :: proc() {
+generate_keys :: proc "contextless"() {
 	state := u64(314159265)
 	for index := 0; index < TOTAL_KEYS; index += 1 {
 		four_state_sum := u64(0)
@@ -42,12 +42,12 @@ generate_keys :: proc() {
 	}
 }
 
-expected_rank :: proc(index: int, iteration: u32) -> u32 {
+expected_rank :: proc "contextless"(index: int, iteration: u32) -> u32 {
 	if index < 2 do return u32(i64(baseline_ranks[index]) + i64(iteration) - 2)
 	return baseline_ranks[index] - iteration
 }
 
-decimal_width :: proc(value: u32) -> int {
+decimal_width :: proc "contextless"(value: u32) -> int {
 	remaining := value
 	width := 1
 	for remaining >= 10 {
@@ -57,8 +57,8 @@ decimal_width :: proc(value: u32) -> int {
 	return width
 }
 
-append_decimal :: proc(value: u32, output: [^]u8, position: int) -> int {
-	mut cursor := position
+append_decimal :: proc "contextless"(value: u32, output: [^]u8, position: int) -> int {
+	cursor := position
 	reversed: [10]u8
 	count := 0
 	remaining := value
@@ -76,7 +76,7 @@ append_decimal :: proc(value: u32, output: [^]u8, position: int) -> int {
 	return cursor
 }
 
-rank_pass :: proc(iteration: u32, partials: ^[TEST_COUNT]u32) {
+rank_pass :: proc "contextless"(iteration: u32, partials: ^[TEST_COUNT]u32) {
 	key_array[iteration] = iteration
 	key_array[iteration+MAX_ITERATIONS] = u32(MAX_KEY) - iteration
 	for bucket := 0; bucket < NUM_BUCKETS; bucket += 1 do bucket_size[bucket] = 0
@@ -96,11 +96,11 @@ rank_pass :: proc(iteration: u32, partials: ^[TEST_COUNT]u32) {
 	for key := 1; key < MAX_KEY; key += 1 do key_buff1[key] += key_buff1[key-1]
 	for test := 0; test < TEST_COUNT; test += 1 {
 		key := key_array[test_indices[test]]
-		partials[test] = if key == 0 do 0 else key_buff1[key-1]
+		partials[test] = 0 if key == 0 else key_buff1[key-1]
 	}
 }
 
-full_verify :: proc() -> bool {
+full_verify :: proc "contextless"() -> bool {
 	for index := 0; index < TOTAL_KEYS; index += 1 {
 		key := key_buff2[index]
 		key_buff1[key] -= 1
@@ -120,7 +120,7 @@ npb_is :: proc "c" (pass_count: i64, output: [^]u8,
 	if output == nil do return -2
 
 	staged: [353]u8
-	staged_output := &staged[0]
+	staged_output := raw_data(staged[:])
 	generate_keys()
 	partials: [TEST_COUNT]u32
 	rank_pass(1, &partials) // Untimed source warm-up.

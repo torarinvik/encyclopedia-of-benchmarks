@@ -92,9 +92,9 @@ fn rankPass(iteration: u32, partials: *[5]u32) void {
     @memset(&key_buff1, 0);
     for (0..TOTAL_KEYS) |index| key_buff1[@intCast(key_buff2[index])] += 1;
     for (1..MAX_KEY) |key| key_buff1[key] += key_buff1[key - 1];
-    for (0..5) |test| {
-        const key: usize = key_array[TEST_INDICES[test]];
-        partials[test] = if (key == 0) 0 else key_buff1[key - 1];
+    for (0..5) |test_index| {
+        const key: usize = key_array[TEST_INDICES[test_index]];
+        partials[test_index] = if (key == 0) 0 else key_buff1[key - 1];
     }
 }
 
@@ -125,12 +125,12 @@ export fn npb_is(pass_count: i64, output_opt: ?[*]u8, output_capacity: usize) i6
         const iteration: u32 = @intCast(iteration_usize);
         rankPass(iteration, &partials);
         var row_required: usize = 5;
-        for (0..5) |test| row_required += decimalWidth(partials[test]);
+        for (0..5) |test_index| row_required += decimalWidth(partials[test_index]);
         if (position + row_required > staged.len) return -2;
-        for (0..5) |test| {
-            if (partials[test] == expectedRank(test, iteration)) passed_verification += 1;
-            position = appendDecimal(partials[test], staged[0..].ptr, position);
-            if (test + 1 < 5) {
+        for (0..5) |test_index| {
+            if (partials[test_index] == expectedRank(test_index, iteration)) passed_verification += 1;
+            position = appendDecimal(partials[test_index], staged[0..].ptr, position);
+            if (test_index + 1 < 5) {
                 staged[position] = ',';
                 position += 1;
             }

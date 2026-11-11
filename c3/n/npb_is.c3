@@ -68,8 +68,9 @@ fn void rank_pass(uint iteration, uint[5]* partials) {
     for (usz bucket = 0; bucket < NUM_BUCKETS; bucket++) bucket_size[bucket] = 0;
     for (usz index = 0; index < TOTAL_KEYS; index++) bucket_size[key_array[index] >> 6]++;
     bucket_ptrs[0] = 0;
-    for (usz bucket = 1; bucket < NUM_BUCKETS; bucket++)
+    for (usz bucket = 1; bucket < NUM_BUCKETS; bucket++) {
         bucket_ptrs[bucket] = bucket_ptrs[bucket - 1] + bucket_size[bucket - 1];
+    }
     for (usz index = 0; index < TOTAL_KEYS; index++) {
         uint key = key_array[index];
         key_buff2[bucket_ptrs[key >> 6]++] = key;
@@ -88,8 +89,9 @@ fn bool full_verify() {
         uint key = key_buff2[index];
         key_array[--key_buff1[key]] = key;
     }
-    for (usz index = 1; index < TOTAL_KEYS; index++)
+    for (usz index = 1; index < TOTAL_KEYS; index++) {
         if (key_array[index - 1] > key_array[index]) return false;
+    }
     return true;
 }
 
@@ -108,8 +110,9 @@ fn long npb_is(long pass_count, char* output, usz output_capacity) @export("npb_
     for (uint iteration = 1; iteration <= passes; iteration++) {
         rank_pass(iteration, &partials);
         usz row_required = TEST_COUNT;
-        for (usz test = 0; test < TEST_COUNT; test++)
+        for (usz test = 0; test < TEST_COUNT; test++) {
             row_required += decimal_width(partials[test]);
+        }
         if (position + row_required > 353) return -2;
         for (usz test = 0; test < TEST_COUNT; test++) {
             if (partials[test] == expected_rank(test, iteration)) passed_verification++;
@@ -123,7 +126,7 @@ fn long npb_is(long pass_count, char* output, usz output_capacity) @export("npb_
     if (position + decimal_width(passed_verification) + 1 > 353) return -2;
     position = append_decimal(passed_verification, staged_output, position);
     staged_output[position++] = '\n';
-    if (output_capacity < c.size_t(position)) return -2;
+    if (output_capacity < position) return -2;
     for (usz index = 0; index < position; index++) output[index] = staged_output[index];
     return (long)position;
 }

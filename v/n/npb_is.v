@@ -5,16 +5,16 @@ const max_key = 1 << 16
 const num_buckets = 1 << 10
 const max_iterations = 10
 const max_passes = 10
-const test_indices = [5]u32{ 357773, 934767, 875723, 898999, 404505 }
-const baseline_ranks = [5]u32{ 1249, 11698, 1039987, 1043896, 1048018 }
+const test_indices = [u32(357773), 934767, 875723, 898999, 404505]!
+const baseline_ranks = [u32(1249), 11698, 1039987, 1043896, 1048018]!
 
 // V requires the build command to enable globals for these class-W buffers.
 __global (
-	mut key_array = [1048576]u32{}
-	mut key_buff2 = [1048576]u32{}
-	mut key_buff1 = [65536]u32{}
-	mut bucket_size = [1024]u32{}
-	mut bucket_ptrs = [1024]u32{}
+	key_array [1048576]u32
+	key_buff2 [1048576]u32
+	key_buff1 [65536]u32
+	bucket_size [1024]u32
+	bucket_ptrs [1024]u32
 )
 
 fn next_state(state u64) u64 {
@@ -45,7 +45,8 @@ fn decimal_width(value u32) int {
 	return width
 }
 
-fn append_decimal(value u32, mut output &u8, mut position int) {
+fn append_decimal(value u32, output &u8, start int) int {
+	mut position := start
 	mut reversed := [10]u8{}
 	mut count := 0
 	mut remaining := value
@@ -60,6 +61,7 @@ fn append_decimal(value u32, mut output &u8, mut position int) {
 		unsafe { output[position] = reversed[count] }
 		position++
 	}
+	return position
 }
 
 fn generate_keys() {
@@ -113,7 +115,7 @@ fn full_verify() bool {
 pub fn npb_is(pass_count i64, mut output &u8, output_capacity usize) i64 {
 	if pass_count < 1 || pass_count > max_passes { return -1 }
 	passes := u32(pass_count)
-	if output == nil { return -2 }
+	if isnil(output) { return -2 }
 
 	mut staged := [353]u8{}
 	generate_keys()
@@ -128,9 +130,9 @@ pub fn npb_is(pass_count i64, mut output &u8, output_capacity usize) i64 {
 		if position + row_required > staged.len { return -2 }
 		for test in 0 .. 5 {
 			if partials[test] == expected_rank(test, iteration) { passed_verification++ }
-			append_decimal(partials[test], mut staged[0], mut position)
+			position = append_decimal(partials[test], &staged[0], position)
 			if test + 1 < 5 {
-				staged[position] = u8(',')
+				staged[position] = u8(`,`)
 				position++
 			}
 		}
@@ -140,7 +142,7 @@ pub fn npb_is(pass_count i64, mut output &u8, output_capacity usize) i64 {
 	if full_verify() { passed_verification++ }
 	if passed_verification != 5 * passes + 1 { passed_verification = 0 }
 	if position + decimal_width(passed_verification) + 1 > staged.len { return -2 }
-	append_decimal(passed_verification, mut staged[0], mut position)
+	position = append_decimal(passed_verification, &staged[0], position)
 	staged[position] = 10
 	position++
 	if output_capacity < usize(position) { return -2 }

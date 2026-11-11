@@ -1,4 +1,5 @@
 # Independent port of the class-W NAS Parallel Benchmarks Integer Sort.
+const MAX_OUTPUT_BYTES: usize = 353
 global mutable NPB_IS_KEY_ARRAY: mutable u32[1048576] = zeroed
 global mutable NPB_IS_KEY_BUFF2: mutable u32[1048576] = zeroed
 global mutable NPB_IS_KEY_BUFF1: mutable u32[65536] = zeroed
@@ -106,7 +107,7 @@ def npb_is_rank_pass(iteration: u32, partials: mutable view[u32]) -> void:
         test: mutable usize = 0
         while test < 5:
             key: u32 = NPB_IS_KEY_ARRAY[test_indices[test]]
-            partials[test] <- if key == 0u32: 0u32 else: NPB_IS_KEY_BUFF1[(key - 1u32).usize()]
+            partials[test] <- 0u32 if key == 0u32 else NPB_IS_KEY_BUFF1[(key - 1u32).usize()]
             test <- test + 1
 
 def npb_is_full_verify() -> bool:
@@ -126,28 +127,28 @@ def npb_is_full_verify() -> bool:
 def npb_is_impl(pass_count: i64, output: mutable u8&, output_capacity: usize) -> i64:
     if pass_count < 1 or pass_count > 10: return -1
     passes: u32 = pass_count.u32()
-    if output.is_null(): return -2
+    if output == null: return -2
 
-    staged: mutable u8[353] = zeroed
-    npb_is_generate_keys()
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    npb_is_generate_keys() can Global{Read,Write}
     partials: mutable u32[5] = zeroed
-    npb_is_rank_pass(1u32, partials[0:5])
+    npb_is_rank_pass(1u32, partials[0:5]) can Global{Read,Write}
     passed_verification: mutable u32 = 0u32
     position: mutable usize = 0
     iteration: mutable u32 = 1u32
     while iteration <= passes:
-        npb_is_rank_pass(iteration, partials[0:5])
+        npb_is_rank_pass(iteration, partials[0:5]) can Global{Read,Write}
         row_required: mutable usize = 5
         row_test: mutable usize = 0
         while row_test < 5:
             row_required <- row_required + npb_is_decimal_width(partials[row_test])
             row_test <- row_test + 1
-        if position + row_required > 353: return -2
+        if position + row_required > MAX_OUTPUT_BYTES: return -2
         test: mutable usize = 0
         while test < 5:
             if partials[test] == npb_is_expected_rank(test, iteration):
                 passed_verification <- passed_verification + 1u32
-            npb_is_append_decimal(partials[test], staged[0:MAX_OUTPUT_BYTES], position&)
+            npb_is_append_decimal(partials[test], staged[0:MAX_OUTPUT_BYTES], position)
             if test + 1 < 5:
                 staged[position] <- 44u8
                 position <- position + 1
@@ -156,10 +157,11 @@ def npb_is_impl(pass_count: i64, output: mutable u8&, output_capacity: usize) ->
         position <- position + 1
         iteration <- iteration + 1u32
 
-    if npb_is_full_verify(): passed_verification <- passed_verification + 1u32
+    fully_verified: bool = npb_is_full_verify() can Global{Read,Write}
+    if fully_verified: passed_verification <- passed_verification + 1u32
     if passed_verification != 5u32 * passes + 1u32: passed_verification <- 0u32
-    if position + npb_is_decimal_width(passed_verification) + 1 > 353: return -2
-    npb_is_append_decimal(passed_verification, staged[0:MAX_OUTPUT_BYTES], position&)
+    if position + npb_is_decimal_width(passed_verification) + 1 > MAX_OUTPUT_BYTES: return -2
+    npb_is_append_decimal(passed_verification, staged[0:MAX_OUTPUT_BYTES], position)
     staged[position] <- 10u8
     position <- position + 1
     if output_capacity < position: return -2

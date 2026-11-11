@@ -340,7 +340,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
             flags.extend(["-cflags", "-ffp-contract=off"])
         if algorithm == "mandelbrot":
             flags.extend(["-cflags", "-fno-fast-math"])
-        if algorithm == "stream_sieve":
+        if algorithm in {"stream_sieve", "npb_is"}:
             flags.append("-enable-globals")
         flags.extend(implementation_flags)
         run([compiler, *flags,
