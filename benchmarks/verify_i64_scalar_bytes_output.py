@@ -1165,7 +1165,7 @@ def corpus(workload: dict) -> tuple[str, int]:
                     "run_options": [],
                 }
                 or workload.get("source_bound") != {
-                    "description": "Construct and destroy one initial Toggle, make five stored-callback activation/value calls, construct/destroy n more Toggles, emit a blank line, construct and destroy one NthToggle, make eight callback calls, then construct/destroy n more NthToggles. Negative n naturally skips both for-loops.",
+                    "description": "Construct and destroy one initial Toggle, make five stored-callback activation/value calls, construct/destroy n more Toggles, emit a blank line, construct and destroy one NthToggle, make eight stored-callback activation/value calls, then construct/destroy n more NthToggles. Negative n naturally skips both for-loops.",
                     "launcher_default_constructions_per_type": 70000000,
                     "small_problem_size_constructions_per_type": 7000000,
                     "profile_minimum_n": SHOOTOUT_OBJINST_MIN_N,
