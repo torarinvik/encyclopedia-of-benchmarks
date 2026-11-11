@@ -7,11 +7,9 @@ def collatz_impl(n: i64) -> i64:
     while current != 1:
         if current % 2 == 0:
             current <- current / 2
-            steps <- steps + 1
         else:
-            # An odd value above one is followed by an even value above two.
-            current <- (3 * current + 1) / 2
-            steps <- steps + 2
+            current <- 3 * current + 1
+        steps <- steps + 1
     steps
 
 export fn collatz(n: i64) -> i64 = collatz_impl
