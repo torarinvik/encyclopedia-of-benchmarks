@@ -3,9 +3,13 @@ const BASE: i64 = 1000
 const SCALE: i64 = 1000000
 
 def freebench_pifft_fft(real: mutable view[f64], imag: mutable view[f64], inverse: bool) -> void:
-    reversed: usize[8] = [0, 4, 2, 6, 1, 5, 3, 7]
-    for i in 0..<8:
-        j: usize = reversed[i]
+    j: mutable usize = 0
+    for i in 1..<FFT_SIZE |j|:
+        bit: mutable usize = FFT_SIZE >> 1
+        while (j & bit) != 0:
+            j <- j ^ bit
+            bit <- bit >> 1
+        j <- j ^ bit
         if i < j:
             temp: mutable f64 = real[i]
             real[i] <- real[j]

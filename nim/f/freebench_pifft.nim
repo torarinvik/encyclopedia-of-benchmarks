@@ -7,25 +7,25 @@ const
 
 proc fftTransform(real: var array[FftSize, float64],
                   imag: var array[FftSize, float64], inverse: bool) =
-  const reversed = [0, 4, 2, 6, 1, 5, 3, 7]
-  for i in 0 ..< FftSize:
-    let j = reversed[i]
+  var j = 0
+  for i in 1 ..< FftSize:
+    var bit = FftSize shr 1
+    while (j and bit) != 0:
+      j = j xor bit
+      bit = bit shr 1
+    j = j xor bit
     if i < j:
       swap(real[i], real[j])
       swap(imag[i], imag[j])
   for stage in 1 .. 3:
     let blockSize = 1 shl stage
     let half = blockSize div 2
+    let rootReal = if blockSize == 2: -1.0 elif blockSize == 4: 0.0 else: 0.7071067811865476
+    let rootImag = if blockSize == 2: 0.0 elif blockSize == 4: (if inverse: 1.0 else: -1.0) else: (if inverse: 0.7071067811865476 else: -0.7071067811865476)
     for start in countup(0, FftSize - blockSize, blockSize):
+      var twiddleReal = 1.0
+      var twiddleImag = 0.0
       for offset in 0 ..< half:
-        let rootReal = if blockSize == 2: -1.0 elif blockSize == 4: 0.0 else: 0.7071067811865476
-        let rootImag = if blockSize == 2: 0.0 elif blockSize == 4: (if inverse: 1.0 else: -1.0) else: (if inverse: 0.7071067811865476 else: -0.7071067811865476)
-        var twiddleReal = 1.0
-        var twiddleImag = 0.0
-        for _ in 0 ..< offset:
-          let nextReal = twiddleReal * rootReal - twiddleImag * rootImag
-          twiddleImag = twiddleReal * rootImag + twiddleImag * rootReal
-          twiddleReal = nextReal
         let even = start + offset
         let odd = even + half
         let oddReal = real[odd] * twiddleReal - imag[odd] * twiddleImag
@@ -36,6 +36,9 @@ proc fftTransform(real: var array[FftSize, float64],
         imag[even] = evenImag + oddImag
         real[odd] = evenReal - oddReal
         imag[odd] = evenImag - oddImag
+        let nextReal = twiddleReal * rootReal - twiddleImag * rootImag
+        twiddleImag = twiddleReal * rootImag + twiddleImag * rootReal
+        twiddleReal = nextReal
   if inverse:
     for i in 0 ..< FftSize:
       real[i] /= float64(FftSize)
