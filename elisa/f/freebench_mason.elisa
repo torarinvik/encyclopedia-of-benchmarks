@@ -34,10 +34,8 @@ def mason_apply_move(state: i64[9], movement: usize, upper: bool) -> i64[9]:
     next: mutable i64[9] = zeroed
     for piece in 0..<9:
         index: usize = movement * 18 + state[piece].usize()
-        next[piece] <- if upper: UPPER_MOVES[index] else: LOWER_MOVES[index]
+        next[piece] <- UPPER_MOVES[index] if upper else LOWER_MOVES[index]
     next
-
-def mason_search_down(state: i64[9], bound: usize, depth: usize, last_move: i64) -> bool
 
 def mason_search_up(state: i64[9], bound: usize, depth: usize, last_move: i64) -> bool:
     if bound >= 4 and depth == bound - 4 and not mason_near_enough(state): return false
@@ -58,7 +56,7 @@ def mason_search_down(state: i64[9], bound: usize, depth: usize, last_move: i64)
     false
 
 def freebench_mason_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 9: return -1
+    if input == null or length != 9: return -1
     state: mutable i64[9] = zeroed
     used: mutable u64 = 0
     for piece in 0..<9:

@@ -40,8 +40,6 @@ fn applyMove(state: State, movement: usize, upper: bool) State {
     return next;
 }
 
-fn searchDown(state: State, bound: usize, depth: usize, last_move: i32) bool;
-
 fn searchUp(state: State, bound: usize, depth: usize, last_move: i32) bool {
     if (bound >= 4 and depth == bound - 4 and !nearEnough(state)) return false;
     if (isGoal(state)) return true;

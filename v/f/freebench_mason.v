@@ -1,18 +1,18 @@
 module main
 
 const max_depth = 8
-const upper_moves = [3][18]int{
-	[18]int{0, 8, 1, 2, 16, 5, 13, 7, 14, 9, 3, 4, 11, 12, 15, 10, 17, 6},
-	[18]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17},
-	[18]int{1, 2, 9, 10, 4, 17, 6, 0, 8, 15, 11, 12, 5, 13, 7, 14, 3, 16},
-}
-const lower_moves = [3][18]int{
-	[18]int{0, 2, 3, 10, 11, 5, 17, 7, 1, 9, 15, 12, 13, 6, 8, 14, 4, 16},
-	[18]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17},
-	[18]int{7, 0, 1, 16, 4, 12, 6, 14, 8, 2, 3, 10, 11, 13, 15, 9, 17, 5},
-}
-const near_mask = [18]int{0x50, 0x70, 0x70, 0x75, 0x0f, 0x0f, 0x0f, 0x70, 0x70,
-	0x70, 0x7d, 0x2b, 0x2f, 0x0f, 0x50, 0x64, 0x67, 0x0f}
+const upper_moves = [
+	[0, 8, 1, 2, 16, 5, 13, 7, 14, 9, 3, 4, 11, 12, 15, 10, 17, 6]!,
+	[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]!,
+	[1, 2, 9, 10, 4, 17, 6, 0, 8, 15, 11, 12, 5, 13, 7, 14, 3, 16]!,
+]!
+const lower_moves = [
+	[0, 2, 3, 10, 11, 5, 17, 7, 1, 9, 15, 12, 13, 6, 8, 14, 4, 16]!,
+	[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]!,
+	[7, 0, 1, 16, 4, 12, 6, 14, 8, 2, 3, 10, 11, 13, 15, 9, 17, 5]!,
+]!
+const near_mask = [0x50, 0x70, 0x70, 0x75, 0x0f, 0x0f, 0x0f, 0x70, 0x70,
+	0x70, 0x7d, 0x2b, 0x2f, 0x0f, 0x50, 0x64, 0x67, 0x0f]!
 
 fn near_enough(state [9]int) bool {
 	return near_mask[state[1]] & 0x02 != 0 && near_mask[state[3]] & 0x08 != 0 &&
@@ -34,8 +34,6 @@ fn apply_move(state [9]int, movement int, upper bool) [9]int {
 	}
 	return next
 }
-
-fn search_down(state [9]int, bound int, depth int, last_move int) bool
 
 fn search_up(state [9]int, bound int, depth int, last_move int) bool {
 	if depth == bound - 4 && !near_enough(state) { return false }

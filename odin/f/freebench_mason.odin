@@ -7,17 +7,20 @@ MAX_DEPTH :: 8
 State :: [PIECE_COUNT]int
 Move_Map :: [18]int
 
-UPPER_MOVES :: [3]Move_Map{
+@(rodata)
+UPPER_MOVES := [3]Move_Map{
 	{0, 8, 1, 2, 16, 5, 13, 7, 14, 9, 3, 4, 11, 12, 15, 10, 17, 6},
 	{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17},
 	{1, 2, 9, 10, 4, 17, 6, 0, 8, 15, 11, 12, 5, 13, 7, 14, 3, 16},
 }
-LOWER_MOVES :: [3]Move_Map{
+@(rodata)
+LOWER_MOVES := [3]Move_Map{
 	{0, 2, 3, 10, 11, 5, 17, 7, 1, 9, 15, 12, 13, 6, 8, 14, 4, 16},
 	{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17},
 	{7, 0, 1, 16, 4, 12, 6, 14, 8, 2, 3, 10, 11, 13, 15, 9, 17, 5},
 }
-NEAR_MASK :: [18]int{0x50, 0x70, 0x70, 0x75, 0x0f, 0x0f, 0x0f, 0x70, 0x70,
+@(rodata)
+NEAR_MASK := [18]int{0x50, 0x70, 0x70, 0x75, 0x0f, 0x0f, 0x0f, 0x70, 0x70,
 	0x70, 0x7d, 0x2b, 0x2f, 0x0f, 0x50, 0x64, 0x67, 0x0f}
 
 near_enough :: proc "contextless" (state: State) -> bool {
@@ -41,8 +44,6 @@ apply_move :: proc "contextless" (state: State, movement: int, upper: bool) -> S
 	}
 	return next
 }
-
-search_down :: proc "contextless" (state: State, bound, depth, last_move: int) -> bool
 
 search_up :: proc "contextless" (state: State, bound, depth, last_move: int) -> bool {
 	if depth == bound-4 && !near_enough(state) { return false }

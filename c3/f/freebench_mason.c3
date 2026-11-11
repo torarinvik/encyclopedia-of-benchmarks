@@ -42,15 +42,13 @@ fn void apply_move(long* state, int movement, bool upper, long* next) {
     }
 }
 
-fn bool search_down(long* state, int bound, int depth, int last_move);
-
 fn bool search_up(long* state, int bound, int depth, int last_move) {
     if (depth == bound - 4 && !near_enough(state)) return false;
     if (is_goal(state)) return true;
     if (bound <= depth) return false;
     for (int movement = 0; movement < 3; movement++) {
         if (movement == last_move) continue;
-        long[9] next = {0};
+        long[9] next;
         apply_move(state, movement, true, &next[0]);
         if (search_down(&next[0], bound, depth + 1, movement)) return true;
     }
@@ -61,7 +59,7 @@ fn bool search_down(long* state, int bound, int depth, int last_move) {
     if (bound <= depth) return false;
     for (int movement = 0; movement < 3; movement++) {
         if (movement == last_move) continue;
-        long[9] next = {0};
+        long[9] next;
         apply_move(state, movement, false, &next[0]);
         if (search_up(&next[0], bound, depth + 1, movement)) return true;
     }
