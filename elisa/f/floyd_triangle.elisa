@@ -10,7 +10,7 @@ def floyd_triangle_impl(rows: i64, output: mutable u8&, output_capacity: usize) 
     if output_capacity < output_length or (output_length != 0 and output == null):
         return -2
     index: mutable usize = 0
-    number: mutable i64 = 1
+    number: mutable u16 = 1
     row: mutable usize = 1
     while row <= rows_usize:
         column: mutable usize = 0
