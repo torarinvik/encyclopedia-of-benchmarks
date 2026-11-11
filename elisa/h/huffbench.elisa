@@ -3,18 +3,18 @@ const HUFFBENCH_DATA_BYTES: usize = 4096
 const HUFFBENCH_MIN_PASSES: i64 = 1
 const HUFFBENCH_MAX_PASSES: i64 = 30
 
-def huffbench_heap_adjust(frequency: view[usize], heap: mutable view[usize], active: usize, one_based: usize) -> void:
-    value: usize = heap[one_based - 1]
+def huffbench_heap_adjust(frequency: view[usize], priority_heap: mutable view[usize], active: usize, one_based: usize) -> void:
+    value: usize = priority_heap[one_based - 1]
     index: mutable usize = one_based
     while index <= active / 2:
         child: mutable usize = index * 2
-        if child < active and frequency[heap[child - 1]] > frequency[heap[child]]:
+        if child < active and frequency[priority_heap[child - 1]] > frequency[priority_heap[child]]:
             child <- child + 1
-        if frequency[value] < frequency[heap[child - 1]]:
+        if frequency[value] < frequency[priority_heap[child - 1]]:
             break
-        heap[index - 1] <- heap[child - 1]
+        priority_heap[index - 1] <- priority_heap[child - 1]
         index <- child
-    heap[index - 1] <- value
+    priority_heap[index - 1] <- value
 
 def huffbench_random4(seed: mutable i64&) -> usize:
     seed <- seed ^ 123459876
@@ -29,7 +29,7 @@ def huffbench_random4(seed: mutable i64&) -> usize:
 def huffbench_compdecomp(data: mutable view[u8], compressed: mutable view[u8],
         compressed_length: mutable usize&, checksum: mutable u32&) -> bool:
     frequency: mutable usize[512] = zeroed
-    heap: mutable usize[256] = zeroed
+    priority_heap: mutable usize[256] = zeroed
     link: mutable i64[512] = zeroed
     code: mutable u32[256] = zeroed
     code_length: mutable usize[256] = zeroed
@@ -39,23 +39,23 @@ def huffbench_compdecomp(data: mutable view[u8], compressed: mutable view[u8],
     active: mutable usize = 0
     for symbol in 0..<256:
         if frequency[symbol] != 0:
-            heap[active] <- symbol
+            priority_heap[active] <- symbol
             active <- active + 1
     index: mutable usize = active
     while index > 0:
-        huffbench_heap_adjust(frequency[0:512], heap[0:256], active, index)
+        huffbench_heap_adjust(frequency[0:512], priority_heap[0:256], active, index)
         index <- index - 1
     while active > 1:
         active <- active - 1
-        first: usize = heap[0]
-        heap[0] <- heap[active]
-        huffbench_heap_adjust(frequency[0:512], heap[0:256], active, 1)
+        first: usize = priority_heap[0]
+        priority_heap[0] <- priority_heap[active]
+        huffbench_heap_adjust(frequency[0:512], priority_heap[0:256], active, 1)
         parent: usize = 256 + active
-        frequency[parent] <- frequency[heap[0]] + frequency[first]
+        frequency[parent] <- frequency[priority_heap[0]] + frequency[first]
         link[first] <- parent.i64()
-        link[heap[0]] <- -parent.i64()
-        heap[0] <- parent
-        huffbench_heap_adjust(frequency[0:512], heap[0:256], active, 1)
+        link[priority_heap[0]] <- -parent.i64()
+        priority_heap[0] <- parent
+        huffbench_heap_adjust(frequency[0:512], priority_heap[0:256], active, 1)
     link[256 + active] <- 0
 
     for symbol in 0..<256:
@@ -114,7 +114,7 @@ def huffbench_compdecomp(data: mutable view[u8], compressed: mutable view[u8],
         bit: mutable i64 = code_length[symbol].i64() - 1
         while bit >= 0:
             direction: usize = ((code[symbol] >> bit.usize()) & 1).usize()
-            next_node: i64 = if direction == 0 then child_zero[node] else child_one[node]
+            next_node: mutable i64 = child_zero[node] if direction == 0 else child_one[node]
             if next_node < 0:
                 next_node <- node_count.i64()
                 if direction == 0:
@@ -131,10 +131,10 @@ def huffbench_compdecomp(data: mutable view[u8], compressed: mutable view[u8],
     node: mutable usize = 0
     index <- 0
     while index < compressed_used and decoded < HUFFBENCH_DATA_BYTES:
-        bit <- 7
+        bit: mutable i64 = 7
         while bit >= 0 and decoded < HUFFBENCH_DATA_BYTES:
             direction: usize = ((compressed[index] >> bit.usize()) & 1).usize()
-            node_value: i64 = if direction == 0 then child_zero[node] else child_one[node]
+            node_value: i64 = child_zero[node] if direction == 0 else child_one[node]
             if node_value < 0:
                 return false
             node <- node_value.usize()
@@ -186,55 +186,94 @@ def coyote_huffbench_impl(passes: i64, output: mutable u8&, output_capacity: usi
     compressed: mutable u8[HUFFBENCH_DATA_BYTES + 1] = zeroed
     compressed_length: mutable usize = 0
     checksum: mutable u32 = 0
-    pass: mutable i64 = 0
-    while pass < passes:
+    iteration: mutable i64 = 0
+    while iteration < passes:
         if not huffbench_compdecomp(data[0:HUFFBENCH_DATA_BYTES], compressed[0:HUFFBENCH_DATA_BYTES + 1], &compressed_length, &checksum):
             return -1
-        pass <- pass + 1
+        iteration <- iteration + 1
 
     staged: mutable u8[52] = zeroed
     position: mutable usize = 0
-    staged[position] <- 72; position <- position + 1
-    staged[position] <- 117; position <- position + 1
-    staged[position] <- 102; position <- position + 1
-    staged[position] <- 102; position <- position + 1
-    staged[position] <- 98; position <- position + 1
-    staged[position] <- 101; position <- position + 1
-    staged[position] <- 110; position <- position + 1
-    staged[position] <- 99; position <- position + 1
-    staged[position] <- 104; position <- position + 1
-    staged[position] <- 32; position <- position + 1
-    staged[position] <- 112; position <- position + 1
-    staged[position] <- 97; position <- position + 1
-    staged[position] <- 115; position <- position + 1
-    staged[position] <- 115; position <- position + 1
-    staged[position] <- 101; position <- position + 1
-    staged[position] <- 115; position <- position + 1
-    staged[position] <- 61; position <- position + 1
+    staged[position] <- 72
+    position <- position + 1
+    staged[position] <- 117
+    position <- position + 1
+    staged[position] <- 102
+    position <- position + 1
+    staged[position] <- 102
+    position <- position + 1
+    staged[position] <- 98
+    position <- position + 1
+    staged[position] <- 101
+    position <- position + 1
+    staged[position] <- 110
+    position <- position + 1
+    staged[position] <- 99
+    position <- position + 1
+    staged[position] <- 104
+    position <- position + 1
+    staged[position] <- 32
+    position <- position + 1
+    staged[position] <- 112
+    position <- position + 1
+    staged[position] <- 97
+    position <- position + 1
+    staged[position] <- 115
+    position <- position + 1
+    staged[position] <- 115
+    position <- position + 1
+    staged[position] <- 101
+    position <- position + 1
+    staged[position] <- 115
+    position <- position + 1
+    staged[position] <- 61
+    position <- position + 1
     position <- huffbench_append_decimal(passes.u32(), staged[0:52], position)
-    staged[position] <- 32; position <- position + 1
-    staged[position] <- 99; position <- position + 1
-    staged[position] <- 111; position <- position + 1
-    staged[position] <- 109; position <- position + 1
-    staged[position] <- 112; position <- position + 1
-    staged[position] <- 114; position <- position + 1
-    staged[position] <- 101; position <- position + 1
-    staged[position] <- 115; position <- position + 1
-    staged[position] <- 115; position <- position + 1
-    staged[position] <- 101; position <- position + 1
-    staged[position] <- 100; position <- position + 1
-    staged[position] <- 61; position <- position + 1
+    staged[position] <- 32
+    position <- position + 1
+    staged[position] <- 99
+    position <- position + 1
+    staged[position] <- 111
+    position <- position + 1
+    staged[position] <- 109
+    position <- position + 1
+    staged[position] <- 112
+    position <- position + 1
+    staged[position] <- 114
+    position <- position + 1
+    staged[position] <- 101
+    position <- position + 1
+    staged[position] <- 115
+    position <- position + 1
+    staged[position] <- 115
+    position <- position + 1
+    staged[position] <- 101
+    position <- position + 1
+    staged[position] <- 100
+    position <- position + 1
+    staged[position] <- 61
+    position <- position + 1
     position <- huffbench_append_decimal(compressed_length.u32(), staged[0:52], position)
-    staged[position] <- 32; position <- position + 1
-    staged[position] <- 99; position <- position + 1
-    staged[position] <- 104; position <- position + 1
-    staged[position] <- 101; position <- position + 1
-    staged[position] <- 99; position <- position + 1
-    staged[position] <- 107; position <- position + 1
-    staged[position] <- 115; position <- position + 1
-    staged[position] <- 117; position <- position + 1
-    staged[position] <- 109; position <- position + 1
-    staged[position] <- 61; position <- position + 1
+    staged[position] <- 32
+    position <- position + 1
+    staged[position] <- 99
+    position <- position + 1
+    staged[position] <- 104
+    position <- position + 1
+    staged[position] <- 101
+    position <- position + 1
+    staged[position] <- 99
+    position <- position + 1
+    staged[position] <- 107
+    position <- position + 1
+    staged[position] <- 115
+    position <- position + 1
+    staged[position] <- 117
+    position <- position + 1
+    staged[position] <- 109
+    position <- position + 1
+    staged[position] <- 61
+    position <- position + 1
     position <- huffbench_append_decimal(checksum, staged[0:52], position)
     staged[position] <- 10
     position <- position + 1

@@ -7,7 +7,7 @@ MAX_PASSES :: i64(30)
 DATA_BYTES :: 4096
 OUTPUT_CAPACITY :: 52
 
-heap_adjust :: proc(frequency: [^]uint, heap: [^]uint, active, input_index: int) {
+heap_adjust :: proc "contextless" (frequency: [^]uint, heap: [^]uint, active, input_index: int) {
 	index := input_index
 	value := heap[index-1]
 	for index <= active/2 {
@@ -20,17 +20,17 @@ heap_adjust :: proc(frequency: [^]uint, heap: [^]uint, active, input_index: int)
 	heap[index-1] = value
 }
 
-random4 :: proc(seed: ^i64) -> uint {
-	seed^ ^= 123459876
+random4 :: proc "contextless" (seed: ^i64) -> uint {
+	seed^ ~= 123459876
 	quotient := seed^ / 127773
 	seed^ = 16807 * (seed^ - quotient * 127773) - 2836 * quotient
 	if seed^ < 0 { seed^ += 2147483647 }
 	result := uint(seed^ % 32)
-	seed^ ^= 123459876
+	seed^ ~= 123459876
 	return result
 }
 
-compdecomp :: proc(data: [^]u8, compressed_length: ^uint, checksum: ^u32) -> bool {
+compdecomp :: proc "contextless" (data: [^]u8, compressed_length: ^uint, checksum: ^u32) -> bool {
 	frequency: [512]uint
 	heap: [256]uint
 	link: [512]int
@@ -126,7 +126,7 @@ compdecomp :: proc(data: [^]u8, compressed_length: ^uint, checksum: ^u32) -> boo
 	return true
 }
 
-append_decimal :: proc(staged: [^]u8, used_input: uint, value_input: u32) -> uint {
+append_decimal :: proc "contextless" (staged: [^]u8, used_input: uint, value_input: u32) -> uint {
 	used := used_input
 	value := value_input
 	reversed: [10]u8
@@ -141,7 +141,7 @@ append_decimal :: proc(staged: [^]u8, used_input: uint, value_input: u32) -> uin
 	return used
 }
 
-format_output :: proc(passes: i64, compressed_length: uint, checksum: u32, staged: [^]u8) -> uint {
+format_output :: proc "contextless" (passes: i64, compressed_length: uint, checksum: u32, staged: [^]u8) -> uint {
 	prefix := "Huffbench passes="
 	middle := " compressed="
 	suffix := " checksum="

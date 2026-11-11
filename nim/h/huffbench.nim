@@ -148,6 +148,7 @@ proc formatOutput(passes: int64, compressedLength: int, checksum: uint32, staged
   used = appendDecimal(staged, used, checksum)
   staged[used] = 10'u8
   inc used
+  used
 
 proc coyote_huffbench*(passes: int64, output: ptr UncheckedArray[uint8], outputCapacity: csize_t): int64 {.cdecl, exportc: "coyote_huffbench".} =
   if passes < MinPasses or passes > MaxPasses: return -1
