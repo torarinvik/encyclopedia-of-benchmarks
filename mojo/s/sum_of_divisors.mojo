@@ -1,5 +1,5 @@
 @export("sum_of_divisors")
-fn sum_of_divisors(n: Int64) abi("C") -> Int64:
+def sum_of_divisors(n: Int64) abi("C") -> Int64:
     if n < 1 or n > 1000000: return -1
     var remaining=n; var sigma:Int64=1; var factor:Int64=2
     while factor <= remaining / factor:
