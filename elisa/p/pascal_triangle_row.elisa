@@ -5,7 +5,7 @@ def pascal_triangle_row_impl(row_index: i64, output: mutable u8&, output_capacit
     row_limit: usize = row_index.usize()
     count: usize = row_limit + 1
     required: usize = count * 4
-    if output_capacity < required:
+    if output == null or output_capacity < required:
         return -2
 
     coefficients: mutable u32[34] = for column in 0..<count |coefficients: mutable u32[34] = zeroed| -> coefficients:

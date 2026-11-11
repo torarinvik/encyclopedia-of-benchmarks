@@ -217,6 +217,14 @@
       "expected_output_hex": "01000000210000001002000050150000d89f0000189f030070e61000b02f4100fcdad300bc7c4c02905e8405d022890b2815261568d329227009ce30b0c7d13da6008c45a6008c45b0c7d13d7009ce3068d3292228152615d022890b905e8405bc7c4c02fcdad300b02f410070e61000189f0300d89f000050150000100200002100000001000000"
     },
     {
+      "id": "null_output",
+      "input_value": 33,
+      "output_capacity": 136,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
       "id": "negative_index",
       "input_value": -1,
       "expected_result": -1,

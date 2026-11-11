@@ -6,7 +6,7 @@ pub fn pascal_triangle_row(row_index i64, output &u8, output_capacity usize) i64
 	if row_index < 0 || row_index > 33 { return -1 }
 	count := int(row_index) + 1
 	required := usize(count * 4)
-	if output_capacity < required { return -2 }
+	if unsafe { output == nil } || output_capacity < required { return -2 }
 
 	mut coefficients := [34]u32{}
 	for column in 0 .. count {

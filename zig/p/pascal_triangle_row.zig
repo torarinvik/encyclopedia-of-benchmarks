@@ -1,10 +1,11 @@
 /// Compute one row of Pascal's triangle using in-place dynamic programming.
-export fn pascal_triangle_row(row_index: i64, output: [*]u8,
+export fn pascal_triangle_row(row_index: i64, output_opt: ?[*]u8,
     output_capacity: usize) i64 {
     if (row_index < 0 or row_index > 33) return -1;
     const count: usize = @intCast(row_index + 1);
     const required = count * 4;
     if (output_capacity < required) return -2;
+    const output = output_opt orelse return -2;
 
     var coefficients: [34]u32 = undefined;
     for (0..count) |column| {

@@ -7,7 +7,7 @@ Compute a single zero-based row of Pascal's triangle using an in-place dynamic-p
 - The scalar input is a row index from 0 through 33; other signed 64-bit inputs return -1.
 - The implementation returns the row coefficients in ascending column order.
 - Each coefficient is written as an unsigned 32-bit little-endian integer. The return value is the number of bytes written.
-- An output capacity smaller than the complete row returns -2 and writes no bytes.
+- A null output pointer or a capacity smaller than the complete row returns -2 and writes no bytes.
 - The upper bound preserves the source problem's 32-bit coefficient domain; row 33 has maximum coefficient 1,166,803,110.
 
 The algorithm initializes every coefficient to one, then updates interior positions from right to left for each row. This uses O(n) storage and O(n^2) additions for row index n.
