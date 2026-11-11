@@ -1,10 +1,9 @@
 module nestedloop
 
-const max_n = i64(15)
 
 @[export: 'nestedloop']
 pub fn nestedloop(input i64) i64 {
-	if input < 0 || input > max_n { return -1 }
+	if input < 0 || input > 15 { return -1 }
 	n := int(input)
 	mut x := 0
 	for a := 0; a < n; a++ {
