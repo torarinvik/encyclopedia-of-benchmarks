@@ -1,5 +1,5 @@
 @export("perrin_number")
-fn perrin_number(n:Int64) abi("C")->Int64:
+def perrin_number(n:Int64) abi("C")->Int64:
     if n<0 or n>155:return -1
     if n==0:return 3
     if n==1:return 0
