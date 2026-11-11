@@ -34,12 +34,13 @@ fn bool different_experiment(ulong* random_state, char* free_state) {
         if (random_probability % 10000u < 2500u) random_word ^= 1u;
         faulty_state[9] = (char)(((uint)saved_faulty + random_word) & 1u);
     }
-    for (usz cell = 0; cell < 10; cell++)
+    for (usz cell = 0; cell < 10; cell++) {
         if (free_state[cell] != faulty_state[cell]) return true;
+    }
     return false;
 }
 
-fn void append_text(char* buffer, usz* used, const char* text) {
+fn void append_text(char* buffer, usz* used, char* text) {
     while (*text != '\0') buffer[(*used)++] = *text++;
 }
 
@@ -62,8 +63,9 @@ fn void append_probability(char* buffer, usz* used, ulong same_count, ulong expe
         ulong numerator = same_count * scale * 100000000;
         mantissa = numerator / experiments;
         ulong remainder = numerator % experiments;
-        if (2 * remainder > experiments || (2 * remainder == experiments && (mantissa & 1ul) != 0))
+        if (2 * remainder > experiments || (2 * remainder == experiments && (mantissa & 1ul) != 0)) {
             mantissa++;
+        }
         if (mantissa == 1000000000) { mantissa = 100000000; exponent++; }
     }
     ulong whole = mantissa / 100000000;
@@ -91,8 +93,9 @@ fn long mcgill_misr(long experiments, char* output, usz output_capacity)
     char[10] free_state;
     for (usz cell = 0; cell < 10; cell++) free_state[cell] = cell == 0 ? 0 : 1;
     ulong different_count = 0;
-    for (long experiment = 0; experiment < experiments; experiment++)
+    for (long experiment = 0; experiment < experiments; experiment++) {
         if (different_experiment(&random_state, &free_state[0])) different_count++;
+    }
     char[MAX_OUTPUT_BYTES] staged;
     usz used = 0;
     append_text(&staged[0], &used, "reg_len #_vect prob #_tms struct seed1 seed2 seed3 Prob same output\n ");

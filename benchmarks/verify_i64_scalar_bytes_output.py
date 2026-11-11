@@ -610,6 +610,7 @@ def corpus(workload: dict) -> tuple[str, int]:
             "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/misr/info.sh"
         )
         required_case_ids = {
+            "minimum_profile_report", "maximum_profile_report",
             "minimum_profile_short_buffer", "maximum_profile_short_buffer",
             "minimum_profile_null_output", "zero_experiments_invalid",
             "negative_experiments_invalid", "above_profile_invalid",
@@ -663,7 +664,7 @@ def corpus(workload: dict) -> tuple[str, int]:
                 }
                 or workload.get("output") != {
                     "kind": "source_stdout_ascii",
-                    "encoding": "The original report header, a space-prefixed parameter line, and LF endings.",
+                    "encoding": "The original report header, a space-prefixed parameter/result line, and LF endings.",
                     "definition": "The two source printf outputs, including the space after the first LF; the final field is the fraction of experiments whose good and faulty visible registers match, formatted in scientific notation with eight fractional digits.",
                     "maximum_output_bytes": MCGILL_MISR_MAX_OUTPUT_BYTES,
                     "invalid_result": MCGILL_MISR_INVALID_RESULT,

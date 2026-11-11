@@ -6,7 +6,7 @@ def mcgill_misr_next_lrand48(state: mutable u64&) -> u32:
     low: u64 = state[0] & 0xffffff.u64()
     high: u64 = state[0] >> 24
     high_product: u64 = (high * 0xece66d.u64()) & 0xffffff.u64()
-    state[0] <- (low * 0x5deece66d.u64() + (high_product << 24) + 0xbu64()) & 0xffffffffffff.u64()
+    state[0] <- (low * 0x5deece66d.u64() + (high_product << 24) + 11.u64()) & 0xffffffffffff.u64()
     (state[0] >> 17).u32()
 
 def mcgill_misr_different_experiment(random_state: mutable u64&, free_state: mutable view[u8]) -> bool:
@@ -30,7 +30,7 @@ def mcgill_misr_different_experiment(random_state: mutable u64&, free_state: mut
             cell <- cell + 1
         random_word <- mcgill_misr_next_lrand48(random_state)
         free_state[9] <- ((saved_free.u32() + random_word) & 1.u32()).u8()
-        random_probability <- mcgill_misr_next_lrand48(random_state)
+        random_probability: u32 = mcgill_misr_next_lrand48(random_state)
         if random_probability % 10000.u32() < 2500.u32(): random_word <- random_word ^ 1.u32()
         faulty_state[9] <- ((saved_faulty.u32() + random_word) & 1.u32()).u8()
         vector <- vector + 1
@@ -40,9 +40,9 @@ def mcgill_misr_different_experiment(random_state: mutable u64&, free_state: mut
         cell <- cell + 1
     false
 
-def mcgill_misr_append_text(buffer: mutable view[u8], used: mutable usize&, text: string) -> void:
+def mcgill_misr_append_text(buffer: mutable view[u8], used: mutable usize&, text: sview) -> void:
     index: mutable usize = 0
-    while index < text.length():
+    while index < text.len:
         buffer[used] <- text[index].u8()
         used <- used + 1
         index <- index + 1
@@ -94,8 +94,8 @@ def mcgill_misr_append_probability(buffer: mutable view[u8], used: mutable usize
         digit <- digit + 1
     buffer[used] <- 101.u8()
     used <- used + 1
-    absolute_exponent: i64 = if exponent < 0: -exponent else: exponent
-    buffer[used] <- if exponent < 0: 45.u8() else: 43.u8()
+    absolute_exponent: i64 = -exponent if exponent < 0 else exponent
+    buffer[used] <- 45.u8() if exponent < 0 else 43.u8()
     used <- used + 1
     buffer[used] <- (48 + absolute_exponent / 10).u8()
     used <- used + 1
@@ -104,7 +104,7 @@ def mcgill_misr_append_probability(buffer: mutable view[u8], used: mutable usize
 
 def mcgill_misr_impl(experiments: i64, output: mutable u8&, output_capacity: usize) -> i64:
     if experiments < MIN_EXPERIMENTS or experiments > MAX_EXPERIMENTS: return -1
-    if output.is_null(): return -2
+    if output == null: return -2
     random_state: mutable u64 = 1.u64()
     free_state: mutable u8[10] = zeroed
     cell: mutable usize = 1

@@ -10,7 +10,7 @@ Each experiment copies the current fault-free register into the faulty register,
 
 The C ABI entry point is `mcgill_misr(int64_t experiments, uint8_t *output, size_t output_capacity)`. It returns the exact two-line source report as ASCII, including the source's single leading space before the parameter line. The final field is `(experiments - differing_experiments) / experiments`, formatted with eight digits after the decimal point in scientific notation. Inputs outside 1..1,000 return -1. Null or insufficient output buffers return -2 without writing; output is staged before copying.
 
-The [independent oracle](../../mcgill_misr_oracle.py) models the 48-bit random recurrence and source MISR state transitions directly. It formats the probability from an integer ratio. The workload uses valid short-buffer cases so the ports still execute the bounded simulation before returning -2; null-output cases return early after input validation. It also includes signed and profile-boundary invalid inputs.
+The [independent oracle](../../mcgill_misr_oracle.py) models the 48-bit random recurrence and source MISR state transitions directly. It formats the probability from an integer ratio. The workload times successful reports at both profile boundaries, so the simulation result is observable. It also checks short-buffer and null-output behavior. It also includes signed and profile-boundary invalid inputs.
 
 ## Implementations
 
