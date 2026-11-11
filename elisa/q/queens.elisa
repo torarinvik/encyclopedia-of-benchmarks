@@ -4,12 +4,12 @@ const EMPTY_OWNER: i64 = 101
 const MAX_OUTPUT_BYTES: usize = 80
 
 struct QueensState:
-    n: i64
+    n: mutable i64
     queen: i64[14]
     file: i64[14]
     forward_diag: i64[27]
     backward_diag: i64[27]
-    solutions: u64
+    solutions: mutable u64
 
 def queens_find_solutions(state: mutable QueensState&, level: i64) -> void:
     if level == state.n:
@@ -32,10 +32,10 @@ def queens_find_solutions(state: mutable QueensState&, level: i64) -> void:
             state.backward_diag[backward.usize()] <- EMPTY_OWNER
         file_index <- file_index + 1
 
-def queens_append_text(output: mutable view[u8], position: mutable usize&, text: &str) -> void:
+def queens_append_text(output: mutable view[u8], position: mutable usize&, text: sview) -> void:
     index: mutable usize = 0
-    while index < text.length():
-        output[position] <- text[index].u8()
+    while index < text.len:
+        output[position] <- text[index]
         position <- position + 1
         index <- index + 1
 
@@ -90,7 +90,7 @@ def queens_impl(n: i64, output: mutable u8&, output_capacity: usize) -> i64:
 
     formatted: mutable u8[MAX_OUTPUT_BYTES] = zeroed
     required: usize = queens_render_output(n, state.solutions, formatted[0:MAX_OUTPUT_BYTES])
-    if output.is_null() or output_capacity < required: return -2
+    if output == null or output_capacity < required: return -2
     index: mutable usize = 0
     while index < required:
         output[index] <- formatted[index]

@@ -36,7 +36,7 @@ fn void find_solutions(QueensState* state, int level) {
     }
 }
 
-fn usz append_literal(char* output, usz position, const char* text) {
+fn usz append_literal(char* output, usz position, char* text) {
     for (usz index = 0; text[index] != 0; index++) output[position++] = text[index];
     return position;
 }

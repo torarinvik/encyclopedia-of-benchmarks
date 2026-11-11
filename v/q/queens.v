@@ -7,6 +7,7 @@ const max_output_bytes = 80
 
 struct QueensState {
 	n int
+mut:
 	queen [max_n]int
 	file [max_n]int
 	forward_diag [max_diags]int
@@ -98,7 +99,7 @@ pub fn queens(n i64, mut output &u8, output_capacity usize) i64 {
 	find_solutions(mut state, 0)
 
 	mut formatted := [max_output_bytes]u8{}
-	mut formatted_pointer := &formatted[0]
+	mut formatted_pointer := unsafe { &formatted[0] }
 	required := render_output(int(n), state.solutions, mut formatted_pointer)
 	unsafe {
 		if output == nil || output_capacity < usize(required) { return -2 }

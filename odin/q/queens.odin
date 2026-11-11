@@ -16,7 +16,7 @@ Queens_State :: struct {
 	solutions: u64,
 }
 
-find_solutions :: proc(state: ^Queens_State, level: int) {
+find_solutions :: proc "contextless"(state: ^Queens_State, level: int) {
 	if level == state^.n {
 		state^.solutions += 1
 		return
@@ -38,7 +38,7 @@ find_solutions :: proc(state: ^Queens_State, level: int) {
 	}
 }
 
-append_text :: proc(output: [^]u8, position_input: int, text: string) -> int {
+append_text :: proc "contextless"(output: [^]u8, position_input: int, text: string) -> int {
 	position := position_input
 	for index := 0; index < len(text); index += 1 {
 		output[position] = text[index]
@@ -47,9 +47,9 @@ append_text :: proc(output: [^]u8, position_input: int, text: string) -> int {
 	return position
 }
 
-append_unsigned :: proc(output: [^]u8, position_input: int, value_input: u64) -> int {
+append_unsigned :: proc "contextless"(output: [^]u8, position_input: int, value_input: u64) -> int {
 	position := position_input
-	var reversed: [24]u8
+	reversed: [24]u8
 	count := 0
 	value := value_input
 	for {
@@ -66,7 +66,7 @@ append_unsigned :: proc(output: [^]u8, position_input: int, value_input: u64) ->
 	return position
 }
 
-render_output :: proc(n: int, solutions: u64, output: [^]u8) -> int {
+render_output :: proc "contextless"(n: int, solutions: u64, output: [^]u8) -> int {
 	position := append_unsigned(output, 0, u64(n))
 	if n == 1 {
 		position = append_text(output, position, " queen on a ")
@@ -98,7 +98,7 @@ queens :: proc "c" (n: i64, output: [^]u8, output_capacity: c.size_t) -> i64 {
 		state.backward_diag[index] = EMPTY_OWNER
 	}
 	find_solutions(&state, 0)
-	var formatted: [MAX_OUTPUT_BYTES]u8
+	formatted: [MAX_OUTPUT_BYTES]u8
 	required := render_output(state.n, state.solutions, &formatted[0])
 	if output == nil || output_capacity < c.size_t(required) do return -2
 	for index := 0; index < required; index += 1 do output[index] = formatted[index]
