@@ -9,7 +9,7 @@ This package ports the outcome-solving core of the `chomp` launcher in the pinne
 - Each board state stores the remaining height of each column, left to right. Valid states have non-increasing heights. A move at `(row, column)` caps that column and every column to its right at `row`, matching `make_data` followed by `melt_data`.
 - The solver evaluates the full state graph in the source's row-major move order. A state wins when it has a move to a losing state. The empty board has value 1: the previous player took the poison square, so the player now to move wins.
 - The scalar result is the initial state's value, 1 for a first-player win and 0 for a first-player loss. The upstream prompts and move-by-move report are presentation output and are not included in the scalar ABI.
-- The 8-by-7 profile has 6,435 legal board shapes. The ports bound their table to the 9^7 base-address space (under 4.8 MB); Elisa uses combinatorial ranking to store only the 6,435 legal shapes.
+- The 8-by-7 profile has 6,435 legal board shapes. All ports use base-addressed table indices, with at most 9^7 entries (under 4.8 MB), and enumerate only legal board shapes.
 - Invalid row profiles return -1. The workload covers both pinned launcher profiles, invalid bounds, and signed 64-bit extremes.
 - The independent oracle uses memoized recursion over resulting board shapes rather than the ports' source-order state-table traversal.
 
