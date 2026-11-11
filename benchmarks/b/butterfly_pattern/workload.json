@@ -21,6 +21,14 @@
   },
   "cases": [
     {
+      "id": "null_output",
+      "input_value": 1,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": ""
+    },
+    {
       "id": "minimum",
       "input_value": 1,
       "expected_result": 1,

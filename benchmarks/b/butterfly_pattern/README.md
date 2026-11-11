@@ -4,7 +4,7 @@ Build the source's symmetric ASCII butterfly from a positive row-size parameter.
 
 ## Contract
 
-The `i64_scalar_bytes_output` ABI accepts `n` from 1 through 45. It returns the pattern as ASCII rows separated by newline bytes, with no trailing newline. Each top and bottom row has matching star wings separated by an odd-width gap; the middle row contains `2n - 1` stars. Inputs outside the range return `-1`; insufficient output capacity returns `-2` without writing.
+The `i64_scalar_bytes_output` ABI accepts `n` from 1 through 45. It returns the pattern as ASCII rows separated by newline bytes, with no trailing newline. Each top and bottom row has matching star wings separated by an odd-width gap; the middle row contains `2n - 1` stars. Inputs outside the range return `-1`; a null output pointer or insufficient capacity returns `-2` without writing.
 
 The benchmark caps `n` at 45 because the shared output buffer holds at most 8,192 bytes. At `n = 45`, the pattern is 8,009 bytes.
 
