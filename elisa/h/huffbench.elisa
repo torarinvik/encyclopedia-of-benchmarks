@@ -99,12 +99,11 @@ def huffbench_compdecomp(data: mutable view[u8], compressed: mutable view[u8],
     compressed[compressed_used] <- bout
     compressed_used <- compressed_used + 1
 
-    child_zero: mutable i32[512] = zeroed
-    child_one: mutable i32[512] = zeroed
+    children: mutable i32[1024] = zeroed
     decoded_symbol: mutable i32[512] = zeroed
     for node in 0..<512:
-        child_zero[node] <- -1
-        child_one[node] <- -1
+        children[node * 2] <- -1
+        children[node * 2 + 1] <- -1
         decoded_symbol[node] <- -1
     node_count: mutable usize = 1
     for symbol in 0..<256:
@@ -114,13 +113,10 @@ def huffbench_compdecomp(data: mutable view[u8], compressed: mutable view[u8],
         bit: mutable i64 = code_length[symbol].i64() - 1
         while bit >= 0:
             direction: usize = ((code[symbol] >> bit.usize()) & 1).usize()
-            next_node: mutable i32 = child_zero[node] if direction == 0 else child_one[node]
+            next_node: mutable i32 = children[node * 2 + direction]
             if next_node < 0:
                 next_node <- node_count.i32()
-                if direction == 0:
-                    child_zero[node] <- next_node
-                else:
-                    child_one[node] <- next_node
+                children[node * 2 + direction] <- next_node
                 node_count <- node_count + 1
             node <- next_node.usize()
             bit <- bit - 1
@@ -134,7 +130,7 @@ def huffbench_compdecomp(data: mutable view[u8], compressed: mutable view[u8],
         bit: mutable i64 = 7
         while bit >= 0 and decoded < HUFFBENCH_DATA_BYTES:
             direction: usize = ((compressed[index] >> bit.usize()) & 1).usize()
-            node_value: i32 = child_zero[node] if direction == 0 else child_one[node]
+            node_value: i32 = children[node * 2 + direction]
             if node_value < 0:
                 return false
             node <- node_value.usize()
