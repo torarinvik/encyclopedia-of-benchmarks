@@ -4,7 +4,7 @@ const max_bytes = 4096
 
 @[export: 'fletcher16']
 pub fn fletcher16(input &i64, length usize) i64 {
-    if length > max_bytes { return -1 }
+    if length > max_bytes || (length != 0 && unsafe { input == nil }) { return -1 }
     unsafe {
         mut sum1 := u32(0)
         mut sum2 := u32(0)
