@@ -1,5 +1,5 @@
 @export("digital_root")
-fn digital_root(n0:Int64) abi("C")->Int64:
+def digital_root(n0:Int64) abi("C")->Int64:
     if n0<0:return -1
     var n=n0
     while n>=10:
