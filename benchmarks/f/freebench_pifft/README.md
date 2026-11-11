@@ -8,7 +8,7 @@ arithmetic-geometric-mean iteration.
 
 - ABI: scalar signed 64-bit input and output; exported symbol
   `freebench_pifft`.
-- The sole valid input is `nfft = 8`. The pinned program rounds its input up to
+- The sole valid input is `nfft=8`. The pinned program rounds its input up to
   a power of two; this profile fixes the transform size to eight to bound work.
   Other inputs return `-1`.
 - Each port runs the source's modified AGM initialization, its iterative
@@ -33,6 +33,8 @@ arithmetic-geometric-mean iteration.
   integer multiplication instead of FFT convolution.
 
 ## Provenance and rights
+
+[Pinned FreeBench Pifft directory](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/FreeBench/pifft).
 
 The pinned `pifft.c` header attributes the program to T. Ooura and describes
 the FFT-based multiple-precision calculation. Neither `pifft.c` nor the pinned

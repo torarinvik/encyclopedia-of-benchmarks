@@ -1,16 +1,13 @@
-extern cos(value: f64) -> f64
-extern sin(value: f64) -> f64
-
 const FFT_SIZE: usize = 8
 const BASE: i64 = 1000
 const SCALE: i64 = 1000000
 
 def freebench_pifft_fft(real: mutable view[f64], imag: mutable view[f64], inverse: bool) -> void:
-    reversed: usize[8] = {0, 4, 2, 6, 1, 5, 3, 7}
+    reversed: usize[8] = [0, 4, 2, 6, 1, 5, 3, 7]
     for i in 0..<8:
         j: usize = reversed[i]
         if i < j:
-            temp: f64 = real[i]
+            temp: mutable f64 = real[i]
             real[i] <- real[j]
             real[j] <- temp
             temp <- imag[i]
@@ -19,13 +16,15 @@ def freebench_pifft_fft(real: mutable view[f64], imag: mutable view[f64], invers
     for stage in 1..<4:
         block: usize = 1 << stage
         half: usize = block / 2
+        sign: f64 = 1.0 if inverse else -1.0
+        diagonal: f64 = 0.70710678118654752440
+        root_real: f64 = -1.0 if block == 2 else (0.0 if block == 4 else diagonal)
+        root_imag: f64 = 0.0 if block == 2 else (sign if block == 4 else sign * diagonal)
         start: mutable usize = 0
-        while start < 8:
-            for offset in 0..<half:
-                sign: f64 = if inverse: 1.0 else: -1.0
-                angle: f64 = sign * 6.2831853071795864769 * offset.f64() / block.f64()
-                wr: f64 = cos(angle)
-                wi: f64 = sin(angle)
+        while start < FFT_SIZE:
+            wr: mutable f64 = 1.0
+            wi: mutable f64 = 0.0
+            for offset in 0..<half |wr, wi|:
                 even: usize = start + offset
                 odd: usize = even + half
                 ur: f64 = real[even]
@@ -36,6 +35,9 @@ def freebench_pifft_fft(real: mutable view[f64], imag: mutable view[f64], invers
                 imag[even] <- ui + vi
                 real[odd] <- ur - vr
                 imag[odd] <- ui - vi
+                next_wr: f64 = wr * root_real - wi * root_imag
+                wi <- wr * root_imag + wi * root_real
+                wr <- next_wr
             start <- start + block
     if inverse:
         for i in 0..<8:
@@ -46,8 +48,12 @@ def freebench_pifft_multiply(left_value: i64, right_value: i64) -> i64:
     left: mutable i64 = left_value
     right: mutable i64 = right_value
     sign: mutable i64 = 1
-    if left < 0: sign <- -sign; left <- -left
-    if right < 0: sign <- -sign; right <- -right
+    if left < 0:
+        sign <- -sign
+        left <- -left
+    if right < 0:
+        sign <- -sign
+        right <- -right
     left_real: mutable f64[8] = zeroed
     left_imag: mutable f64[8] = zeroed
     right_real: mutable f64[8] = zeroed
@@ -84,16 +90,16 @@ def freebench_pifft_sqrt(value: i64) -> i64:
         root <- next
     lower_error: i64 = radicand - root * root
     upper_error: i64 = (root + 1) * (root + 1) - radicand
-    if upper_error < lower_error: root + 1 else: root
+    (root + 1) if upper_error < lower_error else root
 
 def freebench_pifft_half(value: i64) -> i64:
-    if value < 0: -((-value) / 2) else: value / 2
+    -((-value) / 2) if value < 0 else (value / 2)
 
 def freebench_pifft_divide(numerator: i64, denominator: i64) -> i64:
     if denominator <= 0: return 0
     scaled: i64 = numerator * SCALE
-    if scaled < 0: -((-scaled + denominator / 2) / denominator)
-    else: (scaled + denominator / 2) / denominator
+    if scaled < 0: return -((-scaled + denominator / 2) / denominator)
+    (scaled + denominator / 2) / denominator
 
 def freebench_pifft_impl(nfft: i64) -> i64:
     if nfft != 8: return -1

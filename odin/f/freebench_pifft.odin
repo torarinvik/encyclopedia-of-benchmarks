@@ -8,8 +8,8 @@ fft_transform :: proc "contextless" (real, imag: [^]f64, inverse: bool) {
 	j := 0
 	for i := 1; i < FFT_SIZE; i += 1 {
 		bit := FFT_SIZE >> 1
-		for (j & bit) != 0 { j ^= bit; bit >>= 1 }
-		j ^= bit
+		for (j & bit) != 0 { j ~= bit; bit >>= 1 }
+		j ~= bit
 		if i < j {
 			t := real[i]; real[i] = real[j]; real[j] = t
 			t = imag[i]; imag[i] = imag[j]; imag[j] = t

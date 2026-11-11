@@ -1,8 +1,8 @@
 module freebench_pifft
 
 const fft_size = 8
-const base = i64(1000)
-const scale = i64(1000000)
+const base = 1000
+const scale = 1000000
 
 fn fft_transform(mut real &f64, mut imag &f64, inverse bool) {
 	unsafe {
