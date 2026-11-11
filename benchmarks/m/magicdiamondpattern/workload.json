@@ -27,6 +27,22 @@
   },
   "cases": [
     {
+      "id": "null_sentinel_output",
+      "input_value": 0,
+      "output_capacity": 48,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_pattern_output",
+      "input_value": 1,
+      "output_capacity": 7,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
       "id": "nonpositive-sentinel",
       "input_value": 0,
       "output_capacity": 8192,
