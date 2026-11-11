@@ -11,8 +11,7 @@ def fbnh_activation(value: f32) -> f32:
     e: f64 = exp(-x)
     ((1.0 - e) / (1.0 + e)).f32()
 
-def fbnh_run_cont(weights: f32[64], source: i64[8], neurons: usize) -> i64[8]:
-    dest: mutable i64[8] = zeroed
+def fbnh_run_cont(weights: f32[64]&, source: view[i64], neurons: usize, dest: mutable i64[8]&) -> bool:
     temp_a: mutable f32[8] = zeroed
     temp_c: mutable i64[8] = zeroed
     for neuron in 0..<neurons:
@@ -25,20 +24,22 @@ def fbnh_run_cont(weights: f32[64], source: i64[8], neurons: usize) -> i64[8]:
         threshold_iterations: mutable usize = 0
         for row in 0..<neurons:
             sum: mutable f32 = 0.0
-            for neuron in 0..<neurons: sum <- sum + weights[row * neurons + neuron] * source[neuron].f32()
+            for neuron in 0..<neurons:
+                sum <- sum + weights[row * neurons + neuron] * source[neuron].f32()
             temp_a[row] <- fbnh_activation(sum)
         while not threshold and threshold_iterations < 50:
             threshold <- true
             for row in 0..<neurons:
                 if fabs(temp_a[row].f64()) < 0.7:
                     sum: mutable f32 = 0.0
-                    for neuron in 0..<neurons: sum <- sum + weights[row * neurons + neuron] * temp_a[neuron]
+                    for neuron in 0..<neurons:
+                        sum <- sum + weights[row * neurons + neuron] * temp_a[neuron]
                     temp_a[row] <- fbnh_activation(sum)
                     if temp_a[row] < 0.7: threshold <- false
             threshold_iterations <- threshold_iterations + 1
         same: mutable bool = true
         for neuron in 0..<neurons:
-            temp_c[neuron] <- if temp_a[neuron] > 0.0: 1 else: -1
+            temp_c[neuron] <- 1 if temp_a[neuron] > 0.0 else -1
             if dest[neuron] != temp_c[neuron]: same <- false
         if same:
             stable <- true
@@ -49,13 +50,13 @@ def fbnh_run_cont(weights: f32[64], source: i64[8], neurons: usize) -> i64[8]:
                     dest[neuron] <- temp_c[neuron]
                     break
                 neuron <- neuron + 1
-            for neuron in 0..<neurons: temp_a[neuron] <- dest[neuron].f32()
+            for neuron in 0..<neurons:
+                temp_a[neuron] <- dest[neuron].f32()
         iterations <- iterations + 1
-    if iterations == 500: return [0; 8]
-    dest
+    iterations != 500
 
 def freebench_neural_hopfield_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > 94: return -1
+    if input == null or length < 3 or length > 94: return -1
     width: i64 = input[0]
     height: i64 = input[1]
     pattern_count: i64 = input[2]
@@ -91,16 +92,15 @@ def freebench_neural_hopfield_impl(input: i64&, length: usize) -> i64:
                 if row == column:
                     weights[row * neurons + column] <- 0.0
                 else:
-                    weights[row * neurons + column] <- weights[row * neurons + column] +
-                        (patterns[pattern * MAX_NEURONS + row] * patterns[pattern * MAX_NEURONS + column]).f32()
+                    weights[row * neurons + column] <- weights[row * neurons + column] + (patterns[pattern * MAX_NEURONS + row] * patterns[pattern * MAX_NEURONS + column]).f32()
     converged: mutable bool = false
-    for pass in 0..<1:
+    for training_round in 0..<1:
         status: mutable bool = true
         for pattern in 0..<PATTERN_COUNT:
-            source: mutable i64[8] = zeroed
-            for neuron in 0..<neurons: source[neuron] <- patterns[pattern * MAX_NEURONS + neuron]
-            recalled: i64[8] = fbnh_run_cont(weights, source, neurons)
-            if recalled[0] == 0: return -2
+            base: usize = pattern * MAX_NEURONS
+            source: view[i64] = patterns[base:base + neurons]
+            recalled: mutable i64[8] = zeroed
+            if not fbnh_run_cont(&weights, source, neurons, &recalled): return -2
             correction: mutable f32[8] = zeroed
             for neuron in 0..<neurons:
                 correction[neuron] <- (source[neuron] - recalled[neuron]).f32() * 0.5
@@ -115,10 +115,10 @@ def freebench_neural_hopfield_impl(input: i64&, length: usize) -> i64:
     if not converged: return -2
     stored_count: mutable i64 = 0
     for pattern in 0..<PATTERN_COUNT:
-        source: mutable i64[8] = zeroed
-        for neuron in 0..<neurons: source[neuron] <- patterns[pattern * MAX_NEURONS + neuron]
-        recalled: i64[8] = fbnh_run_cont(weights, source, neurons)
-        if recalled[0] == 0: return -2
+        base: usize = pattern * MAX_NEURONS
+        source: view[i64] = patterns[base:base + neurons]
+        recalled: mutable i64[8] = zeroed
+        if not fbnh_run_cont(&weights, source, neurons, &recalled): return -2
         stored: mutable bool = true
         for neuron in 0..<neurons:
             if source[neuron] != recalled[neuron]: stored <- false

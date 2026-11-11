@@ -93,7 +93,7 @@ proc freebench_neural_hopfield*(input: ptr UncheckedArray[int64], length: csize_
         else: weights[row * neurons + column] += float32(patterns[pattern * MaxNeurons + row] * patterns[pattern * MaxNeurons + column])
 
   var converged = false
-  for _pass in 0 ..< 1:
+  for trainingRound in 0 ..< 1:
     var status = true
     for pattern in 0 ..< PatternCount:
       var recalled: array[MaxNeurons, int64]

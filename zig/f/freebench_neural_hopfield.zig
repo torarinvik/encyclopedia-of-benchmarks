@@ -10,8 +10,8 @@ fn activation(value: f32) f32 {
 
 fn runCont(weights: []const f32, source: []const i64, dest: []i64) bool {
     const neurons = source.len;
-    var temp_a = [_]f32{0} ** MAX_NEURONS;
-    var temp_c = [_]i64{0} ** MAX_NEURONS;
+    var temp_a: [MAX_NEURONS]f32 = @splat(0);
+    var temp_c: [MAX_NEURONS]i64 = @splat(0);
     for (0..neurons) |neuron| {
         dest[neuron] = source[neuron];
         temp_a[neuron] = @floatFromInt(source[neuron]);
@@ -66,7 +66,7 @@ export fn freebench_neural_hopfield(input: [*c]const i64, length: usize) i64 {
     const neurons: usize = @intCast(width * height);
     if (neurons < 2 or neurons > MAX_NEURONS or length != 3 + PATTERN_COUNT * (1 + neurons)) return -1;
 
-    var patterns = [_]i64{0} ** (PATTERN_COUNT * MAX_NEURONS);
+    var patterns: [(PATTERN_COUNT * MAX_NEURONS)]i64 = @splat(0);
     var offset: usize = 3;
     for (0..PATTERN_COUNT) |pattern| {
         const label = input[offset];
@@ -94,9 +94,8 @@ export fn freebench_neural_hopfield(input: [*c]const i64, length: usize) i64 {
             if (complement < 2) hamming_warnings += 1;
         }
     }
-    _ = hamming_warnings;
 
-    var weights = [_]f32{0} ** (MAX_NEURONS * MAX_NEURONS);
+    var weights: [(MAX_NEURONS * MAX_NEURONS)]f32 = @splat(0);
     for (0..PATTERN_COUNT) |pattern| {
         for (0..neurons) |row| {
             for (0..neurons) |column| {
@@ -111,9 +110,9 @@ export fn freebench_neural_hopfield(input: [*c]const i64, length: usize) i64 {
         var status = true;
         for (0..PATTERN_COUNT) |pattern| {
             const base = pattern * MAX_NEURONS;
-            var recalled = [_]i64{0} ** MAX_NEURONS;
+            var recalled: [MAX_NEURONS]i64 = @splat(0);
             if (!runCont(weights[0 .. neurons * neurons], patterns[base .. base + neurons], recalled[0..neurons])) return -2;
-            var correction = [_]f32{0} ** MAX_NEURONS;
+            var correction: [MAX_NEURONS]f32 = @splat(0);
             for (0..neurons) |neuron| {
                 correction[neuron] = @as(f32, @floatFromInt(patterns[base + neuron] - recalled[neuron])) * 0.5;
                 if (correction[neuron] != 0) status = false;
@@ -132,7 +131,7 @@ export fn freebench_neural_hopfield(input: [*c]const i64, length: usize) i64 {
     var stored_count: i64 = 0;
     for (0..PATTERN_COUNT) |pattern| {
         const base = pattern * MAX_NEURONS;
-        var recalled = [_]i64{0} ** MAX_NEURONS;
+        var recalled: [MAX_NEURONS]i64 = @splat(0);
         if (!runCont(weights[0 .. neurons * neurons], patterns[base .. base + neurons], recalled[0..neurons])) return -2;
         var stored = true;
         for (0..neurons) |neuron| if (patterns[base + neuron] != recalled[neuron]) { stored = false; };

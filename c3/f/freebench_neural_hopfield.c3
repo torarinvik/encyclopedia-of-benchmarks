@@ -20,7 +20,9 @@ fn int run_cont(float* weights, long* source, usz neurons, long* dest) {
         dest[neuron] = source[neuron];
         temp_a[neuron] = (float)source[neuron];
     }
-    int stable = 0, threshold = 0, iterations = 0;
+    int stable = 0;
+    int threshold = 0;
+    int iterations = 0;
     while (stable == 0 && iterations < 500) {
         int threshold_iterations = 0;
         for (usz row = 0; row < neurons; row++) {
@@ -45,8 +47,9 @@ fn int run_cont(float* weights, long* source, usz neurons, long* dest) {
             temp_c[neuron] = temp_a[neuron] > 0.0f ? 1 : -1;
             if (dest[neuron] != temp_c[neuron]) same = 0;
         }
-        if (same != 0) stable = 1;
-        else {
+        if (same != 0) {
+            stable = 1;
+        } else {
             for (usz neuron = 0; neuron < neurons; neuron++) {
                 if (dest[neuron] != temp_c[neuron]) { dest[neuron] = temp_c[neuron]; break; }
             }
@@ -57,11 +60,13 @@ fn int run_cont(float* weights, long* source, usz neurons, long* dest) {
     return iterations == 500 ? -1 : iterations;
 }
 
-long freebench_neural_hopfield(long* input, usz length) @export("freebench_neural_hopfield") {
+fn long freebench_neural_hopfield(long* input, usz length) @export("freebench_neural_hopfield") {
     if (input == null || length < 3 || length > 94) return -1;
-    long width = input[0], height = input[1], pattern_count = input[2];
-    if (width < 1 || width > 8 || height < 1 || height > 8 || pattern_count != PATTERN_COUNT.long()) return -1;
-    usz neurons = (width * height).usz();
+    long width = input[0];
+    long height = input[1];
+    long pattern_count = input[2];
+    if (width < 1 || width > 8 || height < 1 || height > 8 || pattern_count != (long)PATTERN_COUNT) return -1;
+    usz neurons = (usz)(width * height);
     if (neurons < 2 || neurons > MAX_NEURONS || length != 3 + PATTERN_COUNT * (1 + neurons)) return -1;
     long[MAX_NEURONS * PATTERN_COUNT] patterns;
     usz offset = 3;
@@ -78,7 +83,8 @@ long freebench_neural_hopfield(long* input, usz length) @export("freebench_neura
     long hamming_warnings = 0;
     for (usz first = 0; first < PATTERN_COUNT; first++) {
         for (usz second = first + 1; second < PATTERN_COUNT; second++) {
-            long normal = 0, complement = 0;
+            long normal = 0;
+            long complement = 0;
             for (usz neuron = 0; neuron < neurons; neuron++) {
                 if (patterns[first * MAX_NEURONS + neuron] != patterns[second * MAX_NEURONS + neuron]) normal++;
                 if (patterns[first * MAX_NEURONS + neuron] != -patterns[second * MAX_NEURONS + neuron]) complement++;
@@ -95,8 +101,11 @@ long freebench_neural_hopfield(long* input, usz length) @export("freebench_neura
     for (usz pattern = 0; pattern < PATTERN_COUNT; pattern++) {
         for (usz row = 0; row < neurons; row++) {
             for (usz column = 0; column < neurons; column++) {
-                if (row == column) weights[row * neurons + column] = 0.0f;
-                else weights[row * neurons + column] += (float)(patterns[pattern * MAX_NEURONS + row] * patterns[pattern * MAX_NEURONS + column]);
+                if (row == column) {
+                    weights[row * neurons + column] = 0.0f;
+                } else {
+                    weights[row * neurons + column] += (float)(patterns[pattern * MAX_NEURONS + row] * patterns[pattern * MAX_NEURONS + column]);
+                }
             }
         }
     }
@@ -113,8 +122,11 @@ long freebench_neural_hopfield(long* input, usz length) @export("freebench_neura
             }
             for (usz row = 0; row < neurons; row++) {
                 for (usz column = 0; column < neurons; column++) {
-                    if (row == column) weights[row * neurons + column] = 0.0f;
-                    else weights[row * neurons + column] += correction[row] * (float)patterns[pattern * MAX_NEURONS + column];
+                    if (row == column) {
+                        weights[row * neurons + column] = 0.0f;
+                    } else {
+                        weights[row * neurons + column] += correction[row] * (float)patterns[pattern * MAX_NEURONS + column];
+                    }
                 }
             }
         }

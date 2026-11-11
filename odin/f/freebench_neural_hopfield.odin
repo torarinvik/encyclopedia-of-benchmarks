@@ -6,7 +6,7 @@ import "core:math"
 PATTERN_COUNT :: 10
 MAX_NEURONS :: 8
 
-activation :: proc(value: f32) -> f32 {
+activation :: proc "contextless" (value: f32) -> f32 {
 	x := f64(value)
 	if x > 200.0 do x = 200.0
 	if x < -200.0 do x = -200.0
@@ -14,7 +14,7 @@ activation :: proc(value: f32) -> f32 {
 	return f32((1.0 - e) / (1.0 + e))
 }
 
-run_cont :: proc(weights: []f32, source: []i64, neurons: int, dest: []i64) -> bool {
+run_cont :: proc "contextless" (weights: []f32, source: []i64, neurons: int, dest: []i64) -> bool {
 	temp_a: [MAX_NEURONS]f32
 	temp_c: [MAX_NEURONS]i64
 	for neuron in 0..<neurons {
