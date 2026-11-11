@@ -26,7 +26,7 @@ def prime_factorial_impl(value: i64, output: mutable u8&, output_capacity: usize
             count <- count + 1
         candidate <- candidate + 1
     required: usize = count * 4
-    if output_capacity < required:
+    if output == null or output_capacity < required:
         return -2
     position: mutable usize = 0
     index: mutable usize = 0

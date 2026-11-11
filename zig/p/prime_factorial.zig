@@ -12,7 +12,7 @@ fn isPrimeBySourceTrialDivision(candidate: i64) bool {
     return false;
 }
 
-export fn prime_factorial(value: i64, output: [*]u8, output_capacity: usize) i64 {
+export fn prime_factorial(value: i64, output_opt: ?[*]u8, output_capacity: usize) i64 {
     if (value < 2 or value > MAX_INPUT) return -1;
     var factors: [MAX_DISTINCT_FACTORS]u32 = undefined;
     var count: usize = 0;
@@ -25,6 +25,7 @@ export fn prime_factorial(value: i64, output: [*]u8, output_capacity: usize) i64
     }
     const required = count * 4;
     if (output_capacity < required) return -2;
+    const output = output_opt orelse return -2;
     var position: usize = 0;
     for (factors[0..count]) |factor| {
         for (0..4) |byte_index| {

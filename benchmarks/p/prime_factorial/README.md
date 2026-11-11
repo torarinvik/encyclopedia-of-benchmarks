@@ -7,7 +7,7 @@ The pinned MATLAB-Octave file is an interactive script, despite the name `prime_
 - Input is one signed 64-bit integer `n` in `[2, 4096]`.
 - Return each distinct prime divisor of `n` in ascending order, encoded as a sequence of little-endian `u32` values. The return value is the number of bytes written.
 - Return `-1` for inputs outside the supported range.
-- Return `-2` when the output buffer is too small, without writing bytes. The largest output is 20 bytes: the product of the five distinct primes `2, 3, 5, 7, 11` is within the bound, while multiplying by 13 exceeds it.
+- Return `-2` when the output pointer is null or the buffer is too small, without writing bytes. The largest output is 20 bytes: the product of the five distinct primes `2, 3, 5, 7, 11` is within the bound, while multiplying by 13 exceeds it.
 - The port preserves the source's search strategy: scan candidates from `2` through `n`, test each candidate by trying divisors from `2` through `floor(candidate / 2) + 1`, and include it once if it is prime and divides `n`.
 
 This differs from [`prime_factors`](../prime_factors/README.md), which retains multiplicity, and [`prime_factorization`](../prime_factorization/README.md), which returns prime/exponent pairs.
