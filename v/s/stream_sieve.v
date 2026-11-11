@@ -4,9 +4,9 @@ const max_primes = 100
 
 // V requires the build command to enable globals for this process-wide LazyList cache.
 __global (
-	mut prime_cache = [100]i32{}
-	mut prime_count = 0
-	mut next_candidate = i32(3)
+	prime_cache [100]i32
+	prime_count int
+	next_candidate i32
 )
 
 fn is_prime_candidate(candidate i32) bool {
@@ -26,6 +26,7 @@ fn extend_prime_cache(requested_count int) {
 	if prime_count == 0 {
 		prime_cache[0] = 2
 		prime_count = 1
+		next_candidate = 3
 	}
 	for prime_count < requested_count {
 		candidate := next_candidate
@@ -38,7 +39,7 @@ fn extend_prime_cache(requested_count int) {
 }
 
 @[export: 'stream_sieve']
-pub fn stream_sieve(number_of_primes i64, mut output &u8, output_capacity usize) i64 {
+pub fn stream_sieve(number_of_primes i64, output &u8, output_capacity usize) i64 {
 	if number_of_primes < -2147483648 || number_of_primes > i64(max_primes) {
 		return -1
 	}
@@ -47,7 +48,7 @@ pub fn stream_sieve(number_of_primes i64, mut output &u8, output_capacity usize)
 	}
 	count := int(number_of_primes)
 	required := count * 4
-	if output == nil || output_capacity < required {
+	if unsafe { output == nil } || output_capacity < usize(required) {
 		return -2
 	}
 

@@ -1,6 +1,6 @@
 const MAX_PRIMES: usize = 100;
 
-var prime_cache: [MAX_PRIMES]i32 = [_]i32{0} ** MAX_PRIMES;
+var prime_cache: [MAX_PRIMES]i32 = @splat(0);
 var prime_count: usize = 0;
 var next_candidate: i32 = 3;
 

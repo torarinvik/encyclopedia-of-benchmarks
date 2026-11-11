@@ -8,7 +8,7 @@ prime_cache: [MAX_PRIMES]i32
 prime_count: int
 next_candidate: i32 = 3
 
-is_prime_candidate :: proc(candidate: i32) -> bool {
+is_prime_candidate :: proc "contextless"(candidate: i32) -> bool {
 	for index := 0; index < prime_count; index += 1 {
 		divisor := prime_cache[index]
 		if divisor > candidate / divisor do break
@@ -17,7 +17,7 @@ is_prime_candidate :: proc(candidate: i32) -> bool {
 	return true
 }
 
-extend_prime_cache :: proc(requested_count: int) {
+extend_prime_cache :: proc "contextless"(requested_count: int) {
 	if prime_count == 0 {
 		prime_cache[0] = 2
 		prime_count = 1

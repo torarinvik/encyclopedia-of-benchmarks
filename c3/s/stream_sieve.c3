@@ -2,7 +2,7 @@ module stream_sieve;
 
 const MAX_PRIMES = 100;
 
-int[100] prime_cache = {2};
+int[100] prime_cache = {[0] = 2};
 usz prime_count = 1;
 int next_candidate = 3;
 
