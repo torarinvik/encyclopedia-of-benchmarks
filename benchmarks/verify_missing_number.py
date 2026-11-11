@@ -78,6 +78,14 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
         raise RuntimeError(f"array scalar C ABI check failed: {checked.stderr}")
     if json.loads(checked.stdout)["cases_checked"] != case_count:
         raise RuntimeError("checker did not consume the complete oracle corpus")
+    runner = manifest["binaries"]["i64_array_scalar_runner"]["path"]
+    for length, expected in [(0, 0), (1, -1)]:
+        null_check = subprocess.run(
+            [runner, "--null-input", str(length), str(expected), "1", "0", "1"],
+            capture_output=True, text=True, timeout=10,
+        )
+        if null_check.returncode:
+            raise RuntimeError(f"null-input check failed for length {length}: {null_check.stderr}")
     output = directory / "verification-records.jsonl"
     output.unlink(missing_ok=True)
     recorded = subprocess.run([sys.executable, str(ROOT / "benchmarks/run_i64_array_scalar.py"),
