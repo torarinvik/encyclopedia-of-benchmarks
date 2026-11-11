@@ -6,7 +6,7 @@ Generate the triangular sequence of consecutive positive integers. The pinned Ja
 
 - The scalar input is the row count from 0 through 90. Invalid values return `-1`.
 - Return the triangle values in row-major order as unsigned 16-bit little-endian bytes. For example, three rows encode `1`, then `2, 3`, then `4, 5, 6`.
-- The return value is the number of output bytes. If the caller's output capacity is too small, return `-2` without writing.
+- The return value is the number of output bytes. Return `-2` without writing if capacity is too small or the output pointer is null for a nonempty triangle. A zero-row triangle accepts a null output pointer.
 - Ninety rows produce 4,095 values and 8,190 output bytes, within the shared scalar byte-output ABI's 8,192-byte capacity.
 
 The shared verifier checks every input from 0 through 4,096, signed-64-bit boundaries, invalid rows, output-capacity failures, and every published workload case in all nine languages.

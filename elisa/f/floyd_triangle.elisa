@@ -7,7 +7,7 @@ def floyd_triangle_impl(rows: i64, output: mutable u8&, output_capacity: usize) 
     rows_usize: usize = rows.usize()
     count: usize = rows_usize * (rows_usize + 1) / 2
     output_length: usize = count * 2
-    if output_capacity < output_length:
+    if output_capacity < output_length or (output_length != 0 and output == null):
         return -2
     index: mutable usize = 0
     number: mutable i64 = 1
