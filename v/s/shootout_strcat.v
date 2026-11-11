@@ -1,6 +1,6 @@
 module shootout_strcat
 
-const max_append_count = i64(4096)
+const max_append_count = 4096
 const max_text_bytes = 24576
 
 @[export: 'shootout_strcat']
@@ -29,7 +29,8 @@ pub fn shootout_strcat(append_count i64, mut output &u8, output_capacity usize) 
 	mut staged := [6]u8{}
 	mut reversed_digits := [5]u8{}
 	mut digit_count := 0
-	mut value := length
+	mut value := 0
+	for text[value] != 0 { value++ }
 	for {
 		reversed_digits[digit_count] = u8(48 + value % 10)
 		digit_count++

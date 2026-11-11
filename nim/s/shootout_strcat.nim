@@ -22,7 +22,8 @@ proc shootout_strcat*(appendCount: int64, output: ptr UncheckedArray[uint8],
   var staged: array[6, uint8]
   var reversedDigits: array[5, uint8]
   var digitCount = 0
-  var value = length
+  var value = 0
+  while text[value] != 0: inc value
   while true:
     reversedDigits[digitCount] = uint8(48 + value mod 10)
     inc digitCount

@@ -28,7 +28,8 @@ shootout_strcat :: proc "c" (append_count: i64, output: [^]u8,
 	staged: [6]u8
 	reversed_digits: [5]u8
 	digit_count := 0
-	value := length
+	value := 0
+	for text[value] != 0 { value += 1 }
 	for {
 		reversed_digits[digit_count] = u8(48 + value % 10)
 		digit_count += 1

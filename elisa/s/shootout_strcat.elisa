@@ -2,7 +2,7 @@ const MAX_APPEND_COUNT: i64 = 4096
 const MAX_TEXT_BYTES: usize = 24576
 
 def shootout_strcat_impl(append_count: i64, output: mutable u8&, output_capacity: usize) -> i64:
-    if append_count < 0 or append_count > 4096:
+    if append_count < 0 or append_count > MAX_APPEND_COUNT:
         return -1
 
     text: mutable u8[MAX_TEXT_BYTES + 1] = zeroed
@@ -12,20 +12,22 @@ def shootout_strcat_impl(append_count: i64, output: mutable u8&, output_capacity
     while append < append_count:
         if buffer_capacity - length < 7:
             buffer_capacity <- buffer_capacity * 2
-        text[length] <- 104u8
-        text[length + 1] <- 101u8
-        text[length + 2] <- 108u8
-        text[length + 3] <- 108u8
-        text[length + 4] <- 111u8
-        text[length + 5] <- 10u8
+        text[length] <- 104
+        text[length + 1] <- 101
+        text[length + 2] <- 108
+        text[length + 3] <- 108
+        text[length + 4] <- 111
+        text[length + 5] <- 10
         length <- length + 6
-        text[length] <- 0u8
+        text[length] <- 0
         append <- append + 1
 
     staged: mutable u8[6] = zeroed
     reversed_digits: mutable u8[5] = zeroed
     digit_count: mutable usize = 0
-    value: mutable usize = length
+    value: mutable usize = 0
+    while text[value] != 0:
+        value <- value + 1
     while true:
         reversed_digits[digit_count] <- (48 + value % 10).u8()
         digit_count <- digit_count + 1
@@ -36,10 +38,10 @@ def shootout_strcat_impl(append_count: i64, output: mutable u8&, output_capacity
         digit_count <- digit_count - 1
         staged[used] <- reversed_digits[digit_count]
         used <- used + 1
-    staged[used] <- 10u8
+    staged[used] <- 10
     used <- used + 1
 
-    if output.is_null() or output_capacity < used:
+    if output == null or output_capacity < used:
         return -2
     index: mutable usize = 0
     while index < used:

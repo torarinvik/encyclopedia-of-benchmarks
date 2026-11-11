@@ -23,7 +23,8 @@ extern "C" int64_t shootout_strcat(int64_t append_count, uint8_t *output, size_t
     uint8_t reversed[5];
     size_t digit_count = 0;
     size_t output_length = 0;
-    size_t value = length;
+    size_t value = 0;
+    while (text[value] != 0) ++value;
     do {
         reversed[digit_count++] = static_cast<uint8_t>('0' + value % 10);
         value /= 10;

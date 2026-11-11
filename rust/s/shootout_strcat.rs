@@ -22,7 +22,8 @@ pub unsafe extern "C" fn shootout_strcat(
     let mut reversed = [0_u8; 5];
     let mut digit_count = 0_usize;
     let mut output_length = 0_usize;
-    let mut value = length;
+    let mut value = 0;
+    while text[value] != 0 { value += 1; }
     loop {
         reversed[digit_count] = b'0' + (value % 10) as u8;
         digit_count += 1;
