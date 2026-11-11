@@ -1,4 +1,4 @@
-const source_calls = i64(1)
+const source_calls = 1
 const output_bytes = 13
 
 @[export: 'shootout_hello']

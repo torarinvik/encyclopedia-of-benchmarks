@@ -3,8 +3,8 @@ const OUTPUT_BYTES: usize = 13
 
 def shootout_hello_impl(calls: i64, output: mutable u8&, output_capacity: usize) -> i64:
     if calls != SOURCE_CALLS: return -1
-    if output.is_null() or output_capacity < OUTPUT_BYTES: return -2
-    message: string = "hello world\n\n"
+    if output == null or output_capacity < OUTPUT_BYTES: return -2
+    message: sview = "hello world\n\n"
     staged: mutable u8[OUTPUT_BYTES] = zeroed
     for index in 0..<OUTPUT_BYTES:
         staged[index] <- message[index].u8()
