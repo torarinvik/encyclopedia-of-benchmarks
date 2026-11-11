@@ -30,8 +30,8 @@ def format_output(sum_input: u32, staged: mutable view[u8]) -> usize:
     used
 
 def evalloop_impl(passes: i64, output: mutable u8&, output_capacity: usize) -> i64:
-    if passes < MIN_PASSES || passes > MAX_PASSES: return -1
-    if output.is_null(): return -2
+    if passes < MIN_PASSES or passes > MAX_PASSES: return -1
+    if output == null: return -2
 
     commands: mutable i32[BUFFER_SIZE] = zeroed
     index: mutable usize = 0
@@ -39,17 +39,17 @@ def evalloop_impl(passes: i64, output: mutable u8&, output_capacity: usize) -> i
         commands[index] <- (index % 31 + 1).i32()
         index <- index + 1
     sum: mutable u32 = 0
-    pass: mutable i64 = 0
-    while pass < passes:
+    iteration: mutable i64 = 0
+    while iteration < passes:
         pc: mutable usize = 0
         opcode: mutable i32 = commands[pc]
         pc <- pc + 1
         while opcode != 0:
-            if opcode < 1 || opcode > 31: return -1
+            if opcode < 1 or opcode > 31: return -1
             execute(sum, opcode)
             opcode <- commands[pc]
             pc <- pc + 1
-        pass <- pass + 1
+        iteration <- iteration + 1
 
     staged: mutable u8[OUTPUT_CAPACITY] = zeroed
     used: usize = format_output(sum, staged[0:OUTPUT_CAPACITY])

@@ -5,22 +5,22 @@ const long MAX_PASSES = 1000;
 const usz BUFFER_SIZE = 2048;
 const usz OUTPUT_CAPACITY = 14;
 
-void execute(uint* sum, int opcode) { *sum += (uint)opcode; }
+fn void execute(uint* sum, int opcode) { *sum += (uint)opcode; }
 
-void eval(int* commands, uint* sum) {
+fn void eval(int* commands, uint* sum) {
     usz pc = 0;
     int opcode = commands[pc++];
     while (opcode != 0) {
-        if (opcode >= 1 && opcode <= 31) execute(sum, opcode);
-        else return;
+        if (opcode < 1 || opcode > 31) return;
+        execute(sum, opcode);
         opcode = commands[pc++];
     }
 }
 
-usz format_output(uint sum, char* staged) {
-    const char* prefix = "Sum: ";
+fn usz format_output(uint sum, char* staged) {
+    const char* PREFIX = "Sum: ";
     usz used = 0;
-    while (prefix[used] != 0) { staged[used] = prefix[used]; used++; }
+    while (PREFIX[used] != 0) { staged[used] = PREFIX[used]; used++; }
     char[10] reversed;
     usz digits = 0;
     do {
