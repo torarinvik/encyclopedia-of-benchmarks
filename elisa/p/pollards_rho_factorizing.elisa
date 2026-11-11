@@ -21,7 +21,7 @@ def pollards_rho_factorizing_impl(n: i64) -> i64:
     while divisor == 1:
         x <- next_value(n, x)
         y <- next_value(n, next_value(n, y))
-        difference: i64 = if x >= y: x - y else: y - x
+        difference: i64 = x - y if x >= y else y - x
         divisor <- gcd_nonnegative(difference, n)
     divisor
 

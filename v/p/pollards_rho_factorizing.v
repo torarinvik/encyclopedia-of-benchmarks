@@ -1,13 +1,12 @@
 module pollards_rho_factorizing
 
-const min_n = i64(2)
-const max_n = i64(46340)
-
 fn next_value(n i64, x i64) i64 {
 	return (x * x + 1) % n
 }
 
-fn gcd_nonnegative(mut left i64, mut right i64) i64 {
+fn gcd_nonnegative(left_value i64, right_value i64) i64 {
+	mut left := left_value
+	mut right := right_value
 	for right != 0 {
 		remainder := left % right
 		left = right
@@ -18,7 +17,7 @@ fn gcd_nonnegative(mut left i64, mut right i64) i64 {
 
 @[export: 'pollards_rho_factorizing']
 pub fn pollards_rho_factorizing(n i64) i64 {
-	if n < min_n || n > max_n { return -1 }
+	if n < 2 || n > 46340 { return -1 }
 	mut x := i64(2)
 	mut y := i64(2)
 	mut divisor := i64(1)

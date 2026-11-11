@@ -16,9 +16,11 @@ fn long gcd_nonnegative(long left, long right) {
     return left;
 }
 
-long pollards_rho_factorizing(long n) @export("pollards_rho_factorizing") {
+fn long pollards_rho_factorizing(long n) @export("pollards_rho_factorizing") {
     if (n < MIN_N || n > MAX_N) return -1L;
-    long x = 2L, y = 2L, divisor = 1L;
+    long x = 2L;
+    long y = 2L;
+    long divisor = 1L;
     while (divisor == 1L) {
         x = next_value(n, x);
         y = next_value(n, next_value(n, y));

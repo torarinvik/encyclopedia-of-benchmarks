@@ -3,11 +3,11 @@ package pollards_rho_factorizing
 MIN_N :: i64(2)
 MAX_N :: i64(46_340)
 
-next_value :: proc(n, x: i64) -> i64 {
+next_value :: proc "c" (n, x: i64) -> i64 {
 	return (x * x + 1) % n
 }
 
-gcd_nonnegative :: proc(left_value, right_value: i64) -> i64 {
+gcd_nonnegative :: proc "c" (left_value, right_value: i64) -> i64 {
 	left := left_value
 	right := right_value
 	for right != 0 {
