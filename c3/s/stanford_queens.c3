@@ -44,7 +44,7 @@ fn bool doit() {
     return try_queens(1, &a[0], &b[0], &c[0], &x[0]);
 }
 
-fn void append_text(char* buffer, usz* used, const char* text) {
+fn void append_text(char* buffer, usz* used, char* text) {
     while (*text != '\0') {
         buffer[*used] = *text;
         *used = *used + 1;

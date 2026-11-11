@@ -36,10 +36,10 @@ fn tryQueens(
 }
 
 fn doit() bool {
-    var a: [9]bool = .{false} ** 9;
-    var b: [17]bool = .{false} ** 17;
-    var c: [15]bool = .{false} ** 15;
-    var x: [9]usize = .{0} ** 9;
+    var a: [9]bool = @splat(false);
+    var b: [17]bool = @splat(false);
+    var c: [15]bool = @splat(false);
+    var x: [9]usize = @splat(0);
     var i: i32 = -7;
     while (i <= 16) : (i += 1) {
         if (i >= 1 and i <= 8) a[@intCast(i)] = true;

@@ -7,7 +7,7 @@ MAX_RUNS :: i64(100)
 SOLVE_REPETITIONS :: 50
 MAX_OUTPUT_BYTES :: 292
 
-try_queens :: proc(row: int, columns: ^[9]bool, diagonal_sum: ^[17]bool,
+try_queens :: proc "contextless"(row: int, columns: ^[9]bool, diagonal_sum: ^[17]bool,
 		diagonal_diff: ^[15]bool, positions: ^[9]int) -> bool {
 	j := 0
 	found := false
@@ -34,7 +34,7 @@ try_queens :: proc(row: int, columns: ^[9]bool, diagonal_sum: ^[17]bool,
 	return found
 }
 
-doit :: proc() -> bool {
+doit :: proc "contextless"() -> bool {
 	a: [9]bool = {}
 	b: [17]bool = {}
 	cells: [15]bool = {}
@@ -47,13 +47,13 @@ doit :: proc() -> bool {
 	return try_queens(1, &a, &b, &cells, &x)
 }
 
-append_text :: proc(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, text: string) {
+append_text :: proc "contextless"(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, text: string) {
 	for byte in transmute([]u8)text { buffer[used^] = byte; used^ += 1 }
 }
 
-append_integer :: proc(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: int) {
+append_integer :: proc "contextless"(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: int) {
 	remaining := value
-	var reversed: [12]u8
+	reversed: [12]u8
 	count := 0
 	for { reversed[count] = u8('0') + u8(remaining%10); count += 1; remaining /= 10; if remaining == 0 do break }
 	for count > 0 { count -= 1; buffer[used^] = reversed[count]; used^ += 1 }
@@ -63,7 +63,7 @@ append_integer :: proc(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: int) {
 stanford_queens :: proc "c" (runs: i64, output: [^]u8, output_capacity: c.size_t) -> i64 {
 	if runs < MIN_RUNS || runs > MAX_RUNS do return -1
 	if output == nil do return -2
-	var staged: [MAX_OUTPUT_BYTES]u8
+	staged: [MAX_OUTPUT_BYTES]u8
 	used := 0
 	for run := 0; run < int(runs); run += 1 {
 		for repetition := 0; repetition < SOLVE_REPETITIONS; repetition += 1 {

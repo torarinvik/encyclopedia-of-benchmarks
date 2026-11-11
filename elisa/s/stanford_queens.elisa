@@ -36,11 +36,11 @@ def doit() -> bool:
         if i >= 2: b[i.usize()] <- true
         if i <= 7: c[(i + 7).usize()] <- true
         i <- i + 1
-    try_queens(1, a, b, c, x)
+    try_queens(1, &a[0], &b[0], &c[0], &x[0])
 
-def append_text(buffer: mutable view[u8], used: mutable usize&, text: string) -> void:
-    for index in 0..<text.length():
-        buffer[used] <- text[index].u8()
+def append_text(buffer: mutable view[u8], used: mutable usize&, text: sview) -> void:
+    for index in 0..<text.len:
+        buffer[used] <- text[index]
         used <- used + 1
 
 def append_integer(buffer: mutable view[u8], used: mutable usize&, value: usize) -> void:
@@ -59,7 +59,7 @@ def append_integer(buffer: mutable view[u8], used: mutable usize&, value: usize)
 
 def stanford_queens_impl(runs: i64, output: mutable u8&, output_capacity: usize) -> i64:
     if runs < MIN_RUNS or runs > MAX_RUNS: return -1
-    if output.is_null(): return -2
+    if output == null: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
     used: mutable usize = 0
     for run in 0..<runs.usize():
@@ -70,7 +70,8 @@ def stanford_queens_impl(runs: i64, output: mutable u8&, output_capacity: usize)
         append_integer(staged[0:MAX_OUTPUT_BYTES], used, run + 1)
         append_text(staged[0:MAX_OUTPUT_BYTES], used, "\n")
     if output_capacity < used: return -2
-    for index in 0..<used: output[index] <- staged[index]
+    for index in 0..<used:
+        output[index] <- staged[index]
     used.i64()
 
 export fn stanford_queens(runs: i64, output: mutable u8&, output_capacity: usize) -> i64 = stanford_queens_impl
