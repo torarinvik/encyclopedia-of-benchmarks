@@ -59,6 +59,13 @@ def verify(language: str,directory: Path,elisa_compiler: str|None,data: str,case
     checked=subprocess.run([checker],input=data,capture_output=True,text=True,timeout=180)
     if checked.returncode: raise RuntimeError(f"C ABI oracle check failed: {checked.stderr}")
     if json.loads(checked.stdout)["cases_checked"]!=case_count: raise RuntimeError("incomplete oracle corpus")
+    runner = manifest["binaries"]["i64_array_scalar_runner"]["path"]
+    null_check = subprocess.run(
+        [runner, "--null-input", "2", "-1", "1", "0", "1"],
+        capture_output=True, text=True, timeout=10,
+    )
+    if null_check.returncode:
+        raise RuntimeError(f"null-input check failed: {null_check.stderr}")
     output=directory/"verification-records.jsonl";output.unlink(missing_ok=True)
     recorded=subprocess.run([sys.executable,str(ROOT/"benchmarks/run_i64_array_scalar.py"),
         "--build-manifest",str(directory/"build.json"),"--samples","1","--warmups","0",
