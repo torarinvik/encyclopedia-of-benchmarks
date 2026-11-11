@@ -314,7 +314,7 @@ def corpus(workload: dict) -> tuple[str, int]:
                     "launcher_default_n": 10,
                     "profile_minimum_n": BENCHMARKGAME_RECURSIVE_MIN_N,
                     "profile_maximum_n": BENCHMARKGAME_RECURSIVE_MAX_N,
-                    "launcher_default_stdout": "Ack(3,11): 16381\nFib(38.0): 63245986.0\nTak(30,20,10): 10\nFib(3): 3\nTak(3.0,2.0,1.0): 2.0\n",
+                    "launcher_default_stdout": "Ack(3,11): 16381\nFib(38.0): 63245986.0\nTak(30,20,10): 11\nFib(3): 3\nTak(3.0,2.0,1.0): 2.0\n",
                     "invalid_suite_input": "The suite returns -1 for n outside 0..10; the pinned main does not parse a command-line n.",
                 }
                 or workload.get("input") != {

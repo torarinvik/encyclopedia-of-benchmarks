@@ -4,7 +4,9 @@ const MAX_OUTPUT_BYTES: usize = 89
 def benchmarkgame_recursive_ackermann(x: i64, y: i64) -> i64:
     if x == 0:
         return y + 1
-    benchmarkgame_recursive_ackermann(x - 1, if y == 0: 1 else: benchmarkgame_recursive_ackermann(x, y - 1))
+    if y == 0:
+        return benchmarkgame_recursive_ackermann(x - 1, 1)
+    benchmarkgame_recursive_ackermann(x - 1, benchmarkgame_recursive_ackermann(x, y - 1))
 
 def benchmarkgame_recursive_fibonacci_integer(n: i64) -> i64:
     if n < 2:
@@ -32,10 +34,10 @@ def benchmarkgame_recursive_takeuchi_float(x: f64, y: f64, z: f64) -> f64:
             benchmarkgame_recursive_takeuchi_float(z - 1.0, x, y))
     z
 
-def benchmarkgame_recursive_append_text(buffer: mutable view[u8], used: mutable usize&, text: string) -> void:
+def benchmarkgame_recursive_append_text(buffer: mutable view[u8], used: mutable usize&, text: sview) -> void:
     index: mutable usize = 0
-    while index < text.len():
-        buffer[used] <- text.byte_at(index)
+    while index < text.len:
+        buffer[used] <- text[index]
         used <- used + 1
         index <- index + 1
 
@@ -57,7 +59,7 @@ def benchmarkgame_recursive_append_number(buffer: mutable view[u8], used: mutabl
 def benchmarkgame_recursive_impl(n: i64, output: mutable u8&, output_capacity: usize) -> i64:
     if n < 0 or n > MAX_N:
         return -1
-    if output.is_null():
+    if output == null:
         return -2
 
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed

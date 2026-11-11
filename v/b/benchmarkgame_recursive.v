@@ -34,15 +34,18 @@ fn takeuchi_float(x f64, y f64, z f64) f64 {
 	return z
 }
 
-fn append_text(mut buffer []u8, mut used int, text string) {
-	for byte in text.bytes() {
-		buffer[used] = byte
+fn append_text(mut buffer [max_output_bytes]u8, start int, text string) int {
+	mut used := start
+	for index in 0 .. text.len {
+		buffer[used] = text[index]
 		used++
 	}
+	return used
 }
 
-fn append_number(mut buffer []u8, mut used int, value i64) {
-	mut reversed := []u8{len: 20}
+fn append_number(mut buffer [max_output_bytes]u8, start int, value i64) int {
+	mut used := start
+	mut reversed := [20]u8{}
 	mut remaining := value
 	mut count := 0
 	for {
@@ -56,36 +59,37 @@ fn append_number(mut buffer []u8, mut used int, value i64) {
 		buffer[used] = reversed[count]
 		used++
 	}
+	return used
 }
 
 @[export: 'benchmarkgame_recursive']
-pub fn benchmarkgame_recursive(n i64, mut output &u8, output_capacity usize) i64 {
+pub fn benchmarkgame_recursive(n i64, output &u8, output_capacity usize) i64 {
 	if n < 0 || n > max_n { return -1 }
 	if unsafe { output == nil } { return -2 }
 
-	mut staged := []u8{len: max_output_bytes}
+	mut staged := [max_output_bytes]u8{}
 	mut used := 0
-	append_text(mut staged, mut used, 'Ack(3,')
-	append_number(mut staged, mut used, n + 1)
-	append_text(mut staged, mut used, '): ')
-	append_number(mut staged, mut used, ackermann_value(3, n + 1))
-	append_text(mut staged, mut used, '\nFib(')
-	append_number(mut staged, mut used, 28 + n)
-	append_text(mut staged, mut used, '.0): ')
-	append_number(mut staged, mut used, i64(fibonacci_float(f64(28 + n))))
-	append_text(mut staged, mut used, '.0\nTak(')
-	append_number(mut staged, mut used, 3 * n)
-	append_text(mut staged, mut used, ',')
-	append_number(mut staged, mut used, 2 * n)
-	append_text(mut staged, mut used, ',')
-	append_number(mut staged, mut used, n)
-	append_text(mut staged, mut used, '): ')
-	append_number(mut staged, mut used, takeuchi_integer(3 * n, 2 * n, n))
-	append_text(mut staged, mut used, '\nFib(3): ')
-	append_number(mut staged, mut used, fibonacci_integer(3))
-	append_text(mut staged, mut used, '\nTak(3.0,2.0,1.0): ')
-	append_number(mut staged, mut used, i64(takeuchi_float(3.0, 2.0, 1.0)))
-	append_text(mut staged, mut used, '.0\n')
+	used = append_text(mut staged, used, 'Ack(3,')
+	used = append_number(mut staged, used, n + 1)
+	used = append_text(mut staged, used, '): ')
+	used = append_number(mut staged, used, ackermann_value(3, n + 1))
+	used = append_text(mut staged, used, '\nFib(')
+	used = append_number(mut staged, used, 28 + n)
+	used = append_text(mut staged, used, '.0): ')
+	used = append_number(mut staged, used, i64(fibonacci_float(f64(28 + n))))
+	used = append_text(mut staged, used, '.0\nTak(')
+	used = append_number(mut staged, used, 3 * n)
+	used = append_text(mut staged, used, ',')
+	used = append_number(mut staged, used, 2 * n)
+	used = append_text(mut staged, used, ',')
+	used = append_number(mut staged, used, n)
+	used = append_text(mut staged, used, '): ')
+	used = append_number(mut staged, used, takeuchi_integer(3 * n, 2 * n, n))
+	used = append_text(mut staged, used, '\nFib(3): ')
+	used = append_number(mut staged, used, fibonacci_integer(3))
+	used = append_text(mut staged, used, '\nTak(3.0,2.0,1.0): ')
+	used = append_number(mut staged, used, i64(takeuchi_float(3.0, 2.0, 1.0)))
+	used = append_text(mut staged, used, '.0\n')
 
 	if output_capacity < usize(used) { return -2 }
 	for index in 0 .. used { unsafe { output[index] = staged[index] } }

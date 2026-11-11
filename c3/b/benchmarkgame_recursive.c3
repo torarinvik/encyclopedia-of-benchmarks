@@ -19,18 +19,20 @@ fn double fibonacci_float(double n) {
 }
 
 fn long takeuchi_integer(long x, long y, long z) {
-    if (y < x)
+    if (y < x) {
         return takeuchi_integer(takeuchi_integer(x - 1, y, z),
                                 takeuchi_integer(y - 1, z, x),
                                 takeuchi_integer(z - 1, x, y));
+    }
     return z;
 }
 
 fn double takeuchi_float(double x, double y, double z) {
-    if (y < x)
+    if (y < x) {
         return takeuchi_float(takeuchi_float(x - 1.0, y, z),
                               takeuchi_float(y - 1.0, z, x),
                               takeuchi_float(z - 1.0, x, y));
+    }
     return z;
 }
 
@@ -55,27 +57,27 @@ fn long benchmarkgame_recursive(long n, char* output, usz output_capacity)
 
     char[MAX_OUTPUT_BYTES] staged;
     usz used = 0;
-    append_text(staged, &used, "Ack(3,");
-    append_number(staged, &used, n + 1);
-    append_text(staged, &used, "): ");
-    append_number(staged, &used, ackermann_value(3, n + 1));
-    append_text(staged, &used, "\nFib(");
-    append_number(staged, &used, 28 + n);
-    append_text(staged, &used, ".0): ");
-    append_number(staged, &used, (long)fibonacci_float((double)(28 + n)));
-    append_text(staged, &used, ".0\nTak(");
-    append_number(staged, &used, 3 * n);
-    append_text(staged, &used, ",");
-    append_number(staged, &used, 2 * n);
-    append_text(staged, &used, ",");
-    append_number(staged, &used, n);
-    append_text(staged, &used, "): ");
-    append_number(staged, &used, takeuchi_integer(3 * n, 2 * n, n));
-    append_text(staged, &used, "\nFib(3): ");
-    append_number(staged, &used, fibonacci_integer(3));
-    append_text(staged, &used, "\nTak(3.0,2.0,1.0): ");
-    append_number(staged, &used, (long)takeuchi_float(3.0, 2.0, 1.0));
-    append_text(staged, &used, ".0\n");
+    append_text(&staged[0], &used, "Ack(3,");
+    append_number(&staged[0], &used, n + 1);
+    append_text(&staged[0], &used, "): ");
+    append_number(&staged[0], &used, ackermann_value(3, n + 1));
+    append_text(&staged[0], &used, "\nFib(");
+    append_number(&staged[0], &used, 28 + n);
+    append_text(&staged[0], &used, ".0): ");
+    append_number(&staged[0], &used, (long)fibonacci_float((double)(28 + n)));
+    append_text(&staged[0], &used, ".0\nTak(");
+    append_number(&staged[0], &used, 3 * n);
+    append_text(&staged[0], &used, ",");
+    append_number(&staged[0], &used, 2 * n);
+    append_text(&staged[0], &used, ",");
+    append_number(&staged[0], &used, n);
+    append_text(&staged[0], &used, "): ");
+    append_number(&staged[0], &used, takeuchi_integer(3 * n, 2 * n, n));
+    append_text(&staged[0], &used, "\nFib(3): ");
+    append_number(&staged[0], &used, fibonacci_integer(3));
+    append_text(&staged[0], &used, "\nTak(3.0,2.0,1.0): ");
+    append_number(&staged[0], &used, (long)takeuchi_float(3.0, 2.0, 1.0));
+    append_text(&staged[0], &used, ".0\n");
 
     if (output_capacity < used) return -2;
     for (usz index = 0; index < used; index++) output[index] = staged[index];

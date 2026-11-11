@@ -5,22 +5,23 @@ import "core:c"
 MAX_N :: 10
 MAX_OUTPUT_BYTES :: 89
 
-ackermann_value :: proc(x, y: i64) -> i64 {
+ackermann_value :: proc "contextless"(x, y: i64) -> i64 {
 	if x == 0 do return y + 1
-	return ackermann_value(x - 1, if y == 0 { i64(1) } else { ackermann_value(x, y - 1) })
+	if y == 0 do return ackermann_value(x - 1, 1)
+	return ackermann_value(x - 1, ackermann_value(x, y - 1))
 }
 
-fibonacci_integer :: proc(n: i64) -> i64 {
+fibonacci_integer :: proc "contextless"(n: i64) -> i64 {
 	if n < 2 do return 1
 	return fibonacci_integer(n - 2) + fibonacci_integer(n - 1)
 }
 
-fibonacci_float :: proc(n: f64) -> f64 {
+fibonacci_float :: proc "contextless"(n: f64) -> f64 {
 	if n < 2.0 do return 1.0
 	return fibonacci_float(n - 2.0) + fibonacci_float(n - 1.0)
 }
 
-takeuchi_integer :: proc(x, y, z: i64) -> i64 {
+takeuchi_integer :: proc "contextless"(x, y, z: i64) -> i64 {
 	if y < x {
 		return takeuchi_integer(takeuchi_integer(x - 1, y, z),
 			takeuchi_integer(y - 1, z, x), takeuchi_integer(z - 1, x, y))
@@ -28,7 +29,7 @@ takeuchi_integer :: proc(x, y, z: i64) -> i64 {
 	return z
 }
 
-takeuchi_float :: proc(x, y, z: f64) -> f64 {
+takeuchi_float :: proc "contextless"(x, y, z: f64) -> f64 {
 	if y < x {
 		return takeuchi_float(takeuchi_float(x - 1.0, y, z),
 			takeuchi_float(y - 1.0, z, x), takeuchi_float(z - 1.0, x, y))
@@ -36,15 +37,15 @@ takeuchi_float :: proc(x, y, z: f64) -> f64 {
 	return z
 }
 
-append_text :: proc(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, text: string) {
+append_text :: proc "contextless"(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, text: string) {
 	for byte in transmute([]u8)text {
 		buffer[used^] = byte
 		used^ += 1
 	}
 }
 
-append_number :: proc(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: i64) {
-	var reversed: [20]u8
+append_number :: proc "contextless"(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: i64) {
+	reversed: [20]u8
 	remaining := value
 	count := 0
 	for {
@@ -66,7 +67,7 @@ benchmarkgame_recursive :: proc "c" (n: i64, output: [^]u8,
 	if n < 0 || n > MAX_N do return -1
 	if output == nil do return -2
 
-	var staged: [MAX_OUTPUT_BYTES]u8
+	staged: [MAX_OUTPUT_BYTES]u8
 	used := 0
 	append_text(&staged, &used, "Ack(3,")
 	append_number(&staged, &used, n + 1)
