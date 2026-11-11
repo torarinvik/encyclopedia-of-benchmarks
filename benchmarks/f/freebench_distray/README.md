@@ -8,7 +8,7 @@ The i64_array_bytes_output ABI accepts [distribution, pixel_x, pixel_y]. distrib
 
 The three output bytes are the source pixel's red, green, and blue channels. Each is converted from its averaged channel value by truncation after multiplication by 255, then has its low bit cleared, matching the pinned PPM writer's memory[i] & ~1 operation. Success returns 3. Invalid framing, distribution, or coordinates returns -1. Null or short output returns -2 without writing.
 
-The workload includes hand-derived top-left sky cases for launcher distributions 1 and 5. The independent oracle computes the result for every bounded pixel and distribution, including the sphere-hit, shadow, and reflection paths. The top-left fixtures are useful for the framing and deterministic sampling contract; generated verifier cases should include interior pixels such as (320, 240) to cover the scene-intersection path.
+The workload includes hand-derived top-left sky cases for launcher distributions 1 and 5. The independent oracle computes the result for every bounded pixel and distribution, including the sphere-hit, shadow, and reflection paths. The timed workload also includes the center pixel (320, 240) at both launcher distributions to exercise scene intersections.
 
 ## Provenance and rights
 

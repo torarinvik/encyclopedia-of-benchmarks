@@ -12,9 +12,9 @@ const MAX_REC: i64 = 6
 const DIST_LEVELS: i64 = 3
 
 struct DistrayVec3:
-    x: f64
-    y: f64
-    z: f64
+    x: mutable f64
+    y: mutable f64
+    z: mutable f64
 
 struct DistrayTexture:
     color: DistrayVec3
@@ -28,27 +28,27 @@ struct DistraySphere:
     texture: DistrayTexture
 
 struct DistrayHit:
-    t: f64
-    point: DistrayVec3
-    normal: DistrayVec3
-    texture: DistrayTexture
+    t: mutable f64
+    point: mutable DistrayVec3
+    normal: mutable DistrayVec3
+    texture: mutable DistrayTexture
 
 struct DistrayContext:
     distribution: i64
-    state: u64
+    state: mutable u64
 
 def distray_abs(value: f64) -> f64:
     if value < 0.0: return -value
     value
 
 def distray_add(a: DistrayVec3, b: DistrayVec3) -> DistrayVec3:
-    DistrayVec3{a.x + b.x, a.y + b.y, a.z + b.z}
+    DistrayVec3{x: a.x + b.x, y: a.y + b.y, z: a.z + b.z}
 
 def distray_sub(a: DistrayVec3, b: DistrayVec3) -> DistrayVec3:
-    DistrayVec3{a.x - b.x, a.y - b.y, a.z - b.z}
+    DistrayVec3{x: a.x - b.x, y: a.y - b.y, z: a.z - b.z}
 
 def distray_mul(a: DistrayVec3, factor: f64) -> DistrayVec3:
-    DistrayVec3{a.x * factor, a.y * factor, a.z * factor}
+    DistrayVec3{x: a.x * factor, y: a.y * factor, z: a.z * factor}
 
 def distray_dot(a: DistrayVec3, b: DistrayVec3) -> f64:
     a.x * b.x + a.y * b.y + a.z * b.z
@@ -57,52 +57,52 @@ def distray_length(a: DistrayVec3) -> f64:
     sqrt(distray_dot(a, a))
 
 def distray_light() -> DistrayVec3:
-    DistrayVec3{-3.0, 1.0, 5.0}
+    DistrayVec3{x: -3.0, y: 1.0, z: 5.0}
 
 def distray_camera() -> DistrayVec3:
-    DistrayVec3{1.5, -1.4, 1.2}
+    DistrayVec3{x: 1.5, y: -1.4, z: 1.2}
 
 def distray_camera_right() -> DistrayVec3:
-    DistrayVec3{3.0, 1.0, 0.0}
+    DistrayVec3{x: 3.0, y: 1.0, z: 0.0}
 
 def distray_camera_dir() -> DistrayVec3:
-    DistrayVec3{-1.0, 3.0, 0.0}
+    DistrayVec3{x: -1.0, y: 3.0, z: 0.0}
 
 def distray_camera_up() -> DistrayVec3:
-    DistrayVec3{0.0, 0.0, 2.3717}
+    DistrayVec3{x: 0.0, y: 0.0, z: 2.3717}
 
 def distray_sky_horizon() -> DistrayVec3:
-    DistrayVec3{0.5, 0.3, 0.7}
+    DistrayVec3{x: 0.5, y: 0.3, z: 0.7}
 
 def distray_sky_zenith() -> DistrayVec3:
-    DistrayVec3{0.0, 0.0, 0.2}
+    DistrayVec3{x: 0.0, y: 0.0, z: 0.2}
 
 def distray_sphere(index: usize) -> DistraySphere:
     if index == 0:
-        return DistraySphere{DistrayVec3{0.0, 4.0, 1.0}, 1.0, DistrayTexture{DistrayVec3{1.0, 0.4, 0.0}, 0.4, 0.8, 0.02}}
+        return DistraySphere{center: DistrayVec3{x: 0.0, y: 4.0, z: 1.0}, radius: 1.0, texture: DistrayTexture{color: DistrayVec3{x: 1.0, y: 0.4, z: 0.0}, diffuse: 0.4, reflect: 0.8, roughness: 0.02}}
     if index == 1:
-        return DistraySphere{DistrayVec3{-1.0, 3.0, 0.4}, 0.4, DistrayTexture{DistrayVec3{0.5, 0.3, 1.0}, 0.5, 0.9, 0.01}}
+        return DistraySphere{center: DistrayVec3{x: -1.0, y: 3.0, z: 0.4}, radius: 0.4, texture: DistrayTexture{color: DistrayVec3{x: 0.5, y: 0.3, z: 1.0}, diffuse: 0.5, reflect: 0.9, roughness: 0.01}}
     if index == 2:
-        return DistraySphere{DistrayVec3{-0.3, 1.0, 0.4}, 0.4, DistrayTexture{DistrayVec3{0.1, 0.95, 0.2}, 0.6, 0.8, 0.01}}
-    DistraySphere{DistrayVec3{1.0, 2.0, 0.4}, 0.4, DistrayTexture{DistrayVec3{0.86, 0.83, 0.0}, 0.7, 0.6, 0.01}}
+        return DistraySphere{center: DistrayVec3{x: -0.3, y: 1.0, z: 0.4}, radius: 0.4, texture: DistrayTexture{color: DistrayVec3{x: 0.1, y: 0.95, z: 0.2}, diffuse: 0.6, reflect: 0.8, roughness: 0.01}}
+    DistraySphere{center: DistrayVec3{x: 1.0, y: 2.0, z: 0.4}, radius: 0.4, texture: DistrayTexture{color: DistrayVec3{x: 0.86, y: 0.83, z: 0.0}, diffuse: 0.7, reflect: 0.6, roughness: 0.01}}
 
 def distray_ground(index: usize) -> DistrayTexture:
-    if index == 0: return DistrayTexture{DistrayVec3{0.0, 0.1, 0.5}, 0.8, 0.44, 0.02}
-    DistrayTexture{DistrayVec3{0.6, 1.0, 0.5}, 0.8, 0.44, 0.01}
+    if index == 0: return DistrayTexture{color: DistrayVec3{x: 0.0, y: 0.1, z: 0.5}, diffuse: 0.8, reflect: 0.44, roughness: 0.02}
+    DistrayTexture{color: DistrayVec3{x: 0.6, y: 1.0, z: 0.5}, diffuse: 0.8, reflect: 0.44, roughness: 0.01}
 
 def distray_jitter(context: mutable DistrayContext&) -> f64:
     context.state <- (1103515245.u64() * context.state + 12345.u64()) & 0x7FFFFFFF.u64()
     1.0 - context.state.f64() / 0x3FFFFFFF.f64()
 
 def distray_distributed(context: mutable DistrayContext&, normal: DistrayVec3, sa: f64, sb: f64) -> DistrayVec3:
-    a: mutable DistrayVec3 = DistrayVec3{0.0, 0.0, 0.0}
-    b: mutable DistrayVec3 = DistrayVec3{0.0, 0.0, 0.0}
+    a: mutable DistrayVec3 = DistrayVec3{x: 0.0, y: 0.0, z: 0.0}
+    b: mutable DistrayVec3 = DistrayVec3{x: 0.0, y: 0.0, z: 0.0}
     if distray_abs(normal.z) > EPSILON:
-        a <- DistrayVec3{normal.y * normal.z, -normal.x * normal.z, 0.0}
-        b <- DistrayVec3{a.y * normal.z, -a.x * normal.z, a.x * normal.y - a.y * normal.x}
+        a <- DistrayVec3{x: normal.y * normal.z, y: -normal.x * normal.z, z: 0.0}
+        b <- DistrayVec3{x: a.y * normal.z, y: -a.x * normal.z, z: a.x * normal.y - a.y * normal.x}
     else:
-        a <- DistrayVec3{normal.y, -normal.x, 0.0}
-        b <- DistrayVec3{0.0, 0.0, 1.0}
+        a <- DistrayVec3{x: normal.y, y: -normal.x, z: 0.0}
+        b <- DistrayVec3{x: 0.0, y: 0.0, z: 1.0}
     normal_length: f64 = distray_length(normal)
     a <- distray_mul(a, sa * (normal_length / distray_length(a)) * distray_jitter(context))
     b <- distray_mul(b, sb * (normal_length / distray_length(b)) * distray_jitter(context))
@@ -112,13 +112,13 @@ def distray_reflect(incident: DistrayVec3, normal: DistrayVec3) -> DistrayVec3:
     distray_add(incident, distray_mul(normal, -2.0 * distray_dot(incident, normal) / distray_dot(normal, normal)))
 
 def distray_intersect(origin: DistrayVec3, direction: DistrayVec3) -> DistrayHit:
-    hit: mutable DistrayHit = DistrayHit{-1.0, DistrayVec3{0.0, 0.0, 0.0}, DistrayVec3{0.0, 0.0, 0.0}, distray_ground(0)}
+    hit: mutable DistrayHit = DistrayHit{t: -1.0, point: DistrayVec3{x: 0.0, y: 0.0, z: 0.0}, normal: DistrayVec3{x: 0.0, y: 0.0, z: 0.0}, texture: distray_ground(0)}
     if distray_abs(direction.z) > EPSILON:
         candidate: f64 = -origin.z / direction.z
         if candidate > EPSILON and candidate < MAX_T:
             hit.t <- candidate
             hit.point <- distray_add(origin, distray_mul(direction, candidate))
-            hit.normal <- DistrayVec3{0.0, 0.0, 1.0}
+            hit.normal <- DistrayVec3{x: 0.0, y: 0.0, z: 1.0}
             tile: i64 = ((hit.point.x + 50000.0).i64() + (hit.point.y + 50000.0).i64()) & 1
             hit.texture <- distray_ground(tile.usize())
     sphere_index: mutable usize = 0
@@ -143,10 +143,10 @@ def distray_intersect(origin: DistrayVec3, direction: DistrayVec3) -> DistrayHit
     hit
 
 def distray_trace(context: mutable DistrayContext&, origin: DistrayVec3, direction: DistrayVec3, recursion: i64) -> DistrayVec3:
-    if recursion <= 0: return DistrayVec3{0.0, 0.0, 0.0}
+    if recursion <= 0: return DistrayVec3{x: 0.0, y: 0.0, z: 0.0}
     usedist: bool = (MAX_REC - recursion) < DIST_LEVELS
     hit: DistrayHit = distray_intersect(origin, direction)
-    color: mutable DistrayVec3 = DistrayVec3{0.0, 0.0, 0.0}
+    color: mutable DistrayVec3 = DistrayVec3{x: 0.0, y: 0.0, z: 0.0}
     if hit.t > EPSILON:
         light_direction: DistrayVec3 = distray_sub(distray_light(), hit.point)
         cosine: f64 = distray_dot(light_direction, hit.normal)
@@ -170,7 +170,7 @@ def distray_trace(context: mutable DistrayContext&, origin: DistrayVec3, directi
         color <- distray_mul(hit.texture.color, 0.3 + amount)
         if hit.texture.reflect > EPSILON:
             reflected: DistrayVec3 = distray_reflect(direction, hit.normal)
-            reflected_color: mutable DistrayVec3 = DistrayVec3{0.0, 0.0, 0.0}
+            reflected_color: mutable DistrayVec3 = DistrayVec3{x: 0.0, y: 0.0, z: 0.0}
             if usedist and hit.texture.roughness > EPSILON:
                 ray: mutable i64 = 0
                 while ray < context.distribution:
@@ -183,7 +183,7 @@ def distray_trace(context: mutable DistrayContext&, origin: DistrayVec3, directi
             color <- distray_add(color, distray_mul(reflected_color, hit.texture.reflect))
     else:
         horizontal: f64 = sqrt(direction.x * direction.x + direction.y * direction.y)
-        blend: f64 = 1.0
+        blend: mutable f64 = 1.0
         if horizontal > 0.0: blend <- atan(distray_abs(direction.z) / horizontal) * 0.63661977
         color <- distray_add(distray_mul(distray_sky_zenith(), blend), distray_mul(distray_sky_horizon(), 1.0 - blend))
     if color.x > 1.0: color.x <- 1.0
@@ -198,18 +198,18 @@ def distray_impl(input: i64&, input_length: usize, output: mutable u8&, output_c
     pixel_y: i64 = input[2]
     if distribution < 1 or distribution > 5 or pixel_x < 0 or pixel_x >= WIDTH or pixel_y < 0 or pixel_y >= HEIGHT: return -1
     if output == null or output_capacity < 3: return -2
-    context: mutable DistrayContext = DistrayContext{distribution, 0x52462467.u64()}
+    context: mutable DistrayContext = DistrayContext{distribution: distribution, state: 0x52462467.u64()}
     scale_x: f64 = (pixel_x.f64() - (WIDTH / 2).f64()) / WIDTH.f64()
     scale_z: f64 = ((HEIGHT / 2).f64() - pixel_y.f64()) / HEIGHT.f64()
     right: DistrayVec3 = distray_camera_right()
     camera_direction: DistrayVec3 = distray_camera_dir()
     up: DistrayVec3 = distray_camera_up()
     direction: DistrayVec3 = DistrayVec3{
-        right.x * scale_x + camera_direction.x + up.x * scale_z,
-        right.y * scale_x + camera_direction.y + up.y * scale_z,
-        right.z * scale_x + camera_direction.z + up.z * scale_z
+        x: right.x * scale_x + camera_direction.x + up.x * scale_z,
+        y: right.y * scale_x + camera_direction.y + up.y * scale_z,
+        z: right.z * scale_x + camera_direction.z + up.z * scale_z
     }
-    color: mutable DistrayVec3 = DistrayVec3{0.0, 0.0, 0.0}
+    color: mutable DistrayVec3 = DistrayVec3{x: 0.0, y: 0.0, z: 0.0}
     ray: mutable i64 = 0
     while ray < distribution:
         offset: DistrayVec3 = distray_distributed(context, direction, 0.5 / WIDTH.f64(), 0.5 / HEIGHT.f64())

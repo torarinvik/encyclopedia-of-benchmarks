@@ -1,6 +1,8 @@
 // Independent bounded FreeBench/distray profile.
 // Ray tracer attribution: Marcus Geelnard; benchmarkification: Peter Rundberg.
 // The pinned upstream source has no explicit license grant.
+extern "c" fn atan(value: f64) f64;
+
 const WIDTH: i64 = 640;
 const HEIGHT: i64 = 480;
 const EPSILON: f64 = 1.0e-5;
@@ -99,7 +101,7 @@ fn trace(ctx: *Context, origin: Vec3, d: Vec3, recursion: i32) Vec3 {
             color=add(color,mul(rc,h.texture.reflect));
         }
     } else {
-        const horizontal=@sqrt(d.x*d.x+d.y*d.y);const blend=if(horizontal>0.0) @atan(@abs(d.z)/horizontal)*0.63661977 else 1.0;
+        const horizontal=@sqrt(d.x*d.x+d.y*d.y);const blend=if(horizontal>0.0) atan(@abs(d.z)/horizontal)*0.63661977 else 1.0;
         color=add(mul(SKY_ZENITH,blend),mul(SKY_HORIZON,1.0-blend));
     }
     if(color.x>1.0)color.x=1.0;if(color.y>1.0)color.y=1.0;if(color.z>1.0)color.z=1.0;return color;

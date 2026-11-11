@@ -26,13 +26,13 @@ SPHERES :: [4]Sphere{
 	{{1.0,2.0,0.4},0.4,{{0.86,0.83,0.0},0.7,0.6,0.01}},
 }
 GROUND :: [2]Texture{{{0.0,0.1,0.5},0.8,0.44,0.02},{{0.6,1.0,0.5},0.8,0.44,0.01}}
-LIGHT :: Vec3 = {-3.0,1.0,5.0}
-CAMERA :: Vec3 = {1.5,-1.4,1.2}
-CAMERA_RIGHT :: Vec3 = {3.0,1.0,0.0}
-CAMERA_DIR :: Vec3 = {-1.0,3.0,0.0}
-CAMERA_UP :: Vec3 = {0.0,0.0,2.3717}
-SKY_HORIZON :: Vec3 = {0.5,0.3,0.7}
-SKY_ZENITH :: Vec3 = {0.0,0.0,0.2}
+LIGHT :: Vec3{-3.0,1.0,5.0}
+CAMERA :: Vec3{1.5,-1.4,1.2}
+CAMERA_RIGHT :: Vec3{3.0,1.0,0.0}
+CAMERA_DIR :: Vec3{-1.0,3.0,0.0}
+CAMERA_UP :: Vec3{0.0,0.0,2.3717}
+SKY_HORIZON :: Vec3{0.5,0.3,0.7}
+SKY_ZENITH :: Vec3{0.0,0.0,0.2}
 
 add :: proc "contextless" (a,b: Vec3)->Vec3 { return Vec3{a.x+b.x,a.y+b.y,a.z+b.z} }
 sub :: proc "contextless" (a,b: Vec3)->Vec3 { return Vec3{a.x-b.x,a.y-b.y,a.z-b.z} }
@@ -57,7 +57,7 @@ intersect :: proc "contextless" (origin,d:Vec3)->Hit {
 	h:=Hit{-1.0,{0.0,0.0,0.0},{0.0,0.0,0.0},GROUND[0]}
 	if math.abs(d.z)>EPSILON {
 		t:=-origin.z/d.z
-		if t>EPSILON&&t<MAX_T { h.t=t;h.point=add(origin,mul(d,t));h.normal=Vec3{0.0,0.0,1.0};tile:=(int(h.point.x+50000.0)+int(h.point.y+50000.0))&1;h.texture=GROUND[tile] }
+		if t>EPSILON&&t<MAX_T { h.t=t;h.point=add(origin,mul(d,t));h.normal=Vec3{0.0,0.0,1.0};tile:=(int(h.point.x+50000.0)+int(h.point.y+50000.0))&1;h.texture=GROUND[0] if tile == 0 else GROUND[1] }
 	}
 	for sphere in SPHERES {
 		relative:=sub(sphere.center,origin);inv:=1.0/dot(d,d);b:=dot(relative,d)*inv
