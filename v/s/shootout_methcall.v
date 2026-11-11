@@ -1,19 +1,21 @@
-const min_calls = i64(-100000)
-const max_calls = i64(100000)
+const min_calls = -100000
+const max_calls = 100000
 const max_output_bytes = 14
 
 struct Toggle {
+mut:
 	state bool
-	activate fn (mut Toggle)
-	value fn (&Toggle) bool
+	activate fn (mut Toggle) @[required]
+	value fn (&Toggle) bool @[required]
 }
 
 struct NthToggle {
-	state bool
 	count_max int
+mut:
+	state bool
 	counter int
-	activate fn (mut NthToggle)
-	value fn (&NthToggle) bool
+	activate fn (mut NthToggle) @[required]
+	value fn (&NthToggle) bool @[required]
 }
 
 fn toggle_activate(mut toggle Toggle) {
@@ -32,16 +34,19 @@ fn nth_toggle_activate(mut toggle NthToggle) {
 
 fn nth_toggle_value(toggle &NthToggle) bool { return toggle.state }
 
-fn append_state(mut staged []u8, mut used int, state bool) {
+fn append_state(staged &u8, start int, state bool) int {
 	word := if state { 'true' } else { 'false' }
-	for byte in word.bytes() {
-		staged[used] = byte
+	mut used := start
+	unsafe {
+		for index in 0 .. word.len {
+			staged[used] = word[index]
+			used++
+		}
+		staged[used] = 10
 		used++
+		staged[used] = 10
 	}
-	staged[used] = 10
-	used++
-	staged[used] = 10
-	used++
+	return used + 1
 }
 
 @[export: 'shootout_methcall']
@@ -71,8 +76,8 @@ pub fn shootout_methcall(calls i64, mut output &u8, output_capacity usize) i64 {
 	}
 	mut staged := [max_output_bytes]u8{}
 	mut used := 0
-	append_state(mut staged[..], mut used, toggle_result)
-	append_state(mut staged[..], mut used, nth_result)
+	used = append_state(&staged[0], used, toggle_result)
+	used = append_state(&staged[0], used, nth_result)
 	if output_capacity < usize(used) { return -2 }
 	unsafe { for index in 0 .. used { output[index] = staged[index] } }
 	return i64(used)

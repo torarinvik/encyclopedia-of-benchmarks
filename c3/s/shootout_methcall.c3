@@ -18,31 +18,31 @@ struct NthToggle {
     NthToggleValue value;
 }
 
-void toggle_activate(void* opaque_toggle) {
+fn void toggle_activate(void* opaque_toggle) {
     Toggle* toggle = opaque_toggle;
-    toggle->state = !toggle->state;
+    toggle.state = (int)!toggle.state;
 }
 
-int toggle_value(void* opaque_toggle) {
+fn int toggle_value(void* opaque_toggle) {
     Toggle* toggle = opaque_toggle;
-    return toggle->state;
+    return toggle.state;
 }
 
-void nth_toggle_activate(void* opaque_toggle) {
+fn void nth_toggle_activate(void* opaque_toggle) {
     NthToggle* toggle = opaque_toggle;
-    toggle->counter++;
-    if (toggle->counter >= toggle->count_max) {
-        toggle->state = !toggle->state;
-        toggle->counter = 0;
+    toggle.counter++;
+    if (toggle.counter >= toggle.count_max) {
+        toggle.state = (int)!toggle.state;
+        toggle.counter = 0;
     }
 }
 
-int nth_toggle_value(void* opaque_toggle) {
+fn int nth_toggle_value(void* opaque_toggle) {
     NthToggle* toggle = opaque_toggle;
-    return toggle->state;
+    return toggle.state;
 }
 
-void append_state(char* staged, usz* used, int state) {
+fn void append_state(char* staged, usz* used, int state) {
     if (state != 0) {
         staged[(*used)++] = 't'; staged[(*used)++] = 'r'; staged[(*used)++] = 'u'; staged[(*used)++] = 'e';
     } else {
@@ -58,7 +58,8 @@ fn long shootout_methcall(long calls, char* output, usz output_capacity)
     if (output == null) return -2;
     Toggle toggle = {1, &toggle_activate, &toggle_value};
     NthToggle nth_toggle = {1, 3, 0, &nth_toggle_activate, &nth_toggle_value};
-    int toggle_result = 1, nth_result = 1;
+    int toggle_result = 1;
+    int nth_result = 1;
     for (long index = 0; index < calls; index++) {
         toggle.activate(&toggle);
         toggle_result = toggle.value(&toggle);

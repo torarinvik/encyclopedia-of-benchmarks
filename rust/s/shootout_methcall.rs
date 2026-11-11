@@ -52,14 +52,14 @@ pub unsafe extern "C" fn shootout_methcall(calls: i64, output: *mut u8, output_c
     let mut nth_result = true;
     for _ in 0..calls.max(0) {
         let activate = toggle.activate;
-        let active = activate(&mut toggle);
         let value = toggle.value;
+        let active = activate(&mut toggle);
         toggle_result = value(active);
     }
     for _ in 0..calls.max(0) {
         let activate = nth_toggle.activate;
-        let active = activate(&mut nth_toggle);
         let value = nth_toggle.value;
+        let active = activate(&mut nth_toggle);
         nth_result = value(active);
     }
     let mut staged = [0_u8; MAX_OUTPUT_BYTES];

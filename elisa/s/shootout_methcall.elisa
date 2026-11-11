@@ -3,14 +3,14 @@ const MAX_CALLS: i64 = 100000
 const MAX_OUTPUT_BYTES: usize = 14
 
 struct Toggle:
-    state: bool
+    state: mutable bool
     activate: fn(mutable Toggle&) -> void
     value: fn(Toggle&) -> bool
 
 struct NthToggle:
-    state: bool
+    state: mutable bool
     count_max: i32
-    counter: i32
+    counter: mutable i32
     activate: fn(mutable NthToggle&) -> void
     value: fn(NthToggle&) -> bool
 
@@ -57,15 +57,15 @@ def append_state(staged: mutable view[u8], used: mutable usize&, state: bool) ->
 
 def shootout_methcall_impl(calls: i64, output: mutable u8&, output_capacity: usize) -> i64:
     if calls < MIN_CALLS or calls > MAX_CALLS: return -1
-    if output.is_null(): return -2
-    toggle: mutable Toggle = Toggle(state = true, activate = toggle_activate, value = toggle_value)
-    nth_toggle: mutable NthToggle = NthToggle(
-        state = true, count_max = 3, counter = 0,
-        activate = nth_toggle_activate, value = nth_toggle_value
-    )
+    if output == null: return -2
+    toggle: mutable Toggle = Toggle{state: true, activate: toggle_activate, value: toggle_value}
+    nth_toggle: mutable NthToggle = NthToggle{
+        state: true, count_max: 3, counter: 0,
+        activate: nth_toggle_activate, value: nth_toggle_value
+    }
     toggle_result: mutable bool = true
     nth_result: mutable bool = true
-    iterations: usize = 0
+    iterations: mutable usize = 0
     if calls > 0: iterations <- calls.usize()
     for _ in 0..<iterations:
         toggle_activate_fn: fn(mutable Toggle&) -> void = toggle.activate
