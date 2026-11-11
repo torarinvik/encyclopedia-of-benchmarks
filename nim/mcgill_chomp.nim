@@ -1,10 +1,13 @@
 const ChompColumns = 7
 
+proc calloc(count, size: csize_t): pointer {.importc, header: "<stdlib.h>".}
+proc free(memory: pointer) {.importc, header: "<stdlib.h>".}
+
 type ChompSolver = object
   rows: int
   powers: array[ChompColumns, int]
   heights: array[ChompColumns, int]
-  values: seq[uint8]
+  values: ptr UncheckedArray[uint8]
 
 proc encodeState(solver: ChompSolver): int =
   for column in 0 ..< ChompColumns:
@@ -47,7 +50,9 @@ proc mcgill_chomp*(rows: int64): int64 {.cdecl, exportc: "mcgill_chomp".} =
   for column in 1 ..< ChompColumns:
     solver.powers[column] = solver.powers[column - 1] * base
   let stateSpace = solver.powers[ChompColumns - 1] * base
-  solver.values = newSeq[uint8](stateSpace)
+  solver.values = cast[ptr UncheckedArray[uint8]](calloc(csize_t(stateSpace), 1))
+  if solver.values == nil: return -1
+  defer: free(solver.values)
 
   enumerateStates(solver, ChompColumns - 1, 0)
   var fullBoardId = 0

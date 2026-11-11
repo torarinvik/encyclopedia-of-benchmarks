@@ -1,8 +1,9 @@
-const AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS: i64 = 1_125_000
+const AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS: i64 = 1125000
 const AUTOMOTIVE_BITCOUNT_NIBBLE_BITS: i32[16] = [0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4]
 const AUTOMOTIVE_BITCOUNT_INITIAL_SEEDS: i64[7] = [16839, 18985, 21520, 3905, 10113, 8672, 21285]
 
-def automotive_bitcount_kernighan(value: u32) -> i32:
+def automotive_bitcount_kernighan(value_input: u32) -> i32:
+    value: mutable u32 = value_input
     count: mutable i32 = 0
     while value != 0:
         value <- value & (value - 1)
@@ -36,8 +37,9 @@ def automotive_bitcount_byte(value: u32) -> i32:
     AUTOMOTIVE_BITCOUNT_NIBBLE_BITS[(value & 0xF).usize()] + AUTOMOTIVE_BITCOUNT_NIBBLE_BITS[((value >> 4) & 0xF).usize()]
 
 def automotive_bitcount_bw_bytes(value: u32) -> i32:
-    automotive_bitcount_byte(value) + automotive_bitcount_byte(value >> 8) +
-    automotive_bitcount_byte(value >> 24) + automotive_bitcount_byte(value >> 16)
+    low: i32 = automotive_bitcount_byte(value) + automotive_bitcount_byte(value >> 8)
+    high: i32 = automotive_bitcount_byte(value >> 24) + automotive_bitcount_byte(value >> 16)
+    low + high
 
 def automotive_bitcount_ar_bytes(value: u32) -> i32:
     count: mutable i32 = 0

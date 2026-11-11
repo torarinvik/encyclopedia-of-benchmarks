@@ -179,7 +179,7 @@ The pinned cBench [`automotive_bitcount`](https://github.com/lac-dcc/Benchmarks/
 
 The pinned cBench [`telecom_CRC32`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/telecom_CRC32/src/crc_32.c) copy uses the same reflected IEEE CRC-32 table recurrence as [`crc32`](benchmarks/c/crc32/README.md) and MiBench `telecomm-CRC32`; its launcher profile does not add an algorithm.
 
-The pinned lac-dcc McGill `chomp` launcher maps to [`mcgill_chomp`](benchmarks/c/mcgill_chomp/README.md), which solves the fixed 7-column game tree selected by its noninteractive launcher mode.
+The pinned lac-dcc McGill `chomp` launcher maps to [`mcgill_chomp`](benchmarks/m/mcgill_chomp/README.md), which solves the fixed 7-column game tree selected by its noninteractive launcher mode.
 
 The pinned MiBench `network-dijkstra` source uses FIFO queue-based label-correcting shortest-path relaxation, not the globally-minimum label selection in [`dijkstra`](benchmarks/d/dijkstra/README.md) or the full edge passes in [`bellman_ford`](benchmarks/b/bellman_ford/README.md). It maps to [`mibench_network_dijkstra`](benchmarks/m/mibench_network_dijkstra/README.md) with bounded row-major graphs and a reachable-distance checksum.
 

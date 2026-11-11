@@ -1,10 +1,10 @@
 package automotive_bitcount
 
 MAX_ITERATIONS :: 1_125_000
-NIBBLE_BITS :: [16]i32{0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4}
-INITIAL_SEEDS :: [7]u32{16839, 18985, 21520, 3905, 10113, 8672, 21285}
+NIBBLE_BITS :=  [16]i32{0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4}
+INITIAL_SEEDS :=  [7]u32{16839, 18985, 21520, 3905, 10113, 8672, 21285}
 
-count_kernighan :: proc(value_input: u32) -> i32 {
+count_kernighan :: proc "contextless" (value_input: u32) -> i32 {
 	value := value_input
 	count: i32 = 0
 	for value != 0 {
@@ -14,7 +14,7 @@ count_kernighan :: proc(value_input: u32) -> i32 {
 	return count
 }
 
-count_parallel :: proc(value_input: u32) -> i32 {
+count_parallel :: proc "contextless" (value_input: u32) -> i32 {
 	value := value_input
 	value = ((value & 0xAAAAAAAA) >> 1) + (value & 0x55555555)
 	value = ((value & 0xCCCCCCCC) >> 2) + (value & 0x33333333)
@@ -24,13 +24,13 @@ count_parallel :: proc(value_input: u32) -> i32 {
 	return i32(value)
 }
 
-count_recursive_nybbles :: proc(value: u32) -> i32 {
+count_recursive_nybbles :: proc "contextless" (value: u32) -> i32 {
 	count := NIBBLE_BITS[value & 0xF]
 	if value >> 4 == 0 do return count
 	return count + count_recursive_nybbles(value >> 4)
 }
 
-count_fixed_nybbles :: proc(value: u32) -> i32 {
+count_fixed_nybbles :: proc "contextless" (value: u32) -> i32 {
 	count: i32 = 0
 	for shift := u32(0); shift < 32; shift += 4 {
 		count += NIBBLE_BITS[(value >> shift) & 0xF]
@@ -38,15 +38,15 @@ count_fixed_nybbles :: proc(value: u32) -> i32 {
 	return count
 }
 
-count_byte :: proc(value: u32) -> i32 {
+count_byte :: proc "contextless" (value: u32) -> i32 {
 	return NIBBLE_BITS[value & 0xF] + NIBBLE_BITS[(value >> 4) & 0xF]
 }
 
-count_bw_bytes :: proc(value: u32) -> i32 {
+count_bw_bytes :: proc "contextless" (value: u32) -> i32 {
 	return count_byte(value) + count_byte(value >> 8) + count_byte(value >> 24) + count_byte(value >> 16)
 }
 
-count_ar_bytes :: proc(value: u32) -> i32 {
+count_ar_bytes :: proc "contextless" (value: u32) -> i32 {
 	count: i32 = 0
 	for index := u32(0); index < 4; index += 1 {
 		count += count_byte(value >> (index * 8))
@@ -54,7 +54,7 @@ count_ar_bytes :: proc(value: u32) -> i32 {
 	return count
 }
 
-count_shift_test :: proc(value_input: u32) -> i32 {
+count_shift_test :: proc "contextless" (value_input: u32) -> i32 {
 	value := value_input
 	count: i32 = 0
 	for bit := 0; bit < 64 && value != 0; bit += 1 {
@@ -64,7 +64,7 @@ count_shift_test :: proc(value_input: u32) -> i32 {
 	return count
 }
 
-count_selected :: proc(algorithm: int, value: u32) -> i32 {
+count_selected :: proc "contextless" (algorithm: int, value: u32) -> i32 {
 	if algorithm == 0 do return count_kernighan(value)
 	if algorithm == 1 do return count_parallel(value)
 	if algorithm == 2 do return count_recursive_nybbles(value)

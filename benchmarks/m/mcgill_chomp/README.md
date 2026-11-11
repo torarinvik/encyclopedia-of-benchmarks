@@ -5,7 +5,7 @@ This package ports the outcome-solving core of the `chomp` launcher in the pinne
 ## Bounded contract
 
 - ABI: `scalar_call`, function symbol `mcgill_chomp`.
-- Input is the launcher's row count: 7 for the small profile or 8 for the default profile. The column count remains fixed at 7.
+- Input is the launcher's row count: 7 for the small profile or 8 for the default profile. The board width is fixed at seven columns.
 - Each board state stores the remaining height of each column, left to right. Valid states have non-increasing heights. A move at `(row, column)` caps that column and every column to its right at `row`, matching `make_data` followed by `melt_data`.
 - The solver evaluates the full state graph in the source's row-major move order. A state wins when it has a move to a losing state. The empty board has value 1: the previous player took the poison square, so the player now to move wins.
 - The scalar result is the initial state's value, 1 for a first-player win and 0 for a first-player loss. The upstream prompts and move-by-move report are presentation output and are not included in the scalar ABI.

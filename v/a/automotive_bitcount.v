@@ -1,8 +1,7 @@
 module automotive_bitcount
 
-const max_iterations = i64(1_125_000)
-const nibble_bits = [16]i32{0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4}
-const initial_seeds = [7]u32{16839, 18985, 21520, 3905, 10113, 8672, 21285}
+const nibble_bits = [i32(0), 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4]!
+const initial_seeds = [u32(16839), 18985, 21520, 3905, 10113, 8672, 21285]!
 
 fn count_kernighan(value_input u32) i32 {
 	mut value := value_input
@@ -55,7 +54,7 @@ fn count_ar_bytes(value u32) i32 {
 fn count_shift_test(value_input u32) i32 {
 	mut value := value_input
 	mut count := i32(0)
-	for bit in 0 .. 64 {
+	for _ in 0 .. 64 {
 		if value == 0 { break }
 		count += i32(value & 1)
 		value >>= 1
@@ -75,7 +74,7 @@ fn count_selected(algorithm int, value u32) i32 {
 
 @[export: 'automotive_bitcount']
 pub fn automotive_bitcount(iterations i64) i64 {
-	if iterations < 0 || iterations > max_iterations { return -1 }
+	if iterations < 0 || iterations > 1_125_000 { return -1 }
 	mut result := i64(0)
 	for algorithm in 0 .. 7 {
 		mut seed := initial_seeds[algorithm]

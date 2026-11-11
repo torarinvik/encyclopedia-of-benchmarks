@@ -82,6 +82,7 @@ from multiple_of_3_or_5_term_oracle import expected_result as multiple_of_3_or_5
 
 ROOT = Path(__file__).resolve().parents[1]
 I64_MIN = -(2**63)
+I64_MAX = 2**63 - 1
 
 
 PROBLEM8_DIGITS = (
@@ -1935,7 +1936,7 @@ def validate_mcgill_chomp_workload(workload: dict) -> None:
             or not isinstance(cases, list) or len(case_ids) != len(expected_ids)
             or len(case_ids) != len(set(case_ids)) or set(case_ids) != expected_ids):
         raise ValueError("mcgill_chomp workload metadata does not match the pinned bounded game contract")
-    readme = (ROOT / "benchmarks" / "c" / "mcgill_chomp" / "README.md").read_text(encoding="utf-8")
+    readme = (ROOT / "benchmarks" / "m" / "mcgill_chomp" / "README.md").read_text(encoding="utf-8")
     if (source_url not in readme or launcher_url not in readme
             or "no explicit license grant" not in readme
             or "fixed at seven columns" not in readme):

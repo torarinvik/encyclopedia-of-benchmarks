@@ -1,12 +1,18 @@
 package mcgill_chomp
 
+foreign import libc "system:c"
+foreign libc {
+	calloc :: proc "c" (count, size: uintptr) -> rawptr ---
+	free :: proc "c" (memory: rawptr) ---
+}
+
 CHOMP_COLUMNS :: 7
 
 Solver :: struct {
 	rows: int,
 	powers: [CHOMP_COLUMNS]int,
 	heights: [CHOMP_COLUMNS]int,
-	values: []u8,
+	values: [^]u8,
 }
 
 encode_state :: proc "contextless" (solver: ^Solver) -> int {
@@ -64,9 +70,9 @@ mcgill_chomp :: proc "c" (rows: i64) -> i64 {
 		solver.powers[column] = solver.powers[column-1] * base
 	}
 	state_space := solver.powers[CHOMP_COLUMNS-1] * base
-	solver.values = make([]u8, state_space)
-	defer delete(solver.values)
-	for state_id := 0; state_id < state_space; state_id += 1 { solver.values[state_id] = 0 }
+	solver.values = cast([^]u8)calloc(uintptr(state_space), 1)
+	if solver.values == nil do return -1
+	defer free(solver.values)
 
 	enumerate_states(&solver, CHOMP_COLUMNS-1, 0)
 	full_board_id := 0
