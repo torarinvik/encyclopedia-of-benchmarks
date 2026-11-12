@@ -8,7 +8,9 @@ Input is `[N,Q,(a,b)*N,(left,right)*Q]`. Each map denotes `f(x)=a*x+b` over the 
 
 For each range, apply its maps from left to right: first `f_left`, then `f_(left+1)`, continuing through `f_right`. Return the resulting pair `(A,B)` where the composed map is `A*x+B mod MOD`. Output is two little-endian signed 64-bit words per query, at most 512 bytes. Malformed or null input returns `-1`; valid input with null output or insufficient capacity returns `-2` without writes; success returns the number of bytes written.
 
-The primary implementation precomputes suffix and prefix folds around each power-of-two split. A query crossing a split combines exactly two disjoint folds selected by the highest set bit of `left XOR right`; singleton queries return their original map. Build complexity is `O(N log N)`, and each query uses `O(1)` combines. The independent oracle simulates each range twice, at inputs zero and one, then recovers `(A,B)`; it does not build the table.
+The suite output-buffer capacity is bounded at 512 bytes.
+
+The primary implementation precomputes suffix and prefix folds around each power-of-two split. A query crossing a split combines exactly two disjoint folds selected by the highest set bit of `left XOR right`; singleton queries return their original map. Build complexity is `O(N log N)`, and each query uses `O(1)` combines. The bounded level selector scans at most five bits. The independent oracle simulates each range twice, at inputs zero and one, then recovers `(A,B)`; it does not build the table.
 
 ## Provenance and rights
 

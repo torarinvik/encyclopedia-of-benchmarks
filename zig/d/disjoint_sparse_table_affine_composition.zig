@@ -27,7 +27,8 @@ export fn disjoint_sparse_table_affine_composition(
     const values = input[0..length];
     const n_value = values[0];
     const q_value = values[1];
-    if (n_value < 1 or n_value > MAX_N or q_value < 1 or q_value > MAX_Q) return -1;
+    if (n_value < 1 or n_value > @as(i64, @intCast(MAX_N)) or
+        q_value < 1 or q_value > @as(i64, @intCast(MAX_Q))) return -1;
     const n: usize = @intCast(n_value);
     const q: usize = @intCast(q_value);
     if (length != 2 + 2 * n + 2 * q) return -1;

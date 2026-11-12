@@ -1,0 +1,153 @@
+const MAX_V: usize = 63
+const MAX_E: usize = 2047
+const MAX_INPUT: usize = 4097
+
+def lt_eval(vertex: usize, ancestor: mutable view[i32], label: mutable view[i32],
+            semi: view[i32], path: mutable view[i32]) -> usize:
+    if ancestor[vertex] == 0: return vertex
+    var used: mutable usize = 0
+    var current: mutable usize = vertex
+    while ancestor[ancestor[current].usize()] != 0:
+        path[used] <- current.i32()
+        used <- used + 1
+        current <- ancestor[current].usize()
+    while used > 0:
+        used <- used - 1
+        current <- path[used].usize()
+        let p = ancestor[current].usize()
+        if semi[label[p].usize()] < semi[label[current].usize()]:
+            label[current] <- label[p]
+        ancestor[current] <- ancestor[p]
+    label[vertex].usize()
+
+def lengauer_tarjan_dominator_tree_impl(input: view[i64], output: mutable view[u8],
+    capacity: usize, output_is_null: bool) -> i64:
+    let length = input.len()
+    if length < 3 or length > MAX_INPUT: return -1
+    let nv = input[0]
+    let root_value = input[1]
+    let me = input[2]
+    if nv < 1 or nv > MAX_V.i64() or root_value < 0 or root_value >= nv or
+       me < 0 or me > MAX_E.i64(): return -1
+    let n = nv.usize()
+    let root = root_value.usize()
+    let m = me.usize()
+    if length != 3 + 2 * m: return -1
+
+    var outmask: mutable u64[MAX_V] = zeroed
+    var out_head: mutable i32[MAX_V] = zeroed
+    var edge_source: mutable i32[MAX_E] = zeroed
+    var edge_target: mutable i32[MAX_E] = zeroed
+    var out_next: mutable i32[MAX_E] = zeroed
+    var pred_head: mutable i32[MAX_V + 1] = zeroed
+    var pred_next: mutable i32[MAX_E] = zeroed
+    var dfs_number: mutable i32[MAX_V] = zeroed
+    var vertex_at: mutable i32[MAX_V + 1] = zeroed
+    var parent: mutable i32[MAX_V + 1] = zeroed
+    var semi: mutable i32[MAX_V + 1] = zeroed
+    var ancestor: mutable i32[MAX_V + 1] = zeroed
+    var label: mutable i32[MAX_V + 1] = zeroed
+    var immediate: mutable i32[MAX_V + 1] = zeroed
+    var bucket_head: mutable i32[MAX_V + 1] = zeroed
+    var bucket_next: mutable i32[MAX_V + 1] = zeroed
+    var node_stack: mutable i32[MAX_V] = zeroed
+    var edge_stack: mutable i32[MAX_V] = zeroed
+    var eval_path: mutable i32[MAX_V + 1] = zeroed
+    var staged: mutable u8[MAX_V] = zeroed
+    for v in 0..<n: out_head[v] <- -1
+    for v in 0..<(MAX_V + 1):
+        pred_head[v] <- -1
+        bucket_head[v] <- -1
+
+    var edge_count: mutable usize = 0
+    for i in 0..<m:
+        let sv = input[3 + 2 * i]
+        let tv = input[4 + 2 * i]
+        if sv < 0 or sv >= nv or tv < 0 or tv >= nv: return -1
+        let source = sv.usize()
+        let target = tv.usize()
+        let bit = 1u64 << target
+        if (outmask[source] & bit) == 0:
+            outmask[source] <- outmask[source] | bit
+            edge_source[edge_count] <- source.i32()
+            edge_target[edge_count] <- target.i32()
+            out_next[edge_count] <- out_head[source]
+            out_head[source] <- edge_count.i32()
+            edge_count <- edge_count + 1
+
+    var dfs_count: mutable usize = 1
+    var top: mutable usize = 1
+    dfs_number[root] <- 1
+    vertex_at[1] <- root.i32()
+    node_stack[0] <- root.i32()
+    edge_stack[0] <- out_head[root]
+    while top > 0:
+        let frame = top - 1
+        let current = node_stack[frame].usize()
+        let edge = edge_stack[frame]
+        if edge == -1:
+            top <- top - 1
+            continue
+        edge_stack[frame] <- out_next[edge.usize()]
+        let target = edge_target[edge.usize()].usize()
+        if dfs_number[target] == 0:
+            dfs_count <- dfs_count + 1
+            dfs_number[target] <- dfs_count.i32()
+            vertex_at[dfs_count] <- target.i32()
+            parent[dfs_count] <- dfs_number[current]
+            node_stack[top] <- target.i32()
+            edge_stack[top] <- out_head[target]
+            top <- top + 1
+
+    for edge in 0..<edge_count:
+        let source_number = dfs_number[edge_source[edge].usize()]
+        let target_number = dfs_number[edge_target[edge].usize()]
+        if source_number != 0 and target_number != 0:
+            pred_next[edge] <- pred_head[target_number.usize()]
+            pred_head[target_number.usize()] <- edge.i32()
+    for v in 1..<(dfs_count + 1):
+        semi[v] <- v.i32()
+        label[v] <- v.i32()
+    var w: mutable usize = dfs_count
+    while w >= 2:
+        var edge: mutable i32 = pred_head[w]
+        while edge != -1:
+            let edge_index = edge.usize()
+            let predecessor = dfs_number[edge_source[edge_index].usize()].usize()
+            let representative = lt_eval(predecessor, ancestor[0:MAX_V + 1], label[0:MAX_V + 1],
+                                           semi[0:MAX_V + 1], eval_path[0:MAX_V + 1])
+            if semi[representative] < semi[w]: semi[w] <- semi[representative]
+            edge <- pred_next[edge_index]
+        bucket_next[w] <- bucket_head[semi[w].usize()]
+        bucket_head[semi[w].usize()] <- w.i32()
+        ancestor[w] <- parent[w]
+        let owner = parent[w].usize()
+        var member: mutable i32 = bucket_head[owner]
+        bucket_head[owner] <- -1
+        while member != -1:
+            let vertex = member.usize()
+            let next = bucket_next[vertex]
+            let representative = lt_eval(vertex, ancestor[0:MAX_V + 1], label[0:MAX_V + 1],
+                                           semi[0:MAX_V + 1], eval_path[0:MAX_V + 1])
+            if semi[representative] < semi[vertex]: immediate[vertex] <- representative.i32()
+            else: immediate[vertex] <- owner.i32()
+            member <- next
+        w <- w - 1
+    for v in 2..<(dfs_count + 1):
+        if immediate[v] != semi[v]: immediate[v] <- immediate[immediate[v].usize()]
+    immediate[1] <- 1
+    for v in 0..<n:
+        let number = dfs_number[v]
+        if number == 0: staged[v] <- 255
+        else: staged[v] <- vertex_at[immediate[number.usize()].usize()].u8()
+    if output_is_null or capacity < n: return -2
+    for v in 0..<n: output[v] <- staged[v]
+    n.i64()
+
+def lengauer_tarjan_dominator_tree(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("lengauer_tarjan_dominator_tree"):
+    if input == null or length < 3 or length > MAX_INPUT: return -1
+    if output == null:
+        var scratch: mutable u8[1] = zeroed
+        return lengauer_tarjan_dominator_tree_impl(input[0:length], scratch[0:1], capacity, True)
+    lengauer_tarjan_dominator_tree_impl(input[0:length], output[0:capacity], capacity, False)

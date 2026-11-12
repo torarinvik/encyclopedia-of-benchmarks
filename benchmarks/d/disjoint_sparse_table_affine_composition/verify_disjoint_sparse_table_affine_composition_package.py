@@ -31,6 +31,18 @@ PORTS = (
     "v/d/disjoint_sparse_table_affine_composition.v",
     "zig/d/disjoint_sparse_table_affine_composition.zig",
 )
+PORT_ARRAY_LIMIT = {
+    "c/d/disjoint_sparse_table_affine_composition.c": "#define DST_MAX_N 32",
+    "c3/d/disjoint_sparse_table_affine_composition.c3": "const usz MAX_N = 32",
+    "cpp/d/disjoint_sparse_table_affine_composition.cpp": "max_n = 32",
+    "elisa/d/disjoint_sparse_table_affine_composition.elisa": "MAX_N: usize = 32",
+    "mojo/d/disjoint_sparse_table_affine_composition.mojo": "MAX_N = 32",
+    "nim/d/disjoint_sparse_table_affine_composition.nim": "MaxN = 32",
+    "odin/d/disjoint_sparse_table_affine_composition.odin": "MAX_N :: 32",
+    "rust/d/disjoint_sparse_table_affine_composition.rs": "MAX_N: usize = 32",
+    "v/d/disjoint_sparse_table_affine_composition.v": "max_n = 32",
+    "zig/d/disjoint_sparse_table_affine_composition.zig": "MAX_N: usize = 32",
+}
 
 
 def verify_workload() -> int:
@@ -39,7 +51,8 @@ def verify_workload() -> int:
             or workload.get("function_symbol") != SYMBOL
             or workload.get("abi") != "i64_array_bytes_output"
             or workload.get("input", {}).get("maximum_parseable_length") != MAX_INPUT_LENGTH
-            or workload.get("output", {}).get("maximum_bytes") != MAX_OUTPUT_BYTES):
+            or workload.get("output", {}).get("maximum_output_bytes") != MAX_OUTPUT_BYTES
+            or workload.get("workspace", {}).get("bytes") != MAX_OUTPUT_BYTES):
         raise ValueError("workload identity or bounds differ")
     sources = workload.get("source", {}).get("urls", [])
     if any(url not in sources for url in SOURCE_URLS):
@@ -69,8 +82,13 @@ def verify_workload() -> int:
         raise ValueError("README or rights note omits a source")
     for relative in PORTS:
         path = ROOT / relative
-        if not path.is_file() or SYMBOL not in path.read_text(encoding="utf-8"):
+        if not path.is_file():
             raise ValueError(f"missing port or exported symbol: {relative}")
+        source = path.read_text(encoding="utf-8")
+        if SYMBOL not in source:
+            raise ValueError(f"missing port or exported symbol: {relative}")
+        if PORT_ARRAY_LIMIT[relative] not in source:
+            raise ValueError(f"port array bound differs from 32: {relative}")
         if relative not in readme:
             raise ValueError(f"README does not link {relative}")
     elisa = (ROOT / "elisa/d/disjoint_sparse_table_affine_composition.elisa").read_text(encoding="utf-8")

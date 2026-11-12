@@ -38,6 +38,10 @@
     "insufficient_output_capacity_result": -2,
     "no_write_on_error": true
   },
+  "workspace": {
+    "bytes": 776,
+    "meaning": "Maximum output-buffer capacity for the serialized virtual-tree records."
+  },
   "algorithm": {
     "primary": "Build DFS preorder intervals and depths, sort marked vertices by preorder, add LCAs of adjacent marks, deduplicate, then connect each retained vertex to its nearest retained ancestor with a stack.",
     "independent_oracle": "Union every root-to-mark path directly, retain root, marked vertices, and branching vertices of that union, then find each retained vertex's nearest retained ancestor by scanning the small tree.",

@@ -931,6 +931,10 @@ Recent source-backed additions from Library Checker, Rosetta Code, CP-Algorithms
 
 [Hirschberg LCS reconstruction](benchmarks/h/hirschberg_lcs/README.md) returns an actual longest common subsequence using shared forward and backward rows; its full-table verifier checks the result independently, and the byte-output suite covers maximum sequences and capacity boundaries.
 
+[Games on arbitrary directed graphs](benchmarks/g/games_on_arbitrary_graphs/README.md) classifies every vertex as winning, losing, or drawing with reverse-edge retrograde propagation; its independent fixed-point oracle and generated cyclic-graph cases are registered in the byte-output suite.
+
+[Disjoint sparse table affine composition](benchmarks/d/disjoint_sparse_table_affine_composition/README.md) answers static ordered range folds of affine maps in O(1) after preprocessing; ten ports and an independent direct-application oracle are registered in the byte-output suite.
+
 [Deque operate all composite](benchmarks/d/deque_operate_all_composite/README.md) maintains affine-function composition across pushes and pops at both ends; its nine ports are registered in the scalar suite with a direct-list oracle. [Rectangle add point get](benchmarks/r/rectangle_add_point_get/README.md) supports dynamic half-open rectangle updates with point queries, while [static rectangle add rectangle sum](benchmarks/s/static_rectangle_add_rectangle_sum/README.md) handles a fixed update batch and rectangle-sum queries modulo 998244353. Both rectangle packages have ten ports and byte-output suite registration. [Static range LIS query](benchmarks/s/static_range_lis_query/README.md) provides strict LIS lengths over permutation subranges with a bounded per-query scan, while [static range inversions](benchmarks/s/static_range_inversions_query/README.md) answers strict inversion counts on arbitrary subranges using Mo ordering and a Fenwick tree. Both are registered in the byte-output suite.
 
 [Range affine point get](benchmarks/r/range_affine_point_get/README.md) applies modular affine maps to ranges and reads individual positions through lazy propagation; it has ten language ports and byte-output suite registration. [Range affine range sum](benchmarks/r/range_affine_range_sum/README.md) combines affine range updates with range-sum queries in a lazy segment tree; its ten ports, direct-array oracle, and scalar-suite registration are in place.
@@ -986,3 +990,9 @@ The [SPLASH-2-inspired water profiles](benchmarks/s/splash2_water_nsquared/READM
 [GraphAIBench gated graph-message update](benchmarks/g/graphai_ggnn_message_update/README.md) sums each vertex's outgoing neighbor states, applies reset/update gates and a recurrent candidate using six supplied matrices, and emits the next node states. Nine standard-language ports plus Mojo are wired into the float64 slice suite.
 
 [Kahan compensated summation](benchmarks/k/kahan_summation/README.md) processes ordered binary64 values with a running correction term. Ten ports, an exact-step independent verifier, and float64 slice suite registration are present.
+
+[Lengauer–Tarjan immediate dominators](benchmarks/l/lengauer_tarjan_dominator_tree/README.md) uses DFS semidominators and path-compressed `LINK`/`EVAL`, alongside the existing bitset fixed-point dominator-tree benchmark. Ten ports, a vertex-removal oracle, bounded workload, and byte-output suite registration are present.
+
+[Half-plane intersection](benchmarks/h/half_plane_intersection/README.md) constructs the exact rational convex region cut out by up to twelve primitive integer inequalities inside a fixed bounding square. Ten ports use angle sorting and deque pruning; an independent pair-intersection and convex-hull oracle and byte-output suite profile are included.
+
+[SMAWK row minima](benchmarks/s/smawk_row_minima/README.md) finds the leftmost minimum of every row in a promised totally monotone matrix using column reduction, recursive odd-row minima, and interpolation. Ten ports, an independent row-scan oracle, bounded fixtures, and byte-output suite registration are present.

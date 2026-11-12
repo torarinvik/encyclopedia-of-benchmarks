@@ -1,0 +1,116 @@
+const MODULUS: i64 = 1_000_000_007
+const MAX_N: usize = 32
+const MAX_Q: usize = 32
+const MAX_LEVELS: usize = 5
+const MAX_INPUT: usize = 130
+
+struct AffineMap:
+    a: i64
+    b: i64
+
+def dst_combine(left: AffineMap, right: AffineMap) -> AffineMap:
+    result: AffineMap
+    result.a <- (right.a * left.a) % MODULUS
+    result.b <- (right.a * left.b + right.b) % MODULUS
+    result
+
+def dst_put(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def dst_impl(input: view[i64], output: mutable view[u8], capacity: usize,
+             output_is_null: bool) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 2 + 2 * n + 2 * q: return -1
+
+    maps: mutable AffineMap[MAX_N] = zeroed
+    left: mutable usize[MAX_Q] = zeroed
+    right: mutable usize[MAX_Q] = zeroed
+    cursor: mutable usize = 2
+    for index in 0..<n:
+        a: i64 = input[cursor]
+        b: i64 = input[cursor + 1]
+        cursor <- cursor + 2
+        if a < 0 or a >= MODULUS or b < 0 or b >= MODULUS: return -1
+        maps[index].a <- a
+        maps[index].b <- b
+    for query in 0..<q:
+        lo: i64 = input[cursor]
+        hi: i64 = input[cursor + 1]
+        cursor <- cursor + 2
+        if lo < 0 or lo > hi or hi >= n_value: return -1
+        left[query] <- lo.usize()
+        right[query] <- hi.usize()
+
+    output_bytes: usize = q * 16
+    if output_is_null or capacity < output_bytes: return -2
+
+    table: mutable AffineMap[MAX_LEVELS * MAX_N] = zeroed
+    levels: mutable usize = 0
+    span: mutable usize = 1
+    while span < n:
+        levels <- levels + 1
+        span <- span * 2
+    level: mutable usize = 0
+    while level < levels:
+        half: usize = 1 << level
+        width: usize = half * 2
+        start: mutable usize = 0
+        while start < n:
+            middle: usize = start + half
+            ending: usize = start + width
+            if middle > n: middle <- n
+            if ending > n: ending <- n
+            if middle > start:
+                table[(level * MAX_N + middle - 1)].a <- maps[middle - 1].a
+                table[(level * MAX_N + middle - 1)].b <- maps[middle - 1].b
+                index: mutable usize = middle - 1
+                while index > start:
+                    combined: AffineMap = dst_combine(maps[index - 1], table[level * MAX_N + index])
+                    table[level * MAX_N + index - 1].a <- combined.a
+                    table[level * MAX_N + index - 1].b <- combined.b
+                    index <- index - 1
+            if middle < ending:
+                table[level * MAX_N + middle].a <- maps[middle].a
+                table[level * MAX_N + middle].b <- maps[middle].b
+                index: mutable usize = middle + 1
+                while index < ending:
+                    combined: AffineMap = dst_combine(table[level * MAX_N + index - 1], maps[index])
+                    table[level * MAX_N + index].a <- combined.a
+                    table[level * MAX_N + index].b <- combined.b
+                    index <- index + 1
+            start <- start + width
+        level <- level + 1
+
+    for query in 0..<q:
+        answer: AffineMap
+        if left[query] == right[query]:
+            answer <- maps[left[query]]
+        else:
+            difference: mutable usize = left[query] ^ right[query]
+            level: mutable usize = 0
+            while difference > 1:
+                difference <- difference >> 1
+                level <- level + 1
+            answer <- dst_combine(table[level * MAX_N + left[query]], table[level * MAX_N + right[query]])
+        dst_put(output, query * 16, answer.a)
+        dst_put(output, query * 16 + 8, answer.b)
+    output_bytes.i64()
+
+def disjoint_sparse_table_affine_composition(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("disjoint_sparse_table_affine_composition"):
+    if input == null or length < 2 or length > MAX_INPUT: return -1
+    if output == null:
+        scratch: mutable u8[1] = zeroed
+        return dst_impl(input[0:length], scratch[0:1], capacity, True)
+    dst_impl(input[0:length], output[0:capacity], capacity, False)

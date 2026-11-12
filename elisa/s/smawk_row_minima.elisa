@@ -1,0 +1,131 @@
+const SWM_MAX_ROWS: usize = 16
+const SWM_MAX_COLUMNS: usize = 16
+const SWM_MAX_INPUT: usize = 260
+
+def swm_smawk(input: view[i64], column_count: usize,
+              row_work: mutable view[usize], row_offset: usize, row_count: usize,
+              column_work: mutable view[usize], input_column_offset: usize,
+              input_column_count: usize, output_column_offset: usize,
+              minima: mutable view[usize]) -> void:
+    if row_count == 0: return
+    if row_count == 1:
+        row: usize = row_work[row_offset]
+        best: mutable usize = column_work[input_column_offset]
+        j: mutable usize = 1
+        while j < input_column_count:
+            candidate: usize = column_work[input_column_offset + j]
+            if input[2 + row * column_count + candidate] < input[2 + row * column_count + best]:
+                best <- candidate
+            j <- j + 1
+        minima[row] <- best
+        return
+
+    reduced_count: mutable usize = 0
+    j: mutable usize = 0
+    while j < input_column_count:
+        candidate: usize = column_work[input_column_offset + j]
+        while reduced_count > 0:
+            comparison_row: usize = row_work[row_offset + reduced_count - 1]
+            previous: usize = column_work[output_column_offset + reduced_count - 1]
+            if input[2 + comparison_row * column_count + candidate] < input[2 + comparison_row * column_count + previous]:
+                reduced_count <- reduced_count - 1
+            else:
+                break
+        if reduced_count < row_count:
+            column_work[output_column_offset + reduced_count] <- candidate
+            reduced_count <- reduced_count + 1
+        j <- j + 1
+
+    odd_offset: usize = row_offset + row_count
+    odd_count: mutable usize = 0
+    i: mutable usize = 1
+    while i < row_count:
+        row_work[odd_offset + odd_count] <- row_work[row_offset + i]
+        odd_count <- odd_count + 1
+        i <- i + 2
+    child_output_offset: usize = output_column_offset + reduced_count
+    swm_smawk(input, column_count, row_work, odd_offset, odd_count,
+              column_work, output_column_offset, reduced_count, child_output_offset, minima)
+
+    start_cursor: mutable usize = 0
+    end_cursor: mutable usize = 0
+    i <- 0
+    while i < row_count:
+        start: mutable usize = 0
+        if i > 0:
+            target: usize = minima[row_work[row_offset + i - 1]]
+            while start_cursor < reduced_count and column_work[output_column_offset + start_cursor] != target:
+                start_cursor <- start_cursor + 1
+            start <- if start_cursor < reduced_count: start_cursor else: reduced_count - 1
+        end: mutable usize = reduced_count - 1
+        if i + 1 < row_count:
+            target: usize = minima[row_work[row_offset + i + 1]]
+            if end_cursor < start: end_cursor <- start
+            while end_cursor < reduced_count and column_work[output_column_offset + end_cursor] != target:
+                end_cursor <- end_cursor + 1
+            end <- if end_cursor < reduced_count: end_cursor else: reduced_count - 1
+        row: usize = row_work[row_offset + i]
+        best: mutable usize = column_work[output_column_offset + start]
+        j <- start + 1
+        while j <= end:
+            candidate: usize = column_work[output_column_offset + j]
+            if input[2 + row * column_count + candidate] < input[2 + row * column_count + best]:
+                best <- candidate
+            j <- j + 1
+        minima[row] <- best
+        i <- i + 2
+
+def swm_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def smawk_row_minima_impl(input: view[i64], length: usize,
+                          staged: mutable view[u8], output_length: mutable view[usize]) -> i64:
+    if length < 3 or length > SWM_MAX_INPUT: return -1
+    if input[0] < 1 or input[0] > SWM_MAX_ROWS.i64() or input[1] < 1 or input[1] > SWM_MAX_COLUMNS.i64(): return -1
+    row_count: usize = input[0].usize()
+    column_count: usize = input[1].usize()
+    if length != 2 + row_count * column_count: return -1
+
+    row_work: mutable usize[2 * SWM_MAX_ROWS] = zeroed
+    column_work: mutable usize[3 * SWM_MAX_COLUMNS] = zeroed
+    minima: mutable usize[SWM_MAX_ROWS] = zeroed
+    i: mutable usize = 0
+    while i < row_count:
+        row_work[i] <- i
+        i <- i + 1
+    i <- 0
+    while i < column_count:
+        column_work[i] <- i
+        i <- i + 1
+    swm_smawk(input, column_count, row_work[0:2 * SWM_MAX_ROWS], 0, row_count,
+              column_work[0:3 * SWM_MAX_COLUMNS], 0, column_count, SWM_MAX_COLUMNS,
+              minima[0:SWM_MAX_ROWS])
+
+    output_bytes: usize = row_count * 8
+    i <- 0
+    while i < row_count:
+        swm_store_i64_le(staged, i * 8, minima[i].i64())
+        i <- i + 1
+    output_length[0] <- output_bytes
+    output_bytes.i64()
+
+export fn smawk_row_minima(input: i64&, length: usize,
+                           output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > SWM_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    staged: mutable u8[8 * SWM_MAX_ROWS] = zeroed
+    output_length: mutable usize[1] = zeroed
+    answer: i64 = smawk_row_minima_impl(values, length, staged[0:8 * SWM_MAX_ROWS], output_length[0:1])
+    if answer < 0: return answer
+    if output.is_null() or capacity < output_length[0]: return -2
+    output_view: mutable view[u8] = output[0:output_length[0]]
+    i: mutable usize = 0
+    while i < output_length[0]:
+        output_view[i] <- staged[i]
+        i <- i + 1
+    answer

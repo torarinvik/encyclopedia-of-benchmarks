@@ -6,6 +6,8 @@ The implementation uses reverse-edge retrograde propagation. It starts from term
 
 This is a cyclic-graph position classifier. It differs from [`sprague_grundy_theorem`](../../s/sprague_grundy_theorem/README.md), which computes mex values for a subtraction-game heap, as well as board-search minimax benchmarks.
 
+The output-buffer capacity is bounded at 17 bytes; internal state uses fixed arrays sized for the 16-vertex, 32-edge profile.
+
 The algorithm is independently implemented from the high-level description in [CP-Algorithms: Games on arbitrary graphs](https://cp-algorithms.com/game_theory/games_on_graphs.html), licensed CC BY-SA 4.0. No source code or test data is copied. The primary oracle uses reverse-edge propagation; the independent oracle repeatedly applies the attractor rules synchronously until reaching a fixed point.
 
 ## Language ports

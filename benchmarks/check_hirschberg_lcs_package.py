@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "benchmarks/h/hirschberg_lcs"
-if str(PACKAGE) not in sys.path:
-    sys.path.insert(0, str(PACKAGE))
 
-from independent_oracle import expected_output as independent_expected_output, verify_output
-from primary_oracle import WORKSPACE_BYTES, expected_output
+from h.hirschberg_lcs.independent_oracle import (
+    expected_output as independent_expected_output,
+    verify_output,
+)
+from h.hirschberg_lcs.primary_oracle import WORKSPACE_BYTES, expected_output
 
 LANGUAGE_PATHS = {
     "c": ROOT / "c/h/hirschberg_lcs.c",

@@ -1,0 +1,94 @@
+# Deterministic finite-support rejection sampling.
+const DRS_MAX_CATEGORIES: usize = 8
+const DRS_MAX_SAMPLES: usize = 8
+const DRS_MAX_ATTEMPTS: usize = 32
+const DRS_MAX_INPUT_VALUES: usize = 83
+const DRS_DRAW_SCALE: u64 = 4294967296
+
+def drs_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+export fn discrete_rejection_sampling(input: i64&, length: usize,
+                                      output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > DRS_MAX_INPUT_VALUES: return -1
+    values: view[i64] = input[0:length]
+    n_value: i64 = values[0]
+    samples_value: i64 = values[1]
+    attempts_value: i64 = values[2]
+    if n_value < 1 or n_value > 8 or samples_value < 1 or samples_value > 8 or attempts_value < 1 or attempts_value > 32:
+        return -1
+    n: usize = n_value.usize()
+    wanted: usize = samples_value.usize()
+    attempts: usize = attempts_value.usize()
+    if length != 3 + 2 * n + 2 * attempts: return -1
+
+    target: mutable i64[DRS_MAX_CATEGORIES] = zeroed
+    proposal: mutable i64[DRS_MAX_CATEGORIES] = zeroed
+    cumulative: mutable i64[DRS_MAX_CATEGORIES] = zeroed
+    target_total: mutable u64 = 0
+    proposal_total: mutable u64 = 0
+    i: mutable usize = 0
+    while i < n:
+        weight: i64 = values[3 + i]
+        q_weight: i64 = values[3 + n + i]
+        if weight < 1 or weight > 20 or q_weight < 1 or q_weight > 20: return -1
+        target[i] <- weight
+        proposal[i] <- q_weight
+        target_total <- target_total + weight.u64()
+        proposal_total <- proposal_total + q_weight.u64()
+        cumulative[i] <- proposal_total.i64()
+        i <- i + 1
+
+    envelope: mutable u64 = 1
+    i <- 0
+    while i < n:
+        numerator: u64 = target[i].u64() * proposal_total
+        denominator: u64 = target_total * proposal[i].u64()
+        ratio_ceiling: u64 = (numerator + denominator - 1) / denominator
+        if ratio_ceiling > envelope: envelope <- ratio_ceiling
+        i <- i + 1
+
+    tape_offset: usize = 3 + 2 * n
+    attempt: mutable usize = 0
+    while attempt < attempts:
+        proposal_draw: i64 = values[tape_offset + 2 * attempt]
+        acceptance_draw: i64 = values[tape_offset + 2 * attempt + 1]
+        if proposal_draw < 0 or proposal_draw.u64() >= proposal_total or acceptance_draw < 0 or acceptance_draw.u64() >= DRS_DRAW_SCALE:
+            return -1
+        attempt <- attempt + 1
+
+    output_bytes: usize = 16 * wanted
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[2 * DRS_MAX_SAMPLES * 8] = zeroed
+    staged_view: mutable view[u8] = staged[0:2 * DRS_MAX_SAMPLES * 8]
+    produced: mutable usize = 0
+    attempts_since_acceptance: mutable usize = 0
+    attempt <- 0
+    while attempt < attempts:
+        attempts_since_acceptance <- attempts_since_acceptance + 1
+        proposal_draw: u64 = values[tape_offset + 2 * attempt].u64()
+        acceptance_draw: u64 = values[tape_offset + 2 * attempt + 1].u64()
+        category: mutable usize = 0
+        while cumulative[category].u64() <= proposal_draw:
+            category <- category + 1
+        left: u64 = acceptance_draw * target_total * proposal[category].u64() * envelope
+        right: u64 = DRS_DRAW_SCALE * target[category].u64() * proposal_total
+        if left < right:
+            drs_store_i64_le(staged_view, produced * 8, category.i64())
+            drs_store_i64_le(staged_view, (produced + 1) * 8, attempts_since_acceptance.i64())
+            produced <- produced + 2
+            attempts_since_acceptance <- 0
+            if produced == 2 * wanted: break
+        attempt <- attempt + 1
+    if produced != 2 * wanted: return -3
+    output_view: mutable view[u8] = output[0:output_bytes]
+    i <- 0
+    while i < output_bytes:
+        output_view[i] <- staged_view[i]
+        i <- i + 1
+    output_bytes.i64()

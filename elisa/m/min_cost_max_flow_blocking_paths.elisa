@@ -1,0 +1,153 @@
+const MCMF_MAX_INPUT: usize = 69
+const MCMF_INF: i64 = 1152921504606846976
+
+struct McmfEdge:
+    from_vertex: usize
+    to_vertex: usize
+    reverse_index: usize
+    capacity: i64
+    cost: i64
+
+def send_tight_level_flow(u: usize, sink: usize, limit: i64,
+        edges: mutable view[McmfEdge], arc_count: usize, dist: view[i64],
+        level: view[i64], current: mutable view[usize]) -> i64:
+    if u == sink: return limit
+    while current[u] < arc_count:
+        edge_index: usize = current[u]
+        if edges[edge_index].from_vertex != u || edges[edge_index].capacity <= 0:
+            current[u] <- current[u] + 1
+            continue
+        v: usize = edges[edge_index].to_vertex
+        if dist[v] == MCMF_INF || dist[v] != dist[u] + edges[edge_index].cost || level[v] != level[u] + 1:
+            current[u] <- current[u] + 1
+            continue
+        amount: i64 = if limit < edges[edge_index].capacity then limit else edges[edge_index].capacity
+        sent: i64 = send_tight_level_flow(v, sink, amount, edges, arc_count, dist, level, current)
+        if sent > 0:
+            reverse: usize = edges[edge_index].reverse_index
+            edges[edge_index].capacity <- edges[edge_index].capacity - sent
+            edges[reverse].capacity <- edges[reverse].capacity + sent
+            if edges[edge_index].capacity == 0: current[u] <- current[u] + 1
+            return sent
+        current[u] <- current[u] + 1
+    return 0
+
+def min_cost_max_flow_blocking_paths_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length < 5 || length > MCMF_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    source_value: i64 = input[2]
+    sink_value: i64 = input[3]
+    flow_limit: i64 = input[4]
+    if n_value < 2 || n_value > 8 || m_value < 0 || m_value > 16: return -1
+    m: usize = m_value.usize()
+    if length != 5 + 4 * m: return -1
+    if source_value < 0 || source_value >= n_value || sink_value < 0 || sink_value >= n_value ||
+            source_value == sink_value || flow_limit < 0 || flow_limit > 16: return -1
+    n: usize = n_value.usize()
+    source: usize = source_value.usize()
+    sink: usize = sink_value.usize()
+    edges: mutable McmfEdge[32] = zeroed
+    index: mutable usize = 0
+    while index < m:
+        u_value: i64 = input[5 + 4 * index]
+        v_value: i64 = input[6 + 4 * index]
+        cap: i64 = input[7 + 4 * index]
+        cost: i64 = input[8 + 4 * index]
+        if u_value < 0 || u_value >= n_value || v_value < 0 || v_value >= n_value ||
+                cap < 0 || cap > 5 || cost < 0 || cost > 20: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        edge_index: usize = 2 * index
+        edges[edge_index].from_vertex <- u
+        edges[edge_index].to_vertex <- v
+        edges[edge_index].reverse_index <- edge_index + 1
+        edges[edge_index].capacity <- cap
+        edges[edge_index].cost <- cost
+        edges[edge_index + 1].from_vertex <- v
+        edges[edge_index + 1].to_vertex <- u
+        edges[edge_index + 1].reverse_index <- edge_index
+        edges[edge_index + 1].capacity <- 0
+        edges[edge_index + 1].cost <- -cost
+        index <- index + 1
+    if output == null || capacity < 16: return -2
+    total_flow: mutable i64 = 0
+    total_cost: mutable i64 = 0
+    while total_flow < flow_limit:
+        dist: mutable i64[8] = zeroed
+        queue: mutable usize[8] = zeroed
+        in_queue: mutable bool[8] = zeroed
+        index <- 0
+        while index < n:
+            dist[index] <- MCMF_INF
+            in_queue[index] <- false
+            index <- index + 1
+        dist[source] <- 0
+        head: mutable usize = 0
+        tail: mutable usize = 0
+        queued: mutable usize = 0
+        queue[tail] <- source
+        tail <- (tail + 1) % n
+        queued <- queued + 1
+        in_queue[source] <- true
+        while queued > 0:
+            u: usize = queue[head]
+            head <- (head + 1) % n
+            queued <- queued - 1
+            in_queue[u] <- false
+            edge: mutable usize = 0
+            while edge < 2 * m:
+                if edges[edge].from_vertex == u && edges[edge].capacity > 0:
+                    v: usize = edges[edge].to_vertex
+                    candidate: i64 = dist[u] + edges[edge].cost
+                    if candidate < dist[v]:
+                        dist[v] <- candidate
+                        if not in_queue[v]:
+                            queue[tail] <- v
+                            tail <- (tail + 1) % n
+                            queued <- queued + 1
+                            in_queue[v] <- true
+                edge <- edge + 1
+        if dist[sink] == MCMF_INF: break
+        while total_flow < flow_limit:
+            level: mutable i64[8] = zeroed
+            breadth: mutable usize[8] = zeroed
+            current: mutable usize[8] = zeroed
+            index <- 0
+            while index < n:
+                level[index] <- -1
+                current[index] <- 0
+                index <- index + 1
+            first: mutable usize = 0
+            last: mutable usize = 0
+            level[source] <- 0
+            breadth[last] <- source
+            last <- last + 1
+            while first < last:
+                u: usize = breadth[first]
+                first <- first + 1
+                edge: mutable usize = 0
+                while edge < 2 * m:
+                    if edges[edge].from_vertex == u && edges[edge].capacity > 0:
+                        v: usize = edges[edge].to_vertex
+                        if dist[v] == dist[u] + edges[edge].cost && level[v] < 0:
+                            level[v] <- level[u] + 1
+                            breadth[last] <- v
+                            last <- last + 1
+                    edge <- edge + 1
+            if level[sink] < 0: break
+            amount: i64 = send_tight_level_flow(source, sink, flow_limit - total_flow,
+                edges, 2 * m, dist, level, current)
+            if amount == 0: break
+            total_flow <- total_flow + amount
+            total_cost <- total_cost + amount * dist[sink]
+    flow_bits: u64 = total_flow.u64()
+    cost_bits: u64 = total_cost.u64()
+    for byte in 0..<8:
+        output[byte] <- (flow_bits >> (8 * byte)).u8()
+        output[8 + byte] <- (cost_bits >> (8 * byte)).u8()
+    16
+
+export fn min_cost_max_flow_blocking_paths(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = min_cost_max_flow_blocking_paths_impl

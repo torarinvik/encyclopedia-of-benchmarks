@@ -46,7 +46,7 @@ disjoint_sparse_table_affine_composition :: proc "c" (input: [^]i64, length: c.s
 			left[query], right[query] = int(lo), int(hi)
 		}
 		output_bytes := q * 16
-		if output == nil || int(capacity) < output_bytes do return -2
+		if output == nil || capacity < c.size_t(output_bytes) do return -2
 
 		var table: [MAX_LEVELS][MAX_N]Affine
 		levels, span := 0, 1

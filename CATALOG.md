@@ -5469,3 +5469,23 @@ This bounded rooted-tree profile builds the LCA-closed compressed tree induced b
 ## Hirschberg linear-space LCS reconstruction (`hirschberg_lcs`)
 
 This bounded byte-string profile returns an actual longest common subsequence using divide-and-conquer midpoint traceback with shared forward/backward rows. Ten ports use a deterministic smallest-split rule; a full-table independent verifier checks subsequence membership and optimal length. It differs from existing LCS packages that return only a length or use matching-pair LIS processing. The byte-output suite includes random sequences, empty results, maximum identical inputs, malformed frames, and capacity probes. See the [guide](benchmarks/h/hirschberg_lcs/README.md), [workload](benchmarks/h/hirschberg_lcs/workload.json), and [Hirschberg's paper](https://doi.org/10.1145/360825.360861).
+
+## Games on arbitrary directed graphs (`games_on_arbitrary_graphs`)
+
+This bounded normal-play graph-game profile classifies every vertex as a win, loss, or draw. Ten language ports use reverse-edge retrograde propagation; an independent synchronous fixed-point oracle checks cyclic graphs and self-loops. It differs from subtraction-game Grundy values and board-game minimax. The byte-output suite includes generated directed graphs, maximum frame/output bounds, duplicate edges, malformed endpoints, and capacity probes. See the [guide](benchmarks/g/games_on_arbitrary_graphs/README.md), [workload](benchmarks/g/games_on_arbitrary_graphs/workload.json), and [CP-Algorithms article](https://cp-algorithms.com/game_theory/games_on_graphs.html).
+
+## Disjoint sparse table affine composition (`disjoint_sparse_table_affine_composition`)
+
+This bounded static range-query profile composes affine maps in array order over 1,000,000,007. Ten language ports precompute disjoint suffix/prefix folds at power-of-two splits and answer each inclusive query with two folds; an independent oracle directly applies each map at zero and one to recover the result. It differs from overlapping idempotent sparse-table queries and dynamic segment trees. The byte-output suite includes maximum-length arrays and query batches, noncommutative compositions, malformed frames, and capacity probes. See the [guide](benchmarks/d/disjoint_sparse_table_affine_composition/README.md), [workload](benchmarks/d/disjoint_sparse_table_affine_composition/workload.json), [CP-Algorithms sparse-table article](https://cp-algorithms.com/data_structures/sparse-table.html), and [OI Wiki Cat Tree article](https://oiwiki.net/ds/cat-tree/).
+
+## Lengauer–Tarjan immediate dominators (`lengauer_tarjan_dominator_tree`)
+
+This bounded directed-graph profile computes root-relative immediate dominators with DFS numbering, semidominator buckets, and path-compressed `LINK`/`EVAL`. Ten language ports share the same graph and output contract as the existing bitset fixed-point `dominator_tree`, so the suite can compare two distinct algorithms on the same workload shape. A vertex-removal reachability oracle independently checks the results. See the [guide](benchmarks/l/lengauer_tarjan_dominator_tree/README.md), [workload](benchmarks/l/lengauer_tarjan_dominator_tree/workload.json), and [Lengauer–Tarjan paper](https://doi.org/10.1145/357062.357071).
+
+## Half-plane intersection (`half_plane_intersection`)
+
+This bounded geometry profile intersects up to 12 closed integer half-planes inside an implicit square and returns a canonical CCW cycle of exact reduced-rational vertices. Ten language ports use exact normal-angle sorting and deque pruning; an independent oracle enumerates feasible boundary intersections and computes their convex hull. This constructs a feasible region rather than testing a point or intersecting only a pair of lines. See the [guide](benchmarks/h/half_plane_intersection/README.md), [workload](benchmarks/h/half_plane_intersection/workload.json), and [CP-Algorithms article](https://cp-algorithms.com/geometry/halfplane-intersection.html).
+
+## SMAWK row minima (`smawk_row_minima`)
+
+This bounded matrix-search profile returns the leftmost minimum column for every row of a promised totally monotone matrix. Ten language ports use column reduction, recursive odd-row minima, and interpolation; an independent direct row scan checks the results. This differs from the convolution-specific monotone divide-and-conquer profile because it searches a general explicit totally monotone matrix. See the [guide](benchmarks/s/smawk_row_minima/README.md), [workload](benchmarks/s/smawk_row_minima/workload.json), and [Aggarwal et al. paper](https://doi.org/10.1007/BF01840359).

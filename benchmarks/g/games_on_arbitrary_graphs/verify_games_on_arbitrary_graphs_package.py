@@ -75,6 +75,7 @@ def validate_package() -> None:
             or workload.get("input", {}).get("edge_count_range") != [0, 32]
             or workload.get("input", {}).get("maximum_input_length") != 66
             or workload.get("output", {}).get("maximum_bytes") != 17
+            or workload.get("workspace", {}).get("bytes") != 17
             or workload.get("workspace", {}).get("elements") != 161
             or workload.get("measurement", {}).get("comparison_model")
             != "i64_array_bytes_output_call"):

@@ -15,7 +15,7 @@
     "kind": "signed_64_bit_integer_array",
     "encoding": "[N,Q,(a,b)*N,(left,right)*Q]",
     "map": "f(x)=a*x+b modulo 1,000,000,007; apply maps in increasing index order",
-    "vertex_count_range": [1, 32],
+    "array_length_range": [1, 32],
     "query_count_range": [1, 32],
     "coefficient_range": [0, 1000000006],
     "query_rule": "0 <= left <= right < N, inclusive",
@@ -28,12 +28,16 @@
   "output": {
     "kind": "little_endian_signed_i64_vector",
     "encoding": "(A,B) for each query, where the range composition is A*x+B modulo 1,000,000,007",
-    "maximum_bytes": 512,
+    "maximum_output_bytes": 512,
     "success_result": "number of bytes written",
     "invalid_input_result": -1,
     "null_output_result": -2,
-    "insufficient_capacity_result": -2,
+    "insufficient_output_capacity_result": -2,
     "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Maximum output-buffer capacity for 32 affine query-result pairs."
   },
   "algorithm": {
     "primary": "Precompute disjoint suffix and prefix folds around each power-of-two midpoint; select a query level by the highest set bit of left XOR right and combine its two ordered folds.",

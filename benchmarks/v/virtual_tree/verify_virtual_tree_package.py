@@ -61,7 +61,8 @@ def verify_workload() -> int:
             or workload.get("input", {}).get("maximum_valid_length") != MAX_VALID_INPUT_LENGTH
             or workload.get("input", {}).get("maximum_parseable_length") != MAX_INPUT_LENGTH
             or workload.get("output", {}).get("maximum_virtual_vertices") != 32
-            or workload.get("output", {}).get("maximum_output_bytes") != MAX_OUTPUT_BYTES):
+            or workload.get("output", {}).get("maximum_output_bytes") != MAX_OUTPUT_BYTES
+            or workload.get("workspace", {}).get("bytes") != MAX_OUTPUT_BYTES):
         raise ValueError("workload identity, provenance, or bounds differ")
     cases = workload.get("cases")
     if not isinstance(cases, list) or not cases:

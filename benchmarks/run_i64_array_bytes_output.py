@@ -71,6 +71,46 @@ from games_on_arbitrary_graphs_oracle import (
 from g.games_on_arbitrary_graphs.verify_games_on_arbitrary_graphs_package import (
     validate_package as verify_games_on_arbitrary_graphs_package,
 )
+from d.disjoint_sparse_table_affine_composition.primary_oracle import (
+    MAX_INPUT_LENGTH as DISJOINT_SPARSE_TABLE_AFFINE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DISJOINT_SPARSE_TABLE_AFFINE_MAX_OUTPUT_BYTES,
+    expected_output as disjoint_sparse_table_affine_oracle,
+)
+from d.disjoint_sparse_table_affine_composition.verify_disjoint_sparse_table_affine_composition_package import (
+    verify_workload as verify_disjoint_sparse_table_affine_package,
+)
+from lengauer_tarjan_dominator_tree_oracle import (
+    MAX_INPUT_LENGTH as LENGAUER_TARJAN_DOMINATOR_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as LENGAUER_TARJAN_DOMINATOR_MAX_OUTPUT_BYTES,
+    expected_output as lengauer_tarjan_dominator_tree_oracle,
+)
+from l.lengauer_tarjan_dominator_tree.verify_lengauer_tarjan_dominator_tree_package import (
+    validate_package as verify_lengauer_tarjan_dominator_tree_package,
+)
+from half_plane_intersection_oracle import (
+    MAX_INPUT_LENGTH as HALF_PLANE_INTERSECTION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as HALF_PLANE_INTERSECTION_MAX_OUTPUT_BYTES,
+    expected_output as half_plane_intersection_oracle,
+)
+from check_half_plane_intersection_package import (
+    static_issues as half_plane_intersection_static_issues,
+)
+from smawk_row_minima_oracle import (
+    MAX_PARSEABLE_LENGTH as SMAWK_ROW_MINIMA_MAX_PARSEABLE_LENGTH,
+    MAX_OUTPUT_BYTES as SMAWK_ROW_MINIMA_MAX_OUTPUT_BYTES,
+    expected_output as smawk_row_minima_oracle,
+)
+from check_smawk_row_minima_package import (
+    static_issues as smawk_row_minima_static_issues,
+)
+from min_cost_max_flow_blocking_paths_oracle import (
+    MAX_INPUT_LENGTH as MIN_COST_MAX_FLOW_BLOCKING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MIN_COST_MAX_FLOW_BLOCKING_MAX_OUTPUT_BYTES,
+    expected_output as min_cost_max_flow_blocking_paths_oracle,
+)
+from m.min_cost_max_flow_blocking_paths.verify_min_cost_max_flow_blocking_paths_package import (
+    validate_package as verify_min_cost_max_flow_blocking_paths_package,
+)
 from minkowski_sum_convex_polygons_oracle import (
     MAX_INPUT_LENGTH as MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_OUTPUT_BYTES,
@@ -6759,6 +6799,11 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "virtual_tree": virtual_tree_oracle,
     "hirschberg_lcs": hirschberg_lcs_oracle,
     "games_on_arbitrary_graphs": games_on_arbitrary_graphs_oracle,
+    "disjoint_sparse_table_affine_composition": disjoint_sparse_table_affine_oracle,
+    "lengauer_tarjan_dominator_tree": lengauer_tarjan_dominator_tree_oracle,
+    "half_plane_intersection": half_plane_intersection_oracle,
+    "smawk_row_minima": smawk_row_minima_oracle,
+    "min_cost_max_flow_blocking_paths": min_cost_max_flow_blocking_paths_oracle,
     "suffix_array_sais": suffix_array_sais_oracle,
     "minkowski_sum_convex_polygons": minkowski_sum_convex_polygons_oracle,
     "de_bruijn_sequences": de_bruijn_sequences_oracle,
@@ -7407,6 +7452,26 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
     "games_on_arbitrary_graphs": (
         GAMES_ON_ARBITRARY_GRAPHS_MAX_INPUT_LENGTH,
         GAMES_ON_ARBITRARY_GRAPHS_MAX_OUTPUT_BYTES,
+    ),
+    "disjoint_sparse_table_affine_composition": (
+        DISJOINT_SPARSE_TABLE_AFFINE_MAX_INPUT_LENGTH,
+        DISJOINT_SPARSE_TABLE_AFFINE_MAX_OUTPUT_BYTES,
+    ),
+    "lengauer_tarjan_dominator_tree": (
+        LENGAUER_TARJAN_DOMINATOR_MAX_INPUT_LENGTH,
+        LENGAUER_TARJAN_DOMINATOR_MAX_OUTPUT_BYTES,
+    ),
+    "half_plane_intersection": (
+        HALF_PLANE_INTERSECTION_MAX_INPUT_LENGTH,
+        HALF_PLANE_INTERSECTION_MAX_OUTPUT_BYTES,
+    ),
+    "smawk_row_minima": (
+        SMAWK_ROW_MINIMA_MAX_PARSEABLE_LENGTH,
+        SMAWK_ROW_MINIMA_MAX_OUTPUT_BYTES,
+    ),
+    "min_cost_max_flow_blocking_paths": (
+        MIN_COST_MAX_FLOW_BLOCKING_MAX_INPUT_LENGTH,
+        MIN_COST_MAX_FLOW_BLOCKING_MAX_OUTPUT_BYTES,
     ),
     "suffix_array_sais": (SUFFIX_ARRAY_SAIS_MAX_INPUT_LENGTH, SUFFIX_ARRAY_SAIS_MAX_OUTPUT_BYTES),
     "minkowski_sum_convex_polygons": (
@@ -37932,6 +37997,43 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         if workload != json.loads(package_workload.read_text(encoding="utf-8")):
             raise ValueError("games_on_arbitrary_graphs workload differs from its package file")
         verify_games_on_arbitrary_graphs_package()
+        return
+    if algorithm == "disjoint_sparse_table_affine_composition":
+        package_workload = ROOT / "benchmarks/d/disjoint_sparse_table_affine_composition/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("disjoint_sparse_table_affine_composition workload differs from its package file")
+        verify_disjoint_sparse_table_affine_package()
+        return
+    if algorithm == "lengauer_tarjan_dominator_tree":
+        package_workload = ROOT / "benchmarks/l/lengauer_tarjan_dominator_tree/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("lengauer_tarjan_dominator_tree workload differs from its package file")
+        verify_lengauer_tarjan_dominator_tree_package()
+        return
+    if algorithm == "half_plane_intersection":
+        package_workload = ROOT / "benchmarks/h/half_plane_intersection/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("half_plane_intersection workload differs from its package file")
+        issues = half_plane_intersection_static_issues()
+        if issues:
+            raise ValueError("half_plane_intersection package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "smawk_row_minima":
+        package_workload = ROOT / "benchmarks/s/smawk_row_minima/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("smawk_row_minima workload differs from its package file")
+        issues = smawk_row_minima_static_issues()
+        if issues:
+            raise ValueError("smawk_row_minima package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "min_cost_max_flow_blocking_paths":
+        package_workload = ROOT / "benchmarks/m/min_cost_max_flow_blocking_paths/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("min_cost_max_flow_blocking_paths workload differs from its package file")
+        issues = verify_min_cost_max_flow_blocking_paths_package()
+        if issues:
+            raise ValueError("min_cost_max_flow_blocking_paths package is incomplete: "
+                             + "; ".join(issues))
         return
     if algorithm == "suffix_array_sais":
         package_workload = ROOT / "benchmarks/s/suffix_array_sais/workload.json"

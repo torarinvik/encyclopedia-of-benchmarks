@@ -67,6 +67,56 @@ from games_on_arbitrary_graphs_oracle import (
 from games_on_arbitrary_graphs_fixed_point_oracle import (
     expected_output as games_on_arbitrary_graphs_independent_oracle,
 )
+from d.disjoint_sparse_table_affine_composition.independent_oracle import (
+    expected_output as disjoint_sparse_table_affine_independent_oracle,
+)
+from d.disjoint_sparse_table_affine_composition.primary_oracle import (
+    MAX_INPUT_LENGTH as DISJOINT_SPARSE_TABLE_AFFINE_MAX_INPUT_LENGTH,
+    MAX_N as DISJOINT_SPARSE_TABLE_AFFINE_MAX_N,
+    MAX_OUTPUT_BYTES as DISJOINT_SPARSE_TABLE_AFFINE_MAX_OUTPUT_BYTES,
+    MAX_Q as DISJOINT_SPARSE_TABLE_AFFINE_MAX_Q,
+    MODULUS as DISJOINT_SPARSE_TABLE_AFFINE_MODULUS,
+)
+from lengauer_tarjan_dominator_tree_oracle import (
+    MAX_EDGES as LENGAUER_TARJAN_DOMINATOR_MAX_EDGES,
+    MAX_INPUT_LENGTH as LENGAUER_TARJAN_DOMINATOR_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as LENGAUER_TARJAN_DOMINATOR_MAX_OUTPUT_BYTES,
+    MAX_VERTICES as LENGAUER_TARJAN_DOMINATOR_MAX_VERTICES,
+)
+from lengauer_tarjan_dominator_tree_independent_oracle import (
+    expected_output as lengauer_tarjan_dominator_tree_independent_oracle,
+)
+from half_plane_intersection_oracle import (
+    MAX_CONSTRAINTS as HALF_PLANE_INTERSECTION_MAX_CONSTRAINTS,
+    MAX_INPUT_LENGTH as HALF_PLANE_INTERSECTION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as HALF_PLANE_INTERSECTION_MAX_OUTPUT_BYTES,
+    MAX_OUTPUT_VERTICES as HALF_PLANE_INTERSECTION_MAX_OUTPUT_VERTICES,
+    WORKSPACE_BYTES as HALF_PLANE_INTERSECTION_WORKSPACE_BYTES,
+)
+from half_plane_intersection_verifier_oracle import (
+    expected_output as half_plane_intersection_independent_oracle,
+)
+from s.smawk_row_minima.primary_oracle import (
+    MAX_COLUMNS as SMAWK_ROW_MINIMA_MAX_COLUMNS,
+    MAX_INPUT_LENGTH as SMAWK_ROW_MINIMA_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SMAWK_ROW_MINIMA_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_LENGTH as SMAWK_ROW_MINIMA_MAX_PARSEABLE_LENGTH,
+    MAX_ROWS as SMAWK_ROW_MINIMA_MAX_ROWS,
+    WORKSPACE_BYTES as SMAWK_ROW_MINIMA_WORKSPACE_BYTES,
+)
+from smawk_row_minima_verifier_oracle import (
+    expected_output as smawk_row_minima_independent_oracle,
+)
+from min_cost_max_flow_blocking_paths_oracle import (
+    MAX_EDGES as MIN_COST_MAX_FLOW_BLOCKING_MAX_EDGES,
+    MAX_FLOW_LIMIT as MIN_COST_MAX_FLOW_BLOCKING_MAX_FLOW_LIMIT,
+    MAX_INPUT_LENGTH as MIN_COST_MAX_FLOW_BLOCKING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MIN_COST_MAX_FLOW_BLOCKING_MAX_OUTPUT_BYTES,
+    MAX_VERTICES as MIN_COST_MAX_FLOW_BLOCKING_MAX_VERTICES,
+)
+from min_cost_max_flow_blocking_paths_independent_oracle import (
+    expected_output as min_cost_max_flow_blocking_paths_independent_oracle,
+)
 from s.suffix_array_sais.independent_oracle import (
     expected_output as suffix_array_sais_independent_oracle,
 )
@@ -5795,6 +5845,11 @@ ALGORITHMS = (*ALGORITHMS, "crochemore_perrin_two_way")
 ALGORITHMS = (*ALGORITHMS, "virtual_tree")
 ALGORITHMS = (*ALGORITHMS, "hirschberg_lcs")
 ALGORITHMS = (*ALGORITHMS, "games_on_arbitrary_graphs")
+ALGORITHMS = (*ALGORITHMS, "disjoint_sparse_table_affine_composition")
+ALGORITHMS = (*ALGORITHMS, "lengauer_tarjan_dominator_tree")
+ALGORITHMS = (*ALGORITHMS, "half_plane_intersection")
+ALGORITHMS = (*ALGORITHMS, "smawk_row_minima")
+ALGORITHMS = (*ALGORITHMS, "min_cost_max_flow_blocking_paths")
 WORKSPACE_ALGORITHMS.update({
     "npb_cg_sparse_inverse_power", "hpcg_profile", "baswana_sen_weighted_spanner",
     "npb_lu_block_ssor", "q_binomial_coefficient_prime_mod",
@@ -5814,6 +5869,11 @@ WORKSPACE_ALGORITHMS.update({
     "suffix_array_sais", "minkowski_sum_convex_polygons",
     "crochemore_perrin_two_way", "virtual_tree", "hirschberg_lcs",
     "games_on_arbitrary_graphs"})
+WORKSPACE_ALGORITHMS.add("disjoint_sparse_table_affine_composition")
+WORKSPACE_ALGORITHMS.add("lengauer_tarjan_dominator_tree")
+WORKSPACE_ALGORITHMS.add("half_plane_intersection")
+WORKSPACE_ALGORITHMS.add("smawk_row_minima")
+WORKSPACE_ALGORITHMS.add("min_cost_max_flow_blocking_paths")
 WORKSPACE_ALGORITHMS.update({
     "ams_sketch", "count_min_sketch_affine", "deterministic_line_search",
     "color_coding_k_path",
@@ -13127,6 +13187,11 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "virtual_tree": virtual_tree_independent_oracle,
     "hirschberg_lcs": hirschberg_lcs_independent_oracle,
     "games_on_arbitrary_graphs": games_on_arbitrary_graphs_independent_oracle,
+    "disjoint_sparse_table_affine_composition": disjoint_sparse_table_affine_independent_oracle,
+    "lengauer_tarjan_dominator_tree": lengauer_tarjan_dominator_tree_independent_oracle,
+    "half_plane_intersection": half_plane_intersection_independent_oracle,
+    "smawk_row_minima": smawk_row_minima_independent_oracle,
+    "min_cost_max_flow_blocking_paths": min_cost_max_flow_blocking_paths_independent_oracle,
     "suffix_array_sais": suffix_array_sais_independent_oracle,
     "minkowski_sum_convex_polygons": minkowski_sum_convex_polygons_independent_oracle,
     "de_bruijn_sequences": de_bruijn_sequences_independent_oracle,
@@ -19566,6 +19631,106 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or input_spec.get("maximum_parseable_length") != max_input
                 or output_spec.get("maximum_output_bytes") != max_output):
             raise ValueError("hirschberg_lcs bounds differ from its bounded reconstruction profile")
+    elif algorithm == "games_on_arbitrary_graphs":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != GAMES_ON_ARBITRARY_GRAPHS_MAX_INPUT_LENGTH
+                or max_output != GAMES_ON_ARBITRARY_GRAPHS_MAX_OUTPUT_BYTES
+                or workspace_bytes != max_output
+                or max_input != 66 or max_output != 17
+                or GAMES_ON_ARBITRARY_GRAPHS_MAX_VERTICES != 16
+                or GAMES_ON_ARBITRARY_GRAPHS_MAX_EDGES != 32
+                or input_spec.get("vertex_count_range") != [0, 16]
+                or input_spec.get("edge_count_range") != [0, 32]
+                or input_spec.get("maximum_valid_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("games_on_arbitrary_graphs bounds differ from its bounded graph-game profile")
+    elif algorithm == "disjoint_sparse_table_affine_composition":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != DISJOINT_SPARSE_TABLE_AFFINE_MAX_INPUT_LENGTH
+                or max_output != DISJOINT_SPARSE_TABLE_AFFINE_MAX_OUTPUT_BYTES
+                or workspace_bytes != max_output
+                or max_input != 130 or max_output != 512
+                or DISJOINT_SPARSE_TABLE_AFFINE_MAX_N != 32
+                or DISJOINT_SPARSE_TABLE_AFFINE_MAX_Q != 32
+                or DISJOINT_SPARSE_TABLE_AFFINE_MODULUS != 1_000_000_007
+                or input_spec.get("array_length_range") != [1, 32]
+                or input_spec.get("query_count_range") != [1, 32]
+                or input_spec.get("coefficient_range") != [0, 1_000_000_006]
+                or input_spec.get("maximum_valid_length") != max_input
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_output_bytes") != max_output):
+            raise ValueError("disjoint_sparse_table_affine_composition bounds differ from its static affine-fold profile")
+    elif algorithm == "lengauer_tarjan_dominator_tree":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != LENGAUER_TARJAN_DOMINATOR_MAX_INPUT_LENGTH
+                or max_output != LENGAUER_TARJAN_DOMINATOR_MAX_OUTPUT_BYTES
+                or workspace_bytes != max_output
+                or max_input != 4097 or max_output != 63
+                or LENGAUER_TARJAN_DOMINATOR_MAX_VERTICES != 63
+                or LENGAUER_TARJAN_DOMINATOR_MAX_EDGES != 2047
+                or input_spec.get("node_count_range") != [1, 63]
+                or input_spec.get("edge_count_range") != [0, 2047]
+                or input_spec.get("maximum_valid_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or workload.get("workspace", {}).get("elements") != 9206):
+            raise ValueError("lengauer_tarjan_dominator_tree bounds differ from its bounded semidominator profile")
+    elif algorithm == "half_plane_intersection":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != HALF_PLANE_INTERSECTION_MAX_INPUT_LENGTH
+                or max_output != HALF_PLANE_INTERSECTION_MAX_OUTPUT_BYTES
+                or workspace_bytes != HALF_PLANE_INTERSECTION_WORKSPACE_BYTES
+                or max_input != 37 or max_output != 520
+                or HALF_PLANE_INTERSECTION_MAX_CONSTRAINTS != 12
+                or HALF_PLANE_INTERSECTION_MAX_OUTPUT_VERTICES != 16
+                or input_spec.get("constraint_count_range") != [0, 12]
+                or input_spec.get("normal_coefficient_range") != [-16, 16]
+                or input_spec.get("offset_range") != [-128, 128]
+                or input_spec.get("maximum_valid_length") != max_input
+                or output_spec.get("maximum_vertices") != 16
+                or output_spec.get("maximum_output_bytes") != max_output):
+            raise ValueError("half_plane_intersection bounds differ from its exact bounded deque profile")
+    elif algorithm == "smawk_row_minima":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != SMAWK_ROW_MINIMA_MAX_PARSEABLE_LENGTH
+                or max_output != SMAWK_ROW_MINIMA_MAX_OUTPUT_BYTES
+                or workspace_bytes != SMAWK_ROW_MINIMA_WORKSPACE_BYTES
+                or max_input != 260 or max_output != 128
+                or SMAWK_ROW_MINIMA_MAX_VALID_INPUT_LENGTH != 258
+                or SMAWK_ROW_MINIMA_MAX_ROWS != 16
+                or SMAWK_ROW_MINIMA_MAX_COLUMNS != 16
+                or input_spec.get("row_count_range") != [1, 16]
+                or input_spec.get("column_count_range") != [1, 16]
+                or input_spec.get("maximum_valid_input_length") != 258
+                or input_spec.get("maximum_parseable_input_length") != max_input
+                or "A[i,j] > A[i,l] implies A[k,j] > A[k,l]"
+                    not in input_spec.get("matrix_promise", "")
+                or output_spec.get("maximum_output_bytes") != max_output):
+            raise ValueError("smawk_row_minima bounds differ from its bounded totally-monotone profile")
+    elif algorithm == "min_cost_max_flow_blocking_paths":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        bounds = workload.get("contract", {}).get("bounds", {})
+        if (max_input != MIN_COST_MAX_FLOW_BLOCKING_MAX_INPUT_LENGTH
+                or max_output != MIN_COST_MAX_FLOW_BLOCKING_MAX_OUTPUT_BYTES
+                or workspace_bytes != max_output
+                or max_input != 69 or max_output != 16
+                or MIN_COST_MAX_FLOW_BLOCKING_MAX_VERTICES != 8
+                or MIN_COST_MAX_FLOW_BLOCKING_MAX_EDGES != 16
+                or MIN_COST_MAX_FLOW_BLOCKING_MAX_FLOW_LIMIT != 16
+                or workload.get("input", {}).get("maximum_input_length") != max_input
+                or bounds.get("vertex_count") != [2, 8]
+                or bounds.get("edge_count") != [0, 16]
+                or bounds.get("flow_limit") != [0, 16]
+                or bounds.get("capacity") != [0, 5]
+                or bounds.get("cost") != [0, 20]
+                or workload.get("contract", {}).get("output_bytes") != max_output
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("min_cost_max_flow_blocking_paths bounds differ from its tight-edge profile")
     elif algorithm == "suffix_array_sais":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -19963,7 +20128,7 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             (), (1,), (0, 0), (VIRTUAL_TREE_MAX_VERTICES + 1, 0),
             (3, 2, 0, 1, 1, 1), (3, 1, 2, 1, 0),
             (1, 0, 9), (1, 1, 0, 1),
-            (*maximum_values, 9), (*maximum_values, 9, 9),
+            (*maximum_values, 9),
         )
         for malformed in malformed_virtual_tree:
             result, output = add(malformed)
@@ -20024,7 +20189,7 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         malformed_hirschberg = (
             (), (1,), (HIRSCHBERG_LCS_MAX_SEQUENCE_LENGTH + 1, 0),
             (0, 0, 1), (1, 1, 128, 65), (1, 1, 65, 65, 0),
-            (*maximum_values, 0, 0), (*maximum_values, 0, 0, 0),
+            (*maximum_values, 0, 0),
         )
         for malformed in malformed_hirschberg:
             result, output = add(malformed)
@@ -20044,6 +20209,356 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_result, null_output = add((), input_is_null=True, input_length=0)
         if null_result != -1 or null_output:
             raise ValueError("hirschberg_lcs accepted a null input pointer")
+    elif algorithm == "games_on_arbitrary_graphs":
+        def pack_game_graph(vertex_count, edges):
+            return (vertex_count, len(edges),
+                    *(endpoint for edge in edges for endpoint in edge))
+
+        rng_games = random.Random(0x6A4E)
+        generated_inputs = []
+        for _ in range(128):
+            vertex_count = rng_games.randint(0, GAMES_ON_ARBITRARY_GRAPHS_MAX_VERTICES)
+            candidates = [(source, target)
+                          for source in range(vertex_count)
+                          for target in range(vertex_count)]
+            edge_count = rng_games.randint(
+                0, min(GAMES_ON_ARBITRARY_GRAPHS_MAX_EDGES, len(candidates)))
+            edges = rng_games.sample(candidates, edge_count)
+            generated_inputs.append(pack_game_graph(vertex_count, edges))
+
+        maximum_candidates = [(source, target)
+                              for source in range(GAMES_ON_ARBITRARY_GRAPHS_MAX_VERTICES)
+                              for target in range(GAMES_ON_ARBITRARY_GRAPHS_MAX_VERTICES)]
+        maximum_edges = rng_games.sample(
+            maximum_candidates, GAMES_ON_ARBITRARY_GRAPHS_MAX_EDGES)
+        maximum_values = pack_game_graph(
+            GAMES_ON_ARBITRARY_GRAPHS_MAX_VERTICES, maximum_edges)
+        if len(maximum_values) != GAMES_ON_ARBITRARY_GRAPHS_MAX_INPUT_LENGTH:
+            raise ValueError("games_on_arbitrary_graphs maximum frame differs from its input bound")
+        maximum_result, maximum_output = add(maximum_values)
+        if maximum_result != GAMES_ON_ARBITRARY_GRAPHS_MAX_OUTPUT_BYTES:
+            raise ValueError("games_on_arbitrary_graphs maximum graph differs from its output bound")
+        generated_inputs.append(maximum_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            if result != len(output) or result > GAMES_ON_ARBITRARY_GRAPHS_MAX_OUTPUT_BYTES:
+                raise ValueError("games_on_arbitrary_graphs generated graph has invalid output framing")
+            if case_index % 8 == 0:
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("games_on_arbitrary_graphs accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if (exact_result != result or exact_output != output):
+                    raise ValueError("games_on_arbitrary_graphs rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("games_on_arbitrary_graphs accepted a null output buffer")
+
+        malformed_games = (
+            (), (1,), (-1, 0), (GAMES_ON_ARBITRARY_GRAPHS_MAX_VERTICES + 1, 0),
+            (0, 1, 0, 0), (2, 1, 0, 2), (1, 0, 7),
+            (1, GAMES_ON_ARBITRARY_GRAPHS_MAX_EDGES + 1,
+             *([0] * (2 * GAMES_ON_ARBITRARY_GRAPHS_MAX_EDGES))),
+        )
+        for malformed in malformed_games:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("games_on_arbitrary_graphs accepted malformed graph input")
+        precedence_result, precedence_output = add(
+            (2, 1, 0, 2), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("games_on_arbitrary_graphs output errors took precedence over invalid input")
+        for capacity in (0, GAMES_ON_ARBITRARY_GRAPHS_MAX_OUTPUT_BYTES - 1,
+                         GAMES_ON_ARBITRARY_GRAPHS_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < GAMES_ON_ARBITRARY_GRAPHS_MAX_OUTPUT_BYTES
+                        else (GAMES_ON_ARBITRARY_GRAPHS_MAX_OUTPUT_BYTES, maximum_output))
+            if (result, output) != expected:
+                raise ValueError("games_on_arbitrary_graphs maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("games_on_arbitrary_graphs accepted a null input pointer")
+    elif algorithm == "lengauer_tarjan_dominator_tree":
+        def pack_dominator_graph(vertex_count, root, edges):
+            return (vertex_count, root, len(edges),
+                    *(endpoint for edge in edges for endpoint in edge))
+
+        rng_lengauer_tarjan = random.Random(0x1A79)
+        generated_inputs = []
+        for _ in range(128):
+            vertex_count = rng_lengauer_tarjan.randint(
+                1, LENGAUER_TARJAN_DOMINATOR_MAX_VERTICES)
+            edge_count = rng_lengauer_tarjan.randint(0, 128)
+            edges = [(rng_lengauer_tarjan.randrange(vertex_count),
+                      rng_lengauer_tarjan.randrange(vertex_count))
+                     for _ in range(edge_count)]
+            root = rng_lengauer_tarjan.randrange(vertex_count)
+            generated_inputs.append(pack_dominator_graph(vertex_count, root, edges))
+
+        maximum_edges = [(vertex, vertex + 1)
+                         for vertex in range(LENGAUER_TARJAN_DOMINATOR_MAX_VERTICES - 1)]
+        maximum_edges.extend(
+            [(0, 1)] * (LENGAUER_TARJAN_DOMINATOR_MAX_EDGES - len(maximum_edges)))
+        maximum_values = pack_dominator_graph(
+            LENGAUER_TARJAN_DOMINATOR_MAX_VERTICES, 0, maximum_edges)
+        if len(maximum_values) != LENGAUER_TARJAN_DOMINATOR_MAX_INPUT_LENGTH:
+            raise ValueError("Lengauer–Tarjan maximum frame differs from its input bound")
+        maximum_result, maximum_output = add(maximum_values)
+        if (maximum_result != LENGAUER_TARJAN_DOMINATOR_MAX_OUTPUT_BYTES
+                or maximum_output != bytes([0, *range(LENGAUER_TARJAN_DOMINATOR_MAX_VERTICES - 1)])):
+            raise ValueError("Lengauer–Tarjan maximum reachable chain differs from its output bound")
+        generated_inputs.append(maximum_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            if result != len(output) or result > LENGAUER_TARJAN_DOMINATOR_MAX_OUTPUT_BYTES:
+                raise ValueError("Lengauer–Tarjan generated graph has invalid output framing")
+            if case_index % 8 == 0:
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("Lengauer–Tarjan accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if (exact_result != result or exact_output != output):
+                    raise ValueError("Lengauer–Tarjan rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("Lengauer–Tarjan accepted a null output buffer")
+
+        malformed_dominator_graphs = (
+            (), (1,), (0, 0, 0), (2, 2, 0), (2, 0, 1, 0),
+            (2, 0, 1, 0, 2), (1, 0, 0, 9), (1, 0, -1),
+        )
+        for malformed in malformed_dominator_graphs:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("Lengauer–Tarjan accepted malformed graph input")
+        precedence_result, precedence_output = add(
+            (2, 0, 1, 0, 2), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("Lengauer–Tarjan output errors took precedence over invalid input")
+        for capacity in (0, LENGAUER_TARJAN_DOMINATOR_MAX_OUTPUT_BYTES - 1,
+                         LENGAUER_TARJAN_DOMINATOR_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < LENGAUER_TARJAN_DOMINATOR_MAX_OUTPUT_BYTES
+                        else (LENGAUER_TARJAN_DOMINATOR_MAX_OUTPUT_BYTES, maximum_output))
+            if (result, output) != expected:
+                raise ValueError("Lengauer–Tarjan maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("Lengauer–Tarjan accepted a null input pointer")
+    elif algorithm == "half_plane_intersection":
+        def pack_halfplanes(constraints):
+            return (len(constraints),
+                    *(coefficient for line in constraints for coefficient in line))
+
+        rng_halfplanes = random.Random(0xA11CE)
+        generated_inputs = [(0,)]
+        for _ in range(128):
+            constraints = []
+            for _ in range(rng_halfplanes.randint(0, HALF_PLANE_INTERSECTION_MAX_CONSTRAINTS)):
+                while True:
+                    a = rng_halfplanes.randint(-16, 16)
+                    b = rng_halfplanes.randint(-16, 16)
+                    if (a != 0 or b != 0) and math.gcd(abs(a), abs(b)) == 1:
+                        break
+                constraints.append((a, b, rng_halfplanes.randint(-128, 128)))
+            generated_inputs.append(pack_halfplanes(constraints))
+
+        maximum_constraints = [(1, 0, 100)] * HALF_PLANE_INTERSECTION_MAX_CONSTRAINTS
+        maximum_values = pack_halfplanes(maximum_constraints)
+        if len(maximum_values) != HALF_PLANE_INTERSECTION_MAX_INPUT_LENGTH:
+            raise ValueError("half-plane maximum frame differs from its input bound")
+        maximum_result, maximum_output = add(maximum_values)
+        if maximum_result != len(maximum_output) or maximum_result > HALF_PLANE_INTERSECTION_MAX_OUTPUT_BYTES:
+            raise ValueError("half-plane maximum input has invalid output framing")
+        generated_inputs.append(maximum_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            if result != len(output) or result > HALF_PLANE_INTERSECTION_MAX_OUTPUT_BYTES:
+                raise ValueError("half-plane generated input has invalid output framing")
+            if case_index % 8 == 0:
+                short_result, short_output = add(values, max(0, result - 1))
+                if result > 0 and (short_result != -2 or short_output):
+                    raise ValueError("half-plane accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if exact_result != result or exact_output != output:
+                    raise ValueError("half-plane rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("half-plane accepted a null output buffer")
+
+        malformed_halfplanes = (
+            (), (0, 9), (13,), (1, 0, 0, 0), (1, 2, 0, 1),
+            (1, 17, 0, 1), (1, 1, 0, 129), (1, 1, 0),
+        )
+        for malformed in malformed_halfplanes:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("half-plane accepted malformed constraints")
+        precedence_result, precedence_output = add(
+            (1, 2, 0, 1), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("half-plane output errors took precedence over invalid input")
+        for capacity in (0, HALF_PLANE_INTERSECTION_MAX_OUTPUT_BYTES - 1,
+                         HALF_PLANE_INTERSECTION_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < maximum_result
+                        else (maximum_result, maximum_output))
+            if (result, output) != expected:
+                raise ValueError("half-plane maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("half-plane accepted a null input pointer")
+    elif algorithm == "smawk_row_minima":
+        def pack_smawk_matrix(rows, columns, centers):
+            return (rows, columns,
+                    *((column - center) ** 2
+                      for center in centers for column in range(columns)))
+
+        rng_smawk = random.Random(0x5A7)
+        generated_inputs = []
+        for _ in range(128):
+            rows = rng_smawk.randint(1, SMAWK_ROW_MINIMA_MAX_ROWS)
+            columns = rng_smawk.randint(1, SMAWK_ROW_MINIMA_MAX_COLUMNS)
+            centers = sorted(rng_smawk.randrange(columns) for _ in range(rows))
+            generated_inputs.append(pack_smawk_matrix(rows, columns, centers))
+        generated_inputs.extend((
+            pack_smawk_matrix(1, 16, [8]),
+            pack_smawk_matrix(16, 4, [0, 0, 1, 1, 1, 2, 2, 2,
+                                       2, 3, 3, 3, 3, 3, 3, 3]),
+            (1, 2, (1 << 63) - 1, -(1 << 63)),
+        ))
+
+        maximum_values = pack_smawk_matrix(
+            SMAWK_ROW_MINIMA_MAX_ROWS, SMAWK_ROW_MINIMA_MAX_COLUMNS,
+            list(range(SMAWK_ROW_MINIMA_MAX_ROWS)))
+        if len(maximum_values) != SMAWK_ROW_MINIMA_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("SMAWK maximum frame differs from its valid-input bound")
+        maximum_result, maximum_output = add(maximum_values)
+        if (maximum_result != SMAWK_ROW_MINIMA_MAX_OUTPUT_BYTES
+                or maximum_output != struct.pack("<" + "q" * SMAWK_ROW_MINIMA_MAX_ROWS,
+                                                  *range(SMAWK_ROW_MINIMA_MAX_ROWS))):
+            raise ValueError("SMAWK maximum monotone matrix differs from its output bound")
+        generated_inputs.append(maximum_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            if result != len(output) or result > SMAWK_ROW_MINIMA_MAX_OUTPUT_BYTES:
+                raise ValueError("SMAWK generated matrix has invalid output framing")
+            if case_index % 8 == 0:
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("SMAWK accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if exact_result != result or exact_output != output:
+                    raise ValueError("SMAWK rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("SMAWK accepted a null output buffer")
+
+        maximum_parseable_invalid = (*maximum_values, 0, 0)
+        if len(maximum_parseable_invalid) != SMAWK_ROW_MINIMA_MAX_PARSEABLE_LENGTH:
+            raise ValueError("SMAWK maximum parseable frame differs from its bound")
+        malformed_smawk = (
+            (), (0, 2), (1, 0), (17, 1), (1, 17),
+            (1, 1, 9, 0), maximum_parseable_invalid,
+        )
+        for malformed in malformed_smawk:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("SMAWK accepted malformed matrix input")
+        precedence_result, precedence_output = add((0, 2), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("SMAWK output errors took precedence over invalid input")
+        for capacity in (0, SMAWK_ROW_MINIMA_MAX_OUTPUT_BYTES - 1,
+                         SMAWK_ROW_MINIMA_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < SMAWK_ROW_MINIMA_MAX_OUTPUT_BYTES
+                        else (SMAWK_ROW_MINIMA_MAX_OUTPUT_BYTES, maximum_output))
+            if (result, output) != expected:
+                raise ValueError("SMAWK maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("SMAWK accepted a null input pointer")
+    elif algorithm == "disjoint_sparse_table_affine_composition":
+        def pack_affine_queries(maps, queries):
+            return (len(maps), len(queries),
+                    *(coefficient for affine_map in maps for coefficient in affine_map),
+                    *(endpoint for query in queries for endpoint in query))
+
+        rng_disjoint_affine = random.Random(0xD157)
+        generated_inputs = []
+        for _ in range(128):
+            n = rng_disjoint_affine.randint(1, DISJOINT_SPARSE_TABLE_AFFINE_MAX_N)
+            q = rng_disjoint_affine.randint(1, DISJOINT_SPARSE_TABLE_AFFINE_MAX_Q)
+            maps = [(rng_disjoint_affine.randrange(DISJOINT_SPARSE_TABLE_AFFINE_MODULUS),
+                     rng_disjoint_affine.randrange(DISJOINT_SPARSE_TABLE_AFFINE_MODULUS))
+                    for _ in range(n)]
+            queries = []
+            for _ in range(q):
+                left = rng_disjoint_affine.randrange(n)
+                right = rng_disjoint_affine.randrange(left, n)
+                queries.append((left, right))
+            generated_inputs.append(pack_affine_queries(maps, queries))
+
+        maximum_maps = [((index * 19 + 2) % DISJOINT_SPARSE_TABLE_AFFINE_MODULUS,
+                         (index * index + 7) % DISJOINT_SPARSE_TABLE_AFFINE_MODULUS)
+                        for index in range(DISJOINT_SPARSE_TABLE_AFFINE_MAX_N)]
+        maximum_queries = [(0, 31), (0, 15), (16, 31), (7, 8)]
+        maximum_queries.extend((index, index) for index in range(28))
+        maximum_values = pack_affine_queries(maximum_maps, maximum_queries)
+        if len(maximum_values) != DISJOINT_SPARSE_TABLE_AFFINE_MAX_INPUT_LENGTH:
+            raise ValueError("disjoint affine maximum frame differs from its input bound")
+        maximum_result, maximum_output = add(maximum_values)
+        if maximum_result != DISJOINT_SPARSE_TABLE_AFFINE_MAX_OUTPUT_BYTES:
+            raise ValueError("disjoint affine maximum query batch differs from its output bound")
+        generated_inputs.append(maximum_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            if result != len(output) or result > DISJOINT_SPARSE_TABLE_AFFINE_MAX_OUTPUT_BYTES:
+                raise ValueError("disjoint affine generated input has invalid output framing")
+            if case_index % 8 == 0:
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("disjoint affine accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if (exact_result != result or exact_output != output):
+                    raise ValueError("disjoint affine rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("disjoint affine accepted a null output buffer")
+
+        malformed_disjoint_affine = (
+            (), (1,), (0, 1), (1, 0, 1, 0),
+            (DISJOINT_SPARSE_TABLE_AFFINE_MAX_N + 1, 1),
+            (1, DISJOINT_SPARSE_TABLE_AFFINE_MAX_Q + 1),
+            (1, 1, DISJOINT_SPARSE_TABLE_AFFINE_MODULUS, 0, 0, 0),
+            (1, 1, 1, 0, 1, 1),
+            (2, 1, 1, 0, 1, 0, 1, 0),
+            (1, 1, 1, 0, 0, 0, 9),
+        )
+        for malformed in malformed_disjoint_affine:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("disjoint affine accepted malformed input")
+        precedence_result, precedence_output = add(
+            (1, 1, DISJOINT_SPARSE_TABLE_AFFINE_MODULUS, 0, 0, 0),
+            0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("disjoint affine output errors took precedence over invalid input")
+        for capacity in (0, DISJOINT_SPARSE_TABLE_AFFINE_MAX_OUTPUT_BYTES - 1,
+                         DISJOINT_SPARSE_TABLE_AFFINE_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < DISJOINT_SPARSE_TABLE_AFFINE_MAX_OUTPUT_BYTES
+                        else (DISJOINT_SPARSE_TABLE_AFFINE_MAX_OUTPUT_BYTES, maximum_output))
+            if (result, output) != expected:
+                raise ValueError("disjoint affine maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("disjoint affine accepted a null input pointer")
     elif algorithm == "suffix_array_sais":
         rng_suffix_array_sais = random.Random(0x5A15)
         generated_texts = [
