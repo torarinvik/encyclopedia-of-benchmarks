@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-maximum-independent-set-i64-array-scalar-v1",
+  "algorithm": "maximum_independent_set",
+  "function_symbol": "maximum_independent_set",
+  "abi": "i64_array_scalar",
+  "description": "Exact maximum independent-set cardinality with degree branching and a greedy clique-cover bound.",
+  "source": {
+    "title": "Exact Algorithms for Maximum Independent Set",
+    "authors": ["Fabrizio Grandoni"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, chapter 514",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_514",
+    "algorithm_attribution": "The chapter surveys exact maximum-independent-set methods; this bounded clean-room port uses maximum-degree include/exclude branching with its own greedy clique-cover upper bound.",
+    "implementation_status": "clean-room bounded profile; no source code or chapter text copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,u0,v0,...]",
+    "vertex_count_range": [0, 22],
+    "edge_count_range": [0, 231],
+    "graph": "simple undirected; each edge occurs once",
+    "vertex_label_range": "[0,n)",
+    "maximum_valid_length": 464,
+    "maximum_parseable_length": 465,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "maximum independent-set cardinality",
+    "result_range": [0, 22],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Fixed adjacency bit masks and bounded recursion state."
+  },
+  "contract": {
+    "branching": "Choose a remaining vertex with maximum degree in the remaining induced graph; explore inclusion before exclusion.",
+    "upper_bound": "Partition remaining vertices greedily into cliques; an independent set contains at most one vertex from each clique.",
+    "edge_validation": "Reject loops, repeated undirected edges, out-of-range endpoints, truncation, and trailing words.",
+    "maximum_input_length": 464,
+    "maximum_parseable_input_length": 465
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "oracle_method": "The primary oracle uses recursive include/exclude search with a greedy clique-cover bound; an independent oracle enumerates all vertex subsets on the bounded fixture graphs.",
+  "cases": [
+    {"id":"empty-graph","input_values":[0,0],"input_length":2,"expected_result":0},
+    {"id":"edgeless-six","input_values":[6,0],"input_length":2,"expected_result":6},
+    {"id":"single-edge-and-isolates","input_values":[6,2,0,1,2,3],"input_length":6,"expected_result":4},
+    {"id":"five-vertex-path","input_values":[5,4,0,1,1,2,2,3,3,4],"input_length":10,"expected_result":3},
+    {"id":"five-cycle","input_values":[5,5,0,1,1,2,2,3,3,4,4,0],"input_length":12,"expected_result":2},
+    {"id":"triangle-with-isolated-vertex","input_values":[4,3,0,1,1,2,0,2],"input_length":8,"expected_result":2},
+    {"id":"complete-four","input_values":[4,6,0,1,0,2,0,3,1,2,1,3,2,3],"input_length":14,"expected_result":1},
+    {"id":"maximum-path","input_values":[22,21,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15,16,16,17,17,18,18,19,19,20,20,21],"input_length":44,"expected_result":11},
+    {"id":"self-loop","input_values":[2,1,0,0],"input_length":4,"expected_result":-1},
+    {"id":"duplicate-undirected-edge","input_values":[3,2,0,1,1,0],"input_length":6,"expected_result":-1},
+    {"id":"out-of-range-endpoint","input_values":[3,1,0,3],"input_length":4,"expected_result":-1},
+    {"id":"truncated-edge","input_values":[2,1,0],"input_length":3,"expected_result":-1},
+    {"id":"trailing-word","input_values":[1,0,7],"input_length":3,"expected_result":-1}
+  ]
+}

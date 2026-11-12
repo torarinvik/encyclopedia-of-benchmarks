@@ -1,0 +1,28 @@
+const MAX_N:usize=16
+const MODULUS:i64=998244353
+
+def stirling_number_of_the_second_kind(input:i64&,length:usize)->i64 @export("stirling_number_of_the_second_kind"):
+    if input.is_null() or length!=1:return -1
+    n64:i64=input[0]
+    if n64<0 or n64>16:return -1
+    n:usize=n64.usize()
+
+    row:mutable InlineArray[i64,17]=zeroed
+    row[0]<-1
+    current_n:mutable usize=1
+    while current_n<=n:
+        k:mutable usize=current_n
+        while k>0:
+            row[k]<-(row[k-1]+(k.i64())*row[k])%MODULUS
+            k<-k-1
+        row[0]<-0
+        current_n<-current_n+1
+
+    result:mutable i64=0
+    k:mutable usize=0
+    while k<=n:
+        next:i64=(k+1).i64()
+        weight:i64=next*next*next
+        result<-(result+weight*row[k])%MODULUS
+        k<-k+1
+    result

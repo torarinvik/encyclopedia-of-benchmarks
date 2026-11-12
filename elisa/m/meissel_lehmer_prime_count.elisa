@@ -1,0 +1,104 @@
+# Lehmer's prime-count formula with a recursive partial-sieve function.
+const MAX_INPUT: i64 = 100000000
+const SIEVE_LIMIT: usize = 10000
+const MAX_PRIMES: usize = 1300
+const PHI_CACHE_X: usize = 2048
+const PHI_CACHE_S: usize = 32
+const COMPOSITE_OFFSET: usize = 0
+const PRIMES_OFFSET: usize = 10001
+const PRIME_COUNT_OFFSET: usize = 11301
+const PHI_CACHE_OFFSET: usize = 21302
+const CONTEXT_LENGTH: usize = 88919
+
+def meissel_lehmer_integer_sqrt(value: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = value + 1
+    while low + 1 < high:
+        middle: i64 = low + (high - low) / 2
+        if middle <= value / middle:
+            low <- middle
+        else:
+            high <- middle
+    low
+
+def meissel_lehmer_integer_cuberoot(value: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = value + 1
+    while low + 1 < high:
+        middle: i64 = low + (high - low) / 2
+        if middle <= value / middle / middle:
+            low <- middle
+        else:
+            high <- middle
+    low
+
+def meissel_lehmer_phi(context: mutable view[i64], value: i64, prime_count: usize) -> i64:
+    if value == 0: return 0
+    if prime_count == 0: return value
+    if prime_count == 1: return value - value / 2
+    prime: i64 = context[PRIMES_OFFSET + prime_count - 1]
+    if value < prime: return 1
+    if value <= PHI_CACHE_X.i64() and prime_count <= PHI_CACHE_S:
+        cache_index: usize = PHI_CACHE_OFFSET + prime_count * (PHI_CACHE_X + 1) + value.usize()
+        cached: i64 = context[cache_index]
+        if cached != 0: return cached
+        result: i64 = meissel_lehmer_phi(context, value, prime_count - 1) -
+            meissel_lehmer_phi(context, value / prime, prime_count - 1)
+        context[cache_index] <- result
+        return result
+    meissel_lehmer_phi(context, value, prime_count - 1) -
+        meissel_lehmer_phi(context, value / prime, prime_count - 1)
+
+def meissel_lehmer_count(context: mutable view[i64], value: i64) -> i64:
+    if value <= SIEVE_LIMIT.i64():
+        return context[PRIME_COUNT_OFFSET + value.usize()]
+    a: usize = context[PRIME_COUNT_OFFSET + meissel_lehmer_integer_sqrt(meissel_lehmer_integer_sqrt(value)).usize()].usize()
+    b: usize = context[PRIME_COUNT_OFFSET + meissel_lehmer_integer_sqrt(value).usize()].usize()
+    c: usize = context[PRIME_COUNT_OFFSET + meissel_lehmer_integer_cuberoot(value).usize()].usize()
+    result: mutable i64 = meissel_lehmer_phi(context, value, a) +
+        ((b + a - 2).i64() * (b - a + 1).i64()) / 2
+    i: mutable usize = a
+    while i < b |i, context, value, c, result| -> i, result:
+        prime: i64 = context[PRIMES_OFFSET + i]
+        quotient: i64 = value / prime
+        result <- result - meissel_lehmer_count(context, quotient)
+        if i < c:
+            limit: usize = meissel_lehmer_count(context, meissel_lehmer_integer_sqrt(quotient)).usize()
+            j: mutable usize = i
+            while j < limit |j, context, quotient, result| -> j, result:
+                p: i64 = context[PRIMES_OFFSET + j]
+                result <- result - meissel_lehmer_count(context, quotient / p) + j.i64()
+                j <- j + 1
+                j, result
+        i <- i + 1
+        i, result
+    result
+
+def meissel_lehmer_prime_count_impl(value: i64) -> i64:
+    if value < 0 or value > MAX_INPUT: return -1
+    context: mutable i64[CONTEXT_LENGTH] = zeroed
+    candidate: mutable usize = 2
+    while candidate * candidate <= SIEVE_LIMIT |candidate, context|:
+        if context[COMPOSITE_OFFSET + candidate] == 0:
+            multiple: mutable usize = candidate * candidate
+            while multiple <= SIEVE_LIMIT |multiple, context, candidate|:
+                context[COMPOSITE_OFFSET + multiple] <- 1
+                multiple <- multiple + candidate
+                multiple, context
+        candidate <- candidate + 1
+        candidate, context
+    prime_count: mutable usize = 0
+    candidate <- 2
+    while candidate <= SIEVE_LIMIT |candidate, context, prime_count|:
+        if context[COMPOSITE_OFFSET + candidate] == 0:
+            context[PRIMES_OFFSET + prime_count] <- candidate.i64()
+            prime_count <- prime_count + 1
+        prime_increment: i64 = 0
+        if context[COMPOSITE_OFFSET + candidate] == 0:
+            prime_increment <- 1
+        context[PRIME_COUNT_OFFSET + candidate] <- context[PRIME_COUNT_OFFSET + candidate - 1] + prime_increment
+        candidate <- candidate + 1
+        candidate, context, prime_count
+    meissel_lehmer_count(context[0:CONTEXT_LENGTH], value)
+
+export fn meissel_lehmer_prime_count(value: i64) -> i64 = meissel_lehmer_prime_count_impl

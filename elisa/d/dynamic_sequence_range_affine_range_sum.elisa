@@ -1,0 +1,233 @@
+const MOD: i64 = 998244353
+const MAX_N: usize = 32
+const MAX_Q: usize = 32
+const MAX_NODES: usize = 64
+const MAX_INPUT: usize = 195
+const NONE: usize = MAX_NODES
+
+struct Node:
+    left: usize
+    right: usize
+    size: usize
+    value: i64
+    sum: i64
+    mul: i64
+    add: i64
+    priority: u64
+    reversed: bool
+
+struct Operation:
+    kind: usize
+    left: usize
+    right: usize
+    node: usize
+    mul: i64
+    add: i64
+
+def dsras_priority(id: usize) -> u64:
+    state: mutable i64 = 1
+    for _ in 0..(id + 1): state <- (state * 48271) % 2147483647
+    state.u64()
+
+def dsras_size(nodes: view[Node], index: usize) -> usize:
+    if index == NONE: return 0
+    nodes[index].size
+
+def dsras_sum(nodes: view[Node], index: usize) -> i64:
+    if index == NONE: return 0
+    nodes[index].sum
+
+def dsras_higher(nodes: view[Node], left: usize, right: usize) -> bool:
+    if nodes[left].priority != nodes[right].priority:
+        return nodes[left].priority > nodes[right].priority
+    left > right
+
+def dsras_pull(nodes: mutable view[Node], index: usize) -> void:
+    nodes[index].size <- 1 + dsras_size(nodes, nodes[index].left) + dsras_size(nodes, nodes[index].right)
+    nodes[index].sum <- (nodes[index].value + dsras_sum(nodes, nodes[index].left) + dsras_sum(nodes, nodes[index].right)) % MOD
+
+def dsras_affine(nodes: mutable view[Node], index: usize, mul: i64, add: i64) -> void:
+    if index == NONE: return
+    nodes[index].value <- (mul * nodes[index].value + add) % MOD
+    nodes[index].sum <- (mul * nodes[index].sum + add * nodes[index].size.i64()) % MOD
+    nodes[index].mul <- (mul * nodes[index].mul) % MOD
+    nodes[index].add <- (mul * nodes[index].add + add) % MOD
+
+def dsras_reverse(nodes: mutable view[Node], index: usize) -> void:
+    if index == NONE: return
+    temporary: usize = nodes[index].left
+    nodes[index].left <- nodes[index].right
+    nodes[index].right <- temporary
+    nodes[index].reversed <- not nodes[index].reversed
+
+def dsras_push(nodes: mutable view[Node], index: usize) -> void:
+    if nodes[index].mul != 1 or nodes[index].add != 0:
+        dsras_affine(nodes, nodes[index].left, nodes[index].mul, nodes[index].add)
+        dsras_affine(nodes, nodes[index].right, nodes[index].mul, nodes[index].add)
+        nodes[index].mul <- 1
+        nodes[index].add <- 0
+    if nodes[index].reversed:
+        dsras_reverse(nodes, nodes[index].left)
+        dsras_reverse(nodes, nodes[index].right)
+        nodes[index].reversed <- false
+
+def dsras_split(nodes: mutable view[Node], root: usize, count: usize,
+    first: mutable usize&, second: mutable usize&) -> void:
+    if root == NONE:
+        first <- NONE
+        second <- NONE
+        return
+    dsras_push(nodes, root)
+    if dsras_size(nodes, nodes[root].left) >= count:
+        a: mutable usize = NONE
+        b: mutable usize = NONE
+        dsras_split(nodes, nodes[root].left, count, a, b)
+        nodes[root].left <- b
+        dsras_pull(nodes, root)
+        first <- a
+        second <- root
+    else:
+        a: mutable usize = NONE
+        b: mutable usize = NONE
+        dsras_split(nodes, nodes[root].right, count - dsras_size(nodes, nodes[root].left) - 1, a, b)
+        nodes[root].right <- a
+        dsras_pull(nodes, root)
+        first <- root
+        second <- b
+
+def dsras_merge(nodes: mutable view[Node], left: usize, right: usize) -> usize:
+    if left == NONE: return right
+    if right == NONE: return left
+    if dsras_higher(nodes, left, right):
+        dsras_push(nodes, left)
+        nodes[left].right <- dsras_merge(nodes, nodes[left].right, right)
+        dsras_pull(nodes, left)
+        return left
+    dsras_push(nodes, right)
+    nodes[right].left <- dsras_merge(nodes, left, nodes[right].left)
+    dsras_pull(nodes, right)
+    return right
+
+def dsras_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def dynamic_sequence_range_affine_range_sum_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 0 or n_value > MAX_N.i64() or q_value < 0 or q_value > MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length < 2 + n: return -1
+    nodes: mutable Node[MAX_NODES] = zeroed
+    offset: mutable usize = 2
+    for i in 0..<n:
+        value: i64 = input[offset]
+        offset <- offset + 1
+        if value < 0 or value >= MOD: return -1
+        nodes[i].left <- NONE
+        nodes[i].right <- NONE
+        nodes[i].size <- 1
+        nodes[i].value <- value
+        nodes[i].sum <- value
+        nodes[i].mul <- 1
+        nodes[i].add <- 0
+        nodes[i].priority <- dsras_priority(i)
+    operations: mutable Operation[MAX_Q] = zeroed
+    current: mutable usize = n
+    node_count: mutable usize = n
+    query_count: mutable usize = 0
+    for i in 0..<q:
+        if offset >= length: return -1
+        kind_value: i64 = input[offset]
+        offset <- offset + 1
+        if kind_value < 0 or kind_value > 4: return -1
+        kind: usize = kind_value.usize()
+        op: mutable Operation = zeroed
+        op.kind <- kind
+        op.node <- NONE
+        if kind == 0:
+            if offset + 2 > length: return -1
+            at: i64 = input[offset]
+            value: i64 = input[offset + 1]
+            offset <- offset + 2
+            if at < 0 or at.usize() > current or current >= MAX_NODES or value < 0 or value >= MOD: return -1
+            op.left <- at.usize()
+            op.node <- node_count
+            nodes[node_count].left <- NONE
+            nodes[node_count].right <- NONE
+            nodes[node_count].size <- 1
+            nodes[node_count].value <- value
+            nodes[node_count].sum <- value
+            nodes[node_count].mul <- 1
+            nodes[node_count].add <- 0
+            nodes[node_count].priority <- dsras_priority(node_count)
+            node_count <- node_count + 1
+            current <- current + 1
+        elif kind == 1:
+            if offset >= length: return -1
+            at: i64 = input[offset]
+            offset <- offset + 1
+            if at < 0 or at.usize() >= current: return -1
+            op.left <- at.usize()
+            current <- current - 1
+        elif kind == 2 or kind == 4:
+            if offset + 2 > length: return -1
+            left: i64 = input[offset]
+            right: i64 = input[offset + 1]
+            offset <- offset + 2
+            if left < 0 or left > right or right.usize() > current: return -1
+            op.left <- left.usize()
+            op.right <- right.usize()
+            if kind == 4: query_count <- query_count + 1
+        else:
+            if offset + 4 > length: return -1
+            left: i64 = input[offset]
+            right: i64 = input[offset + 1]
+            mul: i64 = input[offset + 2]
+            add: i64 = input[offset + 3]
+            offset <- offset + 4
+            if left < 0 or left > right or right.usize() > current or mul < 0 or mul >= MOD or add < 0 or add >= MOD: return -1
+            op.left <- left.usize()
+            op.right <- right.usize()
+            op.mul <- mul
+            op.add <- add
+        operations[i] <- op
+    if offset != length: return -1
+    root: mutable usize = NONE
+    for i in 0..<n: root <- dsras_merge(nodes[0:MAX_NODES], root, i)
+    answers: mutable i64[MAX_Q] = zeroed
+    answer_count: mutable usize = 0
+    for i in 0..<q:
+        op: Operation = operations[i]
+        prefix: mutable usize = NONE
+        suffix: mutable usize = NONE
+        dsras_split(nodes[0:MAX_NODES], root, op.left, prefix, suffix)
+        if op.kind == 0:
+            root <- dsras_merge(nodes[0:MAX_NODES], dsras_merge(nodes[0:MAX_NODES], prefix, op.node), suffix)
+            continue
+        middle: mutable usize = NONE
+        tail: mutable usize = NONE
+        if op.kind == 1:
+            dsras_split(nodes[0:MAX_NODES], suffix, 1, middle, tail)
+            root <- dsras_merge(nodes[0:MAX_NODES], prefix, tail)
+            continue
+        else:
+            dsras_split(nodes[0:MAX_NODES], suffix, op.right - op.left, middle, tail)
+            if op.kind == 2: dsras_reverse(nodes[0:MAX_NODES], middle)
+            elif op.kind == 3: dsras_affine(nodes[0:MAX_NODES], middle, op.mul, op.add)
+            else:
+                answers[answer_count] <- dsras_sum(nodes[0:MAX_NODES], middle).i64()
+                answer_count <- answer_count + 1
+        root <- dsras_merge(nodes[0:MAX_NODES], dsras_merge(nodes[0:MAX_NODES], prefix, middle), tail)
+    byte_count: usize = 8 * query_count
+    if output.is_null() or capacity < byte_count: return -2
+    output_view: mutable view[u8] = output[0:byte_count]
+    for i in 0..<query_count: dsras_store(answers[i], output_view, 8 * i)
+    byte_count.i64()
+
+export fn dynamic_sequence_range_affine_range_sum(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = dynamic_sequence_range_affine_range_sum_impl

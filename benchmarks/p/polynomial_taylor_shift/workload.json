@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-polynomial-taylor-shift-bounded-horner-bytes-v1",
+  "algorithm": "polynomial_taylor_shift",
+  "function_symbol": "polynomial_taylor_shift",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "polynomial/polynomial_taylor_shift/task.md",
+    "limits_path": "polynomial/polynomial_taylor_shift/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/polynomial/polynomial_taylor_shift/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/polynomial/polynomial_taylor_shift/info.toml",
+    "official_n_max": 524288,
+    "modulus": 998244353,
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Operation and modulus only; bounded profile, ports, fixtures, oracles, and prose are clean-room."
+  },
+  "oracle": "benchmarks/p/polynomial_taylor_shift/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/polynomial_taylor_shift/independent_oracle.py",
+  "contract": {
+    "operation": "Given f(x)=sum(a_i*x^i) and c over F_998244353, return the N coefficients of f(x+c).",
+    "input_layout": "[N, c, a_0, ..., a_(N-1)]",
+    "n_range": [1, 64],
+    "coefficient_and_shift_range": [0, 998244352],
+    "modulus": 998244353,
+    "algorithm": "Direct descending Horner recurrence for multiplication by (x+c), updating coefficients in place from high degree to low degree; O(N^2).",
+    "output_layout": "N little-endian signed 64-bit coefficients b_0 through b_(N-1), including trailing zero coefficients.",
+    "error_precedence": "Malformed input returns -1 before output checks. Valid input with null output or capacity below 8*N returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, c, a_0, ..., a_(N-1)]",
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 66,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 64,
+    "maximum_bytes": 512,
+    "success_result": "8*N bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"constant-polynomial","input_values":[1,7,13],"input_length":3,"expected_result":8,"expected_output_hex":"0d00000000000000"},
+    {"id":"linear-shift","input_values":[2,3,1,2],"input_length":4,"expected_result":16,"expected_output_hex":"07000000000000000200000000000000"},
+    {"id":"quadratic-shift","input_values":[3,2,1,2,3],"input_length":5,"expected_result":24,"expected_output_hex":"11000000000000000e000000000000000300000000000000"},
+    {"id":"zero-shift-preserves-coefficients","input_values":[4,0,5,0,7,1],"input_length":6,"expected_result":32,"expected_output_hex":"0500000000000000000000000000000007000000000000000100000000000000"},
+    {"id":"sparse-quartic-shift","input_values":[5,2,0,0,0,0,1],"input_length":7,"expected_result":40,"expected_output_hex":"10000000000000002000000000000000180000000000000008000000000000000100000000000000"},
+    {"id":"modular-wraparound","input_values":[2,1,998244352,998244351],"input_length":4,"expected_result":16,"expected_output_hex":"feff7f3b00000000ffff7f3b00000000"},
+    {"id":"zero-polynomial","input_values":[3,99,0,0,0],"input_length":5,"expected_result":24,"expected_output_hex":"000000000000000000000000000000000000000000000000"},
+    {"id":"zero-length-invalid","input_values":[0,0],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"shift-out-of-range","input_values":[1,998244353,5],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coefficient-out-of-range","input_values":[1,0,998244353],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-input","input_values":[2,1,4],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra-input-word","input_values":[1,3,8,9],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,3,1,2],"input_length":4,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-buffer","input_values":[1,7,13],"input_length":3,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input-pointer","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,57 @@
+const M2_MAX_N: usize = 5
+const M2_MAX_P: usize = 32
+const M2_MAX_INPUT: usize = 66
+const M2_MAX_OUTPUT: usize = 256
+const M2_MOD: i64 = 998244353
+
+def m2_store(value: i64, output: mutable view[u8], position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def mul_mod2n_convolution_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > M2_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > M2_MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    p: usize = 1
+    step: mutable usize = 0
+    while step < n:
+        p <- p * 2
+        step <- step + 1
+    if length != 1 + 2 * p: return -1
+    a: mutable i64[32] = zeroed
+    b: mutable i64[32] = zeroed
+    index: mutable usize = 0
+    while index < 2 * p:
+        value: i64 = input[1 + index]
+        if value < 0 or value >= M2_MOD: return -1
+        if index < p: a[index] <- value
+        else: b[index - p] <- value
+        index <- index + 1
+    bytes: usize = 8 * p
+    if bytes > M2_MAX_OUTPUT: return -1
+    if output.is_null() or capacity < bytes: return -2
+    result: mutable i64[32] = zeroed
+    mask: usize = p - 1
+    i: mutable usize = 0
+    while i < p:
+        j: mutable usize = 0
+        while j < p:
+            slot: usize = (i * j) & mask
+            result[slot] <- (result[slot] + a[i] * b[j]) % M2_MOD
+            j <- j + 1
+        i <- i + 1
+    output_view: mutable view[u8] = output[0:bytes]
+    i <- 0
+    while i < p:
+        m2_store(result[i], output_view, 8 * i)
+        i <- i + 1
+    bytes.i64()
+
+export fn mul_mod2n_convolution(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = mul_mod2n_convolution_impl

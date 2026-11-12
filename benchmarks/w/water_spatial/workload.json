@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "id": "splash2-water-spatial-bounded-projection-v1",
+  "algorithm": "water_spatial",
+  "function_symbol": "water_spatial",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "suite": "SPLASH-2",
+    "paper_title": "The SPLASH-2 Programs: Characterization and Methodological Considerations",
+    "paper_url": "https://pages.cs.wisc.edu/~markhill/restricted/isca95_splash2.pdf",
+    "source_mirror": "https://github.com/staceyson/splash2",
+    "reuse_scope": "Algorithm provenance only; implementations and bounded pair law are clean-room."
+  },
+  "contract": {
+    "profile": "Bounded SPLASH-2-inspired spatial-index molecular pair interaction; not the full Water-Spatial application or water force field.",
+    "input_layout": "[N,G,R,(x,y,z,q)*]",
+    "molecule_count_range": [0, 64],
+    "grid_side_range": [1, 8],
+    "cutoff_range": [1, 4],
+    "coordinate_range": "0 <= x,y,z < G*R; nonperiodic cubic box",
+    "charge_range": [-4, 4],
+    "cell_rule": "Uniform G by G by G cells with side R; inspect the current cell and the 26 adjacent cells, clipped to the grid.",
+    "pair_rule": "Consider each unordered pair once; accept only squared_distance < R^2.",
+    "potential": "q_i*q_j*(R^2-r^2)/((1+r^2)*(1+R^2))",
+    "force_on_i": "-2*q_i*q_j*(x_j-x_i,y_j-y_i,z_j-z_i)/(1+r^2)^2; force on j is equal and opposite.",
+    "fixed_point_rule": "Scale each pair potential and force component by 1000000, then divide with signed truncation toward zero before accumulation.",
+    "output_layout": "[Fx,Fy,Fz per molecule in input order, total scaled pair potential, accepted pair count] as little-endian signed 64-bit integers.",
+    "invalid_precedence": "Invalid frames or values return -1 before output checks; valid input with null or short output returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 259,
+    "maximum_parseable_length": 260,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "maximum_bytes": 1552,
+    "size_formula": "8*(3*N+2)",
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_or_short_output_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 1552,
+    "meaning": "Maximum output-buffer capacity; internal arrays are bounded separately at 6160 bytes."
+  },
+  "internal_workspace": {
+    "bytes": 6160,
+    "meaning": "512 cell heads, 64 molecule next links, 192 force accumulators, total energy, and accepted-pair count, all as 64-bit integers."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 200
+  },
+  "cases": [
+    {
+      "id": "empty-domain",
+      "input_values": [0, 1, 1],
+      "input_length": 3,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "single-molecule-no-self-pair",
+      "input_values": [1, 2, 2, 0, 0, 0, 3],
+      "input_length": 7,
+      "output_capacity": 40,
+      "expected_result": 40
+    },
+    {
+      "id": "pair-across-cell-boundary",
+      "input_values": [2, 2, 2, 1, 1, 1, 1, 2, 1, 1, 2],
+      "input_length": 11,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output_hex": "c0bdf0ffffffffff0000000000000000000000000000000040420f0000000000000000000000000000000000000000000000c0270900000000000100000000000000"
+    },
+    {
+      "id": "sixteen-molecule-regular-cell-grid",
+      "input_values": [16, 4, 2,
+        0,0,0,1, 1,0,0,-1, 2,0,0,1, 3,0,0,-1,
+        0,1,0,-1, 1,1,0,1, 2,1,0,-1, 3,1,0,1,
+        0,2,0,1, 1,2,0,-1, 2,2,0,1, 3,2,0,-1,
+        0,3,0,-1, 1,3,0,1, 2,3,0,-1, 3,3,0,1
+      ],
+      "input_length": 67,
+      "output_capacity": 400,
+      "expected_result": 400
+    },
+    {
+      "id": "strict-cutoff-boundary-excluded",
+      "input_values": [2, 2, 2, 1, 1, 1, 1, 3, 1, 1, 2],
+      "input_length": 11,
+      "output_capacity": 64,
+      "expected_result": 64
+    },
+    {
+      "id": "negative-fractional-pair-truncation",
+      "input_values": [2, 2, 2, 1, 1, 1, 1, 2, 2, 1, -1],
+      "input_length": 11,
+      "output_capacity": 64,
+      "expected_result": 64
+    },
+    {
+      "id": "zero-charge-pair-counted",
+      "input_values": [2, 1, 2, 0, 0, 0, 0, 1, 0, 0, 3],
+      "input_length": 11,
+      "output_capacity": 64,
+      "expected_result": 64
+    },
+    {
+      "id": "invalid-grid-side",
+      "input_values": [0, 0, 2],
+      "input_length": 3,
+      "output_capacity": 1552,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coordinate-at-box-end",
+      "input_values": [1, 2, 2, 4, 0, 0, 1],
+      "input_length": 7,
+      "output_capacity": 1552,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "charge-out-of-range",
+      "input_values": [1, 1, 1, 0, 0, 0, 5],
+      "input_length": 7,
+      "output_capacity": 1552,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-frame",
+      "input_values": [1, 1, 1, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 1552,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra-word-frame",
+      "input_values": [0, 1, 1, 0],
+      "input_length": 4,
+      "output_capacity": 1552,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed-before-capacity",
+      "input_values": [0, 0, 1],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [0, 1, 1],
+      "input_length": 3,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [0, 1, 1],
+      "input_length": 3,
+      "output_capacity": 16,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 1552,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "generated_profile": {
+    "maximum_n": 64,
+    "maximum_output_bytes": 1552,
+    "dense_case_description": "64 molecules distributed in a deterministic 4x4x4 lattice with unit spacing, G=4 and R=2; each cell neighborhood is exercised.",
+    "sparse_case_description": "64 molecules in distinct separated cell regions, exercising empty neighbor lists and cutoff rejection."
+  }
+}

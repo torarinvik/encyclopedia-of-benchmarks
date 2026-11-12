@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "id": "splash2-six-step-fft-float64-slice-io-v1",
+  "algorithm": "splash2_fft_six_step",
+  "function_symbol": "splash2_fft_six_step",
+  "abi": "float64_slice_io",
+  "description": "Bounded complex forward DFT using the SPLASH-2 six-step matrix transpose and twiddle schedule.",
+  "source": {
+    "repository": "staceyson/splash2",
+    "commit": "be64f8e4840fc29ff4c076c3f747e27fdb55ac68",
+    "path": "codes/kernels/fft/fft.C",
+    "readme_path": "codes/kernels/fft/README.fft",
+    "symbol": "FFT1D",
+    "url": "https://github.com/staceyson/splash2/blob/be64f8e4840fc29ff4c076c3f747e27fdb55ac68/codes/kernels/fft/fft.C",
+    "algorithm_reference": "https://www.davidhbailey.com/dhbpapers/fftq.pdf",
+    "role": "algorithm description; clean-room bounded reimplementation"
+  },
+  "contract": {
+    "operation": "Compute one complex forward transform using three square-matrix transposes, two passes of side-length radix-2 row transforms, and the cross-dimension twiddle multiplication.",
+    "input_encoding": "[side,re0,im0,re1,im1,...] where the complex samples fill a side-by-side matrix in row-major order.",
+    "side_values": [2, 4, 8],
+    "point_count": "side*side",
+    "sample_component_range": [-8, 8],
+    "exact_input_length": "1+2*side*side",
+    "maximum_valid_input_length": 129,
+    "maximum_parseable_input_length": 130,
+    "forward_sign": "Negative exponent: exp(-2*pi*i*sample_index*frequency/point_count).",
+    "six_step_order": [
+      "transpose input matrix",
+      "forward radix-2 transform each row",
+      "multiply entry (row,column) by exp(-2*pi*i*row*column/point_count)",
+      "transpose matrix",
+      "forward radix-2 transform each row",
+      "transpose matrix to natural frequency order"
+    ],
+    "output_encoding": "2*side*side float64 values as natural-order interleaved [real,imag] frequency bins.",
+    "output_length": "2*side*side",
+    "success_result": "2*side*side",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Invalid framing, nonfinite values, out-of-domain sides or samples, and null input return -1 before output checks. Null output or insufficient capacity returns -2 after input validation. Errors write no output values."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[side,real0,imag0,...]",
+    "minimum_valid_length": 9,
+    "maximum_valid_length": 129,
+    "maximum_parseable_length": 130,
+    "side_values": [2, 4, 8],
+    "sample_component_range": [-8, 8],
+    "invalid_input_result": -1,
+    "null_input_length": 9,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "Natural-order interleaved complex DFT bins.",
+    "maximum_elements": 128,
+    "success_result": "2*side*side",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 128,
+    "description": "Maximum interleaved real/imaginary output vector for a 64-point transform."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "four_point_complex_with_nontrivial_twiddle",
+      "input_values": [2, 1, 2, -1, 0, 0, 1, 2, -1],
+      "input_length": 9,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output": [2, 2, 2, 4, 0, 4, 0, -2]
+    },
+    {
+      "id": "sixteen_point_impulse",
+      "input_values": [4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 33,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output": [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
+    },
+    {
+      "id": "maximum_side_zero_input",
+      "input_values": [
+        8,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 129,
+      "output_capacity": 128,
+      "expected_result": 128,
+      "expected_output": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ]
+    },
+    {
+      "id": "side_must_be_supported_power_of_two",
+      "input_values": [3, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 9,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "component_out_of_range",
+      "input_values": [2, 9, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 9,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_value_in_frame",
+      "input_values": [2, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [2, 1, 2, -1, 0, 0, 1, 2, -1],
+      "input_length": 9,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null_output_pointer",
+      "input_values": [2, 1, 2, -1, 0, 0, 1, 2, -1],
+      "input_length": 9,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [],
+      "input_length": 9,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

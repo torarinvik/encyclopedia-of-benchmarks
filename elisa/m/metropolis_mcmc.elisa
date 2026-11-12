@@ -1,0 +1,50 @@
+extern trunc(value: f64) -> f64
+extern exp(value: f64) -> f64
+
+const MAX_STATES: usize = 8
+const MAX_STEPS: usize = 64
+const MAX_INPUT: usize = 140
+
+def metropolis_bounded_integer(value: f64, minimum: f64, maximum: f64) -> bool:
+    value == value and trunc(value) == value and value >= minimum and value <= maximum
+
+def metropolis_mcmc_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    if not metropolis_bounded_integer(input[0], 1.0, MAX_STATES.f64()) or
+        not metropolis_bounded_integer(input[1], 0.0, MAX_STEPS.f64()): return -1
+    states: usize = input[0].usize()
+    steps: usize = input[1].usize()
+    if not metropolis_bounded_integer(input[2], 0.0, (states - 1).f64()) or
+        input[3] != input[3] or input[3] < 0.001 or input[3] > 1000.0 or
+        length != 4 + states + 2 * steps: return -1
+    state: mutable usize = 0
+    while state < states:
+        energy: f64 = input[4 + state]
+        if energy != energy or energy < -1000000.0 or energy > 1000000.0: return -1
+        state <- state + 1
+    proposal_start: usize = 4 + states
+    uniform_start: usize = proposal_start + steps
+    step: mutable usize = 0
+    while step < steps:
+        if not metropolis_bounded_integer(input[proposal_start + step], 0.0, (states - 1).f64()): return -1
+        uniform: f64 = input[uniform_start + step]
+        if uniform != uniform or uniform < 0.0 or uniform >= 1.0: return -1
+        step <- step + 1
+    if output.is_null() or capacity < steps + 1: return -2
+
+    current: mutable usize = input[2].usize()
+    output[0] <- current.f64()
+    step <- 0
+    while step < steps:
+        proposal: usize = input[proposal_start + step].usize()
+        delta: f64 = (input[4 + proposal] - input[4 + current]) / input[3]
+        if delta <= 0.0:
+            current <- proposal
+        elif input[uniform_start + step] < exp(-delta):
+            current <- proposal
+        output[step + 1] <- current.f64()
+        step <- step + 1
+    (steps + 1).i64()
+
+export fn metropolis_mcmc(input: f64&, length: usize,
+    output: mutable f64&, capacity: usize) -> i64 = metropolis_mcmc_impl

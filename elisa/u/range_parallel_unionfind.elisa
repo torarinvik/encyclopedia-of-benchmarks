@@ -1,0 +1,122 @@
+const MAX_N: usize = 64
+const MAX_Q: usize = 64
+const MAX_LEVELS: usize = 6
+const MAX_INPUT_VALUES: usize = 2 + MAX_N + 3 * MAX_Q
+const MODULUS: i64 = 998244353
+
+def rpu_normalize(value: i64) -> i64:
+    reduced: i64 = value % MODULUS
+    if reduced < 0: reduced + MODULUS else: reduced
+
+def rpu_find_root(parent: mutable view[usize], level: usize, item: usize) -> usize:
+    index: usize = level * MAX_N + item
+    if parent[index] != item:
+        parent[index] <- rpu_find_root(parent, level, parent[index])
+    parent[index]
+
+def rpu_merge_inner(level: usize, left: usize, right: usize,
+    parent: mutable view[usize], set_size: mutable view[usize],
+    weight: mutable view[i64], pair_sum: mutable i64&) -> void:
+    root_left: mutable usize = rpu_find_root(parent, level, left)
+    root_right: mutable usize = rpu_find_root(parent, level, right)
+    if root_left == root_right: return
+    left_index: mutable usize = level * MAX_N + root_left
+    right_index: mutable usize = level * MAX_N + root_right
+    if set_size[left_index] < set_size[right_index]:
+        temporary: usize = root_left
+        root_left <- root_right
+        root_right <- temporary
+        left_index <- level * MAX_N + root_left
+        right_index <- level * MAX_N + root_right
+    parent[level * MAX_N + root_right] <- root_left
+    set_size[left_index] <- set_size[left_index] + set_size[right_index]
+    if level == 0:
+        pair_sum <- rpu_normalize(pair_sum + weight[root_left] * weight[root_right])
+        weight[root_left] <- rpu_normalize(weight[root_left] + weight[root_right])
+        return
+    half: usize = 1 << (level - 1)
+    rpu_merge_inner(level - 1, left, right, parent, set_size, weight, pair_sum)
+    rpu_merge_inner(level - 1, left + half, right + half, parent, set_size, weight, pair_sum)
+
+def rpu_floor_log2(value: usize) -> usize:
+    level: mutable usize = 0
+    remaining: mutable usize = value
+    while remaining > 1:
+        remaining <- remaining >> 1
+        level <- level + 1
+    level
+
+def rpu_merge_ranges(length: usize, left: usize, right: usize,
+    parent: mutable view[usize], set_size: mutable view[usize],
+    weight: mutable view[i64], pair_sum: mutable i64&) -> void:
+    if length == 0: return
+    level: usize = rpu_floor_log2(length - 1)
+    block: usize = 1 << level
+    rpu_merge_inner(level, left, right, parent, set_size, weight, pair_sum)
+    rpu_merge_inner(level, left + length - block, right + length - block,
+                    parent, set_size, weight, pair_sum)
+
+def rpu_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def range_parallel_unionfind_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 6 or length > MAX_INPUT_VALUES: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 2 + n + 3 * q: return -1
+    item: mutable usize = 0
+    while item < n:
+        if input[2 + item] < 0 or input[2 + item] >= MODULUS: return -1
+        item <- item + 1
+    operations_at: usize = 2 + n
+    operation: mutable usize = 0
+    while operation < q:
+        position: usize = operations_at + 3 * operation
+        span: i64 = input[position]
+        left: i64 = input[position + 1]
+        right: i64 = input[position + 2]
+        if span < 0 or span > n_value or left < 0 or right < 0 or
+            left > n_value - span or right > n_value - span: return -1
+        operation <- operation + 1
+    required: usize = 8 * q
+    if output.is_null() or capacity < required: return -2
+
+    parent: mutable usize[MAX_LEVELS * MAX_N] = zeroed
+    set_size: mutable usize[MAX_LEVELS * MAX_N] = zeroed
+    weight: mutable i64[MAX_N] = zeroed
+    level: mutable usize = 0
+    while level < MAX_LEVELS:
+        block: usize = 1 << level
+        if block > n: break
+        start: mutable usize = 0
+        while start <= n - block:
+            parent[level * MAX_N + start] <- start
+            set_size[level * MAX_N + start] <- 1
+            start <- start + 1
+        level <- level + 1
+    item <- 0
+    while item < n:
+        weight[item] <- input[2 + item]
+        item <- item + 1
+    pair_sum: mutable i64 = 0
+    operation <- 0
+    output_view: mutable view[u8] = output[0:required]
+    while operation < q:
+        position: usize = operations_at + 3 * operation
+        rpu_merge_ranges(input[position].usize(), input[position + 1].usize(), input[position + 2].usize(),
+            parent[0:MAX_LEVELS * MAX_N], set_size[0:MAX_LEVELS * MAX_N],
+            weight[0:MAX_N], pair_sum)
+        rpu_store_i64_le(pair_sum, output_view, 8 * operation)
+        operation <- operation + 1
+    required.i64()
+
+export fn range_parallel_unionfind(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = range_parallel_unionfind_impl

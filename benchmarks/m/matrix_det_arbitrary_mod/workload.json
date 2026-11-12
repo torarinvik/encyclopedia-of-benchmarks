@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-matrix-det-arbitrary-mod-bounded-euclidean-row-transform-v1",
+  "algorithm": "matrix_det_arbitrary_mod",
+  "function_symbol": "matrix_det_arbitrary_mod",
+  "abi": "i64_array_bytes_output",
+  "description": "Compute a determinant over a composite modulus using Euclidean row transformations.",
+  "source": {
+    "title": "Determinant of Matrix (Arbitrary Mod)",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/linear_algebra/matrix_det_arbitrary_mod/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/linear_algebra/matrix_det_arbitrary_mod/info.toml",
+    "algorithm_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/linear_algebra/matrix_det_arbitrary_mod/sol/correct.cpp",
+    "algorithm_attribution": "Euclidean row transformations for composite-modulus determinants",
+    "implementation_status": "clean-room bounded Euclidean elimination"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, M, row-major N-by-N matrix...]",
+    "N_range": [0, 8],
+    "modulus_range": [2, 1000000000],
+    "entry_range": "0 <= A[i,j] < M",
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 67,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one signed 64-bit little-endian least nonnegative determinant residue modulo M",
+    "maximum_bytes": 8,
+    "success_result": "8 bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8,
+    "meaning": "Output-buffer capacity; the bounded square matrix is separate."
+  },
+  "contract": {
+    "result": "determinant of the input matrix modulo M, in [0,M)",
+    "empty_matrix_determinant": 1,
+    "complexity": "O(N^3 log M) arithmetic operations and O(N^2) matrix storage",
+    "official_N_range": [0, 500],
+    "official_modulus_range": "1 < M <= 1000000000",
+    "official_entry_range": "0 <= A[i,j] < M"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-matrix","input_values":[0,7],"input_length":2,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"single-entry","input_values":[1,12,5],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"0500000000000000"},
+    {"id":"odd-row-swap-sign","input_values":[2,13,0,1,1,0],"input_length":6,"output_capacity":8,"expected_result":8,"expected_output_hex":"0c00000000000000"},
+    {"id":"composite-nonunit-pivot","input_values":[2,6,2,3,3,2],"input_length":6,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"determinant-divisible-by-modulus","input_values":[2,6,2,0,0,3],"input_length":6,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"singular-matrix","input_values":[2,15,1,2,2,4],"input_length":6,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"invalid-modulus-one","input_values":[1,1,0],"input_length":3,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"dimension-above-local-bound","input_values":[9,7],"input_length":2,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"entry-equals-modulus","input_values":[1,7,7],"input_length":3,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-matrix","input_values":[2,7,1,2,3],"input_length":5,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[1,7,3],"input_length":3,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,7,3],"input_length":3,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":8,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

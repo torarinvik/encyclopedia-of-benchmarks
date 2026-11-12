@@ -74,7 +74,7 @@ pub unsafe extern "C" fn routing_cost_constrained_cds_goc_mcds_c(
             let mut current = target;
             while current != source { path[path_length] = current; path_length += 1; current = parent[current] as usize; }
             path[path_length] = source; path_length += 1;
-            if path_length <= 4 { for i in 1..(path_length - 1) { connectors |= 1u64 << path[i]; } }
+            if path_length <= 5 { for i in 1..(path_length - 1) { connectors |= 1u64 << path[i]; } }
         }
     }
     if output.is_null() || capacity < 16 { return -2; }

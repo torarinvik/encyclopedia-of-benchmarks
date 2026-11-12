@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "npb-lu-block-ssor-bounded-v1",
+  "algorithm": "npb_lu_block_ssor",
+  "function_symbol": "npb_lu_block_ssor",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "The NAS Parallel Benchmarks",
+    "authors": ["D. Bailey", "E. Barszcz", "J. Barton", "D. Browning", "R. Carter", "L. Dagum", "R. Fatoohi", "S. Fineberg", "P. Frederickson", "T. Lasinski", "R. Schreiber", "H. Simon", "V. Venkatakrishnan", "S. Weeratunga"],
+    "reference": "NASA Ames NAS Technical Report RNR-94-007, March 1994, §3.3.2",
+    "url": "https://www.nas.nasa.gov/assets/nas/pdf/techreports/1994/rnr-94-007.pdf",
+    "algorithm_attribution": "point symmetric successive over-relaxation on a regular seven-block-diagonal 3-D operator",
+    "implementation_status": "bounded clean-room SSOR core profile; CFD state, forcing, and boundary generation are omitted"
+  },
+  "contract": {
+    "profile": "Apply a fixed number of point SSOR sweeps to an explicit 3-D regular sparse operator with five unknowns per grid point.",
+    "ordering": "Grid points are lexicographic with x fastest, then y, then z. Each point stores five consecutive components.",
+    "matrix": "K has one shared symmetric 5x5 diagonal block D and three scalar-identity lower-neighbor blocks in x, y, z. Each corresponding upper block is the transpose. Missing out-of-domain neighbors contribute zero.",
+    "iteration": "For each sweep, compute r=b-Kx, solve (D+Y)y=r in forward lexicographic order, solve (D+Z)z=D y in reverse order, set x=x+z with omega=1, then record the explicit Euclidean norm ||b-Kx||.",
+    "scope": "This bounded coefficient family exercises the five-component seven-block SSOR data flow. Supplied operator coefficients, right-hand side, and starting state replace NASA's PDE-derived coefficients, forcing, boundary-state construction, and full time-step schedule; this is not a canonical NPB-LU CFD run."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[nx, ny, nz, sweeps, D[25] row-major, cx, cy, cz, rhs[5*points], initial_x[5*points]]",
+    "dimension_range": [1, 4],
+    "maximum_grid_points": 32,
+    "sweeps_range": [1, 8],
+    "point_order": "x-fastest lexicographic order",
+    "coefficient_scale": 1000000,
+    "coefficient_range_micro_units": [-1000000000, 1000000000],
+    "vector_range_micro_units": [-1000000000, 1000000000],
+    "matrix_domain": "D is exactly symmetric, positive on its diagonal, and strictly row-diagonally dominant after including twice the absolute value of each active direction's scalar-identity coupling; this certifies the symmetric global operator K is positive definite",
+    "maximum_input_length": 352,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_records",
+    "record_layout": "[residual_norm_after_sweep_0, ..., residual_norm_after_sweep_s-1, final_x_component_0, ..., final_x_component_5N-1]",
+    "encoding": "little-endian IEEE-754 binary64 values",
+    "return_value": "output byte length (8*(sweeps+5*points))",
+    "maximum_output_bytes": 1344,
+    "absolute_tolerance": 1e-8,
+    "relative_tolerance": 1e-8,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 20480,
+    "meaning": "Bound for current state, residual, forward solution, backward correction, and block-solver scratch at 32 grid points."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "two-point-coupled-seven-block-ssor",
+      "input_values": [2, 1, 1, 1, 4000000, 0, 0, 0, 0, 0, 4000000, 0, 0, 0, 0, 0, 4000000, 0, 0, 0, 0, 0, 4000000, 0, 0, 0, 0, 0, 4000000, -1000000, 0, 0, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 52,
+      "expected_result": 88,
+      "expected_output": [0.17469281074217107, 0.328125, 0.328125, 0.328125, 0.328125, 0.328125, 0.3125, 0.3125, 0.3125, 0.3125, 0.3125]
+    },
+    {
+      "id": "dense-diagonal-block-solve",
+      "input_values": [1, 1, 1, 1, 3000000, 1000000, 0, 0, 0, 1000000, 3000000, 0, 0, 0, 0, 0, 4000000, 0, 0, 0, 0, 0, 5000000, 0, 0, 0, 0, 0, 6000000, 0, 0, 0, 4000000, 4000000, 4000000, 5000000, 6000000, 0, 0, 0, 0, 0],
+      "input_length": 42,
+      "expected_result": 48,
+      "expected_output": [0.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    },
+    {
+      "id": "nonsymmetric-diagonal-block-invalid",
+      "input_values": [1, 1, 1, 1, 3000000, 1000000, 0, 0, 0, 0, 3000000, 0, 0, 0, 0, 0, 4000000, 0, 0, 0, 0, 0, 5000000, 0, 0, 0, 0, 0, 6000000, 0, 0, 0, 4000000, 4000000, 4000000, 5000000, 6000000, 0, 0, 0, 0, 0],
+      "input_length": 42,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 1, 1, 1, 4000000, 0, 0, 0, 0, 0, 4000000, 0, 0, 0, 0, 0, 4000000, 0, 0, 0, 0, 0, 4000000, 0, 0, 0, 0, 0, 4000000, -1000000, 0, 0, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 52,
+      "output_capacity": 87,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1, 1, 1, 3000000, 1000000, 0, 0, 0, 1000000, 3000000, 0, 0, 0, 0, 0, 4000000, 0, 0, 0, 0, 0, 5000000, 0, 0, 0, 0, 0, 6000000, 0, 0, 0, 4000000, 4000000, 4000000, 5000000, 6000000, 0, 0, 0, 0, 0],
+      "input_length": 42,
+      "output_capacity": 48,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

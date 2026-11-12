@@ -1,0 +1,297 @@
+const MAX_N: usize = 64
+const MAX_Q: usize = 128
+const MAX_LEVEL: usize = 8
+const ROW_SIZE: usize = MAX_N + 1
+const MAX_INPUT_VALUES: usize = 3 * MAX_N + 4 * MAX_Q + 1
+const MAX_ABS_VALUE: i64 = 1_000_000
+
+struct ContourContext:
+    n: usize
+    degree: usize[MAX_N]
+    adjacent: usize[MAX_N * MAX_N]
+    removed: bool[MAX_N]
+    parent: i64[MAX_N]
+    subtree_size: usize[MAX_N]
+    ancestor: i64[MAX_N * MAX_LEVEL]
+    distance: usize[MAX_N * MAX_LEVEL]
+    branch_for: i64[MAX_N * MAX_LEVEL]
+    path_length: usize[MAX_N]
+    branch_count: usize
+    total: i64[MAX_N * ROW_SIZE]
+    branch: i64[MAX_N * ROW_SIZE]
+
+def contour_collect_component(ctx: mutable ContourContext&, start: usize,
+                              order: mutable view[usize]) -> usize:
+    stack: mutable usize[MAX_N] = zeroed
+    top: mutable usize = 1
+    count: mutable usize = 0
+    ctx.parent[start] <- -1
+    stack[0] <- start
+    while top > 0:
+        top <- top - 1
+        u: usize = stack[top]
+        order[count] <- u
+        count <- count + 1
+        i: mutable usize = 0
+        while i < ctx.degree[u]:
+            v: usize = ctx.adjacent[u * MAX_N + i]
+            if not ctx.removed[v] and v.i64() != ctx.parent[u]:
+                ctx.parent[v] <- u.i64()
+                stack[top] <- v
+                top <- top + 1
+            i <- i + 1
+    position: mutable usize = count
+    while position > 0:
+        position <- position - 1
+        u: usize = order[position]
+        ctx.subtree_size[u] <- 1
+        i <- 0
+        while i < ctx.degree[u]:
+            v: usize = ctx.adjacent[u * MAX_N + i]
+            if not ctx.removed[v] and ctx.parent[v] == u.i64():
+                ctx.subtree_size[u] <- ctx.subtree_size[u] + ctx.subtree_size[v]
+            i <- i + 1
+    count
+
+def contour_decompose(ctx: mutable ContourContext&, start: usize, level: usize) -> void:
+    order: mutable usize[MAX_N] = zeroed
+    count: usize = contour_collect_component(ctx, start, order[0:MAX_N])
+    center: mutable usize = start
+    index: mutable usize = 0
+    while index < count:
+        u: usize = order[index]
+        largest: mutable usize = count - ctx.subtree_size[u]
+        i: mutable usize = 0
+        while i < ctx.degree[u]:
+            v: usize = ctx.adjacent[u * MAX_N + i]
+            if not ctx.removed[v] and ctx.parent[v] == u.i64() and ctx.subtree_size[v] > largest:
+                largest <- ctx.subtree_size[v]
+            i <- i + 1
+        if 2 * largest <= count:
+            center <- u
+            break
+        index <- index + 1
+    ctx.removed[center] <- true
+    center_index: usize = center * MAX_LEVEL + level
+    ctx.ancestor[center_index] <- center.i64()
+    ctx.distance[center_index] <- 0
+    ctx.branch_for[center_index] <- -1
+    ctx.path_length[center] <- level + 1
+    edge: mutable usize = 0
+    while edge < ctx.degree[center]:
+        root: usize = ctx.adjacent[center * MAX_N + edge]
+        if not ctx.removed[root]:
+            branch_id: usize = ctx.branch_count
+            ctx.branch_count <- ctx.branch_count + 1
+            nodes: mutable usize[MAX_N] = zeroed
+            parents: mutable usize[MAX_N] = zeroed
+            distances: mutable usize[MAX_N] = zeroed
+            top: mutable usize = 1
+            nodes[0] <- root
+            parents[0] <- center
+            distances[0] <- 1
+            while top > 0:
+                top <- top - 1
+                u: usize = nodes[top]
+                p: usize = parents[top]
+                d: usize = distances[top]
+                idx: usize = u * MAX_LEVEL + level
+                ctx.ancestor[idx] <- center.i64()
+                ctx.distance[idx] <- d
+                ctx.branch_for[idx] <- branch_id.i64()
+                ctx.path_length[u] <- level + 1
+                i <- 0
+                while i < ctx.degree[u]:
+                    v: usize = ctx.adjacent[u * MAX_N + i]
+                    if not ctx.removed[v] and v != p:
+                        nodes[top] <- v
+                        parents[top] <- u
+                        distances[top] <- d + 1
+                        top <- top + 1
+                    i <- i + 1
+            contour_decompose(ctx, root, level + 1)
+        edge <- edge + 1
+
+def contour_fenwick_add(row: mutable view[i64], position: usize, delta: i64) -> void:
+    index: mutable usize = position + 1
+    while index <= MAX_N:
+        row[index] <- row[index] + delta
+        index <- index + (index & (!index + 1))
+
+def contour_fenwick_prefix(row: view[i64], count: usize) -> i64:
+    total: mutable i64 = 0
+    index: mutable usize = count
+    while index > 0:
+        total <- total + row[index]
+        index <- index - (index & (!index + 1))
+    total
+
+def contour_row_range(row: view[i64], left_value: i64, right_value: i64) -> i64:
+    left: mutable usize = 0
+    right: mutable usize = 0
+    if left_value > 0:
+        if left_value >= MAX_N.i64(): left <- MAX_N
+        else: left <- left_value.usize()
+    if right_value > 0:
+        if right_value >= MAX_N.i64(): right <- MAX_N
+        else: right <- right_value.usize()
+    if right <= left:
+        return 0
+    contour_fenwick_prefix(row, right) - contour_fenwick_prefix(row, left)
+
+def contour_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def vertex_add_range_contour_sum_on_tree(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("vertex_add_range_contour_sum_on_tree"):
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES:
+        return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or q_value < 0 or q_value > MAX_Q.i64():
+        return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length < 3 * n:
+        return -1
+
+    ctx: mutable ContourContext = zeroed
+    ctx.n <- n
+    for v in 0..<n:
+        for d in 0..<MAX_LEVEL:
+            idx: usize = v * MAX_LEVEL + d
+            ctx.ancestor[idx] <- -1
+            ctx.branch_for[idx] <- -1
+    values: mutable i64[MAX_N] = zeroed
+    for v in 0..<n:
+        values[v] <- input[2 + v]
+        if values[v] < -MAX_ABS_VALUE or values[v] > MAX_ABS_VALUE:
+            return -1
+
+    edge_start: usize = 2 + n
+    for i in 0..<n - 1:
+        u_value: i64 = input[edge_start + 2 * i]
+        v_value: i64 = input[edge_start + 2 * i + 1]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value:
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        for j in 0..<ctx.degree[u]:
+            if ctx.adjacent[u * MAX_N + j] == v:
+                return -1
+        ctx.adjacent[u * MAX_N + ctx.degree[u]] <- v
+        ctx.degree[u] <- ctx.degree[u] + 1
+        ctx.adjacent[v * MAX_N + ctx.degree[v]] <- u
+        ctx.degree[v] <- ctx.degree[v] + 1
+
+    seen: mutable bool[MAX_N] = zeroed
+    stack: mutable usize[MAX_N] = zeroed
+    top: mutable usize = 1
+    visited: mutable usize = 0
+    stack[0] <- 0
+    seen[0] <- true
+    while top > 0:
+        top <- top - 1
+        u: usize = stack[top]
+        visited <- visited + 1
+        for i in 0..<ctx.degree[u]:
+            v: usize = ctx.adjacent[u * MAX_N + i]
+            if not seen[v]:
+                seen[v] <- true
+                stack[top] <- v
+                top <- top + 1
+    if visited != n:
+        return -1
+
+    kinds: mutable usize[MAX_Q] = zeroed
+    vertices: mutable usize[MAX_Q] = zeroed
+    first: mutable i64[MAX_Q] = zeroed
+    second: mutable i64[MAX_Q] = zeroed
+    query_count: mutable usize = 0
+    cursor: mutable usize = 3 * n
+    for i in 0..<q:
+        if cursor >= length:
+            return -1
+        kind: i64 = input[cursor]
+        cursor <- cursor + 1
+        if kind == 0:
+            if cursor + 2 > length:
+                return -1
+            p: i64 = input[cursor]
+            delta: i64 = input[cursor + 1]
+            cursor <- cursor + 2
+            if p < 0 or p >= n_value or delta < -MAX_ABS_VALUE or delta > MAX_ABS_VALUE:
+                return -1
+            kinds[i] <- 0
+            vertices[i] <- p.usize()
+            first[i] <- delta
+        elif kind == 1:
+            if cursor + 3 > length:
+                return -1
+            p: i64 = input[cursor]
+            left: i64 = input[cursor + 1]
+            right: i64 = input[cursor + 2]
+            cursor <- cursor + 3
+            if p < 0 or p >= n_value or left < 0 or left >= right or right > n_value:
+                return -1
+            kinds[i] <- 1
+            vertices[i] <- p.usize()
+            first[i] <- left
+            second[i] <- right
+            query_count <- query_count + 1
+        else:
+            return -1
+    if cursor != length:
+        return -1
+
+    contour_decompose(ctx, 0, 0)
+    for v in 0..<n:
+        for d in 0..<ctx.path_length[v]:
+            idx: usize = v * MAX_LEVEL + d
+            c: usize = ctx.ancestor[idx].usize()
+            branch_id: i64 = ctx.branch_for[idx]
+            total_row: usize = c * ROW_SIZE
+            contour_fenwick_add(ctx.total[total_row:total_row + ROW_SIZE], ctx.distance[idx], values[v])
+            if branch_id >= 0:
+                branch_row: usize = branch_id.usize() * ROW_SIZE
+                contour_fenwick_add(ctx.branch[branch_row:branch_row + ROW_SIZE], ctx.distance[idx], values[v])
+
+    answers: mutable i64[MAX_Q] = zeroed
+    answer_count: mutable usize = 0
+    for i in 0..<q:
+        p: usize = vertices[i]
+        if kinds[i] == 0:
+            for d in 0..<ctx.path_length[p]:
+                idx: usize = p * MAX_LEVEL + d
+                c: usize = ctx.ancestor[idx].usize()
+                branch_id: i64 = ctx.branch_for[idx]
+                total_row: usize = c * ROW_SIZE
+                contour_fenwick_add(ctx.total[total_row:total_row + ROW_SIZE], ctx.distance[idx], first[i])
+                if branch_id >= 0:
+                    branch_row: usize = branch_id.usize() * ROW_SIZE
+                    contour_fenwick_add(ctx.branch[branch_row:branch_row + ROW_SIZE], ctx.distance[idx], first[i])
+        else:
+            total: mutable i64 = 0
+            for d in 0..<ctx.path_length[p]:
+                idx: usize = p * MAX_LEVEL + d
+                c: usize = ctx.ancestor[idx].usize()
+                branch_id: i64 = ctx.branch_for[idx]
+                left: i64 = first[i] - ctx.distance[idx].i64()
+                right: i64 = second[i] - ctx.distance[idx].i64()
+                total_row: usize = c * ROW_SIZE
+                total <- total + contour_row_range(ctx.total[total_row:total_row + ROW_SIZE], left, right)
+                if branch_id >= 0:
+                    branch_row: usize = branch_id.usize() * ROW_SIZE
+                    total <- total - contour_row_range(ctx.branch[branch_row:branch_row + ROW_SIZE], left, right)
+            answers[answer_count] <- total
+            answer_count <- answer_count + 1
+
+    output_bytes: usize = answer_count * 8
+    if output_bytes > 0 and (output.is_null() or capacity < output_bytes):
+        return -2
+    for i in 0..<answer_count:
+        contour_store_i64_le(output[0:capacity], i * 8, answers[i])
+    output_bytes.i64()

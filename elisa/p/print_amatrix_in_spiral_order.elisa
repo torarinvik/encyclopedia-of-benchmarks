@@ -4,8 +4,8 @@ def feed(h: u32, x: i64) -> u32:
         h = (h ^ ((u >> (s * 8)) & 255)) * 16777619
     h
 
-def print_amatrix_in_spiral_order_impl(v: ptr<i64>, n: u64) -> i64:
-    if v == null or n < 3 or n > 66 or v[0] < 1 or v[0] > 8 or v[1] < 1 or v[1] > 8 or n != 2 + v[0].u64() * v[1].u64(): return -1
+def print_amatrix_in_spiral_order_impl(v: i64&, n: u64) -> i64:
+    if n < 3 or n > 66 or v[0] < 1 or v[0] > 8 or v[1] < 1 or v[1] > 8 or n != 2 + v[0].u64() * v[1].u64(): return -1
     rows: u64 = v[0].u64(); cols: u64 = v[1].u64()
     for i in 2..n:
         if v[i] < -2147483648 or v[i] > 2147483647: return -1
@@ -30,4 +30,4 @@ def print_amatrix_in_spiral_order_impl(v: ptr<i64>, n: u64) -> i64:
             left += 1
     h.i64()
 
-export fn print_amatrix_in_spiral_order(v: ptr<i64>, n: u64) -> i64 = print_amatrix_in_spiral_order_impl(v, n)
+export fn print_amatrix_in_spiral_order(v: i64&, n: u64) -> i64 = print_amatrix_in_spiral_order_impl(v, n)

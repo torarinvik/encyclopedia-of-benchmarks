@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-stirling-second-kind-bounded-i64-array-scalar-v1",
+  "algorithm": "stirling_number_of_the_second_kind",
+  "function_symbol": "stirling_number_of_the_second_kind",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "Stirling Number of the Second Kind",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/enumerative_combinatorics/stirling_number_of_the_second_kind/task.md",
+    "bounds_url": "https://github.com/yosupo06/library-checker-problems/blob/master/enumerative_combinatorics/stirling_number_of_the_second_kind/info.toml",
+    "license": "Apache-2.0",
+    "implementation_status": "clean-room bounded recurrence"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N]",
+    "N_range": [0, 16],
+    "maximum_valid_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "sum((k+1)^3*S(N,k)) modulo 998244353 for k=0..N",
+    "formula": "sum((k+1)^3*S(N,k)) mod 998244353",
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "official_modulus": 998244353,
+    "official_N_range": [0, 500000],
+    "profile_N_range": [0, 16],
+    "recurrence": "S(n,k)=S(n-1,k-1)+k*S(n-1,k) modulo 998244353",
+    "base": "S(0,0)=1; S(n,0)=0 for n>0",
+    "checksum_weights": "weight k by (k+1)^3 before summing the modular row",
+    "checksum_not_injective": true,
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "empty-set-partition-row",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "singleton-row",
+      "input_values": [1],
+      "input_length": 1,
+      "expected_result": 8
+    },
+    {
+      "id": "two-elements",
+      "input_values": [2],
+      "input_length": 1,
+      "expected_result": 35
+    },
+    {
+      "id": "three-elements",
+      "input_values": [3],
+      "input_length": 1,
+      "expected_result": 153
+    },
+    {
+      "id": "four-elements",
+      "input_values": [4],
+      "input_length": 1,
+      "expected_result": 706
+    },
+    {
+      "id": "five-elements",
+      "input_values": [5],
+      "input_length": 1,
+      "expected_result": 3479
+    },
+    {
+      "id": "eight-elements",
+      "input_values": [8],
+      "input_length": 1,
+      "expected_result": 610989
+    },
+    {
+      "id": "profile-maximum",
+      "input_values": [16],
+      "input_length": 1,
+      "expected_result": 469230699
+    },
+    {
+      "id": "negative-N",
+      "input_values": [-1],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "above-profile",
+      "input_values": [17],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "missing-N",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing-value",
+      "input_values": [3, 0],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

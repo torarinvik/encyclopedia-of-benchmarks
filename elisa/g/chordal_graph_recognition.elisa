@@ -1,0 +1,166 @@
+const MAX_N: usize = 6
+const MAX_INPUT: usize = 32
+const MAX_OUTPUT_VALUES: usize = 8
+const MAX_OUTPUT_BYTES: usize = 64
+
+def chordal_graph_recognition_put(value: u64, output: mutable view[u8], offset: usize) -> void:
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((value >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def chordal_graph_recognition(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("chordal_graph_recognition"):
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > MAX_N.i64() or m64 < 0 or m64 > 15: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if m > n * (n - 1) / 2 or length != 2 + 2 * m: return -1
+    adjacent: mutable bool[MAX_N * MAX_N] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        a64: i64 = input[2 + 2 * edge]
+        b64: i64 = input[3 + 2 * edge]
+        if a64 < 0 or b64 < 0 or a64 >= n64 or b64 >= n64 or a64 == b64: return -1
+        a: usize = a64.usize()
+        b: usize = b64.usize()
+        if adjacent[a * MAX_N + b]: return -1
+        adjacent[a * MAX_N + b] <- true
+        adjacent[b * MAX_N + a] <- true
+        edge <- edge + 1
+    selected: mutable bool[MAX_N] = zeroed
+    label: mutable usize[MAX_N] = zeroed
+    reverse_order: mutable usize[MAX_N] = zeroed
+    order: mutable usize[MAX_N] = zeroed
+    position: mutable usize[MAX_N] = zeroed
+    step: mutable usize = 0
+    while step < n:
+        chosen: mutable i64 = -1
+        vertex: mutable usize = 0
+        while vertex < n:
+            if not selected[vertex] and (chosen < 0 or label[vertex] > label[chosen.usize()]): chosen <- vertex.i64()
+            vertex <- vertex + 1
+        selected[chosen.usize()] <- true
+        reverse_order[step] <- chosen.usize()
+        vertex <- 0
+        while vertex < n:
+            if not selected[vertex] and adjacent[chosen.usize() * MAX_N + vertex]: label[vertex] <- label[vertex] + 1
+            vertex <- vertex + 1
+        step <- step + 1
+    index: mutable usize = 0
+    while index < n:
+        order[index] <- reverse_order[n - index - 1]
+        position[order[index]] <- index
+        index <- index + 1
+    peo: mutable bool = true
+    index <- 0
+    while index < n:
+        v: usize = order[index]
+        parent: mutable i64 = -1
+        other: mutable usize = 0
+        while other < n:
+            if adjacent[v * MAX_N + other] and position[other] > index and (parent < 0 or position[other] < position[parent.usize()]): parent <- other.i64()
+            other <- other + 1
+        if parent >= 0:
+            other <- 0
+            while other < n:
+                if adjacent[v * MAX_N + other] and position[other] > index and other != parent.usize() and not adjacent[parent.usize() * MAX_N + other]: peo <- false
+                other <- other + 1
+        index <- index + 1
+    packed: mutable u64[MAX_OUTPUT_VALUES] = zeroed
+    packed_count: mutable usize = 0
+    if peo:
+        packed[packed_count] <- 1
+        packed_count <- packed_count + 1
+        index <- 0
+        while index < n:
+            packed[packed_count] <- order[index].u64()
+            packed_count <- packed_count + 1
+            index <- index + 1
+    else:
+        found: mutable bool = false
+        cycle: mutable usize[MAX_N] = zeroed
+        cycle_length: mutable usize = 0
+        mask: mutable usize = 0
+        while mask < (1 << n):
+            vertices: mutable usize[MAX_N] = zeroed
+            size: mutable usize = 0
+            vertex <- 0
+            while vertex < n:
+                if (mask & (1 << vertex)) != 0: vertices[size] <- vertex; size <- size + 1
+                vertex <- vertex + 1
+            if size >= 4:
+                valid: mutable bool = true
+                i: mutable usize = 0
+                while i < size:
+                    degree: mutable usize = 0
+                    j: mutable usize = 0
+                    while j < size:
+                        if adjacent[vertices[i] * MAX_N + vertices[j]]: degree <- degree + 1
+                        j <- j + 1
+                    if degree != 2: valid <- false
+                    i <- i + 1
+                if valid:
+                    seen: mutable bool[MAX_N] = zeroed
+                    queue: mutable usize[MAX_N] = zeroed
+                    head: mutable usize = 0
+                    tail: mutable usize = 1
+                    seen[vertices[0]] <- true
+                    queue[0] <- vertices[0]
+                    while head < tail:
+                        cycle_vertex: mutable usize = queue[head]
+                        head <- head + 1
+                        j <- 0
+                        while j < size:
+                            cycle_other: mutable usize = vertices[j]
+                            if adjacent[cycle_vertex * MAX_N + cycle_other] and not seen[cycle_other]: seen[cycle_other] <- true; queue[tail] <- cycle_other; tail <- tail + 1
+                            j <- j + 1
+                    if tail == size:
+                        cycle_length <- size
+                        start: usize = vertices[0]
+                        previous: mutable usize = start
+                        current: mutable usize = start
+                        j <- 0
+                        while j < size:
+                            if adjacent[start * MAX_N + vertices[j]]: current <- vertices[j]; break
+                            j <- j + 1
+                        cycle[0] <- start
+                        i <- 1
+                        while i < size:
+                            cycle[i] <- current
+                            next: mutable usize = start
+                            j <- 0
+                            while j < size:
+                                cycle_other <- vertices[j]
+                                if adjacent[current * MAX_N + cycle_other] and cycle_other != previous: next <- cycle_other; break
+                                j <- j + 1
+                            previous <- current
+                            current <- next
+                            i <- i + 1
+                        found <- true
+                        break
+            mask <- mask + 1
+        if not found: return -1
+        packed[packed_count] <- 0
+        packed_count <- packed_count + 1
+        packed[packed_count] <- cycle_length.u64()
+        packed_count <- packed_count + 1
+        index <- 0
+        while index < cycle_length:
+            packed[packed_count] <- cycle[index].u64()
+            packed_count <- packed_count + 1
+            index <- index + 1
+    bytes: usize = 8 * packed_count
+    if output.is_null() or capacity < bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    index <- 0
+    while index < packed_count:
+        chordal_graph_recognition_put(packed[index], staged[0:MAX_OUTPUT_BYTES], 8 * index)
+        index <- index + 1
+    index <- 0
+    while index < bytes:
+        output[index] <- staged[index]
+        index <- index + 1
+    bytes.i64()

@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "id": "splash2-ocean-red-black-gauss-seidel-sweep-float64-v1",
+  "algorithm": "splash2_ocean_rbgs",
+  "function_symbol": "splash2_ocean_rbgs",
+  "abi": "float64_slice_io",
+  "description": "One bounded red-then-black Gauss-Seidel smoother sweep from the SPLASH-2 Ocean multigrid solver.",
+  "source": {
+    "repository": "staceyson/splash2",
+    "commit": "be64f8e4840fc29ff4c076c3f747e27fdb55ac68",
+    "path": "codes/apps/ocean/contiguous_partitions/multi.C",
+    "symbol": "relax",
+    "url": "https://github.com/staceyson/splash2/blob/be64f8e4840fc29ff4c076c3f747e27fdb55ac68/codes/apps/ocean/contiguous_partitions/multi.C",
+    "algorithm_reference": "https://doi.org/10.1145/223982.223990",
+    "role": "algorithm and numerical update description; clean-room bounded kernel",
+    "license_note": "The upstream source carries a Stanford University 1994 notice restricting the source to non-commercial use and prohibiting redistribution without prior written permission; the new ports are clean-room implementations."
+  },
+  "contract": {
+    "operation": "Perform one red phase followed by one black phase over the interior of a square 2-D grid.",
+    "input_encoding": "[side,eigenvalue_squared,spacing,grid_row_major...,rhs_row_major...]",
+    "side_values": [4, 6, 8],
+    "grid_includes_one_cell_boundary": true,
+    "eigenvalue_squared_range": [0, 2],
+    "spacing_range": [0.125, 1],
+    "grid_and_rhs_component_range": [-8, 8],
+    "update_factor": "4 - eigenvalue_squared*spacing*spacing",
+    "update": "(north+south+west+east-rhs)/update_factor",
+    "red_color": "(row+column) mod 2 == 0",
+    "black_color": "(row+column) mod 2 == 1; evaluated after all red points",
+    "boundary_behavior": "Boundary values are copied unchanged.",
+    "output_encoding": "[maximum_absolute_update,final_grid_row_major...]",
+    "output_length": "1+side*side",
+    "success_result": "1+side*side",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "error_metric": "Maximum absolute difference between old and new values over both color phases."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "minimum_parseable_length": 3,
+    "maximum_valid_length": 131,
+    "maximum_parseable_length": 132,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "maximum_elements": 65,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 65,
+    "meaning": "Maximum output vector containing the update metric and all grid cells."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "red-update-feeds-black-phase",
+      "input_values": [4, 0, 0.5,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, -4, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      "input_length": 35,
+      "output_capacity": 17,
+      "expected_result": 17,
+      "expected_output": [1, 0, 0, 0, 0, 0, 1, 0.25, 0, 0, 0.25, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      "id": "maximum-side-zero-grid",
+      "input_values": [8, 1, 0.5,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 131,
+      "output_capacity": 65,
+      "expected_result": 65,
+      "expected_output": [0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+      ]
+    },
+    {
+      "id": "unsupported-side",
+      "input_values": [5, 0, 0.5],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra-input-value",
+      "input_values": [4, 0, 0.5,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0
+      ],
+      "input_length": 36,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "eigenvalue-out-of-range",
+      "input_values": [4, 2.1, 0.5,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      "input_length": 35,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [4, 0, 0.5,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, -4, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      "input_length": 35,
+      "output_capacity": 16,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-output-pointer",
+      "input_values": [4, 0, 0.5,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, -4, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      "input_length": 35,
+      "output_capacity": 17,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-input-pointer",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+const MAX_T:usize=8
+const MAX_COMPONENT:i64=1000000
+
+def gaussian_nearest_quotient(numerator:i64,denominator:i64)->i64:
+    sign:mutable i64=1
+    magnitude:i64=numerator
+    if numerator<0:
+        sign<- -1
+        magnitude<- -numerator
+    quotient:mutable i64=magnitude/denominator
+    remainder:i64=magnitude%denominator
+    if 2*remainder>=denominator:quotient<-quotient+1
+    sign*quotient
+
+def gaussian_write_u32(output:mutable u8&,offset:usize,value:u32)->void:
+    output[offset]<-(value&255).u8()
+    output[offset+1]<-((value>>8)&255).u8()
+    output[offset+2]<-((value>>16)&255).u8()
+    output[offset+3]<-((value>>24)&255).u8()
+
+def gcd_of_gaussian_integers(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("gcd_of_gaussian_integers"):
+    if input.is_null() or length<5 or length>33:return -1
+    t64:i64=input[0]
+    if t64<1 or t64>8:return -1
+    t:usize=t64.usize()
+    if length!=1+4*t:return -1
+
+    values:mutable i64[32]=zeroed
+    index:mutable usize=0
+    while index<4*t:
+        value:i64=input[index+1]
+        if value< -MAX_COMPONENT or value>MAX_COMPONENT:return -1
+        values[index]<-value
+        index<-index+1
+    required:usize=8*t
+    if output.is_null() or capacity<required:return -2
+
+    test:mutable usize=0
+    while test<t:
+        ar:mutable i64=values[4*test]
+        ai:mutable i64=values[4*test+1]
+        br:mutable i64=values[4*test+2]
+        bi:mutable i64=values[4*test+3]
+        while br!=0 or bi!=0:
+            denominator:i64=br*br+bi*bi
+            qr:i64=gaussian_nearest_quotient(ar*br+ai*bi,denominator)
+            qi:i64=gaussian_nearest_quotient(ai*br-ar*bi,denominator)
+            rr:i64=ar-(qr*br-qi*bi)
+            ri:i64=ai-(qr*bi+qi*br)
+            ar<-br
+            ai<-bi
+            br<-rr
+            bi<-ri
+        if ar!=0 or ai!=0:
+            rotations:mutable usize=0
+            while rotations<4 and (ar<=0 or ai<0):
+                old_real:i64=ar
+                ar<- -ai
+                ai<-old_real
+                rotations<-rotations+1
+        gaussian_write_u32(output,8*test,ar.u32())
+        gaussian_write_u32(output,8*test+4,ai.u32())
+        test<-test+1
+    required.i64()

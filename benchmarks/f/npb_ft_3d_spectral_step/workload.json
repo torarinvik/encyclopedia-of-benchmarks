@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "id": "npb-ft-3d-spectral-step-float64-slice-io-v1",
+  "algorithm": "npb_ft_3d_spectral_step",
+  "function_symbol": "npb_ft_3d_spectral_step",
+  "abi": "float64_slice_io",
+  "description": "Bounded cubic complex 3-D forward transform, spectral exponential evolution, inverse transforms, and per-step sampled checksums.",
+  "source": {
+    "title": "The NAS Parallel Benchmarks",
+    "institution": "NASA Ames Research Center",
+    "report": "RNR-94-007",
+    "section": "§2.2.5 FT kernel",
+    "url": "https://www.nas.nasa.gov/assets/nas/pdf/techreports/1994/rnr-94-007.pdf",
+    "role": "algorithmic specification; bounded clean-room profile"
+  },
+  "oracle": "benchmarks/npb_ft_3d_spectral_step_oracle.py",
+  "independent_oracle": "benchmarks/npb_ft_3d_spectral_step_verifier_oracle.py",
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[side,step_count,complex_cube_as_interleaved_real_imaginary]",
+    "side_values": [2, 4],
+    "step_count_range": [1, 6],
+    "component_range": [-1.0, 1.0],
+    "exact_length": "2+2*side^3",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 130,
+    "invalid_result": -1
+  },
+  "contract": {
+    "layout": "The last cube axis varies fastest in row-major order.",
+    "forward_transform": "Complex 3-D DFT with exp(-2*pi*i*dot(sample,frequency)/side), computed as three radix-2 axis transforms.",
+    "frequency_coordinates": "For each axis, k=index when index<=side/2, otherwise k=index-side.",
+    "spectral_step": "For t=1..step_count, W[k]=V[k]*exp(-4*pi^2*1e-6*t*(kx^2+ky^2+kz^2)); V is the initial forward spectrum and remains fixed across steps.",
+    "inverse_transform": "Complex inverse 3-D DFT with total normalization 1/side^3.",
+    "checksum": "At each step, sum 64 samples at zero-based coordinates ((j-1) mod side,(3*j-1) mod side,(5*j-1) mod side), j=1..64, and divide each complex sum by side^3.",
+    "complexity": "O(step_count*side^3*log2(side)) time and O(side^3) auxiliary storage."
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "Interleaved real and imaginary normalized checksum pairs, one pair per step.",
+    "maximum_elements": 12,
+    "success_result": "2*step_count",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "workspace": {
+    "elements": 128,
+    "meaning": "Two complex 64-point cubes hold the original spectrum and current spectral/inverse-transform state."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "cases": [
+    {
+      "id": "constant-complex-cube-three-steps",
+      "input_values": [2, 3, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5],
+      "input_length": 18,
+      "output_capacity": 6,
+      "expected_result": 6,
+      "expected_output": [2.0, -4.0, 2.0, -4.0, 2.0, -4.0]
+    },
+    {
+      "id": "nyquist-alternation-checksum-cancellation",
+      "input_values": [2, 2, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1, 0],
+      "input_length": 18,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output": [0.0, 0.0, 0.0, 0.0]
+    },
+    {
+      "id": "unsupported-side",
+      "input_values": [3, 1, 0, 0],
+      "input_length": 4,
+      "output_capacity": 12,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra-component",
+      "input_values": [2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 19,
+      "output_capacity": 12,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "component-out-of-range",
+      "input_values": [2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 18,
+      "output_capacity": 12,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 1, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5],
+      "input_length": 18,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 1, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5, 0.25, -0.5],
+      "input_length": 18,
+      "output_capacity": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 12,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

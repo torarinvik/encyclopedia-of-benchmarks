@@ -37,6 +37,20 @@ from ansibench_whetstone_oracle import INVALID_RESULT as ANSIBENCH_WHETSTONE_INV
 from ansibench_whetstone_oracle import expected_result as ansibench_whetstone_oracle
 from linpack_lu_solve_oracle import INVALID_RESULT as LINPACK_LU_SOLVE_INVALID_RESULT
 from linpack_lu_solve_oracle import expected_result as linpack_lu_solve_oracle
+from npb_bt_5x5_block_tridiagonal_oracle import (
+    INVALID_RESULT as NPB_BT_BLOCK_TRIDIAGONAL_INVALID_RESULT,
+    MAX_INPUT_LENGTH as NPB_BT_BLOCK_TRIDIAGONAL_MAX_INPUT_LENGTH,
+)
+from npb_bt_5x5_block_tridiagonal_verifier_oracle import (
+    expected_result as npb_bt_5x5_block_tridiagonal_independent_oracle,
+)
+from npb_ua_mesh_adaptation_oracle import (
+    INVALID_RESULT as NPB_UA_MESH_ADAPTATION_INVALID_RESULT,
+    MAX_INPUT_LENGTH as NPB_UA_MESH_ADAPTATION_MAX_INPUT_LENGTH,
+)
+from npb_ua_mesh_adaptation_verifier_oracle import (
+    expected_result as npb_ua_mesh_adaptation_independent_oracle,
+)
 from nbench_fourier_coefficients_oracle import INVALID_RESULT as NBENCH_FOURIER_INVALID_RESULT
 from nbench_fourier_coefficients_oracle import expected_result as nbench_fourier_coefficients_oracle
 from misc_flops_oracle import expected_result as misc_flops_oracle
@@ -121,6 +135,8 @@ from run_i64_array_float64 import (
     validate_polybench_ludcmp_workload,
     validate_ansibench_whetstone_workload,
     validate_linpack_lu_solve_workload,
+    validate_npb_bt_5x5_block_tridiagonal_workload,
+    validate_npb_ua_mesh_adaptation_workload,
     validate_nbench_fourier_coefficients_workload,
     validate_misc_flops_workload,
     validate_freebench_fbench_workload,
@@ -730,6 +746,8 @@ ALGORITHMS += ("polybench_symm",)
 ALGORITHMS += ("polybench_cholesky",)
 ALGORITHMS += ("polybench_ludcmp",)
 ALGORITHMS += ("ansibench_whetstone", "linpack_lu_solve", "nbench_fourier_coefficients")
+ALGORITHMS += ("npb_bt_5x5_block_tridiagonal",)
+ALGORITHMS += ("npb_ua_mesh_adaptation",)
 ALGORITHMS += ("misc_flops",)
 ALGORITHMS += ("freebench_fbench",)
 ALGORITHMS += ("doe_rsbench_doppler_xs",)
@@ -1084,6 +1102,12 @@ def oracle(algorithm: str, values: list[int], *, input_is_null: bool = False,
     if algorithm == "linpack_lu_solve":
         return linpack_lu_solve_oracle(
             values, input_is_null=input_is_null, input_length=input_length)
+    if algorithm == "npb_bt_5x5_block_tridiagonal":
+        return npb_bt_5x5_block_tridiagonal_independent_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
+    if algorithm == "npb_ua_mesh_adaptation":
+        return npb_ua_mesh_adaptation_independent_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
     if algorithm == "nbench_fourier_coefficients":
         return nbench_fourier_coefficients_oracle(
             values, input_is_null=input_is_null, input_length=input_length)
@@ -1407,6 +1431,10 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         validate_ansibench_whetstone_workload(workload)
     elif algorithm == "linpack_lu_solve":
         validate_linpack_lu_solve_workload(workload)
+    elif algorithm == "npb_bt_5x5_block_tridiagonal":
+        validate_npb_bt_5x5_block_tridiagonal_workload(workload)
+    elif algorithm == "npb_ua_mesh_adaptation":
+        validate_npb_ua_mesh_adaptation_workload(workload)
     elif algorithm == "nbench_fourier_coefficients":
         validate_nbench_fourier_coefficients_workload(workload)
     elif algorithm == "misc_flops":
@@ -6364,6 +6392,43 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             cases[values] = oracle(algorithm, list(values))
         for values in ((), (0,), (5,), (2,), (2, 1), (I64_MIN,), (I64_MAX,)):
             cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "npb_bt_5x5_block_tridiagonal":
+        for n in (2, 3, 4):
+            values = [n]
+            for row in range(n):
+                lower = [0] * 25
+                diagonal = [0] * 25
+                upper = [0] * 25
+                for component in range(5):
+                    diagonal[component * 5 + component] = 40
+                rhs = [row + component + 1 for component in range(5)]
+                values.extend((*lower, *diagonal, *upper, *rhs))
+            packed = tuple(values)
+            cases[packed] = oracle(algorithm, list(packed))
+        malformed = (
+            (), (0,), (1,), (5,), (2, 0),
+            tuple([0] * (NPB_BT_BLOCK_TRIDIAGONAL_MAX_INPUT_LENGTH + 1)),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "npb_ua_mesh_adaptation":
+        maximum = [0, 0, 0, 1, 64]
+        maximum.extend(value for z in range(4) for y in range(4) for x in range(4)
+                       for value in (2, x, y, z))
+        if len(maximum) != NPB_UA_MESH_ADAPTATION_MAX_INPUT_LENGTH:
+            raise ValueError("NPB UA maximum leaf fixture does not reach the input bound")
+        cases[tuple(maximum)] = oracle(algorithm, maximum)
+        malformed = (
+            (), (0,), (0, 0, 0, 1),
+            (0, 0, 0, 1, 1, 1, 0, 0, 0),
+            (0, 0, 0, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0),
+            (5, 0, 0, 1, 1, 0, 0, 0, 0),
+            tuple([0] * (NPB_UA_MESH_ADAPTATION_MAX_INPUT_LENGTH + 1)),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
     elif algorithm in {"mvt", "atax", "bicg", "polybench_symm"}:
         for first in (1, 2, 3, 8):
             for second in (1, 2, 3, 8):
@@ -6652,6 +6717,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "covariance": 2,
                     "ansibench_whetstone": 1,
                     "linpack_lu_solve": 1,
+                    "npb_bt_5x5_block_tridiagonal": 0,
+                    "npb_ua_mesh_adaptation": 0,
                     "nbench_fourier_coefficients": 0,
                     "doe_rsbench_doppler_xs": DOE_RSBENCH_DOPPLER_XS_MAX_INPUT_LENGTH,
                     "doe_simplemoc_quadratic_attenuation": 0,
@@ -6696,6 +6763,10 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    ANSIBENCH_WHETSTONE_INVALID_RESULT
                    if algorithm == "ansibench_whetstone" else
                    LINPACK_LU_SOLVE_INVALID_RESULT if algorithm == "linpack_lu_solve" else
+                   NPB_BT_BLOCK_TRIDIAGONAL_INVALID_RESULT
+                   if algorithm == "npb_bt_5x5_block_tridiagonal" else
+                   NPB_UA_MESH_ADAPTATION_INVALID_RESULT
+                   if algorithm == "npb_ua_mesh_adaptation" else
                    NBENCH_FOURIER_INVALID_RESULT
                    if algorithm == "nbench_fourier_coefficients" else
                    MONTE_CARLO_INTEGRATION_INVALID_RESULT

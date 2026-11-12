@@ -1,0 +1,73 @@
+const SWN_MAX_N: usize = 64
+const SWN_MAX_INPUT: usize = 259
+const SWN_MAX_PARSEABLE: usize = 260
+const SWN_MAX_WORDS: usize = 194
+
+def swn_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def swn_trunc_div(numerator: i64, denominator: i64) -> i64:
+    if numerator < 0:
+        -((-numerator) / denominator)
+    else:
+        numerator / denominator
+
+def splash2_water_nsquared_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > SWN_MAX_PARSEABLE: return -1
+    n_raw: i64 = input[0]
+    grid: i64 = input[1]
+    radius: i64 = input[2]
+    if n_raw < 0 or n_raw > 64 or grid < 1 or grid > 8 or radius < 1 or radius > 4: return -1
+    n: usize = n_raw.usize()
+    if length != 3 + 4 * n: return -1
+    side: i64 = grid * radius
+    radius2: i64 = radius * radius
+    x: mutable i64[SWN_MAX_N] = zeroed
+    y: mutable i64[SWN_MAX_N] = zeroed
+    z: mutable i64[SWN_MAX_N] = zeroed
+    charge: mutable i64[SWN_MAX_N] = zeroed
+    for i in 0..<n:
+        at: usize = 3 + 4 * i
+        x[i] <- input[at]
+        y[i] <- input[at + 1]
+        z[i] <- input[at + 2]
+        charge[i] <- input[at + 3]
+        if x[i] < 0 or x[i] >= side or y[i] < 0 or y[i] >= side or z[i] < 0 or z[i] >= side or charge[i] < -4 or charge[i] > 4: return -1
+    force: mutable i64[SWN_MAX_N * 3] = zeroed
+    energy: mutable i64 = 0
+    pairs: mutable i64 = 0
+    for i in 0..<n:
+        for j in (i + 1)..<n:
+            dx: i64 = x[j] - x[i]
+            dy: i64 = y[j] - y[i]
+            dz: i64 = z[j] - z[i]
+            r2: i64 = dx * dx + dy * dy + dz * dz
+            if r2 >= radius2: continue
+            product: i64 = charge[i] * charge[j]
+            energy <- energy + swn_trunc_div(product * (radius2 - r2) * 1000000, (1 + r2) * (1 + radius2))
+            denominator: i64 = (1 + r2) * (1 + r2)
+            fx: i64 = swn_trunc_div(-2 * product * dx * 1000000, denominator)
+            fy: i64 = swn_trunc_div(-2 * product * dy * 1000000, denominator)
+            fz: i64 = swn_trunc_div(-2 * product * dz * 1000000, denominator)
+            force[3 * i] <- force[3 * i] + fx
+            force[3 * i + 1] <- force[3 * i + 1] + fy
+            force[3 * i + 2] <- force[3 * i + 2] + fz
+            force[3 * j] <- force[3 * j] - fx
+            force[3 * j + 1] <- force[3 * j + 1] - fy
+            force[3 * j + 2] <- force[3 * j + 2] - fz
+            pairs <- pairs + 1
+    words: usize = 3 * n + 2
+    bytes: usize = words * 8
+    if output.is_null() or capacity < bytes: return -2
+    output_view: mutable view[u8] = output[0:capacity]
+    for i in 0..<(3 * n): swn_store(force[i], output_view, 8 * i)
+    swn_store(energy, output_view, 24 * n)
+    swn_store(pairs, output_view, 24 * n + 8)
+    bytes.i64()
+
+export fn splash2_water_nsquared(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = splash2_water_nsquared_impl

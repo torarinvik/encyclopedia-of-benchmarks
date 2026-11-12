@@ -11,7 +11,7 @@ Return the first `n` primes from a shared, lazily extended prime prefix.
 - For positive `n`, a null output pointer or a capacity shorter than `4*n` returns `-2` without writing.
 - Preserve one process-wide prime prefix across calls. Extend it only when a call requests more primes, testing new candidates with cached primes through the candidate's square root. Each call emits the requested prefix from the cache.
 
-The pinned Scala object defines one memoized `LazyList[Int]`, beginning with 2 and filtering later candidates by trial division using the prior primes through the square root. `getPrimeNumbers(n)` takes the first `n` items from that list; nonpositive `n` therefore produces an empty sequence. The process-wide cache and incremental extension distinguish this package from [`first_n_primes`](../../f/first_n_primes/README.md), which restarts trial division for each call and emits decimal text.
+The pinned Scala object defines one memoized `LazyList[Int]`, beginning with 2 and filtering later candidates by trial division using the prior primes through the square root. `getPrimeNumbers(n)` takes the first `n` items from that list; nonpositive `n` therefore produces an empty sequence. The process-wide cache and incremental extension distinguish this package from [`prime_numbers`](../../p/prime_numbers/README.md), which restarts trial division for each inclusive-limit call and emits decimal text.
 
 ## Workload
 

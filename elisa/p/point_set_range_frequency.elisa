@@ -1,0 +1,174 @@
+const MAX_N: usize = 64
+const MAX_Q: usize = 64
+const MAX_VALUES: usize = MAX_N + MAX_Q
+const STRIDE: usize = MAX_N + 1
+const MAX_TREE: usize = MAX_VALUES * STRIDE
+const MAX_PARSEABLE_INPUT: usize = 2 + MAX_N + 4 * MAX_Q + 1
+const MAX_OUTPUT_BYTES: usize = 8 * MAX_Q
+const MAX_VALUE: i64 = 1000000
+
+def point_set_range_frequency_lowbit(value: usize) -> usize:
+    value & (!value + 1)
+
+def point_set_range_frequency_lower_bound(values: view[i64], count: usize, target: i64) -> usize:
+    left: mutable usize = 0
+    right: mutable usize = count
+    while left < right:
+        middle: usize = left + (right - left) / 2
+        if values[middle] < target:
+            left <- middle + 1
+        else:
+            right <- middle
+    left
+
+def point_set_range_frequency_sort_unique(values: mutable view[i64], count: usize) -> usize:
+    for index in 1..<count:
+        value: i64 = values[index]
+        position: mutable usize = index
+        while position > 0 and values[position - 1] > value:
+            values[position] <- values[position - 1]
+            position <- position - 1
+        values[position] <- value
+    unique_count: mutable usize = 0
+    for index in 0..<count:
+        if unique_count == 0 or values[index] != values[unique_count - 1]:
+            values[unique_count] <- values[index]
+            unique_count <- unique_count + 1
+    unique_count
+
+def point_set_range_frequency_add(tree: mutable view[i64], value_id: usize,
+    position: usize, n: usize, delta: i64) -> void:
+    index: mutable usize = position + 1
+    row: usize = value_id * STRIDE
+    while index <= n:
+        tree[row + index] <- tree[row + index] + delta
+        index <- index + point_set_range_frequency_lowbit(index)
+
+def point_set_range_frequency_prefix(tree: view[i64], value_id: usize, count: usize) -> i64:
+    index: mutable usize = count
+    row: usize = value_id * STRIDE
+    total: mutable i64 = 0
+    while index > 0:
+        total <- total + tree[row + index]
+        index <- index - point_set_range_frequency_lowbit(index)
+    total
+
+def point_set_range_frequency_store(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def point_set_range_frequency_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT:
+        return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > 64 or q_value < 0 or q_value > 64:
+        return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if 2 + n > length:
+        return -1
+
+    values: mutable i64[MAX_VALUES] = zeroed
+    initial: mutable i64[MAX_N] = zeroed
+    operations: mutable i64[4 * MAX_Q] = zeroed
+    value_count: mutable usize = 0
+    for index in 0..<n:
+        value: i64 = input[2 + index]
+        if value < 0 or value > MAX_VALUE:
+            return -1
+        initial[index] <- value
+        values[value_count] <- value
+        value_count <- value_count + 1
+
+    cursor: mutable usize = 2 + n
+    query_count: mutable usize = 0
+    for index in 0..<q:
+        if cursor >= length:
+            return -1
+        kind: i64 = input[cursor]
+        cursor <- cursor + 1
+        op_offset: usize = 4 * index
+        operations[op_offset] <- kind
+        if kind == 0:
+            if cursor + 2 > length:
+                return -1
+            position: i64 = input[cursor]
+            value: i64 = input[cursor + 1]
+            cursor <- cursor + 2
+            if position < 0 or position >= n_value or value < 0 or value > MAX_VALUE:
+                return -1
+            operations[op_offset + 1] <- position
+            operations[op_offset + 2] <- value
+            values[value_count] <- value
+            value_count <- value_count + 1
+        else if kind == 1:
+            if cursor + 3 > length:
+                return -1
+            left: i64 = input[cursor]
+            right: i64 = input[cursor + 1]
+            value: i64 = input[cursor + 2]
+            cursor <- cursor + 3
+            if left < 0 or left > right or right > n_value or value < 0 or value > MAX_VALUE:
+                return -1
+            operations[op_offset + 1] <- left
+            operations[op_offset + 2] <- right
+            operations[op_offset + 3] <- value
+            query_count <- query_count + 1
+        else:
+            return -1
+    if cursor != length:
+        return -1
+
+    output_bytes: usize = 8 * query_count
+    if output_bytes > 0 and (output.is_null() or capacity < output_bytes):
+        return -2
+
+    values_view: mutable view[i64] = values[0:MAX_VALUES]
+    unique_count: usize = point_set_range_frequency_sort_unique(values_view, value_count)
+    tree: mutable i64[MAX_TREE] = zeroed
+    current: mutable usize[MAX_N] = zeroed
+    mut_values_view: view[i64] = values[0:MAX_VALUES]
+    tree_view: mutable view[i64] = tree[0:MAX_TREE]
+    for index in 0..<n:
+        current[index] <- point_set_range_frequency_lower_bound(mut_values_view,
+            unique_count, initial[index])
+        point_set_range_frequency_add(tree_view, current[index], index, n, 1)
+
+    staging: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    staging_view: mutable view[u8] = staging[0:MAX_OUTPUT_BYTES]
+    answer: mutable usize = 0
+    for index in 0..<q:
+        op_offset: usize = 4 * index
+        kind: i64 = operations[op_offset]
+        if kind == 0:
+            position: usize = operations[op_offset + 1].usize()
+            next: usize = point_set_range_frequency_lower_bound(mut_values_view,
+                unique_count, operations[op_offset + 2])
+            if current[position] != next:
+                point_set_range_frequency_add(tree_view, current[position], position, n, -1)
+                point_set_range_frequency_add(tree_view, next, position, n, 1)
+                current[position] <- next
+        else:
+            value: i64 = operations[op_offset + 3]
+            id: usize = point_set_range_frequency_lower_bound(mut_values_view, unique_count, value)
+            count: mutable i64 = 0
+            if id < unique_count and mut_values_view[id] == value:
+                count <- point_set_range_frequency_prefix(tree_view, id,
+                    operations[op_offset + 2].usize()) -
+                    point_set_range_frequency_prefix(tree_view, id,
+                    operations[op_offset + 1].usize())
+            point_set_range_frequency_store(staging_view, 8 * answer, count)
+            answer <- answer + 1
+    if output_bytes > 0:
+        output_view: mutable view[u8] = output[0:output_bytes]
+        for byte in 0..<output_bytes:
+            output_view[byte] <- staging[byte]
+    i64(output_bytes)
+
+export "point_set_range_frequency" fn point_set_range_frequency(input: i64&,
+    length: usize, output: mutable u8&, capacity: usize) -> i64:
+    point_set_range_frequency_impl(input, length, output, capacity)

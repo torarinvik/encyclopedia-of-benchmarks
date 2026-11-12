@@ -1,0 +1,62 @@
+const MAX_N: usize = 128
+const MAX_Q: usize = 32
+
+def static_range_lis_query_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 195: return -1
+    n64: i64 = input[0]
+    q64: i64 = input[1]
+    if n64 < 1 or n64 > 128 or q64 < 1 or q64 > 32: return -1
+    n: usize = n64.usize()
+    q: usize = q64.usize()
+    if length != 2 + n + 2 * q: return -1
+    permutation: mutable i64[MAX_N] = zeroed
+    seen: mutable bool[MAX_N] = zeroed
+    left: mutable i64[MAX_Q] = zeroed
+    right: mutable i64[MAX_Q] = zeroed
+    answers: mutable i64[MAX_Q] = zeroed
+    tails: mutable i64[MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        value: i64 = input[2 + i]
+        if value < 0 or value >= n64 or seen[value.usize()]: return -1
+        seen[value.usize()] <- true
+        permutation[i] <- value
+        i <- i + 1
+    off: mutable usize = 2 + n
+    k: mutable usize = 0
+    while k < q:
+        left[k] <- input[off]
+        right[k] <- input[off + 1]
+        off <- off + 2
+        if left[k] < 0 or left[k] > right[k] or right[k] > n64: return -1
+        k <- k + 1
+    k <- 0
+    while k < q:
+        count: mutable usize = 0
+        i <- left[k].usize()
+        while i < right[k].usize():
+            value: i64 = permutation[i]
+            lo: mutable usize = 0
+            hi: mutable usize = count
+            while lo < hi:
+                mid: usize = lo + (hi - lo) / 2
+                if tails[mid] < value: lo <- mid + 1
+                else: hi <- mid
+            tails[lo] <- value
+            if lo == count: count <- count + 1
+            i <- i + 1
+        answers[k] <- count.i64()
+        k <- k + 1
+    bytes: usize = 8 * q
+    if output.is_null() or capacity < bytes: return -2
+    k <- 0
+    while k < q:
+        bits: u64 = answers[k].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[8 * k + byte] <- ((bits >> (8 * byte)) & 255).u8()
+            byte <- byte + 1
+        k <- k + 1
+    bytes.i64()
+
+export fn static_range_lis_query(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = static_range_lis_query_impl

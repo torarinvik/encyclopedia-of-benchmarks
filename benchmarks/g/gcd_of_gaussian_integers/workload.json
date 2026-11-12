@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-gcd-of-gaussian-integers-bounded-i64-array-bytes-output-v1",
+  "algorithm": "gcd_of_gaussian_integers",
+  "function_symbol": "gcd_of_gaussian_integers",
+  "abi": "i64_array_bytes_output",
+  "description": "Compute canonical Gaussian-integer GCDs by Euclidean division for a bounded set of records.",
+  "source": {
+    "title": "GCD of Gaussian Integers",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/number_theory/gcd_of_gaussian_integers/task.md",
+    "algorithm_attribution": "Euclidean algorithm in Z[i] with nearest-coordinate quotient",
+    "implementation_status": "clean-room bounded Gaussian-integer Euclidean algorithm"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[T, (a1,b1,a2,b2)...]",
+    "T_range": [1, 8],
+    "component_range": [-1000000, 1000000],
+    "maximum_valid_length": 33,
+    "maximum_parseable_input_length": 33,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one canonical (real,imaginary) pair per case, each coordinate an unsigned 32-bit little-endian value",
+    "maximum_bytes": 64,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Eight records of four signed 64-bit coordinates, copied before output writes."
+  },
+  "contract": {
+    "gcd_definition": "g divides both Gaussian integers and every common Gaussian divisor divides g.",
+    "canonical_associate": "For nonzero g, choose the unit multiple with real > 0 and imaginary >= 0; zero maps to (0,0).",
+    "quotient_rounding": "Round each exact complex quotient coordinate to its nearest integer, with half-way ties away from zero.",
+    "official_T_range": [1, 100000],
+    "official_component_range": [-1000000000, 1000000000],
+    "profile_T_range": [1, 8],
+    "profile_component_range": [-1000000, 1000000],
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 15,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "both-zero",
+      "input_values": [1, 0, 0, 0, 0],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "zero-second-operand",
+      "input_values": [1, 6, 8, 0, 0],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0600000008000000"
+    },
+    {
+      "id": "divisor-is-one-plus-i",
+      "input_values": [1, 2, 0, 1, 1],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000001000000"
+    },
+    {
+      "id": "coprime-real-integers",
+      "input_values": [1, 3, 0, 5, 0],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "common-one-plus-i-factor",
+      "input_values": [1, -1, 5, 5, 3],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000001000000"
+    },
+    {
+      "id": "canonicalize-negative-associate",
+      "input_values": [1, -4, -4, 0, 0],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0400000004000000"
+    },
+    {
+      "id": "same-gaussian-integer",
+      "input_values": [1, 3, 4, 3, 4],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0300000004000000"
+    },
+    {
+      "id": "multiple-test-cases",
+      "input_values": [2, 2, 0, 1, 1, 6, 8, 0, 0],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000010000000600000008000000"
+    },
+    {
+      "id": "maximum-component-short-output",
+      "input_values": [1, 1000000, -999999, 0, 1],
+      "input_length": 5,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "component-out-of-range",
+      "input_values": [1, 1000001, 0, 1, 0],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "test-count-zero",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "record-count-length-mismatch",
+      "input_values": [2, 0, 0, 0, 0],
+      "input_length": 5,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 1, 0, 0, 0],
+      "input_length": 5,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1, 0, 0, 0],
+      "input_length": 5,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 5,
+      "input_is_null": true,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

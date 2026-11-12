@@ -1,0 +1,33 @@
+const MAX_N: i64 = 100000
+
+def enumerate_quotients_impl(value: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if value < 1 or value > MAX_N:
+        return -1
+    n: u64 = value.u64()
+    count: mutable usize = 0
+    left: mutable u64 = 1
+    while left <= n:
+        quotient: u64 = n / left
+        count <- count + 1
+        left <- n / quotient + 1
+    byte_count: usize = (count + 1) * 8
+    if output == null or output_capacity < byte_count:
+        return -2
+    count_word: u64 = count.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[byte] <- ((count_word >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+    index: mutable usize = 0
+    left <- 1
+    while left <= n:
+        quotient: u64 = n / left
+        byte: mutable usize = 0
+        while byte < 8:
+            output[(index + 1) * 8 + byte] <- ((quotient >> (byte * 8)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+        left <- n / quotient + 1
+    byte_count.i64()
+
+export fn enumerate_quotients(value: i64, output: mutable u8&, output_capacity: usize) -> i64 = enumerate_quotients_impl

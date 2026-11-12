@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "splash2-water-nsquared-bounded-direct-rational-pairs-v1",
+  "algorithm": "splash2_water_nsquared",
+  "function_symbol": "splash2_water_nsquared",
+  "abi": "i64_array_bytes_output",
+  "description": "Direct O(N^2) scan of bounded nonperiodic water-like molecule pairs using a controlled rational potential and equal-opposite forces.",
+  "provenance": {
+    "title": "SPLASH-2 Water-Nsquared",
+    "reference": "The SPLASH-2 intermolecular phase motivates the direct cutoff pair scan; this profile defines a new rational pair law and is not a physical force-field or timestep reproduction.",
+    "source_url": "https://github.com/staceyson/splash2/blob/master/codes/apps/water-nsquared/interf.C",
+    "paper_url": "https://pages.cs.wisc.edu/~markhill/restricted/isca95_splash2.pdf",
+    "license_note": "The referenced Stanford source states non-commercial use permission and restricts code redistribution. No original source code or text is included or copied."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[N,G,R,(x,y,z,q)*]",
+    "molecule_count_range": [0, 64],
+    "grid_side_cells_range": [1, 8],
+    "cutoff_cell_side_range": [1, 4],
+    "coordinate_range": "0 <= x,y,z < G*R",
+    "charge_range": [-4, 4],
+    "periodic_boundaries": false,
+    "exact_length": "3 + 4*N",
+    "maximum_valid_input_values": 259,
+    "maximum_parseable_input_values": 260,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "pair_iteration": "Visit every unordered pair i<j directly; do not build spatial cells.",
+    "cutoff": "Accept a pair only when r2=(xj-xi)^2+(yj-yi)^2+(zj-zi)^2 is strictly less than R2=R*R.",
+    "pair_potential": "U=qi*qj*(R2-r2)/((1+r2)*(1+R2))",
+    "force_on_i": "F_i=-2*qi*qj*(xj-xi,yj-yi,zj-zi)/(1+r2)^2; F_j=-F_i",
+    "quantization": "Scale each pair potential and each force component independently by 1000000, truncating the signed quotient toward zero before accumulation.",
+    "output_words": "[Fx,Fy,Fz for each molecule in input order, total scaled potential, accepted-pair count]",
+    "complexity": "O(N^2) pair checks and O(N) molecule/force storage",
+    "workspace_complexity": "O(N) signed 64-bit force, input-coordinate, and staged-output storage"
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "little-endian signed 64-bit output words",
+    "word_count": "3*N+2",
+    "maximum_bytes": 1552,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1552,
+    "meaning": "Maximum byte-output buffer capacity; internal coordinate and force arrays are bounded separately at O(N)."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-system","input_values":[0,1,1],"input_length":3,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000000000000000000"},
+    {"id":"opposite-charge-pair","input_values":[2,1,2,0,0,0,1,1,0,0,-1],"input_length":11,"output_capacity":64,"expected_result":64,"expected_output_hex":"20a1070000000000 0000000000000000 0000000000000000 e05ef8ffffffffff 0000000000000000 0000000000000000 206cfbffffffffff 0100000000000000"},
+    {"id":"positive-nonintegral-pair-contributions-truncate-toward-zero","input_values":[2,1,3,0,0,0,1,1,1,0,1],"input_length":11,"output_capacity":64,"expected_result":64,"expected_output_hex":"f29bfcffffffffff f29bfcffffffffff 0000000000000000 0e64030000000000 0e64030000000000 0000000000000000 758f030000000000 0100000000000000"},
+    {"id":"negative-nonintegral-potential-truncates-toward-zero","input_values":[2,1,3,0,0,0,1,1,1,0,-1],"input_length":11,"output_capacity":64,"expected_result":64,"expected_output_hex":"0e64030000000000 0e64030000000000 0000000000000000 f29bfcffffffffff f29bfcffffffffff 0000000000000000 8b70fcffffffffff 0100000000000000"},
+    {"id":"three-collinear-pairs","input_values":[3,1,3,0,0,0,1,1,0,0,1,2,0,0,1],"input_length":15,"output_capacity":88,"expected_result":88,"expected_output_hex":"d0edf5ffffffffff 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 20120a0000000000 0000000000000000 0000000000000000 a0bb0d0000000000 0300000000000000"},
+    {"id":"strict-cutoff-excludes-boundary","input_values":[2,2,1,0,0,0,1,1,0,0,1],"input_length":11,"output_capacity":64,"expected_result":64,"expected_output_hex":"0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000"},
+    {"id":"zero-charge-pair-still-counted","input_values":[2,1,2,0,0,0,0,1,0,0,0],"input_length":11,"output_capacity":64,"expected_result":64,"expected_output_hex":"0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000"},
+    {"id":"invalid-grid-size","input_values":[1,0,2,0,0,0,1],"input_length":7,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-coordinate","input_values":[1,1,2,4,0,0,1],"input_length":7,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-charge","input_values":[1,1,2,0,0,0,5],"input_length":7,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-record","input_values":[1,1,2,0,0,0],"input_length":6,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word","input_values":[0,1,1,9],"input_length":4,"output_capacity":16,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

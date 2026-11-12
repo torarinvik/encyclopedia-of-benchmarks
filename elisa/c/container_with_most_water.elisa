@@ -1,5 +1,5 @@
 # Two-pointer maximum area between vertical lines.
-def container_with_most_water_impl(heights: i64&, length: usize) -> i64:
+def container_with_most_water_impl(heights: view[i64], length: usize) -> i64:
     if length > 4096:
         return -1
     index: mutable usize = 0
@@ -29,4 +29,9 @@ def container_with_most_water_impl(heights: i64&, length: usize) -> i64:
             right <- right - 1
     best
 
-export fn container_with_most_water(heights: i64&, length: usize) -> i64 = container_with_most_water_impl
+export fn container_with_most_water(heights: i64&, length: usize) -> i64:
+    if length > 4096: return -1
+    if length == 0: return 0
+    if heights.is_null(): return -1
+    heights_view: view[i64] = heights[0:length]
+    container_with_most_water_impl(heights_view, length)

@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "id": "parsec-fluidanimate-sph-one-step-bounded-v1",
+  "algorithm": "fluidanimate_sph",
+  "function_symbol": "fluidanimate_sph",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "suite": "PARSEC 3.0 fluidanimate",
+    "paper_title": "The PARSEC Benchmark Suite: Characterization and Architectural Implications",
+    "paper_url": "https://www.cs.princeton.edu/techreports/2008/811.pdf",
+    "source_repository": "csail-csg/parsec (PARSEC 3.0 source mirror)",
+    "source_file_url": "https://gem5.googlesource.com/public/gem5-resources/+/refs/heads/develop/src/parsec/disk-image/parsec/parsec-benchmark/pkgs/apps/fluidanimate/src/serial.cpp",
+    "constants_header_url": "https://gem5.googlesource.com/public/gem5-resources/+/refs/heads/develop/src/parsec/disk-image/parsec/parsec-benchmark/pkgs/apps/fluidanimate/src/fluid.hpp",
+    "package_copyright_url": "https://gem5.googlesource.com/public/gem5-resources/+/refs/heads/develop/src/parsec/disk-image/parsec/parsec-benchmark/pkgs/apps/fluidanimate/src/COPYRIGHT",
+    "repository_license_url": "https://github.com/csail-csg/parsec/blob/master/LICENSE",
+    "license_context": "PARSEC root license is BSD-3-Clause; suite documentation warns individual applications can have separate terms. Fluidanimate src/COPYRIGHT names Intel Corp. (2007) but states no standalone license grant. Local work is clean-room and uses mathematical algorithm descriptions only.",
+    "reuse_scope": "SPH equations and high-level algorithm provenance only; no PARSEC implementation code, comments, or benchmark inputs are reused."
+  },
+  "contract": {
+    "operation": "Perform one bounded SPH density, pressure, and symmetric pressure/viscosity acceleration update over the input particle state.",
+    "input_layout": "[particle_count,rpm_milli,(x_milli,y_milli,z_milli,vx_milli,vy_milli,vz_milli)*]",
+    "position_and_velocity_units": "Input coordinates and velocities are signed thousandths of the corresponding source units.",
+    "smoothing_length": "h=1.695/(rpm_milli/1000); use support radius h and strict squared-distance test r2<h2.",
+    "particle_mass": "1000/(rpm*rpm*rpm), with rpm=rpm_milli/1000.",
+    "density": "rho_i=m*315/(64*pi*h^9)*(h^6+sum((h^2-r2)^3 for j!=i when r2<h^2)).",
+    "pressure": "p_i=3*(rho_i-1000).",
+    "pressure_coefficient": "3*(15/(pi*h^6))*1.5*m.",
+    "viscosity_coefficient": "0.4*(45/(pi*h^6))*m.",
+    "pair_acceleration": "For i<j and r2<h2, set r=sqrt(max(r2,1e-12)), q=h-r, d=position_i-position_j, rhoProduct=rho_i*rho_j. Add [d*pressureCoefficient*(q*q/r)*(rho_i+rho_j-2000)+(velocity_j-velocity_i)*viscosityCoefficient*q]/rhoProduct to i and its negation to j.",
+    "initial_acceleration": "(0,-9.8,0) for every particle.",
+    "iteration": "Direct pair traversal in increasing i then j order; the reference PARSEC cell-list construction and parallel scheduling are outside this bounded profile.",
+    "output_layout": "For each particle in input order, emit [density,pressure,ax,ay,az] as little-endian binary64 values.",
+    "error_precedence": "Malformed input returns -1 before output checks. Valid input with null output or insufficient byte capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "particle_count_range": [1, 32],
+    "rpm_milli_range": [500, 5000],
+    "coordinate_milli_range": [-10000, 10000],
+    "velocity_milli_range": [-5000, 5000],
+    "maximum_valid_length": 194,
+    "maximum_parseable_length": 195,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "values_per_particle": 5,
+    "maximum_values": 160,
+    "maximum_bytes": 1280,
+    "success_result": "40*particle_count bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 0.01,
+    "relative_tolerance": 1e-10
+  },
+  "workspace": {
+    "bytes": 2560,
+    "meaning": "Three fixed arrays of 32 three-component binary64 vectors plus 32 density values; output is written directly after validation."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "generated_profile": {
+    "maximum_particles": 32,
+    "maximum_output_bytes": 1280,
+    "description": "A deterministic 32-particle mixed neighborhood profile generated from bounded integer coordinates and velocities; it exercises the largest accepted state and the direct all-pairs path."
+  },
+  "cases": [
+    {
+      "id": "isolated-particle-self-density-and-gravity",
+      "input_values": [1, 1695, 0, 0, 0, 0, 0, 0],
+      "input_length": 8,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output": [321.7152, -2034.8544, 0.0, -9.8, 0.0]
+    },
+    {
+      "id": "neighbor-pressure-and-viscosity-pair",
+      "input_values": [2, 1695, 0, 0, 0, 0, 0, 0, 500, 0, 0, 1000, 0, 0],
+      "input_length": 14,
+      "output_capacity": 80,
+      "expected_result": 80,
+      "expected_output": [457.4388, -1627.6836, 5.721, -9.8, 0.0, 457.4388, -1627.6836, -5.721, -9.8, 0.0]
+    },
+    {
+      "id": "coincident-neighbor-distance-guard",
+      "input_values": [2, 1695, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 14,
+      "output_capacity": 80,
+      "expected_result": 80,
+      "expected_output": [643.4304, -1069.7088, 0.0, -9.8, 0.0, 643.4304, -1069.7088, 0.0, -9.8, 0.0]
+    },
+    {
+      "id": "support-boundary-excluded",
+      "input_values": [2, 1695, 0, 0, 0, 0, 0, 0, 1000, 0, 0, 0, 0, 0],
+      "input_length": 14,
+      "output_capacity": 80,
+      "expected_result": 80,
+      "expected_output": [321.7152, -2034.8544, 0.0, -9.8, 0.0, 321.7152, -2034.8544, 0.0, -9.8, 0.0]
+    },
+    {
+      "id": "invalid-rpm",
+      "input_values": [1, 499, 0, 0, 0, 0, 0, 0],
+      "input_length": 8,
+      "output_capacity": 1280,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "malformed-before-output-check",
+      "input_values": [1, 499, 0, 0, 0, 0, 0, 0],
+      "input_length": 8,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "coordinate-out-of-range",
+      "input_values": [1, 1695, 10001, 0, 0, 0, 0, 0],
+      "input_length": 8,
+      "output_capacity": 1280,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 1695, 0, 0, 0, 0, 0, 0],
+      "input_length": 8,
+      "output_capacity": 39,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [1, 1695, 0, 0, 0, 0, 0, 0, 7],
+      "input_length": 9,
+      "output_capacity": 1280,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1695, 0, 0, 0, 0, 0, 0],
+      "input_length": 8,
+      "output_capacity": 1280,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 1280,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-binomial-prefix-bounded-i64-array-bytes-output-v1",
+  "algorithm": "prefix_sum_of_binomial_coefficient",
+  "function_symbol": "prefix_sum_of_binomial_coefficient",
+  "abi": "i64_array_bytes_output",
+  "description": "Compute an arbitrary prefix sum of an ordinary binomial row modulo a fixed prime.",
+  "source": {
+    "title": "Prefix Sum of Binomial Coefficient",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/enumerative_combinatorics/prefix_sum_of_binomial_coefficient/task.md",
+    "parameters_url": "https://github.com/yosupo06/library-checker-problems/blob/master/enumerative_combinatorics/prefix_sum_of_binomial_coefficient/info.toml",
+    "license_url": "https://github.com/yosupo06/library-checker-problems/blob/master/LICENSE",
+    "algorithm_attribution": "modular multiplicative recurrence along one binomial row and running prefix accumulation",
+    "implementation_status": "bounded clean-room arbitrary-prefix profile"
+  },
+  "contract": {
+    "operation": "For each query (N,K), return sum(C(N,i), i=0..K) modulo 998244353.",
+    "modulus": 998244353,
+    "official_T_max": 200000,
+    "official_N_max": 200000,
+    "profile_T_max": 16,
+    "profile_N_max": 128,
+    "coefficient_recurrence": "C(N,i+1)=C(N,i)*(N-i)/(i+1) modulo 998244353",
+    "prefix_rule": "Initialize coefficient and prefix to one, then add each next coefficient through K.",
+    "output_error_result": -2
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[T, N0, K0, ..., N(T-1), K(T-1)]",
+    "T_range": [1, 16],
+    "query_range": "0 <= K <= N <= 128",
+    "maximum_valid_length": 33,
+    "maximum_parseable_input_length": 34,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_u32_vector",
+    "encoding": "one unsigned 32-bit residue per query, no terminator",
+    "maximum_bytes": 64,
+    "success_result": "number of output bytes",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Inverse table through 128, packed query bounds, and temporary result storage."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 500
+  },
+  "oracle": "benchmarks/prefix_sum_of_binomial_coefficient_oracle.py",
+  "independent_oracle": "benchmarks/prefix_sum_of_binomial_coefficient_independent_oracle.py",
+  "cases": [
+    {
+      "id": "empty-prefix-n-zero",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "partial-prefix",
+      "input_values": [1, 4, 2],
+      "input_length": 3,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "0b000000"
+    },
+    {
+      "id": "full-row-prefix",
+      "input_values": [1, 4, 4],
+      "input_length": 3,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "10000000"
+    },
+    {
+      "id": "batch-independent-queries",
+      "input_values": [3, 0, 0, 4, 4, 10, 3],
+      "input_length": 7,
+      "output_capacity": 12,
+      "expected_result": 12,
+      "expected_output_hex": "0100000010000000b0000000"
+    },
+    {
+      "id": "partial-row-eight",
+      "input_values": [1, 8, 5],
+      "input_length": 3,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "db000000"
+    },
+    {
+      "id": "maximum-n-small-prefix",
+      "input_values": [1, 128, 2],
+      "input_length": 3,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "41200000"
+    },
+    {
+      "id": "maximum-n-single-step",
+      "input_values": [1, 128, 1],
+      "input_length": 3,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "81000000"
+    },
+    {
+      "id": "zero-batch",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "k-greater-than-n",
+      "input_values": [1, 4, 5],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "n-above-profile",
+      "input_values": [1, 129, 0],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-n",
+      "input_values": [1, -1, 0],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-input-value",
+      "input_values": [1, 4, 2, 0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-query",
+      "input_values": [1, 4],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 4, 2],
+      "input_length": 3,
+      "output_capacity": 3,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 4, 2],
+      "input_length": 3,
+      "output_capacity": 4,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

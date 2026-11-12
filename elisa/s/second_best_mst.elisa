@@ -1,0 +1,176 @@
+const MAX_N: usize = 8
+const MAX_M: usize = 20
+const OUTPUT_BYTES: usize = 32
+
+def second_best_mst_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def second_best_mst(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("second_best_mst"):
+    if input.is_null() or length < 2 or length > 2 + 3 * MAX_M: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or m_value < n_value - 1 or m_value > MAX_M.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + 3 * m: return -1
+
+    edge_u: mutable usize[MAX_M] = zeroed
+    edge_v: mutable usize[MAX_M] = zeroed
+    edge_weight: mutable i64[MAX_M] = zeroed
+    order: mutable usize[MAX_M] = zeroed
+    seen: mutable bool[MAX_N * MAX_N] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u_value: i64 = input[2 + 3 * edge]
+        v_value: i64 = input[3 + 3 * edge]
+        weight: i64 = input[4 + 3 * edge]
+        if u_value < 0 or u_value >= v_value or v_value >= n_value or weight < 0 or weight > 1_000_000: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        if seen[u * MAX_N + v]: return -1
+        seen[u * MAX_N + v] <- true
+        edge_u[edge] <- u
+        edge_v[edge] <- v
+        edge_weight[edge] <- weight
+        order[edge] <- edge
+        edge <- edge + 1
+
+    i: mutable usize = 1
+    while i < m:
+        candidate_edge: usize = order[i]
+        j: mutable usize = i
+        while j > 0 and (edge_weight[order[j - 1]] > edge_weight[candidate_edge] or
+                (edge_weight[order[j - 1]] == edge_weight[candidate_edge] and order[j - 1] > candidate_edge)):
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- candidate_edge
+        i <- i + 1
+
+    dsu: mutable usize[MAX_N] = zeroed
+    component_size: mutable usize[MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        dsu[vertex] <- vertex
+        component_size[vertex] <- 1
+        vertex <- vertex + 1
+    in_mst: mutable bool[MAX_M] = zeroed
+    tree_to: mutable usize[MAX_N * MAX_N] = zeroed
+    tree_edge: mutable usize[MAX_N * MAX_N] = zeroed
+    degree: mutable usize[MAX_N] = zeroed
+    selected: mutable usize = 0
+    mst_weight: mutable i64 = 0
+    position: mutable usize = 0
+    while position < m:
+        current_edge: usize = order[position]
+        root_u: mutable usize = edge_u[current_edge]
+        root_v: mutable usize = edge_v[current_edge]
+        while dsu[root_u] != root_u:
+            dsu[root_u] <- dsu[dsu[root_u]]
+            root_u <- dsu[root_u]
+        while dsu[root_v] != root_v:
+            dsu[root_v] <- dsu[dsu[root_v]]
+            root_v <- dsu[root_v]
+        if root_u != root_v:
+            if component_size[root_u] < component_size[root_v]:
+                temporary: usize = root_u
+                root_u <- root_v
+                root_v <- temporary
+            dsu[root_v] <- root_u
+            component_size[root_u] <- component_size[root_u] + component_size[root_v]
+            in_mst[current_edge] <- true
+            selected <- selected + 1
+            mst_weight <- mst_weight + edge_weight[current_edge]
+            cell_u: usize = edge_u[current_edge] * MAX_N + degree[edge_u[current_edge]]
+            tree_to[cell_u] <- edge_v[current_edge]
+            tree_edge[cell_u] <- current_edge
+            degree[edge_u[current_edge]] <- degree[edge_u[current_edge]] + 1
+            cell_v: usize = edge_v[current_edge] * MAX_N + degree[edge_v[current_edge]]
+            tree_to[cell_v] <- edge_u[current_edge]
+            tree_edge[cell_v] <- current_edge
+            degree[edge_v[current_edge]] <- degree[edge_v[current_edge]] + 1
+        position <- position + 1
+    if selected != n - 1: return -1
+
+    second_weight: mutable i64 = -1
+    entering_edge: mutable i64 = -1
+    leaving_edge: mutable i64 = -1
+    added: mutable usize = 0
+    while added < m:
+        if not in_mst[added]:
+            parent: mutable i64[MAX_N] = zeroed
+            parent_edge: mutable i64[MAX_N] = zeroed
+            queue: mutable usize[MAX_N] = zeroed
+            vertex <- 0
+            while vertex < n:
+                parent[vertex] <- -1
+                vertex <- vertex + 1
+            head: mutable usize = 0
+            tail: mutable usize = 0
+            start: usize = edge_u[added]
+            target: usize = edge_v[added]
+            parent[start] <- start.i64()
+            queue[tail] <- start
+            tail <- tail + 1
+            while head < tail and parent[target] < 0:
+                current: usize = queue[head]
+                head <- head + 1
+                neighbor_index: mutable usize = 0
+                while neighbor_index < degree[current]:
+                    cell: usize = current * MAX_N + neighbor_index
+                    next: usize = tree_to[cell]
+                    if parent[next] < 0:
+                        parent[next] <- current.i64()
+                        parent_edge[next] <- tree_edge[cell].i64()
+                        queue[tail] <- next
+                        tail <- tail + 1
+                    neighbor_index <- neighbor_index + 1
+            first_weight: mutable i64 = -1
+            second_path_weight: mutable i64 = -1
+            first_edge: mutable i64 = -1
+            second_path_edge: mutable i64 = -1
+            current: mutable usize = target
+            while current != start:
+                path_edge: i64 = parent_edge[current]
+                weight: i64 = edge_weight[path_edge.usize()]
+                if weight > first_weight:
+                    second_path_weight <- first_weight
+                    second_path_edge <- first_edge
+                    first_weight <- weight
+                    first_edge <- path_edge
+                elif weight == first_weight:
+                    if first_edge < 0 or path_edge < first_edge: first_edge <- path_edge
+                elif weight > second_path_weight:
+                    second_path_weight <- weight
+                    second_path_edge <- path_edge
+                elif weight == second_path_weight and (second_path_edge < 0 or path_edge < second_path_edge):
+                    second_path_edge <- path_edge
+                current <- parent[current].usize()
+            removed_weight: i64 = -1
+            removed_edge: i64 = -1
+            if edge_weight[added] > first_weight:
+                removed_weight <- first_weight
+                removed_edge <- first_edge
+            elif edge_weight[added] == first_weight and second_path_weight >= 0:
+                removed_weight <- second_path_weight
+                removed_edge <- second_path_edge
+            if removed_edge >= 0:
+                candidate: i64 = mst_weight + edge_weight[added] - removed_weight
+                if second_weight < 0 or candidate < second_weight or
+                        (candidate == second_weight and (added.i64() < entering_edge or
+                        (added.i64() == entering_edge and removed_edge < leaving_edge))):
+                    second_weight <- candidate
+                    entering_edge <- added.i64()
+                    leaving_edge <- removed_edge
+        added <- added + 1
+
+    if output.is_null() or capacity < OUTPUT_BYTES: return -2
+    second_best_mst_store(mst_weight, output[0:OUTPUT_BYTES], 0)
+    second_best_mst_store(second_weight, output[0:OUTPUT_BYTES], 8)
+    second_best_mst_store(entering_edge, output[0:OUTPUT_BYTES], 16)
+    second_best_mst_store(leaving_edge, output[0:OUTPUT_BYTES], 24)
+    OUTPUT_BYTES.i64()

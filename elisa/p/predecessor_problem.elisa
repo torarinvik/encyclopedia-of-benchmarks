@@ -1,0 +1,107 @@
+const MAX_N: usize = 4096
+const MAX_WORDS: usize = 64
+const MAX_QUERIES: usize = 512
+const MAX_INPUT_LENGTH: usize = 1090
+const MAX_OUTPUT_BYTES: usize = 4096
+
+def predecessor_find_next(words: view[u64], word_count: usize, n: usize, key: usize) -> i64:
+    first_word: usize = key / 64
+    word: mutable usize = first_word
+    while word < word_count:
+        first_bit: usize = if word == first_word then key % 64 else 0
+        candidates: mutable u64 = words[word]
+        if first_bit != 0: candidates <- candidates & ((u64(0) - 1) << first_bit)
+        if candidates != 0:
+            end_bit: usize = if (word + 1) * 64 < n then 64 else n - word * 64
+            bit: mutable usize = first_bit
+            while bit < end_bit:
+                if ((candidates >> bit) & 1) != 0: return (word * 64 + bit).i64()
+                bit <- bit + 1
+        word <- word + 1
+    -1
+
+def predecessor_find_previous(words: view[u64], n: usize, key: usize) -> i64:
+    first_word: usize = key / 64
+    word: mutable usize = first_word + 1
+    while word > 0:
+        word <- word - 1
+        valid_bits: usize = if (word + 1) * 64 > n then n - word * 64 else 64
+        requested_end: usize = if word == first_word then key % 64 + 1 else valid_bits
+        end_bit: usize = if requested_end < valid_bits then requested_end else valid_bits
+        mask: u64 = if end_bit == 64 then u64(0) - 1 else (1.u64() << end_bit) - 1
+        candidates: u64 = words[word] & mask
+        if candidates != 0:
+            bit: mutable usize = end_bit
+            while bit > 0:
+                bit <- bit - 1
+                if ((candidates >> bit) & 1) != 0: return (word * 64 + bit).i64()
+    -1
+
+def predecessor_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def predecessor_problem_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    query_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N or query_value < 0 or query_value > MAX_QUERIES: return -1
+    n: usize = n_value.usize()
+    queries: usize = query_value.usize()
+    word_count: usize = (n + 63) / 64
+    operation_offset: usize = 2 + word_count
+    if length != operation_offset + 2 * queries: return -1
+    words: mutable u64[MAX_WORDS] = zeroed
+    word: mutable usize = 0
+    while word < word_count:
+        words[word] <- input[2 + word].u64()
+        word <- word + 1
+    tail_bits: usize = n % 64
+    if tail_bits != 0 and (words[word_count - 1] >> tail_bits) != 0: return -1
+    query: mutable usize = 0
+    while query < queries:
+        operation: i64 = input[operation_offset + 2 * query]
+        key: i64 = input[operation_offset + 2 * query + 1]
+        if operation < 0 or operation > 4 or key < 0 or key >= n_value: return -1
+        query <- query + 1
+    answers: mutable i64[MAX_QUERIES] = zeroed
+    answer_count: mutable usize = 0
+    query <- 0
+    while query < queries:
+        operation: i64 = input[operation_offset + 2 * query]
+        key: usize = input[operation_offset + 2 * query + 1].usize()
+        word_index: usize = key / 64
+        mask: u64 = 1.u64() << (key % 64)
+        if operation == 0:
+            words[word_index] <- words[word_index] | mask
+        elif operation == 1:
+            words[word_index] <- words[word_index] & ~mask
+        elif operation == 2:
+            answers[answer_count] <- if (words[word_index] & mask) != 0 then 1 else 0
+            answer_count <- answer_count + 1
+        elif operation == 3:
+            answers[answer_count] <- predecessor_find_next(words[0:word_count], word_count, n, key)
+            answer_count <- answer_count + 1
+        else:
+            answers[answer_count] <- predecessor_find_previous(words[0:word_count], n, key)
+            answer_count <- answer_count + 1
+        query <- query + 1
+    output_bytes: usize = answer_count * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT_BYTES]
+    index: mutable usize = 0
+    while index < answer_count:
+        predecessor_store_i64(answers[index], staged_view, index * 8)
+        index <- index + 1
+    byte: mutable usize = 0
+    while byte < output_bytes:
+        output[byte] <- staged[byte]
+        byte <- byte + 1
+    output_bytes.i64()
+
+export fn predecessor_problem(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = predecessor_problem_impl

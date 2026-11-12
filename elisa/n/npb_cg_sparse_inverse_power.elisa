@@ -1,0 +1,168 @@
+const NPB_CG_MAX_N: usize = 32
+const NPB_CG_MAX_OUTER: usize = 8
+const NPB_CG_MAX_STEPS: usize = 25
+const NPB_CG_MAX_MICRO: i64 = 1000000000
+const NPB_CG_SCALE: f64 = 1000000.0
+extern sqrt(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def npb_cg_write_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def npb_cg_sparse_inverse_power_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 8: return -1
+    if input[0] < 1 or input[0] > NPB_CG_MAX_N.i64() or
+       input[1] < 1 or input[1] > NPB_CG_MAX_OUTER.i64() or
+       input[2] < 1 or input[2] > NPB_CG_MAX_STEPS.i64() or input[2] > input[0] or
+       input[3] < -NPB_CG_MAX_MICRO or input[3] > NPB_CG_MAX_MICRO or
+       input[4] < input[0] or input[4] > 6 * input[0]: return -1
+    n: usize = input[0].usize()
+    outer_count: usize = input[1].usize()
+    steps: usize = input[2].usize()
+    nnz: usize = input[4].usize()
+    if length != n + 6 + 2 * nnz: return -1
+    row_ptr: usize = 5
+    columns: usize = row_ptr + n + 1
+    entries: usize = columns + nnz
+    if input[row_ptr] != 0 or input[row_ptr + n] != nnz.i64(): return -1
+
+    row: mutable usize = 0
+    while row < n:
+        begin: i64 = input[row_ptr + row]
+        end: i64 = input[row_ptr + row + 1]
+        if begin < 0 or begin >= end or end > nnz.i64(): return -1
+        diagonal: mutable i64 = 0
+        off_sum: mutable i64 = 0
+        previous: mutable i64 = -1
+        edge: mutable usize = begin.usize()
+        while edge < end.usize():
+            column: i64 = input[columns + edge]
+            entry: i64 = input[entries + edge]
+            if column < 0 or column >= n.i64() or column <= previous or entry == 0 or
+               entry < -NPB_CG_MAX_MICRO or entry > NPB_CG_MAX_MICRO: return -1
+            previous <- column
+            if column == row.i64():
+                diagonal <- entry
+            else:
+                off_sum <- off_sum + (if entry < 0 then -entry else entry)
+            edge <- edge + 1
+        if diagonal <= 0 or diagonal <= off_sum: return -1
+        row <- row + 1
+    row <- 0
+    while row < n:
+        edge: mutable usize = input[row_ptr + row].usize()
+        while edge < input[row_ptr + row + 1].usize():
+            column: usize = input[columns + edge].usize()
+            found: mutable bool = false
+            reverse: mutable usize = input[row_ptr + column].usize()
+            while reverse < input[row_ptr + column + 1].usize():
+                if input[columns + reverse] == row.i64() and input[entries + reverse] == input[entries + edge]:
+                    found <- true
+                    break
+                reverse <- reverse + 1
+            if not found: return -1
+            edge <- edge + 1
+        row <- row + 1
+
+    output_bytes: usize = outer_count * 16
+    if output.is_null() or output_capacity < output_bytes: return -2
+    x: mutable f64[NPB_CG_MAX_N] = zeroed
+    z: mutable f64[NPB_CG_MAX_N] = zeroed
+    residual: mutable f64[NPB_CG_MAX_N] = zeroed
+    direction: mutable f64[NPB_CG_MAX_N] = zeroed
+    product: mutable f64[NPB_CG_MAX_N] = zeroed
+    az: mutable f64[NPB_CG_MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        x[i] <- 1.0
+        i <- i + 1
+    outer: mutable usize = 0
+    while outer < outer_count:
+        rhs_squared: mutable f64 = 0.0
+        i <- 0
+        while i < n:
+            z[i] <- 0.0
+            residual[i] <- x[i]
+            direction[i] <- x[i]
+            rhs_squared <- rhs_squared + residual[i] * residual[i]
+            i <- i + 1
+        residual_squared: mutable f64 = rhs_squared
+        step: mutable usize = 0
+        while step < steps and residual_squared > 0.0:
+            row <- 0
+            while row < n:
+                total: mutable f64 = 0.0
+                edge <- input[row_ptr + row].usize()
+                while edge < input[row_ptr + row + 1].usize():
+                    total <- total + (input[entries + edge].f64() / NPB_CG_SCALE) * direction[input[columns + edge].usize()]
+                    edge <- edge + 1
+                product[row] <- total
+                row <- row + 1
+            denominator: mutable f64 = 0.0
+            i <- 0
+            while i < n:
+                denominator <- denominator + direction[i] * product[i]
+                i <- i + 1
+            if denominator <= 0.0: return -1
+            alpha: f64 = residual_squared / denominator
+            i <- 0
+            while i < n:
+                z[i] <- z[i] + alpha * direction[i]
+                residual[i] <- residual[i] - alpha * product[i]
+                i <- i + 1
+            next_squared: mutable f64 = 0.0
+            i <- 0
+            while i < n:
+                next_squared <- next_squared + residual[i] * residual[i]
+                i <- i + 1
+            if next_squared <= rhs_squared * 1.0e-28:
+                residual_squared <- next_squared
+                break
+            beta: f64 = next_squared / residual_squared
+            i <- 0
+            while i < n:
+                direction[i] <- residual[i] + beta * direction[i]
+                i <- i + 1
+            residual_squared <- next_squared
+            step <- step + 1
+
+        row <- 0
+        while row < n:
+            total <- 0.0
+            edge <- input[row_ptr + row].usize()
+            while edge < input[row_ptr + row + 1].usize():
+                total <- total + (input[entries + edge].f64() / NPB_CG_SCALE) * z[input[columns + edge].usize()]
+                edge <- edge + 1
+            az[row] <- total
+            row <- row + 1
+        explicit_squared: mutable f64 = 0.0
+        x_dot_z: mutable f64 = 0.0
+        z_squared: mutable f64 = 0.0
+        i <- 0
+        while i < n:
+            difference: f64 = x[i] - az[i]
+            explicit_squared <- explicit_squared + difference * difference
+            x_dot_z <- x_dot_z + x[i] * z[i]
+            z_squared <- z_squared + z[i] * z[i]
+            i <- i + 1
+        if x_dot_z <= 0.0 or z_squared <= 0.0: return -1
+        estimate: f64 = input[3].f64() / NPB_CG_SCALE + 1.0 / x_dot_z
+        residual_norm: f64 = sqrt(explicit_squared)
+        npb_cg_write_f64(output[0:output_bytes], outer * 16, estimate)
+        npb_cg_write_f64(output[0:output_bytes], outer * 16 + 8, residual_norm)
+        z_norm: f64 = sqrt(z_squared)
+        i <- 0
+        while i < n:
+            x[i] <- z[i] / z_norm
+            i <- i + 1
+        outer <- outer + 1
+    output_bytes.i64()
+
+export fn npb_cg_sparse_inverse_power(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = npb_cg_sparse_inverse_power_impl

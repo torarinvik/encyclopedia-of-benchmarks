@@ -1,0 +1,102 @@
+const MAX_N: usize = 16
+const MAX_STATES: usize = 1 << MAX_N
+const MAX_OUTPUT_WORDS: usize = 2 + MAX_N
+const MAX_INPUT_VALUES: usize = 2 + 3 * (MAX_N * (MAX_N - 1) / 2) + 1
+const MAX_WEIGHT: i64 = 1_000_000
+
+def general_weighted_matching(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("general_weighted_matching"):
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES:
+        return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or m_value < 0 or m_value > n_value * (n_value - 1) / 2:
+        return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + 3 * m:
+        return -1
+
+    weights: mutable i64[MAX_N * MAX_N] = zeroed
+    present: mutable bool[MAX_N * MAX_N] = zeroed
+    cursor: mutable usize = 2
+    for _ in 0..<m:
+        u_value: i64 = input[cursor]
+        v_value: i64 = input[cursor + 1]
+        edge_weight: i64 = input[cursor + 2]
+        cursor <- cursor + 3
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or
+            u_value == v_value or edge_weight < 1 or edge_weight > MAX_WEIGHT:
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        uv: usize = u * MAX_N + v
+        vu: usize = v * MAX_N + u
+        if present[uv]:
+            return -1
+        present[uv] <- true
+        present[vu] <- true
+        weights[uv] <- edge_weight
+        weights[vu] <- edge_weight
+
+    dp: mutable i64[MAX_STATES] = zeroed
+    state_count: usize = 1 << n
+    for mask in 1..<state_count:
+        bit: usize = mask & (!mask + 1)
+        vertex: mutable usize = 0
+        while (bit >> vertex) != 1:
+            vertex <- vertex + 1
+        remainder: usize = mask ^ bit
+        dp[mask] <- dp[remainder]
+        partner: mutable usize = vertex + 1
+        while partner < n:
+            partner_bit: usize = 1 << partner
+            edge_index: usize = vertex * MAX_N + partner
+            if (remainder & partner_bit) != 0 and present[edge_index]:
+                candidate: i64 = weights[edge_index] + dp[remainder ^ partner_bit]
+                if candidate > dp[mask]:
+                    dp[mask] <- candidate
+            partner <- partner + 1
+
+    words: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    pair_count: mutable usize = 0
+    mask: mutable usize = state_count - 1
+    while mask != 0:
+        bit: usize = mask & (!mask + 1)
+        vertex: mutable usize = 0
+        while (bit >> vertex) != 1:
+            vertex <- vertex + 1
+        remainder: usize = mask ^ bit
+        if dp[mask] == dp[remainder]:
+            mask <- remainder
+            continue
+        selected: mutable i64 = -1
+        partner: mutable usize = vertex + 1
+        while partner < n:
+            partner_bit: usize = 1 << partner
+            edge_index: usize = vertex * MAX_N + partner
+            if (remainder & partner_bit) != 0 and present[edge_index] and
+                weights[edge_index] + dp[remainder ^ partner_bit] == dp[mask]:
+                selected <- partner.i64()
+                break
+            partner <- partner + 1
+        if selected < 0:
+            return -1
+        other: usize = selected.usize()
+        words[2 + 2 * pair_count] <- vertex.i64()
+        words[3 + 2 * pair_count] <- other.i64()
+        pair_count <- pair_count + 1
+        mask <- remainder ^ (1 << other)
+
+    words[0] <- pair_count.i64()
+    words[1] <- dp[state_count - 1]
+    output_words: usize = 2 + 2 * pair_count
+    output_bytes: usize = 8 * output_words
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    for word in 0..<output_words:
+        bits: u64 = words[word].u64()
+        for byte in 0..<8:
+            output[word * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+    output_bytes.i64()

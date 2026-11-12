@@ -64,7 +64,7 @@ def expected_output(values: Sequence[int] | None, capacity: int | None = None,
     for position, source in enumerate(selected):
         for target in selected[position + 1:]:
             length = distance[source][target]
-            if length <= 3:
+            if length <= 4:
                 current = source
                 remaining = length
                 while remaining > 1:

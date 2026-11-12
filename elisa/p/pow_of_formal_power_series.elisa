@@ -1,0 +1,60 @@
+const POW_FPS_MODULUS: i64 = 998_244_353
+const POW_FPS_MAX_N: usize = 32
+const POW_FPS_MAX_INPUT: usize = 34
+const POW_FPS_MAX_OUTPUT_BYTES: usize = 256
+const POW_FPS_MAX_EXPONENT: i64 = 1_000_000_000_000_000_000
+
+def pow_fps_multiply(left: view[i64], right: view[i64], n: usize,
+    product: mutable view[i64]) -> void:
+    for i in 0..<n: product[i] <- 0
+    for i in 0..<n:
+        for j in 0..<(n - i):
+            product[i + j] <- (product[i + j] + left[i] * right[j]) % POW_FPS_MODULUS
+
+def pow_fps_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def pow_of_formal_power_series_impl(input: view[i64], length: usize,
+    output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+    if length < 3 or length > POW_FPS_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    exponent_input: i64 = input[1]
+    if n_value < 1 or n_value > POW_FPS_MAX_N.i64() or exponent_input < 0 or exponent_input > POW_FPS_MAX_EXPONENT: return -1
+    n: usize = n_value.usize()
+    if length != n + 2: return -1
+    for i in 0..<n:
+        if input[i + 2] < 0 or input[i + 2] >= POW_FPS_MODULUS: return -1
+    output_bytes: usize = 8 * n
+    if output_is_null or capacity < output_bytes: return -2
+
+    result: mutable i64[POW_FPS_MAX_N] = zeroed
+    base: mutable i64[POW_FPS_MAX_N] = zeroed
+    temporary: mutable i64[POW_FPS_MAX_N] = zeroed
+    result[0] <- 1
+    for i in 0..<n: base[i] <- input[i + 2]
+    exponent: mutable i64 = exponent_input
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            pow_fps_multiply(result[0:POW_FPS_MAX_N], base[0:POW_FPS_MAX_N], n, temporary[0:POW_FPS_MAX_N])
+            for i in 0..<n: result[i] <- temporary[i]
+        exponent <- exponent >> 1
+        if exponent > 0:
+            pow_fps_multiply(base[0:POW_FPS_MAX_N], base[0:POW_FPS_MAX_N], n, temporary[0:POW_FPS_MAX_N])
+            for i in 0..<n: base[i] <- temporary[i]
+    for i in 0..<n: pow_fps_store_le(result[i], output, 8 * i)
+    output_bytes.i64()
+
+export fn pow_of_formal_power_series(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > POW_FPS_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return pow_of_formal_power_series_impl(input_view, length, scratch[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > POW_FPS_MAX_OUTPUT_BYTES: safe_capacity <- POW_FPS_MAX_OUTPUT_BYTES
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    pow_of_formal_power_series_impl(input_view, length, output_view, capacity, false)

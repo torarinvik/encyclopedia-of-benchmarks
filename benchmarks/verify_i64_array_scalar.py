@@ -21,6 +21,86 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from optimal_binary_search_tree_oracle import (
+    MAX_INPUT_LENGTH as OPTIMAL_BST_MAX_INPUT_LENGTH,
+    expected_result as optimal_binary_search_tree_oracle,
+)
+from knuth_optimized_optimal_binary_search_tree_verifier_oracle import (
+    MAX_INPUT_LENGTH as KNUTH_OPTIMAL_BST_MAX_INPUT_LENGTH,
+    expected_result as knuth_optimized_optimal_binary_search_tree_verifier_oracle,
+)
+from broken_profile_domino_tilings_oracle import (
+    MAX_SIDE as BROKEN_PROFILE_DOMINO_TILINGS_MAX_SIDE,
+    MAX_PROFILE_WIDTH as BROKEN_PROFILE_DOMINO_TILINGS_MAX_WIDTH,
+    MAX_AREA as BROKEN_PROFILE_DOMINO_TILINGS_MAX_AREA,
+    expected_result as broken_profile_domino_tilings_primary_oracle,
+)
+from broken_profile_domino_tilings_verifier_oracle import (
+    expected_result as broken_profile_domino_tilings_verifier_oracle,
+)
+from stirling_number_of_the_second_kind_verifier_oracle import (
+    expected_result as stirling_number_of_the_second_kind_verifier_oracle,
+)
+from n.number_of_increasing_sequences_between_two_sequences.primary_oracle import (
+    expected_result as number_of_increasing_sequences_primary_oracle,
+)
+from n.number_of_increasing_sequences_between_two_sequences.independent_oracle import (
+    expected_result as number_of_increasing_sequences_verifier_oracle,
+)
+from n.number_of_increasing_sequences_between_two_sequences.verify_workload import (
+    verify as verify_number_of_increasing_sequences_package_workload,
+)
+from p.point_set_range_sort_range_composite.primary_oracle import (
+    expected_result as point_set_range_sort_range_composite_primary_oracle,
+)
+from p.point_set_range_sort_range_composite.independent_oracle import (
+    expected_result as point_set_range_sort_range_composite_verifier_oracle,
+)
+from stirling_number_of_the_second_kind_small_p_large_n_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as STIRLING_S2_SMALL_P_MAX_INPUT_LENGTH,
+    expected_result as stirling_s2_small_p_primary_oracle,
+)
+from stirling_number_of_the_second_kind_small_p_large_n_verifier_oracle import (
+    expected_result as stirling_s2_small_p_verifier_oracle,
+)
+from stirling_number_of_the_first_kind_small_p_large_n_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as STIRLING_S1_SMALL_P_MAX_INPUT_LENGTH,
+    expected_result as stirling_s1_small_p_primary_oracle,
+)
+from stirling_number_of_the_first_kind_small_p_large_n_verifier_oracle import (
+    expected_result as stirling_s1_small_p_verifier_oracle,
+)
+from run_i64_array_scalar import validate_knuth_optimal_bst_package_workload
+from run_i64_array_scalar import validate_broken_profile_domino_tilings_package_workload
+from run_i64_array_scalar import validate_stirling_number_of_the_second_kind_package_workload
+from run_i64_array_scalar import validate_point_set_range_sort_range_composite_workload
+from run_i64_array_scalar import validate_stirling_s2_small_p_large_n_workload
+from run_i64_array_scalar import validate_stirling_s1_small_p_large_n_workload
+from sum_of_floor_of_linear_oracle import MAX_N as SUM_OF_FLOOR_MAX_N
+from sum_of_floor_of_linear_oracle import MAX_M as SUM_OF_FLOOR_MAX_M
+from sum_of_floor_of_linear_oracle import expected_result as sum_of_floor_of_linear_oracle
+from kth_root_integer_oracle import MAX_A as KTH_ROOT_INTEGER_MAX_A
+from kth_root_integer_oracle import MAX_K as KTH_ROOT_INTEGER_MAX_K
+from kth_root_integer_oracle import MAX_PARSEABLE_INPUT_LENGTH as KTH_ROOT_INTEGER_MAX_PARSEABLE_INPUT_LENGTH
+from kth_root_integer_oracle import expected_result as kth_root_integer_oracle
+from discrete_logarithm_mod_oracle import MAX_MODULUS as DISCRETE_LOG_MOD_MAX_MODULUS
+from discrete_logarithm_mod_oracle import MAX_VALID_INPUT_LENGTH as DISCRETE_LOG_MOD_MAX_VALID_INPUT_LENGTH
+from discrete_logarithm_mod_oracle import MAX_PARSEABLE_INPUT_LENGTH as DISCRETE_LOG_MOD_MAX_PARSEABLE_INPUT_LENGTH
+from discrete_logarithm_mod_oracle import expected_result as discrete_logarithm_mod_oracle
+from tetration_mod_oracle import MAX_A as TETRATION_MOD_MAX_A
+from tetration_mod_oracle import MAX_B as TETRATION_MOD_MAX_B
+from tetration_mod_oracle import MAX_M as TETRATION_MOD_MAX_M
+from tetration_mod_oracle import MAX_VALID_INPUT_LENGTH as TETRATION_MOD_MAX_VALID_INPUT_LENGTH
+from tetration_mod_oracle import MAX_PARSEABLE_INPUT_LENGTH as TETRATION_MOD_MAX_PARSEABLE_INPUT_LENGTH
+from tetration_mod_oracle import expected_result as tetration_mod_oracle
+from sum_of_multiplicative_function_large_oracle import ORACLE_BLOCK_SIZE as SUM_MULTIPLICATIVE_ORACLE_BLOCK_SIZE
+from sum_of_multiplicative_function_large_oracle import MAX_N as SUM_MULTIPLICATIVE_MAX_N
+from sum_of_multiplicative_function_large_oracle import MODULUS as SUM_MULTIPLICATIVE_MODULUS
+from sum_of_multiplicative_function_large_oracle import MAX_PARSEABLE_INPUT_LENGTH as SUM_MULTIPLICATIVE_MAX_PARSEABLE_INPUT_LENGTH
+from sum_of_multiplicative_function_large_oracle import expected_result as sum_of_multiplicative_function_large_oracle
+from min_of_mod_of_linear_oracle import MAX_N as MIN_OF_MOD_MAX_N
+from min_of_mod_of_linear_oracle import MAX_M as MIN_OF_MOD_MAX_M
+from min_of_mod_of_linear_oracle import expected_result as min_of_mod_of_linear_oracle
 from trimaran_enc_pc1_oracle import (
     MAX_NUM_INPUT as TRIMARAN_ENC_PC1_MAX_NUM_INPUT,
     expected_result as trimaran_enc_pc1_oracle,
@@ -39,6 +119,8 @@ from agrep_approx_substring_count_oracle import (
 )
 from npb_serial_dc_oracle import MAX_INPUT_LENGTH as NPB_SERIAL_DC_MAX_INPUT_LENGTH
 from npb_serial_dc_oracle import expected_result as npb_serial_dc_oracle
+from n.npb_dc_smallest_parent.independent_oracle import MAX_INPUT_LENGTH as NPB_DC_SMALLEST_PARENT_MAX_INPUT_LENGTH
+from n.npb_dc_smallest_parent.independent_oracle import expected_result as npb_dc_smallest_parent_oracle
 from doe_pathfinder_signature_search_oracle import (
     MAX_EDGES as DOE_PATHFINDER_MAX_EDGES,
     MAX_NODES as DOE_PATHFINDER_MAX_NODES,
@@ -178,6 +260,7 @@ from rodinia_bplus_tree_oracle import rodinia_bplus_tree as rodinia_bplus_tree_o
 from xgboost_oracle import oracle as xgboost_oracle
 from rle_lcs_block_dp_verifier_oracle import expected_result as rle_lcs_block_dp_verifier_oracle
 from rle_levenshtein_block_dp_verifier_oracle import expected_result as rle_levenshtein_block_dp_verifier_oracle
+from maximum_independent_set_verifier_oracle import expected_result as maximum_independent_set_verifier_oracle
 from prolangs_football_tiebreaks_oracle import MAX_TEAMS as PROLANGS_FOOTBALL_MAX_TEAMS
 from prolangs_football_tiebreaks_oracle import MAX_RECORD_GAMES as PROLANGS_FOOTBALL_MAX_RECORD_GAMES
 from prolangs_football_tiebreaks_oracle import MAX_NET_POINTS as PROLANGS_FOOTBALL_MAX_NET_POINTS
@@ -826,6 +909,7 @@ from run_i64_array_scalar import validate_stanford_puzzle_workload
 from run_i64_array_scalar import validate_mallocbench_cfrac_workload
 from run_i64_array_scalar import validate_agrep_approx_substring_count_workload
 from run_i64_array_scalar import validate_npb_serial_dc_workload
+from run_i64_array_scalar import validate_npb_dc_smallest_parent_workload
 from run_i64_array_scalar import validate_doe_pathfinder_signature_search_workload
 from run_i64_array_scalar import validate_ptrdist_ks_workload
 from run_i64_array_scalar import validate_ptrdist_yacr2_maze1_dogleg_workload
@@ -945,6 +1029,9 @@ from run_i64_array_scalar import validate_radix_tree_workload
 from run_i64_array_scalar import validate_kdtree_workload
 from run_i64_array_scalar import validate_segment_tree2_d_workload
 from run_i64_array_scalar import validate_segment_tree_apply_workload
+from run_i64_array_scalar import validate_range_affine_range_sum_workload
+from run_i64_array_scalar import validate_range_linear_add_range_min_workload
+from run_i64_array_scalar import validate_maximum_independent_set_workload
 from run_i64_array_scalar import validate_smooth_sort_workload
 from run_i64_array_scalar import validate_tim_sorter_workload
 from run_i64_array_scalar import validate_clojure_persistent_list_queue_workload
@@ -959,7 +1046,12 @@ from run_i64_array_scalar import validate_segment_tree_beats_workload
 from run_i64_array_scalar import validate_eertree_workload
 from run_i64_array_scalar import validate_segment_add_get_min_workload
 from run_i64_array_scalar import validate_point_set_range_composite_workload
+from run_i64_array_scalar import validate_queue_operate_all_composite_workload
+from run_i64_array_scalar import validate_deque_operate_all_composite_workload
+from run_i64_array_scalar import validate_sum_of_multiplicative_function_large_workload
 from run_i64_array_scalar import validate_manhattan_mst_workload
+from run_i64_array_scalar import validate_convex_layers_workload
+from run_i64_array_scalar import validate_hpcc_random_access_workload
 from run_i64_array_scalar import validate_matrix_exponentiation_workload
 from run_i64_array_scalar import validate_miller_rabin_primality_checker_workload
 from run_i64_array_scalar import validate_logistic_regression_predict_workload
@@ -1069,6 +1161,12 @@ from edmonds_karp_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_KARP_INPUT_LENGT
 from edmonds_karp_oracle import MAX_VERTICES as MAX_EDMONDS_KARP_VERTICES
 from edmonds_karp_oracle import MAX_CAPACITY as MAX_EDMONDS_KARP_CAPACITY
 from edmonds_karp_oracle import expected_result as edmonds_karp_oracle
+from mpm_maxflow_oracle import MAX_VERTICES as MPM_MAXFLOW_MAX_VERTICES
+from mpm_maxflow_oracle import MAX_EDGES as MPM_MAXFLOW_MAX_EDGES
+from mpm_maxflow_oracle import MAX_CAPACITY as MPM_MAXFLOW_MAX_CAPACITY
+from mpm_maxflow_oracle import MAX_PARSEABLE_INPUT_LENGTH as MPM_MAXFLOW_MAX_PARSEABLE_INPUT_LENGTH
+from mpm_maxflow_oracle import expected_result as mpm_maxflow_oracle
+from verify_mpm_maxflow import validate_workload as validate_mpm_maxflow_workload
 from gomory_hu_tree_oracle import MAX_INPUT_LENGTH as MAX_GOMORY_HU_TREE_INPUT_LENGTH
 from gomory_hu_tree_oracle import MAX_VERTICES as MAX_GOMORY_HU_TREE_VERTICES
 from gomory_hu_tree_oracle import MAX_CAPACITY as MAX_GOMORY_HU_TREE_CAPACITY
@@ -1171,10 +1269,6 @@ from lzw_oracle import MAX_INPUT_LENGTH as MAX_LZW_INPUT_LENGTH
 from lzw_oracle import MAX_ITEMS as LZW_MAX_ITEMS
 from lzw_oracle import MAX_OUTPUT as LZW_MAX_OUTPUT
 from lzw_oracle import expected_result as lzw_oracle
-from hierholzer_algorithm_oracle import MAX_EDGES as HIERHOLZER_MAX_EDGES
-from hierholzer_algorithm_oracle import MAX_INPUT as MAX_HIERHOLZER_INPUT_LENGTH
-from hierholzer_algorithm_oracle import MAX_VERTICES as HIERHOLZER_MAX_VERTICES
-from hierholzer_algorithm_oracle import expected_result as hierholzer_algorithm_oracle
 from inverted_index_oracle import MAX_DOCS as INVERTED_INDEX_MAX_DOCS
 from inverted_index_oracle import MAX_ID as INVERTED_INDEX_MAX_ID
 from inverted_index_oracle import MAX_INPUT_LENGTH as MAX_INVERTED_INDEX_INPUT_LENGTH
@@ -1619,6 +1713,23 @@ from segment_tree_apply_oracle import MAX_VALID_INPUT_VALUES as SEGMENT_TREE_APP
 from segment_tree_apply_oracle import MIN_INITIAL_VALUE as SEGMENT_TREE_APPLY_MIN_INITIAL_VALUE
 from segment_tree_apply_oracle import MIN_MULTIPLIER as SEGMENT_TREE_APPLY_MIN_MULTIPLIER
 from segment_tree_apply_oracle import expected_result as segment_tree_apply_oracle
+from range_affine_range_sum_oracle import INVALID_RESULT as RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+from range_affine_range_sum_oracle import MAX_LENGTH as RANGE_AFFINE_RANGE_SUM_MAX_LENGTH
+from range_affine_range_sum_oracle import MAX_OPERATIONS as RANGE_AFFINE_RANGE_SUM_MAX_OPERATIONS
+from range_affine_range_sum_oracle import MAX_PARSEABLE_INPUT_VALUES as RANGE_AFFINE_RANGE_SUM_MAX_PARSEABLE_INPUT_VALUES
+from range_affine_range_sum_oracle import MAX_VALID_INPUT_VALUES as RANGE_AFFINE_RANGE_SUM_MAX_VALID_INPUT_VALUES
+from range_affine_range_sum_oracle import MODULUS as RANGE_AFFINE_RANGE_SUM_MODULUS
+from range_linear_add_range_min_oracle import CHECKSUM_OFFSET as RANGE_LINEAR_ADD_RANGE_MIN_CHECKSUM_OFFSET
+from range_linear_add_range_min_oracle import INVALID_RESULT as RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+from range_linear_add_range_min_oracle import MAX_ABS_VALUE as RANGE_LINEAR_ADD_RANGE_MIN_MAX_ABS_VALUE
+from range_linear_add_range_min_oracle import MAX_CHECKSUM as RANGE_LINEAR_ADD_RANGE_MIN_MAX_CHECKSUM
+from range_linear_add_range_min_oracle import MAX_INITIAL_ABS as RANGE_LINEAR_ADD_RANGE_MIN_MAX_INITIAL_ABS
+from range_linear_add_range_min_oracle import MAX_INTERCEPT_ABS as RANGE_LINEAR_ADD_RANGE_MIN_MAX_INTERCEPT_ABS
+from range_linear_add_range_min_oracle import MAX_LENGTH as RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH
+from range_linear_add_range_min_oracle import MAX_OPERATIONS as RANGE_LINEAR_ADD_RANGE_MIN_MAX_OPERATIONS
+from range_linear_add_range_min_oracle import MAX_PARSEABLE_INPUT_VALUES as RANGE_LINEAR_ADD_RANGE_MIN_MAX_PARSEABLE_INPUT_VALUES
+from range_linear_add_range_min_oracle import MAX_SLOPE_ABS as RANGE_LINEAR_ADD_RANGE_MIN_MAX_SLOPE_ABS
+from range_linear_add_range_min_oracle import MAX_VALID_INPUT_VALUES as RANGE_LINEAR_ADD_RANGE_MIN_MAX_VALID_INPUT_VALUES
 from smooth_sort_oracle import INVALID_RESULT as SMOOTH_SORT_INVALID_RESULT
 from smooth_sort_oracle import MAX_N as SMOOTH_SORT_MAX_N
 from smooth_sort_oracle import MAX_PARSEABLE_INPUT_LENGTH as SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH
@@ -1687,10 +1798,22 @@ from point_set_range_composite_oracle import MAX_INPUT_LENGTH as POINT_SET_RANGE
 from point_set_range_composite_oracle import MAX_N as POINT_SET_RANGE_COMPOSITE_MAX_N
 from point_set_range_composite_oracle import MAX_OPERATIONS as POINT_SET_RANGE_COMPOSITE_MAX_OPERATIONS
 from point_set_range_composite_oracle import MODULUS as POINT_SET_RANGE_COMPOSITE_MODULUS
+from queue_operate_all_composite_oracle import INVALID_RESULT as QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+from queue_operate_all_composite_oracle import MAX_INPUT_LENGTH as QUEUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH
+from queue_operate_all_composite_oracle import MAX_OPERATIONS as QUEUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS
+from queue_operate_all_composite_oracle import MODULUS as QUEUE_OPERATE_ALL_COMPOSITE_MODULUS
+from deque_operate_all_composite_oracle import INVALID_RESULT as DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+from deque_operate_all_composite_oracle import MAX_INPUT_LENGTH as DEQUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH
+from deque_operate_all_composite_oracle import MAX_OPERATIONS as DEQUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS
+from deque_operate_all_composite_oracle import MODULUS as DEQUE_OPERATE_ALL_COMPOSITE_MODULUS
 from manhattan_mst_oracle import MAX_COORDINATE as MANHATTAN_MST_MAX_COORDINATE
 from manhattan_mst_oracle import MAX_INPUT_LENGTH as MANHATTAN_MST_MAX_INPUT_LENGTH
 from manhattan_mst_oracle import MAX_POINTS as MANHATTAN_MST_MAX_POINTS
 from manhattan_mst_oracle import expected_output as manhattan_mst_oracle
+from convex_layers_oracle import MAX_INPUT_LENGTH as CONVEX_LAYERS_MAX_INPUT_LENGTH
+from convex_layers_oracle import MAX_POINTS as CONVEX_LAYERS_MAX_POINTS
+from convex_layers_oracle import expected_result as convex_layers_oracle
+from hpcc_random_access_verifier_oracle import expected_result as hpcc_random_access_verifier_oracle
 
 ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "frequency_finder", "multiply_digit", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "edmonds_karp", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
 ALGORITHMS += ("trimaran_netbench_url_internet_checksum",)
@@ -1703,6 +1826,7 @@ ALGORITHMS += ("ptrdist_sim_local_affine_alignment",)
 ALGORITHMS += ("stanford_puzzle",)
 ALGORITHMS += ("mallocbench_cfrac", "agrep_approx_substring_count")
 ALGORITHMS += ("npb_serial_dc",)
+ALGORITHMS += ("npb_dc_smallest_parent",)
 ALGORITHMS += ("doe_pathfinder_signature_search",)
 ALGORITHMS += ("ptrdist_ks",)
 ALGORITHMS += ("ptrdist_yacr2_maze1_dogleg",)
@@ -1770,6 +1894,7 @@ ALGORITHMS += ("improved_simple_sort",)
 ALGORITHMS += ("largest_of_very_large_numbers",)
 ALGORITHMS += ("lexicographical_numbers",)
 ALGORITHMS += ("push_relabel",)
+ALGORITHMS += ("mpm_maxflow",)
 ALGORITHMS += ("wine_problem_recursive", "wine_problem_memoized", "wine_problem_tabulated")
 ALGORITHMS += ("deep_clone_graph", "decremental_connectivity")
 ALGORITHMS += ("linked_deque",)
@@ -1818,7 +1943,6 @@ ALGORITHMS += ("rgbhex",)
 ALGORITHMS += ("kasai_algorithm",)
 ALGORITHMS += ("transposition",)
 ALGORITHMS += ("lzw",)
-ALGORITHMS += ("hierholzer_algorithm",)
 ALGORITHMS += ("inverted_index",)
 ALGORITHMS += ("hash_set",)
 ALGORITHMS += ("hyper_log_log",)
@@ -1848,6 +1972,13 @@ ALGORITHMS += ("rescale",)
 ALGORITHMS += ("search_singly_linked_list_recursion",)
 ALGORITHMS += ("polygon_points",)
 ALGORITHMS += ("traveling_salesman_bitmask",)
+ALGORITHMS += ("optimal_binary_search_tree", "knuth_optimized_optimal_binary_search_tree")
+ALGORITHMS += ("broken_profile_domino_tilings",)
+ALGORITHMS += ("stirling_number_of_the_second_kind",)
+ALGORITHMS += ("number_of_increasing_sequences_between_two_sequences",)
+ALGORITHMS += ("point_set_range_sort_range_composite",)
+ALGORITHMS += ("stirling_number_of_the_second_kind_small_p_large_n",)
+ALGORITHMS += ("stirling_number_of_the_first_kind_small_p_large_n",)
 ALGORITHMS += ("traveling_salesman",)
 ALGORITHMS += ("smith_waterman_java",)
 ALGORITHMS += ("roulette_wheel_selection",)
@@ -1900,6 +2031,8 @@ ALGORITHMS += ("radix_tree",)
 ALGORITHMS += ("kdtree",)
 ALGORITHMS += ("segment_tree2_d",)
 ALGORITHMS += ("segment_tree_apply",)
+ALGORITHMS += ("range_affine_range_sum",)
+ALGORITHMS += ("range_linear_add_range_min",)
 ALGORITHMS += ("smooth_sort",)
 ALGORITHMS += ("clojure_persistent_list_queue",)
 ALGORITHMS += ("tim_sorter",)
@@ -1936,12 +2069,23 @@ ALGORITHMS += ("mcgill_exptree",)
 ALGORITHMS += ("freebench_neural_hopfield",)
 ALGORITHMS += ("rle_lcs_block_dp",)
 ALGORITHMS += ("rle_levenshtein_block_dp",)
+ALGORITHMS += ("maximum_independent_set",)
 ALGORITHMS += ("li_chao_tree", "segment_tree_beats", "eertree")
 ALGORITHMS += ("three_edge_connected_components",)
 ALGORITHMS += ("incremental_scc",)
 ALGORITHMS += ("manhattan_mst",)
+ALGORITHMS += ("convex_layers",)
+ALGORITHMS += ("hpcc_random_access",)
 ALGORITHMS += ("segment_add_get_min",)
 ALGORITHMS += ("point_set_range_composite",)
+ALGORITHMS += ("queue_operate_all_composite",)
+ALGORITHMS += ("deque_operate_all_composite",)
+ALGORITHMS += ("sum_of_floor_of_linear",)
+ALGORITHMS += ("min_of_mod_of_linear",)
+ALGORITHMS += ("kth_root_integer",)
+ALGORITHMS += ("discrete_logarithm_mod",)
+ALGORITHMS += ("tetration_mod",)
+ALGORITHMS += ("sum_of_multiplicative_function_large",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -3430,7 +3574,296 @@ def point_set_range_composite_verifier_oracle(values: list[int] | tuple[int, ...
     return checksum if cursor == len(values) else POINT_SET_RANGE_COMPOSITE_INVALID_RESULT
 
 
+def range_affine_range_sum_verifier_oracle(
+    values: list[int] | tuple[int, ...], *, input_is_null: bool = False,
+    input_length: int | None = None,
+) -> int:
+    """Replay affine updates on a plain list, independent of lazy propagation."""
+    if type(input_is_null) is not bool:
+        return RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+    if input_length is not None and (
+        type(input_length) is not int
+        or not 0 <= input_length <= RANGE_AFFINE_RANGE_SUM_MAX_PARSEABLE_INPUT_VALUES + 1
+    ):
+        return RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+    if (input_is_null or not isinstance(values, (list, tuple))
+            or len(values) > RANGE_AFFINE_RANGE_SUM_MAX_PARSEABLE_INPUT_VALUES
+            or len(values) < 2
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+        return RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+    if input_length is not None and input_length != len(values):
+        return RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+    n = values[0]
+    if not 1 <= n <= RANGE_AFFINE_RANGE_SUM_MAX_LENGTH or len(values) < n + 2:
+        return RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+    state = list(values[1:n + 1])
+    if any(value < 0 or value >= RANGE_AFFINE_RANGE_SUM_MODULUS for value in state):
+        return RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+    operation_count = values[n + 1]
+    if not 1 <= operation_count <= RANGE_AFFINE_RANGE_SUM_MAX_OPERATIONS:
+        return RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+
+    cursor = n + 2
+    checksum = 0
+    for operation_index in range(operation_count):
+        if cursor == len(values):
+            return RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+        opcode = values[cursor]
+        cursor += 1
+        if opcode == 0:
+            if len(values) - cursor < 4:
+                return RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+            left, right, multiplier, offset = values[cursor:cursor + 4]
+            cursor += 4
+            if (not 0 <= left < right <= n
+                    or not 1 <= multiplier < RANGE_AFFINE_RANGE_SUM_MODULUS
+                    or not 0 <= offset < RANGE_AFFINE_RANGE_SUM_MODULUS):
+                return RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+            for index in range(left, right):
+                state[index] = (multiplier * state[index] + offset) % RANGE_AFFINE_RANGE_SUM_MODULUS
+        elif opcode == 1:
+            if len(values) - cursor < 2:
+                return RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+            left, right = values[cursor:cursor + 2]
+            cursor += 2
+            if not 0 <= left < right <= n:
+                return RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+            range_total = 0
+            for index in range(left, right):
+                range_total = (range_total + state[index]) % RANGE_AFFINE_RANGE_SUM_MODULUS
+            checksum += (operation_index + 1) * (range_total + RANGE_AFFINE_RANGE_SUM_MODULUS)
+        else:
+            return RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+    return checksum if cursor == len(values) else RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+
+
+def range_linear_add_range_min_verifier_oracle(
+    values: list[int] | tuple[int, ...], *, input_is_null: bool = False,
+    input_length: int | None = None,
+) -> int:
+    """Replay each update directly and scan every queried range minimum."""
+    if type(input_is_null) is not bool:
+        return RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+    if input_length is not None and (
+        type(input_length) is not int
+        or not 0 <= input_length <= RANGE_LINEAR_ADD_RANGE_MIN_MAX_PARSEABLE_INPUT_VALUES + 1
+    ):
+        return RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+    if (input_is_null or not isinstance(values, (list, tuple))
+            or len(values) < 3
+            or len(values) > RANGE_LINEAR_ADD_RANGE_MIN_MAX_PARSEABLE_INPUT_VALUES
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+        return RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+    if input_length is not None and input_length != len(values):
+        return RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+
+    n, operation_count = values[0], values[1]
+    if (not 1 <= n <= RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH
+            or not 1 <= operation_count <= RANGE_LINEAR_ADD_RANGE_MIN_OPERATIONS
+            or len(values) < n + 2):
+        return RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+    data = list(values[2:n + 2])
+    if any(not -RANGE_LINEAR_ADD_RANGE_MIN_MAX_INITIAL_ABS <= value
+           <= RANGE_LINEAR_ADD_RANGE_MIN_MAX_INITIAL_ABS for value in data):
+        return RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+
+    cursor = n + 2
+    checksum = 0
+    for operation_index in range(operation_count):
+        if cursor >= len(values):
+            return RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+        opcode = values[cursor]
+        if opcode == 0:
+            if cursor + 5 > len(values):
+                return RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+            left, right, slope, intercept = values[cursor + 1:cursor + 5]
+            cursor += 5
+            if (not 0 <= left < right <= n
+                    or not -RANGE_LINEAR_ADD_RANGE_MIN_MAX_SLOPE_ABS <= slope
+                    <= RANGE_LINEAR_ADD_RANGE_MIN_MAX_SLOPE_ABS
+                    or not -RANGE_LINEAR_ADD_RANGE_MIN_MAX_INTERCEPT_ABS <= intercept
+                    <= RANGE_LINEAR_ADD_RANGE_MIN_MAX_INTERCEPT_ABS):
+                return RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+            for index in range(left, right):
+                data[index] += slope * index + intercept
+        elif opcode == 1:
+            if cursor + 3 > len(values):
+                return RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+            left, right = values[cursor + 1:cursor + 3]
+            cursor += 3
+            if not 0 <= left < right <= n:
+                return RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+            minimum = data[left]
+            for index in range(left + 1, right):
+                if data[index] < minimum:
+                    minimum = data[index]
+            checksum += (operation_index + 1) * (
+                minimum + RANGE_LINEAR_ADD_RANGE_MIN_CHECKSUM_OFFSET)
+        else:
+            return RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+    return checksum if cursor == len(values) else RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+
+
+def queue_operate_all_composite_verifier_oracle(
+    values: list[int] | tuple[int, ...], *, input_is_null: bool = False,
+    input_length: int | None = None,
+) -> int:
+    """Interpret queue commands directly with a FIFO list, independent of two-stack aggregates."""
+    if type(input_is_null) is not bool:
+        return QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+    if input_length is not None and (
+        type(input_length) is not int
+        or not 0 <= input_length <= QUEUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH
+    ):
+        return QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+    if (input_is_null or not isinstance(values, (list, tuple))
+            or not 1 <= len(values) <= QUEUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                   for value in values)):
+        return QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+    if input_length is not None and input_length != len(values):
+        return QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+    operation_count = values[0]
+    if not 0 <= operation_count <= QUEUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS:
+        return QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+
+    queue: list[tuple[int, int]] = []
+    cursor = 1
+    checksum = 0
+    query_number = 0
+    for _ in range(operation_count):
+        if cursor >= len(values):
+            return QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+        opcode = values[cursor]
+        cursor += 1
+        if opcode == 0:
+            if len(values) - cursor < 2:
+                return QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+            multiplier, intercept = values[cursor:cursor + 2]
+            cursor += 2
+            if (not 1 <= multiplier < QUEUE_OPERATE_ALL_COMPOSITE_MODULUS
+                    or not 0 <= intercept < QUEUE_OPERATE_ALL_COMPOSITE_MODULUS):
+                return QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+            queue.append((multiplier, intercept))
+        elif opcode == 1:
+            if not queue:
+                return QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+            queue.pop(0)
+        elif opcode == 2:
+            if cursor >= len(values):
+                return QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+            result = values[cursor]
+            cursor += 1
+            if not 0 <= result < QUEUE_OPERATE_ALL_COMPOSITE_MODULUS:
+                return QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+            for multiplier, intercept in queue:
+                result = (multiplier * result + intercept) % QUEUE_OPERATE_ALL_COMPOSITE_MODULUS
+            query_number += 1
+            checksum += query_number * (result + 1)
+        else:
+            return QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+    return checksum if cursor == len(values) else QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+
+
+def deque_operate_all_composite_verifier_oracle(
+    values: list[int] | tuple[int, ...], *, input_is_null: bool = False,
+    input_length: int | None = None,
+) -> int:
+    """Replay deque operations with a direct logical list, independent of the segment tree."""
+    if type(input_is_null) is not bool:
+        return DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+    if input_length is not None and (
+        type(input_length) is not int
+        or not 0 <= input_length <= DEQUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH
+    ):
+        return DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+    if (input_is_null or not isinstance(values, (list, tuple))
+            or not 1 <= len(values) <= DEQUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                   for value in values)):
+        return DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+    if input_length is not None and input_length != len(values):
+        return DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+    operation_count = values[0]
+    if not 0 <= operation_count <= DEQUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS:
+        return DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+
+    functions: list[tuple[int, int]] = []
+    cursor = 1
+    checksum = 0
+    query_number = 0
+    for _ in range(operation_count):
+        if cursor >= len(values):
+            return DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+        opcode = values[cursor]
+        cursor += 1
+        if opcode in (0, 1):
+            if len(values) - cursor < 2:
+                return DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+            multiplier, intercept = values[cursor:cursor + 2]
+            cursor += 2
+            if (not 1 <= multiplier < DEQUE_OPERATE_ALL_COMPOSITE_MODULUS
+                    or not 0 <= intercept < DEQUE_OPERATE_ALL_COMPOSITE_MODULUS):
+                return DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+            function = (multiplier, intercept)
+            if opcode == 0:
+                functions.insert(0, function)
+            else:
+                functions.append(function)
+        elif opcode in (2, 3):
+            if not functions:
+                return DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+            if opcode == 2:
+                functions.pop(0)
+            else:
+                functions.pop()
+        elif opcode == 4:
+            if cursor >= len(values):
+                return DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+            result = values[cursor]
+            cursor += 1
+            if not 0 <= result < DEQUE_OPERATE_ALL_COMPOSITE_MODULUS:
+                return DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+            for multiplier, intercept in functions:
+                result = (multiplier * result + intercept) % DEQUE_OPERATE_ALL_COMPOSITE_MODULUS
+            query_number += 1
+            checksum += query_number * (result + 1)
+        else:
+            return DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+    return checksum if cursor == len(values) else DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT
+
+
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "optimal_binary_search_tree":
+        return optimal_binary_search_tree_oracle(values)
+    if algorithm == "knuth_optimized_optimal_binary_search_tree":
+        return knuth_optimized_optimal_binary_search_tree_verifier_oracle(values)
+    if algorithm == "broken_profile_domino_tilings":
+        return broken_profile_domino_tilings_verifier_oracle(values)
+    if algorithm == "stirling_number_of_the_second_kind":
+        return stirling_number_of_the_second_kind_verifier_oracle(values)
+    if algorithm == "number_of_increasing_sequences_between_two_sequences":
+        return number_of_increasing_sequences_verifier_oracle(values)
+    if algorithm == "point_set_range_sort_range_composite":
+        return point_set_range_sort_range_composite_verifier_oracle(values)
+    if algorithm == "stirling_number_of_the_second_kind_small_p_large_n":
+        return stirling_s2_small_p_verifier_oracle(values)
+    if algorithm == "stirling_number_of_the_first_kind_small_p_large_n":
+        return stirling_s1_small_p_verifier_oracle(values)
+    if algorithm == "hpcc_random_access":
+        return hpcc_random_access_verifier_oracle(values)
+    if algorithm == "min_of_mod_of_linear":
+        return min_of_mod_of_linear_oracle(values)
+    if algorithm == "sum_of_floor_of_linear":
+        return sum_of_floor_of_linear_oracle(values)
+    if algorithm == "kth_root_integer":
+        return kth_root_integer_oracle(values)
+    if algorithm == "discrete_logarithm_mod":
+        return discrete_logarithm_mod_oracle(values)
+    if algorithm == "tetration_mod":
+        return tetration_mod_oracle(values)
+    if algorithm == "sum_of_multiplicative_function_large":
+        return sum_of_multiplicative_function_large_oracle(values)
     if algorithm == "mccat_08_main":
         return mccat_08_main_oracle(values)
     if algorithm == "mccat_09_vor":
@@ -3449,6 +3882,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return agrep_approx_substring_count_oracle(values)
     if algorithm == "npb_serial_dc":
         return npb_serial_dc_oracle(values)
+    if algorithm == "npb_dc_smallest_parent":
+        return npb_dc_smallest_parent_oracle(values)
     if algorithm == "doe_pathfinder_signature_search":
         return doe_pathfinder_signature_search_oracle(values)
     if algorithm == "ptrdist_ks":
@@ -3649,8 +4084,14 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return segment_add_get_min_verifier_oracle(values)
     if algorithm == "point_set_range_composite":
         return point_set_range_composite_verifier_oracle(values)
+    if algorithm == "queue_operate_all_composite":
+        return queue_operate_all_composite_verifier_oracle(values)
+    if algorithm == "deque_operate_all_composite":
+        return deque_operate_all_composite_verifier_oracle(values)
     if algorithm == "manhattan_mst":
         return manhattan_mst_oracle(values)
+    if algorithm == "convex_layers":
+        return convex_layers_oracle(values)
     if algorithm == "knapsack_zero_one_tabulation":
         return knapsack_zero_one_tabulation_oracle(values)
     if algorithm == "sparse_matrix":
@@ -3716,6 +4157,12 @@ def oracle(algorithm: str, values: list[int]) -> int:
     if algorithm == "segment_tree_apply":
         return segment_tree_apply_oracle(values)
         return smooth_sort_oracle(values)
+    if algorithm == "range_affine_range_sum":
+        return range_affine_range_sum_verifier_oracle(values)
+    if algorithm == "range_linear_add_range_min":
+        return range_linear_add_range_min_verifier_oracle(values)
+    if algorithm == "maximum_independent_set":
+        return maximum_independent_set_verifier_oracle(values)
     if algorithm == "tim_sorter":
         return tim_sorter_oracle(values)
     if algorithm == "clojure_persistent_list_queue":
@@ -3878,8 +4325,6 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return transposition_oracle(values)
     if algorithm == "lzw":
         return lzw_oracle(values)
-    if algorithm == "hierholzer_algorithm":
-        return hierholzer_algorithm_oracle(values)
     if algorithm == "inverted_index":
         return inverted_index_oracle(values)
     if algorithm == "hash_set":
@@ -3960,6 +4405,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return feistel_cipher_normalized_oracle(values)
     if algorithm == "edmonds_karp":
         return edmonds_karp_oracle(values)
+    if algorithm == "mpm_maxflow":
+        return mpm_maxflow_oracle(values)
     if algorithm == "push_relabel":
         return push_relabel_oracle(values)
     if algorithm == "primitive_root":
@@ -4528,7 +4975,206 @@ def oracle(algorithm: str, values: list[int]) -> int:
 
 
 def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
-    if algorithm == "embench_aha_mont64":
+    if algorithm == "mpm_maxflow":
+        validate_mpm_maxflow_workload(workload)
+    elif algorithm == "optimal_binary_search_tree":
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list) or len(values) > OPTIMAL_BST_MAX_INPUT_LENGTH
+                    or fixture.get("expected_result") != optimal_binary_search_tree_oracle(values)):
+                raise ValueError(f"optimal_binary_search_tree fixture differs from its cubic oracle: {fixture.get('id')}")
+    elif algorithm == "knuth_optimized_optimal_binary_search_tree":
+        validate_knuth_optimal_bst_package_workload()
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list) or len(values) > KNUTH_OPTIMAL_BST_MAX_INPUT_LENGTH
+                    or fixture.get("expected_result")
+                    != knuth_optimized_optimal_binary_search_tree_verifier_oracle(values)):
+                raise ValueError(f"knuth_optimized_optimal_binary_search_tree fixture differs from the independent cubic oracle: {fixture.get('id')}")
+    elif algorithm == "broken_profile_domino_tilings":
+        validate_broken_profile_domino_tilings_package_workload()
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list) or len(values) != 2
+                    or fixture.get("expected_result")
+                    != broken_profile_domino_tilings_verifier_oracle(values)):
+                raise ValueError(f"broken_profile_domino_tilings fixture differs from the independent row-transition oracle: {fixture.get('id')}")
+    elif algorithm == "min_of_mod_of_linear":
+        cases = workload.get("cases", [])
+        expected_ids = {
+            "single_term", "small_sequence_contains_zero", "non_coprime_slope",
+            "no_zero_in_prefix", "constant_maximum_residue", "maximum_modulus_single_term",
+            "large_full_modular_cycle", "large_small_modulus", "invalid_empty",
+            "invalid_zero_n", "invalid_zero_m", "invalid_slope_at_modulus",
+            "invalid_offset_at_modulus", "invalid_packed_length",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "min-of-mod-of-linear-i64-array-scalar-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("N_range") != [1, MIN_OF_MOD_MAX_N]
+                or workload.get("input", {}).get("M_range") != [1, MIN_OF_MOD_MAX_M]
+                or workload.get("output", {}).get("invalid_input_result") != -1
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or not isinstance(cases, list) or len(cases) != len(expected_ids)
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+            raise ValueError("min_of_mod_of_linear workload differs from its reviewed modular-prefix-minimum contract")
+        for case in cases:
+            values = case.get("input_values")
+            if (not isinstance(values, list)
+                    or case.get("input_length") != len(values)
+                    or case.get("expected_result") != min_of_mod_of_linear_oracle(values)):
+                raise ValueError(f"min_of_mod_of_linear workload oracle mismatch: {case.get('id')}")
+    elif algorithm == "sum_of_floor_of_linear":
+        cases = workload.get("cases", [])
+        expected_ids = {
+            "single_term", "small_euclidean_reduction", "small_modulus", "nonzero_offset",
+            "zero_slope", "large_even_modulus", "maximum_answer", "invalid_empty",
+            "invalid_zero_n", "invalid_zero_m", "invalid_slope_at_modulus",
+            "invalid_offset_at_modulus", "invalid_packed_length",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "sum-of-floor-of-linear-i64-array-scalar-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("N_range") != [1, SUM_OF_FLOOR_MAX_N]
+                or workload.get("input", {}).get("M_range") != [1, SUM_OF_FLOOR_MAX_M]
+                or workload.get("output", {}).get("invalid_input_result") != -1
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or not isinstance(cases, list) or len(cases) != len(expected_ids)
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+            raise ValueError("sum_of_floor_of_linear workload differs from its reviewed Euclidean recurrence contract")
+        for case in cases:
+            values = case.get("input_values")
+            if (not isinstance(values, list)
+                    or case.get("input_length") != len(values)
+                    or case.get("expected_result") != sum_of_floor_of_linear_oracle(values)):
+                raise ValueError(f"sum_of_floor_of_linear workload oracle mismatch: {case.get('id')}")
+    elif algorithm == "kth_root_integer":
+        cases = workload.get("cases", [])
+        expected_ids = {
+            "zero_degree_one", "zero_maximum_degree", "one_maximum_degree",
+            "two_maximum_degree", "below_square", "exact_square", "below_cube",
+            "exact_cube", "cube_boundary_below", "cube_boundary_exact",
+            "below_fourth_power", "exact_fourth_power", "large_exact_cube",
+            "large_cube_below_boundary", "maximum_square_root", "maximum_cube_root",
+            "maximum_degree_root", "identity_root", "invalid_empty",
+            "invalid_single_value", "invalid_extra_value", "invalid_negative_a",
+            "invalid_zero_k", "invalid_large_k",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "kth-root-integer-i64-array-scalar-bounded-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("kind") != "signed_64_bit_integer_array"
+                or workload.get("input", {}).get("argument_order") != ["A", "K"]
+                or workload.get("input", {}).get("A_range") != [0, KTH_ROOT_INTEGER_MAX_A]
+                or workload.get("input", {}).get("K_range") != [1, KTH_ROOT_INTEGER_MAX_K]
+                or workload.get("input", {}).get("maximum_valid_input_length") != 2
+                or workload.get("input", {}).get("maximum_parseable_input_length")
+                    != KTH_ROOT_INTEGER_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("output", {}).get("invalid_input_result") != -1
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or not isinstance(cases, list) or len(cases) != len(expected_ids)
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+            raise ValueError("kth_root_integer workload differs from its bounded exact-root contract")
+        for case in cases:
+            values = case.get("input_values") if isinstance(case, dict) else None
+            if (not isinstance(values, list)
+                    or case.get("input_length") != len(values)
+                    or case.get("expected_result") != kth_root_integer_oracle(values)):
+                raise ValueError(f"kth_root_integer workload oracle mismatch: {case.get('id')}")
+    elif algorithm == "discrete_logarithm_mod":
+        cases = workload.get("cases", [])
+        expected_ids = {
+            "modulus_one", "zero_to_zero_is_one", "zero_base_zero_target",
+            "zero_base_other_target", "exponent_zero", "coprime_solution",
+            "coprime_solution_beyond_first_block", "non_coprime_solution",
+            "non_coprime_zero_target", "non_coprime_no_solution",
+            "gcd_reduction_rejects_target", "modulus_two_zero_base", "large_modulus",
+            "empty_input", "wrong_input_length", "negative_base", "negative_target",
+            "base_not_canonical", "target_not_canonical", "zero_modulus",
+            "modulus_above_bound",
+        }
+        input_spec = workload.get("input", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "discrete-logarithm-mod-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[x, y, m]"
+                or input_spec.get("minimum_modulus") != 1
+                or input_spec.get("maximum_modulus") != DISCRETE_LOG_MOD_MAX_MODULUS
+                or input_spec.get("canonical_residues") is not True
+                or input_spec.get("minimum_exponent") != 0
+                or input_spec.get("zero_power_zero_is_one") is not True
+                or input_spec.get("no_solution_result") != -1
+                or input_spec.get("invalid_input_result") != -1
+                or input_spec.get("maximum_valid_input_length")
+                    != DISCRETE_LOG_MOD_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_length")
+                    != DISCRETE_LOG_MOD_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("output", {}).get("kind") != "signed_64_bit_integer"
+                or workload.get("output", {}).get("invalid_input_result") != -1
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or workload.get("measurement", {}).get("sample_count") != 7
+                or not isinstance(cases, list) or len(cases) != len(expected_ids)
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+            raise ValueError("discrete_logarithm_mod workload differs from its generalized EBSGS contract")
+        for case in cases:
+            values = case.get("input_values") if isinstance(case, dict) else None
+            if (not isinstance(values, list)
+                    or case.get("input_length") != len(values)
+                    or type(case.get("expected_result")) is not int
+                    or case.get("expected_result") != discrete_logarithm_mod_oracle(values)):
+                raise ValueError(f"discrete_logarithm_mod workload oracle mismatch: {case.get('id')}")
+    elif algorithm == "tetration_mod":
+        cases = workload.get("cases", [])
+        expected_ids = {
+            "height_zero", "height_one", "base_one", "zero_height_zero",
+            "zero_height_one", "zero_height_two", "zero_height_three",
+            "zero_height_four", "two_tower_height_two", "two_tower_height_three",
+            "two_tower_height_four", "three_tower_height_three",
+            "non_coprime_base_modulus", "zero_base_non_coprime_modulus",
+            "base_divisible_by_modulus", "maximum_height_small_modulus",
+            "maximum_base_height_one", "maximum_inputs_mod_two",
+            "maximum_modulus_small_tower", "unit_modulus", "invalid_empty",
+            "invalid_short", "invalid_extra", "invalid_negative_base",
+            "invalid_negative_height", "invalid_zero_modulus", "invalid_base_above_bound",
+            "invalid_height_above_bound", "invalid_modulus_above_bound",
+        }
+        input_spec = workload.get("input", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "tetration-mod-i64-array-scalar-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("argument_order") != ["A", "B", "M"]
+                or input_spec.get("A_range") != [0, TETRATION_MOD_MAX_A]
+                or input_spec.get("B_range") != [0, TETRATION_MOD_MAX_B]
+                or input_spec.get("M_range") != [1, TETRATION_MOD_MAX_M]
+                or input_spec.get("maximum_valid_input_length")
+                    != TETRATION_MOD_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_length")
+                    != TETRATION_MOD_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("height_zero_value") != 1
+                or input_spec.get("zero_to_zero_value") != 1
+                or workload.get("output", {}).get("invalid_input_result") != -1
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or workload.get("measurement", {}).get("sample_count") != 5
+                or not isinstance(cases, list) or len(cases) != len(expected_ids)
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+            raise ValueError("tetration_mod workload differs from its bounded totient-lifting contract")
+        for case in cases:
+            values = case.get("input_values") if isinstance(case, dict) else None
+            if (not isinstance(values, list)
+                    or case.get("input_length") != len(values)
+                    or type(case.get("expected_result")) is not int
+                    or case.get("expected_result") != tetration_mod_oracle(values)):
+                raise ValueError(f"tetration_mod workload oracle mismatch: {case.get('id')}")
+    elif algorithm == "sum_of_multiplicative_function_large":
+        validate_sum_of_multiplicative_function_large_workload(workload)
+    elif algorithm == "embench_aha_mont64":
         validate_embench_aha_mont64_workload(workload)
     elif algorithm == "beebs_bit_compress":
         validate_beebs_bit_compress_workload(workload)
@@ -4638,6 +5284,8 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_agrep_approx_substring_count_workload(workload)
     elif algorithm == "npb_serial_dc":
         validate_npb_serial_dc_workload(workload)
+    elif algorithm == "npb_dc_smallest_parent":
+        validate_npb_dc_smallest_parent_workload(workload)
     elif algorithm == "doe_pathfinder_signature_search":
         validate_doe_pathfinder_signature_search_workload(workload)
     elif algorithm == "ptrdist_ks":
@@ -4763,8 +5411,45 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                 raise ValueError(
                     f"point_set_range_composite fixture differs from the independent direct-scan oracle: {fixture.get('id')}"
                 )
+    elif algorithm == "queue_operate_all_composite":
+        validate_queue_operate_all_composite_workload(workload)
+        for fixture in workload.get("cases", []):
+            fixture_values = fixture.get("input_values", [])
+            fixture_result = queue_operate_all_composite_verifier_oracle(fixture_values)
+            if fixture_result != fixture.get("expected_result"):
+                raise ValueError(
+                    f"queue_operate_all_composite fixture differs from the independent FIFO oracle: {fixture.get('id')}"
+                )
+    elif algorithm == "deque_operate_all_composite":
+        validate_deque_operate_all_composite_workload(workload)
+        for fixture in workload.get("cases", []):
+            fixture_values = fixture.get("input_values", [])
+            fixture_result = deque_operate_all_composite_verifier_oracle(
+                fixture_values,
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length", len(fixture_values)),
+            )
+            if fixture_result != fixture.get("expected_result"):
+                raise ValueError(
+                    f"deque_operate_all_composite fixture differs from the independent deque oracle: {fixture.get('id')}"
+                )
     elif algorithm == "manhattan_mst":
         validate_manhattan_mst_workload(workload)
+    elif algorithm == "convex_layers":
+        validate_convex_layers_workload(workload)
+    elif algorithm == "hpcc_random_access":
+        validate_hpcc_random_access_workload(workload)
+        for fixture in workload.get("cases", []):
+            fixture_values = fixture.get("input_values", [])
+            fixture_result = hpcc_random_access_verifier_oracle(
+                fixture_values,
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length", len(fixture_values)),
+            )
+            if fixture_result != fixture.get("expected_result"):
+                raise ValueError(
+                    f"hpcc_random_access fixture differs from the independent sparse-state oracle: {fixture.get('id')}"
+                )
     elif algorithm == "matrix_exponentiation":
         validate_matrix_exponentiation_workload(workload)
     elif algorithm == "miller_rabin_primality_checker":
@@ -4812,6 +5497,41 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
     elif algorithm == "segment_tree_apply":
         validate_segment_tree_apply_workload(workload)
         validate_smooth_sort_workload(workload)
+    elif algorithm == "range_affine_range_sum":
+        validate_range_affine_range_sum_workload(workload)
+        for fixture in workload.get("cases", []):
+            fixture_values = fixture.get("input_values", [])
+            fixture_result = range_affine_range_sum_verifier_oracle(
+                fixture_values,
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length", len(fixture_values)),
+            )
+            if fixture_result != fixture.get("expected_result"):
+                raise ValueError(
+                    f"range_affine_range_sum fixture differs from the independent direct-list oracle: {fixture.get('id')}"
+                )
+    elif algorithm == "range_linear_add_range_min":
+        validate_range_linear_add_range_min_workload(workload)
+        for fixture in workload.get("cases", []):
+            fixture_values = fixture.get("input_values", [])
+            fixture_result = range_linear_add_range_min_verifier_oracle(
+                fixture_values,
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length", len(fixture_values)),
+            )
+            if fixture_result != fixture.get("expected_result"):
+                raise ValueError(
+                    f"range_linear_add_range_min fixture differs from the independent direct-scan oracle: {fixture.get('id')}"
+                )
+    elif algorithm == "maximum_independent_set":
+        validate_maximum_independent_set_workload(workload)
+        for fixture in workload.get("cases", []):
+            fixture_result = maximum_independent_set_verifier_oracle(
+                fixture.get("input_values", []))
+            if fixture_result != fixture.get("expected_result"):
+                raise ValueError(
+                    f"maximum_independent_set fixture differs from exhaustive subset enumeration: {fixture.get('id')}"
+                )
     elif algorithm == "tim_sorter":
         validate_tim_sorter_workload(workload)
     elif algorithm == "clojure_persistent_list_queue":
@@ -5584,7 +6304,7 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             minimum_null_length = 0 if algorithm in (
                 "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie",
                 "mccat_08_main", "mccat_09_vor", "mallocbench_espresso", "ptrdist_anagram",
-                "stanford_puzzle", "mallocbench_cfrac", "npb_serial_dc",
+                "stanford_puzzle", "mallocbench_cfrac", "npb_serial_dc", "npb_dc_smallest_parent",
                 "prolangs_c_assembler", "prolangs_c_bison_nullable", "tsvc_vbor",
                 "versabench_dbms_choose_entry",
                 "versabench_dbms_partition_entries", "versabench_dbms_consistent_key",
@@ -5801,6 +6521,22 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for values in malformed:
             if len(values) <= NPB_SERIAL_DC_MAX_INPUT_LENGTH + 1:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "npb_dc_smallest_parent":
+        for dimensions, row_count in ((1, 1), (2, 4), (3, 7), (5, 1), (5, 16)):
+            values = [dimensions, row_count]
+            for row in range(row_count):
+                values.extend((row * (dimension + 1) % 8 for dimension in range(dimensions)))
+                values.append((row * 67 + 13) % 1001)
+            cases[tuple(values)] = oracle(algorithm, values)
+        malformed = (
+            (), (0, 1), (6, 1), (1, 0), (1, 17), (1, 1, 8, 0),
+            (1, 1, 0, 1001), (2, 1, 0, 0, 1),
+            tuple([0] * (NPB_DC_SMALLEST_PARENT_MAX_INPUT_LENGTH + 1)),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            if len(values) <= NPB_DC_SMALLEST_PARENT_MAX_INPUT_LENGTH + 1:
                 cases[values] = oracle(algorithm, list(values))
     elif algorithm == "doe_pathfinder_signature_search":
         maximum = [DOE_PATHFINDER_MAX_NODES, DOE_PATHFINDER_MAX_EDGES,
@@ -6693,6 +7429,76 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if result != THREE_EDGE_CONNECTED_COMPONENTS_INVALID_RESULT:
                 raise ValueError("three_edge_connected_components oracle accepted a null input pointer")
             special_records.append(f"NULL {null_length} {result}\n")
+    if algorithm == "deque_operate_all_composite":
+        def add_deque_composite_case(
+            values: tuple[int, ...], *, require_valid: bool = False
+        ) -> int:
+            values = tuple(values)
+            if (len(values) > DEQUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("deque_operate_all_composite input exceeds its signed-i64 capacity probe")
+            result = deque_operate_all_composite_verifier_oracle(list(values))
+            if require_valid and result == DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT:
+                raise ValueError("deque_operate_all_composite generated trace is invalid")
+            cases[values] = result
+            return result
+
+        maximum_front = [DEQUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS]
+        maximum_back = [DEQUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS]
+        for _ in range(DEQUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS):
+            maximum_front.extend((0, 1, 0))
+            maximum_back.extend((1, 1, 0))
+        if (len(maximum_front) != DEQUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH
+                or len(maximum_back) != DEQUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH):
+            raise ValueError("deque_operate_all_composite maximum traces differ from parser bound")
+        if (add_deque_composite_case(tuple(maximum_front), require_valid=True) != 0
+                or add_deque_composite_case(tuple(maximum_back), require_valid=True) != 0):
+            raise ValueError("deque_operate_all_composite maximum insertion traces must have zero checksum")
+
+        rng_deque_composite = random.Random(0xD3E0E)
+        for _ in range(128):
+            operation_count = rng_deque_composite.randint(
+                0, DEQUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS)
+            packed = [operation_count]
+            deque_size = 0
+            for _operation in range(operation_count):
+                choice = rng_deque_composite.randrange(5)
+                if choice in (0, 1) and deque_size < DEQUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS:
+                    multiplier = rng_deque_composite.randint(
+                        1, DEQUE_OPERATE_ALL_COMPOSITE_MODULUS - 1)
+                    intercept = rng_deque_composite.randrange(
+                        DEQUE_OPERATE_ALL_COMPOSITE_MODULUS)
+                    packed.extend((choice, multiplier, intercept))
+                    deque_size += 1
+                elif choice in (2, 3) and deque_size > 0:
+                    packed.append(choice)
+                    deque_size -= 1
+                else:
+                    packed.extend((4, rng_deque_composite.randrange(
+                        DEQUE_OPERATE_ALL_COMPOSITE_MODULUS)))
+            add_deque_composite_case(tuple(packed), require_valid=True)
+
+        malformed_deque_composite = (
+            (), (0, 0), (DEQUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS + 1,),
+            (1, 2), (1, 3), (1, 0), (1, 1),
+            (1, 0, 0, 0), (1, 0, 1, DEQUE_OPERATE_ALL_COMPOSITE_MODULUS),
+            (1, 1, 1), (1, 1, 1, DEQUE_OPERATE_ALL_COMPOSITE_MODULUS),
+            (1, 4), (1, 4, -1), (1, 8), (0, 7),
+            (I64_MIN,), (I64_MAX,),
+            tuple([0] * (DEQUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH + 1)),
+        )
+        for malformed in malformed_deque_composite:
+            if (add_deque_composite_case(malformed)
+                    != DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT):
+                raise ValueError("deque_operate_all_composite oracle accepted malformed input")
+
+        for null_length in (0, 1, DEQUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH):
+            result = deque_operate_all_composite_verifier_oracle(
+                [], input_is_null=True, input_length=null_length)
+            if result != DEQUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT:
+                raise ValueError("deque_operate_all_composite verifier oracle accepted null input")
+            special_records.append(f"NULL {null_length} {result}\n")
     elif algorithm == "incremental_scc":
         def add_incremental_scc_case(values: tuple[int, ...], *, require_valid: bool = False) -> int:
             values = tuple(values)
@@ -6933,6 +7739,69 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                 [], input_is_null=True, input_length=null_length)
             if result != SEGMENT_ADD_GET_MIN_INVALID_RESULT:
                 raise ValueError("segment_add_get_min verifier oracle accepted a null input pointer")
+            special_records.append(f"NULL {null_length} {result}\n")
+    if algorithm == "queue_operate_all_composite":
+        def add_queue_composite_case(
+            values: tuple[int, ...], *, require_valid: bool = False
+        ) -> int:
+            values = tuple(values)
+            if (len(values) > QUEUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("queue_operate_all_composite generated input exceeds its signed-i64 capacity probe")
+            result = queue_operate_all_composite_verifier_oracle(list(values))
+            if require_valid and result == QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT:
+                raise ValueError("queue_operate_all_composite generated trace is invalid")
+            cases[values] = result
+            return result
+
+        maximum_trace = [QUEUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS]
+        for _ in range(QUEUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS):
+            maximum_trace.extend((0, 1, 0))
+        if len(maximum_trace) != QUEUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH:
+            raise ValueError("queue_operate_all_composite maximum trace differs from parser bound")
+        add_queue_composite_case(tuple(maximum_trace), require_valid=True)
+
+        rng_queue_composite = random.Random(0xA771F1E)
+        for _ in range(128):
+            operation_count = rng_queue_composite.randint(
+                0, QUEUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS)
+            packed = [operation_count]
+            queue_size = 0
+            for _operation in range(operation_count):
+                choice = rng_queue_composite.randrange(3)
+                if choice == 0 and queue_size < QUEUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS:
+                    multiplier = rng_queue_composite.randint(
+                        1, QUEUE_OPERATE_ALL_COMPOSITE_MODULUS - 1)
+                    intercept = rng_queue_composite.randrange(
+                        QUEUE_OPERATE_ALL_COMPOSITE_MODULUS)
+                    packed.extend((0, multiplier, intercept))
+                    queue_size += 1
+                elif choice == 1 and queue_size > 0:
+                    packed.append(1)
+                    queue_size -= 1
+                else:
+                    packed.extend((2, rng_queue_composite.randrange(
+                        QUEUE_OPERATE_ALL_COMPOSITE_MODULUS)))
+            add_queue_composite_case(tuple(packed), require_valid=True)
+
+        malformed_queue_composite = (
+            (), (0, 0), (QUEUE_OPERATE_ALL_COMPOSITE_MAX_OPERATIONS + 1,),
+            (1, 1), (1, 0), (1, 0, 0, 0), (1, 0, 1),
+            (1, 2), (1, 2, QUEUE_OPERATE_ALL_COMPOSITE_MODULUS),
+            (0, 7), (I64_MIN,), (I64_MAX,),
+            tuple([0] * (QUEUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH + 1)),
+        )
+        for malformed in malformed_queue_composite:
+            if (add_queue_composite_case(malformed)
+                    != QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT):
+                raise ValueError("queue_operate_all_composite oracle accepted malformed input")
+
+        for null_length in (0, 1, QUEUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH):
+            result = queue_operate_all_composite_verifier_oracle(
+                [], input_is_null=True, input_length=null_length)
+            if result != QUEUE_OPERATE_ALL_COMPOSITE_INVALID_RESULT:
+                raise ValueError("queue_operate_all_composite verifier oracle accepted null input")
             special_records.append(f"NULL {null_length} {result}\n")
     if algorithm == "lca":
         def add_lca_case(values: tuple[int, ...]) -> None:
@@ -10414,30 +11283,6 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             cases[tuple(values)] = oracle(algorithm, list(values))
         special_records.append("NULL 1 -1\n")
-    elif algorithm == "hierholzer_algorithm":
-        if not any(len(case["input_values"]) == MAX_HIERHOLZER_INPUT_LENGTH
-                   and case["input_values"][:2] == [1, HIERHOLZER_MAX_EDGES]
-                   for case in workload["cases"]):
-            raise RuntimeError("hierholzer_algorithm maximum-edge fixture is missing")
-
-        rng_hierholzer = random.Random(20261016)
-        for _ in range(128):
-            vertex_count = rng_hierholzer.randint(0, HIERHOLZER_MAX_VERTICES)
-            edge_count = 0 if vertex_count == 0 else rng_hierholzer.randint(0, 32)
-            edges = [rng_hierholzer.randrange(vertex_count)
-                     for _ in range(2 * edge_count)]
-            values = (vertex_count, edge_count, *edges)
-            cases[values] = oracle(algorithm, list(values))
-
-        malformed = (
-            (), (0,), (-1, 0), (HIERHOLZER_MAX_VERTICES + 1, 0),
-            (1, HIERHOLZER_MAX_EDGES + 1), (0, 1, 0, 0),
-            (2, 1, 0), (2, 1, 0, 2), (2, 1, -1, 0),
-            (1, 0, 0), tuple([0] * (MAX_HIERHOLZER_INPUT_LENGTH + 1)),
-        )
-        for values in malformed:
-            cases[tuple(values)] = oracle(algorithm, list(values))
-        special_records.append("NULL 1 -1\n")
     elif algorithm == "inverted_index":
         rng_inverted_index = random.Random(20261016)
 
@@ -11103,6 +11948,59 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             if len(values) <= MAX_EDMONDS_KARP_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "mpm_maxflow":
+        # Exhaust the directed zero/one-capacity graphs through three vertices,
+        # then extend to bounded weighted multigraphs with shuffled terminals.
+        from itertools import product as cartesian_product
+
+        for vertex_count in (2, 3):
+            possible_arcs = [(left, right) for left in range(vertex_count)
+                             for right in range(vertex_count) if left != right]
+            for capacities in cartesian_product((0, 1), repeat=len(possible_arcs)):
+                edge_values = tuple(
+                    value for (left, right), capacity in zip(possible_arcs, capacities)
+                    if capacity for value in (left + 1, right + 1, capacity)
+                )
+                for source in range(1, vertex_count + 1):
+                    for sink in range(1, vertex_count + 1):
+                        if source == sink:
+                            continue
+                        packed = (vertex_count, len(edge_values) // 3, source, sink, *edge_values)
+                        cases[packed] = mpm_maxflow_oracle(list(packed))
+
+        rng_mpm = random.Random(0x4D504D)
+        for _ in range(256):
+            vertex_count = rng_mpm.randint(2, MPM_MAXFLOW_MAX_VERTICES)
+            source = rng_mpm.randrange(1, vertex_count + 1)
+            sink = rng_mpm.randrange(1, vertex_count)
+            if sink >= source:
+                sink += 1
+            edge_count = rng_mpm.randint(0, MPM_MAXFLOW_MAX_EDGES)
+            edges = []
+            for _edge in range(edge_count):
+                left = rng_mpm.randrange(1, vertex_count + 1)
+                right = rng_mpm.randrange(1, vertex_count)
+                if right >= left:
+                    right += 1
+                edges.extend((left, right, rng_mpm.randint(0, MPM_MAXFLOW_MAX_CAPACITY)))
+            packed = (vertex_count, edge_count, source, sink, *edges)
+            cases[packed] = mpm_maxflow_oracle(list(packed))
+
+        malformed = (
+            (), (2,), (2, 0, 1), (2, 0, 1, 2, 0),
+            (1, 0, 1, 2), (MPM_MAXFLOW_MAX_VERTICES + 1, 0, 1, 2),
+            (2, -1, 1, 2), (2, MPM_MAXFLOW_MAX_EDGES + 1, 1, 2),
+            (2, 0, 0, 2), (2, 0, 1, 3), (2, 0, 1, 1),
+            (2, 1, 1, 2, 1, 1, 1), (2, 1, 1, 2, 1, 3, 1),
+            (2, 1, 1, 2, 1, 2, -1),
+            (2, 1, 1, 2, 1, 2, MPM_MAXFLOW_MAX_CAPACITY + 1),
+            tuple([MPM_MAXFLOW_MAX_VERTICES, MPM_MAXFLOW_MAX_EDGES, 1, MPM_MAXFLOW_MAX_VERTICES]
+                  + [1, 1, 0] * MPM_MAXFLOW_MAX_EDGES),
+        )
+        for values in malformed:
+            if len(values) <= MPM_MAXFLOW_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[values] = mpm_maxflow_oracle(list(values))
         special_records.append("NULL 1 -1\n")
     elif algorithm == "graph_enumeration":
         for n in range(0, 5):
@@ -17577,6 +18475,204 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for malformed in malformed_segment_tree_apply:
             add_segment_tree_apply_case(tuple(malformed))
+    if algorithm == "range_affine_range_sum":
+        def add_range_affine_range_sum_case(values: tuple[int, ...]) -> None:
+            if (len(values) > RANGE_AFFINE_RANGE_SUM_MAX_PARSEABLE_INPUT_VALUES + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("range_affine_range_sum input exceeds its signed-i64 framing bounds")
+            result = range_affine_range_sum_verifier_oracle(values)
+            checksum_bound = (
+                RANGE_AFFINE_RANGE_SUM_MAX_OPERATIONS
+                * (RANGE_AFFINE_RANGE_SUM_MAX_OPERATIONS + 1) // 2
+                * (2 * RANGE_AFFINE_RANGE_SUM_MODULUS - 1)
+            )
+            if result != RANGE_AFFINE_RANGE_SUM_INVALID_RESULT and not 0 <= result <= checksum_bound:
+                raise ValueError("range_affine_range_sum oracle returned a checksum outside its signed scalar contract")
+            cases[values] = result
+
+        rng_range_affine_range_sum = random.Random(20261017)
+        for _ in range(96):
+            length = rng_range_affine_range_sum.randint(1, RANGE_AFFINE_RANGE_SUM_MAX_LENGTH)
+            trace = [length]
+            trace.extend(rng_range_affine_range_sum.randrange(RANGE_AFFINE_RANGE_SUM_MODULUS)
+                         for _ in range(length))
+            operation_count = rng_range_affine_range_sum.randint(1, RANGE_AFFINE_RANGE_SUM_MAX_OPERATIONS)
+            trace.append(operation_count)
+            for _ in range(operation_count):
+                left = rng_range_affine_range_sum.randrange(length)
+                right = rng_range_affine_range_sum.randint(left + 1, length)
+                if rng_range_affine_range_sum.randrange(2) == 0:
+                    trace.extend((0, left, right,
+                                  rng_range_affine_range_sum.randint(1, RANGE_AFFINE_RANGE_SUM_MODULUS - 1),
+                                  rng_range_affine_range_sum.randrange(RANGE_AFFINE_RANGE_SUM_MODULUS)))
+                else:
+                    trace.extend((1, left, right))
+            add_range_affine_range_sum_case(tuple(trace))
+
+        maximum_trace = [RANGE_AFFINE_RANGE_SUM_MAX_LENGTH]
+        maximum_trace.extend(0 if index % 2 == 0 else RANGE_AFFINE_RANGE_SUM_MODULUS - 1
+                             for index in range(RANGE_AFFINE_RANGE_SUM_MAX_LENGTH))
+        maximum_trace.append(RANGE_AFFINE_RANGE_SUM_MAX_OPERATIONS)
+        for operation_index in range(RANGE_AFFINE_RANGE_SUM_MAX_OPERATIONS):
+            maximum_trace.extend((0, 0, RANGE_AFFINE_RANGE_SUM_MAX_LENGTH,
+                                  RANGE_AFFINE_RANGE_SUM_MODULUS - 1,
+                                  operation_index % RANGE_AFFINE_RANGE_SUM_MODULUS))
+        if len(maximum_trace) != RANGE_AFFINE_RANGE_SUM_MAX_VALID_INPUT_VALUES:
+            raise ValueError("range_affine_range_sum maximum trace differs from its reviewed frame bound")
+        add_range_affine_range_sum_case(tuple(maximum_trace))
+
+        query_heavy_trace = [RANGE_AFFINE_RANGE_SUM_MAX_LENGTH]
+        query_heavy_trace.extend(index % RANGE_AFFINE_RANGE_SUM_MODULUS
+                                 for index in range(RANGE_AFFINE_RANGE_SUM_MAX_LENGTH))
+        query_heavy_trace.append(RANGE_AFFINE_RANGE_SUM_MAX_OPERATIONS)
+        for operation_index in range(RANGE_AFFINE_RANGE_SUM_MAX_OPERATIONS):
+            if operation_index % 2 == 0:
+                query_heavy_trace.extend((1, 0, RANGE_AFFINE_RANGE_SUM_MAX_LENGTH))
+            else:
+                query_heavy_trace.extend((0, 0, RANGE_AFFINE_RANGE_SUM_MAX_LENGTH, 3,
+                                          operation_index % RANGE_AFFINE_RANGE_SUM_MODULUS))
+        add_range_affine_range_sum_case(tuple(query_heavy_trace))
+
+        composition_boundary_trace = (
+            4, RANGE_AFFINE_RANGE_SUM_MODULUS - 1, 1, 2, 3, 5,
+            0, 0, 4, 2, 1,
+            0, 1, 3, RANGE_AFFINE_RANGE_SUM_MODULUS - 1,
+            RANGE_AFFINE_RANGE_SUM_MODULUS - 1,
+            1, 0, 4,
+            0, 3, 4, 1, RANGE_AFFINE_RANGE_SUM_MODULUS - 1,
+            1, 3, 4,
+        )
+        add_range_affine_range_sum_case(composition_boundary_trace)
+
+        malformed_range_affine_range_sum = (
+            (), (1,), (0, 0, 1), (RANGE_AFFINE_RANGE_SUM_MAX_LENGTH + 1, 0), (1, 0),
+            (1, RANGE_AFFINE_RANGE_SUM_MODULUS, 1), (1, 0, 0),
+            (1, 0, RANGE_AFFINE_RANGE_SUM_MAX_OPERATIONS + 1),
+            (1, 0, 1, 0, 0, 1, 1), (1, 0, 1, 9),
+            (1, 0, 1, 0, 0, 0, 1, 2), (1, 0, 1, 0, -1, 1, 1, 2),
+            (1, 0, 1, 0, 0, 2, 1, 2), (1, 0, 1, 0, 0, 1, 0, 2),
+            (1, 0, 1, 0, 0, 1, RANGE_AFFINE_RANGE_SUM_MODULUS, 2),
+            (1, 0, 1, 0, 0, 1, 1, -1),
+            (1, 0, 1, 0, 0, 1, 1, RANGE_AFFINE_RANGE_SUM_MODULUS),
+            (1, 0, 1, 1, 0), (1, 0, 1, 1, 0, 0),
+            (1, 0, 1, 1, 0, 2), (1, 0, 1, 1, 0, 1, 99),
+            tuple([0] * RANGE_AFFINE_RANGE_SUM_MAX_PARSEABLE_INPUT_VALUES),
+            tuple([0] * (RANGE_AFFINE_RANGE_SUM_MAX_PARSEABLE_INPUT_VALUES + 1)),
+        )
+        for malformed in malformed_range_affine_range_sum:
+            add_range_affine_range_sum_case(tuple(malformed))
+        for null_length in (0, 1, RANGE_AFFINE_RANGE_SUM_MAX_PARSEABLE_INPUT_VALUES):
+            null_result = range_affine_range_sum_verifier_oracle(
+                (), input_is_null=True, input_length=null_length)
+            if null_result != RANGE_AFFINE_RANGE_SUM_INVALID_RESULT:
+                raise ValueError("range_affine_range_sum null pointer must be rejected for every declared frame length")
+            special_records.append(f"NULL {null_length} {null_result}\n")
+        if (range_affine_range_sum_verifier_oracle((1, 0, 1), input_length=2)
+                != RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+                or range_affine_range_sum_verifier_oracle((1, 0, 1), input_length=4)
+                != RANGE_AFFINE_RANGE_SUM_INVALID_RESULT):
+            raise ValueError("range_affine_range_sum direct oracle must reject declared-length mismatches")
+    if algorithm == "range_linear_add_range_min":
+        def add_range_linear_add_range_min_case(values: tuple[int, ...]) -> None:
+            if (len(values) > RANGE_LINEAR_ADD_RANGE_MIN_MAX_PARSEABLE_INPUT_VALUES + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("range_linear_add_range_min input exceeds its signed-i64 framing bounds")
+            result = range_linear_add_range_min_verifier_oracle(values)
+            if result != RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT and not 0 <= result <= RANGE_LINEAR_ADD_RANGE_MIN_MAX_CHECKSUM:
+                raise ValueError("range_linear_add_range_min oracle returned a checksum outside its scalar bound")
+            cases[values] = result
+
+        rng_range_linear_add_range_min = random.Random(20261111)
+        for _ in range(96):
+            length = rng_range_linear_add_range_min.randint(1, RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH)
+            trace = [length, rng_range_linear_add_range_min.randint(1, RANGE_LINEAR_ADD_RANGE_MIN_MAX_OPERATIONS)]
+            trace.extend(rng_range_linear_add_range_min.randint(-RANGE_LINEAR_ADD_RANGE_MIN_MAX_INITIAL_ABS,
+                                                                 RANGE_LINEAR_ADD_RANGE_MIN_MAX_INITIAL_ABS)
+                         for _ in range(length))
+            for _ in range(trace[1]):
+                left = rng_range_linear_add_range_min.randrange(length)
+                right = rng_range_linear_add_range_min.randint(left + 1, length)
+                if rng_range_linear_add_range_min.randrange(2) == 0:
+                    trace.extend((0, left, right,
+                                  rng_range_linear_add_range_min.randint(-RANGE_LINEAR_ADD_RANGE_MIN_MAX_SLOPE_ABS,
+                                                                         RANGE_LINEAR_ADD_RANGE_MIN_MAX_SLOPE_ABS),
+                                  rng_range_linear_add_range_min.randint(-RANGE_LINEAR_ADD_RANGE_MIN_MAX_INTERCEPT_ABS,
+                                                                         RANGE_LINEAR_ADD_RANGE_MIN_MAX_INTERCEPT_ABS)))
+                else:
+                    trace.extend((1, left, right))
+            add_range_linear_add_range_min_case(tuple(trace))
+
+        maximum_trace = [RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH,
+                         RANGE_LINEAR_ADD_RANGE_MIN_MAX_OPERATIONS]
+        maximum_trace.extend(-RANGE_LINEAR_ADD_RANGE_MIN_MAX_INITIAL_ABS
+                             if index % 2 == 0 else RANGE_LINEAR_ADD_RANGE_MIN_MAX_INITIAL_ABS
+                             for index in range(RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH))
+        for operation_index in range(RANGE_LINEAR_ADD_RANGE_MIN_MAX_OPERATIONS):
+            maximum_trace.extend((0, 0, RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH,
+                                  RANGE_LINEAR_ADD_RANGE_MIN_MAX_SLOPE_ABS if operation_index % 2 == 0
+                                  else -RANGE_LINEAR_ADD_RANGE_MIN_MAX_SLOPE_ABS,
+                                  RANGE_LINEAR_ADD_RANGE_MIN_MAX_INTERCEPT_ABS if operation_index % 2 == 0
+                                  else -RANGE_LINEAR_ADD_RANGE_MIN_MAX_INTERCEPT_ABS))
+        if len(maximum_trace) != RANGE_LINEAR_ADD_RANGE_MIN_MAX_VALID_INPUT_VALUES:
+            raise ValueError("range_linear_add_range_min maximum trace differs from its reviewed frame bound")
+        add_range_linear_add_range_min_case(tuple(maximum_trace))
+
+        query_heavy_trace = [RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH,
+                             RANGE_LINEAR_ADD_RANGE_MIN_MAX_OPERATIONS]
+        query_heavy_trace.extend((index % 17) - 8
+                                 for index in range(RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH))
+        for operation_index in range(RANGE_LINEAR_ADD_RANGE_MIN_MAX_OPERATIONS):
+            if operation_index % 2 == 0:
+                if operation_index % 4 == 0:
+                    query_heavy_trace.extend((1, 0, RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH))
+                else:
+                    query_heavy_trace.extend((1, 7, 10))
+            elif operation_index % 4 == 1:
+                query_heavy_trace.extend((0, 0, RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH, 99, -100_000))
+            else:
+                query_heavy_trace.extend((0, 7, 17, -99, 100_000))
+        add_range_linear_add_range_min_case(tuple(query_heavy_trace))
+
+        hull_boundary_trace = [16, 6]
+        hull_boundary_trace.extend((index % 5) * 31 - 62 for index in range(16))
+        hull_boundary_trace.extend((
+            0, 0, 16, 99, -100_000,
+            1, 0, 16,
+            0, 7, 10, -99, 100_000,
+            1, 0, 16,
+            0, 8, 16, -99, -100_000,
+            1, 8, 16,
+        ))
+        add_range_linear_add_range_min_case(tuple(hull_boundary_trace))
+
+        malformed_range_linear_add_range_min = (
+            (), (1,), (0, 1, 0), (1, 0, 0), (1, RANGE_LINEAR_ADD_RANGE_MIN_MAX_OPERATIONS + 1, 0),
+            (RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH + 1, 1, 0), (1, 1),
+            (1, 1, RANGE_LINEAR_ADD_RANGE_MIN_MAX_INITIAL_ABS + 1, 1),
+            (1, 1, -RANGE_LINEAR_ADD_RANGE_MIN_MAX_INITIAL_ABS - 1, 1),
+            (1, 1, 0, 0), (1, 1, 0, 9), (1, 1, 0, 0, 0, 0, 1),
+            (1, 1, 0, 0, -1, 1, 0, 0), (1, 1, 0, 0, 0, 2, 0, 0),
+            (1, 1, 0, 0, 0, 1, RANGE_LINEAR_ADD_RANGE_MIN_MAX_SLOPE_ABS + 1, 0),
+            (1, 1, 0, 0, 0, 1, 0, RANGE_LINEAR_ADD_RANGE_MIN_MAX_INTERCEPT_ABS + 1),
+            (1, 1, 0, 1, 0), (1, 1, 0, 1, 0, 0), (1, 1, 0, 1, 0, 2),
+            (1, 1, 0, 1, 0, 1, 99),
+            tuple([0] * RANGE_LINEAR_ADD_RANGE_MIN_MAX_PARSEABLE_INPUT_VALUES),
+            tuple([0] * (RANGE_LINEAR_ADD_RANGE_MIN_MAX_PARSEABLE_INPUT_VALUES + 1)),
+        )
+        for malformed in malformed_range_linear_add_range_min:
+            add_range_linear_add_range_min_case(tuple(malformed))
+
+        for null_length in (0, 1, RANGE_LINEAR_ADD_RANGE_MIN_MAX_PARSEABLE_INPUT_VALUES):
+            null_result = range_linear_add_range_min_verifier_oracle(
+                (), input_is_null=True, input_length=null_length)
+            if null_result != RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT:
+                raise ValueError("range_linear_add_range_min must reject null input at every declared frame length")
+            special_records.append(f"NULL {null_length} {null_result}\n")
+        if (range_linear_add_range_min_verifier_oracle((1, 1, 0), input_length=2)
+                != RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+                or range_linear_add_range_min_verifier_oracle((1, 1, 0), input_length=4)
+                != RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT):
+            raise ValueError("range_linear_add_range_min direct oracle must reject declared-length mismatches")
     if algorithm == "tim_sorter":
         def add_tim_sorter_case(values: tuple[int, ...]) -> None:
             if (len(values) > TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES + 1
@@ -18368,6 +19464,414 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if add_lwe_encryption_case(tuple(values)) != LWE_ENCRYPTION_INVALID_RESULT:
                 raise ValueError("lwe_encryption oracle accepted malformed or out-of-range input")
 
+    if algorithm == "min_of_mod_of_linear":
+        rng_mod_min = random.Random(20261111)
+        for n in (1, 2, 3, 4095, 4096, 4097, MIN_OF_MOD_MAX_N):
+            for modulus in (1, 2, 7, 999_999_937, MIN_OF_MOD_MAX_M):
+                a = rng_mod_min.randrange(modulus)
+                b = rng_mod_min.randrange(modulus)
+                values = (n, modulus, a, b)
+                cases[values] = min_of_mod_of_linear_oracle(list(values))
+        for _ in range(128):
+            modulus = rng_mod_min.randint(1, MIN_OF_MOD_MAX_M)
+            values = (rng_mod_min.randint(1, MIN_OF_MOD_MAX_N), modulus,
+                      rng_mod_min.randrange(modulus), rng_mod_min.randrange(modulus))
+            cases[values] = min_of_mod_of_linear_oracle(list(values))
+        malformed = (
+            (), (1,), (1, 2, 0), (1, 2, 0, 0, 0), (0, 1, 0, 0),
+            (1, 0, 0, 0), (1, 7, -1, 0), (1, 7, 7, 0), (1, 7, 0, 7),
+            (MIN_OF_MOD_MAX_N + 1, 1, 0, 0),
+            (1, MIN_OF_MOD_MAX_M + 1, 0, 0),
+            (I64_MIN, 1, 0, 0), (I64_MAX, 1, 0, 0),
+        )
+        for values in malformed:
+            cases[tuple(values)] = min_of_mod_of_linear_oracle(list(values))
+        special_records.extend(("NULL 0 -1\n", "NULL 4 -1\n"))
+
+    if algorithm == "sum_of_floor_of_linear":
+        rng_floor_sum = random.Random(20261111)
+        for n in (1, 2, 3, 4095, 4096, 4097, SUM_OF_FLOOR_MAX_N):
+            for modulus in (1, 2, 7, 999_999_937, SUM_OF_FLOOR_MAX_M):
+                a = rng_floor_sum.randrange(modulus)
+                b = rng_floor_sum.randrange(modulus)
+                values = (n, modulus, a, b)
+                cases[values] = sum_of_floor_of_linear_oracle(list(values))
+        for _ in range(128):
+            modulus = rng_floor_sum.randint(1, SUM_OF_FLOOR_MAX_M)
+            values = (rng_floor_sum.randint(1, SUM_OF_FLOOR_MAX_N), modulus,
+                      rng_floor_sum.randrange(modulus), rng_floor_sum.randrange(modulus))
+            cases[values] = sum_of_floor_of_linear_oracle(list(values))
+        malformed = (
+            (), (1,), (1, 2, 0), (1, 2, 0, 0, 0), (0, 1, 0, 0),
+            (1, 0, 0, 0), (1, 7, -1, 0), (1, 7, 7, 0), (1, 7, 0, 7),
+            (SUM_OF_FLOOR_MAX_N + 1, 1, 0, 0),
+            (1, SUM_OF_FLOOR_MAX_M + 1, 0, 0),
+            (I64_MIN, 1, 0, 0), (I64_MAX, 1, 0, 0),
+        )
+        for values in malformed:
+            cases[tuple(values)] = sum_of_floor_of_linear_oracle(list(values))
+        special_records.extend(("NULL 0 -1\n", "NULL 4 -1\n"))
+
+    if algorithm == "kth_root_integer":
+        rng_kth_root = random.Random(20261111)
+        for degree in (1, 2, 3, 4, 5, 8, 16, 32, 63, 64):
+            root = kth_root_integer_oracle([KTH_ROOT_INTEGER_MAX_A, degree])
+            for base in (max(0, root - 1), root, root + 1):
+                for value in (base ** degree - 1, base ** degree):
+                    if 0 <= value <= KTH_ROOT_INTEGER_MAX_A:
+                        inputs = (value, degree)
+                        cases[inputs] = kth_root_integer_oracle(list(inputs))
+        for _ in range(128):
+            inputs = (rng_kth_root.randrange(KTH_ROOT_INTEGER_MAX_A + 1),
+                      rng_kth_root.randint(1, KTH_ROOT_INTEGER_MAX_K))
+            cases[inputs] = kth_root_integer_oracle(list(inputs))
+        malformed = (
+            (), (0,), (25, 2, 1), (-1, 2), (25, 0), (25, KTH_ROOT_INTEGER_MAX_K + 1),
+            (I64_MIN, 1), (KTH_ROOT_INTEGER_MAX_A, -1),
+        )
+        for values in malformed:
+            cases[tuple(values)] = kth_root_integer_oracle(list(values))
+        special_records.extend(("NULL 0 -1\n", "NULL 2 -1\n",
+                                f"NULL {KTH_ROOT_INTEGER_MAX_PARSEABLE_INPUT_LENGTH} -1\n"))
+
+    if algorithm == "discrete_logarithm_mod":
+        rng_discrete_log = random.Random(20261111)
+        for modulus in range(1, 65):
+            for _ in range(3):
+                values = (rng_discrete_log.randrange(modulus),
+                          rng_discrete_log.randrange(modulus), modulus)
+                cases[values] = discrete_logarithm_mod_oracle(list(values))
+        for modulus in (DISCRETE_LOG_MOD_MAX_MODULUS - 1,
+                        DISCRETE_LOG_MOD_MAX_MODULUS):
+            for exponent in (0, 1, 2, 17, 30):
+                values = (2, pow(2, exponent, modulus), modulus)
+                cases[values] = discrete_logarithm_mod_oracle(list(values))
+        malformed = (
+            (), (1,), (2, 1), (2, 1, 7, 0), (0, 0, 0),
+            (-1, 0, 7), (2, -1, 7), (7, 1, 7), (2, 7, 7),
+            (1, 0, DISCRETE_LOG_MOD_MAX_MODULUS + 1),
+            (I64_MIN, 0, 7), (I64_MAX, 0, 7),
+        )
+        for values in malformed:
+            cases[tuple(values)] = discrete_logarithm_mod_oracle(list(values))
+        special_records.extend(("NULL 0 -1\n", "NULL 3 -1\n",
+                                f"NULL {DISCRETE_LOG_MOD_MAX_PARSEABLE_INPUT_LENGTH} -1\n"))
+
+    if algorithm == "tetration_mod":
+        for base in range(5):
+            for height in range(6):
+                for modulus in range(1, 25):
+                    values = (base, height, modulus)
+                    cases[values] = tetration_mod_oracle(list(values))
+        rng_tetration = random.Random(20261111)
+        for _ in range(64):
+            values = (rng_tetration.randint(0, 20), rng_tetration.randint(0, 100),
+                      rng_tetration.randint(1, 1000))
+            cases[values] = tetration_mod_oracle(list(values))
+        for fixture in workload.get("cases", []):
+            values = tuple(fixture["input_values"])
+            cases[values] = tetration_mod_oracle(list(values))
+        malformed = (
+            (), (1,), (2, 3), (2, 3, 8, 1),
+            (-1, 3, 8), (2, -1, 8), (2, 3, 0),
+            (TETRATION_MOD_MAX_A + 1, 1, 8),
+            (2, TETRATION_MOD_MAX_B + 1, 8),
+            (2, 3, TETRATION_MOD_MAX_M + 1),
+            (I64_MIN, 1, 7), (I64_MAX, 1, 7),
+        )
+        for values in malformed:
+            cases[tuple(values)] = tetration_mod_oracle(list(values))
+        special_records.extend(("NULL 0 -1\n", "NULL 3 -1\n",
+                                f"NULL {TETRATION_MOD_MAX_PARSEABLE_INPUT_LENGTH} -1\n"))
+
+    if algorithm == "sum_of_multiplicative_function_large":
+        coefficients = ((0, 0), (1, 0), (0, 1), (1, 1),
+                        (SUM_MULTIPLICATIVE_MODULUS - 1, SUM_MULTIPLICATIVE_MODULUS - 1))
+        for n in (1, 2, 3, 4, 6, 8, 9, 16, 25, 64, 127, 256, 1000):
+            for a, b in coefficients:
+                values = (n, a, b)
+                cases[values] = sum_of_multiplicative_function_large_oracle(list(values))
+        boundary = (SUM_MULTIPLICATIVE_ORACLE_BLOCK_SIZE + 1, 1, 1)
+        cases[boundary] = sum_of_multiplicative_function_large_oracle(list(boundary))
+        rng_sum_multiplicative = random.Random(20261111)
+        for _ in range(24):
+            values = (rng_sum_multiplicative.randint(1, 5000),
+                      rng_sum_multiplicative.randrange(SUM_MULTIPLICATIVE_MODULUS),
+                      rng_sum_multiplicative.randrange(SUM_MULTIPLICATIVE_MODULUS))
+            cases[values] = sum_of_multiplicative_function_large_oracle(list(values))
+        for fixture in workload.get("cases", []):
+            values = tuple(fixture["input_values"])
+            cases[values] = sum_of_multiplicative_function_large_oracle(list(values))
+        malformed = (
+            (), (7,), (7, 1), (7, 1, 0, 0), (0, 1, 0),
+            (SUM_MULTIPLICATIVE_MAX_N + 1, 0, 0), (-1, 0, 0),
+            (7, -1, 0), (7, 0, -1),
+            (7, SUM_MULTIPLICATIVE_MODULUS, 0),
+            (7, 0, SUM_MULTIPLICATIVE_MODULUS), (I64_MIN, 0, 0),
+            (I64_MAX, 0, 0),
+        )
+        for values in malformed:
+            cases[tuple(values)] = sum_of_multiplicative_function_large_oracle(list(values))
+        special_records.extend(("NULL 0 -1\n", "NULL 3 -1\n",
+                                f"NULL {SUM_MULTIPLICATIVE_MAX_PARSEABLE_INPUT_LENGTH} -1\n"))
+
+    if algorithm == "convex_layers":
+        rng_convex_layers = random.Random(0xC0A7E)
+        for _ in range(64):
+            point_count = rng_convex_layers.randint(0, CONVEX_LAYERS_MAX_POINTS)
+            points = [(rng_convex_layers.randint(-100, 100), rng_convex_layers.randint(-100, 100))
+                      for _ in range(point_count)]
+            values = (point_count, *(coordinate for point in points for coordinate in point))
+            cases[values] = convex_layers_oracle(values)
+        for values in (
+                (), (0, 1), (1,), (2, 0, 0, 1), (1, CONVEX_LAYERS_MAX_INPUT_LENGTH, 0),
+                (-1,), (CONVEX_LAYERS_MAX_POINTS + 1,),
+                (1, 1_000_001, 0), (1, -(1 << 63), 0), (I64_MIN,), (I64_MAX,)):
+            if len(values) <= CONVEX_LAYERS_MAX_INPUT_LENGTH:
+                cases[values] = convex_layers_oracle(list(values))
+        special_records.append("NULL 1 -1\n")
+
+    if algorithm == "optimal_binary_search_tree":
+        for values in ((1, 0), (1, 1000), (2, 0, 1000), (8, 0, 1, 0, 1, 1000, 0, 1000, 1),
+                       (), (0,), (33,), (1, -1), (1, 1001), (2, 1), (1, 0, 0),
+                       (I64_MIN,), (I64_MAX,)):
+            cases[values] = optimal_binary_search_tree_oracle(list(values))
+        rng_optimal_bst = random.Random(0x0B57)
+        for _ in range(48):
+            n = rng_optimal_bst.randint(1, 32)
+            values = (n, *(rng_optimal_bst.randint(0, 1000) for _ in range(n)))
+            cases[values] = optimal_binary_search_tree_oracle(list(values))
+
+    if algorithm == "knuth_optimized_optimal_binary_search_tree":
+        for values in ((1, 0), (1, 1_000_000), (2, 0, 1_000_000),
+                       (3, 0, 0, 0), (4, 1, 1, 1, 1),
+                       (), (0,), (65,), (1, -1), (1, 1_000_001), (2, 1), (1, 0, 0),
+                       (I64_MIN,), (I64_MAX,)):
+            if len(values) <= KNUTH_OPTIMAL_BST_MAX_INPUT_LENGTH:
+                cases[values] = knuth_optimized_optimal_binary_search_tree_verifier_oracle(list(values))
+        rng_knuth_optimal_bst = random.Random(0x4B4E555448)
+        for _ in range(32):
+            n = rng_knuth_optimal_bst.randint(1, 64)
+            values = (n, *(rng_knuth_optimal_bst.randint(0, 1_000_000) for _ in range(n)))
+            cases[values] = knuth_optimized_optimal_binary_search_tree_verifier_oracle(list(values))
+        maximum = (64, *(1_000_000 for _ in range(64)))
+        cases[maximum] = knuth_optimized_optimal_binary_search_tree_verifier_oracle(list(maximum))
+
+    if algorithm == "broken_profile_domino_tilings":
+        invalid = ((), (1,), (0, 1), (65, 1), (9, 9), (9, 64), (2, 3, 4),
+                   (I64_MIN, 1), (1, I64_MAX))
+        for values in invalid:
+            cases[values] = broken_profile_domino_tilings_verifier_oracle(list(values))
+        rng_broken_profile = random.Random(0xB20C3)
+        for _ in range(24):
+            width = rng_broken_profile.randint(1, min(6, BROKEN_PROFILE_DOMINO_TILINGS_MAX_WIDTH))
+            maximum_height = min(BROKEN_PROFILE_DOMINO_TILINGS_MAX_SIDE,
+                                 BROKEN_PROFILE_DOMINO_TILINGS_MAX_AREA // width)
+            height = rng_broken_profile.randint(1, maximum_height)
+            values = ((height, width) if rng_broken_profile.randrange(2)
+                      else (width, height))
+            cases[values] = broken_profile_domino_tilings_verifier_oracle(list(values))
+        maximum = (8, 64)
+        expected = broken_profile_domino_tilings_verifier_oracle(list(maximum))
+        if expected != broken_profile_domino_tilings_primary_oracle(list(maximum)):
+            raise ValueError("broken_profile_domino_tilings maximum profile differs between oracles")
+        cases[maximum] = expected
+
+    if algorithm == "stirling_number_of_the_second_kind":
+        validate_stirling_number_of_the_second_kind_package_workload()
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list)
+                    or fixture.get("input_length") != len(values)
+                    or fixture.get("expected_result")
+                    != stirling_number_of_the_second_kind_verifier_oracle(values)):
+                raise ValueError(
+                    "stirling_number_of_the_second_kind fixture differs from inclusion-exclusion")
+        for n in range(17):
+            values = (n,)
+            cases[values] = stirling_number_of_the_second_kind_verifier_oracle(list(values))
+        for values in ((), (-1,), (17,), (3, 0), (I64_MIN,), (I64_MAX,)):
+            cases[values] = stirling_number_of_the_second_kind_verifier_oracle(list(values))
+        special_records.append("NULL 1 -1\n")
+
+    if algorithm == "number_of_increasing_sequences_between_two_sequences":
+        package_errors = verify_number_of_increasing_sequences_package_workload()
+        if package_errors:
+            raise ValueError("; ".join(package_errors))
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list)
+                    or fixture.get("input_length") != len(values)):
+                raise ValueError(
+                    "number_of_increasing_sequences_between_two_sequences fixture framing is invalid")
+            expected = number_of_increasing_sequences_verifier_oracle(values)
+            if (fixture.get("expected_result") != expected
+                    or expected != number_of_increasing_sequences_primary_oracle(values)):
+                raise ValueError(
+                    "number_of_increasing_sequences_between_two_sequences fixture differs between oracles")
+            cases[tuple(values)] = expected
+        rng_increasing_sequences = random.Random(0x1AC5E)
+        for _ in range(32):
+            n = rng_increasing_sequences.randint(1, 8)
+            m = rng_increasing_sequences.randint(1, 8)
+            lower = []
+            upper = []
+            for _position in range(n):
+                first = rng_increasing_sequences.randrange(m)
+                lower.append(first)
+                upper.append(rng_increasing_sequences.randint(first + 1, m))
+            values = (n, m, *lower, *upper)
+            cases[values] = number_of_increasing_sequences_verifier_oracle(list(values))
+        for values in (
+                (), (1,), (0, 3), (1, 3), (1, 3, 0), (1, 3, 0, 3, 3),
+                (1, 3, 0, 0), (1, 0, 0, 1), (65, 64), (1, 65, 0, 1),
+                (1, 3, -1, 1), (1, 3, 2, 2), (1, 3, 0, 4),
+                (I64_MIN,), (I64_MAX,)):
+            cases[values] = number_of_increasing_sequences_verifier_oracle(list(values))
+        special_records.append("NULL 0 -1\n")
+
+    if algorithm == "point_set_range_sort_range_composite":
+        validate_point_set_range_sort_range_composite_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list)
+                    or fixture.get("input_length") != len(values)):
+                raise ValueError("point_set_range_sort_range_composite fixture framing is invalid")
+            expected = point_set_range_sort_range_composite_verifier_oracle(values)
+            if (fixture.get("expected_result") != expected
+                    or expected != point_set_range_sort_range_composite_primary_oracle(values)):
+                raise ValueError("point_set_range_sort_range_composite fixture differs between oracles")
+            cases[tuple(values)] = expected
+
+        rng_range_sort_composite = random.Random(0x50A75E)
+        for _ in range(24):
+            n = rng_range_sort_composite.randint(1, 6)
+            operation_count = rng_range_sort_composite.randint(1, 12)
+            values = [n, operation_count]
+            for index in range(n):
+                values.extend((index, rng_range_sort_composite.randint(1, 50),
+                               rng_range_sort_composite.randint(0, 50)))
+            next_priority = n
+            for _operation in range(operation_count):
+                opcode = rng_range_sort_composite.randrange(4)
+                if opcode == 0:
+                    index = rng_range_sort_composite.randrange(n)
+                    values.extend((0, index, next_priority,
+                                   rng_range_sort_composite.randint(1, 50),
+                                   rng_range_sort_composite.randint(0, 50)))
+                    next_priority += 1
+                else:
+                    left = rng_range_sort_composite.randrange(n)
+                    right = rng_range_sort_composite.randint(left + 1, n)
+                    if opcode == 1:
+                        values.extend((1, left, right, rng_range_sort_composite.randrange(100)))
+                    else:
+                        values.extend((opcode, left, right))
+            packed = tuple(values)
+            cases[packed] = point_set_range_sort_range_composite_verifier_oracle(list(packed))
+
+        for values in (
+                (), (1,), (0, 1), (1, 0), (1, 1, 0, 1, 0),
+                (1, 1, 0, 1, 0, 1, 0), (1, 1, 0, 0, 0, 1, 0, 0, 1, 0),
+                (1, 1, 0, 1, 0, 1, 0, 1, 0), (1, 1, 0, 0, 0, 2, 0, 0),
+                (I64_MIN,), (I64_MAX,)):
+            cases[values] = point_set_range_sort_range_composite_verifier_oracle(list(values))
+        special_records.append("NULL 0 -1\n")
+
+    if algorithm == "stirling_number_of_the_second_kind_small_p_large_n":
+        validate_stirling_s2_small_p_large_n_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list)
+                    or fixture.get("input_length") != len(values)
+                    or len(values) > STIRLING_S2_SMALL_P_MAX_INPUT_LENGTH):
+                raise ValueError("small-p large-n Stirling fixture framing is invalid")
+            expected = stirling_s2_small_p_verifier_oracle(values)
+            if (fixture.get("expected_result") != expected
+                    or expected != stirling_s2_small_p_primary_oracle(values)):
+                raise ValueError("small-p large-n Stirling fixture differs between oracles")
+            cases[tuple(values)] = expected
+
+        for modulus in (11, 13, 97):
+            for n in range(13):
+                for k in range(min(n, 8) + 1):
+                    values = (1, modulus, n, k)
+                    cases[values] = stirling_s2_small_p_verifier_oracle(list(values))
+        maximum_exponent = 1_000_000_000_000_000_000
+        for modulus in (11, 97):
+            for start in (0, 8):
+                queries = tuple((maximum_exponent, k) for k in range(start, min(start + 8, 9)))
+                values = (len(queries), modulus,
+                          *(item for query in queries for item in query))
+                cases[values] = stirling_s2_small_p_verifier_oracle(list(values))
+
+        rng_stirling_s2_large_n = random.Random(0x571A11)
+        for _ in range(32):
+            modulus = rng_stirling_s2_large_n.choice((11, 13, 17, 19, 31, 97))
+            count = rng_stirling_s2_large_n.randint(1, 8)
+            queries = []
+            for _query in range(count):
+                n = rng_stirling_s2_large_n.randint(0, 1_000_000_000_000_000_000)
+                k = rng_stirling_s2_large_n.randint(0, min(n, 8))
+                queries.extend((n, k))
+            values = (count, modulus, *queries)
+            cases[values] = stirling_s2_small_p_verifier_oracle(list(values))
+
+        for values in (
+                (), (1,), (0, 11), (1, 11, 0), (1, 15, 1, 1), (1, 7, 1, 1),
+                (1, 101, 1, 1), (1, 11, -1, 0),
+                (1, 11, 1_000_000_000_000_000_001, 1), (1, 11, 1, 2),
+                (1, 11, 0, 1), (2, 11, 1, 0), (I64_MIN,), (I64_MAX,)):
+            cases[values] = stirling_s2_small_p_verifier_oracle(list(values))
+        special_records.append("NULL 0 -1\n")
+
+    if algorithm == "stirling_number_of_the_first_kind_small_p_large_n":
+        validate_stirling_s1_small_p_large_n_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list)
+                    or fixture.get("input_length") != len(values)
+                    or len(values) > STIRLING_S1_SMALL_P_MAX_INPUT_LENGTH):
+                raise ValueError("small-p large-n first-kind Stirling fixture framing is invalid")
+            expected = stirling_s1_small_p_verifier_oracle(values)
+            if (fixture.get("expected_result") != expected
+                    or expected != stirling_s1_small_p_primary_oracle(values)):
+                raise ValueError("small-p large-n first-kind Stirling fixture differs between oracles")
+            cases[tuple(values)] = expected
+
+        for modulus in (11, 13, 97):
+            for n in range(13):
+                for k in range(min(n, 8) + 1):
+                    values = (1, modulus, n, k)
+                    cases[values] = stirling_s1_small_p_verifier_oracle(list(values))
+        maximum_exponent = 1_000_000_000_000_000_000
+        for modulus in (11, 97):
+            for start in (0, 8):
+                queries = tuple((maximum_exponent, k) for k in range(start, min(start + 8, 9)))
+                values = (len(queries), modulus,
+                          *(item for query in queries for item in query))
+                cases[values] = stirling_s1_small_p_verifier_oracle(list(values))
+
+        rng_stirling_s1_large_n = random.Random(0xF1757)
+        for _ in range(32):
+            modulus = rng_stirling_s1_large_n.choice((11, 13, 17, 19, 31, 97))
+            count = rng_stirling_s1_large_n.randint(1, 8)
+            queries = []
+            for _query in range(count):
+                n = rng_stirling_s1_large_n.randint(0, 1_000_000_000_000_000_000)
+                k = rng_stirling_s1_large_n.randint(0, min(n, 8))
+                queries.extend((n, k))
+            values = (count, modulus, *queries)
+            cases[values] = stirling_s1_small_p_verifier_oracle(list(values))
+
+        for values in (
+                (), (1,), (0, 11), (1, 15, 1, 1), (1, 7, 1, 1), (1, 101, 1, 1),
+                (1, 11, -1, 0), (1, 11, 1_000_000_000_000_000_001, 1),
+                (1, 11, 1, 2), (1, 11, 0, 1), (2, 11, 1, 0),
+                (I64_MIN,), (I64_MAX,)):
+            cases[values] = stirling_s1_small_p_verifier_oracle(list(values))
+        special_records.append("NULL 0 -1\n")
+
     case_count = len(cases) + len(special_records)
     lines = [str(case_count) + "\n"]
     for values, expected in sorted(cases.items()):
@@ -18441,6 +19945,7 @@ def main() -> int:
                 "gapbs_ordered_triangle_count": "t",
                 "gapbs_betweenness_centrality": "b",
                 "gapbs_pagerank_pull_gs": "p",
+                "maximum_independent_set": "m",
             }.get(algorithm, algorithm[0])
             workload_path = (ROOT / "benchmarks" / algorithm / "workload.json"
                              if algorithm == "mcnaughton_yamada_thompson" else

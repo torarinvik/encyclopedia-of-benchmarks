@@ -1,0 +1,75 @@
+const MVC_MAX_K: usize = 3
+const MVC_MAX_P: usize = 32
+const MVC_MAX_INPUT: usize = 69
+const MVC_MAX_OUTPUT: usize = 256
+const MVC_MOD: i64 = 998244353
+
+def mvc_store(value: i64, output: mutable view[u8], position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def multivariate_convolution_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MVC_MAX_INPUT: return -1
+    k_value: i64 = input[0]
+    if k_value < 0 or k_value > MVC_MAX_K.i64(): return -1
+    k: usize = k_value.usize()
+    if length < 1 + k: return -1
+    dims: mutable usize[3] = zeroed
+    p: mutable usize = 1
+    axis: mutable usize = 0
+    while axis < k:
+        d_value: i64 = input[1 + axis]
+        if d_value < 2 or d_value > MVC_MAX_P.i64(): return -1
+        d: usize = d_value.usize()
+        if p > MVC_MAX_P / d: return -1
+        dims[axis] <- d
+        p <- p * d
+        axis <- axis + 1
+    start: usize = 1 + k
+    if length != start + 2 * p: return -1
+    a: mutable i64[32] = zeroed
+    b: mutable i64[32] = zeroed
+    index: mutable usize = 0
+    while index < 2 * p:
+        value: i64 = input[start + index]
+        if value < 0 or value >= MVC_MOD: return -1
+        if index < p: a[index] <- value
+        else: b[index - p] <- value
+        index <- index + 1
+    bytes: usize = 8 * p
+    if bytes > MVC_MAX_OUTPUT: return -1
+    if output.is_null() or capacity < bytes: return -2
+    result: mutable i64[32] = zeroed
+    i: mutable usize = 0
+    while i < p:
+        j: mutable usize = 0
+        while j < p:
+            target: mutable usize = 0
+            stride: mutable usize = 1
+            valid: mutable bool = true
+            axis <- 0
+            while axis < k:
+                d: usize = dims[axis]
+                total: usize = (i / stride) % d + (j / stride) % d
+                if total >= d:
+                    valid <- false
+                    break
+                target <- target + total * stride
+                stride <- stride * d
+                axis <- axis + 1
+            if valid: result[target] <- (result[target] + a[i] * b[j]) % MVC_MOD
+            j <- j + 1
+        i <- i + 1
+    output_view: mutable view[u8] = output[0:bytes]
+    index <- 0
+    while index < p:
+        mvc_store(result[index], output_view, 8 * index)
+        index <- index + 1
+    bytes.i64()
+
+export fn multivariate_convolution(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = multivariate_convolution_impl

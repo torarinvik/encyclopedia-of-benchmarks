@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "algorithm-archive-split-operator-imaginary-time-float64-slice-io-v1",
+  "algorithm": "split_operator_imaginary_time",
+  "function_symbol": "split_operator_imaginary_time",
+  "abi": "float64_slice_io",
+  "description": "Apply bounded 1D imaginary-time Strang split steps using radix-2 FFTs and normalize after each step.",
+  "source": {
+    "title": "The Split-Operator Method",
+    "repository": "Arcane Algorithm Archive",
+    "url": "https://www.algorithm-archive.org/contents/split-operator_method/split-operator_method.html",
+    "algorithm_attribution": "The position half-step, momentum full-step, position half-step recurrence is a Strang splitting implemented with forward and inverse Fourier transforms.",
+    "implementation_status": "clean-room bounded ports"
+  },
+  "oracle": "benchmarks/split_operator_imaginary_time_oracle.py",
+  "oracle_entry_point": "expected_output(values, output_capacity=None, output_is_null=False, input_is_null=False, input_length=None)",
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[N, step_count, position_half_step_factors[N], momentum_full_step_factors[N], initial_complex_state_as_interleaved_real_imag[N]]",
+    "grid_size_range": [2, 64],
+    "grid_size_must_be_power_of_two": true,
+    "step_count_range": [0, 8],
+    "diagonal_factor_range": [0.25, 1.0],
+    "initial_component_range": [-1.0, 1.0],
+    "initial_state_must_be_nonzero": true,
+    "maximum_valid_input_length": 258,
+    "maximum_parseable_input_length": 258,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "final normalized complex state, interleaved real and imaginary parts in position order",
+    "maximum_elements": 128,
+    "success_result": "2*N",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "workspace": {
+    "elements": 128,
+    "meaning": "Two fixed 64-element arrays hold the real and imaginary parts of the in-place FFT state."
+  },
+  "contract": {
+    "input_factors": "The supplied real-space factor is exp(-V*dt/2); the supplied momentum-space factor is exp(-T*dt). Both are fixed across the requested steps and lie in [0.25,1].",
+    "momentum_order": "Standard radix-2 FFT order: frequencies 0 through N/2-1 followed by negative frequencies -N/2 through -1.",
+    "step": "Multiply by the position factor, apply the unnormalized forward DFT, multiply by the momentum factor, apply the inverse DFT normalized by N, then multiply by the position factor again.",
+    "normalization": "Normalize the initial complex state and the state after every full step to sum(|psi[j]|^2)=1.",
+    "complexity": "O(step_count*N*log2(N)) time and O(N) auxiliary storage.",
+    "oracle_method": "The independent oracle uses direct O(N^2) DFT and inverse-DFT sums, not an FFT."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "cases": [
+    {"id":"zero-step-normalizes-input","input_values":[2,0,1,1,1,1,3,0,4,0],"input_length":10,"output_capacity":4,"expected_result":4,"expected_output":[0.6,0.0,0.8,0.0]},
+    {"id":"nontrivial-kinetic-filter","input_values":[2,1,1,1,1,0.5,1,0,0,0],"input_length":10,"output_capacity":4,"expected_result":4,"expected_output":[0.9486832980505138,0.0,0.31622776601683794,0.0]},
+    {"id":"asymmetric-position-and-momentum-factors","input_values":[2,1,1,0.5,1,0.5,1,0,0,0],"input_length":10,"output_capacity":4,"expected_result":4,"expected_output":[0.9863939238321437,0.0,0.1643989873053573,0.0]},
+    {"id":"complex-state","input_values":[2,1,1,1,1,0.5,1,1,0,0],"input_length":10,"output_capacity":4,"expected_result":4,"expected_output":[0.6708203932499369,0.6708203932499369,0.22360679774997896,0.22360679774997896]},
+    {"id":"non-power-of-two-grid","input_values":[3,0,1,1,1,1,1,1,1,0,0,0,0,0],"input_length":14,"output_capacity":128,"expected_result":-1,"expected_output":[]},
+    {"id":"factor-below-bound","input_values":[2,0,0.2,1,1,1,1,0,0,0],"input_length":10,"output_capacity":128,"expected_result":-1,"expected_output":[]},
+    {"id":"zero-initial-state","input_values":[2,0,1,1,1,1,0,0,0,0],"input_length":10,"output_capacity":128,"expected_result":-1,"expected_output":[]},
+    {"id":"short-output-capacity","input_values":[2,0,1,1,1,1,1,0,0,0],"input_length":10,"output_capacity":3,"expected_result":-2,"expected_output":[]},
+    {"id":"null-output","input_values":[2,0,1,1,1,1,1,0,0,0],"input_length":10,"output_capacity":4,"output_is_null":true,"expected_result":-2,"expected_output":[]},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":128,"expected_result":-1,"expected_output":[]}
+  ]
+}

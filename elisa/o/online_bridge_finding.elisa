@@ -1,0 +1,155 @@
+const MAX_VERTICES: usize = 64
+const MAX_EDGES: usize = 128
+const MAX_INPUT_LENGTH: usize = 259
+
+def online_bridge_find_2ecc(vertex_input: i64, dsu: mutable view[i64]) -> i64:
+    if vertex_input == -1:
+        return -1
+    vertex: usize = vertex_input.usize()
+    if dsu[vertex] == vertex_input:
+        return vertex_input
+    dsu[vertex] <- online_bridge_find_2ecc(dsu[vertex], dsu)
+    dsu[vertex]
+
+def online_bridge_find_cc(vertex_input: i64, dsu_2ecc: mutable view[i64], dsu_cc: mutable view[i64]) -> i64:
+    vertex: i64 = online_bridge_find_2ecc(vertex_input, dsu_2ecc)
+    index: usize = vertex.usize()
+    if dsu_cc[index] == vertex:
+        return vertex
+    dsu_cc[index] <- online_bridge_find_cc(dsu_cc[index], dsu_2ecc, dsu_cc)
+    dsu_cc[index]
+
+def online_bridge_make_root(vertex_input: i64, dsu_2ecc: mutable view[i64], dsu_cc: mutable view[i64],
+        dsu_cc_size: mutable view[i64], parent: mutable view[i64]) -> void:
+    root: i64 = online_bridge_find_2ecc(vertex_input, dsu_2ecc)
+    vertex: mutable i64 = root
+    child: mutable i64 = -1
+    while vertex != -1:
+        index: usize = vertex.usize()
+        next: i64 = online_bridge_find_2ecc(parent[index], dsu_2ecc)
+        parent[index] <- child
+        dsu_cc[index] <- root
+        child <- vertex
+        vertex <- next
+    dsu_cc_size[root.usize()] <- dsu_cc_size[child.usize()]
+
+def online_bridge_merge_path(left_input: i64, right_input: i64, dsu_2ecc: mutable view[i64],
+        parent: mutable view[i64], last_visit: mutable view[i64], bridges: mutable i64&, iteration: mutable i64&) -> void:
+    iteration <- iteration + 1
+    path_left: mutable i64[MAX_VERTICES] = zeroed
+    path_right: mutable i64[MAX_VERTICES] = zeroed
+    left_length: mutable usize = 0
+    right_length: mutable usize = 0
+    left: mutable i64 = left_input
+    right: mutable i64 = right_input
+    lca: mutable i64 = -1
+    while lca == -1:
+        if left != -1:
+            left <- online_bridge_find_2ecc(left, dsu_2ecc)
+            path_left[left_length] <- left
+            left_length <- left_length + 1
+            index: usize = left.usize()
+            if last_visit[index] == iteration:
+                lca <- left
+                break
+            last_visit[index] <- iteration
+            left <- parent[index]
+        if right != -1:
+            right <- online_bridge_find_2ecc(right, dsu_2ecc)
+            path_right[right_length] <- right
+            right_length <- right_length + 1
+            index: usize = right.usize()
+            if last_visit[index] == iteration:
+                lca <- right
+                break
+            last_visit[index] <- iteration
+            right <- parent[index]
+    index: mutable usize = 0
+    while index < left_length:
+        vertex: i64 = path_left[index]
+        dsu_2ecc[vertex.usize()] <- lca
+        if vertex == lca:
+            break
+        bridges <- bridges - 1
+        index <- index + 1
+    index <- 0
+    while index < right_length:
+        vertex: i64 = path_right[index]
+        dsu_2ecc[vertex.usize()] <- lca
+        if vertex == lca:
+            break
+        bridges <- bridges - 1
+        index <- index + 1
+
+def online_bridge_add_edge(left_input: i64, right_input: i64, dsu_2ecc: mutable view[i64],
+        dsu_cc: mutable view[i64], dsu_cc_size: mutable view[i64], parent: mutable view[i64],
+        last_visit: mutable view[i64], bridges: mutable i64&, iteration: mutable i64&) -> void:
+    left: mutable i64 = online_bridge_find_2ecc(left_input, dsu_2ecc)
+    right: mutable i64 = online_bridge_find_2ecc(right_input, dsu_2ecc)
+    if left == right:
+        return
+    left_cc: mutable i64 = online_bridge_find_cc(left, dsu_2ecc, dsu_cc)
+    right_cc: mutable i64 = online_bridge_find_cc(right, dsu_2ecc, dsu_cc)
+    if left_cc != right_cc:
+        bridges <- bridges + 1
+        if dsu_cc_size[left_cc.usize()] > dsu_cc_size[right_cc.usize()]:
+            temporary: i64 = left
+            left <- right
+            right <- temporary
+            temporary <- left_cc
+            left_cc <- right_cc
+            right_cc <- temporary
+        online_bridge_make_root(left, dsu_2ecc, dsu_cc, dsu_cc_size, parent)
+        parent[left.usize()] <- right
+        dsu_cc[left.usize()] <- right
+        dsu_cc_size[right_cc.usize()] <- dsu_cc_size[right_cc.usize()] + dsu_cc_size[left.usize()]
+    else:
+        online_bridge_merge_path(left, right, dsu_2ecc, parent, last_visit, bridges, iteration)
+
+def online_bridge_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def online_bridge_finding_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_vertices: i64 = input[0]
+    raw_edges: i64 = input[1]
+    if raw_vertices < 1 or raw_vertices > i64(MAX_VERTICES) or raw_edges < 0 or raw_edges > i64(MAX_EDGES):
+        return -1
+    vertex_count: usize = raw_vertices.usize()
+    edge_count: usize = raw_edges.usize()
+    if length != 2 + 2 * edge_count:
+        return -1
+    for edge in 0..<edge_count |input|:
+        left: i64 = input[2 + 2 * edge]
+        right: i64 = input[3 + 2 * edge]
+        if left < 0 or right < 0 or left >= raw_vertices or right >= raw_vertices:
+            return -1
+    output_bytes: usize = edge_count * 8
+    if output_bytes > 0 and (output == null or output_capacity < output_bytes):
+        return -2
+
+    dsu_2ecc: mutable i64[MAX_VERTICES] = zeroed
+    dsu_cc: mutable i64[MAX_VERTICES] = zeroed
+    dsu_cc_size: mutable i64[MAX_VERTICES] = zeroed
+    parent: mutable i64[MAX_VERTICES] = zeroed
+    last_visit: mutable i64[MAX_VERTICES] = zeroed
+    for vertex in 0..<vertex_count |dsu_2ecc, dsu_cc, dsu_cc_size, parent|:
+        dsu_2ecc[vertex] <- vertex.i64()
+        dsu_cc[vertex] <- vertex.i64()
+        dsu_cc_size[vertex] <- 1
+        parent[vertex] <- -1
+    bridges: mutable i64 = 0
+    iteration: mutable i64 = 0
+    for edge in 0..<edge_count |input, dsu_2ecc, dsu_cc, dsu_cc_size, parent, last_visit, bridges, iteration, output|:
+        online_bridge_add_edge(input[2 + 2 * edge], input[3 + 2 * edge],
+            dsu_2ecc[0:MAX_VERTICES], dsu_cc[0:MAX_VERTICES], dsu_cc_size[0:MAX_VERTICES],
+            parent[0:MAX_VERTICES], last_visit[0:MAX_VERTICES], bridges, iteration)
+        online_bridge_store_i64(bridges, output[0:output_bytes], edge * 8)
+    output_bytes.i64()
+
+export fn online_bridge_finding(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = online_bridge_finding_impl

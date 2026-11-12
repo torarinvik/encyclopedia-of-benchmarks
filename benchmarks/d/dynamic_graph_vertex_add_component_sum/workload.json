@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-dynamic-graph-vertex-add-component-sum-rollback-v1",
+  "algorithm": "dynamic_graph_vertex_add_component_sum",
+  "function_symbol": "dynamic_graph_vertex_add_component_sum",
+  "abi": "i64_array_bytes_output",
+  "description": "Offline dynamic undirected connectivity with vertex-value additions and component-sum queries, using time intervals and rollback DSU.",
+  "source": {
+    "name": "Library Checker: Dynamic Graph Vertex Add Component Sum",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/graph/dynamic_graph_vertex_add_component_sum/task.md",
+    "limits_url": "https://github.com/yosupo06/library-checker-problems/blob/master/graph/dynamic_graph_vertex_add_component_sum/info.toml",
+    "repository_license": "Apache-2.0",
+    "reuse": "Task semantics only; local implementations are clean-room bounded profiles."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,q,initial_value_0..initial_value_(n-1),(op,a,b)*q]",
+    "vertex_count_range": [1, 16],
+    "event_count_range": [0, 32],
+    "maximum_valid_length": 114,
+    "maximum_parseable_length": 115,
+    "initial_value_range": [0, 100],
+    "vertex_add_delta_range": [0, 100],
+    "vertex_ids": "zero-based",
+    "edge_semantics": "Simple undirected graph; no self-loops or duplicate active edges. An edge must be absent before addition and present before removal.",
+    "event_encoding": {
+      "0": "add edge [0,u,v]",
+      "1": "remove edge [1,u,v]",
+      "2": "add x to vertex v [2,v,x]",
+      "3": "query component sum [3,v,0]"
+    },
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "contract": {
+    "operation": "Process a complete edge-add/remove and vertex-add event stream; each component-sum query observes all earlier updates.",
+    "algorithm": "Place active edge intervals and active vertex-value contributions in a segment tree over event time. Traverse it with a rollback DSU using union by size and no path compression; maintain root component sums and rollback vertex-delta changes.",
+    "maximum_component_sum": 4800,
+    "complexity": "O((n+q) log(q+1) log(n+1) + q log(q+1) log(n+1)) for the bounded interval insertion and rollback traversal.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input framing and event validation precede output pointer and capacity checks."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "one component sum per query, in event order",
+    "element_width_bytes": 8,
+    "maximum_elements": 32,
+    "maximum_bytes": 256,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 262144,
+    "meaning": "Fixed edge/value interval arrays, time-segment buckets, DSU parent/size/component-sum arrays, rollback log, staged query answers, and traversal stack."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "edge-add-value-add-and-query",
+      "input_values": [4,9,1,2,3,4,0,0,1,3,0,0,2,1,5,3,1,0,0,1,2,3,2,0,1,0,1,3,0,0,3,1,0],
+      "input_length": 33,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "030000000000000008000000000000000b0000000000000001000000000000000a00000000000000"
+    },
+    {
+      "id": "removal-splits-component",
+      "input_values": [3,5,1,2,3,0,0,1,0,1,2,3,0,0,1,1,2,3,2,0],
+      "input_length": 20,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "06000000000000000300000000000000"
+    },
+    {
+      "id": "isolated-vertex-value-update",
+      "input_values": [3,3,4,5,6,3,2,0,2,2,7,3,2,0],
+      "input_length": 14,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "06000000000000000d00000000000000"
+    },
+    {
+      "id": "zero-query-trace",
+      "input_values": [1,2,7,2,0,5,2,0,3],
+      "input_length": 9,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-shape-queries",
+      "input_values": [16,32,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,3,0,0,3,1,0,3,2,0,3,3,0,3,4,0,3,5,0,3,6,0,3,7,0,3,8,0,3,9,0,3,10,0,3,11,0,3,12,0,3,13,0,3,14,0,3,15,0,2,0,1,2,1,1,2,2,1,2,3,1,2,4,1,2,5,1,2,6,1,2,7,1,2,8,1,2,9,1,2,10,1,2,11,1,2,12,1,2,13,1,2,14,1,2,15,1],
+      "input_length": 114,
+      "output_capacity": 128,
+      "expected_result": 128,
+      "expected_output_hex": "00000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f00000000000000"
+    },
+    {
+      "id": "insufficient-capacity",
+      "input_values": [1,1,42,3,0,0],
+      "input_length": 6,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1,1,42,3,0,0],
+      "input_length": 6,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-active-edge",
+      "input_values": [2,2,1,2,0,0,1,0,1,0],
+      "input_length": 10,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "remove-inactive-edge",
+      "input_values": [2,1,1,2,1,0,1],
+      "input_length": 7,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "self-edge-invalid",
+      "input_values": [2,1,1,2,0,1,1],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-input-precedes-null-output",
+      "input_values": [1,1,42,2,0,101],
+      "input_length": 6,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-frame",
+      "input_values": [2,1,1,2,3],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "overlong-frame",
+      "input_values": [1,0,0,0],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

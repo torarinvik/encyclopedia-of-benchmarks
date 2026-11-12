@@ -1,0 +1,89 @@
+def rational_approximation_gcd(left_input: i64, right_input: i64) -> i64:
+    left: mutable i64 = left_input
+    right: mutable i64 = right_input
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def rational_approximation_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def rational_approximation_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values == null or length != 3:
+        return -1
+    limit: i64 = values[0]
+    x: i64 = values[1]
+    y: i64 = values[2]
+    if limit < 1 or limit > 1000000000 or x < 1 or x > 1000000000 or y < 1 or y > 1000000000:
+        return -1
+    if output == null or output_capacity < 32:
+        return -2
+
+    divisor: i64 = rational_approximation_gcd(x, y)
+    reduced_x: i64 = x / divisor
+    reduced_y: i64 = y / divisor
+    a: mutable i64 = 0
+    b: mutable i64 = 1
+    c: mutable i64 = 1
+    d: mutable i64 = 0
+    if reduced_x <= limit and reduced_y <= limit:
+        a <- reduced_x
+        b <- reduced_y
+        c <- reduced_x
+        d <- reduced_y
+    else:
+        searching: mutable bool = true
+        while searching:
+            middle_num: i64 = a + c
+            middle_den: i64 = b + d
+            if middle_num > limit or middle_den > limit:
+                searching <- false
+            else:
+                target_side: i64 = middle_num * y
+                middle_side: i64 = middle_den * x
+                if target_side == middle_side:
+                    a <- middle_num
+                    b <- middle_den
+                    c <- middle_num
+                    d <- middle_den
+                    searching <- false
+                else if target_side < middle_side:
+                    lower_gap: i64 = b * x - a * y
+                    upper_gap: i64 = c * y - d * x
+                    step: mutable i64 = lower_gap / upper_gap
+                    numerator_cap: i64 = (limit - a) / c
+                    if step > numerator_cap:
+                        step <- numerator_cap
+                    if d > 0:
+                        denominator_cap: i64 = (limit - b) / d
+                        if step > denominator_cap:
+                            step <- denominator_cap
+                    a <- a + step * c
+                    b <- b + step * d
+                else:
+                    upper_gap: i64 = c * y - d * x
+                    lower_gap: i64 = b * x - a * y
+                    step: mutable i64 = upper_gap / lower_gap
+                    if a > 0:
+                        numerator_cap: i64 = (limit - c) / a
+                        if step > numerator_cap:
+                            step <- numerator_cap
+                    denominator_cap: i64 = (limit - d) / b
+                    if step > denominator_cap:
+                        step <- denominator_cap
+                    c <- c + step * a
+                    d <- d + step * b
+
+    rational_approximation_store_i64(a, output[0:32], 0)
+    rational_approximation_store_i64(b, output[0:32], 8)
+    rational_approximation_store_i64(c, output[0:32], 16)
+    rational_approximation_store_i64(d, output[0:32], 24)
+    32
+
+export fn rational_approximation(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = rational_approximation_impl

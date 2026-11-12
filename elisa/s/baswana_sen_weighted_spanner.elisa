@@ -1,0 +1,148 @@
+const MAX_N: usize = 8
+const MAX_M: usize = 28
+const MAX_INPUT: usize = 90
+
+def bsw_before(aw: i64, au: i64, av: i64, bw: i64, bu: i64, bv: i64) -> bool:
+    return aw < bw or (aw == bw and au < bu) or (aw == bw and au == bu and av < bv)
+
+def baswana_sen_weighted_spanner(input: i64&, length: usize,
+                                 output: mutable u8&, capacity: usize) -> i64 @export("baswana_sen_weighted_spanner"):
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]; m64: i64 = input[1]; k: i64 = input[2]
+    if n64 < 2 or n64 > 8 or m64 < 0 or m64 > 28 or k < 2 or k > 3: return -1
+    n: usize = n64.usize(); m: usize = m64.usize(); rounds: usize = (k - 1).usize()
+    if length != 3 + rounds + 3 * m: return -1
+    masks: mutable [8]i64 = [0; 8]
+    r: mutable usize = 0
+    while r < rounds:
+        masks[r] <- input[3 + r]
+        if masks[r] < 0 or masks[r] >= (i64(1) << n): return -1
+        r <- r + 1
+    edge_u: mutable [28]i64 = [0; 28]; edge_v: mutable [28]i64 = [0; 28]; edge_w: mutable [28]i64 = [0; 28]
+    active: mutable [28]bool = [false; 28]; selected: mutable [28]u8 = [0; 28]
+    offset: usize = 3 + rounds
+    e: mutable usize = 0
+    while e < m:
+        edge_u[e] <- input[offset + 3 * e]; edge_v[e] <- input[offset + 3 * e + 1]; edge_w[e] <- input[offset + 3 * e + 2]
+        if edge_u[e] < 0 or edge_v[e] <= edge_u[e] or edge_v[e] >= n64 or edge_w[e] < 1 or edge_w[e] > 32: return -1
+        j: mutable usize = 0
+        while j < e:
+            if edge_u[j] == edge_u[e] and edge_v[j] == edge_v[e]: return -1
+            j <- j + 1
+        active[e] <- true
+        e <- e + 1
+    if output.is_null() or capacity < m: return -2
+
+    cluster: mutable [8]i64 = [0; 8]; next_cluster: mutable [8]i64 = [0; 8]
+    v: mutable usize = 0
+    while v < n:
+        cluster[v] <- v.i64()
+        v <- v + 1
+    r <- 0
+    while r < rounds:
+        sampled: mutable [8]bool = [false; 8]; remove: mutable [28]bool = [false; 28]
+        group_best: mutable [64]usize = [0; 64]
+        v <- 0
+        while v < 64: group_best[v] <- m; v <- v + 1
+        v <- 0
+        while v < n: next_cluster[v] <- -1; v <- v + 1
+        v <- 0
+        while v < n:
+            center: i64 = cluster[v]
+            if center >= 0 and ((masks[r] >> center.usize()) & 1) != 0: sampled[center.usize()] <- true
+            v <- v + 1
+        v <- 0
+        while v < n:
+            if cluster[v] >= 0 and sampled[cluster[v].usize()]: next_cluster[v] <- cluster[v]
+            v <- v + 1
+        e <- 0
+        while e < m:
+            if active[e]:
+                u: usize = edge_u[e].usize(); w: usize = edge_v[e].usize()
+                if cluster[w] >= 0:
+                    slot: usize = u * MAX_N + cluster[w].usize(); prior: usize = group_best[slot]
+                    if prior == m or bsw_before(edge_w[e], edge_u[e], edge_v[e], edge_w[prior], edge_u[prior], edge_v[prior]): group_best[slot] <- e
+                if cluster[u] >= 0:
+                    slot2: usize = w * MAX_N + cluster[u].usize(); prior2: usize = group_best[slot2]
+                    if prior2 == m or bsw_before(edge_w[e], edge_u[e], edge_v[e], edge_w[prior2], edge_u[prior2], edge_v[prior2]): group_best[slot2] <- e
+            e <- e + 1
+        v <- 0
+        while v < n:
+            old: i64 = cluster[v]
+            if old >= 0 and not sampled[old.usize()]:
+                best: usize = m; c: mutable usize = 0
+                while c < n:
+                    candidate: usize = group_best[v * MAX_N + c]
+                    if sampled[c] and candidate != m and (best == m or bsw_before(edge_w[candidate], edge_u[candidate], edge_v[candidate], edge_w[best], edge_u[best], edge_v[best])): best <- candidate
+                    c <- c + 1
+                if best == m:
+                    c <- 0
+                    while c < n:
+                        least: usize = group_best[v * MAX_N + c]
+                        if least != m:
+                            selected[least] <- 1
+                            e <- 0
+                            while e < m:
+                                if active[e]:
+                                    a: usize = edge_u[e].usize(); b: usize = edge_v[e].usize()
+                                    if (a == v and cluster[b] == c.i64()) or (b == v and cluster[a] == c.i64()): remove[e] <- true
+                                e <- e + 1
+                        c <- c + 1
+                else:
+                    a: usize = edge_u[best].usize(); b: usize = edge_v[best].usize()
+                    other: mutable usize = a
+                    if a == v: other <- b
+                    landing: i64 = cluster[other]
+                    next_cluster[v] <- landing; selected[best] <- 1
+                    c <- 0
+                    while c < n:
+                        least: usize = group_best[v * MAX_N + c]
+                        if least != m:
+                            erase_group: bool = c.i64() == landing or edge_w[least] < edge_w[best]
+                            if c.i64() != landing and edge_w[least] < edge_w[best]: selected[least] <- 1
+                            if erase_group:
+                                e <- 0
+                                while e < m:
+                                    if active[e]:
+                                        x: usize = edge_u[e].usize(); y: usize = edge_v[e].usize()
+                                        if (x == v and cluster[y] == c.i64()) or (y == v and cluster[x] == c.i64()): remove[e] <- true
+                                    e <- e + 1
+                        c <- c + 1
+            v <- v + 1
+        e <- 0
+        while e < m:
+            if remove[e]: active[e] <- false
+            if active[e]:
+                u: usize = edge_u[e].usize(); w: usize = edge_v[e].usize()
+                if next_cluster[u] >= 0 and next_cluster[u] == next_cluster[w]: active[e] <- false
+            e <- e + 1
+        v <- 0
+        while v < n: cluster[v] <- next_cluster[v]; v <- v + 1
+        r <- r + 1
+
+    group_best2: mutable [64]usize = [0; 64]
+    v <- 0
+    while v < 64: group_best2[v] <- m; v <- v + 1
+    e <- 0
+    while e < m:
+        if active[e]:
+            u: usize = edge_u[e].usize(); w: usize = edge_v[e].usize()
+            if cluster[w] >= 0:
+                slot: usize = u * MAX_N + cluster[w].usize(); prior: usize = group_best2[slot]
+                if prior == m or bsw_before(edge_w[e], edge_u[e], edge_v[e], edge_w[prior], edge_u[prior], edge_v[prior]): group_best2[slot] <- e
+            if cluster[u] >= 0:
+                slot2: usize = w * MAX_N + cluster[u].usize(); prior2: usize = group_best2[slot2]
+                if prior2 == m or bsw_before(edge_w[e], edge_u[e], edge_v[e], edge_w[prior2], edge_u[prior2], edge_v[prior2]): group_best2[slot2] <- e
+        e <- e + 1
+    v <- 0
+    while v < n:
+        if cluster[v] >= 0:
+            c: usize = 0
+            while c < n:
+                least: usize = group_best2[v * MAX_N + c]
+                if least != m: selected[least] <- 1
+                c <- c + 1
+        v <- v + 1
+    e <- 0
+    while e < m: output[e] <- selected[e]; e <- e + 1
+    m.i64()

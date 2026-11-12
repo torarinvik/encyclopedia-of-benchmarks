@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-tree-path-composite-sum-bounded-i64-array-bytes-output-v1",
+  "algorithm": "tree_path_composite_sum",
+  "function_symbol": "tree_path_composite_sum",
+  "abi": "i64_array_bytes_output",
+  "description": "For every tree root, sum the affine path-composition value to every vertex using rerooting messages.",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "license": "Apache-2.0",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/tree/tree_path_composite_sum/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/tree/tree_path_composite_sum/info.toml",
+    "reference_algorithm": "Rerooting dynamic programming with additive component messages and affine edge transforms",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,A_0,...,A_(N-1),u_0,v_0,b_0,c_0,...]",
+    "N_range": [1, 32],
+    "vertex_value_range": [0, 998244352],
+    "edge_multiplier_range": [1, 998244352],
+    "edge_addend_range": [0, 998244352],
+    "edge_rule": "N-1 undirected edge records form a simple tree; each edge applies f(x)=b*x+c in both path directions",
+    "maximum_valid_length": 157,
+    "maximum_parseable_length": 158,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "one sum modulo 998244353 for each root, in vertex-index order",
+    "maximum_bytes": 256,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Maximum output-buffer capacity; bounded adjacency and rerooting arrays use separate storage."
+  },
+  "contract": {
+    "path_value": "For the path edges e_0,...,e_k from root r to target v, P(r,v)=f_e0(f_e1(...f_ek(A_v)...)); the empty path has value A_v.",
+    "algorithm": "Root once for a postorder pass, then propagate complementary directed component messages in preorder. Each vertex reports the sum of all root-to-vertex path values modulo 998244353.",
+    "complexity": "The rerooting message recurrence is O(N) with adjacency lists; these bounded ports use dense edge-lookup tables, giving O(N^2) scans and reserved storage.",
+    "official_N_range": [1, 200000],
+    "official_query_count": 0
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"singleton-empty-path","input_values":[1,7],"input_length":2,"output_capacity":8,"expected_result":8,"expected_output_hex":"0700000000000000"},
+    {"id":"two-vertex-root-direction","input_values":[2,2,3,0,1,4,5],"input_length":7,"output_capacity":16,"expected_result":16,"expected_output_hex":"13000000000000001000000000000000"},
+    {"id":"three-vertex-noncommuting-chain","input_values":[3,1,2,3,0,1,2,1,1,2,3,4],"input_length":12,"output_capacity":24,"expected_result":24,"expected_output_hex":"210000000000000012000000000000001a00000000000000"},
+    {"id":"three-vertex-asymmetric-star","input_values":[3,1,2,3,0,1,2,1,0,2,3,4],"input_length":12,"output_capacity":24,"expected_result":24,"expected_output_hex":"130000000000000020000000000000001d00000000000000"},
+    {"id":"identity-transforms","input_values":[4,5,7,11,13,0,1,1,0,1,2,1,0,2,3,1,0],"input_length":17,"output_capacity":32,"expected_result":32,"expected_output_hex":"2400000000000000240000000000000024000000000000002400000000000000"},
+    {"id":"invalid-zero-multiplier","input_values":[2,1,2,0,1,0,0],"input_length":7,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-cycle-and-disconnection","input_values":[3,1,2,3,0,1,1,0,1,0,2,1],"input_length":12,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word","input_values":[1,7,0],"input_length":3,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[2,2,3,0,1,4,5],"input_length":7,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,7],"input_length":2,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

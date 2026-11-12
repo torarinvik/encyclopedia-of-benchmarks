@@ -93,7 +93,7 @@ int64_t routing_cost_constrained_cds_goc_mcds_c(
                 current = (size_t)parent[current];
             }
             path[path_length++] = source;
-            if (path_length <= 4)
+            if (path_length <= 5)
                 for (size_t pi = 1; pi + 1 < path_length; ++pi) connectors |= UINT64_C(1) << path[pi];
         }
     }

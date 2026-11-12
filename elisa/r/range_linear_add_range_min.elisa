@@ -1,0 +1,151 @@
+const RANGE_LINEAR_MAX_LENGTH: usize = 64
+const RANGE_LINEAR_MAX_OPERATIONS: usize = 64
+const RANGE_LINEAR_MAX_INPUT: usize = 387
+const RANGE_LINEAR_BLOCK_WIDTH: usize = 8
+const RANGE_LINEAR_MAX_BLOCKS: usize = 8
+const RANGE_LINEAR_CHECKSUM_OFFSET: i64 = 8000000
+
+def range_linear_block_end(block: usize, n: usize) -> usize:
+    let end: usize = (block + 1) * RANGE_LINEAR_BLOCK_WIDTH
+    if end < n: end else: n
+
+def range_linear_rebuild(data: view[i64], hull_x: mutable view[i64],
+                         hull_y: mutable view[i64], hull_count: mutable view[i64],
+                         block: usize, n: usize) -> void:
+    let base: usize = block * RANGE_LINEAR_BLOCK_WIDTH
+    size: mutable usize = 0
+    for x in base..<range_linear_block_end(block, n):
+        while size >= 2:
+            let p: usize = base + size - 2
+            let q: usize = base + size - 1
+            let cross: i64 = (hull_x[q] - hull_x[p]) * (data[x] - hull_y[p]) -
+                (hull_y[q] - hull_y[p]) * (x.i64() - hull_x[p])
+            if cross > 0: break
+            size <- size - 1
+        hull_x[base + size] <- x.i64()
+        hull_y[base + size] <- data[x]
+        size <- size + 1
+    hull_count[block] <- size.i64()
+
+def range_linear_push(data: mutable view[i64], lazy_slope: mutable view[i64],
+                      lazy_intercept: mutable view[i64], block: usize, n: usize) -> void:
+    let start: usize = block * RANGE_LINEAR_BLOCK_WIDTH
+    for i in start..<range_linear_block_end(block, n):
+        data[i] <- data[i] + lazy_slope[block] * i.i64() + lazy_intercept[block]
+    lazy_slope[block] <- 0
+    lazy_intercept[block] <- 0
+
+def range_linear_block_min(hull_x: view[i64], hull_y: view[i64], hull_count: view[i64],
+                           lazy_slope: view[i64], lazy_intercept: view[i64], block: usize) -> i64:
+    let base: usize = block * RANGE_LINEAR_BLOCK_WIDTH
+    low: mutable usize = 0
+    high: mutable usize = hull_count[block].usize() - 1
+    while low < high:
+        let middle: usize = low + (high - low) / 2
+        let left: i64 = hull_y[base + middle] + lazy_slope[block] * hull_x[base + middle]
+        let right: i64 = hull_y[base + middle + 1] + lazy_slope[block] * hull_x[base + middle + 1]
+        if left <= right: high <- middle
+        else: low <- middle + 1
+    hull_y[base + low] + lazy_slope[block] * hull_x[base + low] + lazy_intercept[block]
+
+def range_linear_update(data: mutable view[i64], hull_x: mutable view[i64],
+                        hull_y: mutable view[i64], hull_count: mutable view[i64],
+                        lazy_slope: mutable view[i64], lazy_intercept: mutable view[i64],
+                        n: usize, left: usize, right: usize, slope: i64, intercept: i64) -> void:
+    position: mutable usize = left
+    while position < right:
+        let block: usize = position / RANGE_LINEAR_BLOCK_WIDTH
+        let start: usize = block * RANGE_LINEAR_BLOCK_WIDTH
+        let end: usize = range_linear_block_end(block, n)
+        if position == start and end <= right:
+            lazy_slope[block] <- lazy_slope[block] + slope
+            lazy_intercept[block] <- lazy_intercept[block] + intercept
+            position <- end
+        else:
+            range_linear_push(data, lazy_slope, lazy_intercept, block, n)
+            stop: mutable usize = right
+            if end < right: stop <- end
+            for i in position..<stop:
+                data[i] <- data[i] + slope * i.i64() + intercept
+            range_linear_rebuild(data, hull_x, hull_y, hull_count, block, n)
+            position <- stop
+
+def range_linear_query(data: view[i64], hull_x: view[i64], hull_y: view[i64],
+                       hull_count: view[i64], lazy_slope: view[i64],
+                       lazy_intercept: view[i64], n: usize, left: usize, right: usize) -> i64:
+    position: mutable usize = left
+    minimum: mutable i64 = 9223372036854775807.i64()
+    while position < right:
+        let block: usize = position / RANGE_LINEAR_BLOCK_WIDTH
+        let start: usize = block * RANGE_LINEAR_BLOCK_WIDTH
+        let end: usize = range_linear_block_end(block, n)
+        if position == start and end <= right:
+            let candidate: i64 = range_linear_block_min(hull_x, hull_y, hull_count,
+                                                        lazy_slope, lazy_intercept, block)
+            if candidate < minimum: minimum <- candidate
+            position <- end
+        else:
+            stop: mutable usize = right
+            if end < right: stop <- end
+            for i in position..<stop:
+                let candidate: i64 = data[i] + lazy_slope[block] * i.i64() + lazy_intercept[block]
+                if candidate < minimum: minimum <- candidate
+            position <- stop
+    minimum
+
+def range_linear_add_range_min_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > RANGE_LINEAR_MAX_INPUT: return -1
+    if input[0] < 1 or input[0] > RANGE_LINEAR_MAX_LENGTH.i64() or
+       input[1] < 1 or input[1] > RANGE_LINEAR_MAX_OPERATIONS.i64(): return -1
+    let n: usize = input[0].usize()
+    let q: usize = input[1].usize()
+    if length < n + 2: return -1
+    data: mutable i64[RANGE_LINEAR_MAX_LENGTH] = zeroed
+    for i in 0..<n:
+        if input[i + 2] < -1000000 or input[i + 2] > 1000000: return -1
+        data[i] <- input[i + 2]
+    hull_x: mutable i64[RANGE_LINEAR_MAX_LENGTH] = zeroed
+    hull_y: mutable i64[RANGE_LINEAR_MAX_LENGTH] = zeroed
+    hull_count: mutable i64[RANGE_LINEAR_MAX_BLOCKS] = zeroed
+    lazy_slope: mutable i64[RANGE_LINEAR_MAX_BLOCKS] = zeroed
+    lazy_intercept: mutable i64[RANGE_LINEAR_MAX_BLOCKS] = zeroed
+    let block_count: usize = (n + RANGE_LINEAR_BLOCK_WIDTH - 1) / RANGE_LINEAR_BLOCK_WIDTH
+    for block in 0..<block_count:
+        range_linear_rebuild(data[0:RANGE_LINEAR_MAX_LENGTH], hull_x[0:RANGE_LINEAR_MAX_LENGTH],
+                             hull_y[0:RANGE_LINEAR_MAX_LENGTH], hull_count[0:RANGE_LINEAR_MAX_BLOCKS], block, n)
+
+    cursor: mutable usize = n + 2
+    checksum: mutable i64 = 0
+    for operation in 0..<q:
+        if cursor >= length: return -1
+        let opcode: i64 = input[cursor]
+        cursor <- cursor + 1
+        if opcode == 0:
+            if cursor + 4 > length: return -1
+            let left: i64 = input[cursor]
+            let right: i64 = input[cursor + 1]
+            let slope: i64 = input[cursor + 2]
+            let intercept: i64 = input[cursor + 3]
+            cursor <- cursor + 4
+            if left < 0 or left >= right or right > n.i64() or slope < -99 or slope > 99 or
+               intercept < -100000 or intercept > 100000: return -1
+            range_linear_update(data[0:RANGE_LINEAR_MAX_LENGTH], hull_x[0:RANGE_LINEAR_MAX_LENGTH],
+                hull_y[0:RANGE_LINEAR_MAX_LENGTH], hull_count[0:RANGE_LINEAR_MAX_BLOCKS],
+                lazy_slope[0:RANGE_LINEAR_MAX_BLOCKS], lazy_intercept[0:RANGE_LINEAR_MAX_BLOCKS],
+                n, left.usize(), right.usize(), slope, intercept)
+        else if opcode == 1:
+            if cursor + 2 > length: return -1
+            let left: i64 = input[cursor]
+            let right: i64 = input[cursor + 1]
+            cursor <- cursor + 2
+            if left < 0 or left >= right or right > n.i64(): return -1
+            let result: i64 = range_linear_query(data[0:RANGE_LINEAR_MAX_LENGTH],
+                hull_x[0:RANGE_LINEAR_MAX_LENGTH], hull_y[0:RANGE_LINEAR_MAX_LENGTH],
+                hull_count[0:RANGE_LINEAR_MAX_BLOCKS], lazy_slope[0:RANGE_LINEAR_MAX_BLOCKS],
+                lazy_intercept[0:RANGE_LINEAR_MAX_BLOCKS], n, left.usize(), right.usize())
+            checksum <- checksum + (operation.i64() + 1) * (result + RANGE_LINEAR_CHECKSUM_OFFSET)
+        else:
+            return -1
+    if cursor == length: checksum else: -1
+
+export fn range_linear_add_range_min_benchmark(input: i64&, length: usize) -> i64 = range_linear_add_range_min_impl

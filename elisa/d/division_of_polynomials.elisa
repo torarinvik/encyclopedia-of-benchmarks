@@ -1,0 +1,91 @@
+const POLY_MODULUS: i64 = 998_244_353
+const POLY_MAX_N: usize = 64
+const POLY_MAX_INPUT: usize = 131
+const POLY_MAX_OUTPUT_BYTES: usize = 536
+
+def poly_power_mod(base_input: i64, exponent_input: i64) -> i64:
+    base: mutable i64 = base_input
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- result * base % POLY_MODULUS
+        base <- base * base % POLY_MODULUS
+        exponent <- exponent >> 1
+    result
+
+def poly_trim(polynomial: view[i64], length_input: usize) -> usize:
+    length: mutable usize = length_input
+    while length > 0 and polynomial[length - 1] == 0: length <- length - 1
+    length
+
+def poly_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def division_of_polynomials_impl(input: view[i64], length: usize,
+        output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+    if length < 4 or length > POLY_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > POLY_MAX_N.i64() or
+       m_value < 1 or m_value > POLY_MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + n + m: return -1
+
+    work: mutable i64[POLY_MAX_N] = zeroed
+    quotient: mutable i64[POLY_MAX_N] = zeroed
+    for i in 0..<n:
+        work[i] <- input[2 + i]
+        if work[i] < 0 or work[i] >= POLY_MODULUS: return -1
+    for i in 0..<m:
+        coefficient: i64 = input[2 + n + i]
+        if coefficient < 0 or coefficient >= POLY_MODULUS: return -1
+    if work[n - 1] == 0 or input[2 + n + m - 1] == 0: return -1
+
+    quotient_bound: mutable usize = 0
+    if n >= m:
+        quotient_bound <- n - m + 1
+        inverse_leading: i64 = poly_power_mod(input[2 + n + m - 1], POLY_MODULUS - 2)
+        shift_plus_one: mutable usize = quotient_bound
+        while shift_plus_one > 0:
+            shift: usize = shift_plus_one - 1
+            factor: i64 = work[shift + m - 1] * inverse_leading % POLY_MODULUS
+            quotient[shift] <- factor
+            for j in 0..<m:
+                value: mutable i64 = (work[shift + j] - factor * input[2 + n + j]) % POLY_MODULUS
+                if value < 0: value <- value + POLY_MODULUS
+                work[shift + j] <- value
+            shift_plus_one <- shift_plus_one - 1
+
+    quotient_length: usize = poly_trim(quotient[0:POLY_MAX_N], quotient_bound)
+    remainder_bound: usize = if n < m { n } else { m }
+    remainder_length: usize = poly_trim(work[0:POLY_MAX_N], remainder_bound)
+    output_bytes: usize = 8 * (2 + quotient_length + remainder_length)
+    if output_bytes > POLY_MAX_OUTPUT_BYTES: return -1
+    if output_is_null or capacity < output_bytes: return -2
+
+    poly_store_le(quotient_length.i64(), output, 0)
+    poly_store_le(remainder_length.i64(), output, 8)
+    offset: mutable usize = 16
+    for i in 0..<quotient_length:
+        poly_store_le(quotient[i], output, offset)
+        offset <- offset + 8
+    for i in 0..<remainder_length:
+        poly_store_le(work[i], output, offset)
+        offset <- offset + 8
+    output_bytes.i64()
+
+export fn division_of_polynomials(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > POLY_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return division_of_polynomials_impl(input_view, length, scratch[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > POLY_MAX_OUTPUT_BYTES: safe_capacity <- POLY_MAX_OUTPUT_BYTES
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    division_of_polynomials_impl(input_view, length, output_view, capacity, false)

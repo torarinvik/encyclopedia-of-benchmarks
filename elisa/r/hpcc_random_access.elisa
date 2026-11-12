@@ -1,0 +1,42 @@
+const MAX_TABLE_SIZE: usize = 256
+const DIGEST_MASK: u64 = 0x7fffffffffffffff
+
+def hpcc_random_access_mul_low63(value: u64, weight: u64) -> u64:
+    # Weights are at most 256. Split the low-63-bit value into 32-bit limbs;
+    # both products fit u64, and the high limb is reduced before shifting.
+    low_product: u64 = (value & 0xffffffff.u64()) * weight
+    high_product: u64 = ((value >> 32) & 0x7fffffff.u64()) * weight
+    high_term: u64 = (high_product & 0x7fffffff.u64()) << 32
+    (low_product + high_term) & DIGEST_MASK
+
+def hpcc_random_access_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 1:
+        return -1
+    size_value: i64 = input[0]
+    if size_value < 2 or size_value > MAX_TABLE_SIZE.i64():
+        return -1
+    if (size_value & (size_value - 1)) != 0:
+        return -1
+
+    size: usize = size_value.usize()
+    table: mutable u64[MAX_TABLE_SIZE] = zeroed
+    for index in 0..<size:
+        table[index] <- index.u64()
+
+    ran: mutable u64 = 1
+    for _ in 0..<(4 * size):
+        feedback: u64 = 0
+        if (ran >> 63) != 0:
+            feedback = 7
+        # Masking the high bit before shifting is equivalent to a wrapping
+        # u64 left shift and keeps the intermediate representable.
+        ran <- ((ran & DIGEST_MASK) << 1) ^ feedback
+        table_index: usize = (ran & (size - 1).u64()).usize()
+        table[table_index] <- table[table_index] ^ ran
+
+    digest: mutable u64 = 0
+    for index in 0..<size:
+        digest <- (digest + hpcc_random_access_mul_low63(table[index], (index + 1).u64())) & DIGEST_MASK
+    digest.i64()
+
+export fn hpcc_random_access(input: i64&, length: usize) -> i64 = hpcc_random_access_impl

@@ -1,0 +1,132 @@
+# Five-prime NTTs with mixed-radix reconstruction into a wrapping u64 word.
+const MAX_LENGTH: usize = 64
+const MAX_NTT_SIZE: usize = 128
+const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_LENGTH + 1
+const MAX_RESULT_LENGTH: usize = 2 * MAX_LENGTH - 1
+const P0: i64 = 998244353
+const P1: i64 = 985661441
+const P2: i64 = 943718401
+const P3: i64 = 935329793
+const P4: i64 = 918552577
+
+def convolution_mod_2_64_power(base_value: i64, exponent_value: i64, modulus: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- (result * base) % modulus
+        base <- (base * base) % modulus
+        exponent <- exponent >> 1
+    result
+
+def convolution_mod_2_64_transform(values: mutable view[i64], n: usize,
+                                   modulus: i64, primitive_root: i64,
+                                   inverse: bool) -> void:
+    j: mutable usize = 0
+    for i in 1..n:
+        bit: mutable usize = n >> 1
+        while (j & bit) != 0:
+            j <- j ^ bit
+            bit <- bit >> 1
+        j <- j ^ bit
+        if i < j:
+            temporary: i64 = values[i]
+            values[i] <- values[j]
+            values[j] <- temporary
+    stage: mutable usize = 2
+    while stage <= n:
+        root: mutable i64 = convolution_mod_2_64_power(
+            primitive_root, (modulus - 1) / stage.i64(), modulus)
+        if inverse: root <- convolution_mod_2_64_power(root, modulus - 2, modulus)
+        start: mutable usize = 0
+        while start < n:
+            factor: mutable i64 = 1
+            for offset in 0..(stage / 2):
+                left: i64 = values[start + offset]
+                right: i64 = (values[start + offset + stage / 2] * factor) % modulus
+                values[start + offset] <- (left + right) % modulus
+                values[start + offset + stage / 2] <- (left - right + modulus) % modulus
+                factor <- (factor * root) % modulus
+            start <- start + stage
+        stage <- stage * 2
+    if inverse:
+        scale: i64 = convolution_mod_2_64_power(n.i64(), modulus - 2, modulus)
+        for i in 0..n: values[i] <- (values[i] * scale) % modulus
+
+def convolution_mod_2_64_residues(input: view[i64], n: usize, m: usize,
+    transform_length: usize, modulus: i64, primitive_root: i64,
+    result: mutable view[i64]) -> void:
+    a: mutable i64[MAX_NTT_SIZE] = zeroed
+    b: mutable i64[MAX_NTT_SIZE] = zeroed
+    for i in 0..n: a[i] <- (input[2 + i].u64() % modulus.u64()).i64()
+    for i in 0..m: b[i] <- (input[2 + n + i].u64() % modulus.u64()).i64()
+    convolution_mod_2_64_transform(a[0:transform_length], transform_length, modulus, primitive_root, false)
+    convolution_mod_2_64_transform(b[0:transform_length], transform_length, modulus, primitive_root, false)
+    for i in 0..transform_length: a[i] <- (a[i] * b[i]) % modulus
+    convolution_mod_2_64_transform(a[0:transform_length], transform_length, modulus, primitive_root, true)
+    for i in 0..(n + m - 1): result[i] <- a[i]
+
+def convolution_mod_2_64_delta(value: i64, partial: i64, modulus: i64) -> i64:
+    delta: mutable i64 = value - partial
+    if delta < 0: delta <- delta + modulus
+    delta
+
+def convolution_mod_2_64_store(output: mutable view[u8], offset: usize, value: u64) -> void:
+    bits: mutable u64 = value
+    for byte in 0..8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def convolution_mod_2_64_impl(input: view[i64], input_length: usize,
+    output: mutable view[u8], output_capacity: usize) -> i64:
+    if input.is_null() || input_length < 2 || input_length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 || n_value > MAX_LENGTH.i64() || m_value < 1 || m_value > MAX_LENGTH.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if input_length != 2 + n + m: return -1
+    result_length: usize = n + m - 1
+    transform_length: mutable usize = 1
+    while transform_length < result_length: transform_length <- transform_length * 2
+    output_bytes: usize = 8 * result_length
+    if output.is_null() || output_capacity < output_bytes: return -2
+
+    r0: mutable i64[MAX_RESULT_LENGTH] = zeroed
+    r1: mutable i64[MAX_RESULT_LENGTH] = zeroed
+    r2: mutable i64[MAX_RESULT_LENGTH] = zeroed
+    r3: mutable i64[MAX_RESULT_LENGTH] = zeroed
+    r4: mutable i64[MAX_RESULT_LENGTH] = zeroed
+    convolution_mod_2_64_residues(input, n, m, transform_length, P0, 3, r0[0:result_length])
+    convolution_mod_2_64_residues(input, n, m, transform_length, P1, 3, r1[0:result_length])
+    convolution_mod_2_64_residues(input, n, m, transform_length, P2, 7, r2[0:result_length])
+    convolution_mod_2_64_residues(input, n, m, transform_length, P3, 3, r3[0:result_length])
+    convolution_mod_2_64_residues(input, n, m, transform_length, P4, 5, r4[0:result_length])
+
+    p01_p2: i64 = (P0 % P2) * (P1 % P2) % P2
+    p01_p3: i64 = (P0 % P3) * (P1 % P3) % P3
+    p01_p4: i64 = (P0 % P4) * (P1 % P4) % P4
+    p012_p3: i64 = p01_p3 * (P2 % P3) % P3
+    p012_p4: i64 = p01_p4 * (P2 % P4) % P4
+    p0123_p4: i64 = p012_p4 * (P3 % P4) % P4
+    inv0_p1: i64 = convolution_mod_2_64_power(P0 % P1, P1 - 2, P1)
+    inv01_p2: i64 = convolution_mod_2_64_power(p01_p2, P2 - 2, P2)
+    inv012_p3: i64 = convolution_mod_2_64_power(p012_p3, P3 - 2, P3)
+    inv0123_p4: i64 = convolution_mod_2_64_power(p0123_p4, P4 - 2, P4)
+    for i in 0..result_length:
+        t0: i64 = r0[i]
+        t1: i64 = (convolution_mod_2_64_delta(r1[i], t0 % P1, P1) * inv0_p1) % P1
+        x01_p2: i64 = (r0[i] % P2 + (P0 % P2) * t1) % P2
+        t2: i64 = (convolution_mod_2_64_delta(r2[i], x01_p2, P2) * inv01_p2) % P2
+        x012_p3: i64 = (r0[i] % P3 + (P0 % P3) * t1 + p01_p3 * t2) % P3
+        t3: i64 = (convolution_mod_2_64_delta(r3[i], x012_p3, P3) * inv012_p3) % P3
+        x0123_p4: i64 = (r0[i] % P4 + (P0 % P4) * t1 + p01_p4 * t2 + p012_p4 * t3) % P4
+        t4: i64 = (convolution_mod_2_64_delta(r4[i], x0123_p4, P4) * inv0123_p4) % P4
+        value: u64 = t0.u64() + P0.u64() * t1.u64() + P0.u64() * P1.u64() * t2.u64()
+            + P0.u64() * P1.u64() * P2.u64() * t3.u64()
+            + P0.u64() * P1.u64() * P2.u64() * P3.u64() * t4.u64()
+        convolution_mod_2_64_store(output, 8 * i, value)
+    output_bytes.i64()
+
+export fn convolution_mod_2_64(input: i64&, input_length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = convolution_mod_2_64_impl

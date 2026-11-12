@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "thomas-algorithm-bounded-tridiagonal-f64-v1",
+  "algorithm": "thomas_algorithm",
+  "function_symbol": "thomas_algorithm",
+  "abi": "i64_array_bytes_output",
+  "description": "Solve a strictly diagonally dominant tridiagonal system with the linear Thomas recurrence.",
+  "source": {
+    "title": "Thomas Algorithm for Tridiagonal and Block Tridiagonal Matrices",
+    "authors": ["NPTEL course contributors", "L.-W. Chang", "W.-m. Hwu"],
+    "reference": "NPTEL sparse direct methods notes and a research guide to tridiagonal solvers",
+    "url": "https://archive.nptel.ac.in/content/storage2/courses/103101009/modules/module4/sec4/1.4.html",
+    "algorithm_url": "https://impact.crhc.illinois.edu/shared/Papers/A%20guide%20for%20implementing%20tridiagonal%20solvers%20on%20GPUs.pdf",
+    "algorithm_attribution": "Thomas/TDMA forward elimination and backward substitution for tridiagonal systems",
+    "implementation_status": "clean-room bounded ports"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, lower[N], diagonal[N], upper[N], rhs[N]]",
+    "N_range": [1, 32],
+    "lower_and_upper_range": [-16, 16],
+    "diagonal_range": [17, 64],
+    "rhs_range": [-1000, 1000],
+    "boundary_conditions": "lower[0] = 0 and upper[N-1] = 0",
+    "row_condition": "diagonal[i] > abs(lower[i]) + abs(upper[i])",
+    "maximum_valid_input_length": 129,
+    "maximum_parseable_input_length": 129,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "meaning": "solution vector x for the tridiagonal system A*x = rhs",
+    "encoding": "N IEEE-754 binary64 values in little-endian byte order",
+    "max_length": 32,
+    "maximum_output_bytes": 256,
+    "relative_tolerance": 1e-9,
+    "absolute_tolerance": 1e-9,
+    "invalid_result": -1,
+    "capacity_error_result": -2
+  },
+  "workspace": {"bytes": 256, "meaning": "Maximum solution-vector output capacity."},
+  "contract": {
+    "result": "solution vector x for the tridiagonal system A*x = rhs",
+    "complexity": "O(N) arithmetic work and O(N) auxiliary storage",
+    "numerical_method": "No-pivot Thomas recurrence under strict row diagonal dominance"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one-variable","input_values":[1,0,32,0,64],"input_length":5,"output_capacity":8,"expected_result":8,"expected_output":[2.0]},
+    {"id":"nonsymmetric-three-variable","input_values":[3,0,2,-1,10,11,12,3,-2,0,4,-26,38],"input_length":13,"output_capacity":24,"expected_result":24,"expected_output":[1.0,-2.0,3.0]},
+    {"id":"fractional-two-variable","input_values":[2,0,-1,31,31,-1,0,1,1],"input_length":9,"output_capacity":16,"expected_result":16,"expected_output":[0.03333333333333333,0.03333333333333333]},
+    {"id":"varying-four-variable","input_values":[4,0,1,-2,3,18,20,22,24,2,-1,2,0,34,-21,70,33],"input_length":17,"output_capacity":32,"expected_result":32,"expected_output":[2.0,-1.0,3.0,1.0]},
+    {"id":"zero-coupling","input_values":[3,0,0,0,20,22,24,0,0,0,40,-22,72],"input_length":13,"output_capacity":24,"expected_result":24,"expected_output":[2.0,-1.0,3.0]},
+    {"id":"wrong-count","input_values":[1,0,32,0],"input_length":4,"output_capacity":8,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-leading-lower","input_values":[1,1,32,0,64],"input_length":5,"output_capacity":8,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-last-upper","input_values":[1,0,32,1,64],"input_length":5,"output_capacity":8,"expected_result":-1,"expected_output":[]},
+    {"id":"not-diagonally-dominant","input_values":[3,0,16,16,17,17,17,16,16,0,1,1,1],"input_length":13,"output_capacity":24,"expected_result":-1,"expected_output":[]},
+    {"id":"coefficient-out-of-range","input_values":[2,0,17,32,32,17,0,1,1],"input_length":9,"output_capacity":16,"expected_result":-1,"expected_output":[]},
+    {"id":"short-output","input_values":[1,0,32,0,64],"input_length":5,"output_capacity":7,"expected_result":-2,"expected_output":[]},
+    {"id":"null-output","input_values":[1,0,32,0,64],"input_length":5,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output":[]}
+  ]
+}

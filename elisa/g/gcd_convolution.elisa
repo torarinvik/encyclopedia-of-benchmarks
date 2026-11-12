@@ -1,0 +1,50 @@
+# Divisor zeta transforms, pointwise products, and reverse Möbius inversion.
+const MAX_N: usize = 128
+const MAX_INPUT_LENGTH: usize = 1 + 2 * MAX_N + 1
+const MODULUS: i64 = 998244353
+
+def gcd_convolution_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def gcd_convolution(input: i64&, input_length: usize,
+                    output: mutable u8&, output_capacity: usize) -> i64
+        @export("gcd_convolution"):
+    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if input_length != 1 + 2 * n: return -1
+    for index in 0..2 * n:
+        value: i64 = input[1 + index]
+        if value < 0 or value >= MODULUS: return -1
+    output_bytes: usize = 8 * n
+    if output.is_null() or output_capacity < output_bytes: return -2
+
+    a: mutable i64[MAX_N + 1] = zeroed
+    b: mutable i64[MAX_N + 1] = zeroed
+    c: mutable i64[MAX_N + 1] = zeroed
+    for index in 1..n + 1:
+        a[index] <- input[index]
+        b[index] <- input[n + index]
+    for divisor in 1..n + 1:
+        multiple: usize = 2 * divisor
+        while multiple <= n:
+            a[divisor] <- (a[divisor] + a[multiple]) % MODULUS
+            b[divisor] <- (b[divisor] + b[multiple]) % MODULUS
+            multiple <- multiple + divisor
+    for index in 1..n + 1:
+        c[index] <- (a[index] * b[index]) % MODULUS
+    divisor: mutable usize = n
+    while divisor >= 1:
+        multiple: usize = 2 * divisor
+        while multiple <= n:
+            c[divisor] <- c[divisor] - c[multiple]
+            if c[divisor] < 0: c[divisor] <- c[divisor] + MODULUS
+            multiple <- multiple + divisor
+        divisor <- divisor - 1
+    for index in 1..n + 1:
+        gcd_convolution_store_i64(output, 8 * (index - 1), c[index])
+    output_bytes.i64()

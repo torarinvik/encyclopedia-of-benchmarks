@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-dynamic-point-set-rectangle-affine-rectangle-sum-bounded-i64-array-bytes-output-v1",
+  "algorithm": "dynamic_point_set_rectangle_affine_rectangle_sum",
+  "function_symbol": "dynamic_point_set_rectangle_affine_rectangle_sum",
+  "abi": "i64_array_bytes_output",
+  "description": "Dynamic sparse point set with point assignments, half-open rectangle sums, and modular affine rectangle updates.",
+  "source": {
+    "title": "Dynamic Point Rectangle Affine Rectangle Sum",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/dynamic_point_set_rectangle_affine_rectangle_sum/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/data_structure/dynamic_point_set_rectangle_affine_rectangle_sum/info.toml",
+    "algorithm_attribution": "Offline-built balanced k-d tree with active leaves and lazy affine tags",
+    "implementation_status": "clean-room bounded dynamic point-set profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,initial_points...,variable_length_operations]",
+    "N_range": [1, 32],
+    "Q_range": [1, 32],
+    "coordinate_range": [0, 1000000000],
+    "modulus": 998244353,
+    "initial_point": "x,y,w",
+    "operation_0": "opcode 0 followed by x,y,w; append a separate point",
+    "operation_1": "opcode 1 followed by point_id,w; assign its weight",
+    "operation_2": "opcode 2 followed by left,down,right,up; query half-open rectangle sum",
+    "operation_3": "opcode 3 followed by left,down,right,up,a,b; apply w <- a*w+b",
+    "weight_and_affine_range": [0, 998244352],
+    "maximum_valid_length": 322,
+    "maximum_parseable_length": 323,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one signed 64-bit little-endian residue per type-2 query, in operation order",
+    "maximum_bytes": 256,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Maximum output-buffer capacity; the bounded k-d tree and operation arrays use separate fixed storage."
+  },
+  "contract": {
+    "initial_version": "initial points are active before the first operation",
+    "append_semantics": "each type-0 operation appends a distinct point at its coordinates and starts with its supplied weight",
+    "rectangle_semantics": "all rectangle bounds are half-open; only points already appended participate",
+    "affine_order": "w <- a*w+b modulo 998244353",
+    "official_N_maximum": 100000,
+    "official_Q_maximum": 100000,
+    "official_coordinate_maximum": 1000000000,
+    "official_modulus": 998244353
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "duplicate-points-point-set-and-affine-rectangle",
+      "input_values": [2, 8, 1, 1, 2, 1, 1, 3, 2, 0, 0, 2, 2, 3, 0, 0, 2, 2, 2, 1, 2, 0, 0, 2, 2, 1, 0, 4, 2, 0, 0, 2, 2, 0, 1, 1, 6, 3, 0, 0, 2, 2, 0, 1, 2, 0, 0, 2, 2],
+      "input_length": 49,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "05000000000000000c000000000000000b000000000000000300000000000000"
+    },
+    {
+      "id": "pre-insertion-affine-does-not-change-new-point",
+      "input_values": [1, 3, 0, 0, 10, 3, 0, 0, 2, 2, 1, 9, 0, 0, 0, 5, 2, 0, 0, 2, 2],
+      "input_length": 21,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "1800000000000000"
+    },
+    {
+      "id": "upper-exclusive-maximum-coordinate",
+      "input_values": [1, 1, 1000000000, 1000000000, 9, 2, 0, 0, 1000000000, 1000000000],
+      "input_length": 10,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "point-set-only-zero-output",
+      "input_values": [1, 1, 0, 0, 3, 1, 0, 7],
+      "input_length": 8,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "point-index-not-yet-present",
+      "input_values": [1, 1, 0, 0, 1, 1, 1, 2],
+      "input_length": 8,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reversed-rectangle",
+      "input_values": [1, 1, 0, 0, 1, 2, 2, 0, 3],
+      "input_length": 9,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-affine-operation",
+      "input_values": [1, 1, 0, 0, 1, 3, 0, 0, 2, 2, 1],
+      "input_length": 11,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-input-word",
+      "input_values": [1, 1, 0, 0, 1, 1, 0, 7, 99],
+      "input_length": 9,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [1, 1, 0, 0, 1, 2, 0, 0, 2, 2],
+      "input_length": 10,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

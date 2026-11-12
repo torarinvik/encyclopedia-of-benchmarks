@@ -1,0 +1,172 @@
+extern trunc(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+extern exp(value: f64) -> f64
+
+const MAX_SIDE: usize = 4
+const MAX_POINTS: usize = 64
+const MAX_STEPS: usize = 6
+const CHECKSUM_TERMS: usize = 64
+const TAU: f64 = 6.28318530717958647692528676655900577
+const ALPHA: f64 = 0.000001
+
+def bounded_integer(value: f64, low: f64, high: f64) -> bool:
+    value == value and value >= low and value <= high and trunc(value) == value
+
+def fft_line(real: mutable view[f64], imag: mutable view[f64], n: usize, inverse: bool) -> void:
+    reverse: mutable usize = 0
+    position: mutable usize = 1
+    while position < n:
+        bit: mutable usize = n >> 1
+        while bit != 0 and (reverse & bit) != 0:
+            reverse <- reverse ^ bit
+            bit <- bit >> 1
+        reverse <- reverse ^ bit
+        if position < reverse:
+            temporary: mutable f64 = real[position]
+            real[position] <- real[reverse]
+            real[reverse] <- temporary
+            temporary <- imag[position]
+            imag[position] <- imag[reverse]
+            imag[reverse] <- temporary
+        position <- position + 1
+
+    block: mutable usize = 2
+    while block <= n:
+        direction: f64 = if inverse: 1.0 else: -1.0
+        angle: f64 = direction * TAU / block.f64()
+        step_real: f64 = cos(angle)
+        step_imag: f64 = sin(angle)
+        start: mutable usize = 0
+        while start < n:
+            weight_real: mutable f64 = 1.0
+            weight_imag: mutable f64 = 0.0
+            offset: mutable usize = 0
+            while offset < block / 2:
+                first: usize = start + offset
+                second: usize = first + block / 2
+                product_real: f64 = weight_real * real[second] - weight_imag * imag[second]
+                product_imag: f64 = weight_real * imag[second] + weight_imag * real[second]
+                first_real: f64 = real[first]
+                first_imag: f64 = imag[first]
+                real[first] <- first_real + product_real
+                imag[first] <- first_imag + product_imag
+                real[second] <- first_real - product_real
+                imag[second] <- first_imag - product_imag
+                next_real: f64 = weight_real * step_real - weight_imag * step_imag
+                weight_imag <- weight_real * step_imag + weight_imag * step_real
+                weight_real <- next_real
+                offset <- offset + 1
+            start <- start + block
+        block <- block * 2
+    if inverse:
+        for i in 0..n:
+            real[i] <- real[i] / n.f64()
+            imag[i] <- imag[i] / n.f64()
+
+def axis_transform(real: mutable view[f64], imag: mutable view[f64], n: usize,
+                   axis: usize, inverse: bool) -> void:
+    line_real: mutable f64[4] = zeroed
+    line_imag: mutable f64[4] = zeroed
+    for a in 0..n:
+        for b in 0..n:
+            for p in 0..n:
+                x: mutable usize = a
+                y: mutable usize = b
+                z: mutable usize = p
+                if axis == 0:
+                    x <- p
+                    y <- a
+                    z <- b
+                elif axis == 1:
+                    x <- a
+                    y <- p
+                    z <- b
+                index: usize = (x * n + y) * n + z
+                line_real[p] <- real[index]
+                line_imag[p] <- imag[index]
+            fft_line(line_real[0:4], line_imag[0:4], n, inverse)
+            for p in 0..n:
+                x: mutable usize = a
+                y: mutable usize = b
+                z: mutable usize = p
+                if axis == 0:
+                    x <- p
+                    y <- a
+                    z <- b
+                elif axis == 1:
+                    x <- a
+                    y <- p
+                    z <- b
+                index: usize = (x * n + y) * n + z
+                real[index] <- line_real[p]
+                imag[index] <- line_imag[p]
+
+def transform3d(real: mutable view[f64], imag: mutable view[f64], n: usize, inverse: bool) -> void:
+    axis_transform(real, imag, n, 2, inverse)
+    axis_transform(real, imag, n, 1, inverse)
+    axis_transform(real, imag, n, 0, inverse)
+
+def signed_frequency(index: usize, n: usize) -> i64:
+    if index <= n / 2:
+        index.i64()
+    else:
+        index.i64() - n.i64()
+
+def npb_ft_3d_spectral_step_impl(input: f64&, input_length: usize,
+                                output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > 130:
+        return -1
+    if not bounded_integer(input[0], 2.0, 4.0) or not bounded_integer(input[1], 1.0, MAX_STEPS.f64()):
+        return -1
+    n: usize = input[0].i64().usize()
+    steps: usize = input[1].i64().usize()
+    if (n != 2 and n != 4) or input_length != 2 + 2 * n * n * n:
+        return -1
+    volume: usize = n * n * n
+    needed: usize = 2 * steps
+    for i in 2..input_length:
+        if input[i] != input[i] or input[i] < -1.0 or input[i] > 1.0:
+            return -1
+    if output.is_null() or output_capacity < needed:
+        return -2
+
+    spectrum_real: mutable f64[64] = zeroed
+    spectrum_imag: mutable f64[64] = zeroed
+    work_real: mutable f64[64] = zeroed
+    work_imag: mutable f64[64] = zeroed
+    for i in 0..volume:
+        spectrum_real[i] <- input[2 + 2 * i]
+        spectrum_imag[i] <- input[2 + 2 * i + 1]
+    transform3d(spectrum_real[0:64], spectrum_imag[0:64], n, false)
+
+    step: mutable usize = 1
+    while step <= steps:
+        for x in 0..n:
+            for y in 0..n:
+                for z in 0..n:
+                    index: usize = (x * n + y) * n + z
+                    kx: i64 = signed_frequency(x, n)
+                    ky: i64 = signed_frequency(y, n)
+                    kz: i64 = signed_frequency(z, n)
+                    radius_squared: f64 = (kx * kx + ky * ky + kz * kz).f64()
+                    factor: f64 = exp(-39.47841760435743447533796399950460 * ALPHA * step.f64() * radius_squared)
+                    work_real[index] <- spectrum_real[index] * factor
+                    work_imag[index] <- spectrum_imag[index] * factor
+        transform3d(work_real[0:64], work_imag[0:64], n, true)
+        sum_real: mutable f64 = 0.0
+        sum_imag: mutable f64 = 0.0
+        for j in 1..(CHECKSUM_TERMS + 1):
+            x: usize = (j - 1) % n
+            y: usize = (3 * j - 1) % n
+            z: usize = (5 * j - 1) % n
+            index: usize = (x * n + y) * n + z
+            sum_real <- sum_real + work_real[index]
+            sum_imag <- sum_imag + work_imag[index]
+        output[2 * (step - 1)] <- sum_real / volume.f64()
+        output[2 * (step - 1) + 1] <- sum_imag / volume.f64()
+        step <- step + 1
+    needed.i64()
+
+export fn npb_ft_3d_spectral_step(input: f64&, input_length: usize,
+                                 output: mutable f64&, output_capacity: usize) -> i64 = npb_ft_3d_spectral_step_impl

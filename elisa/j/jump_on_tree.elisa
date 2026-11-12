@@ -1,0 +1,152 @@
+const MAX_N: usize = 64
+const MAX_Q: usize = 64
+const MAX_LEVELS: usize = 7
+const MAX_INPUT_VALUES: usize = 2 + 2 * (MAX_N - 1) + 3 * MAX_Q
+const MATRIX_CELLS: usize = MAX_N * MAX_N
+
+def jot_find_root(parent: mutable view[usize], item: usize) -> usize:
+    node: mutable usize = item
+    while parent[node] != node:
+        parent[node] <- parent[parent[node]]
+        node <- parent[node]
+    node
+
+def jot_lift(ancestors: view[usize], vertex: usize, distance: usize) -> usize:
+    node: mutable usize = vertex
+    bit: mutable usize = 0
+    while bit < MAX_LEVELS:
+        if ((distance >> bit) & 1) != 0:
+            node <- ancestors[node * MAX_LEVELS + bit]
+        bit <- bit + 1
+    node
+
+def jot_lca(ancestors: view[usize], depth: view[usize], left_value: usize,
+    right_value: usize) -> usize:
+    left: mutable usize = left_value
+    right: mutable usize = right_value
+    if depth[left] < depth[right]:
+        temporary: usize = left
+        left <- right
+        right <- temporary
+    left <- jot_lift(ancestors, left, depth[left] - depth[right])
+    if left == right: return left
+    level: mutable usize = MAX_LEVELS
+    while level > 0:
+        level <- level - 1
+        left_ancestor: usize = ancestors[left * MAX_LEVELS + level]
+        right_ancestor: usize = ancestors[right * MAX_LEVELS + level]
+        if left_ancestor != right_ancestor:
+            left <- left_ancestor
+            right <- right_ancestor
+    ancestors[left * MAX_LEVELS]
+
+def jot_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def jump_on_tree_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 2 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    query_start: usize = 2 + 2 * (n - 1)
+    if length != query_start + 3 * q: return -1
+
+    adjacent: mutable bool[MATRIX_CELLS] = zeroed
+    dsu_parent: mutable usize[MAX_N] = zeroed
+    dsu_size: mutable usize[MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        dsu_parent[vertex] <- vertex
+        dsu_size[vertex] <- 1
+        vertex <- vertex + 1
+    edge: mutable usize = 0
+    while edge < n - 1:
+        offset: usize = 2 + 2 * edge
+        left_value: i64 = input[offset]
+        right_value: i64 = input[offset + 1]
+        if left_value < 0 or left_value >= n_value or right_value < 0 or
+            right_value >= n_value or left_value == right_value: return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        root_left: usize = jot_find_root(dsu_parent[0:MAX_N], left)
+        root_right: usize = jot_find_root(dsu_parent[0:MAX_N], right)
+        if root_left == root_right: return -1
+        if dsu_size[root_left] < dsu_size[root_right]:
+            temporary: usize = root_left
+            root_left <- root_right
+            root_right <- temporary
+        dsu_parent[root_right] <- root_left
+        dsu_size[root_left] <- dsu_size[root_left] + dsu_size[root_right]
+        adjacent[left * MAX_N + right] <- true
+        adjacent[right * MAX_N + left] <- true
+        edge <- edge + 1
+
+    ancestors: mutable usize[MAX_N * MAX_LEVELS] = zeroed
+    depth: mutable usize[MAX_N] = zeroed
+    visited: mutable bool[MAX_N] = zeroed
+    stack: mutable usize[MAX_N] = zeroed
+    top: mutable usize = 1
+    stack[0] <- 0
+    visited[0] <- true
+    while top > 0:
+        top <- top - 1
+        current: usize = stack[top]
+        neighbor: mutable usize = 0
+        while neighbor < n:
+            if adjacent[current * MAX_N + neighbor] and not visited[neighbor]:
+                visited[neighbor] <- true
+                ancestors[neighbor * MAX_LEVELS] <- current
+                depth[neighbor] <- depth[current] + 1
+                stack[top] <- neighbor
+                top <- top + 1
+            neighbor <- neighbor + 1
+    level: mutable usize = 1
+    while level < MAX_LEVELS:
+        vertex <- 0
+        while vertex < n:
+            middle: usize = ancestors[vertex * MAX_LEVELS + level - 1]
+            ancestors[vertex * MAX_LEVELS + level] <- ancestors[middle * MAX_LEVELS + level - 1]
+            vertex <- vertex + 1
+        level <- level + 1
+
+    answers: mutable i64[MAX_Q] = zeroed
+    query: mutable usize = 0
+    while query < q:
+        offset: usize = query_start + 3 * query
+        start_value: i64 = input[offset]
+        target_value: i64 = input[offset + 1]
+        index_value: i64 = input[offset + 2]
+        if start_value < 0 or start_value >= n_value or target_value < 0 or
+            target_value >= n_value or index_value < 0 or index_value >= n_value: return -1
+        start: usize = start_value.usize()
+        target: usize = target_value.usize()
+        index: usize = index_value.usize()
+        common: usize = jot_lca(ancestors[0:MAX_N * MAX_LEVELS], depth[0:MAX_N], start, target)
+        upward: usize = depth[start] - depth[common]
+        path_length: usize = upward + depth[target] - depth[common]
+        if index > path_length:
+            answers[query] <- -1
+        elif index <= upward:
+            answers[query] <- jot_lift(ancestors[0:MAX_N * MAX_LEVELS], start, index).i64()
+        else:
+            answers[query] <- jot_lift(ancestors[0:MAX_N * MAX_LEVELS], target,
+                path_length - index).i64()
+        query <- query + 1
+
+    required: usize = 8 * q
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    query <- 0
+    while query < q:
+        jot_store_i64_le(answers[query], output_view, 8 * query)
+        query <- query + 1
+    required.i64()
+
+export fn jump_on_tree(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = jump_on_tree_impl

@@ -1,0 +1,60 @@
+const MAX_N: i64 = 1000000000
+const BASE_LIMIT: usize = 100000
+const MAX_CACHE: usize = 10002
+const MODULUS: i64 = 998244353
+
+def sum_totient_triangular_mod(n: i64) -> i64:
+    left: mutable i64 = n
+    right: mutable i64 = n + 1
+    if left % 2 == 0: left <- left / 2
+    else: right <- right / 2
+    ((left % MODULUS) * (right % MODULUS)) % MODULUS
+
+def sum_totient_rec(value: i64, total_n: i64, prefix: view[i64],
+    memo: mutable view[i64], visited: mutable view[bool]) -> i64:
+    if value <= BASE_LIMIT.i64(): return prefix[value.usize()]
+    cache_index: usize = (total_n / value).usize()
+    if visited[cache_index]: return memo[cache_index]
+    answer: mutable i64 = sum_totient_triangular_mod(value)
+    left: mutable i64 = 2
+    while left <= value:
+        quotient: i64 = value / left
+        right: i64 = value / quotient
+        block_size: i64 = right - left + 1
+        sub_sum: i64 = sum_totient_rec(quotient, total_n, prefix, memo, visited)
+        contribution: i64 = ((block_size % MODULUS) * sub_sum) % MODULUS
+        answer <- (answer - contribution + MODULUS) % MODULUS
+        left <- right + 1
+    visited[cache_index] <- true
+    memo[cache_index] <- answer
+    answer
+
+def sum_of_totient_function_impl(n: i64) -> i64:
+    if n < 1 or n > MAX_N: return -1
+    prefix: mutable i64[BASE_LIMIT + 1] = zeroed
+    value: mutable usize = 0
+    while value <= BASE_LIMIT:
+        prefix[value] <- value.i64()
+        value <- value + 1
+    sieve_limit: usize = if n < BASE_LIMIT.i64(): n.usize() else: BASE_LIMIT
+    prime: mutable usize = 2
+    while prime <= sieve_limit:
+        if prefix[prime] == prime.i64():
+            multiple: mutable usize = prime
+            while multiple <= sieve_limit:
+                prefix[multiple] <- prefix[multiple] - prefix[multiple] / prime.i64()
+                multiple <- multiple + prime
+        prime <- prime + 1
+    running: mutable i64 = 0
+    value <- 1
+    while value <= sieve_limit:
+        running <- (running + prefix[value]) % MODULUS
+        prefix[value] <- running
+        value <- value + 1
+    if n <= BASE_LIMIT.i64(): return prefix[n.usize()]
+
+    memo: mutable i64[MAX_CACHE] = zeroed
+    visited: mutable bool[MAX_CACHE] = zeroed
+    sum_totient_rec(n, n, prefix[0:BASE_LIMIT + 1], memo[0:MAX_CACHE], visited[0:MAX_CACHE])
+
+export fn sum_of_totient_function(n: i64) -> i64 = sum_of_totient_function_impl

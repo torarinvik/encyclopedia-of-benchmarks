@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "id": "npb-cg-sparse-inverse-power-bounded-v1",
+  "algorithm": "npb_cg_sparse_inverse_power",
+  "function_symbol": "npb_cg_sparse_inverse_power",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "The NAS Parallel Benchmarks",
+    "authors": ["D. Bailey", "E. Barszcz", "J. Barton", "D. Browning", "R. Carter", "L. Dagum", "R. Fatoohi", "S. Fineberg", "P. Frederickson", "T. Lasinski", "R. Schreiber", "H. Simon", "V. Venkatakrishnan", "S. Weeratunga"],
+    "reference": "NASA Ames NAS Technical Report RNR-94-007, March 1994, §2.2.3",
+    "url": "https://www.nas.nasa.gov/assets/nas/pdf/techreports/1994/rnr-94-007.pdf",
+    "algorithm_attribution": "Sparse conjugate-gradient inner solves within inverse-power eigenvalue iteration",
+    "implementation_status": "bounded clean-room core profile; canonical makea matrix generation is omitted"
+  },
+  "contract": {
+    "profile": "Run sparse CSR matrix-vector products and bounded CG inner solves inside repeated inverse-power eigenvalue iterations.",
+    "initial_vector": "x is the all-ones vector for the first outer iteration; each following vector is the prior CG solution normalized by its Euclidean norm.",
+    "inner_solve": "Start z=0, r=x, p=r. Perform at most cg_steps standard CG updates; stop early when the recursive residual norm is at most 1e-14 times its initial norm. Compute the reported residual explicitly as ||x-Az||.",
+    "outer_update": "For each outer iteration record shift + 1/(x^T z) and ||x-Az||, then set x=z/||z||."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, outer_iterations, cg_steps, shift_micro, nnz, row_ptr[n+1], column_index[nnz], value_micro[nnz]]",
+    "dimension_range": [1, 32],
+    "outer_iterations_range": [1, 8],
+    "cg_steps_range": [1, 25],
+    "cg_steps_upper_bound": "min(25,n)",
+    "matrix_format": "zero-based CSR with strictly increasing, unique column indices in each row; stored values are nonzero",
+    "nonzero_range": "n through 6*n",
+    "entry_scale": 1000000,
+    "entry_range_micro_units": [-1000000000, 1000000000],
+    "matrix_domain": "exactly symmetric; every diagonal is positive and strictly greater than the sum of absolute off-diagonal entries in its row, certifying positive definiteness",
+    "shift_range_micro_units": [-1000000000, 1000000000],
+    "maximum_input_length": 422,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_records",
+    "record_layout": "[eigenvalue_estimate_0, explicit_residual_norm_0, ..., eigenvalue_estimate_k, explicit_residual_norm_k]",
+    "encoding": "little-endian IEEE-754 binary64 values; two values for each outer iteration",
+    "return_value": "output byte length (16*outer_iterations)",
+    "max_records": 8,
+    "max_output_bytes": 128,
+    "absolute_tolerance": 1e-8,
+    "relative_tolerance": 1e-8,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 1536,
+    "meaning": "Six 32-element binary64 CG and inverse-power work vectors; the CSR arrays are read directly from the input."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "sparse-off-diagonal-two-outer-steps",
+      "input_values": [2, 2, 1, 0, 4, 0, 2, 4, 0, 1, 2, 2000000, 1000000, 1000000, 2000000],
+      "input_length": 16,
+      "expected_result": 32,
+      "expected_output": [1.5, 0.0, 3.0, 0.0]
+    },
+    {
+      "id": "two-eigenvalues-two-cg-steps",
+      "input_values": [2, 2, 2, 0, 2, 0, 1, 2, 0, 1, 2000000, 4000000],
+      "input_length": 12,
+      "expected_result": 32,
+      "expected_output": [1.3333333333333333, 0.0, 2.2222222222222223, 0.0]
+    },
+    {
+      "id": "nonzero-estimate-shift",
+      "input_values": [1, 2, 1, 1000000, 1, 0, 1, 0, 2000000],
+      "input_length": 9,
+      "expected_result": 32,
+      "expected_output": [3.0, 0.0, 3.0, 0.0]
+    },
+    {
+      "id": "nonsymmetric-matrix-invalid",
+      "input_values": [2, 1, 1, 0, 4, 0, 2, 4, 0, 1, 2, 4000000, 1000000, 2000000, 3000000],
+      "input_length": 16,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "nonpositive-diagonal-invalid",
+      "input_values": [1, 1, 1, 0, 1, 0, 1, 0, -1000000],
+      "input_length": 9,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "malformed-row-pointer-invalid",
+      "input_values": [2, 1, 1, 0, 2, 0, 2, 1, 0, 1, 2000000, 3000000],
+      "input_length": 12,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 2, 1, 0, 4, 0, 2, 4, 0, 1, 2, 2000000, 1000000, 1000000, 2000000],
+      "input_length": 16,
+      "output_capacity": 31,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1, 1, 0, 1, 0, 1, 0, 2000000],
+      "input_length": 9,
+      "output_capacity": 16,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

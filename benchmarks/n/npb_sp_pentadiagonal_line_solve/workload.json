@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "npb-sp-scalar-pentadiagonal-line-f64-v1",
+  "algorithm": "npb_sp_pentadiagonal_line_solve",
+  "function_symbol": "npb_sp_pentadiagonal_line_solve",
+  "abi": "float64_slice_io",
+  "description": "One bounded scalar pentadiagonal line solve using O(N) banded elimination.",
+  "source": {
+    "report": "The NAS Parallel Benchmarks",
+    "publisher": "NASA Ames Research Center",
+    "report_number": "RNR-94-007",
+    "section": "Diagonal form of approximate factorization; scalar pentadiagonal systems",
+    "pages": [64, 70],
+    "url": "https://www.nas.nasa.gov/assets/nas/pdf/techreports/1994/rnr-94-007.pdf",
+    "role": "algorithmic specification only; ports are clean-room implementations"
+  },
+  "contract": {
+    "operation": "Solve one caller-supplied scalar pentadiagonal system by no-pivot banded elimination and back substitution.",
+    "input_encoding": "[N, lower2[N], lower1[N], diagonal[N], upper1[N], upper2[N], rhs[N]]",
+    "band_offsets": {"lower2": -2, "lower1": -1, "diagonal": 0, "upper1": 1, "upper2": 2},
+    "N_range": [5, 16],
+    "band_range": [-2.0, 2.0],
+    "diagonal_range": [5.0, 16.0],
+    "rhs_range": [-64.0, 64.0],
+    "minimum_row_dominance_margin": 0.25,
+    "boundary_bands": "lower2[0:2], lower1[0], upper1[N-1], and upper2[N-2:N] are zero",
+    "output_encoding": "N binary64 solution values in row order",
+    "invalid_input_result": -1,
+    "null_or_short_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "minimum_length": 31,
+    "maximum_length": 97,
+    "exact_length": "1 + 6*N",
+    "N_range": [5, 16],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "maximum_elements": 16,
+    "capacity_unit": "elements",
+    "null_or_short_result": -2,
+    "success_result": "N",
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "workspace": {
+    "elements": 96,
+    "meaning": "Six temporary row vectors of length at most 16 for the banded elimination state and solution."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "cases": [
+    {"id":"nonsymmetric-five-row-known-solution","input_values":[5,0,0,-1,1,-1,0,-1,-1,0,1,8,8,8,8,8,-1,-1,0,1,0,-1,1,-1,0,0,7,-11,13,2,22],"input_length":31,"output_capacity":5,"expected_result":5,"expected_output":[1,-1,2,0,3]},
+    {"id":"known-half-five-row-solution","input_values":[5,0,0,1,-1,1,0,-1,1,-1,1,8,8,8,8,8,1,-1,1,-1,0,-1,1,-1,0,0,4,3.5,5,2.5,5],"input_length":31,"output_capacity":5,"expected_result":5,"expected_output":[0.5,0.5,0.5,0.5,0.5]},
+    {"id":"known-six-row-solution","input_values":[6,0,0,1,1,1,1,0,-1,-1,-1,-1,-1,10,10,10,10,10,10,-1,-1,-1,-1,-1,0,1,1,1,1,0,0,8,18,3,-13,33,-24],"input_length":37,"output_capacity":6,"expected_result":6,"expected_output":[1,2,0,-1,3,-2]},
+    {"id":"diagonal-five-row-solution","input_values":[5,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,5,-10,15,-20,25],"input_length":31,"output_capacity":5,"expected_result":5,"expected_output":[1,-2,3,-4,5]},
+    {"id":"invalid-null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-too-short-n","input_values":[4],"input_length":1,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-nonintegral-n","input_values":[5.5],"input_length":1,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-length","input_values":[5,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0],"input_length":32,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-lower-boundary","input_values":[5,1,0,0,0,0,0,0,0,0,0,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0],"input_length":31,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-upper-boundary","input_values":[5,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,0,0,0,0,1,0,0,0,0,0,5,0,0,0,0],"input_length":31,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-dominance-margin","input_values":[5,0,0,2,2,2,2,0,-2,-2,-2,-2,-2,5,5,5,5,5,2,2,2,2,0,2,2,2,0,0,0,0,0],"input_length":31,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-band-range","input_values":[5,0,0,3,0,0,0,0,0,0,0,8,8,8,8,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":31,"expected_result":-1,"expected_output":[]},
+    {"id":"short-output","input_values":[5,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,5,5,10,15,20],"input_length":31,"output_capacity":4,"expected_result":-2,"expected_output":[]},
+    {"id":"null-output","input_values":[5,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,5,5,10,15,20],"input_length":31,"output_capacity":5,"output_is_null":true,"expected_result":-2,"expected_output":[]}
+  ]
+}

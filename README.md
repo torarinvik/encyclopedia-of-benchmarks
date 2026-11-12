@@ -14,9 +14,211 @@ A cross-platform collection for comparing algorithm implementations across progr
 
 The current language folders are `c`, `c3`, `cpp`, `elisa`, `nim`, `odin`, `rust`, `v`, and `zig`. Algorithms are grouped by the first letter of the algorithm name, for example `rust/l/linear_search.rs`; names beginning with a digit go under `0-9/`. Numeric source filenames stay as catalog candidate IDs; a reviewed candidate can use an alphabetic `benchmark_name` for its algorithm folder. Workloads and result files use the same organization, such as `benchmarks/l/linear_search/` and `results/l/linear_search/`.
 
-The latest static audit of the pinned TheAlgorithms inventory records 2,504 distinct mapped benchmark names, 2,463 of them with files in all nine target languages; see [CATALOG.md](CATALOG.md) for the full counts and audit limits. These are file-presence results, not evidence of runtime correctness. ANSIbench additions are tracked in the [ANSIbench coverage crosswalk](benchmarks/ANSIBENCH_COVERAGE.md), Embench-IoT kernels in the [Embench-IoT source crosswalk](benchmarks/EMBENCH_IOT_COVERAGE.md), Rodinia kernels in the [Rodinia source crosswalk](benchmarks/RODINIA_COVERAGE.md), the 17-kernel GitHub shortlist and its deduplication notes are in the [GitHub source crosswalk](benchmarks/GITHUB_BENCHMARKS_COVERAGE.md), Parboil kernels are tracked in the [Parboil source crosswalk](benchmarks/PARBOIL_COVERAGE.md), and the 273-launcher lac-dcc inventory is in the [lac-dcc coverage crosswalk](benchmarks/LAC_DCC_BENCHMARKS_COVERAGE.md). New source discovery and duplicate decisions are recorded in the [additional algorithm coverage ledger](benchmarks/ALGORITHM_EXPANSION_COVERAGE.md). Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
+The latest static audit of the pinned TheAlgorithms inventory records 2,506 distinct mapped benchmark names, with 2,463 complete across all nine target languages and 43 still incomplete; see [CATALOG.md](CATALOG.md) for the full counts and audit limits. These are file-presence results, not evidence of runtime correctness. ANSIbench additions are tracked in the [ANSIbench coverage crosswalk](benchmarks/ANSIBENCH_COVERAGE.md), Embench-IoT kernels in the [Embench-IoT source crosswalk](benchmarks/EMBENCH_IOT_COVERAGE.md), Rodinia kernels in the [Rodinia source crosswalk](benchmarks/RODINIA_COVERAGE.md), the 17-kernel GitHub shortlist and its deduplication notes are in the [GitHub source crosswalk](benchmarks/GITHUB_BENCHMARKS_COVERAGE.md), Parboil kernels are tracked in the [Parboil source crosswalk](benchmarks/PARBOIL_COVERAGE.md), and the 273-launcher lac-dcc inventory is in the [lac-dcc coverage crosswalk](benchmarks/LAC_DCC_BENCHMARKS_COVERAGE.md). New source discovery and duplicate decisions are recorded in the [additional algorithm coverage ledger](benchmarks/ALGORITHM_EXPANSION_COVERAGE.md). Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
 
 [External merge sorter](benchmarks/e/external_merge_sorter/README.md) follows the pinned C# bottom-up merge passes over sequential stores, modeled with bounded buffers across all nine target languages.
+
+[Sattolo cycle shuffle](benchmarks/s/sattolo_cycle/README.md) restricts each descending swap to an earlier position, generating a single-cycle permutation with a shared deterministic stream across the nine standard languages and the optional Mojo port.
+
+[Dynamic predecessor problem](benchmarks/p/predecessor_problem/README.md) maintains a bounded set in packed 64-bit words and answers membership, successor, and predecessor queries alongside idempotent updates.
+
+[Counting Eulerian circuits](benchmarks/g/counting_eulerian_circuits/README.md) applies the BEST theorem with a directed Matrix–Tree determinant to count edge-labeled circuits modulo 998244353.
+
+[Morris approximate counter](benchmarks/m/morris_approximate_counter/README.md) replays a supplied discrete uniform draw tape through the base-2 probabilistic counter and returns its compressed state and decoded estimate.
+
+[Bitwise AND convolution](benchmarks/b/bitwise_and_convolution/README.md) uses superset zeta and Möbius transforms to compute the modular convolution over index bitwise AND.
+
+[Modular polynomial convolution](benchmarks/c/convolution_mod/README.md) multiplies coefficient sequences modulo 998244353 with radix-2 number theoretic transforms.
+
+[Palindromes in Deque](benchmarks/p/palindromes_in_deque/README.md) exercises two-ended insertions and deletions, reporting distinct-palindrome, longest-prefix, and longest-suffix summaries after each operation with bounded snapshot Eertree rebuilds.
+
+[Modular polynomial convolution modulo 1,000,000,007](benchmarks/c/convolution_mod_1000000007/README.md) uses three auxiliary-prime NTTs and CRT reconstruction for the target modulus.
+
+[Convolution modulo 2^64](benchmarks/c/convolution_mod_2_64/README.md) uses five auxiliary-prime NTTs and mixed-radix CRT to reconstruct each coefficient before unsigned word wraparound.
+
+[GCD convolution](benchmarks/g/gcd_convolution/README.md) uses divisor-zeta and Möbius transforms to compute pair-indexed modular convolution grouped by the exact gcd.
+
+[LCM convolution](benchmarks/l/lcm_convolution/README.md) uses multiple-zeta and Möbius transforms to compute pair-indexed modular convolution grouped by the exact least common multiple.
+
+[Weighted modular union-find](benchmarks/u/unionfind_with_potential/README.md) maintains accepted additive difference constraints and answers relative-potential queries.
+
+[Noncommutative potential union-find](benchmarks/u/unionfind_with_potential_non_commutative_group/README.md) maintains order-sensitive `SL(2, F_998244353)` potentials and returns relative matrices.
+
+[Online bridge finding](benchmarks/o/online_bridge_finding/README.md) maintains the bridge count as undirected edges are inserted, using connected-component and 2-edge-connected-component structures.
+
+[Range-parallel union-find](benchmarks/u/range_parallel_unionfind/README.md) merges aligned edge ranges through a hierarchy of disjoint sets and reports weighted component-pair sums.
+
+[Meissel–Lehmer prime counting](benchmarks/m/meissel_lehmer_prime_count/README.md) uses Lehmer's formula to count primes through a bounded upper limit, with an independent segmented-sieve oracle.
+
+[Per-edge C4 counting](benchmarks/c/counting_c4/README.md) counts edge-ID triples completing each edge to a four-cycle in a bounded undirected multigraph.
+
+[Persistent union-find](benchmarks/p/persistent_unionfind/README.md) answers connectivity queries across branching graph versions with rollback DSU traversal.
+
+[Strong orientation](benchmarks/s/strong_orientation/README.md) directs every edge to minimize the number of strongly connected components and emits the orientation certificate.
+
+[Set XOR-min](benchmarks/s/set_xor_min/README.md) uses a counted binary trie to maintain a 30-bit integer set and answer minimum-XOR queries.
+
+[Complement-graph components](benchmarks/c/connected_components_of_complement_graph/README.md) finds components in the implicit complement using neighbor marking and an unvisited-vertex traversal.
+
+[Bipartite edge coloring](benchmarks/b/bipartite_edge_coloring/README.md) decomposes a multigraph into the minimum number of matchings by regularization and repeated perfect matchings.
+
+[Minimum-cost b-flow](benchmarks/m/minimum_cost_b_flow/README.md) handles signed vertex balances, lower and upper bounds, negative costs, and a primal/dual optimality certificate.
+
+[Weighted tree diameter](benchmarks/t/tree_diameter/README.md) returns a maximum-weight path from an arbitrary positively weighted tree with deterministic endpoint ties.
+
+[Biconnected components](benchmarks/b/biconnected_components/README.md) uses DFS low links and an edge stack to return vertex blocks, including singleton blocks and multigraph support.
+
+[Burnside bracelet counting](benchmarks/b/burnside_bracelets/README.md) counts dihedral coloring orbits by summing the colorings fixed by each rotation and reflection.
+
+[Berlekamp–Massey](benchmarks/b/berlekamp_massey/README.md) infers a shortest finite-field recurrence from a supplied sequence.
+
+[Cartesian tree construction](benchmarks/c/cartesian_tree/README.md) builds the min-heap, in-order tree with a monotonic stack along its right spine.
+
+[Convex layers](benchmarks/c/convex_layers/README.md) repeatedly peels every point on the convex-hull boundary, including collinear edge points, to compute onion depth.
+
+[Thomas tridiagonal solver](benchmarks/t/thomas_algorithm/README.md) solves diagonally dominant tridiagonal systems with a linear forward sweep and back substitution.
+
+[Euclidean minimum spanning tree](benchmarks/m/euclidean_mst/README.md) generates Delaunay candidates with exact predicates, then selects the tree with Kruskal.
+
+[Minimum-diameter spanning tree](benchmarks/m/minimum_diameter_spanning_tree/README.md) enumerates graph-metric centers and builds a shortest-path tree around the best center.
+
+[Strict second-best MST](benchmarks/s/second_best_mst/README.md) finds the least strictly heavier spanning tree and reports its one-edge exchange certificate.
+
+[Frequency table of tree distances](benchmarks/f/frequency_table_of_tree_distance/README.md) uses centroid decomposition to count unordered vertex pairs at every edge distance.
+
+[Jump on tree](benchmarks/j/jump_on_tree/README.md) answers kth-vertex-on-path queries using shared binary-lifting preprocessing.
+
+[Vertex-set path composite](benchmarks/v/vertex_set_path_composite/README.md) combines point-updated affine maps along a tree path while preserving traversal direction.
+
+[Hafnian of a matrix](benchmarks/l/hafnian_of_matrix/README.md) computes the weighted sum over perfect pairings with bounded subset dynamic programming modulo 998244353.
+
+[Binary matrix product over GF(2)](benchmarks/m/matrix_product_mod_2/README.md) packs rows of the right operand and XORs the selected rows to multiply over the two-element field.
+
+[Binary matrix determinant over GF(2)](benchmarks/m/matrix_det_mod_2/README.md) uses packed Gaussian elimination with XOR row operations to test full rank over the two-element field.
+
+[Determinant modulo an arbitrary integer](benchmarks/m/matrix_det_arbitrary_mod/README.md) uses Euclidean row transformations that work even when composite-modulus pivots are not invertible.
+
+[Characteristic polynomial over a prime field](benchmarks/m/characteristic_polynomial/README.md) reduces matrices to upper Hessenberg form and applies a leading-principal-submatrix recurrence to return every coefficient.
+
+[Modular adjugate matrix](benchmarks/a/adjugate_matrix/README.md) computes every signed minor directly, including for singular matrices.
+
+[Marsaglia polar normal transform](benchmarks/m/marsaglia_polar_normal/README.md) produces a deterministic normal pair from a bounded integer tape using rejection inside the unit disk.
+
+[Metropolis MCMC](benchmarks/m/metropolis_mcmc/README.md) replays a fixed-temperature accept/reject chain from symmetric proposals and supplied uniform values.
+
+[Cartesian Box–Muller normal transform](benchmarks/b/box_muller_cartesian_normal/README.md) maps supplied radial and angular draws directly to standard-normal pairs without rejection.
+
+[NAS Parallel Benchmarks EP kernel](benchmarks/n/npb_ep/README.md) combines the specified 46-bit LCG, polar rejection transform, square-annulus histogram, and coordinate-sum reductions.
+
+[NAS Parallel Benchmarks sparse CG profile](benchmarks/n/npb_cg_sparse_inverse_power/README.md) runs CSR conjugate-gradient inner solves inside bounded inverse-power eigenvalue iterations.
+
+[HPCG bounded profile](benchmarks/n/hpcg_profile/README.md) couples CSR SpMV, symmetric Gauss–Seidel smoothing, one coarse-grid correction, and preconditioned CG.
+
+[NAS Parallel Benchmarks 3-D FT profile](benchmarks/f/npb_ft_3d_spectral_step/README.md) applies a cubic complex transform, spectral evolution, inverse transform, and per-step checksums.
+
+[NAS Parallel Benchmarks MG profile](benchmarks/n/npb_mg_vcycle/README.md) applies recursive periodic multigrid V-cycle corrections on a bounded 4³ grid.
+
+[NAS Parallel Benchmarks BT block-line profile](benchmarks/n/npb_bt_5x5_block_tridiagonal/README.md) solves a bounded 5×5 block-tridiagonal system with block elimination and back-substitution.
+
+[NAS Parallel Benchmarks SP line-solve profile](benchmarks/n/npb_sp_pentadiagonal_line_solve/README.md) solves a bounded scalar pentadiagonal system with banded elimination and back-substitution.
+
+[NAS Parallel Benchmarks LU block SSOR profile](benchmarks/n/npb_lu_block_ssor/README.md) applies bounded five-component symmetric successive over-relaxation sweeps over a regular seven-block 3-D operator.
+
+[NAS Parallel Benchmarks UA mesh-adaptation profile](benchmarks/n/npb_ua_mesh_adaptation/README.md) refines and safely coarsens a bounded explicit-leaf octree while balancing face and edge neighbors around a moving source.
+
+[NAS Parallel Benchmarks smallest-parent data-cube profile](benchmarks/n/npb_dc_smallest_parent/README.md) builds every grouped view from its least-populated immediate superset and includes the empty aggregate.
+
+[Prime-modulus q-binomial coefficient](benchmarks/q/q_binomial_coefficient_prime_mod/README.md) evaluates bounded Gaussian binomial coefficients by recurrence, with an independent subset-enumeration oracle.
+
+[Small-prime, large-n Stirling numbers of the second kind](benchmarks/s/stirling_number_of_the_second_kind_small_p_large_n/README.md) uses transition-matrix exponentiation for fixed small k and n up to 10^18, with an independent inclusion-exclusion oracle.
+
+[Signed first-kind Stirling numbers for small primes and large n](benchmarks/s/stirling_number_of_the_first_kind_small_p_large_n/README.md) extracts fixed low-degree coefficients using residue-block factorization modulo p.
+
+[Constrained nondecreasing sequence count](benchmarks/n/number_of_increasing_sequences_between_two_sequences/README.md) uses prefix-sum dynamic programming to count integer sequences inside per-position intervals.
+
+[Point-set range sort and affine composition](benchmarks/p/point_set_range_sort_range_composite/README.md) combines point replacement, ascending or descending priority sorts over ranges, and ordered affine evaluation.
+
+[Signed decimal big integer addition](benchmarks/a/addition_of_big_integers/README.md) compares magnitudes, then performs carry addition or borrow subtraction with canonical sign handling.
+
+[Prefix sum of binomial coefficients](benchmarks/p/prefix_sum_of_binomial_coefficient/README.md) advances across a bounded modular binomial row and accumulates an arbitrary prefix.
+
+[Formal power-series inverse](benchmarks/i/inv_of_formal_power_series/README.md) computes the reciprocal coefficients modulo x^N with a bounded quadratic recurrence and an independent Newton-iteration oracle.
+
+[Polynomial inverse modulo a polynomial](benchmarks/i/inv_of_polynomials/README.md) uses extended Euclid over F_998244353 to find an inverse representative modulo an arbitrary polynomial, or reports when no inverse exists.
+
+[Formal power-series exponential](benchmarks/e/exp_of_formal_power_series/README.md) computes exp(f) modulo x^N from the derivative recurrence g'=f'g, with an independent truncated-power oracle.
+
+[Formal power-series square root](benchmarks/s/sqrt_of_formal_power_series/README.md) uses Tonelli–Shanks and a quadratic coefficient recurrence, with an independent Cipolla/binomial-series oracle and a deterministic root choice.
+
+[Formal power-series logarithm](benchmarks/l/log_of_formal_power_series/README.md) computes log(f) modulo x^N from the recurrence f'=f·g', with an independent truncated-power oracle.
+
+[Formal power-series composition](benchmarks/c/composition_of_formal_power_series/README.md) computes f(g(x)) modulo x^N by descending Horner composition, with an independent sum-of-powers oracle.
+
+[Polynomial Taylor shift](benchmarks/p/polynomial_taylor_shift/README.md) computes the coefficients of f(x+c) using descending Horner updates, with an independent binomial-expansion oracle.
+
+[Polynomial division](benchmarks/d/division_of_polynomials/README.md) returns a quotient and remainder over F_998244353 using long division, with an independent reciprocal-and-convolution oracle.
+
+[Compositional inverse of a formal power series](benchmarks/c/compositional_inverse_of_formal_power_series/README.md) finds g such that f(g(x))=x modulo x^N, using a triangular coefficient recurrence and an independent Lagrange-inversion oracle.
+
+[Power of a formal power series](benchmarks/p/pow_of_formal_power_series/README.md) returns the first N coefficients of f(x)^M using truncated repeated squaring and an independent valuation/binomial-series oracle.
+
+[Baswana–Sen weighted spanner Algorithm II](benchmarks/s/baswana_sen_weighted_spanner/README.md) replays bounded vertex-clustering rounds from supplied sample masks and joins residual edges to sampled clusters.
+
+[HJM forward-rate path generation](benchmarks/m/hjm_forward_path/README.md) replays PARSEC Swaptions' triangular interest-rate path from explicit factor shocks, with bounded drift and yield-curve inputs.
+
+[SPLASH-2 fast multipole evaluation](benchmarks/f/splash2_fmm/README.md) computes a bounded 2-D logarithmic potential with fixed-order multipole-to-local translations and direct near-field interactions.
+
+[SPLASH-2 six-step FFT](benchmarks/f/splash2_fft_six_step/README.md) applies two dimensions of radix-2 row transforms around twiddle multiplication and three square-matrix transposes.
+
+[SPLASH-2 Ocean red-black relaxation](benchmarks/o/splash2_ocean_rbgs/README.md) runs one screened-Poisson Gauss-Seidel sweep with a complete red phase followed by a black phase.
+
+[SPLASH-2 Radiosity link refinement](benchmarks/f/splash2_radiosity_refine/README.md) recursively refines a bounded patch interaction and gathers the accepted diffuse-link estimates.
+
+[PARSEC Fluidanimate SPH update](benchmarks/f/fluidanimate_sph/README.md) computes one bounded particle density, pressure, and symmetric pressure/viscosity acceleration step.
+
+[PARSEC Bodytrack annealed particle filter](benchmarks/b/bodytrack_annealed_particle_filter/README.md) replays bounded likelihood annealing, weighted resampling, pose perturbation, and a final weighted estimate from supplied tapes.
+
+[HPCC RandomAccess](benchmarks/r/hpcc_random_access/README.md) applies a fixed 64-bit LFSR stream to randomized table XOR read-modify-writes, distinct from the standalone configurable LFSR transition.
+
+[GF(2) linear-system solver](benchmarks/s/system_of_linear_equations_mod_2/README.md) returns a particular solution and a basis for the complete nullspace.
+
+[Intersection of F2 vector spaces](benchmarks/l/intersection_of_f2_vector_spaces/README.md) tracks quotient-space dependencies and returns a canonical basis for the intersection of two XOR-spanned spaces.
+
+[Chordal graph recognition](benchmarks/g/chordal_graph_recognition/README.md) uses maximum cardinality search and returns either a perfect elimination ordering or an induced-hole certificate.
+
+[Two-edge-connected components](benchmarks/c/two_edge_connected_components/README.md) removes bridge edges from an undirected multigraph and returns its vertex partition.
+
+[Enumerate quotients](benchmarks/e/enumerate_quotients/README.md) jumps across constant-quotient blocks to list each distinct value of `floor(n/x)` in increasing divisor order.
+
+[Sum of floor of linear](benchmarks/s/sum_of_floor_of_linear/README.md) uses the Euclidean floor-sum recurrence to total `floor((A*i+B)/M)` over a bounded range.
+
+[Minimum of a linear modular prefix](benchmarks/m/min_of_mod_of_linear/README.md) finds the smallest residue `(A*x+B) mod M` for `0 <= x < N` using a Euclidean floor-sum search.
+
+[Stern–Brocot tree queries](benchmarks/s/stern_brocot_tree/README.md) batches compressed path encoding and decoding, lowest common ancestors, fixed-depth ancestors, and descendant intervals.
+
+[Bounded rational neighbors](benchmarks/r/rational_approximation/README.md) uses quotient-jumped Stern–Brocot search to find the nearest feasible lower and upper fractions under numerator and denominator limits.
+
+[Count square-free integers](benchmarks/c/counting_squarefrees/README.md) uses Möbius inversion and a bounded sieve to count square-free values through `N`.
+
+[Modular Bernoulli numbers](benchmarks/b/bernoulli_number/README.md) generates `B_0` through `B_N` modulo 998244353 with a bounded quadratic recurrence.
+
+[Integer k-th root](benchmarks/k/kth_root_integer/README.md) finds the exact floor of `A^(1/K)` for signed 64-bit `A` and degrees 1 through 64.
+
+[Represent a number as a sum of two squares](benchmarks/t/two_square_sum/README.md) enumerates every ordered nonnegative `(a, b)` with `N = a² + b²` for up to eight bounded queries.
+
+[Summatory Euler totient](benchmarks/s/sum_of_totient_function/README.md) uses a sieved prefix and memoized quotient-block recurrence to compute `sum(phi(i), i=1..N) mod 998244353` through `N = 10^9`.
+
+[Large summatory multiplicative function](benchmarks/s/sum_of_multiplicative_function_large/README.md) uses a Min_25 sieve to sum the family `f(p^e)=a*e+b*p` modulo 469762049 through `N = 10^8`.
+
+[Gaussian-integer GCD](benchmarks/g/gcd_of_gaussian_integers/README.md) uses nearest-coordinate Euclidean division in `Z[i]` and canonicalizes each result to a fixed unit associate.
+
+[64-bit Nim product](benchmarks/n/nim_product_64/README.md) multiplies unsigned nimbers using recursive field-extension identities over `GF(2^64)`.
+
+[Discrete logarithm modulo an integer](benchmarks/d/discrete_logarithm_mod/README.md) extends baby-step giant-step with repeated GCD reduction for non-coprime bases and returns the minimum nonnegative exponent.
+
+[Tetration modulo an integer](benchmarks/t/tetration_mod/README.md) evaluates bounded power towers through totient lifting and capped exponent detection, including non-coprime bases and the `0^0 = 1` convention.
+
+[Kth root modulo a prime](benchmarks/k/kth_root_mod/README.md) extracts modular roots for arbitrary exponents by reducing the problem to a discrete logarithm and a linear congruence.
 
 The Rust `finance_ratios` module maps to four all-language scalar benchmarks: [return on investment](benchmarks/r/return_on_investment/README.md), [debt to equity](benchmarks/d/debt_to_equity/README.md), [gross profit margin](benchmarks/g/gross_profit_margin/README.md), and [earnings per sale](benchmarks/e/earnings_per_sale/README.md).
 
@@ -43,6 +245,8 @@ The Rust `finance_ratios` module maps to four all-language scalar benchmarks: [r
 [Grow-only set](benchmarks/g/grow_only_set/README.md) models the pinned Java GSet add, lookup, subset, and replica-merge operations.
 
 [Gomory–Hu tree](benchmarks/g/gomory_hu_tree/README.md) ports the pinned Java parent-update construction with bounded Edmonds–Karp flows; its result hashes the represented all-pairs minimum-cut matrix.
+
+[MPM maximum flow](benchmarks/m/mpm_maxflow/README.md) uses BFS level graphs and minimum vertex potentials to compute a directed maximum flow, with bounded ten-language ports and an exhaustive-cut oracle.
 
 [Gradient boosting regressor](benchmarks/g/gradient_boosting_regressor/README.md) ports the custom R squared-error model with bounded one-feature stump trees. The separate Python candidate delegates to scikit-learn and is cataloged as an application demo.
 
@@ -195,7 +399,6 @@ The extended Euclidean algorithm is reviewed across five pinned TheAlgorithms re
 
 [Prime Numbers](benchmarks/p/prime_numbers/README.md) returns comma-separated primes through an inclusive limit in all nine languages. The ports passed 175 oracle cases each and recorded 11 workload cases. See the [verifier](benchmarks/verify_prime_numbers.py).
 
-[First N Primes](benchmarks/f/first_n_primes/README.md) returns the first requested number of primes in all nine languages. The ports passed 54 oracle cases each and recorded 9 workload cases. See the [verifier](benchmarks/verify_first_n_primes.py).
 
 [Contains Duplicate](benchmarks/c/contains_duplicate/README.md) ports the C LeetCode 217 sort-and-scan algorithm to all nine languages using a private copy and portable heapsort. The ports passed 20,168 oracle arrays each and recorded 11 workload cases. See the [verifier](benchmarks/verify_contains_duplicate.py).
 
@@ -646,4 +849,58 @@ The pinned Go `longestarithmeticsubsequence` implementation uses the same endpoi
 
 The pinned Java `FIFOCache` source uses its default zero TTL, so sequential puts and gets expose FIFO insertion-order eviction: overwrite removes and appends the key, while reads do not reorder entries. The bounded [`fifocache`](benchmarks/f/fifocache/README.md) contract records hit/miss counts, get results, and final FIFO contents across nine languages; TTL timing, concurrency, callbacks, and explicit removal are outside its scope. [Pinned source](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/caches/FIFOCache.java).
 
-Recent Library Checker, CP-Algorithms, and OI Wiki additions include [D'Esopo–Pape shortest paths](benchmarks/d/d_esopo_pape/README.md), [Dominator tree](benchmarks/d/dominator_tree/README.md), [Eertree](benchmarks/e/eertree/README.md), [incremental strongly connected components](benchmarks/i/incremental_scc/README.md), [`k_shortest_walk`](benchmarks/k/k_shortest_walk/README.md), [Li Chao tree](benchmarks/l/li_chao_tree/README.md), [Link-Cut Tree](benchmarks/l/link_cut_tree/README.md), [Manhattan MST](benchmarks/m/manhattan_mst/README.md), [point set range composite](benchmarks/p/point_set_range_composite/README.md), [st-numbering](benchmarks/s/st_numbering/README.md), [counting directed spanning trees](benchmarks/c/counting_spanning_trees_directed/README.md), [counting undirected spanning trees](benchmarks/c/counting_spanning_trees_undirected/README.md), [rooted tree isomorphism classification](benchmarks/r/rooted_tree_isomorphism_classification/README.md), [segment add get min](benchmarks/s/segment_add_get_min/README.md), [segment tree beats](benchmarks/s/segment_tree_beats/README.md), [static range mode query](benchmarks/s/static_range_mode_query/README.md), and [three-edge-connected components](benchmarks/t/three_edge_connected_components/README.md). Their source comparisons, duplicate decisions, and suite-integration status are tracked in the [additional algorithm coverage ledger](benchmarks/ALGORITHM_EXPANSION_COVERAGE.md).
+Recent Library Checker, CP-Algorithms, and OI Wiki additions include [D'Esopo–Pape shortest paths](benchmarks/d/d_esopo_pape/README.md), [Dominator tree](benchmarks/d/dominator_tree/README.md), [Deque operate all composite](benchmarks/d/deque_operate_all_composite/README.md), [Eertree](benchmarks/e/eertree/README.md), [incremental strongly connected components](benchmarks/i/incremental_scc/README.md), [`k_shortest_walk`](benchmarks/k/k_shortest_walk/README.md), [Li Chao tree](benchmarks/l/li_chao_tree/README.md), [Link-Cut Tree](benchmarks/l/link_cut_tree/README.md), [Manhattan MST](benchmarks/m/manhattan_mst/README.md), [point set range composite](benchmarks/p/point_set_range_composite/README.md), [queue operate all composite](benchmarks/q/queue_operate_all_composite/README.md), [Rectangle add point get](benchmarks/r/rectangle_add_point_get/README.md), [range affine point get](benchmarks/r/range_affine_point_get/README.md), [range affine range sum](benchmarks/r/range_affine_range_sum/README.md), [range set range composite](benchmarks/r/range_set_range_composite/README.md), [run enumeration](benchmarks/r/runenumerate/README.md), [st-numbering](benchmarks/s/st_numbering/README.md), [Static range inversions query](benchmarks/s/static_range_inversions_query/README.md), [Static range LIS query](benchmarks/s/static_range_lis_query/README.md), [Static rectangle add rectangle sum](benchmarks/s/static_rectangle_add_rectangle_sum/README.md), [counting directed spanning trees](benchmarks/c/counting_spanning_trees_directed/README.md), [counting undirected spanning trees](benchmarks/c/counting_spanning_trees_undirected/README.md), [rooted tree isomorphism classification](benchmarks/r/rooted_tree_isomorphism_classification/README.md), [segment add get min](benchmarks/s/segment_add_get_min/README.md), [segment tree beats](benchmarks/s/segment_tree_beats/README.md), [static range mode query](benchmarks/s/static_range_mode_query/README.md), and [three-edge-connected components](benchmarks/t/three_edge_connected_components/README.md). Their source comparisons, duplicate decisions, and suite-integration status are tracked in the [additional algorithm coverage ledger](benchmarks/ALGORITHM_EXPANSION_COVERAGE.md).
+
+[Dynamic graph vertex-add component-sum](benchmarks/d/dynamic_graph_vertex_add_component_sum/README.md) covers edge insertion/removal, vertex-value updates, and component-sum queries with a time segment tree and rollback DSU; its ten ports are registered in the byte-output suite with direct-graph and independent rebuild-DSU oracles.
+
+[Deque operate all composite](benchmarks/d/deque_operate_all_composite/README.md) maintains affine-function composition across pushes and pops at both ends; its nine ports are registered in the scalar suite with a direct-list oracle. [Rectangle add point get](benchmarks/r/rectangle_add_point_get/README.md) supports dynamic half-open rectangle updates with point queries, while [static rectangle add rectangle sum](benchmarks/s/static_rectangle_add_rectangle_sum/README.md) handles a fixed update batch and rectangle-sum queries modulo 998244353. Both rectangle packages have ten ports and byte-output suite registration. [Static range LIS query](benchmarks/s/static_range_lis_query/README.md) provides strict LIS lengths over permutation subranges with a bounded per-query scan, while [static range inversions](benchmarks/s/static_range_inversions_query/README.md) answers strict inversion counts on arbitrary subranges using Mo ordering and a Fenwick tree. Both are registered in the byte-output suite.
+
+[Range affine point get](benchmarks/r/range_affine_point_get/README.md) applies modular affine maps to ranges and reads individual positions through lazy propagation; it has ten language ports and byte-output suite registration. [Range affine range sum](benchmarks/r/range_affine_range_sum/README.md) combines affine range updates with range-sum queries in a lazy segment tree; its ten ports, direct-array oracle, and scalar-suite registration are in place.
+
+[Range set range composite](benchmarks/r/range_set_range_composite/README.md) assigns one affine map across a range and composes the functions over queried ranges. Its ten language ports use lazy segment-tree tags for repeated affine composition, with byte-output suite registration.
+
+[Point set range frequency](benchmarks/p/point_set_range_frequency/README.md) supports point assignments and exact-value frequency queries over half-open subranges. Its ten ports use coordinate-compressed, value-indexed Fenwick trees and are registered in the byte-output suite.
+
+[Range reverse range sum](benchmarks/r/range_reverse_range_sum/README.md) applies implicit-sequence reversals and range-sum queries with a lazy implicit treap. Its ten language ports, bounded workload, and independent list-based oracles are registered in the byte-output suite.
+
+[Range linear add range min](benchmarks/r/range_linear_add_range_min/README.md) applies index-linear additions and range-minimum queries using square-root blocks with lazy line tags and lower hulls. Its ten ports, direct-list oracle, and scalar-suite registration are in place.
+
+[Persistent queue](benchmarks/p/persistent_queue/README.md) supports branching append/pop histories using a path-copied segment tree with version-specific head and tail offsets. Its ten ports, bounded workload, and copied-list oracle are registered in the byte-output suite.
+
+[Dynamic sequence range affine range sum](benchmarks/d/dynamic_sequence_range_affine_range_sum/README.md) combines positional insertion/deletion, reversal, affine range updates, and range sums with a lazy implicit treap across ten languages; its byte-output suite registration and two list-based oracles are in place. [Dynamic point set rectangle affine rectangle sum](benchmarks/d/dynamic_point_set_rectangle_affine_rectangle_sum/README.md) combines online point activation, point assignment, rectangle sums, and rectangle affine maps in ten offline-coordinate k-d tree ports, with direct-list checking and byte-output registration.
+
+[Persistent range affine range sum](benchmarks/p/persistent_range_affine_range_sum/README.md) adds branching historical affine updates, range copies, and range-sum queries with a path-copying lazy segment tree. It has ten ports, direct and independent snapshot oracles, and byte-output suite registration.
+
+[Maximum independent set](benchmarks/m/maximum_independent_set/README.md) adds exact graph MIS using degree-based branching and a greedy clique-cover bound. It has ten ports, an independent subset-enumeration fixture oracle, and scalar-suite registration.
+
+[Chromatic polynomial](benchmarks/c/chromatic_polynomial/README.md) returns all coefficients of a bounded graph's coloring polynomial using deletion–contraction. Ten language ports use an independent spanning-subgraph inclusion–exclusion oracle and are registered in the byte-output suite.
+
+[Vertex add range contour sum on tree](benchmarks/v/vertex_add_range_contour_sum_on_tree/README.md) combines centroid decomposition with distance-indexed Fenwick buckets for point additions and contour-distance interval sums. It has ten ports, BFS-based independent oracles, and byte-output suite registration.
+
+[Common interval decomposition tree](benchmarks/c/common_interval_decomposition_tree/README.md) constructs a bounded strong-interval decomposition of a permutation using exhaustive connected-interval and overlap checks. Ten ports, an independent certificate validator, and byte-output suite registration are present; the local profile is intentionally small and does not claim the official linear-time scale.
+
+[Convex/convex min-plus convolution](benchmarks/m/min_plus_convolution_convex_convex/README.md) merges two nondecreasing discrete-slope sequences in linear time. Ten ports, a direct oracle, independent slope-merge checker, and byte-output suite registration are present.
+
+[Convex/arbitrary min-plus convolution](benchmarks/m/min_plus_convolution_convex_arbitrary/README.md) uses Monge monotone divide-and-conquer minima for a discrete-convex input and an arbitrary sequence. Ten ports, direct and independent oracles, and byte-output suite registration are present.
+
+[Concave/arbitrary min-plus convolution](benchmarks/m/min_plus_convolution_concave_arbitrary/README.md) handles the feasible-index staircase with rectangle partitioning and boundary scans, using monotone minima only on fully feasible blocks. Ten ports, an independent brute-force oracle, and byte-output suite registration are present.
+
+[Multiplicative convolution modulo a prime](benchmarks/m/mul_modp_convolution/README.md) maps nonzero residues to cyclic exponents using a primitive root, then handles zero separately; the bounded profile uses `P <= 97` and a direct residue-pair oracle. [Multiplicative convolution modulo a power of two](benchmarks/m/mul_mod2n_convolution/README.md) enumerates products in `Z/2^N Z` for `N <= 5`, with an independent per-output scan. Both have ten ports and byte-output suite registration.
+
+[General weighted matching](benchmarks/g/general_weighted_matching/README.md) computes a maximum-total-weight matching in a simple general graph with exact bitmask dynamic programming through `N <= 16`. Ten ports, a recursive independent checker, a certificate workload, and byte-output suite registration are present; this bounded profile does not claim weighted-blossom scale.
+
+[Tree path composite sum](benchmarks/t/tree_path_composite_sum/README.md) reroots affine path-composition messages to report the sum from every possible tree root. Ten language ports, independent direct-path and composition-traversal oracles, bounded fixtures, and byte-output suite wiring are present; the dense-table implementation uses `O(N^2)` time for its local `N <= 32` profile.
+
+[Tree decomposition width 2](benchmarks/t/tree_decomposition_width_2/README.md) recognizes bounded graphs by degree-two elimination and returns a checked tree-decomposition certificate. [Truncated multivariate convolution](benchmarks/m/multivariate_convolution/README.md) discards products outside the per-axis degree limits; [cyclic multivariate convolution](benchmarks/m/multivariate_convolution_cyclic/README.md) wraps coordinates modulo each axis. Both convolution profiles have ten ports and direct plus independent oracles. [Dynamic star-augmented global minimum cut](benchmarks/g/global_minimum_cut_of_dynamic_star_augmented_graph/README.md) recomputes cuts after spoke updates, with an exhaustive cut checker. [Rooted-tree topological order with minimum inversions](benchmarks/r/rooted_tree_topological_order_with_minimum_inversions/README.md) uses DSU ratio contractions and a subset-DP optimality checker. All five have byte-output suite registration and bounded local workloads.
+
+[Bitwise XOR convolution](benchmarks/b/bitwise_xor_convolution/README.md) transforms both input arrays with the XOR Walsh–Hadamard transform, multiplies pointwise, then applies the inverse transform and normalization. Its ten ports are distinct from the standalone transform benchmark and have direct pair-enumeration and independent per-output oracles plus byte-output suite registration.
+
+[Bitwise OR convolution](benchmarks/b/bitwise_or_convolution/README.md) computes the union-indexed modular convolution with subset zeta transforms, pointwise multiplication, and Möbius inversion. It is distinct from the AND and XOR products and from subset convolution; ten ports, direct and independent oracles, a bounded workload, provenance notes, and byte-output suite wiring are present.
+
+[Knuth-optimized optimal binary search tree](benchmarks/k/knuth_optimized_optimal_binary_search_tree/README.md) applies monotone-root bounds to the same successful-search cost recurrence as the existing cubic profile, reducing root-search work from O(n^3) to O(n^2). Ten ports, a bounded workload, Knuth and cubic oracles, and scalar-suite registration are present.
+
+[Broken-profile domino tilings](benchmarks/b/broken_profile_domino_tilings/README.md) counts open rectangular-board tilings with a frontier-mask DP, transposing to keep the profile width at most eight. Ten ports, small-board enumeration, an independent row-transition oracle, a bounded workload, and scalar-suite registration are present.
+
+The [SPLASH-2-inspired water profiles](benchmarks/s/splash2_water_nsquared/README.md) share a bounded rational molecule-pair law and byte output. [`splash2_water_nsquared`](benchmarks/s/splash2_water_nsquared/README.md) scans all pairs; [`water_spatial`](benchmarks/w/water_spatial/README.md) builds uniform cells and searches clipped neighbor cells. Each has ten ports and independent oracle coverage; neither claims to reproduce the full molecular-dynamics application.
+
+[Incremental XOR linear basis](benchmarks/x/xor_linear_basis/README.md) maintains a 63-pivot basis for insertions, maximum-subset-XOR queries, and representability checks. Ten ports, exhaustive-subset primary and independent checkers bounded to 16 insertions, and byte-output suite wiring are present.

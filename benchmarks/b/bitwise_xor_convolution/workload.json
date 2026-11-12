@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-bitwise-xor-convolution-bounded-v1",
+  "algorithm": "bitwise_xor_convolution",
+  "function_symbol": "bitwise_xor_convolution",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "convolution/bitwise_xor_convolution/task.md",
+    "limits_path": "convolution/bitwise_xor_convolution/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/convolution/bitwise_xor_convolution/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/convolution/bitwise_xor_convolution/info.toml",
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Task semantics and limits only; ports and oracles are clean-room."
+  },
+  "contract": {
+    "operation": "c[k] = sum(a[i]*b[j] for i xor j = k) modulo 998244353.",
+    "input_layout": "[N,a[0..2^N),b[0..2^N)]",
+    "official_n_range": [0, 20],
+    "local_n_range": [0, 8],
+    "coefficient_range": "0 <= a[i],b[i] < 998244353",
+    "modulus": 998244353,
+    "algorithm": "Two forward XOR Walsh-Hadamard transforms, pointwise multiplication, one inverse transform, and multiplication by (2^N)^-1 modulo 998244353.",
+    "output_layout": "One little-endian signed 64-bit residue for each index k in [0,2^N).",
+    "error_precedence": "Malformed frames or coefficients return -1 before output checks. Valid input with null output or insufficient capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,a[0..2^N),b[0..2^N)]",
+    "n_range": [0, 8],
+    "coefficient_range": [0, 998244352],
+    "maximum_valid_length": 513,
+    "maximum_parseable_length": 513,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "maximum_bytes": 2048,
+    "size_formula": "8*2^N",
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Two in-place modular coefficient arrays of 256 signed 64-bit values."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "zero-bit-domain",
+      "input_values": [0, 7, 9],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "3f00000000000000"
+    },
+    {
+      "id": "one-bit-mixed-coefficients",
+      "input_values": [1, 1, 2, 3, 4],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "0b000000000000000a00000000000000"
+    },
+    {
+      "id": "two-bit-dense-coefficients",
+      "input_values": [2, 1, 2, 3, 4, 5, 6, 7, 8],
+      "input_length": 9,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "460000000000000044000000000000003e000000000000003c00000000000000"
+    },
+    {
+      "id": "three-bit-impulse-shift",
+      "input_values": [3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9],
+      "input_length": 17,
+      "output_capacity": 64,
+      "expected_result": 64
+    },
+    {
+      "id": "maximum-8-bit-all-ones",
+      "input_values": [8,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1
+      ],
+      "input_length": 513,
+      "output_capacity": 2048,
+      "expected_result": 2048
+    },
+    {
+      "id": "domain-size-above-bound",
+      "input_values": [9],
+      "input_length": 1,
+      "output_capacity": 2048,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-frame",
+      "input_values": [2, 1, 2, 3],
+      "input_length": 4,
+      "output_capacity": 2048,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra-word-frame",
+      "input_values": [0, 7, 9, 0],
+      "input_length": 4,
+      "output_capacity": 2048,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coefficient-at-modulus",
+      "input_values": [0, 998244353, 0],
+      "input_length": 3,
+      "output_capacity": 2048,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-coefficient",
+      "input_values": [0, -1, 0],
+      "input_length": 3,
+      "output_capacity": 2048,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed-before-capacity",
+      "input_values": [0, 998244353, 0],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [0, 7, 9],
+      "input_length": 3,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [0, 7, 9],
+      "input_length": 3,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 2048,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "generated_profile": {
+    "maximum_n": 8,
+    "maximum_input": "[8, 256 copies of 1, 256 copies of 1]",
+    "maximum_output": "256 copies of 256",
+    "expected_output_bytes": 2048
+  }
+}

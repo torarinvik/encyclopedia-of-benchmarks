@@ -1,0 +1,139 @@
+const MAX_N: usize = 64
+const MAX_INPUT_VALUES: usize = 1 + 3 * (MAX_N - 1)
+const MAX_OUTPUT_VALUES: usize = 2 + MAX_N
+const MATRIX_CELLS: usize = MAX_N * MAX_N
+const MAX_EDGE_WEIGHT: i64 = 1000000000
+
+def td_find_root(parent: mutable view[usize], item: usize) -> usize:
+    node: mutable usize = item
+    while parent[node] != node:
+        parent[node] <- parent[parent[node]]
+        node <- parent[node]
+    node
+
+def td_traverse(n: usize, start: usize, adjacent: view[bool], weights: view[i64],
+    distance: mutable view[i64], path_parent: mutable view[i64]) -> void:
+    stack: mutable usize[MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        distance[vertex] <- -1
+        path_parent[vertex] <- -1
+        vertex <- vertex + 1
+    top: mutable usize = 1
+    stack[0] <- start
+    distance[start] <- 0
+    while top > 0:
+        top <- top - 1
+        current: usize = stack[top]
+        neighbor: mutable usize = 0
+        while neighbor < n:
+            cell: usize = current * MAX_N + neighbor
+            if adjacent[cell] and distance[neighbor] < 0:
+                distance[neighbor] <- distance[current] + weights[cell]
+                path_parent[neighbor] <- current.i64()
+                stack[top] <- neighbor
+                top <- top + 1
+            neighbor <- neighbor + 1
+
+def td_farthest(n: usize, distance: view[i64]) -> usize:
+    best: mutable usize = 0
+    vertex: mutable usize = 1
+    while vertex < n:
+        if distance[vertex] > distance[best] or
+            (distance[vertex] == distance[best] and vertex < best):
+            best <- vertex
+        vertex <- vertex + 1
+    best
+
+def td_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def tree_diameter_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if length != 1 + 3 * (n - 1): return -1
+
+    adjacent: mutable bool[MATRIX_CELLS] = zeroed
+    weights: mutable i64[MATRIX_CELLS] = zeroed
+    dsu_parent: mutable usize[MAX_N] = zeroed
+    dsu_size: mutable usize[MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        dsu_parent[vertex] <- vertex
+        dsu_size[vertex] <- 1
+        vertex <- vertex + 1
+
+    edge: mutable usize = 0
+    while edge < n - 1:
+        offset: usize = 1 + 3 * edge
+        left_value: i64 = input[offset]
+        right_value: i64 = input[offset + 1]
+        edge_weight: i64 = input[offset + 2]
+        if left_value < 0 or left_value >= n_value or right_value < 0 or
+            right_value >= n_value or left_value == right_value or
+            edge_weight < 1 or edge_weight > MAX_EDGE_WEIGHT: return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        root_left: usize = td_find_root(dsu_parent[0:MAX_N], left)
+        root_right: usize = td_find_root(dsu_parent[0:MAX_N], right)
+        if root_left == root_right: return -1
+        if dsu_size[root_left] < dsu_size[root_right]:
+            temporary: usize = root_left
+            root_left <- root_right
+            root_right <- temporary
+        dsu_parent[root_right] <- root_left
+        dsu_size[root_left] <- dsu_size[root_left] + dsu_size[root_right]
+        forward: usize = left * MAX_N + right
+        backward: usize = right * MAX_N + left
+        adjacent[forward] <- true
+        adjacent[backward] <- true
+        weights[forward] <- edge_weight
+        weights[backward] <- edge_weight
+        edge <- edge + 1
+
+    distance: mutable i64[MAX_N] = zeroed
+    path_parent: mutable i64[MAX_N] = zeroed
+    td_traverse(n, 0, adjacent[0:MATRIX_CELLS], weights[0:MATRIX_CELLS],
+        distance[0:MAX_N], path_parent[0:MAX_N])
+    first_endpoint: usize = td_farthest(n, distance[0:MAX_N])
+    td_traverse(n, first_endpoint, adjacent[0:MATRIX_CELLS], weights[0:MATRIX_CELLS],
+        distance[0:MAX_N], path_parent[0:MAX_N])
+    second_endpoint: usize = td_farthest(n, distance[0:MAX_N])
+    reverse_path: mutable usize[MAX_N] = zeroed
+    path_length: mutable usize = 0
+    current: mutable i64 = second_endpoint.i64()
+    while current >= 0:
+        reverse_path[path_length] <- current.usize()
+        path_length <- path_length + 1
+        if current.usize() == first_endpoint: break
+        current <- path_parent[current.usize()]
+
+    staged: mutable i64[MAX_OUTPUT_VALUES] = zeroed
+    used: mutable usize = 0
+    staged[used] <- distance[second_endpoint]
+    used <- used + 1
+    staged[used] <- path_length.i64()
+    used <- used + 1
+    position: mutable usize = 0
+    while position < path_length:
+        staged[used] <- reverse_path[path_length - 1 - position].i64()
+        used <- used + 1
+        position <- position + 1
+
+    required: usize = 8 * used
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    index: mutable usize = 0
+    while index < used:
+        td_store_i64_le(staged[index], output_view, 8 * index)
+        index <- index + 1
+    required.i64()
+
+export fn tree_diameter(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = tree_diameter_impl

@@ -1,0 +1,64 @@
+# Count edge-labeled length-three paths closing each fixed edge into a C4.
+const MAX_VERTICES: usize = 8
+const MAX_EDGES: usize = 12
+const MAX_INPUT_LENGTH: usize = 26
+const MAX_OUTPUT_BYTES: usize = 96
+
+def counting_c4_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 2 or n_value > 8 or m_value < 1 or m_value > 12:
+        return -1
+    n: usize = n_value.usize()
+    edge_count: usize = m_value.usize()
+    if length != 2 + 2 * edge_count:
+        return -1
+
+    multiplicity: mutable i64[8][8] = zeroed
+    edge: mutable usize = 0
+    while edge < edge_count:
+        u_value: i64 = input[2 + 2 * edge]
+        v_value: i64 = input[3 + 2 * edge]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value:
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        multiplicity[u][v] <- multiplicity[u][v] + 1
+        multiplicity[v][u] <- multiplicity[v][u] + 1
+        edge <- edge + 1
+
+    answers: mutable u64[12] = zeroed
+    edge <- 0
+    while edge < edge_count:
+        u: usize = input[2 + 2 * edge].usize()
+        v: usize = input[3 + 2 * edge].usize()
+        a: mutable usize = 0
+        while a < n:
+            if a != u and a != v:
+                b: mutable usize = 0
+                while b < n:
+                    if b != u and b != v and b != a:
+                        answers[edge] <- answers[edge] +
+                            (multiplicity[u][a] * multiplicity[a][b] * multiplicity[b][v]).u64()
+                    b <- b + 1
+                a <- a + 1
+            else:
+                a <- a + 1
+        edge <- edge + 1
+
+    bytes: usize = 8 * edge_count
+    if output.is_null() or output_capacity < bytes:
+        return -2
+    staged: mutable u8[96] = zeroed
+    for edge in 0..<edge_count |edge, staged, answers|:
+        for byte in 0..<8 |byte, edge, staged, answers|:
+            staged[8 * edge + byte] <- ((answers[edge] >> (byte * 8)) & 255.u64()).u8()
+    for byte in 0..<bytes |byte, output, staged|:
+        output[byte] <- staged[byte]
+    bytes.i64()
+
+export fn counting_c4(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = counting_c4_impl

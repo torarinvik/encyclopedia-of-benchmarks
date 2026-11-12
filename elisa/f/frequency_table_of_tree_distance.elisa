@@ -1,0 +1,171 @@
+const MAX_N: usize = 64
+const MAX_INPUT_VALUES: usize = 1 + 2 * (MAX_N - 1)
+const MATRIX_CELLS: usize = MAX_N * MAX_N
+
+def ftd_find_root(parent: mutable view[usize], item: usize) -> usize:
+    node: mutable usize = item
+    while parent[node] != node:
+        parent[node] <- parent[parent[node]]
+        node <- parent[node]
+    node
+
+def ftd_solve_component(n: usize, adjacent: view[bool], removed: mutable view[bool],
+    answer: mutable view[i64], start: usize) -> void:
+    order: mutable usize[MAX_N] = zeroed
+    parent: mutable usize[MAX_N] = zeroed
+    subtree: mutable usize[MAX_N] = zeroed
+    stack: mutable usize[MAX_N] = zeroed
+    order_count: mutable usize = 0
+    top: mutable usize = 1
+    stack[0] <- start
+    parent[start] <- start
+    subtree[start] <- 1
+    order[order_count] <- start
+    order_count <- order_count + 1
+    while top > 0:
+        top <- top - 1
+        vertex: usize = stack[top]
+        neighbor: mutable usize = 0
+        while neighbor < n:
+            if adjacent[vertex * MAX_N + neighbor] and not removed[neighbor] and
+                neighbor != parent[vertex]:
+                parent[neighbor] <- vertex
+                subtree[neighbor] <- 1
+                order[order_count] <- neighbor
+                order_count <- order_count + 1
+                stack[top] <- neighbor
+                top <- top + 1
+            neighbor <- neighbor + 1
+    position: mutable usize = order_count
+    while position > 1:
+        position <- position - 1
+        vertex: usize = order[position]
+        subtree[parent[vertex]] <- subtree[parent[vertex]] + subtree[vertex]
+
+    centroid: mutable usize = MAX_N
+    position <- 0
+    while position < order_count:
+        vertex: usize = order[position]
+        largest_part: mutable usize = order_count - subtree[vertex]
+        neighbor <- 0
+        while neighbor < n:
+            if adjacent[vertex * MAX_N + neighbor] and not removed[neighbor] and
+                parent[neighbor] == vertex and subtree[neighbor] > largest_part:
+                largest_part <- subtree[neighbor]
+            neighbor <- neighbor + 1
+        if 2 * largest_part <= order_count and (centroid == MAX_N or vertex < centroid):
+            centroid <- vertex
+        position <- position + 1
+
+    frequency: mutable i64[MAX_N] = zeroed
+    frequency_max: mutable usize = 0
+    frequency[0] <- 1
+    removed[centroid] <- true
+    child: mutable usize = 0
+    while child < n:
+        if adjacent[centroid * MAX_N + child] and not removed[child]:
+            local_frequency: mutable usize[MAX_N] = zeroed
+            walk_vertex: mutable usize[MAX_N] = zeroed
+            walk_parent: mutable usize[MAX_N] = zeroed
+            walk_depth: mutable usize[MAX_N] = zeroed
+            local_max: mutable usize = 0
+            walk_top: mutable usize = 1
+            walk_vertex[0] <- child
+            walk_parent[0] <- centroid
+            walk_depth[0] <- 1
+            while walk_top > 0:
+                walk_top <- walk_top - 1
+                current_walk: usize = walk_vertex[walk_top]
+                previous: usize = walk_parent[walk_top]
+                depth: usize = walk_depth[walk_top]
+                local_frequency[depth] <- local_frequency[depth] + 1
+                if depth > local_max: local_max <- depth
+                neighbor <- 0
+                while neighbor < n:
+                    if adjacent[current_walk * MAX_N + neighbor] and not removed[neighbor] and neighbor != previous:
+                        walk_vertex[walk_top] <- neighbor
+                        walk_parent[walk_top] <- current_walk
+                        walk_depth[walk_top] <- depth + 1
+                        walk_top <- walk_top + 1
+                    neighbor <- neighbor + 1
+            hist_depth: mutable usize = 1
+            while hist_depth <= local_max:
+                other: mutable usize = 0
+                while other <= frequency_max:
+                    if hist_depth + other < n:
+                        answer[hist_depth + other] <- answer[hist_depth + other] +
+                            local_frequency[hist_depth].i64() * frequency[other]
+                    other <- other + 1
+                hist_depth <- hist_depth + 1
+            hist_depth <- 1
+            while hist_depth <= local_max:
+                frequency[hist_depth] <- frequency[hist_depth] + local_frequency[hist_depth].i64()
+                hist_depth <- hist_depth + 1
+            if local_max > frequency_max: frequency_max <- local_max
+        child <- child + 1
+
+    child <- 0
+    while child < n:
+        if adjacent[centroid * MAX_N + child] and not removed[child]:
+            ftd_solve_component(n, adjacent, removed, answer, child)
+        child <- child + 1
+
+def ftd_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def frequency_table_of_tree_distance_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if length != 1 + 2 * (n - 1): return -1
+
+    adjacent: mutable bool[MATRIX_CELLS] = zeroed
+    dsu_parent: mutable usize[MAX_N] = zeroed
+    dsu_size: mutable usize[MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        dsu_parent[vertex] <- vertex
+        dsu_size[vertex] <- 1
+        vertex <- vertex + 1
+    edge: mutable usize = 0
+    while edge < n - 1:
+        offset: usize = 1 + 2 * edge
+        left_value: i64 = input[offset]
+        right_value: i64 = input[offset + 1]
+        if left_value < 0 or left_value >= n_value or right_value < 0 or
+            right_value >= n_value or left_value == right_value: return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        root_left: usize = ftd_find_root(dsu_parent[0:MAX_N], left)
+        root_right: usize = ftd_find_root(dsu_parent[0:MAX_N], right)
+        if root_left == root_right: return -1
+        if dsu_size[root_left] < dsu_size[root_right]:
+            temporary: usize = root_left
+            root_left <- root_right
+            root_right <- temporary
+        dsu_parent[root_right] <- root_left
+        dsu_size[root_left] <- dsu_size[root_left] + dsu_size[root_right]
+        adjacent[left * MAX_N + right] <- true
+        adjacent[right * MAX_N + left] <- true
+        edge <- edge + 1
+
+    removed: mutable bool[MAX_N] = zeroed
+    answer: mutable i64[MAX_N] = zeroed
+    ftd_solve_component(n, adjacent[0:MATRIX_CELLS], removed[0:MAX_N], answer[0:MAX_N], 0)
+    required: usize = 8 * (n - 1)
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    distance: mutable usize = 1
+    while distance < n:
+        ftd_store_i64_le(answer[distance], output_view, 8 * (distance - 1))
+        distance <- distance + 1
+    required.i64()
+
+export fn frequency_table_of_tree_distance(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = frequency_table_of_tree_distance_impl

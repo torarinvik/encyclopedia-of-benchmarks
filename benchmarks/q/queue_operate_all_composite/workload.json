@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "queue-operate-all-affine-composite-bounded-scalar-v1",
+  "algorithm": "queue_operate_all_composite",
+  "function_symbol": "queue_operate_all_composite",
+  "abi": "i64_array_scalar",
+  "source": {
+    "repository": "Library Checker",
+    "problem": "Queue Operate All Composite",
+    "url": "https://judge.yosupo.jp/problem/queue_operate_all_composite",
+    "proposal_url": "https://github.com/yosupo06/library-checker-problems/issues/208",
+    "source_type": "official_task_and_proposal_semantics",
+    "reuse": "Operation semantics and algorithm taxonomy only; the bounded profile, implementations, workload, and direct-list oracle are independently written. No task statement text or submitted source code was copied."
+  },
+  "contract": {
+    "input_layout": "[Q, operation*Q]",
+    "push_operation": "Three values (0,a,b) append f(x)=a*x+b modulo 998244353.",
+    "pop_operation": "One value (1) removes the oldest function and is invalid when the queue is empty.",
+    "query_operation": "Two values (2,x) apply queued functions from oldest to newest; an empty queue returns x.",
+    "operation_count_range": [0, 64],
+    "multiplier_range": [1, 998244352],
+    "intercept_and_argument_range": [0, 998244352],
+    "modulus": 998244353,
+    "output_encoding": "Signed 64-bit checksum sum(q * (answer + 1)) over queries in one-based query order.",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "maximum_valid_length": 193,
+    "maximum_parseable_length": 193,
+    "null_input_result": -1,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "valid_result_range": [0, 2076348254240],
+    "meaning": "One-based query-ordinal-weighted sum of each affine-composition answer plus one.",
+    "invalid_result": -1
+  },
+  "workspace": {
+    "bytes": 3072,
+    "meaning": "Two fixed stacks with affine values and aggregate values, each sized for 64 operations."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {"id": "zero-operations", "input_values": [0], "input_length": 1, "expected_result": 0},
+    {"id": "empty-queue-identity", "input_values": [1, 2, 5], "input_length": 3, "expected_result": 6},
+    {"id": "single-affine-function", "input_values": [2, 0, 2, 3, 2, 4], "input_length": 6, "expected_result": 12},
+    {"id": "ordered-composition", "input_values": [3, 0, 2, 1, 0, 3, 4, 2, 5], "input_length": 9, "expected_result": 38},
+    {"id": "fifo-removal", "input_values": [4, 0, 2, 1, 0, 3, 4, 1, 2, 5], "input_length": 10, "expected_result": 20},
+    {"id": "refill-after-complete-transfer", "input_values": [6, 0, 2, 1, 0, 3, 4, 1, 1, 0, 5, 6, 2, 7], "input_length": 14, "expected_result": 42},
+    {"id": "weighted-multiple-queries", "input_values": [2, 2, 0, 2, 17], "input_length": 5, "expected_result": 37},
+    {"id": "modular-boundary", "input_values": [2, 0, 998244352, 998244352, 2, 0], "input_length": 6, "expected_result": 998244353},
+    {"id": "invalid-pop-from-empty", "input_values": [1, 1], "input_length": 2, "expected_result": -1},
+    {"id": "invalid-zero-multiplier", "input_values": [1, 0, 0, 0], "input_length": 4, "expected_result": -1},
+    {"id": "unknown-operation", "input_values": [1, 9], "input_length": 2, "expected_result": -1},
+    {"id": "truncated-push", "input_values": [1, 0, 2], "input_length": 3, "expected_result": -1},
+    {"id": "trailing-value", "input_values": [0, 7], "input_length": 2, "expected_result": -1},
+    {"id": "null-input-pointer", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

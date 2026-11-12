@@ -1,0 +1,207 @@
+const HPCG_MAX_N: usize = 32
+const HPCG_MAX_COARSE: usize = 16
+const HPCG_MAX_STEPS: usize = 12
+const HPCG_MAX_MICRO: i64 = 1000000000
+const HPCG_SCALE: f64 = 1000000.0
+extern sqrt(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def hpcg_write_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for byte in 0..8: output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def hpcg_matvec(input: i64&, n: usize, nnz: usize,
+        vector: view[f64], product: mutable view[f64]) -> void:
+    col: usize = 4 + n
+    val: usize = col + nnz
+    for row in 0..<n:
+        total: mutable f64 = 0.0
+        edge: mutable usize = input[3 + row].usize()
+        while edge < input[4 + row].usize():
+            total <- total + input[val + edge].f64() / HPCG_SCALE * vector[input[col + edge].usize()]
+            edge <- edge + 1
+        product[row] <- total
+
+def hpcg_coarse_solve(input: i64&, n: usize, nnz: usize,
+        rhs: view[f64], result: mutable view[f64]) -> bool:
+    cn: usize = (n + 1) / 2
+    col: usize = 4 + n
+    val: usize = col + nnz
+    a: mutable f64[HPCG_MAX_COARSE * HPCG_MAX_COARSE] = zeroed
+    lower: mutable f64[HPCG_MAX_COARSE * HPCG_MAX_COARSE] = zeroed
+    for row in 0..<n:
+        edge: mutable usize = input[3 + row].usize()
+        while edge < input[4 + row].usize():
+            coarse_row: usize = row / 2
+            coarse_col: usize = input[col + edge].usize() / 2
+            index: usize = coarse_row * HPCG_MAX_COARSE + coarse_col
+            a[index] <- a[index] + input[val + edge].f64() / HPCG_SCALE
+            edge <- edge + 1
+    for i in 0..<cn:
+        for j in 0..=i:
+            value: mutable f64 = a[i * HPCG_MAX_COARSE + j]
+            for k in 0..<j: value <- value - lower[i * HPCG_MAX_COARSE + k] * lower[j * HPCG_MAX_COARSE + k]
+            if i == j:
+                if value <= 0.0: return false
+                lower[i * HPCG_MAX_COARSE + j] <- sqrt(value)
+            else:
+                lower[i * HPCG_MAX_COARSE + j] <- value / lower[j * HPCG_MAX_COARSE + j]
+    y: mutable f64[HPCG_MAX_COARSE] = zeroed
+    for i in 0..<cn:
+        value: mutable f64 = rhs[i]
+        for j in 0..<i: value <- value - lower[i * HPCG_MAX_COARSE + j] * y[j]
+        y[i] <- value / lower[i * HPCG_MAX_COARSE + i]
+    ii: mutable usize = cn
+    while ii > 0:
+        ii <- ii - 1
+        value: mutable f64 = y[ii]
+        for j in (ii + 1)..<cn: value <- value - lower[j * HPCG_MAX_COARSE + ii] * result[j]
+        result[ii] <- value / lower[ii * HPCG_MAX_COARSE + ii]
+    true
+
+def hpcg_precondition(input: i64&, n: usize, nnz: usize, diagonal: view[f64],
+        residual: view[f64], result: mutable view[f64]) -> bool:
+    col: usize = 4 + n
+    val: usize = col + nnz
+    pre: mutable f64[HPCG_MAX_N] = zeroed
+    product: mutable f64[HPCG_MAX_N] = zeroed
+    middle: mutable f64[HPCG_MAX_N] = zeroed
+    post_residual: mutable f64[HPCG_MAX_N] = zeroed
+    post: mutable f64[HPCG_MAX_N] = zeroed
+    coarse_rhs: mutable f64[HPCG_MAX_COARSE] = zeroed
+    coarse_x: mutable f64[HPCG_MAX_COARSE] = zeroed
+    for row in 0..<n:
+        value: mutable f64 = residual[row]
+        edge: mutable usize = input[3 + row].usize()
+        while edge < input[4 + row].usize():
+            column: usize = input[col + edge].usize()
+            if column < row: value <- value - input[val + edge].f64() / HPCG_SCALE * pre[column]
+            edge <- edge + 1
+        pre[row] <- value / diagonal[row]
+    hpcg_matvec(input, n, nnz, pre[0:n], product[0:n])
+    for row in 0..<n: coarse_rhs[row / 2] <- coarse_rhs[row / 2] + residual[row] - product[row]
+    if not hpcg_coarse_solve(input, n, nnz, coarse_rhs[0:HPCG_MAX_COARSE], coarse_x[0:HPCG_MAX_COARSE]): return false
+    for row in 0..<n: middle[row] <- pre[row] + coarse_x[row / 2]
+    hpcg_matvec(input, n, nnz, middle[0:n], product[0:n])
+    for row in 0..<n: post_residual[row] <- residual[row] - product[row]
+    ii: mutable usize = n
+    while ii > 0:
+        ii <- ii - 1
+        value: mutable f64 = post_residual[ii]
+        edge: mutable usize = input[3 + ii].usize()
+        while edge < input[4 + ii].usize():
+            column: usize = input[col + edge].usize()
+            if column > ii: value <- value - input[val + edge].f64() / HPCG_SCALE * post[column]
+            edge <- edge + 1
+        post[ii] <- value / diagonal[ii]
+    for row in 0..<n: result[row] <- middle[row] + post[row]
+    true
+
+def hpcg_validate(input: i64&, length: usize, n: mutable usize&, steps: mutable usize&,
+        nnz: mutable usize&, diagonal: mutable view[f64]) -> bool:
+    if input.is_null() or length < 8 or length > 452: return false
+    if input[0] < 1 or input[0] > HPCG_MAX_N.i64() or input[1] < 1 or
+       input[1] > HPCG_MAX_STEPS.i64() or input[1] > input[0] or
+       input[2] < input[0] or input[2] > 6 * input[0]: return false
+    n <- input[0].usize(); steps <- input[1].usize(); nnz <- input[2].usize()
+    if length != 4 + 2 * n + 2 * nnz: return false
+    col: usize = 4 + n
+    val: usize = col + nnz
+    rhs: usize = val + nnz
+    if input[3] != 0 or input[3 + n] != nnz.i64(): return false
+    for row in 0..<n:
+        begin: i64 = input[3 + row]
+        end: i64 = input[4 + row]
+        if begin < 0 or begin >= end or end > nnz.i64() or end - begin > 6: return false
+        d: mutable i64 = 0
+        off_sum: mutable i64 = 0
+        previous: mutable i64 = -1
+        edge: mutable usize = begin.usize()
+        while edge < end.usize():
+            column: i64 = input[col + edge]
+            entry: i64 = input[val + edge]
+            if column < 0 or column >= n.i64() or column <= previous or entry == 0 or
+               entry < -HPCG_MAX_MICRO or entry > HPCG_MAX_MICRO: return false
+            previous <- column
+            if column == row.i64(): d <- entry
+            else: off_sum <- off_sum + (if entry < 0 then -entry else entry)
+            edge <- edge + 1
+        if d <= 0 or d <= off_sum or input[rhs + row] < -HPCG_MAX_MICRO or
+           input[rhs + row] > HPCG_MAX_MICRO: return false
+        diagonal[row] <- d.f64() / HPCG_SCALE
+    for row in 0..<n:
+        edge: mutable usize = input[3 + row].usize()
+        while edge < input[4 + row].usize():
+            column: usize = input[col + edge].usize()
+            found: mutable bool = false
+            reverse: mutable usize = input[3 + column].usize()
+            while reverse < input[4 + column].usize():
+                if input[col + reverse] == row.i64() and input[val + reverse] == input[val + edge]:
+                    found <- true
+                    break
+                reverse <- reverse + 1
+            if not found: return false
+            edge <- edge + 1
+    true
+
+def hpcg_profile_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    n: mutable usize = 0
+    steps: mutable usize = 0
+    nnz: mutable usize = 0
+    diagonal: mutable f64[HPCG_MAX_N] = zeroed
+    if not hpcg_validate(input, length, n&, steps&, nnz&, diagonal[0:HPCG_MAX_N]): return -1
+    output_bytes: usize = 8 * (n + 1)
+    if output.is_null() or capacity < output_bytes: return -2
+    rhs: usize = 4 + n + 2 * nnz
+    b: mutable f64[HPCG_MAX_N] = zeroed
+    x: mutable f64[HPCG_MAX_N] = zeroed
+    residual: mutable f64[HPCG_MAX_N] = zeroed
+    z: mutable f64[HPCG_MAX_N] = zeroed
+    direction: mutable f64[HPCG_MAX_N] = zeroed
+    product: mutable f64[HPCG_MAX_N] = zeroed
+    ax: mutable f64[HPCG_MAX_N] = zeroed
+    b_squared: mutable f64 = 0.0
+    for i in 0..<n:
+        b[i] <- input[rhs + i].f64() / HPCG_SCALE
+        residual[i] <- b[i]
+        b_squared <- b_squared + b[i] * b[i]
+    if b_squared > 0.0:
+        if not hpcg_precondition(input, n, nnz, diagonal[0:n], residual[0:n], z[0:n]): return -1
+        for i in 0..<n: direction[i] <- z[i]
+        rho: mutable f64 = 0.0
+        for i in 0..<n: rho <- rho + residual[i] * z[i]
+        if rho <= 0.0: return -1
+        for _ in 0..<steps:
+            hpcg_matvec(input, n, nnz, direction[0:n], product[0:n])
+            curvature: mutable f64 = 0.0
+            for i in 0..<n: curvature <- curvature + direction[i] * product[i]
+            if curvature <= 0.0: return -1
+            alpha: f64 = rho / curvature
+            for i in 0..<n:
+                x[i] <- x[i] + alpha * direction[i]
+                residual[i] <- residual[i] - alpha * product[i]
+            r_squared: mutable f64 = 0.0
+            for i in 0..<n: r_squared <- r_squared + residual[i] * residual[i]
+            if r_squared <= b_squared * 1.0e-28: break
+            next_z: mutable f64[HPCG_MAX_N] = zeroed
+            if not hpcg_precondition(input, n, nnz, diagonal[0:n], residual[0:n], next_z[0:n]): return -1
+            next_rho: mutable f64 = 0.0
+            for i in 0..<n: next_rho <- next_rho + residual[i] * next_z[i]
+            if next_rho <= 0.0: return -1
+            beta: f64 = next_rho / rho
+            for i in 0..<n:
+                z[i] <- next_z[i]
+                direction[i] <- z[i] + beta * direction[i]
+            rho <- next_rho
+    hpcg_matvec(input, n, nnz, x[0:n], ax[0:n])
+    residual_squared: mutable f64 = 0.0
+    for i in 0..<n:
+        difference: f64 = b[i] - ax[i]
+        residual_squared <- residual_squared + difference * difference
+        hpcg_write_f64(output[0:output_bytes], 8 * i, x[i])
+    hpcg_write_f64(output[0:output_bytes], 8 * n, sqrt(residual_squared))
+    output_bytes.i64()
+
+export fn hpcg_profile(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = hpcg_profile_impl

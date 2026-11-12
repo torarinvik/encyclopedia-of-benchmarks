@@ -1,0 +1,113 @@
+const BLOCK: usize = 5
+const MAX_LINE: usize = 4
+const ROW_WORDS: usize = 80
+const INVALID_RESULT: f64 = -1.0e300
+
+def magnitude(value: f64) -> f64:
+    if value < 0.0: -value else: value
+
+def solve_block(matrix: view[f64], right: view[f64], answer: mutable view[f64]) -> bool:
+    work: mutable f64[55] = zeroed
+    for r in 0..BLOCK:
+        for c in 0..BLOCK:
+            work[r * 11 + c] <- matrix[r * 5 + c]
+        for c in 0..6:
+            work[r * 11 + 5 + c] <- right[r * 6 + c]
+    for pivot in 0..BLOCK:
+        best: mutable usize = pivot
+        for r in (pivot + 1)..BLOCK:
+            if magnitude(work[r * 11 + pivot]) > magnitude(work[best * 11 + pivot]):
+                best <- r
+        if work[best * 11 + pivot] == 0.0: return false
+        for c in 0..11:
+            temporary: mutable f64 = work[pivot * 11 + c]
+            work[pivot * 11 + c] <- work[best * 11 + c]
+            work[best * 11 + c] <- temporary
+        divisor: f64 = work[pivot * 11 + pivot]
+        for c in pivot..11: work[pivot * 11 + c] <- work[pivot * 11 + c] / divisor
+        for r in 0..BLOCK:
+            if r == pivot: continue
+            factor: f64 = work[r * 11 + pivot]
+            for c in pivot..11: work[r * 11 + c] <- work[r * 11 + c] - factor * work[pivot * 11 + c]
+    for r in 0..BLOCK:
+        for c in 0..6: answer[r * 6 + c] <- work[r * 11 + 5 + c]
+    true
+
+def npb_bt_5x5_block_tridiagonal_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 1 or length > 321: return INVALID_RESULT
+    if input[0] < 2 or input[0] > 4: return INVALID_RESULT
+    n: usize = input[0].usize()
+    if length != 1 + ROW_WORDS * n: return INVALID_RESULT
+
+    lower: mutable f64[100] = zeroed
+    diagonal: mutable f64[100] = zeroed
+    upper: mutable f64[100] = zeroed
+    rhs: mutable f64[20] = zeroed
+    for row in 0..n:
+        cursor: mutable usize = 1 + ROW_WORDS * row
+        for which in 0..3:
+            for r in 0..BLOCK:
+                for c in 0..BLOCK:
+                    value: i64 = input[cursor]
+                    cursor <- cursor + 1
+                    if which == 1:
+                        if r == c:
+                            if value < 40 or value > 64: return INVALID_RESULT
+                        elif value < -2 or value > 2: return INVALID_RESULT
+                        diagonal[row * 25 + r * 5 + c] <- value.f64()
+                    else:
+                        if value < -2 or value > 2: return INVALID_RESULT
+                        if which == 0: lower[row * 25 + r * 5 + c] <- value.f64()
+                        else: upper[row * 25 + r * 5 + c] <- value.f64()
+        for r in 0..BLOCK:
+            value: i64 = input[cursor]
+            cursor <- cursor + 1
+            if value < -1000 or value > 1000: return INVALID_RESULT
+            rhs[row * 5 + r] <- value.f64()
+        for r in 0..BLOCK:
+            for c in 0..BLOCK:
+                if row == 0 and lower[row * 25 + r * 5 + c] != 0.0: return INVALID_RESULT
+                if row + 1 == n and upper[row * 25 + r * 5 + c] != 0.0: return INVALID_RESULT
+        for r in 0..BLOCK:
+            off_diagonal: mutable f64 = 0.0
+            for c in 0..BLOCK:
+                if r != c: off_diagonal <- off_diagonal + magnitude(diagonal[row * 25 + r * 5 + c])
+                off_diagonal <- off_diagonal + magnitude(lower[row * 25 + r * 5 + c]) + magnitude(upper[row * 25 + r * 5 + c])
+            if diagonal[row * 25 + r * 5 + r] <= off_diagonal: return INVALID_RESULT
+
+    modified_upper: mutable f64[100] = zeroed
+    modified_rhs: mutable f64[20] = zeroed
+    for row in 0..n:
+        schur: mutable f64[25] = zeroed
+        reduced: mutable f64[5] = zeroed
+        right: mutable f64[30] = zeroed
+        solved: mutable f64[30] = zeroed
+        for r in 0..BLOCK:
+            reduced[r] <- rhs[row * 5 + r]
+            for c in 0..BLOCK:
+                value: mutable f64 = diagonal[row * 25 + r * 5 + c]
+                if row > 0:
+                    for k in 0..BLOCK: value <- value - lower[row * 25 + r * 5 + k] * modified_upper[(row - 1) * 25 + k * 5 + c]
+                schur[r * 5 + c] <- value
+            if row > 0:
+                for k in 0..BLOCK: reduced[r] <- reduced[r] - lower[row * 25 + r * 5 + k] * modified_rhs[(row - 1) * 5 + k]
+            for c in 0..BLOCK: right[r * 6 + c] <- upper[row * 25 + r * 5 + c]
+            right[r * 6 + 5] <- reduced[r]
+        if not solve_block(schur[0:25], right[0:30], solved[0:30]): return INVALID_RESULT
+        for r in 0..BLOCK:
+            modified_rhs[row * 5 + r] <- solved[r * 6 + 5]
+            for c in 0..BLOCK: modified_upper[row * 25 + r * 5 + c] <- solved[r * 6 + c]
+
+    solution: mutable f64[20] = zeroed
+    for r in 0..BLOCK: solution[(n - 1) * 5 + r] <- modified_rhs[(n - 1) * 5 + r]
+    row: mutable usize = n - 1
+    while row > 0:
+        row <- row - 1
+        for r in 0..BLOCK:
+            solution[row * 5 + r] <- modified_rhs[row * 5 + r]
+            for c in 0..BLOCK: solution[row * 5 + r] <- solution[row * 5 + r] - modified_upper[row * 25 + r * 5 + c] * solution[(row + 1) * 5 + c]
+    checksum: mutable f64 = 0.0
+    for q in 0..(n * BLOCK): checksum <- checksum + (q + 1).f64() * solution[q]
+    checksum
+
+export fn npb_bt_5x5_block_tridiagonal(input: i64&, length: usize) -> f64 = npb_bt_5x5_block_tridiagonal_impl

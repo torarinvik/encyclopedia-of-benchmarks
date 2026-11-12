@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "sum-of-multiplicative-function-large-v1",
+  "algorithm": "sum_of_multiplicative_function_large",
+  "function_symbol": "sum_of_multiplicative_function_large",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[N, a, b]",
+    "minimum_n": 1,
+    "maximum_n": 100000000,
+    "maximum_valid_input_length": 3,
+    "maximum_parseable_input_length": 4,
+    "coefficient_modulus": 469762049,
+    "coefficient_range": "0 <= a,b < 469762049",
+    "prime_power_definition": "f(p^e) = a*e + b*p mod 469762049",
+    "f_one": 1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "sum(f(n), 1 <= n <= N) modulo 469762049",
+    "modulus": 469762049,
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id": "f_one_only", "input_length": 3, "input_values": [1, 0, 0], "expected_result": 1},
+    {"id": "tau_through_two", "input_length": 3, "input_values": [2, 1, 0], "expected_result": 2},
+    {"id": "mixed_through_three", "input_length": 3, "input_values": [3, 1, 1], "expected_result": 8},
+    {"id": "tau_through_four", "input_length": 3, "input_values": [4, 1, 0], "expected_result": 5},
+    {"id": "mixed_prime_powers_through_six", "input_length": 3, "input_values": [6, 1, 1], "expected_result": 30},
+    {"id": "radical_through_ten", "input_length": 3, "input_values": [10, 0, 1], "expected_result": 41},
+    {"id": "tau_through_ten", "input_length": 3, "input_values": [10, 1, 0], "expected_result": 27},
+    {"id": "large_zero_function", "input_length": 3, "input_values": [100000000, 0, 0], "expected_result": 1},
+    {"id": "empty_input", "input_length": 0, "input_values": [], "expected_result": -1},
+    {"id": "wrong_input_length", "input_length": 2, "input_values": [10, 1], "expected_result": -1},
+    {"id": "parseable_extra_value", "input_length": 4, "input_values": [10, 1, 0, 0], "expected_result": -1},
+    {"id": "zero_n", "input_length": 3, "input_values": [0, 1, 0], "expected_result": -1},
+    {"id": "n_above_local_bound", "input_length": 3, "input_values": [100000001, 0, 0], "expected_result": -1},
+    {"id": "negative_a", "input_length": 3, "input_values": [10, -1, 0], "expected_result": -1},
+    {"id": "negative_b", "input_length": 3, "input_values": [10, 0, -1], "expected_result": -1},
+    {"id": "a_not_canonical", "input_length": 3, "input_values": [10, 469762049, 0], "expected_result": -1},
+    {"id": "b_not_canonical", "input_length": 3, "input_values": [10, 0, 469762049], "expected_result": -1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-multiplicative-convolution-mod-2n-bounded-v1",
+  "algorithm": "mul_mod2n_convolution",
+  "function_symbol": "mul_mod2n_convolution",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "convolution/mul_mod2n_convolution/task.md",
+    "limits_path": "convolution/mul_mod2n_convolution/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/convolution/mul_mod2n_convolution/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/convolution/mul_mod2n_convolution/info.toml",
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Operation and coefficient modulus are from the task; local N bound and implementations are clean-room."
+  },
+  "contract": {
+    "operation": "c[k] is the sum of a[i]*b[j] modulo 998244353 over i*j == k modulo 2^N.",
+    "input_layout": "[N,a[0..2^N),b[0..2^N)]",
+    "n_range": [0, 5],
+    "coefficient_range": [0, 998244352],
+    "coefficient_modulus": 998244353,
+    "algorithm": "Direct residue-pair enumeration; multiplication is reduced modulo 2^N for the destination and modulo 998244353 for the accumulated coefficient.",
+    "output_layout": "2^N little-endian signed 64-bit coefficients reduced modulo 998244353.",
+    "error_precedence": "Malformed frame, out-of-range N, or invalid coefficient returns -1 before output checks. Valid input with null output or insufficient capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,a[0..2^N),b[0..2^N)]",
+    "n_range": [0, 5],
+    "entry_domain": [0, 998244352],
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 32,
+    "maximum_output_bytes": 256,
+    "success_result": "8*(2^N) bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Maximum staged output buffer; the bounded pair loop uses no additional dynamic storage."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-residue-n-zero",
+      "input_values": [0, 3, 7],
+      "expected_result": 8,
+      "expected_output_hex": "1500000000000000",
+      "input_length": 3
+    },
+    {
+      "id": "modulo-two-zero-divisor",
+      "input_values": [1, 1, 2, 3, 4],
+      "expected_result": 16,
+      "expected_output_hex": "0d000000000000000800000000000000",
+      "input_length": 5
+    },
+    {
+      "id": "modulo-four-zero-divisors",
+      "input_values": [2, 1, 2, 3, 4, 5, 6, 7, 8],
+      "expected_result": 32,
+      "expected_output_hex": "5c000000000000002c0000000000000054000000000000002800000000000000",
+      "input_length": 9
+    },
+    {
+      "id": "n-out-of-bounds",
+      "input_values": [6, 0, 0],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 3
+    },
+    {
+      "id": "negative-coefficient",
+      "input_values": [0, -1, 7],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 3
+    },
+    {
+      "id": "short-frame",
+      "input_values": [1, 1],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 2
+    },
+    {
+      "id": "extra-word",
+      "input_values": [0, 3, 7, 1],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 4
+    },
+    {
+      "id": "short-capacity",
+      "input_values": [1, 1, 2, 3, 4],
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "input_length": 5
+    },
+    {
+      "id": "null-output",
+      "input_values": [0, 3, 7],
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "input_length": 3
+    }
+  ]
+}

@@ -313,6 +313,49 @@ from asci_purple_smg2000_residual_oracle import (
     OUTPUT_ERROR as ASCI_PURPLE_SMG2000_OUTPUT_ERROR,
     expected_output as asci_purple_smg2000_expected_output,
 )
+from marsaglia_polar_normal_oracle import (
+    MAX_INPUT_LENGTH as MARSAGLIA_POLAR_MAX_INPUT_LENGTH,
+    OUTPUT_ELEMENTS as MARSAGLIA_POLAR_OUTPUT_ELEMENTS,
+    expected_output as marsaglia_polar_normal_oracle,
+)
+from metropolis_mcmc_oracle import (
+    MAX_INPUT_LENGTH as METROPOLIS_MCMC_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as METROPOLIS_MCMC_MAX_OUTPUT_ELEMENTS,
+    expected_output as metropolis_mcmc_oracle,
+)
+from box_muller_cartesian_normal_oracle import (
+    MAX_INPUT_LENGTH as BOX_MULLER_CARTESIAN_MAX_INPUT_LENGTH,
+    OUTPUT_ELEMENTS as BOX_MULLER_CARTESIAN_MAX_OUTPUT_ELEMENTS,
+    expected_output as box_muller_cartesian_normal_oracle,
+)
+from npb_ep_oracle import (
+    MAX_INPUT_LENGTH as NPB_EP_MAX_INPUT_LENGTH,
+    OUTPUT_ELEMENTS as NPB_EP_OUTPUT_ELEMENTS,
+    expected_output as npb_ep_oracle,
+)
+from npb_ft_3d_spectral_step_oracle import (
+    MAX_INPUT_LENGTH as NPB_FT_3D_SPECTRAL_STEP_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as NPB_FT_3D_SPECTRAL_STEP_MAX_OUTPUT_ELEMENTS,
+    expected_output as npb_ft_3d_spectral_step_oracle,
+)
+from f.npb_ft_3d_spectral_step.verify_workload import (
+    verify_workload as verify_npb_ft_3d_spectral_step_package,
+)
+from npb_mg_vcycle_oracle import (
+    MAX_INPUT_LENGTH as NPB_MG_VCYCLE_MAX_INPUT_LENGTH,
+    expected_output as npb_mg_vcycle_oracle,
+)
+from n.npb_mg_vcycle.verify_workload import (
+    verify_workload as verify_npb_mg_vcycle_package,
+)
+from npb_sp_pentadiagonal_oracle import (
+    MAX_INPUT_LENGTH as NPB_SP_PENTADIAGONAL_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as NPB_SP_PENTADIAGONAL_MAX_OUTPUT_ELEMENTS,
+    expected_output as npb_sp_pentadiagonal_oracle,
+)
+from n.npb_sp_pentadiagonal_line_solve.verify_workload import (
+    verify_workload as verify_npb_sp_pentadiagonal_package,
+)
 from mafft_falign_fft_lag_correlation_oracle import (
     MAX_INPUT_LENGTH as MAFFT_FALIGN_MAX_INPUT_LENGTH,
     expected_output as mafft_falign_fft_lag_correlation_expected_output,
@@ -752,6 +795,37 @@ from monte_carlo_simulation_oracle import (
     STEP_COUNTS as MONTE_CARLO_SIMULATION_STEP_COUNTS,
     expected_output as monte_carlo_simulation_abi_oracle,
     expected_result as monte_carlo_simulation_expected_result,
+)
+from hjm_forward_path_oracle import (
+    MAX_INPUT_LENGTH as HJM_FORWARD_PATH_MAX_INPUT_LENGTH,
+    expected_output as hjm_forward_path_abi_oracle,
+)
+from m.hjm_forward_path.verify_workload import verify_workload as verify_hjm_forward_path_package
+from splash2_fmm_oracle import (
+    MAX_INPUT_LENGTH as SPLASH2_FMM_MAX_INPUT_LENGTH,
+    expected_output as splash2_fmm_abi_oracle,
+)
+from verify_splash2_fmm_package import check_package as check_splash2_fmm_package
+from splash2_fft_six_step_oracle import (
+    MAX_INPUT_LENGTH as SPLASH2_FFT_SIX_STEP_MAX_INPUT_LENGTH,
+    expected_output as splash2_fft_six_step_oracle,
+)
+from f.splash2_fft_six_step.verify_workload import (
+    verify_workload as verify_splash2_fft_six_step_package,
+)
+from splash2_ocean_rbgs_oracle import (
+    MAX_INPUT_LENGTH as SPLASH2_OCEAN_RBGS_MAX_INPUT_LENGTH,
+    expected_output as splash2_ocean_rbgs_oracle,
+)
+from o.splash2_ocean_rbgs.verify_workload import (
+    verify_workload as verify_splash2_ocean_rbgs_package,
+)
+from splash2_radiosity_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SPLASH2_RADIOSITY_MAX_INPUT_LENGTH,
+    expected_output as splash2_radiosity_refine_oracle,
+)
+from f.splash2_radiosity_refine.verify_workload import (
+    verify_workload as verify_splash2_radiosity_refine_package,
 )
 from mini_batch_gradient_descent_oracle import (
     INVALID_RESULT as MINI_BATCH_GRADIENT_DESCENT_INVALID_RESULT,
@@ -1764,7 +1838,19 @@ ORACLES = {
     "gardenia_symgs": gardenia_symgs_oracle,
     "gardenia_sgd": gardenia_sgd_oracle,
     "asci_purple_smg2000_residual": asci_purple_smg2000_residual_oracle,
+    "marsaglia_polar_normal": marsaglia_polar_normal_oracle,
+    "metropolis_mcmc": metropolis_mcmc_oracle,
+    "box_muller_cartesian_normal": box_muller_cartesian_normal_oracle,
+    "npb_ep": npb_ep_oracle,
+    "npb_ft_3d_spectral_step": npb_ft_3d_spectral_step_oracle,
+    "npb_mg_vcycle": npb_mg_vcycle_oracle,
+    "npb_sp_pentadiagonal_line_solve": npb_sp_pentadiagonal_oracle,
     "mafft_falign_fft_lag_correlation": mafft_falign_fft_lag_correlation_abi_oracle,
+    "hjm_forward_path": hjm_forward_path_abi_oracle,
+    "splash2_fmm": splash2_fmm_abi_oracle,
+    "splash2_fft_six_step": splash2_fft_six_step_oracle,
+    "splash2_ocean_rbgs": splash2_ocean_rbgs_oracle,
+    "splash2_radiosity_refine": splash2_radiosity_refine_oracle,
     "himenobmtxpa": himenobmtxpa_oracle,
     "polybench_lu": polybench_lu_oracle,
     "polybench_gramschmidt": polybench_gramschmidt_oracle,
@@ -4515,8 +4601,31 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         PARBOIL_STENCIL_MAX_INPUT_LENGTH if algorithm == "parboil_stencil_laplacian" else
                         ASCI_PURPLE_SMG2000_MAX_INPUT_LENGTH
                         if algorithm == "asci_purple_smg2000_residual" else
+                        MARSAGLIA_POLAR_MAX_INPUT_LENGTH
+                        if algorithm == "marsaglia_polar_normal" else
+                        METROPOLIS_MCMC_MAX_INPUT_LENGTH
+                        if algorithm == "metropolis_mcmc" else
+                        BOX_MULLER_CARTESIAN_MAX_INPUT_LENGTH
+                        if algorithm == "box_muller_cartesian_normal" else
+                        NPB_EP_MAX_INPUT_LENGTH if algorithm == "npb_ep" else
+                        NPB_FT_3D_SPECTRAL_STEP_MAX_INPUT_LENGTH
+                        if algorithm == "npb_ft_3d_spectral_step" else
+                        NPB_MG_VCYCLE_MAX_INPUT_LENGTH
+                        if algorithm == "npb_mg_vcycle" else
+                        NPB_SP_PENTADIAGONAL_MAX_INPUT_LENGTH
+                        if algorithm == "npb_sp_pentadiagonal_line_solve" else
                         MAFFT_FALIGN_MAX_INPUT_LENGTH
                         if algorithm == "mafft_falign_fft_lag_correlation" else
+                        HJM_FORWARD_PATH_MAX_INPUT_LENGTH
+                        if algorithm == "hjm_forward_path" else
+                        SPLASH2_FMM_MAX_INPUT_LENGTH
+                        if algorithm == "splash2_fmm" else
+                        SPLASH2_FFT_SIX_STEP_MAX_INPUT_LENGTH
+                        if algorithm == "splash2_fft_six_step" else
+                        SPLASH2_OCEAN_RBGS_MAX_INPUT_LENGTH
+                        if algorithm == "splash2_ocean_rbgs" else
+                        SPLASH2_RADIOSITY_MAX_INPUT_LENGTH
+                        if algorithm == "splash2_radiosity_refine" else
                         HIMENO_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "himenobmtxpa" else
                         POLYBENCH_GRAMSCHMIDT_MAX_INPUT_LENGTH if algorithm == "polybench_gramschmidt" else
                         POLYBENCH_LU_MAX_INPUT_LENGTH if algorithm == "polybench_lu" else
@@ -4732,7 +4841,8 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                                                       "cbench_lame_mid_side",
                                                       "cbench_rsynth_natural_glottal_sample",
                                                       "cbench_rsynth_impulsive_glottal_sample",
-                                                      "tsvc_s222_interleaved_square_recurrence"}
+                                                      "tsvc_s222_interleaved_square_recurrence",
+                                                      "metropolis_mcmc"}
                 and not (allow_nonfinite and case.get("input_is_null") is True
                          and case.get("input_length") == 0))
             or len(raw_values) > max_input_length
@@ -4741,9 +4851,12 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
     values = [float(value) for value in raw_values]
-    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "misc_dt", "olden_bh", "olden_em3d", "trisolv", "jacobi_1d", "jacobi_2d", "syrk", "syr2k", "trmm", "fdtd_2d", "heat_3d", "parboil_stencil_laplacian", "graphai_gcn_aggregation", "graphai_sage_aggregation", "graphai_gat_aggregation", "graphai_frontier_sampler", "graphai_cf_sgd_sweep", "asci_purple_smg2000_residual", "mafft_falign_fft_lag_correlation", "himenobmtxpa", "polybench_gramschmidt", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_automotive_basicmath_cubic", "mibench_lame_mdct_long", "cbench_consumer_mad_imdct36", "cbench_consumer_lame_mdct_short", "cbench_lame_mid_side", "cbench_rsynth_natural_glottal_sample", "smallest_enclosing_ball_3d", "euclidean_t_spanner", "joint_probability_distribution", "shreedharacharya", "rotation_matrix", "tsvc_s313_dot_product_reduction", "tsvc_s275_column_conditional_axpy_recurrence", "tsvc_s111_odd_index_neighbor_update",
+    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "misc_dt", "olden_bh", "olden_em3d", "trisolv", "jacobi_1d", "jacobi_2d", "syrk", "syr2k", "trmm", "fdtd_2d", "heat_3d", "parboil_stencil_laplacian", "graphai_gcn_aggregation", "graphai_sage_aggregation", "graphai_gat_aggregation", "graphai_frontier_sampler", "graphai_cf_sgd_sweep", "asci_purple_smg2000_residual", "marsaglia_polar_normal", "metropolis_mcmc", "box_muller_cartesian_normal", "npb_ep", "npb_ft_3d_spectral_step", "npb_mg_vcycle", "npb_sp_pentadiagonal_line_solve", "mafft_falign_fft_lag_correlation", "himenobmtxpa", "polybench_gramschmidt", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_automotive_basicmath_cubic", "mibench_lame_mdct_long", "cbench_consumer_mad_imdct36", "cbench_consumer_lame_mdct_short", "cbench_lame_mid_side", "cbench_rsynth_natural_glottal_sample", "smallest_enclosing_ball_3d", "euclidean_t_spanner", "joint_probability_distribution", "shreedharacharya", "rotation_matrix", "tsvc_s313_dot_product_reduction", "tsvc_s275_column_conditional_axpy_recurrence", "tsvc_s111_odd_index_neighbor_update",
                      "tsvc_vtvtv_triple_product_map", "tsvc_s451_sincos_vector_map",
                      "tsvc_s221_partial_recursive_fused_update",
+                     "hjm_forward_path", "splash2_fmm", "splash2_fft_six_step",
+                     "splash2_ocean_rbgs",
+                     "splash2_radiosity_refine",
                      "tsvc_s222_interleaved_square_recurrence",
                      "tsvc_s2251_carried_scalar_expansion", "tsvc_s1251_per_element_dual_update",
                      "tsvc_s3251_forward_shifted_array_expansion", "tsvc_s2712_comparison_gated_axpy",
@@ -5048,9 +5161,101 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                 input_is_null=case.get("input_is_null", False),
                 input_length=case.get("input_length"))
             oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "marsaglia_polar_normal":
+            if case.get("input_is_null", False):
+                expected_result, oracle_values = -1, []
+            else:
+                expected_result, oracle_values = marsaglia_polar_normal_oracle(
+                    values, output_capacity=case.get("output_capacity"),
+                    output_is_null=case.get("output_is_null", False),
+                    input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "metropolis_mcmc":
+            if case.get("input_is_null", False):
+                expected_result, oracle_values = -1, []
+            else:
+                expected_result, oracle_values = metropolis_mcmc_oracle(
+                    values, output_capacity=case.get("output_capacity"),
+                    output_is_null=case.get("output_is_null", False),
+                    input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "box_muller_cartesian_normal":
+            if case.get("input_is_null", False):
+                expected_result, oracle_values = -1, []
+            else:
+                expected_result, oracle_values = box_muller_cartesian_normal_oracle(
+                    values, output_capacity=case.get("output_capacity"),
+                    output_is_null=case.get("output_is_null", False),
+                    input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "npb_ep":
+            if case.get("input_is_null", False):
+                expected_result, oracle_values = -1, []
+            else:
+                expected_result, oracle_values = npb_ep_oracle(
+                    values, output_capacity=case.get("output_capacity"),
+                    output_is_null=case.get("output_is_null", False),
+                    input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "npb_ft_3d_spectral_step":
+            expected_result, oracle_values = npb_ft_3d_spectral_step_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "npb_mg_vcycle":
+            expected_result, oracle_values = npb_mg_vcycle_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "npb_sp_pentadiagonal_line_solve":
+            expected_result, oracle_values = npb_sp_pentadiagonal_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "mafft_falign_fft_lag_correlation":
             expected_result, oracle_values = mafft_falign_fft_lag_correlation_abi_oracle(
                 values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "hjm_forward_path":
+            expected_result, oracle_values = hjm_forward_path_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "splash2_fmm":
+            expected_result, oracle_values = splash2_fmm_abi_oracle(
+                values, capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "splash2_fft_six_step":
+            expected_result, oracle_values = splash2_fft_six_step_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_length=case.get("input_length"),
+                input_is_null=case.get("input_is_null", False))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "splash2_ocean_rbgs":
+            expected_result, oracle_values = splash2_ocean_rbgs_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_length=case.get("input_length"),
+                input_is_null=case.get("input_is_null", False))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "splash2_radiosity_refine":
+            expected_result, oracle_values = splash2_radiosity_refine_oracle(
+                values, capacity=case.get("output_capacity"),
                 output_is_null=case.get("output_is_null", False),
                 input_is_null=case.get("input_is_null", False),
                 input_length=case.get("input_length"))
@@ -16397,6 +16602,258 @@ def validate_travelling_salesman_python_workload(workload: dict, algorithm: str)
             raise ValueError(f"{algorithm} fixture differs from its independent oracle: {case_id}")
 
 
+def validate_npb_ep_workload(workload: dict) -> None:
+    cases = workload.get("cases")
+    expected_ids = {
+        "one-accepted-pair", "four-repeated-accepted-pairs",
+        "bounded-local-profile",
+        "degenerate-candidates-are-rejected", "empty-input",
+        "zero-candidate-count", "zero-initial-state",
+        "state-outside-46-bit-range", "fractional-pair-count",
+        "short-output", "null-output",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "nasa-npb-ep-bounded-stream-reduction-v1"
+            or workload.get("algorithm") != "npb_ep"
+            or workload.get("function_symbol") != "npb_ep"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("oracle") != "benchmarks/npb_ep_oracle.py"
+            or workload.get("oracle_entry_point")
+            != "expected_output(values, output_capacity=None, output_is_null=False, input_length=None)"
+            or workload.get("input", {}).get("maximum_input_length") != NPB_EP_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("multiplier") != 1_220_703_125
+            or workload.get("input", {}).get("modulus") != 70_368_744_177_664
+            or workload.get("source", {}).get("canonical_npb_seed") != 271_828_183
+            or workload.get("workspace", {}).get("elements") != NPB_EP_OUTPUT_ELEMENTS
+            or workload.get("output", {}).get("maximum_elements") != NPB_EP_OUTPUT_ELEMENTS
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 1e-12
+            or workload.get("measurement", {}).get("relative_tolerance") != 1e-12
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("npb_ep workload differs from its bounded 46-bit stream-and-reduction contract")
+    readme = (ROOT / "benchmarks" / "n" / "npb_ep" / "README.md").read_text(encoding="utf-8")
+    source_url = workload.get("source", {}).get("url")
+    if (source_url != "https://www.nas.nasa.gov/assets/nas/pdf/techreports/1994/rnr-94-007.pdf"
+            or source_url not in readme
+            or "takes the starting state as an input" not in readme
+            or "3*2^44" not in readme
+            or "does not perform this full stream-and-" not in readme):
+        raise ValueError("npb_ep provenance or documented bounded-profile deviation is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"),
+                                ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source_path = ROOT / language / "n" / f"npb_ep.{extension}"
+        if not source_path.is_file():
+            raise ValueError(f"npb_ep port is missing: {source_path}")
+    for case in cases:
+        values, result, output = encode_case(case, "npb_ep", 1e-12, 1e-12)
+        if (case.get("input_length") != len(values)
+                or type(case.get("expected_result")) is not int
+                or case.get("expected_result") != result
+                or not _matches_output(case.get("expected_output"), output, 1e-12, 1e-12)):
+            raise ValueError(f"npb_ep fixture mismatch: {case.get('id')}")
+
+
+def validate_npb_ft_3d_spectral_step_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/f/npb_ft_3d_spectral_step/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("npb_ft_3d_spectral_step workload differs from its package file")
+    if NPB_FT_3D_SPECTRAL_STEP_MAX_OUTPUT_ELEMENTS != 12:
+        raise ValueError("npb_ft_3d_spectral_step output bound differs from its bounded contract")
+    verify_npb_ft_3d_spectral_step_package()
+
+
+def validate_npb_mg_vcycle_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/n/npb_mg_vcycle/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("npb_mg_vcycle workload differs from its package file")
+    if (NPB_MG_VCYCLE_MAX_INPUT_LENGTH != 34
+            or workload.get("input", {}).get("maximum_length") != 34
+            or workload.get("output", {}).get("maximum_elements") != 1
+            or workload.get("workspace", {}).get("elements") != 768):
+        raise ValueError("npb_mg_vcycle bounds differ from its 4^3 periodic V-cycle contract")
+    verify_npb_mg_vcycle_package()
+
+
+def validate_npb_sp_pentadiagonal_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/n/npb_sp_pentadiagonal_line_solve/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("npb_sp_pentadiagonal_line_solve workload differs from its package file")
+    if (NPB_SP_PENTADIAGONAL_MAX_INPUT_LENGTH != 97
+            or NPB_SP_PENTADIAGONAL_MAX_OUTPUT_ELEMENTS != 16
+            or workload.get("input", {}).get("maximum_length") != 97
+            or workload.get("output", {}).get("maximum_elements") != 16
+            or workload.get("workspace", {}).get("elements") != 96):
+        raise ValueError("npb_sp_pentadiagonal_line_solve bounds differ from its bounded banded-solve contract")
+    verify_npb_sp_pentadiagonal_package()
+
+
+def validate_box_muller_cartesian_normal_workload(workload: dict) -> None:
+    cases = workload.get("cases")
+    expected_ids = {
+        "axis-aligned-pair", "quarter-turn-pair", "radial-one-produces-zero-pair",
+        "two-consecutive-pairs", "empty-input", "zero-pair-count",
+        "pair-count-does-not-match-tape", "fractional-draw",
+        "draw-above-unsigned-32-bit-range", "short-output", "null-output",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "encyclopedia-algorithms-box-muller-cartesian-normal-bounded-tape-v1"
+            or workload.get("algorithm") != "box_muller_cartesian_normal"
+            or workload.get("function_symbol") != "box_muller_cartesian_normal"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("oracle") != "benchmarks/box_muller_cartesian_normal_oracle.py"
+            or workload.get("oracle_entry_point")
+            != "expected_output(values, output_capacity=None, output_is_null=False, input_length=None)"
+            or workload.get("input", {}).get("maximum_input_length")
+            != BOX_MULLER_CARTESIAN_MAX_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_elements")
+            != BOX_MULLER_CARTESIAN_MAX_OUTPUT_ELEMENTS
+            or workload.get("workspace", {}).get("elements")
+            != BOX_MULLER_CARTESIAN_MAX_OUTPUT_ELEMENTS
+            or workload.get("measurement", {}).get("comparison_model")
+            != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 1e-12
+            or workload.get("measurement", {}).get("relative_tolerance") != 1e-12
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("box_muller_cartesian_normal workload differs from its bounded direct-transform contract")
+    readme = (ROOT / "benchmarks" / "b" / "box_muller_cartesian_normal" / "README.md").read_text(
+        encoding="utf-8")
+    source_url = workload.get("source", {}).get("url")
+    if (source_url != "https://doi.org/10.1214/aoms/1177706645"
+            or source_url not in readme
+            or "90-digit `Decimal`" not in readme
+            or "Marsaglia polar" not in readme):
+        raise ValueError("box_muller_cartesian_normal provenance or README contract is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"),
+                                ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source_path = ROOT / language / "b" / f"box_muller_cartesian_normal.{extension}"
+        if not source_path.is_file():
+            raise ValueError(f"box_muller_cartesian_normal port is missing: {source_path}")
+    for case in cases:
+        values, result, output = encode_case(case, "box_muller_cartesian_normal", 1e-12, 1e-12)
+        if (case.get("input_length") != len(values)
+                or type(case.get("expected_result")) is not int
+                or case.get("expected_result") != result
+                or not _matches_output(case.get("expected_output"), output, 1e-12, 1e-12)):
+            raise ValueError(f"box_muller_cartesian_normal fixture mismatch: {case.get('id')}")
+
+
+def validate_marsaglia_polar_normal_workload(workload: dict) -> None:
+    cases = workload.get("cases")
+    expected_ids = {
+        "empty-input", "immediate-acceptance", "negative-second-coordinate",
+        "zero-first-coordinate", "outside-circle-then-accept",
+        "zero-radius-then-accept", "unit-radius-boundary-is-rejected",
+        "attempt-cap-exhausted", "cap-does-not-reach-later-valid-pair",
+        "accepted-pair-leaves-unused-suffix", "odd-draw-count",
+        "tape-shorter-than-cap", "fractional-draw",
+        "draw-above-unsigned-32-bit-range", "short-output",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "encyclopedia-algorithms-marsaglia-polar-normal-bounded-tape-v1"
+            or workload.get("algorithm") != "marsaglia_polar_normal"
+            or workload.get("function_symbol") != "marsaglia_polar_normal"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("oracle") != "benchmarks/marsaglia_polar_normal_oracle.py"
+            or workload.get("oracle_entry_point")
+            != "expected_output(values, output_capacity=None, output_is_null=False, input_length=None)"
+            or workload.get("input", {}).get("maximum_input_length")
+            != MARSAGLIA_POLAR_MAX_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_elements")
+            != MARSAGLIA_POLAR_OUTPUT_ELEMENTS
+            or workload.get("workspace", {}).get("elements")
+            != MARSAGLIA_POLAR_OUTPUT_ELEMENTS
+            or workload.get("measurement", {}).get("comparison_model")
+            != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 1e-12
+            or workload.get("measurement", {}).get("relative_tolerance") != 1e-12
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("marsaglia_polar_normal workload differs from its bounded deterministic tape contract")
+    readme = (ROOT / "benchmarks" / "m" / "marsaglia_polar_normal" / "README.md").read_text(
+        encoding="utf-8")
+    source_url = workload.get("source", {}).get("url")
+    if (source_url != "https://ece.uwaterloo.ca/~dwharder/icsrts/Simulations/Normal_distributions/"
+            or source_url not in readme
+            or "80-digit `Decimal`" not in readme
+            or "Box–Muller" not in readme):
+        raise ValueError("marsaglia_polar_normal provenance or README contract is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"),
+                                ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source_path = ROOT / language / "m" / f"marsaglia_polar_normal.{extension}"
+        if not source_path.is_file():
+            raise ValueError(f"marsaglia_polar_normal port is missing: {source_path}")
+    for case in cases:
+        values, result, output = encode_case(case, "marsaglia_polar_normal", 1e-12, 1e-12)
+        if (case.get("input_length") != len(values)
+                or type(case.get("expected_result")) is not int
+                or case.get("expected_result") != result
+                or not _matches_output(case.get("expected_output"), output, 1e-12, 1e-12)):
+            raise ValueError(f"marsaglia_polar_normal fixture mismatch: {case.get('id')}")
+
+
+def validate_metropolis_mcmc_workload(workload: dict) -> None:
+    cases = workload.get("cases")
+    expected_ids = {
+        "accept-uphill-then-reject-uphill", "downhill-accepts-even-with-large-uniform",
+        "zero-step-chain", "equal-energy-acceptance", "steep-uphill-rejection",
+        "nonintegral-state-count", "invalid-proposal-state", "uniform-one-is-invalid",
+        "short-output", "null-output", "null-input",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "algorithm-archive-metropolis-mcmc-deterministic-chain-v1"
+            or workload.get("algorithm") != "metropolis_mcmc"
+            or workload.get("function_symbol") != "metropolis_mcmc"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("oracle") != "benchmarks/metropolis_mcmc_oracle.py"
+            or workload.get("oracle_entry_point")
+            != "expected_output(values, output_capacity=None, output_is_null=False, input_length=None)"
+            or workload.get("input", {}).get("maximum_input_length")
+            != METROPOLIS_MCMC_MAX_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_elements")
+            != METROPOLIS_MCMC_MAX_OUTPUT_ELEMENTS
+            or workload.get("workspace", {}).get("elements") != 0
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0.0
+            or workload.get("measurement", {}).get("relative_tolerance") != 0.0
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("metropolis_mcmc workload differs from its bounded deterministic-chain contract")
+    source_url = workload.get("source", {}).get("url")
+    readme = (ROOT / "benchmarks" / "m" / "metropolis_mcmc" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url != "https://doi.org/10.1063/1.1699114"
+            or source_url not in readme
+            or "symmetric proposal" not in readme
+            or "simulated_annealing" not in readme):
+        raise ValueError("metropolis_mcmc provenance or duplicate distinction is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"),
+                                ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source_path = ROOT / language / "m" / f"metropolis_mcmc.{extension}"
+        if not source_path.is_file():
+            raise ValueError(f"metropolis_mcmc port is missing: {source_path}")
+    for case in cases:
+        values, result, output = encode_case(case, "metropolis_mcmc", 0.0, 0.0)
+        if (case.get("input_length") != len(values)
+                or type(case.get("expected_result")) is not int
+                or case.get("expected_result") != result
+                or not _matches_output(case.get("expected_output"), output, 0.0, 0.0)):
+            raise ValueError(f"metropolis_mcmc fixture mismatch: {case.get('id')}")
+
+
 def validate_asci_purple_smg2000_residual_workload(workload: dict) -> None:
     pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
     sources = workload.get("pinned_sources", [])
@@ -16558,7 +17015,11 @@ def main() -> int:
             or sha256_file(runner_source) != runner_binary["harness_sha256"]):
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
 
-    letter = {"polybench_lu": "l", "polybench_gramschmidt": "p", "polybench_correlation": "c",
+    letter = {"hjm_forward_path": "m", "splash2_fmm": "f",
+              "splash2_fft_six_step": "f",
+              "splash2_ocean_rbgs": "o",
+              "splash2_radiosity_refine": "f",
+              "polybench_lu": "l", "polybench_gramschmidt": "p", "polybench_correlation": "c",
               "polybench_seidel_2d": "s",
               "cbench_consumer_mad_imdct36": "m",
               "cbench_consumer_lame_mdct_short": "m",
@@ -16618,8 +17079,34 @@ def main() -> int:
         validate_gardenia_workload(workload, algorithm)
     elif algorithm == "asci_purple_smg2000_residual":
         validate_asci_purple_smg2000_residual_workload(workload)
+    elif algorithm == "marsaglia_polar_normal":
+        validate_marsaglia_polar_normal_workload(workload)
+    elif algorithm == "metropolis_mcmc":
+        validate_metropolis_mcmc_workload(workload)
+    elif algorithm == "box_muller_cartesian_normal":
+        validate_box_muller_cartesian_normal_workload(workload)
+    elif algorithm == "npb_ep":
+        validate_npb_ep_workload(workload)
+    elif algorithm == "npb_ft_3d_spectral_step":
+        validate_npb_ft_3d_spectral_step_workload(workload)
+    elif algorithm == "npb_mg_vcycle":
+        validate_npb_mg_vcycle_workload(workload)
+    elif algorithm == "npb_sp_pentadiagonal_line_solve":
+        validate_npb_sp_pentadiagonal_workload(workload)
     elif algorithm == "mafft_falign_fft_lag_correlation":
         validate_mafft_falign_fft_lag_correlation_workload(workload)
+    elif algorithm == "hjm_forward_path":
+        verify_hjm_forward_path_package()
+    elif algorithm == "splash2_fmm":
+        errors = check_splash2_fmm_package()
+        if errors:
+            raise ValueError("splash2_fmm package is incomplete: " + "; ".join(errors))
+    elif algorithm == "splash2_fft_six_step":
+        verify_splash2_fft_six_step_package()
+    elif algorithm == "splash2_ocean_rbgs":
+        verify_splash2_ocean_rbgs_package()
+    elif algorithm == "splash2_radiosity_refine":
+        verify_splash2_radiosity_refine_package()
     elif algorithm == "himenobmtxpa":
         validate_himenobmtxpa_workload(workload)
     elif algorithm == "polybench_lu":

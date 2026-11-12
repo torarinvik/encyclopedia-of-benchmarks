@@ -18,7 +18,7 @@ begins `0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, ...`.
 ## Related benchmarks
 
 This output is distinct from `prime_numbers`, which returns prime values up to
-an inclusive limit, and `first_n_primes`, which returns the first `n` prime
+an inclusive limit, and count-limited prime generation profiles, which return the first `n` prime
 values. This benchmark keeps every index and encodes primality as a zero or
 one term.
 

@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "id": "addition-of-signed-big-integers-decimal-bounded-v1",
+  "algorithm": "addition_of_big_integers",
+  "function_symbol": "addition_of_big_integers",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task": "big_integer/addition_of_big_integers",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/big_integer/addition_of_big_integers/task.md",
+    "parameters_url": "https://github.com/yosupo06/library-checker-problems/blob/master/big_integer/addition_of_big_integers/info.toml",
+    "license_url": "https://github.com/yosupo06/library-checker-problems/blob/master/LICENSE",
+    "implementation_status": "bounded clean-room signed-decimal addition profile"
+  },
+  "contract": {
+    "operation": "Add two signed arbitrary-length base-10 integers represented by canonical ASCII bytes.",
+    "method": "Compare magnitudes; add digits with carry for equal signs; subtract the smaller magnitude with borrow for opposite signs; normalize zero and the result sign.",
+    "scope": "The profile caps each magnitude at 32 decimal digits, far below the official multi-million-character stress limits."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[len_a, len_b, ascii_a_bytes..., ascii_b_bytes...]",
+    "operand_text_length_range": [1, 33],
+    "operand_digit_count_range": [1, 32],
+    "maximum_input_length": 68,
+    "byte_range": [0, 127],
+    "operand_format": "Optional leading minus, then decimal digits; zero exactly '0'; no leading zeroes, plus sign, or negative zero.",
+    "exact_packed_length": "2 + len_a + len_b",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "ASCII_byte_string",
+    "encoding": "Canonical signed base-10 sum without a NUL terminator.",
+    "successful_result": "number of bytes written",
+    "maximum_output_length": 34,
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Bound for the 33-digit reverse result buffer and sign/magnitude metadata."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "oracle": "benchmarks/addition_of_big_integers_oracle.py",
+  "independent_oracle": "benchmarks/addition_of_big_integers_verifier_oracle.py",
+  "cases": [
+    {
+      "id": "positive-addition",
+      "input_values": [3, 3, 49, 50, 51, 52, 53, 54],
+      "input_length": 8,
+      "expected_result": 3,
+      "expected_output_hex": "353739"
+    },
+    {
+      "id": "carry-chain",
+      "input_values": [3, 1, 57, 57, 57, 49],
+      "input_length": 6,
+      "expected_result": 4,
+      "expected_output_hex": "31303030"
+    },
+    {
+      "id": "negative-operands",
+      "input_values": [3, 3, 45, 56, 56, 45, 49, 50],
+      "input_length": 8,
+      "expected_result": 4,
+      "expected_output_hex": "2d313030"
+    },
+    {
+      "id": "opposite-sign-borrow",
+      "input_values": [3, 2, 49, 50, 53, 45, 55],
+      "input_length": 7,
+      "expected_result": 3,
+      "expected_output_hex": "313138"
+    },
+    {
+      "id": "negative-result",
+      "input_values": [2, 3, 49, 48, 45, 52, 50],
+      "input_length": 7,
+      "expected_result": 3,
+      "expected_output_hex": "2d3332"
+    },
+    {
+      "id": "opposite-sign-cancellation",
+      "input_values": [4, 3, 45, 57, 57, 57, 57, 57, 57],
+      "input_length": 9,
+      "expected_result": 1,
+      "expected_output_hex": "30"
+    },
+    {
+      "id": "maximum-width-cancellation",
+      "input_values": [32, 33,
+        49, 49, 49, 49, 49, 49, 49, 49,
+        49, 49, 49, 49, 49, 49, 49, 49,
+        49, 49, 49, 49, 49, 49, 49, 49,
+        49, 49, 49, 49, 49, 49, 49, 49,
+        45,
+        49, 49, 49, 49, 49, 49, 49, 49,
+        49, 49, 49, 49, 49, 49, 49, 49,
+        49, 49, 49, 49, 49, 49, 49, 49,
+        49, 49, 49, 49, 49, 49, 49, 49],
+      "input_length": 67,
+      "expected_result": 1,
+      "expected_output_hex": "30"
+    },
+    {
+      "id": "leading-zero-invalid",
+      "input_values": [2, 1, 48, 49, 49],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-zero-invalid",
+      "input_values": [2, 1, 45, 48, 49],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "plus-sign-invalid",
+      "input_values": [2, 1, 43, 49, 49],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 1, 56, 57],
+      "input_length": 4,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1, 49, 50],
+      "input_length": 4,
+      "output_capacity": 34,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "packed-length-mismatch",
+      "input_values": [1, 1, 49, 50, 51],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

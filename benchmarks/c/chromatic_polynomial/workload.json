@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "chromatic-polynomial-deletion-contraction-bounded-v1",
+  "algorithm": "chromatic_polynomial",
+  "function_symbol": "chromatic_polynomial",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "name": "Chromatic polynomial deletion-contraction recurrence",
+    "references": [
+      "https://users.math.msu.edu/users/bsagan/Books/Aoc/GSM210.pdf",
+      "https://mathworld.wolfram.com/ChromaticPolynomial.html",
+      "https://networkx.org/documentation/networkx-3.0/reference/algorithms/generated/networkx.algorithms.polynomials.chromatic_polynomial.html"
+    ],
+    "reuse": "Mathematical recurrence and independent edge-subset identity only; all code and fixtures are independently authored."
+  },
+  "contract": {
+    "operation": "Return all integer coefficients of the chromatic polynomial for a simple undirected graph.",
+    "input_layout": "[n,m,(u,v)*m]",
+    "n_range": [0, 8],
+    "m_range": [0, 16],
+    "graph_rule": "No self-loops or duplicate undirected edges; endpoints satisfy 0 <= u,v < n.",
+    "polynomial_rule": "P_G(x) = P_(G-e)(x) - P_(G/e)(x), with P_G(x)=x^n for an edgeless graph.",
+    "output_order": "Ascending degree coefficients [c_0,...,c_n] for P_G(x)=sum(c_i*x^i).",
+    "output_encoding": "One little-endian signed i64 coefficient per degree.",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 34,
+    "maximum_parseable_length": 34,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_bytes": 72,
+    "success_result": "8*(n+1) bytes",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 72,
+    "meaning": "Capacity of the maximum output coefficient buffer; bounded recursion state uses local stack storage."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"zero-vertex-empty-graph","input_values":[0,0],"input_length":2,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"edgeless-four-vertices","input_values":[4,0],"input_length":2,"output_capacity":40,"expected_result":40,"expected_output_hex":"00000000000000000000000000000000000000000000000000000000000000000100000000000000"},
+    {"id":"single-edge","input_values":[2,1,0,1],"input_length":4,"output_capacity":24,"expected_result":24,"expected_output_hex":"0000000000000000ffffffffffffffff0100000000000000"},
+    {"id":"triangle","input_values":[3,3,0,1,1,2,0,2],"input_length":8,"output_capacity":32,"expected_result":32,"expected_output_hex":"00000000000000000200000000000000fdffffffffffffff0100000000000000"},
+    {"id":"three-vertex-path","input_values":[3,2,0,1,1,2],"input_length":6,"output_capacity":32,"expected_result":32,"expected_output_hex":"00000000000000000100000000000000feffffffffffffff0100000000000000"},
+    {"id":"four-cycle","input_values":[4,4,0,1,1,2,2,3,3,0],"input_length":10,"output_capacity":40,"expected_result":40,"expected_output_hex":"0000000000000000fdffffffffffffff0600000000000000fcffffffffffffff0100000000000000"},
+    {"id":"disconnected-two-edges","input_values":[4,2,0,1,2,3],"input_length":6,"output_capacity":40,"expected_result":40,"expected_output_hex":"000000000000000000000000000000000100000000000000feffffffffffffff0100000000000000"},
+    {"id":"complete-four-vertices","input_values":[4,6,0,1,0,2,0,3,1,2,1,3,2,3],"input_length":14,"output_capacity":40,"expected_result":40,"expected_output_hex":"0000000000000000faffffffffffffff0b00000000000000faffffffffffffff0100000000000000"},
+    {"id":"invalid-vertex-count","input_values":[9,0],"input_length":2,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-edge-count","input_values":[8,17],"input_length":2,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"self-loop","input_values":[2,1,1,1],"input_length":4,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"duplicate-undirected-edge","input_values":[3,2,0,1,1,0],"input_length":6,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"endpoint-out-of-range","input_values":[2,1,0,2],"input_length":4,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-edge-pair","input_values":[3,1,0],"input_length":3,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-input-word","input_values":[1,0,7],"input_length":3,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[3,2,0,1,1,2],"input_length":6,"output_capacity":31,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[3,2,0,1,1,2],"input_length":6,"output_capacity":32,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":72,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

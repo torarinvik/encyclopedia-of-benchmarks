@@ -1,0 +1,160 @@
+const MAX_N: usize = 64
+const MAX_Q: usize = 32
+const MAX_INPUT: usize = 163
+const NONE: usize = MAX_N
+
+struct Node:
+    left: usize
+    right: usize
+    size: usize
+    value: i64
+    sum: i64
+    priority: u64
+    reversed: bool
+
+struct Operation:
+    kind: usize
+    left: usize
+    right: usize
+
+def rrs_priority(index: usize) -> u64:
+    state: mutable i64 = 1
+    for _ in 0..(index + 1):
+        state <- (state * 48271) % 2147483647
+    state.u64()
+
+def rrs_size(nodes: view[Node], index: usize) -> usize:
+    if index == NONE: return 0
+    nodes[index].size
+
+def rrs_sum(nodes: view[Node], index: usize) -> i64:
+    if index == NONE: return 0
+    nodes[index].sum
+
+def rrs_higher(nodes: view[Node], left: usize, right: usize) -> bool:
+    if nodes[left].priority != nodes[right].priority:
+        return nodes[left].priority > nodes[right].priority
+    left > right
+
+def rrs_pull(nodes: mutable view[Node], index: usize) -> void:
+    nodes[index].size <- 1 + rrs_size(nodes, nodes[index].left) + rrs_size(nodes, nodes[index].right)
+    nodes[index].sum <- nodes[index].value + rrs_sum(nodes, nodes[index].left) + rrs_sum(nodes, nodes[index].right)
+
+def rrs_reverse(nodes: mutable view[Node], index: usize) -> void:
+    if index == NONE: return
+    temporary: usize = nodes[index].left
+    nodes[index].left <- nodes[index].right
+    nodes[index].right <- temporary
+    nodes[index].reversed <- not nodes[index].reversed
+
+def rrs_push(nodes: mutable view[Node], index: usize) -> void:
+    if not nodes[index].reversed: return
+    rrs_reverse(nodes, nodes[index].left)
+    rrs_reverse(nodes, nodes[index].right)
+    nodes[index].reversed <- false
+
+def rrs_split(nodes: mutable view[Node], root: usize, count: usize,
+    first: mutable usize&, second: mutable usize&) -> void:
+    if root == NONE:
+        first <- NONE
+        second <- NONE
+        return
+    rrs_push(nodes, root)
+    if rrs_size(nodes, nodes[root].left) >= count:
+        a: mutable usize = NONE
+        b: mutable usize = NONE
+        rrs_split(nodes, nodes[root].left, count, a, b)
+        nodes[root].left <- b
+        rrs_pull(nodes, root)
+        first <- a
+        second <- root
+    else:
+        a: mutable usize = NONE
+        b: mutable usize = NONE
+        rrs_split(nodes, nodes[root].right, count - rrs_size(nodes, nodes[root].left) - 1, a, b)
+        nodes[root].right <- a
+        rrs_pull(nodes, root)
+        first <- root
+        second <- b
+
+def rrs_merge(nodes: mutable view[Node], left: usize, right: usize) -> usize:
+    if left == NONE: return right
+    if right == NONE: return left
+    if rrs_higher(nodes, left, right):
+        rrs_push(nodes, left)
+        nodes[left].right <- rrs_merge(nodes, nodes[left].right, right)
+        rrs_pull(nodes, left)
+        return left
+    rrs_push(nodes, right)
+    nodes[right].left <- rrs_merge(nodes, left, nodes[right].left)
+    rrs_pull(nodes, right)
+    return right
+
+def rrs_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def range_reverse_range_sum_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 0 or n_value > MAX_N.i64() or q_value < 0 or q_value > MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length < 2 + n: return -1
+    nodes: mutable Node[MAX_N] = zeroed
+    offset: mutable usize = 2
+    for i in 0..<n:
+        value: i64 = input[offset]
+        offset <- offset + 1
+        if value < 0 or value > 1000000000: return -1
+        nodes[i].left <- NONE
+        nodes[i].right <- NONE
+        nodes[i].size <- 1
+        nodes[i].value <- value
+        nodes[i].sum <- value
+        nodes[i].priority <- rrs_priority(i)
+    operations: mutable Operation[MAX_Q] = zeroed
+    query_count: mutable usize = 0
+    for i in 0..<q:
+        if offset + 3 > length: return -1
+        kind: i64 = input[offset]
+        left: i64 = input[offset + 1]
+        right: i64 = input[offset + 2]
+        offset <- offset + 3
+        if (kind != 0 and kind != 1) or left < 0 or left > right or right > n_value: return -1
+        operations[i].kind <- kind.usize()
+        operations[i].left <- left.usize()
+        operations[i].right <- right.usize()
+        if kind == 1: query_count <- query_count + 1
+    if offset != length: return -1
+    root: mutable usize = NONE
+    for i in 0..<n:
+        root <- rrs_merge(nodes[0:MAX_N], root, i)
+    answers: mutable i64[MAX_Q] = zeroed
+    answer_count: mutable usize = 0
+    for i in 0..<q:
+        op: Operation = operations[i]
+        prefix: mutable usize = NONE
+        suffix: mutable usize = NONE
+        rrs_split(nodes[0:MAX_N], root, op.right, prefix, suffix)
+        first: mutable usize = NONE
+        middle: mutable usize = NONE
+        rrs_split(nodes[0:MAX_N], prefix, op.left, first, middle)
+        prefix <- first
+        if op.kind == 0:
+            rrs_reverse(nodes[0:MAX_N], middle)
+        else:
+            answers[answer_count] <- rrs_sum(nodes[0:MAX_N], middle)
+            answer_count <- answer_count + 1
+        root <- rrs_merge(nodes[0:MAX_N], rrs_merge(nodes[0:MAX_N], prefix, middle), suffix)
+    byte_count: usize = 8 * query_count
+    if output.is_null() or capacity < byte_count: return -2
+    output_view: mutable view[u8] = output[0:byte_count]
+    for i in 0..<query_count: rrs_store(answers[i], output_view, 8 * i)
+    byte_count.i64()
+
+export fn range_reverse_range_sum(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = range_reverse_range_sum_impl

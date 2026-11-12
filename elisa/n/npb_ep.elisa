@@ -1,0 +1,62 @@
+extern trunc(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern log(value: f64) -> f64
+extern fabs(value: f64) -> f64
+
+const MAX_PAIRS: usize = 4096
+const MODULUS_MASK: i64 = 70368744177663
+const WORD_MASK: i64 = 8388607
+const MULTIPLIER: i64 = 1220703125
+const MODULUS_SCALE: f64 = 70368744177664.0
+
+def npb_is_bounded_integer(value: f64, minimum: f64, maximum: f64) -> bool:
+    value == value and trunc(value) == value and value >= minimum and value <= maximum
+
+def npb_advance_state(state: i64) -> i64:
+    low: i64 = state & WORD_MASK
+    high: i64 = state >> 23
+    multiplier_low: i64 = MULTIPLIER & WORD_MASK
+    multiplier_high: i64 = MULTIPLIER >> 23
+    low_product: i64 = low * multiplier_low
+    cross: i64 = (low * multiplier_high + high * multiplier_low) & WORD_MASK
+    (low_product + (cross << 23)) & MODULUS_MASK
+
+def npb_ep_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length != 2: return -1
+    if not npb_is_bounded_integer(input[0], 1.0, MAX_PAIRS.f64()) or
+            not npb_is_bounded_integer(input[1], 1.0, 70368744177663.0): return -1
+    pair_count: usize = input[0].usize()
+    if output.is_null() or capacity < 12: return -2
+
+    state: mutable i64 = input[1].i64()
+    histogram: mutable i64[10] = zeroed
+    sum_x: mutable f64 = 0.0
+    sum_y: mutable f64 = 0.0
+    pair: mutable usize = 0
+    while pair < pair_count:
+        state <- npb_advance_state(state)
+        x: f64 = 2.0 * (state.f64() / MODULUS_SCALE) - 1.0
+        state <- npb_advance_state(state)
+        y: f64 = 2.0 * (state.f64() / MODULUS_SCALE) - 1.0
+        radius_squared: f64 = x * x + y * y
+        if radius_squared > 0.0 and radius_squared <= 1.0:
+            scale: f64 = sqrt(-2.0 * log(radius_squared) / radius_squared)
+            normal_x: f64 = x * scale
+            normal_y: f64 = y * scale
+            abs_x: f64 = fabs(normal_x)
+            abs_y: f64 = fabs(normal_y)
+            extent: f64 = if abs_x > abs_y then abs_x else abs_y
+            if extent < 10.0: histogram[extent.usize()] <- histogram[extent.usize()] + 1
+            sum_x <- sum_x + normal_x
+            sum_y <- sum_y + normal_y
+        pair <- pair + 1
+
+    bin: mutable usize = 0
+    while bin < 10:
+        output[bin] <- histogram[bin].f64()
+        bin <- bin + 1
+    output[10] <- sum_x
+    output[11] <- sum_y
+    12
+
+export fn npb_ep(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = npb_ep_impl

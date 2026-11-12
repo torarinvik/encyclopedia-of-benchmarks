@@ -192,7 +192,10 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
           implementation_flags: tuple[str, ...] = ()) -> dict:
     if re.fullmatch(r"[a-z0-9]+(?:_[a-z0-9]+)*", algorithm) is None:
         raise ValueError("algorithm must be a normalized catalog name")
-    letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
+    letter = {"hjm_forward_path": "m", "splash2_fmm": "f",
+              "splash2_fft_six_step": "f", "splash2_ocean_rbgs": "o",
+              "splash2_radiosity_refine": "f"}.get(
+        algorithm, algorithm[0] if algorithm[0].isalpha() else "0-9")
     language_root = ROOT / language / letter
     source_extension = {**EXTENSIONS, **OPTIONAL_EXTENSIONS}[language]
     source_name = f"{algorithm}.{source_extension}"
@@ -220,6 +223,11 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         "cbench_consumer_lame_window_subband": "m",
         "mediabench_gsm_rpe_grid_positioning": "m",
         "beebs_lcdnum": "l",
+        "hjm_forward_path": "m",
+        "splash2_fmm": "f",
+        "splash2_fft_six_step": "f",
+        "splash2_ocean_rbgs": "o",
+        "splash2_radiosity_refine": "f",
     }
     workload_letter = workload_letters.get(
         algorithm, "d" if algorithm.startswith("versabench_dbms_") else letter)
@@ -485,7 +493,10 @@ def main(family: str | None = None) -> int:
     parser.add_argument("--implementation-flag", action="append", default=[],
                         help="Additional language-specific implementation compiler argument; recorded in the manifest (repeatable)")
     args = parser.parse_args()
-    letter = args.algorithm[0] if args.algorithm and args.algorithm[0].isalpha() else "0-9"
+    letter = ({"hjm_forward_path": "m", "splash2_fmm": "f",
+               "splash2_fft_six_step": "f", "splash2_ocean_rbgs": "o",
+               "splash2_radiosity_refine": "f"}.get(args.algorithm)
+              or (args.algorithm[0] if args.algorithm and args.algorithm[0].isalpha() else "0-9"))
     directory = args.output_dir or ROOT / "build" / args.family / letter / args.algorithm / args.language
     try:
         manifest = build(args.algorithm, args.language, directory, compiler=args.compiler,

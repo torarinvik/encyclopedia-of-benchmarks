@@ -1,0 +1,61 @@
+const MAX_Q:usize=8
+const MAX_N:i64=10000
+
+def two_square_sum_integer_sqrt(value:i64)->i64:
+    low:mutable i64=0
+    high:mutable i64=value+1
+    while high-low>1:
+        middle:i64=low+(high-low)/2
+        if middle*middle<=value:low<-middle
+        else:high<-middle
+    low
+
+def two_square_sum_write_u32(output:mutable u8&,offset:usize,value:u32)->void:
+    output[offset]<-(value&255).u8()
+    output[offset+1]<-((value>>8)&255).u8()
+    output[offset+2]<-((value>>16)&255).u8()
+    output[offset+3]<-((value>>24)&255).u8()
+
+def two_square_sum(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("two_square_sum"):
+    if input.is_null() or length<2 or length>MAX_Q+1:return -1
+    q64:i64=input[0]
+    if q64<1 or q64>8:return -1
+    q:usize=q64.usize()
+    if length!=q+1:return -1
+
+    numbers:mutable i64[8]=zeroed
+    counts:mutable usize[8]=zeroed
+    total_pairs:mutable usize=0
+    query:mutable usize=0
+    while query<q:
+        n:i64=input[query+1]
+        if n<0 or n>MAX_N:return -1
+        numbers[query]<-n
+        a:mutable i64=0
+        while a*a<=n:
+            remainder:i64=n-a*a
+            b:i64=two_square_sum_integer_sqrt(remainder)
+            if b*b==remainder:counts[query]<-counts[query]+1
+            a<-a+1
+        total_pairs<-total_pairs+counts[query]
+        query<-query+1
+
+    required:usize=4*(q+2*total_pairs)
+    if output.is_null() or capacity<required:return -2
+    offset:mutable usize=0
+    query<-0
+    while query<q:
+        two_square_sum_write_u32(output,offset,counts[query].u32())
+        offset<-offset+4
+        n:i64=numbers[query]
+        a:mutable i64=0
+        while a*a<=n:
+            remainder:i64=n-a*a
+            b:i64=two_square_sum_integer_sqrt(remainder)
+            if b*b==remainder:
+                two_square_sum_write_u32(output,offset,a.u32())
+                two_square_sum_write_u32(output,offset+4,b.u32())
+                offset<-offset+8
+            a<-a+1
+        query<-query+1
+    offset.i64()

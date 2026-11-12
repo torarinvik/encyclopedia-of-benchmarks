@@ -1,0 +1,86 @@
+const MAX_N:i64=1000000000000000000
+const MAX_T:usize=8
+const MAX_K:usize=8
+const WIDTH:usize=9
+
+def is_prime(value:i64)->bool:
+    if value<2:return false
+    divisor:mutable i64=2
+    while divisor<=value/divisor:
+        if value%divisor==0:return false
+        divisor<-divisor+1
+    true
+
+def stirling_value(n:i64,k:usize,modulus:i64)->i64:
+    matrix:mutable InlineArray[i64,81]=zeroed
+    squared:mutable InlineArray[i64,81]=zeroed
+    vector:mutable InlineArray[i64,9]=zeroed
+    next_vector:mutable InlineArray[i64,9]=zeroed
+    dimension:usize=k+1
+    index:mutable usize=0
+    while index<dimension:
+        matrix[index*WIDTH+index]<-(index.i64())%modulus
+        if index>0:matrix[index*WIDTH+index-1]<-1
+        index<-index+1
+    vector[0]<-1
+
+    exponent:mutable i64=n
+    while exponent>0:
+        if exponent%2!=0:
+            row:mutable usize=0
+            while row<dimension:
+                total:mutable i64=0
+                column:mutable usize=0
+                while column<dimension:
+                    total<-(total+matrix[row*WIDTH+column]*vector[column])%modulus
+                    column<-column+1
+                next_vector[row]<-total
+                row<-row+1
+            row<-0
+            while row<dimension:
+                vector[row]<-next_vector[row]
+                row<-row+1
+        exponent<-exponent/2
+        if exponent>0:
+            row:mutable usize=0
+            while row<dimension:
+                column:mutable usize=0
+                while column<dimension:
+                    total:mutable i64=0
+                    inner:mutable usize=0
+                    while inner<dimension:
+                        total<-(total+matrix[row*WIDTH+inner]*matrix[inner*WIDTH+column])%modulus
+                        inner<-inner+1
+                    squared[row*WIDTH+column]<-total
+                    column<-column+1
+                row<-row+1
+            row<-0
+            while row<dimension:
+                column<-0
+                while column<dimension:
+                    matrix[row*WIDTH+column]<-squared[row*WIDTH+column]
+                    squared[row*WIDTH+column]<-0
+                    column<-column+1
+                row<-row+1
+        
+    vector[k]
+
+def stirling_number_of_the_second_kind_small_p_large_n(input:i64&,length:usize)->i64 @export("stirling_number_of_the_second_kind_small_p_large_n"):
+    if input.is_null() or length<4 or length>18:return -1
+    count_value:i64=input[0]
+    modulus:i64=input[1]
+    if count_value<1 or count_value>8 or length!=(2+2*count_value).usize() or modulus<11 or modulus>97 or not is_prime(modulus):return -1
+
+    result:mutable i64=0
+    case_index:mutable usize=0
+    count:usize=count_value.usize()
+    while case_index<count:
+        n:i64=input[2+2*case_index]
+        k_value:i64=input[3+2*case_index]
+        if n<0 or n>MAX_N or k_value<0 or k_value>8 or k_value>n:return -1
+        k:usize=k_value.usize()
+        value:i64=stirling_value(n,k,modulus)
+        next:i64=(case_index+1).i64()
+        result<-(result+next*next*value)%modulus
+        case_index<-case_index+1
+    result

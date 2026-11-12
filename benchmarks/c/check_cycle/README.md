@@ -4,7 +4,7 @@ Determine whether a directed graph contains a cycle.
 
 ## Source
 
-This package follows the pinned [TheAlgorithms/Python `check_cycle`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/check_cycle.py). The source uses depth-first search with a recursion-stack set: an edge to a vertex still on the active path is a cycle; an edge to a completed vertex is not. It checks every graph key, including disconnected components.
+This package follows the pinned [TheAlgorithms/Python `check_cycle`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/check_cycle.py). The source uses depth-first search with a recursion-stack set: an edge to a vertex still on the active path is a cycle; an edge to a completed vertex is not. It checks every graph key, including disconnected components. The pinned Go `HasCycle` and C++ `isCyclicDFS` methods use the same three-state directed DFS and map to this canonical contract; their separate C++ Kahn method remains [`cycle_check_directed_graph_kahn`](../cycle_check_directed_graph_kahn/README.md).
 
 ## Contract
 

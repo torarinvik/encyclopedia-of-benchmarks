@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "id": "splash2-radiosity-bounded-link-refinement-v1",
+  "algorithm": "splash2_radiosity_refine",
+  "function_symbol": "splash2_radiosity_refine",
+  "abi": "float64_slice_io",
+  "description": "Bounded adaptive quadtree refinement of one diffuse patch interaction, followed by a one-step radiosity gather.",
+  "source": {
+    "suite": "SPLASH-2",
+    "benchmark": "Radiosity",
+    "repository": "https://github.com/staceyson/splash2",
+    "source_path": "codes/apps/radiosity/rad_main.C",
+    "source_url": "https://github.com/staceyson/splash2/blob/master/codes/apps/radiosity/rad_main.C",
+    "source_readme_path": "codes/apps/radiosity/README.radiosity",
+    "source_readme_url": "https://github.com/staceyson/splash2/blob/master/codes/apps/radiosity/README.radiosity",
+    "algorithm_reference": "Hanrahan, Salzman, and Aupperle, A Rapid Hierarchical Radiosity Algorithm, SIGGRAPH 1991",
+    "algorithm_reference_url": "https://doi.org/10.1145/122718.122740",
+    "role": "Published algorithm description; clean-room bounded profile"
+  },
+  "contract": {
+    "operation": "Estimate one patch-pair interaction by centroid form-factor samples. Compare the coarse interaction with the next four-quadrant estimate; if their absolute difference exceeds the supplied refinement-probe threshold, subdivide the larger patch into four children and recurse. Gather accepted link estimates with target-area weights.",
+    "input_encoding": "[target_x,target_y,target_side,source_x,source_y,source_side,gap,source_brightness,target_reflectance,refinement_probe_threshold,max_depth]",
+    "geometry": "Two axis-aligned square patches on parallel planes. The target faces the source, their normal separation is gap, and their centers are (x,y) in the shared plane coordinates.",
+    "sides": [1, 2, 4],
+    "coordinate_range": [-8, 8],
+    "gap_range": [1, 8],
+    "side_must_not_exceed_gap": true,
+    "brightness_range": [0, 4],
+    "reflectance_range": [0, 1],
+    "refinement_probe_threshold_range": [0, 1],
+    "max_depth_range": [0, 5],
+    "maximum_leaf_links": 1024,
+    "tie_break": "Subdivide the source patch when source_side equals target_side.",
+    "centroid_link_weight": "source_area * gap^2 / ((source_x-target_x)^2 + (source_y-target_y)^2 + gap^2)^2; this is pi times the centroid-sampled diffuse form factor.",
+    "error_model": "The coarse-versus-next-quadrant difference is a bounded heuristic refinement probe; it does not certify the exact patch integral or reproduce the source algorithm's precision guarantee.",
+    "target_child_weight": "Each target child contributes one quarter of its parent-area average.",
+    "output_encoding": "[pi_scaled_gathered_radiosity, accepted_leaf_link_count, deepest_leaf_level]",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "success_result": 3,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "Exactly eleven values in the order described by the contract.",
+    "minimum_valid_length": 11,
+    "maximum_valid_length": 11,
+    "maximum_parseable_length": 12,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "One scaled radiosity value and two exact integral counters.",
+    "maximum_elements": 3,
+    "success_result": 3,
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 3,
+    "description": "The output vector contains the gathered value, accepted interaction count, and deepest emitted link level."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "coarse_link_meets_probe_threshold",
+      "input_values": [0, 0, 1, 0, 0, 1, 4, 2, 0.5, 0.002, 2],
+      "input_length": 11,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output": [0.0625, 1, 0]
+    },
+    {
+      "id": "source_patch_quadrant_refinement",
+      "input_values": [0, 0, 1, 0, 0, 1, 4, 0, 0.5, 0.0001, 1],
+      "input_length": 11,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output": [0, 4, 1]
+    },
+    {
+      "id": "target_patch_area_weighted_refinement",
+      "input_values": [0, 0, 2, 0, 0, 1, 4, 0, 0, 0.001, 1],
+      "input_length": 11,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output": [0, 4, 1]
+    },
+    {
+      "id": "maximum_patch_at_zero_refinement_depth",
+      "input_values": [0, 0, 4, 0, 0, 4, 8, 3, 1, 0, 0],
+      "input_length": 11,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output": [0.75, 1, 0]
+    },
+    {
+      "id": "extra_value_rejected",
+      "input_values": [0, 0, 1, 0, 0, 1, 4, 2, 0.5, 0.002, 2, 0],
+      "input_length": 12,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "reflectance_outside_contract",
+      "input_values": [0, 0, 1, 0, 0, 1, 4, 2, 1.5, 0.002, 2],
+      "input_length": 11,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_max_depth_rejected",
+      "input_values": [0, 0, 1, 0, 0, 1, 4, 2, 0.5, 0.002, 1.5],
+      "input_length": 11,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [0, 0, 1, 0, 0, 1, 4, 2, 0.5, 0.002, 2],
+      "input_length": 11,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [0, 0, 1, 0, 0, 1, 4, 2, 0.5, 0.002, 2],
+      "input_length": 11,
+      "output_capacity": 2,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null_output_pointer",
+      "input_values": [0, 0, 1, 0, 0, 1, 4, 2, 0.5, 0.002, 2],
+      "input_length": 11,
+      "output_capacity": 3,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

@@ -1,0 +1,244 @@
+# Bounded minimum-cost b-flow via feasible residual flow and negative-cycle cancellation.
+const MCBF_MAX_VERTICES: usize = 8
+const MCBF_MAX_EDGES: usize = 10
+const MCBF_MAX_ARCS: usize = 2 * MCBF_MAX_EDGES + 2 * MCBF_MAX_VERTICES
+const MCBF_MAX_NODES: usize = MCBF_MAX_VERTICES + 2
+const MCBF_MAX_INPUT_LENGTH: usize = 2 + MCBF_MAX_VERTICES + 5 * MCBF_MAX_EDGES + 1
+const MCBF_MAX_OUTPUT_WORDS: usize = 2 + MCBF_MAX_VERTICES + MCBF_MAX_EDGES
+
+def mcbf_add_edge(from_vertex: usize, to_vertex: usize, capacity_value: i64, cost_value: i64,
+        from: mutable view[i64], to: mutable view[i64], reverse: mutable view[i64],
+        capacity: mutable view[i64], cost: mutable view[i64], arc_count: mutable usize&) -> void:
+    forward: usize = arc_count
+    backward: usize = forward + 1
+    arc_count <- arc_count + 2
+    from[forward] <- from_vertex.i64()
+    to[forward] <- to_vertex.i64()
+    reverse[forward] <- backward.i64()
+    capacity[forward] <- capacity_value
+    cost[forward] <- cost_value
+    from[backward] <- to_vertex.i64()
+    to[backward] <- from_vertex.i64()
+    reverse[backward] <- forward.i64()
+    capacity[backward] <- 0
+    cost[backward] <- -cost_value
+
+def mcbf_feasible_flow(vertex_count: usize, required_flow: i64, arc_count: usize,
+        from: view[i64], to: view[i64], reverse: view[i64],
+        capacity: mutable view[i64]) -> bool:
+    super_source: usize = vertex_count
+    super_sink: usize = vertex_count + 1
+    sent: mutable i64 = 0
+    while sent < required_flow:
+        parent: mutable i64[MCBF_MAX_NODES] = zeroed
+        seen: mutable i64[MCBF_MAX_NODES] = zeroed
+        queue: mutable i64[MCBF_MAX_NODES] = zeroed
+        for vertex in 0..<MCBF_MAX_NODES |parent|:
+            parent[vertex] <- -1
+        queue_head: mutable usize = 0
+        queue_length: mutable usize = 1
+        seen[super_source] <- 1
+        queue[0] <- super_source.i64()
+        while queue_head < queue_length:
+            vertex: usize = queue[queue_head].usize()
+            queue_head <- queue_head + 1
+            edge: mutable usize = 0
+            while edge < arc_count:
+                neighbor: usize = to[edge].usize()
+                if from[edge] == vertex.i64() && capacity[edge] > 0 && seen[neighbor] == 0:
+                    seen[neighbor] <- 1
+                    parent[neighbor] <- edge.i64()
+                    queue[queue_length] <- neighbor.i64()
+                    queue_length <- queue_length + 1
+                edge <- edge + 1
+        if seen[super_sink] == 0:
+            return false
+        amount: mutable i64 = required_flow - sent
+        vertex: mutable usize = super_sink
+        while vertex != super_source:
+            edge: usize = parent[vertex].usize()
+            if amount > capacity[edge]: amount <- capacity[edge]
+            vertex <- from[edge].usize()
+        vertex <- super_sink
+        while vertex != super_source:
+            edge: usize = parent[vertex].usize()
+            capacity[edge] <- capacity[edge] - amount
+            reverse_edge: usize = reverse[edge].usize()
+            capacity[reverse_edge] <- capacity[reverse_edge] + amount
+            vertex <- from[edge].usize()
+        sent <- sent + amount
+    return true
+
+def mcbf_cancel_negative_cycles(vertex_count: usize, arc_count: usize,
+        from: view[i64], to: view[i64], reverse: view[i64], capacity: mutable view[i64],
+        cost: view[i64]) -> bool:
+    if vertex_count == 0:
+        return true
+    while true:
+        distance: mutable i64[MCBF_MAX_VERTICES] = zeroed
+        parent: mutable i64[MCBF_MAX_VERTICES] = zeroed
+        for vertex in 0..<MCBF_MAX_VERTICES |parent|:
+            parent[vertex] <- -1
+        changed_vertex: mutable i64 = -1
+        pass: mutable usize = 0
+        while pass < vertex_count:
+            changed_vertex <- -1
+            edge: mutable usize = 0
+            while edge < arc_count:
+                source: usize = from[edge].usize()
+                target: usize = to[edge].usize()
+                if capacity[edge] > 0 && distance[target] > distance[source] + cost[edge]:
+                    distance[target] <- distance[source] + cost[edge]
+                    parent[target] <- edge.i64()
+                    changed_vertex <- target.i64()
+                edge <- edge + 1
+            if changed_vertex == -1: break
+            pass <- pass + 1
+        if changed_vertex == -1:
+            return true
+        on_cycle: mutable usize = changed_vertex.usize()
+        step: mutable usize = 0
+        while step < vertex_count:
+            if parent[on_cycle] < 0: return false
+            edge: usize = parent[on_cycle].usize()
+            on_cycle <- from[edge].usize()
+            step <- step + 1
+        amount: mutable i64 = 1152921504606846976
+        vertex: mutable usize = on_cycle
+        while true:
+            if parent[vertex] < 0: return false
+            edge: usize = parent[vertex].usize()
+            if amount > capacity[edge]: amount <- capacity[edge]
+            vertex <- from[edge].usize()
+            if vertex == on_cycle: break
+        vertex <- on_cycle
+        while true:
+            edge: usize = parent[vertex].usize()
+            capacity[edge] <- capacity[edge] - amount
+            reverse_edge: usize = reverse[edge].usize()
+            capacity[reverse_edge] <- capacity[reverse_edge] + amount
+            vertex <- from[edge].usize()
+            if vertex == on_cycle: break
+
+def mcbf_solve(vertex_count: usize, edge_count: usize, input: view[i64],
+        words: mutable view[i64]) -> bool:
+    required: mutable i64[MCBF_MAX_VERTICES] = zeroed
+    for vertex in 0..<vertex_count |required|:
+        required[vertex] <- input[2 + vertex]
+    edge_offset: usize = 2 + vertex_count
+    for edge in 0..<edge_count |input, required|:
+        offset: usize = edge_offset + 5 * edge
+        from_vertex: usize = input[offset].usize()
+        to_vertex: usize = input[offset + 1].usize()
+        lower: i64 = input[offset + 2]
+        required[from_vertex] <- required[from_vertex] - lower
+        required[to_vertex] <- required[to_vertex] + lower
+    required_sum: mutable i64 = 0
+    required_flow: mutable i64 = 0
+    for vertex in 0..<vertex_count |required|:
+        required_sum <- required_sum + required[vertex]
+        if required[vertex] > 0: required_flow <- required_flow + required[vertex]
+    if required_sum != 0:
+        return false
+
+    from: mutable i64[MCBF_MAX_ARCS] = zeroed
+    to: mutable i64[MCBF_MAX_ARCS] = zeroed
+    reverse: mutable i64[MCBF_MAX_ARCS] = zeroed
+    capacity: mutable i64[MCBF_MAX_ARCS] = zeroed
+    cost: mutable i64[MCBF_MAX_ARCS] = zeroed
+    arc_count: mutable usize = 0
+    for edge in 0..<edge_count |input, from, to, reverse, capacity, cost, arc_count|:
+        offset: usize = edge_offset + 5 * edge
+        mcbf_add_edge(input[offset].usize(), input[offset + 1].usize(),
+            input[offset + 3] - input[offset + 2], input[offset + 4],
+            from[0:MCBF_MAX_ARCS], to[0:MCBF_MAX_ARCS], reverse[0:MCBF_MAX_ARCS],
+            capacity[0:MCBF_MAX_ARCS], cost[0:MCBF_MAX_ARCS], arc_count)
+    original_arc_count: usize = arc_count
+    for vertex in 0..<vertex_count |required, from, to, reverse, capacity, cost, arc_count|:
+        if required[vertex] > 0:
+            mcbf_add_edge(vertex_count, vertex, required[vertex], 0,
+                from[0:MCBF_MAX_ARCS], to[0:MCBF_MAX_ARCS], reverse[0:MCBF_MAX_ARCS],
+                capacity[0:MCBF_MAX_ARCS], cost[0:MCBF_MAX_ARCS], arc_count)
+        elif required[vertex] < 0:
+            mcbf_add_edge(vertex, vertex_count + 1, -required[vertex], 0,
+                from[0:MCBF_MAX_ARCS], to[0:MCBF_MAX_ARCS], reverse[0:MCBF_MAX_ARCS],
+                capacity[0:MCBF_MAX_ARCS], cost[0:MCBF_MAX_ARCS], arc_count)
+    if not mcbf_feasible_flow(vertex_count, required_flow, arc_count,
+            from[0:MCBF_MAX_ARCS], to[0:MCBF_MAX_ARCS], reverse[0:MCBF_MAX_ARCS],
+            capacity[0:MCBF_MAX_ARCS]):
+        return false
+    if not mcbf_cancel_negative_cycles(vertex_count, original_arc_count,
+            from[0:MCBF_MAX_ARCS], to[0:MCBF_MAX_ARCS], reverse[0:MCBF_MAX_ARCS],
+            capacity[0:MCBF_MAX_ARCS], cost[0:MCBF_MAX_ARCS]):
+        return false
+
+    potential: mutable i64[MCBF_MAX_VERTICES] = zeroed
+    pass: mutable usize = 0
+    while pass + 1 < vertex_count:
+        changed: mutable bool = false
+        edge: mutable usize = 0
+        while edge < original_arc_count:
+            source: usize = from[edge].usize()
+            target: usize = to[edge].usize()
+            if capacity[edge] > 0 && potential[target] > potential[source] + cost[edge]:
+                potential[target] <- potential[source] + cost[edge]
+                changed <- true
+            edge <- edge + 1
+        if not changed: break
+        pass <- pass + 1
+    words[0] <- 1
+    words[1] <- 0
+    for vertex in 0..<vertex_count |words, potential|:
+        words[2 + vertex] <- potential[vertex]
+    for edge in 0..<edge_count |input, words, capacity|:
+        offset: usize = edge_offset + 5 * edge
+        flow: i64 = input[offset + 3] - capacity[2 * edge]
+        words[2 + vertex_count + edge] <- flow
+        words[1] <- words[1] + flow * input[offset + 4]
+    return true
+
+def mcbf_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def minimum_cost_b_flow_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if input == null || length < 2 || length > MCBF_MAX_INPUT_LENGTH:
+        return -1
+    raw_vertices: i64 = input[0]
+    raw_edges: i64 = input[1]
+    if raw_vertices < 0 || raw_vertices > 8 || raw_edges < 0 || raw_edges > 10:
+        return -1
+    vertex_count: usize = raw_vertices.usize()
+    edge_count: usize = raw_edges.usize()
+    if length != 2 + vertex_count + 5 * edge_count:
+        return -1
+    for vertex in 0..<vertex_count:
+        if input[2 + vertex] < -5 || input[2 + vertex] > 5:
+            return -1
+    edge_offset: usize = 2 + vertex_count
+    for edge in 0..<edge_count:
+        offset: usize = edge_offset + 5 * edge
+        from: i64 = input[offset]
+        to: i64 = input[offset + 1]
+        lower: i64 = input[offset + 2]
+        upper: i64 = input[offset + 3]
+        cost: i64 = input[offset + 4]
+        if from < 0 || from >= raw_vertices || to < 0 || to >= raw_vertices ||
+                lower < -3 || upper > 3 || lower > upper || upper - lower > 2 ||
+                cost < -4 || cost > 4:
+            return -1
+    output_bytes: usize = 8 * (2 + vertex_count + edge_count)
+    if output == null || output_capacity < output_bytes:
+        return -2
+    words: mutable i64[MCBF_MAX_OUTPUT_WORDS] = zeroed
+    if not mcbf_solve(vertex_count, edge_count, input[0:length], words[0:MCBF_MAX_OUTPUT_WORDS]):
+        for word in 0..<(2 + vertex_count + edge_count) |words|:
+            words[word] <- 0
+    for word in 0..<(2 + vertex_count + edge_count) |words, output|:
+        mcbf_store_i64_le(words[word], output[0:output_bytes], 8 * word)
+    output_bytes.i64()
+
+export fn minimum_cost_b_flow(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = minimum_cost_b_flow_impl

@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-unionfind-noncommutative-group-bounded-i64-array-bytes-output-v1",
+  "algorithm": "unionfind_with_potential_non_commutative_group",
+  "function_symbol": "unionfind_with_potential_non_commutative_group",
+  "abi": "i64_array_bytes_output",
+  "description": "Maintain consistent SL(2,F) relative potentials using order-sensitive matrix group composition.",
+  "source": {
+    "title": "Unionfind with Potential (Non-Commutative Group)",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/unionfind_with_potential_non_commutative_group/task.md",
+    "algorithm_attribution": "Weighted union-find over the noncommutative group SL(2,F_998244353)",
+    "implementation_status": "clean-room bounded noncommutative matrix potential DSU"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,(type,u,v,m00,m01,m10,m11)...]",
+    "fixed_operation_width": 7,
+    "unused_query_matrix_must_be": [0, 0, 0, 0],
+    "N_range": [1, 32],
+    "Q_range": [1, 64],
+    "MOD": 998244353,
+    "matrix_layout": "row-major",
+    "matrix_entry_range": "0 <= m_ij < MOD",
+    "matrix_determinant_requirement": "m00*m11-m01*m10 == 1 modulo MOD",
+    "maximum_valid_length": 450,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "four signed 64-bit little-endian values per operation",
+    "update_record": "[accepted_1_or_0,0,0,0]",
+    "connected_query_record": "four row-major entries of inverse(a_v)*a_u",
+    "disconnected_query_record": [-1, -1, -1, -1],
+    "maximum_bytes": 2048,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Maximum output-buffer capacity; DSU state uses 32 parent indices, 32 sizes, and 32 four-entry matrices (1536 bytes on 64-bit targets)."
+  },
+  "contract": {
+    "update": "type 0 provides a_u=a_v*X modulo MOD; accept iff consistent with earlier accepted equations and emit one or zero",
+    "query": "type 1 emits inverse(a_v)*a_u when determined, or four -1 sentinels when disconnected",
+    "official_N_range": [1, 200000],
+    "official_Q_range": [1, 200000],
+    "official_MOD": 998244353
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "right-relative-matrix-update-and-query",
+      "input_values": [2,2,0,0,1,1,1,0,1,1,0,1,0,0,0,0],
+      "input_length": 16,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output_hex": "01000000000000000000000000000000000000000000000000000000000000000100000000000000010000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "noncommuting-chain-composition-order",
+      "input_values": [3,3,0,0,1,1,1,0,1,0,1,2,1,0,1,1,1,0,2,0,0,0,0],
+      "input_length": 23,
+      "output_capacity": 96,
+      "expected_result": 96,
+      "expected_output_hex": "01000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000010000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "unconnected-relative-matrix-query",
+      "input_values": [2,1,1,0,1,0,0,0,0],
+      "input_length": 9,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "non-unit-determinant-is-invalid",
+      "input_values": [2,1,0,0,1,1,0,0,2],
+      "input_length": 9,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2,1,1,0,1,0,0,0,0],
+      "input_length": 9,
+      "output_capacity": 31,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

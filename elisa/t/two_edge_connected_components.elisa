@@ -1,0 +1,144 @@
+# Tarjan low-link bridge detection followed by flooding across non-bridges.
+const TECC_MAX_N: usize = 6
+const TECC_MAX_M: usize = 10
+const TECC_MAX_ADJ: usize = 20
+const TECC_MAX_OUTPUT_VALUES: usize = 13
+const TECC_MAX_OUTPUT_BYTES: usize = 104
+const TECC_MAX_INPUT_LENGTH: usize = 22
+
+struct TeccContext:
+    vertex_count: usize
+    edge_count: usize
+    degree: usize[6]
+    adjacent_vertex: usize[120]
+    adjacent_edge: usize[120]
+    discovery: i64[6]
+    low: i64[6]
+    is_bridge: bool[10]
+    clock: usize
+    component: i64[6]
+    block_vertices: usize[36]
+    block_size: usize[6]
+    block_count: usize
+
+def tecc_find_bridges(context: mutable TeccContext&, vertex: usize, parent_edge: usize) -> void:
+    context.discovery[vertex] <- context.clock.i64()
+    context.low[vertex] <- context.clock.i64()
+    context.clock <- context.clock + 1
+    for slot in 0..<context.degree[vertex]:
+        index: usize = vertex * TECC_MAX_ADJ + slot
+        neighbor: usize = context.adjacent_vertex[index]
+        edge: usize = context.adjacent_edge[index]
+        if edge == parent_edge: continue
+        if context.discovery[neighbor] < 0:
+            tecc_find_bridges(context&, neighbor, edge)
+            if context.low[neighbor] < context.low[vertex]:
+                context.low[vertex] <- context.low[neighbor]
+            if context.low[neighbor] > context.discovery[vertex]: context.is_bridge[edge] <- true
+        else if context.discovery[neighbor] < context.low[vertex]:
+            context.low[vertex] <- context.discovery[neighbor]
+
+def tecc_assign_components(context: mutable TeccContext&) -> void:
+    queue: mutable usize[6] = zeroed
+    for root in 0..<context.vertex_count:
+        if context.component[root] >= 0: continue
+        block: usize = context.block_count
+        context.block_count <- context.block_count + 1
+        head: mutable usize = 0
+        tail: mutable usize = 0
+        context.component[root] <- block.i64()
+        queue[tail] <- root
+        tail <- tail + 1
+        while head < tail:
+            vertex: usize = queue[head]
+            head <- head + 1
+            for slot in 0..<context.degree[vertex]:
+                index: usize = vertex * TECC_MAX_ADJ + slot
+                neighbor: usize = context.adjacent_vertex[index]
+                edge: usize = context.adjacent_edge[index]
+                if context.is_bridge[edge] or context.component[neighbor] >= 0: continue
+                context.component[neighbor] <- block.i64()
+                queue[tail] <- neighbor
+                tail <- tail + 1
+        for vertex in 0..<context.vertex_count:
+            if context.component[vertex] == block.i64():
+                index: usize = block * TECC_MAX_N + context.block_size[block]
+                context.block_vertices[index] <- vertex
+                context.block_size[block] <- context.block_size[block] + 1
+
+def tecc_block_less(context: TeccContext&, left: usize, right: usize) -> bool:
+    common: usize = if context.block_size[left] < context.block_size[right]:
+        context.block_size[left]
+    else:
+        context.block_size[right]
+    for i in 0..<common:
+        a: usize = context.block_vertices[left * TECC_MAX_N + i]
+        b: usize = context.block_vertices[right * TECC_MAX_N + i]
+        if a != b: return a < b
+    context.block_size[left] < context.block_size[right]
+
+def tecc_store_u64(value: u64, output: mutable view[u8], offset: usize) -> void:
+    for byte in 0..<8: output[offset + byte] <- ((value >> (byte * 8)) & 255).u8()
+
+def two_edge_connected_components_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > TECC_MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > 6 or m_value < 0 or m_value > 10: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + 2 * m: return -1
+
+    context: mutable TeccContext = zeroed
+    context.vertex_count <- n
+    context.edge_count <- m
+    for vertex in 0..<n:
+        context.discovery[vertex] <- -1
+        context.component[vertex] <- -1
+    for edge in 0..<m:
+        left_value: i64 = input[2 + 2 * edge]
+        right_value: i64 = input[3 + 2 * edge]
+        if left_value < 0 or left_value >= n_value or right_value < 0 or right_value >= n_value: return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        left_slot: usize = context.degree[left]
+        context.degree[left] <- context.degree[left] + 1
+        right_slot: usize = context.degree[right]
+        context.degree[right] <- context.degree[right] + 1
+        context.adjacent_vertex[left * TECC_MAX_ADJ + left_slot] <- right
+        context.adjacent_edge[left * TECC_MAX_ADJ + left_slot] <- edge
+        context.adjacent_vertex[right * TECC_MAX_ADJ + right_slot] <- left
+        context.adjacent_edge[right * TECC_MAX_ADJ + right_slot] <- edge
+    for root in 0..<n:
+        if context.discovery[root] < 0: tecc_find_bridges(context&, root, TECC_MAX_M)
+    tecc_assign_components(context&)
+
+    order: mutable usize[6] = zeroed
+    for i in 0..<context.block_count:
+        position: mutable usize = i
+        order[i] <- i
+        while position > 0 and tecc_block_less(context, order[position], order[position - 1]):
+            temporary: usize = order[position]
+            order[position] <- order[position - 1]
+            order[position - 1] <- temporary
+            position <- position - 1
+    staged: mutable u8[TECC_MAX_OUTPUT_BYTES] = zeroed
+    packed_count: mutable usize = 0
+    tecc_store_u64(context.block_count.u64(), staged[0:TECC_MAX_OUTPUT_BYTES], packed_count * 8)
+    packed_count <- packed_count + 1
+    for i in 0..<context.block_count:
+        block: usize = order[i]
+        tecc_store_u64(context.block_size[block].u64(), staged[0:TECC_MAX_OUTPUT_BYTES], packed_count * 8)
+        packed_count <- packed_count + 1
+        for j in 0..<context.block_size[block]:
+            value: usize = context.block_vertices[block * TECC_MAX_N + j]
+            tecc_store_u64(value.u64(), staged[0:TECC_MAX_OUTPUT_BYTES], packed_count * 8)
+            packed_count <- packed_count + 1
+    bytes: usize = packed_count * 8
+    if output.is_null() or output_capacity < bytes: return -2
+    for byte in 0..<bytes: output[byte] <- staged[byte]
+    bytes.i64()
+
+export fn two_edge_connected_components(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = two_edge_connected_components_impl

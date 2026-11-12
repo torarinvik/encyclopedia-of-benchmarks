@@ -50,7 +50,7 @@ long routing_cost_constrained_cds_goc_mcds_c(long* input, usz length, char* outp
             usz[MAX_N] path = zeroed; usz path_length = 0, current = target;
             while (current != source) { path[path_length++] = current; current = (usz)parent[current]; }
             path[path_length++] = source;
-            if (path_length <= 4) for (usz i = 1; i + 1 < path_length; i += 1) connectors |= 1UL << path[i];
+            if (path_length <= 5) for (usz i = 1; i + 1 < path_length; i += 1) connectors |= 1UL << path[i];
         }
     }
     if (output == null || capacity < MAX_OUTPUT) return -2;

@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "oi-wiki-berlekamp-massey-bounded-shortest-recurrence-v1",
+  "algorithm": "berlekamp_massey",
+  "function_symbol": "berlekamp_massey",
+  "abi": "i64_array_bytes_output",
+  "description": "Infer the shortest predictive linear recurrence of a finite sequence over 998244353.",
+  "source": {
+    "title": "Berlekamp–Massey Algorithm",
+    "authors": ["OI Wiki contributors"],
+    "reference": "OI Wiki algorithm article",
+    "url": "https://oiwiki.com/math/berlekamp-massey/",
+    "algorithm_attribution": "Incremental discrepancy updates over a prime field",
+    "implementation_status": "clean-room bounded recurrence inference"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[K, a_0, ..., a_(2K-1)]",
+    "order_bound_range": [1, 8],
+    "sequence_length": "exactly 2K terms",
+    "entry_range": "0 <= a_i < 998244353",
+    "maximum_valid_length": 17,
+    "maximum_parseable_length": 18,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "L+1 signed 64-bit little-endian words: recurrence order L, then predictive coefficients c_0..c_(L-1)",
+    "maximum_bytes": 72,
+    "success_result": "8*(L+1) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 72,
+    "meaning": "Output-buffer capacity; recurrence state arrays are separate."
+  },
+  "contract": {
+    "result": "Shortest recurrence order L and coefficients satisfying a_i = sum(c_j*a_(i-j-1)) for each supplied i >= L",
+    "modulus": 998244353,
+    "complexity": "O(K^2) field operations and O(K) state storage",
+    "max_order": 8
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"all-zero-sequence","input_values":[2,0,0,0,0],"input_length":5,"output_capacity":72,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"constant-one-sequence","input_values":[2,1,1,1,1],"input_length":5,"output_capacity":72,"expected_result":16,"expected_output_hex":"01000000000000000100000000000000"},
+    {"id":"fibonacci-sequence","input_values":[2,0,1,1,2],"input_length":5,"output_capacity":72,"expected_result":24,"expected_output_hex":"020000000000000001000000000000000100000000000000"},
+    {"id":"geometric-sequence","input_values":[3,3,6,12,24,48,96],"input_length":7,"output_capacity":72,"expected_result":16,"expected_output_hex":"01000000000000000200000000000000"},
+    {"id":"second-order-sequence","input_values":[3,2,5,19,67,239,851],"input_length":7,"output_capacity":72,"expected_result":24,"expected_output_hex":"020000000000000003000000000000000200000000000000"},
+    {"id":"third-order-sequence","input_values":[3,0,0,1,1,2,4],"input_length":7,"output_capacity":72,"expected_result":32,"expected_output_hex":"0300000000000000010000000000000001000000000000000100000000000000"},
+    {"id":"leading-zero-order-two","input_values":[3,0,1,0,1,0,1],"input_length":7,"output_capacity":72,"expected_result":24,"expected_output_hex":"020000000000000000000000000000000100000000000000"},
+    {"id":"maximum-order-short-output","input_values":[8,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],"input_length":17,"output_capacity":71,"expected_result":-2,"expected_output_hex":""},
+    {"id":"order-exceeds-bound","input_values":[1,0,1],"input_length":3,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative-sequence-term","input_values":[1,-1,0],"input_length":3,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"term-equals-modulus","input_values":[1,998244353,0],"input_length":3,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"order-bound-out-of-range","input_values":[9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":18,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-sequence","input_values":[2,0,1,1],"input_length":4,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-term","input_values":[1,0,0,0],"input_length":4,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[3,0,0,1,1,2,4],"input_length":7,"output_capacity":31,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[3,0,0,1,1,2,4],"input_length":7,"output_capacity":72,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid-input-with-null-output","input_values":[1,-1,0],"input_length":3,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":72,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

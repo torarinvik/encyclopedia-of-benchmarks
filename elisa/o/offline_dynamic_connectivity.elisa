@@ -1,0 +1,204 @@
+const MAX_VERTICES: usize = 16
+const MAX_EVENTS: usize = 32
+const MAX_INPUT_VALUES: usize = 2 + 4 * MAX_EVENTS + 1
+const TREE_NODES: usize = 4 * MAX_EVENTS + 8
+
+def odc_find_root(parent: view[usize], vertex_value: usize) -> usize:
+    vertex: mutable usize = vertex_value
+    while parent[vertex] != vertex:
+        vertex <- parent[vertex]
+    vertex
+
+def odc_add_interval(node_value: usize, left_value: usize, right_value: usize,
+    query_left: usize, query_right: usize, edge_id: usize,
+    bucket_count: mutable view[usize], buckets: mutable view[usize]) -> void:
+    if query_left <= left_value and right_value <= query_right:
+        slot: usize = node_value * MAX_EVENTS + bucket_count[node_value]
+        buckets[slot] <- edge_id
+        bucket_count[node_value] <- bucket_count[node_value] + 1
+        return
+    middle: usize = left_value + (right_value - left_value) / 2
+    if query_left < middle:
+        odc_add_interval(2 * node_value, left_value, middle, query_left,
+            query_right, edge_id, bucket_count, buckets)
+    if query_right > middle:
+        odc_add_interval(2 * node_value + 1, middle, right_value, query_left,
+            query_right, edge_id, bucket_count, buckets)
+
+def odc_unite(left: usize, right: usize, parent: mutable view[usize],
+    set_size: mutable view[usize], history_child: mutable view[usize],
+    history_root: mutable view[usize], history_size: mutable view[usize],
+    history_count: mutable usize&) -> void:
+    root_left: mutable usize = odc_find_root(parent, left)
+    root_right: mutable usize = odc_find_root(parent, right)
+    if root_left == root_right:
+        return
+    if set_size[root_left] > set_size[root_right]:
+        temporary: usize = root_left
+        root_left <- root_right
+        root_right <- temporary
+    history_child[history_count] <- root_left
+    history_root[history_count] <- root_right
+    history_size[history_count] <- set_size[root_right]
+    history_count <- history_count + 1
+    parent[root_left] <- root_right
+    set_size[root_right] <- set_size[root_right] + set_size[root_left]
+
+def odc_rollback(checkpoint: usize, parent: mutable view[usize],
+    set_size: mutable view[usize], history_child: view[usize],
+    history_root: view[usize], history_size: view[usize],
+    history_count: mutable usize&) -> void:
+    while history_count > checkpoint:
+        history_count <- history_count - 1
+        child: usize = history_child[history_count]
+        root: usize = history_root[history_count]
+        parent[child] <- child
+        set_size[root] <- history_size[history_count]
+
+def odc_solve_time_tree(node: usize, left: usize, right: usize,
+    operation: view[i64], first: view[i64], second: view[i64],
+    edge_left: view[i64], edge_right: view[i64],
+    bucket_count: view[usize], buckets: view[usize],
+    parent: mutable view[usize], set_size: mutable view[usize],
+    history_child: mutable view[usize], history_root: mutable view[usize],
+    history_size: mutable view[usize], history_count: mutable usize&,
+    answer: mutable view[i64]) -> void:
+    checkpoint: usize = history_count
+    entry: mutable usize = 0
+    while entry < bucket_count[node]:
+        edge_id: usize = buckets[node * MAX_EVENTS + entry]
+        odc_unite(edge_left[edge_id].usize(), edge_right[edge_id].usize(),
+            parent, set_size, history_child, history_root, history_size, history_count)
+        entry <- entry + 1
+    if right - left == 1:
+        if operation[left] == 2:
+            if odc_find_root(parent, first[left].usize()) == odc_find_root(parent, second[left].usize()):
+                answer[left] <- 1
+            else:
+                answer[left] <- 0
+    else:
+        middle: usize = left + (right - left) / 2
+        odc_solve_time_tree(2 * node, left, middle, operation, first, second,
+            edge_left, edge_right, bucket_count, buckets, parent, set_size,
+            history_child, history_root, history_size, history_count, answer)
+        odc_solve_time_tree(2 * node + 1, middle, right, operation, first, second,
+            edge_left, edge_right, bucket_count, buckets, parent, set_size,
+            history_child, history_root, history_size, history_count, answer)
+    odc_rollback(checkpoint, parent, set_size, history_child, history_root,
+        history_size, history_count)
+
+def odc_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def offline_dynamic_connectivity_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES:
+        return -1
+    if input[0] < 1 or input[0] > MAX_VERTICES.i64() or
+        input[1] < 0 or input[1] > MAX_EVENTS.i64():
+        return -1
+    vertex_count: usize = input[0].usize()
+    event_count: usize = input[1].usize()
+    if length != 2 + 4 * event_count:
+        return -1
+
+    operation: mutable i64[MAX_EVENTS] = zeroed
+    first: mutable i64[MAX_EVENTS] = zeroed
+    second: mutable i64[MAX_EVENTS] = zeroed
+    edge_left: mutable i64[MAX_EVENTS] = zeroed
+    edge_right: mutable i64[MAX_EVENTS] = zeroed
+    start_time: mutable usize[MAX_EVENTS] = zeroed
+    used_id: mutable bool[MAX_EVENTS] = zeroed
+    active: mutable bool[MAX_EVENTS] = zeroed
+    query_count: mutable usize = 0
+    time: mutable usize = 0
+    while time < event_count:
+        offset: usize = 2 + 4 * time
+        operation[time] <- input[offset]
+        first[time] <- input[offset + 1]
+        second[time] <- input[offset + 2]
+        third: i64 = input[offset + 3]
+        if operation[time] == 0:
+            edge_id: i64 = first[time]
+            if edge_id < 0 or edge_id >= MAX_EVENTS.i64() or second[time] < 0 or
+                second[time] >= vertex_count.i64() or third < 0 or
+                third >= vertex_count.i64() or used_id[edge_id.usize()]:
+                return -1
+            used_id[edge_id.usize()] <- true
+            active[edge_id.usize()] <- true
+            start_time[edge_id.usize()] <- time
+            edge_left[edge_id.usize()] <- second[time]
+            edge_right[edge_id.usize()] <- third
+        elif operation[time] == 1:
+            edge_id: i64 = first[time]
+            if edge_id < 0 or edge_id >= MAX_EVENTS.i64() or not active[edge_id.usize()] or
+                second[time] != 0 or third != 0:
+                return -1
+            active[edge_id.usize()] <- false
+        elif operation[time] == 2:
+            if first[time] < 0 or first[time] >= vertex_count.i64() or
+                second[time] < 0 or second[time] >= vertex_count.i64() or third != 0:
+                return -1
+            query_count <- query_count + 1
+        else:
+            return -1
+        time <- time + 1
+
+    required: usize = 8 * query_count
+    if output.is_null() or capacity < required:
+        return -2
+    bucket_count: mutable usize[TREE_NODES] = zeroed
+    buckets: mutable usize[TREE_NODES * MAX_EVENTS] = zeroed
+    edge_id: mutable usize = 0
+    while edge_id < MAX_EVENTS:
+        if used_id[edge_id]:
+            end_time: mutable usize = event_count
+            if not active[edge_id]:
+                time <- start_time[edge_id] + 1
+                while time < event_count:
+                    if operation[time] == 1 and first[time] == edge_id.i64():
+                        end_time <- time
+                        break
+                    time <- time + 1
+            if start_time[edge_id] < end_time and event_count != 0:
+                odc_add_interval(1, 0, event_count, start_time[edge_id], end_time,
+                    edge_id, bucket_count[0:TREE_NODES], buckets[0:TREE_NODES * MAX_EVENTS])
+        edge_id <- edge_id + 1
+
+    parent: mutable usize[MAX_VERTICES] = zeroed
+    set_size: mutable usize[MAX_VERTICES] = zeroed
+    vertex: mutable usize = 0
+    while vertex < vertex_count:
+        parent[vertex] <- vertex
+        set_size[vertex] <- 1
+        vertex <- vertex + 1
+    history_child: mutable usize[MAX_VERTICES] = zeroed
+    history_root: mutable usize[MAX_VERTICES] = zeroed
+    history_size: mutable usize[MAX_VERTICES] = zeroed
+    history_count: mutable usize = 0
+    answer: mutable i64[MAX_EVENTS] = zeroed
+    if event_count != 0:
+        odc_solve_time_tree(1, 0, event_count, operation[0:MAX_EVENTS],
+            first[0:MAX_EVENTS], second[0:MAX_EVENTS], edge_left[0:MAX_EVENTS],
+            edge_right[0:MAX_EVENTS], bucket_count[0:TREE_NODES],
+            buckets[0:TREE_NODES * MAX_EVENTS], parent[0:MAX_VERTICES],
+            set_size[0:MAX_VERTICES], history_child[0:MAX_VERTICES],
+            history_root[0:MAX_VERTICES], history_size[0:MAX_VERTICES],
+            history_count, answer[0:MAX_EVENTS])
+
+    output_view: mutable view[u8] = output[0:required]
+    written: mutable usize = 0
+    time <- 0
+    while time < event_count:
+        if operation[time] == 2:
+            odc_store_i64_le(answer[time], output_view, written)
+            written <- written + 8
+        time <- time + 1
+    written.i64()
+
+export fn offline_dynamic_connectivity(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = offline_dynamic_connectivity_impl

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "counting-squarefrees-i64-scalar-bounded-v1",
+  "algorithm": "counting_squarefrees",
+  "function_symbol": "counting_squarefrees",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [1, 1000000000000],
+    "invalid_result": -1,
+    "result_encoding": "count of positive square-free integers at most N"
+  },
+  "cases": [
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "four", "input_value": 4, "expected_result": 3},
+    {"id": "ten", "input_value": 10, "expected_result": 7},
+    {"id": "one_hundred", "input_value": 100, "expected_result": 61},
+    {"id": "one_million", "input_value": 1000000, "expected_result": 607926},
+    {"id": "one_billion", "input_value": 1000000000, "expected_result": 607927124},
+    {"id": "local_upper_bound", "input_value": 1000000000000, "expected_result": 607927102274},
+    {"id": "zero_invalid", "input_value": 0, "expected_result": -1},
+    {"id": "negative_invalid", "input_value": -1, "expected_result": -1},
+    {"id": "above_local_bound", "input_value": 1000000000001, "expected_result": -1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

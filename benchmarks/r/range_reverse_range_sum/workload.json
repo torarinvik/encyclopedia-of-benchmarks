@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-range-reverse-range-sum-bounded-v1",
+  "algorithm": "range_reverse_range_sum",
+  "function_symbol": "range_reverse_range_sum",
+  "abi": "i64_array_bytes_output",
+  "description": "Reverse implicit-sequence ranges and report range sums using a lazy implicit treap.",
+  "source": {
+    "name": "Library Checker: Range Reverse Range Sum",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/range_reverse_range_sum/task.md",
+    "limits_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/range_reverse_range_sum/info.toml",
+    "repository_license": "Apache-2.0",
+    "reuse": "Task operation semantics and constraints only; local implementation and cases are independently authored."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,a_0,...,a_(N-1),(type,left,right)*Q]",
+    "n_range": [0, 64],
+    "q_range": [0, 32],
+    "value_range": [0, 1000000000],
+    "operation_types": {"0": "reverse [left,right)", "1": "sum [left,right)"},
+    "range_rule": "0 <= left <= right <= N",
+    "maximum_valid_length": 162,
+    "maximum_parseable_length": 163,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "contract": {
+    "operation": "Type 0 reverses the current sequence slice [left,right); type 1 appends its element sum to the output.",
+    "algorithm": "Implicit treap with subtree sizes and sums, lazy reversal flags, and deterministic Park-Miller priorities generated from original node IDs.",
+    "tie_rule": "Priority ties are ordered by original node ID.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "The complete fixed-width operation frame and every value/range are validated before output pointer and capacity checks."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "one range sum per type-1 operation, in input order",
+    "element_width_bytes": 8,
+    "maximum_elements": 32,
+    "maximum_bytes": 256,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Maximum output-buffer capacity; the bounded treap nodes, staged operations, and staged answers use fixed local storage."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "reversal-order-and-empty-range",
+      "input_values": [5,8,1,2,3,4,5,1,0,5,0,1,4,1,1,4,0,0,3,1,0,5,1,2,2,0,3,3,1,3,5],
+      "input_length": 31,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "0f0000000000000009000000000000000f0000000000000000000000000000000700000000000000"
+    },
+    {
+      "id": "singleton-and-empty-query",
+      "input_values": [1,3,9,1,0,1,0,0,1,1,1,1],
+      "input_length": 12,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "09000000000000000000000000000000"
+    },
+    {
+      "id": "empty-sequence-empty-operations",
+      "input_values": [0,2,1,0,0,0,0,0],
+      "input_length": 8,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "updates-only-no-query-output",
+      "input_values": [3,2,1,2,3,0,0,3,0,1,1],
+      "input_length": 11,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "no-operations",
+      "input_values": [1,0,7],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1,1,7,1,0,1],
+      "input_length": 6,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1,1,7,1,0,1],
+      "input_length": 6,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-reversed-range",
+      "input_values": [2,1,1,2,0,2,1],
+      "input_length": 7,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-value-above-limit",
+      "input_values": [1,0,1000000001],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-operation-tag",
+      "input_values": [1,1,7,2,0,1],
+      "input_length": 6,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-operation",
+      "input_values": [1,1,7,1,0],
+      "input_length": 5,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-input-word",
+      "input_values": [1,1,7,1,0,1,99],
+      "input_length": 7,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-input-before-null-output",
+      "input_values": [1,1,7,1,1,0],
+      "input_length": 6,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

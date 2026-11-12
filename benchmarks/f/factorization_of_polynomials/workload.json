@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-polynomial-factorization-exhaustive-small-fields-bytes-v1",
+  "algorithm": "factorization_of_polynomials",
+  "function_symbol": "factorization_of_polynomials",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "polynomial/factorization_of_polynomials/task.md",
+    "limits_path": "polynomial/factorization_of_polynomials/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/polynomial/factorization_of_polynomials/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/polynomial/factorization_of_polynomials/info.toml",
+    "official_n_max": 100,
+    "official_p_max": 998244353,
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Operation and constraints only; the bounded profile, ports, fixtures, oracles, and prose are clean-room."
+  },
+  "oracle": "benchmarks/f/factorization_of_polynomials/primary_oracle.py",
+  "independent_oracle": "benchmarks/f/factorization_of_polynomials/independent_oracle.py",
+  "contract": {
+    "operation": "Factor a monic polynomial over F_p into distinct monic irreducible factors and their multiplicities.",
+    "input_layout": "[N, p, a_0, ..., a_N] with f(x)=sum(a_i*x^i)",
+    "n_range": [0, 8],
+    "prime_values": [2, 3, 5],
+    "coefficient_range": "0 <= a_i < p",
+    "leading_coefficient": 1,
+    "algorithm": "Enumerate monic candidates through degree floor(N/2), filter each by exhaustive trial division through degree floor(d/2), and repeatedly divide the input by each irreducible candidate.",
+    "complexity": "At most 780 monic candidates are enumerated for p<=5 and N<=8; each irreducibility check tests at most 30 smaller monic divisors. Polynomial division is quadratic in degree, so the bounded exhaustive search is at most O(p^6*N^2) with these fixed small limits.",
+    "output_layout": "Little-endian signed 64-bit words: K, then for each distinct factor [multiplicity, degree, b_0, ..., b_degree]. Factors are sorted by degree then coefficient tuple; coefficients are low degree first.",
+    "error_precedence": "Malformed input returns -1 before output checks. Valid input with null output or capacity below the required encoded size returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, p, a_0, ..., a_N]",
+    "maximum_valid_length": 11,
+    "maximum_parseable_length": 12,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_array",
+    "maximum_output_elements": 33,
+    "maximum_bytes": 264,
+    "success_result": "encoded byte length",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "description": "Fixed arrays for the current polynomial, candidate, quotient, and at most eight reported factors."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"unit-polynomial-no-factors","input_values":[0,2,1],"input_length":3,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"single-linear-factor","input_values":[1,2,1,1],"input_length":4,"expected_result":40,"expected_output_hex":"01000000000000000100000000000000010000000000000001000000000000000100000000000000"},
+    {"id":"repeated-linear-factor","input_values":[3,2,1,1,1,1],"input_length":6,"expected_result":40,"expected_output_hex":"01000000000000000300000000000000010000000000000001000000000000000100000000000000"},
+    {"id":"distinct-linear-and-quadratic-factors","input_values":[3,2,1,0,0,1],"input_length":6,"expected_result":80,"expected_output_hex":"0200000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000200000000000000010000000000000001000000000000000100000000000000"},
+    {"id":"irreducible-quartic","input_values":[4,2,1,1,0,0,1],"input_length":7,"expected_result":64,"expected_output_hex":"0100000000000000010000000000000004000000000000000100000000000000010000000000000000000000000000000000000000000000000100000000000000"},
+    {"id":"irreducible-quadratic-over-f3","input_values":[2,3,1,0,1],"input_length":5,"expected_result":48,"expected_output_hex":"010000000000000001000000000000000200000000000000010000000000000000000000000000000100000000000000"},
+    {"id":"repeated-linear-over-f3","input_values":[2,3,1,2,1],"input_length":5,"expected_result":40,"expected_output_hex":"01000000000000000200000000000000010000000000000001000000000000000100000000000000"},
+    {"id":"non-monic-input","input_values":[1,2,1,0],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"unsupported-prime-profile","input_values":[1,7,1,1],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coefficient-out-of-range","input_values":[1,3,3,1],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"degree-above-profile","input_values":[9,2,0,0,0,0,0,0,0,0,1],"input_length":11,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-input","input_values":[2,2,1,1],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra-input-word","input_values":[0,2,1,1],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,2,1,1],"input_length":4,"output_capacity":39,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-buffer","input_values":[1,2,1,1],"input_length":4,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input-pointer","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

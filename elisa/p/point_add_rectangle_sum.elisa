@@ -1,0 +1,223 @@
+const MAX_N: usize = 32
+const MAX_Q: usize = 32
+const MAX_POINTS: usize = MAX_N + MAX_Q
+const MAX_PARSEABLE_INPUT: usize = 2 + 3 * MAX_N + 5 * MAX_Q + 1
+const MAX_COORD: i64 = 1000000
+const MAX_WEIGHT: i64 = 1000000
+
+def point_add_rectangle_sum_lowbit(value: usize) -> usize:
+    value & (!value + 1)
+
+def point_add_rectangle_sum_lower_i64(values: view[i64], count: usize, target: i64) -> usize:
+    left: mutable usize = 0
+    right: mutable usize = count
+    while left < right:
+        middle: usize = left + (right - left) / 2
+        if values[middle] < target:
+            left <- middle + 1
+        else:
+            right <- middle
+    left
+
+def point_add_rectangle_sum_lower_usize(values: view[usize], count: usize, target: usize) -> usize:
+    left: mutable usize = 0
+    right: mutable usize = count
+    while left < right:
+        middle: usize = left + (right - left) / 2
+        if values[middle] < target:
+            left <- middle + 1
+        else:
+            right <- middle
+    left
+
+def point_add_rectangle_sum_sort_unique(values: mutable view[i64], count: usize) -> usize:
+    for index in 1..<count:
+        value: i64 = values[index]
+        position: mutable usize = index
+        while position > 0 and values[position - 1] > value:
+            values[position] <- values[position - 1]
+            position <- position - 1
+        values[position] <- value
+    unique_count: mutable usize = 0
+    for index in 0..<count:
+        if unique_count == 0 or values[index] != values[unique_count - 1]:
+            values[unique_count] <- values[index]
+            unique_count <- unique_count + 1
+    unique_count
+
+def point_add_rectangle_sum_register(xs: view[i64], x_count: usize,
+    ys: view[i64], y_count: usize, present: mutable view[bool], x: i64, y: i64) -> void:
+    outer: mutable usize = point_add_rectangle_sum_lower_i64(xs, x_count, x) + 1
+    rank: usize = point_add_rectangle_sum_lower_i64(ys, y_count, y)
+    while outer <= x_count:
+        present[outer * MAX_POINTS + rank] <- True
+        outer <- outer + point_add_rectangle_sum_lowbit(outer)
+
+def point_add_rectangle_sum_add(tree: mutable view[i64], y_values: view[usize],
+    y_counts: view[usize], x_count: usize, xs: view[i64], ys: view[i64],
+    y_count: usize, x: i64, y: i64, weight: i64) -> void:
+    outer: mutable usize = point_add_rectangle_sum_lower_i64(xs, x_count, x) + 1
+    y_rank: usize = point_add_rectangle_sum_lower_i64(ys, y_count, y)
+    while outer <= x_count:
+        row: usize = outer * MAX_POINTS
+        inner: mutable usize = point_add_rectangle_sum_lower_usize(
+            y_values[row:row + y_counts[outer]], y_counts[outer], y_rank) + 1
+        while inner <= y_counts[outer]:
+            tree[outer * (MAX_POINTS + 1) + inner] <- tree[outer * (MAX_POINTS + 1) + inner] + weight
+            inner <- inner + point_add_rectangle_sum_lowbit(inner)
+        outer <- outer + point_add_rectangle_sum_lowbit(outer)
+
+def point_add_rectangle_sum_prefix(tree: view[i64], y_values: view[usize],
+    y_counts: view[usize], x_count: usize, xs: view[i64], ys: view[i64],
+    y_count: usize, x_limit: i64, y_limit: i64) -> i64:
+    outer: mutable usize = point_add_rectangle_sum_lower_i64(xs, x_count, x_limit)
+    y_limit_rank: usize = point_add_rectangle_sum_lower_i64(ys, y_count, y_limit)
+    total: mutable i64 = 0
+    while outer > 0:
+        row: usize = outer * MAX_POINTS
+        inner: mutable usize = point_add_rectangle_sum_lower_usize(
+            y_values[row:row + y_counts[outer]], y_counts[outer], y_limit_rank)
+        while inner > 0:
+            total <- total + tree[outer * (MAX_POINTS + 1) + inner]
+            inner <- inner - point_add_rectangle_sum_lowbit(inner)
+        outer <- outer - point_add_rectangle_sum_lowbit(outer)
+    total
+
+def point_add_rectangle_sum_put(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def point_add_rectangle_sum_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT:
+        return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N or q_value < 0 or q_value > MAX_Q:
+        return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    initial_x: mutable i64[MAX_N] = zeroed
+    initial_y: mutable i64[MAX_N] = zeroed
+    initial_weight: mutable i64[MAX_N] = zeroed
+    kinds: mutable i64[MAX_Q] = zeroed
+    op_a: mutable i64[MAX_Q] = zeroed
+    op_b: mutable i64[MAX_Q] = zeroed
+    op_c: mutable i64[MAX_Q] = zeroed
+    op_d: mutable i64[MAX_Q] = zeroed
+    all_x: mutable i64[MAX_POINTS] = zeroed
+    all_y: mutable i64[MAX_POINTS] = zeroed
+    point_count: mutable usize = 0
+    cursor: mutable usize = 2
+    for index in 0..<n:
+        if cursor + 3 > length:
+            return -1
+        x: i64 = input[cursor]
+        y: i64 = input[cursor + 1]
+        weight: i64 = input[cursor + 2]
+        cursor <- cursor + 3
+        if x < 0 or x > MAX_COORD or y < 0 or y > MAX_COORD or weight < 0 or weight > MAX_WEIGHT:
+            return -1
+        initial_x[index] <- x
+        initial_y[index] <- y
+        initial_weight[index] <- weight
+        all_x[point_count] <- x
+        all_y[point_count] <- y
+        point_count <- point_count + 1
+
+    query_count: mutable usize = 0
+    for index in 0..<q:
+        if cursor >= length:
+            return -1
+        kind: i64 = input[cursor]
+        cursor <- cursor + 1
+        kinds[index] <- kind
+        if kind == 0:
+            if cursor + 3 > length:
+                return -1
+            x: i64 = input[cursor]
+            y: i64 = input[cursor + 1]
+            weight: i64 = input[cursor + 2]
+            cursor <- cursor + 3
+            if x < 0 or x > MAX_COORD or y < 0 or y > MAX_COORD or weight < 0 or weight > MAX_WEIGHT:
+                return -1
+            op_a[index] <- x
+            op_b[index] <- y
+            op_c[index] <- weight
+            all_x[point_count] <- x
+            all_y[point_count] <- y
+            point_count <- point_count + 1
+        else if kind == 1:
+            if cursor + 4 > length:
+                return -1
+            left: i64 = input[cursor]
+            down: i64 = input[cursor + 1]
+            right: i64 = input[cursor + 2]
+            up: i64 = input[cursor + 3]
+            cursor <- cursor + 4
+            if left < 0 or left >= right or right > MAX_COORD or down < 0 or down >= up or up > MAX_COORD:
+                return -1
+            op_a[index] <- left
+            op_b[index] <- down
+            op_c[index] <- right
+            op_d[index] <- up
+            query_count <- query_count + 1
+        else:
+            return -1
+    if cursor != length:
+        return -1
+
+    xs: mutable view[i64] = all_x[0:MAX_POINTS]
+    ys: mutable view[i64] = all_y[0:MAX_POINTS]
+    x_count: usize = point_add_rectangle_sum_sort_unique(xs, point_count)
+    y_count: usize = point_add_rectangle_sum_sort_unique(ys, point_count)
+    present: mutable bool[(MAX_POINTS + 1) * MAX_POINTS] = zeroed
+    for index in 0..<n:
+        point_add_rectangle_sum_register(all_x[0:MAX_POINTS], x_count, all_y[0:MAX_POINTS], y_count,
+            present[0:(MAX_POINTS + 1) * MAX_POINTS], initial_x[index], initial_y[index])
+    for index in 0..<q:
+        if kinds[index] == 0:
+            point_add_rectangle_sum_register(all_x[0:MAX_POINTS], x_count, all_y[0:MAX_POINTS], y_count,
+                present[0:(MAX_POINTS + 1) * MAX_POINTS], op_a[index], op_b[index])
+
+    y_values: mutable usize[(MAX_POINTS + 1) * MAX_POINTS] = zeroed
+    y_counts: mutable usize[MAX_POINTS + 1] = zeroed
+    for outer in 1..<(x_count + 1):
+        for rank in 0..<y_count:
+            if present[outer * MAX_POINTS + rank]:
+                y_values[outer * MAX_POINTS + y_counts[outer]] <- rank
+                y_counts[outer] <- y_counts[outer] + 1
+    tree: mutable i64[(MAX_POINTS + 1) * (MAX_POINTS + 1)] = zeroed
+    for index in 0..<n:
+        point_add_rectangle_sum_add(tree[0:(MAX_POINTS + 1) * (MAX_POINTS + 1)],
+            y_values[0:(MAX_POINTS + 1) * MAX_POINTS], y_counts[0:MAX_POINTS + 1],
+            x_count, all_x[0:MAX_POINTS], all_y[0:MAX_POINTS], y_count,
+            initial_x[index], initial_y[index], initial_weight[index])
+
+    answers: mutable i64[MAX_Q] = zeroed
+    answer_count: mutable usize = 0
+    for index in 0..<q:
+        if kinds[index] == 0:
+            point_add_rectangle_sum_add(tree[0:(MAX_POINTS + 1) * (MAX_POINTS + 1)],
+                y_values[0:(MAX_POINTS + 1) * MAX_POINTS], y_counts[0:MAX_POINTS + 1],
+                x_count, all_x[0:MAX_POINTS], all_y[0:MAX_POINTS], y_count,
+                op_a[index], op_b[index], op_c[index])
+        else:
+            answers[answer_count] <-
+                point_add_rectangle_sum_prefix(tree[0:(MAX_POINTS + 1) * (MAX_POINTS + 1)], y_values[0:(MAX_POINTS + 1) * MAX_POINTS], y_counts[0:MAX_POINTS + 1], x_count, all_x[0:MAX_POINTS], all_y[0:MAX_POINTS], y_count, op_c[index], op_d[index]) -
+                point_add_rectangle_sum_prefix(tree[0:(MAX_POINTS + 1) * (MAX_POINTS + 1)], y_values[0:(MAX_POINTS + 1) * MAX_POINTS], y_counts[0:MAX_POINTS + 1], x_count, all_x[0:MAX_POINTS], all_y[0:MAX_POINTS], y_count, op_a[index], op_d[index]) -
+                point_add_rectangle_sum_prefix(tree[0:(MAX_POINTS + 1) * (MAX_POINTS + 1)], y_values[0:(MAX_POINTS + 1) * MAX_POINTS], y_counts[0:MAX_POINTS + 1], x_count, all_x[0:MAX_POINTS], all_y[0:MAX_POINTS], y_count, op_c[index], op_b[index]) +
+                point_add_rectangle_sum_prefix(tree[0:(MAX_POINTS + 1) * (MAX_POINTS + 1)], y_values[0:(MAX_POINTS + 1) * MAX_POINTS], y_counts[0:MAX_POINTS + 1], x_count, all_x[0:MAX_POINTS], all_y[0:MAX_POINTS], y_count, op_a[index], op_b[index])
+            answer_count <- answer_count + 1
+
+    output_bytes: usize = answer_count * 8
+    if output_bytes > 0 and (output.is_null() or capacity < output_bytes):
+        return -2
+    for index in 0..<answer_count:
+        point_add_rectangle_sum_put(output[0:capacity], index * 8, answers[index])
+    output_bytes.i64()
+
+export fn point_add_rectangle_sum(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = point_add_rectangle_sum_impl

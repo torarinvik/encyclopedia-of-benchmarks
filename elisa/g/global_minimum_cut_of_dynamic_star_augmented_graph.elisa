@@ -1,0 +1,151 @@
+const GMC_MAX_N: usize = 16
+const GMC_MAX_M: usize = 64
+const GMC_MAX_Q: usize = 32
+const GMC_MAX_V: usize = 17
+const GMC_MAX_INPUT: usize = 276
+const GMC_MAX_OUTPUT: usize = 256
+const GMC_MAX_W: i64 = 1000000
+
+def gmc_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def gmc_stoer_wagner(n: usize, spokes: i64[16], m: usize,
+        edge_u: i64[64], edge_v: i64[64], edge_w: i64[64]) -> i64:
+    vertex_count: usize = n + 1
+    weights: mutable i64[289] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u: usize = edge_u[edge].usize()
+        v: usize = edge_v[edge].usize()
+        weights[u * 17 + v] <- weights[u * 17 + v] + edge_w[edge]
+        weights[v * 17 + u] <- weights[v * 17 + u] + edge_w[edge]
+        edge <- edge + 1
+    vertex: mutable usize = 0
+    while vertex < n:
+        weights[vertex * 17 + n] <- weights[vertex * 17 + n] + spokes[vertex]
+        weights[n * 17 + vertex] <- weights[n * 17 + vertex] + spokes[vertex]
+        vertex <- vertex + 1
+    active: mutable usize[17] = zeroed
+    count: mutable usize = vertex_count
+    vertex <- 0
+    while vertex < vertex_count:
+        active[vertex] <- vertex
+        vertex <- vertex + 1
+    best: mutable i64 = 9223372036854775807
+    while count > 1:
+        used: mutable bool[17] = zeroed
+        connection: mutable i64[17] = zeroed
+        previous: mutable usize = 17
+        step: mutable usize = 0
+        while step < count:
+            selected: mutable usize = 17
+            z: mutable usize = 0
+            while z < count:
+                candidate: usize = active[z]
+                if not used[candidate] and (selected == 17 or connection[candidate] > connection[selected]
+                        or (connection[candidate] == connection[selected] and candidate < selected)):
+                    selected <- candidate
+                z <- z + 1
+            if step + 1 == count:
+                if connection[selected] < best: best <- connection[selected]
+                z <- 0
+                while z < count:
+                    candidate <- active[z]
+                    if candidate != selected and candidate != previous:
+                        weights[previous * 17 + candidate] <- weights[previous * 17 + candidate] + weights[selected * 17 + candidate]
+                        weights[candidate * 17 + previous] <- weights[previous * 17 + candidate]
+                    z <- z + 1
+                position: mutable usize = 0
+                while active[position] != selected: position <- position + 1
+                z <- position + 1
+                while z < count:
+                    active[z - 1] <- active[z]
+                    z <- z + 1
+                count <- count - 1
+                break
+            used[selected] <- true
+            previous <- selected
+            z <- 0
+            while z < count:
+                candidate <- active[z]
+                if not used[candidate]: connection[candidate] <- connection[candidate] + weights[selected * 17 + candidate]
+                z <- z + 1
+            step <- step + 1
+    best
+
+def global_minimum_cut_of_dynamic_star_augmented_graph_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > GMC_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    q_value: i64 = input[2]
+    if n_value < 1 or n_value > 16 or m_value < 0 or m_value > 64
+            or m_value > n_value * (n_value - 1) / 2 or q_value < 1 or q_value > 32: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    q: usize = q_value.usize()
+    if length != 3 + n + 3 * m + 2 * q: return -1
+    position: mutable usize = 3
+    spokes: mutable i64[16] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        spokes[i] <- input[position]
+        if spokes[i] < 0 or spokes[i] > GMC_MAX_W: return -1
+        position <- position + 1
+        i <- i + 1
+    edge_u: mutable i64[64] = zeroed
+    edge_v: mutable i64[64] = zeroed
+    edge_w: mutable i64[64] = zeroed
+    seen: mutable bool[256] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u: i64 = input[position]
+        v: i64 = input[position + 1]
+        weight: i64 = input[position + 2]
+        position <- position + 3
+        if u < 0 or u >= n_value or v < 0 or v >= n_value or u == v or weight < 0 or weight > GMC_MAX_W: return -1
+        a: mutable usize = 0
+        b: mutable usize = 0
+        if u < v: a <- u.usize(); b <- v.usize()
+        else: a <- v.usize(); b <- u.usize()
+        slot: usize = a * 16 + b
+        if seen[slot]: return -1
+        seen[slot] <- true
+        edge_u[edge] <- u
+        edge_v[edge] <- v
+        edge_w[edge] <- weight
+        edge <- edge + 1
+    update_x: mutable usize[32] = zeroed
+    update_y: mutable i64[32] = zeroed
+    i <- 0
+    while i < q:
+        x: i64 = input[position]
+        y: i64 = input[position + 1]
+        position <- position + 2
+        if x < 0 or x >= n_value or y < 0 or y > GMC_MAX_W: return -1
+        update_x[i] <- x.usize()
+        update_y[i] <- y
+        i <- i + 1
+    bytes: usize = 8 * q
+    if bytes > GMC_MAX_OUTPUT: return -1
+    if output.is_null() or capacity < bytes: return -2
+    answers: mutable i64[32] = zeroed
+    i <- 0
+    while i < q:
+        spokes[update_x[i]] <- update_y[i]
+        answers[i] <- gmc_stoer_wagner(n, spokes, m, edge_u, edge_v, edge_w)
+        i <- i + 1
+    output_view: mutable view[u8] = output[0:bytes]
+    i <- 0
+    while i < q:
+        gmc_store(answers[i], output_view, 8 * i)
+        i <- i + 1
+    bytes.i64()
+
+export fn global_minimum_cut_of_dynamic_star_augmented_graph(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = global_minimum_cut_of_dynamic_star_augmented_graph_impl

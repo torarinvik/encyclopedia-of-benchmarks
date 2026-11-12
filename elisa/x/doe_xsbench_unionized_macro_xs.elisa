@@ -61,8 +61,8 @@ def grid_search(grid: i64[20], count: usize, quarry: i64) -> usize:
         span <- upper - lower
     lower
 
-def doe_xsbench_unionized_macro_xs_impl(input: i64&, length: usize) -> f64:
-    if input == null or length < 22 or length > MAX_LENGTH:
+def doe_xsbench_unionized_macro_xs_impl(input: view[i64], length: usize) -> f64:
+    if length < 22 or length > MAX_LENGTH:
         return INVALID_RESULT
     nuclides_raw: i64 = input[0]
     gridpoints_raw: i64 = input[1]
@@ -153,4 +153,8 @@ def doe_xsbench_unionized_macro_xs_impl(input: i64&, length: usize) -> f64:
             macro[channel] <- macro[channel] + microscopic * concentrations[item]
     macro[0] + 2.0 * macro[1] + 3.0 * macro[2] + 5.0 * macro[3] + 7.0 * macro[4]
 
-export fn doe_xsbench_unionized_macro_xs(input: i64&, length: usize) -> f64 = doe_xsbench_unionized_macro_xs_impl
+export fn doe_xsbench_unionized_macro_xs(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 22 or length > MAX_LENGTH:
+        return INVALID_RESULT
+    input_view: view[i64] = input[0:length]
+    doe_xsbench_unionized_macro_xs_impl(input_view, length)

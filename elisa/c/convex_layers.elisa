@@ -1,0 +1,137 @@
+const CONVEX_LAYERS_MAX_POINTS: usize = 64
+const CONVEX_LAYERS_COORD_LIMIT: i64 = 1000000
+
+struct ConvexLayersPoint:
+    x: i64
+    y: i64
+
+def convex_layers_cross(a: ConvexLayersPoint, b: ConvexLayersPoint,
+                        c: ConvexLayersPoint) -> i64:
+    (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+
+def convex_layers_before(left: ConvexLayersPoint, right: ConvexLayersPoint) -> bool:
+    left.x < right.x or (left.x == right.x and left.y < right.y)
+
+def convex_layers_on_segment(point: ConvexLayersPoint, a: ConvexLayersPoint,
+                             b: ConvexLayersPoint) -> bool:
+    convex_layers_cross(a, b, point) == 0 and
+        point.x >= (if a.x < b.x: a.x else: b.x) and point.x <= (if a.x > b.x: a.x else: b.x) and
+        point.y >= (if a.y < b.y: a.y else: b.y) and point.y <= (if a.y > b.y: a.y else: b.y)
+
+def convex_layers_sort(points: mutable view[ConvexLayersPoint], count: usize) -> void:
+    index: mutable usize = 1
+    while index < count:
+        key: ConvexLayersPoint = points[index]
+        position: mutable usize = index
+        while position > 0 and convex_layers_before(key, points[position - 1]):
+            points[position] <- points[position - 1]
+            position <- position - 1
+        points[position] <- key
+        index <- index + 1
+
+def convex_layers_mark_boundary(points: view[ConvexLayersPoint], count: usize,
+        hull: mutable view[ConvexLayersPoint], boundary: mutable view[u8]) -> usize:
+    index: mutable usize = 0
+    while index < count:
+        boundary[index] <- 0
+        index <- index + 1
+    if count <= 2:
+        index <- 0
+        while index < count:
+            boundary[index] <- 1
+            index <- index + 1
+        return count
+
+    hull_count: mutable usize = 0
+    index <- 0
+    while index < count:
+        while hull_count >= 2 and convex_layers_cross(
+            hull[hull_count - 2], hull[hull_count - 1], points[index]) <= 0:
+            hull_count <- hull_count - 1
+        hull[hull_count] <- points[index]
+        hull_count <- hull_count + 1
+        index <- index + 1
+    lower_count: usize = hull_count
+    index <- count - 1
+    while index > 0:
+        point: ConvexLayersPoint = points[index - 1]
+        while hull_count > lower_count and convex_layers_cross(
+            hull[hull_count - 2], hull[hull_count - 1], point) <= 0:
+            hull_count <- hull_count - 1
+        hull[hull_count] <- point
+        hull_count <- hull_count + 1
+        index <- index - 1
+    if hull_count > 1:
+        hull_count <- hull_count - 1
+    if hull_count <= 2:
+        index <- 0
+        while index < count:
+            boundary[index] <- 1
+            index <- index + 1
+        return count
+
+    marked: mutable usize = 0
+    index <- 0
+    while index < count:
+        edge: mutable usize = 0
+        while edge < hull_count:
+            if convex_layers_on_segment(points[index], hull[edge], hull[(edge + 1) % hull_count]):
+                boundary[index] <- 1
+                marked <- marked + 1
+                break
+            edge <- edge + 1
+        index <- index + 1
+    marked
+
+def convex_layers_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > 1 + 2 * CONVEX_LAYERS_MAX_POINTS:
+        return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > CONVEX_LAYERS_MAX_POINTS.i64():
+        return -1
+    count: usize = count_value.usize()
+    if length != 1 + 2 * count:
+        return -1
+
+    points: mutable ConvexLayersPoint[CONVEX_LAYERS_MAX_POINTS] = zeroed
+    point_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < count:
+        x: i64 = input[1 + 2 * index]
+        y: i64 = input[2 + 2 * index]
+        if x < -CONVEX_LAYERS_COORD_LIMIT or x > CONVEX_LAYERS_COORD_LIMIT or
+            y < -CONVEX_LAYERS_COORD_LIMIT or y > CONVEX_LAYERS_COORD_LIMIT:
+            return -1
+        duplicate: mutable bool = false
+        old: mutable usize = 0
+        while old < point_count:
+            if points[old].x == x and points[old].y == y:
+                duplicate <- true
+                break
+            old <- old + 1
+        if not duplicate:
+            points[point_count] <- ConvexLayersPoint{x: x, y: y}
+            point_count <- point_count + 1
+        index <- index + 1
+
+    layers: mutable i64 = 0
+    while point_count > 0:
+        convex_layers_sort(points[0:point_count], point_count)
+        hull: mutable ConvexLayersPoint[2 * CONVEX_LAYERS_MAX_POINTS] = zeroed
+        boundary: mutable u8[CONVEX_LAYERS_MAX_POINTS] = zeroed
+        removed: usize = convex_layers_mark_boundary(points[0:point_count], point_count,
+            hull[0:2 * CONVEX_LAYERS_MAX_POINTS], boundary[0:point_count])
+        if removed == 0:
+            return -1
+        kept: mutable usize = 0
+        index <- 0
+        while index < point_count:
+            if boundary[index] == 0:
+                points[kept] <- points[index]
+                kept <- kept + 1
+            index <- index + 1
+        point_count <- kept
+        layers <- layers + 1
+    layers
+
+export fn convex_layers(input: i64&, length: usize) -> i64 = convex_layers_impl

@@ -358,6 +358,206 @@
   ],
   "candidate_count": 3893,
   "source_file_count": 6158,
+  "additional_non_thealgorithms_packages": [
+    {
+      "benchmark_name": "dynamic_graph_vertex_add_component_sum",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "graph/dynamic_graph_vertex_add_component_sum/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/graph/dynamic_graph_vertex_add_component_sum/task.md",
+      "local_contract": "benchmarks/d/dynamic_graph_vertex_add_component_sum/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "deque_operate_all_composite",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/deque_operate_all_composite/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/deque_operate_all_composite/task.md",
+      "local_contract": "benchmarks/d/deque_operate_all_composite/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_scalar",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "rectangle_add_point_get",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/rectangle_add_point_get/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/rectangle_add_point_get/task.md",
+      "local_contract": "benchmarks/r/rectangle_add_point_get/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "static_range_lis_query",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/static_range_lis_query/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/static_range_lis_query/task.md",
+      "local_contract": "benchmarks/s/static_range_lis_query/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "static_range_inversions_query",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/static_range_inversions_query/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/static_range_inversions_query/task.md",
+      "local_contract": "benchmarks/s/static_range_inversions_query/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "static_rectangle_add_rectangle_sum",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/static_rectangle_add_rectangle_sum/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/static_rectangle_add_rectangle_sum/task.md",
+      "local_contract": "benchmarks/s/static_rectangle_add_rectangle_sum/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "range_affine_point_get",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/range_affine_point_get/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/range_affine_point_get/task.md",
+      "local_contract": "benchmarks/r/range_affine_point_get/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "range_affine_range_sum",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/range_affine_range_sum/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/range_affine_range_sum/task.md",
+      "local_contract": "benchmarks/r/range_affine_range_sum/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_scalar",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "range_set_range_composite",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/range_set_range_composite/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/range_set_range_composite/task.md",
+      "local_contract": "benchmarks/r/range_set_range_composite/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "point_set_range_frequency",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/point_set_range_frequency/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/point_set_range_frequency/task.md",
+      "local_contract": "benchmarks/p/point_set_range_frequency/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "range_reverse_range_sum",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/range_reverse_range_sum/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/range_reverse_range_sum/task.md",
+      "local_contract": "benchmarks/r/range_reverse_range_sum/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "range_linear_add_range_min",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/range_linear_add_range_min/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/range_linear_add_range_min/task.md",
+      "local_contract": "benchmarks/r/range_linear_add_range_min/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_scalar",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "persistent_queue",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/persistent_queue/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/persistent_queue/task.md",
+      "local_contract": "benchmarks/p/persistent_queue/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "dynamic_sequence_range_affine_range_sum",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/dynamic_sequence_range_affine_range_sum/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/dynamic_sequence_range_affine_range_sum/task.md",
+      "local_contract": "benchmarks/d/dynamic_sequence_range_affine_range_sum/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "dynamic_point_set_rectangle_affine_rectangle_sum",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/dynamic_point_set_rectangle_affine_rectangle_sum/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/dynamic_point_set_rectangle_affine_rectangle_sum/task.md",
+      "local_contract": "benchmarks/d/dynamic_point_set_rectangle_affine_rectangle_sum/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "maximum_independent_set",
+      "source_repository": "Encyclopedia of Algorithms",
+      "source_path": "chapter 514",
+      "source_url": "https://doi.org/10.1007/978-1-4939-2864-4_514",
+      "local_contract": "benchmarks/m/maximum_independent_set/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_scalar",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "chromatic_polynomial",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "graph/chromatic_polynomial/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/graph/chromatic_polynomial/task.md",
+      "local_contract": "benchmarks/c/chromatic_polynomial/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "persistent_range_affine_range_sum",
+      "source_repository": "yosupo06/library-checker-problems",
+      "source_path": "data_structure/persistent_range_affine_range_sum/task.md",
+      "source_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/persistent_range_affine_range_sum/task.md",
+      "local_contract": "benchmarks/p/persistent_range_affine_range_sum/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    }
+  ],
   "candidates": [
     {
       "candidate_id": "01knapsack_recursive",
@@ -23281,9 +23481,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "cycle_check_directed_graph",
-      "review_notes": "The pinned Go HasCycle uses a three-state depth-first search with a visiting set and a completed set. Its graph must be directed for this contract: Graph.AddEdge inserts the reverse edge by default when Directed is false, which makes this traversal treat an undirected parent edge as a cycle. The separately named FindAllCycles helper is not mapped here because it does not enumerate all distinct cycles.",
-      "benchmark_contract": "benchmarks/c/cycle_check_directed_graph/README.md"
+      "benchmark_name": "check_cycle",
+      "alias_of": "check_cycle",
+      "review_notes": "The pinned Go HasCycle uses the same three-state directed DFS as the canonical Python check_cycle package. Its graph must be directed for this contract: Graph.AddEdge inserts the reverse edge by default when Directed is false. The separately named FindAllCycles helper is not mapped here because it does not enumerate all distinct cycles.",
+      "benchmark_contract": "benchmarks/c/check_cycle/README.md"
     },
     {
       "candidate_id": "cycle_check_directed_graph",
@@ -23312,12 +23513,12 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "cycle_check_directed_graph",
+      "benchmark_name": "check_cycle",
       "additional_benchmark_names": [
         "cycle_check_directed_graph_kahn"
       ],
-      "review_notes": "Both pinned C++ cycle_check_directed_graph.cpp snapshots implement the same directed-graph contract. Each source contains a three-state DFS cycle check and a separate Kahn zero-indegree cycle check; these are mapped to separate benchmarks. The shared bounded contract coalesces duplicate edges, validates endpoints, and returns a scalar cycle flag.",
-      "benchmark_contract": "benchmarks/c/cycle_check_directed_graph/README.md",
+      "review_notes": "Both pinned C++ cycle_check_directed_graph.cpp snapshots' three-state DFS is an alias of the canonical check_cycle profile; the common 32-vertex contract accepts duplicate edges and validates endpoints. The distinct Kahn zero-indegree routine remains a separate benchmark.",
+      "benchmark_contract": "benchmarks/c/check_cycle/README.md",
       "additional_benchmark_contracts": [
         "benchmarks/c/cycle_check_directed_graph_kahn/README.md"
       ]
@@ -35694,9 +35895,10 @@
           "local_folder_source": "c"
         }
       ],
-      "benchmark_name": "gauss_elimination",
-      "benchmark_contract": "benchmarks/g/gauss_elimination/README.md",
-      "review_notes": "The pinned C console source selects the largest absolute pivot in each current column, retaining the first tied row, swaps full augmented rows, then performs binary32 elimination and back substitution. It is distinct from gaussian_elimination's no-pivot symmetric-tridiagonal contract. The bounded dense benchmark preserves the source operation order and two-decimal printf result; singular systems return the documented invalid sentinel."
+      "alias_of": "gaussian_elimination_pivoting",
+      "benchmark_name": "gaussian_elimination_pivoting",
+      "benchmark_contract": "benchmarks/g/gaussian_elimination_pivoting/README.md",
+      "review_notes": "The pinned C console source selects the largest absolute pivot in each current column and performs dense Gaussian elimination with partial pivoting. The source-specific binary32 intermediates and two-decimal printf presentation are implementation details of the same algorithm already represented by gaussian_elimination_pivoting, so this candidate is cross-referenced rather than kept as a duplicate package."
     },
     {
       "candidate_id": "gauss_jordan",
@@ -41477,9 +41679,10 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Java source constructs an Eulerian circuit by inserting edges into a HashMap of per-vertex linked deques and repeatedly removing the first edge while walking. The cleared contract uses n=0..8, m<=256, ascending vertex-key initialization, input-order adjacency insertion (including two entries for self-loops), and source pollFirst order; it preserves the empty-graph, edgeless-graph, and invalid-route outputs. The scalar result is a low-63-bit FNV hash of signed-i64 little-endian [bool, length, vertices...]. The nine-language package and i64_array_scalar integration have both been formally cleared.",
-      "benchmark_name": "hierholzer_algorithm",
-      "benchmark_contract": "benchmarks/h/hierholzer_algorithm/README.md"
+      "review_notes": "The pinned Java source uses Hierholzer traversal on undirected circuits, storing parallel edges and self-loops in per-vertex linked deques. This is the same traversal algorithm as canonical eulerian_trail_undirected_simple, which returns the full route and supports open trails; Java's multigraph inputs and hashed circuit result are source-profile differences, not a distinct algorithm contract.",
+      "benchmark_name": "eulerian_trail_undirected_simple",
+      "alias_of": "eulerian_trail_undirected_simple",
+      "benchmark_contract": "benchmarks/e/eulerian_trail_undirected_simple/README.md"
     },
     {
       "candidate_id": "hierholzer_eulerian_path",
@@ -42190,9 +42393,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "huffman_weighted_cost",
-      "benchmark_contract": "benchmarks/h/huffman_weighted_cost/README.md",
-      "review_notes": "The pinned C++ mirrors, Java, and Python build Huffman codes. The portable contract uses at least two unique lowercase symbols with positive frequencies and compares weighted encoded bit cost, avoiding code-map differences from tie-breaking. It excludes the one-symbol case because source outputs differ."
+      "benchmark_name": "nbench_huffman_compression",
+      "benchmark_contract": "benchmarks/n/nbench_huffman_compression/README.md",
+      "review_notes": "The pinned C++ mirrors, Java, and Python implement the same greedy Huffman prefix-tree construction as the NBench kernel. The weighted-cost-only benchmark was removed as a duplicate projection; NBench retains the complete bounded tree-build, encode, decode, and round-trip profile."
     },
     {
       "candidate_id": "huffman_coding",
@@ -42212,8 +42415,8 @@
         }
       ],
       "alias_of": "huffman",
-      "benchmark_contract": "benchmarks/h/huffman_weighted_cost/README.md",
-      "review_notes": "The pinned implementation constructs Huffman prefix codes by repeatedly merging the two lowest-frequency nodes. The shared bounded weighted-cost contract captures this algorithm while ignoring tie-dependent codeword identities. The single-symbol case is excluded because source implementations use different code-length conventions; the C# compressor normalizes frequencies before building the same tree."
+      "benchmark_contract": "benchmarks/n/nbench_huffman_compression/README.md",
+      "review_notes": "The pinned implementation constructs Huffman prefix codes by repeatedly merging the two lowest-frequency nodes, the same greedy tree-construction algorithm represented by the NBench compression package."
     },
     {
       "candidate_id": "huffman_compressor",
@@ -42233,8 +42436,8 @@
         }
       ],
       "alias_of": "huffman",
-      "benchmark_contract": "benchmarks/h/huffman_weighted_cost/README.md",
-      "review_notes": "The pinned implementation constructs Huffman prefix codes by repeatedly merging the two lowest-frequency nodes. The shared bounded weighted-cost contract captures this algorithm while ignoring tie-dependent codeword identities. The single-symbol case is excluded because source implementations use different code-length conventions; the C# compressor normalizes frequencies before building the same tree."
+      "benchmark_contract": "benchmarks/n/nbench_huffman_compression/README.md",
+      "review_notes": "The pinned implementation constructs Huffman prefix codes by repeatedly merging the two lowest-frequency nodes, the same greedy tree-construction algorithm represented by the NBench compression package."
     },
     {
       "candidate_id": "huffman_encoding",
@@ -42263,8 +42466,8 @@
         }
       ],
       "alias_of": "huffman",
-      "benchmark_contract": "benchmarks/h/huffman_weighted_cost/README.md",
-      "review_notes": "The pinned implementation constructs Huffman prefix codes by repeatedly merging the two lowest-frequency nodes. The shared bounded weighted-cost contract captures this algorithm while ignoring tie-dependent codeword identities. The single-symbol case is excluded because source implementations use different code-length conventions; the C# compressor normalizes frequencies before building the same tree."
+      "benchmark_contract": "benchmarks/n/nbench_huffman_compression/README.md",
+      "review_notes": "The pinned implementation constructs Huffman prefix codes by repeatedly merging the two lowest-frequency nodes, the same greedy tree-construction algorithm represented by the NBench compression package."
     },
     {
       "candidate_id": "huffmancoding",
@@ -42284,8 +42487,8 @@
         }
       ],
       "alias_of": "huffman",
-      "benchmark_contract": "benchmarks/h/huffman_weighted_cost/README.md",
-      "review_notes": "The pinned implementation constructs Huffman prefix codes by repeatedly merging the two lowest-frequency nodes. The shared bounded weighted-cost contract captures this algorithm while ignoring tie-dependent codeword identities. The single-symbol case is excluded because source implementations use different code-length conventions; the C# compressor normalizes frequencies before building the same tree."
+      "benchmark_contract": "benchmarks/n/nbench_huffman_compression/README.md",
+      "review_notes": "The pinned implementation constructs Huffman prefix codes by repeatedly merging the two lowest-frequency nodes, the same greedy tree-construction algorithm represented by the NBench compression package."
     },
     {
       "candidate_id": "hungarian_algorithm",
@@ -72528,7 +72731,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python primelib.py is a bundle of independent methods; map each method separately. is_even and is_odd match their signed-i64 contracts exactly. is_prime maps to prime_check on 0..2,147,483,647 (negative inputs assert in the source). sieve_er and get_prime_numbers both map to inclusive prime_numbers for limits 3..80. prime_factorization maps to prime_factors for 2..1,000,005 with repeated ascending factors; it also maps to prime_factorization for that same positive range by grouping equal adjacent factors into (prime, exponent) pairs. Its source results [0] and [1] are excluded. get_divisors maps to divisors for 1..62 using the contract's lossless bit-mask encoding of the returned list. is_perfect_number maps on 2..10,000, a practical subset for its linear divisor scan. kg_v maps to lcm when both operands are positive and the result fits signed 64-bit; zero is rejected by the source, so use bounded positive operands (up to 10,000). get_prime is zero-based and maps to one-based nthprime by calling get_prime(n-1), for n=1..100. goldbach maps to goldbach_conjecture for even inputs 8..4,096: the source requires distinct primes and fails for 4 and 6, while for this intersection its ascending prime-pair scan agrees with the benchmark. fib returns F(n+1) and maps to the existing F(n+2) fib contract by calling source fib(n+1), for target inputs 0..90. factorial matches factorial on 0..20. greatest_prime_factor, smallest_prime_factor (defined for n>=2), get_primes_between, and simplify_fraction remain separate named benchmark gaps. get_primes_between requires prime endpoints with p1<p2 and raises on adjacent prime endpoints because its final assertion indexes an empty result. simplify_fraction preserves denominator sign, including negative denominators. The module main/doctest block is not a benchmark.",
+      "review_notes": "The pinned Python primelib.py is a bundle of independent methods; map each method separately. is_even and is_odd match their signed-i64 contracts exactly. is_prime maps to prime_check on 0..2,147,483,647 (negative inputs assert in the source). sieve_er and get_prime_numbers both map to inclusive prime_numbers for limits 3..80. get_primes_between uses the same candidate trial-division core as prime_numbers, so endpoint filtering is treated as a call profile, not a separate algorithm. prime_factorization maps to prime_factors for 2..1,000,005 with repeated ascending factors; it also maps to prime_factorization for that same positive range by grouping equal adjacent factors into (prime, exponent) pairs. Its source results [0] and [1] are excluded. get_divisors maps to divisors for 1..62 using the contract's lossless bit-mask encoding of the returned list. is_perfect_number maps on 2..10,000, a practical subset for its linear divisor scan. kg_v maps to lcm when both operands are positive and the result fits signed 64-bit; zero is rejected by the source, so use bounded positive operands (up to 10,000). get_prime is zero-based and maps to one-based nthprime by calling get_prime(n-1), for n=1..100. goldbach maps to goldbach_conjecture for even inputs 8..4,096: the source requires distinct primes and fails for 4 and 6, while for this intersection its ascending prime-pair scan agrees with the benchmark. fib returns F(n+1) and maps to the existing F(n+2) fib contract by calling source fib(n+1), for target inputs 0..90. factorial matches factorial on 0..20. greatest_prime_factor, smallest_prime_factor (defined for n>=2), and simplify_fraction remain separate named benchmark gaps. get_primes_between requires prime endpoints with p1<p2 and raises on adjacent endpoints because its final assertion indexes an empty result; that source error is outside prime_numbers' inclusive-limit contract. simplify_fraction preserves denominator sign, including negative denominators. The module main/doctest block is not a benchmark.",
       "benchmark_name": "is_even",
       "benchmark_contract": "benchmarks/i/is_even/README.md",
       "additional_benchmark_names": [
@@ -72542,7 +72745,6 @@
         "goldbach_conjecture",
         "lcm",
         "nthprime",
-        "get_primes_between",
         "divisors",
         "perfect_number",
         "simplify_fraction",
@@ -72560,7 +72762,6 @@
         "benchmarks/g/goldbach_conjecture/README.md",
         "benchmarks/l/lcm/README.md",
         "benchmarks/n/nthprime/README.md",
-        "benchmarks/g/get_primes_between/README.md",
         "benchmarks/d/divisors/README.md",
         "benchmarks/p/perfect_number/README.md",
         "benchmarks/s/simplify_fraction/README.md",
@@ -72595,9 +72796,10 @@
           "local_folder_source": "zig"
         }
       ],
-      "benchmark_name": "first_n_primes",
-      "review_notes": "The pinned TypeScript source includes a prime generator, and the Zig source computes the first 25 primes at compile time before summing them. Both support the normalized first-N-primes operation; the TypeScript file also contains an inclusive-limit sieve, which is tracked under the separate prime_numbers benchmark.",
-      "benchmark_contract": "benchmarks/f/first_n_primes/README.md"
+      "benchmark_name": "prime_numbers",
+      "alias_of": "prime_numbers",
+      "review_notes": "The pinned TypeScript first-N generator and Zig candidate generator use trial division through the square root for each candidate, the same candidate-generation core as canonical prime_numbers. Their count-based call shape is an endpoint profile; the benchmark contract remains the inclusive-limit generator.",
+      "benchmark_contract": "benchmarks/p/prime_numbers/README.md"
     },
     {
       "candidate_id": "primes_sequence",
@@ -89593,8 +89795,8 @@
         }
       ],
       "alias_of": "primes",
-      "benchmark_contract": "benchmarks/f/first_n_primes/README.md",
-      "review_notes": "The pinned Go Generate(limit) channel sieve returns the first limit prime numbers in ascending order. Its bounded nonnegative count behavior matches the first_n_primes benchmark contract attached to canonical candidate primes; negative and over-limit counts are excluded by that contract."
+      "benchmark_contract": "benchmarks/p/prime_numbers/README.md",
+      "review_notes": "The pinned Go Generate(limit) channel sieve returns the first limit prime numbers in ascending order and maps to the canonical prime_numbers output generator profile; its count limit is a call shape."
     },
     {
       "candidate_id": "sieve2",

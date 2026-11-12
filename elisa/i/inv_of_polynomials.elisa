@@ -1,0 +1,178 @@
+const INV_POLY_MODULUS: i64 = 998_244_353
+const INV_POLY_MAX_LENGTH: usize = 6
+const INV_POLY_MAX_INPUT: usize = 14
+const INV_POLY_CAPACITY: usize = 16
+
+def inv_poly_power_mod(base_input: i64, exponent_input: i64) -> i64:
+    base: mutable i64 = base_input
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- result * base % INV_POLY_MODULUS
+        base <- base * base % INV_POLY_MODULUS
+        exponent <- exponent >> 1
+    result
+
+def inv_poly_trim(polynomial: view[i64], length_input: usize) -> usize:
+    length: mutable usize = length_input
+    while length > 0 and polynomial[length - 1] == 0: length <- length - 1
+    length
+
+def inv_poly_divide(dividend: view[i64], dividend_length: usize,
+    divisor: view[i64], divisor_length: usize,
+    quotient: mutable view[i64], quotient_length: mutable usize&,
+    remainder: mutable view[i64], remainder_length: mutable usize&) -> void:
+    for i in 0..<INV_POLY_CAPACITY:
+        quotient[i] <- 0
+        remainder[i] <- 0
+    for i in 0..<dividend_length: remainder[i] <- dividend[i]
+    remainder_length <- inv_poly_trim(remainder, dividend_length)
+    if remainder_length >= divisor_length:
+        inverse_lead: i64 = inv_poly_power_mod(divisor[divisor_length - 1], INV_POLY_MODULUS - 2)
+        while remainder_length >= divisor_length:
+            shift: usize = remainder_length - divisor_length
+            factor: i64 = remainder[remainder_length - 1] * inverse_lead % INV_POLY_MODULUS
+            quotient[shift] <- factor
+            for j in 0..<divisor_length:
+                value: mutable i64 = (remainder[shift + j] - factor * divisor[j]) % INV_POLY_MODULUS
+                if value < 0: value <- value + INV_POLY_MODULUS
+                remainder[shift + j] <- value
+            remainder_length <- inv_poly_trim(remainder, remainder_length)
+    quotient_bound: usize = 0
+    if dividend_length >= divisor_length: quotient_bound <- dividend_length - divisor_length + 1
+    quotient_length <- inv_poly_trim(quotient, quotient_bound)
+
+def inv_poly_multiply(left: view[i64], left_length: usize,
+    right: view[i64], right_length: usize,
+    product: mutable view[i64], product_length: mutable usize&) -> void:
+    for i in 0..<INV_POLY_CAPACITY: product[i] <- 0
+    if left_length == 0 or right_length == 0:
+        product_length <- 0
+        return
+    for i in 0..<left_length:
+        for j in 0..<right_length:
+            if i + j < INV_POLY_CAPACITY:
+                product[i + j] <- (product[i + j] + left[i] * right[j]) % INV_POLY_MODULUS
+    product_bound: usize = left_length + right_length - 1
+    if product_bound > INV_POLY_CAPACITY: product_bound <- INV_POLY_CAPACITY
+    product_length <- inv_poly_trim(product, product_bound)
+
+def inv_poly_subtract(left: view[i64], left_length: usize,
+    right: view[i64], right_length: usize,
+    difference: mutable view[i64], difference_length: mutable usize&) -> void:
+    bound: usize = left_length
+    if right_length > bound: bound <- right_length
+    for i in 0..<INV_POLY_CAPACITY: difference[i] <- 0
+    for i in 0..<bound:
+        a: i64 = 0
+        b: i64 = 0
+        if i < left_length: a <- left[i]
+        if i < right_length: b <- right[i]
+        difference[i] <- (a - b + INV_POLY_MODULUS) % INV_POLY_MODULUS
+    difference_length <- inv_poly_trim(difference, bound)
+
+def inv_poly_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def inv_of_polynomials_impl(input: view[i64], length: usize,
+    output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+    if length < 4 or length > INV_POLY_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > INV_POLY_MAX_LENGTH.i64() or m_value < 1 or m_value > INV_POLY_MAX_LENGTH.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + n + m: return -1
+    f: mutable i64[INV_POLY_CAPACITY] = zeroed
+    g: mutable i64[INV_POLY_CAPACITY] = zeroed
+    for i in 0..<n:
+        coefficient: i64 = input[2 + i]
+        if coefficient < 0 or coefficient >= INV_POLY_MODULUS: return -1
+        f[i] <- coefficient
+    for i in 0..<m:
+        coefficient: i64 = input[2 + n + i]
+        if coefficient < 0 or coefficient >= INV_POLY_MODULUS: return -1
+        g[i] <- coefficient
+    if f[n - 1] == 0 or g[m - 1] == 0: return -1
+
+    inverse: mutable i64[INV_POLY_CAPACITY] = zeroed
+    inverse_length: mutable usize = 0
+    if m > 1:
+        r0: mutable i64[INV_POLY_CAPACITY] = zeroed
+        r1: mutable i64[INV_POLY_CAPACITY] = zeroed
+        s0: mutable i64[INV_POLY_CAPACITY] = zeroed
+        s1: mutable i64[INV_POLY_CAPACITY] = zeroed
+        q_initial: mutable i64[INV_POLY_CAPACITY] = zeroed
+        initial_remainder: mutable i64[INV_POLY_CAPACITY] = zeroed
+        q_initial_length: mutable usize = 0
+        r1_length: mutable usize = 0
+        inv_poly_divide(f[0:INV_POLY_CAPACITY], n, g[0:INV_POLY_CAPACITY], m,
+            q_initial[0:INV_POLY_CAPACITY], q_initial_length,
+            initial_remainder[0:INV_POLY_CAPACITY], r1_length)
+        for i in 0..<m: r0[i] <- g[i]
+        for i in 0..<r1_length: r1[i] <- initial_remainder[i]
+        r0_length: mutable usize = m
+        s0_length: mutable usize = 0
+        s1_length: mutable usize = 1
+        s1[0] <- 1
+        while r1_length > 0:
+            quotient: mutable i64[INV_POLY_CAPACITY] = zeroed
+            remainder: mutable i64[INV_POLY_CAPACITY] = zeroed
+            product: mutable i64[INV_POLY_CAPACITY] = zeroed
+            next_s: mutable i64[INV_POLY_CAPACITY] = zeroed
+            quotient_length: mutable usize = 0
+            remainder_length: mutable usize = 0
+            product_length: mutable usize = 0
+            next_s_length: mutable usize = 0
+            inv_poly_divide(r0[0:INV_POLY_CAPACITY], r0_length,
+                r1[0:INV_POLY_CAPACITY], r1_length,
+                quotient[0:INV_POLY_CAPACITY], quotient_length,
+                remainder[0:INV_POLY_CAPACITY], remainder_length)
+            inv_poly_multiply(quotient[0:INV_POLY_CAPACITY], quotient_length,
+                s1[0:INV_POLY_CAPACITY], s1_length,
+                product[0:INV_POLY_CAPACITY], product_length)
+            inv_poly_subtract(s0[0:INV_POLY_CAPACITY], s0_length,
+                product[0:INV_POLY_CAPACITY], product_length,
+                next_s[0:INV_POLY_CAPACITY], next_s_length)
+            for i in 0..<INV_POLY_CAPACITY:
+                r0[i] <- r1[i]
+                r1[i] <- remainder[i]
+                s0[i] <- s1[i]
+                s1[i] <- next_s[i]
+            r0_length <- r1_length
+            r1_length <- remainder_length
+            s0_length <- s1_length
+            s1_length <- next_s_length
+        if r0_length != 1: return -1
+        scale: i64 = inv_poly_power_mod(r0[0], INV_POLY_MODULUS - 2)
+        for i in 0..<s0_length: inverse[i] <- s0[i] * scale % INV_POLY_MODULUS
+        inverse_length <- inv_poly_trim(inverse[0:INV_POLY_CAPACITY], s0_length)
+        reduced: mutable i64[INV_POLY_CAPACITY] = zeroed
+        reduced_q: mutable i64[INV_POLY_CAPACITY] = zeroed
+        reduced_q_length: mutable usize = 0
+        reduced_length: mutable usize = 0
+        inv_poly_divide(inverse[0:INV_POLY_CAPACITY], inverse_length,
+            g[0:INV_POLY_CAPACITY], m, reduced_q[0:INV_POLY_CAPACITY], reduced_q_length,
+            reduced[0:INV_POLY_CAPACITY], reduced_length)
+        for i in 0..<INV_POLY_CAPACITY: inverse[i] <- reduced[i]
+        inverse_length <- reduced_length
+
+    output_bytes: usize = 8 * inverse_length
+    if output_is_null or capacity < output_bytes: return -2
+    for i in 0..<inverse_length: inv_poly_store_le(inverse[i], output, 8 * i)
+    output_bytes.i64()
+
+export fn inv_of_polynomials(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > INV_POLY_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return inv_of_polynomials_impl(input_view, length, scratch[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > 40: safe_capacity <- 40
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    inv_of_polynomials_impl(input_view, length, output_view, capacity, false)

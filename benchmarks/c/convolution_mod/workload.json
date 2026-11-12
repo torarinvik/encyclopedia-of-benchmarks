@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-convolution-mod-bounded-ntt-i64-array-bytes-output-v1",
+  "algorithm": "convolution_mod",
+  "function_symbol": "convolution_mod",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "Library Checker",
+    "problem": "Convolution",
+    "url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/convolution/convolution_mod/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/convolution/convolution_mod/info.toml",
+    "reuse": "Task definition and algorithm family only; all ports and the direct oracle are clean-room."
+  },
+  "contract": {
+    "operation": "Compute c[k] = sum(a[i]*b[j] for i+j=k) modulo 998244353.",
+    "input_layout": "[N, M, a[0..N), b[0..M)]",
+    "official_length_range": [1, 524288],
+    "local_length_range": [1, 256],
+    "coefficient_range": [0, 998244352],
+    "modulus": 998244353,
+    "primitive_root": 3,
+    "maximum_padded_transform_length": 512,
+    "output_encoding": "One little-endian signed 64-bit residue per coefficient in increasing degree order.",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 514,
+    "maximum_parseable_length": 514,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "little-endian signed 64-bit modular coefficient array",
+    "maximum_bytes": 4088,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Two fixed arrays of 512 signed 64-bit NTT coefficients."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"singleton-product","input_values":[1,1,7,9],"input_length":4,"output_capacity":8,"expected_result":8,"expected_output_hex":"3f00000000000000"},
+    {"id":"unequal-impulse-shift","input_values":[4,3,0,1,0,0,2,3,4],"input_length":9,"output_capacity":48,"expected_result":48,"expected_output_hex":"000000000000000002000000000000000300000000000000040000000000000000000000000000000000000000000000"},
+    {"id":"two-by-two-product","input_values":[2,2,1,2,3,4],"input_length":6,"output_capacity":24,"expected_result":24,"expected_output_hex":"03000000000000000a000000000000000800000000000000"},
+    {"id":"modular-wraparound","input_values":[1,1,998244352,998244352],"input_length":4,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"zero-polynomial","input_values":[3,2,0,0,0,5,6],"input_length":7,"output_capacity":32,"expected_result":32,"expected_output_hex":"0000000000000000000000000000000000000000000000000000000000000000"},
+    {"id":"zero-left-length","input_values":[0,1],"input_length":2,"output_capacity":4088,"expected_result":-1,"expected_output_hex":""},
+    {"id":"left-length-above-bound","input_values":[257,1],"input_length":2,"output_capacity":4088,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-coefficient-frame","input_values":[2,2,1,2,3],"input_length":5,"output_capacity":4088,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coefficient-at-modulus","input_values":[1,1,998244353,0],"input_length":4,"output_capacity":4088,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative-coefficient","input_values":[1,1,-1,0],"input_length":4,"output_capacity":4088,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,1,1,1],"input_length":4,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,1,1],"input_length":4,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":8192,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

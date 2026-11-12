@@ -1,0 +1,130 @@
+const MAX_MOLECULES: usize = 64
+const MAX_GRID_SIDE: usize = 8
+const MAX_CELLS: usize = 512
+const MAX_INPUT_LENGTH: usize = 4 + 4 * MAX_MOLECULES
+const SCALE: i64 = 1_000_000
+
+def water_spatial_trunc_div(numerator: i64, denominator: i64) -> i64:
+    if numerator < 0: return -((-numerator) / denominator)
+    return numerator / denominator
+
+def water_spatial_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def water_spatial(
+    input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize
+) -> i64 @export("water_spatial"):
+    if input.is_null() or input_length < 3 or input_length > MAX_INPUT_LENGTH: return -1
+    count_value: i64 = input[0]
+    grid_value: i64 = input[1]
+    cutoff: i64 = input[2]
+    if count_value < 0 or count_value > MAX_MOLECULES.i64()
+            or grid_value < 1 or grid_value > MAX_GRID_SIDE.i64()
+            or cutoff < 1 or cutoff > 4: return -1
+    count: usize = count_value.usize()
+    grid: i64 = grid_value
+    if input_length != 3 + 4 * count: return -1
+    extent: i64 = grid * cutoff
+    i: mutable usize = 0
+    while i < count:
+        base: usize = 3 + 4 * i
+        if input[base] < 0 or input[base] >= extent
+                or input[base + 1] < 0 or input[base + 1] >= extent
+                or input[base + 2] < 0 or input[base + 2] >= extent
+                or input[base + 3] < -4 or input[base + 3] > 4: return -1
+        i <- i + 1
+    output_bytes: usize = 8 * (3 * count + 2)
+    if output.is_null() or output_capacity < output_bytes: return -2
+
+    head: mutable i64[MAX_CELLS] = zeroed
+    next: mutable i64[MAX_MOLECULES] = zeroed
+    force_x: mutable i64[MAX_MOLECULES] = zeroed
+    force_y: mutable i64[MAX_MOLECULES] = zeroed
+    force_z: mutable i64[MAX_MOLECULES] = zeroed
+    cell: mutable usize = 0
+    while cell < MAX_CELLS:
+        head[cell] <- -1
+        cell <- cell + 1
+    i <- 0
+    while i < count:
+        base: usize = 3 + 4 * i
+        cx: i64 = input[base] / cutoff
+        cy: i64 = input[base + 1] / cutoff
+        cz: i64 = input[base + 2] / cutoff
+        cell_index: usize = (cx + grid * (cy + grid * cz)).usize()
+        next[i] <- head[cell_index]
+        head[cell_index] <- i.i64()
+        i <- i + 1
+
+    energy: mutable i64 = 0
+    pairs: mutable i64 = 0
+    cutoff_squared: i64 = cutoff * cutoff
+    i <- 0
+    while i < count:
+        base_i: usize = 3 + 4 * i
+        cx: i64 = input[base_i] / cutoff
+        cy: i64 = input[base_i + 1] / cutoff
+        cz: i64 = input[base_i + 2] / cutoff
+        oz: mutable i64 = -1
+        while oz <= 1:
+            nz: i64 = cz + oz
+            if nz >= 0 and nz < grid:
+                oy: mutable i64 = -1
+                while oy <= 1:
+                    ny: i64 = cy + oy
+                    if ny >= 0 and ny < grid:
+                        ox: mutable i64 = -1
+                        while ox <= 1:
+                            nx: i64 = cx + ox
+                            if nx >= 0 and nx < grid:
+                                cell_index: usize = (nx + grid * (ny + grid * nz)).usize()
+                                candidate: mutable i64 = head[cell_index]
+                                while candidate >= 0:
+                                    j: usize = candidate.usize()
+                                    if j > i:
+                                        base_j: usize = 3 + 4 * j
+                                        dx: i64 = input[base_j] - input[base_i]
+                                        dy: i64 = input[base_j + 1] - input[base_i + 1]
+                                        dz: i64 = input[base_j + 2] - input[base_i + 2]
+                                        r2: i64 = dx * dx + dy * dy + dz * dz
+                                        if r2 < cutoff_squared:
+                                            product: i64 = input[base_i + 3] * input[base_j + 3]
+                                            energy <- energy + water_spatial_trunc_div(
+                                                product * (cutoff_squared - r2) * SCALE,
+                                                (1 + r2) * (1 + cutoff_squared))
+                                            denominator: i64 = (1 + r2) * (1 + r2)
+                                            px: i64 = water_spatial_trunc_div(-2 * product * dx * SCALE, denominator)
+                                            py: i64 = water_spatial_trunc_div(-2 * product * dy * SCALE, denominator)
+                                            pz: i64 = water_spatial_trunc_div(-2 * product * dz * SCALE, denominator)
+                                            force_x[i] <- force_x[i] + px
+                                            force_x[j] <- force_x[j] - px
+                                            force_y[i] <- force_y[i] + py
+                                            force_y[j] <- force_y[j] - py
+                                            force_z[i] <- force_z[i] + pz
+                                            force_z[j] <- force_z[j] - pz
+                                            pairs <- pairs + 1
+                                    candidate <- next[j]
+                                ox <- ox + 1
+                            else:
+                                ox <- ox + 1
+                        oy <- oy + 1
+                    else:
+                        oy <- oy + 1
+                oz <- oz + 1
+            else:
+                oz <- oz + 1
+        i <- i + 1
+    output_view: mutable view[u8] = output[0:output_bytes]
+    i <- 0
+    while i < count:
+        water_spatial_store_i64(output_view, 8 * (3 * i), force_x[i])
+        water_spatial_store_i64(output_view, 8 * (3 * i + 1), force_y[i])
+        water_spatial_store_i64(output_view, 8 * (3 * i + 2), force_z[i])
+        i <- i + 1
+    water_spatial_store_i64(output_view, 8 * (3 * count), energy)
+    water_spatial_store_i64(output_view, 8 * (3 * count + 1), pairs)
+    output_bytes.i64()

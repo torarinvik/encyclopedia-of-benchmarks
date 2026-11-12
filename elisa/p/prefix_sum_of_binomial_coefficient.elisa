@@ -1,0 +1,53 @@
+const PREFIX_MODULUS: i64 = 998244353
+const PREFIX_MAX_T: usize = 16
+const PREFIX_MAX_N: usize = 128
+const PREFIX_MAX_INPUT_LENGTH: usize = 34
+
+def prefix_sum_of_binomial_coefficient_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > PREFIX_MAX_INPUT_LENGTH:
+        return -1
+    count_value: i64 = input[0]
+    if count_value < 1 or count_value > 16:
+        return -1
+    count: usize = count_value.usize()
+    if length != 1 + 2 * count:
+        return -1
+    ns: mutable i64[16]
+    ks: mutable i64[16]
+    query: mutable usize = 0
+    while query < count:
+        ns[query] <- input[1 + 2 * query]
+        ks[query] <- input[2 + 2 * query]
+        if ns[query] < 0 or ns[query] > 128 or ks[query] < 0 or ks[query] > ns[query]:
+            return -1
+        query <- query + 1
+    output_length: usize = 4 * count
+    if output.is_null() or capacity < output_length:
+        return -2
+
+    inverse: mutable i64[129]
+    inverse[0] <- 0
+    inverse[1] <- 1
+    value: mutable usize = 2
+    while value <= 128:
+        inverse[value] <- PREFIX_MODULUS - (PREFIX_MODULUS / value.i64()) * inverse[(PREFIX_MODULUS % value.i64()).usize()] % PREFIX_MODULUS
+        value <- value + 1
+    query <- 0
+    while query < count:
+        coefficient: mutable i64 = 1
+        prefix: mutable i64 = 1
+        index: mutable i64 = 0
+        while index < ks[query]:
+            coefficient <- coefficient * (ns[query] - index) % PREFIX_MODULUS
+            coefficient <- coefficient * inverse[(index + 1).usize()] % PREFIX_MODULUS
+            prefix <- (prefix + coefficient) % PREFIX_MODULUS
+            index <- index + 1
+        offset: usize = 4 * query
+        output[offset] <- (prefix % 256).u8()
+        output[offset + 1] <- ((prefix / 256) % 256).u8()
+        output[offset + 2] <- ((prefix / 65536) % 256).u8()
+        output[offset + 3] <- (prefix / 16777216).u8()
+        query <- query + 1
+    output_length.i64()
+
+export fn prefix_sum_of_binomial_coefficient(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = prefix_sum_of_binomial_coefficient_impl

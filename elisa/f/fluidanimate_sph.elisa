@@ -1,0 +1,94 @@
+extern sqrt(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+const FLUIDANIMATE_SPH_MAX_PARTICLES: usize = 32
+const FLUIDANIMATE_SPH_MAX_INPUT_LENGTH: usize = 2 + 6 * FLUIDANIMATE_SPH_MAX_PARTICLES
+const FLUIDANIMATE_SPH_PI: f64 = 3.14159265358979323846264338327950288
+
+def fluidanimate_sph_store_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def fluidanimate_sph_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > FLUIDANIMATE_SPH_MAX_INPUT_LENGTH: return -1
+    count_value: i64 = input[0]
+    rpm_milli: i64 = input[1]
+    if count_value < 1 or count_value > 32 or rpm_milli < 500 or rpm_milli > 5000: return -1
+    count: usize = count_value.usize()
+    if length != 2 + 6 * count: return -1
+    for i in 0..count:
+        base: usize = 2 + 6 * i
+        for axis in 0..3:
+            if input[base + axis] < -10000 or input[base + axis] > 10000: return -1
+        for axis in 3..6:
+            if input[base + axis] < -5000 or input[base + axis] > 5000: return -1
+    output_bytes: usize = 40 * count
+    if output.is_null() or capacity < output_bytes: return -2
+
+    positions: mutable [96]f64 = [0.0; 96]
+    velocities: mutable [96]f64 = [0.0; 96]
+    accelerations: mutable [96]f64 = [0.0; 96]
+    densities: mutable [32]f64 = [0.0; 32]
+    rpm: f64 = rpm_milli.f64() / 1000.0
+    h: f64 = 1.695 / rpm
+    h2: f64 = h * h
+    mass: f64 = 1000.0 / (rpm * rpm * rpm)
+    density_coeff: f64 = mass * (315.0 / (64.0 * FLUIDANIMATE_SPH_PI * pow(h, 9.0)))
+    pressure_coeff: f64 = 3.0 * (15.0 / (FLUIDANIMATE_SPH_PI * pow(h, 6.0))) * 1.5 * mass
+    viscosity_coeff: f64 = 0.4 * (45.0 / (FLUIDANIMATE_SPH_PI * pow(h, 6.0))) * mass
+    for i in 0..count:
+        base: usize = 2 + 6 * i
+        for axis in 0..3:
+            positions[3 * i + axis] <- input[base + axis].f64() / 1000.0
+            velocities[3 * i + axis] <- input[base + 3 + axis].f64() / 1000.0
+            accelerations[3 * i + axis] <- if axis == 1 { -9.8 } else { 0.0 }
+        densities[i] <- density_coeff * h2 * h2 * h2
+
+    for i in 0..count:
+        for j in i + 1..count:
+            dx: f64 = positions[3 * i] - positions[3 * j]
+            dy: f64 = positions[3 * i + 1] - positions[3 * j + 1]
+            dz: f64 = positions[3 * i + 2] - positions[3 * j + 2]
+            r2: f64 = dx * dx + dy * dy + dz * dz
+            if r2 < h2:
+                term: f64 = density_coeff * pow(h2 - r2, 3.0)
+                densities[i] <- densities[i] + term
+                densities[j] <- densities[j] + term
+
+    for i in 0..count:
+        for j in i + 1..count:
+            dx: f64 = positions[3 * i] - positions[3 * j]
+            dy: f64 = positions[3 * i + 1] - positions[3 * j + 1]
+            dz: f64 = positions[3 * i + 2] - positions[3 * j + 2]
+            r2: f64 = dx * dx + dy * dy + dz * dz
+            if r2 < h2:
+                guarded_r2: f64 = if r2 > 1e-12 { r2 } else { 1e-12 }
+                distance: f64 = sqrt(guarded_r2)
+                hmr: f64 = h - distance
+                rho_product: f64 = densities[i] * densities[j]
+                pressure_scale: f64 = pressure_coeff * (hmr * hmr / distance)
+                    * (densities[i] + densities[j] - 2000.0) / rho_product
+                viscosity_scale: f64 = viscosity_coeff * hmr / rho_product
+                displacement: mutable [3]f64 = [dx, dy, dz]
+                for axis in 0..3:
+                    force: f64 = displacement[axis] * pressure_scale
+                        + (velocities[3 * j + axis] - velocities[3 * i + axis]) * viscosity_scale
+                    accelerations[3 * i + axis] <- accelerations[3 * i + axis] + force
+                    accelerations[3 * j + axis] <- accelerations[3 * j + axis] - force
+
+    output_view: mutable view[u8] = output[0:output_bytes]
+    for i in 0..count:
+        base: usize = 5 * i
+        fluidanimate_sph_store_f64(output_view, 8 * base, densities[i])
+        fluidanimate_sph_store_f64(output_view, 8 * (base + 1), 3.0 * (densities[i] - 1000.0))
+        for axis in 0..3:
+            fluidanimate_sph_store_f64(output_view, 8 * (base + 2 + axis), accelerations[3 * i + axis])
+    output_bytes.i64()
+
+export fn fluidanimate_sph(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = fluidanimate_sph_impl

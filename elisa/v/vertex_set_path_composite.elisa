@@ -1,0 +1,263 @@
+const MODULUS: i64 = 998244353
+const MAX_N: usize = 64
+const MAX_Q: usize = 64
+const MAX_INPUT_VALUES: usize = 4 * MAX_N + 4 * MAX_Q
+
+struct Affine:
+    a: i64
+    b: i64
+
+struct Aggregate:
+    forward: Affine
+    backward: Affine
+
+def vertex_set_path_composite_identity() -> Affine:
+    var result: Affine
+    result.a <- 1
+    result.b <- 0
+    result
+
+def vertex_set_path_composite_compose(after: Affine, before: Affine) -> Affine:
+    var result: Affine
+    result.a <- (after.a * before.a) % MODULUS
+    result.b <- (after.a * before.b + after.b) % MODULUS
+    result
+
+def vertex_set_path_composite_identity_aggregate() -> Aggregate:
+    var result: Aggregate
+    result.forward <- vertex_set_path_composite_identity()
+    result.backward <- result.forward
+    result
+
+def vertex_set_path_composite_combine(left: Aggregate, right: Aggregate) -> Aggregate:
+    var result: Aggregate
+    result.forward <- vertex_set_path_composite_compose(right.forward, left.forward)
+    result.backward <- vertex_set_path_composite_compose(left.backward, right.backward)
+    result
+
+def vertex_set_path_composite_find_root(parent: mutable view[usize], item: usize) -> usize:
+    node: mutable usize = item
+    while parent[node] != node:
+        parent[node] <- parent[parent[node]]
+        node <- parent[node]
+    node
+
+def vertex_set_path_composite_update(tree: mutable view[Aggregate], base: usize,
+                                     position: usize, value: Affine) -> void:
+    node: mutable usize = base + position
+    var leaf: Aggregate
+    leaf.forward <- value
+    leaf.backward <- value
+    tree[node] <- leaf
+    while node > 1:
+        node <- node / 2
+        tree[node] <- vertex_set_path_composite_combine(tree[node * 2], tree[node * 2 + 1])
+
+def vertex_set_path_composite_range(tree: view[Aggregate], base: usize,
+                                    left_value: usize, right_value: usize) -> Aggregate:
+    prefix: mutable Aggregate = vertex_set_path_composite_identity_aggregate()
+    suffix: mutable Aggregate = vertex_set_path_composite_identity_aggregate()
+    left: mutable usize = left_value + base
+    right: mutable usize = right_value + base
+    while left < right:
+        if (left & 1) == 1:
+            prefix <- vertex_set_path_composite_combine(prefix, tree[left])
+            left <- left + 1
+        if (right & 1) == 1:
+            right <- right - 1
+            suffix <- vertex_set_path_composite_combine(tree[right], suffix)
+        left <- left / 2
+        right <- right / 2
+    vertex_set_path_composite_combine(prefix, suffix)
+
+def vertex_set_path_composite_path(tree: view[Aggregate], base: usize,
+    parent: view[usize], depth: view[usize], head: view[usize], position: view[usize],
+    from_value: usize, to_value: usize) -> Affine:
+    left: mutable Affine = vertex_set_path_composite_identity()
+    right: mutable Affine = vertex_set_path_composite_identity()
+    from: mutable usize = from_value
+    to: mutable usize = to_value
+    while head[from] != head[to]:
+        if depth[head[from]] >= depth[head[to]]:
+            part: Aggregate = vertex_set_path_composite_range(tree, base, position[head[from]], position[from] + 1)
+            left <- vertex_set_path_composite_compose(part.backward, left)
+            from <- parent[head[from]]
+        else:
+            part: Aggregate = vertex_set_path_composite_range(tree, base, position[head[to]], position[to] + 1)
+            right <- vertex_set_path_composite_compose(right, part.forward)
+            to <- parent[head[to]]
+    if depth[from] >= depth[to]:
+        part: Aggregate = vertex_set_path_composite_range(tree, base, position[to], position[from] + 1)
+        left <- vertex_set_path_composite_compose(part.backward, left)
+    else:
+        part: Aggregate = vertex_set_path_composite_range(tree, base, position[from], position[to] + 1)
+        right <- vertex_set_path_composite_compose(right, part.forward)
+    vertex_set_path_composite_compose(right, left)
+
+fn vertex_set_path_composite_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 8 or length > MAX_INPUT_VALUES:
+        return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > 64 or q_value < 1 or q_value > 64:
+        return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 4 * n + 4 * q:
+        return -1
+
+    var values = InlineArray[Affine, MAX_N](fill=vertex_set_path_composite_identity())
+    for vertex in 0..<n:
+        a: i64 = input[2 + 2 * vertex]
+        b: i64 = input[3 + 2 * vertex]
+        if a < 1 or a >= MODULUS or b < 0 or b >= MODULUS:
+            return -1
+        var value: Affine
+        value.a <- a
+        value.b <- b
+        values[vertex] <- value
+
+    var adjacent = InlineArray[Bool, 4096](fill=False)
+    var dsu_parent = InlineArray[usize, MAX_N](fill=0)
+    var dsu_size = InlineArray[usize, MAX_N](fill=0)
+    for vertex in 0..<n:
+        dsu_parent[vertex] <- vertex
+        dsu_size[vertex] <- 1
+    edge_start: usize = 2 + 2 * n
+    for edge in 0..<(n - 1):
+        offset: usize = edge_start + 2 * edge
+        left_value: i64 = input[offset]
+        right_value: i64 = input[offset + 1]
+        if left_value < 0 or left_value >= n_value or right_value < 0 or right_value >= n_value or left_value == right_value:
+            return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        root_left: mutable usize = vertex_set_path_composite_find_root(dsu_parent, left)
+        root_right: mutable usize = vertex_set_path_composite_find_root(dsu_parent, right)
+        if root_left == root_right:
+            return -1
+        if dsu_size[root_left] < dsu_size[root_right]:
+            temporary: usize = root_left
+            root_left <- root_right
+            root_right <- temporary
+        dsu_parent[root_right] <- root_left
+        dsu_size[root_left] <- dsu_size[root_left] + dsu_size[root_right]
+        adjacent[left * MAX_N + right] <- True
+        adjacent[right * MAX_N + left] <- True
+
+    operation_start: usize = edge_start + 2 * (n - 1)
+    for query in 0..<q:
+        offset: usize = operation_start + 4 * query
+        kind: i64 = input[offset]
+        first: i64 = input[offset + 1]
+        second: i64 = input[offset + 2]
+        third: i64 = input[offset + 3]
+        if kind == 0:
+            if first < 0 or first >= n_value or second < 1 or second >= MODULUS or third < 0 or third >= MODULUS:
+                return -1
+        else if kind == 1:
+            if first < 0 or first >= n_value or second < 0 or second >= n_value or third < 0 or third >= MODULUS:
+                return -1
+        else:
+            return -1
+
+    var parent = InlineArray[usize, MAX_N](fill=0)
+    var depth = InlineArray[usize, MAX_N](fill=0)
+    var subtree = InlineArray[usize, MAX_N](fill=0)
+    var heavy = InlineArray[usize, MAX_N](fill=MAX_N)
+    var order = InlineArray[usize, MAX_N](fill=0)
+    var stack = InlineArray[usize, MAX_N](fill=0)
+    order_count: mutable usize = 1
+    top: mutable usize = 1
+    parent[0] <- 0
+    subtree[0] <- 1
+    stack[0] <- 0
+    order[0] <- 0
+    while top > 0:
+        top <- top - 1
+        vertex: usize = stack[top]
+        for neighbor in 0..<n:
+            if not adjacent[vertex * MAX_N + neighbor] or neighbor == parent[vertex]:
+                continue
+            parent[neighbor] <- vertex
+            depth[neighbor] <- depth[vertex] + 1
+            subtree[neighbor] <- 1
+            heavy[neighbor] <- MAX_N
+            order[order_count] <- neighbor
+            order_count <- order_count + 1
+            stack[top] <- neighbor
+            top <- top + 1
+    reverse_index: mutable usize = order_count
+    while reverse_index > 1:
+        reverse_index <- reverse_index - 1
+        vertex: usize = order[reverse_index]
+        p: usize = parent[vertex]
+        subtree[p] <- subtree[p] + subtree[vertex]
+        if heavy[p] == MAX_N or subtree[vertex] > subtree[heavy[p]] or
+            (subtree[vertex] == subtree[heavy[p]] and vertex < heavy[p]):
+            heavy[p] <- vertex
+
+    var head = InlineArray[usize, MAX_N](fill=0)
+    var position = InlineArray[usize, MAX_N](fill=0)
+    var chain_vertex = InlineArray[usize, MAX_N](fill=0)
+    var chain_head = InlineArray[usize, MAX_N](fill=0)
+    chain_count: mutable usize = 1
+    timer: mutable usize = 0
+    chain_vertex[0] <- 0
+    chain_head[0] <- 0
+    while chain_count > 0:
+        chain_count <- chain_count - 1
+        vertex: mutable usize = chain_vertex[chain_count]
+        current_head: usize = chain_head[chain_count]
+        while vertex != MAX_N:
+            head[vertex] <- current_head
+            position[vertex] <- timer
+            timer <- timer + 1
+            for child in 0..<n:
+                if adjacent[vertex * MAX_N + child] and parent[child] == vertex and child != heavy[vertex]:
+                    chain_vertex[chain_count] <- child
+                    chain_head[chain_count] <- child
+                    chain_count <- chain_count + 1
+            vertex <- heavy[vertex]
+
+    base: mutable usize = 1
+    while base < n:
+        base <- base * 2
+    var tree = InlineArray[Aggregate, 128](fill=vertex_set_path_composite_identity_aggregate())
+    for node in 0..<(2 * base):
+        tree[node] <- vertex_set_path_composite_identity_aggregate()
+    for vertex in 0..<n:
+        vertex_set_path_composite_update(tree, base, position[vertex], values[vertex])
+    var answers = InlineArray[i64, MAX_Q](fill=0)
+    answer_count: mutable usize = 0
+    for query in 0..<q:
+        offset: usize = operation_start + 4 * query
+        kind: i64 = input[offset]
+        first: usize = input[offset + 1].usize()
+        second: i64 = input[offset + 2]
+        third: i64 = input[offset + 3]
+        if kind == 0:
+            var value: Affine
+            value.a <- second
+            value.b <- third
+            values[first] <- value
+            vertex_set_path_composite_update(tree, base, position[first], value)
+        else:
+            combined: Affine = vertex_set_path_composite_path(
+                tree, base, parent, depth, head, position, first, second.usize())
+            answers[answer_count] <- (combined.a * third + combined.b) % MODULUS
+            answer_count <- answer_count + 1
+
+    required: usize = 8 * answer_count
+    if output.is_null() or capacity < required:
+        return -2
+    for index in 0..<answer_count:
+        bits: u64 = answers[index].u64()
+        for byte in 0..<8:
+            output[8 * index + byte] <- ((bits >> (8 * byte)) & 255).u8()
+    required.i64()
+
+@[export: 'vertex_set_path_composite']
+pub fn vertex_set_path_composite(input: i64&, length: usize,
+    mut output: u8&, capacity: usize) i64 = vertex_set_path_composite_impl

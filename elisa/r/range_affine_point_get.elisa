@@ -1,0 +1,150 @@
+const MAX_N: usize = 256
+const MAX_Q: usize = 256
+const MAX_BASE: usize = 256
+const MAX_TREE: usize = 2 * MAX_BASE
+const MAX_PARSEABLE_INPUT: usize = 2 + MAX_N + 5 * MAX_Q + 1
+const MAX_OUTPUT_BYTES: usize = 8 * MAX_Q
+const MODULUS: i64 = 998244353
+
+def range_affine_point_get_apply_tag(mul: mutable view[i64], add: mutable view[i64],
+    node: usize, multiplier: i64, offset: i64) -> void:
+    add[node] <- (multiplier * add[node] + offset) % MODULUS
+    mul[node] <- (multiplier * mul[node]) % MODULUS
+
+def range_affine_point_get_push(mul: mutable view[i64], add: mutable view[i64], node: usize) -> void:
+    if mul[node] != 1 or add[node] != 0:
+        multiplier: i64 = mul[node]
+        offset: i64 = add[node]
+        range_affine_point_get_apply_tag(mul, add, 2 * node, multiplier, offset)
+        range_affine_point_get_apply_tag(mul, add, 2 * node + 1, multiplier, offset)
+        mul[node] <- 1
+        add[node] <- 0
+
+def range_affine_point_get_update(mul: mutable view[i64], add: mutable view[i64],
+    node: usize, segment_left: usize, segment_right: usize, left: usize, right: usize,
+    multiplier: i64, offset: i64) -> void:
+    if right <= segment_left or segment_right <= left:
+        return
+    if left <= segment_left and segment_right <= right:
+        range_affine_point_get_apply_tag(mul, add, node, multiplier, offset)
+        return
+    range_affine_point_get_push(mul, add, node)
+    middle: usize = segment_left + (segment_right - segment_left) / 2
+    range_affine_point_get_update(mul, add, 2 * node, segment_left, middle,
+        left, right, multiplier, offset)
+    range_affine_point_get_update(mul, add, 2 * node + 1, middle, segment_right,
+        left, right, multiplier, offset)
+
+def range_affine_point_get_read(mul: mutable view[i64], add: mutable view[i64],
+    initial: view[i64], node: usize, segment_left: usize, segment_right: usize,
+    index: usize) -> i64:
+    if segment_right - segment_left == 1:
+        return (mul[node] * initial[index] + add[node]) % MODULUS
+    range_affine_point_get_push(mul, add, node)
+    middle: usize = segment_left + (segment_right - segment_left) / 2
+    if index < middle:
+        return range_affine_point_get_read(mul, add, initial, 2 * node,
+            segment_left, middle, index)
+    return range_affine_point_get_read(mul, add, initial, 2 * node + 1,
+        middle, segment_right, index)
+
+def range_affine_point_get_store(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def range_affine_point_get_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT:
+        return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > 256 or q_value < 0 or q_value > 256:
+        return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if 2 + n > length:
+        return -1
+    initial: mutable i64[MAX_N] = zeroed
+    operations: mutable i64[5 * MAX_Q] = zeroed
+    for index in 0..<n:
+        initial[index] <- input[2 + index]
+        if initial[index] < 0 or initial[index] >= MODULUS:
+            return -1
+
+    cursor: mutable usize = 2 + n
+    query_count: mutable usize = 0
+    for index in 0..<q:
+        if cursor >= length:
+            return -1
+        kind: i64 = input[cursor]
+        cursor <- cursor + 1
+        operation_offset: usize = 5 * index
+        operations[operation_offset] <- kind
+        if kind == 0:
+            if cursor + 4 > length:
+                return -1
+            left: i64 = input[cursor]
+            right: i64 = input[cursor + 1]
+            multiplier: i64 = input[cursor + 2]
+            offset: i64 = input[cursor + 3]
+            cursor <- cursor + 4
+            if left < 0 or left >= right or right > n_value or multiplier < 1 or multiplier >= MODULUS or offset < 0 or offset >= MODULUS:
+                return -1
+            operations[operation_offset + 1] <- left
+            operations[operation_offset + 2] <- right
+            operations[operation_offset + 3] <- multiplier
+            operations[operation_offset + 4] <- offset
+        else if kind == 1:
+            if cursor >= length:
+                return -1
+            point: i64 = input[cursor]
+            cursor <- cursor + 1
+            if point < 0 or point >= n_value:
+                return -1
+            operations[operation_offset + 1] <- point
+            query_count <- query_count + 1
+        else:
+            return -1
+    if cursor != length:
+        return -1
+
+    output_bytes: usize = 8 * query_count
+    if output_bytes > 0 and (output.is_null() or capacity < output_bytes):
+        return -2
+    base: mutable usize = 1
+    while base < n:
+        base <- base * 2
+    mul: mutable i64[MAX_TREE] = zeroed
+    add: mutable i64[MAX_TREE] = zeroed
+    for node in 0..<MAX_TREE:
+        mul[node] <- 1
+    mut_mul: mutable view[i64] = mul[0:MAX_TREE]
+    mut_add: mutable view[i64] = add[0:MAX_TREE]
+    initial_view: view[i64] = initial[0:MAX_N]
+    staging: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    staging_view: mutable view[u8] = staging[0:MAX_OUTPUT_BYTES]
+    answer: mutable usize = 0
+    for index in 0..<q:
+        operation_offset: usize = 5 * index
+        kind: i64 = operations[operation_offset]
+        if kind == 0:
+            range_affine_point_get_update(mut_mul, mut_add, 1, 0, base,
+                operations[operation_offset + 1].usize(),
+                operations[operation_offset + 2].usize(),
+                operations[operation_offset + 3], operations[operation_offset + 4])
+        else:
+            value: i64 = range_affine_point_get_read(mut_mul, mut_add, initial_view,
+                1, 0, base, operations[operation_offset + 1].usize())
+            range_affine_point_get_store(staging_view, 8 * answer, value)
+            answer <- answer + 1
+    if output_bytes > 0:
+        output_view: mutable view[u8] = output[0:output_bytes]
+        for byte in 0..<output_bytes:
+            output_view[byte] <- staging[byte]
+    i64(output_bytes)
+
+export "range_affine_point_get" fn range_affine_point_get(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    range_affine_point_get_impl(input, length, output, capacity)

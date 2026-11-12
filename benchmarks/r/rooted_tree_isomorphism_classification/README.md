@@ -21,6 +21,8 @@ For a forest with `V` total vertices, this bounded implementation uses `O(V²)` 
 
 [`workload.json`](workload.json) covers rooted paths with different roots, relabeled and reordered stars, malformed trees, output-capacity errors, and null pointers. The task is based on the [Library Checker Rooted Tree Isomorphism Classification problem](https://judge.yosupo.jp/problem/rooted_tree_isomorphism_classification). The problem is used as an algorithm reference only; no submission code, tests, problem statement, or text was copied.
 
+The upstream task gives one rooted tree and classifies the subtrees rooted at all of its vertices. This bounded ABI instead packs a batch of independently rooted trees and classifies each whole input tree. That adaptation keeps the exact bottom-up canonical-signature algorithm while making tree count, total vertices, output capacity, and repeated shapes explicit in a portable single-call workload; it does not claim the upstream input format or scale.
+
 The recursive nested-tuple oracle and static workload checker are in [`rooted_tree_isomorphism_classification_oracle.py`](../../rooted_tree_isomorphism_classification_oracle.py) and [`rooted_tree_isomorphism_classification_verifier.py`](../../rooted_tree_isomorphism_classification_verifier.py). Compilation and runtime verification have not been performed.
 
 ## Implementations
@@ -31,6 +33,7 @@ The recursive nested-tuple oracle and static workload checker are in [`rooted_tr
 | C3 | [c3/r/rooted_tree_isomorphism_classification.c3](../../../c3/r/rooted_tree_isomorphism_classification.c3) |
 | C++ | [cpp/r/rooted_tree_isomorphism_classification.cpp](../../../cpp/r/rooted_tree_isomorphism_classification.cpp) |
 | Elisa | [elisa/r/rooted_tree_isomorphism_classification.elisa](../../../elisa/r/rooted_tree_isomorphism_classification.elisa) |
+| Mojo | [mojo/r/rooted_tree_isomorphism_classification.mojo](../../../mojo/r/rooted_tree_isomorphism_classification.mojo) |
 | Nim | [nim/r/rooted_tree_isomorphism_classification.nim](../../../nim/r/rooted_tree_isomorphism_classification.nim) |
 | Odin | [odin/r/rooted_tree_isomorphism_classification.odin](../../../odin/r/rooted_tree_isomorphism_classification.odin) |
 | Rust | [rust/r/rooted_tree_isomorphism_classification.rs](../../../rust/r/rooted_tree_isomorphism_classification.rs) |

@@ -1,0 +1,145 @@
+const MAX_N: usize = 128
+const MAX_Q: usize = 32
+
+def srin_lower(values: view[i64], count: usize, target: i64) -> usize:
+    lo: mutable usize = 0
+    hi: mutable usize = count
+    while lo < hi:
+        mid: usize = lo + (hi - lo) / 2
+        if values[mid] < target: lo <- mid + 1
+        else: hi <- mid
+    lo
+
+def srin_bit_sum(bit: view[i64], count: usize) -> i64:
+    i: mutable usize = count
+    total: mutable i64 = 0
+    while i > 0:
+        total <- total + bit[i]
+        i <- i - (i & (~i + 1))
+    total
+
+def srin_bit_add(bit: mutable view[i64], rank: usize, delta: i64) -> void:
+    i: mutable usize = rank + 1
+    while i <= MAX_N:
+        bit[i] <- bit[i] + delta
+        i <- i + (i & (~i + 1))
+
+def srin_before(a: usize, b: usize, left: view[i64], right: view[i64], block_size: usize) -> bool:
+    ba: usize = left[a].usize() / block_size
+    bb: usize = left[b].usize() / block_size
+    if ba != bb: return ba < bb
+    if right[a] != right[b]:
+        if ba % 2 == 1: return right[a] > right[b]
+        return right[a] < right[b]
+    a < b
+
+def static_range_inversions_query_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 195: return -1
+    n64: i64 = input[0]
+    q64: i64 = input[1]
+    if n64 < 1 or n64 > 128 or q64 < 1 or q64 > 32: return -1
+    n: usize = n64.usize()
+    q: usize = q64.usize()
+    if length != 2 + n + 2 * q: return -1
+    values: mutable i64[MAX_N] = zeroed
+    sorted: mutable i64[MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        values[i] <- input[2 + i]
+        if values[i] < 0 or values[i] > 1000000000: return -1
+        sorted[i] <- values[i]
+        i <- i + 1
+    i <- 1
+    while i < n:
+        value: i64 = sorted[i]
+        j: mutable usize = i
+        while j > 0 and sorted[j - 1] > value:
+            sorted[j] <- sorted[j - 1]
+            j <- j - 1
+        sorted[j] <- value
+        i <- i + 1
+    distinct: mutable usize = 0
+    i <- 0
+    while i < n:
+        if distinct == 0 or sorted[i] != sorted[distinct - 1]:
+            sorted[distinct] <- sorted[i]
+            distinct <- distinct + 1
+        i <- i + 1
+    ranks: mutable usize[MAX_N] = zeroed
+    i <- 0
+    while i < n:
+        ranks[i] <- srin_lower(sorted, distinct, values[i])
+        i <- i + 1
+    block_size: mutable usize = 1
+    while (block_size + 1) * (block_size + 1) <= n: block_size <- block_size + 1
+    left: mutable i64[MAX_Q] = zeroed
+    right: mutable i64[MAX_Q] = zeroed
+    order: mutable usize[MAX_Q] = zeroed
+    off: mutable usize = 2 + n
+    k: mutable usize = 0
+    while k < q:
+        left[k] <- input[off]
+        right[k] <- input[off + 1]
+        off <- off + 2
+        if left[k] < 0 or left[k] >= right[k] or right[k] > n64: return -1
+        order[k] <- k
+        k <- k + 1
+    i <- 1
+    while i < q:
+        query: usize = order[i]
+        j: mutable usize = i
+        while j > 0 and srin_before(query, order[j - 1], left, right, block_size):
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- query
+        i <- i + 1
+    bit: mutable i64[MAX_N + 1] = zeroed
+    answers: mutable i64[MAX_Q] = zeroed
+    current_left: mutable usize = 0
+    current_right: mutable usize = 0
+    window_size: mutable usize = 0
+    inversions: mutable i64 = 0
+    qi: mutable usize = 0
+    while qi < q:
+        id: usize = order[qi]
+        target_left: usize = left[id].usize()
+        target_right: usize = right[id].usize()
+        while current_left > target_left:
+            current_left <- current_left - 1
+            rank: usize = ranks[current_left]
+            inversions <- inversions + srin_bit_sum(bit, rank)
+            srin_bit_add(bit, rank, 1)
+            window_size <- window_size + 1
+        while current_right < target_right:
+            rank: usize = ranks[current_right]
+            inversions <- inversions + window_size.i64() - srin_bit_sum(bit, rank + 1)
+            srin_bit_add(bit, rank, 1)
+            window_size <- window_size + 1
+            current_right <- current_right + 1
+        while current_left < target_left:
+            rank: usize = ranks[current_left]
+            inversions <- inversions - srin_bit_sum(bit, rank)
+            srin_bit_add(bit, rank, -1)
+            window_size <- window_size - 1
+            current_left <- current_left + 1
+        while current_right > target_right:
+            current_right <- current_right - 1
+            rank: usize = ranks[current_right]
+            inversions <- inversions - window_size.i64() + srin_bit_sum(bit, rank + 1)
+            srin_bit_add(bit, rank, -1)
+            window_size <- window_size - 1
+        answers[id] <- inversions
+        qi <- qi + 1
+    bytes: usize = 8 * q
+    if output.is_null() or capacity < bytes: return -2
+    k <- 0
+    while k < q:
+        bits: u64 = answers[k].u64()
+        b: mutable usize = 0
+        while b < 8:
+            output[k * 8 + b] <- ((bits >> (b * 8)) & 255).u8()
+            b <- b + 1
+        k <- k + 1
+    bytes.i64()
+
+export fn static_range_inversions_query(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = static_range_inversions_query_impl

@@ -1,0 +1,144 @@
+const MAX_N: usize = 32
+const MAX_Q: usize = 64
+const MODULUS: i64 = 998244353
+
+def normalize(value_input: i64) -> i64:
+    value: mutable i64 = value_input % MODULUS
+    if value < 0: value <- value + MODULUS
+    value
+
+def matrix_multiply(left: view[i64], left_at: usize, right: view[i64], right_at: usize,
+                    result: mutable view[i64], result_at: usize) -> void:
+    temporary: mutable i64[4] = zeroed
+    for row in 0..2:
+        for column in 0..2:
+            for inner in 0..2:
+                index: usize = 2 * row + column
+                temporary[index] <- normalize(temporary[index] + left[left_at + 2 * row + inner] * right[right_at + 2 * inner + column])
+    for cell in 0..4: result[result_at + cell] <- temporary[cell]
+
+def matrix_inverse(source: view[i64], source_at: usize, destination: mutable view[i64], destination_at: usize) -> void:
+    a: i64 = source[source_at]
+    b: i64 = source[source_at + 1]
+    c: i64 = source[source_at + 2]
+    d: i64 = source[source_at + 3]
+    destination[destination_at] <- d
+    destination[destination_at + 1] <- normalize(-b)
+    destination[destination_at + 2] <- normalize(-c)
+    destination[destination_at + 3] <- a
+
+def matrix_equal(left: view[i64], left_at: usize, right: view[i64], right_at: usize) -> bool:
+    for cell in 0..4:
+        if left[left_at + cell] != right[right_at + cell]: return false
+    true
+
+def find_root(parent: mutable view[usize], difference: mutable view[i64], item: usize) -> usize:
+    if parent[item] != item:
+        old_parent: usize = parent[item]
+        root: usize = find_root(parent, difference, old_parent)
+        matrix_multiply(difference, old_parent * 4, difference, item * 4, difference, item * 4)
+        parent[item] <- root
+    parent[item]
+
+def put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def unionfind_with_potential_non_commutative_group_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 9 or length > 2 + 7 * MAX_Q: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 2 + 7 * q: return -1
+
+    operation: mutable usize = 0
+    while operation < q:
+        position: usize = 2 + 7 * operation
+        kind: i64 = input[position]
+        u: i64 = input[position + 1]
+        v: i64 = input[position + 2]
+        if u < 0 or u >= n_value or v < 0 or v >= n_value: return -1
+        if kind == 0:
+            a: i64 = input[position + 3]
+            b: i64 = input[position + 4]
+            c: i64 = input[position + 5]
+            d: i64 = input[position + 6]
+            if a < 0 or a >= MODULUS or b < 0 or b >= MODULUS or c < 0 or c >= MODULUS or d < 0 or d >= MODULUS or normalize(a * d - b * c) != 1: return -1
+        elif kind == 1:
+            for cell in 0..4:
+                if input[position + 3 + cell] != 0: return -1
+        else:
+            return -1
+        operation <- operation + 1
+    required: usize = 32 * q
+    if output.is_null() or capacity < required: return -2
+
+    parent: mutable usize[MAX_N] = zeroed
+    set_size: mutable usize[MAX_N] = zeroed
+    difference: mutable i64[4 * MAX_N] = zeroed
+    for item in 0..n:
+        parent[item] <- item
+        set_size[item] <- 1
+        difference[4 * item] <- 1
+        difference[4 * item + 3] <- 1
+    operation <- 0
+    while operation < q:
+        position: usize = 2 + 7 * operation
+        kind: i64 = input[position]
+        u: usize = input[position + 1].usize()
+        v: usize = input[position + 2].usize()
+        root_u: usize = find_root(parent[0:MAX_N], difference[0:4 * MAX_N], u)
+        root_v: usize = find_root(parent[0:MAX_N], difference[0:4 * MAX_N], v)
+        row: mutable i64[4] = zeroed
+        if kind == 1:
+            if root_u == root_v:
+                inverse_v: mutable i64[4] = zeroed
+                relative: mutable i64[4] = zeroed
+                matrix_inverse(difference[0:4 * MAX_N], 4 * v, inverse_v[0:4], 0)
+                matrix_multiply(inverse_v[0:4], 0, difference[0:4 * MAX_N], 4 * u, relative[0:4], 0)
+                for cell in 0..4: row[cell] <- relative[cell]
+            else:
+                for cell in 0..4: row[cell] <- -1
+        else:
+            relation: mutable i64[4] = zeroed
+            relation[0] <- input[position + 3]
+            relation[1] <- input[position + 4]
+            relation[2] <- input[position + 5]
+            relation[3] <- input[position + 6]
+            if root_u == root_v:
+                inverse_v: mutable i64[4] = zeroed
+                known: mutable i64[4] = zeroed
+                matrix_inverse(difference[0:4 * MAX_N], 4 * v, inverse_v[0:4], 0)
+                matrix_multiply(inverse_v[0:4], 0, difference[0:4 * MAX_N], 4 * u, known[0:4], 0)
+                row[0] <- if matrix_equal(known[0:4], 0, relation[0:4], 0): 1 else: 0
+            elif set_size[root_u] < set_size[root_v]:
+                first: mutable i64[4] = zeroed
+                inverse_u: mutable i64[4] = zeroed
+                matrix_multiply(difference[0:4 * MAX_N], 4 * v, relation[0:4], 0, first[0:4], 0)
+                matrix_inverse(difference[0:4 * MAX_N], 4 * u, inverse_u[0:4], 0)
+                matrix_multiply(first[0:4], 0, inverse_u[0:4], 0, difference[0:4 * MAX_N], 4 * root_u)
+                parent[root_u] <- root_v
+                set_size[root_v] <- set_size[root_v] + set_size[root_u]
+                row[0] <- 1
+            else:
+                inverse_relation: mutable i64[4] = zeroed
+                first: mutable i64[4] = zeroed
+                inverse_v: mutable i64[4] = zeroed
+                matrix_inverse(relation[0:4], 0, inverse_relation[0:4], 0)
+                matrix_multiply(difference[0:4 * MAX_N], 4 * u, inverse_relation[0:4], 0, first[0:4], 0)
+                matrix_inverse(difference[0:4 * MAX_N], 4 * v, inverse_v[0:4], 0)
+                matrix_multiply(first[0:4], 0, inverse_v[0:4], 0, difference[0:4 * MAX_N], 4 * root_v)
+                parent[root_v] <- root_u
+                set_size[root_u] <- set_size[root_u] + set_size[root_v]
+                row[0] <- 1
+        for cell in 0..4: put_i64_le(output[0:capacity], 32 * operation + 8 * cell, row[cell])
+        operation <- operation + 1
+    required.i64()
+
+export fn unionfind_with_potential_non_commutative_group(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = unionfind_with_potential_non_commutative_group_impl

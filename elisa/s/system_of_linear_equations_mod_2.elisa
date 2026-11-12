@@ -1,0 +1,85 @@
+# Reduced row-echelon solve over GF(2), with one packed word per coefficient row.
+const MAX_N: usize = 32
+const MAX_M: usize = 32
+const MAX_INPUT_VALUES: usize = 2 + MAX_N * MAX_M + MAX_N
+
+def system_of_linear_equations_mod_2_store(output: mutable u8&, offset: usize, value: u64) -> void:
+    bits: mutable u64 = value
+    for byte in 0..8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def system_of_linear_equations_mod_2(input: i64&, input_length: usize,
+                                     output: mutable u8&, output_capacity: usize) -> i64
+        @export("system_of_linear_equations_mod_2"):
+    if input.is_null() or input_length < 2 or input_length > MAX_INPUT_VALUES:
+        return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > 32 or m_value < 1 or m_value > 32:
+        return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if input_length != 2 + n * m + n:
+        return -1
+
+    rows: mutable u64[MAX_N] = zeroed
+    rhs: mutable u8[MAX_N] = zeroed
+    for row in 0..n:
+        for column in 0..m:
+            bit: i64 = input[2 + row * m + column]
+            if bit != 0 and bit != 1: return -1
+            rows[row] <- rows[row] | (bit.u64() << column)
+        bit: i64 = input[2 + n * m + row]
+        if bit != 0 and bit != 1: return -1
+        rhs[row] <- bit.u8()
+
+    pivot_columns: mutable usize[MAX_N] = zeroed
+    pivot_row: mutable usize = 0
+    for column in 0..m:
+        pivot: mutable usize = pivot_row
+        while pivot < n and ((rows[pivot] >> column) & 1) == 0:
+            pivot <- pivot + 1
+        if pivot == n: continue
+        temporary: u64 = rows[pivot_row]
+        rows[pivot_row] <- rows[pivot]
+        rows[pivot] <- temporary
+        rhs_temporary: u8 = rhs[pivot_row]
+        rhs[pivot_row] <- rhs[pivot]
+        rhs[pivot] <- rhs_temporary
+        for row in 0..n:
+            if row != pivot_row and ((rows[row] >> column) & 1) != 0:
+                rows[row] <- rows[row] ^ rows[pivot_row]
+                rhs[row] <- rhs[row] ^ rhs[pivot_row]
+        pivot_columns[pivot_row] <- column
+        pivot_row <- pivot_row + 1
+
+    for row in pivot_row..n:
+        if rows[row] == 0 and rhs[row] != 0:
+            if output.is_null() or output_capacity < 8: return -2
+            system_of_linear_equations_mod_2_store(output, 0, 0xffffffffffffffff.u64())
+            return 8
+
+    is_pivot: mutable bool[MAX_M] = zeroed
+    for row in 0..pivot_row:
+        is_pivot[pivot_columns[row]] <- true
+    nullity: usize = m - pivot_row
+    output_bytes: usize = 8 * (nullity + 2)
+    if output.is_null() or output_capacity < output_bytes: return -2
+
+    particular: mutable u64 = 0
+    for row in 0..pivot_row:
+        if rhs[row] != 0:
+            particular <- particular | (1.u64() << pivot_columns[row])
+    system_of_linear_equations_mod_2_store(output, 0, nullity.u64())
+    system_of_linear_equations_mod_2_store(output, 8, particular)
+    basis_index: mutable usize = 0
+    for free_column in 0..m:
+        if is_pivot[free_column]: continue
+        basis: mutable u64 = 1.u64() << free_column
+        for row in 0..pivot_row:
+            if ((rows[row] >> free_column) & 1) != 0:
+                basis <- basis | (1.u64() << pivot_columns[row])
+        system_of_linear_equations_mod_2_store(output, 16 + 8 * basis_index, basis)
+        basis_index <- basis_index + 1
+    output_bytes.i64()

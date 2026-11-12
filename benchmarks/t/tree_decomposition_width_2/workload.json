@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-tree-decomposition-width-2-bounded-v1",
+  "algorithm": "tree_decomposition_width_2",
+  "function_symbol": "tree_decomposition_width_2",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "graph/tree_decomposition_width_2/task.md",
+    "limits_path": "graph/tree_decomposition_width_2/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/graph/tree_decomposition_width_2/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/tree_decomposition_width_2/info.toml",
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Task semantics and limits only; all implementations are clean-room."
+  },
+  "contract": {
+    "operation": "Recognize treewidth at most two and return a tree-decomposition certificate.",
+    "input_layout": "[N,M,u0,v0,...]",
+    "input_vertex_ids": "Zero-based; each undirected edge is encoded once with u0 < v0.",
+    "simple_graph": true,
+    "recognition_algorithm": "Repeatedly eliminate the smallest-ID active vertex with degree at most two, filling its active neighborhood into a clique; reject if no such vertex remains.",
+    "certificate": "One bag per eliminated vertex plus an empty root bag; connect each bag to the earliest-eliminated later neighbor's bag, or to the empty root if it has no later neighbor.",
+    "output_layout": "Little-endian signed i64 words [K,2,N, then K fixed four-word bag records (size and three padded vertex IDs), then N child/parent pairs].",
+    "bag_ids": "Zero-based; bag N is the empty root; unused vertex slots are -1.",
+    "reported_width": 2,
+    "local_bounds": "1 <= N <= 32 and 0 <= M <= 64; the official task allows N,M up to 500000.",
+    "error_precedence": "Malformed frames and graphs, and graphs rejected by degree-two elimination, return -1 before output checks. Valid width-two input with null output or insufficient capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M,u0,v0,...]",
+    "vertex_count_range": [1, 32],
+    "maximum_edge_count": 64,
+    "edge_rule": "0 <= u0 < v0 < N, no repeated unordered edge.",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 131,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "maximum_bytes": 1592,
+    "size_formula": "8*(6*N+7)",
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 1592,
+    "meaning": "Maximum staged certificate output; adjacency and elimination arrays are statically bounded by N<=32."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-isolated-vertex",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 1592,
+      "expected_result": 104,
+      "expected_output_hex": "02000000000000000200000000000000010000000000000001000000000000000000000000000000ffffffffffffffffffffffffffffffff0000000000000000ffffffffffffffffffffffffffffffffffffffff00000000000000000100000000000000"
+    },
+    {
+      "id": "two-vertex-edge",
+      "input_values": [2, 1, 0, 1],
+      "input_length": 4,
+      "output_capacity": 1592,
+      "expected_result": 152
+    },
+    {
+      "id": "four-cycle",
+      "input_values": [4, 4, 0, 1, 0, 3, 1, 2, 2, 3],
+      "input_length": 10,
+      "output_capacity": 1592,
+      "expected_result": 248
+    },
+    {
+      "id": "disconnected-triangle-and-edge",
+      "input_values": [5, 4, 0, 1, 0, 2, 1, 2, 3, 4],
+      "input_length": 10,
+      "output_capacity": 1592,
+      "expected_result": 296
+    },
+    {
+      "id": "maximum-32-vertex-2-tree",
+      "input_values": [32, 61, 0, 1, 0, 2, 1, 2, 1, 3, 2, 3, 2, 4, 3, 4, 3, 5, 4, 5, 4, 6, 5, 6, 5, 7, 6, 7, 6, 8, 7, 8, 7, 9, 8, 9, 8, 10, 9, 10, 9, 11, 10, 11, 10, 12, 11, 12, 11, 13, 12, 13, 12, 14, 13, 14, 13, 15, 14, 15, 14, 16, 15, 16, 15, 17, 16, 17, 16, 18, 17, 18, 17, 19, 18, 19, 18, 20, 19, 20, 19, 21, 20, 21, 20, 22, 21, 22, 21, 23, 22, 23, 22, 24, 23, 24, 23, 25, 24, 25, 24, 26, 25, 26, 25, 27, 26, 27, 26, 28, 27, 28, 27, 29, 28, 29, 28, 30, 29, 30, 29, 31, 30, 31],
+      "input_length": 124,
+      "output_capacity": 1592,
+      "expected_result": 1592
+    },
+    {
+      "id": "clique-four-width-three",
+      "input_values": [4, 6, 0, 1, 0, 2, 0, 3, 1, 2, 1, 3, 2, 3],
+      "input_length": 14,
+      "output_capacity": 1592,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-edge-invalid",
+      "input_values": [3, 2, 0, 1, 0, 1],
+      "input_length": 6,
+      "output_capacity": 1592,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "loop-invalid",
+      "input_values": [2, 1, 0, 0],
+      "input_length": 4,
+      "output_capacity": 1592,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reversed-edge-invalid",
+      "input_values": [2, 1, 1, 0],
+      "input_length": 4,
+      "output_capacity": 1592,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra-word-invalid",
+      "input_values": [1, 0, 9],
+      "input_length": 3,
+      "output_capacity": 1592,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed-before-capacity",
+      "input_values": [4, 6, 0, 1, 0, 2, 0, 3, 1, 2, 1, 3, 2, 3],
+      "input_length": 14,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 103,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 1592,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 1592,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

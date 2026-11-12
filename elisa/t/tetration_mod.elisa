@@ -1,0 +1,87 @@
+def tetration_mod_totient(value_input: i64) -> i64:
+    result: mutable i64 = value_input
+    remaining: mutable i64 = value_input
+    if remaining % 2 == 0:
+        result <- result - result / 2
+        while remaining % 2 == 0:
+            remaining <- remaining / 2
+    factor: mutable i64 = 3
+    while factor <= remaining / factor:
+        if remaining % factor == 0:
+            result <- result - result / factor
+            while remaining % factor == 0:
+                remaining <- remaining / factor
+        factor <- factor + 2
+    if remaining > 1:
+        result <- result - result / remaining
+    result
+
+def tetration_mod_power_capped(base: i64, exponent_input: i64, cap: i64) -> i64:
+    result: mutable i64 = 1
+    factor: mutable i64 = if base < cap then base else cap
+    exponent: mutable i64 = exponent_input
+    while exponent > 0:
+        if exponent % 2 != 0:
+            result <- result * factor
+            if result >= cap:
+                return cap
+        exponent <- exponent / 2
+        if exponent > 0:
+            factor <- factor * factor
+            if factor >= cap:
+                factor <- cap
+    result
+
+def tetration_mod_tower_capped(base: i64, height_input: i64, cap: i64) -> i64:
+    if height_input == 0:
+        return if 1 < cap then 1 else cap
+    if base == 0:
+        return if height_input % 2 == 0 then 1 else 0
+    if base == 1:
+        return if 1 < cap then 1 else cap
+    value: mutable i64 = 1
+    if value >= cap:
+        return cap
+    height: mutable i64 = height_input
+    while height > 0:
+        value <- tetration_mod_power_capped(base, value, cap)
+        if value >= cap:
+            return cap
+        height <- height - 1
+    value
+
+def tetration_mod_power(base_input: i64, exponent_input: i64, modulus: i64) -> i64:
+    result: mutable i64 = 1 % modulus
+    base: mutable i64 = base_input % modulus
+    exponent: mutable i64 = exponent_input
+    while exponent > 0:
+        if exponent % 2 != 0:
+            result <- (result * base) % modulus
+        exponent <- exponent / 2
+        base <- (base * base) % modulus
+    result
+
+def tetration_mod_compute(base: i64, height: i64, modulus: i64) -> i64:
+    if modulus == 1:
+        return 0
+    if height == 0:
+        return 1 % modulus
+    if height == 1:
+        return base % modulus
+    exponent_modulus: i64 = tetration_mod_totient(modulus)
+    exponent: mutable i64 = tetration_mod_compute(base, height - 1, exponent_modulus)
+    if tetration_mod_tower_capped(base, height - 1, exponent_modulus) >= exponent_modulus:
+        exponent <- exponent + exponent_modulus
+    tetration_mod_power(base, exponent, modulus)
+
+def tetration_mod_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 3:
+        return -1
+    base: i64 = input[0]
+    height: i64 = input[1]
+    modulus: i64 = input[2]
+    if base < 0 or base > 1000000000 or height < 0 or height > 1000000000 or modulus < 1 or modulus > 1000000000:
+        return -1
+    tetration_mod_compute(base, height, modulus)
+
+export fn tetration_mod(input: i64&, length: usize) -> i64 = tetration_mod_impl

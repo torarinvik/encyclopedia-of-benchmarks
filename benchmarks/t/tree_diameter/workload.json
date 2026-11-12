@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-tree-diameter-weighted-path-bounded-i64-array-bytes-output-v1",
+  "algorithm": "tree_diameter",
+  "function_symbol": "tree_diameter",
+  "abi": "i64_array_bytes_output",
+  "description": "Find a maximum-weight path in a positively weighted undirected tree and emit its vertices.",
+  "source": {
+    "title": "Tree Diameter",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/tree/tree_diameter/task.md",
+    "algorithm_attribution": "Two tree traversals with parent-based path reconstruction",
+    "implementation_status": "clean-room bounded weighted tree diameter"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,(u,v,w)...]",
+    "N_range": [1, 64],
+    "edge_weight_range": "1 <= w <= 1000000000",
+    "tree_constraint": "exactly N-1 valid undirected edges forming a connected acyclic graph",
+    "maximum_valid_length": 190,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "distance, path vertex count, path vertices from one selected endpoint to the other",
+    "maximum_bytes": 528,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 528,
+    "meaning": "Maximum output-buffer capacity; local adjacency, DSU validation, and traversal arrays are separate."
+  },
+  "contract": {
+    "result": "emit a maximum-weight path and its total edge weight",
+    "tie_break": "the smallest vertex ID among vertices at each farthest-distance search is selected",
+    "official_N_range": [1, 500000],
+    "official_edge_weight_range": [1, 1000000000]
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "singleton-tree",
+      "input_values": [1],
+      "input_length": 1,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "weighted-chain",
+      "input_values": [4,0,1,2,1,2,3,2,3,4],
+      "input_length": 10,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "090000000000000004000000000000000300000000000000020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "weighted-star",
+      "input_values": [4,0,1,1,0,2,7,0,3,2],
+      "input_length": 10,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "09000000000000000300000000000000020000000000000000000000000000000300000000000000"
+    },
+    {
+      "id": "tied-diameter-endpoints",
+      "input_values": [4,0,1,1,0,2,1,0,3,1],
+      "input_length": 10,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000300000000000000010000000000000000000000000000000200000000000000"
+    },
+    {
+      "id": "cycle-is-not-a-tree",
+      "input_values": [4,0,1,1,1,2,1,2,0,1],
+      "input_length": 10,
+      "output_capacity": 528,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [4,0,1,2,1,2,3,2,3,4],
+      "input_length": 10,
+      "output_capacity": 47,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

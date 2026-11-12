@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-matrix-product-mod-2-bounded-packed-row-xor-v1",
+  "algorithm": "matrix_product_mod_2",
+  "function_symbol": "matrix_product_mod_2",
+  "abi": "i64_array_bytes_output",
+  "description": "Multiply binary matrices over GF(2) using packed rows and XOR accumulation.",
+  "source": {
+    "title": "Matrix Product (Mod 2)",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/linear_algebra/matrix_product_mod_2/task.md",
+    "limits_url": "https://github.com/yosupo06/library-checker-problems/blob/master/linear_algebra/matrix_product_mod_2/info.toml",
+    "algorithm_attribution": "Pack each row of the right operand into a bit word and XOR selected rows",
+    "implementation_status": "clean-room bounded GF(2) matrix product"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M,K,A row-major N-by-M...,B row-major M-by-K...]",
+    "dimension_range": [1, 64],
+    "entry_range": [0, 1],
+    "maximum_valid_length": 8195,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "row-major N-by-K product entries as signed 64-bit little-endian zeros and ones",
+    "maximum_bytes": 32768,
+    "success_result": "8*N*K bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 32768,
+    "meaning": "Maximum output-buffer capacity; packed B rows and staged product bits are separate."
+  },
+  "contract": {
+    "result": "compute C[i,j] = sum(A[i,t]*B[t,j]) modulo 2",
+    "complexity": "O(M*K + N*M*ceil(K/64) + N*K) time and O(M + N*K) words",
+    "official_dimension_range": [1, 4096]
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 4,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single-product-bit","input_values":[1,1,1,1,1],"input_length":5,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"identity-left","input_values":[2,2,2,1,0,0,1,1,1,1,0],"input_length":11,"output_capacity":32,"expected_result":32,"expected_output_hex":"0100000000000000010000000000000001000000000000000000000000000000"},
+    {"id":"rectangular-packed-row-xor","input_values":[2,3,2,1,0,1,0,1,1,1,0,1,1,1,1],"input_length":15,"output_capacity":32,"expected_result":32,"expected_output_hex":"0000000000000000010000000000000000000000000000000000000000000000"},
+    {"id":"even-parity-cancellation","input_values":[1,2,1,1,1,1,1],"input_length":7,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"zero-entry","input_values":[1,1,1,0,1],"input_length":5,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"zero-dimension","input_values":[0,1,1],"input_length":3,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"entry-outside-binary-field","input_values":[1,1,1,2,1],"input_length":5,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-matrix","input_values":[2,2,2,1,0,0],"input_length":6,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[1,1,1,1,1],"input_length":5,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,1,1,1],"input_length":5,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

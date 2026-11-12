@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-persistent-range-affine-range-sum-bounded-v1",
+  "algorithm": "persistent_range_affine_range_sum",
+  "function_symbol": "persistent_range_affine_range_sum",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "data_structure/persistent_range_affine_range_sum/task.md",
+    "limits_path": "data_structure/persistent_range_affine_range_sum/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/persistent_range_affine_range_sum/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/data_structure/persistent_range_affine_range_sum/info.toml",
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Task contract and limits only; local implementations are clean-room."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,initial[N],variable-width operation records]",
+    "n_range": [1, 16],
+    "q_range": [1, 16],
+    "modulus": 998244353,
+    "initial_and_offset_range": [0, 998244352],
+    "multiplier_range": [1, 998244352],
+    "ranges": "0 <= l < r <= N, half-open",
+    "types": {
+      "0 k l r b c": "new version i copies k and applies x=(b*x+c) mod MOD over [l,r)",
+      "1 k s l r": "new version i copies k and then [l,r) from s",
+      "2 k l r": "output sum of version k over [l,r); creates no version"
+    },
+    "version_reference": "-1 is the initial array; other references point to earlier type-0/type-1 operations",
+    "maximum_valid_length": 114,
+    "maximum_parseable_length": 115,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "contract": {
+    "algorithm": "Path-copying lazy segment tree with modular affine maps; range-copy reuses covered source subtrees.",
+    "affine_tag_composition": "new (b,c) after old (m,a) becomes (b*m,b*a+c) modulo MOD",
+    "output_error_result": -2,
+    "validate_all_input_before_output_checks": true,
+    "no_write_on_error": true
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "one modular range sum per type-2 operation",
+    "element_width_bytes": 8,
+    "maximum_elements": 16,
+    "maximum_bytes": 128,
+    "success_result": "bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Maximum output staging buffer. The path-copied node pool is separately bounded at 4096 nodes (131072 bytes).",
+    "internal_node_pool_bytes": 131072
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "branch-from-initial-and-copy-between-versions",
+      "input_values": [3,6,1,2,3,0,-1,0,3,2,1,2,0,0,3,0,-1,1,3,3,0,2,2,0,3,1,0,2,1,2,0,3],
+      "input_length": 32,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "0f0000000000000010000000000000001000000000000000"
+    },
+    {
+      "id": "ordered-affine-tags-and-history",
+      "input_values": [1,4,5,0,-1,0,1,2,1,0,0,0,1,3,4,2,0,0,1,2,1,0,1],
+      "input_length": 23,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "0b000000000000002500000000000000"
+    },
+    {
+      "id": "maximum-query-output-shape",
+      "input_values": [16,16,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,2,-1,0,16,2,-1,0,16,2,-1,0,16,2,-1,0,16,2,-1,0,16,2,-1,0,16,2,-1,0,16,2,-1,0,16,2,-1,0,16,2,-1,0,16,2,-1,0,16,2,-1,0,16,2,-1,0,16,2,-1,0,16,2,-1,0,16,2,-1,0,16],
+      "input_length": 82,
+      "output_capacity": 128,
+      "expected_result": 128,
+      "expected_output_hex": "7800000000000000780000000000000078000000000000007800000000000000780000000000000078000000000000007800000000000000780000000000000078000000000000007800000000000000780000000000000078000000000000007800000000000000780000000000000078000000000000007800000000000000"
+    },
+    {
+      "id": "output-capacity-error",
+      "input_values": [1,1,5,2,-1,0,1],
+      "input_length": 7,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-reference-before-output-error",
+      "input_values": [1,1,5,2,0,0,1],
+      "input_length": 7,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-copy-record",
+      "input_values": [1,1,5,1,-1],
+      "input_length": 5,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

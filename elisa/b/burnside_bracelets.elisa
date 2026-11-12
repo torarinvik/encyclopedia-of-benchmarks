@@ -1,0 +1,62 @@
+const MAX_N: usize = 10
+const MAX_INPUT_VALUES: usize = 3
+const OUTPUT_BYTES: usize = 8
+
+def burnside_bracelets_cycle_count(n: usize, shift: usize,
+    reflection: bool) -> usize:
+    seen: mutable bool[MAX_N] = zeroed
+    cycles: mutable usize = 0
+    start: mutable usize = 0
+    while start < n:
+        if not seen[start]:
+            cycles <- cycles + 1
+            position: mutable usize = start
+            while not seen[position]:
+                seen[position] <- true
+                if reflection:
+                    position <- (shift + n - position) % n
+                else:
+                    position <- (position + shift) % n
+        start <- start + 1
+    cycles
+
+def burnside_bracelets_fixed_colorings(n: usize, shift: usize,
+    reflection: bool, colors: i64) -> i64:
+    cycles: usize = burnside_bracelets_cycle_count(n, shift, reflection)
+    result: mutable i64 = 1
+    cycle: mutable usize = 0
+    while cycle < cycles:
+        result <- result * colors
+        cycle <- cycle + 1
+    result
+
+def burnside_bracelets_store(value: i64, output: mutable view[u8]) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < OUTPUT_BYTES:
+        output[byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def burnside_bracelets(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    if length != 2: return -1
+    n_value: i64 = input[0]
+    colors: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or colors < 0 or colors > 3: return -1
+    n: usize = n_value.usize()
+
+    fixed_sum: mutable i64 = 0
+    shift: mutable usize = 0
+    while shift < n:
+        fixed_sum <- fixed_sum + burnside_bracelets_fixed_colorings(n, shift, false, colors)
+        fixed_sum <- fixed_sum + burnside_bracelets_fixed_colorings(n, shift, true, colors)
+        shift <- shift + 1
+    answer: i64 = fixed_sum / (2 * n).i64()
+    if output.is_null() or capacity < OUTPUT_BYTES: return -2
+    burnside_bracelets_store(answer, output[0:OUTPUT_BYTES])
+    OUTPUT_BYTES.i64()
+
+export fn burnside_bracelets(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = burnside_bracelets

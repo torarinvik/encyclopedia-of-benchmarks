@@ -90,11 +90,21 @@ from automotive_bitcount_oracle import MAX_ITERATIONS as AUTOMOTIVE_BITCOUNT_MAX
 from automotive_bitcount_oracle import expected_result as automotive_bitcount_oracle
 from shootout_hash_oracle import MAX_N as SHOOTOUT_HASH_MAX_N
 from shootout_hash_oracle import expected_result as shootout_hash_oracle
+from counting_squarefrees_oracle import MAX_N as COUNTING_SQUAREFREES_MAX_N
+from counting_squarefrees_oracle import expected_result as counting_squarefrees_oracle
+from sum_of_totient_function_oracle import BASE_LIMIT as SUM_OF_TOTIENT_BASE_LIMIT
+from sum_of_totient_function_oracle import MAX_N as SUM_OF_TOTIENT_MAX_N
+from sum_of_totient_function_oracle import expected_result as sum_of_totient_function_oracle
+from meissel_lehmer_prime_count_oracle import MAX_INPUT as MEISSEL_LEHMER_MAX_INPUT
+from meissel_lehmer_prime_count_oracle import expected_output as meissel_lehmer_prime_count_oracle
 from run_scalar import validate_multiple_of_3_or_5_term_workload
 from run_scalar import validate_mcgill_chomp_workload
 from run_scalar import validate_automotive_bitcount_workload
 from run_scalar import validate_shootout_hash_workload
 from run_scalar import validate_freebench_pifft_workload
+from run_scalar import validate_counting_squarefrees_workload
+from run_scalar import validate_sum_of_totient_function_workload
+from run_scalar import validate_meissel_lehmer_prime_count_workload
 
 ALGORITHMS = ("factorial", "check_factorial", "factorial_trailing_zeroes", "binary_count_trailing_zeros", "trailing_zeroes", "fibonacci", "tribonacci", "bitwise_complement", "aliquot_sum", "sum_of_divisors", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "bell_numbers", "number_of_digits", "digital_root", "happy_number", "automorphic_number", "isautomorphic", "palindrome_number", "power_of_four", "fibonacci_fast", "lucas_series", "lucas_series_recursive", "hamming_weight", "reverse_bits", "collatz", "problem1", "problem2", "problem3", "problem4", "problem5", "problem6", "problem7", "problem8", "problem9", "problem10", "problem10_ruby_prefix", "problem11_sol1", "problem12", "problem12_sol1", "problem13", "problem14", "problem15", "problem15_dp", "problem16", "problem17", "problem19", "problem20", "problem21", "problem23", "problem24", "problem25", "problem26", "problem27", "problem28", "problem29", "problem30", "problem31", "problem31_recursive", "problem32", "problem33", "problem34", "problem35", "problem36", "problem37", "problem38", "problem39", "problem40", "problem41", "problem43", "problem44", "problem45", "problem46", "problem47", "problem48", "problem49", "problem50", "problem51", "problem52", "problem53", "problem55", "problem57", "problem60", "problem62", "problem64", "problem65", "problem68", "problem69", "problem70", "problem72", "problem73", "problem75", "problem76", "problem77", "problem78", "problem79", "problem80", "problem85", "problem86", "problem87", "problem89", "problem95", "problem91", "problem92", "problem94", "problem97", "problem100", "problem101", "problem104", "problem109", "problem111", "problem112", "problem113", "problem114", "problem115", "problem116", "problem117", "problem119", "problem120", "problem121", "problem122", "problem123", "problem125", "problem129", "problem131", "problem135", "problem136", "problem137", "problem138", "problem142", "problem145", "problem164", "problem173", "problem180", "problem187", "problem190", "problem191", "problem203", "problem205", "problem206", "problem234", "problem301", "problem401", "problem493", "problem551", "problem686", "endian_converter", "euler_totient", "byte_encoding_utils", "liouville_lambda", "liouville", "twos_complement_of_binary", "gauss_easter", "leap_year", "is_odd", "binary_length", "count_set_bits", "count_leading_zeros", "clear_leftmost_set_bit", "clear_lowest_set_bit", "sum_of_odd_numbers", "sum_multiples_inclusion_exclusion", "carmichael_number", "evil_number", "keith_number", "kynea_numbers", "padovan_sequence", "pell_number", "perrin_number", "smith_number", "sphenic_number", "all_ones_sequence", "all_twos_sequence", "all_threes_sequence", "cubes_sequence")
 ALGORITHMS += ("binary_palindrome_check",)
@@ -114,6 +124,9 @@ ALGORITHMS += ("mcgill_chomp",)
 ALGORITHMS += ("automotive_bitcount",)
 ALGORITHMS += ("shootout_hash",)
 ALGORITHMS += ("freebench_pifft",)
+ALGORITHMS += ("counting_squarefrees",)
+ALGORITHMS += ("sum_of_totient_function",)
+ALGORITHMS += ("meissel_lehmer_prime_count",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 PROBLEM79_KEYLOG = (319, 680, 180, 690, 129, 620, 762, 689, 762, 318,
@@ -2145,6 +2158,12 @@ def oracle(algorithm: str, n: int) -> int:
         return trial_division_factorizer_oracle(n)
     if algorithm == "greatest_prime_factor":
         return greatest_prime_factor_oracle(n)
+    if algorithm == "counting_squarefrees":
+        return counting_squarefrees_oracle(n)
+    if algorithm == "sum_of_totient_function":
+        return sum_of_totient_function_oracle(n)
+    if algorithm == "meissel_lehmer_prime_count":
+        return meissel_lehmer_prime_count_oracle(n)
     if algorithm == "pollards_rho_factorizing":
         return pollards_rho_factorizing_oracle(n)
     if algorithm == "mersenne_primes":
@@ -3130,6 +3149,32 @@ def corpus(algorithm: str) -> tuple[str, dict]:
         inputs.update([I64_MIN, -1, 0, 1, 2, 3, 4, 5, 15,
                        MULTIPLE_OF_3_OR_5_TERM_MAX_INPUT,
                        MULTIPLE_OF_3_OR_5_TERM_MAX_INPUT + 1, I64_MAX])
+    elif algorithm == "counting_squarefrees":
+        validate_counting_squarefrees_workload(workload)
+        inputs.update(range(-3, 257))
+        inputs.update(value * value + offset
+                      for value in range(2, 257)
+                      for offset in (-1, 0, 1))
+        inputs.update(rng.randrange(1, 1_000_000_001) for _ in range(64))
+        inputs.update((COUNTING_SQUAREFREES_MAX_N - 1,
+                       COUNTING_SQUAREFREES_MAX_N,
+                       COUNTING_SQUAREFREES_MAX_N + 1,
+                       I64_MIN, I64_MAX))
+    elif algorithm == "sum_of_totient_function":
+        validate_sum_of_totient_function_workload(workload)
+        inputs.update(range(-3, 257))
+        inputs.update(range(SUM_OF_TOTIENT_BASE_LIMIT - 2,
+                            SUM_OF_TOTIENT_BASE_LIMIT + 3))
+        inputs.update((1_000_000, 1_000_001, 10_000_000, 100_000_000,
+                       999_999_999, SUM_OF_TOTIENT_MAX_N,
+                       SUM_OF_TOTIENT_MAX_N + 1, I64_MIN, I64_MAX))
+        inputs.update(rng.randrange(1, SUM_OF_TOTIENT_MAX_N + 1) for _ in range(64))
+    elif algorithm == "meissel_lehmer_prime_count":
+        validate_meissel_lehmer_prime_count_workload(workload)
+        inputs.update(range(-3, 257))
+        inputs.update((999, 1_000, 9_999, 10_000, 10_001,
+                       1_000_000, 10_000_000, MEISSEL_LEHMER_MAX_INPUT,
+                       MEISSEL_LEHMER_MAX_INPUT + 1, I64_MIN, I64_MAX))
     elif algorithm == "problem014":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})

@@ -1,0 +1,133 @@
+const MODULUS: i64 = 998244353
+const MAX_N: usize = 8
+const MAX_INPUT_VALUES: usize = 1 + MAX_N * MAX_N + 1
+
+def characteristic_polynomial_normalize(value: i64) -> i64:
+    remainder: i64 = value % MODULUS
+    if remainder < 0: remainder <- remainder + MODULUS
+    remainder
+
+def characteristic_polynomial_multiply(left: i64, right: i64) -> i64:
+    (left * right) % MODULUS
+
+def characteristic_polynomial_power(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            result <- characteristic_polynomial_multiply(result, base)
+        base <- characteristic_polynomial_multiply(base, base)
+        exponent <- exponent >> 1
+    result
+
+def characteristic_polynomial_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def characteristic_polynomial_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if length != 1 + n * n: return -1
+
+    matrix: mutable i64[MAX_N * MAX_N] = zeroed
+    row: mutable usize = 0
+    while row < n:
+        column: mutable usize = 0
+        while column < n:
+            value: i64 = input[1 + row * n + column]
+            if value < 0 or value >= MODULUS: return -1
+            matrix[row * MAX_N + column] <- value
+            column <- column + 1
+        row <- row + 1
+
+    column: mutable usize = 0
+    while column + 2 < n:
+        pivot: mutable usize = column + 1
+        while pivot < n and matrix[pivot * MAX_N + column] == 0:
+            pivot <- pivot + 1
+        if pivot < n:
+            if pivot != column + 1:
+                row_value: mutable usize = 0
+                while row_value < n:
+                    temporary: i64 = matrix[(column + 1) * MAX_N + row_value]
+                    matrix[(column + 1) * MAX_N + row_value] <- matrix[pivot * MAX_N + row_value]
+                    matrix[pivot * MAX_N + row_value] <- temporary
+                    row_value <- row_value + 1
+                row_value <- 0
+                while row_value < n:
+                    temporary: i64 = matrix[row_value * MAX_N + column + 1]
+                    matrix[row_value * MAX_N + column + 1] <- matrix[row_value * MAX_N + pivot]
+                    matrix[row_value * MAX_N + pivot] <- temporary
+                    row_value <- row_value + 1
+            inverse: i64 = characteristic_polynomial_power(
+                matrix[(column + 1) * MAX_N + column], MODULUS - 2)
+            row_value <- column + 2
+            while row_value < n:
+                if matrix[row_value * MAX_N + column] != 0:
+                    factor: i64 = characteristic_polynomial_multiply(
+                        matrix[row_value * MAX_N + column], inverse)
+                    index: mutable usize = 0
+                    while index < n:
+                        matrix[row_value * MAX_N + index] <- characteristic_polynomial_normalize(
+                            matrix[row_value * MAX_N + index] - characteristic_polynomial_multiply(
+                                factor, matrix[(column + 1) * MAX_N + index]))
+                        index <- index + 1
+                    index <- 0
+                    while index < n:
+                        matrix[index * MAX_N + column + 1] <- characteristic_polynomial_normalize(
+                            matrix[index * MAX_N + column + 1] + characteristic_polynomial_multiply(
+                                factor, matrix[index * MAX_N + row_value]))
+                        index <- index + 1
+                row_value <- row_value + 1
+        column <- column + 1
+
+    coefficients: mutable i64[(MAX_N + 1) * (MAX_N + 1)] = zeroed
+    coefficients[0] <- 1
+    size: mutable usize = 1
+    while size <= n:
+        degree: mutable usize = 0
+        while degree <= size:
+            value: mutable i64 = 0
+            if degree > 0:
+                value <- coefficients[(size - 1) * (MAX_N + 1) + degree - 1]
+            if degree < size:
+                value <- value - characteristic_polynomial_multiply(
+                    matrix[(size - 1) * MAX_N + size - 1],
+                    coefficients[(size - 1) * (MAX_N + 1) + degree])
+            coefficients[size * (MAX_N + 1) + degree] <- characteristic_polynomial_normalize(value)
+            degree <- degree + 1
+        subdiagonal_product: mutable i64 = 1
+        start: mutable i64 = size.i64() - 2
+        while start >= 0:
+            subdiagonal_product <- characteristic_polynomial_multiply(
+                subdiagonal_product, matrix[(start.usize() + 1) * MAX_N + start.usize()])
+            term: i64 = characteristic_polynomial_multiply(
+                subdiagonal_product, matrix[start.usize() * MAX_N + size - 1])
+            degree <- 0
+            while degree <= start.usize():
+                coefficients[size * (MAX_N + 1) + degree] <- characteristic_polynomial_normalize(
+                    coefficients[size * (MAX_N + 1) + degree] - characteristic_polynomial_multiply(
+                        term, coefficients[start.usize() * (MAX_N + 1) + degree]))
+                degree <- degree + 1
+            start <- start - 1
+        size <- size + 1
+
+    output_bytes: usize = 8 * (n + 1)
+    if output.is_null() or capacity < output_bytes: return -2
+    degree <- 0
+    while degree <= n:
+        characteristic_polynomial_store(
+            coefficients[n * (MAX_N + 1) + degree], output[0:output_bytes], 8 * degree)
+        degree <- degree + 1
+    output_bytes.i64()
+
+export fn characteristic_polynomial(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = characteristic_polynomial_impl

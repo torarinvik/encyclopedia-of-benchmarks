@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "id": "npb-ua-octree-mesh-adaptation-i64-f64-v1",
+  "algorithm": "npb_ua_mesh_adaptation",
+  "function_symbol": "npb_ua_mesh_adaptation",
+  "abi": "i64_array_float64",
+  "description": "Bounded isotropic refine/coarsen adaptation of 3-D octree leaves around a spherical source with one-level face/edge balancing.",
+  "source": {
+    "title": "Unstructured Adaptive NAS Parallel Benchmark, Version 1.0",
+    "institution": "NASA Ames Research Center",
+    "report": "NAS-04-006",
+    "sections": ["§4.1 Refinement and coarsening", "§4.3 Adaptation criteria, frequency"],
+    "url": "https://www.nas.nasa.gov/assets/nas/pdf/techreports/2004/nas-04-006.pdf",
+    "role": "algorithmic specification; bounded clean-room profile"
+  },
+  "oracle": "benchmarks/npb_ua_mesh_adaptation_oracle.py",
+  "independent_oracle": "benchmarks/npb_ua_mesh_adaptation_verifier_oracle.py",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[source_x,source_y,source_z,radius,leaf_count,(level,x,y,z)...]",
+    "maximum_refinement_level": 2,
+    "domain": "[0,4]^3",
+    "source_center_range": [0, 4],
+    "source_radius_range": [1, 4],
+    "leaf_count_range": [1, 64],
+    "leaf_record": "level plus aligned lower-corner integer coordinates; side length is 2^(2-level)",
+    "input_mesh": "leaves cover the domain exactly without overlap; face- and edge-neighbor levels differ by at most one",
+    "exact_length": "5 + 4*leaf_count",
+    "maximum_valid_length": 261,
+    "maximum_parseable_length": 261,
+    "invalid_result": -1e300
+  },
+  "contract": {
+    "operation": "adapt one explicit cubic leaf mesh to a spherical moving heat-source center",
+    "overlap": "squared distance from source center to its nearest point in a cell is strictly less than radius squared",
+    "refinement": "split every source-overlapping cell isotropically into eight children, recursively to level two",
+    "balance": "refine coarse cells as needed until face- and edge-neighbor levels differ by at most one",
+    "coarsening": "merge all eight children only when the parent does not overlap the source and the merge preserves the face/edge level constraint; repeat until no merge is possible",
+    "output_checksum": "sort leaves by (level,z,y,x); sum (i+1)*(1000*level+100*x+10*y+z), with zero-based i",
+    "complexity": "bounded O(leaf_count^3) pairwise topology work with at most 64 leaves"
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "position-weighted checksum of the final canonical leaf mesh",
+    "relative_tolerance": 0.0,
+    "absolute_tolerance": 0.0,
+    "invalid_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {
+      "id": "refine-root-near-corner-source",
+      "input_values": [0,0,0,1,1, 0,0,0,0],
+      "input_length": 9,
+      "expected_result": 220958.0
+    },
+    {
+      "id": "moving-source-coarsens-old-region-and-refines-new-region",
+      "input_values": [4,4,4,1,15,
+        1,2,0,0, 1,0,2,0, 1,2,2,0, 1,0,0,2, 1,2,0,2, 1,0,2,2, 1,2,2,2,
+        2,0,0,0, 2,1,0,0, 2,0,1,0, 2,1,1,0, 2,0,0,1, 2,1,0,1, 2,0,1,1, 2,1,1,1
+      ],
+      "input_length": 65,
+      "expected_result": 240494.0
+    },
+    {
+      "id": "incomplete-domain-cover",
+      "input_values": [0,0,0,1,1, 1,0,0,0],
+      "input_length": 9,
+      "expected_result": -1e300
+    },
+    {
+      "id": "overlapping-root-and-child",
+      "input_values": [0,0,0,1,2, 0,0,0,0, 1,0,0,0],
+      "input_length": 13,
+      "expected_result": -1e300
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1e300
+    }
+  ]
+}

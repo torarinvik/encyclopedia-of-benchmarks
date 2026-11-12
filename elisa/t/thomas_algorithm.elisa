@@ -1,0 +1,67 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+const MAX_N: usize = 32
+
+def thomas_algorithm_store(value: f64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def thomas_algorithm_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > 1 + 4 * MAX_N: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if length != 1 + 4 * n: return -1
+
+    lower: mutable i64[MAX_N] = zeroed
+    diagonal: mutable i64[MAX_N] = zeroed
+    upper: mutable i64[MAX_N] = zeroed
+    rhs: mutable i64[MAX_N] = zeroed
+    row: mutable usize = 0
+    while row < n:
+        lower[row] <- input[1 + row]
+        diagonal[row] <- input[1 + n + row]
+        upper[row] <- input[1 + 2 * n + row]
+        rhs[row] <- input[1 + 3 * n + row]
+        row <- row + 1
+    if lower[0] != 0 or upper[n - 1] != 0: return -1
+    row <- 0
+    while row < n:
+        if lower[row] < -16 or lower[row] > 16 or upper[row] < -16 or upper[row] > 16: return -1
+        if diagonal[row] < 17 or diagonal[row] > 64 or rhs[row] < -1000 or rhs[row] > 1000: return -1
+        lower_abs: i64 = if lower[row] < 0: -lower[row] else: lower[row]
+        upper_abs: i64 = if upper[row] < 0: -upper[row] else: upper[row]
+        if diagonal[row] <= lower_abs + upper_abs: return -1
+        row <- row + 1
+    output_bytes: usize = n * 8
+    if output.is_null() or capacity < output_bytes: return -2
+
+    modified_upper: mutable f64[MAX_N] = zeroed
+    modified_rhs: mutable f64[MAX_N] = zeroed
+    solution: mutable f64[MAX_N] = zeroed
+    modified_upper[0] <- upper[0].f64() / diagonal[0].f64()
+    modified_rhs[0] <- rhs[0].f64() / diagonal[0].f64()
+    row <- 1
+    while row < n:
+        pivot: f64 = diagonal[row].f64() - lower[row].f64() * modified_upper[row - 1]
+        if row + 1 < n: modified_upper[row] <- upper[row].f64() / pivot
+        modified_rhs[row] <- (rhs[row].f64() - lower[row].f64() * modified_rhs[row - 1]) / pivot
+        row <- row + 1
+    solution[n - 1] <- modified_rhs[n - 1]
+    row <- n - 1
+    while row > 0:
+        row <- row - 1
+        solution[row] <- modified_rhs[row] - modified_upper[row] * solution[row + 1]
+    row <- 0
+    while row < n:
+        thomas_algorithm_store(solution[row], output[0:output_bytes], row * 8)
+        row <- row + 1
+    output_bytes.i64()
+
+export fn thomas_algorithm(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = thomas_algorithm_impl

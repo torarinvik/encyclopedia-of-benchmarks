@@ -1,0 +1,208 @@
+const MAX_CASES: usize = 4
+const MAX_VECTORS: usize = 8
+const MAX_BITS: usize = 30
+const MAX_INPUT_VALUES: usize = 1 + MAX_CASES * (2 + 2 * MAX_VECTORS) + 1
+const MAX_OUTPUT_WORDS: usize = MAX_CASES * (1 + MAX_VECTORS)
+const MAX_VECTOR: u32 = 0x3fffffff
+
+def ivs_insert_independent(basis: mutable view[u32], value: u32) -> bool:
+    row: mutable u32 = value
+    bit: mutable i64 = MAX_BITS.i64() - 1
+    while bit >= 0:
+        mask: u32 = 1.u32() << bit.usize()
+        if (row & mask) != 0:
+            slot: usize = bit.usize()
+            if basis[slot] != 0:
+                row <- row ^ basis[slot]
+            else:
+                basis[slot] <- row
+                return true
+        bit <- bit - 1
+    false
+
+def ivs_intersection_basis(left: view[u32], n: usize, right: view[u32], m: usize,
+    output: mutable view[u32]) -> usize:
+    right_basis: mutable u32[MAX_BITS] = zeroed
+    right_coeff: mutable u32[MAX_BITS] = zeroed
+    index: mutable usize = 0
+    bit: mutable i64 = 0
+    mask: mutable u32 = 0
+    slot: mutable usize = 0
+    row: mutable u32 = 0
+    coefficients: mutable u32 = 0
+    right_mask: mutable u32 = 0
+    left_mask: mutable u32 = 0
+    common: mutable u32 = 0
+    source: mutable usize = 0
+    pivot: mutable usize = 0
+    output_count: mutable usize = 0
+    while index < m:
+        row <- right[index]
+        coefficients <- 1.u32() << index
+        bit <- MAX_BITS.i64() - 1
+        while bit >= 0:
+            mask <- 1.u32() << bit.usize()
+            if (row & mask) != 0:
+                slot <- bit.usize()
+                if right_basis[slot] != 0:
+                    row <- row ^ right_basis[slot]
+                    coefficients <- coefficients ^ right_coeff[slot]
+                else:
+                    right_basis[slot] <- row
+                    right_coeff[slot] <- coefficients
+                    break
+            bit <- bit - 1
+        index <- index + 1
+
+    quotient_basis: mutable u32[MAX_BITS] = zeroed
+    quotient_left_coeff: mutable u32[MAX_BITS] = zeroed
+    quotient_right_coeff: mutable u32[MAX_BITS] = zeroed
+    intersection: mutable u32[MAX_VECTORS] = zeroed
+    intersection_count: mutable usize = 0
+    index <- 0
+    while index < n:
+        row <- left[index]
+        right_mask <- 0
+        bit <- MAX_BITS.i64() - 1
+        while bit >= 0:
+            mask <- 1.u32() << bit.usize()
+            slot <- bit.usize()
+            if (row & mask) != 0 and right_basis[slot] != 0:
+                row <- row ^ right_basis[slot]
+                right_mask <- right_mask ^ right_coeff[slot]
+            bit <- bit - 1
+        left_mask <- 1.u32() << index
+        bit <- MAX_BITS.i64() - 1
+        while bit >= 0:
+            mask <- 1.u32() << bit.usize()
+            slot <- bit.usize()
+            if (row & mask) != 0:
+                if quotient_basis[slot] != 0:
+                    row <- row ^ quotient_basis[slot]
+                    left_mask <- left_mask ^ quotient_left_coeff[slot]
+                    right_mask <- right_mask ^ quotient_right_coeff[slot]
+                else:
+                    quotient_basis[slot] <- row
+                    quotient_left_coeff[slot] <- left_mask
+                    quotient_right_coeff[slot] <- right_mask
+                    break
+            bit <- bit - 1
+        if row == 0:
+            common <- 0
+            source <- 0
+            while source < n:
+                if ((left_mask >> source) & 1) != 0: common <- common ^ left[source]
+                source <- source + 1
+            intersection[intersection_count] <- common
+            intersection_count <- intersection_count + 1
+        index <- index + 1
+
+    rref: mutable u32[MAX_BITS] = zeroed
+    index <- 0
+    while index < intersection_count:
+        row <- intersection[index]
+        bit <- MAX_BITS.i64() - 1
+        while bit >= 0:
+            mask <- 1.u32() << bit.usize()
+            slot <- bit.usize()
+            if (row & mask) != 0:
+                if rref[slot] != 0:
+                    row <- row ^ rref[slot]
+                else:
+                    rref[slot] <- row
+                    pivot <- 0
+                    while pivot < MAX_BITS:
+                        if pivot != slot and ((rref[pivot] >> slot) & 1) != 0:
+                            rref[pivot] <- rref[pivot] ^ row
+                        pivot <- pivot + 1
+                    break
+            bit <- bit - 1
+        index <- index + 1
+
+    output_count <- 0
+    bit <- MAX_BITS.i64() - 1
+    while bit >= 0:
+        slot: usize = bit.usize()
+        if rref[slot] != 0:
+            output[output_count] <- rref[slot]
+            output_count <- output_count + 1
+        bit <- bit - 1
+    output_count
+
+def ivs_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def intersection_of_f2_vector_spaces_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    case_count_value: i64 = input[0]
+    if case_count_value < 1 or case_count_value > MAX_CASES.i64(): return -1
+    case_count: usize = case_count_value.usize()
+    staged: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    used: mutable usize = 0
+    cursor: mutable usize = 1
+    case_index: mutable usize = 0
+    value: mutable i64 = 0
+    vector: mutable u32 = 0
+    while case_index < case_count:
+        if cursor >= length: return -1
+        n_value: i64 = input[cursor]
+        cursor <- cursor + 1
+        if n_value < 0 or n_value > MAX_VECTORS.i64(): return -1
+        n: usize = n_value.usize()
+        if cursor + n > length: return -1
+        left: mutable u32[MAX_VECTORS] = zeroed
+        left_check: mutable u32[MAX_BITS] = zeroed
+        index: mutable usize = 0
+        while index < n:
+            value <- input[cursor]
+            cursor <- cursor + 1
+            if value < 0 or value > MAX_VECTOR.i64(): return -1
+            vector <- value.u32()
+            if not ivs_insert_independent(left_check[0:MAX_BITS], vector): return -1
+            left[index] <- vector
+            index <- index + 1
+        if cursor >= length: return -1
+        m_value: i64 = input[cursor]
+        cursor <- cursor + 1
+        if m_value < 0 or m_value > MAX_VECTORS.i64(): return -1
+        m: usize = m_value.usize()
+        if cursor + m > length: return -1
+        right: mutable u32[MAX_VECTORS] = zeroed
+        right_check: mutable u32[MAX_BITS] = zeroed
+        index <- 0
+        while index < m:
+            value <- input[cursor]
+            cursor <- cursor + 1
+            if value < 0 or value > MAX_VECTOR.i64(): return -1
+            vector <- value.u32()
+            if not ivs_insert_independent(right_check[0:MAX_BITS], vector): return -1
+            right[index] <- vector
+            index <- index + 1
+        basis: mutable u32[MAX_VECTORS] = zeroed
+        dimension: usize = ivs_intersection_basis(left[0:MAX_VECTORS], n,
+            right[0:MAX_VECTORS], m, basis[0:MAX_VECTORS])
+        staged[used] <- dimension.i64()
+        used <- used + 1
+        index <- 0
+        while index < dimension:
+            staged[used] <- basis[index].i64()
+            used <- used + 1
+            index <- index + 1
+        case_index <- case_index + 1
+    if cursor != length: return -1
+    required: usize = 8 * used
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    index: mutable usize = 0
+    while index < used:
+        ivs_store_i64_le(staged[index], output_view, 8 * index)
+        index <- index + 1
+    required.i64()
+
+export fn intersection_of_f2_vector_spaces(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = intersection_of_f2_vector_spaces_impl

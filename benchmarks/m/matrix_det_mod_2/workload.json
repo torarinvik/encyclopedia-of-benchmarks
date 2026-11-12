@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-matrix-det-mod-2-bounded-packed-xor-elimination-v1",
+  "algorithm": "matrix_det_mod_2",
+  "function_symbol": "matrix_det_mod_2",
+  "abi": "i64_array_bytes_output",
+  "description": "Compute a binary matrix determinant modulo two using packed-row XOR elimination.",
+  "source": {
+    "title": "Determinant of Matrix (Mod 2)",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/linear_algebra/matrix_det_mod_2/task.md",
+    "limits_url": "https://github.com/yosupo06/library-checker-problems/blob/master/linear_algebra/matrix_det_mod_2/info.toml",
+    "algorithm_attribution": "Gaussian elimination over GF(2) with packed 64-bit rows",
+    "implementation_status": "clean-room bounded packed elimination"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, row-major N-by-N matrix...]",
+    "N_range": [1, 64],
+    "entry_range": [0, 1],
+    "maximum_valid_length": 4097,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one signed 64-bit little-endian determinant residue, zero or one",
+    "maximum_bytes": 8,
+    "success_result": "8 bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8,
+    "meaning": "Output-buffer capacity; packed row words are separate."
+  },
+  "contract": {
+    "result": "determinant of the binary matrix modulo 2",
+    "complexity": "O(N^2) word operations and O(N) packed words",
+    "official_N_range": [1, 4096]
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single-one","input_values":[1,1],"input_length":2,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"two-by-two-identity","input_values":[2,1,0,0,1],"input_length":5,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"two-equal-rows","input_values":[2,1,1,1,1],"input_length":5,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"odd-row-swap-permutation","input_values":[3,0,1,0,1,0,0,0,0,1],"input_length":10,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"upper-triangular","input_values":[3,1,1,1,0,1,1,0,0,1],"input_length":10,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"zero-row-singular","input_values":[2,1,0,0,0],"input_length":5,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"zero-dimension","input_values":[0],"input_length":1,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"entry-outside-field","input_values":[1,2],"input_length":2,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-matrix","input_values":[2,1,0,0],"input_length":4,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[1,1],"input_length":2,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1],"input_length":2,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

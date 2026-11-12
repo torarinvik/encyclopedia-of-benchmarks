@@ -1,0 +1,76 @@
+const MAX_N: usize = 22
+const MAX_INPUT: usize = 465
+
+def mis_popcount(bits_input: u64) -> usize:
+    bits: mutable u64 = bits_input
+    count: mutable usize = 0
+    while bits != 0:
+        bits <- bits & (bits - u64(1))
+        count <- count + 1
+    count
+
+def mis_clique_cover_bound(adjacency: view[u64], n: usize, remaining_input: u64) -> usize:
+    remaining: mutable u64 = remaining_input
+    cliques: mutable usize = 0
+    while remaining != 0:
+        cliques <- cliques + 1
+        candidates: mutable u64 = remaining
+        while candidates != 0:
+            vertex: mutable usize = 0
+            while (candidates & (u64(1) << vertex)) == 0:
+                vertex <- vertex + 1
+            bit: u64 = u64(1) << vertex
+            remaining <- remaining & ~bit
+            candidates <- candidates & ~bit & adjacency[vertex]
+    cliques
+
+def mis_search(adjacency: view[u64], n: usize, remaining: u64,
+    chosen: usize, best: mutable usize&) -> void:
+    if remaining == 0:
+        if chosen > best: best <- chosen
+        return
+    if chosen + mis_popcount(remaining) <= best: return
+    if chosen + mis_clique_cover_bound(adjacency, n, remaining) <= best: return
+    vertices: mutable u64 = remaining
+    branch: mutable usize = 0
+    branch_degree: mutable usize = 0
+    found: mutable bool = false
+    for vertex in 0..<n:
+        bit: u64 = u64(1) << vertex
+        if (vertices & bit) != 0:
+            degree: usize = mis_popcount(adjacency[vertex] & remaining)
+            if not found or degree > branch_degree:
+                branch <- vertex
+                branch_degree <- degree
+                found <- true
+            vertices <- vertices & ~bit
+    bit: u64 = u64(1) << branch
+    mis_search(adjacency, n, remaining & ~bit & ~adjacency[branch], chosen + 1, best)
+    mis_search(adjacency, n, remaining & ~bit, chosen, best)
+
+def maximum_independent_set_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 0 or n_value > MAX_N.i64(): return -1
+    max_edges: i64 = n_value * (n_value - 1) / 2
+    if m_value < 0 or m_value > max_edges or length != 2 + 2 * m_value.usize(): return -1
+    n: usize = n_value.usize()
+    edge_count: usize = m_value.usize()
+    adjacency: mutable u64[MAX_N] = zeroed
+    for edge in 0..<edge_count:
+        u_value: i64 = input[2 + 2 * edge]
+        v_value: i64 = input[3 + 2 * edge]
+        if u_value < 0 or v_value < 0 or u_value >= n_value or v_value >= n_value or u_value == v_value: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        v_bit: u64 = u64(1) << v
+        if (adjacency[u] & v_bit) != 0: return -1
+        adjacency[u] <- adjacency[u] | v_bit
+        adjacency[v] <- adjacency[v] | (u64(1) << u)
+    best: mutable usize = 0
+    all_vertices: u64 = (u64(1) << n) - u64(1)
+    mis_search(adjacency[0:MAX_N], n, all_vertices, 0, best)
+    best.i64()
+
+export fn maximum_independent_set(input: i64&, length: usize) -> i64 = maximum_independent_set_impl

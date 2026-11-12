@@ -1,0 +1,39 @@
+extern trunc(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern log(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+
+const MAX_PAIRS: usize = 64
+const DRAW_SCALE: f64 = 4294967296.0
+const TAU: f64 = 6.283185307179586476925286766559
+
+def box_muller_is_bounded_integer(value: f64, minimum: f64, maximum: f64) -> bool:
+    value == value and trunc(value) == value and value >= minimum and value <= maximum
+
+def box_muller_cartesian_normal_impl(input: f64&, length: usize,
+    output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 1 + 2 * MAX_PAIRS: return -1
+    if not box_muller_is_bounded_integer(input[0], 1.0, MAX_PAIRS.f64()): return -1
+    pair_count: usize = input[0].usize()
+    if length != 1 + 2 * pair_count: return -1
+    index: mutable usize = 0
+    while index < 2 * pair_count:
+        if not box_muller_is_bounded_integer(input[1 + index], 0.0, 4294967295.0): return -1
+        index <- index + 1
+
+    result_count: usize = 2 * pair_count
+    if output.is_null() or capacity < result_count: return -2
+    pair: mutable usize = 0
+    while pair < pair_count:
+        radial: f64 = (input[1 + 2 * pair] + 1.0) / DRAW_SCALE
+        angular: f64 = input[2 + 2 * pair] / DRAW_SCALE
+        radius: f64 = sqrt(-2.0 * log(radial))
+        angle: f64 = TAU * angular
+        output[2 * pair] <- radius * cos(angle)
+        output[2 * pair + 1] <- radius * sin(angle)
+        pair <- pair + 1
+    result_count.i64()
+
+export fn box_muller_cartesian_normal(input: f64&, length: usize,
+    output: mutable f64&, capacity: usize) -> i64 = box_muller_cartesian_normal_impl

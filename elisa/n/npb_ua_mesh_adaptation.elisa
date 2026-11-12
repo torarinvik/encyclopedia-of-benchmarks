@@ -1,0 +1,213 @@
+const DEPTH: usize = 2
+const SIDE: usize = 4
+const MAX_CELLS: usize = 64
+const INVALID_RESULT: f64 = -1.0e300
+
+struct Cell:
+    level: usize
+    x: usize
+    y: usize
+    z: usize
+
+def cell_size(cell: Cell&) -> usize:
+    1 << (DEPTH - cell.level)
+
+def overlaps_source(cell: Cell&, sx: usize, sy: usize, sz: usize, radius: usize) -> bool:
+    size: usize = cell_size(cell&)
+    squared: i64 = 0
+    for axis in 0..3:
+        point: usize = if axis == 0: sx else: (if axis == 1: sy else: sz)
+        lower: usize = if axis == 0: cell.x else: (if axis == 1: cell.y else: cell.z)
+        gap: usize = 0
+        if point < lower: gap <- lower - point
+        elif point > lower + size: gap <- point - lower - size
+        squared <- squared + gap.i64() * gap.i64()
+    radius_squared: i64 = radius.i64() * radius.i64()
+    squared < radius_squared
+
+def neighboring(a: Cell&, b: Cell&) -> bool:
+    asize: usize = cell_size(a&)
+    bsize: usize = cell_size(b&)
+    touching: mutable usize = 0
+    for axis in 0..3:
+        alo: usize = if axis == 0: a.x else: (if axis == 1: a.y else: a.z)
+        blo: usize = if axis == 0: b.x else: (if axis == 1: b.y else: b.z)
+        ahi: usize = alo + asize
+        bhi: usize = blo + bsize
+        if ahi == blo or bhi == alo: touching <- touching + 1
+        elif ahi <= blo or bhi <= alo: return false
+    touching == 1 or touching == 2
+
+def split_cell(cells: mutable view[Cell], count: mutable usize&, index: usize) -> bool:
+    parent: Cell = cells[index]
+    if parent.level >= DEPTH or count + 7 > MAX_CELLS: return false
+    child_size: usize = cell_size(parent&) / 2
+    cursor: mutable usize = count
+    while cursor > index + 1:
+        cursor <- cursor - 1
+        cells[cursor + 7] <- cells[cursor]
+    slot: mutable usize = index
+    for bz in 0..2:
+        for by in 0..2:
+            for bx in 0..2:
+                cells[slot].level <- parent.level + 1
+                cells[slot].x <- parent.x + bx * child_size
+                cells[slot].y <- parent.y + by * child_size
+                cells[slot].z <- parent.z + bz * child_size
+                slot <- slot + 1
+    count <- count + 7
+    true
+
+def balanced(cells: view[Cell], count: usize) -> bool:
+    for i in 0..count:
+        for j in (i + 1)..count:
+            if neighboring(cells[i], cells[j]) and
+               (cells[i].level > cells[j].level + 1 or cells[j].level > cells[i].level + 1): return false
+    true
+
+def balance_mesh(cells: mutable view[Cell], count: mutable usize&) -> bool:
+    while true:
+        coarse: mutable usize = MAX_CELLS
+        i: mutable usize = 0
+        while i < count and coarse == MAX_CELLS:
+            j: mutable usize = i + 1
+            while j < count:
+                if neighboring(cells[i], cells[j]) and
+                   (cells[i].level > cells[j].level + 1 or cells[j].level > cells[i].level + 1):
+                    coarse <- if cells[i].level < cells[j].level: i else: j
+                    break
+                j <- j + 1
+            i <- i + 1
+        if coarse == MAX_CELLS: return true
+        if not split_cell(cells, count&, coarse): return false
+
+def is_child(cell: Cell&, level: usize, x: usize, y: usize, z: usize, size: usize) -> bool:
+    cell.level == level and cell.x >= x and cell.x < x + size and
+    cell.y >= y and cell.y < y + size and cell.z >= z and cell.z < z + size
+
+def coarsen_once(cells: mutable view[Cell], count: mutable usize&, sx: usize, sy: usize, sz: usize, radius: usize) -> bool:
+    for seed in 0..count:
+        child: Cell = cells[seed]
+        if child.level == 0: continue
+        parent_level: usize = child.level - 1
+        parent_size: usize = 1 << (DEPTH - parent_level)
+        child_size: usize = parent_size / 2
+        px: usize = (child.x / parent_size) * parent_size
+        py: usize = (child.y / parent_size) * parent_size
+        pz: usize = (child.z / parent_size) * parent_size
+        parent: mutable Cell = zeroed
+        parent.level <- parent_level
+        parent.x <- px
+        parent.y <- py
+        parent.z <- pz
+        if overlaps_source(parent&, sx, sy, sz, radius): continue
+        found: mutable usize[8] = zeroed
+        for q in 0..8: found[q] <- MAX_CELLS
+        for i in 0..count:
+            if is_child(cells[i], child.level, px, py, pz, parent_size):
+                bx: usize = (cells[i].x - px) / child_size
+                by: usize = (cells[i].y - py) / child_size
+                bz: usize = (cells[i].z - pz) / child_size
+                found[bx + 2 * by + 4 * bz] <- i
+        complete: mutable bool = true
+        for q in 0..8:
+            if found[q] == MAX_CELLS: complete <- false
+        if not complete: continue
+        safe: mutable bool = true
+        for i in 0..count:
+            sibling: mutable bool = false
+            for q in 0..8:
+                if found[q] == i: sibling <- true
+            if not sibling and neighboring(parent&, cells[i]) and
+               (parent_level > cells[i].level + 1 or cells[i].level > parent_level + 1): safe <- false
+        if not safe: continue
+        compact: mutable Cell[64] = zeroed
+        compact_count: mutable usize = 0
+        inserted: mutable bool = false
+        for i in 0..count:
+            sibling: mutable bool = false
+            for q in 0..8:
+                if found[q] == i: sibling <- true
+            if not sibling:
+                compact[compact_count] <- cells[i]
+                compact_count <- compact_count + 1
+            elif not inserted:
+                compact[compact_count] <- parent
+                compact_count <- compact_count + 1
+                inserted <- true
+        for i in 0..compact_count: cells[i] <- compact[i]
+        count <- compact_count
+        return true
+    false
+
+def less_cell(a: Cell&, b: Cell&) -> bool:
+    if a.level != b.level: return a.level < b.level
+    if a.z != b.z: return a.z < b.z
+    if a.y != b.y: return a.y < b.y
+    a.x < b.x
+
+def npb_ua_mesh_adaptation_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 9 or length > 261: return INVALID_RESULT
+    for q in 0..3:
+        if input[q] < 0 or input[q] > 4: return INVALID_RESULT
+    if input[3] < 1 or input[3] > 4 or input[4] < 1 or input[4] > 64: return INVALID_RESULT
+    sx: usize = input[0].usize()
+    sy: usize = input[1].usize()
+    sz: usize = input[2].usize()
+    radius: usize = input[3].usize()
+    count: mutable usize = input[4].usize()
+    if length != 5 + 4 * count: return INVALID_RESULT
+
+    cells: mutable Cell[64] = zeroed
+    covered: mutable bool[64] = zeroed
+    for i in 0..count:
+        level_raw: i64 = input[5 + 4 * i]
+        x_raw: i64 = input[6 + 4 * i]
+        y_raw: i64 = input[7 + 4 * i]
+        z_raw: i64 = input[8 + 4 * i]
+        if level_raw < 0 or level_raw > 2 or x_raw < 0 or x_raw > 4 or
+           y_raw < 0 or y_raw > 4 or z_raw < 0 or z_raw > 4: return INVALID_RESULT
+        cells[i].level <- level_raw.usize()
+        cells[i].x <- x_raw.usize()
+        cells[i].y <- y_raw.usize()
+        cells[i].z <- z_raw.usize()
+        size: usize = cell_size(cells[i])
+        if cells[i].x + size > 4 or cells[i].y + size > 4 or cells[i].z + size > 4 or
+           cells[i].x % size != 0 or cells[i].y % size != 0 or cells[i].z % size != 0: return INVALID_RESULT
+        z: mutable usize = cells[i].z
+        while z < cells[i].z + size:
+            y: mutable usize = cells[i].y
+            while y < cells[i].y + size:
+                x: mutable usize = cells[i].x
+                while x < cells[i].x + size:
+                    q: usize = x + 4 * (y + 4 * z)
+                    if covered[q]: return INVALID_RESULT
+                    covered[q] <- true
+                    x <- x + 1
+                y <- y + 1
+            z <- z + 1
+    for q in 0..64:
+        if not covered[q]: return INVALID_RESULT
+    if not balanced(cells[0:64], count): return INVALID_RESULT
+    i: mutable usize = 0
+    while i < count:
+        if cells[i].level < DEPTH and overlaps_source(cells[i], sx, sy, sz, radius):
+            if not split_cell(cells[0:64], count&, i): return INVALID_RESULT
+        else: i <- i + 1
+    if not balance_mesh(cells[0:64], count&): return INVALID_RESULT
+    while coarsen_once(cells[0:64], count&, sx, sy, sz, radius): pass
+    if not balance_mesh(cells[0:64], count&): return INVALID_RESULT
+    for i in 1..count:
+        key: Cell = cells[i]
+        j: mutable usize = i
+        while j > 0 and less_cell(key&, cells[j - 1]):
+            cells[j] <- cells[j - 1]
+            j <- j - 1
+        cells[j] <- key
+    checksum: mutable f64 = 0.0
+    for q in 0..count:
+        code: usize = cells[q].level * 1000 + cells[q].x * 100 + cells[q].y * 10 + cells[q].z
+        checksum <- checksum + (q + 1).f64() * code.f64()
+    checksum
+
+export fn npb_ua_mesh_adaptation(input: i64&, length: usize) -> f64 = npb_ua_mesh_adaptation_impl

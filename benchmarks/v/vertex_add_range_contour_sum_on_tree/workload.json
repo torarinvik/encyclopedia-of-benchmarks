@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-vertex-add-range-contour-sum-on-tree-bounded-i64-array-bytes-output-v1",
+  "algorithm": "vertex_add_range_contour_sum_on_tree",
+  "function_symbol": "vertex_add_range_contour_sum_on_tree",
+  "abi": "i64_array_bytes_output",
+  "description": "Point additions and tree-distance interval sums using centroid decomposition and Fenwick buckets.",
+  "source": {
+    "title": "Vertex Add Range Contour Sum on Tree",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem and correct_invertible method",
+    "url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/tree/vertex_add_range_contour_sum_on_tree/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/tree/vertex_add_range_contour_sum_on_tree/info.toml",
+    "algorithm_attribution": "Centroid decomposition with total and per-branch distance Fenwick rows",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,values[N],edges[2*(N-1)],operations...] where operation 0 is [0,p,x] and operation 1 is [1,p,l,r]",
+    "N_range": [1, 64],
+    "Q_range": [0, 128],
+    "value_range": [-1000000, 1000000],
+    "update_delta_range": [-1000000, 1000000],
+    "edge_rule": "N-1 distinct undirected edges form a connected tree; endpoint order is arbitrary",
+    "query_distance_range": "0 <= l < r <= N",
+    "maximum_valid_length": 704,
+    "maximum_parseable_length": 705,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one signed 64-bit little-endian contour sum per type-1 query, in operation order",
+    "maximum_bytes": 1024,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Maximum output-buffer capacity; adjacency, centroid metadata, and Fenwick rows are separate bounded storage."
+  },
+  "contract": {
+    "operation_0": "add signed delta x to vertex p",
+    "operation_1": "sum current values at vertices whose tree distance from p is in [l,r)",
+    "official_N_and_Q_range": [1, 100000],
+    "official_Q_max": 200000,
+    "official_value_and_delta_range": [-1000000000, 1000000000]
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "no-queries-singleton",
+      "input_values": [1, 0, 5],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "singleton-signed-update",
+      "input_values": [1, 3, -5, 1, 0, 0, 1, 0, 0, -2, 1, 0, 0, 1],
+      "input_length": 14,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "fbfffffffffffffff9ffffffffffffff"
+    },
+    {
+      "id": "branching-tree-updates-and-distance-shells",
+      "input_values": [5, 4, 1, 2, 3, 4, 5, 0, 1, 0, 2, 1, 3, 1, 4, 1, 0, 0, 1, 1, 1, 1, 2, 0, 2, 7, 1, 0, 1, 3],
+      "input_length": 30,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "01000000000000000a000000000000001500000000000000"
+    },
+    {
+      "id": "path-long-range-and-update",
+      "input_values": [3, 3, 2, -1, 4, 0, 1, 1, 2, 1, 1, 0, 3, 0, 0, -2, 1, 0, 1, 3],
+      "input_length": 20,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "05000000000000000300000000000000"
+    },
+    {
+      "id": "star-empty-distance-shell",
+      "input_values": [4, 1, 1, 2, 3, 4, 0, 1, 0, 2, 0, 3, 1, 1, 3, 4],
+      "input_length": 16,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "duplicate-edge-is-not-a-tree",
+      "input_values": [3, 0, 1, 2, 3, 0, 1, 0, 1],
+      "input_length": 9,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-width-distance-interval-is-invalid",
+      "input_values": [1, 1, 5, 1, 0, 1, 1],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-query-record",
+      "input_values": [1, 1, 5, 1, 0, 0],
+      "input_length": 6,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [1, 1, 5, 1, 0, 0, 1],
+      "input_length": 7,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-buffer",
+      "input_values": [1, 1, 5, 1, 0, 0, 1],
+      "input_length": 7,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-input-word",
+      "input_values": [1, 0, 5, 99],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

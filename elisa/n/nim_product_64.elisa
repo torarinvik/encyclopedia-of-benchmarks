@@ -1,0 +1,34 @@
+def nim_product_64_mul(a: u64, b: u64, width: usize) -> u64:
+    if width == 1:
+        return a & b
+    half: usize = width / 2
+    mask: u64 = (1.u64() << half) - 1.u64()
+    a_low: u64 = a & mask
+    a_high: u64 = a >> half
+    b_low: u64 = b & mask
+    b_high: u64 = b >> half
+    low_product: u64 = nim_product_64_mul(a_low, b_low, half)
+    high_product: u64 = nim_product_64_mul(a_high, b_high, half)
+    cross: u64 = nim_product_64_mul(a_low ^ a_high, b_low ^ b_high, half) ^ low_product ^ high_product
+    constant: u64 = 1.u64() << (half - 1)
+    low: u64 = low_product ^ nim_product_64_mul(high_product, constant, half)
+    high: u64 = cross ^ high_product
+    low ^ (high << half)
+
+def nim_product_64_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length != 4:
+        return -1
+    for index in 0..<4:
+        if input[index] < 0 or input[index] > 4294967295:
+            return -1
+    if output == null or output_capacity < 8:
+        return -2
+
+    a: u64 = input[0].u64() | (input[1].u64() << 32)
+    b: u64 = input[2].u64() | (input[3].u64() << 32)
+    result: u64 = nim_product_64_mul(a, b, 64)
+    for index in 0..<8:
+        output[index] <- ((result >> (8 * index)) & 255).u8()
+    8
+
+export fn nim_product_64(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = nim_product_64_impl

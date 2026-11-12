@@ -1,0 +1,144 @@
+const MODULUS: i64 = 469762049
+const MAX_N: i64 = 100000000
+const MAX_ROOT: usize = 10000
+const MAX_TABLE: usize = 20000
+
+def mfl_floor_sqrt(value: i64) -> i64:
+    low: mutable i64 = 1
+    high: mutable i64 = 10000
+    while low < high:
+        middle: i64 = low + (high - low + 1) / 2
+        if middle <= value / middle:
+            low <- middle
+        else:
+            high <- middle - 1
+    low
+
+def mfl_normalize(value: i64) -> i64:
+    remainder: i64 = value % MODULUS
+    if remainder < 0:
+        remainder <- remainder + MODULUS
+    remainder
+
+def mfl_triangular_mod(value: i64) -> i64:
+    left: mutable i64 = value
+    right: mutable i64 = value + 1
+    if (left & 1) == 0:
+        left <- left / 2
+    else:
+        right <- right / 2
+    ((left % MODULUS) * (right % MODULUS)) % MODULUS
+
+def mfl_index(value: i64, n: i64, root: i64, size: usize) -> usize:
+    if value <= root:
+        return size - value.usize()
+    (n / value).usize()
+
+def sum_of_multiplicative_function_large_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 3:
+        return -1
+    n: i64 = input[0]
+    a: i64 = input[1]
+    b: i64 = input[2]
+    if n < 1 or n > MAX_N or a < 0 or a >= MODULUS or b < 0 or b >= MODULUS:
+        return -1
+
+    root: i64 = mfl_floor_sqrt(n)
+    high_count: mutable usize = (n / root).usize()
+    while high_count > 1 and (n / (high_count - 1).i64()) == root:
+        high_count <- high_count - 1
+    size: usize = high_count + root.usize()
+
+    quotients: mutable i64[MAX_TABLE] = zeroed
+    prime_count: mutable i64[MAX_TABLE] = zeroed
+    prime_sum: mutable i64[MAX_TABLE] = zeroed
+    prime_f: mutable i64[MAX_TABLE] = zeroed
+    values: mutable i64[MAX_TABLE] = zeroed
+    next_values: mutable i64[MAX_TABLE] = zeroed
+    composite: mutable u8[MAX_ROOT + 1] = zeroed
+    primes: mutable i64[MAX_ROOT + 1] = zeroed
+
+    index: mutable usize = 1
+    while index < high_count:
+        quotients[index] <- n / index.i64()
+        index <- index + 1
+    value: mutable i64 = 1
+    while value <= root:
+        quotients[size - value.usize()] <- value
+        value <- value + 1
+
+    prime_total: mutable usize = 0
+    value <- 2
+    while value <= root:
+        if composite[value.usize()] != 0:
+            value <- value + 1
+            continue
+        primes[prime_total] <- value
+        prime_total <- prime_total + 1
+        if value <= root / value:
+            multiple: mutable i64 = value * value
+            while multiple <= root:
+                composite[multiple.usize()] <- 1
+                multiple <- multiple + value
+        value <- value + 1
+
+    index <- 1
+    while index < size:
+        prime_count[index] <- quotients[index] - 1
+        prime_sum[index] <- mfl_normalize(mfl_triangular_mod(quotients[index]) - 1)
+        index <- index + 1
+    preceding_count: mutable i64 = 0
+    preceding_sum: mutable i64 = 0
+    prime_index: mutable usize = 0
+    while prime_index < prime_total:
+        prime: i64 = primes[prime_index]
+        square: i64 = prime * prime
+        index <- 1
+        while index < size and quotients[index] >= square:
+            quotient_index: usize = mfl_index(quotients[index] / prime, n, root, size)
+            prime_count[index] <- prime_count[index] - prime_count[quotient_index] + preceding_count
+            sum_delta: i64 = mfl_normalize(prime_sum[quotient_index] - preceding_sum)
+            prime_sum[index] <- mfl_normalize(prime_sum[index] - (prime % MODULUS) * sum_delta)
+            index <- index + 1
+        preceding_count <- preceding_count + 1
+        preceding_sum <- mfl_normalize(preceding_sum + prime)
+        prime_index <- prime_index + 1
+
+    index <- 1
+    while index < size:
+        prime_f[index] <- (a * (prime_count[index] % MODULUS) + b * prime_sum[index]) % MODULUS
+        values[index] <- prime_f[index]
+        next_values[index] <- prime_f[index]
+        index <- index + 1
+
+    position: mutable usize = prime_total
+    while position > 0:
+        position <- position - 1
+        prime: i64 = primes[position]
+        power: mutable i64 = prime
+        exponent: mutable i64 = 1
+        prime_prefix: i64 = prime_f[mfl_index(prime, n, root, size)]
+        while n / prime >= power:
+            local: i64 = (a * exponent + b * prime) % MODULUS
+            next_local: i64 = (a * (exponent + 1) + b * prime) % MODULUS
+            next_power: i64 = power * prime
+            index <- 1
+            while index < size and next_power <= quotients[index]:
+                quotient_index: usize = mfl_index(quotients[index] / power, n, root, size)
+                non_prime_sum: i64 = mfl_normalize(values[quotient_index] - prime_prefix)
+                next_values[index] <- mfl_normalize(next_values[index] + local * non_prime_sum + next_local)
+                index <- index + 1
+            power <- next_power
+            exponent <- exponent + 1
+        copied: mutable usize = mfl_index(prime * prime, n, root, size) + 1
+        if copied > size:
+            copied <- size
+        index <- 0
+        while index < copied:
+            values[index] <- next_values[index]
+            index <- index + 1
+
+    answer_index: usize = mfl_index(n, n, root, size)
+    mfl_normalize(values[answer_index] + 1)
+
+export fn sum_of_multiplicative_function_large(input: i64&, length: usize) -> i64 = sum_of_multiplicative_function_large_impl

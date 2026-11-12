@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "min-of-mod-of-linear-i64-array-scalar-v1",
+  "algorithm": "min_of_mod_of_linear",
+  "function_symbol": "min_of_mod_of_linear",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "argument_order": ["N", "M", "A", "B"],
+    "N_range": [1, 1000000000],
+    "M_range": [1, 1000000000],
+    "A_range": "0 <= A < M",
+    "B_range": "0 <= B < M",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "formula": "min((A*x+B) mod M, x=0..N-1)",
+    "valid_result_range": [0, 999999999],
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id": "single_term", "input_values": [1, 7, 6, 4], "input_length": 4, "expected_result": 4},
+    {"id": "small_sequence_contains_zero", "input_values": [5, 7, 3, 4], "input_length": 4, "expected_result": 0},
+    {"id": "non_coprime_slope", "input_values": [20, 10, 6, 3], "input_length": 4, "expected_result": 1},
+    {"id": "no_zero_in_prefix", "input_values": [2, 10, 4, 1], "input_length": 4, "expected_result": 1},
+    {"id": "constant_maximum_residue", "input_values": [1000000000, 1000000000, 0, 999999999], "input_length": 4, "expected_result": 999999999},
+    {"id": "maximum_modulus_single_term", "input_values": [1, 1000000000, 999999999, 999999999], "input_length": 4, "expected_result": 999999999},
+    {"id": "large_full_modular_cycle", "input_values": [1000000000, 1000000000, 999999999, 999999999], "input_length": 4, "expected_result": 0},
+    {"id": "large_small_modulus", "input_values": [1000000000, 2, 1, 1], "input_length": 4, "expected_result": 0},
+    {"id": "invalid_empty", "input_values": [], "input_length": 0, "expected_result": -1},
+    {"id": "invalid_zero_n", "input_values": [0, 7, 3, 4], "input_length": 4, "expected_result": -1},
+    {"id": "invalid_zero_m", "input_values": [5, 0, 0, 0], "input_length": 4, "expected_result": -1},
+    {"id": "invalid_slope_at_modulus", "input_values": [5, 7, 7, 0], "input_length": 4, "expected_result": -1},
+    {"id": "invalid_offset_at_modulus", "input_values": [5, 7, 3, 7], "input_length": 4, "expected_result": -1},
+    {"id": "invalid_packed_length", "input_values": [5, 7, 3], "input_length": 3, "expected_result": -1}
+  ]
+}

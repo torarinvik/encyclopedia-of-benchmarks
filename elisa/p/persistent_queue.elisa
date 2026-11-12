@@ -1,0 +1,118 @@
+const PERSISTENT_QUEUE_MAX_Q: usize = 128
+const PERSISTENT_QUEUE_TREE_BASE: usize = 128
+const PERSISTENT_QUEUE_TREE_HEIGHT: usize = 7
+const PERSISTENT_QUEUE_MAX_NODES: usize = 1 + PERSISTENT_QUEUE_MAX_Q * (PERSISTENT_QUEUE_TREE_HEIGHT + 1)
+const PERSISTENT_QUEUE_MAX_PARSEABLE_INPUT: usize = 1 + 3 * PERSISTENT_QUEUE_MAX_Q + 1
+const PERSISTENT_QUEUE_MAX_VALUE: i64 = 1000000000
+
+struct PersistentQueueNode:
+    left: usize
+    right: usize
+    value: i64
+
+def persistent_queue_set(nodes: mutable view[PersistentQueueNode], used: mutable usize&,
+    root: usize, low: usize, high: usize, position: usize, value: i64) -> usize:
+    copy: usize = used
+    used <- used + 1
+    nodes[copy].left <- nodes[root].left
+    nodes[copy].right <- nodes[root].right
+    nodes[copy].value <- nodes[root].value
+    if high - low == 1:
+        nodes[copy].value <- value
+        return copy
+    middle: usize = low + (high - low) / 2
+    child_root: mutable usize = 0
+    child: mutable usize = 0
+    if position < middle:
+        child_root <- nodes[root].left
+        child <- persistent_queue_set(nodes, used, child_root,
+            low, middle, position, value)
+        nodes[copy].left <- child
+    else:
+        child_root <- nodes[root].right
+        child <- persistent_queue_set(nodes, used, child_root,
+            middle, high, position, value)
+        nodes[copy].right <- child
+    copy
+
+def persistent_queue_get(nodes: view[PersistentQueueNode], root: usize,
+    low: usize, high: usize, position: usize) -> i64:
+    if high - low == 1: return nodes[root].value
+    middle: usize = low + (high - low) / 2
+    if position < middle:
+        return persistent_queue_get(nodes, nodes[root].left, low, middle, position)
+    persistent_queue_get(nodes, nodes[root].right, middle, high, position)
+
+def persistent_queue_store(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def persistent_queue_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > PERSISTENT_QUEUE_MAX_PARSEABLE_INPUT:
+        return -1
+    q_value: i64 = input[0]
+    if q_value < 1 or q_value > PERSISTENT_QUEUE_MAX_Q.i64(): return -1
+    q: usize = q_value.usize()
+    kind: mutable i64[PERSISTENT_QUEUE_MAX_Q] = zeroed
+    parent: mutable i64[PERSISTENT_QUEUE_MAX_Q] = zeroed
+    value: mutable i64[PERSISTENT_QUEUE_MAX_Q] = zeroed
+    version_head: mutable usize[PERSISTENT_QUEUE_MAX_Q + 1] = zeroed
+    version_tail: mutable usize[PERSISTENT_QUEUE_MAX_Q + 1] = zeroed
+    version_size: mutable usize[PERSISTENT_QUEUE_MAX_Q + 1] = zeroed
+    cursor: mutable usize = 1
+    pop_count: mutable usize = 0
+    for operation in 0..<q:
+        if cursor + 2 > length: return -1
+        kind[operation] <- input[cursor]
+        cursor <- cursor + 1
+        parent[operation] <- input[cursor]
+        cursor <- cursor + 1
+        if (kind[operation] != 0 and kind[operation] != 1) or parent[operation] < -1 or
+            parent[operation] >= operation.i64(): return -1
+        base: usize = (parent[operation] + 1).usize()
+        if kind[operation] == 0:
+            if cursor >= length: return -1
+            value[operation] <- input[cursor]
+            cursor <- cursor + 1
+            if value[operation] < 0 or value[operation] > PERSISTENT_QUEUE_MAX_VALUE or
+                version_tail[base] >= PERSISTENT_QUEUE_TREE_BASE: return -1
+            version_head[operation + 1] <- version_head[base]
+            version_tail[operation + 1] <- version_tail[base] + 1
+            version_size[operation + 1] <- version_size[base] + 1
+        else:
+            if version_size[base] == 0: return -1
+            version_head[operation + 1] <- version_head[base] + 1
+            version_tail[operation + 1] <- version_tail[base]
+            version_size[operation + 1] <- version_size[base] - 1
+            pop_count <- pop_count + 1
+    if cursor != length: return -1
+    required: usize = 8 * pop_count
+    if required > 0 and (output.is_null() or capacity < required): return -2
+
+    nodes: mutable PersistentQueueNode[PERSISTENT_QUEUE_MAX_NODES] = zeroed
+    roots: mutable usize[PERSISTENT_QUEUE_MAX_Q + 1] = zeroed
+    answers: mutable i64[PERSISTENT_QUEUE_MAX_Q] = zeroed
+    used: mutable usize = 1
+    answer_count: mutable usize = 0
+    for operation in 0..<q:
+        base: usize = (parent[operation] + 1).usize()
+        version: usize = operation + 1
+        if kind[operation] == 0:
+            roots[version] <- persistent_queue_set(nodes[0:PERSISTENT_QUEUE_MAX_NODES], used,
+                roots[base], 0, PERSISTENT_QUEUE_TREE_BASE, version_tail[base], value[operation])
+        else:
+            answers[answer_count] <- persistent_queue_get(nodes[0:PERSISTENT_QUEUE_MAX_NODES],
+                roots[base], 0, PERSISTENT_QUEUE_TREE_BASE, version_head[base])
+            answer_count <- answer_count + 1
+            roots[version] <- roots[base]
+    if answer_count > 0:
+        output_view: mutable view[u8] = output[0:required]
+        for index in 0..<answer_count:
+            persistent_queue_store(output_view, 8 * index, answers[index])
+    required.i64()
+
+export fn persistent_queue(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = persistent_queue_impl

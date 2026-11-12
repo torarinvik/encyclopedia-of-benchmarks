@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-min-plus-convolution-convex-arbitrary-bounded-v1",
+  "algorithm": "min_plus_convolution_convex_arbitrary",
+  "function_symbol": "min_plus_convolution_convex_arbitrary",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "convolution/min_plus_convolution_convex_arbitrary/task.md",
+    "limits_path": "convolution/min_plus_convolution_convex_arbitrary/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/convolution/min_plus_convolution_convex_arbitrary/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/convolution/min_plus_convolution_convex_arbitrary/info.toml",
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Task contract and limits only; all local ports and oracles are clean-room."
+  },
+  "contract": {
+    "operation": "For convex a and arbitrary b, c[k]=min over i+j=k of a[i]+b[j].",
+    "input_layout": "[N,M,a[0..N),b[0..M)]",
+    "convexity": "a[i+1]-a[i] <= a[i+2]-a[i+1] for every valid i.",
+    "tie_rule": "The internal leftmost minimizing b index is selected; output values are unaffected by ties.",
+    "algorithm": "Monotone divide-and-conquer over output indices with monotone minimizing-index bounds; verifier scans each valid pair directly.",
+    "entry_domain": "Integers in [0,1000000000].",
+    "output_layout": "N+M-1 little-endian signed 64-bit integers.",
+    "error_precedence": "Malformed frames, values, or convexity return -1 before null/capacity checks. Valid input with null output or insufficient capacity returns -2 with no writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M,a[0..N),b[0..M)]",
+    "n_range": [
+      1,
+      32
+    ],
+    "m_range": [
+      1,
+      32
+    ],
+    "entry_domain": [
+      0,
+      1000000000
+    ],
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 67,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 63,
+    "maximum_output_bytes": 504,
+    "success_result": "8*(N+M-1) bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 504,
+    "meaning": "Maximum staged output buffer. Recursion depth is bounded by 63 output positions."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "singleton",
+      "input_values": [
+        1,
+        1,
+        5,
+        7
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0c00000000000000",
+      "input_length": 4
+    },
+    {
+      "id": "convex-with-arbitrary-second",
+      "input_values": [
+        3,
+        3,
+        0,
+        1,
+        4,
+        3,
+        0,
+        2
+      ],
+      "expected_result": 40,
+      "expected_output_hex": "03000000000000000000000000000000010000000000000003000000000000000600000000000000",
+      "input_length": 8
+    },
+    {
+      "id": "leftmost-tie-and-plateau",
+      "input_values": [
+        3,
+        3,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 40,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000200000000000000",
+      "input_length": 8
+    },
+    {
+      "id": "maximum-zero-shape",
+      "input_values": [
+        32,
+        32,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 504,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "input_length": 66
+    },
+    {
+      "id": "nonconvex-first-sequence",
+      "input_values": [
+        3,
+        1,
+        0,
+        2,
+        3,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 6
+    },
+    {
+      "id": "negative-value",
+      "input_values": [
+        1,
+        1,
+        -1,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 4
+    },
+    {
+      "id": "extra-word",
+      "input_values": [
+        1,
+        1,
+        0,
+        0,
+        9
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 5
+    },
+    {
+      "id": "dimension-out-of-range",
+      "input_values": [
+        33,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 2
+    },
+    {
+      "id": "malformed-before-capacity",
+      "input_values": [
+        3,
+        1,
+        0,
+        2,
+        3,
+        0
+      ],
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 6
+    },
+    {
+      "id": "short-capacity",
+      "input_values": [
+        2,
+        2,
+        0,
+        1,
+        2,
+        0
+      ],
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "input_length": 6
+    },
+    {
+      "id": "null-output",
+      "input_values": [
+        1,
+        1,
+        5,
+        7
+      ],
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "input_length": 4
+    }
+  ]
+}
+

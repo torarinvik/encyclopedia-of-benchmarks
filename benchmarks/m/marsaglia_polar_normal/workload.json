@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-algorithms-marsaglia-polar-normal-bounded-tape-v1",
+  "algorithm": "marsaglia_polar_normal",
+  "function_symbol": "marsaglia_polar_normal",
+  "abi": "float64_slice_io",
+  "description": "Use a bounded integer draw tape and rejection sampling to return two standard normal values.",
+  "source": {
+    "title": "Normal Distributions: Marsaglia Polar Method",
+    "authors": ["Douglas Wilhelm Harder"],
+    "reference": "A Marsaglia polar pair transform using sqrt and log",
+    "url": "https://ece.uwaterloo.ca/~dwharder/icsrts/Simulations/Normal_distributions/",
+    "algorithm_attribution": "Map pairs to the square [-1,1)^2, reject s<=0 or s>=1, and transform both coordinates",
+    "implementation_status": "clean-room bounded ports"
+  },
+  "oracle": "benchmarks/marsaglia_polar_normal_oracle.py",
+  "oracle_entry_point": "expected_output(values, output_capacity=None, output_is_null=False, input_length=None)",
+  "input": {
+    "kind": "finite_float64_array_of_exact_integers",
+    "encoding": "[draw_count, attempt_cap, unsigned_32_bit_draws...]",
+    "draw_count_range": [2, 128],
+    "draw_count_even": true,
+    "attempt_cap_range": [1, 64],
+    "minimum_draw_count": "2*attempt_cap",
+    "draw_range": [0, 4294967295],
+    "draw_mapping": "u = draw / 2147483648 - 1; exact binary64 arithmetic",
+    "maximum_input_length": 130,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "two standard normal values from the first accepted polar pair, in coordinate order",
+    "maximum_elements": 2,
+    "success_result": 2,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_or_attempt_exhaustion_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "elements": 2,
+    "meaning": "Two accepted polar coordinates before returning the pair."
+  },
+  "contract": {
+    "transform": "s=u1*u1+u2*u2; reject if s<=0 or s>=1; otherwise multiply both coordinates by sqrt(-2*log(s)/s)",
+    "draw_consumption": "Each attempt consumes two consecutive tape values; stop at the first accepted pair and ignore the remaining suffix.",
+    "rejection_cap": "attempt_cap counts candidate pairs; after that many rejections return -1 without output.",
+    "complexity": "O(attempt_cap) time and O(1) auxiliary space."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "empty-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "immediate-acceptance",
+      "input_values": [2, 2, 3221225472, 3221225472],
+      "input_length": 4,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output": [0.8325546111576977, 0.8325546111576977]
+    },
+    {
+      "id": "negative-second-coordinate",
+      "input_values": [2, 1, 3221225472, 1073741824],
+      "input_length": 4,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output": [0.8325546111576977, -0.8325546111576977]
+    },
+    {
+      "id": "zero-first-coordinate",
+      "input_values": [2, 1, 2147483648, 3221225472],
+      "input_length": 4,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output": [0.0, 1.6651092223153954]
+    },
+    {
+      "id": "outside-circle-then-accept",
+      "input_values": [4, 2, 3758096384, 3758096384, 3221225472, 3221225472],
+      "input_length": 6,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output": [0.8325546111576977, 0.8325546111576977]
+    },
+    {
+      "id": "zero-radius-then-accept",
+      "input_values": [4, 2, 2147483648, 2147483648, 3221225472, 3221225472],
+      "input_length": 6,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output": [0.8325546111576977, 0.8325546111576977]
+    },
+    {
+      "id": "unit-radius-boundary-is-rejected",
+      "input_values": [2, 1, 0, 2147483648],
+      "input_length": 4,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "attempt-cap-exhausted",
+      "input_values": [2, 1, 3758096384, 3758096384],
+      "input_length": 4,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "cap-does-not-reach-later-valid-pair",
+      "input_values": [4, 1, 3758096384, 3758096384, 3221225472, 3221225472],
+      "input_length": 6,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "accepted-pair-leaves-unused-suffix",
+      "input_values": [4, 2, 3221225472, 3221225472, 3758096384, 3758096384],
+      "input_length": 6,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output": [0.8325546111576977, 0.8325546111576977]
+    },
+    {
+      "id": "odd-draw-count",
+      "input_values": [3, 1, 3221225472, 3221225472, 3221225472],
+      "input_length": 5,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "tape-shorter-than-cap",
+      "input_values": [2, 2, 3221225472, 3221225472],
+      "input_length": 4,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional-draw",
+      "input_values": [2, 1, 3221225472.5, 3221225472],
+      "input_length": 4,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "draw-above-unsigned-32-bit-range",
+      "input_values": [2, 1, 4294967296, 3221225472],
+      "input_length": 4,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short-output",
+      "input_values": [2, 1, 3221225472, 3221225472],
+      "input_length": 4,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

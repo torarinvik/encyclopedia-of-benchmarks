@@ -1,0 +1,146 @@
+const MAX_N: usize = 12
+const MAX_INPUT_VALUES: usize = 3 * MAX_N + 1
+const MAX_OUTPUT_WORDS: usize = MAX_N + 1
+const MAX_WEIGHT: i64 = 1000000
+
+def rooted_order_find_root(parent: mutable view[usize], vertex: usize) -> usize:
+    root: mutable usize = vertex
+    while parent[root] != root:
+        root <- parent[root]
+    current: mutable usize = vertex
+    while parent[current] != current:
+        next: usize = parent[current]
+        parent[current] <- root
+        current <- next
+    root
+
+def rooted_order_compare_ratio(left_c: i64, left_d: i64, right_c: i64, right_d: i64) -> i64:
+    left_zero: bool = left_c == 0 and left_d == 0
+    right_zero: bool = right_c == 0 and right_d == 0
+    if left_zero != right_zero:
+        return if left_zero: -1 else: 1
+    lhs: i64 = left_c * right_d
+    rhs: i64 = left_d * right_c
+    if lhs > rhs:
+        return 1
+    if lhs < rhs:
+        return -1
+    0
+
+def rooted_order_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def rooted_tree_topological_order_with_minimum_inversions_impl(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_VALUES:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > MAX_N.i64() or length != 3 * n_value.usize():
+        return -1
+    n: usize = n_value.usize()
+
+    tree_parent: mutable i64[MAX_N] = zeroed
+    for vertex in 1..<n:
+        p: i64 = input[vertex]
+        if p < 0 or p >= vertex.i64():
+            return -1
+        tree_parent[vertex] <- p
+
+    original_c: mutable i64[MAX_N] = zeroed
+    original_d: mutable i64[MAX_N] = zeroed
+    aggregate_c: mutable i64[MAX_N] = zeroed
+    aggregate_d: mutable i64[MAX_N] = zeroed
+    sum_c: mutable i64 = 0
+    sum_d: mutable i64 = 0
+    for vertex in 0..<n:
+        c: i64 = input[n + vertex]
+        d: i64 = input[2 * n + vertex]
+        if c < 0 or c > MAX_WEIGHT or d < 0 or d > MAX_WEIGHT:
+            return -1
+        sum_c <- sum_c + c
+        sum_d <- sum_d + d
+        if sum_c > MAX_WEIGHT or sum_d > MAX_WEIGHT:
+            return -1
+        original_c[vertex] <- c
+        original_d[vertex] <- d
+        aggregate_c[vertex] <- c
+        aggregate_d[vertex] <- d
+
+    dsu_parent: mutable usize[MAX_N] = zeroed
+    component_label: mutable usize[MAX_N] = zeroed
+    active: mutable i64[MAX_N] = zeroed
+    link: mutable usize[MAX_N] = zeroed
+    for vertex in 0..<n:
+        dsu_parent[vertex] <- vertex
+        component_label[vertex] <- vertex
+        active[vertex] <- if vertex == 0: 0 else: 1
+        link[vertex] <- vertex
+
+    for _ in 0..<n - 1:
+        selected: mutable i64 = -1
+        for candidate in 1..<n:
+            if active[candidate] == 0:
+                continue
+            if selected < 0:
+                selected <- candidate.i64()
+                continue
+            selected_index: usize = selected.usize()
+            comparison: i64 = rooted_order_compare_ratio(
+                aggregate_c[candidate], aggregate_d[candidate],
+                aggregate_c[selected_index], aggregate_d[selected_index])
+            if comparison > 0 or (comparison == 0 and candidate > selected_index):
+                selected <- candidate.i64()
+        if selected < 0:
+            return -1
+        child: usize = selected.usize()
+        parent_vertex: usize = tree_parent[child].usize()
+        parent_component: usize = rooted_order_find_root(dsu_parent[0:MAX_N], parent_vertex)
+        target: usize = component_label[parent_component]
+        child_component: usize = rooted_order_find_root(dsu_parent[0:MAX_N], child)
+        if child_component == parent_component:
+            return -1
+        aggregate_c[target] <- aggregate_c[target] + aggregate_c[child]
+        aggregate_d[target] <- aggregate_d[target] + aggregate_d[child]
+        dsu_parent[child_component] <- parent_component
+        component_label[parent_component] <- target
+        active[child] <- 0
+        if target != 0:
+            active[target] <- 1
+        next: usize = link[child]
+        link[child] <- link[target]
+        link[target] <- next
+
+    traversal: mutable usize[MAX_N] = zeroed
+    count: mutable usize = 0
+    vertex: mutable usize = link[0]
+    while count < n:
+        traversal[count] <- vertex
+        count <- count + 1
+        if vertex == 0:
+            break
+        vertex <- link[vertex]
+    if count != n or traversal[count - 1] != 0:
+        return -1
+
+    words: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    prefix_d: mutable i64 = 0
+    objective: mutable i64 = 0
+    for index in 0..<n:
+        ordered_vertex: usize = traversal[n - 1 - index]
+        words[index + 1] <- ordered_vertex.i64()
+        objective <- objective + prefix_d * original_c[ordered_vertex]
+        prefix_d <- prefix_d + original_d[ordered_vertex]
+    words[0] <- objective
+    output_bytes: usize = 8 * (n + 1)
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    for word in 0..<n + 1:
+        rooted_order_store_i64_le(words[word], output[0:capacity], 8 * word)
+    output_bytes.i64()
+
+export fn rooted_tree_topological_order_with_minimum_inversions(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 =
+    rooted_tree_topological_order_with_minimum_inversions_impl

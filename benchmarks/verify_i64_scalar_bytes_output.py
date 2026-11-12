@@ -86,6 +86,9 @@ from mcgill_misr_oracle import MAX_EXPERIMENTS as MCGILL_MISR_MAX_EXPERIMENTS
 from mcgill_misr_oracle import MAX_OUTPUT_BYTES as MCGILL_MISR_MAX_OUTPUT_BYTES
 from mcgill_misr_oracle import MIN_EXPERIMENTS as MCGILL_MISR_MIN_EXPERIMENTS
 from mcgill_misr_oracle import OUTPUT_ERROR as MCGILL_MISR_OUTPUT_ERROR
+from enumerate_quotients_oracle import MAX_N as ENUMERATE_QUOTIENTS_MAX_N
+from enumerate_quotients_oracle import MAX_OUTPUT_BYTES as ENUMERATE_QUOTIENTS_MAX_OUTPUT_BYTES
+from enumerate_quotients_oracle import expected_output as enumerate_quotients_oracle
 
 ALGORITHMS = ("decimal_to_binary", "decimal_to_octal", "decimal_to_hexadecimal", "integer_to_roman",
               "pascal_triangle_row", "floyd_triangle", "harmonic_series", "butterfly_pattern",
@@ -95,6 +98,7 @@ ALGORITHMS = ("decimal_to_binary", "decimal_to_octal", "decimal_to_hexadecimal",
               "stanford_queens", "shootout_hello",
               "shootout_lists", "shootout_strcat",
               "shootout_methcall", "shootout_objinst", "evalloop", "mcgill_misr", "huffbench")
+ALGORITHMS = (*ALGORITHMS, "enumerate_quotients")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 HUFFBENCH_MIN_PASSES = 1
 HUFFBENCH_MAX_PASSES = 30
@@ -172,7 +176,32 @@ def corpus(workload: dict) -> tuple[str, int]:
     capacity_error_result = workload.get("output", {}).get(
         "capacity_error_result", workload.get("output", {}).get("insufficient_capacity_result", -2))
 
-    if encoding == "shootout_random_ascii":
+    if encoding == "enumerate_quotients_i64le":
+        expected_ids = {"one", "two", "ten", "square", "insufficient_capacity",
+                        "exact_capacity", "zero", "negative", "above_bound"}
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases if isinstance(case, dict)]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "enumerate-quotients-i64-v1"
+                or workload.get("algorithm") != "enumerate_quotients"
+                or workload.get("function_symbol") != "enumerate_quotients"
+                or workload.get("input", {}).get("encoding") != encoding
+                or workload.get("input", {}).get("accepted_range") != [1, ENUMERATE_QUOTIENTS_MAX_N]
+                or workload.get("output", {}).get("maximum_bytes") != ENUMERATE_QUOTIENTS_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_scalar_bytes_output_call"
+                or not isinstance(cases, list) or len(cases) != len(expected_ids)
+                or len(case_ids) != len(cases) or len(set(case_ids)) != len(case_ids)
+                or set(case_ids) != expected_ids):
+            raise ValueError("enumerate_quotients workload metadata differs from the reviewed quotient-block contract")
+        for case in cases:
+            result, output = enumerate_quotients_oracle(case["input_value"])
+            capacity = case.get("output_capacity", case.get("workspace_bytes", len(output)))
+            expected_result = (-2 if result >= 0 and capacity < len(output) else result)
+            fixture_output = b"" if expected_result < 0 else output
+            if (case.get("expected_result") != expected_result
+                    or case.get("expected_output_hex", "").lower() != fixture_output.hex()):
+                raise ValueError(f"enumerate_quotients workload oracle mismatch: {case.get('id')}")
+    elif encoding == "shootout_random_ascii":
         source_url = (
             "https://github.com/lac-dcc/Benchmarks/blob/"
             "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/random/random.c"
@@ -2022,6 +2051,20 @@ def corpus(workload: dict) -> tuple[str, int]:
                                     min(HUFFBENCH_MAX_OUTPUT_BYTES, required + 1)}):
                 add(value, capacity)
             add(value, HUFFBENCH_MAX_OUTPUT_BYTES, output_is_null=True)
+    elif encoding == "enumerate_quotients_i64le":
+        values = (1, 2, 3, 10, 36, 99991, ENUMERATE_QUOTIENTS_MAX_N)
+        for value in values:
+            add(value)
+        rng_quotients = random.Random(20261111)
+        for _ in range(128):
+            add(rng_quotients.randint(1, ENUMERATE_QUOTIENTS_MAX_N))
+        for value in (0, -1, ENUMERATE_QUOTIENTS_MAX_N + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (10, ENUMERATE_QUOTIENTS_MAX_N):
+            required, _ = expected_output(value, encoding)
+            add(value, required - 1)
+            add(value, required)
+            add(value, ENUMERATE_QUOTIENTS_MAX_OUTPUT_BYTES, output_is_null=True)
     else:
         for value in range(4097):
             add(value)

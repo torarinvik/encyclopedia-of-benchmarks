@@ -1,4 +1,4 @@
-"""Static workload, oracle, provenance, and nine-port path checks."""
+"""Static workload, oracle, provenance, and ten-port path checks."""
 
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ PAPER_URL = "https://cs.au.dk/~larsen/papers/linear_mode.pdf"
 SOURCE_PATHS = (
     "c/s/static_range_mode_query.c", "c3/s/static_range_mode_query.c3",
     "cpp/s/static_range_mode_query.cpp", "elisa/s/static_range_mode_query.elisa",
+    "mojo/s/static_range_mode_query.mojo",
     "nim/s/static_range_mode_query.nim", "odin/s/static_range_mode_query.odin",
     "rust/s/static_range_mode_query.rs", "v/s/static_range_mode_query.v",
     "zig/s/static_range_mode_query.zig",

@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-q-binomial-prime-mod-bounded-i64-array-bytes-output-v1",
+  "algorithm": "q_binomial_coefficient_prime_mod",
+  "function_symbol": "q_binomial_coefficient_prime_mod",
+  "abi": "i64_array_bytes_output",
+  "description": "Compute bounded Gaussian binomial coefficients with a modular recurrence.",
+  "source": {
+    "title": "q-Binomial Coefficient (Prime Mod)",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/enumerative_combinatorics/q_binomial_coefficient_prime_mod/task.md",
+    "algorithm_attribution": "Gaussian-binomial recurrence",
+    "implementation_status": "clean-room bounded recurrence"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[T, m, q, n0, k0, ..., n(T-1), k(T-1)]",
+    "T_range": [1, 16],
+    "prime_modulus_range": [2, 31],
+    "q_range": "0 <= q < m",
+    "n_k_range": "0 <= n,k <= 16 and n,k < m",
+    "maximum_valid_length": 35,
+    "maximum_parseable_input_length": 36,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one unsigned byte per residue modulo m",
+    "maximum_bytes": 16,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 2312,
+    "meaning": "17 by 17 signed 64-bit Gaussian-binomial table."
+  },
+  "contract": {
+    "official_T_max": 1000000,
+    "official_m_max": 1073741824,
+    "official_n_k_max_exclusive": 10000000,
+    "profile_T_max": 16,
+    "profile_m_max": 31,
+    "profile_n_k_max": 16,
+    "recurrence": "G(n,k)=G(n-1,k)+q^(n-k)*G(n-1,k-1) modulo m, with G(n,0)=G(n,n)=1",
+    "k_greater_than_n": 0,
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "mod-two-q-zero-boundaries",
+      "input_values": [4, 2, 0, 0, 0, 0, 1, 1, 0, 1, 1],
+      "input_length": 11,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "01000101"
+    },
+    {
+      "id": "q-one-is-ordinary-binomial",
+      "input_values": [4, 3, 1, 2, 1, 2, 2, 1, 1, 1, 0],
+      "input_length": 11,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "02010101"
+    },
+    {
+      "id": "nontrivial-q-and-symmetry",
+      "input_values": [5, 5, 2, 3, 1, 3, 2, 4, 0, 4, 4, 4, 2],
+      "input_length": 13,
+      "output_capacity": 5,
+      "expected_result": 5,
+      "expected_output_hex": "0202010100"
+    },
+    {
+      "id": "prime-seven-mixed-edges",
+      "input_values": [4, 7, 1, 6, 3, 3, 1, 3, 3, 3, 6],
+      "input_length": 11,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "06030100"
+    },
+    {
+      "id": "largest-profile-n-and-q-minus-one",
+      "input_values": [4, 31, 30, 16, 0, 16, 15, 16, 16, 16, 17],
+      "input_length": 11,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "01000100"
+    },
+    {
+      "id": "maximum-batch-and-output",
+      "input_values": [16, 31, 2, 16, 0, 16, 0, 16, 0, 16, 0, 16, 0, 16, 0, 16, 0, 16, 0, 16, 0, 16, 0, 16, 0, 16, 0, 16, 0, 16, 0, 16, 0, 16, 0],
+      "input_length": 35,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01010101010101010101010101010101"
+    },
+    {
+      "id": "zero-batch",
+      "input_values": [0, 5, 2],
+      "input_length": 3,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonprime-modulus",
+      "input_values": [1, 9, 2, 3, 1],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "q-equals-modulus",
+      "input_values": [1, 7, 7, 2, 1],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "n-outside-prime-domain",
+      "input_values": [1, 5, 2, 5, 1],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "k-outside-prime-domain",
+      "input_values": [1, 5, 2, 3, 5],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "n-outside-profile-bound",
+      "input_values": [1, 31, 2, 17, 1],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-input-value",
+      "input_values": [1, 5, 2, 3, 1, 0],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-query",
+      "input_values": [1, 5, 2, 3],
+      "input_length": 4,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 5, 2, 3, 1],
+      "input_length": 5,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 5, 2, 3, 1],
+      "input_length": 5,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 3,
+      "output_capacity": 16,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "counting-c4-per-edge-multiplicity-i64-array-bytes-output-v1",
+  "algorithm": "counting_c4",
+  "function_symbol": "counting_c4",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "Library Checker",
+    "problem": "Counting C4's",
+    "url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/counting_c4/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/counting_c4/info.toml",
+    "source_type": "official_algorithm_task_specification",
+    "reuse": "Task definition and limits only; all implementations and the oracle are independently written."
+  },
+  "contract": {
+    "operation": "For every edge ID, count three-edge-ID selections that form a C4 with it.",
+    "input_layout": "[n, m, (u, v)*m]",
+    "official_limits": {"vertex_count": [2, 300000], "edge_count": [1, 300000]},
+    "vertex_count_range": [2, 8],
+    "edge_count_range": [1, 12],
+    "vertex_ids": "zero-based",
+    "graph_semantics": "Undirected multigraph; parallel edge IDs are distinct.",
+    "self_loops": "Invalid.",
+    "cycle_semantics": "The four selected edges must form a subgraph isomorphic to C4; other graph edges are ignored.",
+    "algorithm": "For each edge (u,v), sum mult[u][a]*mult[a][b]*mult[b][v] over ordered, pairwise-distinct a,b,u,v.",
+    "output_encoding": "one unsigned 64-bit little-endian count per edge, in input edge order",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input framing, ranges, and endpoint validation precede output pointer and capacity checks."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 26,
+    "maximum_parseable_length": 26,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_unsigned_64_bit_array",
+    "element_width_bytes": 8,
+    "maximum_elements": 12,
+    "maximum_bytes": 96,
+    "success_result": "8*m",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Bounded multiplicity matrix, per-edge answer vector, and output staging buffer."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "single-edge", "input_values": [2, 1, 0, 1], "input_length": 4, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0000000000000000"},
+    {"id": "triangle", "input_values": [3, 3, 0, 1, 1, 2, 2, 0], "input_length": 8, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "000000000000000000000000000000000000000000000000"},
+    {"id": "simple-square", "input_values": [4, 4, 0, 1, 1, 2, 2, 3, 3, 0], "input_length": 10, "output_capacity": 32, "expected_result": 32, "expected_output_hex": "0100000000000000010000000000000001000000000000000100000000000000"},
+    {"id": "complete-four-with-chords", "input_values": [4, 6, 0, 1, 0, 2, 0, 3, 1, 2, 1, 3, 2, 3], "input_length": 14, "output_capacity": 48, "expected_result": 48, "expected_output_hex": "020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000"},
+    {"id": "parallel-edge-multiplicity", "input_values": [4, 6, 0, 1, 0, 1, 1, 2, 1, 2, 2, 3, 3, 0], "input_length": 14, "output_capacity": 48, "expected_result": 48, "expected_output_hex": "020000000000000002000000000000000200000000000000020000000000000004000000000000000400000000000000"},
+    {"id": "two-disjoint-squares", "input_values": [8, 8, 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4], "input_length": 18, "output_capacity": 64, "expected_result": 64, "expected_output_hex": "01000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000"},
+    {"id": "parallel-edges-without-four-distinct-vertices", "input_values": [2, 5, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1], "input_length": 12, "output_capacity": 40, "expected_result": 40, "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000"},
+    {"id": "vertex-count-out-of-range", "input_values": [1, 1, 0, 1], "input_length": 4, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "edge-count-out-of-range", "input_values": [2, 13], "input_length": 2, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "self-loop", "input_values": [2, 1, 0, 0], "input_length": 4, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "endpoint-out-of-range", "input_values": [2, 1, 0, 2], "input_length": 4, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "truncated-edge-frame", "input_values": [3, 2, 0, 1, 1], "input_length": 5, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-before-output-error", "input_values": [2, 1, 0, 0], "input_length": 4, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short-output-capacity", "input_values": [2, 1, 0, 1], "input_length": 4, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [2, 1, 0, 1], "input_length": 4, "output_capacity": 8, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "output_capacity": 8, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

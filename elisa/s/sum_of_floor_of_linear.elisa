@@ -1,0 +1,44 @@
+const MAX_PARAMETER: i64 = 1000000000
+
+def floor_sum(n_input: i64, m_input: i64, a_input: i64, b_input: i64) -> i64:
+    n: mutable i64 = n_input
+    m: mutable i64 = m_input
+    a: mutable i64 = a_input
+    b: mutable i64 = b_input
+    answer: mutable i64 = 0
+    while true:
+        if a >= m:
+            quotient: i64 = a / m
+            left: mutable i64 = n
+            right: mutable i64 = n - 1
+            if left % 2 == 0:
+                left <- left / 2
+            else:
+                right <- right / 2
+            answer <- answer + left * right * quotient
+            a <- a % m
+        if b >= m:
+            answer <- answer + n * (b / m)
+            b <- b % m
+        numerator: i64 = a * n + b
+        height: i64 = numerator / m
+        if height == 0:
+            return answer
+        b <- numerator % m
+        n <- height
+        previous_m: i64 = m
+        m <- a
+        a <- previous_m
+
+def sum_of_floor_of_linear_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 4:
+        return -1
+    n: i64 = input[0]
+    m: i64 = input[1]
+    a: i64 = input[2]
+    b: i64 = input[3]
+    if n < 1 or n > MAX_PARAMETER or m < 1 or m > MAX_PARAMETER or a < 0 or a >= m or b < 0 or b >= m:
+        return -1
+    floor_sum(n, m, a, b)
+
+export fn sum_of_floor_of_linear(input: i64&, length: usize) -> i64 = sum_of_floor_of_linear_impl

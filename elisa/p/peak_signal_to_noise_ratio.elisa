@@ -1,8 +1,8 @@
 extern sqrt(value: f64) -> f64
 extern log10(value: f64) -> f64
 
-def peak_signal_to_noise_ratio_impl(v: ptr<i64>, n: u64) -> f64:
-    if v == null or n < 3 or n > 129 or v[0] < 1 or v[0] > 64 or n != 1 + 2 * v[0].u64():
+def peak_signal_to_noise_ratio_impl(v: i64&, n: u64) -> f64:
+    if n < 3 or n > 129 or v[0] < 1 or v[0] > 64 or n != 1 + 2 * v[0].u64():
         return -1e300
     count: u64 = v[0].u64()
     sum: f64 = 0.0
@@ -20,4 +20,4 @@ def peak_signal_to_noise_ratio_impl(v: ptr<i64>, n: u64) -> f64:
         return -1e300
     20.0 * log10(255.0 / sqrt(mse))
 
-export fn peak_signal_to_noise_ratio(v: ptr<i64>, n: u64) -> f64 = peak_signal_to_noise_ratio_impl(v, n)
+export fn peak_signal_to_noise_ratio(v: i64&, n: u64) -> f64 = peak_signal_to_noise_ratio_impl(v, n)

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "meissel-lehmer-prime-count-i64-v1",
+  "algorithm": "meissel_lehmer_prime_count",
+  "function_symbol": "meissel_lehmer_prime_count",
+  "abi": "i64_scalar",
+  "source": {
+    "repository": "OI Wiki",
+    "algorithm": "Meissel-Lehmer prime counting",
+    "url": "https://en.oi-wiki.org/math/meissel-lehmer/",
+    "source_type": "algorithm_description",
+    "reuse": "Algorithm description only; implementations and oracle are independently written."
+  },
+  "contract": {
+    "operation": "Return pi(x), the number of primes less than or equal to x.",
+    "input_range": [0, 100000000],
+    "invalid_input_result": -1,
+    "algorithm": "Lehmer formula with recursive phi(x,a), integer roots, and a prime-count prefix table through sqrt(max_input).",
+    "oracle": "Segmented Sieve of Eratosthenes, independent of the Lehmer formula."
+  },
+  "cases": [
+    {"id": "zero", "input_value": 0, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 0},
+    {"id": "first-prime", "input_value": 2, "expected_result": 1},
+    {"id": "small-prime-boundary", "input_value": 100, "expected_result": 25},
+    {"id": "sieve-prefix-limit", "input_value": 10000, "expected_result": 1229},
+    {"id": "million", "input_value": 1000000, "expected_result": 78498},
+    {"id": "ten-million", "input_value": 10000000, "expected_result": 664579},
+    {"id": "maximum", "input_value": 100000000, "expected_result": 5761455},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "first-unsupported", "input_value": 100000001, "expected_result": -1},
+    {"id": "signed-minimum", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "signed-maximum", "input_value": 9223372036854775807, "expected_result": -1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  }
+}

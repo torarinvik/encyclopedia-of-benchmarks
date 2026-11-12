@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-runenumerate-bounded-period-blocks-v1",
+  "algorithm": "runenumerate",
+  "function_symbol": "runenumerate",
+  "abi": "i64_array_bytes_output",
+  "description": "Enumerate all maximal runs in a bounded lowercase string, using period-equality blocks and filtering nonminimal periods.",
+  "source": {
+    "title": "Run Enumerate",
+    "authors": ["Library Checker contributors"],
+    "reference": "Official input/output and run definition",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/string/runenumerate/task.md",
+    "algorithm_attribution": "Bounded period-equality block enumeration with minimal-period filtering",
+    "license": "Apache-2.0",
+    "reuse": "Uses the task contract only; ports and oracles are clean-room."
+  },
+  "contract": {
+    "input_layout": "[n, lowercase_letter_code_0, ..., lowercase_letter_code_(n-1)]",
+    "length_range": [1, 24],
+    "letter_code_range": [0, 25],
+    "run_definition": "(t,l,r): minimum period t, r-l >= 2*t, zero-based half-open interval, maximal under one-character extension at either end",
+    "output_layout": "little-endian signed i64 run count, then lexicographically sorted (t,l,r) i64 triples",
+    "maximum_runs_bound": 144,
+    "maximum_output_bytes": 3464,
+    "time_profile": "O(n^4) worst-case bounded period-block enumeration including insertion sorting; not the official asymptotic solution"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, lowercase_letter_codes...]",
+    "maximum_valid_length": 25,
+    "maximum_parseable_length": 25,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "signed i64 LE run count followed by signed i64 LE (period,left,right) triples",
+    "maximum_bytes": 3464,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 9000,
+    "meaning": "Longest-common-prefix table and at most 144 candidate triples; output is written after all validation."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "one-letter-no-runs",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "one-period-one-run",
+      "input_values": [4, 0, 0, 0, 0],
+      "input_length": 5,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000010000000000000000000000000000000400000000000000"
+    },
+    {
+      "id": "alternating-period-two-run",
+      "input_values": [6, 0, 1, 0, 1, 0, 1],
+      "input_length": 7,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000020000000000000000000000000000000600000000000000"
+    },
+    {
+      "id": "two-disjoint-period-one-runs",
+      "input_values": [7, 0, 0, 0, 1, 0, 0, 0],
+      "input_length": 8,
+      "output_capacity": 56,
+      "expected_result": 56,
+      "expected_output_hex": "0200000000000000010000000000000000000000000000000300000000000000010000000000000004000000000000000700000000000000"
+    },
+    {
+      "id": "maximum-length-repeated-letter-run",
+      "input_values": [24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 25,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000010000000000000000000000000000001800000000000000"
+    },
+    {
+      "id": "reject-invalid-letter",
+      "input_values": [1, 26],
+      "input_length": 2,
+      "output_capacity": 3464,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reject-truncated-frame",
+      "input_values": [3, 0, 1],
+      "input_length": 3,
+      "output_capacity": 3464,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reject-short-output-capacity",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 3464,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

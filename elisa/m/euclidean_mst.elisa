@@ -1,0 +1,160 @@
+# Exact Delaunay candidates followed by Kruskal for a bounded general-position point set.
+const EMST_MAX_POINTS: usize = 8
+const EMST_MAX_EDGES: usize = 28
+const EMST_MAX_INPUT_LENGTH: usize = 18
+const EMST_MAX_OUTPUT_WORDS: usize = 15
+
+struct EuclideanPoint:
+    x: i64
+    y: i64
+
+struct EuclideanEdge:
+    u: usize
+    v: usize
+    weight: i64
+
+def emst_orientation(a: EuclideanPoint, b: EuclideanPoint, c: EuclideanPoint) -> i64:
+    (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+
+def emst_incircle(a: EuclideanPoint, b: EuclideanPoint, c: EuclideanPoint, d: EuclideanPoint) -> i64:
+    ax: i64 = a.x - d.x
+    ay: i64 = a.y - d.y
+    bx: i64 = b.x - d.x
+    by: i64 = b.y - d.y
+    cx: i64 = c.x - d.x
+    cy: i64 = c.y - d.y
+    (ax * ax + ay * ay) * (bx * cy - by * cx) -
+        (bx * bx + by * by) * (ax * cy - ay * cx) +
+        (cx * cx + cy * cy) * (ax * by - ay * bx)
+
+def emst_find_root(parent: mutable view[i64], vertex: usize) -> usize:
+    current: mutable usize = vertex
+    while parent[current].usize() != current:
+        parent[current] <- parent[parent[current].usize()]
+        current <- parent[current].usize()
+    current
+
+def emst_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def euclidean_mst_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if input == null || length < 1 || length > EMST_MAX_INPUT_LENGTH:
+        return -1
+    raw_count: i64 = input[0]
+    if raw_count < 1 || raw_count > 8:
+        return -1
+    point_count: usize = raw_count.usize()
+    if length != 1 + 2 * point_count:
+        return -1
+    points: mutable EuclideanPoint[EMST_MAX_POINTS] = zeroed
+    for i in 0..<point_count |input, points|:
+        points[i] <- EuclideanPoint{x: input[1 + 2 * i], y: input[2 + 2 * i]}
+        if points[i].x < -10 || points[i].x > 10 || points[i].y < -10 || points[i].y > 10:
+            return -1
+    for a in 0..<point_count |points|:
+        for b in a + 1..<point_count |points|:
+            if points[a].x == points[b].x && points[a].y == points[b].y:
+                return -1
+    for a in 0..<point_count |points|:
+        for b in a + 1..<point_count |points|:
+            for c in b + 1..<point_count |points|:
+                if emst_orientation(points[a], points[b], points[c]) == 0:
+                    return -1
+                for d in 0..<point_count |points|:
+                    if d != a && d != b && d != c && emst_incircle(points[a], points[b], points[c], points[d]) == 0:
+                        return -1
+    output_words: usize = 2 * point_count - 1
+    output_bytes: usize = 8 * output_words
+    if output == null || output_capacity < output_bytes:
+        return -2
+
+    candidate: mutable bool[EMST_MAX_POINTS * EMST_MAX_POINTS] = zeroed
+    if point_count == 2:
+        candidate[1] <- true
+        candidate[EMST_MAX_POINTS] <- true
+    a: mutable usize = 0
+    while a < point_count:
+        b: mutable usize = a + 1
+        while b < point_count:
+            c: mutable usize = b + 1
+            while c < point_count:
+                turn: i64 = emst_orientation(points[a], points[b], points[c])
+                empty: mutable bool = true
+                d: mutable usize = 0
+                while d < point_count:
+                    if d != a && d != b && d != c:
+                        determinant: i64 = emst_incircle(points[a], points[b], points[c], points[d])
+                        if (determinant > 0) == (turn > 0):
+                            empty <- false
+                            break
+                    d <- d + 1
+                if empty:
+                    candidate[a * EMST_MAX_POINTS + b] <- true
+                    candidate[b * EMST_MAX_POINTS + a] <- true
+                    candidate[a * EMST_MAX_POINTS + c] <- true
+                    candidate[c * EMST_MAX_POINTS + a] <- true
+                    candidate[b * EMST_MAX_POINTS + c] <- true
+                    candidate[c * EMST_MAX_POINTS + b] <- true
+                c <- c + 1
+            b <- b + 1
+        a <- a + 1
+
+    edges: mutable EuclideanEdge[EMST_MAX_EDGES] = zeroed
+    edge_count: mutable usize = 0
+    u: mutable usize = 0
+    while u < point_count:
+        v: mutable usize = u + 1
+        while v < point_count:
+            if candidate[u * EMST_MAX_POINTS + v]:
+                dx: i64 = points[u].x - points[v].x
+                dy: i64 = points[u].y - points[v].y
+                edge: EuclideanEdge = EuclideanEdge{u: u, v: v, weight: dx * dx + dy * dy}
+                position: mutable usize = edge_count
+                edge_count <- edge_count + 1
+                while position > 0:
+                    previous: EuclideanEdge = edges[position - 1]
+                    if previous.weight < edge.weight || (previous.weight == edge.weight &&
+                            (previous.u < edge.u || (previous.u == edge.u && previous.v <= edge.v))):
+                        break
+                    edges[position] <- previous
+                    position <- position - 1
+                edges[position] <- edge
+            v <- v + 1
+        u <- u + 1
+
+    parent: mutable i64[EMST_MAX_POINTS] = zeroed
+    sizes: mutable i64[EMST_MAX_POINTS] = zeroed
+    for i in 0..<point_count |parent, sizes|:
+        parent[i] <- i.i64()
+        sizes[i] <- 1
+    words: mutable i64[EMST_MAX_OUTPUT_WORDS] = zeroed
+    words[0] <- (point_count - 1).i64()
+    selected: mutable usize = 0
+    edge_index: mutable usize = 0
+    while edge_index < edge_count && selected < point_count - 1:
+        left: usize = emst_find_root(parent[0:EMST_MAX_POINTS], edges[edge_index].u)
+        right: usize = emst_find_root(parent[0:EMST_MAX_POINTS], edges[edge_index].v)
+        if left != right:
+            if sizes[left] < sizes[right]:
+                temporary: usize = left
+                left <- right
+                right <- temporary
+            parent[right] <- left.i64()
+            sizes[left] <- sizes[left] + sizes[right]
+            words[1 + 2 * selected] <- edges[edge_index].u.i64()
+            words[2 + 2 * selected] <- edges[edge_index].v.i64()
+            selected <- selected + 1
+        edge_index <- edge_index + 1
+    if selected != point_count - 1:
+        return -1
+    for word in 0..<output_words |words, output|:
+        emst_store_i64_le(words[word], output[0:output_bytes], 8 * word)
+    output_bytes.i64()
+
+export fn euclidean_mst(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = euclidean_mst_impl

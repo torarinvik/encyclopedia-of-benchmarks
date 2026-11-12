@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "sum-of-totient-function-i64-scalar-mod-998244353-v1",
+  "algorithm": "sum_of_totient_function",
+  "function_symbol": "sum_of_totient_function",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [1, 1000000000],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "sum(phi(i), i=1..N) modulo 998244353",
+    "modulus": 998244353
+  },
+  "cases": [
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "two", "input_value": 2, "expected_result": 2},
+    {"id": "ten", "input_value": 10, "expected_result": 32},
+    {"id": "one_hundred", "input_value": 100, "expected_result": 3044},
+    {"id": "previous_prefix_sieve_limit", "input_value": 1000000, "expected_result": 497269080},
+    {"id": "large_quotient_recursion", "input_value": 1000000000, "expected_result": 422516288},
+    {"id": "zero_invalid", "input_value": 0, "expected_result": -1},
+    {"id": "above_local_bound", "input_value": 1000000001, "expected_result": -1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

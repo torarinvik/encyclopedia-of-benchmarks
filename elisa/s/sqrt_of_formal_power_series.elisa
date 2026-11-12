@@ -1,0 +1,103 @@
+const FPS_MODULUS: i64 = 998_244_353
+const FPS_MAX_N: usize = 64
+const FPS_MAX_INPUT: usize = 66
+
+def fps_mod_pow(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value % FPS_MODULUS
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if exponent % 2 == 1: result <- result * base % FPS_MODULUS
+        base <- base * base % FPS_MODULUS
+        exponent <- exponent / 2
+    result
+
+def fps_mod_sqrt(value: i64) -> i64:
+    if value == 0: return 0
+    if fps_mod_pow(value, (FPS_MODULUS - 1) / 2) != 1: return -1
+    odd_part: mutable i64 = FPS_MODULUS - 1
+    twos: mutable usize = 0
+    while odd_part % 2 == 0:
+        odd_part <- odd_part / 2
+        twos <- twos + 1
+    non_residue: mutable i64 = 2
+    while fps_mod_pow(non_residue, (FPS_MODULUS - 1) / 2) != FPS_MODULUS - 1:
+        non_residue <- non_residue + 1
+    c: mutable i64 = fps_mod_pow(non_residue, odd_part)
+    root: mutable i64 = fps_mod_pow(value, (odd_part + 1) / 2)
+    remainder: mutable i64 = fps_mod_pow(value, odd_part)
+    order: mutable usize = twos
+    while remainder != 1:
+        index: mutable usize = 1
+        probe: mutable i64 = remainder * remainder % FPS_MODULUS
+        while index < order and probe != 1:
+            probe <- probe * probe % FPS_MODULUS
+            index <- index + 1
+        if index >= order or probe != 1: return -1
+        exponent: mutable i64 = 1
+        for bit in 0..<(order - index - 1): exponent <- exponent * 2
+        factor: i64 = fps_mod_pow(c, exponent)
+        root <- root * factor % FPS_MODULUS
+        factor_squared: i64 = factor * factor % FPS_MODULUS
+        remainder <- remainder * factor_squared % FPS_MODULUS
+        c <- factor_squared
+        order <- index
+    if root < FPS_MODULUS - root: root else: FPS_MODULUS - root
+
+def fps_store_le(value: i64, output: mutable view[u8], position: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def sqrt_of_formal_power_series_impl(input: view[i64], length: usize,
+    output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+    if length < 2 or length > FPS_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > FPS_MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if length != n + 1: return -1
+    for i in 0..<n:
+        coefficient: i64 = input[i + 1]
+        if coefficient < 0 or coefficient >= FPS_MODULUS: return -1
+    bytes: usize = 8 * n
+    if output_is_null or capacity < bytes: return -2
+
+    result: mutable [FPS_MAX_N]i64 = [0; FPS_MAX_N]
+    valuation: mutable usize = 0
+    while valuation < n and input[valuation + 1] == 0: valuation <- valuation + 1
+    if valuation == n:
+        for i in 0..<n: fps_store_le(0, output[0:bytes], 8 * i)
+        return bytes.i64()
+    if valuation % 2 == 1:
+        fps_store_le(-1, output[0:8], 0)
+        return 8
+    shift: usize = valuation / 2
+    leading_root: i64 = fps_mod_sqrt(input[valuation + 1])
+    if leading_root < 0:
+        fps_store_le(-1, output[0:8], 0)
+        return 8
+    inverse_twice_root: i64 = fps_mod_pow((2 * leading_root) % FPS_MODULUS, FPS_MODULUS - 2)
+    width: usize = n - valuation
+    result[shift] <- leading_root
+    for degree in 1..<width:
+        cross_terms: mutable i64 = 0
+        for i in 1..<degree:
+            cross_terms <- (cross_terms + result[shift + i] * result[shift + degree - i]) % FPS_MODULUS
+        delta: mutable i64 = (input[valuation + degree + 1] - cross_terms) % FPS_MODULUS
+        if delta < 0: delta <- delta + FPS_MODULUS
+        result[shift + degree] <- delta * inverse_twice_root % FPS_MODULUS
+    for i in 0..<n: fps_store_le(result[i], output[0:bytes], 8 * i)
+    bytes.i64()
+
+export fn sqrt_of_formal_power_series(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > FPS_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return sqrt_of_formal_power_series_impl(input_view, length, scratch[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > 8 * FPS_MAX_N: safe_capacity <- 8 * FPS_MAX_N
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    sqrt_of_formal_power_series_impl(input_view, length, output_view, capacity, false)

@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-persistent-queue-bounded-i64-array-bytes-output-v1",
+  "algorithm": "persistent_queue",
+  "function_symbol": "persistent_queue",
+  "abi": "i64_array_bytes_output",
+  "description": "Branching queue versions using a persistent segment tree over append positions.",
+  "source": {
+    "title": "Persistent Queue",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/persistent_queue/task.md",
+    "algorithm_attribution": "Persistent segment tree indexed by queue-relative append positions",
+    "implementation_status": "clean-room bounded branching persistent queue profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[Q, variable-length operations: opcode 0,parent,value or opcode 1,parent]",
+    "Q_range": [1, 128],
+    "parent_rule": "-1 <= parent < operation_index",
+    "value_range": [0, 1000000000],
+    "pop_rule": "the selected parent version must be nonempty",
+    "maximum_valid_length": 385,
+    "maximum_parseable_length": 386,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one signed 64-bit little-endian removed front value per opcode-1 operation, in operation order",
+    "maximum_bytes": 1016,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1016,
+    "meaning": "Maximum output-buffer capacity; fixed persistent segment-tree nodes and version metadata use separate storage."
+  },
+  "contract": {
+    "operation_0": "append value to the selected version and create the next version",
+    "operation_1": "remove and return the selected version's front value, creating the next version",
+    "initial_version": "version -1 is empty",
+    "official_Q_maximum": 500000,
+    "official_value_range": [0, 1000000000]
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "branch-and-pop-after-fork",
+      "input_values": [6, 0, -1, 10, 0, 0, 20, 1, 1, 0, 0, 30, 1, 3, 1, 4],
+      "input_length": 16,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "0a000000000000000a000000000000001e00000000000000"
+    },
+    {
+      "id": "popping-sibling-versions-preserves-parent",
+      "input_values": [4, 0, -1, 42, 1, 0, 1, 0, 0, 0, 9],
+      "input_length": 11,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "2a000000000000002a00000000000000"
+    },
+    {
+      "id": "append-from-popped-version",
+      "input_values": [5, 0, -1, 4, 1, 0, 0, 1, 7, 1, 2, 1, 0],
+      "input_length": 13,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "040000000000000007000000000000000400000000000000"
+    },
+    {
+      "id": "append-only-trace-has-no-output",
+      "input_values": [1, 0, -1, 5],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "pop-empty-initial-version",
+      "input_values": [1, 1, -1],
+      "input_length": 3,
+      "output_capacity": 1016,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "forward-parent-version",
+      "input_values": [1, 0, 0, 5],
+      "input_length": 4,
+      "output_capacity": 1016,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "value-out-of-range",
+      "input_values": [1, 0, -1, 1000000001],
+      "input_length": 4,
+      "output_capacity": 1016,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-append",
+      "input_values": [1, 0, -1],
+      "input_length": 3,
+      "output_capacity": 1016,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [1, 0, -1, 7, 0],
+      "input_length": 5,
+      "output_capacity": 1016,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [2, 0, -1, 5, 1, 0],
+      "input_length": 6,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

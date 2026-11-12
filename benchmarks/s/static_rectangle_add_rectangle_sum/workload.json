@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-static-rectangle-add-rectangle-sum-compressed-cells-v1",
+  "algorithm": "static_rectangle_add_rectangle_sum",
+  "function_symbol": "static_rectangle_add_rectangle_sum",
+  "abi": "i64_array_bytes_output",
+  "description": "Apply a fixed batch of weighted rectangle additions and answer half-open rectangle sums modulo 998244353.",
+  "source": {
+    "name": "Library Checker: Static Rectangle Add Rectangle Sum",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/static_rectangle_add_rectangle_sum/task.md",
+    "limits_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/static_rectangle_add_rectangle_sum/info.toml",
+    "repository_license": "Apache-2.0",
+    "reuse": "Task semantics only; local implementations are clean-room bounded profiles."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,(left,down,right,up,weight)*N,(left,down,right,up)*Q]",
+    "update_count_range": [1, 32],
+    "query_count_range": [0, 32],
+    "coordinate_range": [0, 1000000],
+    "weight_range": [0, 998244352],
+    "rectangle_rule": "0 <= left < right <= 1000000 and 0 <= down < up <= 1000000",
+    "maximum_valid_length": 290,
+    "maximum_parseable_length": 291,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "contract": {
+    "operation": "Apply all N rectangle additions to the initially zero plane, then answer Q rectangle-sum queries modulo 998244353.",
+    "algorithm": "Coordinate-compress every x/y boundary, apply four-corner events in a two-dimensional difference grid, recover cell values, weight by cell area, and answer from a modular two-dimensional prefix table.",
+    "modulus": 998244353,
+    "maximum_boundaries_per_axis": 128,
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input framing and rectangle validation precede output pointer and capacity checks."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "one rectangle sum residue modulo 998244353 per query, in query order",
+    "element_width_bytes": 8,
+    "maximum_elements": 32,
+    "maximum_bytes": 256,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 524288,
+    "meaning": "Fixed coordinate arrays, two-dimensional corner-difference grid, area-weighted modular prefix grid, staged query answers, and temporary sort storage."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "overlapping-updates-and-subrectangles",
+      "input_values": [2,3,0,0,2,2,3,1,1,3,3,5,0,0,3,3,1,1,2,2,0,0,1,1],
+      "input_length": 24,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "200000000000000008000000000000000300000000000000"
+    },
+    {
+      "id": "half-open-edge-and-full-rectangle",
+      "input_values": [1,2,0,0,2,1,7,2,0,3,1,0,0,2,1],
+      "input_length": 15,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000e00000000000000"
+    },
+    {
+      "id": "modular-wraparound",
+      "input_values": [2,1,0,0,1,1,998244352,0,0,1,1,2,0,0,1,1],
+      "input_length": 16,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "no-queries",
+      "input_values": [1,0,0,0,1,1,9],
+      "input_length": 7,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1,1,0,0,1,1,3,0,0,1,1],
+      "input_length": 11,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1,1,0,0,1,1,3,0,0,1,1],
+      "input_length": 11,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-update-rectangle",
+      "input_values": [1,0,2,0,2,1,3],
+      "input_length": 7,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-input-precedes-null-output",
+      "input_values": [1,0,0,0,1,1,998244353],
+      "input_length": 7,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "overlong-frame",
+      "input_values": [1,0,0,0,1,1,9,0],
+      "input_length": 8,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

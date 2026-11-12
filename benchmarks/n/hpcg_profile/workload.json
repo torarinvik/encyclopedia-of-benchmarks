@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "id": "hpcg-pair-aggregate-pcg-bounded-v1",
+  "algorithm": "hpcg_profile",
+  "function_symbol": "hpcg_profile",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded coupled CSR SpMV, symmetric Gauss-Seidel, one coarse-grid correction, and preconditioned CG profile.",
+  "source": {
+    "title": "High Performance Conjugate Gradient Benchmark (HPCG), Revision 3.1",
+    "authors": ["Jack Dongarra", "Michael Heroux", "Piotr Luszczek"],
+    "date": "2019-03-28",
+    "repository_url": "https://github.com/hpcg-benchmark/hpcg/blob/master/README.md",
+    "overview_url": "https://www.hpcg-benchmark.org/index.html",
+    "algorithm_attribution": "Fixed-count double-precision multigrid-preconditioned CG with a symmetric Gauss-Seidel smoother; bounded clean-room single-process profile",
+    "implementation_status": "supplied matrix and right-hand side; one aggregate-pair coarse level; MPI, OpenMP, official scale classes, and runtime rules omitted"
+  },
+  "oracle": "benchmarks/n/hpcg_profile/primary_oracle.py",
+  "independent_oracle": "benchmarks/n/hpcg_profile/independent_oracle.py",
+  "contract": {
+    "profile": "Apply a symmetric two-level V-cycle preconditioner inside preconditioned conjugate gradients.",
+    "input_encoding": "[n,cg_steps,nnz,row_ptr[n+1],column_index[nnz],value_micro[nnz],rhs_micro[n]]",
+    "matrix_format": "Zero-based CSR, strictly increasing unique columns in every row, nonzero entries, exact symmetry, and strictly diagonally dominant positive diagonal.",
+    "scale": 1000000,
+    "coarse_transfer": "Profile choice: P[i,k]=1 iff k=floor(i/2); the coarse matrix is P^T A P, with residual restriction P^T and correction prolongation P.",
+    "symmetric_gauss_seidel": "One forward Gauss-Seidel pre-sweep, exact coarse correction of the resulting residual, then one backward Gauss-Seidel post-sweep of the updated residual.",
+    "pcg": "Start x=0 and r=b; run at most cg_steps standard preconditioned-CG updates, stopping early when ||r||^2 <= ||b||^2 * 1e-28.",
+    "output": "n little-endian binary64 solution components followed by explicitly recomputed ||b-Ax||."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "dimension_range": [1, 32],
+    "cg_steps_range": [1, 12],
+    "cg_steps_upper_bound": "min(12,n)",
+    "nonzero_range": "n through 6*n",
+    "entry_range_micro_units": [-1000000000, 1000000000],
+    "rhs_range_micro_units": [-1000000000, 1000000000],
+    "maximum_input_length": 452,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "record_layout": "[x_0,...,x_(n-1),explicit_residual_norm]",
+    "encoding": "little-endian IEEE-754 binary64",
+    "return_value": "8*(n+1)",
+    "maximum_output_bytes": 264,
+    "absolute_tolerance": 1e-8,
+    "relative_tolerance": 1e-8,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 264,
+    "meaning": "Maximum capacity of the packed binary64 solution and residual output buffer."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "coupled-sgs-coarse-correction-pcg",
+      "input_values": [2,2,4,0,2,4,0,1,0,1,2000000,-1000000,-1000000,2000000,1000000,0],
+      "input_length": 16,
+      "expected_result": 24,
+      "expected_output": [0.6666666666666666,0.3333333333333333,0.0]
+    },
+    {
+      "id": "identity-system-with-aggregate-aligned-rhs",
+      "input_values": [2,1,2,0,1,2,0,1,1000000,0,0,1000000,1000000,1000000],
+      "input_length": 14,
+      "expected_result": 24,
+      "expected_output": [1.0,1.0,0.0]
+    },
+    {
+      "id": "single-row-coarse-and-smoother",
+      "input_values": [1,1,1,0,1,0,2000000,2000000],
+      "input_length": 8,
+      "expected_result": 16,
+      "expected_output": [1.0,0.0]
+    },
+    {
+      "id": "nonsymmetric-matrix-invalid",
+      "input_values": [2,1,3,0,2,3,0,1,1,2000000,-500000,2000000,1000000,0],
+      "input_length": 14,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "non-diagonally-dominant-matrix-invalid",
+      "input_values": [2,1,4,0,2,4,0,1,0,1,1000000,-1000000,-1000000,1000000,1000000,0],
+      "input_length": 16,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2,1,4,0,2,4,0,1,0,1,2000000,-1000000,-1000000,2000000,1000000,0],
+      "input_length": 16,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

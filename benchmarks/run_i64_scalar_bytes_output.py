@@ -35,11 +35,14 @@ from mcgill_misr_oracle import expected_output as mcgill_misr_expected_output
 from huffbench_oracle import MAX_PASSES as HUFFBENCH_MAX_PASSES
 from huffbench_oracle import MIN_PASSES as HUFFBENCH_MIN_PASSES
 from huffbench_oracle import expected_output as huffbench_expected_output
+from enumerate_quotients_oracle import expected_output as enumerate_quotients_expected_output
 
 MAX_OUTPUT_BYTES = 8192
 
 
 def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
+    if encoding == "enumerate_quotients_i64le":
+        return enumerate_quotients_expected_output(value)
     if encoding == "shootout_ary3_ascii":
         return ary3_expected_output(value)
     if encoding == "stream_sieve_primes_i32le":
@@ -439,22 +442,6 @@ def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
                 divisor += 1
             else:
                 primes.append(str(candidate))
-        output = ",".join(primes).encode("ascii")
-        return len(output), output
-    if encoding == "first_n_primes":
-        if not 0 <= value <= 20:
-            return -1, b""
-        primes = []
-        candidate = 2
-        while len(primes) < value:
-            divisor = 2
-            while divisor <= candidate // divisor:
-                if candidate % divisor == 0:
-                    break
-                divisor += 1
-            else:
-                primes.append(str(candidate))
-            candidate += 1
         output = ",".join(primes).encode("ascii")
         return len(output), output
     if encoding == "palindrome_primes_i32le":

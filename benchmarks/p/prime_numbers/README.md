@@ -4,7 +4,7 @@
 
 Return every prime number from 2 through an inclusive limit, in ascending order, encoded as comma-separated ASCII decimal bytes. The C ABI accepts a signed 64-bit limit from 0 through 80. Negative or larger limits return `-1`. If the output buffer cannot hold the complete encoding, the function returns `-2`; otherwise it returns the number of bytes written. Limits 0 and 1 produce an empty result.
 
-The local ports use trial division through the square root for each candidate. This gives all nine languages the same algorithm and output contract. The pinned source group includes trial-division generators in Python and Rust, and a linear sieve in the C++1 repository. The second Python file with this filename supplies `is_prime` and `next_prime` helpers rather than a prime-list generator; that separate operation is cataloged under `next_prime_number`.
+The local ports use trial division through the square root for each candidate. This gives all nine languages the same algorithm and output contract. The pinned source group also includes TypeScript and Zig first-N generators and Python's `get_primes_between` scan; both use the same trial-division candidate-generation core, so they map here rather than to separate benchmark IDs. Their count and interval boundaries are source-level call profiles. A separate sequence package, `primes_sequence`, tests each candidate against every previously yielded prime and remains distinct. The C++1 repository also contains a linear sieve; this profile does not claim to cover that method. The second Python file with this filename supplies `is_prime` and `next_prime` helpers rather than a prime-list generator; that separate operation is cataloged under `next_prime_number`.
 
 ## Workload and measurement
 
@@ -33,3 +33,7 @@ The local ports use trial division through the square root for each candidate. T
 - [Python `prime_numbers`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/prime_numbers.py)
 - [Python `is_prime` and `next_prime` helpers](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/hashing/number_theory/prime_numbers.py)
 - [Rust `prime_numbers`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/prime_numbers.rs)
+- [TypeScript `primes`](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/primes.ts)
+- [Zig `primes`](https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/math/primes.zig)
+- [Go `Generate`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/prime/sieve.go)
+- [Python `get_primes_between`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/primelib.py)

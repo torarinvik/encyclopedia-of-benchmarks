@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-division-of-polynomials-bounded-long-division-v1",
+  "algorithm": "division_of_polynomials",
+  "function_symbol": "division_of_polynomials",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "polynomial/division_of_polynomials/task.md",
+    "limits_path": "polynomial/division_of_polynomials/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/polynomial/division_of_polynomials/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/polynomial/division_of_polynomials/info.toml",
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "The mathematical operation, field modulus, and official constraints are attributed to Library Checker; this bounded profile, its ports, fixtures, and oracles are clean-room work."
+  },
+  "oracle": "benchmarks/d/division_of_polynomials/primary_oracle.py",
+  "independent_oracle": "benchmarks/d/division_of_polynomials/independent_oracle.py",
+  "contract": {
+    "operation": "Given nonzero f and g in F_998244353[x], produce the unique quotient q and remainder r satisfying f=q*g+r and deg(r)<deg(g).",
+    "input_layout": "[N,M,f_0,...,f_(N-1),g_0,...,g_(M-1)] with coefficients in ascending degree order.",
+    "n_range": [1, 64],
+    "m_range": [1, 64],
+    "coefficient_range": [0, 998244352],
+    "leading_coefficient_condition": "f_(N-1) and g_(M-1) are nonzero.",
+    "modulus": 998244353,
+    "algorithm": "Descending coefficient long division over F_998244353; at most (N-M+1)*M coefficient updates when N>=M, and no quotient updates when N<M.",
+    "complexity": "O(N*M) time and O(N+M) auxiliary space under the bounded profile.",
+    "output_layout": "Little-endian signed 64-bit words [quotient_coefficient_count, remainder_coefficient_count, q_0,...,q_(u-1),r_0,...,r_(v-1)]. Coefficients are ascending by degree; zero polynomials have coefficient count zero; trailing zero coefficients are omitted.",
+    "success_result": "Number of output bytes, equal to 8*(2+u+v).",
+    "error_precedence": "Malformed input returns -1 before output checks. Valid input with null output or insufficient capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M,f_0,...,f_(N-1),g_0,...,g_(M-1)]",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 131,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_array",
+    "encoding": "[quotient_count,remainder_count,quotient_coefficients...,remainder_coefficients...]",
+    "maximum_output_elements": 67,
+    "maximum_bytes": 536,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Two fixed 64-element i64 arrays hold the working remainder and quotient."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "linear-divisor-nonzero-remainder",
+      "input_values": [3, 2, 1, 0, 1, 1, 1],
+      "input_length": 7,
+      "expected_result": 40,
+      "expected_output_hex": "020000000000000001000000000000000000803b0000000001000000000000000200000000000000"
+    },
+    {
+      "id": "exact-division-zero-remainder",
+      "input_values": [3, 2, 998244352, 0, 1, 998244352, 1],
+      "input_length": 7,
+      "expected_result": 32,
+      "expected_output_hex": "0200000000000000000000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "divisor-degree-exceeds-dividend",
+      "input_values": [2, 3, 7, 3, 1, 0, 1],
+      "input_length": 7,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000020000000000000007000000000000000300000000000000"
+    },
+    {
+      "id": "constant-divisor",
+      "input_values": [3, 1, 5, 7, 9, 1],
+      "input_length": 6,
+      "expected_result": 40,
+      "expected_output_hex": "03000000000000000000000000000000050000000000000007000000000000000900000000000000"
+    },
+    {
+      "id": "zero-dividend-leading-coefficient",
+      "input_values": [2, 1, 4, 0, 1],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-divisor-leading-coefficient",
+      "input_values": [1, 2, 9, 1, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coefficient-out-of-range",
+      "input_values": [1, 1, 998244353, 1],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-input",
+      "input_values": [2, 2, 1, 1, 1],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra-input-word",
+      "input_values": [1, 1, 1, 1, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [3, 2, 1, 0, 1, 1, 1],
+      "input_length": 7,
+      "output_capacity": 39,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-buffer",
+      "input_values": [3, 2, 1, 0, 1, 1, 1],
+      "input_length": 7,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input-pointer",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

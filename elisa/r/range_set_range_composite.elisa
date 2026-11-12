@@ -1,0 +1,190 @@
+const MODULUS: i64 = 998244353
+const MAX_N: usize = 64
+const MAX_Q: usize = 32
+const MAX_INPUT: usize = 291
+const TREE_N: usize = 4 * MAX_N + 5
+
+struct Affine:
+    a: i64
+    b: i64
+
+struct Node:
+    value: Affine
+    lazy_a: i64
+    lazy_b: i64
+    has_lazy: bool
+
+struct Operation:
+    kind: i64
+    left: usize
+    right: usize
+    x: i64
+    y: i64
+
+def rsc_identity() -> Affine:
+    value: Affine
+    value.a <- 1
+    value.b <- 0
+    value
+
+def rsc_compose(after: Affine, before: Affine) -> Affine:
+    value: Affine
+    value.a <- (after.a * before.a) % MODULUS
+    value.b <- (after.a * before.b + after.b) % MODULUS
+    value
+
+def rsc_power(a: i64, b: i64, count: usize) -> Affine:
+    result: mutable Affine = rsc_identity()
+    base: mutable Affine
+    base.a <- a
+    base.b <- b
+    exponent: mutable usize = count
+    while exponent > 0:
+        if exponent % 2 == 1:
+            result <- rsc_compose(base, result)
+        base <- rsc_compose(base, base)
+        exponent <- exponent / 2
+    result
+
+def rsc_build(tree: mutable view[Node], node: usize, left: usize, right: usize,
+    initial_a: view[i64], initial_b: view[i64]) -> void:
+    if right - left == 1:
+        tree[node].value.a <- initial_a[left]
+        tree[node].value.b <- initial_b[left]
+        return
+    middle: usize = left + (right - left) / 2
+    rsc_build(tree, node * 2, left, middle, initial_a, initial_b)
+    rsc_build(tree, node * 2 + 1, middle, right, initial_a, initial_b)
+    tree[node].value <- rsc_compose(tree[node * 2 + 1].value, tree[node * 2].value)
+
+def rsc_apply(tree: mutable view[Node], node: usize, left: usize, right: usize, a: i64, b: i64) -> void:
+    tree[node].value <- rsc_power(a, b, right - left)
+    tree[node].lazy_a <- a
+    tree[node].lazy_b <- b
+    tree[node].has_lazy <- true
+
+def rsc_push(tree: mutable view[Node], node: usize, left: usize, right: usize) -> void:
+    if not tree[node].has_lazy or right - left == 1:
+        return
+    middle: usize = left + (right - left) / 2
+    a: i64 = tree[node].lazy_a
+    b: i64 = tree[node].lazy_b
+    rsc_apply(tree, node * 2, left, middle, a, b)
+    rsc_apply(tree, node * 2 + 1, middle, right, a, b)
+    tree[node].has_lazy <- false
+
+def rsc_update(tree: mutable view[Node], node: usize, left: usize, right: usize,
+    ql: usize, qr: usize, a: i64, b: i64) -> void:
+    if ql <= left and right <= qr:
+        rsc_apply(tree, node, left, right, a, b)
+        return
+    rsc_push(tree, node, left, right)
+    middle: usize = left + (right - left) / 2
+    if ql < middle:
+        rsc_update(tree, node * 2, left, middle, ql, qr, a, b)
+    if qr > middle:
+        rsc_update(tree, node * 2 + 1, middle, right, ql, qr, a, b)
+    tree[node].value <- rsc_compose(tree[node * 2 + 1].value, tree[node * 2].value)
+
+def rsc_query(tree: mutable view[Node], node: usize, left: usize, right: usize,
+    ql: usize, qr: usize) -> Affine:
+    if ql <= left and right <= qr:
+        return tree[node].value
+    rsc_push(tree, node, left, right)
+    middle: usize = left + (right - left) / 2
+    if qr <= middle:
+        return rsc_query(tree, node * 2, left, middle, ql, qr)
+    if ql >= middle:
+        return rsc_query(tree, node * 2 + 1, middle, right, ql, qr)
+    right_value: Affine = rsc_query(tree, node * 2 + 1, middle, right, ql, qr)
+    left_value: Affine = rsc_query(tree, node * 2, left, middle, ql, qr)
+    rsc_compose(right_value, left_value)
+
+def rsc_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def range_set_range_composite_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT:
+        return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64():
+        return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length < 2 + 2 * n:
+        return -1
+    initial_a: mutable i64[MAX_N] = zeroed
+    initial_b: mutable i64[MAX_N] = zeroed
+    offset: mutable usize = 2
+    for i in 0..<n:
+        initial_a[i] <- input[offset]
+        initial_b[i] <- input[offset + 1]
+        offset <- offset + 2
+        if initial_a[i] < 1 or initial_a[i] >= MODULUS or initial_b[i] < 0 or initial_b[i] >= MODULUS:
+            return -1
+    operations: mutable Operation[MAX_Q] = zeroed
+    answer_count: mutable usize = 0
+    for k in 0..<q:
+        if offset >= length:
+            return -1
+        kind: i64 = input[offset]
+        offset <- offset + 1
+        if kind == 0:
+            if offset + 4 > length:
+                return -1
+            l: i64 = input[offset]
+            r: i64 = input[offset + 1]
+            a: i64 = input[offset + 2]
+            b: i64 = input[offset + 3]
+            offset <- offset + 4
+            if l < 0 or l >= r or r > n_value or a < 1 or a >= MODULUS or b < 0 or b >= MODULUS:
+                return -1
+            operations[k].kind <- 0
+            operations[k].left <- l.usize()
+            operations[k].right <- r.usize()
+            operations[k].x <- a
+            operations[k].y <- b
+        else if kind == 1:
+            if offset + 3 > length:
+                return -1
+            l: i64 = input[offset]
+            r: i64 = input[offset + 1]
+            x: i64 = input[offset + 2]
+            offset <- offset + 3
+            if l < 0 or l >= r or r > n_value or x < 0 or x >= MODULUS:
+                return -1
+            operations[k].kind <- 1
+            operations[k].left <- l.usize()
+            operations[k].right <- r.usize()
+            operations[k].x <- x
+            answer_count <- answer_count + 1
+        else:
+            return -1
+    if offset != length:
+        return -1
+    tree: mutable Node[TREE_N] = zeroed
+    rsc_build(tree[0:TREE_N], 1, 0, n, initial_a[0:MAX_N], initial_b[0:MAX_N])
+    answers: mutable i64[MAX_Q] = zeroed
+    answer_index: mutable usize = 0
+    for k in 0..<q:
+        op: Operation = operations[k]
+        if op.kind == 0:
+            rsc_update(tree[0:TREE_N], 1, 0, n, op.left, op.right, op.x, op.y)
+        else:
+            z: Affine = rsc_query(tree[0:TREE_N], 1, 0, n, op.left, op.right)
+            answers[answer_index] <- (z.a * op.x + z.b) % MODULUS
+            answer_index <- answer_index + 1
+    byte_count: usize = 8 * answer_count
+    if output.is_null() or capacity < byte_count:
+        return -2
+    output_view: mutable view[u8] = output[0:byte_count]
+    for i in 0..<answer_count:
+        rsc_store(answers[i], output_view, 8 * i)
+    byte_count.i64()
+
+export fn range_set_range_composite(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = range_set_range_composite_impl

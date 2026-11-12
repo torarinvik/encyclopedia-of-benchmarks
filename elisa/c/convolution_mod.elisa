@@ -1,0 +1,84 @@
+# Linear polynomial product by iterative radix-2 NTT over 998244353.
+const MODULUS: i64 = 998244353
+const MAX_LENGTH: usize = 256
+const MAX_NTT_SIZE: usize = 512
+const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_LENGTH
+
+def convolution_mod_power(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- (result * base) % MODULUS
+        base <- (base * base) % MODULUS
+        exponent <- exponent >> 1
+    result
+
+def convolution_mod_transform(values: mutable view[i64], n: usize, inverse: bool) -> void:
+    j: mutable usize = 0
+    for i in 1..n:
+        bit: mutable usize = n >> 1
+        while (j & bit) != 0:
+            j <- j ^ bit
+            bit <- bit >> 1
+        j <- j ^ bit
+        if i < j:
+            temporary: i64 = values[i]
+            values[i] <- values[j]
+            values[j] <- temporary
+    stage: mutable usize = 2
+    while stage <= n:
+        root: mutable i64 = convolution_mod_power(3, (MODULUS - 1) / stage.i64())
+        if inverse: root <- convolution_mod_power(root, MODULUS - 2)
+        start: mutable usize = 0
+        while start < n:
+            factor: mutable i64 = 1
+            for offset in 0..(stage / 2):
+                left: i64 = values[start + offset]
+                right: i64 = (values[start + offset + stage / 2] * factor) % MODULUS
+                values[start + offset] <- (left + right) % MODULUS
+                values[start + offset + stage / 2] <- (left - right + MODULUS) % MODULUS
+                factor <- (factor * root) % MODULUS
+            start <- start + stage
+        stage <- stage * 2
+    if inverse:
+        scale: i64 = convolution_mod_power(n.i64(), MODULUS - 2)
+        for i in 0..n: values[i] <- (values[i] * scale) % MODULUS
+
+def convolution_mod_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def convolution_mod_impl(input: view[i64], input_length: usize,
+                         output: mutable view[u8], output_capacity: usize) -> i64:
+    if input.is_null() || input_length < 2 || input_length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 || n_value > MAX_LENGTH.i64() || m_value < 1 || m_value > MAX_LENGTH.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if input_length != 2 + n + m: return -1
+    for i in 0..(n + m):
+        if input[2 + i] < 0 || input[2 + i] >= MODULUS: return -1
+
+    result_length: usize = n + m - 1
+    transform_length: mutable usize = 1
+    while transform_length < result_length: transform_length <- transform_length * 2
+    output_bytes: usize = 8 * result_length
+    if output.is_null() || output_capacity < output_bytes: return -2
+
+    a: mutable i64[MAX_NTT_SIZE] = zeroed
+    b: mutable i64[MAX_NTT_SIZE] = zeroed
+    for i in 0..n: a[i] <- input[2 + i]
+    for i in 0..m: b[i] <- input[2 + n + i]
+    convolution_mod_transform(a[0:transform_length], transform_length, false)
+    convolution_mod_transform(b[0:transform_length], transform_length, false)
+    for i in 0..transform_length: a[i] <- (a[i] * b[i]) % MODULUS
+    convolution_mod_transform(a[0:transform_length], transform_length, true)
+    for i in 0..result_length: convolution_mod_store_i64(output, 8 * i, a[i])
+    output_bytes.i64()
+
+export fn convolution_mod(input: i64&, input_length: usize, output: mutable u8&,
+                          output_capacity: usize) -> i64 = convolution_mod_impl

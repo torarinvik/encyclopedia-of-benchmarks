@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-multivariate-truncated-convolution-bounded-v1",
+  "algorithm": "multivariate_convolution",
+  "function_symbol": "multivariate_convolution",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "convolution/multivariate_convolution/task.md",
+    "limits_path": "convolution/multivariate_convolution/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/convolution/multivariate_convolution/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/convolution/multivariate_convolution/info.toml",
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "The quotient-ring operation and coefficient modulus are from the task; local bounds and implementations are clean-room."
+  },
+  "contract": {
+    "operation": "Multiply multivariate coefficient arrays modulo each x_axis^dimension_axis; any term whose summed coordinate reaches its dimension is discarded.",
+    "input_layout": "[K,dimensions[K],f[P],g[P]], with axis 0 varying fastest and P=product(dimensions); for K=0, P=1.",
+    "k_range": [0, 3],
+    "dimension_minimum": 2,
+    "product_maximum": 32,
+    "coefficient_modulus": 998244353,
+    "algorithm": "Direct pair enumeration with coordinate-wise truncation.",
+    "output_layout": "P little-endian signed 64-bit coefficients reduced modulo 998244353.",
+    "error_precedence": "Malformed frame, dimensions, product, or coefficient returns -1 before output checks. Valid input with null output or insufficient capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[K,dimensions[K],f[P],g[P]]",
+    "k_range": [0, 3],
+    "dimension_minimum": 2,
+    "product_maximum": 32,
+    "coefficient_range": [0, 998244352],
+    "maximum_valid_length": 68,
+    "maximum_parseable_length": 69,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 32,
+    "maximum_output_bytes": 256,
+    "success_result": "8*P bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Maximum staged output buffer; direct pair enumeration needs no dynamic scratch."
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "cases": [
+    {"id": "zero-variable-scalar", "input_values": [0, 5, 7], "expected_result": 8, "expected_output_hex": "2300000000000000", "input_length": 3},
+    {"id": "one-axis-truncation", "input_values": [1, 2, 1, 2, 3, 4], "expected_result": 16, "expected_output_hex": "03000000000000000a00000000000000", "input_length": 6},
+    {"id": "two-axis-coordinate-sum", "input_values": [2, 2, 3, 0, 5, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0], "expected_result": 48, "expected_output_hex": "000000000000000000000000000000000000000000000000230000000000000000000000000000000000000000000000", "input_length": 15},
+    {"id": "k-out-of-bounds", "input_values": [4], "expected_result": -1, "expected_output_hex": "", "input_length": 1},
+    {"id": "dimension-too-small", "input_values": [1, 1], "expected_result": -1, "expected_output_hex": "", "input_length": 2},
+    {"id": "negative-coefficient", "input_values": [0, -1, 7], "expected_result": -1, "expected_output_hex": "", "input_length": 3},
+    {"id": "extra-word", "input_values": [0, 5, 7, 1], "expected_result": -1, "expected_output_hex": "", "input_length": 4},
+    {"id": "short-capacity", "input_values": [0, 5, 7], "output_capacity": 7, "expected_result": -2, "expected_output_hex": "", "input_length": 3},
+    {"id": "null-output", "input_values": [0, 5, 7], "output_is_null": true, "expected_result": -2, "expected_output_hex": "", "input_length": 3}
+  ]
+}

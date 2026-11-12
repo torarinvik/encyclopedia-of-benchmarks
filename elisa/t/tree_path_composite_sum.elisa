@@ -1,0 +1,162 @@
+const TPC_MAX_N: usize = 32
+const TPC_MAX_CELLS: usize = 1024
+const TPC_MAX_INPUT: usize = 157
+const TPC_MOD: i64 = 998244353
+
+def tpc_find_root(parent: mutable view[usize], item: usize) -> usize:
+    node: mutable usize = item
+    while parent[node] != node:
+        parent[node] <- parent[parent[node]]
+        node <- parent[node]
+    node
+
+def tpc_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def tree_path_composite_sum_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > TPC_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > TPC_MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if length != 1 + n + 4 * (n - 1): return -1
+    vertex_value: mutable i64[TPC_MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        vertex_value[vertex] <- input[1 + vertex]
+        if vertex_value[vertex] < 0 or vertex_value[vertex] >= TPC_MOD: return -1
+        vertex <- vertex + 1
+
+    adjacent: mutable bool[TPC_MAX_CELLS] = zeroed
+    multiplier: mutable i64[TPC_MAX_CELLS] = zeroed
+    addend: mutable i64[TPC_MAX_CELLS] = zeroed
+    dsu_parent: mutable usize[TPC_MAX_N] = zeroed
+    dsu_size: mutable usize[TPC_MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        dsu_parent[vertex] <- vertex
+        dsu_size[vertex] <- 1
+        vertex <- vertex + 1
+    offset: mutable usize = 1 + n
+    edge: mutable usize = 0
+    while edge + 1 < n:
+        u_value: i64 = input[offset]
+        v_value: i64 = input[offset + 1]
+        b: i64 = input[offset + 2]
+        c: i64 = input[offset + 3]
+        offset <- offset + 4
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or
+            u_value == v_value or b < 1 or b >= TPC_MOD or c < 0 or c >= TPC_MOD: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        root_u: usize = tpc_find_root(dsu_parent[0:TPC_MAX_N], u)
+        root_v: usize = tpc_find_root(dsu_parent[0:TPC_MAX_N], v)
+        if root_u == root_v: return -1
+        if dsu_size[root_u] < dsu_size[root_v]:
+            temporary: usize = root_u
+            root_u <- root_v
+            root_v <- temporary
+        dsu_parent[root_v] <- root_u
+        dsu_size[root_u] <- dsu_size[root_u] + dsu_size[root_v]
+        forward: usize = u * TPC_MAX_N + v
+        backward: usize = v * TPC_MAX_N + u
+        adjacent[forward] <- true
+        adjacent[backward] <- true
+        multiplier[forward] <- b
+        multiplier[backward] <- b
+        addend[forward] <- c
+        addend[backward] <- c
+        edge <- edge + 1
+
+    order: mutable usize[TPC_MAX_N] = zeroed
+    stack: mutable usize[TPC_MAX_N] = zeroed
+    path_parent: mutable i64[TPC_MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        path_parent[vertex] <- -2
+        vertex <- vertex + 1
+    path_parent[0] <- -1
+    top: mutable usize = 1
+    order_count: mutable usize = 0
+    stack[0] <- 0
+    while top > 0:
+        top <- top - 1
+        u: usize = stack[top]
+        order[order_count] <- u
+        order_count <- order_count + 1
+        v: mutable usize = 0
+        while v < n:
+            cell: usize = u * TPC_MAX_N + v
+            if adjacent[cell] and v.i64() != path_parent[u]:
+                path_parent[v] <- u.i64()
+                stack[top] <- v
+                top <- top + 1
+            v <- v + 1
+
+    down_sum: mutable i64[TPC_MAX_N] = zeroed
+    up_sum: mutable i64[TPC_MAX_N] = zeroed
+    down_count: mutable usize[TPC_MAX_N] = zeroed
+    up_count: mutable usize[TPC_MAX_N] = zeroed
+    answer: mutable i64[TPC_MAX_N] = zeroed
+    position: mutable usize = order_count
+    while position > 0:
+        position <- position - 1
+        u: usize = order[position]
+        down_sum[u] <- vertex_value[u]
+        down_count[u] <- 1
+        v: mutable usize = 0
+        while v < n:
+            cell: usize = u * TPC_MAX_N + v
+            if adjacent[cell] and path_parent[v] == u.i64():
+                contribution: i64 = (multiplier[cell] * down_sum[v] +
+                    addend[cell] * down_count[v].i64()) % TPC_MOD
+                down_sum[u] <- (down_sum[u] + contribution) % TPC_MOD
+                down_count[u] <- down_count[u] + down_count[v]
+            v <- v + 1
+    position <- 0
+    while position < order_count:
+        u: usize = order[position]
+        total_sum: mutable i64 = vertex_value[u]
+        total_count: mutable usize = 1
+        if path_parent[u] >= 0:
+            total_sum <- (total_sum + up_sum[u]) % TPC_MOD
+            total_count <- total_count + up_count[u]
+        v: mutable usize = 0
+        while v < n:
+            cell: usize = u * TPC_MAX_N + v
+            if adjacent[cell] and path_parent[v] == u.i64():
+                total_sum <- (total_sum + multiplier[cell] * down_sum[v] +
+                    addend[cell] * down_count[v].i64()) % TPC_MOD
+                total_count <- total_count + down_count[v]
+            v <- v + 1
+        answer[u] <- total_sum
+        v <- 0
+        while v < n:
+            cell: usize = u * TPC_MAX_N + v
+            if adjacent[cell] and path_parent[v] == u.i64():
+                contribution: i64 = (multiplier[cell] * down_sum[v] +
+                    addend[cell] * down_count[v].i64()) % TPC_MOD
+                outside_sum: i64 = (total_sum - contribution + TPC_MOD) % TPC_MOD
+                outside_count: usize = total_count - down_count[v]
+                up_sum[v] <- (multiplier[cell] * outside_sum +
+                    addend[cell] * outside_count.i64()) % TPC_MOD
+                up_count[v] <- outside_count
+            v <- v + 1
+        position <- position + 1
+
+    required: usize = 8 * n
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    vertex <- 0
+    while vertex < n:
+        tpc_store(answer[vertex], output_view, 8 * vertex)
+        vertex <- vertex + 1
+    required.i64()
+
+export fn tree_path_composite_sum(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tree_path_composite_sum_impl

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-common-interval-decomposition-tree-bounded-i64-array-bytes-output-v1",
+  "algorithm": "common_interval_decomposition_tree",
+  "function_symbol": "common_interval_decomposition_tree",
+  "abi": "i64_array_bytes_output",
+  "description": "Enumerate connected intervals, filter overlapping intervals, and emit their strong-interval inclusion tree.",
+  "source": {
+    "title": "Common Interval Decomposition Tree",
+    "authors": ["Library Checker contributors", "Binh-Minh Bui Xuan", "Michel Habib", "Christophe Paul"],
+    "reference": "Library Checker task; Bui Xuan, Habib, and Paul, ISAAC 2005, LNCS 3827, pp. 146-155, DOI 10.1007/11602613_16",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/tree/common_interval_decomposition_tree/task.md",
+    "algorithm_url": "https://doi.org/10.1007/11602613_16",
+    "algorithm_attribution": "Bounded exhaustive strong-interval construction from the published task definitions; O(n^4) time and O(n^2) storage.",
+    "implementation_status": "clean-room bounded ports"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, permutation_0, ..., permutation_(n-1)]",
+    "n_range": [1, 48],
+    "permutation_values": "A permutation of 0..n-1",
+    "maximum_valid_input_length": 49,
+    "maximum_parseable_input_length": 49,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Little-endian i64 vector [X, parent_0, left_0, right_0, type_0, ...]; intervals are inclusive; root parent is -1; 0=linear and 1=prime.",
+    "maximum_bytes": 3048,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 3048,
+    "meaning": "Maximum serialized tree output; internal interval flags and tree records use fixed bounded arrays."
+  },
+  "contract": {
+    "connected_interval": "The permutation values at positions left..right form a consecutive integer interval.",
+    "strong_interval": "A connected interval that overlaps no other connected interval.",
+    "tree": "The Hasse diagram of strong intervals under inclusion.",
+    "node_type": "A node is linear iff every nonempty consecutive union of its children in ascending left-end order is connected; otherwise it is prime. Leaves are linear by vacuity.",
+    "node_order": "Decreasing interval length, then increasing left endpoint; strict containers therefore precede children.",
+    "complexity": "O(n^4) worst-case time and O(n^2) auxiliary storage; this bounded exhaustive profile does not implement the official-scale linear-time construction.",
+    "error_results": "Malformed input returns -1. Null output or insufficient capacity returns -2 without writes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "oracle_method": "The oracle uses explicit value sets for connectedness. The certificate validator checks strong-interval membership, direct Hasse parents, complete child coverage, and linear/prime labels without requiring the port's canonical node order.",
+  "cases": [
+    {"id":"single-element","input_values":[1,0],"input_length":2,"output_capacity":40,"expected_result":40,"expected_output_hex":"0100000000000000ffffffffffffffff000000000000000000000000000000000000000000000000"},
+    {"id":"maximum-size-increasing-linear-root","input_values":[48,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47],"input_length":49,"output_capacity":3048,"expected_result":1576},
+    {"id":"prime-root-with-four-leaves","input_values":[4,1,3,0,2],"input_length":5,"output_capacity":3048,"expected_result":168},
+    {"id":"invalid-n-zero","input_values":[0],"input_length":1,"output_capacity":3048,"expected_result":-1,"expected_output_hex":""},
+    {"id":"duplicate-value","input_values":[3,0,1,1],"input_length":4,"output_capacity":3048,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[1,0],"input_length":2,"output_capacity":39,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,0],"input_length":2,"output_capacity":40,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":3048,"expected_result":-1,"expected_output_hex":""}
+  ],
+  "profile_inputs": [
+    {"id":"increasing-linear-root","input_values":[8,0,1,2,3,4,5,6,7]},
+    {"id":"decreasing-linear-root","input_values":[8,7,6,5,4,3,2,1,0]},
+    {"id":"prime-root","input_values":[4,1,3,0,2]},
+    {"id":"nested-sum-and-prime","input_values":[8,0,2,1,5,7,6,3,4]},
+    {"id":"maximum-size-reverse","input_values":[48,47,46,45,44,43,42,41,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]}
+  ]
+}

@@ -1,0 +1,224 @@
+from std.ffi import c_size_t
+
+alias MOD = 998244353
+alias MAX_Q = 16
+alias CAP = 4096
+struct AffineNode:
+    sum: i64
+    mul: i64
+    add: i64
+    left: Int
+    right: Int
+
+def aff_norm(x: i64) -> i64:
+    return ((x % MOD) + MOD) % MOD
+
+def aff_clone(nodes: mutable view[AffineNode], used: mutable usize&, source: Int) -> Int:
+    if source < 0 or used >= CAP: return -1
+    copy: Int = used
+    used <- used + 1
+    nodes[copy].sum <- nodes[source].sum
+    nodes[copy].mul <- nodes[source].mul
+    nodes[copy].add <- nodes[source].add
+    nodes[copy].left <- nodes[source].left
+    nodes[copy].right <- nodes[source].right
+    return copy
+
+def aff_make(nodes: mutable view[AffineNode], used: mutable usize&, value: i64,
+             left: Int, right: Int) -> Int:
+    if used >= CAP: return -1
+    copy: Int = used
+    used <- used + 1
+    nodes[copy].sum <- value
+    nodes[copy].mul <- 1
+    nodes[copy].add <- 0
+    nodes[copy].left <- left
+    nodes[copy].right <- right
+    return copy
+
+def aff_apply(nodes: mutable view[AffineNode], node: Int, m0: i64, b0: i64, length: Int) -> void:
+    m: i64 = aff_norm(m0)
+    b: i64 = aff_norm(b0)
+    nodes[node].sum <- aff_norm(m * nodes[node].sum + b * length.i64())
+    nodes[node].mul <- aff_norm(m * nodes[node].mul)
+    nodes[node].add <- aff_norm(m * nodes[node].add + b)
+
+def aff_push(nodes: mutable view[AffineNode], used: mutable usize&, node: Int,
+             left: Int, right: Int) -> Bool:
+    m: i64 = nodes[node].mul
+    b: i64 = nodes[node].add
+    if m == 1 and b == 0: return True
+    if left < right:
+        middle: Int = left + (right - left) / 2
+        lc: Int = aff_clone(nodes, used, nodes[node].left)
+        rc: Int = aff_clone(nodes, used, nodes[node].right)
+        if lc < 0 or rc < 0: return False
+        nodes[node].left <- lc
+        nodes[node].right <- rc
+        aff_apply(nodes, lc, m, b, middle-left+1)
+        aff_apply(nodes, rc, m, b, right-middle)
+    nodes[node].mul <- 1
+    nodes[node].add <- 0
+    return True
+
+def aff_build(nodes: mutable view[AffineNode], used: mutable usize&,
+              input: i64&, offset: Int, left: Int, right: Int) -> Int:
+    if left == right: return aff_make(nodes, used, input[offset+left], -1, -1)
+    middle: Int = left + (right-left)/2
+    x: Int = aff_build(nodes, used, input, offset, left, middle)
+    y: Int = aff_build(nodes, used, input, offset, middle+1, right)
+    if x < 0 or y < 0: return -1
+    return aff_make(nodes, used, aff_norm(nodes[x].sum+nodes[y].sum), x, y)
+
+def aff_update(nodes: mutable view[AffineNode], used: mutable usize&, root: Int,
+               left: Int, right: Int, ql: Int, qr: Int, m: i64, b: i64) -> Int:
+    if ql <= left and right <= qr:
+        x: Int = aff_clone(nodes, used, root)
+        if x < 0: return -1
+        aff_apply(nodes, x, m, b, right-left+1)
+        return x
+    x: Int = aff_clone(nodes, used, root)
+    if x < 0 or not aff_push(nodes, used, x, left, right): return -1
+    middle: Int = left + (right-left)/2
+    if ql <= middle:
+        y: Int = aff_update(nodes, used, nodes[x].left, left, middle, ql, qr, m, b)
+        if y < 0: return -1
+        nodes[x].left <- y
+    if qr > middle:
+        y: Int = aff_update(nodes, used, nodes[x].right, middle+1, right, ql, qr, m, b)
+        if y < 0: return -1
+        nodes[x].right <- y
+    nodes[x].sum <- aff_norm(nodes[nodes[x].left].sum + nodes[nodes[x].right].sum)
+    return x
+
+def aff_logical_child(nodes: mutable view[AffineNode], used: mutable usize&, source: Int,
+                      right_child: Bool, left: Int, right: Int) -> Int:
+    child: Int = nodes[source].left
+    if right_child: child = nodes[source].right
+    copy: Int = aff_clone(nodes, used, child)
+    if copy < 0: return -1
+    m: i64 = nodes[source].mul
+    b: i64 = nodes[source].add
+    if m != 1 or b != 0:
+        middle: Int = left + (right-left)/2
+        child_length: Int = right-middle
+        if not right_child: child_length = middle-left+1
+        aff_apply(nodes, copy, m, b, child_length)
+    return copy
+
+def aff_copy(nodes: mutable view[AffineNode], used: mutable usize&, dst: Int, src: Int,
+             left: Int, right: Int, ql: Int, qr: Int) -> Int:
+    if ql <= left and right <= qr: return src
+    x: Int = aff_clone(nodes, used, dst)
+    if x < 0 or not aff_push(nodes, used, x, left, right): return -1
+    middle: Int = left + (right-left)/2
+    if ql <= middle:
+        s: Int = aff_logical_child(nodes, used, src, False, left, right)
+        if s < 0: return -1
+        y: Int = aff_copy(nodes, used, nodes[x].left, s, left, middle, ql, qr)
+        if y < 0: return -1
+        nodes[x].left <- y
+    if qr > middle:
+        s: Int = aff_logical_child(nodes, used, src, True, left, right)
+        if s < 0: return -1
+        y: Int = aff_copy(nodes, used, nodes[x].right, s, middle+1, right, ql, qr)
+        if y < 0: return -1
+        nodes[x].right <- y
+    nodes[x].sum <- aff_norm(nodes[nodes[x].left].sum + nodes[nodes[x].right].sum)
+    return x
+
+def aff_query(nodes: view[AffineNode], node: Int, left: Int, right: Int,
+              ql: Int, qr: Int, cm: i64, ca: i64) -> i64:
+    if ql <= left and right <= qr:
+        return aff_norm(cm*nodes[node].sum + ca*(right-left+1).i64())
+    middle: Int = left + (right-left)/2
+    nm: i64 = aff_norm(cm*nodes[node].mul)
+    na: i64 = aff_norm(cm*nodes[node].add+ca)
+    var z: i64 = 0
+    if ql <= middle: z = aff_query(nodes, nodes[node].left, left, middle, ql, qr, nm, na)
+    if qr > middle: z = aff_norm(z + aff_query(nodes, nodes[node].right, middle+1, right, ql, qr, nm, na))
+    return z
+
+def aff_put(output: mutable view[u8], offset: Int, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in range(8):
+        output[offset+byte] <- ((bits >> (8*byte)) & 255).u8()
+
+def persistent_range_affine_range_sum(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 115: return -1
+    n0: i64 = input[0]
+    q0: i64 = input[1]
+    if n0 < 1 or n0 > 16 or q0 < 1 or q0 > 16: return -1
+    n: Int = n0.int(); q: Int = q0.int(); off: mutable Int = 2+n
+    if length < off.usize(): return -1
+    for i in range(n):
+        if input[2+i] < 0 or input[2+i] >= MOD: return -1
+    kind: mutable i64[MAX_Q] = zeroed
+    refs: mutable i64[MAX_Q] = zeroed
+    srcs: mutable i64[MAX_Q] = zeroed
+    starts: mutable i64[MAX_Q] = zeroed
+    ends: mutable i64[MAX_Q] = zeroed
+    mults: mutable i64[MAX_Q] = zeroed
+    adds: mutable i64[MAX_Q] = zeroed
+    for i in range(MAX_Q): mults[i] <- 1
+    for i in range(q):
+        if off >= length.int(): return -1
+        op: i64 = input[off]
+        width: Int = 0
+        if op == 0: width = 6
+        elif op == 1: width = 5
+        elif op == 2: width = 4
+        else: return -1
+        if length.int()-off < width: return -1
+        k: i64 = input[off+1]
+        if k < -1 or k >= i.i64(): return -1
+        if k >= 0 and kind[k.int()] != 0 and kind[k.int()] != 1: return -1
+        kind[i] <- op; refs[i] <- k
+        if op == 0 or op == 2:
+            starts[i] <- input[off+2]; ends[i] <- input[off+3]
+            if starts[i] < 0 or ends[i] <= starts[i] or ends[i] > n0: return -1
+        if op == 0:
+            mults[i] <- input[off+4]; adds[i] <- input[off+5]
+            if mults[i] < 1 or mults[i] >= MOD or adds[i] < 0 or adds[i] >= MOD: return -1
+        if op == 1:
+            srcs[i] <- input[off+2]; starts[i] <- input[off+3]; ends[i] <- input[off+4]
+            s: i64 = srcs[i]
+            if s < -1 or s >= i.i64(): return -1
+            if s >= 0 and kind[s.int()] != 0 and kind[s.int()] != 1: return -1
+            if starts[i] < 0 or ends[i] <= starts[i] or ends[i] > n0: return -1
+        off <- off + width
+    if off != length.int(): return -1
+    nodes: mutable AffineNode[CAP] = zeroed
+    used: mutable usize = 0
+    initial: Int = aff_build(nodes[0:CAP], used, input, 2, 0, n-1)
+    if initial < 0: return -1
+    roots: mutable Int[MAX_Q] = zeroed
+    answers: mutable i64[MAX_Q] = zeroed
+    answer_count: mutable Int = 0
+    for i in range(q):
+        base: Int = initial
+        if refs[i] >= 0: base = roots[refs[i].int()]
+        if kind[i] == 0:
+            roots[i] <- aff_update(nodes[0:CAP], used, base, 0, n-1,
+                starts[i].int(), ends[i].int()-1, mults[i], adds[i])
+            if roots[i] < 0: return -1
+        elif kind[i] == 1:
+            source: Int = initial
+            if srcs[i] >= 0: source = roots[srcs[i].int()]
+            roots[i] <- aff_copy(nodes[0:CAP], used, base, source, 0, n-1,
+                starts[i].int(), ends[i].int()-1)
+            if roots[i] < 0: return -1
+        else:
+            answers[answer_count] <- aff_query(nodes[0:CAP], base, 0, n-1,
+                starts[i].int(), ends[i].int()-1, 1, 0)
+            answer_count <- answer_count + 1
+    required: usize = 8*answer_count.usize()
+    if output.is_null() or capacity < required: return -2
+    for i in range(answer_count): aff_put(output[0:required], 8*i, answers[i])
+    return required.i64()
+
+@export("persistent_range_affine_range_sum")
+def persistent_range_affine_range_sum_abi(input: i64&, length: c_size_t,
+    output: mutable u8&, capacity: c_size_t) -> i64:
+    return persistent_range_affine_range_sum(input, length.usize(), output, capacity.usize())

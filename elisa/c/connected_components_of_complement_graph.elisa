@@ -1,0 +1,107 @@
+const MAX_N: usize = 64
+const MAX_M: usize = MAX_N * (MAX_N - 1) / 2
+const MAX_INPUT_VALUES: usize = 2 + 2 * MAX_M
+const MAX_OUTPUT_VALUES: usize = 1 + 2 * MAX_N
+
+def ccocg_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def connected_components_of_complement_graph_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or m_value < 0: return -1
+    if m_value > n_value * (n_value - 1) / 2: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + 2 * m: return -1
+
+    graph: mutable u64[MAX_N] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        left_value: i64 = input[2 + 2 * edge]
+        right_value: i64 = input[3 + 2 * edge]
+        if left_value < 0 or left_value >= n_value or right_value < 0 or
+            right_value >= n_value or left_value == right_value: return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        bit: u64 = 1.u64() << right
+        if (graph[left] & bit) != 0: return -1
+        graph[left] <- graph[left] | bit
+        graph[right] <- graph[right] | (1.u64() << left)
+        edge <- edge + 1
+
+    remaining: mutable usize[MAX_N] = zeroed
+    queue: mutable usize[MAX_N] = zeroed
+    label: mutable i64[MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        remaining[vertex] <- vertex
+        label[vertex] <- -1
+        vertex <- vertex + 1
+    remaining_count: mutable usize = n
+    component_count: mutable usize = 0
+    while remaining_count > 0:
+        remaining_count <- remaining_count - 1
+        root: usize = remaining[remaining_count]
+        label[root] <- component_count.i64()
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        queue[0] <- root
+        while head < tail:
+            current: usize = queue[head]
+            head <- head + 1
+            position: mutable usize = 0
+            while position < remaining_count:
+                candidate: usize = remaining[position]
+                if ((graph[current] >> candidate) & 1) != 0:
+                    position <- position + 1
+                else:
+                    remaining_count <- remaining_count - 1
+                    remaining[position] <- remaining[remaining_count]
+                    label[candidate] <- component_count.i64()
+                    queue[tail] <- candidate
+                    tail <- tail + 1
+        component_count <- component_count + 1
+
+    staged: mutable i64[MAX_OUTPUT_VALUES] = zeroed
+    used: mutable usize = 0
+    staged[used] <- component_count.i64()
+    used <- used + 1
+    emitted: mutable bool[MAX_N] = zeroed
+    first: mutable usize = 0
+    while first < n:
+        component: usize = label[first].usize()
+        if not emitted[component]:
+            emitted[component] <- true
+            component_size: mutable usize = 0
+            vertex <- 0
+            while vertex < n:
+                if label[vertex] == component.i64(): component_size <- component_size + 1
+                vertex <- vertex + 1
+            staged[used] <- component_size.i64()
+            used <- used + 1
+            vertex <- 0
+            while vertex < n:
+                if label[vertex] == component.i64():
+                    staged[used] <- vertex.i64()
+                    used <- used + 1
+                vertex <- vertex + 1
+        first <- first + 1
+
+    required: usize = 8 * used
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    used <- 0
+    while used < (required / 8):
+        ccocg_store_i64_le(staged[used], output_view, 8 * used)
+        used <- used + 1
+    required.i64()
+
+export fn connected_components_of_complement_graph(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = connected_components_of_complement_graph_impl

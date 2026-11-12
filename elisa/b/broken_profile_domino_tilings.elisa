@@ -1,0 +1,40 @@
+const BPD_MAX_STATES: usize = 256
+const BPD_MOD: i64 = 998244353
+
+export fn broken_profile_domino_tilings(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 2: return -1
+    h0: i64 = input[0]
+    w0: i64 = input[1]
+    if h0 < 1 or h0 > 64 or w0 < 1 or w0 > 64 or (if h0 < w0: h0 else: w0) > 8 or h0 * w0 > 512: return -1
+    height: usize = (if h0 > w0: h0 else: w0).usize()
+    width: usize = (if h0 < w0: h0 else: w0).usize()
+    states: usize = 1 << width
+    full: usize = states - 1
+    dp: mutable i64[256] = zeroed
+    next: mutable i64[256] = zeroed
+    dp[0] <- 1
+    row: mutable usize = 0
+    while row < height:
+        s: mutable usize = 0
+        while s < states: next[s] <- 0; s <- s + 1
+        incoming: mutable usize = 0
+        while incoming < states:
+            if dp[incoming] != 0:
+                outgoing: mutable usize = 0
+                while outgoing < states:
+                    if (incoming & outgoing) == 0 and (row + 1 < height or outgoing == 0):
+                        free: usize = full & ~(incoming | outgoing)
+                        col: mutable usize = 0
+                        valid: mutable bool = true
+                        while col < width:
+                            if ((free >> col) & 1) != 0:
+                                if col + 1 >= width or ((free >> (col + 1)) & 1) == 0: valid <- false; break
+                                col <- col + 2
+                            else: col <- col + 1
+                        if valid: next[outgoing] <- (next[outgoing] + dp[incoming]) % BPD_MOD
+                    outgoing <- outgoing + 1
+            incoming <- incoming + 1
+        s <- 0
+        while s < states: dp[s] <- next[s]; s <- s + 1
+        row <- row + 1
+    dp[0]

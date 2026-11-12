@@ -1,0 +1,88 @@
+extern trunc(value: f64) -> f64
+extern fabs(value: f64) -> f64
+
+const NPB_SP_MAX_N: usize = 16
+
+def npb_sp_solve_bands(lower2: view[f64], lower1: view[f64], diagonal: view[f64],
+        upper1: view[f64], upper2: view[f64], rhs: view[f64],
+        solution: mutable view[f64], n: usize) -> void:
+    lo1: mutable f64[NPB_SP_MAX_N] = zeroed
+    diag: mutable f64[NPB_SP_MAX_N] = zeroed
+    up1: mutable f64[NPB_SP_MAX_N] = zeroed
+    up2: mutable f64[NPB_SP_MAX_N] = zeroed
+    work_rhs: mutable f64[NPB_SP_MAX_N] = zeroed
+    for row in 0..<n:
+        lo1[row] <- lower1[row]
+        diag[row] <- diagonal[row]
+        up1[row] <- upper1[row]
+        up2[row] <- upper2[row]
+        work_rhs[row] <- rhs[row]
+    for pivot_row in 0..<n:
+        pivot: f64 = diag[pivot_row]
+        if pivot_row + 1 < n:
+            row: usize = pivot_row + 1
+            factor: f64 = lo1[row] / pivot
+            diag[row] <- diag[row] - factor * up1[pivot_row]
+            up1[row] <- up1[row] - factor * up2[pivot_row]
+            work_rhs[row] <- work_rhs[row] - factor * work_rhs[pivot_row]
+        if pivot_row + 2 < n:
+            row: usize = pivot_row + 2
+            factor: f64 = lower2[row] / pivot
+            lo1[row] <- lo1[row] - factor * up1[pivot_row]
+            diag[row] <- diag[row] - factor * up2[pivot_row]
+            work_rhs[row] <- work_rhs[row] - factor * work_rhs[pivot_row]
+    back: mutable usize = n
+    while back > 0:
+        back <- back - 1
+        value: mutable f64 = work_rhs[back]
+        if back + 1 < n: value <- value - up1[back] * solution[back + 1]
+        if back + 2 < n: value <- value - up2[back] * solution[back + 2]
+        solution[back] <- value / diag[back]
+
+def npb_sp_pentadiagonal_line_solve(input: f64&, length: usize,
+        output: mutable f64&, capacity: usize) -> i64 @export("npb_sp_pentadiagonal_line_solve"):
+    if input.is_null() or length < 31 or length > 97: return -1
+    n_value: f64 = input[0]
+    if n_value != n_value or trunc(n_value) != n_value or n_value < 5.0 or n_value > 16.0: return -1
+    n: usize = n_value.usize()
+    if length != 1 + 6 * n: return -1
+    input_view: view[f64] = input[0:length]
+    lower2: view[f64] = input_view[1:1+n]
+    lower1: view[f64] = input_view[1+n:1+2*n]
+    diagonal: view[f64] = input_view[1+2*n:1+3*n]
+    upper1: view[f64] = input_view[1+3*n:1+4*n]
+    upper2: view[f64] = input_view[1+4*n:1+5*n]
+    rhs: view[f64] = input_view[1+5*n:1+6*n]
+    if lower2[0] != 0.0 or lower2[1] != 0.0 or lower1[0] != 0.0 or
+            upper1[n-1] != 0.0 or upper2[n-2] != 0.0 or upper2[n-1] != 0.0: return -1
+    for row in 0..<n:
+        band2: f64 = lower2[row]
+        band1: f64 = lower1[row]
+        bandp1: f64 = upper1[row]
+        bandp2: f64 = upper2[row]
+        if band2 != band2 or band1 != band1 or bandp1 != bandp1 or bandp2 != bandp2: return -1
+        radius: f64 = fabs(band2) + fabs(band1) + fabs(bandp1) + fabs(bandp2)
+        if fabs(band2) > 2.0 or fabs(band1) > 2.0 or fabs(bandp1) > 2.0 or fabs(bandp2) > 2.0 or
+                diagonal[row] != diagonal[row] or diagonal[row] < 5.0 or diagonal[row] > 16.0 or
+                rhs[row] != rhs[row] or rhs[row] < -64.0 or rhs[row] > 64.0 or
+                diagonal[row] - radius < 0.25: return -1
+    if output.is_null() or capacity < n: return -2
+    lo2_copy: mutable f64[NPB_SP_MAX_N] = zeroed
+    lo1_copy: mutable f64[NPB_SP_MAX_N] = zeroed
+    diag_copy: mutable f64[NPB_SP_MAX_N] = zeroed
+    up1_copy: mutable f64[NPB_SP_MAX_N] = zeroed
+    up2_copy: mutable f64[NPB_SP_MAX_N] = zeroed
+    rhs_copy: mutable f64[NPB_SP_MAX_N] = zeroed
+    solution: mutable f64[NPB_SP_MAX_N] = zeroed
+    for row in 0..<n:
+        lo2_copy[row] <- lower2[row]
+        lo1_copy[row] <- lower1[row]
+        diag_copy[row] <- diagonal[row]
+        up1_copy[row] <- upper1[row]
+        up2_copy[row] <- upper2[row]
+        rhs_copy[row] <- rhs[row]
+    npb_sp_solve_bands(lo2_copy[0:n], lo1_copy[0:n], diag_copy[0:n],
+        up1_copy[0:n], up2_copy[0:n], rhs_copy[0:n], solution[0:n], n)
+    output_view: mutable view[f64] = output[0:n]
+    for row in 0..<n: output_view[row] <- solution[row]
+    n.i64()

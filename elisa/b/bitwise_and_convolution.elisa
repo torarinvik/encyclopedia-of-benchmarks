@@ -1,0 +1,48 @@
+# Superset zeta transform, pointwise multiplication, and inverse Möbius transform.
+const MAX_N: usize = 8
+const MAX_SIZE: usize = 1 << MAX_N
+const MAX_INPUT_LENGTH: usize = 1 + 2 * MAX_SIZE
+const MODULUS: i64 = 998244353
+
+def bitwise_and_convolution_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def bitwise_and_convolution(input: i64&, input_length: usize,
+                            output: mutable u8&, output_capacity: usize) -> i64
+        @export("bitwise_and_convolution"):
+    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    size: usize = 1 << n
+    if input_length != 1 + 2 * size: return -1
+    for index in 0..2 * size:
+        value: i64 = input[1 + index]
+        if value < 0 or value >= MODULUS: return -1
+    output_bytes: usize = 8 * size
+    if output.is_null() or output_capacity < output_bytes: return -2
+
+    a: mutable i64[MAX_SIZE] = zeroed
+    b: mutable i64[MAX_SIZE] = zeroed
+    for index in 0..size:
+        a[index] <- input[1 + index]
+        b[index] <- input[1 + size + index]
+    for bit in 0..n:
+        bit_mask: usize = 1 << bit
+        for mask in 0..size:
+            if (mask & bit_mask) == 0:
+                a[mask] <- (a[mask] + a[mask | bit_mask]) % MODULUS
+                b[mask] <- (b[mask] + b[mask | bit_mask]) % MODULUS
+    for mask in 0..size: a[mask] <- (a[mask] * b[mask]) % MODULUS
+    for bit in 0..n:
+        bit_mask: usize = 1 << bit
+        for mask in 0..size:
+            if (mask & bit_mask) == 0:
+                a[mask] <- a[mask] - a[mask | bit_mask]
+                if a[mask] < 0: a[mask] <- a[mask] + MODULUS
+    for mask in 0..size:
+        bitwise_and_convolution_store_i64(output, 8 * mask, a[mask])
+    output_bytes.i64()

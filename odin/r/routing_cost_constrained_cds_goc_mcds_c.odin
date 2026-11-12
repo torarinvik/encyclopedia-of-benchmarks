@@ -65,7 +65,7 @@ routing_cost_constrained_cds_goc_mcds_c :: proc "c" (input: [^]i64, length: c.si
 			path: [MAX_N]int; path_length,current := 0,target
 			for current != source { path[path_length] = current; path_length += 1; current = parent[current] }
 			path[path_length] = source; path_length += 1
-			if path_length <= 4 { for i := 1; i+1 < path_length; i += 1 { connectors |= u64(1)<<path[i] } }
+			if path_length <= 5 { for i := 1; i+1 < path_length; i += 1 { connectors |= u64(1)<<path[i] } }
 		}
 	}
 	if output == nil || capacity < 16 do return -2

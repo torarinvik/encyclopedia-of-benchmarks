@@ -12,10 +12,11 @@ Output is `[status, vertex_count, trail_vertices...]` encoded as little-endian s
 | C3 | [`c3/e/eulerian_trail_undirected_simple.c3`](../../../c3/e/eulerian_trail_undirected_simple.c3) |
 | C++ | [`cpp/e/eulerian_trail_undirected_simple.cpp`](../../../cpp/e/eulerian_trail_undirected_simple.cpp) |
 | Elisa | [`elisa/e/eulerian_trail_undirected_simple.elisa`](../../../elisa/e/eulerian_trail_undirected_simple.elisa) |
+| Mojo | [`mojo/e/eulerian_trail_undirected_simple.mojo`](../../../mojo/e/eulerian_trail_undirected_simple.mojo) |
 | Nim | [`nim/e/eulerian_trail_undirected_simple.nim`](../../../nim/e/eulerian_trail_undirected_simple.nim) |
 | Odin | [`odin/e/eulerian_trail_undirected_simple.odin`](../../../odin/e/eulerian_trail_undirected_simple.odin) |
 | Rust | [`rust/e/eulerian_trail_undirected_simple.rs`](../../../rust/e/eulerian_trail_undirected_simple.rs) |
 | V | [`v/e/eulerian_trail_undirected_simple.v`](../../../v/e/eulerian_trail_undirected_simple.v) |
 | Zig | [`zig/e/eulerian_trail_undirected_simple.zig`](../../../zig/e/eulerian_trail_undirected_simple.zig) |
 
-Pinned source: [TheAlgorithms/Python `eulerian_path_and_circuit_for_undirected_graph.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/eulerian_path_and_circuit_for_undirected_graph.py). The source's printed wrapper is excluded; graph construction and traversal semantics are retained. See [`workload.json`](workload.json) for representative cases.
+Pinned sources: [TheAlgorithms/Python `eulerian_path_and_circuit_for_undirected_graph.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/eulerian_path_and_circuit_for_undirected_graph.py) and [TheAlgorithms/Java `HierholzerAlgorithm.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/graph/HierholzerAlgorithm.java). Both use Hierholzer traversal. The Java source is circuit-only and supports multigraph edges; this canonical contract keeps the Python profile's simple-graph validation, open-trail behavior, start-node rules, and full-route output. Java-specific parallel-edge/self-loop inputs and its hashed circuit record are not added as a separate algorithm contract. The Python source's printed wrapper is excluded. See [`workload.json`](workload.json) for representative cases.

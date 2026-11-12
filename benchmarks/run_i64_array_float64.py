@@ -27,6 +27,18 @@ from linpack_lu_solve_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as LINPACK_LU_SOLVE_MAX_PARSEABLE_INPUT_LENGTH,
     expected_result as linpack_lu_solve_expected,
 )
+from npb_bt_5x5_block_tridiagonal_oracle import (
+    INVALID_RESULT as NPB_BT_BLOCK_TRIDIAGONAL_INVALID_RESULT,
+    MAX_INPUT_LENGTH as NPB_BT_BLOCK_TRIDIAGONAL_MAX_INPUT_LENGTH,
+    expected_result as npb_bt_5x5_block_tridiagonal_expected,
+)
+from n.npb_bt_5x5_block_tridiagonal.verify_workload import verify as verify_npb_bt_5x5_block_tridiagonal_package
+from npb_ua_mesh_adaptation_oracle import (
+    INVALID_RESULT as NPB_UA_MESH_ADAPTATION_INVALID_RESULT,
+    MAX_INPUT_LENGTH as NPB_UA_MESH_ADAPTATION_MAX_INPUT_LENGTH,
+    expected_result as npb_ua_mesh_adaptation_expected,
+)
+from n.npb_ua_mesh_adaptation.verify_workload import verify as verify_npb_ua_mesh_adaptation_package
 from nbench_fourier_coefficients_oracle import (
     INVALID_RESULT as NBENCH_FOURIER_COEFFICIENTS_INVALID_RESULT,
     MAX_PARSEABLE_INPUT_LENGTH as NBENCH_FOURIER_COEFFICIENTS_MAX_PARSEABLE_INPUT_LENGTH,
@@ -3072,6 +3084,74 @@ def validate_linpack_lu_solve_workload(workload: dict) -> None:
             raise ValueError(f"linpack_lu_solve fixture differs from its oracle: {case.get('id')}")
 
 
+def validate_npb_bt_5x5_block_tridiagonal_workload(workload: dict) -> None:
+    package_path = ROOT / "benchmarks/n/npb_bt_5x5_block_tridiagonal/workload.json"
+    package_workload = json.loads(package_path.read_text(encoding="utf-8"))
+    if workload != package_workload:
+        raise ValueError("npb_bt_5x5_block_tridiagonal workload differs from its package file")
+    if (workload.get("algorithm") != "npb_bt_5x5_block_tridiagonal"
+            or workload.get("function_symbol") != "npb_bt_5x5_block_tridiagonal"
+            or workload.get("abi") != "i64_array_float64"
+            or workload.get("input", {}).get("maximum_parseable_length")
+            != NPB_BT_BLOCK_TRIDIAGONAL_MAX_INPUT_LENGTH
+            or workload.get("output", {}).get("invalid_result")
+            != NPB_BT_BLOCK_TRIDIAGONAL_INVALID_RESULT
+            or workload.get("measurement", {}).get("comparison_model")
+            != "i64_array_float64_call"):
+        raise ValueError("npb_bt_5x5_block_tridiagonal metadata differs from its bounded ABI contract")
+    package_errors = verify_npb_bt_5x5_block_tridiagonal_package()
+    if package_errors:
+        raise ValueError("npb_bt_5x5_block_tridiagonal package check failed: "
+                         + "; ".join(package_errors))
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list) or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(f"npb_bt_5x5_block_tridiagonal fixture framing is invalid: {case.get('id')}")
+        expected = npb_bt_5x5_block_tridiagonal_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        if case.get("expected_result") != expected:
+            raise ValueError(f"npb_bt_5x5_block_tridiagonal fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_npb_ua_mesh_adaptation_workload(workload: dict) -> None:
+    package_path = ROOT / "benchmarks/n/npb_ua_mesh_adaptation/workload.json"
+    package_workload = json.loads(package_path.read_text(encoding="utf-8"))
+    if workload != package_workload:
+        raise ValueError("npb_ua_mesh_adaptation workload differs from its package file")
+    if (workload.get("algorithm") != "npb_ua_mesh_adaptation"
+            or workload.get("function_symbol") != "npb_ua_mesh_adaptation"
+            or workload.get("abi") != "i64_array_float64"
+            or workload.get("input", {}).get("maximum_parseable_length")
+            != NPB_UA_MESH_ADAPTATION_MAX_INPUT_LENGTH
+            or workload.get("output", {}).get("invalid_result")
+            != NPB_UA_MESH_ADAPTATION_INVALID_RESULT
+            or workload.get("measurement", {}).get("comparison_model")
+            != "i64_array_float64_call"):
+        raise ValueError("npb_ua_mesh_adaptation metadata differs from its bounded ABI contract")
+    package_errors = verify_npb_ua_mesh_adaptation_package()
+    if package_errors:
+        raise ValueError("npb_ua_mesh_adaptation package check failed: "
+                         + "; ".join(package_errors))
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list) or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(f"npb_ua_mesh_adaptation fixture framing is invalid: {case.get('id')}")
+        expected = npb_ua_mesh_adaptation_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        if case.get("expected_result") != expected:
+            raise ValueError(f"npb_ua_mesh_adaptation fixture differs from its oracle: {case.get('id')}")
+
+
 def validate_atax_workload(workload: dict) -> None:
     """Pin the bounded PolyBench ATAX source contract and its fixtures."""
     expected_ids = {
@@ -3840,6 +3920,10 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "ansibench_whetstone" else
                         LINPACK_LU_SOLVE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "linpack_lu_solve" else
+                        NPB_BT_BLOCK_TRIDIAGONAL_MAX_INPUT_LENGTH
+                        if algorithm == "npb_bt_5x5_block_tridiagonal" else
+                        NPB_UA_MESH_ADAPTATION_MAX_INPUT_LENGTH
+                        if algorithm == "npb_ua_mesh_adaptation" else
                         MAX_MISC_FLOPS_INPUT_LENGTH if algorithm == "misc_flops" else
                         2 if algorithm == "freebench_fbench" else
                         DOE_RSBENCH_DOPPLER_XS_MAX_INPUT_LENGTH
@@ -3976,6 +4060,18 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
             input_length=case.get("input_length", len(values)))
         if expected != source_result:
             raise ValueError("linpack_lu_solve expected_result must match the rolled LU solve oracle")
+    if algorithm == "npb_bt_5x5_block_tridiagonal":
+        source_result = npb_bt_5x5_block_tridiagonal_expected(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)))
+        if expected != source_result:
+            raise ValueError("npb_bt_5x5_block_tridiagonal expected_result must match the block-Thomas oracle")
+    if algorithm == "npb_ua_mesh_adaptation":
+        source_result = npb_ua_mesh_adaptation_expected(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)))
+        if expected != source_result:
+            raise ValueError("npb_ua_mesh_adaptation expected_result must match the bounded mesh-adaptation oracle")
     if algorithm == "kmeans_raw_r":
         source_result = kmeans_raw_r_expected(values)
         if source_result == KMEANS_RAW_R_INVALID_RESULT:
@@ -6386,6 +6482,10 @@ def main() -> int:
         validate_ansibench_whetstone_workload(workload)
     elif algorithm == "linpack_lu_solve":
         validate_linpack_lu_solve_workload(workload)
+    elif algorithm == "npb_bt_5x5_block_tridiagonal":
+        validate_npb_bt_5x5_block_tridiagonal_workload(workload)
+    elif algorithm == "npb_ua_mesh_adaptation":
+        validate_npb_ua_mesh_adaptation_workload(workload)
     elif algorithm == "atax":
         validate_atax_workload(workload)
     elif algorithm == "polybench_symm":
@@ -6446,6 +6546,8 @@ def main() -> int:
                 or algorithm == "nbench_fourier_coefficients" and input_length == 0
                 or algorithm == "ansibench_whetstone" and input_length == 1
                 or algorithm == "linpack_lu_solve" and input_length == 1
+                or algorithm == "npb_bt_5x5_block_tridiagonal" and input_length == 0
+                or algorithm == "npb_ua_mesh_adaptation" and input_length == 0
                 or algorithm == "doe_rsbench_doppler_xs" and input_length == 0
                 or algorithm in {"doe_simplemoc_quadratic_attenuation",
                                  "doe_xsbench_unionized_macro_xs",

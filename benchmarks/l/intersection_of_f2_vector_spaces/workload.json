@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-intersection-of-f2-vector-spaces-bounded-i64-array-bytes-output-v1",
+  "algorithm": "intersection_of_f2_vector_spaces",
+  "function_symbol": "intersection_of_f2_vector_spaces",
+  "abi": "i64_array_bytes_output",
+  "description": "Return the canonical GF(2) basis of the intersection of two XOR-spanned vector spaces for each case.",
+  "source": {
+    "title": "Intersection of F2 Vector Spaces",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/linear_algebra/intersection_of_f2_vector_spaces/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/linear_algebra/intersection_of_f2_vector_spaces/info.toml",
+    "algorithm_attribution": "GF(2) quotient-space elimination with coefficient masks, followed by canonical RREF",
+    "implementation_status": "clean-room bounded vector-space intersection"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[T,(n,U[n],m,V[m])...]",
+    "case_count_range": [1, 4],
+    "n_range": [0, 8],
+    "m_range": [0, 8],
+    "vector_range": "0 <= vector <= 2^30-1",
+    "independence_constraint": "each listed U and V vector sequence is linearly independent over GF(2)",
+    "maximum_valid_input_length": 73,
+    "maximum_parseable_input_length": 74,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "for each input case, basis dimension followed by its canonical descending-pivot RREF vectors; signed 64-bit little-endian words",
+    "maximum_bytes": 288,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 288,
+    "meaning": "Maximum output-buffer capacity; elimination and coefficient arrays are separate."
+  },
+  "contract": {
+    "result": "a canonical basis for span(U) intersect span(V) for every test case",
+    "field": "GF(2), with vector addition represented by XOR",
+    "canonical_form": "rows have unique pivots at the highest set bit, pivots are processed from bit 29 down to bit 0, and each pivot bit is cleared from every other output row",
+    "official_case_count_range": [1, 100000],
+    "official_n_m_range": [0, 30],
+    "official_vector_range": "0 <= vector <= 2^30-1"
+  },
+  "certificate": {
+    "method": "enumerate both bounded spans, intersect their element sets, then canonicalize the intersection",
+    "independence": "canonical RREF rows have distinct pivots and are linearly independent"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "empty-spaces",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "output_capacity": 288,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "same-space-needs-rref-elimination",
+      "input_values": [1, 2, 3, 6, 2, 3, 6],
+      "input_length": 7,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000005000000000000000300000000000000"
+    },
+    {
+      "id": "one-dimensional-overlap",
+      "input_values": [1, 2, 1, 2, 2, 3, 4],
+      "input_length": 7,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000300000000000000"
+    },
+    {
+      "id": "multiple-cases-in-one-call",
+      "input_values": [2, 0, 0, 1, 1, 1, 1],
+      "input_length": 7,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "dependent-left-input-is-invalid",
+      "input_values": [1, 2, 1, 1, 1, 1],
+      "input_length": 6,
+      "output_capacity": 288,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [1, 2, 3, 6, 2, 3, 6],
+      "input_length": 7,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-buffer",
+      "input_values": [1, 1, 1, 1, 1],
+      "input_length": 5,
+      "output_capacity": 288,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

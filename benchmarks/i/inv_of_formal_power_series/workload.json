@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-fps-inverse-bounded-quadratic-v1",
+  "algorithm": "inv_of_formal_power_series",
+  "function_symbol": "inv_of_formal_power_series",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "polynomial/inv_of_formal_power_series/task.md",
+    "limits_path": "polynomial/inv_of_formal_power_series/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/polynomial/inv_of_formal_power_series/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/polynomial/inv_of_formal_power_series/info.toml",
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Mathematical operation and modulus only; local bound, ports, fixtures, and oracles are clean-room."
+  },
+  "oracle": "benchmarks/i/inv_of_formal_power_series/primary_oracle.py",
+  "independent_oracle": "benchmarks/i/inv_of_formal_power_series/independent_oracle.py",
+  "contract": {
+    "operation": "Given f(x)=sum(a_i*x^i) with a_0 nonzero, return g(x) modulo x^N such that f(x)*g(x) is congruent to 1 modulo x^N, over F_998244353.",
+    "input_layout": "[N, a_0, ..., a_(N-1)]",
+    "n_range": [1, 64],
+    "coefficient_range": [0, 998244352],
+    "constant_coefficient_condition": "a_0 != 0",
+    "algorithm": "Quadratic coefficient recurrence; O(N^2) modular multiply-accumulate terms.",
+    "modulus": 998244353,
+    "output_layout": "N little-endian signed 64-bit coefficients g_0 through g_(N-1).",
+    "error_precedence": "Malformed input returns -1 before output checks. Valid input with null output or insufficient capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, a_0, ..., a_(N-1)]",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 64,
+    "maximum_bytes": 512,
+    "success_result": "8*N bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Bounded array of 64 modular inverse coefficients."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"constant-one","input_values":[1,1],"input_length":2,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"constant-two","input_values":[1,2],"input_length":2,"expected_result":8,"expected_output_hex":"0100c01d00000000"},
+    {"id":"constant-minus-one","input_values":[1,998244352],"input_length":2,"expected_result":8,"expected_output_hex":"0000803b00000000"},
+    {"id":"linear-unit-series","input_values":[2,1,1],"input_length":3,"expected_result":16,"expected_output_hex":"01000000000000000000803b00000000"},
+    {"id":"three-term-geometric","input_values":[3,1,1,1],"input_length":4,"expected_result":24,"expected_output_hex":"01000000000000000000803b000000000000000000000000"},
+    {"id":"square-factor-reciprocal","input_values":[4,1,2,1,0],"input_length":5,"expected_result":32,"expected_output_hex":"0100000000000000ffff7f3b000000000300000000000000fdff7f3b00000000"},
+    {"id":"sparse-polynomial","input_values":[5,1,0,2,0,0],"input_length":6,"expected_result":40,"expected_output_hex":"01000000000000000000000000000000ffff7f3b0000000000000000000000000400000000000000"},
+    {"id":"alternating-series-eight-terms","input_values":[8,1,1,0,0,0,0,0,0],"input_length":9,"expected_result":64,"expected_output_hex":"01000000000000000000803b0000000001000000000000000000803b0000000001000000000000000000803b0000000001000000000000000000803b00000000"},
+    {"id":"zero-length-invalid","input_values":[0],"input_length":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-constant-term-invalid","input_values":[2,0,1],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coefficient-out-of-range","input_values":[1,998244353],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-input","input_values":[2,1],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra-input-word","input_values":[1,1,0],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,1,1],"input_length":3,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-buffer","input_values":[1,1],"input_length":2,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input-pointer","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

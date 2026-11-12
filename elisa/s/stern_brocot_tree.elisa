@@ -1,0 +1,240 @@
+const MAX_QUERIES: usize = 128
+const MAX_RUNS: usize = 64
+const MAX_INPUT_LENGTH: usize = 16384
+const MAX_OUTPUT_WORDS: usize = 32768
+const MAX_COMPONENT: i64 = 1000000000
+
+struct SbtRun:
+    direction: i64
+    count: i64
+
+struct SbtDecoded:
+    numerator: i64
+    denominator: i64
+    lower_num: i64
+    lower_den: i64
+    upper_num: i64
+    upper_den: i64
+
+def sbt_gcd(a_value: i64, b_value: i64) -> i64:
+    a: mutable i64 = a_value
+    b: mutable i64 = b_value
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def sbt_valid_fraction(numerator: i64, denominator: i64) -> bool:
+    numerator >= 1 and numerator <= MAX_COMPONENT and denominator >= 1 and
+        denominator <= MAX_COMPONENT and sbt_gcd(numerator, denominator) == 1
+
+def sbt_encode_path(numerator_value: i64, denominator_value: i64,
+    runs: mutable view[SbtRun]) -> i64:
+    numerator: mutable i64 = numerator_value
+    denominator: mutable i64 = denominator_value
+    run_count: mutable usize = 0
+    while numerator != denominator:
+        if run_count >= MAX_RUNS: return -1
+        if numerator < denominator:
+            count: i64 = (denominator - 1) / numerator
+            runs[run_count] <- SbtRun(direction=0, count=count)
+            denominator <- denominator - count * numerator
+        else:
+            count: i64 = (numerator - 1) / denominator
+            runs[run_count] <- SbtRun(direction=1, count=count)
+            numerator <- numerator - count * denominator
+        run_count <- run_count + 1
+    run_count.i64()
+
+def sbt_decode_path(runs: view[SbtRun], decoded: mutable SbtDecoded&) -> bool:
+    lower_num: mutable i64 = 0
+    lower_den: mutable i64 = 1
+    upper_num: mutable i64 = 1
+    upper_den: mutable i64 = 0
+    previous: mutable i64 = -1
+    index: mutable usize = 0
+    while index < runs.length:
+        direction: i64 = runs[index].direction
+        count: i64 = runs[index].count
+        if (direction != 0 and direction != 1) or count < 1 or count > MAX_COMPONENT or direction == previous:
+            return false
+        if direction == 0:
+            upper_num <- upper_num + count * lower_num
+            upper_den <- upper_den + count * lower_den
+            if upper_num > MAX_COMPONENT or upper_den > MAX_COMPONENT: return false
+        else:
+            lower_num <- lower_num + count * upper_num
+            lower_den <- lower_den + count * upper_den
+            if lower_num > MAX_COMPONENT or lower_den > MAX_COMPONENT: return false
+        previous <- direction
+        index <- index + 1
+    numerator: i64 = lower_num + upper_num
+    denominator: i64 = lower_den + upper_den
+    if not sbt_valid_fraction(numerator, denominator): return false
+    decoded.numerator <- numerator
+    decoded.denominator <- denominator
+    decoded.lower_num <- lower_num
+    decoded.lower_den <- lower_den
+    decoded.upper_num <- upper_num
+    decoded.upper_den <- upper_den
+    true
+
+def sbt_common_prefix(left: view[SbtRun], right: view[SbtRun], prefix: mutable view[SbtRun]) -> usize:
+    left_index: mutable usize = 0
+    right_index: mutable usize = 0
+    left_used: mutable i64 = 0
+    right_used: mutable i64 = 0
+    count: mutable usize = 0
+    while left_index < left.length and right_index < right.length and
+        left[left_index].direction == right[right_index].direction:
+        left_remaining: i64 = left[left_index].count - left_used
+        right_remaining: i64 = right[right_index].count - right_used
+        shared: i64 = if left_remaining < right_remaining: left_remaining else: right_remaining
+        prefix[count] <- SbtRun(direction=left[left_index].direction, count=shared)
+        count <- count + 1
+        left_used <- left_used + shared
+        right_used <- right_used + shared
+        if left_used == left[left_index].count:
+            left_index <- left_index + 1
+            left_used <- 0
+        if right_used == right[right_index].count:
+            right_index <- right_index + 1
+            right_used <- 0
+    count
+
+def sbt_append(words: mutable view[i64], word_count: mutable usize&, value: i64) -> bool:
+    if word_count >= MAX_OUTPUT_WORDS: return false
+    words[word_count] <- value
+    word_count <- word_count + 1
+    true
+
+def stern_brocot_tree_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    query_count: i64 = input[0]
+    if query_count < 1 or query_count > MAX_QUERIES.i64(): return -1
+    words: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    word_count: mutable usize = 0
+    position: mutable usize = 1
+    query: mutable i64 = 0
+    while query < query_count:
+        if position >= length: return -1
+        operation: i64 = input[position]
+        position <- position + 1
+        if operation == 0:
+            if position + 2 > length: return -1
+            numerator: i64 = input[position]
+            denominator: i64 = input[position + 1]
+            position <- position + 2
+            if not sbt_valid_fraction(numerator, denominator): return -1
+            runs: mutable SbtRun[MAX_RUNS] = zeroed
+            run_count: i64 = sbt_encode_path(numerator, denominator, runs[0:MAX_RUNS])
+            if run_count < 0 or not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, operation) or
+                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, run_count): return -1
+            index: mutable usize = 0
+            while index < run_count.usize():
+                if not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, runs[index].direction) or
+                    not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, runs[index].count): return -1
+                index <- index + 1
+        else if operation == 1:
+            if position >= length: return -1
+            raw_count: i64 = input[position]
+            position <- position + 1
+            if raw_count < 0 or raw_count > MAX_RUNS.i64() or position + raw_count.usize() * 2 > length: return -1
+            runs: mutable SbtRun[MAX_RUNS] = zeroed
+            index: mutable usize = 0
+            while index < raw_count.usize():
+                runs[index] <- SbtRun(direction=input[position], count=input[position + 1])
+                position <- position + 2
+                index <- index + 1
+            decoded: mutable SbtDecoded = zeroed
+            if not sbt_decode_path(runs[0:raw_count.usize()], decoded) or
+                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, operation) or
+                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.numerator) or
+                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.denominator): return -1
+        else if operation == 2:
+            if position + 4 > length: return -1
+            a: i64 = input[position]
+            b: i64 = input[position + 1]
+            c: i64 = input[position + 2]
+            d: i64 = input[position + 3]
+            position <- position + 4
+            if not sbt_valid_fraction(a, b) or not sbt_valid_fraction(c, d): return -1
+            left: mutable SbtRun[MAX_RUNS] = zeroed
+            right: mutable SbtRun[MAX_RUNS] = zeroed
+            prefix: mutable SbtRun[MAX_RUNS] = zeroed
+            left_count: i64 = sbt_encode_path(a, b, left[0:MAX_RUNS])
+            right_count: i64 = sbt_encode_path(c, d, right[0:MAX_RUNS])
+            if left_count < 0 or right_count < 0: return -1
+            prefix_count: usize = sbt_common_prefix(left[0:left_count.usize()], right[0:right_count.usize()], prefix[0:MAX_RUNS])
+            decoded: mutable SbtDecoded = zeroed
+            if not sbt_decode_path(prefix[0:prefix_count], decoded) or
+                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, operation) or
+                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.numerator) or
+                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.denominator): return -1
+        else if operation == 3:
+            if position + 3 > length: return -1
+            depth: i64 = input[position]
+            numerator: i64 = input[position + 1]
+            denominator: i64 = input[position + 2]
+            position <- position + 3
+            if depth < 1 or depth > MAX_COMPONENT or not sbt_valid_fraction(numerator, denominator): return -1
+            path: mutable SbtRun[MAX_RUNS] = zeroed
+            prefix: mutable SbtRun[MAX_RUNS] = zeroed
+            path_count: i64 = sbt_encode_path(numerator, denominator, path[0:MAX_RUNS])
+            if path_count < 0 or not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, operation): return -1
+            total_depth: mutable i64 = 0
+            index: mutable usize = 0
+            while index < path_count.usize():
+                total_depth <- total_depth + path[index].count
+                index <- index + 1
+            if depth > total_depth:
+                if not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, -1): return -1
+            else:
+                remaining: mutable i64 = depth
+                prefix_count: mutable usize = 0
+                index <- 0
+                while index < path_count.usize() and remaining > 0:
+                    take: i64 = if remaining < path[index].count: remaining else: path[index].count
+                    prefix[prefix_count] <- SbtRun(direction=path[index].direction, count=take)
+                    prefix_count <- prefix_count + 1
+                    remaining <- remaining - take
+                    index <- index + 1
+                decoded: mutable SbtDecoded = zeroed
+                if not sbt_decode_path(prefix[0:prefix_count], decoded) or
+                    not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.numerator) or
+                    not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.denominator): return -1
+        else if operation == 4:
+            if position + 2 > length: return -1
+            numerator: i64 = input[position]
+            denominator: i64 = input[position + 1]
+            position <- position + 2
+            if not sbt_valid_fraction(numerator, denominator): return -1
+            path: mutable SbtRun[MAX_RUNS] = zeroed
+            path_count: i64 = sbt_encode_path(numerator, denominator, path[0:MAX_RUNS])
+            if path_count < 0: return -1
+            decoded: mutable SbtDecoded = zeroed
+            if not sbt_decode_path(path[0:path_count.usize()], decoded) or
+                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, operation) or
+                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.lower_num) or
+                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.lower_den) or
+                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.upper_num) or
+                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.upper_den): return -1
+        else:
+            return -1
+        query <- query + 1
+    if position != length: return -1
+    byte_count: usize = word_count * 8
+    if output_capacity < byte_count or output.is_null(): return -2
+    index: mutable usize = 0
+    while index < word_count:
+        bits: u64 = words[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[index * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    query_count
+
+export fn stern_brocot_tree(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = stern_brocot_tree_impl

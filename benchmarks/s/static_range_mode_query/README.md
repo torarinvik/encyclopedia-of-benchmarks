@@ -46,6 +46,7 @@ and [`verify_workload.py`](verify_workload.py).
 | C3 | [`c3/s/static_range_mode_query.c3`](../../../c3/s/static_range_mode_query.c3) |
 | C++ | [`cpp/s/static_range_mode_query.cpp`](../../../cpp/s/static_range_mode_query.cpp) |
 | Elisa | [`elisa/s/static_range_mode_query.elisa`](../../../elisa/s/static_range_mode_query.elisa) |
+| Mojo | [`mojo/s/static_range_mode_query.mojo`](../../../mojo/s/static_range_mode_query.mojo) |
 | Nim | [`nim/s/static_range_mode_query.nim`](../../../nim/s/static_range_mode_query.nim) |
 | Odin | [`odin/s/static_range_mode_query.odin`](../../../odin/s/static_range_mode_query.odin) |
 | Rust | [`rust/s/static_range_mode_query.rs`](../../../rust/s/static_range_mode_query.rs) |

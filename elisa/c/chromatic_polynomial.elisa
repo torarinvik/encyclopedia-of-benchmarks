@@ -1,0 +1,108 @@
+const MAX_VERTICES: usize = 8
+const MAX_EDGES: usize = 16
+const MAX_INPUT_VALUES: usize = 2 + 2 * MAX_EDGES
+const MAX_OUTPUT_BYTES: usize = 8 * (MAX_VERTICES + 1)
+
+def chromatic_polynomial_recurse(adjacency: u64[MAX_VERTICES], n: usize,
+    result: mutable i64[MAX_VERTICES + 1]) -> void:
+    edge_u: mutable usize = n
+    edge_v: mutable usize = n
+    u: mutable usize = 0
+    while u < n and edge_u == n:
+        v: mutable usize = u + 1
+        while v < n:
+            if (adjacency[u] & (1.u64() << v)) != 0:
+                edge_u <- u
+                edge_v <- v
+                break
+            v <- v + 1
+        u <- u + 1
+    degree: mutable usize = 0
+    while degree <= MAX_VERTICES:
+        result[degree] <- 0
+        degree <- degree + 1
+    if edge_u == n:
+        result[n] <- 1
+        return
+
+    deleted: mutable u64[MAX_VERTICES] = zeroed
+    vertex: mutable usize = 0
+    while vertex < MAX_VERTICES:
+        deleted[vertex] <- adjacency[vertex]
+        vertex <- vertex + 1
+    deleted[edge_u] <- deleted[edge_u] & ~(1.u64() << edge_v)
+    deleted[edge_v] <- deleted[edge_v] & ~(1.u64() << edge_u)
+    without_edge: mutable i64[MAX_VERTICES + 1] = zeroed
+    chromatic_polynomial_recurse(deleted, n, without_edge)
+
+    contracted: mutable u64[MAX_VERTICES] = zeroed
+    left: mutable usize = 0
+    while left < n:
+        right: mutable usize = left + 1
+        while right < n:
+            if (adjacency[left] & (1.u64() << right)) != 0 and
+                not (left == edge_u and right == edge_v):
+                new_left: mutable usize = left
+                new_right: mutable usize = right
+                if new_left == edge_v: new_left <- edge_u
+                if new_right == edge_v: new_right <- edge_u
+                if new_left > edge_v: new_left <- new_left - 1
+                if new_right > edge_v: new_right <- new_right - 1
+                if new_left != new_right:
+                    contracted[new_left] <- contracted[new_left] | (1.u64() << new_right)
+                    contracted[new_right] <- contracted[new_right] | (1.u64() << new_left)
+            right <- right + 1
+        left <- left + 1
+    with_edge_contracted: mutable i64[MAX_VERTICES + 1] = zeroed
+    chromatic_polynomial_recurse(contracted, n - 1, with_edge_contracted)
+    degree <- 0
+    while degree <= n:
+        result[degree] <- without_edge[degree] - with_edge_contracted[degree]
+        degree <- degree + 1
+
+def chromatic_polynomial_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def chromatic_polynomial_impl(input: i64&, length: usize, output: mutable u8&,
+    capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 0 or n_value > MAX_VERTICES.i64() or
+        m_value < 0 or m_value > MAX_EDGES.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + 2 * m: return -1
+
+    adjacency: mutable u64[MAX_VERTICES] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u_value: i64 = input[2 + 2 * edge]
+        v_value: i64 = input[3 + 2 * edge]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or
+            v_value >= n_value or u_value == v_value: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        if (adjacency[u] & (1.u64() << v)) != 0: return -1
+        adjacency[u] <- adjacency[u] | (1.u64() << v)
+        adjacency[v] <- adjacency[v] | (1.u64() << u)
+        edge <- edge + 1
+
+    required: usize = 8 * (n + 1)
+    if output.is_null() or capacity < required: return -2
+    coefficients: mutable i64[MAX_VERTICES + 1] = zeroed
+    chromatic_polynomial_recurse(adjacency, n, coefficients)
+    output_view: mutable view[u8] = output[0:required]
+    degree: mutable usize = 0
+    while degree <= n:
+        chromatic_polynomial_store(coefficients[degree], output_view, 8 * degree)
+        degree <- degree + 1
+    required.i64()
+
+export fn chromatic_polynomial(input: i64&, length: usize, output: mutable u8&,
+    capacity: usize) -> i64 = chromatic_polynomial_impl

@@ -1,0 +1,159 @@
+const MAX_N: usize = 48
+const MAX_NODES: usize = 2 * MAX_N - 1
+const GRID: usize = MAX_N * MAX_N
+
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def intervals_overlap(left_a: usize, right_a: usize, left_b: usize, right_b: usize) -> bool:
+    (left_a < left_b and left_b <= right_a and right_a < right_b) or
+    (left_b < left_a and left_a <= right_b and right_b < right_a)
+
+def common_interval_decomposition_tree_impl(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize
+) -> i64:
+    if input.is_null() or length < 2 or length > 1 + MAX_N: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if length != n + 1: return -1
+
+    seen: mutable bool[MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        value: i64 = input[i + 1]
+        if value < 0 or value >= n.i64(): return -1
+        if seen[value.usize()]: return -1
+        seen[value.usize()] <- true
+        i <- i + 1
+
+    connected: mutable bool[GRID] = zeroed
+    strong: mutable bool[GRID] = zeroed
+    left: mutable usize = 0
+    while left < n:
+        minimum: mutable i64 = n.i64()
+        maximum: mutable i64 = -1
+        right: mutable usize = left
+        while right < n:
+            value: i64 = input[right + 1]
+            if value < minimum: minimum <- value
+            if value > maximum: maximum <- value
+            slot: usize = left * MAX_N + right
+            if maximum - minimum == (right - left).i64():
+                connected[slot] <- true
+                strong[slot] <- true
+            right <- right + 1
+        left <- left + 1
+
+    left_a: mutable usize = 0
+    while left_a < n:
+        right_a: mutable usize = left_a
+        while right_a < n:
+            slot_a: usize = left_a * MAX_N + right_a
+            if connected[slot_a]:
+                left_b: mutable usize = 0
+                while left_b < n:
+                    right_b: mutable usize = left_b
+                    while right_b < n:
+                        slot_b: usize = left_b * MAX_N + right_b
+                        if slot_b > slot_a and connected[slot_b] and
+                            intervals_overlap(left_a, right_a, left_b, right_b):
+                            strong[slot_a] <- false
+                            strong[slot_b] <- false
+                        right_b <- right_b + 1
+                    left_b <- left_b + 1
+            right_a <- right_a + 1
+        left_a <- left_a + 1
+
+    node_left: mutable usize[MAX_NODES] = zeroed
+    node_right: mutable usize[MAX_NODES] = zeroed
+    parent: mutable i64[MAX_NODES] = zeroed
+    node_type: mutable i64[MAX_NODES] = zeroed
+    node: mutable usize = 0
+    span: mutable usize = n
+    while span > 0:
+        left <- 0
+        while left + span <= n:
+            right: usize = left + span - 1
+            if strong[left * MAX_N + right]:
+                node_left[node] <- left
+                node_right[node] <- right
+                parent[node] <- -1
+                node <- node + 1
+            left <- left + 1
+        span <- span - 1
+    if node == 0 or node > MAX_NODES: return -1
+    node_count: usize = node
+
+    node <- 0
+    while node < node_count:
+        node_span: usize = node_right[node] - node_left[node] + 1
+        best_span: mutable usize = n + 1
+        candidate: mutable usize = 0
+        while candidate < node_count:
+            candidate_span: usize = node_right[candidate] - node_left[candidate] + 1
+            if candidate_span > node_span and candidate_span < best_span and
+                node_left[candidate] <= node_left[node] and node_right[node] <= node_right[candidate]:
+                parent[node] <- candidate.i64()
+                best_span <- candidate_span
+            candidate <- candidate + 1
+        node <- node + 1
+
+    node <- 0
+    while node < node_count:
+        children: mutable usize[MAX_N] = zeroed
+        child_count: mutable usize = 0
+        child: mutable usize = 0
+        while child < node_count:
+            if parent[child] == node.i64():
+                at: mutable usize = child_count
+                while at > 0 and node_left[children[at - 1]] > node_left[child]:
+                    children[at] <- children[at - 1]
+                    at <- at - 1
+                children[at] <- child
+                child_count <- child_count + 1
+            child <- child + 1
+
+        first: mutable usize = 0
+        while first < child_count and node_type[node] == 0:
+            last: mutable usize = first
+            while last < child_count:
+                range_left: usize = node_left[children[first]]
+                range_right: usize = node_right[children[last]]
+                minimum: mutable i64 = n.i64()
+                maximum: mutable i64 = -1
+                position: mutable usize = range_left
+                while position <= range_right:
+                    value: i64 = input[position + 1]
+                    if value < minimum: minimum <- value
+                    if value > maximum: maximum <- value
+                    position <- position + 1
+                if maximum - minimum != (range_right - range_left).i64():
+                    node_type[node] <- 1
+                    break
+                last <- last + 1
+            first <- first + 1
+        node <- node + 1
+
+    output_bytes: usize = (1 + 4 * node_count) * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
+    store_i64_le(node_count.i64(), output_view, 0)
+    node <- 0
+    while node < node_count:
+        offset: usize = 8 + 32 * node
+        store_i64_le(parent[node], output_view, offset)
+        store_i64_le(node_left[node].i64(), output_view, offset + 8)
+        store_i64_le(node_right[node].i64(), output_view, offset + 16)
+        store_i64_le(node_type[node], output_view, offset + 24)
+        node <- node + 1
+    output_bytes.i64()
+
+export fn common_interval_decomposition_tree(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize
+) -> i64 = common_interval_decomposition_tree_impl

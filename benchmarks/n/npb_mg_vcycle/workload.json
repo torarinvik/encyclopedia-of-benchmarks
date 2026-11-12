@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "id": "npb-mg-periodic-4cube-vcycle-float64-v1",
+  "algorithm": "npb_mg_vcycle",
+  "function_symbol": "npb_mg_vcycle",
+  "abi": "float64_slice_io",
+  "description": "Bounded periodic 3-D NPB MG V-cycle correction with the S(a) smoother.",
+  "source": {
+    "report": "The NAS Parallel Benchmarks",
+    "publisher": "NASA Ames Research Center",
+    "report_number": "RNR-94-007",
+    "section": "2.2.4",
+    "url": "https://www.nas.nasa.gov/assets/nas/pdf/techreports/1994/rnr-94-007.pdf",
+    "tables": ["2.3", "2.4"],
+    "role": "algorithmic specification only; ports are clean-room implementations"
+  },
+  "contract": {
+    "operation": "Apply one to four outer residual-correction iterations, each using the recursively defined periodic 3-D multigrid V-cycle operator M.",
+    "grid": "Fixed 4x4x4 fine grid and 2x2x2 coarse grid, periodic in all dimensions.",
+    "input_encoding": "[iterations, source_count, x0, y0, z0, value0, ...]",
+    "forcing": "Zero grid with up to eight unique caller-supplied point values.",
+    "flat_index": "x + 4*(y + 4*z), with x varying fastest.",
+    "operator_A_coefficients": {"center": "-8/3", "face": "0", "edge": "1/6", "corner": "1/12"},
+    "restriction_P_coefficients": {"center": "1/2", "face": "1/4", "edge": "1/8", "corner": "1/16"},
+    "interpolation_Q_coefficients": {"center": "1", "face": "1/2", "edge": "1/4", "corner": "1/8"},
+    "smoother_Sa_coefficients": {"center": "-3/8", "face": "1/32", "edge": "-1/64", "corner": "0"},
+    "cycle_order": ["restrict residual", "recursively solve coarse grid", "prolongate correction", "evaluate remaining residual", "add S(a) post-smoothing correction"],
+    "outer_iteration": "r = f - A*u; u = u + M*r, starting with u=0",
+    "iteration_range": [1, 4],
+    "source_count_range": [0, 8],
+    "coordinate_range": [0, 3],
+    "source_value_range": [-4, 4],
+    "duplicate_coordinates": "invalid",
+    "output_encoding": "sum of the final solution in flat-index order",
+    "invalid_input_result": -1,
+    "null_or_short_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "minimum_length": 2,
+    "maximum_length": 34,
+    "iterations_range": [1, 4],
+    "source_count_range": [0, 8],
+    "coordinate_range": [0, 3],
+    "source_value_range": [-4, 4],
+    "exact_length": "2 + 4*source_count",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "maximum_elements": 1,
+    "null_or_short_result": -2,
+    "success_result": 1,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "workspace": {
+    "elements": 768,
+    "meaning": "Bounded fine-grid and coarse-grid right-hand sides, residuals, and corrections for the recursive 4^3 to 2^3 cycle."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "cases": [
+    {"id":"empty-forcing","input_values":[1,0],"input_length":2,"expected_result":1,"expected_output":[0.0]},
+    {"id":"single-source-one-cycle","input_values":[1,1,0,0,0,1],"input_length":6,"expected_result":1,"expected_output":[-1.875]},
+    {"id":"translated-source-one-cycle","input_values":[1,1,3,2,1,1],"input_length":6,"expected_result":1,"expected_output":[-1.875]},
+    {"id":"single-source-four-cycles","input_values":[4,1,1,2,3,1],"input_length":6,"expected_result":1,"expected_output":[-7.5]},
+    {"id":"opposite-sources-three-cycles","input_values":[3,2,0,0,0,1,1,0,0,-1],"input_length":10,"expected_result":1,"expected_output":[0.0]},
+    {"id":"negative-source-two-cycles","input_values":[2,1,3,3,3,-2],"input_length":6,"expected_result":1,"expected_output":[7.5]},
+    {"id":"invalid-null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-zero-iterations","input_values":[0,0],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-too-many-iterations","input_values":[5,0],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-trailing-input","input_values":[1,0,0],"input_length":3,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-coordinate","input_values":[1,1,4,0,0,1],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-duplicate-source","input_values":[1,2,0,0,0,1,0,0,0,-1],"input_length":10,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-source-value","input_values":[1,1,0,0,0,4.5],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"short-output","input_values":[1,0],"input_length":2,"output_capacity":0,"expected_result":-2,"expected_output":[]},
+    {"id":"null-output","input_values":[1,0],"input_length":2,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output":[]}
+  ]
+}

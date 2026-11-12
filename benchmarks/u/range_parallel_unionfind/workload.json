@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-range-parallel-unionfind-bounded-i64-array-bytes-output-v1",
+  "algorithm": "range_parallel_unionfind",
+  "function_symbol": "range_parallel_unionfind",
+  "abi": "i64_array_bytes_output",
+  "description": "Merge aligned ranges of vertices using hierarchical union-find and report modular component pair sums.",
+  "source": {
+    "title": "Range Parallel Unionfind",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/range_parallel_unionfind/task.md",
+    "algorithm_attribution": "Hierarchical power-of-two range-parallel union-find",
+    "implementation_status": "clean-room bounded range-copy connectivity structure"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,x_0,...,x_(N-1),(k,a,b)...]",
+    "N_range": [1, 64],
+    "Q_range": [1, 64],
+    "weight_range": "0 <= x_i < MOD",
+    "query_range": "0 <= k <= N and 0 <= a,b <= N-k",
+    "MOD": 998244353,
+    "maximum_valid_length": 258,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one signed 64-bit little-endian component pair sum per query",
+    "maximum_bytes": 512,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Maximum output-buffer capacity; internal storage has six levels of 64 parent and size entries plus 64 component weights."
+  },
+  "contract": {
+    "update": "for each offset i in [0,k), add the undirected edge (a+i,b+i)",
+    "query_result": "sum x_i*x_j over connected unordered vertex pairs i<j, modulo MOD, after each update",
+    "official_N_range": [1, 500000],
+    "official_Q_range": [1, 500000],
+    "official_MOD": 998244353
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-edge-chain-and-redundant-edge",
+      "input_values": [3,3,1,2,3,1,0,1,1,1,2,1,1,0,2],
+      "input_length": 15,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "02000000000000000b000000000000000b00000000000000"
+    },
+    {
+      "id": "overlapping-range-batches",
+      "input_values": [4,2,1,2,3,4,2,0,2,2,0,1],
+      "input_length": 12,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "0b000000000000002300000000000000"
+    },
+    {
+      "id": "empty-range-then-merge",
+      "input_values": [2,2,5,7,0,0,2,1,0,1],
+      "input_length": 10,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000002300000000000000"
+    },
+    {
+      "id": "range-endpoint-out-of-bounds",
+      "input_values": [3,1,1,1,1,1,3,0],
+      "input_length": 8,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "weight-out-of-range",
+      "input_values": [2,1,998244353,0,1,0,1],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2,1,5,7,1,0,1],
+      "input_length": 7,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-fps-composition-bounded-horner-v1",
+  "algorithm": "composition_of_formal_power_series",
+  "function_symbol": "composition_of_formal_power_series",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "polynomial/composition_of_formal_power_series/task.md",
+    "limits_path": "polynomial/composition_of_formal_power_series/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/polynomial/composition_of_formal_power_series/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/polynomial/composition_of_formal_power_series/info.toml",
+    "official_n_max": 8000,
+    "official_n_small_max": 10,
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Composition operation and modulus only; local bound, ports, fixtures, and oracles are clean-room."
+  },
+  "oracle": "benchmarks/c/composition_of_formal_power_series/primary_oracle.py",
+  "independent_oracle": "benchmarks/c/composition_of_formal_power_series/independent_oracle.py",
+  "contract": {
+    "operation": "Given f(x)=sum(a_i*x^i) and g(x)=sum(b_i*x^i), with b_0=0, return f(g(x)) modulo x^N over F_998244353.",
+    "input_layout": "[N, a_0, ..., a_(N-1), b_0, ..., b_(N-1)]",
+    "n_range": [1, 16],
+    "coefficient_range": [0, 998244352],
+    "inner_constant_condition": "b_0 = 0",
+    "algorithm": "Direct descending Horner composition with truncated coefficient products; O(N^3) worst case.",
+    "modulus": 998244353,
+    "output_layout": "N little-endian signed 64-bit coefficients c_0 through c_(N-1).",
+    "error_precedence": "Malformed input returns -1 before output checks. Valid input with null output or insufficient capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, a_0, ..., a_(N-1), b_0, ..., b_(N-1)]",
+    "maximum_valid_length": 33,
+    "maximum_parseable_length": 34,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 16,
+    "maximum_bytes": 128,
+    "success_result": "8*N bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "One bounded 16-coefficient Horner accumulator."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"constant-composition","input_values":[1,7,0],"input_length":3,"expected_result":8,"expected_output_hex":"0700000000000000"},
+    {"id":"linear-substitution","input_values":[2,1,2,0,3],"input_length":5,"expected_result":16,"expected_output_hex":"01000000000000000600000000000000"},
+    {"id":"quadratic-inner-and-outer","input_values":[3,1,1,1,0,1,1],"input_length":7,"expected_result":24,"expected_output_hex":"010000000000000001000000000000000200000000000000"},
+    {"id":"square-of-quadratic-inner","input_values":[4,0,0,1,0,0,2,1,0],"input_length":9,"expected_result":32,"expected_output_hex":"0000000000000000000000000000000004000000000000000400000000000000"},
+    {"id":"substitution-truncation","input_values":[4,1,2,3,4,0,0,1,0],"input_length":9,"expected_result":32,"expected_output_hex":"0100000000000000000000000000000002000000000000000000000000000000"},
+    {"id":"zero-inner-series","input_values":[3,5,6,7,0,0,0],"input_length":7,"expected_result":24,"expected_output_hex":"050000000000000000000000000000000000000000000000"},
+    {"id":"zero-length-invalid","input_values":[0],"input_length":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"nonzero-inner-constant-invalid","input_values":[1,7,1],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coefficient-out-of-range","input_values":[1,998244353,0],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-input","input_values":[2,1,2,0],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra-input-word","input_values":[1,7,0,9],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,1,2,0,3],"input_length":5,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-buffer","input_values":[1,7,0],"input_length":3,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input-pointer","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

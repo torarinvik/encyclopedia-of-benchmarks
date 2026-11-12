@@ -1,0 +1,51 @@
+const MODULUS:i64=998244353
+const MAX_N:usize=32
+
+def bernoulli_modular_power(base:i64,exponent:i64)->i64:
+    result:mutable i64=1
+    factor:mutable i64=base
+    remaining:mutable i64=exponent
+    while remaining>0:
+        if (remaining&1)!=0:result<-(result*factor)%MODULUS
+        factor<-(factor*factor)%MODULUS
+        remaining<-remaining>>1
+    result
+
+def bernoulli_number(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("bernoulli_number"):
+    if input.is_null() or length!=1:return -1
+    n64:i64=input[0]
+    if n64<0 or n64>32:return -1
+    n:usize=n64.usize()
+    output_bytes:usize=4*(n+1)
+    if output.is_null() or capacity<output_bytes:return -2
+
+    inverse:mutable i64[34]=zeroed
+    bernoulli:mutable i64[33]=zeroed
+    inverse[1]<-1
+    i:mutable usize=2
+    while i<=n+1:
+        inverse[i]<-bernoulli_modular_power(i.i64(),MODULUS-2)
+        i<-i+1
+
+    bernoulli[0]<-1
+    m:mutable usize=1
+    while m<=n:
+        choose:mutable i64=1
+        sum:mutable i64=0
+        k:mutable usize=0
+        while k<m:
+            sum<-(sum+choose*bernoulli[k])%MODULUS
+            choose<-choose*((m+1-k).i64())%MODULUS*inverse[k+1]%MODULUS
+            k<-k+1
+        bernoulli[m]<-((MODULUS-sum)%MODULUS)*inverse[m+1]%MODULUS
+        m<-m+1
+
+    i<-0
+    while i<=n:
+        value:i64=bernoulli[i]
+        output[4*i]<-(value&255).u8()
+        output[4*i+1]<-((value>>8)&255).u8()
+        output[4*i+2]<-((value>>16)&255).u8()
+        output[4*i+3]<-((value>>24)&255).u8()
+        i<-i+1
+    output_bytes.i64()

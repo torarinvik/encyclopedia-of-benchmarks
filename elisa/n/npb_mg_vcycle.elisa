@@ -1,0 +1,137 @@
+extern trunc(value: f64) -> f64
+
+const NPB_MG_SIDE: usize = 4
+const NPB_MG_CELLS: usize = 64
+const NPB_MG_MAX_SOURCES: usize = 8
+
+def npb_mg_wrap(value: i64, side: usize) -> usize:
+    if value < 0: return (value + side.i64()).usize()
+    if value >= side.i64(): return (value - side.i64()).usize()
+    value.usize()
+
+def npb_mg_index(x: usize, y: usize, z: usize, side: usize) -> usize:
+    x + side * (y + side * z)
+
+def npb_mg_stencil(source: view[f64], target: mutable view[f64], side: usize,
+        center: f64, face: f64, edge: f64, corner: f64) -> void:
+    for z in 0..<side:
+        for y in 0..<side:
+            for x in 0..<side:
+                q: usize = npb_mg_index(x, y, z, side)
+                total: mutable f64 = center * source[q]
+                dz: mutable i64 = -1
+                while dz <= 1:
+                    dy: mutable i64 = -1
+                    while dy <= 1:
+                        dx: mutable i64 = -1
+                        while dx <= 1:
+                            distance: i64 = (if dx < 0: -dx else: dx) + (if dy < 0: -dy else: dy) + (if dz < 0: -dz else: dz)
+                            if distance != 0:
+                                weight: f64 = if distance == 1: face else (if distance == 2: edge else: corner)
+                                neighbor: usize = npb_mg_index(npb_mg_wrap(x.i64() + dx, side), npb_mg_wrap(y.i64() + dy, side), npb_mg_wrap(z.i64() + dz, side), side)
+                                total <- total + weight * source[neighbor]
+                            dx <- dx + 1
+                        dy <- dy + 1
+                    dz <- dz + 1
+                target[q] <- total
+
+def npb_mg_restrict(fine: view[f64], side: usize, coarse: mutable view[f64]) -> void:
+    half: usize = side / 2
+    for z in 0..<half:
+        for y in 0..<half:
+            for x in 0..<half:
+                total: mutable f64 = 0.0
+                dz: mutable i64 = -1
+                while dz <= 1:
+                    dy: mutable i64 = -1
+                    while dy <= 1:
+                        dx: mutable i64 = -1
+                        while dx <= 1:
+                            wx: f64 = if dx == 0: 1.0 else 0.5
+                            wy: f64 = if dy == 0: 1.0 else 0.5
+                            wz: f64 = if dz == 0: 1.0 else 0.5
+                            q: usize = npb_mg_index(npb_mg_wrap((2*x).i64() + dx, side), npb_mg_wrap((2*y).i64() + dy, side), npb_mg_wrap((2*z).i64() + dz, side), side)
+                            total <- total + wx * wy * wz * fine[q]
+                            dx <- dx + 1
+                        dy <- dy + 1
+                    dz <- dz + 1
+                coarse[npb_mg_index(x, y, z, half)] <- 0.5 * total
+
+def npb_mg_interpolate(coarse: view[f64], half: usize, fine: mutable view[f64]) -> void:
+    side: usize = 2 * half
+    for z in 0..<side:
+        for y in 0..<side:
+            for x in 0..<side:
+                bx, by, bz: usize = x / 2, y / 2, z / 2
+                nx: usize = if x % 2 == 1: 2 else 1
+                ny: usize = if y % 2 == 1: 2 else 1
+                nz: usize = if z % 2 == 1: 2 else 1
+                wx: f64 = if x % 2 == 1: 0.5 else 1.0
+                wy: f64 = if y % 2 == 1: 0.5 else 1.0
+                wz: f64 = if z % 2 == 1: 0.5 else 1.0
+                total: mutable f64 = 0.0
+                for iz in 0..<nz:
+                    for iy in 0..<ny:
+                        for ix in 0..<nx:
+                            cx, cy, cz: usize = (bx + ix) % half, (by + iy) % half, (bz + iz) % half
+                            total <- total + wx * wy * wz * coarse[npb_mg_index(cx, cy, cz, half)]
+                fine[npb_mg_index(x, y, z, side)] <- total
+
+def npb_mg_cycle_recursive(rhs: view[f64], side: usize, solution: mutable view[f64]) -> void:
+    if side == 2:
+        npb_mg_stencil(rhs, solution, side, -3.0/8.0, 1.0/32.0, -1.0/64.0, 0.0)
+        return
+    half: usize = side / 2
+    coarse_rhs: mutable f64[64] = zeroed
+    coarse_solution: mutable f64[64] = zeroed
+    prolonged: mutable f64[64] = zeroed
+    applied: mutable f64[64] = zeroed
+    remaining: mutable f64[64] = zeroed
+    post: mutable f64[64] = zeroed
+    npb_mg_restrict(rhs, side, coarse_rhs[0:64])
+    npb_mg_cycle_recursive(coarse_rhs[0:64], half, coarse_solution[0:64])
+    npb_mg_interpolate(coarse_solution[0:64], half, prolonged[0:64])
+    npb_mg_stencil(prolonged[0:64], applied[0:64], side, -8.0/3.0, 0.0, 1.0/6.0, 1.0/12.0)
+    count: usize = side * side * side
+    for q in 0..<count: remaining[q] <- rhs[q] - applied[q]
+    npb_mg_stencil(remaining[0:64], post[0:64], side, -3.0/8.0, 1.0/32.0, -1.0/64.0, 0.0)
+    for q in 0..<count: solution[q] <- prolonged[q] + post[q]
+
+def npb_mg_vcycle_impl(input: f64&, length: usize,
+        output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 34: return -1
+    iterations_value: f64 = input[0]
+    count_value: f64 = input[1]
+    if iterations_value != iterations_value or count_value != count_value or trunc(iterations_value) != iterations_value or trunc(count_value) != count_value: return -1
+    if iterations_value < 1.0 or iterations_value > 4.0 or count_value < 0.0 or count_value > NPB_MG_MAX_SOURCES.f64(): return -1
+    iterations: usize = iterations_value.usize()
+    source_count: usize = count_value.usize()
+    if length != 2 + 4 * source_count: return -1
+    rhs: mutable f64[NPB_MG_CELLS] = zeroed
+    seen: mutable bool[NPB_MG_CELLS] = zeroed
+    for source in 0..<source_count:
+        base: usize = 2 + 4 * source
+        xv, yv, zv, value: f64 = input[base], input[base + 1], input[base + 2], input[base + 3]
+        if xv != xv or yv != yv or zv != zv or value != value or trunc(xv) != xv or trunc(yv) != yv or trunc(zv) != zv: return -1
+        if xv < 0.0 or xv >= 4.0 or yv < 0.0 or yv >= 4.0 or zv < 0.0 or zv >= 4.0 or value < -4.0 or value > 4.0: return -1
+        q: usize = npb_mg_index(xv.usize(), yv.usize(), zv.usize(), NPB_MG_SIDE)
+        if seen[q]: return -1
+        seen[q] <- true
+        rhs[q] <- value
+    if output.is_null() or capacity < 1: return -2
+    solution: mutable f64[NPB_MG_CELLS] = zeroed
+    applied: mutable f64[NPB_MG_CELLS] = zeroed
+    residual: mutable f64[NPB_MG_CELLS] = zeroed
+    correction: mutable f64[NPB_MG_CELLS] = zeroed
+    for _ in 0..<iterations:
+        npb_mg_stencil(solution[0:64], applied[0:64], NPB_MG_SIDE, -8.0/3.0, 0.0, 1.0/6.0, 1.0/12.0)
+        for q in 0..<NPB_MG_CELLS: residual[q] <- rhs[q] - applied[q]
+        npb_mg_cycle_recursive(residual[0:64], NPB_MG_SIDE, correction[0:64])
+        for q in 0..<NPB_MG_CELLS: solution[q] <- solution[q] + correction[q]
+    checksum: mutable f64 = 0.0
+    for q in 0..<NPB_MG_CELLS: checksum <- checksum + solution[q]
+    output[0] <- checksum
+    1
+
+export fn npb_mg_vcycle(input: f64&, length: usize,
+        output: mutable f64&, capacity: usize) -> i64 = npb_mg_vcycle_impl

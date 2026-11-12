@@ -1,0 +1,208 @@
+## Bounded clean-room NASA NPB DC smallest-parent profile; see NAS-03-005.
+
+const DC_MAX_DIMS: usize = 5
+const DC_MAX_ROWS: usize = 16
+const DC_MAX_MASKS: usize = 32
+
+def dc_popcount(value: usize) -> usize:
+    bits: mutable usize = value
+    count: mutable usize = 0
+    while bits != 0:
+        count <- count + (bits & 1)
+        bits <- bits >> 1
+    count
+
+def npb_dc_smallest_parent_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > 98:
+        return -1
+    if input[0] < 1 or input[0] > 5 or input[1] < 1 or input[1] > 16:
+        return -1
+    dimensions: usize = input[0].usize()
+    rows: usize = input[1].usize()
+    if length != 2 + rows * (dimensions + 1):
+        return -1
+
+    attributes: mutable i64[16][5] = zeroed
+    measures: mutable i64[16] = zeroed
+    offset: mutable usize = 2
+    row: mutable usize = 0
+    dimension: mutable usize = 0
+    group: mutable usize = 0
+    index: mutable usize = 0
+    position: mutable usize = 0
+    equal: mutable bool = true
+    less: mutable bool = false
+    temporary: mutable i64 = 0
+    temporary_sum: mutable i64 = 0
+    while row < rows:
+        dimension <- 0
+        while dimension < dimensions:
+            value: i64 = input[offset]
+            if value < 0 or value > 7:
+                return -1
+            attributes[row][dimension] <- value
+            offset <- offset + 1
+            dimension <- dimension + 1
+        measures[row] <- input[offset]
+        if measures[row] < 0 or measures[row] > 1000:
+            return -1
+        offset <- offset + 1
+        row <- row + 1
+
+    keys: mutable i64[32][16][5] = zeroed
+    sums: mutable i64[32][16] = zeroed
+    counts: mutable usize[32] = zeroed
+    parents: mutable i64[32] = zeroed
+    mask: mutable usize = 0
+    while mask < DC_MAX_MASKS:
+        parents[mask] <- -2
+        mask <- mask + 1
+    full: usize = (1 << dimensions) - 1
+    parents[full] <- -1
+
+    row <- 0
+    while row < rows:
+        group <- 0
+        while group < counts[full]:
+            equal <- true
+            dimension <- 0
+            while dimension < dimensions:
+                if ((full >> dimension) & 1) != 0 and keys[full][group][dimension] != attributes[row][dimension]:
+                    equal <- false
+                dimension <- dimension + 1
+            if equal:
+                break
+            group <- group + 1
+        if group == counts[full]:
+            dimension <- 0
+            while dimension < dimensions:
+                keys[full][group][dimension] <- attributes[row][dimension]
+                dimension <- dimension + 1
+            sums[full][group] <- measures[row]
+            counts[full] <- counts[full] + 1
+        else:
+            sums[full][group] <- sums[full][group] + measures[row]
+        row <- row + 1
+
+    index <- 1
+    while index < counts[full]:
+        position <- index
+        while position > 0:
+            less <- false
+            dimension <- 0
+            while dimension < dimensions:
+                if keys[full][position][dimension] < keys[full][position - 1][dimension]:
+                    less <- true
+                    break
+                if keys[full][position][dimension] > keys[full][position - 1][dimension]:
+                    break
+                dimension <- dimension + 1
+            if not less:
+                break
+            dimension <- 0
+            while dimension < dimensions:
+                temporary <- keys[full][position][dimension]
+                keys[full][position][dimension] <- keys[full][position - 1][dimension]
+                keys[full][position - 1][dimension] <- temporary
+                dimension <- dimension + 1
+            temporary_sum <- sums[full][position]
+            sums[full][position] <- sums[full][position - 1]
+            sums[full][position - 1] <- temporary_sum
+            position <- position - 1
+        index <- index + 1
+
+    wanted: mutable i64 = dimensions.i64() - 1
+    while wanted >= 0:
+        mask <- 0
+        while mask <= full:
+            if dc_popcount(mask) == wanted.usize():
+                parent: mutable usize = 0
+                best: mutable usize = DC_MAX_ROWS + 1
+                found: mutable bool = false
+                dimension <- 0
+                while dimension < dimensions:
+                    bit: usize = 1 << dimension
+                    if (mask & bit) == 0:
+                        candidate: usize = mask | bit
+                        if not found or counts[candidate] < best:
+                            parent <- candidate
+                            best <- counts[candidate]
+                            found <- true
+                    dimension <- dimension + 1
+                if not found:
+                    return -1
+                parents[mask] <- parent.i64()
+                parent_group: mutable usize = 0
+                while parent_group < counts[parent]:
+                    group <- 0
+                    while group < counts[mask]:
+                        equal <- true
+                        dimension <- 0
+                        while dimension < dimensions:
+                            if ((mask >> dimension) & 1) != 0 and keys[mask][group][dimension] != keys[parent][parent_group][dimension]:
+                                equal <- false
+                            dimension <- dimension + 1
+                        if equal:
+                            break
+                        group <- group + 1
+                    if group == counts[mask]:
+                        dimension <- 0
+                        while dimension < dimensions:
+                            if ((mask >> dimension) & 1) != 0:
+                                keys[mask][group][dimension] <- keys[parent][parent_group][dimension]
+                            dimension <- dimension + 1
+                        sums[mask][group] <- sums[parent][parent_group]
+                        counts[mask] <- counts[mask] + 1
+                    else:
+                        sums[mask][group] <- sums[mask][group] + sums[parent][parent_group]
+                    parent_group <- parent_group + 1
+
+                index <- 1
+                while index < counts[mask]:
+                    position <- index
+                    while position > 0:
+                        less <- false
+                        dimension <- 0
+                        while dimension < dimensions:
+                            if ((mask >> dimension) & 1) != 0:
+                                if keys[mask][position][dimension] < keys[mask][position - 1][dimension]:
+                                    less <- true
+                                    break
+                                if keys[mask][position][dimension] > keys[mask][position - 1][dimension]:
+                                    break
+                            dimension <- dimension + 1
+                        if not less:
+                            break
+                        dimension <- 0
+                        while dimension < dimensions:
+                            temporary <- keys[mask][position][dimension]
+                            keys[mask][position][dimension] <- keys[mask][position - 1][dimension]
+                            keys[mask][position - 1][dimension] <- temporary
+                            dimension <- dimension + 1
+                        temporary_sum <- sums[mask][position]
+                        sums[mask][position] <- sums[mask][position - 1]
+                        sums[mask][position - 1] <- temporary_sum
+                        position <- position - 1
+                    index <- index + 1
+            mask <- mask + 1
+        wanted <- wanted - 1
+
+    checksum: mutable i64 = 0
+    mask <- 0
+    while mask <= full:
+        view: i64 = mask.i64() + 1
+        checksum <- checksum + view * 1000000 + (parents[mask] + 2) * 10000 + counts[mask].i64() * 1000
+        group <- 0
+        while group < counts[mask]:
+            rank: i64 = group.i64() + 1
+            checksum <- checksum + rank * (sums[mask][group] + 1)
+            dimension <- 0
+            while dimension < dimensions:
+                if ((mask >> dimension) & 1) != 0:
+                    checksum <- checksum + rank * (dimension + 1).i64() * (keys[mask][group][dimension] + 1)
+                dimension <- dimension + 1
+            group <- group + 1
+        mask <- mask + 1
+    checksum
+
+export fn npb_dc_smallest_parent(input: i64&, length: usize) -> i64 = npb_dc_smallest_parent_impl

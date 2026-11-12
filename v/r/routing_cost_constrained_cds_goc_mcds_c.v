@@ -87,7 +87,7 @@ pub fn routing_cost_constrained_cds_goc_mcds_c(input &i64, length usize, mut out
 				for current != source { path[path_length] = current; path_length++; current = parent[current] }
 				path[path_length] = source
 				path_length++
-				if path_length <= 4 { for i in 1 .. (path_length-1) { connectors |= u64(1)<<path[i] } }
+				if path_length <= 5 { for i in 1 .. (path_length-1) { connectors |= u64(1)<<path[i] } }
 			}
 		}
 		if output == nil || capacity < 16 { return -2 }

@@ -1,0 +1,256 @@
+const MAX_N: usize = 8
+const MAX_M: usize = 20
+const MAX_INPUT_VALUES: usize = 2 + 3 * MAX_M + 1
+const MATRIX_CELLS: usize = MAX_N * MAX_N
+const INF: i64 = 1000000000000
+
+def mdst_shortest_tree(n: usize, m: usize, edge_u: view[usize], edge_v: view[usize],
+    edge_weight: view[i64], center_kind: usize, center_root: usize, center_x2: i64,
+    center_edge: usize, distance: mutable view[i64], parent_edge: mutable view[i64]) -> void:
+    settled: mutable bool[MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        distance[vertex] <- INF
+        parent_edge[vertex] <- -1
+        vertex <- vertex + 1
+    if center_kind == 0:
+        distance[center_root] <- 0
+    else:
+        u: mutable usize = edge_u[center_edge]
+        v: mutable usize = edge_v[center_edge]
+        if u > v:
+            temporary: usize = u
+            u <- v
+            v <- temporary
+        distance[u] <- center_x2
+        distance[v] <- 2 * edge_weight[center_edge] - center_x2
+
+    step: mutable usize = 0
+    while step < n:
+        current: mutable usize = n
+        vertex <- 0
+        while vertex < n:
+            if not settled[vertex] and (current == n or distance[vertex] < distance[current]):
+                current <- vertex
+            vertex <- vertex + 1
+        if current == n or distance[current] == INF: return
+        settled[current] <- true
+        edge_id: mutable usize = 0
+        while edge_id < m:
+            left: usize = edge_u[edge_id]
+            right: usize = edge_v[edge_id]
+            if left != right:
+                neighbor: mutable usize = n
+                if current == left: neighbor <- right
+                else if current == right: neighbor <- left
+                if neighbor != n:
+                    candidate: i64 = distance[current] + 2 * edge_weight[edge_id]
+                    if not settled[neighbor] and candidate < distance[neighbor]:
+                        distance[neighbor] <- candidate
+                        parent_edge[neighbor] <- edge_id.i64()
+            edge_id <- edge_id + 1
+        step <- step + 1
+
+def mdst_tree_diameter(n: usize, selected: view[usize], edge_u: view[usize],
+    edge_v: view[usize], edge_weight: view[i64]) -> i64:
+    adjacent: mutable bool[MATRIX_CELLS] = zeroed
+    weight: mutable i64[MATRIX_CELLS] = zeroed
+    index: mutable usize = 0
+    while index + 1 < n:
+        edge_id: usize = selected[index]
+        u: usize = edge_u[edge_id]
+        v: usize = edge_v[edge_id]
+        adjacent[u * MAX_N + v] <- true
+        adjacent[v * MAX_N + u] <- true
+        weight[u * MAX_N + v] <- edge_weight[edge_id]
+        weight[v * MAX_N + u] <- edge_weight[edge_id]
+        index <- index + 1
+
+    diameter: mutable i64 = 0
+    source: mutable usize = 0
+    while source < n:
+        distance: mutable i64[MAX_N] = zeroed
+        parent: mutable usize[MAX_N] = zeroed
+        stack: mutable usize[MAX_N] = zeroed
+        vertex: mutable usize = 0
+        while vertex < n:
+            distance[vertex] <- -1
+            parent[vertex] <- n
+            vertex <- vertex + 1
+        top: mutable usize = 1
+        stack[0] <- source
+        distance[source] <- 0
+        while top > 0:
+            top <- top - 1
+            current: usize = stack[top]
+            if distance[current] > diameter: diameter <- distance[current]
+            neighbor: mutable usize = 0
+            while neighbor < n:
+                cell: usize = current * MAX_N + neighbor
+                if adjacent[cell] and parent[current] != neighbor and distance[neighbor] < 0:
+                    parent[neighbor] <- current
+                    distance[neighbor] <- distance[current] + weight[cell]
+                    stack[top] <- neighbor
+                    top <- top + 1
+                neighbor <- neighbor + 1
+        source <- source + 1
+    diameter
+
+def mdst_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def minimum_diameter_spanning_tree_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or m_value < 0 or m_value > MAX_M.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + 3 * m: return -1
+
+    edge_u: mutable usize[MAX_M] = zeroed
+    edge_v: mutable usize[MAX_M] = zeroed
+    edge_weight: mutable i64[MAX_M] = zeroed
+    graph_distance: mutable i64[MATRIX_CELLS] = zeroed
+    u: mutable usize = 0
+    while u < n:
+        v: mutable usize = 0
+        while v < n:
+            graph_distance[u * MAX_N + v] <- if u == v: 0 else: INF
+            v <- v + 1
+        u <- u + 1
+    edge_id: mutable usize = 0
+    while edge_id < m:
+        offset: usize = 2 + 3 * edge_id
+        u_value: i64 = input[offset]
+        v_value: i64 = input[offset + 1]
+        edge_w: i64 = input[offset + 2]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or
+            edge_w < 0 or edge_w > 9: return -1
+        u <- u_value.usize()
+        v <- v_value.usize()
+        edge_u[edge_id] <- u
+        edge_v[edge_id] <- v
+        edge_weight[edge_id] <- edge_w
+        if u != v and edge_w < graph_distance[u * MAX_N + v]:
+            graph_distance[u * MAX_N + v] <- edge_w
+            graph_distance[v * MAX_N + u] <- edge_w
+        edge_id <- edge_id + 1
+
+    middle: mutable usize = 0
+    while middle < n:
+        u <- 0
+        while u < n:
+            v <- 0
+            while v < n:
+                candidate: i64 = graph_distance[u * MAX_N + middle] + graph_distance[middle * MAX_N + v]
+                cell: usize = u * MAX_N + v
+                if candidate < graph_distance[cell]: graph_distance[cell] <- candidate
+                v <- v + 1
+            u <- u + 1
+        middle <- middle + 1
+    v <- 0
+    while v < n:
+        if graph_distance[v] == INF: return -1
+        v <- v + 1
+
+    best_radius2: mutable i64 = INF
+    best_kind: mutable usize = 0
+    best_root: mutable usize = 0
+    best_edge: mutable usize = 0
+    best_x2: mutable i64 = 0
+    u <- 0
+    while u < n:
+        eccentricity: mutable i64 = 0
+        v <- 0
+        while v < n:
+            if graph_distance[u * MAX_N + v] > eccentricity:
+                eccentricity <- graph_distance[u * MAX_N + v]
+            v <- v + 1
+        radius2: i64 = 2 * eccentricity
+        if radius2 < best_radius2:
+            best_radius2 <- radius2
+            best_kind <- 0
+            best_root <- u
+        u <- u + 1
+    edge_id <- 0
+    while edge_id < m:
+        u <- edge_u[edge_id]
+        v <- edge_v[edge_id]
+        edge_w: i64 = edge_weight[edge_id]
+        if u != v:
+            if u > v:
+                temporary: usize = u
+                u <- v
+                v <- temporary
+            x2: mutable i64 = 0
+            while x2 <= 2 * edge_w:
+                radius2: mutable i64 = 0
+                vertex: mutable usize = 0
+                while vertex < n:
+                    from_u: i64 = 2 * graph_distance[u * MAX_N + vertex] + x2
+                    from_v: i64 = 2 * graph_distance[v * MAX_N + vertex] + 2 * edge_w - x2
+                    value: i64 = if from_u < from_v: from_u else: from_v
+                    if value > radius2: radius2 <- value
+                    vertex <- vertex + 1
+                if radius2 < best_radius2:
+                    best_radius2 <- radius2
+                    best_kind <- 1
+                    best_root <- u
+                    best_x2 <- x2
+                    best_edge <- edge_id
+                x2 <- x2 + 1
+        edge_id <- edge_id + 1
+
+    center_distance: mutable i64[MAX_N] = zeroed
+    parent_edge: mutable i64[MAX_N] = zeroed
+    mdst_shortest_tree(n, m, edge_u[0:MAX_M], edge_v[0:MAX_M], edge_weight[0:MAX_M],
+        best_kind, best_root, best_x2, best_edge, center_distance[0:MAX_N], parent_edge[0:MAX_N])
+    selected: mutable usize[MAX_N] = zeroed
+    selected_count: mutable usize = 0
+    u <- 0
+    while u < n:
+        if parent_edge[u] >= 0:
+            selected[selected_count] <- parent_edge[u].usize()
+            selected_count <- selected_count + 1
+        u <- u + 1
+    if selected_count + 2 == n and best_kind == 1:
+        u <- edge_u[best_edge]
+        v <- edge_v[best_edge]
+        if parent_edge[u] == -1 and parent_edge[v] == -1:
+            selected[selected_count] <- best_edge
+            selected_count <- selected_count + 1
+    if selected_count != n - 1: return -1
+    u <- 0
+    while u < selected_count:
+        v <- u + 1
+        while v < selected_count:
+            if selected[v] < selected[u]:
+                temporary: usize = selected[u]
+                selected[u] <- selected[v]
+                selected[v] <- temporary
+            v <- v + 1
+        u <- u + 1
+
+    staged: mutable i64[MAX_N] = zeroed
+    staged[0] <- mdst_tree_diameter(n, selected[0:MAX_N], edge_u[0:MAX_M], edge_v[0:MAX_M], edge_weight[0:MAX_M])
+    u <- 0
+    while u < selected_count:
+        staged[u + 1] <- selected[u].i64()
+        u <- u + 1
+    required: usize = 8 * n
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    u <- 0
+    while u < n:
+        mdst_store_i64_le(staged[u], output_view, 8 * u)
+        u <- u + 1
+    required.i64()
+
+export fn minimum_diameter_spanning_tree(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = minimum_diameter_spanning_tree_impl

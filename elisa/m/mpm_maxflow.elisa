@@ -1,0 +1,175 @@
+const MAX_VERTICES: usize = 8
+const MAX_EDGES: usize = 24
+const MAX_INPUT_VALUES: usize = 4 + 3 * MAX_EDGES + 1
+const FLOW_INFINITY: i64 = 2401
+
+def mpm_maxflow_minimum(left: i64, right: i64) -> i64:
+    if left < right: left else: right
+
+def mpm_maxflow_push_forward(vertex: usize, sink: usize, amount: i64, n: usize,
+    residual: mutable view[i64], active: mutable view[u8],
+    incoming: mutable view[i64], outgoing: mutable view[i64]) -> i64:
+    if vertex == sink: return amount
+    remaining: mutable i64 = amount
+    next: mutable usize = 0
+    while next < n and remaining > 0:
+        edge: usize = vertex * MAX_VERTICES + next
+        if active[edge] != 0 and residual[edge] > 0:
+            pushed: i64 = mpm_maxflow_push_forward(next, sink,
+                mpm_maxflow_minimum(remaining, residual[edge]), n,
+                residual, active, incoming, outgoing)
+            if pushed > 0:
+                residual[edge] <- residual[edge] - pushed
+                residual[next * MAX_VERTICES + vertex] <- residual[next * MAX_VERTICES + vertex] + pushed
+                outgoing[vertex] <- outgoing[vertex] - pushed
+                incoming[next] <- incoming[next] - pushed
+                remaining <- remaining - pushed
+                if residual[edge] == 0: active[edge] <- 0
+        next <- next + 1
+    amount - remaining
+
+def mpm_maxflow_push_backward(vertex: usize, source: usize, amount: i64, n: usize,
+    residual: mutable view[i64], active: mutable view[u8],
+    incoming: mutable view[i64], outgoing: mutable view[i64]) -> i64:
+    if vertex == source: return amount
+    remaining: mutable i64 = amount
+    previous: mutable usize = 0
+    while previous < n and remaining > 0:
+        edge: usize = previous * MAX_VERTICES + vertex
+        if active[edge] != 0 and residual[edge] > 0:
+            pushed: i64 = mpm_maxflow_push_backward(previous, source,
+                mpm_maxflow_minimum(remaining, residual[edge]), n,
+                residual, active, incoming, outgoing)
+            if pushed > 0:
+                residual[edge] <- residual[edge] - pushed
+                residual[vertex * MAX_VERTICES + previous] <- residual[vertex * MAX_VERTICES + previous] + pushed
+                incoming[vertex] <- incoming[vertex] - pushed
+                outgoing[previous] <- outgoing[previous] - pushed
+                remaining <- remaining - pushed
+                if residual[edge] == 0: active[edge] <- 0
+        previous <- previous + 1
+    amount - remaining
+
+def mpm_maxflow_remove_vertex(vertex: usize, n: usize,
+    residual: view[i64], active: mutable view[u8],
+    incoming: mutable view[i64], outgoing: mutable view[i64], alive: mutable view[u8]) -> void:
+    other: mutable usize = 0
+    while other < n:
+        edge: usize = other * MAX_VERTICES + vertex
+        if active[edge] != 0:
+            capacity: i64 = residual[edge]
+            outgoing[other] <- outgoing[other] - capacity
+            incoming[vertex] <- incoming[vertex] - capacity
+            active[edge] <- 0
+        edge <- vertex * MAX_VERTICES + other
+        if active[edge] != 0:
+            capacity: i64 = residual[edge]
+            outgoing[vertex] <- outgoing[vertex] - capacity
+            incoming[other] <- incoming[other] - capacity
+            active[edge] <- 0
+        other <- other + 1
+    alive[vertex] <- 0
+
+def mpm_maxflow_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT_VALUES: return -1
+    n_value: i64 = input[0]
+    edge_count_value: i64 = input[1]
+    source_value: i64 = input[2]
+    sink_value: i64 = input[3]
+    if n_value < 2 or n_value > MAX_VERTICES.i64() or edge_count_value < 0 or
+        edge_count_value > MAX_EDGES.i64() or source_value < 1 or source_value > n_value or
+        sink_value < 1 or sink_value > n_value or source_value == sink_value: return -1
+    n: usize = n_value.usize()
+    edge_count: usize = edge_count_value.usize()
+    source: usize = source_value.usize() - 1
+    sink: usize = sink_value.usize() - 1
+    if length != 4 + 3 * edge_count: return -1
+
+    residual: mutable i64[MAX_VERTICES * MAX_VERTICES] = zeroed
+    edge: mutable usize = 0
+    while edge < edge_count:
+        from_value: i64 = input[4 + 3 * edge]
+        to_value: i64 = input[5 + 3 * edge]
+        capacity: i64 = input[6 + 3 * edge]
+        if from_value < 1 or from_value > n_value or to_value < 1 or to_value > n_value or
+            from_value == to_value or capacity < 0 or capacity > 100: return -1
+        from: usize = from_value.usize() - 1
+        to: usize = to_value.usize() - 1
+        residual[from * MAX_VERTICES + to] <- residual[from * MAX_VERTICES + to] + capacity
+        edge <- edge + 1
+
+    total_flow: mutable i64 = 0
+    while true:
+        level: mutable i64[MAX_VERTICES] = zeroed
+        queue: mutable usize[MAX_VERTICES] = zeroed
+        vertex: mutable usize = 0
+        while vertex < n:
+            level[vertex] <- -1
+            vertex <- vertex + 1
+        head: mutable usize = 0
+        tail: mutable usize = 0
+        level[source] <- 0
+        queue[tail] <- source
+        tail <- tail + 1
+        while head < tail:
+            vertex <- queue[head]
+            head <- head + 1
+            next: mutable usize = 0
+            while next < n:
+                if residual[vertex * MAX_VERTICES + next] > 0 and level[next] < 0:
+                    level[next] <- level[vertex] + 1
+                    queue[tail] <- next
+                    tail <- tail + 1
+                next <- next + 1
+        if level[sink] < 0: break
+
+        incoming: mutable i64[MAX_VERTICES] = zeroed
+        outgoing: mutable i64[MAX_VERTICES] = zeroed
+        active: mutable u8[MAX_VERTICES * MAX_VERTICES] = zeroed
+        alive: mutable u8[MAX_VERTICES] = zeroed
+        vertex <- 0
+        while vertex < n:
+            if level[vertex] >= 0 and level[vertex] <= level[sink]: alive[vertex] <- 1
+            vertex <- vertex + 1
+        from: mutable usize = 0
+        while from < n:
+            to: mutable usize = 0
+            while to < n:
+                edge_index: usize = from * MAX_VERTICES + to
+                if level[from] >= 0 and level[from] < level[sink] and
+                    level[to] == level[from] + 1 and residual[edge_index] > 0:
+                    active[edge_index] <- 1
+                    outgoing[from] <- outgoing[from] + residual[edge_index]
+                    incoming[to] <- incoming[to] + residual[edge_index]
+                to <- to + 1
+            from <- from + 1
+        incoming[source] <- FLOW_INFINITY
+        outgoing[sink] <- FLOW_INFINITY
+
+        while true:
+            reference: mutable i64 = -1
+            least_potential: mutable i64 = FLOW_INFINITY + 1
+            vertex <- 0
+            while vertex < n:
+                if alive[vertex] != 0:
+                    potential: i64 = mpm_maxflow_minimum(incoming[vertex], outgoing[vertex])
+                    if potential < least_potential:
+                        least_potential <- potential
+                        reference <- vertex.i64()
+                vertex <- vertex + 1
+            if reference < 0: break
+            chosen: usize = reference.usize()
+            if least_potential > 0:
+                total_flow <- total_flow + least_potential
+                mpm_maxflow_push_backward(chosen, source, least_potential, n,
+                    residual[0:MAX_VERTICES * MAX_VERTICES], active[0:MAX_VERTICES * MAX_VERTICES],
+                    incoming[0:MAX_VERTICES], outgoing[0:MAX_VERTICES])
+                mpm_maxflow_push_forward(chosen, sink, least_potential, n,
+                    residual[0:MAX_VERTICES * MAX_VERTICES], active[0:MAX_VERTICES * MAX_VERTICES],
+                    incoming[0:MAX_VERTICES], outgoing[0:MAX_VERTICES])
+            mpm_maxflow_remove_vertex(chosen, n,
+                residual[0:MAX_VERTICES * MAX_VERTICES], active[0:MAX_VERTICES * MAX_VERTICES],
+                incoming[0:MAX_VERTICES], outgoing[0:MAX_VERTICES], alive[0:MAX_VERTICES])
+    total_flow
+
+export fn mpm_maxflow(input: i64&, length: usize) -> i64 = mpm_maxflow_impl

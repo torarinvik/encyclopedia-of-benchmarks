@@ -5,7 +5,7 @@ const I4: i64 = 3
 const I5: i64 = 4
 
 struct DRecord:
-    ptr: i64
+    link_index: usize
     discr: i64
     enum_comp: i64
     int_comp: i64
@@ -63,25 +63,26 @@ def dhrystone_proc6(state: DState, value: i64) -> i64:
     result
 
 def dhrystone_proc3(state: mutable DState&, reference_index: usize) -> void:
-    if state.rec[0].ptr >= 0: state.rec[reference_index].ptr <- state.rec[0].ptr
+    state.rec[reference_index].link_index <- state.rec[0].link_index
     state.rec[0].int_comp <- dhrystone_proc7(10, state.int_glob)
 
 def dhrystone_proc1(state: mutable DState&) -> void:
-    next_index: usize = state.rec[0].ptr.usize()
+    next_index: usize = state.rec[0].link_index
     state.rec[next_index] <- state.rec[0]
     state.rec[0].int_comp <- 5
     state.rec[next_index].int_comp <- state.rec[0].int_comp
-    state.rec[next_index].ptr <- state.rec[0].ptr
+    state.rec[next_index].link_index <- state.rec[0].link_index
     dhrystone_proc3(state, next_index)
     if state.rec[next_index].discr == I1:
         state.rec[next_index].int_comp <- 6
         state.rec[next_index].enum_comp <- dhrystone_proc6(state, state.rec[0].enum_comp)
-        state.rec[next_index].ptr <- state.rec[0].ptr
+        state.rec[next_index].link_index <- state.rec[0].link_index
         state.rec[next_index].int_comp <- dhrystone_proc7(state.rec[next_index].int_comp, 10)
     else: state.rec[0] <- state.rec[next_index]
 
-def dhrystone_proc2(state: DState, value: mutable i64&) -> void:
-    local: mutable i64 = value + 10
+def dhrystone_proc2(state: DState, value_input: i64) -> i64:
+    local: mutable i64 = value_input + 10
+    value: mutable i64 = value_input
     enum_local: mutable i64 = I2
     while true:
         if state.ch1 == 65:
@@ -90,6 +91,7 @@ def dhrystone_proc2(state: DState, value: mutable i64&) -> void:
             enum_local <- I1
         else: enum_local <- I2
         if enum_local == I1: break
+    value
 
 def dhrystone_proc4(state: mutable DState&) -> void:
     local: i64 = if state.ch1 == 65: 1 else: 0
@@ -127,11 +129,12 @@ def dhrystone_func2(state: mutable DState&, a: view[u8], b: view[u8]) -> bool:
         return true
     false
 
-def ansibench_dhrystone_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input == null || length != 1: return -1
+def ansibench_dhrystone_impl(input: view[i64], length: usize,
+        output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+    if length != 1: return -1
     if input[0] < 1 || input[0] > 8: return -1
     state: mutable DState = zeroed
-    state.rec[0].ptr <- 1
+    state.rec[0].link_index <- 1
     state.rec[0].discr <- I1
     state.rec[0].enum_comp <- I3
     state.rec[0].int_comp <- 40
@@ -172,14 +175,24 @@ def ansibench_dhrystone_impl(input: i64&, length: usize, output: mutable u8&, ca
         int2 <- int2 * int1
         int1 <- int2 / int3
         int2 <- 7 * (int2 - int3) - int1
-        dhrystone_proc2(state, int1)
+    int1 <- dhrystone_proc2(state, int1)
         run <- run + 1
-    if output == null || capacity < 19: return -2
-    values: i64[19] = [state.int_glob,state.bool_glob,state.ch1,state.ch2,state.arr1[8],state.arr2[8][7],state.rec[0].discr,state.rec[0].enum_comp,state.rec[0].int_comp,state.rec[0].ptr,state.rec[1].discr,state.rec[1].enum_comp,state.rec[1].int_comp,state.rec[1].ptr,int1,int2,int3,enum_loc,func2_false]
+    if output_is_null || capacity < 19: return -2
+    values: i64[19] = [state.int_glob,state.bool_glob,state.ch1,state.ch2,state.arr1[8],state.arr2[8][7],state.rec[0].discr,state.rec[0].enum_comp,state.rec[0].int_comp,state.rec[0].link_index.i64(),state.rec[1].discr,state.rec[1].enum_comp,state.rec[1].int_comp,state.rec[1].link_index.i64(),int1,int2,int3,enum_loc,func2_false]
     index: mutable usize = 0
     while index < 19:
         output[index] <- values[index].u8()
         index <- index + 1
     19
 
-export fn ansibench_dhrystone(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = ansibench_dhrystone_impl
+export fn ansibench_dhrystone(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() || length != 1: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[19] = zeroed
+        return ansibench_dhrystone_impl(input_view, length, scratch[0:19], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > 19: safe_capacity <- 19
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    ansibench_dhrystone_impl(input_view, length, output_view, capacity, false)

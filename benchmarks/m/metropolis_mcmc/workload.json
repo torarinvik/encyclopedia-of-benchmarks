@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "algorithm-archive-metropolis-mcmc-deterministic-chain-v1",
+  "algorithm": "metropolis_mcmc",
+  "function_symbol": "metropolis_mcmc",
+  "abi": "float64_slice_io",
+  "description": "Generate a deterministic finite-state Metropolis chain from symmetric proposal and uniform tapes.",
+  "source": {
+    "title": "Equation of State Calculations by Fast Computing Machines",
+    "authors": ["Nicholas Metropolis", "Arianna W. Rosenbluth", "Marshall N. Rosenbluth", "Augusta H. Teller", "Edward Teller"],
+    "reference": "Journal of Chemical Physics 21(6), 1087-1092 (1953)",
+    "url": "https://doi.org/10.1063/1.1699114",
+    "overview_url": "https://www.algorithm-archive.org/contents/metropolis/metropolis.html",
+    "algorithm_attribution": "For a symmetric proposal, accept all non-increasing-energy moves and accept an uphill move with probability exp(-delta_energy / temperature).",
+    "implementation_status": "clean-room bounded ports"
+  },
+  "oracle": "benchmarks/metropolis_mcmc_oracle.py",
+  "oracle_entry_point": "expected_output(values, output_capacity=None, output_is_null=False, input_length=None)",
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[state_count, step_count, initial_state, temperature, energies[state_count], proposals[step_count], uniforms[step_count]]",
+    "state_count_range": [1, 8],
+    "step_count_range": [0, 64],
+    "temperature_range": [0.001, 1000.0],
+    "energy_range": [-1000000.0, 1000000.0],
+    "uniform_range": "0 <= u < 1",
+    "maximum_input_length": 140,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "state trace, beginning with the initial state and followed by one state after each proposal",
+    "maximum_elements": 65,
+    "success_result": "step_count + 1",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "workspace": {
+    "elements": 0,
+    "meaning": "The ports use scalar state only; the energy table and trace are caller-owned."
+  },
+  "contract": {
+    "proposal_model": "The supplied proposal tape is one realization of a symmetric proposal kernel.",
+    "acceptance": "Accept if delta_energy <= 0; otherwise accept exactly when u < exp(-delta_energy / temperature).",
+    "draw_consumption": "Consume one uniform value for every proposal, including downhill proposals.",
+    "complexity": "O(state_count + step_count) time and O(1) auxiliary space, excluding caller-owned input and output arrays.",
+    "measurement_scope": "One bounded Metropolis chain, not a simulated-annealing optimization schedule."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {"id":"accept-uphill-then-reject-uphill", "input_values":[3,4,0,1.0,0.0,1.0,2.0,1,2,0,2,0.2,0.8,0.999,0.999], "input_length":15, "output_capacity":5, "expected_result":5, "expected_output":[0.0,1.0,1.0,0.0,0.0]},
+    {"id":"downhill-accepts-even-with-large-uniform", "input_values":[2,1,1,2.0,0.0,1.0,0,0.999], "input_length":8, "output_capacity":2, "expected_result":2, "expected_output":[1.0,0.0]},
+    {"id":"zero-step-chain", "input_values":[1,0,0,1.0,0.0], "input_length":5, "output_capacity":1, "expected_result":1, "expected_output":[0.0]},
+    {"id":"equal-energy-acceptance", "input_values":[2,1,0,1.0,3.0,3.0,1,0.999], "input_length":8, "output_capacity":2, "expected_result":2, "expected_output":[0.0,1.0]},
+    {"id":"steep-uphill-rejection", "input_values":[2,1,0,0.001,0.0,1000000.0,1,0.0], "input_length":8, "output_capacity":2, "expected_result":2, "expected_output":[0.0,0.0]},
+    {"id":"nonintegral-state-count", "input_values":[2.5,0,0,1.0], "input_length":4, "output_capacity":1, "expected_result":-1, "expected_output":[]},
+    {"id":"invalid-proposal-state", "input_values":[2,1,0,1.0,0.0,1.0,2,0.1], "input_length":8, "output_capacity":2, "expected_result":-1, "expected_output":[]},
+    {"id":"uniform-one-is-invalid", "input_values":[1,1,0,1.0,0.0,0,1.0], "input_length":7, "output_capacity":2, "expected_result":-1, "expected_output":[]},
+    {"id":"short-output", "input_values":[2,2,0,1.0,0.0,1.0,1,0,0.0,0.0], "input_length":10, "output_capacity":2, "expected_result":-2, "expected_output":[]},
+    {"id":"null-output", "input_values":[1,0,0,1.0,0.0], "input_length":5, "output_capacity":1, "output_is_null":true, "expected_result":-2, "expected_output":[]},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "output_capacity":65, "expected_result":-1, "expected_output":[]}
+  ]
+}

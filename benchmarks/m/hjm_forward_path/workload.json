@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "id": "parsec-swaptions-hjm-forward-path-float64-slice-io-v1",
+  "algorithm": "hjm_forward_path",
+  "function_symbol": "hjm_forward_path",
+  "abi": "float64_slice_io",
+  "description": "Deterministic replay of one triangular HJM forward-rate path from PARSEC Swaptions using supplied factor shocks.",
+  "source": {
+    "repository": "PARSEC Benchmark Suite",
+    "version": "3.0",
+    "report_url": "https://www.cs.princeton.edu/techreports/2010/890.pdf",
+    "source_url": "https://github.com/cirosantilli/parsec-benchmark/tree/master/pkgs/apps/swaptions/src",
+    "source_files": ["HJM.cpp", "HJM_SimPath_Forward_Blocking.cpp"],
+    "kernel": "HJM_SimPath_Forward_Blocking",
+    "role": "algorithm description; clean-room reimplementation"
+  },
+  "contract": {
+    "operation": "Convert the initial yield curve to forwards, calculate the source's factor drift recurrence, and generate one triangular HJM forward-rate path from explicit normal shocks.",
+    "input_encoding": "[n,factors,years,yield_0,...,yield_(n-1),sigma_factor_major...,z_time_major_factor_minor...].",
+    "steps_range": [2, 8],
+    "factor_count_range": [1, 3],
+    "years_values": [1, 2, 3],
+    "yield_range": [-0.05, 0.2],
+    "factor_volatility_range": [0, 0.3],
+    "standard_normal_range": [-3, 3],
+    "exact_input_length": "3+n+2*factors*(n-1)",
+    "maximum_valid_input_length": 53,
+    "maximum_parseable_input_length": 54,
+    "forward_curve": "F[0]=Y[0]; F[i]=(i+1)*Y[i]-i*Y[i-1].",
+    "factor_drift": "D_f[0]=0.5*dt*sigma[f,0]^2; for j>0, D_f[j]=0.5*dt*(sum_{l=0..j} sigma[f,l])^2-sum_{l=0..j-1}D_f[l].",
+    "path_update": "H[t,j]=H[t-1,j+1]+sum_f(D_f[j])*dt+sqrt(dt)*sum_f(sigma[f,j]*z[t-1,f]) for t=1..n-1 and j=0..n-t-1.",
+    "output_encoding": "Full n-by-n path matrix, flattened row-major; inactive triangular cells are zero.",
+    "output_length": "n*n",
+    "success_result": "n*n",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Invalid input or null input returns -1 before output checks. Null output or insufficient capacity returns -2 after validation. Errors write no output values."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[n,factors,years,yields...,factor-major volatilities...,time-major factor shocks...]",
+    "minimum_valid_length": 7,
+    "maximum_valid_length": 53,
+    "maximum_parseable_length": 54,
+    "integer_valued_fields": ["n", "factors"],
+    "invalid_input_result": -1,
+    "null_input_length": 7,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "Flattened n-by-n HJM forward-rate path matrix.",
+    "maximum_elements": 64,
+    "success_result": "n*n",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 64,
+    "description": "Maximum flattened 8-by-8 forward-rate path matrix."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "two_step_zero_vol_forward_roll",
+      "input_values": [2, 1, 1, 0.02, 0.03, 0, 0],
+      "input_length": 7,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output": [0.02, 0.04, 0.04, 0]
+    },
+    {
+      "id": "three_step_source_drift_recurrence",
+      "input_values": [3, 1, 3, 0.01, 0.015, 0.02, 0.1, 0.2, 0, 0],
+      "input_length": 10,
+      "output_capacity": 9,
+      "expected_result": 9,
+      "expected_output": [0.01, 0.02, 0.03, 0.025, 0.07, 0, 0.075, 0, 0]
+    },
+    {
+      "id": "multi_factor_shocks_and_drift",
+      "input_values": [2, 2, 2, 0, 0, 0.1, 0.2, 1, -1],
+      "input_length": 9,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output": [0, 0, -0.075, 0]
+    },
+    {
+      "id": "time_ordered_factor_shocks",
+      "input_values": [3, 1, 3, 0, 0, 0, 0.1, 0.2, 1, -1],
+      "input_length": 10,
+      "output_capacity": 9,
+      "expected_result": 9,
+      "expected_output": [0, 0, 0, 0.105, 0.24, 0, 0.145, 0, 0]
+    },
+    {
+      "id": "maximum_steps_and_factors_zero_path",
+      "input_values": [
+        8, 3, 3,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 53,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output": [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+      ]
+    },
+    {
+      "id": "invalid_step_count",
+      "input_values": [1, 1, 1, 0, 0, 0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "factor_count_out_of_range",
+      "input_values": [2, 4, 1, 0, 0, 0, 0],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "unsupported_horizon",
+      "input_values": [2, 1, 0.5, 0, 0, 0, 0],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative_factor_volatility",
+      "input_values": [2, 1, 1, 0, 0, -0.01, 0],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_value_in_frame",
+      "input_values": [2, 1, 1, 0, 0, 0, 0, 0],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [2, 1, 1, 0.02, 0.03, 0, 0],
+      "input_length": 7,
+      "output_capacity": 3,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null_output_pointer",
+      "input_values": [2, 1, 1, 0.02, 0.03, 0, 0],
+      "input_length": 7,
+      "output_capacity": 4,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [0, 0, 0, 0, 0, 0, 0],
+      "input_length": 7,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

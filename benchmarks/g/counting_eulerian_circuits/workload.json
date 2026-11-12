@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "counting-eulerian-circuits-best-matrix-tree-i64-array-bytes-output-v1",
+  "algorithm": "counting_eulerian_circuits",
+  "function_symbol": "counting_eulerian_circuits",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "Library Checker",
+    "problem": "Counting Eulerian Circuits",
+    "url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/counting_eulerian_circuits/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/counting_eulerian_circuits/info.toml",
+    "source_type": "official_algorithm_task_specification",
+    "reuse": "Task definition only; all implementations and the oracle are independently written."
+  },
+  "contract": {
+    "operation": "Count directed Eulerian circuits modulo 998244353, identifying circuits that differ by cyclic shift.",
+    "input_layout": "[n, m, (u, v)*m]",
+    "official_limits": {"vertex_count": [1, 500], "edge_count": [1, 200000]},
+    "vertex_count_range": [1, 7],
+    "edge_count_range": [1, 9],
+    "vertex_ids": "zero-based",
+    "graph_semantics": "Directed multigraph; edge indices distinguish parallel arcs.",
+    "self_loops": "Allowed and counted as distinct edges.",
+    "cyclic_shift_semantics": "Fix edge index zero as the first edge in every counted sequence.",
+    "algorithm": "BEST theorem: count inward arborescences rooted at the tail of edge zero by a directed Matrix-Tree cofactor, then multiply by the product of (outdegree(v)-1)! over active vertices.",
+    "modulus": 998244353,
+    "output_encoding": "one unsigned 64-bit count in eight little-endian bytes",
+    "no_eulerian_circuit_result": 0,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input framing, ranges, and endpoint validation precede output pointer and capacity checks."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 20,
+    "maximum_parseable_length": 20,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_unsigned_64_bit_scalar",
+    "maximum_bytes": 8,
+    "success_result": 8,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Bounded directed Laplacian cofactor, degree counters, and modular-elimination scratch space."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "three-labeled-loops", "input_values": [1, 3, 0, 0, 0, 0, 0, 0], "input_length": 8, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0200000000000000"},
+    {"id": "directed-three-cycle", "input_values": [3, 3, 0, 1, 1, 2, 2, 0], "input_length": 8, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0100000000000000"},
+    {"id": "two-parallel-arcs-each-way", "input_values": [2, 4, 0, 1, 1, 0, 0, 1, 1, 0], "input_length": 10, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0200000000000000"},
+    {"id": "bidirected-triangle", "input_values": [3, 6, 0, 1, 0, 2, 1, 0, 1, 2, 2, 0, 2, 1], "input_length": 14, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0300000000000000"},
+    {"id": "loop-and-two-cycle", "input_values": [2, 3, 0, 0, 0, 0, 1, 1, 0], "input_length": 8, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0100000000000000"},
+    {"id": "isolated-vertex-is-ignored", "input_values": [3, 2, 0, 1, 1, 0], "input_length": 6, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0100000000000000"},
+    {"id": "degree-imbalance", "input_values": [3, 3, 0, 1, 1, 0, 1, 2], "input_length": 8, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0000000000000000"},
+    {"id": "two-balanced-components", "input_values": [4, 4, 0, 1, 1, 0, 2, 3, 3, 2], "input_length": 10, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0000000000000000"},
+    {"id": "nine-loop-factorial", "input_values": [1, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 20, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "809d000000000000"},
+    {"id": "vertex-count-out-of-range", "input_values": [0, 1, 0, 0], "input_length": 4, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "edge-count-out-of-range", "input_values": [2, 10], "input_length": 2, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "endpoint-out-of-range", "input_values": [2, 1, 0, 2], "input_length": 4, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "truncated-edge-frame", "input_values": [3, 2, 0, 1, 1], "input_length": 5, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-before-output-error", "input_values": [2, 1, 0, 2], "input_length": 4, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short-output-capacity", "input_values": [1, 1, 0, 0], "input_length": 4, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1, 1, 0, 0], "input_length": 4, "output_capacity": 8, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "output_capacity": 8, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

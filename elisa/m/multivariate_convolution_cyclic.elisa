@@ -1,0 +1,81 @@
+const MVC_MAX_K: usize = 3
+const MVC_MAX_P: usize = 32
+const MVC_MAX_INPUT: usize = 70
+const MVC_MAX_OUTPUT: usize = 256
+
+def mvc_cyclic_is_prime(value: usize) -> bool:
+    if value < 2: return false
+    divisor: mutable usize = 2
+    while divisor * divisor <= value:
+        if value % divisor == 0: return false
+        divisor <- divisor + 1
+    true
+
+def mvc_cyclic_store(value: i64, output: mutable view[u8], position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def multivariate_convolution_cyclic_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MVC_MAX_INPUT: return -1
+    p_value: i64 = input[0]
+    k_value: i64 = input[1]
+    if p_value < 2 or p_value > 97 or k_value < 0 or k_value > MVC_MAX_K.i64(): return -1
+    p: usize = p_value.usize()
+    k: usize = k_value.usize()
+    if not mvc_cyclic_is_prime(p) or length < 2 + k: return -1
+    dims: mutable usize[3] = zeroed
+    product: mutable usize = 1
+    axis: mutable usize = 0
+    while axis < k:
+        d_value: i64 = input[2 + axis]
+        if d_value < 2 or d_value > MVC_MAX_P.i64(): return -1
+        d: usize = d_value.usize()
+        if (p - 1) % d != 0 or product > MVC_MAX_P / d: return -1
+        dims[axis] <- d
+        product <- product * d
+        axis <- axis + 1
+    start: usize = 2 + k
+    if length != start + 2 * product: return -1
+    a: mutable i64[32] = zeroed
+    b: mutable i64[32] = zeroed
+    index: mutable usize = 0
+    while index < 2 * product:
+        value: i64 = input[start + index]
+        if value < 0 or value >= p_value: return -1
+        if index < product: a[index] <- value
+        else: b[index - product] <- value
+        index <- index + 1
+    bytes: usize = 8 * product
+    if bytes > MVC_MAX_OUTPUT: return -1
+    if output.is_null() or capacity < bytes: return -2
+    result: mutable i64[32] = zeroed
+    i: mutable usize = 0
+    while i < product:
+        j: mutable usize = 0
+        while j < product:
+            target: mutable usize = 0
+            stride: mutable usize = 1
+            axis <- 0
+            while axis < k:
+                d: usize = dims[axis]
+                total: usize = ((i / stride) % d + (j / stride) % d) % d
+                target <- target + total * stride
+                stride <- stride * d
+                axis <- axis + 1
+            result[target] <- (result[target] + a[i] * b[j]) % p_value
+            j <- j + 1
+        i <- i + 1
+    output_view: mutable view[u8] = output[0:bytes]
+    index <- 0
+    while index < product:
+        mvc_cyclic_store(result[index], output_view, 8 * index)
+        index <- index + 1
+    bytes.i64()
+
+export fn multivariate_convolution_cyclic(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = multivariate_convolution_cyclic_impl

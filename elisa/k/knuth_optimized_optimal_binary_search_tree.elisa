@@ -1,0 +1,42 @@
+const KOBST_MAX_N: usize = 64
+const KOBST_MAX_INPUT: usize = 65
+const KOBST_MAX_FREQUENCY: i64 = 1000000
+
+export fn knuth_optimized_optimal_binary_search_tree(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 2 or length > KOBST_MAX_INPUT: return -1
+    n_value: i64 = values[0]
+    if n_value < 1 or n_value > KOBST_MAX_N.i64() or length != (n_value + 1).usize(): return -1
+    n: usize = n_value.usize()
+    prefix: mutable i64[65] = zeroed
+    dp: mutable i64[64][64] = zeroed
+    opt: mutable usize[64][64] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        frequency: i64 = values[i + 1]
+        if frequency < 0 or frequency > KOBST_MAX_FREQUENCY: return -1
+        prefix[i + 1] <- prefix[i] + frequency
+        dp[i][i] <- frequency
+        opt[i][i] <- i
+        i <- i + 1
+    width: mutable usize = 2
+    while width <= n:
+        left: mutable usize = 0
+        while left + width <= n:
+            right: usize = left + width - 1
+            first: usize = opt[left][right - 1]
+            last: usize = opt[left + 1][right]
+            best: mutable i64 = 9223372036854775807
+            best_root: mutable usize = first
+            root: mutable usize = first
+            total: i64 = prefix[right + 1] - prefix[left]
+            while root <= last:
+                cost: mutable i64 = total
+                if root > left: cost <- cost + dp[left][root - 1]
+                if root < right: cost <- cost + dp[root + 1][right]
+                if cost < best: best <- cost; best_root <- root
+                root <- root + 1
+            dp[left][right] <- best
+            opt[left][right] <- best_root
+            left <- left + 1
+        width <- width + 1
+    dp[0][n - 1]

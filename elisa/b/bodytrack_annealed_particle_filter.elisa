@@ -1,0 +1,117 @@
+const BODYTRACK_MAX_D: usize = 4
+const BODYTRACK_MAX_N: usize = 16
+const BODYTRACK_MAX_L: usize = 4
+const BODYTRACK_MAX_INPUT: usize = 318
+const BODYTRACK_Q24: i64 = 16777216
+
+def bodytrack_round_away(numerator: i64, denominator: i64) -> i64:
+    magnitude: i64 = if numerator < 0: -numerator else: numerator
+    quotient: mutable i64 = magnitude / denominator
+    remainder: i64 = magnitude % denominator
+    if 2 * remainder >= denominator: quotient <- quotient + 1
+    if numerator < 0: -quotient else: quotient
+
+def bodytrack_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def bodytrack_annealed_particle_filter_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > BODYTRACK_MAX_INPUT: return -1
+    d_value: i64 = input[0]
+    n_value: i64 = input[1]
+    layers_value: i64 = input[2]
+    if d_value < 1 or d_value > 4 or n_value < 2 or n_value > 16 or
+            layers_value < 1 or layers_value > 4: return -1
+    d: usize = d_value.usize()
+    n: usize = n_value.usize()
+    layers: usize = layers_value.usize()
+    expected: usize = 2 + d + 2 * layers + n * d + (layers - 1) * n * (d + 1)
+    if length != expected: return -1
+
+    target_at: usize = 3
+    beta_at: usize = target_at + d
+    sigma_at: usize = beta_at + layers
+    pose_at: usize = sigma_at + layers - 1
+    uniform_at: usize = pose_at + n * d
+    shock_at: usize = uniform_at + (layers - 1) * n
+    target: mutable i64[BODYTRACK_MAX_D] = zeroed
+    beta: mutable i64[BODYTRACK_MAX_L] = zeroed
+    sigma: mutable i64[BODYTRACK_MAX_L - 1] = zeroed
+    for axis in 0..<d:
+        target[axis] <- input[target_at + axis]
+        if target[axis] < -10000 or target[axis] > 10000: return -1
+    for layer in 0..<layers:
+        beta[layer] <- input[beta_at + layer]
+        if beta[layer] < 1 or beta[layer] > 8 or
+                (layer > 0 and beta[layer] <= beta[layer - 1]): return -1
+    for layer in 0..<(layers - 1):
+        sigma[layer] <- input[sigma_at + layer]
+        if sigma[layer] < 0 or sigma[layer] > 2000 or
+                (layer > 0 and sigma[layer] > sigma[layer - 1]): return -1
+    for item in 0..<(n * d):
+        value: i64 = input[pose_at + item]
+        if value < -10000 or value > 10000: return -1
+    for item in 0..<((layers - 1) * n):
+        value: i64 = input[uniform_at + item]
+        if value < 0 or value >= BODYTRACK_Q24: return -1
+    for item in 0..<((layers - 1) * n * d):
+        value: i64 = input[shock_at + item]
+        if value < -3000 or value > 3000: return -1
+
+    required: usize = 8 * d
+    if output.is_null() or capacity < required: return -2
+    population: mutable i64[2][BODYTRACK_MAX_N][BODYTRACK_MAX_D] = zeroed
+    weights: mutable i64[BODYTRACK_MAX_N] = zeroed
+    estimate: mutable i64[BODYTRACK_MAX_D] = zeroed
+    for particle in 0..<n:
+        for axis in 0..<d:
+            population[0][particle][axis] <- input[pose_at + particle * d + axis]
+    active: mutable usize = 0
+    for layer in 0..<layers:
+        total_weight: mutable i64 = 0
+        for particle in 0..<n:
+            squared_distance: mutable i64 = 0
+            for axis in 0..<d:
+                delta: i64 = population[active][particle][axis] - target[axis]
+                squared_distance <- squared_distance + delta * delta
+            energy: i64 = squared_distance / 10000
+            base: i64 = (BODYTRACK_Q24 * 100000) / (100000 + energy)
+            weight: mutable i64 = base
+            for power in 1..<beta[layer].usize():
+                weight <- (weight * base) / BODYTRACK_Q24
+            weights[particle] <- weight
+            total_weight <- total_weight + weight
+        if layer + 1 == layers:
+            for axis in 0..<d:
+                moment: mutable i64 = 0
+                for particle in 0..<n:
+                    moment <- moment + weights[particle] * population[active][particle][axis]
+                estimate[axis] <- bodytrack_round_away(moment, total_weight)
+        else:
+            destination: usize = 1 - active
+            for child in 0..<n:
+                draw: i64 = input[uniform_at + layer * n + child]
+                threshold: i64 = (draw * total_weight) / BODYTRACK_Q24
+                cumulative: mutable i64 = 0
+                ancestor: mutable usize = 0
+                while cumulative <= threshold:
+                    cumulative <- cumulative + weights[ancestor]
+                    ancestor <- ancestor + 1
+                ancestor <- ancestor - 1
+                for axis in 0..<d:
+                    shock_index: usize = shock_at + layer * n * d + child * d + axis
+                    movement: i64 = bodytrack_round_away(sigma[layer] * input[shock_index], 1000)
+                    coordinate: mutable i64 = population[active][ancestor][axis] + movement
+                    if coordinate < -10000: coordinate <- -10000
+                    if coordinate > 10000: coordinate <- 10000
+                    population[destination][child][axis] <- coordinate
+            active <- destination
+    for axis in 0..<d:
+        bodytrack_put_i64(output[0:capacity], 8 * axis, estimate[axis])
+    required.i64()
+
+export fn bodytrack_annealed_particle_filter(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = bodytrack_annealed_particle_filter_impl

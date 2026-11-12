@@ -1,0 +1,245 @@
+const MAX_N: usize = 16
+const MAX_Q: usize = 32
+const MAX_OPS: usize = MAX_N + 2 * MAX_Q
+const TREE_NODES: usize = 4 * MAX_Q + 8
+
+def dg_root(parent: view[usize], value: usize) -> usize:
+    vertex: mutable usize = value
+    while parent[vertex] != vertex:
+        vertex <- parent[vertex]
+    vertex
+
+def dg_place(node: usize, left: usize, right: usize, ql: usize, qr: usize, id: usize,
+    count: mutable view[usize], bucket: mutable view[usize]) -> void:
+    if ql <= left and right <= qr:
+        bucket[node * MAX_OPS + count[node]] <- id
+        count[node] <- count[node] + 1
+        return
+    middle: usize = left + (right - left) / 2
+    if ql < middle: dg_place(node * 2, left, middle, ql, qr, id, count, bucket)
+    if qr > middle: dg_place(node * 2 + 1, middle, right, ql, qr, id, count, bucket)
+
+def dg_unite(u: usize, v: usize, parent: mutable view[usize], size: mutable view[usize],
+    total: mutable view[i64], history_kind: mutable view[usize], history_a: mutable view[usize],
+    history_b: mutable view[usize], history_size: mutable view[usize], history_sum: mutable view[i64],
+    history_len: mutable usize&) -> void:
+    ru: mutable usize = dg_root(parent, u)
+    rv: mutable usize = dg_root(parent, v)
+    if ru == rv: return
+    if size[ru] < size[rv] or (size[ru] == size[rv] and ru > rv):
+        tmp: usize = ru
+        ru <- rv
+        rv <- tmp
+    history_kind[history_len] <- 0
+    history_a[history_len] <- rv
+    history_b[history_len] <- ru
+    history_size[history_len] <- size[ru]
+    history_sum[history_len] <- total[ru]
+    history_len <- history_len + 1
+    parent[rv] <- ru
+    size[ru] <- size[ru] + size[rv]
+    total[ru] <- total[ru] + total[rv]
+
+def dg_add(v: usize, delta: i64, parent: view[usize], total: mutable view[i64],
+    history_kind: mutable view[usize], history_a: mutable view[usize],
+    history_sum: mutable view[i64], history_len: mutable usize&) -> void:
+    root: usize = dg_root(parent, v)
+    history_kind[history_len] <- 1
+    history_a[history_len] <- root
+    history_sum[history_len] <- total[root]
+    history_len <- history_len + 1
+    total[root] <- total[root] + delta
+
+def dg_rollback(mark: usize, parent: mutable view[usize], size: mutable view[usize],
+    total: mutable view[i64], history_kind: view[usize], history_a: view[usize],
+    history_b: view[usize], history_size: view[usize], history_sum: view[i64],
+    history_len: mutable usize&) -> void:
+    while history_len > mark:
+        history_len <- history_len - 1
+        kind: usize = history_kind[history_len]
+        a: usize = history_a[history_len]
+        if kind == 0:
+            root: usize = history_b[history_len]
+            parent[a] <- a
+            size[root] <- history_size[history_len]
+            total[root] <- history_sum[history_len]
+        else:
+            total[a] <- history_sum[history_len]
+
+def dg_visit(node: usize, left: usize, right: usize,
+    op_kind: view[usize], op_a: view[usize], op_b: view[usize], op_delta: view[i64],
+    count: view[usize], bucket: view[usize], event_op: view[i64], event_a: view[i64],
+    parent: mutable view[usize], size: mutable view[usize], total: mutable view[i64],
+    history_kind: mutable view[usize], history_a: mutable view[usize], history_b: mutable view[usize],
+    history_size: mutable view[usize], history_sum: mutable view[i64],
+    history_len: mutable usize&, answer: mutable view[i64]) -> void:
+    mark: usize = history_len
+    index: mutable usize = 0
+    while index < count[node]:
+        id: usize = bucket[node * MAX_OPS + index]
+        if op_kind[id] == 0:
+            dg_unite(op_a[id], op_b[id], parent, size, total, history_kind, history_a,
+                history_b, history_size, history_sum, history_len)
+        else:
+            dg_add(op_a[id], op_delta[id], parent, total, history_kind, history_a, history_sum, history_len)
+        index <- index + 1
+    if right - left == 1:
+        if event_op[left] == 3:
+            answer[left] <- total[dg_root(parent, event_a[left].usize())]
+    else:
+        middle: usize = left + (right - left) / 2
+        dg_visit(node * 2, left, middle, op_kind, op_a, op_b, op_delta, count, bucket,
+            event_op, event_a, parent, size, total, history_kind, history_a, history_b,
+            history_size, history_sum, history_len, answer)
+        dg_visit(node * 2 + 1, middle, right, op_kind, op_a, op_b, op_delta, count, bucket,
+            event_op, event_a, parent, size, total, history_kind, history_a, history_b,
+            history_size, history_sum, history_len, answer)
+    dg_rollback(mark, parent, size, total, history_kind, history_a, history_b,
+        history_size, history_sum, history_len)
+
+def dg_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def dynamic_graph_vertex_add_component_sum_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 2 + MAX_N + 3 * MAX_Q + 1: return -1
+    if input[0] < 1 or input[0] > MAX_N.i64() or input[1] < 0 or input[1] > MAX_Q.i64(): return -1
+    n: usize = input[0].usize()
+    q: usize = input[1].usize()
+    if length != 2 + n + 3 * q: return -1
+    initial: mutable i64[MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        initial[vertex] <- input[2 + vertex]
+        if initial[vertex] < 0 or initial[vertex] > 100: return -1
+        vertex <- vertex + 1
+    event_op: mutable i64[MAX_Q] = zeroed
+    event_a: mutable i64[MAX_Q] = zeroed
+    event_b: mutable i64[MAX_Q] = zeroed
+    active: mutable bool[MAX_N * MAX_N] = zeroed
+    start: mutable usize[MAX_N * MAX_N] = zeroed
+    op_kind: mutable usize[MAX_OPS] = zeroed
+    op_a: mutable usize[MAX_OPS] = zeroed
+    op_b: mutable usize[MAX_OPS] = zeroed
+    op_delta: mutable i64[MAX_OPS] = zeroed
+    interval_left: mutable usize[MAX_OPS] = zeroed
+    interval_right: mutable usize[MAX_OPS] = zeroed
+    op_count: mutable usize = 0
+    query_count: mutable usize = 0
+    time: mutable usize = 0
+    while time < q:
+        offset: usize = 2 + n + 3 * time
+        op: i64 = input[offset]
+        a: i64 = input[offset + 1]
+        b: i64 = input[offset + 2]
+        event_op[time] <- op
+        event_a[time] <- a
+        event_b[time] <- b
+        if op == 0 or op == 1:
+            if a < 0 or a >= n.i64() or b < 0 or b >= n.i64() or a == b: return -1
+            u: usize = a.usize()
+            v: usize = b.usize()
+            if u > v:
+                tmp: usize = u
+                u <- v
+                v <- tmp
+            edge_index: usize = u * MAX_N + v
+            if op == 0:
+                if active[edge_index]: return -1
+                active[edge_index] <- true
+                start[edge_index] <- time
+            else:
+                if not active[edge_index]: return -1
+                active[edge_index] <- false
+                if start[edge_index] < time:
+                    op_kind[op_count] <- 0
+                    op_a[op_count] <- u
+                    op_b[op_count] <- v
+                    interval_left[op_count] <- start[edge_index]
+                    interval_right[op_count] <- time
+                    op_count <- op_count + 1
+        elif op == 2:
+            if a < 0 or a >= n.i64() or b < 0 or b > 100: return -1
+            if b != 0 and time < q:
+                op_kind[op_count] <- 1
+                op_a[op_count] <- a.usize()
+                op_delta[op_count] <- b
+                interval_left[op_count] <- time
+                interval_right[op_count] <- q
+                op_count <- op_count + 1
+        elif op == 3:
+            if a < 0 or a >= n.i64() or b != 0: return -1
+            query_count <- query_count + 1
+        else: return -1
+        time <- time + 1
+    u: mutable usize = 0
+    while u < n:
+        v: mutable usize = u + 1
+        while v < n:
+            edge_index: usize = u * MAX_N + v
+            if active[edge_index] and start[edge_index] < q:
+                op_kind[op_count] <- 0
+                op_a[op_count] <- u
+                op_b[op_count] <- v
+                interval_left[op_count] <- start[edge_index]
+                interval_right[op_count] <- q
+                op_count <- op_count + 1
+            v <- v + 1
+        u <- u + 1
+    if q != 0:
+        vertex <- 0
+        while vertex < n:
+            if initial[vertex] != 0:
+                op_kind[op_count] <- 1
+                op_a[op_count] <- vertex
+                op_delta[op_count] <- initial[vertex]
+                interval_left[op_count] <- 0
+                interval_right[op_count] <- q
+                op_count <- op_count + 1
+            vertex <- vertex + 1
+    if output.is_null() or capacity < 8 * query_count: return -2
+    bucket_count: mutable usize[TREE_NODES] = zeroed
+    buckets: mutable usize[TREE_NODES * MAX_OPS] = zeroed
+    if q != 0:
+        i: mutable usize = 0
+        while i < op_count:
+            if interval_left[i] < interval_right[i]:
+                dg_place(1, 0, q, interval_left[i], interval_right[i], i,
+                    bucket_count[0:TREE_NODES], buckets[0:TREE_NODES * MAX_OPS])
+            i <- i + 1
+    parent: mutable usize[MAX_N] = zeroed
+    set_size: mutable usize[MAX_N] = zeroed
+    total: mutable i64[MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        parent[vertex] <- vertex
+        set_size[vertex] <- 1
+        vertex <- vertex + 1
+    history_kind: mutable usize[MAX_OPS] = zeroed
+    history_a: mutable usize[MAX_OPS] = zeroed
+    history_b: mutable usize[MAX_OPS] = zeroed
+    history_size: mutable usize[MAX_OPS] = zeroed
+    history_sum: mutable i64[MAX_OPS] = zeroed
+    history_len: mutable usize = 0
+    answer: mutable i64[MAX_Q] = zeroed
+    if q != 0:
+        dg_visit(1, 0, q, op_kind[0:MAX_OPS], op_a[0:MAX_OPS], op_b[0:MAX_OPS], op_delta[0:MAX_OPS],
+            bucket_count[0:TREE_NODES], buckets[0:TREE_NODES * MAX_OPS], event_op[0:MAX_Q], event_a[0:MAX_Q],
+            parent[0:MAX_N], set_size[0:MAX_N], total[0:MAX_N], history_kind[0:MAX_OPS], history_a[0:MAX_OPS],
+            history_b[0:MAX_OPS], history_size[0:MAX_OPS], history_sum[0:MAX_OPS], history_len, answer[0:MAX_Q])
+    output_view: mutable view[u8] = output[0:8 * query_count]
+    written: mutable usize = 0
+    time <- 0
+    while time < q:
+        if event_op[time] == 3:
+            dg_store(answer[time], output_view, written)
+            written <- written + 8
+        time <- time + 1
+    written.i64()
+
+export fn dynamic_graph_vertex_add_component_sum(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = dynamic_graph_vertex_add_component_sum_impl

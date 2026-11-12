@@ -64,6 +64,49 @@ from asci_purple_smg2000_residual_oracle import (
     MAX_CELLS as ASCI_PURPLE_SMG2000_MAX_CELLS,
     MAX_ABS_FIELD as ASCI_PURPLE_SMG2000_MAX_ABS_FIELD,
 )
+from marsaglia_polar_normal_oracle import (
+    MAX_INPUT_LENGTH as MARSAGLIA_POLAR_MAX_INPUT_LENGTH,
+)
+from metropolis_mcmc_oracle import (
+    MAX_INPUT_LENGTH as METROPOLIS_MCMC_MAX_INPUT_LENGTH,
+    MAX_STEPS as METROPOLIS_MCMC_MAX_STEPS,
+    MAX_STATES as METROPOLIS_MCMC_MAX_STATES,
+)
+from box_muller_cartesian_normal_oracle import (
+    MAX_INPUT_LENGTH as BOX_MULLER_CARTESIAN_MAX_INPUT_LENGTH,
+)
+from npb_ep_oracle import MAX_INPUT_LENGTH as NPB_EP_MAX_INPUT_LENGTH
+from npb_ft_3d_spectral_step_verifier_oracle import (
+    expected_output as npb_ft_3d_spectral_step_independent_oracle,
+)
+from npb_mg_vcycle_verifier_oracle import (
+    expected_output as npb_mg_vcycle_independent_oracle,
+)
+from npb_sp_pentadiagonal_verifier_oracle import (
+    expected_output as npb_sp_pentadiagonal_independent_oracle,
+)
+from hjm_forward_path_oracle import independent_output as hjm_forward_path_verifier_oracle
+from m.hjm_forward_path.verify_workload import verify_workload as verify_hjm_forward_path_package
+from splash2_fmm_verifier_oracle import expected_output as splash2_fmm_direct_verifier_oracle
+from verify_splash2_fmm_package import check_package as check_splash2_fmm_package
+from splash2_fft_six_step_verifier_oracle import (
+    expected_output as splash2_fft_six_step_independent_oracle,
+)
+from f.splash2_fft_six_step.verify_workload import (
+    verify_workload as verify_splash2_fft_six_step_package,
+)
+from splash2_ocean_rbgs_verifier_oracle import (
+    expected_output as splash2_ocean_rbgs_independent_oracle,
+)
+from o.splash2_ocean_rbgs.verify_workload import (
+    verify_workload as verify_splash2_ocean_rbgs_package,
+)
+from splash2_radiosity_verifier_oracle import (
+    expected_output as splash2_radiosity_independent_oracle,
+)
+from f.splash2_radiosity_refine.verify_workload import (
+    verify_workload as verify_splash2_radiosity_refine_package,
+)
 from himenobmtxpa_oracle import (
     INPUT_LENGTH as HIMENO_INPUT_LENGTH,
     INVALID_RESULT as HIMENO_INVALID_RESULT,
@@ -132,6 +175,13 @@ from run_float64_slice_io import (
                                   validate_graphai_cf_sgd_sweep_workload,
                                   validate_gardenia_workload,
                                   validate_asci_purple_smg2000_residual_workload,
+                                  validate_marsaglia_polar_normal_workload,
+                                  validate_metropolis_mcmc_workload,
+                                  validate_box_muller_cartesian_normal_workload,
+                                  validate_npb_ep_workload,
+                                  validate_npb_ft_3d_spectral_step_workload,
+                                  validate_npb_mg_vcycle_workload,
+                                  validate_npb_sp_pentadiagonal_workload,
     validate_mafft_falign_fft_lag_correlation_workload,
     validate_himenobmtxpa_workload,
     validate_polybench_gramschmidt_workload,
@@ -1577,6 +1627,178 @@ _MAFFT_V_VOLUME = (31.0, 124.0, 56.0, 54.0, 55.0, 85.0, 83.0, 3.0, 96.0, 111.0,
 _MAFFT_V_CODE_TO_INDEX = {ord(letter): index for index, letter in enumerate(_MAFFT_V_ALPHABET)}
 
 
+def npb_ep_verifier_oracle(values, capacity=None, output_is_null=False,
+                          input_is_null=False, input_length=None):
+    """Independent direct recurrence and binary64 EP reduction reference."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) != NPB_EP_MAX_INPUT_LENGTH
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   or float(value) != math.trunc(float(value)) for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or input_is_null
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, []
+    pair_count, state = int(values[0]), int(values[1])
+    if not 1 <= pair_count <= 4096 or not 1 <= state < (1 << 46):
+        return -1, []
+    histogram = [0] * 10
+    sum_x = 0.0
+    sum_y = 0.0
+    scale_modulus = float(1 << 46)
+    for _ in range(pair_count):
+        state = state * 1_220_703_125 % (1 << 46)
+        x = 2.0 * (state / scale_modulus) - 1.0
+        state = state * 1_220_703_125 % (1 << 46)
+        y = 2.0 * (state / scale_modulus) - 1.0
+        radius_squared = x * x + y * y
+        if radius_squared <= 0.0 or radius_squared > 1.0:
+            continue
+        factor = math.sqrt(-2.0 * math.log(radius_squared) / radius_squared)
+        normal_x = x * factor
+        normal_y = y * factor
+        extent = max(abs(normal_x), abs(normal_y))
+        if extent < 10.0:
+            histogram[int(extent)] += 1
+        sum_x += normal_x
+        sum_y += normal_y
+    if output_is_null or capacity is not None and capacity < 12:
+        return -2, []
+    return 12, [float(count) for count in histogram] + [sum_x, sum_y]
+
+
+def box_muller_cartesian_normal_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Direct binary64 Cartesian transform reference for the bounded draw tape."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) > BOX_MULLER_CARTESIAN_MAX_INPUT_LENGTH
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   or float(value) != math.trunc(float(value)) for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or input_is_null
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, []
+    if len(values) < 2:
+        return -1, []
+    pair_count = int(values[0])
+    if not 1 <= pair_count <= 64 or len(values) != 1 + 2 * pair_count:
+        return -1, []
+    draws = [int(value) for value in values[1:]]
+    if any(draw < 0 or draw > 0xFFFFFFFF for draw in draws):
+        return -1, []
+    output = []
+    for pair in range(pair_count):
+        radial = (draws[2 * pair] + 1.0) / 4_294_967_296.0
+        angular = draws[2 * pair + 1] / 4_294_967_296.0
+        radius = math.sqrt(-2.0 * math.log(radial))
+        angle = 6.283185307179586476925286766559 * angular
+        output.extend((radius * math.cos(angle), radius * math.sin(angle)))
+    result = len(output)
+    if output_is_null or capacity is not None and capacity < result:
+        return -2, []
+    return result, output
+
+
+def marsaglia_polar_normal_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Direct binary64 transform reference, independent of the Decimal oracle."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) > MARSAGLIA_POLAR_MAX_INPUT_LENGTH
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   or float(value) != math.trunc(float(value)) for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or input_is_null
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))
+            or capacity is not None and (type(capacity) is not int or capacity < 0)):
+        return -1, []
+    if len(values) < 4:
+        return -1, []
+    draw_count, attempt_cap = int(values[0]), int(values[1])
+    if (not 2 <= draw_count <= 128 or draw_count % 2 != 0
+            or not 1 <= attempt_cap <= 64
+            or draw_count < 2 * attempt_cap
+            or len(values) != 2 + draw_count):
+        return -1, []
+    draws = [int(value) for value in values[2:]]
+    if any(draw < 0 or draw > 0xFFFFFFFF for draw in draws):
+        return -1, []
+    pair = None
+    for attempt in range(attempt_cap):
+        first = draws[2 * attempt] / 2147483648.0 - 1.0
+        second = draws[2 * attempt + 1] / 2147483648.0 - 1.0
+        radius_squared = first * first + second * second
+        if radius_squared <= 0.0 or radius_squared >= 1.0:
+            continue
+        factor = math.sqrt(-2.0 * math.log(radius_squared) / radius_squared)
+        pair = [first * factor, second * factor]
+        break
+    if pair is None:
+        return -1, []
+    if output_is_null or capacity is not None and capacity < 2:
+        return -2, []
+    return 2, pair
+
+
+def metropolis_mcmc_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independent direct accept/reject replay for the bounded state chain."""
+    if (input_is_null or not isinstance(values, (list, tuple))
+            or not 4 <= len(values) <= METROPOLIS_MCMC_MAX_INPUT_LENGTH
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or capacity is not None and (type(capacity) is not int or capacity < 0)
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)):
+        return -1, []
+    state_count_value, step_count_value = float(values[0]), float(values[1])
+    if (not state_count_value.is_integer() or not 1 <= state_count_value <= METROPOLIS_MCMC_MAX_STATES
+            or not step_count_value.is_integer()
+            or not 0 <= step_count_value <= METROPOLIS_MCMC_MAX_STEPS):
+        return -1, []
+    states, steps = int(state_count_value), int(step_count_value)
+    initial_value, temperature = float(values[2]), float(values[3])
+    if (not initial_value.is_integer() or not 0 <= initial_value < states
+            or not 0.001 <= temperature <= 1000.0
+            or len(values) != 4 + states + 2 * steps):
+        return -1, []
+    energies = [float(value) for value in values[4:4 + states]]
+    if any(not -1_000_000.0 <= energy <= 1_000_000.0 for energy in energies):
+        return -1, []
+    proposal_start = 4 + states
+    uniform_start = proposal_start + steps
+    proposals = values[proposal_start:uniform_start]
+    uniforms = [float(value) for value in values[uniform_start:]]
+    if any(type(value) not in (int, float) or not float(value).is_integer()
+           or not 0 <= float(value) < states for value in proposals):
+        return -1, []
+    if any(not 0.0 <= uniform < 1.0 for uniform in uniforms):
+        return -1, []
+
+    trace = [float(int(initial_value))]
+    current = int(initial_value)
+    for index in range(steps):
+        candidate = int(proposals[index])
+        scaled_energy_change = (energies[candidate] - energies[current]) / temperature
+        if scaled_energy_change <= 0.0:
+            current = candidate
+        else:
+            acceptance_threshold = math.exp(-scaled_energy_change)
+            if uniforms[index] < acceptance_threshold:
+                current = candidate
+        trace.append(float(current))
+    if output_is_null or capacity is not None and capacity < len(trace):
+        return -2, []
+    return len(trace), trace
+
+
 def mafft_falign_fft_lag_correlation_verifier_oracle(
         values, capacity=None, output_is_null=False,
         input_is_null=False, input_length=None):
@@ -2157,7 +2379,19 @@ def mibench_automotive_basicmath_cubic_verifier_oracle(
 
 
 def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
-    if algorithm == "tsvc_s111_odd_index_neighbor_update":
+    if algorithm == "hjm_forward_path":
+        verify_hjm_forward_path_package()
+    elif algorithm == "splash2_fmm":
+        errors = check_splash2_fmm_package()
+        if errors:
+            raise ValueError("splash2_fmm package is incomplete: " + "; ".join(errors))
+    elif algorithm == "splash2_fft_six_step":
+        verify_splash2_fft_six_step_package()
+    elif algorithm == "splash2_ocean_rbgs":
+        verify_splash2_ocean_rbgs_package()
+    elif algorithm == "splash2_radiosity_refine":
+        verify_splash2_radiosity_refine_package()
+    elif algorithm == "tsvc_s111_odd_index_neighbor_update":
         validate_tsvc_s111_odd_index_neighbor_update_workload(workload)
     elif algorithm == "tsvc_vtvtv_triple_product_map":
         validate_tsvc_vtvtv_triple_product_map_workload(workload)
@@ -2241,6 +2475,18 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_gardenia_workload(workload, algorithm)
     elif algorithm == "asci_purple_smg2000_residual":
         validate_asci_purple_smg2000_residual_workload(workload)
+    elif algorithm == "marsaglia_polar_normal":
+        validate_marsaglia_polar_normal_workload(workload)
+    elif algorithm == "box_muller_cartesian_normal":
+        validate_box_muller_cartesian_normal_workload(workload)
+    elif algorithm == "npb_ep":
+        validate_npb_ep_workload(workload)
+    elif algorithm == "npb_ft_3d_spectral_step":
+        validate_npb_ft_3d_spectral_step_workload(workload)
+    elif algorithm == "npb_mg_vcycle":
+        validate_npb_mg_vcycle_workload(workload)
+    elif algorithm == "npb_sp_pentadiagonal_line_solve":
+        validate_npb_sp_pentadiagonal_workload(workload)
     elif algorithm == "mafft_falign_fft_lag_correlation":
         validate_mafft_falign_fft_lag_correlation_workload(workload)
     elif algorithm == "himenobmtxpa":
@@ -2646,6 +2892,70 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                     or not _matches_output(expected_output, independent_output,
                                            absolute_tolerance, relative_tolerance)):
                 raise ValueError(f"{case.get('id')}: ASCI-Purple residual differs from independent oracle")
+        elif algorithm == "marsaglia_polar_normal":
+            independent_result, independent_output = marsaglia_polar_normal_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: Marsaglia polar fixture differs from independent verifier oracle")
+        elif algorithm == "metropolis_mcmc":
+            independent_result, independent_output = metropolis_mcmc_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: Metropolis trace differs from independent verifier oracle")
+        elif algorithm == "box_muller_cartesian_normal":
+            independent_result, independent_output = box_muller_cartesian_normal_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: Cartesian Box–Muller fixture differs from independent verifier oracle")
+        elif algorithm == "npb_ep":
+            independent_result, independent_output = npb_ep_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: NPB EP differs from independent verifier oracle")
+        elif algorithm == "npb_ft_3d_spectral_step":
+            independent_result, independent_output = npb_ft_3d_spectral_step_independent_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: NPB FT differs from independent 3-D verifier oracle")
+        elif algorithm == "npb_mg_vcycle":
+            independent_result, independent_output = npb_mg_vcycle_independent_oracle(
+                values, output_capacity=case.get("output_capacity", workspace),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: NPB MG differs from independent matrix-form oracle")
+        elif algorithm == "npb_sp_pentadiagonal_line_solve":
+            independent_result, independent_output = npb_sp_pentadiagonal_independent_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: NPB SP differs from independent dense solver")
         elif algorithm == "mafft_falign_fft_lag_correlation":
             independent_result, independent_output = mafft_falign_fft_lag_correlation_verifier_oracle(
                 values, case.get("output_capacity", workspace),
@@ -2655,6 +2965,69 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                     or not _matches_output(expected_output, independent_output,
                                            absolute_tolerance, relative_tolerance)):
                 raise ValueError(f"{case.get('id')}: MAFFT lag profile differs from the direct verifier oracle")
+        elif algorithm == "hjm_forward_path":
+            independent_result, independent_output = hjm_forward_path_verifier_oracle(
+                values,
+                output_capacity=case.get("output_capacity", workspace),
+                output_is_null=case.get("output_is_null", False),
+                input_length=case.get("input_length"),
+                input_is_null=case.get("input_is_null", False))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: HJM path differs from the independent drift oracle")
+        elif algorithm == "splash2_fmm":
+            if (case.get("input_is_null", False)
+                    or case.get("input_length", len(values)) != len(values)):
+                independent_result, independent_output = -1, ()
+            else:
+                independent_result, independent_output = splash2_fmm_direct_verifier_oracle(values)
+                capacity = case.get("output_capacity", workspace)
+                if (independent_result >= 0
+                        and (case.get("output_is_null", False)
+                             or capacity < independent_result)):
+                    independent_result, independent_output = -2, ()
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: FMM profile differs from the independent direct oracle")
+        elif algorithm == "splash2_fft_six_step":
+            independent_result, independent_output = splash2_fft_six_step_independent_oracle(
+                values,
+                output_capacity=case.get("output_capacity", workspace),
+                output_is_null=case.get("output_is_null", False),
+                input_length=case.get("input_length"),
+                input_is_null=case.get("input_is_null", False))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: six-step FFT differs from the independent matrix oracle")
+        elif algorithm == "splash2_ocean_rbgs":
+            independent_result, independent_output = splash2_ocean_rbgs_independent_oracle(
+                values,
+                output_capacity=case.get("output_capacity", workspace),
+                output_is_null=case.get("output_is_null", False),
+                input_length=case.get("input_length"),
+                input_is_null=case.get("input_is_null", False))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: Ocean red-black sweep differs from the independent matrix oracle")
+        elif algorithm == "splash2_radiosity_refine":
+            if (case.get("input_is_null", False)
+                    or case.get("input_length", len(values)) != len(values)):
+                independent_result, independent_output = -1, ()
+            else:
+                independent_result, independent_output = splash2_radiosity_independent_oracle(values)
+                capacity = case.get("output_capacity", workspace)
+                if (independent_result >= 0
+                        and (case.get("output_is_null", False)
+                             or capacity < independent_result)):
+                    independent_result, independent_output = -2, ()
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: radiosity refinement differs from the independent work-stack oracle")
         elif algorithm == "himenobmtxpa":
             independent_result, independent_output = himenobmtxpa_verifier_oracle(
                 values, case.get("output_capacity", workspace),
@@ -8561,7 +8934,10 @@ def main() -> int:
     if args.jobs < 1 or len(set(args.languages)) != len(args.languages):
         parser.error("jobs must be positive and language selections must be unique")
     algorithm = args.algorithm
-    package_dir = {"polybench_lu": "l", "polybench_gramschmidt": "p", "polybench_correlation": "c",
+    package_dir = {"hjm_forward_path": "m", "splash2_fmm": "f",
+                   "splash2_fft_six_step": "f", "splash2_ocean_rbgs": "o",
+                   "splash2_radiosity_refine": "f",
+                   "polybench_lu": "l", "polybench_gramschmidt": "p", "polybench_correlation": "c",
                    "polybench_seidel_2d": "s",
                    "cbench_consumer_mad_imdct36": "m",
                    "cbench_consumer_lame_mdct_short": "m",

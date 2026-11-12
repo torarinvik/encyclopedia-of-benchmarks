@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "chordal-graph-recognition-mcs-peo-i64-array-bytes-output-v1",
+  "algorithm": "chordal_graph_recognition",
+  "function_symbol": "chordal_graph_recognition",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "Library Checker",
+    "problem": "Chordal Graph Recognition",
+    "url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/chordal_graph_recognition/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/chordal_graph_recognition/info.toml",
+    "checker_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/chordal_graph_recognition/checker.cpp",
+    "reuse": "Task definition, limits, and certificate semantics only; the bounded ports and oracle are clean-room implementations."
+  },
+  "contract": {
+    "operation": "Recognize whether a simple undirected graph is chordal and return a perfect elimination ordering, or return an induced cycle of length at least four.",
+    "input_layout": "[n, m, (u, v)*m]",
+    "official_limits": {"vertices": [1, 200000], "edges": [0, 200000]},
+    "vertex_count_range": [1, 6],
+    "edge_count_range": [0, 15],
+    "graph_semantics": "Simple undirected graph; self-loops and duplicate edges are invalid.",
+    "mcs_tie_breaking": "Among unnumbered vertices with maximum label, select the smallest vertex ID.",
+    "output_layout": "Chordal: [1, PEO...]; nonchordal: [0, cycle_length, cycle_vertices...].",
+    "output_encoding": "little-endian unsigned 64-bit values",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 32,
+    "maximum_parseable_length": 32,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_unsigned_64_bit_array",
+    "element_width_bytes": 8,
+    "maximum_elements": 8,
+    "maximum_bytes": 64,
+    "success_result": "8 * packed_value_count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {"bytes": 4096, "meaning": "Fixed six-vertex adjacency, MCS labels/order, PEO check, induced-cycle subset search, and staged output."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "cases": [
+    {"id": "single-isolated-vertex", "input_values": [1, 0], "input_length": 2, "output_capacity": 64, "expected_result": 16, "expected_output_hex": "01000000000000000000000000000000"},
+    {"id": "path-is-chordal", "input_values": [4, 3, 0, 1, 1, 2, 2, 3], "input_length": 8, "output_capacity": 64, "expected_result": 40, "expected_output_hex": "01000000000000000300000000000000020000000000000001000000000000000000000000000000"},
+    {"id": "triangle-is-chordal", "input_values": [3, 3, 0, 1, 0, 2, 1, 2], "input_length": 8, "output_capacity": 64, "expected_result": 32, "expected_output_hex": "0100000000000000020000000000000001000000000000000000000000000000"},
+    {"id": "diamond-is-chordal", "input_values": [4, 5, 0, 1, 0, 2, 1, 2, 1, 3, 2, 3], "input_length": 12, "output_capacity": 64, "expected_result": 40, "expected_output_hex": "01000000000000000300000000000000020000000000000001000000000000000000000000000000"},
+    {"id": "four-cycle-has-induced-hole", "input_values": [4, 4, 0, 1, 1, 2, 2, 3, 3, 0], "input_length": 10, "output_capacity": 64, "expected_result": 48, "expected_output_hex": "000000000000000004000000000000000000000000000000010000000000000002000000000000000300000000000000"},
+    {"id": "five-cycle-has-induced-hole", "input_values": [5, 5, 0, 1, 1, 2, 2, 3, 3, 4, 4, 0], "input_length": 12, "output_capacity": 64, "expected_result": 56, "expected_output_hex": "0000000000000000050000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000"},
+    {"id": "duplicate-edge-invalid", "input_values": [3, 2, 0, 1, 1, 0], "input_length": 6, "output_capacity": 64, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "truncated-edge-frame", "input_values": [3, 1, 0], "input_length": 3, "output_capacity": 64, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short-output", "input_values": [1, 0], "input_length": 2, "output_capacity": 15, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1, 0], "input_length": 2, "output_capacity": 64, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "output_capacity": 64, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

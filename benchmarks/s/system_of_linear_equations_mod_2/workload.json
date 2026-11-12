@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-system-of-linear-equations-mod-2-bounded-v1",
+  "algorithm": "system_of_linear_equations_mod_2",
+  "function_symbol": "system_of_linear_equations_mod_2",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "System of Linear Equations Mod 2",
+    "authors": ["Library Checker contributors"],
+    "url": "https://github.com/yosupo06/library-checker-problems/tree/master/linear_algebra/system_of_linear_equations_mod_2",
+    "limits_url": "https://github.com/yosupo06/library-checker-problems/blob/master/linear_algebra/system_of_linear_equations_mod_2/info.toml",
+    "reuse": "Problem definition and algorithm family only; all implementations and oracle are clean-room."
+  },
+  "contract": {
+    "operation": "Solve A*x=b over GF(2), returning inconsistency or a particular solution and nullspace basis.",
+    "input_layout": "[N, M, A row-major N*M bits, b[N] bits]",
+    "n_range": [1, 32],
+    "m_range": [1, 32],
+    "entry_domain": [0, 1],
+    "consistent_output_words": "[R, particular_solution_mask, basis_mask_0, ..., basis_mask_(R-1)] as little-endian unsigned 64-bit words",
+    "basis_order": "Ascending free-column index; bit j denotes component j.",
+    "inconsistent_output": "One little-endian u64 all-ones word.",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 1058,
+    "maximum_parseable_length": 1058,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "little-endian unsigned 64-bit words; R+2 words for a consistent system, one all-ones word if inconsistent",
+    "maximum_bytes": 272,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "At most 32 packed coefficient rows, right-hand-side bits, pivot columns, and fixed metadata."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"unique-square-system","input_values":[2,2,1,0,0,1,1,0],"input_length":8,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000100000000000000"},
+    {"id":"two-dimensional-nullspace","input_values":[1,3,1,1,0,1],"input_length":6,"output_capacity":32,"expected_result":32,"expected_output_hex":"0200000000000000010000000000000003000000000000000400000000000000"},
+    {"id":"rectangular-one-dimensional-nullspace","input_values":[2,3,1,1,0,0,1,1,1,0],"input_length":10,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000001000000000000000700000000000000"},
+    {"id":"inconsistent-duplicate-equations","input_values":[2,2,1,1,1,1,0,1],"input_length":8,"output_capacity":8,"expected_result":8,"expected_output_hex":"ffffffffffffffff"},
+    {"id":"all-free-variables","input_values":[2,4,0,0,0,0,0,0,0,0,0,0],"input_length":12,"output_capacity":48,"expected_result":48,"expected_output_hex":"040000000000000000000000000000000100000000000000020000000000000004000000000000000800000000000000"},
+    {"id":"zero-dimensional-domain-rejected","input_values":[0,1],"input_length":2,"output_capacity":272,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-matrix","input_values":[1,1,1],"input_length":3,"output_capacity":272,"expected_result":-1,"expected_output_hex":""},
+    {"id":"non-binary-entry","input_values":[1,1,2,0],"input_length":4,"output_capacity":272,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,2,1,0,0,1,1,0],"input_length":8,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,2,1,0,0,1,1,0],"input_length":8,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":272,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

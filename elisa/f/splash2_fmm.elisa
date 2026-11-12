@@ -1,0 +1,144 @@
+const max_particles: usize = 48
+const boxes: usize = 16
+const order: usize = 32
+const stride: usize = order + 1
+extern fn double log(double value)
+
+def splash2_fmm_impl(input: f64&, input_length: usize,
+                     output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 7 or input_length > 145: return -1
+    requested: f64 = input[0]
+    if requested != requested or requested < 2.0 or requested > 48.0 or requested.i64().f64() != requested: return -1
+    n: usize = requested.i64().usize()
+    if input_length != 1 + 3 * n: return -1
+    x: mutable f64[max_particles] = zeroed
+    y: mutable f64[max_particles] = zeroed
+    charge: mutable f64[max_particles] = zeroed
+    box_id: mutable i64[max_particles] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        px: f64 = input[1 + 3 * i]
+        py: f64 = input[2 + 3 * i]
+        q: f64 = input[3 + 3 * i]
+        if px != px or px < 0.0 or px >= 8.0 or px.i64().f64() != px or py != py or py < 0.0 or py >= 8.0 or py.i64().f64() != py or q != q or q < -3.0 or q > 3.0 or q.i64().f64() != q: return -1
+        x[i] <- px; y[i] <- py; charge[i] <- q
+        box_id[i] <- (py.i64() / 2) * 4 + px.i64() / 2
+        j: mutable usize = 0
+        while j < i:
+            if x[i] == x[j] and y[i] == y[j]: return -1
+            j <- j + 1
+        i <- i + 1
+    if output.is_null() or output_capacity < n: return -2
+
+    mr: mutable f64[boxes][stride] = zeroed
+    mi: mutable f64[boxes][stride] = zeroed
+    lr: mutable f64[boxes][stride] = zeroed
+    li: mutable f64[boxes][stride] = zeroed
+    i <- 0
+    while i < n:
+        b: usize = box_id[i].usize()
+        bx: usize = b % 4
+        by: usize = b / 4
+        zr: f64 = x[i] - (2 * bx + 1).f64()
+        zi: f64 = y[i] - (2 * by + 1).f64()
+        pr: mutable f64 = 1.0
+        pi: mutable f64 = 0.0
+        mr[b][0] <- mr[b][0] + charge[i]
+        k: mutable usize = 1
+        while k <= order:
+            nr: f64 = pr * zr - pi * zi
+            ni: f64 = pr * zi + pi * zr
+            pr <- nr; pi <- ni
+            mr[b][k] <- mr[b][k] + charge[i] * pr
+            mi[b][k] <- mi[b][k] + charge[i] * pi
+            k <- k + 1
+        i <- i + 1
+
+    target: mutable usize = 0
+    while target < boxes:
+        tx: usize = target % 4
+        ty: usize = target / 4
+        source: mutable usize = 0
+        while source < boxes:
+            sx: usize = source % 4
+            sy: usize = source / 4
+            dbx: i64 = tx.i64() - sx.i64()
+            dby: i64 = ty.i64() - sy.i64()
+            if dbx >= -1 and dbx <= 1 and dby >= -1 and dby <= 1:
+                source <- source + 1
+                continue
+            dx: f64 = 2.0 * dbx.f64()
+            dy: f64 = 2.0 * dby.f64()
+            r2: f64 = dx * dx + dy * dy
+            ir: mutable f64[2 * order + 1] = zeroed
+            ii: mutable f64[2 * order + 1] = zeroed
+            ir[0] <- 1.0
+            odr: f64 = dx / r2
+            odi: f64 = -dy / r2
+            p: mutable usize = 1
+            while p <= 2 * order:
+                ir[p] <- ir[p - 1] * odr - ii[p - 1] * odi
+                ii[p] <- ir[p - 1] * odi + ii[p - 1] * odr
+                p <- p + 1
+            constant: mutable f64 = mr[source][0] * 0.5 * log(r2)
+            k <- 1
+            while k <= order:
+                constant <- constant - (mr[source][k] * ir[k] - mi[source][k] * ii[k]) / k.f64()
+                k <- k + 1
+            lr[target][0] <- lr[target][0] + constant
+            degree: mutable usize = 1
+            while degree <= order:
+                sr: mutable f64 = 0.0
+                si: mutable f64 = 0.0
+                k <- 1
+                while k <= order:
+                    choose: mutable f64 = 1.0
+                    j <- 1
+                    while j <= degree:
+                        choose <- choose * (k + j - 1).f64() / j.f64()
+                        j <- j + 1
+                    scale: f64 = choose / k.f64()
+                    p <- k + degree
+                    sr <- sr + scale * (mr[source][k] * ir[p] - mi[source][k] * ii[p])
+                    si <- si + scale * (mr[source][k] * ii[p] + mi[source][k] * ir[p])
+                    k <- k + 1
+                qscale: f64 = (if degree % 2 == 1: 1.0 else: -1.0) / degree.f64()
+                mscale: f64 = if degree % 2 == 1: -1.0 else: 1.0
+                lr[target][degree] <- lr[target][degree] + mr[source][0] * qscale * ir[degree] - mscale * sr
+                li[target][degree] <- li[target][degree] + mr[source][0] * qscale * ii[degree] - mscale * si
+                degree <- degree + 1
+            source <- source + 1
+        target <- target + 1
+
+    i <- 0
+    while i < n:
+        b: usize = box_id[i].usize()
+        bx: usize = b % 4; by: usize = b / 4
+        wr: f64 = x[i] - (2 * bx + 1).f64()
+        wi: f64 = y[i] - (2 * by + 1).f64()
+        pr: mutable f64 = 1.0; pi: mutable f64 = 0.0
+        value: mutable f64 = lr[b][0]
+        degree: mutable usize = 1
+        while degree <= order:
+            nr: f64 = pr * wr - pi * wi
+            ni: f64 = pr * wi + pi * wr
+            pr <- nr; pi <- ni
+            value <- value + lr[b][degree] * pr - li[b][degree] * pi
+            degree <- degree + 1
+        j <- 0
+        while j < n:
+            if j != i:
+                sb: usize = box_id[j].usize()
+                sx: i64 = (sb % 4).i64(); sy: i64 = (sb / 4).i64()
+                if (bx.i64() - sx < -1 or bx.i64() - sx > 1 or by.i64() - sy < -1 or by.i64() - sy > 1):
+                    j <- j + 1
+                    continue
+                dx: f64 = x[j] - x[i]; dy: f64 = y[j] - y[i]
+                value <- value + charge[j] * 0.5 * log(dx * dx + dy * dy)
+            j <- j + 1
+        output[i] <- value
+        i <- i + 1
+    n.i64()
+
+export fn splash2_fmm(input: f64&, input_length: usize,
+                      output: mutable f64&, output_capacity: usize) -> i64 = splash2_fmm_impl

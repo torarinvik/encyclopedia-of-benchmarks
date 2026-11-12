@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-adjugate-matrix-bounded-mod-998244353-v1",
+  "algorithm": "adjugate_matrix",
+  "function_symbol": "adjugate_matrix",
+  "abi": "i64_array_bytes_output",
+  "description": "Return the full transposed cofactor matrix over F_998244353, including for singular inputs.",
+  "source": {
+    "title": "Adjugate Matrix",
+    "authors": ["Library Checker contributors"],
+    "reference": "Signed minors transposed into the classical adjugate",
+    "url": "https://judge.yosupo.jp/problem/adjugate_matrix",
+    "repository": "https://github.com/yosupo06/library-checker-problems",
+    "algorithm_attribution": "Compute every cofactor minor independently over the fixed prime field",
+    "implementation_status": "clean-room bounded ports"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, row-major matrix entries...]",
+    "dimension_range": [1, 6],
+    "entry_range": [0, 998244352],
+    "modulus": 998244353,
+    "maximum_valid_input_length": 37,
+    "maximum_parseable_input_length": 37,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "N*N signed 64-bit little-endian residues in row-major adjugate order",
+    "maximum_bytes": 288,
+    "success_result": "8*N*N bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 288,
+    "meaning": "Maximum output buffer capacity for a six-by-six matrix."
+  },
+  "contract": {
+    "result": "The row-major adjugate matrix over F_998244353, defined for singular matrices.",
+    "complexity": "O(N^4*2^N) time and O(N^2 + 2^N) auxiliary space.",
+    "construction": "adjugate[row,column] is (-1)^(row+column) times the determinant after removing input row column and input column row.",
+    "singular_case": "Compute cofactors directly; do not infer the result from an inverse."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "one_by_one",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "nonsymmetric_lower_triangular",
+      "input_values": [2, 1, 0, 7, 1],
+      "input_length": 5,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "01000000000000000000000000000000faff7f3b000000000100000000000000"
+    },
+    {
+      "id": "nonsymmetric_dense",
+      "input_values": [2, 1, 2, 3, 4],
+      "input_length": 5,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0400000000000000ffff7f3b00000000feff7f3b000000000100000000000000"
+    },
+    {
+      "id": "singular_rank_one",
+      "input_values": [2, 1, 2, 2, 4],
+      "input_length": 5,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0400000000000000ffff7f3b00000000ffff7f3b000000000100000000000000"
+    },
+    {
+      "id": "all_zero_singular",
+      "input_values": [2, 0, 0, 0, 0],
+      "input_length": 5,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "three_by_three_diagonal",
+      "input_values": [3, 1, 0, 0, 0, 2, 0, 0, 0, 3],
+      "input_length": 10,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output_hex": "06000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000200000000000000"
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 288,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_dimension",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 288,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "dimension_above_limit",
+      "input_values": [7],
+      "input_length": 1,
+      "output_capacity": 288,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wrong_matrix_length",
+      "input_values": [2, 1, 0, 0],
+      "input_length": 4,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "entry_at_modulus",
+      "input_values": [1, 998244353],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output",
+      "input_values": [2, 1, 0, 0, 1],
+      "input_length": 5,
+      "output_capacity": 31,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [2, 1, 0, 0, 1],
+      "input_length": 5,
+      "output_capacity": 32,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

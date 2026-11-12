@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "sattolo-cycle-seeded-i32-v1",
+  "algorithm": "sattolo_cycle",
+  "function_symbol": "sattolo_cycle",
+  "input": {
+    "kind": "seed_then_signed_i32_array",
+    "encoding": "[seed, value...] using signed 64-bit input values",
+    "seed_range": [1, 2147483646],
+    "array_length_range": [0, 1024],
+    "value_range": [-2147483648, 2147483647],
+    "randomness": {
+      "generator": "Park-Miller LCG",
+      "recurrence": "state = (state * 48271) mod 2147483647",
+      "shuffle": "for remaining=count down to 2, swap remaining-1 with next_random() mod (remaining-1)"
+    },
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "shuffled signed i32 values, each four bytes little-endian two's-complement",
+    "result": "number of values written",
+    "max_bytes": 4096
+  },
+  "workspace": {"bytes": 4096},
+  "cases": [
+    {"id": "empty", "input_values": [1], "expected_result": 0, "expected_output_hex": ""},
+    {"id": "singleton", "input_values": [1, 42], "expected_result": 1, "expected_output_hex": "2a000000"},
+    {"id": "two_cycle", "input_values": [1, 10, 20], "expected_result": 2, "expected_output_hex": "140000000a000000"},
+    {"id": "three_cycle", "input_values": [1, 10, 20, 30], "expected_result": 3, "expected_output_hex": "1e0000000a00000014000000"},
+    {"id": "negative_values", "input_values": [1, -2, 0, 5], "expected_result": 3, "expected_output_hex": "05000000feffffff00000000"},
+    {"id": "insufficient_capacity", "input_values": [1, 10, 20], "workspace_bytes": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "exact_capacity", "input_values": [1, 10, 20], "workspace_bytes": 8, "expected_result": 2, "expected_output_hex": "140000000a000000"},
+    {"id": "invalid_zero_seed", "input_values": [0], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_empty_input", "input_values": [], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_i32_value", "input_values": [1, 2147483648], "expected_result": -1, "expected_output_hex": ""}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

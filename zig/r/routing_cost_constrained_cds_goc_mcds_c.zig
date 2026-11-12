@@ -86,7 +86,7 @@ export fn routing_cost_constrained_cds_goc_mcds_c(input_opt: ?[*]const i64, leng
             var current = target;
             while (current != source) { path[path_length] = current; path_length += 1; current = @intCast(parent[current]); }
             path[path_length] = source; path_length += 1;
-            if (path_length <= 4) for (1..path_length - 1) |i| connectors |= @as(u64, 1) << @intCast(path[i]);
+            if (path_length <= 5) for (1..path_length - 1) |i| connectors |= @as(u64, 1) << @intCast(path[i]);
         }
     }
     if (output_opt == null or capacity < 16) return -2;

@@ -1,0 +1,212 @@
+const NPB_LU_MAX_POINTS: usize = 32
+const NPB_LU_MAX_AXIS: usize = 4
+const NPB_LU_MAX_SWEEPS: usize = 8
+const NPB_LU_MAX_MICRO: i64 = 1000000000
+const NPB_LU_SCALE: f64 = 1000000.0
+extern sqrt(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def npb_lu_write_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def npb_lu_solve5(diagonal: view[f64], right: view[f64], result: mutable view[f64]) -> bool:
+    work: mutable f64[30] = zeroed
+    for row in 0..5:
+        for column in 0..5: work[row * 6 + column] <- diagonal[row * 5 + column]
+        work[row * 6 + 5] <- right[row]
+    for pivot in 0..5:
+        divisor: f64 = work[pivot * 6 + pivot]
+        if divisor <= 0.0: return false
+        for row in (pivot + 1)..5:
+            factor: f64 = work[row * 6 + pivot] / divisor
+            for column in (pivot + 1)..5:
+                work[row * 6 + column] <- work[row * 6 + column] - factor * work[pivot * 6 + column]
+            work[row * 6 + 5] <- work[row * 6 + 5] - factor * work[pivot * 6 + 5]
+    row: mutable usize = 5
+    while row > 0:
+        row <- row - 1
+        tail: mutable f64 = 0.0
+        for column in (row + 1)..5: tail <- tail + work[row * 6 + column] * result[column]
+        result[row] <- (work[row * 6 + 5] - tail) / work[row * 6 + row]
+    true
+
+def npb_lu_apply(nx: usize, ny: usize, nz: usize, diagonal: view[f64], coupling: view[f64],
+        x: view[f64], out: mutable view[f64]) -> void:
+    points: usize = nx * ny * nz
+    nxy: usize = nx * ny
+    for point in 0..points:
+        ix: usize = point % nx
+        iy: usize = (point / nx) % ny
+        iz: usize = point / nxy
+        for row in 0..5:
+            total: mutable f64 = 0.0
+            for column in 0..5: total <- total + diagonal[row * 5 + column] * x[point * 5 + column]
+            if ix > 0: total <- total + coupling[0] * x[(point - 1) * 5 + row]
+            if ix + 1 < nx: total <- total + coupling[0] * x[(point + 1) * 5 + row]
+            if iy > 0: total <- total + coupling[1] * x[(point - nx) * 5 + row]
+            if iy + 1 < ny: total <- total + coupling[1] * x[(point + nx) * 5 + row]
+            if iz > 0: total <- total + coupling[2] * x[(point - nxy) * 5 + row]
+            if iz + 1 < nz: total <- total + coupling[2] * x[(point + nxy) * 5 + row]
+            out[point * 5 + row] <- total
+
+def npb_lu_block_ssor_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 42 or length > 352: return -1
+    if input[0] < 1 or input[0] > NPB_LU_MAX_AXIS.i64() or
+       input[1] < 1 or input[1] > NPB_LU_MAX_AXIS.i64() or
+       input[2] < 1 or input[2] > NPB_LU_MAX_AXIS.i64() or
+       input[3] < 1 or input[3] > NPB_LU_MAX_SWEEPS.i64(): return -1
+    nx: usize = input[0].usize()
+    ny: usize = input[1].usize()
+    nz: usize = input[2].usize()
+    sweeps: usize = input[3].usize()
+    points: usize = nx * ny * nz
+    count: usize = points * 5
+    if points > NPB_LU_MAX_POINTS or length != 32 + 10 * points: return -1
+    index: mutable usize = 4
+    while index < length:
+        if input[index] < -NPB_LU_MAX_MICRO or input[index] > NPB_LU_MAX_MICRO: return -1
+        index <- index + 1
+    row: mutable usize = 0
+    while row < 5:
+        diagonal_value: i64 = input[4 + row * 5 + row]
+        off_sum: mutable i64 = 0
+        column: mutable usize = 0
+        while column < 5:
+            entry: i64 = input[4 + row * 5 + column]
+            if entry != input[4 + column * 5 + row]: return -1
+            if column != row:
+                off_sum <- off_sum + (if entry < 0 then -entry else entry)
+            column <- column + 1
+        if nx > 1: off_sum <- off_sum + 2 * (if input[29] < 0 then -input[29] else input[29])
+        if ny > 1: off_sum <- off_sum + 2 * (if input[30] < 0 then -input[30] else input[30])
+        if nz > 1: off_sum <- off_sum + 2 * (if input[31] < 0 then -input[31] else input[31])
+        if diagonal_value <= 0 or diagonal_value <= off_sum: return -1
+        row <- row + 1
+
+    output_bytes: usize = 8 * (sweeps + count)
+    if output.is_null() or output_capacity < output_bytes: return -2
+    diagonal: mutable f64[25] = zeroed
+    coupling: mutable f64[3] = zeroed
+    x: mutable f64[NPB_LU_MAX_POINTS * 5] = zeroed
+    rhs: mutable f64[NPB_LU_MAX_POINTS * 5] = zeroed
+    applied: mutable f64[NPB_LU_MAX_POINTS * 5] = zeroed
+    residual: mutable f64[NPB_LU_MAX_POINTS * 5] = zeroed
+    forward: mutable f64[NPB_LU_MAX_POINTS * 5] = zeroed
+    correction: mutable f64[NPB_LU_MAX_POINTS * 5] = zeroed
+    index <- 0
+    while index < 25:
+        diagonal[index] <- input[4 + index].f64() / NPB_LU_SCALE
+        index <- index + 1
+    index <- 0
+    while index < 3:
+        coupling[index] <- input[29 + index].f64() / NPB_LU_SCALE
+        index <- index + 1
+    index <- 0
+    while index < count:
+        rhs[index] <- input[32 + index].f64() / NPB_LU_SCALE
+        x[index] <- input[32 + count + index].f64() / NPB_LU_SCALE
+        index <- index + 1
+
+    nxy: usize = nx * ny
+    sweep: mutable usize = 0
+    while sweep < sweeps:
+        npb_lu_apply(nx, ny, nz, diagonal[0:25], coupling[0:3], x[0:count], applied[0:count])
+        index <- 0
+        while index < count:
+            residual[index] <- rhs[index] - applied[index]
+            index <- index + 1
+        point: mutable usize = 0
+        while point < points:
+            ix: usize = point % nx
+            iy: usize = (point / nx) % ny
+            iz: usize = point / nxy
+            local: mutable f64[5] = zeroed
+            solved: mutable f64[5] = zeroed
+            row <- 0
+            while row < 5:
+                local[row] <- residual[point * 5 + row]
+                row <- row + 1
+            if ix > 0:
+                row <- 0
+                while row < 5:
+                    local[row] <- local[row] - coupling[0] * forward[(point - 1) * 5 + row]
+                    row <- row + 1
+            if iy > 0:
+                row <- 0
+                while row < 5:
+                    local[row] <- local[row] - coupling[1] * forward[(point - nx) * 5 + row]
+                    row <- row + 1
+            if iz > 0:
+                row <- 0
+                while row < 5:
+                    local[row] <- local[row] - coupling[2] * forward[(point - nxy) * 5 + row]
+                    row <- row + 1
+            if not npb_lu_solve5(diagonal[0:25], local[0:5], solved[0:5]): return -1
+            row <- 0
+            while row < 5:
+                forward[point * 5 + row] <- solved[row]
+                row <- row + 1
+            point <- point + 1
+        back: mutable usize = 0
+        while back < points:
+            point <- points - 1 - back
+            ix <- point % nx
+            iy <- (point / nx) % ny
+            iz <- point / nxy
+            local: mutable f64[5] = zeroed
+            solved: mutable f64[5] = zeroed
+            row <- 0
+            while row < 5:
+                column: mutable usize = 0
+                while column < 5:
+                    local[row] <- local[row] + diagonal[row * 5 + column] * forward[point * 5 + column]
+                    column <- column + 1
+                row <- row + 1
+            if ix + 1 < nx:
+                row <- 0
+                while row < 5:
+                    local[row] <- local[row] - coupling[0] * correction[(point + 1) * 5 + row]
+                    row <- row + 1
+            if iy + 1 < ny:
+                row <- 0
+                while row < 5:
+                    local[row] <- local[row] - coupling[1] * correction[(point + nx) * 5 + row]
+                    row <- row + 1
+            if iz + 1 < nz:
+                row <- 0
+                while row < 5:
+                    local[row] <- local[row] - coupling[2] * correction[(point + nxy) * 5 + row]
+                    row <- row + 1
+            if not npb_lu_solve5(diagonal[0:25], local[0:5], solved[0:5]): return -1
+            row <- 0
+            while row < 5:
+                correction[point * 5 + row] <- solved[row]
+                row <- row + 1
+            back <- back + 1
+        index <- 0
+        while index < count:
+            x[index] <- x[index] + correction[index]
+            index <- index + 1
+        npb_lu_apply(nx, ny, nz, diagonal[0:25], coupling[0:3], x[0:count], applied[0:count])
+        norm2: mutable f64 = 0.0
+        index <- 0
+        while index < count:
+            difference: f64 = rhs[index] - applied[index]
+            norm2 <- norm2 + difference * difference
+            index <- index + 1
+        npb_lu_write_f64(output[0:output_bytes], sweep * 8, sqrt(norm2))
+        sweep <- sweep + 1
+    index <- 0
+    while index < count:
+        npb_lu_write_f64(output[0:output_bytes], (sweeps + index) * 8, x[index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn npb_lu_block_ssor(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = npb_lu_block_ssor_impl

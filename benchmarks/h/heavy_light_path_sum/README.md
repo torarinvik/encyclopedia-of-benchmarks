@@ -10,6 +10,8 @@ Operation `0` sets node `a` to value `b`. Operation `1` queries the inclusive no
 
 The bounds keep every path sum within signed 64-bit. The workload covers a singleton, a chain, a star, branching paths, negative values, repeated updates, the maximum tree size and operation count, malformed trees and operations, and output capacity errors.
 
+The Library Checker [`vertex_add_path_sum`](https://judge.yosupo.jp/problem/vertex_add_path_sum) variant uses point addition instead of point assignment. Given the stored current value, an addition is one point assignment to the new value; HLD decomposition, segment-tree updates, and path-sum queries are the same, so it is cross-referenced here rather than duplicated as another benchmark.
+
 ## Build
 
 ```sh

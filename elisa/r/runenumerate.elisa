@@ -1,0 +1,95 @@
+const RUNENUM_MAX_N: usize = 24
+const RUNENUM_MAX_RUNS: usize = 144
+
+def runenumerate_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def runenumerate_impl(input: i64&, length: usize,
+                      output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > RUNENUM_MAX_N + 1: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > RUNENUM_MAX_N.i64() or length != n_value.usize() + 1: return -1
+    n: usize = n_value.usize()
+    text: mutable usize[RUNENUM_MAX_N] = zeroed
+    for index in 0..n:
+        value: i64 = input[index + 1]
+        if value < 0 or value >= 26: return -1
+        text[index] <- value.usize()
+    if output.is_null(): return -2
+
+    stride: usize = RUNENUM_MAX_N + 1
+    lcp: mutable usize[(RUNENUM_MAX_N + 1) * (RUNENUM_MAX_N + 1)] = zeroed
+    i: mutable usize = n
+    while i > 0:
+        i <- i - 1
+        j: mutable usize = n
+        while j > i + 1:
+            j <- j - 1
+            if text[i] == text[j]:
+                lcp[i * stride + j] <- 1 + lcp[(i + 1) * stride + j + 1]
+
+    periods: mutable usize[RUNENUM_MAX_RUNS] = zeroed
+    lefts: mutable usize[RUNENUM_MAX_RUNS] = zeroed
+    rights: mutable usize[RUNENUM_MAX_RUNS] = zeroed
+    count: mutable usize = 0
+    period: mutable usize = 1
+    while period <= n / 2:
+        at: mutable usize = period
+        while at < n:
+            if text[at] != text[at - period]:
+                at <- at + 1
+            else:
+                first: usize = at
+                while at < n and text[at] == text[at - period]: at <- at + 1
+                left: usize = first - period
+                right: usize = at
+                if right - left >= 2 * period:
+                    minimal: mutable bool = true
+                    smaller: mutable usize = 1
+                    while smaller < period:
+                        if lcp[left * stride + left + smaller] >= right - left - smaller:
+                            minimal <- false
+                            break
+                        smaller <- smaller + 1
+                    if minimal and count < RUNENUM_MAX_RUNS:
+                        periods[count] <- period
+                        lefts[count] <- left
+                        rights[count] <- right
+                        count <- count + 1
+        period <- period + 1
+
+    sort_index: mutable usize = 1
+    while sort_index < count:
+        saved_period: usize = periods[sort_index]
+        saved_left: usize = lefts[sort_index]
+        saved_right: usize = rights[sort_index]
+        j: mutable usize = sort_index
+        while j > 0:
+            previous: usize = j - 1
+            after: bool = periods[previous] > saved_period or
+                (periods[previous] == saved_period and lefts[previous] > saved_left) or
+                (periods[previous] == saved_period and lefts[previous] == saved_left and rights[previous] > saved_right)
+            if not after: break
+            periods[j] <- periods[previous]
+            lefts[j] <- lefts[previous]
+            rights[j] <- rights[previous]
+            j <- j - 1
+        periods[j] <- saved_period
+        lefts[j] <- saved_left
+        rights[j] <- saved_right
+        sort_index <- sort_index + 1
+
+    needed: usize = 8 + 24 * count
+    if capacity < needed: return -2
+    runenumerate_store(count.i64(), output[0:needed], 0)
+    for index in 0..count:
+        offset: usize = 8 + 24 * index
+        runenumerate_store(periods[index].i64(), output[0:needed], offset)
+        runenumerate_store(lefts[index].i64(), output[0:needed], offset + 8)
+        runenumerate_store(rights[index].i64(), output[0:needed], offset + 16)
+    needed.i64()
+
+export fn runenumerate(input: i64&, length: usize,
+                       output: mutable u8&, capacity: usize) -> i64 = runenumerate_impl

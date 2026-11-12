@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-characteristic-polynomial-bounded-hessenberg-recurrence-v1",
+  "algorithm": "characteristic_polynomial",
+  "function_symbol": "characteristic_polynomial",
+  "abi": "i64_array_bytes_output",
+  "description": "Compute all coefficients of det(xI-A) over the field modulo 998244353.",
+  "source": {
+    "title": "Characteristic Polynomial",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/linear_algebra/characteristic_polynomial/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/linear_algebra/characteristic_polynomial/info.toml",
+    "algorithm_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/linear_algebra/characteristic_polynomial/sol/correct.cpp",
+    "algorithm_attribution": "Upper-Hessenberg similarity reduction and characteristic-polynomial coefficient recurrence",
+    "implementation_status": "clean-room bounded Hessenberg recurrence"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, row-major N-by-N matrix...]",
+    "N_range": [0, 8],
+    "entry_range": "0 <= A[i,j] < 998244353",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "N+1 signed 64-bit little-endian coefficients of det(xI-A), in ascending degree order",
+    "maximum_bytes": 72,
+    "success_result": "8*(N+1) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 72,
+    "meaning": "Output-buffer capacity; the bounded matrix and coefficient table are separate."
+  },
+  "contract": {
+    "result": "Coefficients p_0 through p_N of det(xI-A), where p_N=1, modulo 998244353",
+    "empty_matrix_polynomial": [1],
+    "complexity": "O(N^3) field operations plus O(N log MOD) pivot inversions, with O(N^2) bounded storage",
+    "official_N_range": [0, 500],
+    "official_modulus": 998244353
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-matrix","input_values":[0],"input_length":1,"output_capacity":72,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"one-by-one-zero","input_values":[1,0],"input_length":2,"output_capacity":72,"expected_result":16,"expected_output_hex":"00000000000000000100000000000000"},
+    {"id":"one-by-one-one","input_values":[1,1],"input_length":2,"output_capacity":72,"expected_result":16,"expected_output_hex":"0000803b000000000100000000000000"},
+    {"id":"two-by-two-identity","input_values":[2,1,0,0,1],"input_length":5,"output_capacity":72,"expected_result":24,"expected_output_hex":"0100000000000000ffffff3b000000000100000000000000"},
+    {"id":"two-cycle","input_values":[2,0,1,1,0],"input_length":5,"output_capacity":72,"expected_result":24,"expected_output_hex":"0000803b0000000000000000000000000100000000000000"},
+    {"id":"three-cycle-pivoting","input_values":[3,0,1,0,0,0,1,1,0,0],"input_length":10,"output_capacity":72,"expected_result":32,"expected_output_hex":"0000803b00000000000000000000000000000000000000000100000000000000"},
+    {"id":"maximum-dimension-short-output","input_values":[8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":65,"output_capacity":71,"expected_result":-2,"expected_output_hex":""},
+    {"id":"negative-entry","input_values":[1,-1],"input_length":2,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"entry-equals-modulus","input_values":[1,998244353],"input_length":2,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"dimension-above-local-bound","input_values":[9],"input_length":1,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-matrix","input_values":[2,0,1,1],"input_length":4,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-entry","input_values":[0,0],"input_length":2,"output_capacity":72,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[2,1,0,0,1],"input_length":5,"output_capacity":23,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,1,0,0,1],"input_length":5,"output_capacity":72,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid-input-with-null-output","input_values":[1,-1],"input_length":2,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":72,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

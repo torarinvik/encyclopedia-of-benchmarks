@@ -1,0 +1,104 @@
+const RANGE_AFFINE_MODULUS: i64 = 998244353
+const RANGE_AFFINE_MAX_LENGTH: usize = 64
+const RANGE_AFFINE_MAX_OPERATIONS: usize = 64
+const RANGE_AFFINE_TREE_NODES: usize = 256
+const RANGE_AFFINE_MAX_PARSEABLE_INPUT: usize = 387
+
+def range_affine_reduce(value: i64) -> i64: value % RANGE_AFFINE_MODULUS
+
+def range_affine_apply(sum: mutable view[i64], lazy_mul: mutable view[i64],
+                       lazy_add: mutable view[i64], node: usize, segment_length: usize,
+                       a: i64, b: i64) -> void:
+    sum[node] <- range_affine_reduce(a * sum[node] + b * segment_length.i64())
+    lazy_mul[node] <- range_affine_reduce(a * lazy_mul[node])
+    lazy_add[node] <- range_affine_reduce(a * lazy_add[node] + b)
+
+def range_affine_push(sum: mutable view[i64], lazy_mul: mutable view[i64],
+                      lazy_add: mutable view[i64], node: usize, left: usize, right: usize) -> void:
+    if right - left <= 1 or (lazy_mul[node] == 1 and lazy_add[node] == 0): return
+    middle: usize = left + (right - left) / 2
+    a: i64 = lazy_mul[node]
+    b: i64 = lazy_add[node]
+    range_affine_apply(sum, lazy_mul, lazy_add, node * 2, middle - left, a, b)
+    range_affine_apply(sum, lazy_mul, lazy_add, node * 2 + 1, right - middle, a, b)
+    lazy_mul[node] <- 1
+    lazy_add[node] <- 0
+
+def range_affine_build(sum: mutable view[i64], values: view[i64],
+                       node: usize, left: usize, right: usize) -> void:
+    if right - left == 1:
+        sum[node] <- values[left]
+        return
+    middle: usize = left + (right - left) / 2
+    range_affine_build(sum, values, node * 2, left, middle)
+    range_affine_build(sum, values, node * 2 + 1, middle, right)
+    sum[node] <- range_affine_reduce(sum[node * 2] + sum[node * 2 + 1])
+
+def range_affine_update(sum: mutable view[i64], lazy_mul: mutable view[i64],
+                        lazy_add: mutable view[i64], ql: usize, qr: usize,
+                        node: usize, left: usize, right: usize, a: i64, b: i64) -> void:
+    if ql <= left and right <= qr:
+        range_affine_apply(sum, lazy_mul, lazy_add, node, right - left, a, b)
+        return
+    if qr <= left or right <= ql: return
+    range_affine_push(sum, lazy_mul, lazy_add, node, left, right)
+    middle: usize = left + (right - left) / 2
+    range_affine_update(sum, lazy_mul, lazy_add, ql, qr, node * 2, left, middle, a, b)
+    range_affine_update(sum, lazy_mul, lazy_add, ql, qr, node * 2 + 1, middle, right, a, b)
+    sum[node] <- range_affine_reduce(sum[node * 2] + sum[node * 2 + 1])
+
+def range_affine_query(sum: mutable view[i64], lazy_mul: mutable view[i64],
+                       lazy_add: mutable view[i64], ql: usize, qr: usize,
+                       node: usize, left: usize, right: usize) -> i64:
+    if ql <= left and right <= qr: return sum[node]
+    if qr <= left or right <= ql: return 0
+    range_affine_push(sum, lazy_mul, lazy_add, node, left, right)
+    middle: usize = left + (right - left) / 2
+    range_affine_reduce(range_affine_query(sum, lazy_mul, lazy_add, ql, qr, node * 2, left, middle) +
+                        range_affine_query(sum, lazy_mul, lazy_add, ql, qr, node * 2 + 1, middle, right))
+
+def range_affine_range_sum_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > RANGE_AFFINE_MAX_PARSEABLE_INPUT: return -1
+    if input[0] < 1 or input[0] > RANGE_AFFINE_MAX_LENGTH.i64(): return -1
+    n: usize = input[0].usize()
+    if length < n + 2: return -1
+    initial: mutable i64[RANGE_AFFINE_MAX_LENGTH] = zeroed
+    for i in 0..<n:
+        if input[i + 1] < 0 or input[i + 1] >= RANGE_AFFINE_MODULUS: return -1
+        initial[i] <- input[i + 1]
+    if input[n + 1] < 1 or input[n + 1] > RANGE_AFFINE_MAX_OPERATIONS.i64(): return -1
+    operation_count: usize = input[n + 1].usize()
+    sum: mutable i64[RANGE_AFFINE_TREE_NODES] = zeroed
+    lazy_mul: mutable i64[RANGE_AFFINE_TREE_NODES]
+    lazy_add: mutable i64[RANGE_AFFINE_TREE_NODES] = zeroed
+    for i in 0..<RANGE_AFFINE_TREE_NODES: lazy_mul[i] <- 1
+    range_affine_build(sum[0:RANGE_AFFINE_TREE_NODES], initial[0:n], 1, 0, n)
+
+    cursor: mutable usize = n + 2
+    checksum: mutable i64 = 0
+    for operation in 0..<operation_count:
+        if cursor >= length: return -1
+        opcode: i64 = input[cursor]
+        cursor <- cursor + 1
+        if opcode == 0:
+            if cursor + 4 > length: return -1
+            left: i64 = input[cursor]
+            right: i64 = input[cursor + 1]
+            a: i64 = input[cursor + 2]
+            b: i64 = input[cursor + 3]
+            cursor <- cursor + 4
+            if left < 0 or left >= right or right > n.i64() or a < 1 or a >= RANGE_AFFINE_MODULUS or b < 0 or b >= RANGE_AFFINE_MODULUS: return -1
+            range_affine_update(sum[0:RANGE_AFFINE_TREE_NODES], lazy_mul[0:RANGE_AFFINE_TREE_NODES], lazy_add[0:RANGE_AFFINE_TREE_NODES], left.usize(), right.usize(), 1, 0, n, a, b)
+        else if opcode == 1:
+            if cursor + 2 > length: return -1
+            left: i64 = input[cursor]
+            right: i64 = input[cursor + 1]
+            cursor <- cursor + 2
+            if left < 0 or left >= right or right > n.i64(): return -1
+            result: i64 = range_affine_query(sum[0:RANGE_AFFINE_TREE_NODES], lazy_mul[0:RANGE_AFFINE_TREE_NODES], lazy_add[0:RANGE_AFFINE_TREE_NODES], left.usize(), right.usize(), 1, 0, n)
+            checksum <- checksum + (operation.i64() + 1) * (result + RANGE_AFFINE_MODULUS)
+        else:
+            return -1
+    if cursor == length: checksum else: -1
+
+export fn range_affine_range_sum_benchmark(input: i64&, length: usize) -> i64 = range_affine_range_sum_impl

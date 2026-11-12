@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "id": "xor-linear-basis-bounded-i64-array-bytes-output-v1",
+  "algorithm": "xor_linear_basis",
+  "function_symbol": "xor_linear_basis",
+  "abi": "i64_array_bytes_output",
+  "description": "Incremental 63-bit XOR linear basis with maximum-subset-XOR and membership queries.",
+  "source": {
+    "title": "Linear Basis",
+    "authors": ["OI Wiki contributors"],
+    "reference": "OI Wiki description of greedy XOR-basis insertion, membership, and maximum subset XOR; implementation written clean-room",
+    "url": "https://www.timothywang.ca/OI-wiki/math/linear-algebra/basis/",
+    "license_note": "OI Wiki content is attributed under its stated CC BY-SA 4.0 and Star And Thank Author License terms; no source code or prose is reproduced",
+    "algorithm_attribution": "Incremental highest-pivot XOR basis",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[Q,(0,x for insert | 1 for maximum query | 2,x for membership query)...]",
+    "operation_count_range": [1, 64],
+    "value_range": [0, 9223372036854775807],
+    "maximum_insertions": 16,
+    "maximum_valid_length": 129,
+    "maximum_parseable_length": 130,
+    "operation_semantics": {
+      "0": "insert x into the accumulated multiset",
+      "1": "output the maximum XOR of any subset of inserted values",
+      "2": "output 1 iff x is the XOR of a subset of inserted values, else 0"
+    },
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one little-endian signed 64-bit word per query, in query order; maximum-XOR values or membership bits 0/1",
+    "maximum_bytes": 512,
+    "success_result": "number of bytes written; zero when the sequence has no queries",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "empty_output_null_buffer_allowed": true,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Maximum output-buffer capacity; 63 pivots and staged query results use separate bounded storage."
+  },
+  "contract": {
+    "domain": "63-bit nonnegative integers; XOR is addition in the vector space over F_2",
+    "empty_subset": "The empty subset is allowed, so zero is representable before any insertion and the initial maximum is zero.",
+    "complexity": "O(63) per insertion or query and O(63) basis storage",
+    "oracle_bound": "At most 16 insertions, allowing exhaustive enumeration of at most 2^16 subsets",
+    "distinctness": "This package measures incremental basis insertion, maximum subset XOR, and membership; vector-space intersection and general GF(2) equation solving have different contracts."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "basic-maximum-and-membership",
+      "input_values": [5, 0, 5, 0, 3, 1, 2, 6, 2, 1],
+      "input_length": 10,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "060000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "zero-and-duplicate-insertion",
+      "input_values": [6, 0, 0, 0, 0, 2, 0, 1, 0, 5, 2, 5],
+      "input_length": 12,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "empty-basis-includes-empty-subset",
+      "input_values": [3, 2, 0, 2, 1, 1],
+      "input_length": 6,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "dependent-insertion-does-not-change-span",
+      "input_values": [5, 0, 5, 0, 3, 0, 6, 2, 6, 1],
+      "input_length": 10,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000600000000000000"
+    },
+    {
+      "id": "highest-supported-bit",
+      "input_values": [3, 0, 4611686018427387904, 0, 3, 1],
+      "input_length": 6,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0300000000000040"
+    },
+    {
+      "id": "sequence-without-queries",
+      "input_values": [2, 0, 0, 0, 5],
+      "input_length": 5,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-operation-kind",
+      "input_values": [1, 3],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-query-value",
+      "input_values": [1, 2, -1],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-insert-record",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-is-invalid",
+      "input_values": [1, 1, 99],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insertion-limit-is-enforced",
+      "input_values": [17, 0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15, 0, 16],
+      "input_length": 35,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "operation-limit-is-enforced",
+      "input_values": [65, 1],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-buffer",
+      "input_values": [1, 1],
+      "input_length": 2,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-buffer",
+      "input_values": [1, 1],
+      "input_length": 2,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

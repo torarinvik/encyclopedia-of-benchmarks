@@ -1,0 +1,91 @@
+const MPCA_MAX_INPUT: usize = 67
+const MPCA_MAX_OUTPUT: usize = 504
+
+def mpca_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def min_plus_convolution_convex_arbitrary_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MPCA_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > 32 or m_value < 1 or m_value > 32: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + n + m: return -1
+    a: mutable i64[32] = zeroed
+    b: mutable i64[32] = zeroed
+    index: mutable usize = 0
+    while index < n + m:
+        value: i64 = input[2 + index]
+        if value < 0 or value > 1000000000: return -1
+        if index < n: a[index] <- value
+        else: b[index - n] <- value
+        index <- index + 1
+    index <- 0
+    while index + 2 < n:
+        if a[index + 1] - a[index] > a[index + 2] - a[index + 1]: return -1
+        index <- index + 1
+    count: usize = n + m - 1
+    bytes: usize = 8 * count
+    if bytes > MPCA_MAX_OUTPUT: return -1
+    if output.is_null() or capacity < bytes: return -2
+    result: mutable i64[63] = zeroed
+    stack_left: mutable usize[128]
+    stack_right: mutable usize[128]
+    stack_opt_left: mutable usize[128]
+    stack_opt_right: mutable usize[128]
+    top: mutable usize = 1
+    stack_left[0] <- 0
+    stack_right[0] <- count - 1
+    stack_opt_left[0] <- 0
+    stack_opt_right[0] <- m - 1
+    while top > 0:
+        top <- top - 1
+        left: usize = stack_left[top]
+        right: usize = stack_right[top]
+        opt_left: usize = stack_opt_left[top]
+        opt_right: usize = stack_opt_right[top]
+        if left <= right:
+            mid: usize = left + (right - left) / 2
+            low: mutable usize = opt_left
+            if mid > n - 1 and low < mid - (n - 1): low <- mid - (n - 1)
+            high: mutable usize = opt_right
+            if high > m - 1: high <- m - 1
+            if high > mid: high <- mid
+            best: mutable i64 = 9223372036854775807
+            best_j: mutable usize = low
+            j: mutable usize = low
+            while j <= high:
+                candidate: i64 = a[mid - j] + b[j]
+                if candidate < best:
+                    best <- candidate
+                    best_j <- j
+                j <- j + 1
+            result[mid] <- best
+            if mid < right:
+                stack_left[top] <- mid + 1
+                stack_right[top] <- right
+                stack_opt_left[top] <- best_j
+                stack_opt_right[top] <- opt_right
+                top <- top + 1
+            if left < mid:
+                stack_left[top] <- left
+                stack_right[top] <- mid - 1
+                stack_opt_left[top] <- opt_left
+                stack_opt_right[top] <- best_j
+                top <- top + 1
+    output_view: mutable view[u8] = output[0:bytes]
+    index <- 0
+    while index < count:
+        mpca_store_i64(result[index], output_view, index * 8)
+        index <- index + 1
+    bytes.i64()
+
+export fn min_plus_convolution_convex_arbitrary(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = min_plus_convolution_convex_arbitrary_impl

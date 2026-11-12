@@ -1,0 +1,96 @@
+const MAX_DEPTH: usize = 5
+
+def splash2_radiosity_factor(tx: f64, ty: f64, source_area: f64,
+                             sx: f64, sy: f64, gap: f64) -> f64:
+    distance_squared: f64 = (sx - tx) * (sx - tx) + (sy - ty) * (sy - ty) + gap * gap
+    return source_area * gap * gap / (distance_squared * distance_squared)
+
+def splash2_radiosity_visit(tx: f64, ty: f64, target_side: f64,
+                            sx: f64, sy: f64, source_side: f64,
+                            gap: f64, bound: f64, allowed_depth: usize,
+                            depth: usize, weight: f64,
+                            transfer: mutable f64&, leaves: mutable usize&,
+                            deepest: mutable usize&) -> void:
+    coarse: f64 = splash2_radiosity_factor(tx, ty, source_side * source_side, sx, sy, gap)
+    split_source: bool = source_side >= target_side
+    parent_side: f64 = target_side
+    if split_source: parent_side <- source_side
+    child_side: f64 = parent_side * 0.5
+    offset: f64 = parent_side * 0.25
+    fine: mutable f64 = 0.0
+    quadrant: mutable usize = 0
+    while quadrant < 4:
+        dx: f64 = -offset
+        dy: f64 = -offset
+        if (quadrant & 1) != 0: dx <- offset
+        if (quadrant & 2) != 0: dy <- offset
+        if split_source:
+            fine <- fine + splash2_radiosity_factor(tx, ty, child_side * child_side,
+                                                    sx + dx, sy + dy, gap)
+        else:
+            fine <- fine + 0.25 * splash2_radiosity_factor(tx + dx, ty + dy,
+                source_side * source_side, sx, sy, gap)
+        quadrant <- quadrant + 1
+    error: f64 = fine - coarse
+    if error < 0.0: error <- -error
+    if depth >= allowed_depth or error <= bound:
+        transfer <- transfer + weight * coarse
+        leaves <- leaves + 1
+        if depth > deepest: deepest <- depth
+        return
+    quadrant <- 0
+    while quadrant < 4:
+        dx <- -offset
+        dy <- -offset
+        if (quadrant & 1) != 0: dx <- offset
+        if (quadrant & 2) != 0: dy <- offset
+        if split_source:
+            splash2_radiosity_visit(tx, ty, target_side, sx + dx, sy + dy,
+                child_side, gap, bound, allowed_depth, depth + 1, weight,
+                transfer, leaves, deepest)
+        else:
+            splash2_radiosity_visit(tx + dx, ty + dy, child_side, sx, sy,
+                source_side, gap, bound, allowed_depth, depth + 1, weight * 0.25,
+                transfer, leaves, deepest)
+        quadrant <- quadrant + 1
+
+def splash2_radiosity_refine_impl(input: f64&, input_length: usize,
+                                 output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length != 11: return -1
+    index: mutable usize = 0
+    while index < input_length:
+        value: f64 = input[index]
+        if value != value: return -1
+        index <- index + 1
+    tx: f64 = input[0]
+    ty: f64 = input[1]
+    target_side: f64 = input[2]
+    sx: f64 = input[3]
+    sy: f64 = input[4]
+    source_side: f64 = input[5]
+    gap: f64 = input[6]
+    brightness: f64 = input[7]
+    reflectance: f64 = input[8]
+    bound: f64 = input[9]
+    depth_value: f64 = input[10]
+    if tx < -8.0 or tx > 8.0 or ty < -8.0 or ty > 8.0 or sx < -8.0 or sx > 8.0 or sy < -8.0 or sy > 8.0: return -1
+    if (target_side != 1.0 and target_side != 2.0 and target_side != 4.0): return -1
+    if (source_side != 1.0 and source_side != 2.0 and source_side != 4.0): return -1
+    if gap < 1.0 or gap > 8.0 or target_side > gap or source_side > gap: return -1
+    if brightness < 0.0 or brightness > 4.0 or reflectance < 0.0 or reflectance > 1.0: return -1
+    if bound < 0.0 or bound > 1.0 or depth_value < 0.0 or depth_value > MAX_DEPTH: return -1
+    allowed_depth: usize = depth_value.usize()
+    if allowed_depth.f64() != depth_value: return -1
+    if output.is_null() or output_capacity < 3: return -2
+    transfer: mutable f64 = 0.0
+    leaves: mutable usize = 0
+    deepest: mutable usize = 0
+    splash2_radiosity_visit(tx, ty, target_side, sx, sy, source_side, gap, bound,
+        allowed_depth, 0, 1.0, transfer, leaves, deepest)
+    output[0] <- reflectance * brightness * transfer
+    output[1] <- leaves.f64()
+    output[2] <- deepest.f64()
+    return 3
+
+export fn splash2_radiosity_refine(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = splash2_radiosity_refine_impl

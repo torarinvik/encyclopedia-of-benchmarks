@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-online-bridge-finding-i64-array-bytes-v1",
+  "algorithm": "online_bridge_finding",
+  "function_symbol": "online_bridge_finding",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, m, (u, v) * m]",
+    "vertex_count_range": [1, 64],
+    "edge_insertion_count_range": [0, 128],
+    "vertex_id_range": "0 <= endpoint < n",
+    "self_loops_allowed": true,
+    "parallel_edges_allowed": true,
+    "maximum_valid_input_length": 258,
+    "maximum_parseable_input_length": 259,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one little-endian signed 64-bit bridge count after each inserted edge",
+    "maximum_bytes": 1024,
+    "empty_trace_result": 0,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {"bytes": 1024},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "empty_insertion_trace", "input_values": [3, 0], "input_length": 2, "workspace_bytes": 0, "expected_result": 0, "expected_output_hex": ""},
+    {"id": "first_edge_is_bridge", "input_values": [2, 1, 0, 1], "input_length": 4, "workspace_bytes": 8, "expected_result": 8, "expected_output_hex": "0100000000000000"},
+    {"id": "triangle_removes_all_three_bridges", "input_values": [3, 3, 0, 1, 1, 2, 2, 0], "input_length": 8, "workspace_bytes": 24, "expected_result": 24, "expected_output_hex": "010000000000000002000000000000000000000000000000"},
+    {"id": "cycle_closes_path", "input_values": [4, 4, 0, 1, 1, 2, 2, 3, 3, 0], "input_length": 10, "workspace_bytes": 32, "expected_result": 32, "expected_output_hex": "0100000000000000020000000000000003000000000000000000000000000000"},
+    {"id": "parallel_edge_removes_bridge", "input_values": [2, 2, 0, 1, 0, 1], "input_length": 6, "workspace_bytes": 16, "expected_result": 16, "expected_output_hex": "01000000000000000000000000000000"},
+    {"id": "self_loops_do_not_add_bridges", "input_values": [1, 3, 0, 0, 0, 0, 0, 0], "input_length": 8, "workspace_bytes": 24, "expected_result": 24, "expected_output_hex": "000000000000000000000000000000000000000000000000"},
+    {"id": "two_components_join_then_cycle", "input_values": [4, 4, 0, 1, 2, 3, 1, 2, 0, 3], "input_length": 10, "workspace_bytes": 32, "expected_result": 32, "expected_output_hex": "0100000000000000020000000000000003000000000000000000000000000000"},
+    {"id": "cycle_then_tail_cycle", "input_values": [5, 6, 0, 1, 1, 2, 2, 0, 2, 3, 3, 4, 4, 2], "input_length": 14, "workspace_bytes": 48, "expected_result": 48, "expected_output_hex": "010000000000000002000000000000000000000000000000010000000000000002000000000000000000000000000000"},
+    {"id": "edge_inside_existing_component", "input_values": [3, 4, 0, 1, 1, 2, 2, 0, 0, 2], "input_length": 10, "workspace_bytes": 32, "expected_result": 32, "expected_output_hex": "0100000000000000020000000000000000000000000000000000000000000000"},
+    {"id": "maximum_vertex_bound", "input_values": [64, 1, 63, 0], "input_length": 4, "workspace_bytes": 8, "expected_result": 8, "expected_output_hex": "0100000000000000"},
+    {"id": "undersized_output", "input_values": [2, 1, 0, 1], "input_length": 4, "workspace_bytes": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "invalid_empty_input", "input_values": [], "input_length": 0, "workspace_bytes": 1024, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_missing_header", "input_values": [3], "input_length": 1, "workspace_bytes": 1024, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_extra_edge_word", "input_values": [2, 1, 0, 1, 1], "input_length": 5, "workspace_bytes": 1024, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_zero_vertices", "input_values": [0, 0], "input_length": 2, "workspace_bytes": 1024, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_edge_count_above_bound", "input_values": [2, 129], "input_length": 2, "workspace_bytes": 1024, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_endpoint", "input_values": [2, 1, 0, 2], "input_length": 4, "workspace_bytes": 1024, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_negative_endpoint", "input_values": [2, 1, -1, 0], "input_length": 4, "workspace_bytes": 1024, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

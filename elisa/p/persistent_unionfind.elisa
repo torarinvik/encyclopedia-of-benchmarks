@@ -1,0 +1,128 @@
+const MAX_N: usize = 64
+const MAX_Q: usize = 64
+const MAX_INPUT_VALUES: usize = 2 + 4 * MAX_Q
+
+def puf_find_root(parent: view[usize], item: usize) -> usize:
+    current: mutable usize = item
+    while parent[current] != current:
+        current <- parent[current]
+    current
+
+def puf_visit_version(node: usize, kind: view[i64], u: view[i64], v: view[i64],
+    first_child: view[i64], next_sibling: view[i64], parent: mutable view[usize],
+    set_size: mutable view[usize], answer: mutable view[i64],
+    history_child: mutable view[i64], history_root: mutable view[i64],
+    history_size: mutable view[i64], history_count: mutable usize&) -> void:
+    saved_history: usize = history_count
+    if node != 0:
+        operation: usize = node - 1
+        if kind[operation] == 0:
+            root_u: mutable usize = puf_find_root(parent, u[operation].usize())
+            root_v: mutable usize = puf_find_root(parent, v[operation].usize())
+            if root_u == root_v:
+                history_child[history_count] <- -1
+                history_root[history_count] <- -1
+                history_size[history_count] <- 0
+            else:
+                if set_size[root_u] > set_size[root_v]:
+                    temporary: usize = root_u
+                    root_u <- root_v
+                    root_v <- temporary
+                history_child[history_count] <- root_u.i64()
+                history_root[history_count] <- root_v.i64()
+                history_size[history_count] <- set_size[root_v].i64()
+                parent[root_u] <- root_v
+                set_size[root_v] <- set_size[root_v] + set_size[root_u]
+            history_count <- history_count + 1
+        else:
+            if puf_find_root(parent, u[operation].usize()) == puf_find_root(parent, v[operation].usize()):
+                answer[node] <- 1
+            else:
+                answer[node] <- 0
+    child: mutable i64 = first_child[node]
+    while child >= 0:
+        puf_visit_version(child.usize(), kind, u, v, first_child, next_sibling,
+            parent, set_size, answer, history_child, history_root, history_size, history_count)
+        child <- next_sibling[child.usize() - 1]
+    while history_count > saved_history:
+        history_count <- history_count - 1
+        changed_child: i64 = history_child[history_count]
+        if changed_child >= 0:
+            root: usize = history_root[history_count].usize()
+            parent[changed_child.usize()] <- changed_child.usize()
+            set_size[root] <- history_size[history_count].usize()
+
+def puf_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def persistent_unionfind_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 6 or length > MAX_INPUT_VALUES: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 2 + 4 * q: return -1
+
+    kind: mutable i64[MAX_Q] = zeroed
+    u: mutable i64[MAX_Q] = zeroed
+    v: mutable i64[MAX_Q] = zeroed
+    first_child: mutable i64[MAX_Q + 1] = zeroed
+    next_sibling: mutable i64[MAX_Q] = zeroed
+    answer: mutable i64[MAX_Q + 1] = zeroed
+    node: mutable usize = 0
+    while node <= q:
+        first_child[node] <- -1
+        node <- node + 1
+    query_count: mutable usize = 0
+    operation: mutable usize = 0
+    while operation < q:
+        offset: usize = 2 + 4 * operation
+        kind[operation] <- input[offset]
+        version: i64 = input[offset + 1]
+        u[operation] <- input[offset + 2]
+        v[operation] <- input[offset + 3]
+        if (kind[operation] != 0 and kind[operation] != 1) or version < -1 or
+            version >= operation.i64() or u[operation] < 0 or u[operation] >= n_value or
+            v[operation] < 0 or v[operation] >= n_value: return -1
+        if version >= 0 and kind[version.usize()] != 0: return -1
+        if kind[operation] == 1: query_count <- query_count + 1
+        parent_node: usize = (version + 1).usize()
+        next_sibling[operation] <- first_child[parent_node]
+        first_child[parent_node] <- (operation + 1).i64()
+        operation <- operation + 1
+
+    required: usize = 8 * query_count
+    if output.is_null() or capacity < required: return -2
+    parent: mutable usize[MAX_N] = zeroed
+    set_size: mutable usize[MAX_N] = zeroed
+    node <- 0
+    while node < n:
+        parent[node] <- node
+        set_size[node] <- 1
+        node <- node + 1
+    history_child: mutable i64[MAX_Q] = zeroed
+    history_root: mutable i64[MAX_Q] = zeroed
+    history_size: mutable i64[MAX_Q] = zeroed
+    history_count: mutable usize = 0
+    puf_visit_version(0, kind[0:MAX_Q], u[0:MAX_Q], v[0:MAX_Q],
+        first_child[0:MAX_Q + 1], next_sibling[0:MAX_Q], parent[0:MAX_N],
+        set_size[0:MAX_N], answer[0:MAX_Q + 1], history_child[0:MAX_Q],
+        history_root[0:MAX_Q], history_size[0:MAX_Q], history_count)
+    written: mutable usize = 0
+    operation <- 0
+    output_view: mutable view[u8] = output[0:required]
+    while operation < q:
+        if kind[operation] == 1:
+            puf_store_i64_le(answer[operation + 1], output_view, written)
+            written <- written + 8
+        operation <- operation + 1
+    written.i64()
+
+export fn persistent_unionfind(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = persistent_unionfind_impl

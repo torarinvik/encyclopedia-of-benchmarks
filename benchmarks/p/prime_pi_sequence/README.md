@@ -10,7 +10,7 @@ The scalar ABI is `int64_t prime_pi_sequence(int64_t index)`. The workload stops
 
 The pinned C# `PrimePiSequence` starts its integer cursor at 0 and emits the count for n=1 first, then n=2, n=3, and so on. It consumes `PrimesSequence`, which starts with 2 and tests subsequent odd candidates against the primes already found. The benchmark maps zero-based term index `i` to `π(i+1)` and ports that incremental prime generation.
 
-This differs from [`number_of_primes_by_powers_of10_sequence`](../../n/number_of_primes_by_powers_of10_sequence/README.md) and [`number_of_primes_by_number_of_digits_sequence`](../../n/number_of_primes_by_number_of_digits_sequence/README.md), which count primes in decimal-size bands, and from [`first_n_primes`](../../f/first_n_primes/README.md), which returns prime values rather than their cumulative count.
+This differs from [`number_of_primes_by_powers_of10_sequence`](../../n/number_of_primes_by_powers_of10_sequence/README.md) and [`number_of_primes_by_number_of_digits_sequence`](../../n/number_of_primes_by_number_of_digits_sequence/README.md), which count primes in decimal-size bands, and from [`prime_numbers`](../prime_numbers/README.md), which returns prime values rather than their cumulative count.
 
 ## Workload
 

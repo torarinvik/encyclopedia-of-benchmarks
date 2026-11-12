@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-palindromes-in-deque-rebuild-eertree-v1",
+  "algorithm": "palindromes_in_deque",
+  "function_symbol": "palindromes_in_deque",
+  "abi": "i64_array_bytes_output",
+  "description": "Apply bounded insertions and deletions at both ends and report palindrome summaries after every operation.",
+  "source": {
+    "title": "Palindromes in Deque",
+    "authors": ["Library Checker contributors"],
+    "reference": "Official operation and output contract",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/string/palindromes_in_deque/task.md",
+    "algorithm_attribution": "Snapshot rebuilding with an Eertree after each deque update",
+    "reuse": "The task contract is used as a reference; the package ports and oracle are clean-room."
+  },
+  "contract": {
+    "input_layout": "[Q, (operation, letter_code)*Q]",
+    "operation_codes": {
+      "0": "insert letter at the front",
+      "1": "insert letter at the back",
+      "2": "delete the front letter",
+      "3": "delete the back letter"
+    },
+    "letter_range": "0 <= letter_code < 26 for insertions; deletion argument must be 0",
+    "queries_range": [1, 32],
+    "deletions_require_nonempty_string": true,
+    "output_per_query": "three little-endian signed 64-bit integers: distinct nonempty palindromic substrings, longest palindromic prefix length, longest palindromic suffix length",
+    "empty_string_output": [0, 0, 0],
+    "maximum_output_bytes": 768
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[Q, (operation, letter_code)*Q]",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 65,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "for every query, three little-endian signed 64-bit values in the order specified by the contract",
+    "maximum_bytes": 768,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 768,
+    "meaning": "Maximum output buffer size; the bounded Eertree transition table and deque use fixed local arrays."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "insert-and-delete-at-both-ends",
+      "input_values": [4, 1, 0, 0, 1, 2, 0, 3, 0],
+      "input_length": 9,
+      "output_capacity": 96,
+      "expected_result": 96,
+      "expected_output_hex": "01000000000000000100000000000000010000000000000002000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "reject-empty-deletion",
+      "input_values": [1, 2, 0],
+      "input_length": 3,
+      "output_capacity": 768,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reject-invalid-letter-code",
+      "input_values": [1, 1, 26],
+      "input_length": 3,
+      "output_capacity": 768,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reject-short-output-capacity",
+      "input_values": [1, 1, 0],
+      "input_length": 3,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

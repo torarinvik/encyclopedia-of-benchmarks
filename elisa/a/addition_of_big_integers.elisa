@@ -1,0 +1,116 @@
+def addition_of_big_integers_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > 68:
+        return -1
+    raw_a: i64 = input[0]
+    raw_b: i64 = input[1]
+    if raw_a < 1 or raw_a > 33 or raw_b < 1 or raw_b > 33:
+        return -1
+    len_a: usize = raw_a.usize()
+    len_b: usize = raw_b.usize()
+    if length != 2 + len_a + len_b:
+        return -1
+
+    starts: mutable usize[2]
+    counts: mutable usize[2]
+    lengths: mutable usize[2]
+    negatives: mutable bool[2]
+    starts[0] <- 2
+    starts[1] <- 2 + len_a
+    lengths[0] <- len_a
+    lengths[1] <- len_b
+    operand: mutable usize = 0
+    while operand < 2:
+        if lengths[operand] < 1 or lengths[operand] > 33:
+            return -1
+        negatives[operand] <- input[starts[operand]] == 45
+        if negatives[operand]:
+            starts[operand] <- starts[operand] + 1
+            counts[operand] <- lengths[operand] - 1
+        else:
+            counts[operand] <- lengths[operand]
+        if counts[operand] < 1 or counts[operand] > 32:
+            return -1
+        index: mutable usize = 0
+        while index < counts[operand]:
+            byte: i64 = input[starts[operand] + index]
+            if byte < 48 or byte > 57 or (index == 0 and counts[operand] > 1 and byte == 48):
+                return -1
+            index <- index + 1
+        if negatives[operand] and counts[operand] == 1 and input[starts[operand]] == 48:
+            return -1
+        operand <- operand + 1
+
+    reversed: mutable i64[33]
+    index: mutable usize = 0
+    while index < 33:
+        reversed[index] <- 0
+        index <- index + 1
+    digits: mutable usize = 0
+    negative: mutable bool = false
+    if negatives[0] == negatives[1]:
+        negative <- negatives[0]
+        width: usize = if counts[0] > counts[1] then counts[0] else counts[1]
+        carry: mutable i64 = 0
+        index <- 0
+        while index < width:
+            da: i64 = if index < counts[0] then input[starts[0] + counts[0] - 1 - index] - 48 else 0
+            db: i64 = if index < counts[1] then input[starts[1] + counts[1] - 1 - index] - 48 else 0
+            total: i64 = da + db + carry
+            reversed[digits] <- total % 10
+            digits <- digits + 1
+            carry <- total / 10
+            index <- index + 1
+        if carry != 0:
+            reversed[digits] <- carry
+            digits <- digits + 1
+    else:
+        order: mutable i64 = 0
+        if counts[0] > counts[1]:
+            order <- 1
+        elif counts[0] < counts[1]:
+            order <- -1
+        else:
+            index <- 0
+            while index < counts[0] and order == 0:
+                da: i64 = input[starts[0] + index]
+                db: i64 = input[starts[1] + index]
+                if da > db:
+                    order <- 1
+                elif da < db:
+                    order <- -1
+                index <- index + 1
+        if order == 0:
+            reversed[0] <- 0
+            digits <- 1
+        else:
+            big: usize = if order > 0 then 0 else 1
+            small: usize = if order > 0 then 1 else 0
+            negative <- negatives[big]
+            borrow: mutable i64 = 0
+            index <- 0
+            while index < counts[big]:
+                da: i64 = input[starts[big] + counts[big] - 1 - index] - 48
+                db: i64 = if index < counts[small] then input[starts[small] + counts[small] - 1 - index] - 48 else 0
+                digit: i64 = da - db - borrow
+                borrow <- if digit < 0 then 1 else 0
+                reversed[digits] <- if digit < 0 then digit + 10 else digit
+                digits <- digits + 1
+                index <- index + 1
+            while digits > 1 and reversed[digits - 1] == 0:
+                digits <- digits - 1
+
+    output_length: usize = digits + (if negative then 1 else 0)
+    if output.is_null() or capacity < output_length:
+        return -2
+    cursor: mutable usize = 0
+    if negative:
+        output[cursor] <- 45.u8()
+        cursor <- cursor + 1
+    index <- 0
+    while index < digits:
+        output[cursor] <- (48 + reversed[digits - 1 - index]).u8()
+        cursor <- cursor + 1
+        index <- index + 1
+    output_length.i64()
+
+export fn addition_of_big_integers(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = addition_of_big_integers_impl

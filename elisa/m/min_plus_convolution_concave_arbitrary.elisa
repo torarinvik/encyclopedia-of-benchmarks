@@ -1,0 +1,119 @@
+const MPCA_MAX_INPUT: usize = 67
+const MPCA_MAX_OUTPUT: usize = 504
+const MPCA_INF: i64 = 9223372036854775807
+
+def mpca_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def mpca_block_rows(concave: view[i64], arbitrary: view[i64], result: mutable view[i64],
+        x1: usize, x2: usize, y1: usize, y2: usize,
+        row1: usize, row2: usize, q1: usize, q2: usize) -> void:
+    if row1 > row2: return
+    mid: usize = row1 + (row2 - row1) / 2
+    x: usize = x1 + mid
+    best: mutable i64 = MPCA_INF
+    best_q: mutable usize = q1
+    q: mutable usize = q1
+    while q <= q2:
+        y: usize = y2 - q
+        value: i64 = arbitrary[y] + concave[x - y]
+        if value < best:
+            best <- value
+            best_q <- q
+        q <- q + 1
+    if best < result[x]: result[x] <- best
+    if row1 < mid: mpca_block_rows(concave, arbitrary, result, x1,x2,y1,y2,row1,mid-1,q1,best_q)
+    if mid < row2: mpca_block_rows(concave, arbitrary, result, x1,x2,y1,y2,mid+1,row2,best_q,q2)
+
+def mpca_scan(concave: view[i64], arbitrary: view[i64], result: mutable view[i64],
+        y_min: view[usize], y_max: view[usize], x1: usize, x2: usize, y1: usize, y2: usize) -> void:
+    x: mutable usize = x1
+    while x <= x2:
+        low: usize = if y_min[x] > y1: y_min[x] else: y1
+        high: usize = if y_max[x] < y2: y_max[x] else: y2
+        if low <= high:
+            y: mutable usize = low
+            while y <= high:
+                value: i64 = arbitrary[y] + concave[x-y]
+                if value < result[x]: result[x] <- value
+                y <- y + 1
+        x <- x + 1
+
+def mpca_partition(concave: view[i64], arbitrary: view[i64], result: mutable view[i64],
+        y_min: view[usize], y_max: view[usize], x_min: view[usize], x_max: view[usize],
+        x1: usize, x2: usize, y1: usize, y2: usize) -> void:
+    if x1 > x2 or y1 > y2: return
+    if y_max[x1] >= y2 and y1 >= y_min[x2]:
+        mpca_block_rows(concave,arbitrary,result,x1,x2,y1,y2,0,x2-x1,0,y2-y1)
+        return
+    if (x2-x1)*(y2-y1) < 1000:
+        mpca_scan(concave,arbitrary,result,y_min,y_max,x1,x2,y1,y2)
+        return
+    if x2-x1 > y2-y1:
+        mid: usize = (x1+x2)/2
+        left_y2: usize = if y_max[mid] < y2: y_max[mid] else: y2
+        if y1 <= left_y2: mpca_partition(concave,arbitrary,result,y_min,y_max,x_min,x_max,x1,mid,y1,left_y2)
+        right_y1: usize = if y_min[mid] > y1: y_min[mid] else: y1
+        if right_y1 <= y2: mpca_partition(concave,arbitrary,result,y_min,y_max,x_min,x_max,mid+1,x2,right_y1,y2)
+    else:
+        mid: usize = (y1+y2)/2
+        left_x2: usize = if x_max[mid] < x2: x_max[mid] else: x2
+        if x1 <= left_x2: mpca_partition(concave,arbitrary,result,y_min,y_max,x_min,x_max,x1,left_x2,y1,mid)
+        right_x1: usize = if x_min[mid] > x1: x_min[mid] else: x1
+        if right_x1 <= x2: mpca_partition(concave,arbitrary,result,y_min,y_max,x_min,x_max,right_x1,x2,mid+1,y2)
+
+def min_plus_convolution_concave_arbitrary_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MPCA_MAX_INPUT: return -1
+    n_value: i64 = input[0]; m_value: i64 = input[1]
+    if n_value < 1 or n_value > 32 or m_value < 1 or m_value > 32: return -1
+    n: usize = n_value.usize(); m: usize = m_value.usize()
+    if length != 2+n+m: return -1
+    concave: mutable i64[32] = zeroed
+    arbitrary: mutable i64[32] = zeroed
+    i: mutable usize = 0
+    while i < n+m:
+        value: i64 = input[2+i]
+        if value < 0 or value > 1000000000: return -1
+        if i < n: concave[i] <- value
+        else: arbitrary[i-n] <- value
+        i <- i + 1
+    i <- 0
+    while i+2 < n:
+        if concave[i+1]-concave[i] < concave[i+2]-concave[i+1]: return -1
+        i <- i + 1
+    h: usize = n+m-1
+    bytes: usize = 8*h
+    if bytes > MPCA_MAX_OUTPUT: return -1
+    if output.is_null() or capacity < bytes: return -2
+    y_min: mutable usize[63]
+    y_max: mutable usize[63]
+    x_min: mutable usize[32]
+    x_max: mutable usize[32]
+    result: mutable i64[63]
+    i <- 0
+    while i < h:
+        y_min[i] <- if i >= n: i-n+1 else: 0
+        y_max[i] <- if i < m: i else: m-1
+        result[i] <- MPCA_INF
+        i <- i + 1
+    i <- 0
+    while i < m:
+        x_min[i] <- i
+        x_max[i] <- n-1+i
+        i <- i + 1
+    mpca_partition(concave[0:n],arbitrary[0:m],result[0:h],y_min[0:h],y_max[0:h],x_min[0:m],x_max[0:m],0,h-1,0,m-1)
+    output_view: mutable view[u8] = output[0:bytes]
+    i <- 0
+    while i < h:
+        mpca_store(result[i],output_view,8*i)
+        i <- i + 1
+    bytes.i64()
+
+export fn min_plus_convolution_concave_arbitrary(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = min_plus_convolution_concave_arbitrary_impl

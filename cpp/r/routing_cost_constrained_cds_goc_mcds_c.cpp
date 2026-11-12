@@ -83,7 +83,7 @@ extern "C" std::int64_t routing_cost_constrained_cds_goc_mcds_c(
             std::array<std::size_t, MAX_N> path{}; std::size_t path_length = 0, current = target;
             while (current != source) { path[path_length++] = current; current = static_cast<std::size_t>(parent[current]); }
             path[path_length++] = source;
-            if (path_length <= 4) for (std::size_t i = 1; i + 1 < path_length; ++i) connectors |= std::uint64_t{1} << path[i];
+            if (path_length <= 5) for (std::size_t i = 1; i + 1 < path_length; ++i) connectors |= std::uint64_t{1} << path[i];
         }
     }
     if (output == nullptr || capacity < 16) return -2;

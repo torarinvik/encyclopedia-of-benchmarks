@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "biconnected-components-tarjan-lowlink-edge-stack-i64-array-bytes-output-v1",
+  "algorithm": "biconnected_components",
+  "function_symbol": "biconnected_components",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "Library Checker",
+    "problem": "Biconnected Components",
+    "url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/biconnected_components/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/biconnected_components/info.toml",
+    "checker_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/biconnected_components/checker.cpp",
+    "source_type": "official_algorithm_task_specification",
+    "reuse": "Task semantics, limits, and acceptance policy only; implementations and oracle are independently written."
+  },
+  "contract": {
+    "operation": "Partition an undirected multigraph into maximal vertex-biconnected blocks and return each block's vertex set.",
+    "input_layout": "[N, M, (u, v)*M]",
+    "official_limits": {"vertices": [1, 500000], "edges": [0, 500000]},
+    "vertex_count_range": [1, 6],
+    "edge_count_range": [0, 10],
+    "vertex_ids": "zero-based",
+    "graph_semantics": "Undirected multigraph; self-loops are invalid and parallel edges are allowed.",
+    "isolated_vertex_semantics": "Each isolated vertex forms a singleton block.",
+    "output_layout": "[K, size_0, vertices..., size_1, vertices..., ...]",
+    "output_encoding": "unsigned 64-bit little-endian values",
+    "canonical_order": "Sort vertices within every block and sort block lists lexicographically; the official checker accepts any order.",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input framing, ranges, and endpoints precede output pointer and capacity checks."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 22,
+    "maximum_parseable_length": 22,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_unsigned_64_bit_array",
+    "element_width_bytes": 8,
+    "maximum_elements": 113,
+    "maximum_bytes": 904,
+    "success_result": "8 * packed_value_count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Bounded adjacency, DFS discovery/low-link state, edge stack, component vertex sets, and staged output."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "single-isolated-vertex", "input_values": [1, 0], "input_length": 2, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "010000000000000001000000000000000000000000000000"},
+    {"id": "single-bridge", "input_values": [2, 1, 0, 1], "input_length": 4, "output_capacity": 32, "expected_result": 32, "expected_output_hex": "0100000000000000020000000000000000000000000000000100000000000000"},
+    {"id": "three-vertex-path", "input_values": [3, 2, 0, 1, 1, 2], "input_length": 6, "output_capacity": 56, "expected_result": 56, "expected_output_hex": "0200000000000000020000000000000000000000000000000100000000000000020000000000000001000000000000000200000000000000"},
+    {"id": "triangle", "input_values": [3, 3, 0, 1, 1, 2, 2, 0], "input_length": 8, "output_capacity": 40, "expected_result": 40, "expected_output_hex": "01000000000000000300000000000000000000000000000001000000000000000200000000000000"},
+    {"id": "triangle-with-bridge-tail", "input_values": [4, 4, 0, 1, 1, 2, 2, 0, 2, 3], "input_length": 10, "output_capacity": 64, "expected_result": 64, "expected_output_hex": "02000000000000000300000000000000000000000000000001000000000000000200000000000000020000000000000002000000000000000300000000000000"},
+    {"id": "parallel-edges-form-one-block", "input_values": [2, 2, 0, 1, 0, 1], "input_length": 6, "output_capacity": 32, "expected_result": 32, "expected_output_hex": "0100000000000000020000000000000000000000000000000100000000000000"},
+    {"id": "disconnected-with-isolated-vertex", "input_values": [6, 4, 0, 1, 1, 2, 2, 0, 3, 4], "input_length": 10, "output_capacity": 80, "expected_result": 80, "expected_output_hex": "0300000000000000030000000000000000000000000000000100000000000000020000000000000002000000000000000300000000000000040000000000000001000000000000000500000000000000"},
+    {"id": "self-loop-invalid", "input_values": [1, 1, 0, 0], "input_length": 4, "output_capacity": 24, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "endpoint-out-of-range", "input_values": [2, 1, 0, 2], "input_length": 4, "output_capacity": 32, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "edge-count-over-limit", "input_values": [2, 11], "input_length": 2, "output_capacity": 24, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "truncated-edge-frame", "input_values": [2, 1, 0], "input_length": 3, "output_capacity": 32, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-before-output-error", "input_values": [1, 1, 0, 0], "input_length": 4, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short-output-capacity", "input_values": [1, 0], "input_length": 2, "output_capacity": 23, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1, 0], "input_length": 2, "output_capacity": 24, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "output_capacity": 24, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

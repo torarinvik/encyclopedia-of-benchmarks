@@ -119,7 +119,7 @@ def routing_cost_constrained_cds_goc_mcds_c(input: i64&, length: usize,
                         current <- parent[current].usize()
                     path[path_length] <- source
                     path_length <- path_length + 1
-                    if path_length <= 4:
+                    if path_length <= 5:
                         j <- 1
                         while j + 1 < path_length:
                             connectors <- connectors | (1.u64() << path[j])

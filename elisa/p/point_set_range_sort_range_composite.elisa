@@ -1,0 +1,90 @@
+const MODULUS: i64 = 998_244_353
+const MAX_LENGTH: usize = 210
+
+fn point_set_range_sort_range_composite_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_LENGTH: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > 16 or q_value < 1 or q_value > 32: return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length < 2 + 3 * n: return -1
+
+    priority: mutable [16]i64 = [0; 16]
+    multiplier: mutable [16]i64 = [0; 16]
+    offset: mutable [16]i64 = [0; 16]
+    seen: mutable [48]i64 = [0; 48]
+    seen_count: mutable usize = 0
+    cursor: mutable usize = 2
+    for i in 0..<n:
+        p: i64 = input[cursor]
+        a: i64 = input[cursor + 1]
+        b: i64 = input[cursor + 2]
+        cursor <- cursor + 3
+        if p < 0 or p > 1_000_000_000 or a < 1 or a >= MODULUS or b < 0 or b >= MODULUS: return -1
+        for j in 0..<seen_count:
+            if seen[j] == p: return -1
+        seen[seen_count] <- p
+        seen_count <- seen_count + 1
+        priority[i] <- p
+        multiplier[i] <- a
+        offset[i] <- b
+
+    checksum: mutable i64 = 0
+    query_number: mutable i64 = 0
+    for _ in 0..<q:
+        if cursor >= length: return -1
+        opcode: i64 = input[cursor]
+        cursor <- cursor + 1
+        if opcode == 0:
+            if length - cursor < 4: return -1
+            index: i64 = input[cursor]
+            p: i64 = input[cursor + 1]
+            a: i64 = input[cursor + 2]
+            b: i64 = input[cursor + 3]
+            cursor <- cursor + 4
+            if index < 0 or index >= n_value or p < 0 or p > 1_000_000_000 or a < 1 or a >= MODULUS or b < 0 or b >= MODULUS: return -1
+            for j in 0..<seen_count:
+                if seen[j] == p: return -1
+            seen[seen_count] <- p
+            seen_count <- seen_count + 1
+            priority[index.usize()] <- p
+            multiplier[index.usize()] <- a
+            offset[index.usize()] <- b
+        else if opcode == 1:
+            if length - cursor < 3: return -1
+            left: i64 = input[cursor]
+            right: i64 = input[cursor + 1]
+            x: i64 = input[cursor + 2]
+            cursor <- cursor + 3
+            if left < 0 or left >= right or right > n_value or x < 0 or x >= MODULUS: return -1
+            answer: mutable i64 = x
+            for i in left.usize()..<right.usize():
+                answer <- (multiplier[i] * answer + offset[i]) % MODULUS
+            query_number <- query_number + 1
+            checksum <- (checksum + query_number * answer) % MODULUS
+        else if opcode == 2 or opcode == 3:
+            if length - cursor < 2: return -1
+            left: i64 = input[cursor]
+            right: i64 = input[cursor + 1]
+            cursor <- cursor + 2
+            if left < 0 or left >= right or right > n_value: return -1
+            for i in left.usize() + 1..<right.usize():
+                item_p: i64 = priority[i]
+                item_a: i64 = multiplier[i]
+                item_b: i64 = offset[i]
+                j: mutable usize = i
+                while j > left.usize() and ((opcode == 2 and priority[j - 1] > item_p) or (opcode == 3 and priority[j - 1] < item_p)):
+                    priority[j] <- priority[j - 1]
+                    multiplier[j] <- multiplier[j - 1]
+                    offset[j] <- offset[j - 1]
+                    j <- j - 1
+                priority[j] <- item_p
+                multiplier[j] <- item_a
+                offset[j] <- item_b
+        else:
+            return -1
+    if cursor != length: return -1
+    checksum
+
+export fn point_set_range_sort_range_composite(input: i64&, length: usize) -> i64 = point_set_range_sort_range_composite_impl

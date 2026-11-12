@@ -79,6 +79,15 @@ from so1_oracle import expected_result as so1_expected
 from multiple_of_3_or_5_term_oracle import INVALID_RESULT as MULTIPLE_OF_3_OR_5_TERM_INVALID_RESULT
 from multiple_of_3_or_5_term_oracle import MAX_INPUT as MULTIPLE_OF_3_OR_5_TERM_MAX_INPUT
 from multiple_of_3_or_5_term_oracle import expected_result as multiple_of_3_or_5_term_expected
+from counting_squarefrees_oracle import MAX_N as COUNTING_SQUAREFREES_MAX_N
+from counting_squarefrees_oracle import expected_result as counting_squarefrees_expected
+from sum_of_totient_function_oracle import BASE_LIMIT as SUM_OF_TOTIENT_BASE_LIMIT
+from sum_of_totient_function_oracle import INVALID_RESULT as SUM_OF_TOTIENT_INVALID_RESULT
+from sum_of_totient_function_oracle import MAX_N as SUM_OF_TOTIENT_MAX_N
+from sum_of_totient_function_oracle import MODULUS as SUM_OF_TOTIENT_MODULUS
+from sum_of_totient_function_oracle import expected_result as sum_of_totient_function_expected
+from meissel_lehmer_prime_count_oracle import MAX_INPUT as MEISSEL_LEHMER_MAX_INPUT
+from meissel_lehmer_prime_count_oracle import expected_output as meissel_lehmer_prime_count_expected
 
 ROOT = Path(__file__).resolve().parents[1]
 I64_MIN = -(2**63)
@@ -2196,6 +2205,201 @@ def validate_freebench_pifft_workload(workload: dict) -> None:
         raise ValueError("freebench_pifft workload is missing a bounded profile boundary case")
 
 
+COUNTING_SQUAREFREES_CASES = {
+    "one": 1,
+    "four": 4,
+    "ten": 10,
+    "one_hundred": 100,
+    "one_million": 1_000_000,
+    "one_billion": 1_000_000_000,
+    "local_upper_bound": COUNTING_SQUAREFREES_MAX_N,
+    "zero_invalid": 0,
+    "negative_invalid": -1,
+    "above_local_bound": COUNTING_SQUAREFREES_MAX_N + 1,
+}
+
+
+def validate_counting_squarefrees_workload(workload: dict) -> None:
+    input_spec = {
+        "kind": "signed_64_bit_integer",
+        "supported_range": [1, COUNTING_SQUAREFREES_MAX_N],
+        "invalid_result": -1,
+        "result_encoding": "count of positive square-free integers at most N",
+    }
+    cases = workload.get("cases")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "counting-squarefrees-i64-scalar-bounded-v1"
+            or workload.get("algorithm") != "counting_squarefrees"
+            or workload.get("function_symbol") != "counting_squarefrees"
+            or workload.get("input") != input_spec
+            or workload.get("measurement") != {
+                "comparison_model": "scalar_call",
+                "sample_count": 7,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 1,
+            }
+            or COUNTING_SQUAREFREES_MAX_N != 1_000_000_000_000
+            or not isinstance(cases, list)
+            or len(cases) != len(COUNTING_SQUAREFREES_CASES)):
+        raise ValueError("counting_squarefrees workload metadata does not match its bounded scalar contract")
+    observed: dict[str, int] = {}
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        if (not isinstance(case, dict)
+                or set(case) != {"id", "input_value", "expected_result"}
+                or type(case.get("id")) is not str
+                or type(case.get("input_value")) is not int
+                or not I64_MIN <= case["input_value"] <= I64_MAX
+                or type(case.get("expected_result")) is not int
+                or case["id"] in observed
+                or case["expected_result"] != counting_squarefrees_expected(case["input_value"])):
+            raise ValueError(f"counting_squarefrees fixture differs from its oracle: {case_id}")
+        observed[case["id"]] = case["input_value"]
+    if observed != COUNTING_SQUAREFREES_CASES:
+        raise ValueError("counting_squarefrees workload is missing a reviewed boundary case")
+
+
+SUM_OF_TOTIENT_FUNCTION_CASES = {
+    "one": 1,
+    "two": 2,
+    "ten": 10,
+    "one_hundred": 100,
+    "previous_prefix_sieve_limit": 1_000_000,
+    "large_quotient_recursion": SUM_OF_TOTIENT_MAX_N,
+    "zero_invalid": 0,
+    "above_local_bound": SUM_OF_TOTIENT_MAX_N + 1,
+}
+
+
+def validate_sum_of_totient_function_workload(workload: dict) -> None:
+    input_spec = {
+        "kind": "signed_64_bit_integer",
+        "supported_range": [1, SUM_OF_TOTIENT_MAX_N],
+        "invalid_result": SUM_OF_TOTIENT_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "sum(phi(i), i=1..N) modulo 998244353",
+        "modulus": SUM_OF_TOTIENT_MODULUS,
+    }
+    cases = workload.get("cases")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "sum-of-totient-function-i64-scalar-mod-998244353-v1"
+            or workload.get("algorithm") != "sum_of_totient_function"
+            or workload.get("function_symbol") != "sum_of_totient_function"
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != {
+                "comparison_model": "scalar_call",
+                "sample_count": 6,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 1,
+            }
+            or SUM_OF_TOTIENT_BASE_LIMIT != 100_000
+            or SUM_OF_TOTIENT_MAX_N != 1_000_000_000
+            or not isinstance(cases, list)
+            or len(cases) != len(SUM_OF_TOTIENT_FUNCTION_CASES)):
+        raise ValueError("sum_of_totient_function workload metadata differs from its bounded scalar contract")
+    observed: dict[str, int] = {}
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        if (not isinstance(case, dict)
+                or set(case) != {"id", "input_value", "expected_result"}
+                or type(case.get("id")) is not str
+                or type(case.get("input_value")) is not int
+                or not I64_MIN <= case["input_value"] <= I64_MAX
+                or type(case.get("expected_result")) is not int
+                or case["id"] in observed
+                or case["expected_result"]
+                != sum_of_totient_function_expected(case["input_value"])):
+            raise ValueError(f"sum_of_totient_function fixture differs from its oracle: {case_id}")
+        observed[case["id"]] = case["input_value"]
+    if observed != SUM_OF_TOTIENT_FUNCTION_CASES:
+        raise ValueError("sum_of_totient_function workload is missing a reviewed boundary case")
+
+
+MEISSEL_LEHMER_CASES = {
+    "zero": 0,
+    "one": 1,
+    "first-prime": 2,
+    "small-prime-boundary": 100,
+    "sieve-prefix-limit": 10_000,
+    "million": 1_000_000,
+    "ten-million": 10_000_000,
+    "maximum": MEISSEL_LEHMER_MAX_INPUT,
+    "negative": -1,
+    "first-unsupported": MEISSEL_LEHMER_MAX_INPUT + 1,
+    "signed-minimum": I64_MIN,
+    "signed-maximum": I64_MAX,
+}
+
+
+def validate_meissel_lehmer_prime_count_workload(workload: dict) -> None:
+    expected_source = {
+        "repository": "OI Wiki",
+        "algorithm": "Meissel-Lehmer prime counting",
+        "url": "https://en.oi-wiki.org/math/meissel-lehmer/",
+        "source_type": "algorithm_description",
+        "reuse": "Algorithm description only; implementations and oracle are independently written.",
+    }
+    expected_contract = {
+        "operation": "Return pi(x), the number of primes less than or equal to x.",
+        "input_range": [0, MEISSEL_LEHMER_MAX_INPUT],
+        "invalid_input_result": -1,
+        "algorithm": "Lehmer formula with recursive phi(x,a), integer roots, and a prime-count prefix table through sqrt(max_input).",
+        "oracle": "Segmented Sieve of Eratosthenes, independent of the Lehmer formula.",
+    }
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "source", "contract", "cases", "measurement"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "meissel-lehmer-prime-count-i64-v1"
+            or workload.get("algorithm") != "meissel_lehmer_prime_count"
+            or workload.get("function_symbol") != "meissel_lehmer_prime_count"
+            or workload.get("abi") != "i64_scalar"
+            or workload.get("source") != expected_source
+            or workload.get("contract") != expected_contract
+            or workload.get("measurement") != {
+                "comparison_model": "scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 10,
+            }
+            or MEISSEL_LEHMER_MAX_INPUT != 100_000_000
+            or not isinstance(cases, list) or len(cases) != len(MEISSEL_LEHMER_CASES)):
+        raise ValueError("meissel_lehmer_prime_count workload differs from its bounded prime-count contract")
+    observed: dict[str, int] = {}
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        if (not isinstance(case, dict)
+                or set(case) != {"id", "input_value", "expected_result"}
+                or type(case.get("id")) is not str
+                or type(case.get("input_value")) is not int
+                or not I64_MIN <= case["input_value"] <= I64_MAX
+                or type(case.get("expected_result")) is not int
+                or case["id"] in observed
+                or case["expected_result"]
+                    != meissel_lehmer_prime_count_expected(case["input_value"])):
+            raise ValueError(f"meissel_lehmer_prime_count fixture differs from its oracle: {case_id}")
+        observed[case["id"]] = case["input_value"]
+    if observed != MEISSEL_LEHMER_CASES:
+        raise ValueError("meissel_lehmer_prime_count workload is missing a reviewed boundary case")
+    readme = (ROOT / "benchmarks" / "m" / "meissel_lehmer_prime_count" / "README.md").read_text(
+        encoding="utf-8")
+    if (expected_source["url"] not in readme
+            or "segmented-sieve oracle" not in readme
+            or "prime_pi_sequence" not in readme):
+        raise ValueError("meissel_lehmer_prime_count README is missing provenance or distinctness notes")
+    for relative in (
+            "c/m/meissel_lehmer_prime_count.c", "c3/m/meissel_lehmer_prime_count.c3",
+            "cpp/m/meissel_lehmer_prime_count.cpp", "elisa/m/meissel_lehmer_prime_count.elisa",
+            "mojo/m/meissel_lehmer_prime_count.mojo", "nim/m/meissel_lehmer_prime_count.nim",
+            "odin/m/meissel_lehmer_prime_count.odin", "rust/m/meissel_lehmer_prime_count.rs",
+            "v/m/meissel_lehmer_prime_count.v", "zig/m/meissel_lehmer_prime_count.zig"):
+        port = ROOT / relative
+        if (not port.is_file() or "meissel_lehmer_prime_count" not in port.read_text(encoding="utf-8")
+                or relative not in readme):
+            raise ValueError(f"meissel_lehmer_prime_count port or README link is missing: {relative}")
+
+
 def validate_expected_result(algorithm: str, input_value: int, expected_result: int) -> None:
     if algorithm == "newton_square_root":
         if expected_result != newton_square_root_expected(input_value):
@@ -2228,6 +2432,18 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
     if algorithm == "greatest_prime_factor":
         if expected_result != greatest_prime_factor_expected(input_value):
             raise ValueError("greatest_prime_factor expected_result must match the bounded factorization oracle")
+        return
+    if algorithm == "counting_squarefrees":
+        if expected_result != counting_squarefrees_expected(input_value):
+            raise ValueError("counting_squarefrees expected_result must match the bounded Möbius inversion oracle")
+        return
+    if algorithm == "sum_of_totient_function":
+        if expected_result != sum_of_totient_function_expected(input_value):
+            raise ValueError("sum_of_totient_function expected_result must match the bounded quotient-recursion oracle")
+        return
+    if algorithm == "meissel_lehmer_prime_count":
+        if expected_result != meissel_lehmer_prime_count_expected(input_value):
+            raise ValueError("meissel_lehmer_prime_count expected_result must match the independent segmented-sieve oracle")
         return
     if algorithm == "multiple_of_3_or_5_term":
         if expected_result != multiple_of_3_or_5_term_expected(input_value):
@@ -3837,6 +4053,12 @@ def main() -> int:
         validate_shootout_hash_workload(workload)
     elif algorithm == "freebench_pifft":
         validate_freebench_pifft_workload(workload)
+    elif algorithm == "counting_squarefrees":
+        validate_counting_squarefrees_workload(workload)
+    elif algorithm == "sum_of_totient_function":
+        validate_sum_of_totient_function_workload(workload)
+    elif algorithm == "meissel_lehmer_prime_count":
+        validate_meissel_lehmer_prime_count_workload(workload)
     timing = workload["measurement"]
     sample_count = args.samples if args.samples is not None else int(timing["sample_count"])
     warmup_rounds = args.warmups if args.warmups is not None else int(timing["warmup_rounds"])

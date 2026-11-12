@@ -1,0 +1,148 @@
+# Classical DFS low-link decomposition into vertex-biconnected blocks.
+const BCC_MAX_N: usize = 6
+const BCC_MAX_M: usize = 10
+const BCC_MAX_ADJ: usize = 20
+const BCC_MAX_BLOCKS: usize = 16
+const BCC_MAX_OUTPUT_VALUES: usize = 113
+const BCC_MAX_OUTPUT_BYTES: usize = 904
+const BCC_MAX_INPUT_LENGTH: usize = 22
+
+struct BccContext:
+    vertex_count: usize
+    edge_count: usize
+    edge_left: usize[10]
+    edge_right: usize[10]
+    degree: usize[6]
+    adjacent_vertex: usize[120]
+    adjacent_edge: usize[120]
+    discovery: i64[6]
+    low: i64[6]
+    edge_stack: usize[10]
+    stack_size: usize
+    clock: usize
+    block_vertices: usize[96]
+    block_size: usize[16]
+    block_count: usize
+
+def bcc_append_block(context: mutable BccContext&, stop_edge: usize) -> void:
+    member: mutable bool[6] = zeroed
+    while context.stack_size != 0:
+        context.stack_size <- context.stack_size - 1
+        edge: usize = context.edge_stack[context.stack_size]
+        member[context.edge_left[edge]] <- true
+        member[context.edge_right[edge]] <- true
+        if edge == stop_edge: break
+    block: usize = context.block_count
+    context.block_count <- context.block_count + 1
+    for vertex in 0..<context.vertex_count:
+        if member[vertex]:
+            index: usize = block * BCC_MAX_N + context.block_size[block]
+            context.block_vertices[index] <- vertex
+            context.block_size[block] <- context.block_size[block] + 1
+
+def bcc_visit(context: mutable BccContext&, vertex: usize, parent_edge: usize) -> void:
+    context.discovery[vertex] <- context.clock.i64()
+    context.low[vertex] <- context.clock.i64()
+    context.clock <- context.clock + 1
+    for slot in 0..<context.degree[vertex]:
+        index: usize = vertex * BCC_MAX_ADJ + slot
+        neighbor: usize = context.adjacent_vertex[index]
+        edge: usize = context.adjacent_edge[index]
+        if edge == parent_edge: continue
+        if context.discovery[neighbor] < 0:
+            context.edge_stack[context.stack_size] <- edge
+            context.stack_size <- context.stack_size + 1
+            bcc_visit(context&, neighbor, edge)
+            if context.low[neighbor] < context.low[vertex]:
+                context.low[vertex] <- context.low[neighbor]
+            if context.low[neighbor] >= context.discovery[vertex]:
+                bcc_append_block(context&, edge)
+        else if context.discovery[neighbor] < context.discovery[vertex]:
+            context.edge_stack[context.stack_size] <- edge
+            context.stack_size <- context.stack_size + 1
+            if context.discovery[neighbor] < context.low[vertex]:
+                context.low[vertex] <- context.discovery[neighbor]
+
+def bcc_block_less(context: BccContext&, left: usize, right: usize) -> bool:
+    common: usize = if context.block_size[left] < context.block_size[right]:
+        context.block_size[left]
+    else:
+        context.block_size[right]
+    for i in 0..<common:
+        a: usize = context.block_vertices[left * BCC_MAX_N + i]
+        b: usize = context.block_vertices[right * BCC_MAX_N + i]
+        if a != b: return a < b
+    context.block_size[left] < context.block_size[right]
+
+def bcc_store_u64(value: u64, output: mutable view[u8], offset: usize) -> void:
+    for byte in 0..<8:
+        output[offset + byte] <- ((value >> (8 * byte)) & 255).u8()
+
+def biconnected_components_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > BCC_MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > 6 or m_value < 0 or m_value > 10: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + 2 * m: return -1
+
+    context: mutable BccContext = zeroed
+    context.vertex_count <- n
+    context.edge_count <- m
+    for vertex in 0..<n: context.discovery[vertex] <- -1
+    for edge in 0..<m:
+        left_value: i64 = input[2 + 2 * edge]
+        right_value: i64 = input[3 + 2 * edge]
+        if left_value < 0 or left_value >= n_value or right_value < 0 or
+            right_value >= n_value or left_value == right_value: return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        context.edge_left[edge] <- left
+        context.edge_right[edge] <- right
+        left_slot: usize = context.degree[left]
+        right_slot: usize = context.degree[right]
+        context.degree[left] <- context.degree[left] + 1
+        context.degree[right] <- context.degree[right] + 1
+        context.adjacent_vertex[left * BCC_MAX_ADJ + left_slot] <- right
+        context.adjacent_edge[left * BCC_MAX_ADJ + left_slot] <- edge
+        context.adjacent_vertex[right * BCC_MAX_ADJ + right_slot] <- left
+        context.adjacent_edge[right * BCC_MAX_ADJ + right_slot] <- edge
+    for root in 0..<n:
+        if context.discovery[root] >= 0: continue
+        bcc_visit(context&, root, BCC_MAX_M)
+        if context.degree[root] == 0:
+            block: usize = context.block_count
+            context.block_count <- context.block_count + 1
+            context.block_vertices[block * BCC_MAX_N] <- root
+            context.block_size[block] <- 1
+
+    order: mutable usize[16] = zeroed
+    for i in 0..<context.block_count:
+        position: mutable usize = i
+        order[i] <- i
+        while position > 0 and bcc_block_less(context, order[position], order[position - 1]):
+            temporary: usize = order[position]
+            order[position] <- order[position - 1]
+            order[position - 1] <- temporary
+            position <- position - 1
+    staged: mutable u8[BCC_MAX_OUTPUT_BYTES] = zeroed
+    packed_count: mutable usize = 0
+    bcc_store_u64(context.block_count.u64(), staged[0:BCC_MAX_OUTPUT_BYTES], packed_count * 8)
+    packed_count <- packed_count + 1
+    for i in 0..<context.block_count:
+        block: usize = order[i]
+        bcc_store_u64(context.block_size[block].u64(), staged[0:BCC_MAX_OUTPUT_BYTES], packed_count * 8)
+        packed_count <- packed_count + 1
+        for j in 0..<context.block_size[block]:
+            value: usize = context.block_vertices[block * BCC_MAX_N + j]
+            bcc_store_u64(value.u64(), staged[0:BCC_MAX_OUTPUT_BYTES], packed_count * 8)
+            packed_count <- packed_count + 1
+    bytes: usize = 8 * packed_count
+    if output.is_null() or output_capacity < bytes: return -2
+    for byte in 0..<bytes: output[byte] <- staged[byte]
+    bytes.i64()
+
+export fn biconnected_components(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = biconnected_components_impl

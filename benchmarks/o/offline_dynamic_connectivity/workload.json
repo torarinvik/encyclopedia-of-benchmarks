@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "id": "offline-dynamic-connectivity-segment-time-rollback-dsu-v1",
+  "algorithm": "offline_dynamic_connectivity",
+  "function_symbol": "offline_dynamic_connectivity",
+  "abi": "i64_array_bytes_output",
+  "description": "Offline edge-lifetime connectivity queries with a segment tree over event time and rollback DSU.",
+  "source": {
+    "name": "OI Wiki: Segment tree and offline queries",
+    "url": "https://oi-wiki.org/topic/segment-tree-offline/",
+    "source_type": "algorithm_description",
+    "reuse": "Algorithm concept only; ports and direct-BFS oracle are independently written."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,q,(op,a,b,c)*q]",
+    "event_encoding": {
+      "0": "add edge: [0,edge_id,u,v]",
+      "1": "remove edge: [1,edge_id,0,0]",
+      "2": "connectivity query: [2,u,v,0]"
+    },
+    "vertex_count_range": [1, 16],
+    "event_count_range": [0, 32],
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 131,
+    "vertex_ids": "zero-based",
+    "edge_ids": "zero-based values in 0..31; each ID may be added only once and must be active when removed",
+    "parallel_edges": "allowed when they have distinct edge IDs",
+    "edge_lifetime": "An edge is active from its add event up to, but not including, its remove event; an unremoved edge stays active through the end of the trace.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "contract": {
+    "operation": "Answer whether each queried vertex pair is connected after the preceding events in a fully known add/remove trace.",
+    "algorithm": "Place each edge's half-open active interval in a segment tree over event indices. Traverse the tree with a rollback DSU using union by size and no path compression.",
+    "complexity": "O(q + a*q + a*log(q+1)*log(n+1))",
+    "query_semantics": "Each query observes all earlier additions and removals and does not change the graph.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input framing and event validation precede output pointer and capacity checks."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "one 0 or 1 per connectivity query, in event order",
+    "element_width_bytes": 8,
+    "maximum_elements": 32,
+    "maximum_bytes": 256,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 262144,
+    "meaning": "Fixed event arrays, segment-tree edge buckets, DSU state, rollback history, staged answers, and recursive traversal frames."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "add-remove-and-query-components",
+      "input_values": [4, 8, 0, 0, 0, 1, 2, 0, 1, 0, 0, 1, 1, 2, 2, 0, 2, 0, 2, 0, 3, 0, 1, 0, 0, 0, 2, 1, 2, 0, 2, 0, 2, 0],
+      "input_length": 34,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "01000000000000000100000000000000000000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "parallel-edge-remains-after-one-removal",
+      "input_values": [2, 5, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 2, 0, 1, 0, 1, 1, 0, 0],
+      "input_length": 22,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "self-connectivity",
+      "input_values": [1, 1, 2, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "queries-before-and-after-addition",
+      "input_values": [2, 3, 2, 0, 1, 0, 0, 0, 0, 1, 2, 0, 2, 0, 1, 0],
+      "input_length": 14,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000100000000000000"
+    },
+    {
+      "id": "edge-stays-active-through-end",
+      "input_values": [3, 3, 0, 31, 1, 2, 2, 1, 2, 0, 2, 0, 0, 0],
+      "input_length": 14,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000100000000000000"
+    },
+    {
+      "id": "no-connectivity-queries",
+      "input_values": [3, 2, 0, 7, 0, 1, 1, 7, 0, 0],
+      "input_length": 10,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reused-edge-id-invalid",
+      "input_values": [3, 3, 0, 4, 0, 1, 1, 4, 0, 0, 0, 4, 1, 2],
+      "input_length": 14,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "remove-inactive-edge-invalid",
+      "input_values": [2, 1, 1, 7, 0, 0],
+      "input_length": 6,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonzero-query-reserved-field-invalid",
+      "input_values": [2, 1, 2, 0, 1, 1],
+      "input_length": 6,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unknown-operation-invalid",
+      "input_values": [2, 1, 9, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-event-invalid",
+      "input_values": [2, 1, 2, 0],
+      "input_length": 4,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-input-precedes-output-error",
+      "input_values": [2, 1, 1, 7, 0, 0],
+      "input_length": 6,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 1, 2, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1, 2, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra-input-word-invalid",
+      "input_values": [1, 0, 99],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

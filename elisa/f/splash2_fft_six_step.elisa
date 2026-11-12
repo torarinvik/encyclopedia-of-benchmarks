@@ -1,0 +1,128 @@
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+
+const max_output: usize = 128
+const tau: f64 = 6.283185307179586476925286766559
+
+def transpose(source: view[f64], destination: mutable view[f64], side: usize) -> void:
+    row: mutable usize = 0
+    while row < side:
+        column: mutable usize = 0
+        while column < side:
+            from_index: usize = 2 * (row * side + column)
+            to_index: usize = 2 * (column * side + row)
+            destination[to_index] <- source[from_index]
+            destination[to_index + 1] <- source[from_index + 1]
+            column <- column + 1
+        row <- row + 1
+
+def fft_row(data: mutable view[f64], base: usize, side: usize) -> void:
+    reverse: mutable usize = 0
+    position: mutable usize = 1
+    while position < side:
+        bit: mutable usize = side >> 1
+        while (reverse & bit) != 0:
+            reverse <- reverse ^ bit
+            bit <- bit >> 1
+        reverse <- reverse ^ bit
+        if position < reverse:
+            left: usize = 2 * (base + position)
+            right: usize = 2 * (base + reverse)
+            temporary: mutable f64 = data[left]
+            data[left] <- data[right]
+            data[right] <- temporary
+            temporary <- data[left + 1]
+            data[left + 1] <- data[right + 1]
+            data[right + 1] <- temporary
+        position <- position + 1
+
+    block: mutable usize = 2
+    while block <= side:
+        half: usize = block / 2
+        angle_step: f64 = tau / block.f64()
+        start: mutable usize = 0
+        while start < side:
+            offset: mutable usize = 0
+            while offset < half:
+                angle: f64 = angle_step * offset.f64()
+                weight_real: f64 = cos(angle)
+                weight_imag: f64 = -sin(angle)
+                first: usize = 2 * (base + start + offset)
+                second: usize = 2 * (base + start + offset + half)
+                product_real: f64 = weight_real * data[second] - weight_imag * data[second + 1]
+                product_imag: f64 = weight_real * data[second + 1] + weight_imag * data[second]
+                first_real: f64 = data[first]
+                first_imag: f64 = data[first + 1]
+                data[first] <- first_real + product_real
+                data[first + 1] <- first_imag + product_imag
+                data[second] <- first_real - product_real
+                data[second + 1] <- first_imag - product_imag
+                offset <- offset + 1
+            start <- start + block
+        block <- block * 2
+
+def splash2_fft_six_step_impl(input: f64&, input_length: usize,
+                              output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 9 or input_length > 130:
+        return -1
+    side_value: f64 = input[0]
+    if side_value != 2.0 and side_value != 4.0 and side_value != 8.0:
+        return -1
+    side: usize = side_value.i64().usize()
+    points: usize = side * side
+    if input_length != 1 + 2 * points:
+        return -1
+    index: mutable usize = 0
+    while index < 2 * points:
+        value: f64 = input[index + 1]
+        if value != value or value < -8.0 or value > 8.0:
+            return -1
+        index <- index + 1
+
+    needed: usize = 2 * points
+    if output.is_null() or output_capacity < needed:
+        return -2
+
+    first_matrix: mutable f64[max_output] = zeroed
+    second_matrix: mutable f64[max_output] = zeroed
+    index <- 0
+    while index < needed:
+        first_matrix[index] <- input[index + 1]
+        index <- index + 1
+
+    transpose(first_matrix[0:max_output], second_matrix[0:max_output], side)
+    row: mutable usize = 0
+    while row < side:
+        fft_row(second_matrix[0:max_output], row * side, side)
+        row <- row + 1
+
+    row <- 0
+    while row < side:
+        column: mutable usize = 0
+        while column < side:
+            index: usize = 2 * (row * side + column)
+            angle: f64 = tau * (row * column).f64() / points.f64()
+            cosine: f64 = cos(angle)
+            sine: f64 = sin(angle)
+            real: f64 = second_matrix[index]
+            imag: f64 = second_matrix[index + 1]
+            second_matrix[index] <- cosine * real + sine * imag
+            second_matrix[index + 1] <- cosine * imag - sine * real
+            column <- column + 1
+        row <- row + 1
+
+    transpose(second_matrix[0:max_output], first_matrix[0:max_output], side)
+    row <- 0
+    while row < side:
+        fft_row(first_matrix[0:max_output], row * side, side)
+        row <- row + 1
+    transpose(first_matrix[0:max_output], second_matrix[0:max_output], side)
+
+    index <- 0
+    while index < needed:
+        output[index] <- second_matrix[index]
+        index <- index + 1
+    needed.i64()
+
+export fn splash2_fft_six_step(input: f64&, input_length: usize,
+                               output: mutable f64&, output_capacity: usize) -> i64 = splash2_fft_six_step_impl

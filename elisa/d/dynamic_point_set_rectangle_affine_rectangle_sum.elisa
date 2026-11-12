@@ -1,0 +1,273 @@
+# Bounded offline k-d tree for dynamic 2D point weights and rectangle affine maps.
+const MAX_N: usize = 32
+const MAX_Q: usize = 32
+const MAX_POINTS: usize = MAX_N + MAX_Q
+const MAX_TREE: usize = 4 * MAX_POINTS + 8
+const MAX_INPUT: usize = 2 + 3 * MAX_N + 7 * MAX_Q + 1
+const MODULUS: i64 = 998244353
+const MAX_COORD: i64 = 1000000000
+
+struct DpasOp:
+    kind: i64
+    a: i64
+    b: i64
+    c: i64
+    d: i64
+    e: i64
+    f: i64
+
+struct DpasNode:
+    min_x: i64
+    max_x: i64
+    min_y: i64
+    max_y: i64
+    sum: i64
+    lazy_a: i64
+    lazy_b: i64
+    active: usize
+
+def dpas_less(a: usize, b: usize, axis: usize, xs: view[i64], ys: view[i64]) -> bool:
+    first: i64 = xs[a]
+    second: i64 = xs[b]
+    first_other: i64 = ys[a]
+    second_other: i64 = ys[b]
+    if axis != 0:
+        first <- ys[a]
+        second <- ys[b]
+        first_other <- xs[a]
+        second_other <- xs[b]
+    if first != second: return first < second
+    if first_other != second_other: return first_other < second_other
+    a < b
+
+def dpas_sort(order: mutable view[usize], low: usize, high: usize, axis: usize,
+              xs: view[i64], ys: view[i64]) -> void:
+    i: mutable usize = low + 1
+    while i < high:
+        point: usize = order[i]
+        j: mutable usize = i
+        while j > low:
+            if not dpas_less(point, order[j - 1], axis, xs, ys): break
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- point
+        i <- i + 1
+
+def dpas_build(tree: mutable view[DpasNode], order: mutable view[usize],
+               xs: view[i64], ys: view[i64], weights: view[i64], rank: mutable view[usize],
+               low: usize, high: usize, index: usize, depth: usize, initial_n: usize) -> void:
+    tree[index].lazy_a <- 1
+    if high - low == 1:
+        point: usize = order[low]
+        tree[index].min_x <- xs[point]
+        tree[index].max_x <- xs[point]
+        tree[index].min_y <- ys[point]
+        tree[index].max_y <- ys[point]
+        if point < initial_n:
+            tree[index].active <- 1
+            tree[index].sum <- weights[point]
+        rank[point] <- low
+        return
+    dpas_sort(order, low, high, depth & 1, xs, ys)
+    middle: usize = low + (high - low) / 2
+    dpas_build(tree, order, xs, ys, weights, rank, low, middle, index * 2, depth + 1, initial_n)
+    dpas_build(tree, order, xs, ys, weights, rank, middle, high, index * 2 + 1, depth + 1, initial_n)
+    left: DpasNode = tree[index * 2]
+    right: DpasNode = tree[index * 2 + 1]
+    if left.min_x < right.min_x:
+        tree[index].min_x <- left.min_x
+    else:
+        tree[index].min_x <- right.min_x
+    if left.max_x > right.max_x:
+        tree[index].max_x <- left.max_x
+    else:
+        tree[index].max_x <- right.max_x
+    if left.min_y < right.min_y:
+        tree[index].min_y <- left.min_y
+    else:
+        tree[index].min_y <- right.min_y
+    if left.max_y > right.max_y:
+        tree[index].max_y <- left.max_y
+    else:
+        tree[index].max_y <- right.max_y
+    tree[index].active <- left.active + right.active
+    tree[index].sum <- (left.sum + right.sum) % MODULUS
+
+def dpas_apply(tree: mutable view[DpasNode], index: usize, a: i64, b: i64) -> void:
+    if tree[index].active == 0: return
+    tree[index].sum <- (a * tree[index].sum + b * tree[index].active.i64()) % MODULUS
+    tree[index].lazy_a <- (a * tree[index].lazy_a) % MODULUS
+    tree[index].lazy_b <- (a * tree[index].lazy_b + b) % MODULUS
+
+def dpas_push(tree: mutable view[DpasNode], index: usize, low: usize, high: usize) -> void:
+    if high - low == 1 or (tree[index].lazy_a == 1 and tree[index].lazy_b == 0): return
+    a: i64 = tree[index].lazy_a
+    b: i64 = tree[index].lazy_b
+    dpas_apply(tree, index * 2, a, b)
+    dpas_apply(tree, index * 2 + 1, a, b)
+    tree[index].lazy_a <- 1
+    tree[index].lazy_b <- 0
+
+def dpas_disjoint(node: DpasNode, left: i64, down: i64, right: i64, up: i64) -> bool:
+    node.max_x < left or node.min_x >= right or node.max_y < down or node.min_y >= up
+
+def dpas_covered(node: DpasNode, left: i64, down: i64, right: i64, up: i64) -> bool:
+    left <= node.min_x and node.max_x < right and down <= node.min_y and node.max_y < up
+
+def dpas_pull(tree: mutable view[DpasNode], index: usize) -> void:
+    tree[index].sum <- (tree[index * 2].sum + tree[index * 2 + 1].sum) % MODULUS
+    tree[index].active <- tree[index * 2].active + tree[index * 2 + 1].active
+
+def dpas_sum(tree: mutable view[DpasNode], index: usize, low: usize, high: usize,
+             left: i64, down: i64, right: i64, up: i64) -> i64:
+    node: DpasNode = tree[index]
+    if node.active == 0 or dpas_disjoint(node, left, down, right, up): return 0
+    if dpas_covered(node, left, down, right, up): return node.sum
+    dpas_push(tree, index, low, high)
+    middle: usize = low + (high - low) / 2
+    (dpas_sum(tree, index * 2, low, middle, left, down, right, up) +
+     dpas_sum(tree, index * 2 + 1, middle, high, left, down, right, up)) % MODULUS
+
+def dpas_affine(tree: mutable view[DpasNode], index: usize, low: usize, high: usize,
+                left: i64, down: i64, right: i64, up: i64, a: i64, b: i64) -> void:
+    node: DpasNode = tree[index]
+    if node.active == 0 or dpas_disjoint(node, left, down, right, up): return
+    if dpas_covered(node, left, down, right, up):
+        dpas_apply(tree, index, a, b)
+        return
+    dpas_push(tree, index, low, high)
+    middle: usize = low + (high - low) / 2
+    dpas_affine(tree, index * 2, low, middle, left, down, right, up, a, b)
+    dpas_affine(tree, index * 2 + 1, middle, high, left, down, right, up, a, b)
+    dpas_pull(tree, index)
+
+def dpas_set(tree: mutable view[DpasNode], index: usize, low: usize, high: usize,
+             target: usize, weight: i64) -> void:
+    if high - low == 1:
+        tree[index].sum <- weight
+        tree[index].active <- 1
+        tree[index].lazy_a <- 1
+        tree[index].lazy_b <- 0
+        return
+    dpas_push(tree, index, low, high)
+    middle: usize = low + (high - low) / 2
+    if target < middle: dpas_set(tree, index * 2, low, middle, target, weight)
+    else: dpas_set(tree, index * 2 + 1, middle, high, target, weight)
+    dpas_pull(tree, index)
+
+def dpas_put64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def dynamic_point_set_rectangle_affine_rectangle_sum_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if 2 + 3 * n > length: return -1
+    xs: mutable i64[MAX_POINTS] = zeroed
+    ys: mutable i64[MAX_POINTS] = zeroed
+    weights: mutable i64[MAX_POINTS] = zeroed
+    operations: mutable DpasOp[MAX_Q] = zeroed
+    point_count: mutable usize = n
+    active_count: mutable usize = n
+    query_count: mutable usize = 0
+    i: mutable usize = 0
+    while i < n:
+        xs[i] <- input[2 + 3 * i]
+        ys[i] <- input[3 + 3 * i]
+        weights[i] <- input[4 + 3 * i]
+        if xs[i] < 0 or xs[i] > MAX_COORD or ys[i] < 0 or ys[i] > MAX_COORD or weights[i] < 0 or weights[i] >= MODULUS: return -1
+        i <- i + 1
+    cursor: mutable usize = 2 + 3 * n
+    oi: mutable usize = 0
+    while oi < q:
+        if cursor >= length: return -1
+        kind: i64 = input[cursor]
+        cursor <- cursor + 1
+        if kind == 0:
+            if cursor + 3 > length or point_count >= MAX_POINTS: return -1
+            x: i64 = input[cursor]
+            y: i64 = input[cursor + 1]
+            weight: i64 = input[cursor + 2]
+            cursor <- cursor + 3
+            if x < 0 or x > MAX_COORD or y < 0 or y > MAX_COORD or weight < 0 or weight >= MODULUS: return -1
+            xs[point_count] <- x
+            ys[point_count] <- y
+            operations[oi].kind <- kind
+            operations[oi].a <- point_count.i64()
+            operations[oi].b <- weight
+            point_count <- point_count + 1
+            active_count <- active_count + 1
+        elif kind == 1:
+            if cursor + 2 > length: return -1
+            point: i64 = input[cursor]
+            weight: i64 = input[cursor + 1]
+            cursor <- cursor + 2
+            if point < 0 or point >= active_count.i64() or weight < 0 or weight >= MODULUS: return -1
+            operations[oi].kind <- kind
+            operations[oi].a <- point
+            operations[oi].b <- weight
+        elif kind == 2 or kind == 3:
+            fields: usize = 4
+            if kind == 3: fields <- 6
+            if cursor + fields > length: return -1
+            left: i64 = input[cursor]
+            down: i64 = input[cursor + 1]
+            right: i64 = input[cursor + 2]
+            up: i64 = input[cursor + 3]
+            if left < 0 or left >= right or right > MAX_COORD or down < 0 or down >= up or up > MAX_COORD: return -1
+            operations[oi].kind <- kind
+            operations[oi].a <- left
+            operations[oi].b <- down
+            operations[oi].c <- right
+            operations[oi].d <- up
+            if kind == 2:
+                cursor <- cursor + 4
+                query_count <- query_count + 1
+            else:
+                a: i64 = input[cursor + 4]
+                b: i64 = input[cursor + 5]
+                cursor <- cursor + 6
+                if a < 0 or a >= MODULUS or b < 0 or b >= MODULUS: return -1
+                operations[oi].e <- a
+                operations[oi].f <- b
+        else:
+            return -1
+        oi <- oi + 1
+    if cursor != length: return -1
+    output_bytes: usize = 8 * query_count
+    if output_bytes > 0 and (output.is_null() or capacity < output_bytes): return -2
+    tree: mutable DpasNode[MAX_TREE] = zeroed
+    order: mutable usize[MAX_POINTS] = zeroed
+    rank: mutable usize[MAX_POINTS] = zeroed
+    i <- 0
+    while i < point_count:
+        order[i] <- i
+        i <- i + 1
+    dpas_build(tree[0:MAX_TREE], order[0:MAX_POINTS], xs[0:MAX_POINTS], ys[0:MAX_POINTS], weights[0:MAX_POINTS], rank[0:MAX_POINTS], 0, point_count, 1, 0, n)
+    answers: mutable i64[MAX_Q] = zeroed
+    answer_count: mutable usize = 0
+    oi <- 0
+    while oi < q:
+        op: DpasOp = operations[oi]
+        if op.kind == 0 or op.kind == 1:
+            dpas_set(tree[0:MAX_TREE], 1, 0, point_count, rank[op.a.usize()], op.b)
+        elif op.kind == 2:
+            answers[answer_count] <- dpas_sum(tree[0:MAX_TREE], 1, 0, point_count, op.a, op.b, op.c, op.d)
+            answer_count <- answer_count + 1
+        else:
+            dpas_affine(tree[0:MAX_TREE], 1, 0, point_count, op.a, op.b, op.c, op.d, op.e, op.f)
+        oi <- oi + 1
+    if answer_count > 0:
+        output_view: mutable view[u8] = output[0:output_bytes]
+        for i in 0..<answer_count:
+            dpas_put64(output_view, 8 * i, answers[i])
+    output_bytes.i64()
+
+export fn dynamic_point_set_rectangle_affine_rectangle_sum(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = dynamic_point_set_rectangle_affine_rectangle_sum_impl

@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "subset-lattice-bitwise-or-convolution-bounded-v1",
+  "algorithm": "bitwise_or_convolution",
+  "function_symbol": "bitwise_or_convolution",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "kind": "general algorithm references",
+    "references": [
+      "https://neelmishra.github.io/blog/cp/algebra/convolution-variants.html"
+    ],
+    "library_checker_task": false,
+    "reuse_scope": "The OR-convolution identity and subset-lattice transform idea are cited; no code or prose is reused, and all implementations are clean-room."
+  },
+  "contract": {
+    "operation": "c[k] = sum(a[i]*b[j] for i|j=k) modulo 998244353.",
+    "input_layout": "[N,a[0..2^N),b[0..2^N)]",
+    "local_n_range": [0, 8],
+    "coefficient_range": "0 <= coefficient < 998244353",
+    "algorithm": "Subset zeta transform both arrays, multiply pointwise, then subset Möbius invert.",
+    "output_layout": "One little-endian signed 64-bit residue per index.",
+    "error_precedence": "Malformed frames or coefficients return -1 before output checks. Valid input with null output or insufficient capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,a[0..2^N),b[0..2^N)]",
+    "n_range": [0, 8],
+    "coefficient_range": [0, 998244352],
+    "maximum_valid_length": 513,
+    "maximum_parseable_length": 513,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "maximum_elements": 256,
+    "maximum_bytes": 2048,
+    "size_formula": "8*2^N",
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Two staged 256-element signed 64-bit arrays for the zeta transforms and pointwise product."
+  },
+  "maximum_profile": {
+    "n": 8,
+    "input_values": "[8, 256 copies of 1, 256 copies of 1]",
+    "output_formula": "c[k] = 3^popcount(k) mod 998244353",
+    "output_bytes": 2048
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"zero-bit-domain", "input_values":[0,3,4], "input_length":3, "expected_result":8, "expected_output_hex":"0c00000000000000"},
+    {"id":"one-bit-mixed", "input_values":[1,1,2,3,4], "input_length":5, "expected_result":16, "expected_output_hex":"03000000000000001200000000000000"},
+    {"id":"two-bit-dense", "input_values":[2,1,2,3,4,5,6,7,8], "input_length":9, "expected_result":32, "expected_output_hex":"05000000000000001c000000000000002b00000000000000b800000000000000"},
+    {"id":"contributions-join-at-five", "input_values":[3,0,5,0,0,0,0,0,0,0,0,0,0,7,0,0,0], "input_length":17, "expected_result":64, "expected_output_hex":"00000000000000000000000000000000000000000000000000000000000000000000000000000000230000000000000000000000000000000000000000000000"},
+    {"id":"n-out-of-range", "input_values":[9], "input_length":1, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short-frame", "input_values":[1,1,2,3], "input_length":4, "expected_result":-1, "expected_output_hex":""},
+    {"id":"extra-word-frame", "input_values":[0,3,4,0], "input_length":4, "expected_result":-1, "expected_output_hex":""},
+    {"id":"negative-coefficient", "input_values":[0,-1,4], "input_length":3, "expected_result":-1, "expected_output_hex":""},
+    {"id":"coefficient-equals-modulus", "input_values":[0,998244353,4], "input_length":3, "expected_result":-1, "expected_output_hex":""},
+    {"id":"malformed-before-capacity", "input_values":[0,-1,4], "input_length":3, "output_capacity":0, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short-capacity", "input_values":[0,3,4], "input_length":3, "output_capacity":7, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-output", "input_values":[0,3,4], "input_length":3, "output_capacity":8, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

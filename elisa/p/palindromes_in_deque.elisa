@@ -1,0 +1,117 @@
+# Bounded two-ended palindrome trace with snapshot Eertree rebuilds.
+const PID_MAX_QUERIES: usize = 32
+const PID_MAX_NODES: usize = PID_MAX_QUERIES + 2
+const PID_ALPHABET: usize = 26
+
+struct PidNode:
+    length: i64
+    suffix_link: i64
+    next: i64[26]
+
+def pid_initialize(nodes: mutable view[PidNode], id: usize,
+                   node_length: i64, suffix_link: i64) -> void:
+    nodes[id].length <- node_length
+    nodes[id].suffix_link <- suffix_link
+    letter: mutable usize = 0
+    while letter < PID_ALPHABET:
+        nodes[id].next[letter] <- -1
+        letter <- letter + 1
+
+def pid_find_extendable(nodes: view[PidNode], text: view[i64],
+                        position: usize, start: i64) -> i64:
+    node: mutable i64 = start
+    while true:
+        preceding: i64 = position.i64() - nodes[node.usize()].length - 1
+        if preceding >= 0 and text[preceding.usize()] == text[position]: return node
+        node <- nodes[node.usize()].suffix_link
+    -1
+
+def pid_store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def palindromes_in_deque(input: i64&, input_length: usize,
+                         output: mutable u8&, output_capacity: usize) -> i64
+        @export("palindromes_in_deque"):
+    if input.is_null() or input_length < 1 or input_length > 1 + 2 * PID_MAX_QUERIES:
+        return -1
+    query_value: i64 = input[0]
+    if query_value < 1 or query_value > PID_MAX_QUERIES.i64(): return -1
+    queries: usize = query_value.usize()
+    if input_length != 1 + 2 * queries: return -1
+
+    size: mutable i64 = 0
+    for query in 0..queries:
+        operation: i64 = input[1 + 2 * query]
+        letter: i64 = input[2 + 2 * query]
+        if operation == 0 or operation == 1:
+            if letter < 0 or letter >= PID_ALPHABET.i64(): return -1
+            size <- size + 1
+        elif operation == 2 or operation == 3:
+            if letter != 0 or size == 0: return -1
+            size <- size - 1
+        else:
+            return -1
+    if output.is_null() or output_capacity < 24 * queries: return -2
+
+    text: mutable i64[PID_MAX_QUERIES] = zeroed
+    size <- 0
+    for query in 0..queries:
+        operation: i64 = input[1 + 2 * query]
+        letter: i64 = input[2 + 2 * query]
+        if operation == 0:
+            index: mutable i64 = size
+            while index > 0:
+                text[index.usize()] <- text[(index - 1).usize()]
+                index <- index - 1
+            text[0] <- letter
+            size <- size + 1
+        elif operation == 1:
+            text[size.usize()] <- letter
+            size <- size + 1
+        elif operation == 2:
+            index: mutable i64 = 1
+            while index < size:
+                text[(index - 1).usize()] <- text[index.usize()]
+                index <- index + 1
+            size <- size - 1
+        else:
+            size <- size - 1
+
+        nodes: mutable PidNode[PID_MAX_NODES] = zeroed
+        pid_initialize(nodes[0:PID_MAX_NODES], 0, -1, 0)
+        pid_initialize(nodes[0:PID_MAX_NODES], 1, 0, 0)
+        node_count: mutable usize = 2
+        last: mutable i64 = 1
+        longest_prefix: mutable i64 = 0
+        position: mutable usize = 0
+        while position < size.usize():
+            letter_index: usize = text[position].usize()
+            parent: i64 = pid_find_extendable(nodes[0:PID_MAX_NODES],
+                text[0:size.usize()], position, last)
+            next: mutable i64 = nodes[parent.usize()].next[letter_index]
+            if next < 0:
+                next <- node_count.i64()
+                node_count <- node_count + 1
+                pid_initialize(nodes[0:PID_MAX_NODES], next.usize(),
+                    nodes[parent.usize()].length + 2, 0)
+                nodes[parent.usize()].next[letter_index] <- next
+                if nodes[next.usize()].length == 1:
+                    nodes[next.usize()].suffix_link <- 1
+                else:
+                    suffix_parent: i64 = pid_find_extendable(
+                        nodes[0:PID_MAX_NODES], text[0:size.usize()], position,
+                        nodes[parent.usize()].suffix_link)
+                    nodes[next.usize()].suffix_link <- nodes[suffix_parent.usize()].next[letter_index]
+            last <- next
+            if nodes[last.usize()].length == (position + 1).i64():
+                longest_prefix <- (position + 1).i64()
+            position <- position + 1
+
+        offset: usize = 24 * query
+        pid_store_i64_le(output, offset, (node_count - 2).i64())
+        pid_store_i64_le(output, offset + 8, longest_prefix)
+        pid_store_i64_le(output, offset + 16, nodes[last.usize()].length)
+    (24 * queries).i64()

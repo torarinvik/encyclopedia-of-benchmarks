@@ -21,6 +21,22 @@ from functools import lru_cache
 from fractions import Fraction
 
 from build_abi import ROOT, sha256_file
+from min_of_mod_of_linear_oracle import expected_result as min_of_mod_of_linear_expected
+from sum_of_floor_of_linear_oracle import expected_result as sum_of_floor_of_linear_expected
+from hpcc_random_access_oracle import MAX_N as HPCC_RANDOM_ACCESS_MAX_N
+from hpcc_random_access_oracle import expected_result as hpcc_random_access_expected
+from kth_root_integer_oracle import MAX_PARSEABLE_INPUT_LENGTH as KTH_ROOT_INTEGER_MAX_PARSEABLE_INPUT_LENGTH
+from kth_root_integer_oracle import expected_result as kth_root_integer_expected
+from discrete_logarithm_mod_oracle import MAX_PARSEABLE_INPUT_LENGTH as DISCRETE_LOG_MOD_MAX_PARSEABLE_INPUT_LENGTH
+from discrete_logarithm_mod_oracle import expected_result as discrete_logarithm_mod_expected
+from tetration_mod_oracle import MAX_PARSEABLE_INPUT_LENGTH as TETRATION_MOD_MAX_PARSEABLE_INPUT_LENGTH
+from tetration_mod_oracle import expected_result as tetration_mod_expected
+from sum_of_multiplicative_function_large_oracle import INVALID_RESULT as SUM_MULTIPLICATIVE_INVALID_RESULT
+from sum_of_multiplicative_function_large_oracle import MAX_N as SUM_MULTIPLICATIVE_MAX_N
+from sum_of_multiplicative_function_large_oracle import MAX_PARSEABLE_INPUT_LENGTH as SUM_MULTIPLICATIVE_MAX_PARSEABLE_INPUT_LENGTH
+from sum_of_multiplicative_function_large_oracle import MAX_VALID_INPUT_LENGTH as SUM_MULTIPLICATIVE_MAX_VALID_INPUT_LENGTH
+from sum_of_multiplicative_function_large_oracle import MODULUS as SUM_MULTIPLICATIVE_MODULUS
+from sum_of_multiplicative_function_large_oracle import expected_result as sum_of_multiplicative_function_large_expected
 from coremark_crc_oracle import INVALID_RESULT as COREMARK_CRC_INVALID_RESULT
 from coremark_crc_oracle import MAX_INPUT_LENGTH as COREMARK_CRC_MAX_INPUT_LENGTH
 from coremark_crc_oracle import expected_result as coremark_crc_expected
@@ -50,6 +66,8 @@ from agrep_approx_substring_count_oracle import (
 )
 from npb_serial_dc_oracle import MAX_INPUT_LENGTH as NPB_SERIAL_DC_MAX_INPUT_LENGTH
 from npb_serial_dc_oracle import expected_result as npb_serial_dc_expected
+from n.npb_dc_smallest_parent.primary_oracle import MAX_INPUT_LENGTH as NPB_DC_SMALLEST_PARENT_MAX_INPUT_LENGTH
+from n.npb_dc_smallest_parent.primary_oracle import expected_result as npb_dc_smallest_parent_expected
 from doe_pathfinder_signature_search_oracle import (
     MAX_EDGES as DOE_PATHFINDER_MAX_EDGES,
     MAX_NODES as DOE_PATHFINDER_MAX_NODES,
@@ -192,6 +210,10 @@ from rle_lcs_block_dp_oracle import (
 from rle_levenshtein_block_dp_oracle import (
     MAX_INPUT_LENGTH as RLE_LEVENSHTEIN_BLOCK_DP_MAX_INPUT_LENGTH,
     expected_result as rle_levenshtein_block_dp_expected,
+)
+from maximum_independent_set_oracle import (
+    MAX_INPUT_LENGTH as MAXIMUM_INDEPENDENT_SET_MAX_INPUT_LENGTH,
+    expected_result as maximum_independent_set_expected,
 )
 
 SLRE_MAX_INPUT_LENGTH = 2 + SLRE_MAX_TEXT + SLRE_MAX_PATTERN
@@ -511,6 +533,54 @@ from ones_and_zeros_oracle import MAX_INPUT_LENGTH as MAX_ONES_AND_ZEROS_INPUT_L
 from ones_and_zeros_oracle import expected_result as ones_and_zeros_expected
 from optimal_binary_search_tree_oracle import MAX_INPUT_LENGTH as MAX_OPTIMAL_BINARY_SEARCH_TREE_INPUT_LENGTH
 from optimal_binary_search_tree_oracle import expected_result as optimal_binary_search_tree_expected
+from knuth_optimized_optimal_binary_search_tree_oracle import (
+    MAX_INPUT_LENGTH as KNUTH_OPTIMAL_BST_MAX_INPUT_LENGTH,
+    expected_result as knuth_optimized_optimal_binary_search_tree_expected,
+)
+from k.knuth_optimized_optimal_binary_search_tree.verify_workload import (
+    verify_workload as validate_knuth_optimal_bst_package_workload,
+)
+from broken_profile_domino_tilings_oracle import (
+    MAX_INPUT_LENGTH as BROKEN_PROFILE_DOMINO_TILINGS_MAX_INPUT_LENGTH,
+    expected_result as broken_profile_domino_tilings_expected,
+)
+from b.broken_profile_domino_tilings.verify_workload import (
+    verify_workload as validate_broken_profile_domino_tilings_package_workload,
+)
+from stirling_number_of_the_second_kind_oracle import (
+    expected_result as stirling_number_of_the_second_kind_expected,
+)
+from s.stirling_number_of_the_second_kind.verify_workload import (
+    verify_workload as validate_stirling_number_of_the_second_kind_package_workload,
+)
+from n.number_of_increasing_sequences_between_two_sequences.primary_oracle import (
+    MAX_INPUT_LENGTH as NUMBER_OF_INCREASING_SEQUENCES_MAX_INPUT_LENGTH,
+    expected_result as number_of_increasing_sequences_expected,
+)
+from n.number_of_increasing_sequences_between_two_sequences.verify_workload import (
+    verify as verify_number_of_increasing_sequences_package_workload,
+)
+from p.point_set_range_sort_range_composite.primary_oracle import (
+    MAX_INPUT_LENGTH as POINT_SET_RANGE_SORT_RANGE_COMPOSITE_MAX_INPUT_LENGTH,
+    expected_result as point_set_range_sort_range_composite_expected,
+)
+from p.point_set_range_sort_range_composite.verify_workload import (
+    verify as verify_point_set_range_sort_range_composite_package,
+)
+from stirling_number_of_the_second_kind_small_p_large_n_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as STIRLING_S2_SMALL_P_MAX_INPUT_LENGTH,
+    expected_result as stirling_number_of_the_second_kind_small_p_large_n_expected,
+)
+from s.stirling_number_of_the_second_kind_small_p_large_n.verify_workload import (
+    verify_workload as verify_stirling_s2_small_p_large_n_package,
+)
+from stirling_number_of_the_first_kind_small_p_large_n_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as STIRLING_S1_SMALL_P_MAX_INPUT_LENGTH,
+    expected_result as stirling_number_of_the_first_kind_small_p_large_n_expected,
+)
+from s.stirling_number_of_the_first_kind_small_p_large_n.verify_workload import (
+    verify_workload as verify_stirling_s1_small_p_large_n_package,
+)
 from optimal_file_merging_oracle import expected_result as optimal_file_merging_expected
 from needleman_wunsch_oracle import MAX_INPUT_LENGTH as MAX_NEEDLEMAN_WUNSCH_INPUT_LENGTH
 from needleman_wunsch_oracle import expected_result as needleman_wunsch_expected
@@ -581,6 +651,9 @@ from feistel_cipher_normalized_oracle import MAX_INPUT_LENGTH as MAX_FEISTEL_CIP
 from feistel_cipher_normalized_oracle import expected_result as feistel_cipher_normalized_expected
 from edmonds_karp_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_KARP_INPUT_LENGTH
 from edmonds_karp_oracle import expected_result as edmonds_karp_expected
+from mpm_maxflow_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MPM_MAXFLOW_PARSEABLE_INPUT_LENGTH
+from mpm_maxflow_oracle import expected_result as mpm_maxflow_expected
+from verify_mpm_maxflow import validate_workload as validate_mpm_maxflow_package_workload
 from gomory_hu_tree_oracle import MAX_INPUT_LENGTH as MAX_GOMORY_HU_TREE_INPUT_LENGTH
 from gomory_hu_tree_oracle import expected_result as gomory_hu_tree_expected
 from graph_enumeration_oracle import MAX_INPUT_LENGTH as MAX_GRAPH_ENUMERATION_INPUT_LENGTH
@@ -719,8 +792,6 @@ from transposition_oracle import MAX_INPUT as MAX_TRANSPOSITION_INPUT_LENGTH
 from transposition_oracle import expected_result as transposition_expected
 from lzw_oracle import MAX_INPUT_LENGTH as MAX_LZW_INPUT_LENGTH
 from lzw_oracle import expected_result as lzw_expected
-from hierholzer_algorithm_oracle import MAX_INPUT as MAX_HIERHOLZER_INPUT_LENGTH
-from hierholzer_algorithm_oracle import expected_result as hierholzer_algorithm_expected
 from inverted_index_oracle import MAX_INPUT_LENGTH as MAX_INVERTED_INDEX_INPUT_LENGTH
 from inverted_index_oracle import expected_result as inverted_index_expected
 from hash_set_oracle import MAX_INPUT_LENGTH as MAX_HASH_SET_INPUT_LENGTH
@@ -1130,6 +1201,25 @@ from segment_tree_apply_oracle import MAX_VALID_INPUT_VALUES as SEGMENT_TREE_APP
 from segment_tree_apply_oracle import MIN_INITIAL_VALUE as SEGMENT_TREE_APPLY_MIN_INITIAL_VALUE
 from segment_tree_apply_oracle import MIN_MULTIPLIER as SEGMENT_TREE_APPLY_MIN_MULTIPLIER
 from segment_tree_apply_oracle import expected_result as segment_tree_apply_expected
+from range_affine_range_sum_oracle import INVALID_RESULT as RANGE_AFFINE_RANGE_SUM_INVALID_RESULT
+from range_affine_range_sum_oracle import MAX_LENGTH as RANGE_AFFINE_RANGE_SUM_MAX_LENGTH
+from range_affine_range_sum_oracle import MAX_OPERATIONS as RANGE_AFFINE_RANGE_SUM_MAX_OPERATIONS
+from range_affine_range_sum_oracle import MAX_PARSEABLE_INPUT_VALUES as RANGE_AFFINE_RANGE_SUM_MAX_PARSEABLE_INPUT_VALUES
+from range_affine_range_sum_oracle import MAX_VALID_INPUT_VALUES as RANGE_AFFINE_RANGE_SUM_MAX_VALID_INPUT_VALUES
+from range_affine_range_sum_oracle import MODULUS as RANGE_AFFINE_RANGE_SUM_MODULUS
+from range_affine_range_sum_oracle import expected_result as range_affine_range_sum_expected
+from range_linear_add_range_min_oracle import CHECKSUM_OFFSET as RANGE_LINEAR_ADD_RANGE_MIN_CHECKSUM_OFFSET
+from range_linear_add_range_min_oracle import INVALID_RESULT as RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+from range_linear_add_range_min_oracle import MAX_ABS_VALUE as RANGE_LINEAR_ADD_RANGE_MIN_MAX_ABS_VALUE
+from range_linear_add_range_min_oracle import MAX_CHECKSUM as RANGE_LINEAR_ADD_RANGE_MIN_MAX_CHECKSUM
+from range_linear_add_range_min_oracle import MAX_INITIAL_ABS as RANGE_LINEAR_ADD_RANGE_MIN_MAX_INITIAL_ABS
+from range_linear_add_range_min_oracle import MAX_INTERCEPT_ABS as RANGE_LINEAR_ADD_RANGE_MIN_MAX_INTERCEPT_ABS
+from range_linear_add_range_min_oracle import MAX_LENGTH as RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH
+from range_linear_add_range_min_oracle import MAX_OPERATIONS as RANGE_LINEAR_ADD_RANGE_MIN_MAX_OPERATIONS
+from range_linear_add_range_min_oracle import MAX_PARSEABLE_INPUT_VALUES as RANGE_LINEAR_ADD_RANGE_MIN_MAX_PARSEABLE_INPUT_VALUES
+from range_linear_add_range_min_oracle import MAX_SLOPE_ABS as RANGE_LINEAR_ADD_RANGE_MIN_MAX_SLOPE_ABS
+from range_linear_add_range_min_oracle import MAX_VALID_INPUT_VALUES as RANGE_LINEAR_ADD_RANGE_MIN_MAX_VALID_INPUT_VALUES
+from range_linear_add_range_min_oracle import expected_result as range_linear_add_range_min_expected
 from tim_sorter_oracle import INVALID_RESULT as TIM_SORTER_INVALID_RESULT
 from tim_sorter_oracle import MAX_ITEMS as TIM_SORTER_MAX_ITEMS
 from tim_sorter_oracle import MAX_KEY as TIM_SORTER_MAX_KEY
@@ -1536,8 +1626,19 @@ from point_set_range_composite_oracle import MAX_INPUT_LENGTH as POINT_SET_RANGE
 from point_set_range_composite_oracle import TASK_URL as POINT_SET_RANGE_COMPOSITE_TASK_URL
 from point_set_range_composite_oracle import PROPOSAL_URL as POINT_SET_RANGE_COMPOSITE_PROPOSAL_URL
 from point_set_range_composite_oracle import expected_result as point_set_range_composite_expected
+from queue_operate_all_composite_oracle import MAX_INPUT_LENGTH as QUEUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH
+from queue_operate_all_composite_oracle import TASK_URL as QUEUE_OPERATE_ALL_COMPOSITE_TASK_URL
+from queue_operate_all_composite_oracle import PROPOSAL_URL as QUEUE_OPERATE_ALL_COMPOSITE_PROPOSAL_URL
+from queue_operate_all_composite_oracle import expected_result as queue_operate_all_composite_expected
+from deque_operate_all_composite_oracle import MAX_INPUT_LENGTH as DEQUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH
+from deque_operate_all_composite_oracle import TASK_URL as DEQUE_OPERATE_ALL_COMPOSITE_TASK_URL
+from deque_operate_all_composite_oracle import expected_result as deque_operate_all_composite_expected
 from manhattan_mst_oracle import MAX_INPUT_LENGTH as MANHATTAN_MST_MAX_INPUT_LENGTH
 from manhattan_mst_oracle import expected_output as manhattan_mst_expected
+from convex_layers_oracle import COORD_LIMIT as CONVEX_LAYERS_COORD_LIMIT
+from convex_layers_oracle import MAX_INPUT_LENGTH as CONVEX_LAYERS_MAX_INPUT_LENGTH
+from convex_layers_oracle import MAX_POINTS as CONVEX_LAYERS_MAX_POINTS
+from convex_layers_oracle import expected_result as convex_layers_expected
 from verify_li_chao_tree import validate_sources as validate_li_chao_tree_sources
 from verify_li_chao_tree import validate_workload as validate_li_chao_tree_package_workload
 from verify_three_edge_connected_components import validate_sources as validate_three_edge_connected_components_sources
@@ -1548,7 +1649,14 @@ from verify_eertree import validate_sources as validate_eertree_sources
 from verify_eertree import validate_workload as validate_eertree_package_workload
 from verify_segment_add_get_min import validate_workload as validate_segment_add_get_min_package_workload
 from verify_point_set_range_composite import validate_workload as validate_point_set_range_composite_package_workload
+from verify_queue_operate_all_composite import validate_workload as validate_queue_operate_all_composite_package_workload
+from verify_deque_operate_all_composite import validate_workload as validate_deque_operate_all_composite_package_workload
 from verify_manhattan_mst_oracle import validate_workload as validate_manhattan_mst_package_workload
+from range_affine_range_sum_verifier import verify_static_sources as validate_range_affine_range_sum_sources
+from range_affine_range_sum_verifier import verify_workload as validate_range_affine_range_sum_package_workload
+from range_linear_add_range_min_verifier import verify_static_sources as validate_range_linear_add_range_min_sources
+from range_linear_add_range_min_verifier import verify_workload as validate_range_linear_add_range_min_package_workload
+from m.maximum_independent_set.verify_workload import validate as validate_maximum_independent_set_package_workload
 
 
 def validate_three_edge_connected_components_workload(workload: dict) -> None:
@@ -1605,6 +1713,99 @@ def validate_point_set_range_composite_workload(workload: dict) -> None:
         raise ValueError("point_set_range_composite README is missing official task provenance")
 
 
+def validate_point_set_range_sort_range_composite_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/p/point_set_range_sort_range_composite/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("point_set_range_sort_range_composite workload differs from its package file")
+    errors = verify_point_set_range_sort_range_composite_package()
+    if errors:
+        raise ValueError("; ".join(errors))
+
+
+def validate_stirling_s2_small_p_large_n_workload(workload: dict) -> None:
+    package_workload = ROOT / (
+        "benchmarks/s/stirling_number_of_the_second_kind_small_p_large_n/workload.json")
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("small-p large-n Stirling workload differs from its package file")
+    verify_stirling_s2_small_p_large_n_package()
+
+
+def validate_stirling_s1_small_p_large_n_workload(workload: dict) -> None:
+    package_workload = ROOT / (
+        "benchmarks/s/stirling_number_of_the_first_kind_small_p_large_n/workload.json")
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("small-p large-n first-kind Stirling workload differs from its package file")
+    verify_stirling_s1_small_p_large_n_package()
+
+
+def validate_queue_operate_all_composite_workload(workload: dict) -> None:
+    validate_queue_operate_all_composite_package_workload(workload)
+    readme = (ROOT / "benchmarks" / "q" / "queue_operate_all_composite" / "README.md").read_text(
+        encoding="utf-8")
+    if (QUEUE_OPERATE_ALL_COMPOSITE_TASK_URL not in readme
+            or QUEUE_OPERATE_ALL_COMPOSITE_PROPOSAL_URL not in readme):
+        raise ValueError("queue_operate_all_composite README is missing official task provenance")
+
+
+def validate_deque_operate_all_composite_workload(workload: dict) -> None:
+    validate_deque_operate_all_composite_package_workload(workload)
+    readme = (ROOT / "benchmarks" / "d" / "deque_operate_all_composite" / "README.md").read_text(
+        encoding="utf-8")
+    if DEQUE_OPERATE_ALL_COMPOSITE_TASK_URL not in readme:
+        raise ValueError("deque_operate_all_composite README is missing official task provenance")
+
+
+def validate_sum_of_multiplicative_function_large_workload(workload: dict) -> None:
+    expected_ids = {
+        "f_one_only", "tau_through_two", "mixed_through_three", "tau_through_four",
+        "mixed_prime_powers_through_six", "radical_through_ten", "tau_through_ten",
+        "large_zero_function", "empty_input", "wrong_input_length", "parseable_extra_value",
+        "zero_n", "n_above_local_bound", "negative_a", "negative_b", "a_not_canonical",
+        "b_not_canonical",
+    }
+    input_spec = workload.get("input", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "sum-of-multiplicative-function-large-v1"
+            or workload.get("algorithm") != "sum_of_multiplicative_function_large"
+            or workload.get("function_symbol") != "sum_of_multiplicative_function_large"
+            or input_spec.get("kind") != "signed_64_bit_integer_array"
+            or input_spec.get("layout") != "[N, a, b]"
+            or input_spec.get("minimum_n") != 1
+            or input_spec.get("maximum_n") != SUM_MULTIPLICATIVE_MAX_N
+            or input_spec.get("maximum_valid_input_length") != SUM_MULTIPLICATIVE_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_input_length") != SUM_MULTIPLICATIVE_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("coefficient_modulus") != SUM_MULTIPLICATIVE_MODULUS
+            or input_spec.get("coefficient_range") != f"0 <= a,b < {SUM_MULTIPLICATIVE_MODULUS}"
+            or input_spec.get("prime_power_definition") != "f(p^e) = a*e + b*p mod 469762049"
+            or input_spec.get("f_one") != 1
+            or input_spec.get("invalid_input_result") != SUM_MULTIPLICATIVE_INVALID_RESULT
+            or workload.get("output", {}).get("kind") != "signed_64_bit_integer"
+            or workload.get("output", {}).get("meaning") != "sum(f(n), 1 <= n <= N) modulo 469762049"
+            or workload.get("output", {}).get("modulus") != SUM_MULTIPLICATIVE_MODULUS
+            or workload.get("output", {}).get("invalid_input_result") != SUM_MULTIPLICATIVE_INVALID_RESULT
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or workload.get("measurement", {}).get("sample_count") != 7
+            or workload.get("measurement", {}).get("warmup_rounds") != 1
+            or workload.get("measurement", {}).get("repetitions_per_sample") != 1
+            or not isinstance(workload.get("cases"), list)
+            or len(workload["cases"]) != len(expected_ids)
+            or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
+        raise ValueError("sum_of_multiplicative_function_large workload differs from its bounded Min_25 contract")
+    readme = (ROOT / "benchmarks" / "s" / "sum_of_multiplicative_function_large" / "README.md").read_text(
+        encoding="utf-8")
+    if any(source not in readme for source in (
+            "https://github.com/yosupo06/library-checker-problems/blob/master/number_theory/sum_of_multiplicative_function_large/task.md",
+            "https://github.com/yosupo06/library-checker-problems/blob/master/number_theory/sum_of_multiplicative_function_large/sol/min_25_sieve.cpp")):
+        raise ValueError("sum_of_multiplicative_function_large README is missing official task or method provenance")
+    for case in workload["cases"]:
+        values = case.get("input_values") if isinstance(case, dict) else None
+        if (not isinstance(values, list)
+                or case.get("input_length") != len(values)
+                or type(case.get("expected_result")) is not int
+                or case.get("expected_result") != sum_of_multiplicative_function_large_expected(values)):
+            raise ValueError(f"sum_of_multiplicative_function_large fixture differs from its oracle: {case.get('id')}")
+
+
 def validate_manhattan_mst_workload(workload: dict) -> None:
     if (not isinstance(workload, dict)
             or workload.get("algorithm") != "manhattan_mst"
@@ -1612,6 +1813,157 @@ def validate_manhattan_mst_workload(workload: dict) -> None:
             or workload.get("abi") != "i64_array_scalar"):
         raise ValueError("manhattan_mst workload does not identify the scalar benchmark")
     validate_manhattan_mst_package_workload()
+
+
+def validate_convex_layers_workload(workload: dict) -> None:
+    """Check the boundary-peeling workload, provenance, fixture oracle, and ports."""
+    expected_ids = {
+        "empty_set", "singleton", "all_duplicate_coordinates", "collinear_points_one_layer",
+        "square_with_inner_point", "collinear_edge_points_are_peeled", "nested_triangles",
+        "minimum_coordinate", "maximum_point_count", "missing_coordinate",
+        "coordinate_out_of_range", "negative_count", "count_above_bound",
+    }
+    expected_input = {
+        "kind": "packed_i64_array",
+        "layout": "[point_count, x0, y0, ..., xN-1, yN-1]",
+        "point_count_range": [0, CONVEX_LAYERS_MAX_POINTS],
+        "coordinate_range": [-CONVEX_LAYERS_COORD_LIMIT, CONVEX_LAYERS_COORD_LIMIT],
+        "duplicate_points": "Deduplicated before peeling.",
+        "boundary_policy": "Remove all distinct points on the hull boundary; a collinear remaining set is one layer.",
+        "maximum_input_values": CONVEX_LAYERS_MAX_INPUT_LENGTH,
+    }
+    expected_output = {
+        "kind": "i64_scalar", "meaning": "Number of convex boundary layers.",
+        "empty_set_result": 0, "invalid_input_result": -1,
+    }
+    expected_source = {
+        "reference": "https://arxiv.org/abs/1702.06829",
+        "license_note": "Algorithm description used for discovery; implementation is clean-room.",
+    }
+    if (not isinstance(workload, dict)
+            or set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                                "input", "output", "source", "cases", "measurement"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "convex-layers-boundary-peeling-v1"
+            or workload.get("algorithm") != "convex_layers"
+            or workload.get("function_symbol") != "convex_layers"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("source") != expected_source
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 7,
+                "warmup_rounds": 1, "repetitions_per_sample": 5,
+            }
+            or not isinstance(workload.get("cases"), list)
+            or len(workload["cases"]) != len(expected_ids)
+            or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
+        raise ValueError("convex_layers workload metadata differs from its bounded boundary-peeling contract")
+
+    package = ROOT / "benchmarks" / "c" / "convex_layers"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    if "https://arxiv.org/abs/1702.06829" not in readme or "clean-room" not in readme:
+        raise ValueError("convex_layers README is missing algorithm provenance or independent-implementation note")
+    for relative in (
+            "c/c/convex_layers.c", "c3/c/convex_layers.c3", "cpp/c/convex_layers.cpp",
+            "elisa/c/convex_layers.elisa", "mojo/c/convex_layers.mojo", "nim/c/convex_layers.nim",
+            "odin/c/convex_layers.odin", "rust/c/convex_layers.rs", "v/c/convex_layers.v",
+            "zig/c/convex_layers.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"convex_layers language port is missing: {relative}")
+    for case in workload["cases"]:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        values = case.get("input_values") if isinstance(case, dict) else None
+        if (not isinstance(case, dict) or set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list) or len(values) > CONVEX_LAYERS_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != convex_layers_expected(values)):
+            raise ValueError(f"convex_layers fixture differs from the supporting-line oracle: {case_id}")
+
+
+def validate_hpcc_random_access_workload(workload: dict) -> None:
+    """Pin the bounded HPCC update contract, official provenance, ports, and fixtures."""
+    expected_cases = [
+        {"id": "two-entry-table", "input_values": [2], "input_length": 1, "expected_result": 512},
+        {"id": "four-entry-table", "input_values": [4], "input_length": 1, "expected_result": 131082},
+        {"id": "feedback-bit-set", "input_values": [16], "input_length": 1, "expected_result": 1190},
+        {"id": "empty-input", "input_values": [], "input_length": 0, "expected_result": -1},
+        {"id": "non-power-of-two", "input_values": [3], "input_length": 1, "expected_result": -1},
+        {"id": "below-minimum", "input_values": [1], "input_length": 1, "expected_result": -1},
+        {"id": "above-maximum", "input_values": [512], "input_length": 1, "expected_result": -1},
+        {"id": "extra-input-value", "input_values": [16, 0], "input_length": 2, "expected_result": -1},
+    ]
+    if (not isinstance(workload, dict)
+            or set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                                "description", "source", "oracle", "oracle_entry_point", "input",
+                                "output", "contract", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "hpcc-random-access-bounded-i64-array-scalar-v1"
+            or workload.get("algorithm") != "hpcc_random_access"
+            or workload.get("function_symbol") != "hpcc_random_access"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("oracle") != "benchmarks/hpcc_random_access_oracle.py"
+            or workload.get("oracle_entry_point")
+            != "expected_result(values, input_is_null=False, input_length=None)"
+            or workload.get("source") != {
+                "title": "HPC Challenge RandomAccess Rules",
+                "repository": "icl-utk-edu/hpcc",
+                "url": "https://hpcchallenge.org/projectsfiles/hpcc/RandomAccess.html",
+                "source_code_url": "https://github.com/icl-utk-edu/hpcc/blob/main/RandomAccess/time_bound.c",
+                "algorithm_attribution": "The sequential update recurrence is ran=(ran<<1) XOR (top_bit ? 7 : 0), followed by Table[ran & (N-1)] ^= ran.",
+                "implementation_status": "clean-room bounded single-process profile",
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "encoding": "[N]", "array_length": 1,
+                "table_size_range": [2, HPCC_RANDOM_ACCESS_MAX_N],
+                "table_size_must_be_power_of_two": True, "invalid_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "encoding": "nonnegative low-63-bit value of the unsigned 64-bit position-weighted table checksum",
+                "digest": "sum((i+1)*T[i]) in unsigned 64-bit arithmetic, followed by clearing bit 63",
+                "invalid_input_result": -1,
+            }
+            or workload.get("contract") != {
+                "initial_table": "T[i]=i for 0<=i<N",
+                "initial_random_state": 1,
+                "update_count": "exactly 4*N",
+                "random_state_step": "Inspect bit 63 before the shift; ran=((ran<<1) mod 2^64) XOR 7 when that bit is one, otherwise ran=(ran<<1) mod 2^64.",
+                "table_update": "T[ran & (N-1)] ^= ran",
+                "table_indexing": "Use the low log2(N) state bits for this bounded single-process profile.",
+                "complexity": "O(N) time and O(N) auxiliary storage",
+                "scope": "Does not implement MPI distribution, process stream partitioning, lookahead, or unlocked update races.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 1000,
+            }
+            or workload.get("cases") != expected_cases):
+        raise ValueError("hpcc_random_access workload differs from its bounded RandomAccess contract")
+
+    readme = (ROOT / "benchmarks" / "r" / "hpcc_random_access" / "README.md").read_text(
+        encoding="utf-8")
+    if ("https://hpcchallenge.org/projectsfiles/hpcc/RandomAccess.html" not in readme
+            or "time_bound.c" not in readme or "lfsr" not in readme or "read-modify-write" not in readme):
+        raise ValueError("hpcc_random_access README is missing provenance or its LFSR distinction")
+    for relative in (
+            "c/r/hpcc_random_access.c", "c3/r/hpcc_random_access.c3",
+            "cpp/r/hpcc_random_access.cpp", "elisa/r/hpcc_random_access.elisa",
+            "mojo/r/hpcc_random_access.mojo", "nim/r/hpcc_random_access.nim",
+            "odin/r/hpcc_random_access.odin", "rust/r/hpcc_random_access.rs",
+            "v/r/hpcc_random_access.v", "zig/r/hpcc_random_access.zig"):
+        source_path = ROOT / relative
+        if not source_path.is_file() or "hpcc_random_access" not in source_path.read_text(encoding="utf-8"):
+            raise ValueError(f"hpcc_random_access language port is missing: {relative}")
+
+    for case in expected_cases:
+        values, result = case.get("input_values"), case.get("expected_result")
+        if (case.get("input_length") != len(values)
+                or type(result) is not int
+                or result != hpcc_random_access_expected(values, input_length=len(values))):
+            raise ValueError(f"hpcc_random_access fixture differs from the dense-table oracle: {case['id']}")
+
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_POWER_USING_RECURSION_PARSEABLE_INPUT_LENGTH = 3
@@ -5840,6 +6192,255 @@ def validate_segment_tree_apply_workload(workload: dict) -> None:
         raise ValueError("segment_tree_apply workload is missing its frame-boundary cases")
 
 
+RANGE_AFFINE_RANGE_SUM_CASE_IDS = frozenset({
+    "overlapping_affine_updates_and_queries", "modular_wrap_and_composition_order",
+    "single_element_modular_composition", "truncated_query_record",
+})
+
+
+def validate_range_affine_range_sum_workload(workload: dict) -> None:
+    """Check the modular affine range-sum workload, static ports, and framing bounds."""
+    validate_range_affine_range_sum_package_workload(workload)
+    validate_range_affine_range_sum_sources()
+    sources = [
+        {
+            "repository": "yosupo06/library-checker-problems",
+            "path": "data_structure/range_affine_range_sum/task.md",
+            "url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/range_affine_range_sum/task.md",
+            "role": "operation contract",
+        },
+        {
+            "repository": "yosupo06/library-checker-problems",
+            "path": "data_structure/range_affine_range_sum/info.toml",
+            "url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/data_structure/range_affine_range_sum/info.toml",
+            "role": "official limits",
+        },
+    ]
+    input_spec = {
+        "kind": "packed_i64_array",
+        "encoding": "[n, values[n], q, operations...] where update=[0,left,right,a,b] and query=[1,left,right]",
+        "n_range": [1, RANGE_AFFINE_RANGE_SUM_MAX_LENGTH],
+        "q_range": [1, RANGE_AFFINE_RANGE_SUM_MAX_OPERATIONS],
+        "initial_value_and_offset_range": [0, RANGE_AFFINE_RANGE_SUM_MODULUS - 1],
+        "multiplier_range": [1, RANGE_AFFINE_RANGE_SUM_MODULUS - 1],
+        "modulus": RANGE_AFFINE_RANGE_SUM_MODULUS,
+        "ranges": "half-open, 0 <= left < right <= n",
+        "opcodes": {
+            "0": "apply x <- a*x+b modulo 998244353 to every value in [left,right)",
+            "1": "return the sum modulo 998244353 over [left,right)",
+        },
+        "maximum_valid_input_values": RANGE_AFFINE_RANGE_SUM_MAX_VALID_INPUT_VALUES,
+        "maximum_parseable_input_values": RANGE_AFFINE_RANGE_SUM_MAX_PARSEABLE_INPUT_VALUES,
+        "invalid_result": RANGE_AFFINE_RANGE_SUM_INVALID_RESULT,
+        "checksum": "for each query result s at zero-based operation position i, add (i+1)*(s+998244353); updates contribute zero",
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "weighted checksum of modular range-sum query results",
+        "invalid_result": RANGE_AFFINE_RANGE_SUM_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (not isinstance(workload, dict)
+            or set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                                "description", "pinned_sources", "input", "output",
+                                "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "library-checker-range-affine-range-sum-bounded-i64-array-scalar-v1"
+            or workload.get("algorithm") != "range_affine_range_sum"
+            or workload.get("function_symbol") != "range_affine_range_sum_benchmark"
+            or workload.get("description") != "Apply modular affine maps to half-open array ranges and query half-open range sums with lazy propagation."
+            or workload.get("pinned_sources") != sources
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or RANGE_AFFINE_RANGE_SUM_MAX_LENGTH != 64
+            or RANGE_AFFINE_RANGE_SUM_MAX_OPERATIONS != 64
+            or RANGE_AFFINE_RANGE_SUM_MODULUS != 998244353
+            or RANGE_AFFINE_RANGE_SUM_MAX_VALID_INPUT_VALUES != 386
+            or RANGE_AFFINE_RANGE_SUM_MAX_PARSEABLE_INPUT_VALUES != 387
+            or len(case_ids) != len(RANGE_AFFINE_RANGE_SUM_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != RANGE_AFFINE_RANGE_SUM_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("range_affine_range_sum metadata or fixture IDs differ from its bounded contract")
+
+    readme = (ROOT / "benchmarks" / "r" / "range_affine_range_sum" / "README.md").read_text(encoding="utf-8")
+    rights = (ROOT / "benchmarks" / "r" / "range_affine_range_sum" / "RIGHTS.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (any(source["url"] not in readme for source in sources)
+            or "lazy segment tree" not in normalized_readme
+            or "full affine-update/range-sum operation" not in normalized_readme
+            or "maximum valid input frame is 386" not in normalized_readme
+            or "ports accept at most 387 values" not in normalized_readme
+            or "Apache License 2.0" not in rights):
+        raise ValueError("range_affine_range_sum README or rights note is missing reviewed provenance")
+
+    indexed_cases = {case.get("id"): case for case in cases}
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > RANGE_AFFINE_RANGE_SUM_MAX_PARSEABLE_INPUT_VALUES + 1
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"range_affine_range_sum input framing is invalid: {case.get('id')}")
+        if case["expected_result"] != range_affine_range_sum_expected(values):
+            raise ValueError(f"range_affine_range_sum workload mismatch: {case.get('id')}")
+
+    if (len(indexed_cases["truncated_query_record"].get("input_values", []))
+            >= RANGE_AFFINE_RANGE_SUM_MAX_PARSEABLE_INPUT_VALUES
+            or indexed_cases["truncated_query_record"].get("expected_result")
+            != RANGE_AFFINE_RANGE_SUM_INVALID_RESULT):
+        raise ValueError("range_affine_range_sum workload is missing its malformed-record case")
+
+
+RANGE_LINEAR_ADD_RANGE_MIN_CASE_IDS = frozenset({
+    "full_range_update_then_subrange_queries", "negative_slope_moves_minimum_to_right",
+    "partial_update_crosses_block_boundary", "truncated_linear_update",
+})
+
+
+def validate_range_linear_add_range_min_workload(workload: dict) -> None:
+    """Validate the bounded range-linear-update/minimum profile and its ports."""
+    validate_range_linear_add_range_min_package_workload(workload)
+    validate_range_linear_add_range_min_sources()
+    sources = [
+        {
+            "repository": "yosupo06/library-checker-problems",
+            "path": "data_structure/range_linear_add_range_min/task.md",
+            "url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/range_linear_add_range_min/task.md",
+            "role": "operation contract",
+        },
+        {
+            "repository": "yosupo06/library-checker-problems",
+            "path": "data_structure/range_linear_add_range_min/info.toml",
+            "url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/data_structure/range_linear_add_range_min/info.toml",
+            "role": "official limits",
+        },
+    ]
+    input_spec = {
+        "kind": "packed_i64_array",
+        "encoding": "[N,Q,a[N],operations...] where update=[0,left,right,slope,intercept] and query=[1,left,right]",
+        "n_range": [1, RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH],
+        "q_range": [1, RANGE_LINEAR_ADD_RANGE_MIN_MAX_OPERATIONS],
+        "initial_value_range": [-RANGE_LINEAR_ADD_RANGE_MIN_MAX_INITIAL_ABS,
+                                 RANGE_LINEAR_ADD_RANGE_MIN_MAX_INITIAL_ABS],
+        "slope_range": [-RANGE_LINEAR_ADD_RANGE_MIN_MAX_SLOPE_ABS,
+                        RANGE_LINEAR_ADD_RANGE_MIN_MAX_SLOPE_ABS],
+        "intercept_range": [-RANGE_LINEAR_ADD_RANGE_MIN_MAX_INTERCEPT_ABS,
+                            RANGE_LINEAR_ADD_RANGE_MIN_MAX_INTERCEPT_ABS],
+        "ranges": "half-open, 0 <= left < right <= N",
+        "update": "a[i] <- a[i] + slope*i + intercept for i in [left,right)",
+        "query": "minimum a[i] for i in [left,right)",
+        "checksum": "for a query result m at zero-based operation position j, add (j+1)*(m+8000000); updates contribute zero",
+        "maximum_absolute_value": RANGE_LINEAR_ADD_RANGE_MIN_MAX_ABS_VALUE,
+        "maximum_valid_input_values": RANGE_LINEAR_ADD_RANGE_MIN_MAX_VALID_INPUT_VALUES,
+        "maximum_parseable_input_values": RANGE_LINEAR_ADD_RANGE_MIN_MAX_PARSEABLE_INPUT_VALUES,
+        "invalid_result": RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "operation-position-weighted checksum of range minima",
+        "invalid_result": RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT,
+        "maximum_checksum": RANGE_LINEAR_ADD_RANGE_MIN_MAX_CHECKSUM,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (not isinstance(workload, dict)
+            or set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                                "description", "pinned_sources", "input", "output",
+                                "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "library-checker-range-linear-add-range-min-bounded-i64-array-scalar-v1"
+            or workload.get("algorithm") != "range_linear_add_range_min"
+            or workload.get("function_symbol") != "range_linear_add_range_min_benchmark"
+            or workload.get("description") != "Apply index-linear additions to half-open ranges and query half-open range minima using lazy block slopes and lower hulls."
+            or workload.get("pinned_sources") != sources
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or RANGE_LINEAR_ADD_RANGE_MIN_MAX_LENGTH != 64
+            or RANGE_LINEAR_ADD_RANGE_MIN_MAX_OPERATIONS != 64
+            or RANGE_LINEAR_ADD_RANGE_MIN_MAX_INITIAL_ABS != 1_000_000
+            or RANGE_LINEAR_ADD_RANGE_MIN_MAX_SLOPE_ABS != 99
+            or RANGE_LINEAR_ADD_RANGE_MIN_MAX_INTERCEPT_ABS != 100_000
+            or RANGE_LINEAR_ADD_RANGE_MIN_CHECKSUM_OFFSET != 8_000_000
+            or RANGE_LINEAR_ADD_RANGE_MIN_MAX_ABS_VALUE != 7_799_168
+            or RANGE_LINEAR_ADD_RANGE_MIN_MAX_CHECKSUM != 32_862_269_440
+            or RANGE_LINEAR_ADD_RANGE_MIN_MAX_VALID_INPUT_VALUES != 386
+            or RANGE_LINEAR_ADD_RANGE_MIN_MAX_PARSEABLE_INPUT_VALUES != 387
+            or len(case_ids) != len(RANGE_LINEAR_ADD_RANGE_MIN_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != RANGE_LINEAR_ADD_RANGE_MIN_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("range_linear_add_range_min metadata or fixture IDs differ from its bounded contract")
+
+    readme = (ROOT / "benchmarks" / "r" / "range_linear_add_range_min" / "README.md").read_text(encoding="utf-8")
+    rights = (ROOT / "benchmarks" / "r" / "range_linear_add_range_min" / "RIGHTS.md").read_text(encoding="utf-8")
+    if (any(source["url"] not in readme for source in sources)
+            or "lower convex hull" not in readme
+            or "The ports and oracle are clean-room implementations" not in readme
+            or "no upstream solution" not in rights):
+        raise ValueError("range_linear_add_range_min README or rights note is missing reviewed provenance")
+
+    indexed_cases = {case.get("id"): case for case in cases}
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > RANGE_LINEAR_ADD_RANGE_MIN_MAX_PARSEABLE_INPUT_VALUES + 1
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"range_linear_add_range_min input framing is invalid: {case.get('id')}")
+        if case["expected_result"] != range_linear_add_range_min_expected(values):
+            raise ValueError(f"range_linear_add_range_min workload mismatch: {case.get('id')}")
+        if (case["expected_result"] != RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT
+                and not 0 <= case["expected_result"] <= RANGE_LINEAR_ADD_RANGE_MIN_MAX_CHECKSUM):
+            raise ValueError(f"range_linear_add_range_min checksum exceeds its bound: {case.get('id')}")
+
+    if (len(indexed_cases["truncated_linear_update"].get("input_values", []))
+            >= RANGE_LINEAR_ADD_RANGE_MIN_MAX_PARSEABLE_INPUT_VALUES
+            or indexed_cases["truncated_linear_update"].get("expected_result")
+            != RANGE_LINEAR_ADD_RANGE_MIN_INVALID_RESULT):
+        raise ValueError("range_linear_add_range_min workload is missing its malformed-record case")
+
+
+def validate_maximum_independent_set_workload(workload: dict) -> None:
+    validate_maximum_independent_set_package_workload()
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or len(values) > MAXIMUM_INDEPENDENT_SET_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                       for value in values)
+                or case.get("input_length") != len(values)
+                or case.get("expected_result") != maximum_independent_set_expected(values)):
+            raise ValueError(f"maximum_independent_set workload mismatch: {case.get('id')}")
+
+
 CLOJURE_PERSISTENT_LIST_QUEUE_CASE_IDS = frozenset({
     "empty_operation_trace", "basic_enqueue_peek_dequeue", "fifo_order_after_multiple_conj_calls",
     "empty_dequeue_preserves_empty_queue", "duplicate_values_and_drained_queue", "signed_i32_endpoints",
@@ -6209,7 +6810,11 @@ def validate_solution42_workload(workload: dict) -> None:
 
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    max_input_length = (EMBENCH_AHA_MONT64_MAX_INPUT_LENGTH + 1
+    # Permit one extra element so this profile can exercise its exact-length rejection case.
+    max_input_length = (2 if algorithm == "hpcc_random_access" else
+                        CONVEX_LAYERS_MAX_INPUT_LENGTH if algorithm == "convex_layers" else
+                        5 if algorithm in {"sum_of_floor_of_linear", "min_of_mod_of_linear"} else
+                        EMBENCH_AHA_MONT64_MAX_INPUT_LENGTH + 1
                         if algorithm == "embench_aha_mont64" else
                         BEEBS_BIT_COMPRESS_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "beebs_bit_compress" else
@@ -6266,6 +6871,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         SHORS_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "shors_algorithm" else
                         MAX_KTH_ELEMENT_FINDER_INPUT_LENGTH if algorithm == "kth_element_finder" else
                         MAX_PUSH_RELABEL_INPUT_LENGTH if algorithm == "push_relabel" else
+                        MAX_MPM_MAXFLOW_PARSEABLE_INPUT_LENGTH if algorithm == "mpm_maxflow" else
                         MAX_EDMONDS_BLOSSOM_INPUT_LENGTH if algorithm == "edmonds_blossom_algorithm" else
                         MAX_EROSION_OPERATION_INPUT_LENGTH if algorithm == "erosion_operation" else
                         MAX_EDMONDS_INPUT_LENGTH if algorithm == "edmonds" else
@@ -6285,6 +6891,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "segment_add_get_min" else
                         POINT_SET_RANGE_COMPOSITE_MAX_INPUT_LENGTH
                         if algorithm == "point_set_range_composite" else
+                        QUEUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH
+                        if algorithm == "queue_operate_all_composite" else
+                        DEQUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH
+                        if algorithm == "deque_operate_all_composite" else
                         2 + SEGMENT_TREE_BEATS_MAX_ITEMS + 4 * SEGMENT_TREE_BEATS_MAX_OPERATIONS
                         if algorithm == "segment_tree_beats" else
                         KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH
@@ -6327,6 +6937,18 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_NEEDLEMAN_WUNSCH_INPUT_LENGTH if algorithm == "needleman_wunsch"
                         else MAX_ONES_AND_ZEROS_INPUT_LENGTH if algorithm == "ones_and_zeros"
                         else MAX_OPTIMAL_BINARY_SEARCH_TREE_INPUT_LENGTH if algorithm == "optimal_binary_search_tree"
+                        else KNUTH_OPTIMAL_BST_MAX_INPUT_LENGTH
+                        if algorithm == "knuth_optimized_optimal_binary_search_tree"
+                        else BROKEN_PROFILE_DOMINO_TILINGS_MAX_INPUT_LENGTH
+                        if algorithm == "broken_profile_domino_tilings"
+                        else NUMBER_OF_INCREASING_SEQUENCES_MAX_INPUT_LENGTH
+                        if algorithm == "number_of_increasing_sequences_between_two_sequences"
+                        else POINT_SET_RANGE_SORT_RANGE_COMPOSITE_MAX_INPUT_LENGTH
+                        if algorithm == "point_set_range_sort_range_composite"
+                        else STIRLING_S2_SMALL_P_MAX_INPUT_LENGTH
+                        if algorithm == "stirling_number_of_the_second_kind_small_p_large_n"
+                        else STIRLING_S1_SMALL_P_MAX_INPUT_LENGTH
+                        if algorithm == "stirling_number_of_the_first_kind_small_p_large_n"
                         else MATRIX_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "matrix_exponentiation"
                         else MILLER_RABIN_PRIMALITY_CHECKER_MAX_INPUT_LENGTH
@@ -6391,7 +7013,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_KASAI_ALGORITHM_INPUT_LENGTH if algorithm == "kasai_algorithm"
                         else MAX_TRANSPOSITION_INPUT_LENGTH if algorithm == "transposition"
                         else MAX_LZW_INPUT_LENGTH if algorithm == "lzw"
-                        else MAX_HIERHOLZER_INPUT_LENGTH + 1 if algorithm == "hierholzer_algorithm"
                         else MAX_INVERTED_INDEX_INPUT_LENGTH + 1 if algorithm == "inverted_index"
                         else MAX_HASH_SET_INPUT_LENGTH + 1 if algorithm == "hash_set"
                         else MAX_HYPER_LOG_LOG_INPUT_LENGTH + 1 if algorithm == "hyper_log_log"
@@ -6749,6 +7370,12 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "segment_tree2_d"
                         else SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_VALUES + 1
                         if algorithm == "segment_tree_apply"
+                        else RANGE_AFFINE_RANGE_SUM_MAX_PARSEABLE_INPUT_VALUES + 1
+                        if algorithm == "range_affine_range_sum"
+                        else RANGE_LINEAR_ADD_RANGE_MIN_MAX_PARSEABLE_INPUT_VALUES + 1
+                        if algorithm == "range_linear_add_range_min"
+                        else MAXIMUM_INDEPENDENT_SET_MAX_INPUT_LENGTH
+                        if algorithm == "maximum_independent_set"
                         else TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES + 1 if algorithm == "tim_sorter"
                         else CLOJURE_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "clojure_persistent_list_queue"
@@ -6796,7 +7423,17 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else 31 if algorithm == "rodinia_bplus_tree"
                         else XGBOOST_MAX_INPUT_LENGTH if algorithm == "xgboost"
                         else 516 if algorithm == "euler" else 100001)
-    if algorithm == "cbench_rsynth_f0_flutter":
+    if algorithm in {"sum_of_floor_of_linear", "min_of_mod_of_linear"}:
+        max_input_length = 5
+    elif algorithm == "kth_root_integer":
+        max_input_length = KTH_ROOT_INTEGER_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "discrete_logarithm_mod":
+        max_input_length = DISCRETE_LOG_MOD_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "tetration_mod":
+        max_input_length = TETRATION_MOD_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "sum_of_multiplicative_function_large":
+        max_input_length = SUM_MULTIPLICATIVE_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "cbench_rsynth_f0_flutter":
         max_input_length = CBENCH_RSYNTH_F0_FLUTTER_MAX_PARSEABLE_INPUT_LENGTH
     elif algorithm == "trimaran_enc_pc1":
         max_input_length = TRIMARAN_ENC_PC1_MAX_PARSEABLE_INPUT_LENGTH
@@ -6886,11 +7523,31 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         max_input_length = RLE_LCS_BLOCK_DP_MAX_INPUT_LENGTH
     elif algorithm == "rle_levenshtein_block_dp":
         max_input_length = RLE_LEVENSHTEIN_BLOCK_DP_MAX_INPUT_LENGTH
+    elif algorithm == "maximum_independent_set":
+        max_input_length = MAXIMUM_INDEPENDENT_SET_MAX_INPUT_LENGTH
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "drop3":
+    if algorithm == "min_of_mod_of_linear":
+        if expected != min_of_mod_of_linear_expected(values):
+            raise ValueError("min_of_mod_of_linear expected_result must match the modular-prefix-minimum oracle")
+    elif algorithm == "sum_of_floor_of_linear":
+        if expected != sum_of_floor_of_linear_expected(values):
+            raise ValueError("sum_of_floor_of_linear expected_result must match the Euclidean floor-sum oracle")
+    elif algorithm == "kth_root_integer":
+        if expected != kth_root_integer_expected(values):
+            raise ValueError("kth_root_integer expected_result must match the exact integer-root oracle")
+    elif algorithm == "discrete_logarithm_mod":
+        if expected != discrete_logarithm_mod_expected(values):
+            raise ValueError("discrete_logarithm_mod expected_result must match the direct modular-power oracle")
+    elif algorithm == "tetration_mod":
+        if expected != tetration_mod_expected(values):
+            raise ValueError("tetration_mod expected_result must match the bounded totient-lifting oracle")
+    elif algorithm == "sum_of_multiplicative_function_large":
+        if expected != sum_of_multiplicative_function_large_expected(values):
+            raise ValueError("sum_of_multiplicative_function_large expected_result must match the direct prime-power oracle")
+    elif algorithm == "drop3":
         expected_from_source = drop3_expected(values)
         if expected != expected_from_source:
             raise ValueError("drop3 expected_result must match the bounded source-order bitstream filter")
@@ -7192,6 +7849,9 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = rle_levenshtein_block_dp_expected(values)
         if expected != expected_from_source:
             raise ValueError("rle_levenshtein_block_dp expected_result must match the run-length block-boundary edit recurrence")
+    elif algorithm == "maximum_independent_set":
+        if expected != maximum_independent_set_expected(values):
+            raise ValueError("maximum_independent_set expected_result must match the exact clique-cover-bounded search")
     elif algorithm == "analyzer":
         expected_from_source = analyzer_expected(values)
         if expected != expected_from_source:
@@ -7366,6 +8026,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = edmonds_karp_expected(values)
         if expected != expected_from_source:
             raise ValueError("edmonds_karp expected_result must match the bounded maximum-flow contract")
+    elif algorithm == "mpm_maxflow":
+        expected_from_source = mpm_maxflow_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("mpm_maxflow expected_result must match the bounded MPM maximum-flow contract")
     elif algorithm == "gomory_hu_tree":
         expected_from_source = gomory_hu_tree_expected(values)
         if expected != expected_from_source:
@@ -7402,6 +8066,18 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = manhattan_mst_expected(values)
         if expected != expected_from_source:
             raise ValueError("manhattan_mst expected_result must match the complete Manhattan metric MST")
+    elif algorithm == "hpcc_random_access":
+        expected_from_source = hpcc_random_access_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("hpcc_random_access expected_result must match the bounded HPCC table-update kernel")
+    elif algorithm == "convex_layers":
+        expected_from_source = convex_layers_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("convex_layers expected_result must match iterative convex-boundary peeling")
     elif algorithm == "segment_tree_beats":
         expected_from_source = segment_tree_beats_expected(values)
         if expected != expected_from_source:
@@ -7430,6 +8106,22 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         )
         if expected != expected_from_source:
             raise ValueError("point_set_range_composite expected_result must match direct ordered map application")
+    elif algorithm == "queue_operate_all_composite":
+        expected_from_source = queue_operate_all_composite_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("queue_operate_all_composite expected_result must match direct FIFO application")
+    elif algorithm == "deque_operate_all_composite":
+        expected_from_source = deque_operate_all_composite_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("deque_operate_all_composite expected_result must match direct deque application")
     elif algorithm == "knapsack_zero_one_tabulation":
         expected_from_source = knapsack_zero_one_tabulation_expected(values)
         if expected != expected_from_source:
@@ -11355,7 +12047,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = zlib.crc32(bytes(values)) if valid else -1
         if expected != expected_from_source:
             raise ValueError("crc32 expected_result must match the standard unsigned CRC-32 over the input bytes")
-    elif algorithm in {"cycle_check_directed_graph", "cycle_check_directed_graph_kahn"}:
+    elif algorithm == "cycle_check_directed_graph_kahn":
         valid = (len(values) >= 1 and len(values) <= 65 and (len(values) - 1) % 2 == 0
                  and 0 <= values[0] <= 64 and (len(values) - 1) // 2 <= 32)
         expected_from_source = -1
@@ -11368,24 +12060,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                     valid = False
                     break
                 adjacency[source] |= 1 << destination
-            if valid and algorithm == "cycle_check_directed_graph":
-                state = [0] * vertices
-
-                def visit(node: int) -> bool:
-                    state[node] = 1
-                    for destination in range(vertices):
-                        if adjacency[node] & (1 << destination):
-                            if state[destination] == 1:
-                                return True
-                            if state[destination] == 0 and visit(destination):
-                                return True
-                    state[node] = 2
-                    return False
-
-                expected_from_source = int(any(
-                    state[root] == 0 and visit(root) for root in range(vertices)
-                ))
-            elif valid:
+            if valid:
                 indegree = [0] * vertices
                 for source in range(vertices):
                     for destination in range(vertices):
@@ -11447,6 +12122,34 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = optimal_binary_search_tree_expected(values)
         if expected != expected_from_source:
             raise ValueError("optimal_binary_search_tree expected_result must match the minimum weighted search-cost recurrence")
+    elif algorithm == "knuth_optimized_optimal_binary_search_tree":
+        expected_from_source = knuth_optimized_optimal_binary_search_tree_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("knuth_optimized_optimal_binary_search_tree expected_result must match the Knuth-bounded optimal-BST recurrence")
+    elif algorithm == "broken_profile_domino_tilings":
+        expected_from_source = broken_profile_domino_tilings_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("broken_profile_domino_tilings expected_result must match the bounded frontier-mask recurrence")
+    elif algorithm == "stirling_number_of_the_second_kind":
+        expected_from_source = stirling_number_of_the_second_kind_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("stirling_number_of_the_second_kind expected_result must match the bounded Stirling-row checksum")
+    elif algorithm == "number_of_increasing_sequences_between_two_sequences":
+        expected_from_source = number_of_increasing_sequences_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("number_of_increasing_sequences_between_two_sequences expected_result must match the bounded prefix-sum count")
+    elif algorithm == "point_set_range_sort_range_composite":
+        expected_from_source = point_set_range_sort_range_composite_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("point_set_range_sort_range_composite expected_result must match priority sorting and ordered affine composition")
+    elif algorithm == "stirling_number_of_the_second_kind_small_p_large_n":
+        expected_from_source = stirling_number_of_the_second_kind_small_p_large_n_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("stirling_number_of_the_second_kind_small_p_large_n expected_result must match transition-matrix exponentiation")
+    elif algorithm == "stirling_number_of_the_first_kind_small_p_large_n":
+        expected_from_source = stirling_number_of_the_first_kind_small_p_large_n_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("stirling_number_of_the_first_kind_small_p_large_n expected_result must match residue-block coefficient extraction")
     elif algorithm == "optimal_file_merging":
         expected_from_source = optimal_file_merging_expected(values)
         if expected != expected_from_source:
@@ -11882,10 +12585,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = lzw_expected(values)
         if expected != expected_from_source:
             raise ValueError("lzw expected_result must match the bounded ASCII compression/decompression contract")
-    elif algorithm == "hierholzer_algorithm":
-        expected_from_source = hierholzer_algorithm_expected(values)
-        if expected != expected_from_source:
-            raise ValueError("hierholzer_algorithm expected_result must match the bounded source-order Eulerian circuit contract")
     elif algorithm == "inverted_index":
         expected_from_source = inverted_index_expected(values)
         if expected != expected_from_source:
@@ -17159,6 +17858,64 @@ def validate_npb_serial_dc_workload(workload: dict) -> None:
             raise ValueError(f"npb_serial_dc fixture differs from its independent oracle: {case.get('id')}")
 
 
+def validate_npb_dc_smallest_parent_workload(workload: dict) -> None:
+    """Validate the bounded smallest-parent lattice profile and its ten ports."""
+    source_url = "https://www.nas.nasa.gov/assets/nas/pdf/techreports/2003/nas-03-005.pdf"
+    if (workload.get("schema_version") != 1
+            or workload.get("algorithm") != "npb_dc_smallest_parent"
+            or workload.get("function_symbol") != "npb_dc_smallest_parent"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("source", {}).get("url") != source_url
+            or workload.get("contract", {}).get("dimension_count_range") != [1, 5]
+            or workload.get("contract", {}).get("row_count_range") != [1, 16]
+            or workload.get("contract", {}).get("attribute_value_range") != [0, 7]
+            or workload.get("contract", {}).get("measure_range") != [0, 1000]
+            or "fewest groups" not in workload.get("contract", {}).get("view_construction", "")
+            or "empty view" not in workload.get("contract", {}).get("distinction", "")
+            or workload.get("input", {}).get("maximum_length") != NPB_DC_SMALLEST_PARENT_MAX_INPUT_LENGTH
+            or workload.get("output", {}).get("kind") != "signed_64_bit_scalar"
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+        raise ValueError("npb_dc_smallest_parent metadata differs from its bounded NASA profile")
+
+    package = ROOT / "benchmarks" / "n" / "npb_dc_smallest_parent"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "RIGHTS.md").read_text(encoding="utf-8")
+    if (source_url not in readme or "clean-room" not in readme.lower()
+            or "clean-room" not in rights.lower()
+            or "npb_serial_dc" not in readme):
+        raise ValueError("npb_dc_smallest_parent provenance, rights, or distinctness note is missing")
+    for relative in (
+            "c/n/npb_dc_smallest_parent.c", "c3/n/npb_dc_smallest_parent.c3",
+            "cpp/n/npb_dc_smallest_parent.cpp", "elisa/n/npb_dc_smallest_parent.elisa",
+            "mojo/n/npb_dc_smallest_parent.mojo", "nim/n/npb_dc_smallest_parent.nim",
+            "odin/n/npb_dc_smallest_parent.odin", "rust/n/npb_dc_smallest_parent.rs",
+            "v/n/npb_dc_smallest_parent.v", "zig/n/npb_dc_smallest_parent.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "npb_dc_smallest_parent" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"npb_dc_smallest_parent port is missing: {relative}")
+
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or not cases:
+        raise ValueError("npb_dc_smallest_parent workload must contain fixtures")
+    ids = set()
+    for case in cases:
+        if not isinstance(case, dict) or not isinstance(case.get("id"), str) or case["id"] in ids:
+            raise ValueError("npb_dc_smallest_parent fixtures must have unique IDs")
+        ids.add(case["id"])
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length")
+        if (not isinstance(values, list) or type(input_is_null) is not bool
+                or type(input_length) is not int or input_length != len(values)
+                or (input_is_null and values)
+                or len(values) > NPB_DC_SMALLEST_PARENT_MAX_INPUT_LENGTH + 1
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != npb_dc_smallest_parent_expected(
+                    None if input_is_null else values, input_length)):
+            raise ValueError(f"npb_dc_smallest_parent fixture differs from its oracle: {case.get('id')}")
+
+
 def validate_doe_pathfinder_signature_search_workload(workload: dict) -> None:
     expected_ids = {
         "ordered_direct_chain", "unlabeled_intermediate_nodes",
@@ -20898,6 +21655,7 @@ def main() -> int:
         "gapbs_ordered_triangle_count": "t",
         "gapbs_betweenness_centrality": "b",
         "gapbs_pagerank_pull_gs": "p",
+        "maximum_independent_set": "m",
     }.get(algorithm, letter)
     workload_path = args.workload or (
         ROOT / "benchmarks" / algorithm / "workload.json"
@@ -20911,6 +21669,8 @@ def main() -> int:
         parser.error("workload does not match the built array scalar algorithm")
     if algorithm == "msd_radix_string_sorter":
         validate_msd_radix_string_sorter_workload(workload)
+    elif algorithm == "mpm_maxflow":
+        validate_mpm_maxflow_package_workload(workload)
     elif algorithm == "mono_alphabetic_cipher":
         validate_mono_alphabetic_cipher_workload(workload)
     elif algorithm == "mono_alphabetic":
@@ -20995,6 +21755,12 @@ def main() -> int:
     elif algorithm == "segment_tree_apply":
         validate_segment_tree_apply_workload(workload)
         validate_smooth_sort_workload(workload)
+    elif algorithm == "range_affine_range_sum":
+        validate_range_affine_range_sum_workload(workload)
+    elif algorithm == "range_linear_add_range_min":
+        validate_range_linear_add_range_min_workload(workload)
+    elif algorithm == "maximum_independent_set":
+        validate_maximum_independent_set_workload(workload)
     elif algorithm == "tim_sorter":
         validate_tim_sorter_workload(workload)
     elif algorithm == "clojure_persistent_list_queue":
@@ -21037,6 +21803,8 @@ def main() -> int:
         validate_agrep_approx_substring_count_workload(workload)
     elif algorithm == "npb_serial_dc":
         validate_npb_serial_dc_workload(workload)
+    elif algorithm == "npb_dc_smallest_parent":
+        validate_npb_dc_smallest_parent_workload(workload)
     elif algorithm == "doe_pathfinder_signature_search":
         validate_doe_pathfinder_signature_search_workload(workload)
     elif algorithm == "ptrdist_ks":
@@ -21178,6 +21946,10 @@ def main() -> int:
         validate_incremental_scc_workload(workload)
     elif algorithm == "manhattan_mst":
         validate_manhattan_mst_workload(workload)
+    elif algorithm == "hpcc_random_access":
+        validate_hpcc_random_access_workload(workload)
+    elif algorithm == "convex_layers":
+        validate_convex_layers_workload(workload)
     elif algorithm == "segment_tree_beats":
         validate_segment_tree_beats_workload(workload)
     elif algorithm == "eertree":
@@ -21186,6 +21958,12 @@ def main() -> int:
         validate_segment_add_get_min_workload(workload)
     elif algorithm == "point_set_range_composite":
         validate_point_set_range_composite_workload(workload)
+    elif algorithm == "queue_operate_all_composite":
+        validate_queue_operate_all_composite_workload(workload)
+    elif algorithm == "deque_operate_all_composite":
+        validate_deque_operate_all_composite_workload(workload)
+    elif algorithm == "sum_of_multiplicative_function_large":
+        validate_sum_of_multiplicative_function_large_workload(workload)
     elif algorithm == "matrix_exponentiation":
         validate_matrix_exponentiation_workload(workload)
     elif algorithm == "miller_rabin_primality_checker":
@@ -21206,6 +21984,22 @@ def main() -> int:
         validate_mcnaughton_yamada_thompson_workload(workload)
     elif algorithm == "playfair_cipher":
         validate_playfair_cipher_workload(workload)
+    elif algorithm == "knuth_optimized_optimal_binary_search_tree":
+        validate_knuth_optimal_bst_package_workload()
+    elif algorithm == "broken_profile_domino_tilings":
+        validate_broken_profile_domino_tilings_package_workload()
+    elif algorithm == "stirling_number_of_the_second_kind":
+        validate_stirling_number_of_the_second_kind_package_workload()
+    elif algorithm == "number_of_increasing_sequences_between_two_sequences":
+        package_errors = verify_number_of_increasing_sequences_package_workload()
+        if package_errors:
+            raise ValueError("; ".join(package_errors))
+    elif algorithm == "point_set_range_sort_range_composite":
+        validate_point_set_range_sort_range_composite_workload(workload)
+    elif algorithm == "stirling_number_of_the_second_kind_small_p_large_n":
+        validate_stirling_s2_small_p_large_n_workload(workload)
+    elif algorithm == "stirling_number_of_the_first_kind_small_p_large_n":
+        validate_stirling_s1_small_p_large_n_workload(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
@@ -21234,16 +22028,31 @@ def main() -> int:
             minimum_null_length = 0 if algorithm in (
                 "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie",
                 "mccat_08_main", "mccat_09_vor", "mallocbench_espresso", "ptrdist_anagram",
-                "stanford_puzzle", "mallocbench_cfrac", "npb_serial_dc",
+                "stanford_puzzle", "mallocbench_cfrac", "npb_serial_dc", "npb_dc_smallest_parent",
                 "prolangs_c_assembler", "prolangs_c_bison_nullable",
                 "versabench_dbms_choose_entry", "tsvc_s424_alias_overlap_feedback",
                 "tsvc_s423_antidependence_offset64", "tsvc_s258_wrapped_scalar_expansion",
                 "beebs_bit_compress", "three_edge_connected_components", "incremental_scc",
-                "segment_add_get_min", "point_set_range_composite") else 1
+                "segment_add_get_min", "point_set_range_composite",
+                "queue_operate_all_composite", "deque_operate_all_composite",
+                "number_of_increasing_sequences_between_two_sequences",
+                "point_set_range_sort_range_composite",
+                "stirling_number_of_the_second_kind_small_p_large_n",
+                "stirling_number_of_the_first_kind_small_p_large_n") else 1
             maximum_null_length = (SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
                                    if algorithm == "segment_add_get_min" else
+                                   STIRLING_S1_SMALL_P_MAX_INPUT_LENGTH
+                                   if algorithm == "stirling_number_of_the_first_kind_small_p_large_n" else
+                                   STIRLING_S2_SMALL_P_MAX_INPUT_LENGTH
+                                   if algorithm == "stirling_number_of_the_second_kind_small_p_large_n" else
                                    POINT_SET_RANGE_COMPOSITE_MAX_INPUT_LENGTH
                                    if algorithm == "point_set_range_composite" else
+                                   QUEUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH
+                                   if algorithm == "queue_operate_all_composite" else
+                                   DEQUE_OPERATE_ALL_COMPOSITE_MAX_INPUT_LENGTH
+                                   if algorithm == "deque_operate_all_composite" else
+                                   POINT_SET_RANGE_SORT_RANGE_COMPOSITE_MAX_INPUT_LENGTH
+                                   if algorithm == "point_set_range_sort_range_composite" else
                                    THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
                                    if algorithm == "three_edge_connected_components" else
                                    INCREMENTAL_SCC_MAX_INPUT_LENGTH if algorithm == "incremental_scc" else 100002)

@@ -1,0 +1,124 @@
+const MODULUS: i64 = 998244353
+const MAX_ORDER: usize = 8
+const MAX_TERMS: usize = 2 * MAX_ORDER
+const MAX_INPUT_VALUES: usize = 1 + MAX_TERMS + 1
+
+def berlekamp_massey_normalize(value: i64) -> i64:
+    remainder: i64 = value % MODULUS
+    if remainder < 0: remainder <- remainder + MODULUS
+    remainder
+
+def berlekamp_massey_multiply(left: i64, right: i64) -> i64:
+    (left * right) % MODULUS
+
+def berlekamp_massey_power(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            result <- berlekamp_massey_multiply(result, base)
+        base <- berlekamp_massey_multiply(base, base)
+        exponent <- exponent >> 1
+    result
+
+def berlekamp_massey_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def berlekamp_massey_infer(sequence: view[i64], term_count: usize,
+    coefficients: mutable view[i64]) -> usize:
+    current: mutable i64[MAX_TERMS + 1] = zeroed
+    previous: mutable i64[MAX_TERMS + 1] = zeroed
+    old: mutable i64[MAX_TERMS + 1] = zeroed
+    current_length: mutable usize = 0
+    previous_length: mutable usize = 0
+    last_index: mutable i64 = -1
+    last_discrepancy: mutable i64 = 0
+    index: mutable usize = 0
+    while index < term_count:
+        predicted: mutable i64 = 0
+        lag: mutable usize = 0
+        while lag < current_length and lag < index:
+            predicted <- berlekamp_massey_normalize(predicted + berlekamp_massey_multiply(
+                sequence[index - lag - 1], current[lag]))
+            lag <- lag + 1
+        discrepancy: i64 = berlekamp_massey_normalize(sequence[index] - predicted)
+        if discrepancy != 0:
+            if last_index < 0:
+                last_index <- index.i64()
+                last_discrepancy <- discrepancy
+                current_length <- index + 1
+                lag <- 0
+                while lag < current_length:
+                    current[lag] <- 0
+                    lag <- lag + 1
+            else:
+                lag <- 0
+                while lag < current_length:
+                    old[lag] <- current[lag]
+                    lag <- lag + 1
+                old_length: usize = current_length
+                shift: usize = index - last_index.usize()
+                scale: i64 = berlekamp_massey_multiply(discrepancy,
+                    berlekamp_massey_power(last_discrepancy, MODULUS - 2))
+                needed_length: usize = previous_length + shift
+                while current_length < needed_length:
+                    current[current_length] <- 0
+                    current_length <- current_length + 1
+                current[shift - 1] <- berlekamp_massey_normalize(current[shift - 1] + scale)
+                lag <- 0
+                while lag < previous_length:
+                    current[shift + lag] <- berlekamp_massey_normalize(
+                        current[shift + lag] - berlekamp_massey_multiply(scale, previous[lag]))
+                    lag <- lag + 1
+                if old_length.i64() - index.i64() < previous_length.i64() - last_index:
+                    lag <- 0
+                    while lag < old_length:
+                        previous[lag] <- old[lag]
+                        lag <- lag + 1
+                    previous_length <- old_length
+                    last_index <- index.i64()
+                    last_discrepancy <- discrepancy
+        index <- index + 1
+    index <- 0
+    while index < current_length:
+        coefficients[index] <- current[index]
+        index <- index + 1
+    current_length
+
+def berlekamp_massey_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
+    bound_value: i64 = input[0]
+    if bound_value < 1 or bound_value > MAX_ORDER.i64(): return -1
+    bound: usize = bound_value.usize()
+    term_count: usize = 2 * bound
+    if length != 1 + term_count: return -1
+
+    sequence: mutable i64[MAX_TERMS] = zeroed
+    index: mutable usize = 0
+    while index < term_count:
+        value: i64 = input[1 + index]
+        if value < 0 or value >= MODULUS: return -1
+        sequence[index] <- value
+        index <- index + 1
+    coefficients: mutable i64[MAX_TERMS + 1] = zeroed
+    order: usize = berlekamp_massey_infer(sequence[0:term_count], term_count, coefficients[0:MAX_TERMS + 1])
+    if order > bound: return -1
+
+    output_bytes: usize = 8 * (order + 1)
+    if output.is_null() or capacity < output_bytes: return -2
+    berlekamp_massey_store(order.i64(), output[0:output_bytes], 0)
+    index <- 0
+    while index < order:
+        berlekamp_massey_store(coefficients[index], output[0:output_bytes], 8 * (index + 1))
+        index <- index + 1
+    output_bytes.i64()
+
+export fn berlekamp_massey(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = berlekamp_massey_impl

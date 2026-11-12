@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "splash2-fmm-uniform-single-level-2d-v1",
+  "algorithm": "splash2_fmm",
+  "function_symbol": "splash2_fmm",
+  "abi": "float64_slice_io",
+  "description": "Bounded two-dimensional single-level Laplace fast multipole evaluation with fixed-order multipole-to-local translations and direct near-field interactions.",
+  "source": {
+    "suite": "SPLASH-2",
+    "benchmark": "FMM",
+    "paper": "The SPLASH-2 Programs: Characterization and Methodological Considerations",
+    "paper_url": "https://pages.cs.wisc.edu/~markhill/restricted/isca95_splash2.pdf",
+    "repository": "https://github.com/staceyson/splash2"
+  },
+  "contract": {
+    "input_layout": "[particle_count, (x, y, charge)*]",
+    "valid_particle_count_range": [2, 48],
+    "coordinate_domain": "Integer coordinates in [0, 8) on each axis.",
+    "charge_range": [-3, 3],
+    "positions_must_be_unique": true,
+    "box_layout": "A fixed 4 by 4 grid of square boxes, each with side length 2; box coordinates are floor(x/2), floor(y/2).",
+    "far_field_rule": "A source box is far from a target box when their Chebyshev box-coordinate distance exceeds 1.",
+    "expansion_order": 32,
+    "kernel": "Potential_i = sum(j != i) charge_j * ln(distance(i,j)).",
+    "output_layout": "One potential per target particle in input order.",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[particle_count, (x, y, charge)*]",
+    "valid_length_formula": "1 + 3 * particle_count",
+    "minimum_valid_length": 7,
+    "maximum_valid_length": 145
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "one potential per input particle",
+    "maximum_elements": 48,
+    "success_result": "particle_count",
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "workspace": {
+    "elements": 48,
+    "description": "Maximum one-potential-per-particle output buffer."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "cases": [
+    {
+      "id": "near_pair_same_box",
+      "input_values": [2, 0, 0, 1, 1, 0, 1],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [0, 0]
+    },
+    {
+      "id": "far_pair_multipole_translation",
+      "input_values": [2, 0, 0, 1, 6, 0, 1],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [1.791759469228055, 1.791759469228055]
+    },
+    {
+      "id": "far_box_multi_source_moments",
+      "input_values": [3, 0, 0, 1, 1, 1, 2, 6, 0, 1],
+      "input_length": 10,
+      "expected_result": 3,
+      "expected_output": [2.4849066497880004, 1.9756218592907134, 5.049856007249537]
+    },
+    {
+      "id": "far_pair_signed_charge",
+      "input_values": [2, 0, 0, 2, 0, 6, -1],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [-1.791759469228055, 3.58351893845611]
+    },
+    {
+      "id": "near_neighbor_boxes_direct_interaction",
+      "input_values": [2, 0, 0, 1, 2, 1, 2],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [1.6094379124341003, 0.8047189562170501]
+    },
+    {
+      "id": "invalid_duplicate_positions",
+      "input_values": [2, 1, 1, 1, 1, 1, -2],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

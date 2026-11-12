@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "id": "npb-bt-5x5-block-tridiagonal-sweep-i64-f64-v1",
+  "algorithm": "npb_bt_5x5_block_tridiagonal",
+  "function_symbol": "npb_bt_5x5_block_tridiagonal",
+  "abi": "i64_array_float64",
+  "description": "One bounded 5x5 block-tridiagonal line solve using block elimination and back-substitution.",
+  "source": {
+    "title": "The NAS Parallel Benchmarks",
+    "institution": "NASA Ames Research Center",
+    "report": "RNR-94-007",
+    "section": "BT block-line solve, pp. 63-64",
+    "url": "https://www.nas.nasa.gov/assets/nas/pdf/techreports/1994/rnr-94-007.pdf",
+    "role": "algorithmic specification; bounded clean-room profile"
+  },
+  "oracle": "benchmarks/npb_bt_5x5_block_tridiagonal_oracle.py",
+  "independent_oracle": "benchmarks/npb_bt_5x5_block_tridiagonal_verifier_oracle.py",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, then N row records; each row is lower[5x5], diagonal[5x5], upper[5x5], rhs[5]]",
+    "line_length_range": [2, 4],
+    "matrix_entry_order": "row-major within each 5x5 block",
+    "off_block_entry_range": [-2, 2],
+    "diagonal_block_off_diagonal_range": [-2, 2],
+    "diagonal_block_diagonal_range": [40, 64],
+    "rhs_range": [-1000, 1000],
+    "boundary_blocks": "lower block in row 0 and upper block in row N-1 are all zero",
+    "row_condition": "diagonal[a,a] > sum(abs(diagonal[a,b]), b!=a) + sum(abs(lower[a,b])) + sum(abs(upper[a,b])) for every scalar row",
+    "exact_length": "1 + 80*N",
+    "maximum_valid_length": 321,
+    "maximum_parseable_length": 321,
+    "invalid_result": -1e300
+  },
+  "contract": {
+    "operation": "solve one block-tridiagonal linear system with block size five",
+    "method": "block Thomas elimination; each modified diagonal block solves five upper-block right-hand sides and one solution right-hand side by 5x5 partial-pivot Gaussian elimination; recover the vector with block back-substitution",
+    "scalar_result": "sum((q+1)*x[q]) over the flattened solution, where q is zero-based block-row/component order",
+    "complexity": "O(N*5^3) arithmetic work and O(N*5^2) storage",
+    "scope": "one bounded block-line solve; no CFD coefficient construction, explicit residual, three-dimensional sweep schedule, or full BT time-step"
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "one-based position-weighted sum of all solved components",
+    "relative_tolerance": 1e-10,
+    "absolute_tolerance": 1e-10,
+    "invalid_result": -1e300
+  },
+  "workspace": {
+    "elements": 605,
+    "meaning": "Fixed upper-factor, transformed right-hand side, and block work arrays for at most four 5-component rows."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "cases": [
+    {
+      "id": "two-row-coupled-block-system-known-solution",
+      "input_values": [2,
+        0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,
+        40,1,0,0,0, 0,40,1,0,0, 0,0,40,1,0, 0,0,0,40,1, 0,0,0,0,40,
+        2,0,0,0,0, -1,2,0,0,0, 0,-1,2,0,0, 0,0,-1,2,0, 0,0,0,-1,2,
+        40,84,126,168,204,
+        1,1,0,0,0, 0,1,1,0,0, 0,0,1,1,0, 0,0,0,1,1, 0,0,0,0,1,
+        40,1,0,0,0, 0,40,1,0,0, 0,0,40,1,0, 0,0,0,40,1, 0,0,0,0,40,
+        0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,
+        -37,6,49,92,125
+      ],
+      "input_length": 161,
+      "expected_result": 105.0
+    },
+    {
+      "id": "wrong-length",
+      "input_values": [2],
+      "input_length": 1,
+      "expected_result": -1e300
+    },
+    {
+      "id": "unsupported-line-length",
+      "input_values": [5],
+      "input_length": 1,
+      "expected_result": -1e300
+    },
+    {
+      "id": "truncated-coefficient-record",
+      "input_values": [2, 0],
+      "input_length": 2,
+      "expected_result": -1e300
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1e300
+    }
+  ]
+}

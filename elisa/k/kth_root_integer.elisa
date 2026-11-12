@@ -1,0 +1,32 @@
+def power_at_most(base: i64, exponent_input: i64, limit: i64) -> bool:
+    if base == 0:
+        return true
+    product: mutable i64 = 1
+    exponent: mutable i64 = exponent_input
+    while exponent > 0:
+        if product > limit / base:
+            return false
+        product <- product * base
+        exponent <- exponent - 1
+    return true
+
+def kth_root_integer_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 2:
+        return -1
+    number: i64 = input[0]
+    degree: i64 = input[1]
+    if number < 0 or degree < 1 or degree > 64:
+        return -1
+
+    low: mutable i64 = 0
+    high: mutable i64 = number
+    while low < high:
+        difference: i64 = high - low
+        candidate: i64 = low + difference / 2 + difference % 2
+        if power_at_most(candidate, degree, number):
+            low <- candidate
+        else:
+            high <- candidate - 1
+    low
+
+export fn kth_root_integer(input: i64&, length: usize) -> i64 = kth_root_integer_impl

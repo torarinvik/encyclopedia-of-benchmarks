@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "id": "nasa-npb-ep-bounded-stream-reduction-v1",
+  "algorithm": "npb_ep",
+  "function_symbol": "npb_ep",
+  "abi": "float64_slice_io",
+  "description": "Generate a bounded 46-bit NAS LCG stream, transform accepted pairs with the Marsaglia polar method, and reduce square-annulus counts and normal-coordinate sums.",
+  "source": {
+    "title": "The NAS Parallel Benchmarks",
+    "authors": ["D. Bailey", "E. Barszcz", "J. Barton", "D. Browning", "R. Carter", "L. Dagum", "R. Fatoohi", "S. Fineberg", "P. Frederickson", "T. Lasinski", "R. Schreiber", "H. Simon", "V. Venkatakrishnan", "S. Weeratunga"],
+    "report": "NASA Ames NAS Technical Report RNR-94-007, March 1994",
+    "url": "https://www.nas.nasa.gov/assets/nas/pdf/techreports/1994/rnr-94-007.pdf",
+    "suite_url": "https://nas.nasa.gov/software/npb.html",
+    "algorithm_attribution": "EP candidate pairs consume two values from x_next = 5^13*x mod 2^46, map each uniform to 2*r-1, reject outside the unit disk, transform accepted points with the Marsaglia polar factor, and reduce ten square-annulus bins and coordinate sums.",
+    "canonical_npb_seed": 271828183,
+    "canonical_npb_candidate_pairs": 268435456,
+    "implementation_status": "bounded clean-room local profile"
+  },
+  "oracle": "benchmarks/npb_ep_oracle.py",
+  "oracle_entry_point": "expected_output(values, output_capacity=None, output_is_null=False, input_length=None)",
+  "input": {
+    "kind": "finite_float64_array_of_exact_integers",
+    "encoding": "[candidate_pair_count, initial_46_bit_state]",
+    "candidate_pair_count_range": [1, 4096],
+    "initial_state_range": [1, 70368744177663],
+    "multiplier": 1220703125,
+    "multiplier_expression": "5^13",
+    "modulus": 70368744177664,
+    "uniform_mapping": "r = state / 2^46; coordinate = 2*r - 1",
+    "maximum_input_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[Q0, Q1, ..., Q9, sum_x, sum_y]",
+    "annulus_rule": "Q_l counts accepted Gaussian pairs with l <= max(abs(X),abs(Y)) < l+1; values outside [0,10) do not enter a bin",
+    "maximum_elements": 12,
+    "success_result": 12,
+    "histogram_comparison": "exact integer counts encoded as float64",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "elements": 12,
+    "meaning": "Ten histogram counters and two Gaussian coordinate sums."
+  },
+  "contract": {
+    "generator": "For each candidate, advance state twice with exact 46-bit modular multiplication by 5^13 and convert each state to a binary64 uniform in (0,1).",
+    "polar_transform": "For x=2*r0-1 and y=2*r1-1, reject t=x*x+y*y when t<=0 or t>1; otherwise factor=sqrt(-2*log(t)/t) and emit (x*factor,y*factor).",
+    "reductions": "For each accepted pair, add coordinates left-to-right to sums and increment floor(max(abs(X),abs(Y))) when that extent is below 10.",
+    "complexity": "O(candidate_pair_count) time and O(1) auxiliary space beyond the fixed 12-element result."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "one-accepted-pair",
+      "input_values": [1, 52776558133248],
+      "input_length": 2,
+      "output_capacity": 12,
+      "expected_result": 12,
+      "expected_output": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.8325546111576977, 0.8325546111576977]
+    },
+    {
+      "id": "four-repeated-accepted-pairs",
+      "input_values": [4, 52776558133248],
+      "input_length": 2,
+      "output_capacity": 12,
+      "expected_result": 12,
+      "expected_output": [4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3.3302184446307908, 3.3302184446307908]
+    },
+    {
+      "id": "bounded-local-profile",
+      "input_values": [64, 52776558133248],
+      "input_length": 2,
+      "output_capacity": 12,
+      "expected_result": 12,
+      "expected_output": [64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 53.28349511409265, 53.28349511409265]
+    },
+    {
+      "id": "degenerate-candidates-are-rejected",
+      "input_values": [4, 35184372088832],
+      "input_length": 2,
+      "output_capacity": 12,
+      "expected_result": 12,
+      "expected_output": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0, 0.0]
+    },
+    {
+      "id": "empty-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 12,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero-candidate-count",
+      "input_values": [0, 271828183],
+      "input_length": 2,
+      "output_capacity": 12,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero-initial-state",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 12,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "state-outside-46-bit-range",
+      "input_values": [1, 70368744177664],
+      "input_length": 2,
+      "output_capacity": 12,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional-pair-count",
+      "input_values": [2.5, 271828183],
+      "input_length": 2,
+      "output_capacity": 12,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short-output",
+      "input_values": [1, 52776558133248],
+      "input_length": 2,
+      "output_capacity": 11,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 52776558133248],
+      "input_length": 2,
+      "output_capacity": 12,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

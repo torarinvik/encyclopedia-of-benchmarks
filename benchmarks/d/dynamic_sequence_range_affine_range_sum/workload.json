@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-dynamic-sequence-range-affine-range-sum-bounded-v1",
+  "algorithm": "dynamic_sequence_range_affine_range_sum",
+  "function_symbol": "dynamic_sequence_range_affine_range_sum",
+  "abi": "i64_array_bytes_output",
+  "description": "Maintain a positional sequence with insertion, deletion, reversal, modular affine range updates, and range sums using a lazy implicit treap.",
+  "source": {
+    "name": "Library Checker: Dynamic Sequence Range Affine Range Sum",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/dynamic_sequence_range_affine_range_sum/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/data_structure/dynamic_sequence_range_affine_range_sum/info.toml",
+    "repository_license": "Apache-2.0",
+    "reuse": "Published operation semantics and limits only; local ports and fixtures are independently authored."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,initial_values...,variable_width_operations...]",
+    "n_range": [0, 32],
+    "q_range": [0, 32],
+    "maximum_current_length": 64,
+    "modulus": 998244353,
+    "value_and_coefficient_range": [0, 998244352],
+    "operation_types": {
+      "0": "insert x before index i (i may equal current length)",
+      "1": "erase element at index i",
+      "2": "reverse current half-open range [l,r)",
+      "3": "apply x <- b*x+c modulo 998244353 to [l,r)",
+      "4": "append the modulo-998244353 sum of [l,r) to output"
+    },
+    "range_rule": "Every index and range is checked against the current sequence length at that operation.",
+    "maximum_valid_length": 194,
+    "maximum_parseable_length": 195,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "contract": {
+    "algorithm": "Implicit treap with subtree size and modular sum, lazy affine tags, lazy reversal, deterministic Park-Miller priorities based on allocation IDs, and ID tie-breaking.",
+    "operation_order": "Operations are applied in input order; insertions allocate fresh treap nodes and deletions discard one-node ranges.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Validate the complete variable-width frame and all state-dependent indices before output pointer and capacity checks."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "one modular range sum per type-4 operation, in input order",
+    "element_width_bytes": 8,
+    "maximum_elements": 32,
+    "maximum_bytes": 256,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Maximum output storage; bounded node pool, staged operations, and answers use fixed local storage."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "all-five-operations-and-lazy-composition",
+      "input_values": [3,9,1,2,3,0,1,4,2,0,3,3,1,4,2,1,4,0,4,1,1,4,1,3,0,3,998244352,3,0,4,0,5,4,0,4],
+      "input_length": 35,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "15000000000000000a000000000000001400000000000000"
+    },
+    {
+      "id": "insert-delete-at-empty-and-modulus-boundary",
+      "input_values": [0,5,0,0,7,4,0,1,1,0,0,0,998244352,4,0,1],
+      "input_length": 16,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "07000000000000000000803b00000000"
+    },
+    {
+      "id": "empty-range-and-empty-output",
+      "input_values": [0,0],
+      "input_length": 2,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [3,9,1,2,3,0,1,4,2,0,3,3,1,4,2,1,4,0,4,1,1,4,1,3,0,3,998244352,3,0,4,0,5,4,0,4],
+      "input_length": 35,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [3,9,1,2,3,0,1,4,2,0,3,3,1,4,2,1,4,0,4,1,1,4,1,3,0,3,998244352,3,0,4,0,5,4,0,4],
+      "input_length": 35,
+      "output_capacity": 24,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "index-checked-after-delete",
+      "input_values": [1,2,5,1,0,4,0,1],
+      "input_length": 8,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-affine-coefficient",
+      "input_values": [1,1,5,3,0,1,998244353,0],
+      "input_length": 8,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-input-word",
+      "input_values": [0,0,99],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

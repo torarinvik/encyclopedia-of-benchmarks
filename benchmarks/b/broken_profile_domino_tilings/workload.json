@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "broken-profile-domino-tilings-bounded-v1",
+  "algorithm": "broken_profile_domino_tilings",
+  "function_symbol": "broken_profile_domino_tilings",
+  "abi": "i64_array_scalar_call",
+  "source": {
+    "title": "Dynamic Programming on Broken Profile",
+    "author": "CP-Algorithms contributors",
+    "url": "https://cp-algorithms.com/dynamic_programming/profile-dynamics.html",
+    "license": "CC BY-SA 4.0",
+    "reuse_scope": "Algorithm attribution only; the benchmark ports and oracles are clean-room."
+  },
+  "contract": {
+    "operation": "Count domino tilings of an open H by W grid modulo 998244353.",
+    "input_layout": "[H,W]",
+    "dimensions": "1<=H,W<=64; min(H,W)<=8; H*W<=512",
+    "algorithm": "Frontier-mask dynamic programming; transpose to keep the profile width min(H,W).",
+    "invalid_result": -1
+  },
+  "input": {
+    "kind": "height_width_pair",
+    "encoding": "[H,W]",
+    "side_range": [1,64],
+    "maximum_profile_width": 8,
+    "maximum_area": 512,
+    "maximum_input_values": 2,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "tiling_count_modulo",
+    "modulus": 998244353,
+    "range": [0,998244352],
+    "invalid_result": -1
+  },
+  "maximum_profile": {
+    "dimensions": [8,64],
+    "profile_width": 8,
+    "height": 64,
+    "states": 256
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id":"single-cell", "input_values":[1,1], "expected_result":0},
+    {"id":"one-domino", "input_values":[1,2], "expected_result":1},
+    {"id":"odd-single-row", "input_values":[1,3], "expected_result":0},
+    {"id":"two-by-two", "input_values":[2,2], "expected_result":2},
+    {"id":"two-by-three", "input_values":[2,3], "expected_result":3},
+    {"id":"odd-area", "input_values":[3,3], "expected_result":0},
+    {"id":"three-by-four", "input_values":[3,4], "expected_result":11},
+    {"id":"four-by-four", "input_values":[4,4], "expected_result":36},
+    {"id":"transposed-two-by-five", "input_values":[5,2], "expected_result":8},
+    {"id":"zero-height", "input_values":[0,4], "expected_result":-1},
+    {"id":"profile-width-too-large", "input_values":[9,9], "expected_result":-1},
+    {"id":"area-too-large", "input_values":[9,64], "expected_result":-1},
+    {"id":"extra-dimension", "input_values":[2,3,4], "expected_result":-1}
+  ]
+}

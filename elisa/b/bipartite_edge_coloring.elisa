@@ -1,0 +1,146 @@
+# Minimum edge coloring of a bounded bipartite multigraph.
+const MAX_SIDE: usize = 5
+const MAX_EDGES: usize = 10
+const MAX_INPUT_LENGTH: usize = 23
+const MAX_OUTPUT_BYTES: usize = 88
+
+def edge_coloring_augment(left: usize, side: usize, multiplicity: view[i64],
+    seen: mutable view[i64], match_right: mutable view[i64]) -> bool:
+    right: mutable usize = 0
+    while right < side:
+        if multiplicity[left * MAX_SIDE + right] > 0 and seen[right] == 0:
+            seen[right] <- 1
+            mate: i64 = match_right[right]
+            if mate < 0 or edge_coloring_augment(mate.usize(), side, multiplicity, seen, match_right):
+                match_right[right] <- left.i64()
+                return true
+        right <- right + 1
+    false
+
+def store_edge_coloring_u64(value: u64, output: mutable view[u8], offset: usize) -> void:
+    byte: usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((value >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def bipartite_edge_coloring_impl(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    left_value: i64 = input[0]
+    right_value: i64 = input[1]
+    edge_value: i64 = input[2]
+    if left_value < 1 or left_value > 5 or right_value < 1 or right_value > 5 or
+        edge_value < 1 or edge_value > 10:
+        return -1
+    left_count: usize = left_value.usize()
+    right_count: usize = right_value.usize()
+    edge_count: usize = edge_value.usize()
+    if length != 3 + 2 * edge_count:
+        return -1
+
+    multiplicity: mutable i64[25] = zeroed
+    original_remaining: mutable i64[25] = zeroed
+    left_degree: mutable usize[5] = zeroed
+    right_degree: mutable usize[5] = zeroed
+    edge_left: mutable usize[10] = zeroed
+    edge_right: mutable usize[10] = zeroed
+    edge: mutable usize = 0
+    while edge < edge_count:
+        left: i64 = input[3 + 2 * edge]
+        right: i64 = input[4 + 2 * edge]
+        if left < 0 or left >= left_value or right < 0 or right >= right_value:
+            return -1
+        left_index: usize = left.usize()
+        right_index: usize = right.usize()
+        edge_left[edge] <- left_index
+        edge_right[edge] <- right_index
+        index: usize = left_index * MAX_SIDE + right_index
+        multiplicity[index] <- multiplicity[index] + 1
+        original_remaining[index] <- original_remaining[index] + 1
+        left_degree[left_index] <- left_degree[left_index] + 1
+        right_degree[right_index] <- right_degree[right_index] + 1
+        edge <- edge + 1
+
+    side: usize = left_count
+    if right_count > side:
+        side <- right_count
+    maximum_degree: mutable usize = 0
+    vertex: mutable usize = 0
+    while vertex < side:
+        if left_degree[vertex] > maximum_degree:
+            maximum_degree <- left_degree[vertex]
+        if right_degree[vertex] > maximum_degree:
+            maximum_degree <- right_degree[vertex]
+        vertex <- vertex + 1
+
+    while true:
+        left: mutable usize = 0
+        while left < side and left_degree[left] == maximum_degree:
+            left <- left + 1
+        if left == side:
+            break
+        right: mutable usize = 0
+        while right < side and right_degree[right] == maximum_degree:
+            right <- right + 1
+        if right == side:
+            return -1
+        index: usize = left * MAX_SIDE + right
+        multiplicity[index] <- multiplicity[index] + 1
+        left_degree[left] <- left_degree[left] + 1
+        right_degree[right] <- right_degree[right] + 1
+
+    colors: mutable i64[10]
+    edge <- 0
+    while edge < edge_count:
+        colors[edge] <- -1
+        edge <- edge + 1
+    color: mutable usize = 0
+    while color < maximum_degree:
+        match_right: mutable i64[5]
+        right: mutable usize = 0
+        while right < side:
+            match_right[right] <- -1
+            right <- right + 1
+        left: mutable usize = 0
+        while left < side:
+            seen: mutable i64[5] = zeroed
+            if not edge_coloring_augment(left, side, multiplicity[0:25], seen[0:side], match_right[0:side]):
+                return -1
+            left <- left + 1
+        right <- 0
+        while right < side:
+            matched: i64 = match_right[right]
+            if matched < 0:
+                return -1
+            left_index: usize = matched.usize()
+            index: usize = left_index * MAX_SIDE + right
+            if original_remaining[index] > 0:
+                edge <- 0
+                while edge < edge_count and (colors[edge] >= 0 or edge_left[edge] != left_index or edge_right[edge] != right):
+                    edge <- edge + 1
+                if edge == edge_count:
+                    return -1
+                colors[edge] <- color.i64()
+                original_remaining[index] <- original_remaining[index] - 1
+            multiplicity[index] <- multiplicity[index] - 1
+            right <- right + 1
+        color <- color + 1
+
+    bytes: usize = 8 * (edge_count + 1)
+    if output == null or output_capacity < bytes:
+        return -2
+    staged: mutable u8[88] = zeroed
+    store_edge_coloring_u64(maximum_degree.u64(), staged[0:88], 0)
+    edge <- 0
+    while edge < edge_count:
+        store_edge_coloring_u64(colors[edge].u64(), staged[0:88], 8 * (edge + 1))
+        edge <- edge + 1
+    index: mutable usize = 0
+    while index < bytes:
+        output[index] <- staged[index]
+        index <- index + 1
+    bytes.i64()
+
+export fn bipartite_edge_coloring(input: i64&, length: usize, output: mutable u8&,
+    output_capacity: usize) -> i64 = bipartite_edge_coloring_impl

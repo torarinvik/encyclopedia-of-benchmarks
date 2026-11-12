@@ -1,0 +1,128 @@
+const MAX_Q: usize = 64
+const MAX_BITS: usize = 30
+const MAX_NODES: usize = 1 + MAX_BITS * MAX_Q
+const MAX_INPUT_VALUES: usize = 1 + 2 * MAX_Q
+
+def sxm_find_or_create(children_zero: mutable view[i64], children_one: mutable view[i64],
+    node_count: mutable usize&, node: usize, direction: usize) -> usize:
+    child: mutable i64 = children_zero[node] if direction == 0 else children_one[node]
+    if child < 0:
+        child <- node_count.i64()
+        node_count <- node_count + 1
+        children_zero[child.usize()] <- -1
+        children_one[child.usize()] <- -1
+        if direction == 0: children_zero[node] <- child
+        else: children_one[node] <- child
+    child.usize()
+
+def sxm_insert(children_zero: mutable view[i64], children_one: mutable view[i64],
+    count: mutable view[usize], node_count: mutable usize&, value: u64) -> void:
+    path: mutable usize[MAX_BITS + 1] = zeroed
+    node: mutable usize = 0
+    bit: mutable usize = MAX_BITS
+    while bit > 0:
+        bit <- bit - 1
+        direction: usize = ((value >> bit) & 1).usize()
+        node <- sxm_find_or_create(children_zero, children_one, node_count, node, direction)
+        path[MAX_BITS - bit] <- node
+    if count[node] != 0: return
+    depth: mutable usize = 0
+    while depth <= MAX_BITS:
+        count[path[depth]] <- count[path[depth]] + 1
+        depth <- depth + 1
+
+def sxm_remove(children_zero: view[i64], children_one: view[i64],
+    count: mutable view[usize], value: u64) -> void:
+    path: mutable usize[MAX_BITS + 1] = zeroed
+    node: mutable usize = 0
+    bit: mutable usize = MAX_BITS
+    while bit > 0:
+        bit <- bit - 1
+        direction: usize = ((value >> bit) & 1).usize()
+        child: i64 = children_zero[node] if direction == 0 else children_one[node]
+        if child < 0: return
+        node <- child.usize()
+        path[MAX_BITS - bit] <- node
+    if count[node] == 0: return
+    depth: mutable usize = 0
+    while depth <= MAX_BITS:
+        count[path[depth]] <- count[path[depth]] - 1
+        depth <- depth + 1
+
+def sxm_minimum_xor(children_zero: view[i64], children_one: view[i64],
+    count: view[usize], value: u64) -> u64:
+    node: mutable usize = 0
+    result: mutable u64 = 0
+    bit: mutable usize = MAX_BITS
+    while bit > 0:
+        bit <- bit - 1
+        preferred: usize = ((value >> bit) & 1).usize()
+        child: i64 = children_zero[node] if preferred == 0 else children_one[node]
+        if child >= 0 and count[child.usize()] > 0:
+            node <- child.usize()
+        else:
+            result <- result | (1.u64() << bit)
+            child <- children_one[node] if preferred == 0 else children_zero[node]
+            node <- child.usize()
+    result
+
+def sxm_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def set_xor_min_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_VALUES: return -1
+    q_value: i64 = input[0]
+    if q_value < 1 or q_value > MAX_Q.i64(): return -1
+    q: usize = q_value.usize()
+    if length != 1 + 2 * q: return -1
+    operation: mutable usize = 0
+    while operation < q:
+        offset: usize = 1 + 2 * operation
+        if input[offset] < 0 or input[offset] > 2 or input[offset + 1] < 0 or
+            input[offset + 1] >= 1073741824: return -1
+        operation <- operation + 1
+
+    children_zero: mutable i64[MAX_NODES] = zeroed
+    children_one: mutable i64[MAX_NODES] = zeroed
+    count: mutable usize[MAX_NODES] = zeroed
+    node: mutable usize = 0
+    while node < MAX_NODES:
+        children_zero[node] <- -1
+        children_one[node] <- -1
+        node <- node + 1
+    node_count: mutable usize = 1
+    answers: mutable i64[MAX_Q] = zeroed
+    answer_count: mutable usize = 0
+    operation <- 0
+    while operation < q:
+        offset: usize = 1 + 2 * operation
+        kind: i64 = input[offset]
+        value: u64 = input[offset + 1].u64()
+        if kind == 0:
+            sxm_insert(children_zero[0:MAX_NODES], children_one[0:MAX_NODES],
+                count[0:MAX_NODES], node_count, value)
+        elif kind == 1:
+            sxm_remove(children_zero[0:MAX_NODES], children_one[0:MAX_NODES],
+                count[0:MAX_NODES], value)
+        else:
+            if count[0] == 0: return -1
+            answers[answer_count] <- sxm_minimum_xor(children_zero[0:MAX_NODES],
+                children_one[0:MAX_NODES], count[0:MAX_NODES], value).i64()
+            answer_count <- answer_count + 1
+        operation <- operation + 1
+
+    required: usize = 8 * answer_count
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    operation <- 0
+    while operation < answer_count:
+        sxm_store_i64_le(answers[operation], output_view, 8 * operation)
+        operation <- operation + 1
+    required.i64()
+
+export fn set_xor_min(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = set_xor_min_impl

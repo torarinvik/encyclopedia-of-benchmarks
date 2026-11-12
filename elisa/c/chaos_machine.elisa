@@ -44,7 +44,7 @@ def chaos_round_ten(value: f64) -> f64:
     if relation > 0 or (relation == 0 and (rounded & 1) != 0): rounded <- rounded + 1
     rounded.f64() / 10000000000.0
 
-def chaos_machine_pull(buffer: mutable f64&, params: mutable f64&, machine_time: i64) -> i64:
+def chaos_machine_pull(buffer: mutable view[f64], params: mutable view[f64], machine_time: i64) -> i64:
     key: usize = (machine_time % 5).usize()
     step: mutable usize = 0
     while step < 3:
@@ -60,7 +60,8 @@ def chaos_machine_pull(buffer: mutable f64&, params: mutable f64&, machine_time:
     x <- x ^ (y >> 5)
     x & 0xFFFFFFFF
 
-def chaos_machine_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+def chaos_machine_impl(values: view[i64], length: usize, output: mutable view[u8],
+        output_capacity: usize, output_is_null: bool) -> i64:
     if length < 2 or length > 66: return -1
     seed_count_value: i64 = values[0]
     if seed_count_value < 0 or seed_count_value > 64: return -1
@@ -75,7 +76,7 @@ def chaos_machine_impl(values: i64&, length: usize, output: mutable u8&, output_
         index <- index + 1
     pull_count: usize = pull_input.usize()
     required: usize = 4 * pull_count
-    if required > output_capacity: return -2
+    if (output_is_null && required > 0) || required > output_capacity: return -2
     buffer: mutable f64[5] = zeroed
     buffer[0] <- 0.33
     buffer[1] <- 0.44
@@ -100,8 +101,7 @@ def chaos_machine_impl(values: i64&, length: usize, output: mutable u8&, output_
         seed_index <- seed_index + 1
     pull_index: mutable usize = 0
     while pull_index < pull_count:
-        result: i64 = chaos_machine_pull(buffer[0], params[0], machine_time)
-        # The pointer-like array references above are passed by base; account for the key update in place below.
+        result: i64 = chaos_machine_pull(buffer[0:5], params[0:5], machine_time)
         output[4 * pull_index] <- (result & 255).u8()
         output[4 * pull_index + 1] <- ((result >> 8) & 255).u8()
         output[4 * pull_index + 2] <- ((result >> 16) & 255).u8()
@@ -110,4 +110,14 @@ def chaos_machine_impl(values: i64&, length: usize, output: mutable u8&, output_
         pull_index <- pull_index + 1
     required.i64()
 
-export fn chaos_machine(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = chaos_machine_impl
+export fn chaos_machine(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if values.is_null() || length < 2 || length > 66: return -1
+    values_view: view[i64] = values[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return chaos_machine_impl(values_view, length, scratch[0:0], 0, true)
+    safe_capacity: mutable usize = output_capacity
+    if safe_capacity > 256: safe_capacity <- 256
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    chaos_machine_impl(values_view, length, output_view, output_capacity, false)

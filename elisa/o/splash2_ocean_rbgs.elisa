@@ -1,0 +1,69 @@
+const max_cells: usize = 64
+const max_input: usize = 132
+
+def splash2_ocean_rbgs_impl(input: f64&, input_length: usize,
+                            output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > max_input:
+        return -1
+    index: mutable usize = 0
+    while index < input_length:
+        if input[index] != input[index]:
+            return -1
+        index <- index + 1
+    side_value: f64 = input[0]
+    if side_value != 4.0 and side_value != 6.0 and side_value != 8.0:
+        return -1
+    side: usize = side_value.i64().usize()
+    cells: usize = side * side
+    if input_length != 3 + 2 * cells:
+        return -1
+    eigenvalue_squared: f64 = input[1]
+    spacing: f64 = input[2]
+    if eigenvalue_squared < 0.0 or eigenvalue_squared > 2.0 or spacing < 0.125 or spacing > 1.0:
+        return -1
+    factor: f64 = 4.0 - eigenvalue_squared * spacing * spacing
+    if factor <= 0.0:
+        return -1
+
+    grid: mutable f64[max_cells] = zeroed
+    rhs: mutable f64[max_cells] = zeroed
+    index <- 0
+    while index < cells:
+        grid[index] <- input[3 + index]
+        rhs[index] <- input[3 + cells + index]
+        if grid[index] < -8.0 or grid[index] > 8.0 or rhs[index] < -8.0 or rhs[index] > 8.0:
+            return -1
+        index <- index + 1
+    needed: usize = 1 + cells
+    if output.is_null() or output_capacity < needed:
+        return -2
+
+    max_change: mutable f64 = 0.0
+    color: mutable usize = 0
+    while color < 2:
+        row: mutable usize = 1
+        while row + 1 < side:
+            column: mutable usize = 1
+            while column + 1 < side:
+                if (row + column) % 2 == color:
+                    index <- row * side + column
+                    neighbors: f64 = grid[index + 1] + grid[index - 1] + grid[index - side] + grid[index + side]
+                    old_value: f64 = grid[index]
+                    updated: f64 = (neighbors - rhs[index]) / factor
+                    change: f64 = old_value - updated
+                    if change < 0.0: change <- -change
+                    if change > max_change: max_change <- change
+                    grid[index] <- updated
+                column <- column + 1
+            row <- row + 1
+        color <- color + 1
+
+    output[0] <- max_change
+    index <- 0
+    while index < cells:
+        output[index + 1] <- grid[index]
+        index <- index + 1
+    needed.i64()
+
+export fn splash2_ocean_rbgs(input: f64&, input_length: usize,
+                             output: mutable f64&, output_capacity: usize) -> i64 = splash2_ocean_rbgs_impl

@@ -1,18 +1,30 @@
 {
   "schema_version": 1,
-  "id": "encyclopedia-doi621-routing-cost-constrained-cds-goc-mcds-c-v1",
+  "id": "encyclopedia-doi621-routing-cost-constrained-cds-goc-mcds-c-v2",
   "algorithm": "routing_cost_constrained_cds_goc_mcds_c",
   "function_symbol": "routing_cost_constrained_cds_goc_mcds_c",
   "abi": "i64_array_bytes_output",
-  "description": "Bounded replay of the chapter's centralized GOC-MCDS-C maximal-independent-set and distance-three connector stages.",
+  "description": "Bounded replay of the centralized GOC-MCDS-C maximal-independent-set and distance-four connector stages.",
   "source": {
     "title": "Routing-Cost Constrained Connected Dominating Set",
     "authors": ["Hongwei Du", "Haiming Luo"],
     "year": 2016,
     "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_621",
     "url": "https://doi.org/10.1007/978-1-4939-2864-4_621",
-    "algorithm_attribution": "GOC-MCDS-C centralized construction; MISI follows the chapter's unique-ID local-minimum rounds",
+    "algorithm_attribution": "Centralized GOC-MCDS-C connector stage with the cited unique-ID MISI rule as its deterministic maximal-independent-set selector",
     "implementation_status": "clean-room bounded trace; deterministic ID and shortest-path tie rules"
+  },
+  "cited_primary_work": {
+    "title": "CDS-based virtual backbone construction with guaranteed routing cost in wireless sensor networks",
+    "authors": ["Hongwei Du", "Weili Wu", "Qiang Ye", "Deying Li", "Wonjun Lee", "Xuepeng Xu"],
+    "year": 2013,
+    "journal": "IEEE Transactions on Parallel and Distributed Systems",
+    "volume": 24,
+    "issue": 4,
+    "pages": "652-661",
+    "doi": "10.1109/TPDS.2012.177",
+    "url": "https://doi.org/10.1109/TPDS.2012.177",
+    "sections": ["§III centralized GOC-MCDS-C", "§IV unique-ID MISI rounds"]
   },
   "input": {
     "kind": "signed_64_bit_integer_array",
@@ -40,8 +52,8 @@
     "meaning": "Fixed adjacency, BFS, queue, and set-mask state for at most eight vertices."
   },
   "contract": {
-    "stage_one": "Repeat synchronous MISI rounds: every white vertex with the smallest ID among its white neighbors turns black; white neighbors of black vertices turn gray.",
-    "stage_two": "For each MIS pair at graph distance at most three, add the internal vertices of one shortest path to the connector set.",
+    "stage_one": "Construct a maximal independent set with the published unique-ID synchronous MISI rounds: every white vertex with the smallest ID among its white neighbors turns black; white neighbors of black vertices turn gray.",
+    "stage_two": "For each MIS pair at graph distance at most four, add the internal vertices of one shortest path to the connector set.",
     "shortest_path_tie_rule": "Among shortest paths, choose the lexicographically smallest node-ID sequence; consider MIS pairs in ascending node-ID order.",
     "result": "Return the MIS mask and the union of the MIS and all selected path interiors.",
     "scope": "The chapter's unit-disk approximation and routing-stretch guarantees are not claimed for this graph-only profile; distributed Algorithm 3 is excluded.",
@@ -56,10 +68,11 @@
   },
   "cases": [
     {"id":"singleton-connected-graph","input_values":[1,0,1],"input_length":3,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000100000000000000"},
-    {"id":"path-with-distance-two-mis-pair","input_values":[4,2,5,10,4,2,1,3],"input_length":9,"output_capacity":16,"expected_result":16,"expected_output_hex":"05000000000000000700000000000000"},
+    {"id":"path-with-distance-two-mis-pair","input_values":[4,2,5,10,4,1,2,3,4],"input_length":9,"output_capacity":16,"expected_result":16,"expected_output_hex":"05000000000000000700000000000000"},
+    {"id":"path-six-with-distance-four-mis-pair","input_values":[6,2,5,10,20,40,16,1,2,3,4,5,6],"input_length":13,"output_capacity":16,"expected_result":16,"expected_output_hex":"15000000000000001f00000000000000"},
     {"id":"cycle-shortest-path-tie-by-node-id","input_values":[4,10,5,10,5,1,2,4,3],"input_length":9,"output_capacity":16,"expected_result":16,"expected_output_hex":"05000000000000000700000000000000"},
     {"id":"maximum-eight-vertex-clique","input_values":[8,254,253,251,247,239,223,191,127,1,2,3,4,5,6,7,8],"input_length":17,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000100000000000000"},
-    {"id":"disconnected-graph-invalid","input_values":[4,2,1,8,4,1,2,3],"input_length":9,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"disconnected-graph-invalid","input_values":[4,2,1,8,4,1,2,3,4],"input_length":9,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
     {"id":"duplicate-node-id-invalid","input_values":[2,2,1,5,5],"input_length":5,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
     {"id":"insufficient-output-capacity","input_values":[1,0,1],"input_length":3,"output_capacity":15,"expected_result":-2,"expected_output_hex":""}
   ]

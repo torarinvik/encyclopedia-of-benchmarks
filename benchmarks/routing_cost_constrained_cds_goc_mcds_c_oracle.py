@@ -124,7 +124,7 @@ def expected_output(values: Sequence[int] | None, capacity: int | None = None,
     for position, source in enumerate(independent_vertices):
         for target in independent_vertices[position + 1:]:
             path = _lex_shortest_path(source, target, n, adjacency, ids)
-            if len(path) <= 4:
+            if len(path) <= 5:
                 for vertex in path[1:-1]:
                     connectors |= 1 << vertex
     dominating = independent | connectors

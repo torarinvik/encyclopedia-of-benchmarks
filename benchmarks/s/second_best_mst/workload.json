@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-second-best-mst-bounded-i64-array-bytes-output-v1",
+  "algorithm": "second_best_mst",
+  "function_symbol": "second_best_mst",
+  "abi": "i64_array_bytes_output",
+  "description": "Find the strictly heavier second-best spanning-tree weight and a one-edge exchange certificate.",
+  "source": {
+    "title": "Second Best Minimum Spanning Tree",
+    "authors": ["CP-Algorithms contributors"],
+    "reference": "Kruskal minimum spanning tree plus fundamental-cycle edge exchange",
+    "url": "https://cp-algorithms.com/graph/second_best_mst.html",
+    "algorithm_attribution": "Kruskal followed by a non-tree-edge fundamental-cycle exchange using the top two distinct path weights",
+    "implementation_status": "clean-room bounded ports"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M,(u,v,w)*M]",
+    "N_range": [1, 8],
+    "M_range": "N-1 <= M <= 20",
+    "endpoint_order": "0 <= u < v < N",
+    "parallel_edges": false,
+    "edge_weight_range": [0, 1000000],
+    "connected_required": true,
+    "maximum_valid_input_length": 62,
+    "maximum_parseable_input_length": 62,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "four signed 64-bit little-endian values: MST weight, strictly heavier second weight or -1, entering edge ID or -1, leaving edge ID or -1",
+    "maximum_bytes": 32,
+    "success_result": "32 bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {"bytes": 32, "meaning": "Output-buffer capacity for the weights and exchange certificate."},
+  "contract": {
+    "result": "the minimum tree weight and the least strictly larger spanning-tree weight, with an entering/leaving edge certificate",
+    "complexity": "O(M^2 + M*N) time and O(N^2 + M) auxiliary storage",
+    "tie_rule": "Kruskal sorts by (weight,input edge ID); equal-weight alternatives are not strictly heavier",
+    "no_strictly_heavier_tree": "second weight and both edge IDs are -1"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id":"unique-weight-cycle","input_values":[3,3,0,1,1,1,2,2,0,2,5],"input_length":11,"output_capacity":32,"expected_result":32,"expected_output_hex":"0300000000000000060000000000000002000000000000000100000000000000"},
+    {"id":"equal-maximum-needs-second-distinct-path-weight","input_values":[3,3,0,1,1,1,2,2,2,0,2,2],"input_length":12,"output_capacity":32,"expected_result":32,"expected_output_hex":"0300000000000000040000000000000002000000000000000000000000000000"},
+    {"id":"all-spanning-trees-equal","input_values":[3,3,0,1,4,1,2,4,0,2,4],"input_length":11,"output_capacity":32,"expected_result":32,"expected_output_hex":"0800000000000000ffffffffffffffffffffffffffffffffffffffffffffffff"},
+    {"id":"single-vertex","input_values":[1,0],"input_length":2,"output_capacity":32,"expected_result":32,"expected_output_hex":"0000000000000000ffffffffffffffffffffffffffffffffffffffffffffffff"},
+    {"id":"only-one-tree","input_values":[3,2,0,1,1,1,2,2],"input_length":8,"output_capacity":32,"expected_result":32,"expected_output_hex":"0300000000000000ffffffffffffffffffffffffffffffffffffffffffffffff"},
+    {"id":"disconnected","input_values":[4,3,0,1,1,1,2,2,0,2,3],"input_length":11,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"duplicate-edge","input_values":[3,3,0,1,1,0,1,2,1,2,2],"input_length":11,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-endpoint-order","input_values":[2,1,1,0,2],"input_length":5,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[2,1,0,1,7],"input_length":5,"output_capacity":31,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,1,0,1,7],"input_length":5,"output_capacity":32,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

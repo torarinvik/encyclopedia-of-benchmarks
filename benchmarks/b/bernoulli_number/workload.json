@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-bernoulli-number-bounded-i64-array-bytes-output-v1",
+  "algorithm": "bernoulli_number",
+  "function_symbol": "bernoulli_number",
+  "abi": "i64_array_bytes_output",
+  "description": "Generate the modular Bernoulli numbers B0 through BN with a bounded quadratic recurrence.",
+  "source": {
+    "title": "Bernoulli Number",
+    "authors": ["Library Checker contributors"],
+    "reference": "Library Checker problem",
+    "url": "https://github.com/yosupo06/library-checker-problems/blob/master/number_theory/bernoulli_number/task.md",
+    "algorithm_attribution": "Modular binomial recurrence for Bernoulli numbers",
+    "implementation_status": "clean-room bounded recurrence"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N]",
+    "N_range": [0, 32],
+    "maximum_valid_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "B0 through BN modulo 998244353, each as an unsigned 32-bit little-endian value",
+    "maximum_bytes": 132,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 536,
+    "meaning": "Fixed-size coefficient and inverse tables sized for N <= 32."
+  },
+  "contract": {
+    "modulus": 998244353,
+    "convention": "B0 = 1 and B1 = -1/2 modulo the prime",
+    "recurrence": "Bm = -(m+1)^(-1) * sum(binomial(m+1,k) * Bk, k=0..m-1) modulo the prime",
+    "official_N_range": [0, 500000],
+    "profile_N_range": [0, 32],
+    "profile_reason": "The shared clean-room recurrence is quadratic and intentionally uses a small bounded domain.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "B0-only",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "through-B1",
+      "input_values": [1],
+      "input_length": 1,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "010000000000c01d"
+    },
+    {
+      "id": "through-B2",
+      "input_values": [2],
+      "input_length": 1,
+      "output_capacity": 12,
+      "expected_result": 12,
+      "expected_output_hex": "010000000000c01dabaaea09"
+    },
+    {
+      "id": "through-B3-zero-odd-number",
+      "input_values": [3],
+      "input_length": 1,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "010000000000c01dabaaea0900000000"
+    },
+    {
+      "id": "valid-upper-bound-short-capacity",
+      "input_values": [32],
+      "input_length": 1,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "N-above-profile-bound",
+      "input_values": [33],
+      "input_length": 1,
+      "output_capacity": 132,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra-input-value",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 132,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [3],
+      "input_length": 1,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2],
+      "input_length": 1,
+      "output_capacity": 12,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 132,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

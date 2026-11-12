@@ -1,0 +1,147 @@
+const MAX_N: usize = 32
+const MAX_M: usize = 64
+const MAX_INPUT: usize = 131
+const MAX_OUTPUT: usize = 1592
+
+def tree_decomposition_width_2_put(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def tree_decomposition_width_2(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize
+) -> i64 @export("tree_decomposition_width_2"):
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > MAX_N.i64() or m64 < 0 or m64 > MAX_M.i64(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if m > n * (n - 1) / 2 or length != 2 + 2 * m: return -1
+
+    adjacent: mutable bool[MAX_N * MAX_N] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        left64: i64 = input[2 + 2 * edge]
+        right64: i64 = input[3 + 2 * edge]
+        if left64 < 0 or left64 >= right64 or right64 >= n64: return -1
+        left: usize = left64.usize()
+        right: usize = right64.usize()
+        if adjacent[left * MAX_N + right]: return -1
+        adjacent[left * MAX_N + right] <- true
+        adjacent[right * MAX_N + left] <- true
+        edge <- edge + 1
+
+    active: mutable bool[MAX_N] = zeroed
+    order: mutable usize[MAX_N] = zeroed
+    bag_values: mutable i64[MAX_N * 3] = zeroed
+    bag_sizes: mutable usize[MAX_N] = zeroed
+    later: mutable usize[MAX_N * 2] = zeroed
+    later_counts: mutable usize[MAX_N] = zeroed
+    position: mutable usize[MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        active[vertex] <- true
+        vertex <- vertex + 1
+
+    step: mutable usize = 0
+    while step < n:
+        chosen: mutable usize = MAX_N
+        neighbors: mutable usize[2] = zeroed
+        count: mutable usize = 0
+        vertex <- 0
+        while vertex < n:
+            if active[vertex]:
+                degree: mutable usize = 0
+                other: mutable usize = 0
+                while other < n:
+                    if active[other] and adjacent[vertex * MAX_N + other]:
+                        degree <- degree + 1
+                    other <- other + 1
+                if degree <= 2:
+                    chosen <- vertex
+                    other <- 0
+                    while other < n:
+                        if active[other] and adjacent[vertex * MAX_N + other]:
+                            neighbors[count] <- other
+                            count <- count + 1
+                        other <- other + 1
+                    break
+            vertex <- vertex + 1
+        if chosen == MAX_N: return -1
+
+        order[step] <- chosen
+        later_counts[step] <- count
+        bag_sizes[step] <- count + 1
+        bag_values[step * 3] <- chosen.i64()
+        index: mutable usize = 0
+        while index < count:
+            later[step * 2 + index] <- neighbors[index]
+            bag_values[step * 3 + index + 1] <- neighbors[index].i64()
+            index <- index + 1
+        index <- 0
+        while index < count + 1:
+            other_index: mutable usize = index + 1
+            while other_index < count + 1:
+                if bag_values[step * 3 + other_index] < bag_values[step * 3 + index]:
+                    temporary: i64 = bag_values[step * 3 + index]
+                    bag_values[step * 3 + index] <- bag_values[step * 3 + other_index]
+                    bag_values[step * 3 + other_index] <- temporary
+                other_index <- other_index + 1
+            index <- index + 1
+        if count == 2:
+            left: usize = neighbors[0]
+            right: usize = neighbors[1]
+            adjacent[left * MAX_N + right] <- true
+            adjacent[right * MAX_N + left] <- true
+        active[chosen] <- false
+        step <- step + 1
+
+    step <- 0
+    while step < n:
+        position[order[step]] <- step
+        step <- step + 1
+    parents: mutable usize[MAX_N] = zeroed
+    step <- 0
+    while step < n:
+        parents[step] <- n
+        if later_counts[step] > 0:
+            selected: mutable usize = later[step * 2]
+            if later_counts[step] == 2 and position[later[step * 2 + 1]] < position[selected]:
+                selected <- later[step * 2 + 1]
+            parents[step] <- position[selected]
+        step <- step + 1
+
+    bytes: usize = 8 * (6 * n + 7)
+    if output.is_null() or capacity < bytes or bytes > MAX_OUTPUT: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT]
+    tree_decomposition_width_2_put((n + 1).i64(), staged_view, 0)
+    tree_decomposition_width_2_put(2, staged_view, 8)
+    tree_decomposition_width_2_put(n.i64(), staged_view, 16)
+    cursor: mutable usize = 24
+    bag: mutable usize = 0
+    while bag <= n:
+        size: usize = if bag == n { 0 } else { bag_sizes[bag] }
+        tree_decomposition_width_2_put(size.i64(), staged_view, cursor)
+        cursor <- cursor + 8
+        slot: mutable usize = 0
+        while slot < 3:
+            value: i64 = if slot < size { bag_values[bag * 3 + slot] } else { -1 }
+            tree_decomposition_width_2_put(value, staged_view, cursor)
+            cursor <- cursor + 8
+            slot <- slot + 1
+        bag <- bag + 1
+    child: mutable usize = 0
+    while child < n:
+        tree_decomposition_width_2_put(child.i64(), staged_view, cursor)
+        tree_decomposition_width_2_put(parents[child].i64(), staged_view, cursor + 8)
+        cursor <- cursor + 16
+        child <- child + 1
+    index <- 0
+    while index < bytes:
+        output[index] <- staged[index]
+        index <- index + 1
+    bytes.i64()

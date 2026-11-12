@@ -1,0 +1,111 @@
+const MMP_MAX_P: usize = 97
+const MMP_MAX_INPUT: usize = 196
+const MMP_MAX_OUTPUT: usize = 776
+const MMP_MOD: i64 = 998244353
+
+def mmp_pow_mod(base_value: i64, exponent_value: usize, modulus: usize) -> usize:
+    base: mutable i64 = base_value % modulus.i64()
+    exponent: mutable usize = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if exponent % 2 == 1: result <- (result * base) % modulus.i64()
+        base <- (base * base) % modulus.i64()
+        exponent <- exponent / 2
+    result.usize()
+
+def mmp_is_prime(value: usize) -> bool:
+    if value < 2: return false
+    divisor: mutable usize = 2
+    while divisor * divisor <= value:
+        if value % divisor == 0: return false
+        divisor <- divisor + 1
+    true
+
+def mmp_primitive_root(prime: usize) -> usize:
+    order: usize = prime - 1
+    candidate: mutable usize = 1
+    while candidate < prime:
+        good: mutable bool = true
+        factor: mutable usize = 2
+        while factor <= order:
+            if order % factor == 0 and mmp_is_prime(factor):
+                if mmp_pow_mod(candidate.i64(), order / factor, prime) == 1: good <- false
+            factor <- factor + 1
+        if good: return candidate
+        candidate <- candidate + 1
+    1
+
+def mmp_store(value: i64, output: mutable view[u8], position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def mul_modp_convolution_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > MMP_MAX_INPUT: return -1
+    p_value: i64 = input[0]
+    if p_value < 2 or p_value > MMP_MAX_P.i64(): return -1
+    p: usize = p_value.usize()
+    if not mmp_is_prime(p) or length != 1 + 2 * p: return -1
+    a: mutable i64[97] = zeroed
+    b: mutable i64[97] = zeroed
+    index: mutable usize = 0
+    while index < 2 * p:
+        value: i64 = input[1 + index]
+        if value < 0 or value >= MMP_MOD: return -1
+        if index < p: a[index] <- value
+        else: b[index - p] <- value
+        index <- index + 1
+    bytes: usize = 8 * p
+    if bytes > MMP_MAX_OUTPUT: return -1
+    if output.is_null() or capacity < bytes: return -2
+    q: usize = p - 1
+    root: usize = mmp_primitive_root(p)
+    by_exp: mutable usize[97] = zeroed
+    residue: mutable usize = 1
+    index <- 0
+    while index < q:
+        by_exp[index] <- residue
+        residue <- (residue * root) % p
+        index <- index + 1
+    left: mutable i64[97] = zeroed
+    right: mutable i64[97] = zeroed
+    cyclic: mutable i64[97] = zeroed
+    result: mutable i64[97] = zeroed
+    index <- 0
+    while index < q:
+        left[index] <- a[by_exp[index]]
+        right[index] <- b[by_exp[index]]
+        index <- index + 1
+    i: mutable usize = 0
+    while i < q:
+        j: mutable usize = 0
+        while j < q:
+            slot: usize = (i + j) % q
+            cyclic[slot] <- (cyclic[slot] + (left[i] * right[j]) % MMP_MOD) % MMP_MOD
+            j <- j + 1
+        i <- i + 1
+    sum_a: mutable i64 = 0
+    sum_b: mutable i64 = 0
+    i <- 0
+    while i < p:
+        sum_a <- (sum_a + a[i]) % MMP_MOD
+        if i > 0: sum_b <- (sum_b + b[i]) % MMP_MOD
+        i <- i + 1
+    result[0] <- (sum_a * b[0] % MMP_MOD + a[0] * sum_b % MMP_MOD) % MMP_MOD
+    index <- 0
+    while index < q:
+        result[by_exp[index]] <- cyclic[index]
+        index <- index + 1
+    output_view: mutable view[u8] = output[0:bytes]
+    index <- 0
+    while index < p:
+        mmp_store(result[index], output_view, 8 * index)
+        index <- index + 1
+    bytes.i64()
+
+export fn mul_modp_convolution(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = mul_modp_convolution_impl

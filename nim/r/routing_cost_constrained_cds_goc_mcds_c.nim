@@ -90,7 +90,7 @@ proc routing_cost_constrained_cds_goc_mcds_c*(input: ptr UncheckedArray[int64], 
         current = parent[current]
       path[pathLength] = source
       inc pathLength
-      if pathLength <= 4:
+      if pathLength <= 5:
         for i in 1 ..< (pathLength - 1): connectors = connectors or (1'u64 shl path[i])
 
   if output.isNil or capacity < csize_t(16): return -2
