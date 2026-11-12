@@ -1,0 +1,97 @@
+const GEOMETRIC_INTERPOLATION_MODULUS: i64 = 998_244_353
+const GEOMETRIC_INTERPOLATION_MAX_N: usize = 8
+const GEOMETRIC_INTERPOLATION_MAX_INPUT: usize = 11
+const GEOMETRIC_INTERPOLATION_MAX_OUTPUT_BYTES: usize = 64
+
+def geometric_interpolation_normalize(value: i64) -> i64:
+    reduced: mutable i64 = value % GEOMETRIC_INTERPOLATION_MODULUS
+    if reduced < 0: reduced <- reduced + GEOMETRIC_INTERPOLATION_MODULUS
+    reduced
+
+def geometric_interpolation_power(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            result <- result * base % GEOMETRIC_INTERPOLATION_MODULUS
+        base <- base * base % GEOMETRIC_INTERPOLATION_MODULUS
+        exponent <- exponent >> 1
+    result
+
+def geometric_interpolation_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def geometric_interpolation_impl(input: view[i64], length: usize,
+    output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+    if length < 3 or length > GEOMETRIC_INTERPOLATION_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > GEOMETRIC_INTERPOLATION_MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    a: i64 = input[1]
+    r: i64 = input[2]
+    if length != 3 + n or a < 0 or a >= GEOMETRIC_INTERPOLATION_MODULUS or r < 0 or r >= GEOMETRIC_INTERPOLATION_MODULUS: return -1
+
+    points: mutable i64[GEOMETRIC_INTERPOLATION_MAX_N] = zeroed
+    differences: mutable i64[GEOMETRIC_INTERPOLATION_MAX_N] = zeroed
+    newton: mutable i64[GEOMETRIC_INTERPOLATION_MAX_N] = zeroed
+    point: mutable i64 = a
+    for i in 0..<n:
+        points[i] <- point
+        differences[i] <- input[3 + i]
+        if differences[i] < 0 or differences[i] >= GEOMETRIC_INTERPOLATION_MODULUS: return -1
+        for j in 0..<i:
+            if points[i] == points[j]: return -1
+        point <- point * r % GEOMETRIC_INTERPOLATION_MODULUS
+
+    output_bytes: usize = 8 * n
+    if output_is_null or capacity < output_bytes: return -2
+    if n == 0: return 0
+    newton[0] <- differences[0]
+    for order in 1..<n:
+        r_order: i64 = geometric_interpolation_power(r, order.i64())
+        end: mutable usize = n
+        while end > order:
+            end <- end - 1
+            r_factor: i64 = geometric_interpolation_power(r, (end - order).i64())
+            denominator: mutable i64 = a * r_factor % GEOMETRIC_INTERPOLATION_MODULUS
+            denominator <- denominator * (r_order - 1) % GEOMETRIC_INTERPOLATION_MODULUS
+            inverse: i64 = geometric_interpolation_power(
+                geometric_interpolation_normalize(denominator), GEOMETRIC_INTERPOLATION_MODULUS - 2
+            )
+            differences[end] <- geometric_interpolation_normalize(
+                (differences[end] - differences[end - 1]) * inverse
+            )
+        newton[order] <- differences[order]
+
+    coefficients: mutable i64[GEOMETRIC_INTERPOLATION_MAX_N] = zeroed
+    basis: mutable i64[GEOMETRIC_INTERPOLATION_MAX_N + 1] = zeroed
+    basis[0] <- 1
+    degree: mutable usize = 0
+    for order in 0..<n:
+        for k in 0..=degree:
+            coefficients[k] <- (coefficients[k] + newton[order] * basis[k]) % GEOMETRIC_INTERPOLATION_MODULUS
+        if order + 1 == n: break
+        expanded: mutable i64[GEOMETRIC_INTERPOLATION_MAX_N + 1] = zeroed
+        for k in 0..=degree:
+            expanded[k] <- geometric_interpolation_normalize(expanded[k] - basis[k] * points[order])
+            expanded[k + 1] <- geometric_interpolation_normalize(expanded[k + 1] + basis[k])
+        for k in 0..=degree + 1: basis[k] <- expanded[k]
+        degree <- degree + 1
+    for i in 0..<n: geometric_interpolation_store_le(coefficients[i], output, 8 * i)
+    output_bytes.i64()
+
+export fn polynomial_interpolation_on_geometric_sequence(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > GEOMETRIC_INTERPOLATION_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return geometric_interpolation_impl(input_view, length, scratch[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > GEOMETRIC_INTERPOLATION_MAX_OUTPUT_BYTES: safe_capacity <- GEOMETRIC_INTERPOLATION_MAX_OUTPUT_BYTES
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    geometric_interpolation_impl(input_view, length, output_view, capacity, false)

@@ -2727,6 +2727,86 @@ The pinned C# `BinaryIndexedTree` uses the same Fenwick point-add and prefix-sum
 
 The pinned JavaScript `BinaryLifting` class implements kth-ancestor queries on a connected rooted tree; it does not expose LCA despite a comment describing that possible use. LCA remains in the separate [`lowest_common_ancestor_binary_lifting`](benchmarks/l/lowest_common_ancestor_binary_lifting/README.md) package. See the [kth-ancestor guide](benchmarks/b/binary_lifting_kth_ancestor/README.md).
 
+## Farach–Colton–Bender lowest common ancestor
+
+This is a distinct static LCA method from binary lifting and Tarjan's offline DSU traversal. Ten ports use an Euler tour whose adjacent depths differ by ±1, then answer RMQ queries with microblock signatures and a macroblock sparse table. Parent climbing is the primary oracle; an independent BFS and ancestor-set verifier checks the output. See the [benchmark guide](benchmarks/l/lowest_common_ancestor_farach_colton_bender/README.md) and [CP-Algorithms description](https://cp-algorithms.com/graph/lca_farachcoltonbender.html).
+
+## Old Driver Tree / Chtholly Tree
+
+This benchmark keeps a sequence as maximal equal-value intervals and splits/coalesces runs for range assignment, addition, kth-order statistics, and modular power sums. Ten ports, an array-based independent oracle, a package workload, and shared byte-output suite registration are present. The guide records that the bounded array-backed ordered set can still take Θ(NQ) when inputs preserve many runs. See the [benchmark guide](benchmarks/o/old_driver_tree/README.md) and [OI Wiki algorithm description](https://en.oi-wiki.org/ds/odt/).
+
+## Segment History Extreme
+
+This CPU-monitoring segment tree supports range assignment/addition and current or historical range maxima. Per-position history includes the initial value and every value after an update. Ten ports track current and historical maxima with lazy assignment and addition summaries; independent direct-array and prefix-replay oracles back the byte-output suite. See the [benchmark guide](benchmarks/s/segment_history_extreme/README.md) and [OI Wiki algorithm description](https://en.oi-wiki.org/ds/seg-beats/).
+
+## Segment Tree Beats
+
+This range structure supports chmin, chmax, addition, and sum queries by tracking each node's two largest and two smallest values. Nine ports, a direct-array oracle, bounded workload, and scalar-suite registration are present. Source review confirmed the shared parser bounds, clamp pushdown, segment summaries, and checksum framing; nothing was executed. See the [benchmark guide](benchmarks/s/segment_tree_beats/README.md) and [Library Checker problem](https://judge.yosupo.jp/problem/range_chmin_chmax_add_range_sum).
+
+## Online Li Chao tree minimum queries
+
+This bounded online lower-envelope structure inserts integer-slope lines and answers minimum-value queries over a fixed integer domain. Nine standard-language ports use midpoint comparisons and descend only on the side where the displaced line can still win; a direct scan of all prior lines provides the oracle. The packed workload records malformed operations and checksum behavior, and the scalar suite covers fixture and generated traces. See the [benchmark guide](benchmarks/l/li_chao_tree/README.md), [workload](benchmarks/l/li_chao_tree/workload.json), [oracle](benchmarks/li_chao_tree_oracle.py), and [Library Checker task](https://judge.yosupo.jp/problem/line_add_get_min).
+
+## Kinetic Tournament Tree
+
+This kinetic data structure maintains range winners for fixed-slope lines whose intercepts change under range translations. Each tournament node stores its winning line, a translation tag, and the earliest integer certificate deadline; expired certificates trigger repair. Ten ports are registered in the byte-output suite, with a direct-evaluation oracle and a bounded maximum-query workload. This differs from a Li Chao tree over a static line set. See the [benchmark guide](benchmarks/p/kinetic_tournament_tree/README.md) and [OI Wiki algorithm description](https://oi-wiki.org/ds/kinetic-tournament-tree/).
+
+## Fixed-root HLD path-composite sum
+
+This dynamic tree aggregate uses heavy-light decomposition and a segment tree to maintain affine maps on edges and values on vertices, rooted at 0. It differs from static all-root rerooting and from path-composition queries. Ten ports and an independent full-postorder oracle are registered in the byte-output suite. See the [benchmark guide](benchmarks/p/point_set_tree_path_composite_sum_fixed_root/README.md) and [Library Checker task](https://github.com/yosupo06/library-checker-problems/blob/master/tree/point_set_tree_path_composite_sum_fixed_root/task.md).
+
+## Arbitrary-root point-set tree path-composite sum
+
+This dynamic tree aggregate uses a balanced rake/compress top tree to maintain vertex values and directed affine path summaries after point updates. A top-down outside-context pass answers the all-root aggregate for each supplied root. It is distinct from the fixed-root HLD profile and the static rerooting DP. Ten language ports, two independent oracles, a bounded workload, and shared byte-output suite registration are present. See the [benchmark guide](benchmarks/p/point_set_tree_path_composite_sum/README.md) and [Library Checker task](https://github.com/yosupo06/library-checker-problems/blob/master/tree/point_set_tree_path_composite_sum/task.md).
+
+## De Bruijn sequence generation
+
+This bounded k-ary cycle generator uses Fredricksen–Kessler–Maiorana necklace concatenation. The independent verifier checks every cyclic window exactly once; it does not use the generator's recursion. Ten language ports, a rights note, package workload, and shared byte-output suite registration are present. See the [benchmark guide](benchmarks/d/de_bruijn_sequences/README.md) and the [Rosetta Code task mirror](https://rosettagit.org/tasks/de-bruijn-sequences/).
+
+## Knuth power tree
+
+This benchmark returns first-discovery paths in a shared addition-chain tree by breadth-first expansion with a first-parent map. It remains distinct from minimum-length star-chain search. Ten ports, an explicit path-frontier oracle, a package workload, a rights note, and shared byte-output suite registration are present. See the [benchmark guide](benchmarks/k/knuth_power_tree/README.md) and the [Rosetta Code task mirror](https://rosettagit.org/tasks/knuths-power-tree/).
+
+## Prefix-substring LCS
+
+This batched string workload uses semi-local LCS boundary values followed by a Fenwick sweep to answer prefix-versus-substring queries. A direct dynamic-programming LCS oracle checks each query independently. Ten language ports, bounded workload, rights notes, and shared byte-output suite registration are present. See the [benchmark guide](benchmarks/p/prefix_substring_lcs/README.md) and the [Library Checker task](https://github.com/yosupo06/library-checker-problems/tree/master/string/prefix_substring_lcs).
+
+## Hunt–Szymanski sparse LCS
+
+This bounded profile computes LCS length by enumerating matching positions in descending order and maintaining an increasing-subsequence minimum-tail frontier. It differs from the repository's one-row prefix DP and run-length block DP. Ten language ports, a matching-pair primary oracle, an independent full-table DP oracle, a bounded workload, rights notes, static package inventory, and `i64_array_scalar` suite registration are present. See the [benchmark guide](benchmarks/h/hunt_szymanski_lcs/README.md) and [Hunt–Szymanski's paper](https://doi.org/10.1145/359581.359603).
+
+## Euler Tour Tree
+
+This dynamic forest uses an implicit-treap Euler-tour sequence with vertex markers and paired directed edge arcs. Link, cut, and vertex-weight updates maintain component size and weight sum; component queries use treap aggregates. Its independent oracle discovers components by traversing explicit adjacency sets. Ten language ports and the bounded byte-output package are registered in [the benchmark guide](benchmarks/e/euler_tour_tree/README.md); source attribution and rights are recorded there.
+
+## Dynamic top-tree component diameter
+
+This fixed-topology tree workload builds a balanced rake/compress cluster hierarchy, then updates one edge summary and its ancestors after each weight change. Diameter queries read the root cluster in constant time. It is distinct from link-cut path aggregates and uses all-pairs tree distances as an independent oracle. Ten language ports and the bounded byte-output package are registered in [the benchmark guide](benchmarks/d/dynamic_top_tree_component_diameter/README.md).
+
+## Dynamic tree subtree add and subtree sum
+
+This dynamic tree benchmark stores each component as an implicit-treap Euler tour with one marker per vertex and two directed tokens per edge. Lazy addition affects only vertex markers in the selected side range; range sums use subtree aggregates, and edge replacement splices the tour. It is distinct from point-add virtual-subtree aggregation because it applies a lazy update to every vertex on one side. See the [benchmark guide](benchmarks/d/dynamic_tree_subtree_add_subtree_sum/README.md) and the Library Checker [task](https://judge.yosupo.jp/problem/dynamic_tree_subtree_add_subtree_sum).
+
+## Main–Lorentz tandem repetitions
+
+This string benchmark enumerates all intervals that consist of two adjacent equal blocks. Ten ports use the Main–Lorentz divide-and-conquer method and Z comparisons to find tandem squares crossing each split; direct block comparisons provide an independent oracle. It differs from maximal periodic-run enumeration and from direct approximate tandem-square mismatch scans. The bounded profile has at most 24 symbols and returns the complete ordered result list through the byte-output suite. See the [benchmark guide](benchmarks/p/main_lorentz_tandem_repetitions/README.md) and [OI Wiki algorithm description](https://oi-wiki.org/string/main-lorentz/).
+
+## Suffix balanced tree
+
+This suffix-array benchmark inserts suffixes from right to left into a scapegoat-style balanced search tree. When first symbols tie, successor order tags compare the remaining suffixes in constant time; in-order traversal returns the suffix array. Ten ports and byte-output suite registration are in place, with direct suffix slicing and sorting as the independent oracle. It differs from rank doubling and DC3 suffix-array construction. See the [benchmark guide](benchmarks/s/suffix_balanced_tree/README.md) and [OI Wiki algorithm description](https://oi-wiki.org/string/suffix-bst/).
+
+## Minimum string representation
+
+The least cyclic-rotation index is computed with linear two-candidate elimination. This is distinct from the repository's Duval-based minimal-rotation method, although both share the same output contract. Ten ports are registered in the scalar suite and checked against direct rotation comparison. See the [benchmark guide](benchmarks/m/minimum_string_representation/README.md) and [OI Wiki description](https://en.oi-wiki.org/string/minimal-string/).
+
+## Infinite geometric-weighted power sum
+
+This profile computes `Σ r^i i^d` over all nonnegative i modulo 998244353. Ten ports evaluate the Eulerian polynomial identity in O(d²), with the independent verifier using a Stirling-number/binomial identity. It is distinct from the finite-n geometric-weighted sum, which has an additional finite truncation correction. See the [benchmark guide](benchmarks/s/sum_of_exponential_times_polynomial_limit/README.md) and [Library Checker task](https://github.com/yosupo06/library-checker-problems/blob/master/other/sum_of_exponential_times_polynomial_limit/task.md).
+
+## Finite geometric-weighted power sum
+
+This profile computes `Σ r^i i^d` for `0 <= i < n` modulo 998244353, retaining logarithmic dependence on `n`. Ten ports concatenate weighted-moment blocks by the binomial shift identity in O(d² log n); an independent rational-tail/Faulhaber oracle handles `r != 1` and `r = 1` separately. The local degree bound is 32 and `n` remains bounded by 10^18. This differs from the infinite-limit task, which has no finite-length parameter and uses an Eulerian polynomial directly. See the [benchmark guide](benchmarks/s/sum_of_exponential_times_polynomial/README.md) and [Library Checker task](https://github.com/yosupo06/library-checker-problems/blob/master/other/sum_of_exponential_times_polynomial/task.md).
+
 ## Remove Duplicate Words
 
 The pinned Python routine splits the sentence, removes duplicate tokens, sorts the unique words lexicographically, and joins them with single spaces. The portable contract covers lowercase ASCII words with ASCII-space separators, including repeated, leading, and trailing spaces. All nine ports passed 3,816 independent inputs and recorded 12 workload cases. See the [guide](benchmarks/r/remove_duplicate/README.md), [verifier](benchmarks/verify_remove_duplicate.py), and [pinned Python source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/remove_duplicate.py).
@@ -5038,6 +5118,14 @@ This bounded 2D query builds one KD-tree per point color and uses squared AABB l
 
 This bounded CSR kernel computes per-vertex feature sums weighted by caller-supplied left and right inverse-degree normalization values. It preserves row and neighbor order, returns zero vectors for isolated vertices, and excludes graph loading, normalization setup, training, and GPU scheduling. Nine clean-room ports retain the pinned MIT notice and use the float64 slice ABI; the package oracle follows edge-first accumulation while the verifier independently reduces each feature row. See the [guide](benchmarks/g/graphai_gcn_aggregation/README.md), [workload](benchmarks/g/graphai_gcn_aggregation/workload.json), [oracle](benchmarks/graphai_gcn_aggregation_oracle.py), and [GraphAIBench crosswalk](benchmarks/GRAPHAIBENCH_COVERAGE.md).
 
+## GraphAIBench gated graph-message update (`graphai_ggnn_message_update`)
+
+This bounded CSR profile sums outgoing neighbor states, computes update and reset gates plus a gated candidate through six supplied dense vertex-axis matrices, and interpolates with the previous state. It excludes training, learned-weight initialization, gradients, and CUDA scheduling. Nine standard-language ports plus Mojo retain GraphAIBench's MIT notice and are registered in the float64 slice suite with separate primary and verifier oracles. See the [guide](benchmarks/g/graphai_ggnn_message_update/README.md), [workload](benchmarks/g/graphai_ggnn_message_update/workload.json), [oracle](benchmarks/graphai_ggnn_message_update_oracle.py), and [GraphAIBench crosswalk](benchmarks/GRAPHAIBENCH_COVERAGE.md).
+
+## Kahan compensated summation (`kahan_summation`)
+
+This ordered binary64 reduction keeps a correction term for rounding lost at each addition. Its bounded workload covers empty input, cancellation, half-ULP recovery, malformed values, and output errors. Ten language ports, a direct recurrence oracle, an exact-step rational verifier, a static package inventory, and float64 slice suite registration are present. See the [guide](benchmarks/k/kahan_summation/README.md), [workload](benchmarks/k/kahan_summation/workload.json), [oracle](benchmarks/kahan_summation_oracle.py), [Rosetta Code task mirror](https://rosettagit.org/tasks/kahan-summation/), and Kahan's [1965 paper](https://doi.org/10.1145/363707.363723).
+
 ## GraphAIBench GraphSAGE mean-neighbor aggregation (`graphai_sage_aggregation`)
 
 This bounded CSR kernel computes each vertex's mean outgoing-neighbor feature vector in the source edge order, returning zeros for isolated vertices. It excludes graph loading, training, backpropagation, and parallel scheduling; its binary64 slice arithmetic is a precision projection of the source's float aggregator. Nine clean-room ports retain the pinned MIT notice and are registered in the float64 slice suite. See the [guide](benchmarks/g/graphai_sage_aggregation/README.md), [workload](benchmarks/g/graphai_sage_aggregation/workload.json), [oracle](benchmarks/graphai_sage_aggregation_oracle.py), and [GraphAIBench crosswalk](benchmarks/GRAPHAIBENCH_COVERAGE.md).
@@ -5202,6 +5290,10 @@ This bounded profile updates user and item factors immediately after every ratin
 
 This bounded directed-graph profile applies zero-in/out-degree trimming, deterministic pivot reachability, and recursive forward/backward partitioning to produce canonical SCC labels. It captures the documented FB-Trim kernel while excluding CUDA scheduling and hashing. Nine clean-room ports retain GARDENIA's MIT notice and are registered in the byte-output suite; an independent verifier checks mutual reachability. See the [guide](benchmarks/g/gardenia_fb_trim_scc/README.md), [workload](benchmarks/g/gardenia_fb_trim_scc/workload.json), [oracle](benchmarks/gardenia_fb_trim_scc_oracle.py), and [GARDENIA crosswalk](benchmarks/GARDENIA_COVERAGE.md).
 
+## Gabow path-based strongly connected components (`gabow_scc`)
+
+This bounded directed-graph profile computes SCCs with Gabow's one-pass preorder boundary stack and unresolved path stack. It differs from Tarjan low-link updates and Kosaraju's transpose pass. Ten clean-room ports use iterative DFS, canonical byte output, and bounded adjacency storage. The byte-output suite includes mutual-reachability and independent Kosaraju oracles, workload fixtures, and deterministic generated graph probes. See the [guide](benchmarks/g/gabow_scc/README.md), [workload](benchmarks/g/gabow_scc/workload.json), [primary oracle](benchmarks/gabow_scc_oracle.py), and [independent oracle](benchmarks/gabow_scc_kosaraju_oracle.py).
+
 ## GARDENIA Gebremedhin–Manne graph coloring (`gardenia_gm_vertex_coloring`)
 
 This bounded profile preserves iterative speculative first-fit coloring and conflict requeueing, with deterministic source-order phases. Nine clean-room ports retain GARDENIA's MIT notice and use the byte-output suite; its independent verifier applies a separate descending-order greedy coloring. See the [guide](benchmarks/g/gardenia_gm_vertex_coloring/README.md), [workload](benchmarks/g/gardenia_gm_vertex_coloring/workload.json), [oracle](benchmarks/gardenia_gm_vertex_coloring_oracle.py), and [GARDENIA crosswalk](benchmarks/GARDENIA_COVERAGE.md).
@@ -5306,6 +5398,74 @@ This bounded Library Checker profile reconstructs the degree-<N polynomial for N
 
 This bounded Library Checker profile returns weighted projections of s(x)^m for m=0,...,M-1 in the square-zero subset algebra over F_998244353, with N<=4 and M<=8. Ten ports advance successive powers with naive submask convolution; an independent oracle enumerates variable assignments across the ordered factors. It extends subset convolution with a batch weighted-power operation. See the [guide](benchmarks/p/power_projection_of_set_power_series/README.md) for input encoding, bounds, workload, rights note, and package checker.
 
+## Multipoint polynomial evaluation (`multipoint_evaluation`)
+
+This bounded Library Checker profile evaluates a polynomial at a supplied batch of points over F_998244353, with up to eight coefficients and eight points. Ten ports build a product tree of linear factors and propagate polynomial remainders; an independent oracle evaluates each point with Horner's rule. The product/remainder tree is distinct from a one-point polynomial evaluation. See the [guide](benchmarks/m/multipoint_evaluation/README.md) for input encoding, complexity, workload, rights note, and package checker.
+
+## Polynomial root finding over a finite field (`polynomial_root_finding`)
+
+This bounded Library Checker profile returns every distinct root in F_998244353 for polynomials of degree at most eight. Ten ports isolate the squarefree linear part with `gcd(f,x^p-x)` and split it using Cantor–Zassenhaus quadratic-character tests; a deterministic shift scan guarantees a fallback. The independent oracle counts base-field roots and recovers them by direct evaluation. This is distinct from small-prime full polynomial factorization and real-valued cubic root approximation. See the [guide](benchmarks/p/polynomial_root_finding/README.md) for bounds, workload, rights note, and package checker.
+
+## Multipoint evaluation on a geometric sequence (`multipoint_evaluation_on_geometric_sequence`)
+
+This bounded Library Checker profile returns f(a*r^i) for up to eight consecutive exponents over F_998244353. Ten ports apply Bluestein's chirp-z identity and one fixed 32-point NTT convolution; an independent oracle uses Horner evaluation at each point. The specialized transform is distinct from general product/remainder-tree multipoint evaluation. See the [guide](benchmarks/m/multipoint_evaluation_on_geometric_sequence/README.md) for zero-ratio and repeated-point behavior, bounds, workload, rights note, and package checker.
+
+## Polynomial interpolation on a geometric sequence (`polynomial_interpolation_on_geometric_sequence`)
+
+This bounded Library Checker profile reconstructs the degree-<N polynomial from samples at `a*r^i` over F_998244353, with N<=8. Ten ports use q-Newton divided differences and expand the Newton basis; an independent Vandermonde system is solved by modular Gauss-Jordan elimination. The geometric-node recurrence is distinct from general Lagrange interpolation. See the [guide](benchmarks/p/polynomial_interpolation_on_geometric_sequence/README.md) for bounds, workload, rights note, and package checker.
+
+## Polynomial composition in a set power series (`polynomial_composite_set_power_series`)
+
+This bounded Library Checker profile evaluates a univariate polynomial in the square-zero subset algebra over F_998244353, with at most four variables and eight polynomial coefficients. Ten ports use Horner composition with subset convolution; an independent oracle enumerates assignments to ordered factors. This is distinct from the exponential of a set power series and weighted power projection. See the [guide](benchmarks/p/polynomial_composite_set_power_series/README.md) for bounds, workload, rights note, and package checker.
+
 ## Point-set range-sort affine composition (`point_set_range_sort_range_composite`)
 
 This bounded Library Checker profile maintains `(priority, affine-map)` records under point replacement, range sorting in either priority direction, and ordered affine composition queries. Ten language ports use a bounded list simulation for N<=16 and Q<=32, with a one-based query-weighted checksum through the i64-array-scalar suite. A separate priority-ID/selection-sort oracle checks the primary list-simulation oracle. See the [guide](benchmarks/p/point_set_range_sort_range_composite/README.md), [workload](benchmarks/p/point_set_range_sort_range_composite/workload.json), and [official task](https://judge.yosupo.jp/problem/point_set_range_sort_range_composite).
+
+## Euler Tour Tree (`euler_tour_tree`)
+
+This bounded dynamic-forest profile maintains a cyclic Euler tour in an implicit treap, supporting edge link/cut, vertex-weight assignment, and component size/weight queries. Ten ports use marker and directed-edge tokens with subtree aggregates; an explicit adjacency traversal is the independent oracle. The interface bounds the forest to eight vertices and 32 operations. See the [guide](benchmarks/e/euler_tour_tree/README.md), [workload](benchmarks/e/euler_tour_tree/workload.json), and [OI Wiki article](https://en.oi-wiki.org/ds/ett/).
+
+## Dominator tree (`dominator_tree`)
+
+This bounded directed-graph profile computes root-relative immediate dominators with fixed-width bitset data-flow equations. Nine language ports, a set-based oracle, an independent vertex-removal oracle, workload, and byte-output suite registration are present. Static review confirmed the 63-vertex bit bound, root and unreachable conventions, and output-capacity handling; no programs were run. See the [guide](benchmarks/d/dominator_tree/README.md), [workload](benchmarks/d/dominator_tree/workload.json), and [Library Checker problem](https://judge.yosupo.jp/problem/dominatortree).
+
+## Dynamic tree subtree add and subtree sum (`dynamic_tree_subtree_add_subtree_sum`)
+
+This bounded dynamic-tree profile replaces edges and adds to or sums all vertex values on one side of an adjacent edge. Ten ports maintain a cyclic Euler tour in an implicit treap and apply lazy range updates to the selected component interval; independent adjacency traversals provide the oracles. It is distinct from point-value updates and link-cut path aggregates. See the [guide](benchmarks/d/dynamic_tree_subtree_add_subtree_sum/README.md), [workload](benchmarks/d/dynamic_tree_subtree_add_subtree_sum/workload.json), and [Library Checker task](https://judge.yosupo.jp/problem/dynamic_tree_subtree_add_subtree_sum).
+
+## Sort points by argument (`sort_points_by_argument`)
+
+This bounded geometry profile sorts up to 64 integer vectors by exact polar argument using half-plane and cross-product comparisons, with deterministic collinear ties and no floating-point angles. Ten ports share an `i64_array_bytes_output` contract and independent exact-ordering oracles. See the [guide](benchmarks/s/sort_points_by_argument/README.md), [workload](benchmarks/s/sort_points_by_argument/workload.json), and [Library Checker task](https://github.com/yosupo06/library-checker-problems/blob/master/geo/sort_points_by_argument/task.md).
+
+## Count points in triangle (`count_points_in_triangle`)
+
+This bounded geometry profile answers up to 128 strict-interior point-count queries over fixed sets of at most 24 triangle vertices and 24 candidate points. Ten ports use per-anchor exact-angle sorting, Fenwick range counts, and inclusion-exclusion; a direct cross-product containment scan is the independent oracle. Boundary points and degenerate triangles count as outside. See the [guide](benchmarks/c/count_points_in_triangle/README.md), [workload](benchmarks/c/count_points_in_triangle/workload.json), and [Library Checker task](https://github.com/yosupo06/library-checker-problems/blob/master/geo/count_points_in_triangle/task.md).
+
+## Point in polygon by ray casting (`point_in_polygon_ray_casting`)
+
+This bounded geometry profile classifies a query point against an ordered polygon using exact horizontal-ray crossings and even–odd parity. Ten language ports accept concave and self-intersecting polygons; points on edges count as inside. The primary oracle toggles crossings, while an independent winding-parity oracle checks the result. See the [guide](benchmarks/p/point_in_polygon_ray_casting/README.md), [workload](benchmarks/p/point_in_polygon_ray_casting/workload.json), and [Rosetta Code task](https://rosettagit.org/tasks/ray-casting-algorithm/).
+
+## Global vertex connectivity (`vertex_connectivity`)
+
+This bounded CP-Algorithms profile returns the minimum vertex-separator cardinality of an undirected graph, with disconnected graphs returning zero and complete graphs returning `n-1`. Ten language ports use vertex splitting and augmenting-path maximum flow for nonadjacent terminal pairs; the independent oracle enumerates vertex-deletion subsets. It extends articulation-point detection to separators of arbitrary size and differs from edge connectivity. The `i64_array_scalar` suite includes workload fixtures and deterministic generated graph cases. See the [guide](benchmarks/v/vertex_connectivity/README.md), [workload](benchmarks/v/vertex_connectivity/workload.json), and [CP-Algorithms article](https://cp-algorithms.com/graph/edge_vertex_connectivity.html).
+
+## SA-IS suffix-array construction (`suffix_array_sais`)
+
+This bounded byte-string profile constructs a suffix array by classifying L/S suffixes, naming LMS substrings, recursively sorting the reduced string, and inducing suffix order. Ten language ports use the byte alphabet plus a private sentinel; an independent direct suffix-slice sort verifies the result. It differs from the existing rank-doubling and DC3 constructions. The byte-output suite includes deterministic and random byte strings, malformed inputs, and output-capacity probes. See the [guide](benchmarks/s/suffix_array_sais/README.md), [workload](benchmarks/s/suffix_array_sais/workload.json), [OI Wiki chapter](https://oi-wiki.org/string/sa/), and [Nong, Zhang, and Chan’s paper](https://doi.org/10.1109/DCC.2009.42).
+
+## Minkowski sum of convex polygons (`minkowski_sum_convex_polygons`)
+
+This bounded geometry profile constructs the convex polygon of all pairwise vertex sums from two strictly convex CCW integer polygons. Ten language ports rotate both inputs to their lowest vertex and merge their polar-ordered edge vectors; an independent pairwise-sum hull oracle verifies the output. It differs from convex hull, polygon distance, containment, and closest-pair algorithms. The byte-output suite covers maximum-size polygons, arbitrary cycle starts, malformed inputs, and output capacity. See the [guide](benchmarks/p/minkowski_sum_convex_polygons/README.md), [workload](benchmarks/p/minkowski_sum_convex_polygons/workload.json), and [CP-Algorithms article](https://cp-algorithms.com/geometry/minkowski.html).
+
+## Crochemore–Perrin Two-Way string matching (`crochemore_perrin_two_way`)
+
+This bounded byte-string profile reports every exact occurrence using maximal-suffix critical factorization and Two-Way period-memory shifts. Ten language ports support arbitrary bytes, overlapping occurrences, and empty patterns; the independent oracle compares every candidate start directly. This differs from KMP, Boyer–Moore, Horspool, automaton matching, and naive scanning. The byte-output suite includes generated periodic strings, empty-pattern maximum output, malformed frames, and capacity probes. See the [guide](benchmarks/c/crochemore_perrin_two_way/README.md), [workload](benchmarks/c/crochemore_perrin_two_way/workload.json), and [Crochemore and Perrin's paper](https://doi.org/10.1145/116825.116845).
+
+## Virtual tree (`virtual_tree`)
+
+This bounded rooted-tree profile builds the LCA-closed compressed tree induced by unique marked vertices. Ten language ports sort marks by DFS order, add LCAs of adjacent marks, and connect each retained vertex to its nearest retained ancestor; the independent oracle constructs the union of root-to-mark paths directly. An empty mark set encodes as `[0]`; generated byte-output cases cover empty marks, compressed paths, branching, maximum output, malformed trees, duplicate marks, and capacity errors. See the [guide](benchmarks/v/virtual_tree/README.md), [workload](benchmarks/v/virtual_tree/workload.json), and [OI Wiki article](https://oiwiki.net/graph/virtual-tree/).
+
+## Hirschberg linear-space LCS reconstruction (`hirschberg_lcs`)
+
+This bounded byte-string profile returns an actual longest common subsequence using divide-and-conquer midpoint traceback with shared forward/backward rows. Ten ports use a deterministic smallest-split rule; a full-table independent verifier checks subsequence membership and optimal length. It differs from existing LCS packages that return only a length or use matching-pair LIS processing. The byte-output suite includes random sequences, empty results, maximum identical inputs, malformed frames, and capacity probes. See the [guide](benchmarks/h/hirschberg_lcs/README.md), [workload](benchmarks/h/hirschberg_lcs/workload.json), and [Hirschberg's paper](https://doi.org/10.1145/360825.360861).

@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "id": "graph-aibench-ggnn-message-update-float64-slice-v1",
+  "algorithm": "graphai_ggnn_message_update",
+  "function_symbol": "graphai_ggnn_message_update",
+  "abi": "float64_slice_io",
+  "description": "Bounded one-step gated graph-message update with reset/update gates and a recurrent candidate.",
+  "pinned_source": {
+    "repository": "chenxuhao/GraphAIBench",
+    "commit": "17834cb29b7c542481c2e3740dc9664841b72f59",
+    "path": "src/gnn/gconv/ggnn_aggregator.cu; include/gnn/graph_operations.h",
+    "symbol": "GGNN_Aggregator::aggregate; ggnn_aggregate_all; ggnn_compute_gates_and_candidate; ggnn_out_warp",
+    "url": "https://github.com/chenxuhao/GraphAIBench/tree/17834cb29b7c542481c2e3740dc9664841b72f59",
+    "license": "MIT License",
+    "copyright": "Copyright (c) 2022 Xuhao Chen",
+    "license_file": "LICENSE.txt"
+  },
+  "source": {
+    "title": "GraphAIBench GGNN aggregation",
+    "authors": ["Xuhao Chen and GraphAIBench contributors"],
+    "reference": "Pinned forward graph-gated recurrent update; local implementation written clean-room",
+    "url": "https://github.com/chenxuhao/GraphAIBench/tree/17834cb29b7c542481c2e3740dc9664841b72f59",
+    "license_note": "GraphAIBench MIT notice is retained in LICENSE.txt; no source code or prose is reproduced",
+    "algorithm_attribution": "One-step gated graph-message update",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "contract": {
+    "operation": "Sum each directed CSR row's neighbor state vectors; compute z=sigmoid(Wz*a+Uz*H), r=sigmoid(Wr*a+Ur*H), c=tanh(Wc*a+Uc*(r*H)), and output (1-z)*H+z*c.",
+    "input_encoding": "[n,m,d,rowptr[n+1],colind[m],H[n*d],Wz[n*n],Wr[n*n],Wc[n*n],Uz[n*n],Ur[n*n],Uc[n*n]]",
+    "exact_input_length": "4+n+m+n*d+6*n*n",
+    "output_encoding": "n*d binary64 values in vertex-major then feature-major order",
+    "arithmetic": "Finite binary64; CSR edge sums and dense vertex-axis reductions use ascending input order; sigmoid is 1/(1+exp(-x)) and candidate is tanh(x).",
+    "bounds": {
+      "n": [1, 8],
+      "m": [0, 24],
+      "d": [1, 4],
+      "state_values": [-1, 1],
+      "matrix_values": [-0.25, 0.25],
+      "repeated_destinations": "allowed; each listed edge contributes once"
+    },
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "maximum_input_length": 453,
+    "maximum_valid_length": 452,
+    "maximum_parseable_length": 453,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "maximum_elements": 32,
+    "success_result": "n*d output elements",
+    "null_or_short_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 193,
+    "meaning": "Fixed row/column staging, neighbor sums, both gates, candidate state, and staged output at declared bounds."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "two-vertex-graph-message",
+      "input_values": [
+        2, 2, 1,
+        0, 1, 2,
+        1, 0,
+        0.5, -0.25,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0.25, 0.25, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      "input_length": 34,
+      "expected_result": 2,
+      "expected_output": [0.3121765008857981,-0.15620937337375626]
+    },
+    {
+      "id": "single-vertex-reset-gated-state",
+      "input_values": [1, 1, 1, 0, 1, 0, 0.5, 0, 0, 0, 0, 0, 0.25],
+      "input_length": 13,
+      "expected_result": 1,
+      "expected_output": [0.28120937337375627]
+    },
+    {
+      "id": "isolated-vertices",
+      "input_values": [
+        2, 0, 1,
+        0, 0, 0,
+        1, -1,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      "input_length": 32,
+      "expected_result": 2,
+      "expected_output": [0.5,-0.5]
+    },
+    {
+      "id": "invalid-terminal-offset",
+      "input_values": [1,1,1,0,0,0,0.5,0,0,0,0,0,0],
+      "input_length": 13,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [
+        2, 2, 1,
+        0, 1, 2,
+        1, 0,
+        0.5, -0.25,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0.25, 0.25, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      "input_length": 34,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-output",
+      "input_values": [1,1,1,0,1,0,0.5,0,0,0,0,0,0.25],
+      "input_length": 13,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

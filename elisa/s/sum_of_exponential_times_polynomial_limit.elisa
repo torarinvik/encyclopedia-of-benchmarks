@@ -1,0 +1,62 @@
+# Infinite geometric-weighted power sum via an Eulerian polynomial row.
+const SEPPL_MODULUS: i64 = 998244353
+const SEPPL_MAX_DEGREE: i64 = 256
+
+def seppl_mod_pow(base_input: i64, exponent_input: i64) -> i64:
+    base: mutable i64 = base_input
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1
+    while exponent > 0:
+        if exponent % 2 == 1:
+            result <- (result * base) % SEPPL_MODULUS
+        base <- (base * base) % SEPPL_MODULUS
+        exponent <- exponent / 2
+    result
+
+def seppl_evaluate(input: view[i64], length: usize) -> i64:
+    if length != 2:
+        return -1
+    r: i64 = input[0]
+    degree_value: i64 = input[1]
+    if r < 0 or r >= SEPPL_MODULUS or r == 1 or degree_value < 0 or degree_value > SEPPL_MAX_DEGREE:
+        return -1
+    degree: usize = degree_value.usize()
+    denominator: i64 = (1 - r + SEPPL_MODULUS) % SEPPL_MODULUS
+    inverse: i64 = seppl_mod_pow(denominator, SEPPL_MODULUS - 2)
+    if degree == 0:
+        return inverse
+
+    row: mutable i64[257] = zeroed
+    next_row: mutable i64[257] = zeroed
+    row[0] <- 1
+    n: mutable usize = 1
+    while n <= degree:
+        k: mutable usize = 0
+        while k <= n:
+            value: mutable i64 = 0
+            if k > 0:
+                value <- value + (n - k).i64() * row[k - 1]
+            if k < n:
+                value <- value + (k + 1).i64() * row[k]
+            next_row[k] <- value % SEPPL_MODULUS
+            k <- k + 1
+        k <- 0
+        while k <= n:
+            row[k] <- next_row[k]
+            next_row[k] <- 0
+            k <- k + 1
+        n <- n + 1
+
+    eulerian_value: mutable i64 = 0
+    k: mutable usize = degree
+    while k > 0:
+        k <- k - 1
+        eulerian_value <- (eulerian_value * r + row[k]) % SEPPL_MODULUS
+    denominator_power: i64 = seppl_mod_pow(inverse, degree_value + 1)
+    (r * eulerian_value % SEPPL_MODULUS * denominator_power) % SEPPL_MODULUS
+
+def sum_of_exponential_times_polynomial_limit(input: i64&, length: usize) -> i64 @export("sum_of_exponential_times_polynomial_limit"):
+    if input.is_null() or length != 2:
+        return -1
+    values: view[i64] = input[0:length]
+    seppl_evaluate(values, length)

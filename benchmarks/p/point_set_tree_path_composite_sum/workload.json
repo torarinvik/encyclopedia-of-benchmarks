@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-point-set-tree-path-composite-sum-dynamic-top-tree-bounded-v1",
+  "algorithm": "point_set_tree_path_composite_sum",
+  "function_symbol": "point_set_tree_path_composite_sum",
+  "abi": "i64_array_bytes_output",
+  "description": "Point updates to vertex values or undirected-edge affine maps, followed by an arbitrary-root sum of path-composed vertex values using a maintained rake/compress top-tree hierarchy.",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "tree/point_set_tree_path_composite_sum/task.md",
+    "limits_path": "tree/point_set_tree_path_composite_sum/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/tree/point_set_tree_path_composite_sum/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/tree/point_set_tree_path_composite_sum/info.toml",
+    "official_n_max": 200000,
+    "official_q_max": 200000,
+    "modulus": 998244353,
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Task operation and constraints only; implementations, bounded profile, workload, and oracles are clean-room."
+  },
+  "oracle": "benchmarks/p/point_set_tree_path_composite_sum/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/point_set_tree_path_composite_sum/independent_oracle.py",
+  "contract": {
+    "operation": "For each query root r, sum P(r,v) over all vertices v modulo 998244353 after applying the query's vertex-value or edge-map update.",
+    "input_layout": "[N,Q,A_0,...,A_(N-1), then N-1 records (u,v,b,c), then Q tagged queries]",
+    "query_layout": "Type 0 is [0,w,x,r]. Type 1 is [1,e,y,z,r]. Each query produces one residue.",
+    "n_range": [1, 16],
+    "q_range": [1, 32],
+    "vertex_and_addend_range": [0, 998244352],
+    "multiplier_range": [1, 998244352],
+    "modulus": 998244353,
+    "edge_direction": "The same map is used in either traversal direction; reverse paths reverse composition order and do not invert edge maps.",
+    "algorithm": "Build a balanced rake/compress cluster hierarchy over vertex payload leaves and edge-map path leaves. Each cluster stores boundary-rooted (sum,count) values and forward/reverse affine path maps. Point updates recalculate the changed leaf's ancestor clusters. An arbitrary-root query descends the hierarchy while propagating sibling and parent outside contexts through directed path maps.",
+    "independent_algorithm": "After each update, traverse the tree from the query root and directly compose the affine maps along every root-to-vertex path before summing the transformed vertex values.",
+    "complexity": "O(N^2 log N) hierarchy construction, O(log^2 N) worst-case cluster-summary work per update and arbitrary-root query, and O(N^2) fixed storage.",
+    "maximum_cluster_nodes": 75,
+    "error_precedence": "Validate framing, topology, fields, and output capacity before building summaries or processing updates; stage all answers before writing."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,A_0,...,A_(N-1),edge records,tagged update-and-root queries]",
+    "maximum_valid_length": 238,
+    "maximum_parseable_length": 238,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 32,
+    "maximum_bytes": 256,
+    "success_result": "8*Q bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 16384,
+    "storage": "Fixed cluster arena, adjacency and edge-cluster matrices, operation staging, and outside-context traversal arrays for N<=16 and Q<=32."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-vertex-value-updates",
+      "input_values": [1,2,5,0,0,7,0,0,4,0,0],
+      "input_length": 11,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "07000000000000000400000000000000"
+    },
+    {
+      "id": "two-vertex-reverse-order-and-update-types",
+      "input_values": [2,4,2,3,0,1,2,1,1,0,3,2,0,1,0,3,2,1,0,0,4,1,1,0,2,1,0],
+      "input_length": 27,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0d000000000000000b0000000000000011000000000000000b00000000000000"
+    },
+    {
+      "id": "star-rake-arbitrary-roots-and-edge-updates",
+      "input_values": [4,3,1,2,3,4,0,1,2,1,0,2,3,2,0,3,1,5,0,3,10,0,1,0,4,0,2,1,2,2,3,3],
+      "input_length": 32,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "20000000000000003f000000000000003b00000000000000"
+    },
+    {
+      "id": "zero-initial-edge-multiplier-invalid",
+      "input_values": [2,1,1,2,0,1,0,0,0,0,1,0],
+      "input_length": 12,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "cyclic-and-disconnected-tree-invalid",
+      "input_values": [4,1,1,2,3,4,0,1,1,0,1,2,1,0,2,0,1,0,0,0,5,3],
+      "input_length": 22,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out-of-range-query-root-invalid",
+      "input_values": [2,1,1,2,0,1,1,0,0,0,4,2],
+      "input_length": 12,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out-of-range-edge-id-invalid",
+      "input_values": [2,1,1,2,0,1,1,0,1,1,2,0],
+      "input_length": 12,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-query-invalid",
+      "input_values": [1,1,5,0,0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-invalid",
+      "input_values": [1,1,5,0,0,0,99],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1,2,5,0,0,7,0,0,4,0,0],
+      "input_length": 11,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1,1,5,0,0,0],
+      "input_length": 6,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

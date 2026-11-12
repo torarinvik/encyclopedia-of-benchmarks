@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "crochemore-perrin-two-way-byte-search-v1",
+  "algorithm": "crochemore_perrin_two_way",
+  "function_symbol": "crochemore_perrin_two_way",
+  "abi": "i64_array_bytes_output",
+  "description": "Report every exact pattern occurrence using critical factorization and the Crochemore-Perrin Two-Way scan.",
+  "source": {
+    "title": "Two-way string-matching",
+    "authors": ["Maxime Crochemore", "Dominique Perrin"],
+    "year": 1991,
+    "reference": "Journal of the ACM 38(3), pp. 651-675, DOI 10.1145/116825.116845",
+    "url": "https://doi.org/10.1145/116825.116845",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_length, pattern_length, text_bytes..., pattern_bytes...]",
+    "text_length_range": [0, 64],
+    "pattern_length_range": [0, 32],
+    "symbol_range": [0, 255],
+    "exact_length": "2 + text_length + pattern_length",
+    "maximum_valid_length": 98,
+    "maximum_parseable_length": 99,
+    "includes_nul": true,
+    "empty_pattern_result": "all boundaries 0 through text_length",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "encoding": "all zero-based occurrence start positions in increasing order",
+    "maximum_output_bytes": 520,
+    "success_result": "8 * match_count bytes",
+    "no_matches_result": 0,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Constant-size critical-factorization state and bounded staged match indices."
+  },
+  "complexity": {
+    "preprocessing": "O(m) time and O(1) auxiliary space",
+    "search": "O(n + m) time and O(1) auxiliary space, excluding returned positions",
+    "output": "O(k) space for k reported matches"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "Primary oracle computes maximal suffixes in both alphabet orders and scans across a critical factorization with period memory; the independent verifier compares every candidate start directly.",
+  "cases": [
+    {"id":"empty_text_empty_pattern","input_values":[0,0],"input_length":2,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"empty_pattern_all_boundaries","input_values":[4,0,97,98,97,98],"input_length":6,"output_capacity":40,"expected_result":40,"expected_output_hex":"00000000000000000100000000000000020000000000000003000000000000000400000000000000"},
+    {"id":"empty_text_nonempty_pattern","input_values":[0,1,97],"input_length":3,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"banana_overlapping_matches","input_values":[6,3,98,97,110,97,110,97,97,110,97],"input_length":11,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000300000000000000"},
+    {"id":"periodic_overlaps","input_values":[5,3,97,97,97,97,97,97,97,97],"input_length":10,"output_capacity":24,"expected_result":24,"expected_output_hex":"000000000000000001000000000000000200000000000000"},
+    {"id":"periodic_pattern_matches","input_values":[8,4,97,98,97,98,97,98,97,98,97,98,97,98],"input_length":14,"output_capacity":24,"expected_result":24,"expected_output_hex":"000000000000000002000000000000000400000000000000"},
+    {"id":"right_half_mismatch_then_match","input_values":[23,8,97,98,99,120,97,98,99,100,97,98,120,97,98,99,100,97,98,99,100,97,98,99,121,97,98,99,100,97,98,99,121],"input_length":33,"output_capacity":8,"expected_result":8,"expected_output_hex":"0f00000000000000"},
+    {"id":"nul_and_high_byte","input_values":[5,2,0,255,0,255,0,255,0],"input_length":9,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
+    {"id":"maximum_pattern_length","input_values":[32,32,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"input_length":66,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"maximum_text_single_byte_match","input_values":[64,1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,63],"input_length":67,"output_capacity":8,"expected_result":8,"expected_output_hex":"3f00000000000000"},
+    {"id":"invalid_symbol","input_values":[1,1,256,97],"input_length":4,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input","input_values":[1,1,97,97,0],"input_length":5,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"over_bound_pattern","input_values":[0,33,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":35,"output_capacity":520,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_capacity","input_values":[6,3,98,97,110,97,110,97,97,110,97],"input_length":11,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[0,1,97],"input_length":3,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

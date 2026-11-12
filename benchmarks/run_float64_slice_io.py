@@ -14,10 +14,24 @@ import shlex
 import subprocess
 
 from build_abi import ROOT, sha256_file
+from check_kahan_summation_package import (
+    static_issues as kahan_summation_package_issues,
+)
+from kahan_summation_oracle import (
+    MAX_INPUT_LENGTH as KAHAN_SUMMATION_MAX_INPUT_LENGTH,
+    expected_abi as kahan_summation_abi_oracle,
+)
 from graphai_gcn_aggregation_oracle import (
     MAX_INPUT_LENGTH as GRAPHAI_GCN_MAX_INPUT_LENGTH,
     MAX_OUTPUT_ELEMENTS as GRAPHAI_GCN_MAX_OUTPUT_ELEMENTS,
     expected_output as graphai_gcn_aggregation_oracle,
+)
+from graphai_ggnn_message_update_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as GRAPHAI_GGNN_MAX_INPUT_LENGTH,
+    expected_output as graphai_ggnn_message_update_oracle,
+)
+from g.graphai_ggnn_message_update.verify_graphai_ggnn_message_update_package import (
+    validate_package as validate_graphai_ggnn_message_update_package,
 )
 from graphai_sage_aggregation_oracle import (
     MAX_INPUT_LENGTH as GRAPHAI_SAGE_MAX_INPUT_LENGTH,
@@ -1831,6 +1845,8 @@ ORACLES = {
     "heat_3d": heat_3d_oracle,
     "parboil_stencil_laplacian": parboil_stencil_laplacian_abi_expected_output,
     "graphai_gcn_aggregation": graphai_gcn_aggregation_oracle,
+    "kahan_summation": kahan_summation_abi_oracle,
+    "graphai_ggnn_message_update": graphai_ggnn_message_update_oracle,
     "graphai_sage_aggregation": graphai_sage_aggregation_oracle,
     "graphai_gat_aggregation": graphai_gat_aggregation_oracle,
     "graphai_frontier_sampler": graphai_frontier_sampler_oracle,
@@ -4599,6 +4615,8 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         FDTD_2D_MAX_INPUT_LENGTH if algorithm == "fdtd_2d" else
                         HEAT_3D_MAX_INPUT_LENGTH if algorithm == "heat_3d" else
                         PARBOIL_STENCIL_MAX_INPUT_LENGTH if algorithm == "parboil_stencil_laplacian" else
+                        KAHAN_SUMMATION_MAX_INPUT_LENGTH + 1
+                        if algorithm == "kahan_summation" else
                         ASCI_PURPLE_SMG2000_MAX_INPUT_LENGTH
                         if algorithm == "asci_purple_smg2000_residual" else
                         MARSAGLIA_POLAR_MAX_INPUT_LENGTH
@@ -4733,6 +4751,8 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         max_input_length = PARBOIL_STENCIL_MAX_INPUT_LENGTH
     if algorithm == "graphai_gcn_aggregation":
         max_input_length = GRAPHAI_GCN_MAX_INPUT_LENGTH
+    if algorithm == "graphai_ggnn_message_update":
+        max_input_length = GRAPHAI_GGNN_MAX_INPUT_LENGTH
     if algorithm == "graphai_sage_aggregation":
         max_input_length = GRAPHAI_SAGE_MAX_INPUT_LENGTH
     if algorithm == "graphai_gat_aggregation":
@@ -4821,10 +4841,12 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         max_input_length = TSVC_S351_MAX_INPUT_LENGTH
     if (not isinstance(raw_values, list) or case.get("input_length") != len(raw_values)
             or (not raw_values and algorithm not in {"md2_digest", "kalman_filter_r_two_state_simulation",
+                                                      "kahan_summation",
                                                       "matmul_f64_4x4", "misc_fp_convert", "trisolv",
                                                       "jacobi_1d", "jacobi_2d", "fdtd_2d", "heat_3d",
                                                       "parboil_stencil_laplacian",
                                                       "graphai_gcn_aggregation",
+                                                      "graphai_ggnn_message_update",
                                                       "graphai_sage_aggregation",
                                                       "graphai_gat_aggregation",
                                                       "graphai_frontier_sampler",
@@ -4851,7 +4873,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
     values = [float(value) for value in raw_values]
-    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "misc_dt", "olden_bh", "olden_em3d", "trisolv", "jacobi_1d", "jacobi_2d", "syrk", "syr2k", "trmm", "fdtd_2d", "heat_3d", "parboil_stencil_laplacian", "graphai_gcn_aggregation", "graphai_sage_aggregation", "graphai_gat_aggregation", "graphai_frontier_sampler", "graphai_cf_sgd_sweep", "asci_purple_smg2000_residual", "marsaglia_polar_normal", "metropolis_mcmc", "box_muller_cartesian_normal", "npb_ep", "npb_ft_3d_spectral_step", "npb_mg_vcycle", "npb_sp_pentadiagonal_line_solve", "mafft_falign_fft_lag_correlation", "himenobmtxpa", "polybench_gramschmidt", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_automotive_basicmath_cubic", "mibench_lame_mdct_long", "cbench_consumer_mad_imdct36", "cbench_consumer_lame_mdct_short", "cbench_lame_mid_side", "cbench_rsynth_natural_glottal_sample", "smallest_enclosing_ball_3d", "euclidean_t_spanner", "joint_probability_distribution", "shreedharacharya", "rotation_matrix", "tsvc_s313_dot_product_reduction", "tsvc_s275_column_conditional_axpy_recurrence", "tsvc_s111_odd_index_neighbor_update",
+    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "misc_dt", "olden_bh", "olden_em3d", "trisolv", "jacobi_1d", "jacobi_2d", "syrk", "syr2k", "trmm", "fdtd_2d", "heat_3d", "parboil_stencil_laplacian", "graphai_gcn_aggregation", "graphai_ggnn_message_update", "graphai_sage_aggregation", "graphai_gat_aggregation", "graphai_frontier_sampler", "graphai_cf_sgd_sweep", "kahan_summation", "asci_purple_smg2000_residual", "marsaglia_polar_normal", "metropolis_mcmc", "box_muller_cartesian_normal", "npb_ep", "npb_ft_3d_spectral_step", "npb_mg_vcycle", "npb_sp_pentadiagonal_line_solve", "mafft_falign_fft_lag_correlation", "himenobmtxpa", "polybench_gramschmidt", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_automotive_basicmath_cubic", "mibench_lame_mdct_long", "cbench_consumer_mad_imdct36", "cbench_consumer_lame_mdct_short", "cbench_lame_mid_side", "cbench_rsynth_natural_glottal_sample", "smallest_enclosing_ball_3d", "euclidean_t_spanner", "joint_probability_distribution", "shreedharacharya", "rotation_matrix", "tsvc_s313_dot_product_reduction", "tsvc_s275_column_conditional_axpy_recurrence", "tsvc_s111_odd_index_neighbor_update",
                      "tsvc_vtvtv_triple_product_map", "tsvc_s451_sincos_vector_map",
                      "tsvc_s221_partial_recursive_fused_update",
                      "hjm_forward_path", "splash2_fmm", "splash2_fft_six_step",
@@ -5107,6 +5129,20 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
             oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "graphai_gcn_aggregation":
             expected_result, oracle_values = graphai_gcn_aggregation_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "kahan_summation":
+            expected_result, oracle_values = kahan_summation_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "graphai_ggnn_message_update":
+            expected_result, oracle_values = graphai_ggnn_message_update_oracle(
                 values, output_capacity=case.get("output_capacity"),
                 output_is_null=case.get("output_is_null", False),
                 input_is_null=case.get("input_is_null", False),
@@ -5464,6 +5500,29 @@ def validate_tsvc_s313_dot_product_reduction_workload(workload: dict) -> None:
         raise ValueError("TSVC s313 workload requires fixtures")
     for case in cases:
         encode_case(case, "tsvc_s313_dot_product_reduction", 0.0, 0.0)
+
+
+def validate_graphai_ggnn_message_update_workload(workload: dict) -> None:
+    """Pin and statically inventory the bounded GraphAIBench GGNN profile."""
+    package = ROOT / "benchmarks" / "g" / "graphai_ggnn_message_update"
+    expected = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if workload != expected:
+        raise ValueError("graphai_ggnn_message_update workload differs from its package file")
+    try:
+        validate_graphai_ggnn_message_update_package()
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        raise ValueError("graphai_ggnn_message_update package is incomplete: " + str(error)) from error
+
+
+def validate_kahan_summation_workload(workload: dict) -> None:
+    """Pin the bounded Kahan workload and review its static package inventory."""
+    package = ROOT / "benchmarks" / "k" / "kahan_summation"
+    expected = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if workload != expected:
+        raise ValueError("kahan_summation workload differs from its package file")
+    issues = kahan_summation_package_issues()
+    if issues:
+        raise ValueError("kahan_summation package is incomplete: " + "; ".join(issues))
 
 
 def validate_graphai_gcn_aggregation_workload(workload: dict) -> None:
@@ -17067,6 +17126,10 @@ def main() -> int:
         validate_parboil_stencil_laplacian_workload(workload)
     elif algorithm == "graphai_gcn_aggregation":
         validate_graphai_gcn_aggregation_workload(workload)
+    elif algorithm == "kahan_summation":
+        validate_kahan_summation_workload(workload)
+    elif algorithm == "graphai_ggnn_message_update":
+        validate_graphai_ggnn_message_update_workload(workload)
     elif algorithm == "graphai_sage_aggregation":
         validate_graphai_sage_aggregation_workload(workload)
     elif algorithm == "graphai_gat_aggregation":

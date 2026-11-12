@@ -1,0 +1,115 @@
+const SBT_MAX_TEXT: usize = 32
+const SBT_MAX_INPUT: usize = 33
+const SBT_TAG_LIMIT: i64 = 4611686018427387904
+const SBT_LEFT: usize = SBT_MAX_TEXT
+const SBT_RIGHT: usize = 2 * SBT_MAX_TEXT
+const SBT_SIZE: usize = 3 * SBT_MAX_TEXT
+const SBT_TAG: usize = 4 * SBT_MAX_TEXT
+const SBT_BUFFER: usize = 5 * SBT_MAX_TEXT
+const SBT_ANSWER: usize = 6 * SBT_MAX_TEXT
+const SBT_BUFFERED: usize = 7 * SBT_MAX_TEXT
+const SBT_STATE_SIZE: usize = SBT_BUFFERED + 1
+
+def sbt_node_size(state: view[i64], node: i64) -> i64:
+    if node < 0: return 0
+    state[SBT_SIZE + node.usize()]
+
+def sbt_suffix_less(text: view[i64], state: view[i64], x: usize, y: usize, n: usize) -> bool:
+    if text[x] != text[y]: return text[x] < text[y]
+    next_x: i64 = if x + 1 < n then state[SBT_TAG + x + 1] else 0
+    next_y: i64 = if y + 1 < n then state[SBT_TAG + y + 1] else 0
+    next_x < next_y
+
+def sbt_flatten(state: mutable view[i64], root: i64) -> void:
+    if root < 0: return
+    node: usize = root.usize()
+    sbt_flatten(state, state[SBT_LEFT + node])
+    buffered: usize = state[SBT_BUFFERED].usize()
+    state[SBT_BUFFER + buffered] <- root
+    state[SBT_BUFFERED] <- i64(buffered + 1)
+    sbt_flatten(state, state[SBT_RIGHT + node])
+
+def sbt_build_balanced(state: mutable view[i64], lo: usize, hi: usize, low: i64, high: i64) -> i64:
+    if lo >= hi: return -1
+    mid: usize = lo + (hi - lo) / 2
+    root: usize = state[SBT_BUFFER + mid].usize()
+    tag: i64 = low + (high - low) / 2
+    state[SBT_TAG + root] <- tag
+    left: i64 = sbt_build_balanced(state, lo, mid, low, tag)
+    right: i64 = sbt_build_balanced(state, mid + 1, hi, tag, high)
+    state[SBT_LEFT + root] <- left
+    state[SBT_RIGHT + root] <- right
+    state[SBT_SIZE + root] <- 1 + sbt_node_size(state, left) + sbt_node_size(state, right)
+    root.i64()
+
+def sbt_rebuild(state: mutable view[i64], root: i64, low: i64, high: i64) -> i64:
+    state[SBT_BUFFERED] <- 0
+    sbt_flatten(state, root)
+    sbt_build_balanced(state, 0, state[SBT_BUFFERED].usize(), low, high)
+
+def sbt_insert(text: view[i64], state: mutable view[i64], root: i64, pos: usize, n: usize, low: i64, high: i64) -> i64:
+    if root < 0:
+        state[SBT_LEFT + pos] <- -1
+        state[SBT_RIGHT + pos] <- -1
+        state[SBT_SIZE + pos] <- 1
+        state[SBT_TAG + pos] <- low + (high - low) / 2
+        return pos.i64()
+    node: usize = root.usize()
+    middle: i64 = state[SBT_TAG + node]
+    if sbt_suffix_less(text, state, pos, node, n):
+        child: i64 = state[SBT_LEFT + node]
+        inserted: i64 = sbt_insert(text, state, child, pos, n, low, middle)
+        state[SBT_LEFT + node] <- inserted
+    else:
+        child: i64 = state[SBT_RIGHT + node]
+        inserted: i64 = sbt_insert(text, state, child, pos, n, middle, high)
+        state[SBT_RIGHT + node] <- inserted
+    left_size: i64 = sbt_node_size(state, state[SBT_LEFT + node])
+    right_size: i64 = sbt_node_size(state, state[SBT_RIGHT + node])
+    state[SBT_SIZE + node] <- 1 + left_size + right_size
+    heavy: i64 = if left_size > right_size then left_size else right_size
+    if 4 * heavy >= 3 * state[SBT_SIZE + node]: return sbt_rebuild(state, root, low, high)
+    root
+
+def sbt_inorder(state: view[i64], root: i64, answer: mutable view[i64], count: mutable view[i64]) -> void:
+    if root < 0: return
+    node: usize = root.usize()
+    sbt_inorder(state, state[SBT_LEFT + node], answer, count)
+    answer[count[0].usize()] <- root
+    count[0] <- count[0] + 1
+    sbt_inorder(state, state[SBT_RIGHT + node], answer, count)
+
+def sbt_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+export fn suffix_balanced_tree(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > SBT_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    if n_value < 0 or n_value > SBT_MAX_TEXT.i64() or length != 1 + n_value.usize(): return -1
+    n: usize = n_value.usize()
+    for i in 0..<n:
+        if input_view[1 + i] < 0 or input_view[1 + i] > 255: return -1
+    required: usize = 8 * n
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    text: mutable i64[SBT_MAX_TEXT] = zeroed
+    for i in 0..<n: text[i] <- input_view[1 + i]
+    text_view: view[i64] = text[0:SBT_MAX_TEXT]
+    state: mutable i64[SBT_STATE_SIZE] = zeroed
+    state_view: mutable view[i64] = state[0:SBT_STATE_SIZE]
+    root: mutable i64 = -1
+    pos: mutable usize = n
+    while pos > 0:
+        pos <- pos - 1
+        root <- sbt_insert(text_view, state_view, root, pos, n, 0, SBT_TAG_LIMIT)
+    answer: mutable i64[SBT_MAX_TEXT] = zeroed
+    count: mutable i64[1] = zeroed
+    answer_view: mutable view[i64] = answer[0:SBT_MAX_TEXT]
+    count_view: mutable view[i64] = count[0:1]
+    sbt_inorder(state_view, root, answer_view, count_view)
+    for i in 0..<count[0].usize(): sbt_store_le(answer[i], output_view, 8 * i)
+    required.i64()

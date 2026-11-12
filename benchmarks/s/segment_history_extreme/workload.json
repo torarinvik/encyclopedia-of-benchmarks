@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "id": "segment-history-extreme-cpu-monitor-bounded-v1",
+  "algorithm": "segment_history_extreme",
+  "function_symbol": "segment_history_extreme",
+  "abi": "i64_array_bytes_output",
+  "description": "Range assignment/addition with current and historical maximum queries.",
+  "source": {
+    "title": "OI Wiki: Segment History Extreme",
+    "authors": ["OI Wiki contributors"],
+    "reference": "CPU-monitoring historical maximum variant",
+    "url": "https://en.oi-wiki.org/ds/seg-beats/",
+    "repository_license": "CC BY-SA 4.0 with SATA",
+    "algorithm_attribution": "Lazy segment-tree propagation of current and historical maxima",
+    "implementation_status": "clean-room bounded profile; algorithm description only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, Q, initial[N], operation[Q][4]]",
+    "n_range": [1, 32],
+    "q_range": [0, 32],
+    "initial_and_update_value_range": [-1000, 1000],
+    "range_convention": "zero-based half-open [left,right)",
+    "operation_records": {
+      "width": 4,
+      "opcodes": {
+        "0": "range assignment [0,left,right,value]",
+        "1": "range addition [1,left,right,delta]",
+        "2": "current range maximum [2,left,right,0]",
+        "3": "historical range maximum [3,left,right,0]"
+      },
+      "query_argument": 0
+    },
+    "maximum_valid_length": 162,
+    "maximum_parseable_length": 163,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one signed 64-bit little-endian maximum per query",
+    "maximum_bytes": 256,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Fixed segment tree, lazy history tags, and staged query output."
+  },
+  "contract": {
+    "operation": "Support range assignment, range addition, current range maximum, and historical range maximum.",
+    "history": "At each index, include the initial value and the value after every update; a historical query returns the maximum of those histories over its range.",
+    "algorithm": "Store current and historical maxima; lazy addition tags carry net and maximum-prefix offsets, followed by assignment-phase maximum tags.",
+    "complexity": "O(log N) per operation and O(N) bounded storage.",
+    "error_precedence": "Validate the complete frame and all records, compute staged answers, then check output pointer and capacity before writing.",
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "current-and-historical-after-add",
+      "input_values": [3, 5, 1, 5, -2, 2, 0, 3, 0, 3, 0, 3, 0, 1, 0, 2, 4, 2, 0, 3, 0, 3, 0, 3, 0],
+      "input_length": 25,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0500000000000000050000000000000009000000000000000900000000000000"
+    },
+    {
+      "id": "full-range-add-assign-add-tag-order",
+      "input_values": [4, 5, 1, 2, 3, 4, 1, 0, 4, 5, 0, 0, 4, -2, 1, 0, 4, 3, 2, 0, 4, 0, 3, 0, 4, 0],
+      "input_length": 26,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000900000000000000"
+    },
+    {
+      "id": "partial-update-pushes-deferred-history",
+      "input_values": [4, 7, 0, 0, 0, 0, 1, 0, 4, 10, 0, 1, 3, -2, 2, 0, 4, 0, 3, 1, 3, 0, 1, 2, 4, 5, 2, 2, 4, 0, 3, 0, 4, 0],
+      "input_length": 34,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0a000000000000000a000000000000000f000000000000000f00000000000000"
+    },
+    {
+      "id": "net-zero-add-retains-historical-prefix",
+      "input_values": [1, 6, 0, 1, 0, 1, 5, 1, 0, 1, -5, 3, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, -2, 3, 0, 1, 0],
+      "input_length": 27,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "050000000000000000000000000000000500000000000000"
+    },
+    {
+      "id": "negative-history-after-assignment",
+      "input_values": [3, 3, -9, -2, -7, 0, 0, 2, -12, 2, 0, 2, 0, 3, 0, 2, 0],
+      "input_length": 17,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "f4fffffffffffffffeffffffffffffff"
+    },
+    {
+      "id": "no-query-operations",
+      "input_values": [1, 0, -3],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-query-argument",
+      "input_values": [1, 1, 0, 3, 0, 1],
+      "input_length": 6,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-range",
+      "input_values": [2, 1, 1, 2, 2, 0, 3, 0],
+      "input_length": 8,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "output-capacity-too-small",
+      "input_values": [3, 5, 1, 5, -2, 2, 0, 3, 0, 3, 0, 3, 0, 1, 0, 2, 4, 2, 0, 3, 0, 3, 0, 3, 0],
+      "input_length": 25,
+      "output_capacity": 31,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-buffer",
+      "input_values": [1, 1, 0, 2, 0, 1, 0],
+      "input_length": 7,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

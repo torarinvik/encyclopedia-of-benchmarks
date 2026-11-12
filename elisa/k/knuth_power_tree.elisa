@@ -1,0 +1,88 @@
+const MAX_TARGET: usize = 127
+
+def knuth_build_path(target: usize, parent: mutable view[usize], seen: mutable view[bool],
+        queue: mutable view[usize], reverse: mutable view[usize], path: mutable view[usize],
+        path_length: mutable usize&) -> bool:
+    if target == 1:
+        path[0] <- 1
+        path_length <- 1
+        return true
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    queue[0] <- 1
+    seen[1] <- true
+    while head < tail:
+        current: usize = queue[head]
+        head <- head + 1
+        chain_length: mutable usize = 0
+        node: mutable usize = current
+        while node != 0:
+            reverse[chain_length] <- node
+            chain_length <- chain_length + 1
+            node <- parent[node]
+        offset: mutable usize = 0
+        while offset < chain_length:
+            ancestor: usize = reverse[chain_length - offset - 1]
+            child: usize = current + ancestor
+            if child <= target and not seen[child]:
+                seen[child] <- true
+                parent[child] <- current
+                if child == target:
+                    count: mutable usize = 0
+                    node <- target
+                    while node != 0:
+                        path[count] <- node
+                        count <- count + 1
+                        node <- parent[node]
+                    left: mutable usize = 0
+                    right: mutable usize = count - 1
+                    while left < right:
+                        temporary: usize = path[left]
+                        path[left] <- path[right]
+                        path[right] <- temporary
+                        left <- left + 1
+                        right <- right - 1
+                    path_length <- count
+                    return true
+                queue[tail] <- child
+                tail <- tail + 1
+            offset <- offset + 1
+    false
+
+def knuth_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def knuth_power_tree_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length != 1:
+        return -1
+    target_value: i64 = input[0]
+    if target_value < 1 or target_value > 127:
+        return -1
+    target: usize = target_value.usize()
+    parent: mutable usize[MAX_TARGET + 1] = zeroed
+    seen: mutable bool[MAX_TARGET + 1] = zeroed
+    queue: mutable usize[MAX_TARGET + 1] = zeroed
+    reverse: mutable usize[MAX_TARGET + 1] = zeroed
+    path: mutable usize[MAX_TARGET] = zeroed
+    path_length: mutable usize = 0
+    if not knuth_build_path(target, parent[0:MAX_TARGET + 1], seen[0:MAX_TARGET + 1],
+            queue[0:MAX_TARGET + 1], reverse[0:MAX_TARGET + 1], path[0:MAX_TARGET], path_length):
+        return -1
+    required: usize = (path_length + 1) * 8
+    if output.is_null() or output_capacity < required:
+        return -2
+    output_view: mutable view[u8] = output[0:required]
+    knuth_store_i64((path_length - 1).i64(), output_view, 0)
+    index: usize = 0
+    while index < path_length:
+        knuth_store_i64(path[index].i64(), output_view, 8 * (index + 1))
+        index <- index + 1
+    required.i64()
+
+export fn knuth_power_tree(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = knuth_power_tree_impl

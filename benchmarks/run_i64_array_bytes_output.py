@@ -25,6 +25,61 @@ import subprocess
 import sys
 
 from build_abi import ROOT, sha256_file
+from gabow_scc_oracle import (
+    MAX_INPUT_LENGTH as GABOW_SCC_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GABOW_SCC_MAX_OUTPUT_BYTES,
+    expected_output as gabow_scc_oracle,
+)
+from g.gabow_scc.verify_gabow_scc_package import validate_package as verify_gabow_scc_package
+from s.suffix_array_sais.primary_oracle import (
+    MAX_INPUT_LENGTH as SUFFIX_ARRAY_SAIS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SUFFIX_ARRAY_SAIS_MAX_OUTPUT_BYTES,
+    expected_output as suffix_array_sais_oracle,
+)
+from s.suffix_array_sais.verify_workload import verify_workload as verify_suffix_array_sais_package
+from c.crochemore_perrin_two_way.primary_oracle import (
+    MAX_INPUT_LENGTH as CROCHEMORE_PERRIN_TWO_WAY_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CROCHEMORE_PERRIN_TWO_WAY_MAX_OUTPUT_BYTES,
+    expected_output as crochemore_perrin_two_way_oracle,
+)
+from c.crochemore_perrin_two_way.verify_workload import (
+    verify_workload as verify_crochemore_perrin_two_way_package,
+)
+from v.virtual_tree.primary_oracle import (
+    MAX_INPUT_LENGTH as VIRTUAL_TREE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as VIRTUAL_TREE_MAX_OUTPUT_BYTES,
+    expected_output as virtual_tree_oracle,
+)
+from v.virtual_tree.verify_virtual_tree_package import (
+    verify_workload as verify_virtual_tree_package,
+)
+from hirschberg_lcs_oracle import (
+    MAX_INPUT_LENGTH as HIRSCHBERG_LCS_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_LENGTH as HIRSCHBERG_LCS_MAX_PARSEABLE_LENGTH,
+    MAX_OUTPUT_BYTES as HIRSCHBERG_LCS_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as HIRSCHBERG_LCS_WORKSPACE_BYTES,
+    expected_output as hirschberg_lcs_oracle,
+)
+from check_hirschberg_lcs_package import (
+    static_issues as hirschberg_lcs_static_issues,
+)
+from games_on_arbitrary_graphs_oracle import (
+    MAX_INPUT_LENGTH as GAMES_ON_ARBITRARY_GRAPHS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GAMES_ON_ARBITRARY_GRAPHS_MAX_OUTPUT_BYTES,
+    expected_output as games_on_arbitrary_graphs_oracle,
+)
+from g.games_on_arbitrary_graphs.verify_games_on_arbitrary_graphs_package import (
+    validate_package as verify_games_on_arbitrary_graphs_package,
+)
+from minkowski_sum_convex_polygons_oracle import (
+    MAX_INPUT_LENGTH as MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as MINKOWSKI_SUM_CONVEX_POLYGONS_WORKSPACE_BYTES,
+    expected_output as minkowski_sum_convex_polygons_oracle,
+)
+from check_minkowski_sum_convex_polygons_package import (
+    static_issues as minkowski_sum_convex_polygons_static_issues,
+)
 from addition_of_big_integers_oracle import (
     MAX_INPUT_LENGTH as ADDITION_OF_BIG_INTEGERS_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as ADDITION_OF_BIG_INTEGERS_MAX_OUTPUT_BYTES,
@@ -177,6 +232,46 @@ from p.polynomial_interpolation.primary_oracle import (
 from p.polynomial_interpolation.verify_workload import (
     verify as verify_polynomial_interpolation_package,
 )
+from m.multipoint_evaluation.primary_oracle import (
+    MAX_INPUT_LENGTH as MULTIPOINT_EVALUATION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MULTIPOINT_EVALUATION_MAX_OUTPUT_BYTES,
+    expected_output as multipoint_evaluation_oracle,
+)
+from m.multipoint_evaluation.verify_workload import (
+    verify as verify_multipoint_evaluation_package,
+)
+from p.polynomial_root_finding.primary_oracle import (
+    MAX_INPUT_LENGTH as POLYNOMIAL_ROOT_FINDING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as POLYNOMIAL_ROOT_FINDING_MAX_OUTPUT_BYTES,
+    expected_output as polynomial_root_finding_oracle,
+)
+from p.polynomial_root_finding.verify_workload import (
+    verify as verify_polynomial_root_finding_package,
+)
+from m.multipoint_evaluation_on_geometric_sequence.primary_oracle import (
+    MAX_INPUT_LENGTH as GEOMETRIC_MULTIPOINT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GEOMETRIC_MULTIPOINT_MAX_OUTPUT_BYTES,
+    expected_output as multipoint_evaluation_geometric_oracle,
+)
+from m.multipoint_evaluation_on_geometric_sequence.verify_workload import (
+    verify as verify_geometric_multipoint_package,
+)
+from p.polynomial_interpolation_on_geometric_sequence.primary_oracle import (
+    MAX_INPUT_LENGTH as GEOMETRIC_INTERPOLATION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GEOMETRIC_INTERPOLATION_MAX_OUTPUT_BYTES,
+    expected_output as polynomial_interpolation_geometric_oracle,
+)
+from p.polynomial_interpolation_on_geometric_sequence.verify_workload import (
+    verify as verify_geometric_interpolation_package,
+)
+from p.polynomial_composite_set_power_series.primary_oracle import (
+    MAX_INPUT_LENGTH as COMPOSITE_SET_SERIES_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as COMPOSITE_SET_SERIES_MAX_OUTPUT_BYTES,
+    expected_output as polynomial_composite_set_power_series_oracle,
+)
+from p.polynomial_composite_set_power_series.verify_workload import (
+    verify as verify_polynomial_composite_set_series_package,
+)
 from npb_cg_sparse_inverse_power_oracle import (
     MAX_INPUT_LENGTH as NPB_CG_SPARSE_INVERSE_POWER_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as NPB_CG_SPARSE_INVERSE_POWER_MAX_OUTPUT_BYTES,
@@ -307,6 +402,154 @@ from dominator_tree_oracle import expected_output as dominator_tree_oracle
 from link_cut_tree_oracle import MAX_INPUT_LENGTH as LINK_CUT_TREE_MAX_INPUT_LENGTH
 from link_cut_tree_oracle import MAX_OUTPUT_BYTES as LINK_CUT_TREE_MAX_OUTPUT_BYTES
 from link_cut_tree_oracle import expected_output as link_cut_tree_oracle
+from e.euler_tour_tree.primary_oracle import (
+    MAX_INPUT_LENGTH as EULER_TOUR_TREE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as EULER_TOUR_TREE_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as EULER_TOUR_TREE_MAX_WORKSPACE_BYTES,
+    expected_output as euler_tour_tree_oracle,
+)
+from e.euler_tour_tree.verify_workload import verify_workload as verify_euler_tour_tree_package
+from dynamic_top_tree_component_diameter_oracle import (
+    MAX_INPUT_LENGTH as DYNAMIC_TOP_TREE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DYNAMIC_TOP_TREE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as DYNAMIC_TOP_TREE_WORKSPACE_BYTES,
+    expected_output as dynamic_top_tree_component_diameter_oracle,
+)
+from s.sort_points_by_argument.primary_oracle import (
+    MAX_INPUT_LENGTH as SORT_POINTS_BY_ARGUMENT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SORT_POINTS_BY_ARGUMENT_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as SORT_POINTS_BY_ARGUMENT_MAX_WORKSPACE_BYTES,
+    expected_output as sort_points_by_argument_oracle,
+)
+from s.sort_points_by_argument.verify_workload import (
+    verify_workload as verify_sort_points_by_argument_package,
+)
+from c.count_points_in_triangle.primary_oracle import (
+    MAX_INPUT_LENGTH as COUNT_POINTS_IN_TRIANGLE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as COUNT_POINTS_IN_TRIANGLE_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as COUNT_POINTS_IN_TRIANGLE_MAX_WORKSPACE_BYTES,
+    expected_output as count_points_in_triangle_oracle,
+)
+from c.count_points_in_triangle.verify_workload import (
+    verify_workload as verify_count_points_in_triangle_package,
+)
+from d.dynamic_top_tree_component_diameter.verify_workload import (
+    verify as verify_dynamic_top_tree_component_diameter_package,
+)
+from dynamic_tree_vertex_add_subtree_sum_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DYNAMIC_TREE_ADD_SUBTREE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DYNAMIC_TREE_ADD_SUBTREE_MAX_OUTPUT_BYTES,
+    expected_output as dynamic_tree_vertex_add_subtree_sum_oracle,
+)
+from dynamic_tree_subtree_add_subtree_sum_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DYNAMIC_TREE_SUBTREE_ADD_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DYNAMIC_TREE_SUBTREE_ADD_MAX_OUTPUT_BYTES,
+    expected_output as dynamic_tree_subtree_add_subtree_sum_oracle,
+)
+from check_dynamic_tree_subtree_add_subtree_sum_package import (
+    static_issues as dynamic_tree_subtree_add_subtree_sum_static_issues,
+)
+from check_dynamic_tree_vertex_add_subtree_sum_package import (
+    static_issues as dynamic_tree_vertex_add_subtree_sum_static_issues,
+)
+from garsia_wachs_alphabetic_tree_oracle import (
+    MAX_PARSEABLE_INPUT_VALUES as GARSIA_WACHS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GARSIA_WACHS_MAX_OUTPUT_BYTES,
+    expected_output as garsia_wachs_alphabetic_tree_oracle,
+)
+from check_garsia_wachs_alphabetic_tree_package import (
+    static_issues as garsia_wachs_alphabetic_tree_static_issues,
+)
+from s.schreier_sims.primary_oracle import (
+    MAX_INPUT as SCHREIER_SIMS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SCHREIER_SIMS_MAX_OUTPUT_BYTES,
+    expected_output as schreier_sims_oracle,
+)
+from s.schreier_sims.verify_workload import (
+    verify as verify_schreier_sims_package,
+)
+from lowest_common_ancestor_farach_colton_bender_oracle import (
+    MAX_INPUT_VALUES as FCB_LCA_MAX_INPUT_LENGTH,
+    MAX_NODES as FCB_LCA_MAX_NODES,
+    MAX_QUERIES as FCB_LCA_MAX_QUERIES,
+    expected_output as farach_colton_bender_lca_oracle,
+)
+from check_lowest_common_ancestor_farach_colton_bender_package import (
+    static_issues as farach_colton_bender_lca_static_issues,
+)
+from o.old_driver_tree.primary_oracle import (
+    MAX_INPUT as OLD_DRIVER_TREE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as OLD_DRIVER_TREE_MAX_OUTPUT_BYTES,
+    expected_output as old_driver_tree_oracle,
+)
+from o.old_driver_tree.verify_workload import verify as verify_old_driver_tree_package
+from d.de_bruijn_sequences.primary_oracle import (
+    MAX_OUTPUT_BYTES as DE_BRUIJN_MAX_OUTPUT_BYTES,
+    expected_output as de_bruijn_sequences_oracle,
+)
+from d.de_bruijn_sequences.verify_workload import static_issues as de_bruijn_sequences_static_issues
+from k.knuth_power_tree.primary_oracle import (
+    MAX_OUTPUT_BYTES as KNUTH_POWER_TREE_MAX_OUTPUT_BYTES,
+    expected_output as knuth_power_tree_oracle,
+)
+from k.knuth_power_tree.verify_workload import static_issues as knuth_power_tree_static_issues
+from p.prefix_substring_lcs.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PREFIX_SUBSTRING_LCS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PREFIX_SUBSTRING_LCS_MAX_OUTPUT_BYTES,
+    expected_output as prefix_substring_lcs_primary_oracle,
+)
+from p.prefix_substring_lcs.verify_workload import verify as verify_prefix_substring_lcs_package
+from p.point_set_tree_path_composite_sum_fixed_root.primary_oracle import (
+    MAX_INPUT_LENGTH as FIXED_ROOT_HLD_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as FIXED_ROOT_HLD_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as FIXED_ROOT_HLD_MAX_WORKSPACE_BYTES,
+    expected_output as fixed_root_hld_oracle,
+)
+from p.point_set_tree_path_composite_sum_fixed_root.verify_workload import (
+    verify_workload as verify_fixed_root_hld_package,
+)
+from p.point_set_tree_path_composite_sum.primary_oracle import (
+    MAX_INPUT as ARBITRARY_ROOT_TOP_TREE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as ARBITRARY_ROOT_TOP_TREE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as ARBITRARY_ROOT_TOP_TREE_WORKSPACE_BYTES,
+    expected_output as arbitrary_root_top_tree_oracle,
+)
+from p.point_set_tree_path_composite_sum.verify_workload import (
+    verify as verify_arbitrary_root_top_tree_package,
+)
+from p.main_lorentz_tandem_repetitions.primary_oracle import (
+    MAX_INPUT_LENGTH as MAIN_LORENTZ_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MAIN_LORENTZ_MAX_OUTPUT_BYTES,
+    MAX_N as MAIN_LORENTZ_MAX_N,
+    MAX_WORKSPACE_BYTES as MAIN_LORENTZ_MAX_WORKSPACE_BYTES,
+    expected_output as main_lorentz_tandem_repetitions_oracle,
+)
+from p.main_lorentz_tandem_repetitions.verify_workload import (
+    verify_workload as verify_main_lorentz_tandem_repetitions_package,
+)
+from s.suffix_balanced_tree.primary_oracle import (
+    MAX_INPUT as SUFFIX_BALANCED_TREE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SUFFIX_BALANCED_TREE_MAX_OUTPUT_BYTES,
+    expected_output as suffix_balanced_tree_oracle,
+)
+from s.suffix_balanced_tree.verify_workload import verify as verify_suffix_balanced_tree_package
+from segment_history_extreme_oracle import (
+    MAX_OUTPUT_BYTES as SEGMENT_HISTORY_EXTREME_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_VALUES as SEGMENT_HISTORY_EXTREME_MAX_INPUT_LENGTH,
+    expected_output as segment_history_extreme_oracle,
+)
+from check_segment_history_extreme_package import (
+    static_issues as segment_history_extreme_static_issues,
+)
+from p.kinetic_tournament_tree.primary_oracle import (
+    MAX_INPUT_LENGTH as KINETIC_TOURNAMENT_TREE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as KINETIC_TOURNAMENT_TREE_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as KINETIC_TOURNAMENT_TREE_MAX_WORKSPACE_BYTES,
+    expected_output as kinetic_tournament_tree_oracle,
+)
+from p.kinetic_tournament_tree.verify_workload import (
+    verify_workload as verify_kinetic_tournament_tree_package,
+)
 from vertex_set_path_composite_oracle import MAX_OUTPUT_BYTES as VERTEX_SET_PATH_COMPOSITE_MAX_OUTPUT_BYTES
 from vertex_set_path_composite_oracle import MAX_PARSEABLE_INPUT_LENGTH as VERTEX_SET_PATH_COMPOSITE_MAX_INPUT_LENGTH
 from vertex_set_path_composite_oracle import expected_output as vertex_set_path_composite_oracle
@@ -314,6 +557,14 @@ from tree_path_composite_sum_oracle import MAX_INPUT_LENGTH as TREE_PATH_COMPOSI
 from tree_path_composite_sum_oracle import MAX_OUTPUT_BYTES as TREE_PATH_COMPOSITE_SUM_MAX_OUTPUT_BYTES
 from tree_path_composite_sum_oracle import expected_output as tree_path_composite_sum_oracle
 from t.tree_path_composite_sum.verify_workload import verify_workload as verify_tree_path_composite_sum_package
+from t.dynamic_tree_vertex_set_path_composite.primary_oracle import (
+    MAX_INPUT_LENGTH as DYNAMIC_TREE_PATH_COMPOSITE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DYNAMIC_TREE_PATH_COMPOSITE_MAX_OUTPUT_BYTES,
+    expected_output as dynamic_tree_vertex_set_path_composite_oracle,
+)
+from t.dynamic_tree_vertex_set_path_composite.verify_workload import (
+    verify as verify_dynamic_tree_vertex_set_path_composite_package,
+)
 from tree_decomposition_width_2_oracle import MAX_INPUT_LENGTH as TREE_DECOMPOSITION_WIDTH_2_MAX_INPUT_LENGTH
 from tree_decomposition_width_2_oracle import MAX_OUTPUT_BYTES as TREE_DECOMPOSITION_WIDTH_2_MAX_OUTPUT_BYTES
 from tree_decomposition_width_2_oracle import expected_output as tree_decomposition_width_2_oracle
@@ -6489,7 +6740,30 @@ def d_esopo_pape_oracle(values, capacity=None, output_is_null=False,
     return d_esopo_pape_package_oracle(values, **oracle_arguments)
 
 
+def prefix_substring_lcs_oracle(values, capacity=None, output_is_null=False,
+                                input_is_null=False, input_length=None):
+    if input_is_null or values is None:
+        return -1, b""
+    return prefix_substring_lcs_primary_oracle(
+        values,
+        output_capacity=(PREFIX_SUBSTRING_LCS_MAX_OUTPUT_BYTES
+                         if capacity is None else capacity),
+        output_is_null=output_is_null,
+        input_length=input_length,
+    )
+
+
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
+    "gabow_scc": gabow_scc_oracle,
+    "crochemore_perrin_two_way": crochemore_perrin_two_way_oracle,
+    "virtual_tree": virtual_tree_oracle,
+    "hirschberg_lcs": hirschberg_lcs_oracle,
+    "games_on_arbitrary_graphs": games_on_arbitrary_graphs_oracle,
+    "suffix_array_sais": suffix_array_sais_oracle,
+    "minkowski_sum_convex_polygons": minkowski_sum_convex_polygons_oracle,
+    "de_bruijn_sequences": de_bruijn_sequences_oracle,
+    "knuth_power_tree": knuth_power_tree_oracle,
+    "prefix_substring_lcs": prefix_substring_lcs_oracle,
     "addition_of_big_integers": addition_of_big_integers_oracle,
     "prefix_sum_of_binomial_coefficient": prefix_sum_of_binomial_coefficient_oracle,
     "inv_of_formal_power_series": inv_of_formal_power_series_oracle,
@@ -6509,6 +6783,11 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "shift_of_sampling_points_of_polynomial": shift_of_sampling_points_of_polynomial_oracle,
     "power_projection_of_set_power_series": power_projection_of_set_power_series_oracle,
     "polynomial_interpolation": polynomial_interpolation_oracle,
+    "multipoint_evaluation": multipoint_evaluation_oracle,
+    "polynomial_root_finding": polynomial_root_finding_oracle,
+    "multipoint_evaluation_on_geometric_sequence": multipoint_evaluation_geometric_oracle,
+    "polynomial_interpolation_on_geometric_sequence": polynomial_interpolation_geometric_oracle,
+    "polynomial_composite_set_power_series": polynomial_composite_set_power_series_oracle,
     "vector_scheduling": vector_scheduling_oracle,
     "vector_bin_packing": vector_bin_packing_oracle,
     "list_ranking_independent_set_contraction": list_ranking_contraction_oracle,
@@ -6588,7 +6867,27 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "weighted_connected_dominating_set": weighted_connected_dominating_set_oracle,
     "dominator_tree": dominator_tree_oracle,
     "link_cut_tree": link_cut_tree_oracle,
+    "euler_tour_tree": euler_tour_tree_oracle,
+    "dynamic_top_tree_component_diameter": dynamic_top_tree_component_diameter_oracle,
+    "sort_points_by_argument": sort_points_by_argument_oracle,
+    "dynamic_tree_vertex_add_subtree_sum": dynamic_tree_vertex_add_subtree_sum_oracle,
+    "dynamic_tree_subtree_add_subtree_sum": dynamic_tree_subtree_add_subtree_sum_oracle,
+    "count_points_in_triangle": count_points_in_triangle_oracle,
+    "garsia_wachs_alphabetic_tree": garsia_wachs_alphabetic_tree_oracle,
+    "schreier_sims": schreier_sims_oracle,
+    "lowest_common_ancestor_farach_colton_bender": farach_colton_bender_lca_oracle,
+    "old_driver_tree": old_driver_tree_oracle,
+    "point_set_tree_path_composite_sum_fixed_root": fixed_root_hld_oracle,
+    "point_set_tree_path_composite_sum": arbitrary_root_top_tree_oracle,
+    "de_bruijn_sequences": de_bruijn_sequences_oracle,
+    "knuth_power_tree": knuth_power_tree_oracle,
+    "prefix_substring_lcs": prefix_substring_lcs_oracle,
+    "main_lorentz_tandem_repetitions": main_lorentz_tandem_repetitions_oracle,
+    "suffix_balanced_tree": suffix_balanced_tree_oracle,
+    "segment_history_extreme": segment_history_extreme_oracle,
+    "kinetic_tournament_tree": kinetic_tournament_tree_oracle,
     "vertex_set_path_composite": vertex_set_path_composite_oracle,
+    "dynamic_tree_vertex_set_path_composite": dynamic_tree_vertex_set_path_composite_oracle,
     "tree_path_composite_sum": tree_path_composite_sum_oracle,
     "tree_decomposition_width_2": tree_decomposition_width_2_oracle,
     "multivariate_convolution": multivariate_convolution_oracle,
@@ -7096,6 +7395,24 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
 EXTERNAL_BYTE_OUTPUT_BOUNDS = {
+    "gabow_scc": (GABOW_SCC_MAX_INPUT_LENGTH, GABOW_SCC_MAX_OUTPUT_BYTES),
+    "crochemore_perrin_two_way": (
+        CROCHEMORE_PERRIN_TWO_WAY_MAX_INPUT_LENGTH,
+        CROCHEMORE_PERRIN_TWO_WAY_MAX_OUTPUT_BYTES,
+    ),
+    "virtual_tree": (VIRTUAL_TREE_MAX_INPUT_LENGTH, VIRTUAL_TREE_MAX_OUTPUT_BYTES),
+    "hirschberg_lcs": (
+        HIRSCHBERG_LCS_MAX_PARSEABLE_LENGTH, HIRSCHBERG_LCS_MAX_OUTPUT_BYTES,
+    ),
+    "games_on_arbitrary_graphs": (
+        GAMES_ON_ARBITRARY_GRAPHS_MAX_INPUT_LENGTH,
+        GAMES_ON_ARBITRARY_GRAPHS_MAX_OUTPUT_BYTES,
+    ),
+    "suffix_array_sais": (SUFFIX_ARRAY_SAIS_MAX_INPUT_LENGTH, SUFFIX_ARRAY_SAIS_MAX_OUTPUT_BYTES),
+    "minkowski_sum_convex_polygons": (
+        MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_INPUT_LENGTH,
+        MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_OUTPUT_BYTES,
+    ),
     "addition_of_big_integers": (
         ADDITION_OF_BIG_INTEGERS_MAX_INPUT_LENGTH,
         ADDITION_OF_BIG_INTEGERS_MAX_OUTPUT_BYTES,
@@ -7171,6 +7488,26 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
     "polynomial_interpolation": (
         POLYNOMIAL_INTERPOLATION_MAX_INPUT_LENGTH,
         POLYNOMIAL_INTERPOLATION_MAX_OUTPUT_BYTES,
+    ),
+    "multipoint_evaluation": (
+        MULTIPOINT_EVALUATION_MAX_INPUT_LENGTH,
+        MULTIPOINT_EVALUATION_MAX_OUTPUT_BYTES,
+    ),
+    "polynomial_root_finding": (
+        POLYNOMIAL_ROOT_FINDING_MAX_INPUT_LENGTH,
+        POLYNOMIAL_ROOT_FINDING_MAX_OUTPUT_BYTES,
+    ),
+    "multipoint_evaluation_on_geometric_sequence": (
+        GEOMETRIC_MULTIPOINT_MAX_INPUT_LENGTH,
+        GEOMETRIC_MULTIPOINT_MAX_OUTPUT_BYTES,
+    ),
+    "polynomial_interpolation_on_geometric_sequence": (
+        GEOMETRIC_INTERPOLATION_MAX_INPUT_LENGTH,
+        GEOMETRIC_INTERPOLATION_MAX_OUTPUT_BYTES,
+    ),
+    "polynomial_composite_set_power_series": (
+        COMPOSITE_SET_SERIES_MAX_INPUT_LENGTH,
+        COMPOSITE_SET_SERIES_MAX_OUTPUT_BYTES,
     ),
     "npb_cg_sparse_inverse_power": (
         NPB_CG_SPARSE_INVERSE_POWER_MAX_INPUT_LENGTH,
@@ -7431,6 +7768,50 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
         DOMINATOR_TREE_MAX_INPUT_LENGTH, DOMINATOR_TREE_MAX_OUTPUT_BYTES),
     "link_cut_tree": (
         LINK_CUT_TREE_MAX_INPUT_LENGTH, LINK_CUT_TREE_MAX_OUTPUT_BYTES),
+    "euler_tour_tree": (
+        EULER_TOUR_TREE_MAX_INPUT_LENGTH, EULER_TOUR_TREE_MAX_OUTPUT_BYTES),
+    "dynamic_top_tree_component_diameter": (
+        DYNAMIC_TOP_TREE_MAX_INPUT_LENGTH, DYNAMIC_TOP_TREE_MAX_OUTPUT_BYTES),
+    "sort_points_by_argument": (
+        SORT_POINTS_BY_ARGUMENT_MAX_INPUT_LENGTH,
+        SORT_POINTS_BY_ARGUMENT_MAX_OUTPUT_BYTES),
+    "count_points_in_triangle": (
+        COUNT_POINTS_IN_TRIANGLE_MAX_INPUT_LENGTH,
+        COUNT_POINTS_IN_TRIANGLE_MAX_OUTPUT_BYTES),
+    "dynamic_tree_vertex_add_subtree_sum": (
+        DYNAMIC_TREE_ADD_SUBTREE_MAX_INPUT_LENGTH,
+        DYNAMIC_TREE_ADD_SUBTREE_MAX_OUTPUT_BYTES),
+    "dynamic_tree_subtree_add_subtree_sum": (
+        DYNAMIC_TREE_SUBTREE_ADD_MAX_INPUT_LENGTH,
+        DYNAMIC_TREE_SUBTREE_ADD_MAX_OUTPUT_BYTES),
+    "garsia_wachs_alphabetic_tree": (
+        GARSIA_WACHS_MAX_INPUT_LENGTH, GARSIA_WACHS_MAX_OUTPUT_BYTES),
+    "schreier_sims": (
+        SCHREIER_SIMS_MAX_INPUT_LENGTH, SCHREIER_SIMS_MAX_OUTPUT_BYTES),
+    "lowest_common_ancestor_farach_colton_bender": (
+        FCB_LCA_MAX_INPUT_LENGTH, FCB_LCA_MAX_QUERIES),
+    "old_driver_tree": (
+        OLD_DRIVER_TREE_MAX_INPUT_LENGTH, OLD_DRIVER_TREE_MAX_OUTPUT_BYTES),
+    "point_set_tree_path_composite_sum_fixed_root": (
+        FIXED_ROOT_HLD_MAX_INPUT_LENGTH, FIXED_ROOT_HLD_MAX_OUTPUT_BYTES),
+    "point_set_tree_path_composite_sum": (
+        ARBITRARY_ROOT_TOP_TREE_MAX_INPUT_LENGTH,
+        ARBITRARY_ROOT_TOP_TREE_MAX_OUTPUT_BYTES),
+    "de_bruijn_sequences": (3, DE_BRUIJN_MAX_OUTPUT_BYTES),
+    "knuth_power_tree": (2, KNUTH_POWER_TREE_MAX_OUTPUT_BYTES),
+    "prefix_substring_lcs": (
+        PREFIX_SUBSTRING_LCS_MAX_INPUT_LENGTH,
+        PREFIX_SUBSTRING_LCS_MAX_OUTPUT_BYTES),
+    "main_lorentz_tandem_repetitions": (
+        MAIN_LORENTZ_MAX_INPUT_LENGTH, MAIN_LORENTZ_MAX_OUTPUT_BYTES),
+    "suffix_balanced_tree": (
+        SUFFIX_BALANCED_TREE_MAX_INPUT_LENGTH, SUFFIX_BALANCED_TREE_MAX_OUTPUT_BYTES),
+    "segment_history_extreme": (
+        SEGMENT_HISTORY_EXTREME_MAX_INPUT_LENGTH,
+        SEGMENT_HISTORY_EXTREME_MAX_OUTPUT_BYTES),
+    "kinetic_tournament_tree": (
+        KINETIC_TOURNAMENT_TREE_MAX_INPUT_LENGTH,
+        KINETIC_TOURNAMENT_TREE_MAX_OUTPUT_BYTES),
     "st_numbering": (
         ST_NUMBERING_MAX_INPUT_LENGTH, ST_NUMBERING_MAX_OUTPUT_BYTES),
     "k_shortest_walk": (
@@ -7446,6 +7827,9 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
     "vertex_set_path_composite": (
         VERTEX_SET_PATH_COMPOSITE_MAX_INPUT_LENGTH,
         VERTEX_SET_PATH_COMPOSITE_MAX_OUTPUT_BYTES),
+    "dynamic_tree_vertex_set_path_composite": (
+        DYNAMIC_TREE_PATH_COMPOSITE_MAX_INPUT_LENGTH,
+        DYNAMIC_TREE_PATH_COMPOSITE_MAX_OUTPUT_BYTES),
     "tree_path_composite_sum": (
         TREE_PATH_COMPOSITE_SUM_MAX_INPUT_LENGTH,
         TREE_PATH_COMPOSITE_SUM_MAX_OUTPUT_BYTES),
@@ -37517,6 +37901,53 @@ def _saga_base_state_is_valid(values: list[int]) -> bool:
 def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     if not isinstance(workload.get("cases"), list) or not workload["cases"]:
         raise ValueError(f"{algorithm} workload must contain fixture cases")
+    if algorithm == "gabow_scc":
+        package_workload = ROOT / "benchmarks/g/gabow_scc/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("gabow_scc workload differs from its package file")
+        verify_gabow_scc_package()
+        return
+    if algorithm == "crochemore_perrin_two_way":
+        package_workload = ROOT / "benchmarks/c/crochemore_perrin_two_way/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("crochemore_perrin_two_way workload differs from its package file")
+        verify_crochemore_perrin_two_way_package()
+        return
+    if algorithm == "virtual_tree":
+        package_workload = ROOT / "benchmarks/v/virtual_tree/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("virtual_tree workload differs from its package file")
+        verify_virtual_tree_package()
+        return
+    if algorithm == "hirschberg_lcs":
+        package_workload = ROOT / "benchmarks/h/hirschberg_lcs/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("hirschberg_lcs workload differs from its package file")
+        issues = hirschberg_lcs_static_issues()
+        if issues:
+            raise ValueError("hirschberg_lcs package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "games_on_arbitrary_graphs":
+        package_workload = ROOT / "benchmarks/g/games_on_arbitrary_graphs/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("games_on_arbitrary_graphs workload differs from its package file")
+        verify_games_on_arbitrary_graphs_package()
+        return
+    if algorithm == "suffix_array_sais":
+        package_workload = ROOT / "benchmarks/s/suffix_array_sais/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("suffix_array_sais workload differs from its package file")
+        verify_suffix_array_sais_package()
+        return
+    if algorithm == "minkowski_sum_convex_polygons":
+        package_workload = ROOT / "benchmarks/p/minkowski_sum_convex_polygons/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("minkowski_sum_convex_polygons workload differs from its package file")
+        issues = minkowski_sum_convex_polygons_static_issues()
+        if issues:
+            raise ValueError("minkowski_sum_convex_polygons package is incomplete: "
+                             + "; ".join(issues))
+        return
     if algorithm == "addition_of_big_integers":
         package_workload = ROOT / "benchmarks/a/addition_of_big_integers/workload.json"
         if workload != json.loads(package_workload.read_text(encoding="utf-8")):
@@ -37665,6 +38096,46 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         if errors:
             raise ValueError("polynomial_interpolation package is incomplete: " + "; ".join(errors))
         return
+    if algorithm == "multipoint_evaluation":
+        package_workload = ROOT / "benchmarks/m/multipoint_evaluation/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("multipoint_evaluation workload differs from its package file")
+        errors = verify_multipoint_evaluation_package()
+        if errors:
+            raise ValueError("multipoint_evaluation package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "polynomial_root_finding":
+        package_workload = ROOT / "benchmarks/p/polynomial_root_finding/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("polynomial_root_finding workload differs from its package file")
+        errors = verify_polynomial_root_finding_package()
+        if errors:
+            raise ValueError("polynomial_root_finding package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "multipoint_evaluation_on_geometric_sequence":
+        package_workload = ROOT / "benchmarks/m/multipoint_evaluation_on_geometric_sequence/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("multipoint_evaluation_on_geometric_sequence workload differs from its package file")
+        errors = verify_geometric_multipoint_package()
+        if errors:
+            raise ValueError("multipoint_evaluation_on_geometric_sequence package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "polynomial_interpolation_on_geometric_sequence":
+        package_workload = ROOT / "benchmarks/p/polynomial_interpolation_on_geometric_sequence/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("polynomial_interpolation_on_geometric_sequence workload differs from its package file")
+        errors = verify_geometric_interpolation_package()
+        if errors:
+            raise ValueError("polynomial_interpolation_on_geometric_sequence package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "polynomial_composite_set_power_series":
+        package_workload = ROOT / "benchmarks/p/polynomial_composite_set_power_series/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("polynomial_composite_set_power_series workload differs from its package file")
+        errors = verify_polynomial_composite_set_series_package()
+        if errors:
+            raise ValueError("polynomial_composite_set_power_series package is incomplete: " + "; ".join(errors))
+        return
     if algorithm == "npb_cg_sparse_inverse_power":
         package_workload = ROOT / "benchmarks/n/npb_cg_sparse_inverse_power/workload.json"
         if workload != json.loads(package_workload.read_text(encoding="utf-8")):
@@ -37802,6 +38273,15 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("tree_path_composite_sum workload differs from its package file")
         verify_tree_path_composite_sum_package()
         return
+    if algorithm == "dynamic_tree_vertex_set_path_composite":
+        package_workload = ROOT / "benchmarks/t/dynamic_tree_vertex_set_path_composite/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("dynamic_tree_vertex_set_path_composite workload differs from its package file")
+        errors = verify_dynamic_tree_vertex_set_path_composite_package()
+        if errors:
+            raise ValueError("dynamic_tree_vertex_set_path_composite package is incomplete: "
+                             + "; ".join(errors))
+        return
     if algorithm == "tree_decomposition_width_2":
         package_workload = ROOT / "benchmarks/t/tree_decomposition_width_2/workload.json"
         if workload != json.loads(package_workload.read_text(encoding="utf-8")):
@@ -37819,6 +38299,127 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         if workload != json.loads(package_workload.read_text(encoding="utf-8")):
             raise ValueError("multivariate_convolution_cyclic workload differs from its package file")
         verify_multivariate_convolution_cyclic_package()
+        return
+    if algorithm == "dynamic_tree_vertex_add_subtree_sum":
+        package_workload = ROOT / "benchmarks/d/dynamic_tree_vertex_add_subtree_sum/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("dynamic_tree_vertex_add_subtree_sum workload differs from its package file")
+        issues = dynamic_tree_vertex_add_subtree_sum_static_issues()
+        if issues:
+            raise ValueError("dynamic_tree_vertex_add_subtree_sum package check failed: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "dynamic_tree_subtree_add_subtree_sum":
+        package_workload = ROOT / "benchmarks/d/dynamic_tree_subtree_add_subtree_sum/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("dynamic_tree_subtree_add_subtree_sum workload differs from its package file")
+        issues = dynamic_tree_subtree_add_subtree_sum_static_issues()
+        if issues:
+            raise ValueError("dynamic_tree_subtree_add_subtree_sum package check failed: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "garsia_wachs_alphabetic_tree":
+        package_workload = ROOT / "benchmarks/g/garsia_wachs_alphabetic_tree/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("garsia_wachs_alphabetic_tree workload differs from its package file")
+        issues = garsia_wachs_alphabetic_tree_static_issues()
+        if issues:
+            raise ValueError("garsia_wachs_alphabetic_tree package check failed: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "schreier_sims":
+        package_workload = ROOT / "benchmarks/s/schreier_sims/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("schreier_sims workload differs from its package file")
+        errors = verify_schreier_sims_package()
+        if errors:
+            raise ValueError("schreier_sims package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "old_driver_tree":
+        package_workload = ROOT / "benchmarks/o/old_driver_tree/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("old_driver_tree workload differs from its package file")
+        errors = verify_old_driver_tree_package()
+        if errors:
+            raise ValueError("old_driver_tree package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "point_set_tree_path_composite_sum_fixed_root":
+        package_workload = ROOT / "benchmarks/p/point_set_tree_path_composite_sum_fixed_root/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("fixed-root HLD workload differs from its package file")
+        try:
+            verify_fixed_root_hld_package()
+        except (OSError, ValueError, json.JSONDecodeError) as error:
+            raise ValueError("fixed-root HLD package is incomplete: " + str(error)) from error
+        return
+    if algorithm == "point_set_tree_path_composite_sum":
+        package_workload = ROOT / "benchmarks/p/point_set_tree_path_composite_sum/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("arbitrary-root top-tree workload differs from its package file")
+        errors = verify_arbitrary_root_top_tree_package()
+        if errors:
+            raise ValueError("arbitrary-root top-tree package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "de_bruijn_sequences":
+        package_workload = ROOT / "benchmarks/d/de_bruijn_sequences/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("de Bruijn workload differs from its package file")
+        issues = de_bruijn_sequences_static_issues()
+        if issues:
+            raise ValueError("de Bruijn package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "knuth_power_tree":
+        package_workload = ROOT / "benchmarks/k/knuth_power_tree/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Knuth power-tree workload differs from its package file")
+        issues = knuth_power_tree_static_issues()
+        if issues:
+            raise ValueError("Knuth power-tree package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "prefix_substring_lcs":
+        package_workload = ROOT / "benchmarks/p/prefix_substring_lcs/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("prefix-substring LCS workload differs from its package file")
+        errors = verify_prefix_substring_lcs_package()
+        if errors:
+            raise ValueError("prefix-substring LCS package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "main_lorentz_tandem_repetitions":
+        package_workload = ROOT / "benchmarks/p/main_lorentz_tandem_repetitions/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Main–Lorentz workload differs from its package file")
+        verify_main_lorentz_tandem_repetitions_package()
+        return
+    if algorithm == "suffix_balanced_tree":
+        package_workload = ROOT / "benchmarks/s/suffix_balanced_tree/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("suffix_balanced_tree workload differs from its package file")
+        errors = verify_suffix_balanced_tree_package()
+        if errors:
+            raise ValueError("suffix_balanced_tree package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "segment_history_extreme":
+        package_workload = ROOT / "benchmarks/s/segment_history_extreme/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("segment_history_extreme workload differs from its package file")
+        issues = segment_history_extreme_static_issues()
+        if issues:
+            raise ValueError("segment_history_extreme package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "kinetic_tournament_tree":
+        package_workload = ROOT / "benchmarks/p/kinetic_tournament_tree/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("kinetic_tournament_tree workload differs from its package file")
+        verify_kinetic_tournament_tree_package()
+        return
+    if algorithm == "lowest_common_ancestor_farach_colton_bender":
+        package_workload = ROOT / "benchmarks/l/lowest_common_ancestor_farach_colton_bender/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Farach–Colton–Bender LCA workload differs from its package file")
+        issues = farach_colton_bender_lca_static_issues()
+        if issues:
+            raise ValueError("Farach–Colton–Bender LCA package check failed: "
+                             + "; ".join(issues))
         return
     if algorithm == "global_minimum_cut_of_dynamic_star_augmented_graph":
         package_workload = ROOT / "benchmarks/g/global_minimum_cut_of_dynamic_star_augmented_graph/workload.json"
@@ -41755,6 +42356,33 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                     or case["expected_result"] != result
                     or case.get("expected_output_hex", "").lower() != output.hex()):
                 raise ValueError(f"link_cut_tree fixture differs from its oracle: {case.get('id')}")
+        return
+    if algorithm == "euler_tour_tree":
+        package_workload = ROOT / "benchmarks/e/euler_tour_tree/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("euler_tour_tree workload differs from its package file")
+        verify_euler_tour_tree_package()
+        return
+    if algorithm == "dynamic_top_tree_component_diameter":
+        package_workload = ROOT / "benchmarks/d/dynamic_top_tree_component_diameter/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("dynamic_top_tree_component_diameter workload differs from its package file")
+        issues = verify_dynamic_top_tree_component_diameter_package()
+        if issues:
+            raise ValueError("dynamic_top_tree_component_diameter package check failed: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "sort_points_by_argument":
+        package_workload = ROOT / "benchmarks/s/sort_points_by_argument/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("sort_points_by_argument workload differs from its package file")
+        verify_sort_points_by_argument_package()
+        return
+    if algorithm == "count_points_in_triangle":
+        package_workload = ROOT / "benchmarks/c/count_points_in_triangle/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("count_points_in_triangle workload differs from its package file")
+        verify_count_points_in_triangle_package()
         return
     if algorithm == "k_shortest_walk":
         task_url = "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/graph/k_shortest_walk/task.md"

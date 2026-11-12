@@ -1,0 +1,164 @@
+const PS_MAX_M: usize = 32
+const PS_MAX_N: usize = 32
+const PS_MAX_Q: usize = 64
+const PS_STRIDE: usize = 33
+const PS_MAX_INPUT: usize = 259
+
+def prefix_substring_lcs_validate(input: view[i64], length: usize) -> bool:
+    if length < 3 or length > PS_MAX_INPUT:
+        return false
+    if input[0] < 1 or input[0] > 32 or input[1] < 1 or input[1] > 32:
+        return false
+    if input[2] < 1 or input[2] > 64:
+        return false
+    m: usize = input[0].usize()
+    n: usize = input[1].usize()
+    q: usize = input[2].usize()
+    if length != 3 + m + n + 3 * q:
+        return false
+    offset: mutable usize = 3
+    index: mutable usize = 0
+    while index < m + n:
+        if input[offset] < 97 or input[offset] > 122:
+            return false
+        offset <- offset + 1
+        index <- index + 1
+    index <- 0
+    while index < q:
+        a: i64 = input[offset]
+        b: i64 = input[offset + 1]
+        c: i64 = input[offset + 2]
+        if a < 0 or a > m.i64() or b < 0 or b > c or c > n.i64():
+            return false
+        offset <- offset + 3
+        index <- index + 1
+    true
+
+def prefix_substring_lcs_compute(input: view[i64], output: mutable view[u8]) -> i64:
+    m: usize = input[0].usize()
+    n: usize = input[1].usize()
+    q: usize = input[2].usize()
+    s: mutable usize[PS_MAX_M] = zeroed
+    t: mutable usize[PS_MAX_N] = zeroed
+    offset: mutable usize = 3
+    index: mutable usize = 0
+    while index < m:
+        s[index] <- input[offset].usize()
+        offset <- offset + 1
+        index <- index + 1
+    index <- 0
+    while index < n:
+        t[index] <- input[offset].usize()
+        offset <- offset + 1
+        index <- index + 1
+
+    query_a: mutable usize[PS_MAX_Q] = zeroed
+    query_b: mutable usize[PS_MAX_Q] = zeroed
+    query_c: mutable usize[PS_MAX_Q] = zeroed
+    query_head: mutable i64[PS_STRIDE * PS_STRIDE] = zeroed
+    query_next: mutable i64[PS_MAX_Q] = zeroed
+    index <- 0
+    while index < PS_STRIDE * PS_STRIDE:
+        query_head[index] <- -1
+        index <- index + 1
+    index <- 0
+    while index < q:
+        query_a[index] <- input[offset].usize()
+        query_b[index] <- input[offset + 1].usize()
+        query_c[index] <- input[offset + 2].usize()
+        key: usize = query_a[index] * PS_STRIDE + query_b[index]
+        query_next[index] <- query_head[key]
+        query_head[key] <- index.i64()
+        offset <- offset + 3
+        index <- index + 1
+
+    horizontal: mutable usize[PS_STRIDE][PS_STRIDE] = zeroed
+    vertical: mutable usize[PS_STRIDE][PS_STRIDE] = zeroed
+    index <- 0
+    while index <= n:
+        horizontal[0][index] <- index
+        index <- index + 1
+    i: mutable usize = 1
+    while i <= m:
+        j: mutable usize = 1
+        while j <= n:
+            above: usize = horizontal[i - 1][j]
+            left: usize = vertical[i][j - 1]
+            if s[i - 1] == t[j - 1]:
+                horizontal[i][j] <- left
+                vertical[i][j] <- above
+            else:
+                if above > left:
+                    horizontal[i][j] <- above
+                else:
+                    horizontal[i][j] <- left
+                if above < left:
+                    vertical[i][j] <- above
+                else:
+                    vertical[i][j] <- left
+            j <- j + 1
+        i <- i + 1
+
+    answers: mutable usize[PS_MAX_Q] = zeroed
+    a: mutable usize = 0
+    while a <= m:
+        value_head: mutable i64[PS_STRIDE] = zeroed
+        value_next: mutable i64[PS_STRIDE] = zeroed
+        index <- 0
+        while index <= n:
+            value_head[index] <- -1
+            value <- horizontal[a][index]
+            value_next[index] <- value_head[value]
+            value_head[value] <- index.i64()
+            index <- index + 1
+        fenwick: mutable usize[PS_STRIDE + 1] = zeroed
+        b: mutable usize = 0
+        while b <= n:
+            position: mutable i64 = value_head[b]
+            while position >= 0:
+                fenwick_index: mutable usize = position.usize() + 1
+                while fenwick_index <= n + 1:
+                    fenwick[fenwick_index] <- fenwick[fenwick_index] + 1
+                    fenwick_index <- fenwick_index + (fenwick_index & (~fenwick_index + 1))
+                position <- value_next[position.usize()]
+            query_index: mutable i64 = query_head[a * PS_STRIDE + b]
+            while query_index >= 0:
+                qi: usize = query_index.usize()
+                right_sum: mutable usize = 0
+                fenwick_index <- query_c[qi] + 1
+                while fenwick_index > 0:
+                    right_sum <- right_sum + fenwick[fenwick_index]
+                    fenwick_index <- fenwick_index - (fenwick_index & (~fenwick_index + 1))
+                left_sum: mutable usize = 0
+                fenwick_index <- query_b[qi] + 1
+                while fenwick_index > 0:
+                    left_sum <- left_sum + fenwick[fenwick_index]
+                    fenwick_index <- fenwick_index - (fenwick_index & (~fenwick_index + 1))
+                answers[qi] <- right_sum - left_sum
+                query_index <- query_next[qi]
+            b <- b + 1
+        a <- a + 1
+
+    output_bytes: usize = 8 * q
+    index <- 0
+    while index < q:
+        bits: u64 = answers[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[8 * index + byte] <- ((bits >> (8 * byte)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    output_bytes.i64()
+
+export fn prefix_substring_lcs(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > PS_MAX_INPUT:
+        return -1
+    input_view: view[i64] = input[0:length]
+    if not prefix_substring_lcs_validate(input_view, length):
+        return -1
+    q: usize = input_view[2].usize()
+    required: usize = 8 * q
+    if output.is_null() or capacity < required:
+        return -2
+    output_view: mutable view[u8] = output[0:required]
+    prefix_substring_lcs_compute(input_view, output_view)

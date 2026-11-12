@@ -1,0 +1,210 @@
+const SCH_MAX_N: usize = 6
+const SCH_MAX_GENERATORS: usize = 4
+const SCH_MAX_QUERIES: usize = 8
+const SCH_MAX_INPUT: usize = 76
+const SCH_MAX_STRONG_GENERATORS: usize = 32
+const SCH_MAX_PENDING: usize = 8192
+const SCH_LAYER_GENERATORS: usize = 0
+const SCH_GENERATOR_COUNTS: usize = SCH_MAX_N * SCH_MAX_STRONG_GENERATORS
+const SCH_ORBIT_FLAGS: usize = SCH_GENERATOR_COUNTS + SCH_MAX_N
+const SCH_ORBITS: usize = SCH_ORBIT_FLAGS + SCH_MAX_N * SCH_MAX_N
+const SCH_ORBIT_COUNTS: usize = SCH_ORBITS + SCH_MAX_N * SCH_MAX_N
+const SCH_TRANSVERSALS: usize = SCH_ORBIT_COUNTS + SCH_MAX_N
+const SCH_STATE_SIZE: usize = SCH_TRANSVERSALS + SCH_MAX_N * SCH_MAX_N
+const SCH_STATE_BYTES: usize = 8 * SCH_STATE_SIZE
+
+def sch_identity(n: usize) -> i64:
+    result: mutable i64 = 0
+    place: mutable i64 = 1
+    for point in 0..<n:
+        result <- result + i64(point + 1) * place
+        place <- place * 7
+    result
+
+def sch_encode(images: view[i64], n: usize) -> i64:
+    result: mutable i64 = 0
+    place: mutable i64 = 1
+    for point in 0..<n:
+        result <- result + (images[point] + 1) * place
+        place <- place * 7
+    result
+
+def sch_image_of(value_input: i64, point_input: usize) -> usize:
+    value: mutable i64 = value_input
+    point: mutable usize = point_input
+    while point > 0:
+        value <- value / 7
+        point <- point - 1
+    (value % 7 - 1).usize()
+
+def sch_compose(first: i64, second: i64, n: usize) -> i64:
+    images: mutable i64[SCH_MAX_N] = zeroed
+    for point in 0..<n:
+        images[point] <- i64(sch_image_of(second, sch_image_of(first, point)))
+    sch_encode(images[0:n], n)
+
+def sch_inverse(value: i64, n: usize) -> i64:
+    images: mutable i64[SCH_MAX_N] = zeroed
+    for point in 0..<n:
+        images[sch_image_of(value, point)] <- i64(point)
+    sch_encode(images[0:n], n)
+
+def sch_append_generator(state: mutable view[i64], level: usize, value: i64) -> bool:
+    count: usize = state[SCH_GENERATOR_COUNTS + level].usize()
+    for i in 0..<count:
+        if state[SCH_LAYER_GENERATORS + level * SCH_MAX_STRONG_GENERATORS + i] == value: return true
+    if count >= SCH_MAX_STRONG_GENERATORS: return false
+    state[SCH_LAYER_GENERATORS + level * SCH_MAX_STRONG_GENERATORS + count] <- value
+    state[SCH_GENERATOR_COUNTS + level] <- i64(count + 1)
+    true
+
+def sch_rebuild_orbit(state: mutable view[i64], level: usize, n: usize, id: i64) -> void:
+    for point in 0..<n:
+        state[SCH_ORBIT_FLAGS + level * SCH_MAX_N + point] <- 0
+    state[SCH_ORBIT_COUNTS + level] <- 1
+    state[SCH_ORBITS + level * SCH_MAX_N] <- i64(level)
+    state[SCH_ORBIT_FLAGS + level * SCH_MAX_N + level] <- 1
+    state[SCH_TRANSVERSALS + level * SCH_MAX_N + level] <- id
+    at: mutable usize = 0
+    while at < state[SCH_ORBIT_COUNTS + level].usize():
+        point: usize = state[SCH_ORBITS + level * SCH_MAX_N + at].usize()
+        at <- at + 1
+        representative: i64 = state[SCH_TRANSVERSALS + level * SCH_MAX_N + point]
+        generator_count: usize = state[SCH_GENERATOR_COUNTS + level].usize()
+        for g in 0..<generator_count:
+            generator: i64 = state[SCH_LAYER_GENERATORS + level * SCH_MAX_STRONG_GENERATORS + g]
+            image: usize = sch_image_of(generator, point)
+            if state[SCH_ORBIT_FLAGS + level * SCH_MAX_N + image] == 0:
+                state[SCH_ORBIT_FLAGS + level * SCH_MAX_N + image] <- 1
+                state[SCH_TRANSVERSALS + level * SCH_MAX_N + image] <- sch_compose(representative, generator, n)
+                count: usize = state[SCH_ORBIT_COUNTS + level].usize()
+                state[SCH_ORBITS + level * SCH_MAX_N + count] <- i64(image)
+                state[SCH_ORBIT_COUNTS + level] <- i64(count + 1)
+
+def sch_sift(state: view[i64], start: usize, value_input: i64, n: usize,
+    result: mutable view[i64]) -> usize:
+    residue: mutable i64 = value_input
+    level: mutable usize = start
+    while level < n:
+        image: usize = sch_image_of(residue, level)
+        if state[SCH_ORBIT_FLAGS + level * SCH_MAX_N + image] == 0: break
+        representative: i64 = state[SCH_TRANSVERSALS + level * SCH_MAX_N + image]
+        residue <- sch_compose(residue, sch_inverse(representative, n), n)
+        level <- level + 1
+    result[0] <- residue
+    result[1] <- i64(level)
+    level
+
+def sch_build_chain(state: mutable view[i64], pending: mutable view[i64],
+    generators: view[i64], count: usize, n: usize) -> bool:
+    id: i64 = sch_identity(n)
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    for i in 0..<count:
+        pending[2 * tail] <- 0
+        pending[2 * tail + 1] <- generators[i]
+        tail <- tail + 1
+    while head < tail:
+        start: usize = pending[2 * head].usize()
+        candidate: i64 = pending[2 * head + 1]
+        head <- head + 1
+        pair: mutable i64[2] = zeroed
+        pair_view: mutable view[i64] = pair[0:2]
+        level: usize = sch_sift(state, start, candidate, n, pair_view)
+        residue: i64 = pair[0]
+        if residue == id or level == n: continue
+        inverse_residue: i64 = sch_inverse(residue, n)
+        if not sch_append_generator(state, level, residue) or not sch_append_generator(state, level, inverse_residue): return false
+        sch_rebuild_orbit(state, level, n, id)
+        if level + 1 < n:
+            orbit_count: usize = state[SCH_ORBIT_COUNTS + level].usize()
+            generator_count: usize = state[SCH_GENERATOR_COUNTS + level].usize()
+            for orbit_index in 0..<orbit_count:
+                point: usize = state[SCH_ORBITS + level * SCH_MAX_N + orbit_index].usize()
+                representative: i64 = state[SCH_TRANSVERSALS + level * SCH_MAX_N + point]
+                for g in 0..<generator_count:
+                    generator: i64 = state[SCH_LAYER_GENERATORS + level * SCH_MAX_STRONG_GENERATORS + g]
+                    image: usize = sch_image_of(generator, point)
+                    other: i64 = state[SCH_TRANSVERSALS + level * SCH_MAX_N + image]
+                    schreier: i64 = sch_compose(sch_compose(representative, generator, n), sch_inverse(other, n), n)
+                    if schreier != id:
+                        if tail >= SCH_MAX_PENDING: return false
+                        pending[2 * tail] <- i64(level + 1)
+                        pending[2 * tail + 1] <- schreier
+                        tail <- tail + 1
+    true
+
+def sch_is_member(state: view[i64], value_input: i64, n: usize) -> bool:
+    residue: mutable i64 = value_input
+    id: i64 = sch_identity(n)
+    for level in 0..<n:
+        image: usize = sch_image_of(residue, level)
+        if state[SCH_ORBIT_FLAGS + level * SCH_MAX_N + image] == 0: return false
+        representative: i64 = state[SCH_TRANSVERSALS + level * SCH_MAX_N + image]
+        residue <- sch_compose(residue, sch_inverse(representative, n), n)
+    residue == id
+
+def sch_read_permutation(input: view[i64], offset: usize, n: usize) -> i64:
+    used: mutable bool[SCH_MAX_N] = zeroed
+    images: mutable i64[SCH_MAX_N] = zeroed
+    for point in 0..<n:
+        image: i64 = input[offset + point]
+        if image < 0 or image >= n.i64() or used[image.usize()]: return -1
+        used[image.usize()] <- true
+        images[point] <- image
+    sch_encode(images[0:n], n)
+
+def sch_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+export fn schreier_sims(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > SCH_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    m_value: i64 = input_view[1]
+    q_value: i64 = input_view[2]
+    if n_value < 1 or n_value > SCH_MAX_N.i64() or m_value < 0 or m_value > SCH_MAX_GENERATORS.i64() or
+        q_value < 1 or q_value > SCH_MAX_QUERIES.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    q: usize = q_value.usize()
+    if length != 3 + n * (m + q): return -1
+    generators: mutable i64[SCH_MAX_GENERATORS] = zeroed
+    queries: mutable i64[SCH_MAX_QUERIES] = zeroed
+    cursor: mutable usize = 3
+    for i in 0..<m:
+        generators[i] <- sch_read_permutation(input_view, cursor, n)
+        if generators[i] < 0: return -1
+        cursor <- cursor + n
+    for i in 0..<q:
+        queries[i] <- sch_read_permutation(input_view, cursor, n)
+        if queries[i] < 0: return -1
+        cursor <- cursor + n
+    required: usize = 8 * (q + 1)
+    if output.is_null() or capacity < required: return -2
+    safe_capacity: mutable usize = required
+    if safe_capacity > 72: safe_capacity <- 72
+    output_view: mutable view[u8] = if output.is_null() then zeroed else output[0:safe_capacity]
+    state: mutable i64[SCH_STATE_SIZE] = zeroed
+    for level in 0..<n:
+        state[SCH_ORBIT_FLAGS + level * SCH_MAX_N + level] <- 1
+        state[SCH_ORBITS + level * SCH_MAX_N] <- i64(level)
+        state[SCH_ORBIT_COUNTS + level] <- 1
+        state[SCH_TRANSVERSALS + level * SCH_MAX_N + level] <- sch_identity(n)
+    pending: mutable i64[2 * SCH_MAX_PENDING] = zeroed
+    state_view: mutable view[i64] = state[0:SCH_STATE_SIZE]
+    pending_view: mutable view[i64] = pending[0:2 * SCH_MAX_PENDING]
+    generators_view: view[i64] = generators[0:SCH_MAX_GENERATORS]
+    if not sch_build_chain(state_view, pending_view, generators_view, m, n): return -1
+    order: mutable i64 = 1
+    for level in 0..<n: order <- order * state[SCH_ORBIT_COUNTS + level]
+    sch_store_le(order, output_view, 0)
+    written: mutable usize = 1
+    for i in 0..<q:
+        member: i64 = if sch_is_member(state_view, queries[i], n) then 1 else 0
+        sch_store_le(member, output_view, 8 * written)
+        written <- written + 1
+    required.i64()

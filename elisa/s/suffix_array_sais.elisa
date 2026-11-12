@@ -1,0 +1,150 @@
+const MAX_TEXT_LENGTH: usize = 32
+const MAX_INPUT_LENGTH: usize = 34
+const MAX_ALPHABET: usize = 256
+
+def induce(symbols: view[i32], length: usize, upper: usize,
+           is_s: view[bool], sum_s: view[i32], sum_l: view[i32],
+           ordered_lms: view[i32], lms_count: usize,
+           suffixes: mutable view[i32]) -> void:
+    bucket: mutable i32[MAX_ALPHABET + 2] = zeroed
+    for i in 0..<length: suffixes[i] <- -1
+    for i in 0..<(upper + 2): bucket[i] <- sum_s[i]
+    for i in 0..<lms_count:
+        position: usize = ordered_lms[i].usize()
+        symbol: usize = symbols[position].usize()
+        suffixes[bucket[symbol].usize()] <- position.i32()
+        bucket[symbol] <- bucket[symbol] + 1
+    for i in 0..<(upper + 2): bucket[i] <- sum_l[i]
+    for i in 0..<length:
+        position: i32 = suffixes[i]
+        if position > 0 and not is_s[(position - 1).usize()]:
+            previous: usize = (position - 1).usize()
+            symbol: usize = symbols[previous].usize()
+            suffixes[bucket[symbol].usize()] <- position - 1
+            bucket[symbol] <- bucket[symbol] + 1
+    for i in 0..<(upper + 2): bucket[i] <- sum_l[i]
+    i: mutable usize = length
+    while i > 0:
+        i <- i - 1
+        position: i32 = suffixes[i]
+        if position > 0 and is_s[(position - 1).usize()]:
+            previous: usize = (position - 1).usize()
+            symbol: usize = symbols[previous].usize() + 1
+            bucket[symbol] <- bucket[symbol] - 1
+            suffixes[bucket[symbol].usize()] <- position - 1
+
+def same_lms_substring(symbols: view[i32], is_s: view[bool],
+                       lms_map: view[i32], length: usize,
+                       left: usize, right: usize) -> bool:
+    if left == right: return True
+    offset: mutable usize = 0
+    while offset < length:
+        a: usize = left + offset
+        b: usize = right + offset
+        if a >= length or b >= length or symbols[a] != symbols[b] or is_s[a] != is_s[b]: return False
+        a_lms: bool = offset > 0 and lms_map[a] >= 0
+        b_lms: bool = offset > 0 and lms_map[b] >= 0
+        if a_lms or b_lms: return a_lms and b_lms
+        offset <- offset + 1
+    return False
+
+def sais(symbols: view[i32], length: usize, upper: usize,
+         suffixes: mutable view[i32]) -> void:
+    if length == 0: return
+    if length <= 2:
+        for i in 0..<length: suffixes[i] <- i.i32()
+        if length == 2 and symbols[0] >= symbols[1]:
+            suffixes[0] <- 1
+            suffixes[1] <- 0
+        return
+
+    is_s: mutable bool[MAX_TEXT_LENGTH + 1] = zeroed
+    is_s[length - 1] <- True
+    i: mutable usize = length - 1
+    while i > 0:
+        i <- i - 1
+        is_s[i] <- symbols[i] < symbols[i + 1] or (symbols[i] == symbols[i + 1] and is_s[i + 1])
+
+    lms_map: mutable i32[MAX_TEXT_LENGTH + 2] = zeroed
+    for j in 0..<(length + 1): lms_map[j] <- -1
+    lms: mutable i32[MAX_TEXT_LENGTH + 1] = zeroed
+    lms_count: mutable usize = 0
+    for j in 1..<length:
+        if not is_s[j - 1] and is_s[j]:
+            lms_map[j] <- lms_count.i32()
+            lms[lms_count] <- j.i32()
+            lms_count <- lms_count + 1
+
+    sum_s: mutable i32[MAX_ALPHABET + 2] = zeroed
+    sum_l: mutable i32[MAX_ALPHABET + 2] = zeroed
+    for j in 0..<length:
+        symbol: usize = symbols[j].usize()
+        if is_s[j]: sum_l[symbol + 1] <- sum_l[symbol + 1] + 1
+        else: sum_s[symbol] <- sum_s[symbol] + 1
+    for symbol in 0..<(upper + 1):
+        sum_s[symbol] <- sum_s[symbol] + sum_l[symbol]
+        sum_l[symbol + 1] <- sum_l[symbol + 1] + sum_s[symbol]
+
+    induce(symbols, length, upper, is_s[0:MAX_TEXT_LENGTH + 1],
+           sum_s[0:MAX_ALPHABET + 2], sum_l[0:MAX_ALPHABET + 2],
+           lms[0:MAX_TEXT_LENGTH + 1], lms_count, suffixes)
+    sorted_lms: mutable i32[MAX_TEXT_LENGTH + 1] = zeroed
+    sorted_count: mutable usize = 0
+    for j in 0..<length:
+        position: i32 = suffixes[j]
+        if position >= 0 and lms_map[position.usize()] >= 0:
+            sorted_lms[sorted_count] <- position
+            sorted_count <- sorted_count + 1
+
+    reduced: mutable i32[MAX_TEXT_LENGTH + 1] = zeroed
+    reduced_upper: mutable usize = 0
+    for j in 0..<sorted_count:
+        if j > 0 and not same_lms_substring(symbols, is_s[0:MAX_TEXT_LENGTH + 1],
+                                            lms_map[0:MAX_TEXT_LENGTH + 2], length,
+                                            sorted_lms[j - 1].usize(), sorted_lms[j].usize()):
+            reduced_upper <- reduced_upper + 1
+        reduced[lms_map[sorted_lms[j].usize()].usize()] <- reduced_upper.i32()
+    reduced_order: mutable i32[MAX_TEXT_LENGTH + 1] = zeroed
+    if reduced_upper + 1 == sorted_count:
+        for j in 0..<sorted_count:
+            reduced_order[reduced[j].usize()] <- j.i32()
+    else:
+        sais(reduced[0:MAX_TEXT_LENGTH + 1], sorted_count, reduced_upper,
+             reduced_order[0:MAX_TEXT_LENGTH + 1])
+    ordered_lms: mutable i32[MAX_TEXT_LENGTH + 1] = zeroed
+    for j in 0..<sorted_count: ordered_lms[j] <- lms[reduced_order[j].usize()]
+    induce(symbols, length, upper, is_s[0:MAX_TEXT_LENGTH + 1],
+           sum_s[0:MAX_ALPHABET + 2], sum_l[0:MAX_ALPHABET + 2],
+           ordered_lms[0:MAX_TEXT_LENGTH + 1], sorted_count, suffixes)
+
+def put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def suffix_array_sais_impl(input: i64&, length: usize,
+                           output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > MAX_TEXT_LENGTH.i64(): return -1
+    count: usize = count_value.usize()
+    if length != count + 1: return -1
+    for i in 0..<count:
+        if input[i + 1] < 0 or input[i + 1] > 255: return -1
+    output_bytes: usize = count * 8
+    if output == null or capacity < output_bytes: return -2
+    symbols: mutable i32[MAX_TEXT_LENGTH + 1] = zeroed
+    for i in 0..<count: symbols[i] <- (input[i + 1] + 1).i32()
+    symbols[count] <- 0
+    suffixes: mutable i32[MAX_TEXT_LENGTH + 1] = zeroed
+    sais(symbols[0:MAX_TEXT_LENGTH + 1], count + 1, 256, suffixes[0:MAX_TEXT_LENGTH + 1])
+    out: mutable usize = 0
+    for i in 0..<(count + 1):
+        if suffixes[i] == count.i32(): continue
+        put_i64_le(output[0:capacity], out * 8, suffixes[i].i64())
+        out <- out + 1
+    return output_bytes.i64()
+
+export fn suffix_array_sais(input: i64&, length: usize,
+                            output: mutable u8&, capacity: usize) -> i64 = suffix_array_sais_impl

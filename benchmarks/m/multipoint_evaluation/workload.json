@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-polynomial-multipoint-evaluation-remainder-tree-bytes-v1",
+  "algorithm": "multipoint_evaluation",
+  "function_symbol": "multipoint_evaluation",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "polynomial/multipoint_evaluation/task.md",
+    "limits_path": "polynomial/multipoint_evaluation/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/polynomial/multipoint_evaluation/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/polynomial/multipoint_evaluation/info.toml",
+    "official_n_max": 131072,
+    "official_m_max": 131072,
+    "modulus": 998244353,
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Operation and modulus only; bounded profile, ports, fixtures, oracles, and prose are clean-room."
+  },
+  "oracle": "benchmarks/m/multipoint_evaluation/primary_oracle.py",
+  "independent_oracle": "benchmarks/m/multipoint_evaluation/independent_oracle.py",
+  "contract": {
+    "operation": "Evaluate a polynomial at every supplied point modulo 998244353.",
+    "input_layout": "[N, M, c_0, ..., c_(N-1), p_0, ..., p_(M-1)]",
+    "coefficient_count_range": [1, 8],
+    "point_count_range": [1, 8],
+    "coefficient_and_point_range": [0, 998244352],
+    "leading_coefficient": "nonzero",
+    "modulus": 998244353,
+    "algorithm": "Build a monic product tree over (x-p_i), reduce f modulo the root product, then propagate remainders down the tree. Naive polynomial multiplication and monic long division give O(NM + M^2) coefficient operations in this bounded profile.",
+    "independent_algorithm": "Evaluate each point independently with Horner's recurrence.",
+    "output_layout": "M little-endian signed 64-bit values, in point order.",
+    "error_precedence": "Malformed input returns -1 before output checks. Valid input with null output or capacity below the exact output size returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, M, coefficients..., points...]",
+    "maximum_valid_length": 18,
+    "maximum_parseable_length": 18,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 8,
+    "maximum_bytes": 64,
+    "success_result": "8*M bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "maximum_bytes": 4096,
+    "model": "Fixed product-tree and remainder-tree coefficient tables, node lengths/ranges, and bounded temporary polynomials."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"constant-at-three-points","input_values":[1,3,7,0,1,7],"input_length":6,"expected_result":24,"expected_output_hex":"070000000000000007000000000000000700000000000000"},
+    {"id":"linear-at-three-points","input_values":[2,3,2,3,0,1,2],"input_length":7,"expected_result":24,"expected_output_hex":"020000000000000005000000000000000800000000000000"},
+    {"id":"quadratic-repeated-point","input_values":[3,4,1,2,3,0,1,2,1],"input_length":9,"expected_result":32,"expected_output_hex":"0100000000000000060000000000000011000000000000000600000000000000"},
+    {"id":"five-points-not-power-of-two","input_values":[3,5,1,2,3,0,1,2,3,4],"input_length":10,"expected_result":40,"expected_output_hex":"01000000000000000600000000000000110000000000000022000000000000003900000000000000"},
+    {"id":"modular-cancellation-and-wrap","input_values":[2,3,998244352,1,0,1,2],"input_length":7,"expected_result":24,"expected_output_hex":"0000803b0000000000000000000000000100000000000000"},
+    {"id":"constant-polynomial-more-points","input_values":[1,5,13,4,0,1,2,3,4],"input_length":9,"expected_result":40,"expected_output_hex":"0d000000000000000d000000000000000d000000000000000d000000000000000d00000000000000"},
+    {"id":"degree-exactly-point-count","input_values":[3,2,1,2,1,1,2],"input_length":7,"expected_result":16,"expected_output_hex":"04000000000000000900000000000000"},
+    {"id":"negative-coefficient","input_values":[2,2,0,998244352,0,1],"input_length":6,"expected_result":16,"expected_output_hex":"00000000000000000000803b00000000"},
+    {"id":"zero-leading-coefficient","input_values":[2,1,1,0,2],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"point-out-of-range","input_values":[1,1,1,998244353],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-input","input_values":[2,2,1,1,0],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra-input-word","input_values":[1,1,4,2,3],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[1,1,4,2],"input_length":4,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,4,2],"input_length":4,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

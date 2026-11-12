@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-dynamic-tree-subtree-add-subtree-sum-ett-lazy-v1",
+  "algorithm": "dynamic_tree_subtree_add_subtree_sum",
+  "function_symbol": "dynamic_tree_subtree_add_subtree_sum",
+  "abi": "i64_array_bytes_output",
+  "description": "Dynamic tree edge replacement with rooted-side range addition and sum using a lazy Euler-tour treap.",
+  "source": {
+    "title": "Library Checker: Dynamic Tree Subtree Add Subtree Sum",
+    "authors": ["Library Checker contributors"],
+    "reference": "Dynamic Tree Subtree Add Subtree Sum task",
+    "url": "https://judge.yosupo.jp/problem/dynamic_tree_subtree_add_subtree_sum",
+    "proposal_url": "https://github.com/yosupo06/library-checker-problems/issues/521",
+    "repository_license": "Apache-2.0",
+    "algorithm_attribution": "Euler-tour sequence with per-vertex markers and marker-only lazy range addition",
+    "implementation_status": "clean-room bounded profile; operation semantics only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,values[N],initial_edges[2*(N-1)],events[5*Q]]",
+    "n_range": [1, 16],
+    "q_range": [0, 32],
+    "initial_value_range": [0, 1000],
+    "update_delta_range": [0, 1000],
+    "maximum_value_after_updates": 33000,
+    "maximum_valid_length": 208,
+    "maximum_parseable_length": 209,
+    "event_records": {
+      "0": "[0,u,v,w,x] replaces present edge (u,v) by (w,x), preserving a tree",
+      "1": "[1,v,p,delta,0] adds delta to the component side of v after removing adjacent edge (v,p)",
+      "2": "[2,v,p,0,0] returns the sum on that same component side"
+    },
+    "topology_preconditions": "Initial edges form a tree; replacements preserve a tree; update and query parent vertices are adjacent.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one signed 64-bit little-endian sum per query, in event order",
+    "maximum_bytes": 256,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "zero_query_null_output_is_valid": true
+  },
+  "workspace": {
+    "bytes": 16384,
+    "meaning": "Fixed Euler-tour treap nodes, edge-token matrix, topology-validation adjacency, and staged answers."
+  },
+  "contract": {
+    "operation": "Maintain a weighted tree under edge replacement, add a value to one edge-oriented component, and query that component sum.",
+    "algorithm": "Implicit randomized Euler-tour treap; each vertex has one weighted marker and each edge has two directed zero-weight tokens. A component side is the marker range between an edge's directed tokens.",
+    "complexity": "Expected O(log(N+Q)) per treap event plus O(N^2+NQ) bounded topology preflight, and O(N+Q) bounded storage.",
+    "error_precedence": "Input framing and event fields are validated before topology; full topology validation precedes output-capacity checks.",
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "side-lazy-add-query-and-edge-replacement",
+      "input_values": [4,8,1,2,3,4,0,1,1,2,1,3,2,1,0,0,0,1,1,0,5,0,2,1,0,0,0,2,0,1,0,0,0,1,3,2,3,2,3,2,0,0,1,1,0,2,0,2,0,0,0,2,1,0,0,0],
+      "input_length": 52,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "09000000000000001800000000000000010000000000000009000000000000001e00000000000000"
+    },
+    {
+      "id": "single-vertex-zero-output",
+      "input_values": [1,0,7],
+      "input_length": 3,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonadjacent-side-parent-is-invalid",
+      "input_values": [3,1,1,2,3,0,1,1,2,2,0,2,0,0],
+      "input_length": 14,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonzero-query-reserved-field-is-invalid",
+      "input_values": [2,1,2,4,0,1,2,1,0,0,1],
+      "input_length": 11,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-buffer",
+      "input_values": [2,1,2,4,0,1,2,1,0,0,0],
+      "input_length": 11,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-for-nonempty-result",
+      "input_values": [2,1,2,4,0,1,2,1,0,0,0],
+      "input_length": 11,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

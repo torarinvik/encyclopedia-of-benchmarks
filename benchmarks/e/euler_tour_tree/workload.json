@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "id": "oi-wiki-euler-tour-tree-bounded-v1",
+  "algorithm": "euler_tour_tree",
+  "function_symbol": "euler_tour_tree",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "OI-Wiki/OI-Wiki",
+    "article_url": "https://en.oi-wiki.org/ds/ett/",
+    "repository_license": "CC BY-SA 4.0 and SATA",
+    "reuse_scope": "Algorithm description only; ports, bounded workload, fixtures, oracles, and prose are clean-room."
+  },
+  "oracle": "benchmarks/e/euler_tour_tree/primary_oracle.py",
+  "independent_oracle": "benchmarks/e/euler_tour_tree/independent_oracle.py",
+  "contract": {
+    "operation": "Maintain a dynamic forest with link, cut, vertex-weight assignment, and component aggregate queries.",
+    "input_layout": "[N,M, vertex_weights[N], then M tagged operations]",
+    "operations": {
+      "link": "[0,u,v] joins two disconnected vertices",
+      "cut": "[1,u,v] removes an existing undirected edge",
+      "set_weight": "[2,vertex,new_weight] assigns a vertex weight",
+      "query_component": "[3,vertex] returns the number of vertices and sum of weights in its component"
+    },
+    "algorithm": "Represent each component by a cyclic Euler tour in an implicit treap. Each vertex contributes one marker; every forest edge contributes two directed arc nodes. Link reroots both tours at the requested vertices and concatenates them with the two arcs. Cut rotates to one arc, removes both arcs by sequence splits, and leaves the two resulting tours. Treap aggregates count vertex markers and sum their weights.",
+    "independent_algorithm": "Maintain explicit adjacency sets; use a fresh graph traversal for each component query.",
+    "output_layout": "For each component query, write two little-endian signed 64-bit integers: component vertex count, then component weight sum.",
+    "maximum_query_count": 32,
+    "workspace_bytes": 16384,
+    "error_precedence": "Malformed framing, bounds, or semantic forest operations return -1 before output checks. Valid input with null output or capacity below 16*query_count returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M, weights[N], then tagged operations of length two or three]",
+    "n_range": [1, 8],
+    "operation_count_range": [1, 32],
+    "vertex_weight_range": [-100, 100],
+    "operation_tag_range": [0, 3],
+    "maximum_valid_length": 105,
+    "maximum_parseable_input_length": 106,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 64,
+    "maximum_bytes": 512,
+    "success_result": "16*query_count bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 16384,
+    "storage": "Fixed arrays for at most 8 vertex markers, 64 directed edge arcs, treap links/aggregates, edge records, and operation records."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "link-cut-reweight-component-aggregates",
+      "input_values": [6,15,1,-2,3,4,-1,5,3,0,0,0,1,3,1,0,1,2,0,3,4,3,2,2,1,7,3,0,1,1,2,3,2,0,2,3,3,4,1,0,1,3,0,3,5],
+      "input_length": 45,
+      "output_capacity": 128,
+      "expected_result": 128,
+      "expected_output_hex": "010000000000000001000000000000000200000000000000ffffffffffffffff0300000000000000020000000000000003000000000000000b0000000000000001000000000000000300000000000000030000000000000006000000000000000100000000000000010000000000000001000000000000000500000000000000"
+    },
+    {
+      "id": "cut-separates-updated-weight",
+      "input_values": [3,7,5,-5,7,0,0,1,3,0,2,1,9,3,1,1,0,1,3,0,3,2],
+      "input_length": 22,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output_hex": "0200000000000000000000000000000002000000000000000e000000000000000100000000000000050000000000000001000000000000000700000000000000"
+    },
+    {
+      "id": "link-already-connected-invalid",
+      "input_values": [2,2,0,0,0,0,1,0,1,0,1,0],
+      "input_length": 12,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "cut-absent-edge-invalid",
+      "input_values": [2,2,0,0,1,0,1,3,0],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-query-invalid",
+      "input_values": [2,1,0,0,3],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1,1,-9,3,0],
+      "input_length": 5,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1,1,-9,3,0],
+      "input_length": 5,
+      "output_capacity": 16,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

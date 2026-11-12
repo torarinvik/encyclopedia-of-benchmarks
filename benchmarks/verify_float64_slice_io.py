@@ -14,6 +14,12 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from kahan_summation_oracle import (
+    MAX_INPUT_LENGTH as KAHAN_SUMMATION_MAX_INPUT_LENGTH,
+)
+from kahan_summation_verifier_oracle import (
+    expected_abi as kahan_summation_verifier_oracle,
+)
 from graphai_gcn_aggregation_verifier_oracle import (
     N_LIMIT as GRAPHAI_GCN_N_LIMIT,
     M_LIMIT as GRAPHAI_GCN_M_LIMIT,
@@ -21,6 +27,17 @@ from graphai_gcn_aggregation_verifier_oracle import (
     INPUT_LIMIT as GRAPHAI_GCN_INPUT_LIMIT,
     OUTPUT_LIMIT as GRAPHAI_GCN_OUTPUT_LIMIT,
     expected_output as graphai_gcn_verifier_oracle,
+)
+from graphai_ggnn_message_update_verifier_oracle import (
+    MAX_EDGES as GRAPHAI_GGNN_M_LIMIT,
+    MAX_FEATURES as GRAPHAI_GGNN_D_LIMIT,
+    MAX_NODES as GRAPHAI_GGNN_N_LIMIT,
+    MAX_PARSEABLE_INPUT_LENGTH as GRAPHAI_GGNN_INPUT_LIMIT,
+    expected_output as graphai_ggnn_verifier_oracle,
+)
+from graphai_ggnn_message_update_oracle import (
+    MAX_OUTPUT_ELEMENTS as GRAPHAI_GGNN_OUTPUT_LIMIT,
+    MAX_VALID_INPUT_LENGTH as GRAPHAI_GGNN_VALID_INPUT_LIMIT,
 )
 from graphai_sage_aggregation_verifier_oracle import (
     expected_output as graphai_sage_verifier_oracle,
@@ -169,6 +186,8 @@ from run_float64_slice_io import (
     validate_heat_3d_workload,
     validate_parboil_stencil_laplacian_workload,
                                   validate_graphai_gcn_aggregation_workload,
+                                  validate_kahan_summation_workload,
+                                  validate_graphai_ggnn_message_update_workload,
                                   validate_graphai_sage_aggregation_workload,
                                   validate_graphai_gat_aggregation_workload,
                                   validate_graphai_frontier_sampler_workload,
@@ -2463,6 +2482,10 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_parboil_stencil_laplacian_workload(workload)
     elif algorithm == "graphai_gcn_aggregation":
         validate_graphai_gcn_aggregation_workload(workload)
+    elif algorithm == "kahan_summation":
+        validate_kahan_summation_workload(workload)
+    elif algorithm == "graphai_ggnn_message_update":
+        validate_graphai_ggnn_message_update_workload(workload)
     elif algorithm == "graphai_sage_aggregation":
         validate_graphai_sage_aggregation_workload(workload)
     elif algorithm == "graphai_gat_aggregation":
@@ -2829,6 +2852,24 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                     or not _matches_output(expected_output, independent_output,
                                            absolute_tolerance, relative_tolerance)):
                 raise ValueError(f"{case.get('id')}: GraphAIBench GCN fixture differs from the independent oracle")
+        elif algorithm == "kahan_summation":
+            independent_result, independent_output = kahan_summation_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: Kahan fixture differs from the exact-step verifier")
+        elif algorithm == "graphai_ggnn_message_update":
+            independent_result, independent_output = graphai_ggnn_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: GraphAIBench GGNN fixture differs from the independent oracle")
         elif algorithm == "graphai_sage_aggregation":
             independent_result, independent_output = graphai_sage_verifier_oracle(
                 values, case.get("output_capacity", workspace),
@@ -3752,6 +3793,47 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         if null_result != -1 or null_output:
             raise ValueError("consumer_lame short MDCT null-input oracle returned an invalid result")
         records.append((null_input, null_result, [], workspace, 1, 0))
+    elif algorithm == "kahan_summation":
+        maximum_input = [value for _ in range(KAHAN_SUMMATION_MAX_INPUT_LENGTH // 4)
+                         for value in (1.0e16, 1.0, 1.0, -1.0e16)]
+        result, output = kahan_summation_verifier_oracle(maximum_input, workspace)
+        if (len(maximum_input) != KAHAN_SUMMATION_MAX_INPUT_LENGTH
+                or result != 1 or len(output) != 1
+                or any(not math.isfinite(value) for value in output)):
+            raise ValueError("Kahan verifier rejected the maximum bounded sequence")
+        records.append((maximum_input, result,
+                        [_output_token(value) for value in output], workspace, 0, 0))
+
+        overlength_input = [0.0] * (KAHAN_SUMMATION_MAX_INPUT_LENGTH + 1)
+        invalid_result, invalid_output = kahan_summation_verifier_oracle(
+            overlength_input, workspace, input_length=len(overlength_input))
+        if invalid_result != -1 or invalid_output:
+            raise ValueError("Kahan verifier accepted an overlength sequence")
+        records.append((overlength_input, invalid_result, [], workspace, 0, 0))
+
+        out_of_range_input = [1.0e101]
+        invalid_result, invalid_output = kahan_summation_verifier_oracle(
+            out_of_range_input, 0)
+        if invalid_result != -1 or invalid_output:
+            raise ValueError("Kahan verifier did not prioritize invalid input over capacity")
+        records.append((out_of_range_input, invalid_result, [], 0, 0, 0))
+
+        short_result, short_output = kahan_summation_verifier_oracle([1.0], 0)
+        if short_result != -2 or short_output:
+            raise ValueError("Kahan verifier returned an invalid short-capacity result")
+        records.append(([1.0], short_result, [], 0, 0, 0))
+
+        null_result, null_output = kahan_summation_verifier_oracle(
+            [1.0], 1, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("Kahan verifier returned an invalid null-output result")
+        records.append(([1.0], null_result, [], 1, 0, 1))
+
+        null_input_result, null_input_output = kahan_summation_verifier_oracle(
+            [], workspace, input_is_null=True, input_length=0)
+        if null_input_result != -1 or null_input_output:
+            raise ValueError("Kahan verifier accepted a null input pointer")
+        records.append(([], null_input_result, [], workspace, 1, 0))
     elif algorithm == "graphai_gcn_aggregation":
         n, m, d = GRAPHAI_GCN_N_LIMIT, GRAPHAI_GCN_M_LIMIT, GRAPHAI_GCN_D_LIMIT
         maximum_rowptr = [3 * row for row in range(n + 1)]
@@ -3791,6 +3873,56 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
             [], workspace, input_is_null=True, input_length=0)
         if null_input_result != -1 or null_input_output:
             raise ValueError("GraphAIBench GCN oracle returned an invalid null-input result")
+        records.append(([], null_input_result, [], workspace, 1, 0))
+    elif algorithm == "graphai_ggnn_message_update":
+        n, m, d = (GRAPHAI_GGNN_N_LIMIT, GRAPHAI_GGNN_M_LIMIT,
+                   GRAPHAI_GGNN_D_LIMIT)
+        rows = [3 * row for row in range(n + 1)]
+        cols = [neighbor for source in range(n)
+                for neighbor in ((source + 1) % n, (source + 3) % n,
+                                 (source + 5) % n)]
+        state = [(((vertex + feature) % 5) - 2) / 2.0
+                 for vertex in range(n) for feature in range(d)]
+        matrices = []
+        for _matrix in range(6):
+            matrices.extend(0.125 if row == col else -0.015625
+                            for row in range(n) for col in range(n))
+        maximum_input = ([float(n), float(m), float(d)]
+                         + list(map(float, rows)) + list(map(float, cols))
+                         + state + matrices)
+        result, output = graphai_ggnn_verifier_oracle(maximum_input, workspace)
+        if (len(maximum_input) != GRAPHAI_GGNN_VALID_INPUT_LIMIT
+                or len(maximum_input) > GRAPHAI_GGNN_INPUT_LIMIT
+                or result != GRAPHAI_GGNN_OUTPUT_LIMIT or len(output) != result
+                or any(not math.isfinite(value) for value in output)):
+            raise ValueError("GraphAIBench GGNN oracle rejected the maximum bounded graph")
+        records.append((maximum_input, result,
+                        [_output_token(value) for value in output], workspace, 0, 0))
+
+        short_capacity = GRAPHAI_GGNN_OUTPUT_LIMIT - 1
+        short_result, short_output = graphai_ggnn_verifier_oracle(
+            maximum_input, short_capacity)
+        if short_result != -2 or short_output:
+            raise ValueError("GraphAIBench GGNN oracle returned an invalid short-capacity result")
+        records.append((maximum_input, short_result, [], short_capacity, 0, 0))
+        null_result, null_output = graphai_ggnn_verifier_oracle(
+            maximum_input, GRAPHAI_GGNN_OUTPUT_LIMIT, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("GraphAIBench GGNN oracle returned an invalid null-output result")
+        records.append((maximum_input, null_result, [],
+                        GRAPHAI_GGNN_OUTPUT_LIMIT, 0, 1))
+
+        invalid_input = list(maximum_input)
+        invalid_input[3 + n + 1] = float(n)
+        invalid_result, invalid_output = graphai_ggnn_verifier_oracle(
+            invalid_input, workspace)
+        if invalid_result != -1 or invalid_output:
+            raise ValueError("GraphAIBench GGNN oracle accepted an out-of-range neighbor")
+        records.append((invalid_input, invalid_result, [], workspace, 0, 0))
+        null_input_result, null_input_output = graphai_ggnn_verifier_oracle(
+            [], workspace, input_is_null=True, input_length=0)
+        if null_input_result != -1 or null_input_output:
+            raise ValueError("GraphAIBench GGNN oracle returned an invalid null-input result")
         records.append(([], null_input_result, [], workspace, 1, 0))
     elif algorithm == "graphai_sage_aggregation":
         n, m, d = 8, 24, 4

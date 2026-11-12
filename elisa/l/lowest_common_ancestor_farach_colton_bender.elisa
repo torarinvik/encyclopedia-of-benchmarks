@@ -1,0 +1,199 @@
+const MAX_NODES: usize = 256
+const MAX_QUERIES: usize = 1024
+const MAX_ARCS: usize = 510
+const MAX_INPUT: usize = 4 + 2 * (MAX_NODES - 1) + 2 * MAX_QUERIES
+const MAX_EULER: usize = 2 * MAX_NODES - 1
+const MAX_BLOCKS: usize = 128
+const MAX_LEVELS: usize = 8
+const MAX_MICRO: usize = 4
+
+def lowest_common_ancestor_fcb_shallower(a: usize, b: usize, depth: mutable view[usize]) -> usize:
+    if depth[a] < depth[b]: return a
+    if depth[b] < depth[a]: return b
+    if a < b: return a
+    b
+
+def lowest_common_ancestor_fcb_range_minimum(first: usize, last: usize, euler_count: usize,
+    block_size: usize, depth: mutable view[usize], pattern: mutable view[usize],
+    micro: mutable view[usize], macro_table: mutable view[usize], logs: mutable view[usize]) -> usize:
+    block_a: usize = first / block_size
+    block_b: usize = last / block_size
+    offset_a: usize = first % block_size
+    offset_b: usize = last % block_size
+    if block_a == block_b:
+        return block_a * block_size + micro[(pattern[block_a] * 4 + offset_a) * 4 + offset_b]
+    base_a: usize = block_a * block_size
+    base_b: usize = block_b * block_size
+    length_a: usize = block_size
+    if euler_count - base_a < length_a: length_a <- euler_count - base_a
+    best: usize = base_a + micro[(pattern[block_a] * 4 + offset_a) * 4 + length_a - 1]
+    right_best: usize = base_b + micro[pattern[block_b] * 16 + offset_b]
+    best <- lowest_common_ancestor_fcb_shallower(best, right_best, depth)
+    if block_b > block_a + 1:
+        lo: usize = block_a + 1
+        hi: usize = block_b - 1
+        count: usize = hi - lo + 1
+        level: usize = logs[count]
+        span: usize = 1 << level
+        best <- lowest_common_ancestor_fcb_shallower(best, macro_table[level * MAX_BLOCKS + lo], depth)
+        best <- lowest_common_ancestor_fcb_shallower(best, macro_table[level * MAX_BLOCKS + hi - span + 1], depth)
+    best
+
+def lowest_common_ancestor_farach_colton_bender_impl(input: view[i64], length: usize,
+    output: mutable view[u8], output_capacity: usize, output_is_null: bool) -> i64:
+    if length < 4 or input[0] < 1 or input[0] > i64(MAX_NODES): return -1
+    node_count: usize = input[0].usize()
+    if input[1] < 0 or input[1] >= i64(node_count) or input[2] != i64(node_count - 1) or
+        input[3] < 0 or input[3] > i64(MAX_QUERIES): return -1
+    edge_count: usize = input[2].usize()
+    query_count: usize = input[3].usize()
+    query_offset: usize = 4 + 2 * edge_count
+    if length != query_offset + 2 * query_count: return -1
+    root: usize = input[1].usize()
+
+    head: mutable i64[MAX_NODES] = zeroed
+    arc_to: mutable usize[MAX_ARCS] = zeroed
+    arc_next: mutable i64[MAX_ARCS] = zeroed
+    parent: mutable i64[MAX_NODES] = zeroed
+    tree_depth: mutable usize[MAX_NODES] = zeroed
+    first: mutable usize[MAX_NODES] = zeroed
+    euler: mutable usize[MAX_EULER] = zeroed
+    euler_depth: mutable usize[MAX_EULER] = zeroed
+    stack_node: mutable usize[MAX_NODES] = zeroed
+    stack_arc: mutable i64[MAX_NODES] = zeroed
+    for node in 0..<node_count |head, parent|:
+        head[node] <- -1
+        parent[node] <- -2
+    arcs: mutable usize = 0
+    for edge in 0..<edge_count |input, head, arc_to, arc_next, arcs|:
+        u: i64 = input[4 + 2 * edge]
+        v: i64 = input[5 + 2 * edge]
+        if u < 0 or u >= i64(node_count) or v < 0 or v >= i64(node_count) or u == v: return -1
+        a: usize = u.usize()
+        b: usize = v.usize()
+        arc_to[arcs] <- b
+        arc_next[arcs] <- head[a]
+        head[a] <- arcs.i64()
+        arcs <- arcs + 1
+        arc_to[arcs] <- a
+        arc_next[arcs] <- head[b]
+        head[b] <- arcs.i64()
+        arcs <- arcs + 1
+    for query in 0..<query_count |input, query_offset|:
+        for side in 0..<2 |input, query_offset, query|:
+            node: i64 = input[query_offset + 2 * query + side]
+            if node < 0 or node >= i64(node_count): return -1
+
+    euler_count: mutable usize = 1
+    top: mutable usize = 1
+    reached: mutable usize = 1
+    parent[root] <- -1
+    first[root] <- 0
+    euler[0] <- root
+    stack_node[0] <- root
+    stack_arc[0] <- head[root]
+    while top > 0 |top, stack_node, stack_arc, parent, tree_depth, first, euler, euler_depth, head, arc_to, arc_next, euler_count, reached|:
+        slot: usize = top - 1
+        node: usize = stack_node[slot]
+        arc: i64 = stack_arc[slot]
+        if arc < 0:
+            top <- top - 1
+            if top > 0:
+                up: usize = stack_node[top - 1]
+                euler[euler_count] <- up
+                euler_depth[euler_count] <- tree_depth[up]
+                euler_count <- euler_count + 1
+            continue
+        stack_arc[slot] <- arc_next[arc.usize()]
+        neighbor: usize = arc_to[arc.usize()]
+        if neighbor.i64() == parent[node]: continue
+        if parent[neighbor] != -2: return -1
+        parent[neighbor] <- node.i64()
+        tree_depth[neighbor] <- tree_depth[node] + 1
+        first[neighbor] <- euler_count
+        euler[euler_count] <- neighbor
+        euler_depth[euler_count] <- tree_depth[neighbor]
+        euler_count <- euler_count + 1
+        reached <- reached + 1
+        stack_node[top] <- neighbor
+        stack_arc[top] <- head[neighbor]
+        top <- top + 1
+    if reached != node_count: return -1
+    if output_capacity < query_count or (query_count > 0 and output_is_null): return -2
+
+    logarithm: mutable usize = 0
+    value: mutable usize = euler_count
+    while value > 1 |value, logarithm|:
+        value <- value / 2
+        logarithm <- logarithm + 1
+    block_size: usize = logarithm / 2
+    if block_size < 1: block_size = 1
+    block_count: usize = (euler_count + block_size - 1) / block_size
+    micro: mutable usize[8 * MAX_MICRO * MAX_MICRO] = zeroed
+    pattern: mutable usize[MAX_BLOCKS] = zeroed
+    logs: mutable usize[MAX_BLOCKS + 1] = zeroed
+    macro_table: mutable usize[MAX_LEVELS * MAX_BLOCKS] = zeroed
+    shape_count: usize = 1 << (block_size - 1)
+    for shape in 0..<shape_count:
+        relative: mutable i64[MAX_MICRO] = zeroed
+        for step in 0..<block_size - 1 |relative|:
+            direction: i64 = -1
+            if ((shape >> step) & 1) != 0: direction = 1
+            relative[step + 1] <- relative[step] + direction
+        for left in 0..<block_size:
+            for right in left..<block_size:
+                best: mutable usize = left
+                for at in left + 1..<right + 1 |best|:
+                    if relative[at] < relative[best]: best <- at
+                micro[shape * 16 + left * 4 + right] <- best
+    for block in 0..<block_count |pattern, macro_table|:
+        base: usize = block * block_size
+        end: usize = base + block_size
+        if end > euler_count: end = euler_count
+        best: mutable usize = base
+        for at in base..<end - 1 |pattern, best|:
+            if euler_depth[at + 1] > euler_depth[at]: pattern[block] <- pattern[block] | (1 << (at - base))
+            candidate: usize = at + 1
+            if euler_depth[candidate] < euler_depth[best] or (euler_depth[candidate] == euler_depth[best] and candidate < best): best <- candidate
+        macro_table[block] <- best
+    for count in 2..<block_count + 1 |logs|: logs[count] <- logs[count / 2] + 1
+    macro_levels: mutable usize = 1
+    while (1 << macro_levels) <= block_count and macro_levels < MAX_LEVELS:
+        half: usize = 1 << (macro_levels - 1)
+        span: usize = 2 * half
+        for block in 0..<block_count - span + 1 |macro_table, euler_depth, macro_levels, half|:
+            a: usize = macro_table[(macro_levels - 1) * MAX_BLOCKS + block]
+            b: usize = macro_table[(macro_levels - 1) * MAX_BLOCKS + block + half]
+            macro_table[macro_levels * MAX_BLOCKS + block] <- lowest_common_ancestor_fcb_shallower(a, b, euler_depth[0:euler_count])
+        macro_levels <- macro_levels + 1
+
+    answers: mutable usize[MAX_QUERIES] = zeroed
+    for query in 0..<query_count |input, query_offset, answers|:
+        u: usize = input[query_offset + 2 * query].usize()
+        v: usize = input[query_offset + 2 * query + 1].usize()
+        left: usize = first[u]
+        right: usize = first[v]
+        if left > right:
+            temp: usize = left
+            left <- right
+            right <- temp
+        at: usize = lowest_common_ancestor_fcb_range_minimum(left, right, euler_count, block_size,
+            euler_depth[0:euler_count], pattern[0:block_count], micro[0:8 * MAX_MICRO * MAX_MICRO],
+            macro_table[0:MAX_LEVELS * MAX_BLOCKS], logs[0:block_count + 1])
+        answers[query] <- euler[at]
+    for query in 0..<query_count |output, answers|: output[query] <- answers[query].u8()
+    query_count.i64()
+
+export fn lowest_common_ancestor_farach_colton_bender(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length > MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        dummy_output: mutable u8[1] = zeroed
+        return lowest_common_ancestor_farach_colton_bender_impl(
+            input_view, length, dummy_output[0:0], output_capacity, true)
+    view_capacity: mutable usize = output_capacity
+    if view_capacity > MAX_QUERIES: view_capacity <- MAX_QUERIES
+    output_view: mutable view[u8] = output[0:view_capacity]
+    lowest_common_ancestor_farach_colton_bender_impl(
+        input_view, length, output_view, output_capacity, false)

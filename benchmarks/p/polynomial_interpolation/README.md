@@ -36,8 +36,8 @@ cross-language benchmarks. The task repository is Apache-2.0; see
 and prose are clean-room.
 
 Workload and package checker: [workload.json](workload.json) and
-[verify_workload.py](verify_workload.py). The workload is intended for the
-shared byte-output runner and verifier.
+[verify_workload.py](verify_workload.py). The workload is registered with the
+shared byte-output runner and independent verifier.
 
 | Language | Source |
 |---|---|

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-polynomial-interpolation-geometric-bounded-q-newton-bytes-v1",
+  "algorithm": "polynomial_interpolation_on_geometric_sequence",
+  "function_symbol": "polynomial_interpolation_on_geometric_sequence",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "polynomial/polynomial_interpolation_on_geometric_sequence/task.md",
+    "limits_path": "polynomial/polynomial_interpolation_on_geometric_sequence/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/polynomial/polynomial_interpolation_on_geometric_sequence/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/polynomial/polynomial_interpolation_on_geometric_sequence/info.toml",
+    "official_n_max": 524288,
+    "modulus": 998244353,
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Operation and modulus only; bounded profile, ports, fixtures, oracles, and prose are clean-room."
+  },
+  "oracle": "benchmarks/p/polynomial_interpolation_on_geometric_sequence/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/polynomial_interpolation_on_geometric_sequence/independent_oracle.py",
+  "contract": {
+    "operation": "Given N values y_i and geometric nodes x_i=a*r^i with pairwise-distinct residues, return the N coefficients c_0 through c_(N-1) of the unique interpolating polynomial over F_998244353.",
+    "input_layout": "[N, a, r, y_0, ..., y_(N-1)]",
+    "n_range": [0, 8],
+    "field_value_range": [0, 998244352],
+    "node_formula": "x_i = a*r^i modulo 998244353",
+    "distinct_points": true,
+    "modulus": 998244353,
+    "algorithm": "Use in-place q-Newton divided differences: at order k and endpoint i, divide D[i]-D[i-1] by a*r^(i-k)*(r^k-1); then expand the Newton basis product_(j<k)(X-a*r^j) into monomial coefficients. O(N^2 log MOD) field operations with per-entry modular inversion, plus O(N^2) basis conversion.",
+    "independent_algorithm": "Build the modular Vandermonde system on the geometric nodes and solve by Gauss-Jordan elimination; O(N^3) field operations and O(N^2) matrix storage.",
+    "output_layout": "N little-endian signed 64-bit coefficients c_0 through c_(N-1), including trailing zero coefficients; N=0 emits no bytes.",
+    "error_precedence": "Malformed input or repeated geometric nodes returns -1 before output checks. Valid input with null output or capacity below 8*N returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, a, r, y_0, ..., y_(N-1)]",
+    "maximum_valid_length": 11,
+    "maximum_parseable_length": 11,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 8,
+    "maximum_bytes": 64,
+    "success_result": "8*N bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"zero-points-empty-polynomial","input_values":[0,5,0],"input_length":3,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"single-point-constant","input_values":[1,2,7,11],"input_length":4,"expected_result":8,"expected_output_hex":"0b00000000000000"},
+    {"id":"zero-ratio-two-distinct-nodes","input_values":[2,5,0,13,3],"input_length":5,"expected_result":16,"expected_output_hex":"03000000000000000200000000000000"},
+    {"id":"quadratic-over-ratio-two","input_values":[3,1,2,6,15,45],"input_length":6,"expected_result":24,"expected_output_hex":"010000000000000003000000000000000200000000000000"},
+    {"id":"quartic-size-with-trailing-zero","input_values":[4,3,2,23,80,302,1178],"input_length":7,"expected_result":32,"expected_output_hex":"0200000000000000010000000000000002000000000000000000000000000000"},
+    {"id":"modular-constant","input_values":[2,1,2,998244352,998244352],"input_length":5,"expected_result":16,"expected_output_hex":"0000803b000000000000000000000000"},
+    {"id":"negative-count-invalid","input_values":[-1,1,2],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"count-above-local-bound","input_values":[9,1,2],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"repeated-zero-ratio-nodes-invalid","input_values":[2,0,0,1,2],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"ratio-one-repeats-nodes","input_values":[3,5,1,1,2,3],"input_length":6,"expected_result":-1,"expected_output_hex":""},
+    {"id":"value-out-of-range","input_values":[1,3,2,998244353],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-input","input_values":[2,1,2,3],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra-input-word","input_values":[1,3,2,7,8],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,5,0,13,3],"input_length":5,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-for-empty-result","input_values":[0,5,0],"input_length":3,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input-pointer","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

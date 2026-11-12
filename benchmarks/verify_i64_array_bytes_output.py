@@ -21,6 +21,71 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from gabow_scc_oracle import (
+    MAX_INPUT_LENGTH as GABOW_SCC_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GABOW_SCC_MAX_OUTPUT_BYTES,
+)
+from gabow_scc_kosaraju_oracle import (
+    expected_output as gabow_scc_independent_oracle,
+)
+from c.crochemore_perrin_two_way.independent_oracle import (
+    expected_output as crochemore_perrin_two_way_independent_oracle,
+)
+from c.crochemore_perrin_two_way.primary_oracle import (
+    MAX_INPUT_LENGTH as CROCHEMORE_PERRIN_TWO_WAY_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CROCHEMORE_PERRIN_TWO_WAY_MAX_OUTPUT_BYTES,
+    MAX_PATTERN_LENGTH as CROCHEMORE_PERRIN_TWO_WAY_MAX_PATTERN_LENGTH,
+    MAX_TEXT_LENGTH as CROCHEMORE_PERRIN_TWO_WAY_MAX_TEXT_LENGTH,
+    WORKSPACE_BYTES as CROCHEMORE_PERRIN_TWO_WAY_WORKSPACE_BYTES,
+)
+from v.virtual_tree.independent_oracle import (
+    expected_output as virtual_tree_independent_oracle,
+)
+from v.virtual_tree.primary_oracle import (
+    MAX_INPUT_LENGTH as VIRTUAL_TREE_MAX_INPUT_LENGTH,
+    MAX_MARKED as VIRTUAL_TREE_MAX_MARKED,
+    MAX_OUTPUT_BYTES as VIRTUAL_TREE_MAX_OUTPUT_BYTES,
+    MAX_VALID_INPUT_LENGTH as VIRTUAL_TREE_MAX_VALID_INPUT_LENGTH,
+    MAX_VERTICES as VIRTUAL_TREE_MAX_VERTICES,
+)
+from hirschberg_lcs_oracle import (
+    MAX_INPUT_LENGTH as HIRSCHBERG_LCS_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_LENGTH as HIRSCHBERG_LCS_MAX_PARSEABLE_LENGTH,
+    MAX_OUTPUT_BYTES as HIRSCHBERG_LCS_MAX_OUTPUT_BYTES,
+    MAX_SEQUENCE_LENGTH as HIRSCHBERG_LCS_MAX_SEQUENCE_LENGTH,
+    WORKSPACE_BYTES as HIRSCHBERG_LCS_WORKSPACE_BYTES,
+)
+from hirschberg_lcs_verifier_oracle import (
+    expected_output as hirschberg_lcs_independent_oracle,
+)
+from games_on_arbitrary_graphs_oracle import (
+    MAX_EDGES as GAMES_ON_ARBITRARY_GRAPHS_MAX_EDGES,
+    MAX_INPUT_LENGTH as GAMES_ON_ARBITRARY_GRAPHS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GAMES_ON_ARBITRARY_GRAPHS_MAX_OUTPUT_BYTES,
+    MAX_VERTICES as GAMES_ON_ARBITRARY_GRAPHS_MAX_VERTICES,
+)
+from games_on_arbitrary_graphs_fixed_point_oracle import (
+    expected_output as games_on_arbitrary_graphs_independent_oracle,
+)
+from s.suffix_array_sais.independent_oracle import (
+    expected_output as suffix_array_sais_independent_oracle,
+)
+from s.suffix_array_sais.primary_oracle import (
+    MAX_INPUT_LENGTH as SUFFIX_ARRAY_SAIS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SUFFIX_ARRAY_SAIS_MAX_OUTPUT_BYTES,
+    MAX_TEXT_LENGTH as SUFFIX_ARRAY_SAIS_MAX_TEXT_LENGTH,
+    WORKSPACE_BYTES as SUFFIX_ARRAY_SAIS_WORKSPACE_BYTES,
+)
+from minkowski_sum_convex_polygons_verifier_oracle import (
+    expected_output as minkowski_sum_convex_polygons_independent_oracle,
+)
+from minkowski_sum_convex_polygons_oracle import (
+    MAX_COORDINATE as MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_COORDINATE,
+    MAX_INPUT_LENGTH as MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_OUTPUT_BYTES,
+    MAX_VERTICES as MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_VERTICES,
+    WORKSPACE_BYTES as MINKOWSKI_SUM_CONVEX_POLYGONS_WORKSPACE_BYTES,
+)
 from addition_of_big_integers_verifier_oracle import (
     expected_output as addition_of_big_integers_independent_oracle,
 )
@@ -77,6 +142,21 @@ from p.power_projection_of_set_power_series.independent_oracle import (
 )
 from p.polynomial_interpolation.independent_oracle import (
     expected_output as polynomial_interpolation_independent_oracle,
+)
+from m.multipoint_evaluation.independent_oracle import (
+    expected_output as multipoint_evaluation_independent_oracle,
+)
+from p.polynomial_root_finding.independent_oracle import (
+    expected_output as polynomial_root_finding_independent_oracle,
+)
+from m.multipoint_evaluation_on_geometric_sequence.independent_oracle import (
+    expected_output as multipoint_evaluation_geometric_independent_oracle,
+)
+from p.polynomial_interpolation_on_geometric_sequence.independent_oracle import (
+    expected_output as polynomial_interpolation_geometric_independent_oracle,
+)
+from p.polynomial_composite_set_power_series.independent_oracle import (
+    expected_output as polynomial_composite_set_power_series_independent_oracle,
 )
 from npb_cg_sparse_inverse_power_verifier_oracle import (
     MAX_INPUT_LENGTH as NPB_CG_SPARSE_INVERSE_POWER_VERIFIER_MAX_INPUT_LENGTH,
@@ -1362,7 +1442,189 @@ from sumset_oracle import expected_output as sumset_oracle
 from link_cut_tree_oracle import MAX_INPUT_LENGTH as LINK_CUT_TREE_VERIFIER_MAX_INPUT_LENGTH
 from link_cut_tree_oracle import MAX_OPERATIONS as LINK_CUT_TREE_VERIFIER_MAX_OPERATIONS
 from link_cut_tree_oracle import MAX_OUTPUT_BYTES as LINK_CUT_TREE_VERIFIER_MAX_OUTPUT_BYTES
+from e.euler_tour_tree.primary_oracle import (
+    MAX_INPUT_LENGTH as EULER_TOUR_TREE_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_M as EULER_TOUR_TREE_VERIFIER_MAX_M,
+    MAX_N as EULER_TOUR_TREE_VERIFIER_MAX_N,
+    MAX_OUTPUT_BYTES as EULER_TOUR_TREE_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as EULER_TOUR_TREE_VERIFIER_MAX_WORKSPACE_BYTES,
+)
+from e.euler_tour_tree.independent_oracle import (
+    expected_output as euler_tour_tree_independent_oracle,
+)
+from dynamic_top_tree_component_diameter_oracle import (
+    MAX_INPUT_LENGTH as DYNAMIC_TOP_TREE_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OPERATIONS as DYNAMIC_TOP_TREE_VERIFIER_MAX_OPERATIONS,
+    MAX_OUTPUT_BYTES as DYNAMIC_TOP_TREE_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_VERTICES as DYNAMIC_TOP_TREE_VERIFIER_MAX_VERTICES,
+    WORKSPACE_BYTES as DYNAMIC_TOP_TREE_VERIFIER_WORKSPACE_BYTES,
+)
+from dynamic_top_tree_component_diameter_verifier_oracle import (
+    expected_output as dynamic_top_tree_component_diameter_independent_oracle,
+)
+from dynamic_tree_subtree_add_subtree_sum_oracle import (
+    MAX_N as DYNAMIC_TREE_SUBTREE_ADD_VERIFIER_MAX_N,
+    MAX_Q as DYNAMIC_TREE_SUBTREE_ADD_VERIFIER_MAX_Q,
+    MAX_PARSEABLE_INPUT_LENGTH as DYNAMIC_TREE_SUBTREE_ADD_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DYNAMIC_TREE_SUBTREE_ADD_VERIFIER_MAX_OUTPUT_BYTES,
+)
+from dynamic_tree_subtree_add_subtree_sum_verifier_oracle import (
+    expected_output as dynamic_tree_subtree_add_subtree_sum_independent_oracle,
+)
+from s.sort_points_by_argument.primary_oracle import (
+    MAX_INPUT_LENGTH as SORT_POINTS_BY_ARGUMENT_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_N as SORT_POINTS_BY_ARGUMENT_VERIFIER_MAX_N,
+    MAX_OUTPUT_BYTES as SORT_POINTS_BY_ARGUMENT_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as SORT_POINTS_BY_ARGUMENT_VERIFIER_MAX_WORKSPACE_BYTES,
+)
+from s.sort_points_by_argument.independent_oracle import (
+    expected_output as sort_points_by_argument_independent_oracle,
+)
+from c.count_points_in_triangle.primary_oracle import (
+    MAX_INPUT_LENGTH as COUNT_POINTS_IN_TRIANGLE_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_N as COUNT_POINTS_IN_TRIANGLE_VERIFIER_MAX_N,
+    MAX_M as COUNT_POINTS_IN_TRIANGLE_VERIFIER_MAX_M,
+    MAX_Q as COUNT_POINTS_IN_TRIANGLE_VERIFIER_MAX_Q,
+    MAX_OUTPUT_BYTES as COUNT_POINTS_IN_TRIANGLE_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as COUNT_POINTS_IN_TRIANGLE_VERIFIER_MAX_WORKSPACE_BYTES,
+)
+from c.count_points_in_triangle.independent_oracle import (
+    expected_output as count_points_in_triangle_independent_oracle,
+)
 from link_cut_tree_oracle import MAX_VERTICES as LINK_CUT_TREE_VERIFIER_MAX_VERTICES
+from lowest_common_ancestor_farach_colton_bender_oracle import (
+    MAX_INPUT_VALUES as FCB_LCA_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_NODES as FCB_LCA_VERIFIER_MAX_NODES,
+    MAX_QUERIES as FCB_LCA_VERIFIER_MAX_QUERIES,
+    expected_output as farach_colton_bender_lca_primary_oracle,
+)
+from lowest_common_ancestor_farach_colton_bender_verifier_oracle import (
+    verify_result as farach_colton_bender_lca_verify_result,
+)
+from o.old_driver_tree.independent_oracle import (
+    expected_output as old_driver_tree_independent_oracle,
+)
+from o.old_driver_tree.primary_oracle import (
+    MAX_INPUT as OLD_DRIVER_TREE_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as OLD_DRIVER_TREE_VERIFIER_MAX_OUTPUT_BYTES,
+)
+from d.de_bruijn_sequences.primary_oracle import (
+    MAX_CYCLE_LENGTH as DE_BRUIJN_VERIFIER_MAX_CYCLE_LENGTH,
+    MAX_ORDER as DE_BRUIJN_VERIFIER_MAX_ORDER,
+    MAX_OUTPUT_BYTES as DE_BRUIJN_VERIFIER_MAX_OUTPUT_BYTES,
+    expected_output as de_bruijn_sequences_primary_oracle,
+)
+from d.de_bruijn_sequences.independent_oracle import verify_result as de_bruijn_sequences_verify_result
+from k.knuth_power_tree.primary_oracle import (
+    MAX_OUTPUT_BYTES as KNUTH_POWER_TREE_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_TARGET as KNUTH_POWER_TREE_VERIFIER_MAX_TARGET,
+    expected_output as knuth_power_tree_primary_oracle,
+)
+from k.knuth_power_tree.independent_oracle import verify_result as knuth_power_tree_verify_result
+from p.prefix_substring_lcs.primary_oracle import (
+    MAX_INPUT_LENGTH as PREFIX_SUBSTRING_LCS_VERIFIER_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PREFIX_SUBSTRING_LCS_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as PREFIX_SUBSTRING_LCS_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_QUERIES as PREFIX_SUBSTRING_LCS_VERIFIER_MAX_QUERIES,
+    MAX_STRING_LENGTH as PREFIX_SUBSTRING_LCS_VERIFIER_MAX_STRING_LENGTH,
+    expected_output as prefix_substring_lcs_primary_oracle,
+)
+from p.prefix_substring_lcs.independent_oracle import (
+    expected_output as prefix_substring_lcs_independent_core_oracle,
+)
+from p.point_set_tree_path_composite_sum_fixed_root.independent_oracle import (
+    expected_output as fixed_root_hld_independent_oracle,
+)
+from p.point_set_tree_path_composite_sum_fixed_root.primary_oracle import (
+    MAX_INPUT_LENGTH as FIXED_ROOT_HLD_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as FIXED_ROOT_HLD_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_N as FIXED_ROOT_HLD_VERIFIER_MAX_N,
+    MAX_Q as FIXED_ROOT_HLD_VERIFIER_MAX_Q,
+    MAX_WORKSPACE_BYTES as FIXED_ROOT_HLD_VERIFIER_MAX_WORKSPACE_BYTES,
+)
+from p.point_set_tree_path_composite_sum.independent_oracle import (
+    expected_output as arbitrary_root_top_tree_independent_oracle,
+)
+from p.point_set_tree_path_composite_sum.primary_oracle import (
+    MAX_INPUT as ARBITRARY_ROOT_TOP_TREE_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_N as ARBITRARY_ROOT_TOP_TREE_VERIFIER_MAX_N,
+    MAX_Q as ARBITRARY_ROOT_TOP_TREE_VERIFIER_MAX_Q,
+    MAX_OUTPUT_BYTES as ARBITRARY_ROOT_TOP_TREE_VERIFIER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as ARBITRARY_ROOT_TOP_TREE_VERIFIER_WORKSPACE_BYTES,
+)
+from p.main_lorentz_tandem_repetitions.independent_oracle import (
+    expected_output as main_lorentz_tandem_repetitions_independent_oracle,
+)
+from p.main_lorentz_tandem_repetitions.primary_oracle import (
+    MAX_INPUT_LENGTH as MAIN_LORENTZ_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MAIN_LORENTZ_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_N as MAIN_LORENTZ_VERIFIER_MAX_N,
+    MAX_REPETITIONS as MAIN_LORENTZ_VERIFIER_MAX_REPETITIONS,
+    MAX_WORKSPACE_BYTES as MAIN_LORENTZ_VERIFIER_MAX_WORKSPACE_BYTES,
+)
+from s.suffix_balanced_tree.independent_oracle import (
+    expected_output as suffix_balanced_tree_independent_oracle,
+)
+from s.suffix_balanced_tree.primary_oracle import (
+    MAX_INPUT as SUFFIX_BALANCED_TREE_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SUFFIX_BALANCED_TREE_VERIFIER_MAX_OUTPUT_BYTES,
+)
+from segment_history_extreme_verifier_oracle import (
+    expected_output as segment_history_extreme_independent_oracle,
+)
+from segment_history_extreme_oracle import (
+    MAX_N as SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_N,
+    MAX_Q as SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_Q,
+    MAX_VALUE as SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_VALUE,
+    MAX_PARSEABLE_INPUT_VALUES as SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_OUTPUT_BYTES,
+)
+from p.kinetic_tournament_tree.independent_oracle import (
+    expected_output as kinetic_tournament_tree_independent_oracle,
+)
+from p.kinetic_tournament_tree.primary_oracle import (
+    MAX_INPUT_LENGTH as KINETIC_TOURNAMENT_TREE_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_M as KINETIC_TOURNAMENT_TREE_VERIFIER_MAX_M,
+    MAX_N as KINETIC_TOURNAMENT_TREE_VERIFIER_MAX_N,
+    MAX_OUTPUT_BYTES as KINETIC_TOURNAMENT_TREE_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as KINETIC_TOURNAMENT_TREE_VERIFIER_MAX_WORKSPACE_BYTES,
+)
+from dynamic_tree_vertex_add_subtree_sum_verifier_oracle import (
+    MAX_N as DYNAMIC_TREE_ADD_SUBTREE_MAX_N,
+    MAX_Q as DYNAMIC_TREE_ADD_SUBTREE_MAX_Q,
+    MAX_PARSEABLE_INPUT_LENGTH as DYNAMIC_TREE_ADD_SUBTREE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DYNAMIC_TREE_ADD_SUBTREE_MAX_OUTPUT_BYTES,
+    expected_output as dynamic_tree_vertex_add_subtree_sum_independent_oracle,
+)
+from garsia_wachs_alphabetic_tree_oracle import (
+    MAX_PARSEABLE_INPUT_VALUES as GARSIA_WACHS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GARSIA_WACHS_MAX_OUTPUT_BYTES,
+    expected_output as garsia_wachs_alphabetic_tree_primary_oracle,
+)
+from garsia_wachs_alphabetic_tree_verifier_oracle import (
+    MAX_N as GARSIA_WACHS_MAX_N,
+    MAX_WEIGHT as GARSIA_WACHS_MAX_WEIGHT,
+    verify_result as garsia_wachs_alphabetic_tree_verify_result,
+)
+from s.schreier_sims.independent_oracle import (
+    expected_output as schreier_sims_independent_oracle,
+)
+from s.schreier_sims.primary_oracle import (
+    MAX_INPUT as SCHREIER_SIMS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SCHREIER_SIMS_MAX_OUTPUT_BYTES,
+    MAX_N as SCHREIER_SIMS_MAX_N,
+    MAX_GENERATORS as SCHREIER_SIMS_MAX_GENERATORS,
+    MAX_QUERIES as SCHREIER_SIMS_MAX_QUERIES,
+)
+from t.dynamic_tree_vertex_set_path_composite.independent_oracle import (
+    expected_output as dynamic_tree_vertex_set_path_composite_independent_oracle,
+)
+from t.dynamic_tree_vertex_set_path_composite.primary_oracle import (
+    MAX_INPUT_LENGTH as DYNAMIC_TREE_PATH_COMPOSITE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DYNAMIC_TREE_PATH_COMPOSITE_MAX_OUTPUT_BYTES,
+    MAX_N as DYNAMIC_TREE_PATH_COMPOSITE_MAX_N,
+    MAX_Q as DYNAMIC_TREE_PATH_COMPOSITE_MAX_Q,
+)
 from st_numbering_oracle import MAX_EDGES as ST_NUMBERING_VERIFIER_MAX_EDGES
 from st_numbering_oracle import MAX_INPUT_LENGTH as ST_NUMBERING_VERIFIER_MAX_INPUT_LENGTH
 from st_numbering_oracle import MAX_OUTPUT_BYTES as ST_NUMBERING_VERIFIER_MAX_OUTPUT_BYTES
@@ -5461,7 +5723,24 @@ ALGORITHMS = (*ALGORITHMS, "distributed_coupon_collection_replay",
 ALGORITHMS = (*ALGORITHMS, "sensor_energy_balance_estimator_trace")
 ALGORITHMS = (*ALGORITHMS, "packet_routing_work_conserving_schedule")
 ALGORITHMS = (*ALGORITHMS, "lz78_flexible_parsing")
-ALGORITHMS = (*ALGORITHMS, "dominator_tree", "st_numbering", "link_cut_tree")
+ALGORITHMS = (*ALGORITHMS, "dominator_tree", "st_numbering", "link_cut_tree",
+              "euler_tour_tree",
+              "dynamic_top_tree_component_diameter",
+              "dynamic_tree_subtree_add_subtree_sum",
+              "sort_points_by_argument",
+              "count_points_in_triangle",
+              "lowest_common_ancestor_farach_colton_bender",
+              "old_driver_tree", "point_set_tree_path_composite_sum_fixed_root",
+              "point_set_tree_path_composite_sum",
+              "de_bruijn_sequences", "knuth_power_tree",
+              "prefix_substring_lcs",
+              "main_lorentz_tandem_repetitions",
+              "suffix_balanced_tree",
+              "segment_history_extreme",
+              "kinetic_tournament_tree",
+              "dynamic_tree_vertex_add_subtree_sum",
+              "dynamic_tree_vertex_set_path_composite",
+              "garsia_wachs_alphabetic_tree", "schreier_sims")
 ALGORITHMS = (*ALGORITHMS, "k_shortest_walk")
 ALGORITHMS = (*ALGORITHMS, "d_esopo_pape")
 ALGORITHMS = (*ALGORITHMS, "static_range_mode_query")
@@ -5505,7 +5784,17 @@ ALGORITHMS = (*ALGORITHMS, "npb_cg_sparse_inverse_power", "hpcg_profile",
               "conversion_from_monomial_basis_to_newton_basis",
               "shift_of_sampling_points_of_polynomial",
               "power_projection_of_set_power_series",
-              "polynomial_interpolation")
+              "polynomial_interpolation", "multipoint_evaluation",
+              "polynomial_root_finding")
+ALGORITHMS = (*ALGORITHMS, "multipoint_evaluation_on_geometric_sequence")
+ALGORITHMS = (*ALGORITHMS, "polynomial_interpolation_on_geometric_sequence",
+              "polynomial_composite_set_power_series")
+ALGORITHMS = (*ALGORITHMS, "gabow_scc")
+ALGORITHMS = (*ALGORITHMS, "suffix_array_sais", "minkowski_sum_convex_polygons")
+ALGORITHMS = (*ALGORITHMS, "crochemore_perrin_two_way")
+ALGORITHMS = (*ALGORITHMS, "virtual_tree")
+ALGORITHMS = (*ALGORITHMS, "hirschberg_lcs")
+ALGORITHMS = (*ALGORITHMS, "games_on_arbitrary_graphs")
 WORKSPACE_ALGORITHMS.update({
     "npb_cg_sparse_inverse_power", "hpcg_profile", "baswana_sen_weighted_spanner",
     "npb_lu_block_ssor", "q_binomial_coefficient_prime_mod",
@@ -5517,8 +5806,14 @@ WORKSPACE_ALGORITHMS.update({
     "compositional_inverse_of_formal_power_series", "pow_of_formal_power_series",
     "exp_of_set_power_series", "product_of_polynomial_sequence",
     "factorization_of_polynomials", "conversion_from_monomial_basis_to_newton_basis",
-    "shift_of_sampling_points_of_polynomial", "power_projection_of_set_power_series"})
-WORKSPACE_ALGORITHMS.add("polynomial_interpolation")
+    "shift_of_sampling_points_of_polynomial", "power_projection_of_set_power_series",
+    "polynomial_interpolation", "multipoint_evaluation",
+    "polynomial_root_finding", "multipoint_evaluation_on_geometric_sequence",
+    "polynomial_interpolation_on_geometric_sequence",
+    "polynomial_composite_set_power_series", "gabow_scc",
+    "suffix_array_sais", "minkowski_sum_convex_polygons",
+    "crochemore_perrin_two_way", "virtual_tree", "hirschberg_lcs",
+    "games_on_arbitrary_graphs"})
 WORKSPACE_ALGORITHMS.update({
     "ams_sketch", "count_min_sketch_affine", "deterministic_line_search",
     "color_coding_k_path",
@@ -5780,6 +6075,24 @@ WORKSPACE_ALGORITHMS.update({
 })
 WORKSPACE_ALGORITHMS.add("dominator_tree")
 WORKSPACE_ALGORITHMS.update({"st_numbering", "link_cut_tree"})
+WORKSPACE_ALGORITHMS.add("euler_tour_tree")
+WORKSPACE_ALGORITHMS.add("dynamic_top_tree_component_diameter")
+WORKSPACE_ALGORITHMS.add("dynamic_tree_subtree_add_subtree_sum")
+WORKSPACE_ALGORITHMS.add("sort_points_by_argument")
+WORKSPACE_ALGORITHMS.add("count_points_in_triangle")
+WORKSPACE_ALGORITHMS.add("dynamic_tree_vertex_add_subtree_sum")
+WORKSPACE_ALGORITHMS.add("dynamic_tree_vertex_set_path_composite")
+WORKSPACE_ALGORITHMS.add("garsia_wachs_alphabetic_tree")
+WORKSPACE_ALGORITHMS.add("schreier_sims")
+WORKSPACE_ALGORITHMS.add("lowest_common_ancestor_farach_colton_bender")
+WORKSPACE_ALGORITHMS.update({"old_driver_tree", "point_set_tree_path_composite_sum_fixed_root"})
+WORKSPACE_ALGORITHMS.add("point_set_tree_path_composite_sum")
+WORKSPACE_ALGORITHMS.update({"de_bruijn_sequences", "knuth_power_tree",
+                             "prefix_substring_lcs"})
+WORKSPACE_ALGORITHMS.add("main_lorentz_tandem_repetitions")
+WORKSPACE_ALGORITHMS.add("suffix_balanced_tree")
+WORKSPACE_ALGORITHMS.add("segment_history_extreme")
+WORKSPACE_ALGORITHMS.add("kinetic_tournament_tree")
 WORKSPACE_ALGORITHMS.add("k_shortest_walk")
 WORKSPACE_ALGORITHMS.add("d_esopo_pape")
 WORKSPACE_ALGORITHMS.add("static_range_mode_query")
@@ -12740,7 +13053,85 @@ def rooted_tree_min_inversions_independent_oracle(
     return result, output
 
 
+def garsia_wachs_alphabetic_tree_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    """Use canonical Garsia-Wachs bytes and check them with interval DP."""
+    result, output = garsia_wachs_alphabetic_tree_primary_oracle(
+        values, capacity, output_is_null, input_is_null, input_length)
+    if not garsia_wachs_alphabetic_tree_verify_result(
+            values, result, output, output_capacity=capacity,
+            output_is_null=output_is_null, input_is_null=input_is_null,
+            input_length=input_length):
+        return -1, b""
+    return result, output
+
+
+def farach_colton_bender_lca_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    """Use parent-climb bytes and verify them with BFS plus ancestor sets."""
+    result, output = farach_colton_bender_lca_primary_oracle(
+        values, capacity, output_is_null, input_is_null, input_length)
+    if not farach_colton_bender_lca_verify_result(
+            values, result, output, output_capacity=capacity,
+            output_is_null=output_is_null, input_is_null=input_is_null,
+            input_length=input_length):
+        return -1, b""
+    return result, output
+
+
+def de_bruijn_sequences_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    result, output = de_bruijn_sequences_primary_oracle(
+        values, capacity, output_is_null, input_is_null, input_length)
+    if not de_bruijn_sequences_verify_result(
+            values, result, output, output_capacity=capacity,
+            output_is_null=output_is_null, input_is_null=input_is_null,
+            input_length=input_length):
+        return -1, b""
+    return result, output
+
+
+def knuth_power_tree_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    result, output = knuth_power_tree_primary_oracle(
+        values, capacity, output_is_null, input_is_null, input_length)
+    if not knuth_power_tree_verify_result(
+            values, result, output, output_capacity=capacity,
+            output_is_null=output_is_null, input_is_null=input_is_null,
+            input_length=input_length):
+        return -1, b""
+    return result, output
+
+
+def prefix_substring_lcs_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    if input_is_null or values is None:
+        return -1, b""
+    return prefix_substring_lcs_independent_core_oracle(
+        values,
+        output_capacity=(PREFIX_SUBSTRING_LCS_VERIFIER_MAX_OUTPUT_BYTES
+                         if capacity is None else capacity),
+        output_is_null=output_is_null,
+        input_length=input_length,
+    )
+
+
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
+    "gabow_scc": gabow_scc_independent_oracle,
+    "crochemore_perrin_two_way": crochemore_perrin_two_way_independent_oracle,
+    "virtual_tree": virtual_tree_independent_oracle,
+    "hirschberg_lcs": hirschberg_lcs_independent_oracle,
+    "games_on_arbitrary_graphs": games_on_arbitrary_graphs_independent_oracle,
+    "suffix_array_sais": suffix_array_sais_independent_oracle,
+    "minkowski_sum_convex_polygons": minkowski_sum_convex_polygons_independent_oracle,
+    "de_bruijn_sequences": de_bruijn_sequences_independent_oracle,
+    "knuth_power_tree": knuth_power_tree_independent_oracle,
+    "prefix_substring_lcs": prefix_substring_lcs_independent_oracle,
     "addition_of_big_integers": addition_of_big_integers_independent_oracle,
     "prefix_sum_of_binomial_coefficient": prefix_sum_of_binomial_coefficient_independent_oracle,
     "inv_of_formal_power_series": inv_of_formal_power_series_independent_oracle,
@@ -12760,6 +13151,11 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "shift_of_sampling_points_of_polynomial": shift_of_sampling_points_of_polynomial_independent_oracle,
     "power_projection_of_set_power_series": power_projection_of_set_power_series_independent_oracle,
     "polynomial_interpolation": polynomial_interpolation_independent_oracle,
+    "multipoint_evaluation": multipoint_evaluation_independent_oracle,
+    "polynomial_root_finding": polynomial_root_finding_independent_oracle,
+    "multipoint_evaluation_on_geometric_sequence": multipoint_evaluation_geometric_independent_oracle,
+    "polynomial_interpolation_on_geometric_sequence": polynomial_interpolation_geometric_independent_oracle,
+    "polynomial_composite_set_power_series": polynomial_composite_set_power_series_independent_oracle,
     "vector_scheduling": vector_scheduling_independent_oracle,
     "vector_bin_packing": vector_bin_packing_independent_oracle,
     "list_ranking_independent_set_contraction": list_ranking_contraction_independent_oracle,
@@ -12837,6 +13233,23 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "dominator_tree": dominator_tree_independent_oracle,
     "st_numbering": st_numbering_independent_oracle,
     "link_cut_tree": link_cut_tree_independent_oracle,
+    "euler_tour_tree": euler_tour_tree_independent_oracle,
+    "dynamic_top_tree_component_diameter": dynamic_top_tree_component_diameter_independent_oracle,
+    "dynamic_tree_subtree_add_subtree_sum": dynamic_tree_subtree_add_subtree_sum_independent_oracle,
+    "sort_points_by_argument": sort_points_by_argument_independent_oracle,
+    "count_points_in_triangle": count_points_in_triangle_independent_oracle,
+    "lowest_common_ancestor_farach_colton_bender": farach_colton_bender_lca_independent_oracle,
+    "old_driver_tree": old_driver_tree_independent_oracle,
+    "point_set_tree_path_composite_sum_fixed_root": fixed_root_hld_independent_oracle,
+    "point_set_tree_path_composite_sum": arbitrary_root_top_tree_independent_oracle,
+    "main_lorentz_tandem_repetitions": main_lorentz_tandem_repetitions_independent_oracle,
+    "suffix_balanced_tree": suffix_balanced_tree_independent_oracle,
+    "segment_history_extreme": segment_history_extreme_independent_oracle,
+    "kinetic_tournament_tree": kinetic_tournament_tree_independent_oracle,
+    "dynamic_tree_vertex_add_subtree_sum": dynamic_tree_vertex_add_subtree_sum_independent_oracle,
+    "dynamic_tree_vertex_set_path_composite": dynamic_tree_vertex_set_path_composite_independent_oracle,
+    "garsia_wachs_alphabetic_tree": garsia_wachs_alphabetic_tree_independent_oracle,
+    "schreier_sims": schreier_sims_independent_oracle,
     "k_shortest_walk": k_shortest_walk_independent_oracle,
     "d_esopo_pape": d_esopo_pape_independent_oracle,
     "bernoulli_number": bernoulli_number_oracle,
@@ -16494,7 +16907,22 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                        "tsvc_s2711_nonzero_branch_axpy",
                        "gbbs_shiloach_vishkin_spanning_forest",
                        "rodinia_heartwall_template_match",
-                       "st_numbering", "link_cut_tree", "k_shortest_walk",
+                       "st_numbering", "link_cut_tree", "dynamic_tree_vertex_add_subtree_sum",
+                       "euler_tour_tree", "dynamic_tree_subtree_add_subtree_sum",
+                       "sort_points_by_argument",
+                       "count_points_in_triangle",
+                       "dynamic_tree_vertex_set_path_composite",
+                       "garsia_wachs_alphabetic_tree", "schreier_sims",
+                       "lowest_common_ancestor_farach_colton_bender",
+                       "old_driver_tree", "point_set_tree_path_composite_sum_fixed_root",
+                       "point_set_tree_path_composite_sum",
+                       "de_bruijn_sequences", "knuth_power_tree",
+                       "prefix_substring_lcs",
+                       "main_lorentz_tandem_repetitions",
+                       "suffix_balanced_tree",
+                       "segment_history_extreme",
+                       "kinetic_tournament_tree",
+                       "k_shortest_walk",
                        "d_esopo_pape", "bernoulli_number", "two_square_sum",
                        "gcd_of_gaussian_integers", "nim_product_64", "kth_root_mod",
                        "rational_approximation", "counting_eulerian_circuits",
@@ -16520,7 +16948,16 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                        "conversion_from_monomial_basis_to_newton_basis",
                        "shift_of_sampling_points_of_polynomial",
                        "power_projection_of_set_power_series",
-                       "polynomial_interpolation"}:
+                       "polynomial_interpolation",
+                       "multipoint_evaluation",
+                       "polynomial_root_finding",
+                       "multipoint_evaluation_on_geometric_sequence",
+                       "polynomial_interpolation_on_geometric_sequence",
+                       "polynomial_composite_set_power_series", "suffix_balanced_tree",
+                       "segment_history_extreme", "kinetic_tournament_tree",
+                       "euler_tour_tree", "dynamic_top_tree_component_diameter",
+                       "dynamic_tree_subtree_add_subtree_sum",
+                       "sort_points_by_argument", "count_points_in_triangle"}:
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
     elif algorithm == "online_bridge_finding":
@@ -18559,7 +18996,7 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             if invalid_result != -1 or invalid_output:
                 raise ValueError("matrix_det_arbitrary_mod accepted malformed input")
         precedence_result, precedence_output = add(
-            (1, 1, 0), 0, output_is_null=True)
+            (1, 1, 0, 1), 0, output_is_null=True)
         if precedence_result != -1 or precedence_output:
             raise ValueError("matrix_det_arbitrary_mod output errors took precedence over invalid input")
         for null_length in (0, max_input):
@@ -19075,6 +19512,79 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or XOR_LINEAR_BASIS_VERIFIER_MAX_INSERTIONS != 16
                 or XOR_LINEAR_BASIS_VERIFIER_MAX_VALID_INPUT_LENGTH != 129):
             raise ValueError("xor_linear_basis bounds differ from its bounded basis contract")
+    elif algorithm == "gabow_scc":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != GABOW_SCC_MAX_INPUT_LENGTH
+                or max_output != GABOW_SCC_MAX_OUTPUT_BYTES
+                or workspace_bytes != max_output
+                or input_spec.get("maximum_input_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("gabow_scc bounds differ from its bounded path-based SCC profile")
+    elif algorithm == "crochemore_perrin_two_way":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != CROCHEMORE_PERRIN_TWO_WAY_MAX_INPUT_LENGTH
+                or max_output != CROCHEMORE_PERRIN_TWO_WAY_MAX_OUTPUT_BYTES
+                or workspace_bytes != CROCHEMORE_PERRIN_TWO_WAY_WORKSPACE_BYTES
+                or max_input != 99 or max_output != 520
+                or input_spec.get("text_length_range")
+                    != [0, CROCHEMORE_PERRIN_TWO_WAY_MAX_TEXT_LENGTH]
+                or input_spec.get("pattern_length_range")
+                    != [0, CROCHEMORE_PERRIN_TWO_WAY_MAX_PATTERN_LENGTH]
+                or input_spec.get("maximum_valid_length") != max_input - 1
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_output_bytes") != max_output):
+            raise ValueError("crochemore_perrin_two_way bounds differ from its bounded Two-Way profile")
+    elif algorithm == "virtual_tree":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != VIRTUAL_TREE_MAX_INPUT_LENGTH
+                or max_output != VIRTUAL_TREE_MAX_OUTPUT_BYTES
+                or workspace_bytes != max_output
+                or max_input != 66 or max_output != 776
+                or VIRTUAL_TREE_MAX_VERTICES != 32
+                or VIRTUAL_TREE_MAX_MARKED != 32
+                or input_spec.get("maximum_valid_length")
+                    != VIRTUAL_TREE_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_virtual_vertices") != 32
+                or output_spec.get("maximum_output_bytes") != max_output):
+            raise ValueError("virtual_tree bounds differ from its bounded compressed-tree profile")
+    elif algorithm == "hirschberg_lcs":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != HIRSCHBERG_LCS_MAX_PARSEABLE_LENGTH
+                or max_output != HIRSCHBERG_LCS_MAX_OUTPUT_BYTES
+                or workspace_bytes != HIRSCHBERG_LCS_WORKSPACE_BYTES
+                or max_input != 132 or max_output != 64
+                or HIRSCHBERG_LCS_MAX_VALID_INPUT_LENGTH != 130
+                or HIRSCHBERG_LCS_MAX_SEQUENCE_LENGTH != 64
+                or input_spec.get("sequence_length_range") != [0, 64]
+                or input_spec.get("symbol_range") != [0, 127]
+                or input_spec.get("maximum_valid_length") != 130
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_output_bytes") != max_output):
+            raise ValueError("hirschberg_lcs bounds differ from its bounded reconstruction profile")
+    elif algorithm == "suffix_array_sais":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != SUFFIX_ARRAY_SAIS_MAX_INPUT_LENGTH
+                or max_output != SUFFIX_ARRAY_SAIS_MAX_OUTPUT_BYTES
+                or workspace_bytes != SUFFIX_ARRAY_SAIS_WORKSPACE_BYTES
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_output_bytes") != max_output):
+            raise ValueError("suffix_array_sais bounds differ from its bounded SA-IS profile")
+    elif algorithm == "minkowski_sum_convex_polygons":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_INPUT_LENGTH
+                or max_output != MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_OUTPUT_BYTES
+                or workspace_bytes != MINKOWSKI_SUM_CONVEX_POLYGONS_WORKSPACE_BYTES
+                or input_spec.get("maximum_valid_input_length") != max_input - 1
+                or input_spec.get("maximum_parseable_input_length") != max_input
+                or output_spec.get("maximum_output_bytes") != max_output):
+            raise ValueError("minkowski_sum_convex_polygons bounds differ from its bounded edge-merge profile")
     elif algorithm in GENERIC_BYTE_OUTPUT_BOUNDS:
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = GENERIC_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -19261,6 +19771,8 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 and len(output) == CBENCH_LAME_WINDOW_SUBBAND_MAX_OUTPUT_BYTES
                 and struct.unpack("<32q", output) == tuple(expected_values)
                 if result >= 0 else "expected_values" not in fixture and not output)
+        elif algorithm in {"gabow_scc", "games_on_arbitrary_graphs"}:
+            output_matches_fixture = fixture.get("expected_output_bytes") == list(output)
         elif algorithm == "common_interval_decomposition_tree" and "expected_output_hex" not in fixture:
             output_matches_fixture = (
                 common_interval_decomposition_tree_validate_output(values, output)
@@ -19297,7 +19809,353 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add(values, capacity, output_is_null=output_is_null,
             input_is_null=input_is_null, input_length=input_length)
 
-    if algorithm == "palindromes_in_deque":
+    if algorithm == "gabow_scc":
+        rng_gabow_scc = random.Random(0x4741424F57)
+        for case_index in range(48):
+            vertex_count = (40 if case_index == 47
+                            else rng_gabow_scc.randrange(0, 41))
+            edge_count = (2047 if case_index == 47 else
+                          rng_gabow_scc.randrange(0, min(128, vertex_count * vertex_count + 1))
+                          if vertex_count else 0)
+            edges = [(rng_gabow_scc.randrange(vertex_count),
+                      rng_gabow_scc.randrange(vertex_count))
+                     for _ in range(edge_count)]
+            graph_input = (vertex_count, edge_count,
+                           *(endpoint for edge in edges for endpoint in edge))
+            result, output = add(graph_input)
+            if result != len(output) or result > GABOW_SCC_MAX_OUTPUT_BYTES:
+                raise ValueError("gabow_scc randomized graph has invalid output framing")
+            if case_index % 8 == 0:
+                for capacity in (0, result - 1, result):
+                    add(graph_input, capacity)
+                null_result, null_output = add(graph_input, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("gabow_scc accepted a null output buffer")
+
+        for malformed in ((), (-1,), (2, 1, 0, 2), (1, 0, 7),
+                          (0, 1, 0, 0), (40, 2048)):
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("gabow_scc accepted malformed graph input")
+        precedence_result, precedence_output = add(
+            (2, 1, 0, 2), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("gabow_scc output errors took precedence over invalid graph input")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("gabow_scc accepted a null input pointer")
+    elif algorithm == "crochemore_perrin_two_way":
+        def pack_two_way(text, pattern):
+            return (len(text), len(pattern), *text, *pattern)
+
+        rng_two_way = random.Random(0x2A7A9)
+        generated_inputs = []
+        for _ in range(128):
+            text_length = rng_two_way.randint(0, CROCHEMORE_PERRIN_TWO_WAY_MAX_TEXT_LENGTH)
+            pattern_length = rng_two_way.randint(0, CROCHEMORE_PERRIN_TWO_WAY_MAX_PATTERN_LENGTH)
+            text = [rng_two_way.randrange(4) for _ in range(text_length)]
+            pattern = [rng_two_way.randrange(4) for _ in range(pattern_length)]
+            generated_inputs.append(pack_two_way(text, pattern))
+
+        maximum_text = [rng_two_way.randrange(256)
+                        for _ in range(CROCHEMORE_PERRIN_TWO_WAY_MAX_TEXT_LENGTH)]
+        maximum_output_values = pack_two_way(maximum_text, [])
+        maximum_output_result, maximum_output = add(maximum_output_values)
+        if (maximum_output_result != CROCHEMORE_PERRIN_TWO_WAY_MAX_OUTPUT_BYTES
+                or len(maximum_output) != maximum_output_result):
+            raise ValueError("crochemore_perrin_two_way empty-pattern output differs from its maximum bound")
+
+        maximum_pattern = [0] * CROCHEMORE_PERRIN_TWO_WAY_MAX_PATTERN_LENGTH
+        maximum_input_values = pack_two_way(maximum_text, maximum_pattern)
+        if len(maximum_input_values) != CROCHEMORE_PERRIN_TWO_WAY_MAX_INPUT_LENGTH - 1:
+            raise ValueError("crochemore_perrin_two_way maximum frame differs from its valid-input bound")
+        generated_inputs.append(maximum_input_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            if result != len(output) or result > CROCHEMORE_PERRIN_TWO_WAY_MAX_OUTPUT_BYTES:
+                raise ValueError("crochemore_perrin_two_way generated input has invalid output framing")
+            if case_index % 8 == 0:
+                short_result, short_output = add(values, max(0, result - 1))
+                if result > 0 and (short_result != -2 or short_output):
+                    raise ValueError("crochemore_perrin_two_way accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if (exact_result != result or exact_output != output):
+                    raise ValueError("crochemore_perrin_two_way rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("crochemore_perrin_two_way accepted a null output buffer")
+
+        malformed_two_way = (
+            (), (1,), (CROCHEMORE_PERRIN_TWO_WAY_MAX_TEXT_LENGTH + 1, 0),
+            (0, CROCHEMORE_PERRIN_TWO_WAY_MAX_PATTERN_LENGTH + 1,
+             *([0] * (CROCHEMORE_PERRIN_TWO_WAY_MAX_PATTERN_LENGTH + 1))),
+            (1, 1, 256, 97), (1, 1, 97, 97, 0),
+            (CROCHEMORE_PERRIN_TWO_WAY_MAX_TEXT_LENGTH,
+             CROCHEMORE_PERRIN_TWO_WAY_MAX_PATTERN_LENGTH,
+             *([0] * (CROCHEMORE_PERRIN_TWO_WAY_MAX_TEXT_LENGTH
+                      + CROCHEMORE_PERRIN_TWO_WAY_MAX_PATTERN_LENGTH)), 9),
+        )
+        for malformed in malformed_two_way:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("crochemore_perrin_two_way accepted malformed input")
+        precedence_result, precedence_output = add(
+            (1, 1, 256, 97), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("crochemore_perrin_two_way output errors took precedence over invalid input")
+        for capacity in (0, maximum_output_result - 1, maximum_output_result):
+            result, output = add(maximum_output_values, capacity)
+            expected = (-2, b"") if capacity < maximum_output_result else (
+                maximum_output_result, maximum_output)
+            if (result, output) != expected:
+                raise ValueError("crochemore_perrin_two_way maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("crochemore_perrin_two_way accepted a null input pointer")
+    elif algorithm == "virtual_tree":
+        def pack_virtual_tree(vertex_count, parents, marked):
+            return (vertex_count, len(marked), *parents[1:], *marked)
+
+        rng_virtual_tree = random.Random(0x71A7)
+        generated_inputs = []
+        for _ in range(128):
+            vertex_count = rng_virtual_tree.randint(1, VIRTUAL_TREE_MAX_VERTICES)
+            parents = [0] + [rng_virtual_tree.randrange(vertex)
+                             for vertex in range(1, vertex_count)]
+            marked_count = rng_virtual_tree.randint(0, vertex_count)
+            marked = rng_virtual_tree.sample(range(vertex_count), marked_count)
+            generated_inputs.append(pack_virtual_tree(vertex_count, parents, marked))
+
+        empty_mark_values = pack_virtual_tree(1, [0], [])
+        empty_mark_result, empty_mark_output = add(empty_mark_values)
+        if (empty_mark_result != 8
+                or empty_mark_output != b"\x00" * 8):
+            raise ValueError("virtual_tree empty mark set differs from its [0] encoding")
+
+        maximum_parents = [0] * VIRTUAL_TREE_MAX_VERTICES
+        maximum_marks = list(range(VIRTUAL_TREE_MAX_VERTICES))
+        maximum_values = pack_virtual_tree(
+            VIRTUAL_TREE_MAX_VERTICES, maximum_parents, maximum_marks)
+        if len(maximum_values) != VIRTUAL_TREE_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("virtual_tree maximum frame differs from its valid-input bound")
+        maximum_result, maximum_output = add(maximum_values)
+        if maximum_result != VIRTUAL_TREE_MAX_OUTPUT_BYTES:
+            raise ValueError("virtual_tree maximum marked star differs from its output bound")
+        generated_inputs.append(maximum_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            if result != len(output) or result > VIRTUAL_TREE_MAX_OUTPUT_BYTES:
+                raise ValueError("virtual_tree generated input has invalid output framing")
+            if case_index % 8 == 0:
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("virtual_tree accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if (exact_result != result or exact_output != output):
+                    raise ValueError("virtual_tree rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("virtual_tree accepted a null output buffer")
+
+        malformed_virtual_tree = (
+            (), (1,), (0, 0), (VIRTUAL_TREE_MAX_VERTICES + 1, 0),
+            (3, 2, 0, 1, 1, 1), (3, 1, 2, 1, 0),
+            (1, 0, 9), (1, 1, 0, 1),
+            (*maximum_values, 9), (*maximum_values, 9, 9),
+        )
+        for malformed in malformed_virtual_tree:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("virtual_tree accepted malformed input")
+        precedence_result, precedence_output = add(
+            (1, 1, 0, 1), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("virtual_tree output errors took precedence over invalid input")
+        for capacity in (0, VIRTUAL_TREE_MAX_OUTPUT_BYTES - 1,
+                         VIRTUAL_TREE_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < VIRTUAL_TREE_MAX_OUTPUT_BYTES
+                        else (VIRTUAL_TREE_MAX_OUTPUT_BYTES, maximum_output))
+            if (result, output) != expected:
+                raise ValueError("virtual_tree maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("virtual_tree accepted a null input pointer")
+    elif algorithm == "hirschberg_lcs":
+        def pack_hirschberg(first, second):
+            return (len(first), len(second), *first, *second)
+
+        rng_hirschberg = random.Random(0xA17C)
+        generated_inputs = []
+        for _ in range(128):
+            first_length = rng_hirschberg.randint(0, HIRSCHBERG_LCS_MAX_SEQUENCE_LENGTH)
+            second_length = rng_hirschberg.randint(0, HIRSCHBERG_LCS_MAX_SEQUENCE_LENGTH)
+            first = [rng_hirschberg.randrange(5) for _ in range(first_length)]
+            second = [rng_hirschberg.randrange(5) for _ in range(second_length)]
+            generated_inputs.append(pack_hirschberg(first, second))
+
+        maximum_sequence = list(range(HIRSCHBERG_LCS_MAX_SEQUENCE_LENGTH))
+        maximum_values = pack_hirschberg(maximum_sequence, maximum_sequence)
+        if len(maximum_values) != HIRSCHBERG_LCS_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("hirschberg_lcs maximum frame differs from its valid-input bound")
+        maximum_result, maximum_output = add(maximum_values)
+        if maximum_result != HIRSCHBERG_LCS_MAX_OUTPUT_BYTES:
+            raise ValueError("hirschberg_lcs identical maximum inputs differ from the output bound")
+        generated_inputs.append(maximum_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            if result != len(output) or result > HIRSCHBERG_LCS_MAX_OUTPUT_BYTES:
+                raise ValueError("hirschberg_lcs generated input has invalid output framing")
+            if case_index % 8 == 0:
+                short_capacity = max(0, result - 1)
+                short_result, short_output = add(values, short_capacity)
+                if result > 0 and (short_result != -2 or short_output):
+                    raise ValueError("hirschberg_lcs accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if (exact_result != result or exact_output != output):
+                    raise ValueError("hirschberg_lcs rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("hirschberg_lcs accepted a null output buffer")
+
+        malformed_hirschberg = (
+            (), (1,), (HIRSCHBERG_LCS_MAX_SEQUENCE_LENGTH + 1, 0),
+            (0, 0, 1), (1, 1, 128, 65), (1, 1, 65, 65, 0),
+            (*maximum_values, 0, 0), (*maximum_values, 0, 0, 0),
+        )
+        for malformed in malformed_hirschberg:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("hirschberg_lcs accepted malformed input")
+        precedence_result, precedence_output = add(
+            (1, 1, 128, 65), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("hirschberg_lcs output errors took precedence over invalid input")
+        for capacity in (0, HIRSCHBERG_LCS_MAX_OUTPUT_BYTES - 1,
+                         HIRSCHBERG_LCS_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < HIRSCHBERG_LCS_MAX_OUTPUT_BYTES
+                        else (HIRSCHBERG_LCS_MAX_OUTPUT_BYTES, maximum_output))
+            if (result, output) != expected:
+                raise ValueError("hirschberg_lcs maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("hirschberg_lcs accepted a null input pointer")
+    elif algorithm == "suffix_array_sais":
+        rng_suffix_array_sais = random.Random(0x5A15)
+        generated_texts = [
+            (length, *((index * 37 + length * 11) % 256 for index in range(length)))
+            for length in range(SUFFIX_ARRAY_SAIS_MAX_TEXT_LENGTH + 1)
+        ]
+        generated_texts.extend(
+            (length, *(rng_suffix_array_sais.randrange(256) for _ in range(length)))
+            for length in range(64)
+        )
+        for case_index, values in enumerate(generated_texts):
+            result, output = add(values)
+            if result != len(output) or result > SUFFIX_ARRAY_SAIS_MAX_OUTPUT_BYTES:
+                raise ValueError("suffix_array_sais generated text has invalid output framing")
+            if case_index % 8 == 0:
+                short_result, short_output = add(values, max(0, result - 1))
+                if result > 0 and (short_result != -2 or short_output):
+                    raise ValueError("suffix_array_sais accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if (exact_result != result or exact_output != output):
+                    raise ValueError("suffix_array_sais rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("suffix_array_sais accepted a null output buffer")
+
+        malformed_suffix_array_sais = (
+            (), (-1,), (33, *([0] * 33)), (1, 256), (1, 97, 0),
+            (2, 97), (32, *([0] * 31)),
+        )
+        for malformed in malformed_suffix_array_sais:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("suffix_array_sais accepted malformed text input")
+        precedence_result, precedence_output = add(
+            (1, 256), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("suffix_array_sais output errors took precedence over invalid input")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("suffix_array_sais accepted a null input pointer")
+    elif algorithm == "minkowski_sum_convex_polygons":
+        def pack_minkowski_polygons(first, second):
+            return (
+                len(first), len(second),
+                *(coordinate for point in first for coordinate in point),
+                *(coordinate for point in second for coordinate in point),
+            )
+
+        first_x_start = -(MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_VERTICES // 2)
+        first_maximum = [
+            (x, x * x)
+            for x in range(first_x_start,
+                           first_x_start + MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_VERTICES)
+        ]
+        second_maximum = [
+            (x + 100, x * x + x)
+            for x in range(first_x_start,
+                           first_x_start + MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_VERTICES)
+        ]
+        maximum_values = pack_minkowski_polygons(first_maximum, second_maximum)
+        if (len(maximum_values) != MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_INPUT_LENGTH - 1
+                or len(maximum_values) > max_input):
+            raise ValueError("minkowski_sum_convex_polygons maximum polygons differ from the parser bound")
+        maximum_result, maximum_output = add(maximum_values)
+        if (maximum_result != len(maximum_output)
+                or maximum_result != MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_OUTPUT_BYTES):
+            raise ValueError("minkowski_sum_convex_polygons maximum sum does not reach its output bound")
+
+        rng_minkowski = random.Random(0xA11CE5)
+        for _ in range(16):
+            first_shift = rng_minkowski.randrange(len(first_maximum))
+            second_shift = rng_minkowski.randrange(len(second_maximum))
+            dx = rng_minkowski.randint(-1000, 1000)
+            dy = rng_minkowski.randint(-1000, 1000)
+            first = [(x + dx, y + dy) for x, y in
+                     first_maximum[first_shift:] + first_maximum[:first_shift]]
+            second = [(x - dx, y + dy) for x, y in
+                      second_maximum[second_shift:] + second_maximum[:second_shift]]
+            values = pack_minkowski_polygons(first, second)
+            result, output = add(values)
+            if result != len(output) or result > MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_OUTPUT_BYTES:
+                raise ValueError("minkowski_sum_convex_polygons generated polygons have invalid output framing")
+
+        for capacity in (0, maximum_result - 1, maximum_result):
+            result, output = add(maximum_values, capacity)
+            expected = (-2, b"") if capacity < maximum_result else (maximum_result, maximum_output)
+            if (result, output) != expected:
+                raise ValueError("minkowski_sum_convex_polygons capacity probe differs from its contract")
+        null_result, null_output = add(maximum_values, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("minkowski_sum_convex_polygons accepted a null output buffer")
+
+        valid_triangle = (3, 3, 0, 0, 2, 0, 0, 2, 1, 1, 3, 1, 1, 3)
+        malformed_minkowski = (
+            (), (2, 3),
+            (3, 3, 0, 0, 0, 2, 2, 0, 0, 0, 1, 0, 0, 1),
+            (3, 3, 0, 0, 2, 0, 0, 2,
+             MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_COORDINATE + 1, 1, 3, 1, 1, 3),
+            valid_triangle[:-1], (*valid_triangle, 9),
+        )
+        for malformed in malformed_minkowski:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("minkowski_sum_convex_polygons accepted malformed polygon input")
+        precedence_result, precedence_output = add(
+            malformed_minkowski[2], 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("minkowski_sum_convex_polygons output errors took precedence over invalid input")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("minkowski_sum_convex_polygons accepted a null input pointer")
+    elif algorithm == "palindromes_in_deque":
         maximum_trace = (PALINDROMES_IN_DEQUE_MAX_QUERIES,) + (1, 0) * PALINDROMES_IN_DEQUE_MAX_QUERIES
         maximum_result, maximum_output = add(maximum_trace)
         expected_maximum_output = b"".join(
@@ -25493,6 +26351,1135 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 result, encoded = add((), input_is_null=True, input_length=null_length)
                 if result != -1 or encoded:
                     raise ValueError("link_cut_tree accepted null input")
+        elif algorithm == "euler_tour_tree":
+            if (max_input != EULER_TOUR_TREE_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != EULER_TOUR_TREE_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != EULER_TOUR_TREE_VERIFIER_MAX_WORKSPACE_BYTES):
+                raise ValueError("euler_tour_tree bounds or workspace differ from its contract")
+
+            n = EULER_TOUR_TREE_VERIFIER_MAX_N
+            m = EULER_TOUR_TREE_VERIFIER_MAX_M
+            weights = tuple(range(-4, -4 + n))
+            maximum_queries = (n, m, *weights, *((3, index % n) for index in range(m)))
+            result, output = add(maximum_queries)
+            if (len(maximum_queries) != 2 + n + 2 * m
+                    or result != max_output or len(output) != max_output):
+                raise ValueError("euler_tour_tree maximum-query profile has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum_queries, capacity)
+            short_result, short_output = add(maximum_queries, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("euler_tour_tree accepted insufficient output capacity")
+            null_result, null_output = add(maximum_queries, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("euler_tour_tree accepted null output")
+
+            longest_operations = tuple((2, index % n, index - 15) for index in range(m - 1)) + ((3, 0),)
+            longest_valid = (n, m, *weights,
+                             *(value for operation in longest_operations for value in operation))
+            longest_result, longest_output = add(longest_valid)
+            if (len(longest_valid) != max_input - 1 or longest_result != 16
+                    or len(longest_output) != 16):
+                raise ValueError("euler_tour_tree longest valid frame has invalid framing")
+
+            mixed_operations = (
+                (0, 0, 1), (0, 1, 2), (3, 0), (2, 1, -7), (3, 2),
+                (1, 1, 2), (3, 2), (0, 2, 3), (3, 0), (1, 0, 1),
+                (3, 0), (0, 4, 5), (1, 4, 5), (3, 5), (2, 0, 8), (3, 1),
+            )
+            mixed = (n, len(mixed_operations), *weights,
+                     *(value for operation in mixed_operations for value in operation))
+            mixed_result, mixed_output = add(mixed)
+            if mixed_result < 0 or len(mixed_output) != mixed_result:
+                raise ValueError("euler_tour_tree mixed link/cut trace has invalid framing")
+
+            too_many_operations = (1, m + 1, 0, *((3, 0) * (m + 1)))
+            cyclic_link = (3, 3, 0, 0, 0, 0, 0, 1, 0, 1, 2, 0, 2, 0)
+            missing_cut = (2, 1, 0, 0, 1, 0, 1)
+            malformed = (
+                (), (0, 1), (n + 1, 1, *((0,) * (n + 1)), 3, 0),
+                too_many_operations, cyclic_link, missing_cut,
+                (1, 1, 0, 2, 0, 1),  # valid update trace without a query
+                longest_valid + (0,), tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("euler_tour_tree accepted malformed forest input")
+            precedence_result, precedence_output = add(
+                cyclic_link, 0, output_is_null=True)
+            if precedence_result != -1 or precedence_output:
+                raise ValueError("euler_tour_tree checked output before forest validity")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("euler_tour_tree accepted null input")
+        elif algorithm == "dynamic_top_tree_component_diameter":
+            if (max_input != DYNAMIC_TOP_TREE_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != DYNAMIC_TOP_TREE_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != DYNAMIC_TOP_TREE_VERIFIER_WORKSPACE_BYTES):
+                raise ValueError("dynamic_top_tree_component_diameter bounds or workspace differ from its contract")
+
+            n = DYNAMIC_TOP_TREE_VERIFIER_MAX_VERTICES
+            q = DYNAMIC_TOP_TREE_VERIFIER_MAX_OPERATIONS
+            path_edges = tuple(
+                (vertex, vertex + 1, (vertex % 7) + 1) for vertex in range(n - 1)
+            )
+            maximum_queries = (n, q,
+                               *(value for edge in path_edges for value in edge),
+                               *((1, 0, 0) for _ in range(q)))
+            result, output = add(maximum_queries)
+            if (len(maximum_queries) != max_input or result != max_output
+                    or len(output) != max_output):
+                raise ValueError("dynamic_top_tree_component_diameter maximum-query profile has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum_queries, capacity)
+            short_result, short_output = add(maximum_queries, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("dynamic_top_tree_component_diameter accepted insufficient capacity")
+            null_result, null_output = add(maximum_queries, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("dynamic_top_tree_component_diameter accepted null output")
+
+            longest_operations = tuple(
+                (0, index % (n - 1), index * 13 % 1001) for index in range(q - 1)
+            ) + ((1, 0, 0),)
+            longest_valid = (n, q,
+                             *(value for edge in path_edges for value in edge),
+                             *(value for operation in longest_operations for value in operation))
+            longest_result, longest_output = add(longest_valid)
+            if (len(longest_valid) != max_input or longest_result != 8
+                    or len(longest_output) != 8):
+                raise ValueError("dynamic_top_tree_component_diameter longest trace has invalid framing")
+            zero_query_result, zero_query_output = add(
+                (1, 0), 0, output_is_null=True)
+            if zero_query_result != 0 or zero_query_output:
+                raise ValueError("dynamic_top_tree_component_diameter rejected a null output with no queries")
+
+            mixed_operations = ((0, 0, 10), (1, 0, 0), (0, n - 2, 0),
+                                (1, 0, 0), (0, 0, 1), (1, 0, 0))
+            mixed = (n, len(mixed_operations),
+                     *(value for edge in path_edges for value in edge),
+                     *(value for operation in mixed_operations for value in operation))
+            mixed_result, mixed_output = add(mixed)
+            if mixed_result < 0 or len(mixed_output) != mixed_result:
+                raise ValueError("dynamic_top_tree_component_diameter mixed updates have invalid framing")
+
+            cyclic_edges = (4, 1, 0, 1, 1, 1, 2, 1, 2, 0, 1, 1, 0, 0)
+            malformed = (
+                (), (0, 0), (n + 1, 0),
+                (3, 0, 0, 1, 1, 1, 2, 1, 0, 2, 1),
+                cyclic_edges, (2, 1, 0, 1, 1001, 1, 0, 0),
+                (2, 1, 0, 1, 1, 0, 1, 1001),
+                (1, 1, 1, 0, 1),  # reserved query words must be zero
+                longest_valid + (0,), tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("dynamic_top_tree_component_diameter accepted malformed input")
+            precedence_result, precedence_output = add(
+                cyclic_edges, 0, output_is_null=True)
+            if precedence_result != -1 or precedence_output:
+                raise ValueError("dynamic_top_tree_component_diameter checked output before tree validity")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("dynamic_top_tree_component_diameter accepted null input")
+        elif algorithm == "dynamic_tree_subtree_add_subtree_sum":
+            if (max_input != DYNAMIC_TREE_SUBTREE_ADD_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != DYNAMIC_TREE_SUBTREE_ADD_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != 16384):
+                raise ValueError("dynamic_tree_subtree_add_subtree_sum bounds or workspace differ from its contract")
+
+            n = DYNAMIC_TREE_SUBTREE_ADD_VERIFIER_MAX_N
+            q = DYNAMIC_TREE_SUBTREE_ADD_VERIFIER_MAX_Q
+            path_edges = tuple((vertex, vertex + 1) for vertex in range(n - 1))
+            initial_values = (1,) * n
+            maximum_queries = (n, q, *initial_values,
+                               *(value for edge in path_edges for value in edge),
+                               *((2, index % (n - 1), index % (n - 1) + 1, 0, 0)
+                                 for index in range(q)))
+            result, output = add(maximum_queries)
+            if (len(maximum_queries) != max_input - 1 or result != max_output
+                    or len(output) != max_output):
+                raise ValueError("dynamic_tree_subtree_add_subtree_sum maximum-query profile has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum_queries, capacity)
+            short_result, short_output = add(maximum_queries, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("dynamic_tree_subtree_add_subtree_sum accepted insufficient capacity")
+            null_result, null_output = add(maximum_queries, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("dynamic_tree_subtree_add_subtree_sum accepted null output")
+
+            longest_operations = ((1, 0, 1, 1000, 0),) * (q - 1) + ((2, 0, 1, 0, 0),)
+            longest_valid = (n, q, *((1000,) * n),
+                             *(value for edge in path_edges for value in edge),
+                             *(value for operation in longest_operations for value in operation))
+            longest_result, longest_output = add(longest_valid)
+            if (len(longest_valid) != max_input - 1 or longest_result != 8
+                    or len(longest_output) != 8):
+                raise ValueError("dynamic_tree_subtree_add_subtree_sum longest trace has invalid framing")
+            zero_query_result, zero_query_output = add(
+                (1, 0, 7), 0, output_is_null=True)
+            if zero_query_result != 0 or zero_query_output:
+                raise ValueError("dynamic_tree_subtree_add_subtree_sum rejected null output with no queries")
+
+            mixed_edges = ((0, 1), (1, 2))
+            mixed_events = (
+                (1, 0, 1, 5, 0), (2, 0, 1, 0, 0), (0, 1, 2, 0, 2),
+                (1, 2, 0, 7, 0), (2, 2, 0, 0, 0), (2, 1, 0, 0, 0),
+            )
+            mixed = (3, len(mixed_events), 1, 2, 3,
+                     *(value for edge in mixed_edges for value in edge),
+                     *(value for event in mixed_events for value in event))
+            mixed_result, mixed_output = add(mixed)
+            if mixed_result < 0 or len(mixed_output) != mixed_result:
+                raise ValueError("dynamic_tree_subtree_add_subtree_sum mixed trace has invalid framing")
+
+            malformed = (
+                (), (0, 0), (n + 1, 0),
+                (3, 1, 1, 2, 3, 0, 1, 1, 2, 1, 0, 2, 1, 0),
+                (3, 1, 1, 2, 3, 0, 1, 1, 2, 1, 0, 0, 1, 1, 2),
+                (3, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 0, 1, 1001, 0),
+                (2, 1, 2, 4, 0, 1, 2, 0, 1, 0, 1),
+                longest_valid + (0,), tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("dynamic_tree_subtree_add_subtree_sum accepted malformed input")
+            precedence_result, precedence_output = add(
+                malformed[3], 0, output_is_null=True)
+            if precedence_result != -1 or precedence_output:
+                raise ValueError("dynamic_tree_subtree_add_subtree_sum checked output before topology")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("dynamic_tree_subtree_add_subtree_sum accepted null input")
+        elif algorithm == "sort_points_by_argument":
+            if (max_input != SORT_POINTS_BY_ARGUMENT_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != SORT_POINTS_BY_ARGUMENT_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != SORT_POINTS_BY_ARGUMENT_VERIFIER_MAX_WORKSPACE_BYTES):
+                raise ValueError("sort_points_by_argument bounds or workspace differ from its contract")
+
+            n = SORT_POINTS_BY_ARGUMENT_VERIFIER_MAX_N
+            maximum_points = tuple(
+                (index * 31 - 1000, (index * 97) % 2001 - 1000)
+                for index in range(n)
+            )
+            maximum = (n, *(coordinate for point in maximum_points for coordinate in point))
+            result, output = add(maximum)
+            if (len(maximum) != max_input or result != max_output
+                    or len(output) != max_output):
+                raise ValueError("sort_points_by_argument maximum profile has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("sort_points_by_argument accepted insufficient capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("sort_points_by_argument accepted null output")
+
+            malformed = (
+                (), (0,), (1, 1_000_000_001, 0), (2, 1, 2),
+                (1, 0, 0, 1), tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("sort_points_by_argument accepted malformed points")
+            precedence_result, precedence_output = add(
+                (1, 1_000_000_001, 0), 0, output_is_null=True)
+            if precedence_result != -1 or precedence_output:
+                raise ValueError("sort_points_by_argument checked output before coordinate bounds")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("sort_points_by_argument accepted null input")
+        elif algorithm == "count_points_in_triangle":
+            if (max_input != COUNT_POINTS_IN_TRIANGLE_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != COUNT_POINTS_IN_TRIANGLE_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != COUNT_POINTS_IN_TRIANGLE_VERIFIER_MAX_WORKSPACE_BYTES):
+                raise ValueError("count_points_in_triangle bounds or workspace differ from its contract")
+
+            n = COUNT_POINTS_IN_TRIANGLE_VERIFIER_MAX_N
+            m = COUNT_POINTS_IN_TRIANGLE_VERIFIER_MAX_M
+            q = COUNT_POINTS_IN_TRIANGLE_VERIFIER_MAX_Q
+            points_a = tuple((index * 83 - 900,
+                              (index * index * 37 + index * 13) % 1801 - 900)
+                             for index in range(n))
+            points_b = tuple(((index * 127 + 19) % 1901 - 950,
+                              (index * index * 53 + 7 * index + 29) % 1901 - 950)
+                             for index in range(m))
+            queries = tuple((index % n, (index + 1) % n, (index + 2) % n)
+                            for index in range(q))
+            maximum = (n, m, q,
+                       *(coordinate for point in points_a for coordinate in point),
+                       *(coordinate for point in points_b for coordinate in point),
+                       *(vertex for query in queries for vertex in query))
+            result, output = add(maximum)
+            if (len(maximum) != max_input or result != max_output
+                    or len(output) != max_output):
+                raise ValueError("count_points_in_triangle maximum profile has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("count_points_in_triangle accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("count_points_in_triangle accepted null output")
+
+            invalid_coordinate = (1, 1, 1, 1_000_000_001, 0, 0, 0, 0, 0, 0)
+            malformed = (
+                (), (0, 1, 1), (1, 0, 1), (1, 1, 0),
+                invalid_coordinate, (1, 1, 1, 0, 0, 0, 0, 0, 1, 0),
+                (3, 3, 1, 0, 0), maximum + (0,), tuple([0] * max_input),
+                (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("count_points_in_triangle accepted malformed input")
+            precedence_result, precedence_output = add(
+                invalid_coordinate, 0, output_is_null=True)
+            if precedence_result != -1 or precedence_output:
+                raise ValueError("count_points_in_triangle checked output before input validity")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("count_points_in_triangle accepted null input")
+        elif algorithm == "dynamic_tree_vertex_set_path_composite":
+            if (max_input != DYNAMIC_TREE_PATH_COMPOSITE_MAX_INPUT_LENGTH
+                    or max_output != DYNAMIC_TREE_PATH_COMPOSITE_MAX_OUTPUT_BYTES):
+                raise ValueError("dynamic_tree_vertex_set_path_composite bounds differ from its contract")
+
+            n = DYNAMIC_TREE_PATH_COMPOSITE_MAX_N
+            q = DYNAMIC_TREE_PATH_COMPOSITE_MAX_Q
+            initial_edges = tuple((vertex, vertex + 1) for vertex in range(n - 1))
+            functions = tuple((vertex + 1, vertex * vertex) for vertex in range(n))
+            query_operations = tuple(
+                (2, query_index % n, n - 1 - query_index % n, query_index)
+                for query_index in range(q)
+            )
+            maximum_output = (n, q,
+                              *(value for function in functions for value in function),
+                              *(value for edge in initial_edges for value in edge),
+                              *(value for operation in query_operations for value in operation))
+            result, output = add(maximum_output)
+            if (result != max_output or len(output) != max_output
+                    or len(maximum_output) > DYNAMIC_TREE_PATH_COMPOSITE_MAX_INPUT_LENGTH - 1):
+                raise ValueError("dynamic_tree_vertex_set_path_composite maximum-output trace has invalid framing")
+            for capacity in (0, max_output - 1, max_output):
+                add(maximum_output, capacity)
+            short_result, short_output = add(maximum_output, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("dynamic_tree_vertex_set_path_composite accepted insufficient output capacity")
+            null_result, null_output = add(maximum_output, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("dynamic_tree_vertex_set_path_composite accepted null output")
+
+            replacement_operations = []
+            attached_to = 1
+            for event_index in range(q):
+                new_neighbor = 2 if attached_to == 1 else 1
+                replacement_operations.append((0, 0, attached_to, 0, new_neighbor))
+                attached_to = new_neighbor
+            maximum_input = (n, q,
+                             *(value for function in functions for value in function),
+                             *(value for edge in initial_edges for value in edge),
+                             *(value for operation in replacement_operations for value in operation))
+            result, output = add(maximum_input)
+            if (len(maximum_input) != DYNAMIC_TREE_PATH_COMPOSITE_MAX_INPUT_LENGTH - 1
+                    or result < 0 or len(output) != result):
+                raise ValueError("dynamic_tree_vertex_set_path_composite maximum-input trace has invalid framing")
+
+            mixed_operations = []
+            attached_to = 1
+            for event_index in range(q):
+                phase = event_index % 3
+                if phase == 0:
+                    new_neighbor = 2 if attached_to == 1 else 1
+                    mixed_operations.append((0, 0, attached_to, 0, new_neighbor))
+                    attached_to = new_neighbor
+                elif phase == 1:
+                    mixed_operations.append((1, event_index % n,
+                                             event_index + 1, event_index * 7))
+                else:
+                    mixed_operations.append((2, 0, attached_to, event_index))
+            mixed_trace = (n, q,
+                           *(value for function in functions for value in function),
+                           *(value for edge in initial_edges for value in edge),
+                           *(value for operation in mixed_operations for value in operation))
+            result, output = add(mixed_trace)
+            if result < 0 or len(output) != result:
+                raise ValueError("dynamic_tree_vertex_set_path_composite maximum mixed trace has invalid framing")
+
+            too_many_queries = (1, q + 1, 1, 0,
+                                *((2, 0, 0, 0) * (q + 1)))
+            malformed = (
+                (), (0, 1), (2, 0, 1, 0, 1, 0, 0, 2, 0),
+                (1, 1, 0, 0, 0, 3, 0, 0), too_many_queries,
+                (2, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0),
+                tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                result, encoded = add(invalid_values)
+                if result != -1 or encoded:
+                    raise ValueError("dynamic_tree_vertex_set_path_composite accepted malformed input")
+            for null_length in (0, max_input):
+                result, encoded = add((), input_is_null=True, input_length=null_length)
+                if result != -1 or encoded:
+                    raise ValueError("dynamic_tree_vertex_set_path_composite accepted null input")
+        elif algorithm == "dynamic_tree_vertex_add_subtree_sum":
+            if (max_input != DYNAMIC_TREE_ADD_SUBTREE_MAX_INPUT_LENGTH
+                    or max_output != DYNAMIC_TREE_ADD_SUBTREE_MAX_OUTPUT_BYTES
+                    or workspace_bytes != 8192):
+                raise ValueError("dynamic_tree_vertex_add_subtree_sum bounds or workspace differ from its contract")
+
+            n = DYNAMIC_TREE_ADD_SUBTREE_MAX_N
+            q = DYNAMIC_TREE_ADD_SUBTREE_MAX_Q
+            initial_edges = tuple((vertex, vertex + 1) for vertex in range(n - 1))
+            maximum_operations = tuple(
+                (2, edge_index % (n - 1), edge_index % (n - 1) + 1, 0, 0)
+                for edge_index in range(q)
+            )
+            maximum = (n, q, *((1_000,) * n),
+                       *(value for edge in initial_edges for value in edge),
+                       *(value for operation in maximum_operations for value in operation))
+            result, output = add(maximum)
+            if (len(maximum) != DYNAMIC_TREE_ADD_SUBTREE_MAX_INPUT_LENGTH - 1
+                    or result != max_output or len(output) != max_output):
+                raise ValueError("dynamic_tree_vertex_add_subtree_sum maximum-query profile has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("dynamic_tree_vertex_add_subtree_sum accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("dynamic_tree_vertex_add_subtree_sum accepted null output")
+
+            changing_operations = []
+            attached_to = 1
+            for event_index in range(q):
+                phase = event_index % 3
+                if phase == 0:
+                    new_neighbor = 2 if attached_to == 1 else 1
+                    changing_operations.append((0, 0, attached_to, 0, new_neighbor))
+                    attached_to = new_neighbor
+                elif phase == 1:
+                    changing_operations.append((1, event_index % n, 1_000, 0, 0))
+                else:
+                    changing_operations.append((2, 0, attached_to, 0, 0))
+            changing_trace = (n, q, *((0,) * n),
+                              *(value for edge in initial_edges for value in edge),
+                              *(value for operation in changing_operations for value in operation))
+            changing_result, changing_output = add(changing_trace)
+            if (len(changing_trace) != DYNAMIC_TREE_ADD_SUBTREE_MAX_INPUT_LENGTH - 1
+                    or changing_result < 0 or len(changing_output) != changing_result):
+                raise ValueError("dynamic_tree_vertex_add_subtree_sum maximum mixed trace has invalid framing")
+
+            too_many_events = (1, q + 1, 0, *((2, 0, 0, 0, 0) * (q + 1)))
+            malformed = (
+                (), (0, 0), (1, 0, 1_001),
+                (3, 0, 1, 2, 3, 0, 1, 0, 1),
+                (3, 1, 0, 0, 0, 0, 1, 1, 2, 2, 0, 2, 0, 0),
+                (3, 1, 0, 0, 0, 0, 1, 1, 2, 0, 0, 1, 1, 2),
+                (1, 1, 0, 3, 0, 0, 0, 0), too_many_events,
+                tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                result, encoded = add(invalid_values)
+                if result != -1 or encoded:
+                    raise ValueError("dynamic_tree_vertex_add_subtree_sum accepted malformed input")
+            for null_length in (0, max_input):
+                result, encoded = add((), input_is_null=True, input_length=null_length)
+                if result != -1 or encoded:
+                    raise ValueError("dynamic_tree_vertex_add_subtree_sum accepted null input")
+        elif algorithm == "garsia_wachs_alphabetic_tree":
+            if (max_input != GARSIA_WACHS_MAX_INPUT_LENGTH
+                    or max_output != GARSIA_WACHS_MAX_OUTPUT_BYTES
+                    or workspace_bytes != 8192):
+                raise ValueError("garsia_wachs_alphabetic_tree bounds or workspace differ from its contract")
+
+            maximum_input = (GARSIA_WACHS_MAX_N,
+                             *((GARSIA_WACHS_MAX_WEIGHT,) * GARSIA_WACHS_MAX_N))
+            result, output = add(maximum_input)
+            if (len(maximum_input) != GARSIA_WACHS_MAX_INPUT_LENGTH - 1
+                    or result != max_output or len(output) != max_output):
+                raise ValueError("garsia_wachs_alphabetic_tree maximum-size output has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum_input, capacity)
+            short_result, short_output = add(maximum_input, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("garsia_wachs_alphabetic_tree accepted insufficient output capacity")
+            null_result, null_output = add(maximum_input, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("garsia_wachs_alphabetic_tree accepted null output")
+
+            for n in (1, 2, 3, 8, 16, 32, GARSIA_WACHS_MAX_N):
+                add((n, *((index * 7919) % (GARSIA_WACHS_MAX_WEIGHT + 1)
+                          for index in range(n))))
+            add((GARSIA_WACHS_MAX_N, *((0,) * GARSIA_WACHS_MAX_N)))
+            add((GARSIA_WACHS_MAX_N,
+                 *(index * GARSIA_WACHS_MAX_WEIGHT // (GARSIA_WACHS_MAX_N - 1)
+                   for index in range(GARSIA_WACHS_MAX_N))))
+
+            malformed = (
+                (), (0,), (GARSIA_WACHS_MAX_N + 1,
+                           *((1,) * (GARSIA_WACHS_MAX_N + 1))),
+                (2, 0), (2, 1, -1), (2, 1, GARSIA_WACHS_MAX_WEIGHT + 1),
+                tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                result, encoded = add(invalid_values)
+                if result != -1 or encoded:
+                    raise ValueError("garsia_wachs_alphabetic_tree accepted malformed input")
+            for null_length in (0, max_input):
+                result, encoded = add((), input_is_null=True, input_length=null_length)
+                if result != -1 or encoded:
+                    raise ValueError("garsia_wachs_alphabetic_tree accepted null input")
+        elif algorithm == "schreier_sims":
+            if (max_input != SCHREIER_SIMS_MAX_INPUT_LENGTH
+                    or max_output != SCHREIER_SIMS_MAX_OUTPUT_BYTES
+                    or workspace_bytes != 8192):
+                raise ValueError("schreier_sims bounds or workspace differ from its contract")
+
+            def pack_group(n, generators, queries):
+                return (n, len(generators), len(queries),
+                        *(value for permutation in (*generators, *queries)
+                          for value in permutation))
+
+            n = SCHREIER_SIMS_MAX_N
+            q = SCHREIER_SIMS_MAX_QUERIES
+            identity = tuple(range(n))
+            cycle = tuple((*range(1, n), 0))
+            inverse_cycle = (n - 1, *range(n - 1))
+            transposition = (1, 0, *range(2, n))
+            generators = (cycle, transposition, inverse_cycle, identity)
+            queries = (identity, cycle, inverse_cycle, transposition,
+                       tuple((i + 2) % n for i in range(n)),
+                       tuple((i + 3) % n for i in range(n)),
+                       tuple((n - 1 - i) for i in range(n)),
+                       tuple((i + 4) % n for i in range(n)))
+            maximum = pack_group(n, generators, queries)
+            result, output = add(maximum)
+            if (len(maximum) != SCHREIER_SIMS_MAX_INPUT_LENGTH - 1
+                    or result != max_output or len(output) != max_output):
+                raise ValueError("schreier_sims maximum degree/query profile has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("schreier_sims accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("schreier_sims accepted null output")
+
+            add(pack_group(n, (cycle,),
+                           (identity, cycle, inverse_cycle, transposition)))
+            add(pack_group(n, (), (identity, transposition)))
+            for degree in range(1, SCHREIER_SIMS_MAX_N + 1):
+                small_identity = tuple(range(degree))
+                small_cycle = tuple((*range(1, degree), 0))
+                add(pack_group(degree, (small_cycle,),
+                               (small_identity, small_cycle)))
+
+            too_many_generators = (1, SCHREIER_SIMS_MAX_GENERATORS + 1, 1,
+                                   *((0,) * (SCHREIER_SIMS_MAX_GENERATORS + 2)))
+            too_many_queries = (1, 0, q + 1, 0,
+                                *((0,) * (q + 1)))
+            malformed = (
+                (), (0, 0, 1), (SCHREIER_SIMS_MAX_N + 1, 0, 1,
+                                *((0,) * (SCHREIER_SIMS_MAX_N + 1))),
+                (1, 0, 0), too_many_generators, too_many_queries,
+                (2, 1, 1, 0, 2, 0, 1), (2, 1, 1, 0, 0, 0, 1),
+                (1, 0, 1), tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                result, encoded = add(invalid_values)
+                if result != -1 or encoded:
+                    raise ValueError("schreier_sims accepted malformed input")
+            for null_length in (0, max_input):
+                result, encoded = add((), input_is_null=True, input_length=null_length)
+                if result != -1 or encoded:
+                    raise ValueError("schreier_sims accepted null input")
+        elif algorithm == "lowest_common_ancestor_farach_colton_bender":
+            if (max_input != FCB_LCA_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != FCB_LCA_VERIFIER_MAX_QUERIES
+                    or workspace_bytes != 65536):
+                raise ValueError("Farach–Colton–Bender LCA bounds or workspace differ from its contract")
+
+            n = FCB_LCA_VERIFIER_MAX_NODES
+            q = FCB_LCA_VERIFIER_MAX_QUERIES
+            root = n // 2
+            edges = tuple((vertex, vertex + 1) for vertex in range(n - 1))
+            queries = tuple(
+                (query_index % n, (query_index * 73 + n - 1) % n)
+                for query_index in range(q)
+            )
+            maximum = (n, root, n - 1, q,
+                       *(value for edge in edges for value in edge),
+                       *(value for pair in queries for value in pair))
+            result, output = add(maximum)
+            if len(maximum) != max_input or result != max_output or len(output) != max_output:
+                raise ValueError("Farach–Colton–Bender LCA maximum-size trace has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("Farach–Colton–Bender LCA accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("Farach–Colton–Bender LCA accepted null output")
+
+            zero_queries = (n, root, n - 1, 0,
+                            *(value for edge in edges for value in edge))
+            zero_result, zero_output = add(zero_queries, 0, output_is_null=True)
+            if zero_result != 0 or zero_output:
+                raise ValueError("Farach–Colton–Bender LCA rejected zero-query null output")
+
+            too_many_queries = (1, 0, 0, q + 1, *((0, 0) * (q + 1)))
+            malformed = (
+                (), (1, 0, 0), (0, 0, 0, 0), (2, 2, 1, 0, 0, 1),
+                (2, 0, 0, 0), (2, 0, 1, 0, 0, 0),
+                (4, 0, 3, 0, 0, 1, 1, 0, 2, 3),
+                (2, 0, 1, 1, 0, 1, 0, 2), too_many_queries,
+                tuple([0] * max_input),
+                (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("Farach–Colton–Bender LCA accepted malformed input")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("Farach–Colton–Bender LCA accepted null input")
+        elif algorithm == "old_driver_tree":
+            if (max_input != OLD_DRIVER_TREE_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != OLD_DRIVER_TREE_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != OLD_DRIVER_TREE_VERIFIER_MAX_OUTPUT_BYTES):
+                raise ValueError("old_driver_tree bounds or output capacity differ from its contract")
+
+            n = 32
+            q = 32
+            initial = tuple((index * 17) % 101 - 50 for index in range(n))
+            maximum = (n, q, *initial,
+                       *(value for operation in (
+                           (3, 0, n - 1, index % 9, 1_000_000_007)
+                           for index in range(q))
+                         for value in operation))
+            result, output = add(maximum)
+            if len(maximum) != 194 or result != max_output or len(output) != max_output:
+                raise ValueError("old_driver_tree maximum-size trace has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("old_driver_tree accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("old_driver_tree accepted null output with answers")
+
+            zero_trace = (1, 0, 7)
+            zero_result, zero_output = add(zero_trace, 0, output_is_null=True)
+            if zero_result != 0 or zero_output:
+                raise ValueError("old_driver_tree rejected a zero-operation null output")
+
+            maximum_plus_trailing_word = maximum + (0,)
+            trailing_result, trailing_output = add(maximum_plus_trailing_word)
+            if trailing_result != -1 or trailing_output:
+                raise ValueError("old_driver_tree accepted a trailing input word")
+            malformed = (
+                (), (0, 0), (1, 0), (1, 1, 0, 2, 0, 0, 1),
+                (1, 1, 0, 3, 0, 0, 0, 0),
+                (1, 1, 0, 2, 0, 0, 0),
+                (1, 1, 0, 1, 0, 1, 0),
+                (n, q + 1, *((0,) * (n + 3 * (q + 1))),),
+                tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("old_driver_tree accepted malformed input")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("old_driver_tree accepted null input")
+        elif algorithm == "point_set_tree_path_composite_sum_fixed_root":
+            if (max_input != FIXED_ROOT_HLD_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != FIXED_ROOT_HLD_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != FIXED_ROOT_HLD_VERIFIER_MAX_WORKSPACE_BYTES):
+                raise ValueError("fixed-root HLD bounds or workspace differ from its contract")
+
+            n = FIXED_ROOT_HLD_VERIFIER_MAX_N
+            q = FIXED_ROOT_HLD_VERIFIER_MAX_Q
+            vertex_values = tuple((index * 101) % 998_244_353 for index in range(n))
+            edges = tuple((vertex, vertex + 1, vertex + 1, vertex * 7)
+                          for vertex in range(n - 1))
+            updates = tuple((1, index % (n - 1), index + 1, index * 13)
+                            for index in range(q))
+            maximum = (n, q, *vertex_values,
+                       *(value for edge in edges for value in edge),
+                       *(value for update in updates for value in update))
+            result, output = add(maximum)
+            if len(maximum) != max_input or result != max_output or len(output) != max_output:
+                raise ValueError("fixed-root HLD maximum-size trace has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("fixed-root HLD accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("fixed-root HLD accepted null output")
+
+            mixed_updates = tuple(
+                (0, index % n, index * 11) if index % 2 == 0
+                else (1, index % (n - 1), index + 2, index * 5)
+                for index in range(q)
+            )
+            mixed = (n, q, *vertex_values,
+                     *(value for edge in edges for value in edge),
+                     *(value for update in mixed_updates for value in update))
+            mixed_result, mixed_output = add(mixed)
+            if mixed_result != max_output or len(mixed_output) != max_output:
+                raise ValueError("fixed-root HLD mixed update trace has invalid framing")
+
+            malformed = (
+                (), (0, 1), (1, 0, 0), (n + 1, 1),
+                (2, 1, 0, 0, 1, 1, 0, 0),
+                (2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2),
+                tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("fixed-root HLD accepted malformed input")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("fixed-root HLD accepted null input")
+        elif algorithm == "point_set_tree_path_composite_sum":
+            if (max_input != ARBITRARY_ROOT_TOP_TREE_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != ARBITRARY_ROOT_TOP_TREE_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != ARBITRARY_ROOT_TOP_TREE_VERIFIER_WORKSPACE_BYTES):
+                raise ValueError("arbitrary-root top-tree bounds or workspace differ from its contract")
+
+            n = ARBITRARY_ROOT_TOP_TREE_VERIFIER_MAX_N
+            q = ARBITRARY_ROOT_TOP_TREE_VERIFIER_MAX_Q
+            vertex_values = tuple((index * 101) % 998_244_353 for index in range(n))
+            edges = tuple((vertex, vertex + 1, vertex + 1, vertex * 7)
+                          for vertex in range(n - 1))
+            updates = tuple((1, index % (n - 1), index + 1, index * 13,
+                             (index * 7) % n) for index in range(q))
+            maximum = (n, q, *vertex_values,
+                       *(value for edge in edges for value in edge),
+                       *(value for update in updates for value in update))
+            result, output = add(maximum)
+            if len(maximum) != max_input or result != max_output or len(output) != max_output:
+                raise ValueError("arbitrary-root top-tree maximum-size trace has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("arbitrary-root top-tree accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("arbitrary-root top-tree accepted null output")
+
+            mixed_updates = tuple(
+                (0, index % n, index * 11, (index * 5) % n) if index % 2 == 0
+                else (1, index % (n - 1), index + 2, index * 5, (index * 3) % n)
+                for index in range(q)
+            )
+            mixed = (n, q, *vertex_values,
+                     *(value for edge in edges for value in edge),
+                     *(value for update in mixed_updates for value in update))
+            mixed_result, mixed_output = add(mixed)
+            if mixed_result != max_output or len(mixed_output) != max_output:
+                raise ValueError("arbitrary-root top-tree mixed update trace has invalid framing")
+
+            malformed = (
+                (), (0, 1), (1, 0, 0), (n + 1, 1),
+                (2, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2),
+                (2, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0),
+                (2, 1, 0, 0, 0, 1, 1, 0, 0, 0),
+                (3, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0),
+                maximum + (0,), tuple([0] * max_input), (-(1 << 63),), ((1 << 63) - 1,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("arbitrary-root top-tree accepted malformed input")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("arbitrary-root top-tree accepted null input")
+        elif algorithm == "de_bruijn_sequences":
+            if (max_input != 3
+                    or max_output != DE_BRUIJN_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != 17
+                    or DE_BRUIJN_VERIFIER_MAX_ORDER != 16
+                    or DE_BRUIJN_VERIFIER_MAX_CYCLE_LENGTH != 10_000):
+                raise ValueError("de Bruijn bounds or workspace differ from its contract")
+
+            maximum = (10, 4)
+            result, output = add(maximum)
+            if len(maximum) != 2 or result != max_output or len(output) != max_output:
+                raise ValueError("de Bruijn maximum-output trace has invalid framing")
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("de Bruijn accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("de Bruijn accepted null output")
+            malformed = (
+                (), (2,), (1, 3), (10, 5), (2, 1, 0),
+                (2, 1, 0, 0), tuple([0] * max_input),
+                (-(1 << 63),), ((1 << 63) - 1,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("de Bruijn accepted malformed input")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("de Bruijn accepted null input")
+        elif algorithm == "knuth_power_tree":
+            if max_input != 2 or max_output != KNUTH_POWER_TREE_VERIFIER_MAX_OUTPUT_BYTES or workspace_bytes != 8192:
+                raise ValueError("Knuth power-tree bounds or workspace differ from its contract")
+
+            maximum = (KNUTH_POWER_TREE_VERIFIER_MAX_TARGET,)
+            result, output = add(maximum, max_output)
+            if len(maximum) != 1 or result != len(output) or not 0 < result <= max_output:
+                raise ValueError("Knuth power-tree maximum-target trace has invalid framing")
+            short_result, short_output = add(maximum, result - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("Knuth power-tree accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("Knuth power-tree accepted null output")
+            malformed = (
+                (), (0,), (KNUTH_POWER_TREE_VERIFIER_MAX_TARGET + 1,),
+                (3, 4), tuple([0] * max_input),
+                (-(1 << 63),), ((1 << 63) - 1,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("Knuth power-tree accepted malformed input")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("Knuth power-tree accepted null input")
+        elif algorithm == "prefix_substring_lcs":
+            if (max_input != PREFIX_SUBSTRING_LCS_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != PREFIX_SUBSTRING_LCS_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != 65536):
+                raise ValueError("prefix-substring LCS bounds or workspace differ from its contract")
+
+            n = PREFIX_SUBSTRING_LCS_VERIFIER_MAX_STRING_LENGTH
+            q = PREFIX_SUBSTRING_LCS_VERIFIER_MAX_QUERIES
+            s = tuple(97 + index % 26 for index in range(n))
+            t = tuple(122 - index % 26 for index in range(n))
+            queries = tuple((n, 0, n) for _ in range(q))
+            maximum = (n, n, q, *s, *t,
+                       *(value for query in queries for value in query))
+            result, output = add(maximum)
+            if (len(maximum) != PREFIX_SUBSTRING_LCS_VERIFIER_MAX_VALID_INPUT_LENGTH
+                    or result != max_output or len(output) != max_output):
+                raise ValueError("prefix-substring LCS maximum-size trace has invalid framing")
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("prefix-substring LCS accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("prefix-substring LCS accepted null output")
+
+            mixed_queries = tuple((index % (n + 1), index % (n + 1), n)
+                                  for index in range(q))
+            mixed = (n, n, q, *s, *t,
+                     *(value for query in mixed_queries for value in query))
+            mixed_result, mixed_output = add(mixed)
+            if mixed_result != max_output or len(mixed_output) != max_output:
+                raise ValueError("prefix-substring LCS mixed-query trace has invalid framing")
+
+            malformed = (
+                (), (0, n, 1), (n + 1, n, 1),
+                (1, 1, 1, 65, 97, 1, 0, 1),
+                (1, 1, 1, 97, 97, 1, 2, 1),
+                maximum[:-1], maximum + (0,),
+                tuple([0] * (max_input + 1)),
+                (-(1 << 63),), ((1 << 63) - 1,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("prefix-substring LCS accepted malformed input")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("prefix-substring LCS accepted null input")
+        elif algorithm == "main_lorentz_tandem_repetitions":
+            if (max_input != MAIN_LORENTZ_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != MAIN_LORENTZ_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != MAIN_LORENTZ_VERIFIER_MAX_WORKSPACE_BYTES):
+                raise ValueError("Main–Lorentz bounds or workspace differ from its contract")
+
+            n = MAIN_LORENTZ_VERIFIER_MAX_N
+            maximum = (n, *((97,) * n))
+            result, output = add(maximum)
+            if (len(maximum) != max_input
+                    or result != max_output or len(output) != max_output
+                    or MAIN_LORENTZ_VERIFIER_MAX_REPETITIONS != 144):
+                raise ValueError("Main–Lorentz maximum repeated-symbol trace has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("Main–Lorentz accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("Main–Lorentz accepted null output")
+
+            empty_string = (0,)
+            empty_result, empty_output = add(empty_string, 8)
+            if empty_result != 8 or empty_output != bytes(8):
+                raise ValueError("Main–Lorentz empty-string framing differs")
+            empty_short_result, empty_short_output = add(empty_string, 0)
+            if empty_short_result != -2 or empty_short_output:
+                raise ValueError("Main–Lorentz accepted capacity below its count word")
+            empty_null_result, empty_null_output = add(empty_string, output_is_null=True)
+            if empty_null_result != -2 or empty_null_output:
+                raise ValueError("Main–Lorentz accepted null output for its count word")
+
+            malformed = (
+                (), (1,), (2, 97), (2, 97, 256),
+                tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("Main–Lorentz accepted malformed input")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("Main–Lorentz accepted null input")
+        elif algorithm == "suffix_balanced_tree":
+            if (max_input != SUFFIX_BALANCED_TREE_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != SUFFIX_BALANCED_TREE_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != SUFFIX_BALANCED_TREE_VERIFIER_MAX_OUTPUT_BYTES):
+                raise ValueError("suffix_balanced_tree bounds or output capacity differ from its contract")
+
+            n = 32
+            maximum = (n, *((97,) * n))
+            result, output = add(maximum)
+            if (len(maximum) != max_input or result != max_output or len(output) != max_output):
+                raise ValueError("suffix_balanced_tree maximum repeated-symbol trace has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("suffix_balanced_tree accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("suffix_balanced_tree accepted null output")
+
+            empty_text = (0,)
+            empty_result, empty_output = add(empty_text, 0)
+            if empty_result != 0 or empty_output:
+                raise ValueError("suffix_balanced_tree rejected empty text with a zero-capacity buffer")
+            empty_null_result, empty_null_output = add(empty_text, output_is_null=True)
+            if empty_null_result != -2 or empty_null_output:
+                raise ValueError("suffix_balanced_tree accepted null output for empty text")
+            for text in ((1, 255), (5, 97, 98, 97, 98, 97),
+                         (3, 1, 0, 1), (8, 97, 97, 97, 97, 97, 97, 97, 97)):
+                add(text)
+
+            malformed = (
+                (), (33, *((1,) * 33)), (1, 256), (0, 1),
+                tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("suffix_balanced_tree accepted malformed input")
+            invalid_precedence_result, invalid_precedence_output = add(
+                (1, 256), 0, output_is_null=True)
+            if invalid_precedence_result != -1 or invalid_precedence_output:
+                raise ValueError("suffix_balanced_tree output errors took precedence over invalid input")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("suffix_balanced_tree accepted null input")
+        elif algorithm == "segment_history_extreme":
+            if (max_input != SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != 8192):
+                raise ValueError("segment_history_extreme bounds or capacity differ from its contract")
+
+            n = SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_N
+            q = SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_Q
+            initial = tuple((index * 67) % (2 * SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_VALUE + 1)
+                            - SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_VALUE for index in range(n))
+            maximum_operations = tuple((3, 0, n, 0) for _ in range(q))
+            maximum = (n, q, *initial,
+                       *(value for operation in maximum_operations for value in operation))
+            result, output = add(maximum)
+            if (len(maximum) != max_input - 1
+                    or result != max_output or len(output) != max_output):
+                raise ValueError("segment_history_extreme maximum query profile has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum, capacity)
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("segment_history_extreme accepted insufficient output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("segment_history_extreme accepted null output with answers")
+
+            no_queries = (1, 0, 7)
+            empty_result, empty_output = add(no_queries, 0)
+            if empty_result != 0 or empty_output:
+                raise ValueError("segment_history_extreme rejected zero-query empty output")
+            empty_null_result, empty_null_output = add(no_queries, output_is_null=True)
+            if empty_null_result != -2 or empty_null_output:
+                raise ValueError("segment_history_extreme accepted null output for zero queries")
+
+            alternating = tuple(
+                (opcode, index % n, (index % n) + 1,
+                 ((index * 71) % (2 * SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_VALUE + 1)
+                  - SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_VALUE) if opcode < 2 else 0)
+                for index in range(q)
+                for opcode in ((0, 2, 1, 3)[index % 4],)
+            )
+            mixed = (n, q, *initial,
+                     *(value for operation in alternating for value in operation))
+            mixed_result, mixed_output = add(mixed)
+            if mixed_result < 0 or len(mixed_output) != mixed_result:
+                raise ValueError("segment_history_extreme mixed update trace has invalid framing")
+
+            too_many_queries = (1, q + 1, 0, *((2, 0, 1, 0) * (q + 1)))
+            malformed = (
+                (), (0, 0), (1, 0), (n + 1, 0, *((0,) * (n + 1))),
+                (1, q + 1, 0, *((2, 0, 1, 0) * (q + 1))), too_many_queries,
+                (1, 1, 0, 4, 0, 1, 0), (1, 1, 0, 2, 0, 0, 1),
+                (1, 1, 0, 0, 1, 1, 0),
+                (1, 1, 0, 1, 0, 1, SEGMENT_HISTORY_EXTREME_VERIFIER_MAX_VALUE + 1),
+                tuple([0] * max_input), (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("segment_history_extreme accepted malformed input")
+            precedence_result, precedence_output = add(
+                (1, 1, 0, 4, 0, 1), 0, output_is_null=True)
+            if precedence_result != -1 or precedence_output:
+                raise ValueError("segment_history_extreme output errors took precedence over invalid input")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("segment_history_extreme accepted null input")
+        elif algorithm == "kinetic_tournament_tree":
+            if (max_input != KINETIC_TOURNAMENT_TREE_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != KINETIC_TOURNAMENT_TREE_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != KINETIC_TOURNAMENT_TREE_VERIFIER_MAX_WORKSPACE_BYTES):
+                raise ValueError("kinetic_tournament_tree bounds or capacity differ from its contract")
+
+            n = KINETIC_TOURNAMENT_TREE_VERIFIER_MAX_N
+            q = KINETIC_TOURNAMENT_TREE_VERIFIER_MAX_M
+            slopes = (-8, -6, -4, -2, 1, 2, 5, 8)
+            lines = tuple(value for slope in slopes for value in (slope, 0))
+            maximum_queries = (n, q, *lines, *((1, 0, n - 1) * q))
+            result, output = add(maximum_queries)
+            if (len(maximum_queries) > max_input
+                    or result != max_output or len(output) != max_output):
+                raise ValueError("kinetic_tournament_tree maximum-query profile has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum_queries, capacity)
+            short_result, short_output = add(maximum_queries, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("kinetic_tournament_tree accepted insufficient output capacity")
+            null_result, null_output = add(maximum_queries, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("kinetic_tournament_tree accepted null output")
+
+            maximum_valid_operations = tuple(
+                (0, 0, n - 1, (index % 8) + 1) for index in range(q - 1)
+            ) + ((1, 0, n - 1),)
+            maximum_valid = (n, q, *lines,
+                             *(value for operation in maximum_valid_operations for value in operation))
+            valid_result, valid_output = add(maximum_valid)
+            expected_valid_length = 2 + 2 * n + 4 * (q - 1) + 3
+            if (len(maximum_valid) != expected_valid_length
+                    or len(maximum_valid) != max_input - 1
+                    or valid_result != 8 or len(valid_output) != 8):
+                raise ValueError("kinetic_tournament_tree longest valid frame has invalid framing")
+
+            mixed_operations = []
+            for index in range(q):
+                left = index % n
+                right = min(n - 1, left + index % 4)
+                if index % 3 == 0:
+                    mixed_operations.append((0, left, right, index % 8 + 1))
+                else:
+                    mixed_operations.append((1, left, right))
+            if not any(operation[0] == 1 for operation in mixed_operations):
+                mixed_operations.append((1, 0, n - 1))
+            mixed_operations = mixed_operations[:q]
+            if not any(operation[0] == 1 for operation in mixed_operations):
+                mixed_operations[-1] = (1, 0, n - 1)
+            mixed = (n, len(mixed_operations), *lines,
+                     *(value for operation in mixed_operations for value in operation))
+            mixed_result, mixed_output = add(mixed)
+            if mixed_result < 0 or len(mixed_output) != mixed_result:
+                raise ValueError("kinetic_tournament_tree mixed certificate trace has invalid framing")
+
+            malformed = (
+                (), (0, 0), (1, 0), (n + 1, 1, *((0,) * (2 * (n + 1))), 1, 0, 0),
+                (2, 1, 1, 0, 1, 0, 1, 0, 1, 0),
+                (1, 1, 9, 0, 1, 0, 0), (1, 1, 0, 0, 0, 0, 1),
+                (1, 1, 0, 0, 0, 1), (1, 1, 0, 0, 1, 0, 1),
+                (1, 1, 0, 0, 0, 1, 0),
+                (1, q + 1, 0, 0, *((1, 0, 0) * (q + 1))),
+                maximum_valid + (0,), tuple([0] * max_input),
+                (I64_MIN,), (I64_MAX,),
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("kinetic_tournament_tree accepted malformed input")
+            precedence_result, precedence_output = add(
+                (1, 1, 9, 0, 1, 0, 0), 0, output_is_null=True)
+            if precedence_result != -1 or precedence_output:
+                raise ValueError("kinetic_tournament_tree output errors took precedence over invalid input")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("kinetic_tournament_tree accepted null input")
         elif algorithm == "k_shortest_walk":
             if (max_input != K_SHORTEST_WALK_VERIFIER_MAX_INPUT_LENGTH
                     or max_output != K_SHORTEST_WALK_VERIFIER_MAX_OUTPUT_BYTES

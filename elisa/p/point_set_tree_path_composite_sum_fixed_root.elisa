@@ -1,0 +1,319 @@
+const PTS_MAX_N: usize = 16
+const PTS_MAX_Q: usize = 32
+const PTS_BASE: usize = 16
+const PTS_MAX_INPUT: usize = 5 * PTS_MAX_N + 4 * PTS_MAX_Q - 2
+const PTS_MOD: i64 = 998244353
+
+def pts_find(parent: mutable view[usize], initial: usize) -> usize:
+    node: mutable usize = initial
+    while parent[node] != node:
+        parent[node] <- parent[parent[node]]
+        node <- parent[node]
+    node
+
+def pts_compose(lm: i64, la: i64, rm: i64, ra: i64, result: mutable view[i64]) -> void:
+    result[0] <- lm * rm % PTS_MOD
+    result[1] <- (lm * ra + la) % PTS_MOD
+
+def pts_set_leaf(u: usize, pos: view[usize], lm: view[i64], la: view[i64],
+        sm: mutable view[i64], sa: mutable view[i64]) -> void:
+    node: mutable usize = PTS_BASE + pos[u]
+    scratch: mutable i64[2] = zeroed
+    sm[node] <- lm[u]
+    sa[node] <- la[u]
+    node <- node / 2
+    while node > 0:
+        pts_compose(sm[2 * node], sa[2 * node], sm[2 * node + 1], sa[2 * node + 1], scratch[0:2])
+        sm[node] <- scratch[0]
+        sa[node] <- scratch[1]
+        node <- node / 2
+
+def pts_chain_value(h: usize, pos: view[usize], ends: view[usize],
+        sm: view[i64], sa: view[i64], scratch: mutable view[i64]) -> i64:
+    left: mutable usize = PTS_BASE + pos[h]
+    right: mutable usize = PTS_BASE + ends[h]
+    lm: mutable i64 = 1
+    la: mutable i64 = 0
+    rm: mutable i64 = 1
+    ra: mutable i64 = 0
+    while left < right:
+        if left % 2 == 1:
+            pts_compose(lm, la, sm[left], sa[left], scratch[0:2])
+            lm <- scratch[0]
+            la <- scratch[1]
+            left <- left + 1
+        if right % 2 == 1:
+            right <- right - 1
+            pts_compose(sm[right], sa[right], rm, ra, scratch[0:2])
+            rm <- scratch[0]
+            ra <- scratch[1]
+        left <- left / 2
+        right <- right / 2
+    pts_compose(lm, la, rm, ra, scratch[0:2])
+    scratch[1]
+
+def pts_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def point_set_tree_path_composite_sum_fixed_root_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > PTS_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > PTS_MAX_N.i64() or q_value < 1 or q_value > PTS_MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    input_view: view[i64] = input[0:length]
+    cursor: mutable usize = 2
+    vertex_value: mutable i64[PTS_MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        if cursor >= length: return -1
+        vertex_value[vertex] <- input_view[cursor]
+        if vertex_value[vertex] < 0 or vertex_value[vertex] >= PTS_MOD: return -1
+        cursor <- cursor + 1
+        vertex <- vertex + 1
+    edge_at: mutable i64[PTS_MAX_N * PTS_MAX_N] = zeroed
+    vertex <- 0
+    while vertex < PTS_MAX_N * PTS_MAX_N:
+        edge_at[vertex] <- -1
+        vertex <- vertex + 1
+    edge_u: mutable i64[PTS_MAX_N] = zeroed
+    edge_v: mutable i64[PTS_MAX_N] = zeroed
+    edge_b: mutable i64[PTS_MAX_N] = zeroed
+    edge_c: mutable i64[PTS_MAX_N] = zeroed
+    dsu_parent: mutable usize[PTS_MAX_N] = zeroed
+    dsu_size: mutable usize[PTS_MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        dsu_parent[vertex] <- vertex
+        dsu_size[vertex] <- 1
+        vertex <- vertex + 1
+    edge: mutable usize = 0
+    while edge + 1 < n:
+        if cursor + 4 > length: return -1
+        u_value: i64 = input_view[cursor]
+        v_value: i64 = input_view[cursor + 1]
+        b: i64 = input_view[cursor + 2]
+        c: i64 = input_view[cursor + 3]
+        cursor <- cursor + 4
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value or b < 1 or b >= PTS_MOD or c < 0 or c >= PTS_MOD: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        ru: usize = pts_find(dsu_parent[0:PTS_MAX_N], u)
+        rv: usize = pts_find(dsu_parent[0:PTS_MAX_N], v)
+        if ru == rv: return -1
+        if dsu_size[ru] < dsu_size[rv]:
+            temporary: usize = ru
+            ru <- rv
+            rv <- temporary
+        dsu_parent[rv] <- ru
+        dsu_size[ru] <- dsu_size[ru] + dsu_size[rv]
+        edge_u[edge] <- u_value
+        edge_v[edge] <- v_value
+        edge_b[edge] <- b
+        edge_c[edge] <- c
+        edge_at[u * PTS_MAX_N + v] <- edge.i64()
+        edge_at[v * PTS_MAX_N + u] <- edge.i64()
+        edge <- edge + 1
+    kind: mutable i64[PTS_MAX_Q] = zeroed
+    op_x: mutable i64[PTS_MAX_Q] = zeroed
+    op_y: mutable i64[PTS_MAX_Q] = zeroed
+    op_z: mutable i64[PTS_MAX_Q] = zeroed
+    query: mutable usize = 0
+    while query < q:
+        if cursor >= length: return -1
+        kind[query] <- input_view[cursor]
+        cursor <- cursor + 1
+        if kind[query] == 0:
+            if cursor + 2 > length: return -1
+            op_x[query] <- input_view[cursor]
+            op_y[query] <- input_view[cursor + 1]
+            cursor <- cursor + 2
+            if op_x[query] < 0 or op_x[query] >= n_value or op_y[query] < 0 or op_y[query] >= PTS_MOD: return -1
+        elif kind[query] == 1:
+            if cursor + 3 > length: return -1
+            op_x[query] <- input_view[cursor]
+            op_y[query] <- input_view[cursor + 1]
+            op_z[query] <- input_view[cursor + 2]
+            cursor <- cursor + 3
+            if op_x[query] < 0 or op_x[query] >= n_value - 1 or op_y[query] < 1 or op_y[query] >= PTS_MOD or op_z[query] < 0 or op_z[query] >= PTS_MOD: return -1
+        else: return -1
+        query <- query + 1
+    if cursor != length: return -1
+    required: usize = 8 * q
+    if output.is_null() or capacity < required: return -2
+
+    path_parent: mutable i64[PTS_MAX_N] = zeroed
+    parent_edge: mutable i64[PTS_MAX_N] = zeroed
+    subtree: mutable usize[PTS_MAX_N] = zeroed
+    heavy: mutable i64[PTS_MAX_N] = zeroed
+    order: mutable usize[PTS_MAX_N] = zeroed
+    stack: mutable usize[PTS_MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        path_parent[vertex] <- -2
+        parent_edge[vertex] <- -1
+        subtree[vertex] <- 1
+        heavy[vertex] <- -1
+        vertex <- vertex + 1
+    path_parent[0] <- -1
+    top: mutable usize = 1
+    count: mutable usize = 0
+    stack[0] <- 0
+    while top > 0:
+        top <- top - 1
+        u: usize = stack[top]
+        order[count] <- u
+        count <- count + 1
+        v: mutable usize = 0
+        while v < n:
+            eid: i64 = edge_at[u * PTS_MAX_N + v]
+            if eid >= 0 and v.i64() != path_parent[u]:
+                path_parent[v] <- u.i64()
+                parent_edge[v] <- eid
+                stack[top] <- v
+                top <- top + 1
+            v <- v + 1
+    scan: mutable usize = count
+    while scan > 0:
+        scan <- scan - 1
+        u: usize = order[scan]
+        best: mutable usize = 0
+        v <- 0
+        while v < n:
+            if path_parent[v] == u.i64():
+                subtree[u] <- subtree[u] + subtree[v]
+                if subtree[v] > best or (subtree[v] == best and (heavy[u] < 0 or v < heavy[u].usize())):
+                    best <- subtree[v]
+                    heavy[u] <- v.i64()
+            v <- v + 1
+    head: mutable usize[PTS_MAX_N] = zeroed
+    position: mutable usize[PTS_MAX_N] = zeroed
+    chain_end: mutable usize[PTS_MAX_N] = zeroed
+    chain_heads: mutable usize[PTS_MAX_N] = zeroed
+    timer: mutable usize = 0
+    top <- 1
+    chain_heads[0] <- 0
+    while top > 0:
+        top <- top - 1
+        h: usize = chain_heads[top]
+        u <- h
+        while true:
+            head[u] <- h
+            position[u] <- timer
+            timer <- timer + 1
+            v <- 0
+            while v < n:
+                if path_parent[v] == u.i64() and v.i64() != heavy[u]:
+                    chain_heads[top] <- v
+                    top <- top + 1
+                v <- v + 1
+            if heavy[u] < 0: break
+            u <- heavy[u].usize()
+        chain_end[h] <- timer
+    down_sum: mutable i64[PTS_MAX_N] = zeroed
+    scan <- count
+    while scan > 0:
+        scan <- scan - 1
+        u <- order[scan]
+        down_sum[u] <- vertex_value[u]
+        v <- 0
+        while v < n:
+            if path_parent[v] == u.i64():
+                e: usize = parent_edge[v].usize()
+                down_sum[u] <- down_sum[u] + edge_b[e] * down_sum[v] + edge_c[e] * subtree[v].i64()
+            v <- v + 1
+        down_sum[u] <- down_sum[u] % PTS_MOD
+    local_mul: mutable i64[PTS_MAX_N] = zeroed
+    local_add: mutable i64[PTS_MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        local_add[vertex] <- vertex_value[vertex]
+        v <- 0
+        while v < n:
+            if path_parent[v] == vertex.i64():
+                e = parent_edge[v].usize()
+                if heavy[vertex] == v.i64():
+                    local_mul[vertex] <- edge_b[e]
+                    local_add[vertex] <- local_add[vertex] + edge_c[e] * subtree[v].i64()
+                else:
+                    local_add[vertex] <- local_add[vertex] + edge_b[e] * down_sum[v] + edge_c[e] * subtree[v].i64()
+            v <- v + 1
+        local_add[vertex] <- local_add[vertex] % PTS_MOD
+        vertex <- vertex + 1
+    seg_mul: mutable i64[2 * PTS_BASE] = zeroed
+    seg_add: mutable i64[2 * PTS_BASE] = zeroed
+    vertex <- 0
+    while vertex < 2 * PTS_BASE:
+        seg_mul[vertex] <- 1
+        vertex <- vertex + 1
+    vertex <- 0
+    while vertex < n:
+        seg_mul[PTS_BASE + position[vertex]] <- local_mul[vertex]
+        seg_add[PTS_BASE + position[vertex]] <- local_add[vertex]
+        vertex <- vertex + 1
+    node: mutable usize = PTS_BASE - 1
+    scratch: mutable i64[2] = zeroed
+    while node > 0:
+        pts_compose(seg_mul[2 * node], seg_add[2 * node], seg_mul[2 * node + 1], seg_add[2 * node + 1], scratch[0:2])
+        seg_mul[node] <- scratch[0]
+        seg_add[node] <- scratch[1]
+        node <- node - 1
+    current: mutable i64[PTS_MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        if head[vertex] == vertex: current[vertex] <- down_sum[vertex]
+        vertex <- vertex + 1
+    query <- 0
+    while query < q:
+        start: mutable usize = 0
+        if kind[query] == 0:
+            u <- op_x[query].usize()
+            local_add[u] <- (local_add[u] + op_y[query] - vertex_value[u]) % PTS_MOD
+            if local_add[u] < 0: local_add[u] <- local_add[u] + PTS_MOD
+            vertex_value[u] <- op_y[query]
+            pts_set_leaf(u, position[0:PTS_MAX_N], local_mul[0:PTS_MAX_N], local_add[0:PTS_MAX_N], seg_mul[0:2*PTS_BASE], seg_add[0:2*PTS_BASE])
+            start <- u
+        else:
+            e: usize = op_x[query].usize()
+            u <- edge_u[e].usize()
+            v <- edge_v[e].usize()
+            child: mutable usize = v
+            if path_parent[u] == v.i64(): child <- u
+            p: usize = path_parent[child].usize()
+            old_b: i64 = edge_b[e]
+            old_c: i64 = edge_c[e]
+            if heavy[p] == child.i64():
+                local_mul[p] <- op_y[query]
+                local_add[p] <- (local_add[p] + (op_z[query] - old_c) * subtree[child].i64()) % PTS_MOD
+            else:
+                local_add[p] <- (local_add[p] + (op_y[query] - old_b) * current[child] + (op_z[query] - old_c) * subtree[child].i64()) % PTS_MOD
+            if local_add[p] < 0: local_add[p] <- local_add[p] + PTS_MOD
+            edge_b[e] <- op_y[query]
+            edge_c[e] <- op_z[query]
+            pts_set_leaf(p, position[0:PTS_MAX_N], local_mul[0:PTS_MAX_N], local_add[0:PTS_MAX_N], seg_mul[0:2*PTS_BASE], seg_add[0:2*PTS_BASE])
+            start <- p
+        u <- start
+        while true:
+            h: usize = head[u]
+            old: i64 = current[h]
+            current[h] <- pts_chain_value(h, position[0:PTS_MAX_N], chain_end[0:PTS_MAX_N], seg_mul[0:2*PTS_BASE], seg_add[0:2*PTS_BASE], scratch[0:2])
+            if h == 0: break
+            p = path_parent[h].usize()
+            e = parent_edge[h].usize()
+            local_add[p] <- (local_add[p] + edge_b[e] * (current[h] - old)) % PTS_MOD
+            if local_add[p] < 0: local_add[p] <- local_add[p] + PTS_MOD
+            pts_set_leaf(p, position[0:PTS_MAX_N], local_mul[0:PTS_MAX_N], local_add[0:PTS_MAX_N], seg_mul[0:2*PTS_BASE], seg_add[0:2*PTS_BASE])
+            u <- p
+        pts_store(current[0], output[0:required], 8 * query)
+        query <- query + 1
+    required.i64()
+
+export fn point_set_tree_path_composite_sum_fixed_root(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = point_set_tree_path_composite_sum_fixed_root_impl

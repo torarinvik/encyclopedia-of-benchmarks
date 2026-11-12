@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-dynamic-tree-vertex-set-path-composite-bounded-lct-bytes-v1",
+  "algorithm": "dynamic_tree_vertex_set_path_composite",
+  "function_symbol": "dynamic_tree_vertex_set_path_composite",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "tree/dynamic_tree_vertex_set_path_composite/task.md",
+    "limits_path": "tree/dynamic_tree_vertex_set_path_composite/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/tree/dynamic_tree_vertex_set_path_composite/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/tree/dynamic_tree_vertex_set_path_composite/info.toml",
+    "official_nq_max": 200000,
+    "modulus": 998244353,
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Operation and modulus only; bounded profile, ports, fixtures, oracles, and prose are clean-room."
+  },
+  "oracle": "benchmarks/t/dynamic_tree_vertex_set_path_composite/primary_oracle.py",
+  "independent_oracle": "benchmarks/t/dynamic_tree_vertex_set_path_composite/independent_oracle.py",
+  "contract": {
+    "operation": "Maintain a tree whose vertices carry affine maps. Replace one edge by another, set one vertex map, or evaluate the ordered composition of vertex maps along a path.",
+    "input_layout": "[N, Q, (a_i, b_i) for each vertex, (u_i, v_i) for each initial edge, then Q variable-width queries]",
+    "n_range": [1, 8],
+    "q_range": [1, 12],
+    "modulus": 998244353,
+    "initial_multiplier_and_update_multiplier_range": [1, 998244352],
+    "addend_and_query_argument_range": [0, 998244352],
+    "initial_tree": "The N-1 undirected edges form a simple tree.",
+    "queries": {
+      "0": "[0, u, v, w, x]: cut existing edge (u,v), then link (w,x); the graph remains a tree.",
+      "1": "[1, p, c, d]: set vertex p's map to f_p(t)=c*t+d modulo MODULUS.",
+      "2": "[2, u, v, x]: return f_v(...f_next(...f_u(x))) modulo MODULUS along the u-to-v vertex path."
+    },
+    "algorithm": "A Link-Cut Tree stores the affine composition in both auxiliary-path orientations. Reversal swaps child links and forward/reverse summaries; splay access supports edge cut/link, point map replacement, and ordered path evaluation in O(log N) amortized time per operation, using O(N) storage.",
+    "output_layout": "One little-endian signed 64-bit residue for each type-2 query, in query order; update queries produce no output.",
+    "error_precedence": "Malformed framing, values, initial trees, or edge-update traces that violate the tree promise return -1 before output checks. Valid input with null output or capacity below 8 times the number of path queries returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 92,
+    "maximum_parseable_length": 93,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 12,
+    "maximum_bytes": 96,
+    "success_result": "8 bytes per type-2 query",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single-vertex-map","input_values":[1,1,2,1,2,0,0,5],"input_length":8,"expected_result":8,"expected_output_hex":"0b00000000000000"},
+    {"id":"opposite-path-orientations","input_values":[2,2,2,1,3,4,0,1,2,0,1,5,2,1,0,5],"input_length":16,"expected_result":16,"expected_output_hex":"25000000000000002700000000000000"},
+    {"id":"map-update-and-edge-replacement","input_values":[3,5,1,1,2,0,3,1,0,1,1,2,2,0,2,1,1,1,4,2,2,2,0,1,0,1,2,0,2,2,1,2,1],"input_length":33,"expected_result":24,"expected_output_hex":"0d0000000000000013000000000000001600000000000000"},
+    {"id":"valid-update-only-trace","input_values":[2,1,1,0,1,0,0,1,0,0,1,0,1],"input_length":13,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"zero-initial-multiplier","input_values":[1,1,0,0,2,0,0,1],"input_length":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"self-edge-replacement-invalid","input_values":[2,1,1,0,1,0,0,1,0,0,1,0,0],"input_length":13,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-input-word","input_values":[1,1,2,1,2,0,0,5,99],"input_length":9,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,2,2,1,3,4,0,1,2,0,1,5,2,1,0,5],"input_length":16,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-buffer","input_values":[1,1,2,1,2,0,0,5],"input_length":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input-pointer","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

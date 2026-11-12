@@ -1,0 +1,111 @@
+const HLC_MAX_SEQUENCE: usize = 64
+const HLC_MAX_INPUT: usize = 132
+
+def hlc_row(input: view[i64], a_base: usize, a0: usize, a1: usize,
+            b_base: usize, b0: usize, b1: usize, reverse_a: bool,
+            reverse_b: bool, row: mutable view[i64]) -> void:
+    width: usize = b1 - b0
+    j: mutable usize = 0
+    while j <= width:
+        row[j] <- 0
+        j <- j + 1
+    i: mutable usize = 0
+    while i < a1 - a0:
+        av: i64 = input[a_base + (if reverse_a: a1 - 1 - i else: a0 + i)]
+        diagonal: mutable i64 = 0
+        j <- 1
+        while j <= width:
+            above: i64 = row[j]
+            bv: i64 = input[b_base + (if reverse_b: b1 - j else: b0 + j - 1)]
+            if av == bv:
+                row[j] <- diagonal + 1
+            elif row[j - 1] > row[j]:
+                row[j] <- row[j - 1]
+            diagonal <- above
+            j <- j + 1
+        i <- i + 1
+
+def hlc_recover(input: view[i64], a_base: usize, a0: usize, a1: usize,
+                b_base: usize, b0: usize, b1: usize,
+                forward: mutable view[i64], backward: mutable view[i64],
+                result: mutable view[u8], result_length: mutable view[usize]) -> void:
+    a_length: usize = a1 - a0
+    b_length: usize = b1 - b0
+    if a_length == 0 or b_length == 0: return
+    if a_length == 1:
+        target: i64 = input[a_base + a0]
+        j: mutable usize = b0
+        while j < b1:
+            if input[b_base + j] == target:
+                result[result_length[0]] <- target.u8()
+                result_length[0] <- result_length[0] + 1
+                return
+            j <- j + 1
+        return
+
+    middle: usize = a0 + a_length / 2
+    hlc_row(input, a_base, a0, middle, b_base, b0, b1, False, False, forward)
+    hlc_row(input, a_base, middle, a1, b_base, b0, b1, True, True, backward)
+    split: mutable usize = 0
+    best_score: mutable i64 = -1
+    j: mutable usize = 0
+    while j <= b_length:
+        score: i64 = forward[j] + backward[b_length - j]
+        if score > best_score:
+            best_score <- score
+            split <- j
+        j <- j + 1
+    hlc_recover(input, a_base, a0, middle, b_base, b0, b0 + split,
+                forward, backward, result, result_length)
+    hlc_recover(input, a_base, middle, a1, b_base, b0 + split, b1,
+                forward, backward, result, result_length)
+
+def hirschberg_lcs_impl(input: view[i64], length: usize,
+                        result: mutable view[u8],
+                        result_length: mutable view[usize]) -> i64:
+    if length < 2 or length > HLC_MAX_INPUT: return -1
+    first_value: i64 = input[0]
+    second_value: i64 = input[1]
+    if first_value < 0 or first_value > HLC_MAX_SEQUENCE.i64() or
+        second_value < 0 or second_value > HLC_MAX_SEQUENCE.i64(): return -1
+    first_length: usize = first_value.usize()
+    second_length: usize = second_value.usize()
+    if length != 2 + first_length + second_length: return -1
+    i: mutable usize = 0
+    while i < first_length + second_length:
+        if input[2 + i] < 0 or input[2 + i] > 127: return -1
+        i <- i + 1
+
+    a_base: usize = 2
+    b_base: usize = 2 + first_length
+    a_length: usize = first_length
+    b_length: usize = second_length
+    if a_length < b_length:
+        a_base <- 2 + first_length
+        b_base <- 2
+        a_length <- second_length
+        b_length <- first_length
+    forward: mutable i64[HLC_MAX_SEQUENCE + 1] = zeroed
+    backward: mutable i64[HLC_MAX_SEQUENCE + 1] = zeroed
+    count: mutable usize[1] = zeroed
+    hlc_recover(input, a_base, 0, a_length, b_base, 0, b_length,
+                forward[0:HLC_MAX_SEQUENCE + 1], backward[0:HLC_MAX_SEQUENCE + 1],
+                result, count[0:1])
+    result_length[0] <- count[0]
+    result_length[0].i64()
+
+export fn hirschberg_lcs(input: i64&, length: usize,
+                         output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > HLC_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    staged: mutable u8[HLC_MAX_SEQUENCE] = zeroed
+    staged_length: mutable usize[1] = zeroed
+    answer: i64 = hirschberg_lcs_impl(values, length, staged[0:HLC_MAX_SEQUENCE], staged_length[0:1])
+    if answer < 0: return answer
+    if output.is_null() or capacity < staged_length[0]: return -2
+    output_view: mutable view[u8] = output[0:staged_length[0]]
+    i: mutable usize = 0
+    while i < staged_length[0]:
+        output_view[i] <- staged[i]
+        i <- i + 1
+    answer

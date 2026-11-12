@@ -1,0 +1,91 @@
+const MAX_N: usize = 10
+const MAX_M: usize = 45
+const MAX_INPUT: usize = 92
+const MAX_DN: usize = 20
+
+def vertex_connectivity_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    if input[0] < 0 or input[0] > 10 or input[1] < 0 or input[1] > 45: return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 2*m: return -1
+    adjacency: mutable u64[10] = zeroed
+    for e in 0..<m:
+        left: i64 = input[2+2*e]
+        right: i64 = input[3+2*e]
+        if left < 0 or right < 0 or left >= n.i64() or right >= n.i64(): return -1
+        if left != right:
+            u: usize = left.usize()
+            v: usize = right.usize()
+            adjacency[u] <- adjacency[u] | (1u64 << v)
+            adjacency[v] <- adjacency[v] | (1u64 << u)
+    if n <= 1: return 0
+    reached: u64 = 1
+    graph_queue: mutable usize[10] = zeroed
+    graph_head: usize = 0
+    graph_tail: usize = 1
+    graph_queue[0] <- 0
+    while graph_head < graph_tail:
+        u: usize = graph_queue[graph_head]
+        graph_head <- graph_head + 1
+        for v in 0..<n:
+            bit: u64 = 1u64 << v
+            if (adjacency[u] & bit) != 0 and (reached & bit) == 0:
+                reached <- reached | bit
+                graph_queue[graph_tail] <- v
+                graph_tail <- graph_tail + 1
+    if reached != ((1u64 << n) - 1): return 0
+    best: i64 = n.i64() - 1
+    for source in 0..<n:
+        for target in (source+1)..<n:
+            if (adjacency[source] & (1u64 << target)) != 0: continue
+            residual: mutable i64[400] = zeroed
+            nodes: usize = 2*n
+            for v in 0..<n:
+                capacity: i64 = 1
+                if v == source or v == target: capacity = n.i64()
+                residual[(2*v)*MAX_DN+2*v+1] <- capacity
+            for u in 0..<n:
+                for v in (u+1)..<n:
+                    if (adjacency[u] & (1u64 << v)) != 0:
+                        residual[(2*u+1)*MAX_DN+2*v] <- 1
+                        residual[(2*v+1)*MAX_DN+2*u] <- 1
+            start: usize = 2*source+1
+            sink: usize = 2*target
+            flow: i64 = 0
+            while flow < best:
+                parent: mutable i64[20] = zeroed
+                for v in 0..<nodes: parent[v] <- -1
+                queue: mutable usize[20] = zeroed
+                parent[start] <- start.i64()
+                head: usize = 0
+                tail: usize = 1
+                queue[0] <- start
+                while head < tail and parent[sink] < 0:
+                    u: usize = queue[head]
+                    head <- head + 1
+                    for v in 0..<nodes:
+                        if parent[v] < 0 and residual[u*MAX_DN+v] > 0:
+                            parent[v] <- u.i64()
+                            queue[tail] <- v
+                            tail <- tail + 1
+                            if v == sink: break
+                if parent[sink] < 0: break
+                amount: i64 = best - flow
+                v: usize = sink
+                while v != start:
+                    u: usize = parent[v].usize()
+                    if residual[u*MAX_DN+v] < amount: amount = residual[u*MAX_DN+v]
+                    v = u
+                v = sink
+                while v != start:
+                    u: usize = parent[v].usize()
+                    residual[u*MAX_DN+v] <- residual[u*MAX_DN+v] - amount
+                    residual[v*MAX_DN+u] <- residual[v*MAX_DN+u] + amount
+                    v = u
+                flow <- flow + amount
+            if flow < best: best = flow
+            if best == 0: return 0
+    best
+
+export fn vertex_connectivity(input: i64&, length: usize) -> i64 = vertex_connectivity_impl

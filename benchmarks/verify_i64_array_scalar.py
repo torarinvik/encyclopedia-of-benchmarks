@@ -259,6 +259,14 @@ from rodinia_pathfinder_oracle import rodinia_pathfinder as rodinia_pathfinder_o
 from rodinia_bplus_tree_oracle import rodinia_bplus_tree as rodinia_bplus_tree_oracle
 from xgboost_oracle import oracle as xgboost_oracle
 from rle_lcs_block_dp_verifier_oracle import expected_result as rle_lcs_block_dp_verifier_oracle
+from h.hunt_szymanski_lcs.independent_oracle import (
+    expected_result as hunt_szymanski_lcs_verifier_oracle,
+)
+from h.hunt_szymanski_lcs.primary_oracle import (
+    MAX_INPUT_LENGTH as HUNT_SZYMANSKI_LCS_MAX_INPUT_LENGTH,
+    expected_result as hunt_szymanski_lcs_primary_oracle,
+)
+HUNT_SZYMANSKI_LCS_MAX_PARSEABLE_INPUT_LENGTH = HUNT_SZYMANSKI_LCS_MAX_INPUT_LENGTH + 1
 from rle_levenshtein_block_dp_verifier_oracle import expected_result as rle_levenshtein_block_dp_verifier_oracle
 from maximum_independent_set_verifier_oracle import expected_result as maximum_independent_set_verifier_oracle
 from prolangs_football_tiebreaks_oracle import MAX_TEAMS as PROLANGS_FOOTBALL_MAX_TEAMS
@@ -1043,6 +1051,9 @@ from run_i64_array_scalar import validate_li_chao_tree_workload
 from run_i64_array_scalar import validate_three_edge_connected_components_workload
 from run_i64_array_scalar import validate_incremental_scc_workload
 from run_i64_array_scalar import validate_segment_tree_beats_workload
+from run_i64_array_scalar import validate_point_in_polygon_ray_casting_workload
+from run_i64_array_scalar import validate_vertex_connectivity_workload
+from run_i64_array_scalar import validate_hunt_szymanski_lcs_workload
 from run_i64_array_scalar import validate_eertree_workload
 from run_i64_array_scalar import validate_segment_add_get_min_workload
 from run_i64_array_scalar import validate_point_set_range_composite_workload
@@ -1051,6 +1062,9 @@ from run_i64_array_scalar import validate_deque_operate_all_composite_workload
 from run_i64_array_scalar import validate_sum_of_multiplicative_function_large_workload
 from run_i64_array_scalar import validate_manhattan_mst_workload
 from run_i64_array_scalar import validate_convex_layers_workload
+from run_i64_array_scalar import validate_minimum_string_representation_workload
+from run_i64_array_scalar import validate_sum_of_exponential_times_polynomial_limit_workload
+from run_i64_array_scalar import validate_sum_of_exponential_times_polynomial_workload
 from run_i64_array_scalar import validate_hpcc_random_access_workload
 from run_i64_array_scalar import validate_matrix_exponentiation_workload
 from run_i64_array_scalar import validate_miller_rabin_primality_checker_workload
@@ -1781,6 +1795,14 @@ from segment_tree_beats_oracle import MAX_ITEMS as SEGMENT_TREE_BEATS_MAX_ITEMS
 from segment_tree_beats_oracle import MAX_OPERATIONS as SEGMENT_TREE_BEATS_MAX_OPERATIONS
 from segment_tree_beats_oracle import VALUE_LIMIT as SEGMENT_TREE_BEATS_VALUE_LIMIT
 from segment_tree_beats_oracle import expected_output as segment_tree_beats_oracle
+from point_in_polygon_ray_casting_oracle import MAX_COORDINATE as POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE
+from point_in_polygon_ray_casting_oracle import MAX_INPUT_LENGTH as POINT_IN_POLYGON_RAY_CASTING_MAX_INPUT_LENGTH
+from point_in_polygon_ray_casting_oracle import MAX_VERTICES as POINT_IN_POLYGON_RAY_CASTING_MAX_VERTICES
+from point_in_polygon_ray_casting_verifier_oracle import expected_result as point_in_polygon_ray_casting_oracle
+from vertex_connectivity_oracle import MAX_EDGES as VERTEX_CONNECTIVITY_MAX_EDGES
+from vertex_connectivity_oracle import MAX_INPUT_LENGTH as VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH
+from vertex_connectivity_oracle import MAX_VERTICES as VERTEX_CONNECTIVITY_MAX_VERTICES
+from vertex_connectivity_deletion_oracle import expected_result as vertex_connectivity_oracle
 from eertree_oracle import MAX_TEXT_LENGTH as EERTREE_MAX_TEXT_LENGTH
 from eertree_oracle import expected_result as eertree_oracle
 from segment_add_get_min_oracle import CHECKSUM_OFFSET as SEGMENT_ADD_GET_MIN_CHECKSUM_OFFSET
@@ -1813,6 +1835,33 @@ from manhattan_mst_oracle import expected_output as manhattan_mst_oracle
 from convex_layers_oracle import MAX_INPUT_LENGTH as CONVEX_LAYERS_MAX_INPUT_LENGTH
 from convex_layers_oracle import MAX_POINTS as CONVEX_LAYERS_MAX_POINTS
 from convex_layers_oracle import expected_result as convex_layers_oracle
+from minimum_string_representation_oracle import (
+    MAX_LENGTH as MINIMUM_STRING_REPRESENTATION_MAX_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MINIMUM_STRING_REPRESENTATION_MAX_PARSEABLE_LENGTH,
+    expected_result as minimum_string_representation_primary_oracle,
+)
+from minimum_string_representation_verifier_oracle import (
+    expected_result as minimum_string_representation_verifier_oracle,
+)
+from sum_of_exponential_times_polynomial_limit_oracle import (
+    MAX_DEGREE as EXPONENTIAL_POLYNOMIAL_LIMIT_MAX_DEGREE,
+    MAX_PARSEABLE_INPUT_VALUES as EXPONENTIAL_POLYNOMIAL_LIMIT_MAX_PARSEABLE_LENGTH,
+    MODULUS as EXPONENTIAL_POLYNOMIAL_LIMIT_MODULUS,
+    expected_result as sum_of_exponential_times_polynomial_limit_primary_oracle,
+)
+from sum_of_exponential_times_polynomial_limit_verifier_oracle import (
+    expected_result as sum_of_exponential_times_polynomial_limit_verifier_oracle,
+)
+from sum_of_exponential_times_polynomial_oracle import (
+    MAX_DEGREE as EXPONENTIAL_POLYNOMIAL_MAX_DEGREE,
+    MAX_INPUT_VALUES as EXPONENTIAL_POLYNOMIAL_MAX_INPUT_LENGTH,
+    MAX_N as EXPONENTIAL_POLYNOMIAL_MAX_N,
+    MODULUS as EXPONENTIAL_POLYNOMIAL_MODULUS,
+    expected_result as sum_of_exponential_times_polynomial_primary_oracle,
+)
+from sum_of_exponential_times_polynomial_verifier_oracle import (
+    expected_result as sum_of_exponential_times_polynomial_verifier_oracle,
+)
 from hpcc_random_access_verifier_oracle import expected_result as hpcc_random_access_verifier_oracle
 
 ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "frequency_finder", "multiply_digit", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "edmonds_karp", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
@@ -1979,6 +2028,9 @@ ALGORITHMS += ("number_of_increasing_sequences_between_two_sequences",)
 ALGORITHMS += ("point_set_range_sort_range_composite",)
 ALGORITHMS += ("stirling_number_of_the_second_kind_small_p_large_n",)
 ALGORITHMS += ("stirling_number_of_the_first_kind_small_p_large_n",)
+ALGORITHMS += ("minimum_string_representation",)
+ALGORITHMS += ("sum_of_exponential_times_polynomial_limit",)
+ALGORITHMS += ("sum_of_exponential_times_polynomial",)
 ALGORITHMS += ("traveling_salesman",)
 ALGORITHMS += ("smith_waterman_java",)
 ALGORITHMS += ("roulette_wheel_selection",)
@@ -2068,9 +2120,12 @@ ALGORITHMS += ("freebench_mason", "fhourstones_exact")
 ALGORITHMS += ("mcgill_exptree",)
 ALGORITHMS += ("freebench_neural_hopfield",)
 ALGORITHMS += ("rle_lcs_block_dp",)
+ALGORITHMS += ("hunt_szymanski_lcs",)
 ALGORITHMS += ("rle_levenshtein_block_dp",)
 ALGORITHMS += ("maximum_independent_set",)
 ALGORITHMS += ("li_chao_tree", "segment_tree_beats", "eertree")
+ALGORITHMS += ("point_in_polygon_ray_casting",)
+ALGORITHMS += ("vertex_connectivity",)
 ALGORITHMS += ("three_edge_connected_components",)
 ALGORITHMS += ("incremental_scc",)
 ALGORITHMS += ("manhattan_mst",)
@@ -3834,6 +3889,12 @@ def deque_operate_all_composite_verifier_oracle(
 
 
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "minimum_string_representation":
+        return minimum_string_representation_verifier_oracle(values)
+    if algorithm == "sum_of_exponential_times_polynomial_limit":
+        return sum_of_exponential_times_polynomial_limit_verifier_oracle(values)
+    if algorithm == "sum_of_exponential_times_polynomial":
+        return sum_of_exponential_times_polynomial_verifier_oracle(values)
     if algorithm == "optimal_binary_search_tree":
         return optimal_binary_search_tree_oracle(values)
     if algorithm == "knuth_optimized_optimal_binary_search_tree":
@@ -4016,6 +4077,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return freebench_neural_hopfield_oracle(values)
     if algorithm == "rle_lcs_block_dp":
         return rle_lcs_block_dp_verifier_oracle(values)
+    if algorithm == "hunt_szymanski_lcs":
+        return hunt_szymanski_lcs_verifier_oracle(values)
     if algorithm == "rle_levenshtein_block_dp":
         return rle_levenshtein_block_dp_verifier_oracle(values)
     if algorithm == "trimaran_enc_pc1":
@@ -4078,6 +4141,10 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return incremental_scc_oracle(values)
     if algorithm == "segment_tree_beats":
         return segment_tree_beats_oracle(values)
+    if algorithm == "point_in_polygon_ray_casting":
+        return point_in_polygon_ray_casting_oracle(values)
+    if algorithm == "vertex_connectivity":
+        return vertex_connectivity_oracle(values)
     if algorithm == "eertree":
         return eertree_oracle(values)
     if algorithm == "segment_add_get_min":
@@ -5387,6 +5454,12 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_incremental_scc_workload(workload)
     elif algorithm == "segment_tree_beats":
         validate_segment_tree_beats_workload(workload)
+    elif algorithm == "point_in_polygon_ray_casting":
+        validate_point_in_polygon_ray_casting_workload(workload)
+    elif algorithm == "vertex_connectivity":
+        validate_vertex_connectivity_workload(workload)
+    elif algorithm == "hunt_szymanski_lcs":
+        validate_hunt_szymanski_lcs_workload(workload)
     elif algorithm == "eertree":
         validate_eertree_workload(workload)
     elif algorithm == "segment_add_get_min":
@@ -5437,6 +5510,12 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_manhattan_mst_workload(workload)
     elif algorithm == "convex_layers":
         validate_convex_layers_workload(workload)
+    elif algorithm == "minimum_string_representation":
+        validate_minimum_string_representation_workload(workload)
+    elif algorithm == "sum_of_exponential_times_polynomial_limit":
+        validate_sum_of_exponential_times_polynomial_limit_workload(workload)
+    elif algorithm == "sum_of_exponential_times_polynomial":
+        validate_sum_of_exponential_times_polynomial_workload(workload)
     elif algorithm == "hpcc_random_access":
         validate_hpcc_random_access_workload(workload)
         for fixture in workload.get("cases", []):
@@ -7629,6 +7708,95 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for values in malformed_segment_beats:
             cases[values] = segment_tree_beats_oracle(list(values))
+    elif algorithm == "point_in_polygon_ray_casting":
+        rng_point_in_polygon = random.Random(0xA11CE5ED)
+        for _ in range(128):
+            vertex_count = rng_point_in_polygon.randint(3, min(16, POINT_IN_POLYGON_RAY_CASTING_MAX_VERTICES))
+            packed = [vertex_count,
+                      rng_point_in_polygon.randint(-POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE,
+                                                   POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE),
+                      rng_point_in_polygon.randint(-POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE,
+                                                   POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE)]
+            for _vertex in range(vertex_count):
+                packed.extend((rng_point_in_polygon.randint(-POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE,
+                                                            POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE),
+                               rng_point_in_polygon.randint(-POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE,
+                                                            POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE)))
+            values = tuple(packed)
+            cases[values] = point_in_polygon_ray_casting_oracle(list(values))
+
+        maximum_values = (POINT_IN_POLYGON_RAY_CASTING_MAX_VERTICES, 0, 0,
+                          *(coordinate
+                            for vertex in range(POINT_IN_POLYGON_RAY_CASTING_MAX_VERTICES)
+                            for coordinate in (
+                                (vertex * 7919) % (2 * POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE + 1)
+                                - POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE,
+                                (vertex * 104729) % (2 * POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE + 1)
+                                - POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE)))
+        if len(maximum_values) != POINT_IN_POLYGON_RAY_CASTING_MAX_INPUT_LENGTH:
+            raise ValueError("point_in_polygon_ray_casting maximum polygon does not fill its parser bound")
+        cases[maximum_values] = point_in_polygon_ray_casting_oracle(list(maximum_values))
+
+        malformed_point_in_polygon = (
+            (), (2, 0, 0, 0, 0, 1, 0), (3, 0, 0, 0, 0, 1, 0, 0),
+            (3, POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE + 1, 0,
+             0, 0, 1, 0, 0, 1),
+            (3, 0, 0, 0, 0, POINT_IN_POLYGON_RAY_CASTING_MAX_COORDINATE + 1,
+             0, 0, 1),
+            (POINT_IN_POLYGON_RAY_CASTING_MAX_VERTICES, 0, 0,
+             *((0,) * (2 * POINT_IN_POLYGON_RAY_CASTING_MAX_VERTICES)), 0),
+        )
+        for values in malformed_point_in_polygon:
+            cases[values] = point_in_polygon_ray_casting_oracle(list(values))
+        special_records.extend(("NULL 0 -1\n", "NULL 1 -1\n"))
+    elif algorithm == "vertex_connectivity":
+        def add_vertex_connectivity_case(values: tuple[int, ...], *, require_valid: bool = False) -> int:
+            values = tuple(values)
+            if (len(values) > VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("vertex_connectivity generated input exceeds its signed-i64 parser bound")
+            result = vertex_connectivity_oracle(list(values))
+            if require_valid and result < 0:
+                raise ValueError("vertex_connectivity generated graph is invalid")
+            cases[values] = result
+            return result
+
+        maximum_values = (
+            VERTEX_CONNECTIVITY_MAX_VERTICES,
+            VERTEX_CONNECTIVITY_MAX_EDGES,
+            *(endpoint
+              for left in range(VERTEX_CONNECTIVITY_MAX_VERTICES)
+              for right in range(left + 1, VERTEX_CONNECTIVITY_MAX_VERTICES)
+              for endpoint in (left, right)),
+        )
+        if len(maximum_values) != VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH:
+            raise ValueError("vertex_connectivity maximum complete graph does not fill its parser bound")
+        add_vertex_connectivity_case(maximum_values, require_valid=True)
+
+        rng_vertex_connectivity = random.Random(0x7E47E7)
+        for _ in range(128):
+            vertex_count = rng_vertex_connectivity.randint(0, VERTEX_CONNECTIVITY_MAX_VERTICES)
+            edges = [(left, right)
+                     for left in range(vertex_count)
+                     for right in range(left + 1, vertex_count)
+                     if rng_vertex_connectivity.randrange(3) == 0]
+            packed = (vertex_count, len(edges), *(endpoint for edge in edges for endpoint in edge))
+            add_vertex_connectivity_case(packed, require_valid=True)
+
+        malformed_vertex_connectivity = (
+            (), (1,), (0, 0, 0),
+            (VERTEX_CONNECTIVITY_MAX_VERTICES + 1, 0),
+            (2, VERTEX_CONNECTIVITY_MAX_EDGES + 1),
+            (3, 1, 0, 3), (2, 1, 0), (3, 1, 0, -1),
+            tuple([0] * (VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH + 1)),
+        )
+        for values in malformed_vertex_connectivity:
+            add_vertex_connectivity_case(values)
+        special_records.extend((
+            "NULL 0 -1\n", "NULL 1 -1\n",
+            f"NULL {VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH} -1\n",
+        ))
     elif algorithm == "eertree":
         rng_eertree = random.Random(0xEE771EE)
         for _ in range(96):
@@ -19512,6 +19680,42 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             cases[tuple(values)] = sum_of_floor_of_linear_oracle(list(values))
         special_records.extend(("NULL 0 -1\n", "NULL 4 -1\n"))
 
+    if algorithm == "hunt_szymanski_lcs":
+        rng_hunt_szymanski = random.Random(20261112)
+
+        def add_hunt_szymanski_case(values):
+            packed = tuple(values)
+            result = hunt_szymanski_lcs_verifier_oracle(list(packed))
+            if result != hunt_szymanski_lcs_primary_oracle(list(packed)):
+                raise ValueError("hunt_szymanski_lcs primary and independent oracles disagree")
+            cases[packed] = result
+
+        for left, right in (
+                ((), ()), ((65, 65, 65, 66), (65, 66, 65)),
+                ((0, 1, 2, 3, 4), (4, 3, 2, 1, 0)),
+                ((7,) * 64, (7,) * 64),
+                (tuple(range(64)), tuple(range(64, 128)))):
+            add_hunt_szymanski_case((len(left), len(right), *left, *right))
+        for _ in range(128):
+            left_length = rng_hunt_szymanski.randint(0, 64)
+            right_length = rng_hunt_szymanski.randint(0, 64)
+            alphabet_size = rng_hunt_szymanski.randint(1, 16)
+            left = tuple(rng_hunt_szymanski.randrange(alphabet_size)
+                         for _ in range(left_length))
+            right = tuple(rng_hunt_szymanski.randrange(alphabet_size)
+                          for _ in range(right_length))
+            add_hunt_szymanski_case((left_length, right_length, *left, *right))
+        malformed = (
+            (), (1,), (65, 0), (0, 65), (1, 1, 65),
+            (1, 1, 65, 66, 67), (1, 1, -1, 65), (1, 1, 128, 65),
+            tuple([0] * HUNT_SZYMANSKI_LCS_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            result = hunt_szymanski_lcs_verifier_oracle(list(values))
+            if result != -1:
+                raise ValueError("hunt_szymanski_lcs verifier accepted malformed input")
+            cases[tuple(values)] = result
+
     if algorithm == "kth_root_integer":
         rng_kth_root = random.Random(20261111)
         for degree in (1, 2, 3, 4, 5, 8, 16, 32, 63, 64):
@@ -19630,6 +19834,130 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= CONVEX_LAYERS_MAX_INPUT_LENGTH:
                 cases[values] = convex_layers_oracle(list(values))
         special_records.append("NULL 1 -1\n")
+
+    if algorithm == "minimum_string_representation":
+        validate_minimum_string_representation_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            input_length = fixture.get("input_length")
+            if (not isinstance(values, list)
+                    or input_length != len(values)
+                    or len(values) > MINIMUM_STRING_REPRESENTATION_MAX_PARSEABLE_LENGTH):
+                raise ValueError("minimum_string_representation fixture framing is invalid")
+            expected = minimum_string_representation_verifier_oracle(values, input_length)
+            if (fixture.get("expected_result") != expected
+                    or expected != minimum_string_representation_primary_oracle(values, input_length)):
+                raise ValueError("minimum_string_representation fixture differs between oracles")
+            cases[tuple(values)] = expected
+
+        for length in range(6):
+            for symbols in product((0, 1, 2), repeat=length):
+                cases[symbols] = minimum_string_representation_verifier_oracle(list(symbols))
+
+        rng_minimum_rotation = random.Random(0x4D1A1)
+        for _ in range(32):
+            length = rng_minimum_rotation.randint(0, 64)
+            values = tuple(rng_minimum_rotation.randint(0, 127) for _ in range(length))
+            cases[values] = minimum_string_representation_verifier_oracle(list(values))
+
+        maximum = tuple(index % 128 for index in range(MINIMUM_STRING_REPRESENTATION_MAX_LENGTH))
+        cases[maximum] = minimum_string_representation_verifier_oracle(list(maximum))
+        malformed = (
+            (-1, 97), (97, 128),
+            tuple([0] * MINIMUM_STRING_REPRESENTATION_MAX_PARSEABLE_LENGTH),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            cases[values] = minimum_string_representation_verifier_oracle(list(values))
+        special_records.append("NULL 1 -1\n")
+
+    if algorithm == "sum_of_exponential_times_polynomial_limit":
+        validate_sum_of_exponential_times_polynomial_limit_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            input_length = fixture.get("input_length")
+            if (not isinstance(values, list)
+                    or input_length != len(values)
+                    or len(values) > EXPONENTIAL_POLYNOMIAL_LIMIT_MAX_PARSEABLE_LENGTH):
+                raise ValueError("sum_of_exponential_times_polynomial_limit fixture framing is invalid")
+            expected = sum_of_exponential_times_polynomial_limit_verifier_oracle(values, input_length)
+            if (fixture.get("expected_result") != expected
+                    or expected != sum_of_exponential_times_polynomial_limit_primary_oracle(
+                        values, input_length)):
+                raise ValueError("sum_of_exponential_times_polynomial_limit fixture differs between oracles")
+            cases[tuple(values)] = expected
+
+        residues = (0, 2, EXPONENTIAL_POLYNOMIAL_LIMIT_MODULUS - 1,
+                    EXPONENTIAL_POLYNOMIAL_LIMIT_MODULUS - 2, 123456789)
+        for residue in residues:
+            for degree in (0, 1, 2, 3, 8, 32):
+                values = (residue, degree)
+                cases[values] = sum_of_exponential_times_polynomial_limit_verifier_oracle(
+                    list(values))
+        for residue in (2, EXPONENTIAL_POLYNOMIAL_LIMIT_MODULUS - 1):
+            values = (residue, EXPONENTIAL_POLYNOMIAL_LIMIT_MAX_DEGREE)
+            cases[values] = sum_of_exponential_times_polynomial_limit_verifier_oracle(
+                list(values))
+
+        malformed = (
+            (), (0,), (2, 3, 4), (1, 0), (-1, 3),
+            (EXPONENTIAL_POLYNOMIAL_LIMIT_MODULUS, 0), (2, -1),
+            (2, EXPONENTIAL_POLYNOMIAL_LIMIT_MAX_DEGREE + 1),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            cases[values] = sum_of_exponential_times_polynomial_limit_verifier_oracle(
+                list(values))
+        special_records.extend(("NULL 0 -1\n", "NULL 2 -1\n"))
+
+    if algorithm == "sum_of_exponential_times_polynomial":
+        validate_sum_of_exponential_times_polynomial_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            input_length = fixture.get("input_length")
+            if (not isinstance(values, list)
+                    or input_length != len(values)
+                    or len(values) > EXPONENTIAL_POLYNOMIAL_MAX_INPUT_LENGTH + 1):
+                raise ValueError("sum_of_exponential_times_polynomial fixture framing is invalid")
+            expected = sum_of_exponential_times_polynomial_verifier_oracle(values, input_length)
+            if (fixture.get("expected_result") != expected
+                    or expected != sum_of_exponential_times_polynomial_primary_oracle(
+                        values, input_length)):
+                raise ValueError("sum_of_exponential_times_polynomial fixture differs between oracles")
+            cases[tuple(values)] = expected
+
+        residues = (0, 1, 2, EXPONENTIAL_POLYNOMIAL_MODULUS - 1,
+                    EXPONENTIAL_POLYNOMIAL_MODULUS - 2, 123456789)
+        lengths = (0, 1, 2, 7, 10**18)
+        degrees = (0, 1, 2, 3, 8, EXPONENTIAL_POLYNOMIAL_MAX_DEGREE)
+        for residue in residues:
+            for degree in degrees:
+                for length in lengths:
+                    values = (residue, degree, length)
+                    cases[values] = sum_of_exponential_times_polynomial_verifier_oracle(
+                        list(values))
+
+        rng_exponential_polynomial = random.Random(0xE7A0)
+        for _ in range(24):
+            values = (
+                rng_exponential_polynomial.choice(residues),
+                rng_exponential_polynomial.randint(0, EXPONENTIAL_POLYNOMIAL_MAX_DEGREE),
+                rng_exponential_polynomial.randint(0, EXPONENTIAL_POLYNOMIAL_MAX_N),
+            )
+            cases[values] = sum_of_exponential_times_polynomial_verifier_oracle(
+                list(values))
+
+        malformed = (
+            (), (0,), (0, 0), (2, 3, 10, 11), (-1, 0, 1),
+            (EXPONENTIAL_POLYNOMIAL_MODULUS, 0, 1), (2, -1, 1),
+            (2, EXPONENTIAL_POLYNOMIAL_MAX_DEGREE + 1, 1),
+            (2, 0, -1), (2, 0, EXPONENTIAL_POLYNOMIAL_MAX_N + 1),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            cases[values] = sum_of_exponential_times_polynomial_verifier_oracle(
+                list(values))
+        special_records.extend(("NULL 0 -1\n", "NULL 2 -1\n"))
 
     if algorithm == "optimal_binary_search_tree":
         for values in ((1, 0), (1, 1000), (2, 0, 1000), (8, 0, 1, 0, 1, 1000, 0, 1000, 1),

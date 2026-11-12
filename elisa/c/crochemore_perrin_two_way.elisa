@@ -1,0 +1,112 @@
+const MAX_TEXT_LENGTH: usize = 64
+const MAX_PATTERN_LENGTH: usize = 32
+const MAX_INPUT_LENGTH: usize = 99
+
+def maximal_suffix(pattern: view[i64], length: usize, reverse_order: bool,
+                   state: mutable view[i64]) -> void:
+    maximal: mutable i64 = -1
+    candidate: mutable i64 = 0
+    offset: mutable i64 = 1
+    period: mutable i64 = 1
+    while candidate + offset < length.i64():
+        a: i64 = pattern[(candidate + offset).usize()]
+        b: i64 = pattern[(maximal + offset).usize()]
+        precedes: bool = if reverse_order: a > b else: a < b
+        if precedes:
+            candidate <- candidate + offset
+            offset <- 1
+            period <- candidate - maximal
+        elif a == b:
+            if offset != period: offset <- offset + 1
+            else:
+                candidate <- candidate + period
+                offset <- 1
+        else:
+            maximal <- candidate
+            candidate <- maximal + 1
+            offset <- 1
+            period <- 1
+    state[0] <- maximal
+    state[1] <- period
+
+def find_matches(text: view[i64], text_length: usize,
+                 pattern: view[i64], pattern_length: usize,
+                 matches: mutable view[i64]) -> usize:
+    match_count: mutable usize = 0
+    if pattern_length == 0:
+        for i in 0..<(text_length + 1):
+            matches[i] <- i.i64()
+        return text_length + 1
+    if pattern_length > text_length: return 0
+
+    first: mutable i64[2] = zeroed
+    second: mutable i64[2] = zeroed
+    maximal_suffix(pattern, pattern_length, False, first[0:2])
+    maximal_suffix(pattern, pattern_length, True, second[0:2])
+    critical: i64 = if first[0] > second[0]: first[0] else: second[0]
+    period: i64 = if first[0] > second[0]: first[1] else: second[1]
+    periodic: mutable bool = period + critical + 1 <= pattern_length.i64()
+    i: mutable i64 = 0
+    while periodic and i <= critical:
+        if pattern[i.usize()] != pattern[(i + period).usize()]: periodic <- False
+        i <- i + 1
+    shift: i64 = period
+    if not periodic:
+        other_half: i64 = pattern_length.i64() - critical - 1
+        shift <- (if critical > other_half: critical else: other_half) + 1
+
+    memory: mutable i64 = -1
+    start: mutable usize = 0
+    while start <= text_length - pattern_length:
+        index: mutable i64 = critical + 1
+        if periodic and memory > critical: index <- memory + 1
+        while index < pattern_length.i64() and pattern[index.usize()] == text[start + index.usize()]:
+            index <- index + 1
+        if index >= pattern_length.i64():
+            index <- critical
+            while index > memory and pattern[index.usize()] == text[start + index.usize()]:
+                index <- index - 1
+            if index <= memory:
+                matches[match_count] <- start.i64()
+                match_count <- match_count + 1
+            start <- start + shift.usize()
+            memory <- if periodic: pattern_length.i64() - period - 1 else: -1
+        else:
+            start <- start + (index - critical).usize()
+            memory <- -1
+    return match_count
+
+def put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def crochemore_perrin_two_way_impl(input: i64&, length: usize,
+                                   output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    text_value: i64 = input[0]
+    pattern_value: i64 = input[1]
+    if text_value < 0 or text_value > MAX_TEXT_LENGTH.i64(): return -1
+    if pattern_value < 0 or pattern_value > MAX_PATTERN_LENGTH.i64(): return -1
+    text_length: usize = text_value.usize()
+    pattern_length: usize = pattern_value.usize()
+    if length != 2 + text_length + pattern_length: return -1
+    for i in 0..<text_length:
+        if input[2 + i] < 0 or input[2 + i] > 255: return -1
+    for i in 0..<pattern_length:
+        if input[2 + text_length + i] < 0 or input[2 + text_length + i] > 255: return -1
+
+    matches: mutable i64[MAX_TEXT_LENGTH + 1] = zeroed
+    text: view[i64] = input[2:2 + text_length]
+    pattern: view[i64] = input[2 + text_length:length]
+    match_count: usize = find_matches(text, text_length, pattern, pattern_length,
+                                      matches[0:MAX_TEXT_LENGTH + 1])
+    output_bytes: usize = match_count * 8
+    if output == null or capacity < output_bytes: return -2
+    for i in 0..<match_count:
+        put_i64_le(output[0:capacity], i * 8, matches[i])
+    return output_bytes.i64()
+
+export fn crochemore_perrin_two_way(input: i64&, length: usize,
+                                    output: mutable u8&, capacity: usize) -> i64 = crochemore_perrin_two_way_impl

@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "knuth-power-tree-first-discovery-v1",
+  "algorithm": "knuth_power_tree",
+  "function_symbol": "knuth_power_tree",
+  "abi": "i64_array_bytes_output",
+  "description": "Return the first-discovery addition chain for a target in Knuth's shared power tree.",
+  "source": {
+    "title": "Rosetta Code: Knuth's power tree",
+    "url": "https://rosettacode.org/wiki/Knuth%27s_power_tree",
+    "mirror_url": "https://rosettagit.org/tasks/knuths-power-tree/",
+    "algorithm_reference": "Donald E. Knuth, The Art of Computer Programming, Vol. 2, section 4.6.3",
+    "source_license": "GNU Free Documentation License 1.2 applies to Rosetta Code page content; no page prose or code is reused",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[target]",
+    "target_range": [1, 127],
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "[multiplication_count, path exponents...] as signed 64-bit little-endian words",
+    "maximum_bytes": 1024,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Fixed value-indexed parent and seen arrays, FIFO labels, path scratch, and staged output words"
+  },
+  "contract": {
+    "operation": "Return the target's first-discovery path in Knuth's shared power tree.",
+    "algorithm": "Expand labels breadth-first; for each node, add each exponent on its root-to-node path; retain only the first occurrence of each positive label.",
+    "complexity": "O(target^2) time and O(target) auxiliary storage under the bounded profile.",
+    "tie_rule": "Expand nodes in queue order and add path exponents from root to current node; return the first unseen target label.",
+    "pruning": "Ignore candidates greater than target; positive additions cannot lead back to a smaller target.",
+    "error_precedence": "Validate input shape and target, compute the path, then check output pointer and capacity before writing.",
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "profiles": [
+      {"id": "suboptimal-chain-example", "input_values": [77]},
+      {"id": "maximum-target", "input_values": [127]}
+    ]
+  },
+  "cases": [
+    {"id": "unit-exponent", "input_values": [1], "input_length": 1, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "00000000000000000100000000000000"},
+    {"id": "square", "input_values": [2], "input_length": 1, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "010000000000000001000000000000000200000000000000"},
+    {"id": "cube", "input_values": [3], "input_length": 1, "output_capacity": 32, "expected_result": 32, "expected_output_hex": "0200000000000000010000000000000002000000000000000300000000000000"},
+    {"id": "fourth-power", "input_values": [4], "input_length": 1, "output_capacity": 32, "expected_result": 32, "expected_output_hex": "0200000000000000010000000000000002000000000000000400000000000000"},
+    {"id": "fifth-power", "input_values": [5], "input_length": 1, "output_capacity": 40, "expected_result": 40, "expected_output_hex": "03000000000000000100000000000000020000000000000003000000000000000500000000000000"},
+    {"id": "eighth-power", "input_values": [8], "input_length": 1, "output_capacity": 40, "expected_result": 40, "expected_output_hex": "03000000000000000100000000000000020000000000000004000000000000000800000000000000"},
+    {"id": "seventeenth-power", "input_values": [17], "input_length": 1, "output_capacity": 56, "expected_result": 56, "expected_output_hex": "0500000000000000010000000000000002000000000000000400000000000000080000000000000010000000000000001100000000000000"},
+    {"id": "short-output-capacity", "input_values": [3], "input_length": 1, "output_capacity": 31, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [3], "input_length": 1, "output_capacity": 32, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "zero-target", "input_values": [0], "input_length": 1, "output_capacity": 1024, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "target-out-of-range", "input_values": [128], "input_length": 1, "output_capacity": 1024, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "wrong-input-length", "input_values": [3, 4], "input_length": 2, "output_capacity": 1024, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "empty-input", "input_values": [], "input_length": 0, "output_capacity": 1024, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

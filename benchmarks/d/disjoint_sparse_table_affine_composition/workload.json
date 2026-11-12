@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "disjoint-sparse-table-affine-composition-byte-output-v1",
+  "algorithm": "disjoint_sparse_table_affine_composition",
+  "function_symbol": "disjoint_sparse_table_affine_composition",
+  "abi": "i64_array_bytes_output",
+  "description": "Answer static inclusive range queries for ordered affine-map composition using a disjoint sparse table.",
+  "source": {
+    "title": "Sparse Table / Cat Tree",
+    "authors": ["CP-Algorithms contributors", "OI Wiki contributors"],
+    "urls": ["https://cp-algorithms.com/data_structures/sparse-table.html", "https://oiwiki.net/ds/cat-tree/"],
+    "license_note": "Only high-level algorithm descriptions are used; code, contract, and fixtures are clean-room."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,(a,b)*N,(left,right)*Q]",
+    "map": "f(x)=a*x+b modulo 1,000,000,007; apply maps in increasing index order",
+    "vertex_count_range": [1, 32],
+    "query_count_range": [1, 32],
+    "coefficient_range": [0, 1000000006],
+    "query_rule": "0 <= left <= right < N, inclusive",
+    "exact_length": "2 + 2*N + 2*Q",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 130,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "encoding": "(A,B) for each query, where the range composition is A*x+B modulo 1,000,000,007",
+    "maximum_bytes": 512,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "algorithm": {
+    "primary": "Precompute disjoint suffix and prefix folds around each power-of-two midpoint; select a query level by the highest set bit of left XOR right and combine its two ordered folds.",
+    "independent_oracle": "For each range, directly apply every map to x=0 and x=1, then recover B=F(0) and A=F(1)-F(0) modulo the field.",
+    "complexity": "O(N log N) preprocessing and O(1) combines per query; direct oracle work is O(sum of queried range lengths)."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"singleton-map","input_values":[1,1,2,3,0,0],"input_length":6,"output_capacity":16,"expected_result":16,"expected_output_hex":"02000000000000000300000000000000"},
+    {"id":"composition-order","input_values":[2,1,2,1,3,4,0,1],"input_length":8,"output_capacity":16,"expected_result":16,"expected_output_hex":"06000000000000000700000000000000"},
+    {"id":"multiple-crossing-and-singleton-ranges","input_values":[3,3,1,2,0,5,4,3,0,2,1,2,0,1],"input_length":14,"output_capacity":48,"expected_result":48,"expected_output_hex":"000000000000000017000000000000000000000000000000170000000000000000000000000000000500000000000000"},
+    {"id":"modular-coefficients","input_values":[2,1,1000000006,1000000005,1000000005,1000000006,0,1],"input_length":8,"output_capacity":16,"expected_result":16,"expected_output_hex":"02000000000000000300000000000000"},
+    {"id":"maximum-array-and-highest-level-query","input_values":[
+      32,1,
+      1,0,1,0,1,0,1,0,
+      1,0,1,0,1,0,1,0,
+      1,0,1,0,1,0,1,0,
+      1,0,1,0,1,0,1,0,
+      1,0,1,0,1,0,1,0,
+      1,0,1,0,1,0,1,0,
+      1,0,1,0,1,0,1,0,
+      1,0,1,0,1,0,1,0,
+      0,31
+    ],"input_length":68,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000000000000000000"},
+    {"id":"maximum-query-count-short-capacity","input_values":[
+      1,32,1,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0
+    ],"input_length":68,"output_capacity":511,"expected_result":-2,"expected_output_hex":""},
+    {"id":"reversed-range-invalid","input_values":[2,1,1,0,1,0,1,0],"input_length":8,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coefficient-out-of-range-invalid","input_values":[1,1,1000000007,0,0,0],"input_length":6,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word-invalid","input_values":[1,1,1,0,0,0,9],"input_length":7,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"malformed-before-null-output","input_values":[1,1,-1,0,0,0],"input_length":6,"output_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,1,0,0,0],"input_length":6,"output_is_null":true,"output_capacity":16,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":512,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

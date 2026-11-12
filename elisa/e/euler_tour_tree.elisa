@@ -1,0 +1,319 @@
+const ETT_MAX_N: usize = 8
+const ETT_MAX_M: usize = 32
+const ETT_NODES: usize = ETT_MAX_N + 2 * ETT_MAX_M
+const ETT_INPUT_MAX: usize = 2 + ETT_MAX_N + 3 * ETT_MAX_M
+
+def ett_size(node: i64, sizes: view[i64]) -> i64:
+    if node < 0: return 0
+    sizes[node.usize()]
+
+def ett_count(node: i64, counts: view[i64]) -> i64:
+    if node < 0: return 0
+    counts[node.usize()]
+
+def ett_total(node: i64, totals: view[i64]) -> i64:
+    if node < 0: return 0
+    totals[node.usize()]
+
+def ett_pull(node: i64, left: view[i64], right: view[i64], vertex: view[i64], value: view[i64],
+        sizes: mutable view[i64], counts: mutable view[i64], totals: mutable view[i64]) -> void:
+    if node < 0: return
+    index: usize = node.usize()
+    sizes[index] <- 1 + ett_size(left[index], sizes) + ett_size(right[index], sizes)
+    own: i64 = 0
+    if vertex[index] >= 0: own <- 1
+    counts[index] <- own + ett_count(left[index], counts) + ett_count(right[index], counts)
+    totals[index] <- value[index] + ett_total(left[index], totals) + ett_total(right[index], totals)
+
+def ett_merge(a: i64, b: i64, left: mutable view[i64], right: mutable view[i64], parent: mutable view[i64],
+        vertex: view[i64], value: view[i64], sizes: mutable view[i64], counts: mutable view[i64],
+        totals: mutable view[i64], priority: view[i64]) -> i64:
+    if a < 0:
+        if b >= 0: parent[b.usize()] <- -1
+        return b
+    if b < 0:
+        parent[a.usize()] <- -1
+        return a
+    ai: usize = a.usize()
+    bi: usize = b.usize()
+    if priority[ai] > priority[bi]:
+        child: i64 = ett_merge(right[ai], b, left, right, parent, vertex, value, sizes, counts, totals, priority)
+        right[ai] <- child
+        if child >= 0: parent[child.usize()] <- a
+        ett_pull(a, left, right, vertex, value, sizes, counts, totals)
+        parent[ai] <- -1
+        return a
+    child <- ett_merge(a, left[bi], left, right, parent, vertex, value, sizes, counts, totals, priority)
+    left[bi] <- child
+    if child >= 0: parent[child.usize()] <- b
+    ett_pull(b, left, right, vertex, value, sizes, counts, totals)
+    parent[bi] <- -1
+    return b
+
+def ett_split(root: i64, prefix: i64, left: mutable view[i64], right: mutable view[i64],
+        parent: mutable view[i64], vertex: view[i64], value: view[i64], sizes: mutable view[i64],
+        counts: mutable view[i64], totals: mutable view[i64]) -> i64:
+    if root < 0: return 0
+    ri: usize = root.usize()
+    left_size: i64 = ett_size(left[ri], sizes)
+    first: i64
+    rest: i64
+    if prefix <= left_size:
+        pair: i64 = ett_split(left[ri], prefix, left, right, parent, vertex, value, sizes, counts, totals)
+        first <- pair % 128 - 1
+        rest <- pair / 128 - 1
+        left[ri] <- rest
+        if rest >= 0: parent[rest.usize()] <- root
+        ett_pull(root, left, right, vertex, value, sizes, counts, totals)
+        parent[ri] <- -1
+        if first >= 0: parent[first.usize()] <- -1
+        rest <- root
+    else:
+        pair <- ett_split(right[ri], prefix - left_size - 1, left, right, parent, vertex, value, sizes, counts, totals)
+        first <- pair % 128 - 1
+        rest <- pair / 128 - 1
+        right[ri] <- first
+        if first >= 0: parent[first.usize()] <- root
+        ett_pull(root, left, right, vertex, value, sizes, counts, totals)
+        parent[ri] <- -1
+        if rest >= 0: parent[rest.usize()] <- -1
+        first <- root
+    (first + 1) + (rest + 1) * 128
+
+def ett_root(node: i64, parent: view[i64]) -> i64:
+    current: mutable i64 = node
+    while parent[current.usize()] >= 0: current <- parent[current.usize()]
+    current
+
+def ett_position(node: i64, left: view[i64], right: view[i64], parent: view[i64], sizes: view[i64]) -> i64:
+    current: mutable i64 = node
+    index: usize = current.usize()
+    result: mutable i64 = ett_size(left[index], sizes)
+    while parent[current.usize()] >= 0:
+        p: i64 = parent[current.usize()]
+        pi: usize = p.usize()
+        if right[pi] == current: result <- result + 1 + ett_size(left[pi], sizes)
+        current <- p
+    result
+
+def ett_rotate(root: i64, node: i64, left: mutable view[i64], right: mutable view[i64],
+        parent: mutable view[i64], vertex: view[i64], value: view[i64], sizes: mutable view[i64],
+        counts: mutable view[i64], totals: mutable view[i64], priority: view[i64]) -> i64:
+    pos: i64 = ett_position(node, left, right, parent, sizes)
+    pair: i64 = ett_split(root, pos, left, right, parent, vertex, value, sizes, counts, totals)
+    first: i64 = pair % 128 - 1
+    rest: i64 = pair / 128 - 1
+    ett_merge(rest, first, left, right, parent, vertex, value, sizes, counts, totals, priority)
+
+def ett_reachable(start: usize, target: usize, n: usize, adjacency: view[bool]) -> bool:
+    seen: mutable bool[ETT_MAX_N] = zeroed
+    stack: mutable usize[ETT_MAX_N] = zeroed
+    top: mutable usize = 1
+    stack[0] <- start
+    seen[start] <- true
+    while top > 0:
+        top <- top - 1
+        u: usize = stack[top]
+        if u == target: return true
+        v: mutable usize = 0
+        while v < n:
+            if adjacency[u * ETT_MAX_N + v] and not seen[v]:
+                seen[v] <- true
+                stack[top] <- v
+                top <- top + 1
+            v <- v + 1
+    false
+
+def ett_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def euler_tour_tree_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > ETT_INPUT_MAX: return -1
+    nr: i64 = input[0]
+    mr: i64 = input[1]
+    if nr < 1 or nr > ETT_MAX_N.i64() or mr < 1 or mr > ETT_MAX_M.i64(): return -1
+    n: usize = nr.usize()
+    m: usize = mr.usize()
+    input_view: view[i64] = input[0:length]
+    cursor: mutable usize = 2
+    weights: mutable i64[ETT_MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        if cursor >= length: return -1
+        weights[i] <- input_view[cursor]
+        if weights[i] < -100 or weights[i] > 100: return -1
+        cursor <- cursor + 1
+        i <- i + 1
+    kind: mutable i64[ETT_MAX_M] = zeroed
+    op_a: mutable i64[ETT_MAX_M] = zeroed
+    op_b: mutable i64[ETT_MAX_M] = zeroed
+    query_count: mutable usize = 0
+    op_index: mutable usize = 0
+    while op_index < m:
+        if cursor >= length: return -1
+        kind[op_index] <- input_view[cursor]
+        cursor <- cursor + 1
+        if kind[op_index] == 0 or kind[op_index] == 1:
+            if cursor + 2 > length: return -1
+            op_a[op_index] <- input_view[cursor]
+            op_b[op_index] <- input_view[cursor + 1]
+            cursor <- cursor + 2
+            if op_a[op_index] < 0 or op_a[op_index] >= nr or op_b[op_index] < 0 or op_b[op_index] >= nr or op_a[op_index] == op_b[op_index]: return -1
+        elif kind[op_index] == 2:
+            if cursor + 2 > length: return -1
+            op_a[op_index] <- input_view[cursor]
+            op_b[op_index] <- input_view[cursor + 1]
+            cursor <- cursor + 2
+            if op_a[op_index] < 0 or op_a[op_index] >= nr or op_b[op_index] < -100 or op_b[op_index] > 100: return -1
+        elif kind[op_index] == 3:
+            if cursor >= length: return -1
+            op_a[op_index] <- input_view[cursor]
+            cursor <- cursor + 1
+            if op_a[op_index] < 0 or op_a[op_index] >= nr: return -1
+            query_count <- query_count + 1
+        else: return -1
+        op_index <- op_index + 1
+    if cursor != length or query_count == 0: return -1
+    adjacency: mutable bool[ETT_MAX_N * ETT_MAX_N] = zeroed
+    op_index <- 0
+    while op_index < m:
+        if kind[op_index] == 0:
+            u: usize = op_a[op_index].usize()
+            v: usize = op_b[op_index].usize()
+            if ett_reachable(u, v, n, adjacency[0:ETT_MAX_N * ETT_MAX_N]): return -1
+            adjacency[u * ETT_MAX_N + v] <- true
+            adjacency[v * ETT_MAX_N + u] <- true
+        elif kind[op_index] == 1:
+            u: usize = op_a[op_index].usize()
+            v: usize = op_b[op_index].usize()
+            if not adjacency[u * ETT_MAX_N + v]: return -1
+            adjacency[u * ETT_MAX_N + v] <- false
+            adjacency[v * ETT_MAX_N + u] <- false
+        op_index <- op_index + 1
+    required: usize = 16 * query_count
+    if output.is_null() or capacity < required: return -2
+
+    left: mutable i64[ETT_NODES] = zeroed
+    right: mutable i64[ETT_NODES] = zeroed
+    parent: mutable i64[ETT_NODES] = zeroed
+    vertex: mutable i64[ETT_NODES] = zeroed
+    sizes: mutable i64[ETT_NODES] = zeroed
+    counts: mutable i64[ETT_NODES] = zeroed
+    value: mutable i64[ETT_NODES] = zeroed
+    totals: mutable i64[ETT_NODES] = zeroed
+    priority: mutable i64[ETT_NODES] = zeroed
+    edge_u: mutable i64[ETT_MAX_M] = zeroed
+    edge_v: mutable i64[ETT_MAX_M] = zeroed
+    arc_uv: mutable i64[ETT_MAX_M] = zeroed
+    arc_vu: mutable i64[ETT_MAX_M] = zeroed
+    edge_active: mutable bool[ETT_MAX_M] = zeroed
+    i <- 0
+    while i < ETT_NODES:
+        left[i] <- -1
+        right[i] <- -1
+        parent[i] <- -1
+        vertex[i] <- -1
+        priority[i] <- ((i.i64() * 40503 + 17) % 65521)
+        i <- i + 1
+    i <- 0
+    while i < n:
+        vertex[i] <- i.i64()
+        value[i] <- weights[i]
+        sizes[i] <- 1
+        counts[i] <- 1
+        totals[i] <- weights[i]
+        i <- i + 1
+    next_node: mutable i64 = n.i64()
+    edge_count: mutable usize = 0
+    answers: mutable i64[2 * ETT_MAX_M] = zeroed
+    answer_count: mutable usize = 0
+    op_index <- 0
+    while op_index < m:
+        a: i64 = op_a[op_index]
+        b: i64 = op_b[op_index]
+        if kind[op_index] == 0:
+            root_a_initial: i64 = ett_root(a, parent[0:ETT_NODES])
+            root_a: i64 = ett_rotate(root_a_initial, a, left[0:ETT_NODES], right[0:ETT_NODES], parent[0:ETT_NODES], vertex[0:ETT_NODES], value[0:ETT_NODES], sizes[0:ETT_NODES], counts[0:ETT_NODES], totals[0:ETT_NODES], priority[0:ETT_NODES])
+            root_b_initial: i64 = ett_root(b, parent[0:ETT_NODES])
+            root_b: i64 = ett_rotate(root_b_initial, b, left[0:ETT_NODES], right[0:ETT_NODES], parent[0:ETT_NODES], vertex[0:ETT_NODES], value[0:ETT_NODES], sizes[0:ETT_NODES], counts[0:ETT_NODES], totals[0:ETT_NODES], priority[0:ETT_NODES])
+            uv: i64 = next_node
+            vu: i64 = next_node + 1
+            next_node <- next_node + 2
+            for arc in [uv, vu]:
+                index: usize = arc.usize()
+                left[index] <- -1
+                right[index] <- -1
+                parent[index] <- -1
+                vertex[index] <- -1
+                value[index] <- 0
+                sizes[index] <- 1
+                counts[index] <- 0
+                totals[index] <- 0
+            first: i64 = ett_merge(root_a, uv, left[0:ETT_NODES], right[0:ETT_NODES], parent[0:ETT_NODES], vertex[0:ETT_NODES], value[0:ETT_NODES], sizes[0:ETT_NODES], counts[0:ETT_NODES], totals[0:ETT_NODES], priority[0:ETT_NODES])
+            second: i64 = ett_merge(first, root_b, left[0:ETT_NODES], right[0:ETT_NODES], parent[0:ETT_NODES], vertex[0:ETT_NODES], value[0:ETT_NODES], sizes[0:ETT_NODES], counts[0:ETT_NODES], totals[0:ETT_NODES], priority[0:ETT_NODES])
+            root: i64 = ett_merge(second, vu, left[0:ETT_NODES], right[0:ETT_NODES], parent[0:ETT_NODES], vertex[0:ETT_NODES], value[0:ETT_NODES], sizes[0:ETT_NODES], counts[0:ETT_NODES], totals[0:ETT_NODES], priority[0:ETT_NODES])
+            parent[root.usize()] <- -1
+            edge_u[edge_count] <- a
+            edge_v[edge_count] <- b
+            arc_uv[edge_count] <- uv
+            arc_vu[edge_count] <- vu
+            edge_active[edge_count] <- true
+            edge_count <- edge_count + 1
+        elif kind[op_index] == 1:
+            edge: mutable i64 = -1
+            scan: mutable usize = edge_count
+            while scan > 0:
+                scan <- scan - 1
+                if edge_active[scan] and ((edge_u[scan] == a and edge_v[scan] == b) or (edge_u[scan] == b and edge_v[scan] == a)):
+                    edge <- scan.i64()
+                    break
+            ei: usize = edge.usize()
+            first_arc: i64 = arc_vu[ei]
+            if edge_u[ei] == a and edge_v[ei] == b: first_arc <- arc_uv[ei]
+            second_arc: i64 = arc_uv[ei]
+            if first_arc == arc_uv[ei]: second_arc <- arc_vu[ei]
+            starting_root: i64 = ett_root(first_arc, parent[0:ETT_NODES])
+            root: i64 = ett_rotate(starting_root, first_arc, left[0:ETT_NODES], right[0:ETT_NODES], parent[0:ETT_NODES], vertex[0:ETT_NODES], value[0:ETT_NODES], sizes[0:ETT_NODES], counts[0:ETT_NODES], totals[0:ETT_NODES], priority[0:ETT_NODES])
+            pair: i64 = ett_split(root, 1, left[0:ETT_NODES], right[0:ETT_NODES], parent[0:ETT_NODES], vertex[0:ETT_NODES], value[0:ETT_NODES], sizes[0:ETT_NODES], counts[0:ETT_NODES], totals[0:ETT_NODES])
+            rest: i64 = pair / 128 - 1
+            between_pair: i64 = ett_split(rest, ett_position(second_arc, left[0:ETT_NODES], right[0:ETT_NODES], parent[0:ETT_NODES], sizes[0:ETT_NODES]), left[0:ETT_NODES], right[0:ETT_NODES], parent[0:ETT_NODES], vertex[0:ETT_NODES], value[0:ETT_NODES], sizes[0:ETT_NODES], counts[0:ETT_NODES], totals[0:ETT_NODES])
+            between: i64 = between_pair % 128 - 1
+            suffix: i64 = between_pair / 128 - 1
+            other_pair: i64 = ett_split(suffix, 1, left[0:ETT_NODES], right[0:ETT_NODES], parent[0:ETT_NODES], vertex[0:ETT_NODES], value[0:ETT_NODES], sizes[0:ETT_NODES], counts[0:ETT_NODES], totals[0:ETT_NODES])
+            other: i64 = other_pair / 128 - 1
+            if between >= 0: parent[between.usize()] <- -1
+            if other >= 0: parent[other.usize()] <- -1
+            edge_active[ei] <- false
+        elif kind[op_index] == 2:
+            index: usize = a.usize()
+            value[index] <- b
+            path: mutable i64[ETT_NODES] = zeroed
+            path_count: mutable usize = 0
+            node: mutable i64 = a
+            while node >= 0:
+                path[path_count] <- node
+                path_count <- path_count + 1
+                node <- parent[node.usize()]
+            i <- 0
+            while i < path_count:
+                ett_pull(path[i], left[0:ETT_NODES], right[0:ETT_NODES], vertex[0:ETT_NODES], value[0:ETT_NODES], sizes[0:ETT_NODES], counts[0:ETT_NODES], totals[0:ETT_NODES])
+                i <- i + 1
+        else:
+            root: i64 = ett_root(a, parent[0:ETT_NODES])
+            answers[answer_count] <- counts[root.usize()]
+            answers[answer_count + 1] <- totals[root.usize()]
+            answer_count <- answer_count + 2
+        op_index <- op_index + 1
+    output_view: mutable view[u8] = output[0:required]
+    i <- 0
+    while i < answer_count:
+        ett_store(answers[i], output_view, 8 * i)
+        i <- i + 1
+    required.i64()
+
+export fn euler_tour_tree(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = euler_tour_tree_impl

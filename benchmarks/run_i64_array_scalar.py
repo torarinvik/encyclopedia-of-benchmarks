@@ -27,6 +27,14 @@ from hpcc_random_access_oracle import MAX_N as HPCC_RANDOM_ACCESS_MAX_N
 from hpcc_random_access_oracle import expected_result as hpcc_random_access_expected
 from kth_root_integer_oracle import MAX_PARSEABLE_INPUT_LENGTH as KTH_ROOT_INTEGER_MAX_PARSEABLE_INPUT_LENGTH
 from kth_root_integer_oracle import expected_result as kth_root_integer_expected
+from h.hunt_szymanski_lcs.primary_oracle import (
+    MAX_INPUT_LENGTH as HUNT_SZYMANSKI_LCS_MAX_INPUT_LENGTH,
+    expected_result as hunt_szymanski_lcs_expected,
+)
+from h.hunt_szymanski_lcs.verify_workload import (
+    verify_workload as verify_hunt_szymanski_lcs_package,
+)
+HUNT_SZYMANSKI_LCS_MAX_PARSEABLE_INPUT_LENGTH = HUNT_SZYMANSKI_LCS_MAX_INPUT_LENGTH + 1
 from discrete_logarithm_mod_oracle import MAX_PARSEABLE_INPUT_LENGTH as DISCRETE_LOG_MOD_MAX_PARSEABLE_INPUT_LENGTH
 from discrete_logarithm_mod_oracle import expected_result as discrete_logarithm_mod_expected
 from tetration_mod_oracle import MAX_PARSEABLE_INPUT_LENGTH as TETRATION_MOD_MAX_PARSEABLE_INPUT_LENGTH
@@ -1615,6 +1623,12 @@ from segment_tree_beats_oracle import MAX_OPERATIONS as SEGMENT_TREE_BEATS_MAX_O
 from segment_tree_beats_oracle import QUERY_OFFSET as SEGMENT_TREE_BEATS_QUERY_OFFSET
 from segment_tree_beats_oracle import VALUE_LIMIT as SEGMENT_TREE_BEATS_VALUE_LIMIT
 from segment_tree_beats_oracle import expected_output as segment_tree_beats_expected
+from point_in_polygon_ray_casting_oracle import MAX_INPUT_LENGTH as POINT_IN_POLYGON_RAY_CASTING_MAX_INPUT_LENGTH
+from point_in_polygon_ray_casting_oracle import expected_result as point_in_polygon_ray_casting_expected
+from check_point_in_polygon_ray_casting_package import static_issues as point_in_polygon_ray_casting_static_issues
+from vertex_connectivity_oracle import MAX_INPUT_LENGTH as VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH
+from vertex_connectivity_oracle import expected_result as vertex_connectivity_expected
+from v.vertex_connectivity.verify_vertex_connectivity_package import validate_package as verify_vertex_connectivity_package
 from eertree_oracle import MAX_INPUT_LENGTH as EERTREE_MAX_INPUT_LENGTH
 from eertree_oracle import SOURCE_BASIS as EERTREE_SOURCE_BASIS
 from eertree_oracle import expected_result as eertree_expected
@@ -1639,6 +1653,34 @@ from convex_layers_oracle import COORD_LIMIT as CONVEX_LAYERS_COORD_LIMIT
 from convex_layers_oracle import MAX_INPUT_LENGTH as CONVEX_LAYERS_MAX_INPUT_LENGTH
 from convex_layers_oracle import MAX_POINTS as CONVEX_LAYERS_MAX_POINTS
 from convex_layers_oracle import expected_result as convex_layers_expected
+from minimum_string_representation_oracle import (
+    MAX_LENGTH as MINIMUM_STRING_REPRESENTATION_MAX_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MINIMUM_STRING_REPRESENTATION_MAX_PARSEABLE_LENGTH,
+    expected_result as minimum_string_representation_expected,
+)
+from check_minimum_string_representation_package import (
+    static_issues as minimum_string_representation_static_issues,
+)
+from sum_of_exponential_times_polynomial_limit_oracle import (
+    MAX_DEGREE as EXPONENTIAL_POLYNOMIAL_LIMIT_MAX_DEGREE,
+    MAX_INPUT_VALUES as EXPONENTIAL_POLYNOMIAL_LIMIT_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_VALUES as EXPONENTIAL_POLYNOMIAL_LIMIT_MAX_PARSEABLE_LENGTH,
+    MODULUS as EXPONENTIAL_POLYNOMIAL_LIMIT_MODULUS,
+    expected_result as sum_of_exponential_times_polynomial_limit_expected,
+)
+from check_sum_of_exponential_times_polynomial_limit_package import (
+    static_issues as exponential_polynomial_limit_static_issues,
+)
+from sum_of_exponential_times_polynomial_oracle import (
+    MAX_DEGREE as EXPONENTIAL_POLYNOMIAL_MAX_DEGREE,
+    MAX_INPUT_VALUES as EXPONENTIAL_POLYNOMIAL_MAX_INPUT_LENGTH,
+    MAX_N as EXPONENTIAL_POLYNOMIAL_MAX_N,
+    MODULUS as EXPONENTIAL_POLYNOMIAL_MODULUS,
+    expected_result as sum_of_exponential_times_polynomial_expected,
+)
+from check_sum_of_exponential_times_polynomial_package import (
+    static_issues as exponential_polynomial_static_issues,
+)
 from verify_li_chao_tree import validate_sources as validate_li_chao_tree_sources
 from verify_li_chao_tree import validate_workload as validate_li_chao_tree_package_workload
 from verify_three_edge_connected_components import validate_sources as validate_three_edge_connected_components_sources
@@ -1880,6 +1922,128 @@ def validate_convex_layers_workload(workload: dict) -> None:
                 or type(case.get("expected_result")) is not int
                 or case["expected_result"] != convex_layers_expected(values)):
             raise ValueError(f"convex_layers fixture differs from the supporting-line oracle: {case_id}")
+
+
+def validate_minimum_string_representation_workload(workload: dict) -> None:
+    """Check the bounded minimal-rotation workload and package inventory."""
+    expected_input = {
+        "kind": "ascii_codepoint_array",
+        "encoding": "[codepoint_0, codepoint_1, ...]",
+        "minimum_length": 0,
+        "maximum_length": MINIMUM_STRING_REPRESENTATION_MAX_LENGTH,
+        "maximum_parseable_length": MINIMUM_STRING_REPRESENTATION_MAX_PARSEABLE_LENGTH,
+        "codepoint_range": [0, 127],
+        "empty_result": 0,
+        "invalid_result": -1,
+        "output": "The smallest start index of a lexicographically least cyclic rotation.",
+    }
+    if (not isinstance(workload, dict)
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "minimum_string_representation"
+            or workload.get("function_symbol") != "minimum_string_representation"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("input") != expected_input
+            or workload.get("output", {}).get("invalid_input_result") != -1
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or not isinstance(workload.get("cases"), list)
+            or not workload["cases"]):
+        raise ValueError("minimum_string_representation workload differs from its bounded contract")
+    for case in workload["cases"]:
+        values = case.get("input_values") if isinstance(case, dict) else None
+        input_length = case.get("input_length") if isinstance(case, dict) else None
+        input_is_null = case.get("input_is_null", False) if isinstance(case, dict) else False
+        if (not isinstance(values, list)
+                or type(input_length) is not int
+                or input_length != len(values)
+                or len(values) > MINIMUM_STRING_REPRESENTATION_MAX_PARSEABLE_LENGTH
+                or type(input_is_null) is not bool
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != minimum_string_representation_expected(
+                    values, input_length, input_is_null)):
+            raise ValueError(f"minimum_string_representation fixture differs from its oracle: {case.get('id')}")
+    issues = minimum_string_representation_static_issues()
+    if issues:
+        raise ValueError("minimum_string_representation package is incomplete: " + "; ".join(issues))
+
+
+def validate_sum_of_exponential_times_polynomial_limit_workload(workload: dict) -> None:
+    """Check the finite-degree infinite geometric-moment workload and package inventory."""
+    expected_input = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[r, d]",
+        "r_range": [0, EXPONENTIAL_POLYNOMIAL_LIMIT_MODULUS - 1],
+        "excluded_r": [1],
+        "degree_range": [0, EXPONENTIAL_POLYNOMIAL_LIMIT_MAX_DEGREE],
+        "maximum_valid_length": EXPONENTIAL_POLYNOMIAL_LIMIT_MAX_INPUT_LENGTH,
+        "maximum_parseable_length": EXPONENTIAL_POLYNOMIAL_LIMIT_MAX_PARSEABLE_LENGTH,
+        "invalid_input_result": -1,
+    }
+    if (not isinstance(workload, dict)
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "sum_of_exponential_times_polynomial_limit"
+            or workload.get("function_symbol") != "sum_of_exponential_times_polynomial_limit"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("input") != expected_input
+            or workload.get("output", {}).get("modulus") != EXPONENTIAL_POLYNOMIAL_LIMIT_MODULUS
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or not isinstance(workload.get("cases"), list)
+            or not workload["cases"]):
+        raise ValueError("sum_of_exponential_times_polynomial_limit workload differs from its contract")
+    for case in workload["cases"]:
+        values = case.get("input_values") if isinstance(case, dict) else None
+        input_length = case.get("input_length") if isinstance(case, dict) else None
+        if (not isinstance(values, list)
+                or type(input_length) is not int
+                or input_length != len(values)
+                or len(values) > EXPONENTIAL_POLYNOMIAL_LIMIT_MAX_PARSEABLE_LENGTH
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != sum_of_exponential_times_polynomial_limit_expected(
+                    values, input_length)):
+            raise ValueError("sum_of_exponential_times_polynomial_limit fixture differs from its oracle")
+    issues = exponential_polynomial_limit_static_issues()
+    if issues:
+        raise ValueError("sum_of_exponential_times_polynomial_limit package is incomplete: "
+                         + "; ".join(issues))
+
+
+def validate_sum_of_exponential_times_polynomial_workload(workload: dict) -> None:
+    """Check the finite weighted-power-sum workload and package inventory."""
+    expected_input = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[r, d, n]",
+        "r_range": [0, EXPONENTIAL_POLYNOMIAL_MODULUS - 1],
+        "degree_range": [0, EXPONENTIAL_POLYNOMIAL_MAX_DEGREE],
+        "n_range": [0, EXPONENTIAL_POLYNOMIAL_MAX_N],
+        "maximum_valid_length": EXPONENTIAL_POLYNOMIAL_MAX_INPUT_LENGTH,
+        "maximum_parseable_length": EXPONENTIAL_POLYNOMIAL_MAX_INPUT_LENGTH + 1,
+        "invalid_input_result": -1,
+    }
+    if (not isinstance(workload, dict)
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "sum_of_exponential_times_polynomial"
+            or workload.get("function_symbol") != "sum_of_exponential_times_polynomial"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("input") != expected_input
+            or workload.get("output", {}).get("modulus") != EXPONENTIAL_POLYNOMIAL_MODULUS
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or not isinstance(workload.get("cases"), list)
+            or not workload["cases"]):
+        raise ValueError("sum_of_exponential_times_polynomial workload differs from its contract")
+    for case in workload["cases"]:
+        values = case.get("input_values") if isinstance(case, dict) else None
+        input_length = case.get("input_length") if isinstance(case, dict) else None
+        if (not isinstance(values, list)
+                or type(input_length) is not int
+                or input_length != len(values)
+                or len(values) > EXPONENTIAL_POLYNOMIAL_MAX_INPUT_LENGTH + 1
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != sum_of_exponential_times_polynomial_expected(
+                    values, input_length)):
+            raise ValueError("sum_of_exponential_times_polynomial fixture differs from its oracle")
+    issues = exponential_polynomial_static_issues()
+    if issues:
+        raise ValueError("sum_of_exponential_times_polynomial package is incomplete: "
+                         + "; ".join(issues))
 
 
 def validate_hpcc_random_access_workload(workload: dict) -> None:
@@ -3368,6 +3532,38 @@ def validate_segment_tree_beats_workload(workload: dict) -> None:
                 or type(case.get("expected_result")) is not int
                 or segment_tree_beats_expected(values) != case.get("expected_result")):
             raise ValueError(f"segment_tree_beats workload mismatch: {case.get('id')}")
+
+
+def validate_point_in_polygon_ray_casting_workload(workload: dict) -> None:
+    """Validate the ray-casting package metadata, inventory, and oracle fixtures."""
+    package_workload = ROOT / "benchmarks" / "p" / "point_in_polygon_ray_casting" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("point_in_polygon_ray_casting workload differs from its package file")
+    issues = point_in_polygon_ray_casting_static_issues()
+    if issues:
+        raise ValueError("; ".join(issues))
+
+
+def validate_vertex_connectivity_workload(workload: dict) -> None:
+    """Validate the vertex-connectivity package metadata and static inventory."""
+    package_workload = ROOT / "benchmarks" / "v" / "vertex_connectivity" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("vertex_connectivity workload differs from its package file")
+    try:
+        verify_vertex_connectivity_package()
+    except (OSError, ValueError) as error:
+        raise ValueError(f"vertex_connectivity package is incomplete: {error}") from error
+
+
+def validate_hunt_szymanski_lcs_workload(workload: dict) -> None:
+    """Check the sparse-LCS package fixtures, oracle, and static port inventory."""
+    package_workload = ROOT / "benchmarks" / "h" / "hunt_szymanski_lcs" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("hunt_szymanski_lcs workload differs from its package file")
+    try:
+        verify_hunt_szymanski_lcs_package()
+    except (OSError, ValueError) as error:
+        raise ValueError(f"hunt_szymanski_lcs package is incomplete: {error}") from error
 
 
 MATRIX_EXPONENTIATION_CASE_IDS = frozenset({
@@ -6885,6 +7081,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         MANHATTAN_MST_MAX_INPUT_LENGTH if algorithm == "manhattan_mst" else
                         THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
                         if algorithm == "three_edge_connected_components" else
+                        VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH + 1
+                        if algorithm == "vertex_connectivity" else
                         INCREMENTAL_SCC_MAX_INPUT_LENGTH if algorithm == "incremental_scc" else
                         EERTREE_MAX_INPUT_LENGTH if algorithm == "eertree" else
                         SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
@@ -6897,6 +7095,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "deque_operate_all_composite" else
                         2 + SEGMENT_TREE_BEATS_MAX_ITEMS + 4 * SEGMENT_TREE_BEATS_MAX_OPERATIONS
                         if algorithm == "segment_tree_beats" else
+                        POINT_IN_POLYGON_RAY_CASTING_MAX_INPUT_LENGTH + 1
+                        if algorithm == "point_in_polygon_ray_casting" else
                         KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH
                         if algorithm == "knapsack_zero_one_tabulation" else
                         LCA_MAX_INPUT_LENGTH if algorithm == "lca" else
@@ -7521,6 +7721,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         max_input_length = TSVC_S4115_MAX_INPUT_LENGTH
     elif algorithm == "rle_lcs_block_dp":
         max_input_length = RLE_LCS_BLOCK_DP_MAX_INPUT_LENGTH
+    elif algorithm == "hunt_szymanski_lcs":
+        max_input_length = HUNT_SZYMANSKI_LCS_MAX_PARSEABLE_INPUT_LENGTH
     elif algorithm == "rle_levenshtein_block_dp":
         max_input_length = RLE_LEVENSHTEIN_BLOCK_DP_MAX_INPUT_LENGTH
     elif algorithm == "maximum_independent_set":
@@ -7845,6 +8047,9 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = rle_lcs_block_dp_expected(values)
         if expected != expected_from_source:
             raise ValueError("rle_lcs_block_dp expected_result must match the run-length block-boundary LCS recurrence")
+    elif algorithm == "hunt_szymanski_lcs":
+        if expected != hunt_szymanski_lcs_expected(values):
+            raise ValueError("hunt_szymanski_lcs expected_result must match the sparse matching-pair/LIS oracle")
     elif algorithm == "rle_levenshtein_block_dp":
         expected_from_source = rle_levenshtein_block_dp_expected(values)
         if expected != expected_from_source:
@@ -8082,6 +8287,22 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = segment_tree_beats_expected(values)
         if expected != expected_from_source:
             raise ValueError("segment_tree_beats expected_result must match direct range updates and sums")
+    elif algorithm == "point_in_polygon_ray_casting":
+        expected_from_source = point_in_polygon_ray_casting_expected(
+            values,
+            input_length=case.get("input_length", len(values)),
+            input_is_null=case.get("input_is_null", False),
+        )
+        if expected != expected_from_source:
+            raise ValueError("point_in_polygon_ray_casting expected_result must match exact even-odd crossings")
+    elif algorithm == "vertex_connectivity":
+        expected_from_source = vertex_connectivity_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("vertex_connectivity expected_result must match the bounded vertex-split flow profile")
     elif algorithm == "eertree":
         expected_from_source = eertree_expected(
             values,
@@ -21952,6 +22173,12 @@ def main() -> int:
         validate_convex_layers_workload(workload)
     elif algorithm == "segment_tree_beats":
         validate_segment_tree_beats_workload(workload)
+    elif algorithm == "point_in_polygon_ray_casting":
+        validate_point_in_polygon_ray_casting_workload(workload)
+    elif algorithm == "vertex_connectivity":
+        validate_vertex_connectivity_workload(workload)
+    elif algorithm == "hunt_szymanski_lcs":
+        validate_hunt_szymanski_lcs_workload(workload)
     elif algorithm == "eertree":
         validate_eertree_workload(workload)
     elif algorithm == "segment_add_get_min":
@@ -22000,6 +22227,12 @@ def main() -> int:
         validate_stirling_s2_small_p_large_n_workload(workload)
     elif algorithm == "stirling_number_of_the_first_kind_small_p_large_n":
         validate_stirling_s1_small_p_large_n_workload(workload)
+    elif algorithm == "minimum_string_representation":
+        validate_minimum_string_representation_workload(workload)
+    elif algorithm == "sum_of_exponential_times_polynomial_limit":
+        validate_sum_of_exponential_times_polynomial_limit_workload(workload)
+    elif algorithm == "sum_of_exponential_times_polynomial":
+        validate_sum_of_exponential_times_polynomial_workload(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
@@ -22037,6 +22270,8 @@ def main() -> int:
                 "queue_operate_all_composite", "deque_operate_all_composite",
                 "number_of_increasing_sequences_between_two_sequences",
                 "point_set_range_sort_range_composite",
+                "point_in_polygon_ray_casting",
+                "vertex_connectivity",
                 "stirling_number_of_the_second_kind_small_p_large_n",
                 "stirling_number_of_the_first_kind_small_p_large_n") else 1
             maximum_null_length = (SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
@@ -22053,6 +22288,10 @@ def main() -> int:
                                    if algorithm == "deque_operate_all_composite" else
                                    POINT_SET_RANGE_SORT_RANGE_COMPOSITE_MAX_INPUT_LENGTH
                                    if algorithm == "point_set_range_sort_range_composite" else
+                                   POINT_IN_POLYGON_RAY_CASTING_MAX_INPUT_LENGTH
+                                   if algorithm == "point_in_polygon_ray_casting" else
+                                   VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH
+                                   if algorithm == "vertex_connectivity" else
                                    THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
                                    if algorithm == "three_edge_connected_components" else
                                    INCREMENTAL_SCC_MAX_INPUT_LENGTH if algorithm == "incremental_scc" else 100002)

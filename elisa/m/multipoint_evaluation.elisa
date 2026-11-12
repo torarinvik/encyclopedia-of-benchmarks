@@ -1,0 +1,144 @@
+const MP_MODULUS: i64 = 998244353
+const MP_MAX_N: usize = 8
+const MP_MAX_M: usize = 8
+const MP_LEAF_BASE: usize = 8
+const MP_NODE_CAPACITY: usize = 16
+const MP_COEFFICIENT_CAPACITY: usize = 9
+const MP_MAX_INPUT: usize = 18
+const MP_MAX_OUTPUT_BYTES: usize = 64
+
+def mp_store_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def mp_trim(values: view[i64], offset: usize, length_value: usize) -> usize:
+    length: mutable usize = length_value
+    while length > 1 and values[offset + length - 1] == 0: length <- length - 1
+    return length
+
+def mp_multiply(left: view[i64], left_offset: usize, left_length: usize,
+                right: view[i64], right_offset: usize, right_length: usize,
+                product: mutable view[i64], product_offset: usize) -> usize:
+    length: usize = left_length + right_length - 1
+    for i in 0..<length: product[product_offset + i] <- 0
+    for i in 0..<left_length:
+        for j in 0..<right_length:
+            slot: usize = product_offset + i + j
+            product[slot] <- (product[slot] + left[left_offset + i] * right[right_offset + j]) % MP_MODULUS
+    return length
+
+def mp_remainder(dividend: view[i64], dividend_offset: usize, dividend_length: usize,
+                 divisor: view[i64], divisor_offset: usize, divisor_length: usize,
+                 result: mutable view[i64], result_offset: usize) -> usize:
+    if divisor_length == 1 and divisor[divisor_offset] == 1:
+        result[result_offset] <- 0
+        return 1
+    for i in 0..<dividend_length: result[result_offset + i] <- dividend[dividend_offset + i]
+    length: mutable usize = mp_trim(result, result_offset, dividend_length)
+    while length >= divisor_length:
+        shift: usize = length - divisor_length
+        factor: i64 = result[result_offset + length - 1]
+        for degree in 0..<divisor_length:
+            slot: usize = result_offset + shift + degree
+            result[slot] <- (result[slot] - factor * divisor[divisor_offset + degree]) % MP_MODULUS
+            if result[slot] < 0: result[slot] <- result[slot] + MP_MODULUS
+        length <- mp_trim(result, result_offset, length)
+    return length
+
+def multipoint_evaluation_impl(input: view[i64], length: usize,
+                               output: mutable view[u8], capacity: usize,
+                               output_is_null: bool) -> i64:
+    if length < 4 or length > MP_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > MP_MAX_N.i64() or m_value < 1 or m_value > MP_MAX_M.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + n + m: return -1
+    for i in 0..<(n + m):
+        if input[2 + i] < 0 or input[2 + i] >= MP_MODULUS: return -1
+    if input[1 + n] == 0: return -1
+    bytes: usize = 8 * m
+    if output_is_null or capacity < bytes: return -2
+
+    products: mutable i64[MP_NODE_CAPACITY * MP_COEFFICIENT_CAPACITY] = zeroed
+    remainders: mutable i64[MP_NODE_CAPACITY * MP_COEFFICIENT_CAPACITY] = zeroed
+    product_lengths: mutable usize[MP_NODE_CAPACITY] = zeroed
+    remainder_lengths: mutable usize[MP_NODE_CAPACITY] = zeroed
+    starts: mutable usize[MP_NODE_CAPACITY] = zeroed
+    spans: mutable usize[MP_NODE_CAPACITY] = zeroed
+    for node in 1..<MP_NODE_CAPACITY:
+        products[node * MP_COEFFICIENT_CAPACITY] <- 1
+        product_lengths[node] <- 1
+    for i in 0..<m:
+        leaf: usize = MP_LEAF_BASE + i
+        point: i64 = input[2 + n + i]
+        products[leaf * MP_COEFFICIENT_CAPACITY] <- if point == 0 { 0 } else { MP_MODULUS - point }
+        products[leaf * MP_COEFFICIENT_CAPACITY + 1] <- 1
+        product_lengths[leaf] <- 2
+    node: mutable usize = MP_LEAF_BASE - 1
+    while node > 0:
+        left_polynomial: mutable i64[MP_COEFFICIENT_CAPACITY] = zeroed
+        right_polynomial: mutable i64[MP_COEFFICIENT_CAPACITY] = zeroed
+        product_polynomial: mutable i64[MP_COEFFICIENT_CAPACITY] = zeroed
+        for degree in 0..<product_lengths[2 * node]:
+            left_polynomial[degree] <- products[2 * node * MP_COEFFICIENT_CAPACITY + degree]
+        for degree in 0..<product_lengths[2 * node + 1]:
+            right_polynomial[degree] <- products[(2 * node + 1) * MP_COEFFICIENT_CAPACITY + degree]
+        product_lengths[node] <- mp_multiply(left_polynomial[0:MP_COEFFICIENT_CAPACITY], 0, product_lengths[2 * node],
+            right_polynomial[0:MP_COEFFICIENT_CAPACITY], 0, product_lengths[2 * node + 1],
+            product_polynomial[0:MP_COEFFICIENT_CAPACITY], 0)
+        for degree in 0..<product_lengths[node]:
+            products[node * MP_COEFFICIENT_CAPACITY + degree] <- product_polynomial[degree]
+        node <- node - 1
+
+    starts[1] <- 0
+    spans[1] <- MP_LEAF_BASE
+    for node in 1..<MP_LEAF_BASE:
+        spans[2 * node] <- spans[node] / 2
+        spans[2 * node + 1] <- spans[node] / 2
+        starts[2 * node] <- starts[node]
+        starts[2 * node + 1] <- starts[node] + spans[node] / 2
+    input_polynomial: mutable i64[MP_COEFFICIENT_CAPACITY] = zeroed
+    root_product: mutable i64[MP_COEFFICIENT_CAPACITY] = zeroed
+    root_remainder: mutable i64[MP_COEFFICIENT_CAPACITY] = zeroed
+    for degree in 0..<n: input_polynomial[degree] <- input[2 + degree]
+    for degree in 0..<product_lengths[1]: root_product[degree] <- products[MP_COEFFICIENT_CAPACITY + degree]
+    remainder_lengths[1] <- mp_remainder(input_polynomial[0:MP_COEFFICIENT_CAPACITY], 0, n,
+        root_product[0:MP_COEFFICIENT_CAPACITY], 0, product_lengths[1],
+        root_remainder[0:MP_COEFFICIENT_CAPACITY], 0)
+    for degree in 0..<remainder_lengths[1]:
+        remainders[MP_COEFFICIENT_CAPACITY + degree] <- root_remainder[degree]
+    for node in 1..<MP_LEAF_BASE:
+        for side in 0..<2:
+            child: usize = 2 * node + side
+            if starts[child] < m:
+                parent_polynomial: mutable i64[MP_COEFFICIENT_CAPACITY] = zeroed
+                child_product: mutable i64[MP_COEFFICIENT_CAPACITY] = zeroed
+                child_remainder: mutable i64[MP_COEFFICIENT_CAPACITY] = zeroed
+                for degree in 0..<remainder_lengths[node]:
+                    parent_polynomial[degree] <- remainders[node * MP_COEFFICIENT_CAPACITY + degree]
+                for degree in 0..<product_lengths[child]:
+                    child_product[degree] <- products[child * MP_COEFFICIENT_CAPACITY + degree]
+                remainder_lengths[child] <- mp_remainder(parent_polynomial[0:MP_COEFFICIENT_CAPACITY], 0,
+                    remainder_lengths[node], child_product[0:MP_COEFFICIENT_CAPACITY], 0,
+                    product_lengths[child], child_remainder[0:MP_COEFFICIENT_CAPACITY], 0)
+                for degree in 0..<remainder_lengths[child]:
+                    remainders[child * MP_COEFFICIENT_CAPACITY + degree] <- child_remainder[degree]
+    for i in 0..<m:
+        mp_store_le(output, 8 * i, remainders[(MP_LEAF_BASE + i) * MP_COEFFICIENT_CAPACITY])
+    return bytes.i64()
+
+export fn multipoint_evaluation(input: i64&, length: usize,
+                                output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MP_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return multipoint_evaluation_impl(input_view, length, scratch[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > MP_MAX_OUTPUT_BYTES: safe_capacity <- MP_MAX_OUTPUT_BYTES
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    multipoint_evaluation_impl(input_view, length, output_view, capacity, false)

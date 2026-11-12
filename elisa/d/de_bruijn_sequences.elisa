@@ -1,0 +1,53 @@
+const MAX_ORDER: usize = 16
+const MAX_CYCLE_LENGTH: usize = 10000
+
+def fkm_generate(position: usize, period: usize, order: usize, alphabet: usize,
+        work: mutable view[u8], output: mutable view[u8], emitted: mutable usize&) -> void:
+    if position > order:
+        if order % period == 0:
+            index: mutable usize = 1
+            while index <= period:
+                output[emitted] <- (48 + work[index]).u8()
+                emitted <- emitted + 1
+                index <- index + 1
+        return
+    work[position] <- work[position - period]
+    fkm_generate(position + 1, period, order, alphabet, work, output, emitted)
+    symbol: mutable usize = work[position - period].usize() + 1
+    while symbol < alphabet:
+        work[position] <- symbol.u8()
+        fkm_generate(position + 1, position, order, alphabet, work, output, emitted)
+        symbol <- symbol + 1
+
+def de_bruijn_sequences_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length != 2:
+        return -1
+    alphabet_value: i64 = input[0]
+    order_value: i64 = input[1]
+    if alphabet_value < 2 or alphabet_value > 10 or order_value < 1 or order_value > 16:
+        return -1
+    alphabet: usize = alphabet_value.usize()
+    order: usize = order_value.usize()
+    cycle_length: mutable usize = 1
+    step: mutable usize = 0
+    while step < order:
+        if cycle_length > MAX_CYCLE_LENGTH / alphabet:
+            return -1
+        cycle_length <- cycle_length * alphabet
+        step <- step + 1
+    output_length: usize = cycle_length + order - 1
+    if output_capacity < output_length or output.is_null():
+        return -2
+    work: mutable u8[MAX_ORDER + 1] = zeroed
+    emitted: mutable usize = 0
+    fkm_generate(1, 1, order, alphabet, work[0:MAX_ORDER + 1],
+        output[0:output_length], emitted)
+    index: mutable usize = 0
+    while index + 1 < order:
+        output[cycle_length + index] <- output[index]
+        index <- index + 1
+    output_length.i64()
+
+export fn de_bruijn_sequences(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = de_bruijn_sequences_impl

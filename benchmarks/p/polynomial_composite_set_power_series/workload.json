@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-polynomial-composite-set-power-series-horner-bytes-v1",
+  "algorithm": "polynomial_composite_set_power_series",
+  "function_symbol": "polynomial_composite_set_power_series",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "set_power_series/polynomial_composite_set_power_series/task.md",
+    "limits_path": "set_power_series/polynomial_composite_set_power_series/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/set_power_series/polynomial_composite_set_power_series/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/set_power_series/polynomial_composite_set_power_series/info.toml",
+    "official_n_max": 20,
+    "official_coefficient_count_max": 100000,
+    "modulus": 998244353,
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Operation and modulus only; bounded profile, ports, fixtures, oracles, and prose are clean-room."
+  },
+  "oracle": "benchmarks/p/polynomial_composite_set_power_series/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/polynomial_composite_set_power_series/independent_oracle.py",
+  "contract": {
+    "operation": "Evaluate f(z)=sum(a_k*z^k) at an N-variable square-zero set power series s and return every dense mask coefficient modulo 998244353.",
+    "input_layout": "[M, N, a_0, ..., a_(M-1), b_0, ..., b_(2^N-1)]",
+    "coefficient_count_range": [0, 8],
+    "n_range": [0, 4],
+    "coefficient_range": [0, 998244352],
+    "modulus": 998244353,
+    "mask_order": "Increasing integer mask; bit j selects variable x_j.",
+    "algorithm": "Horner composition with subset convolution; O(M*3^N) time and O(2^N) working arrays.",
+    "independent_oracle": "Direct ordered-factor assignment expansion per polynomial power; O(M + sum_(k=1)^(M-1) k*(k+1)^N) time in the bounded profile.",
+    "output_layout": "2^N little-endian signed 64-bit residues in increasing mask order.",
+    "error_precedence": "Malformed input returns -1 before output checks. Valid input with null output or capacity below the exact output size returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[M, N, exactly M polynomial coefficients, then exactly 2^N set-series coefficients]",
+    "maximum_valid_length": 26,
+    "maximum_parseable_length": 27,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 16,
+    "maximum_bytes": 128,
+    "success_result": "8*2^N bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "maximum_bytes": 512,
+    "model": "Three fixed 16-element i64 arrays for current value, argument, and next Horner product, plus scalar state."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"zero-polynomial-zero-dimensions","input_values":[0,0,7],"input_length":3,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"constant-polynomial-zero-dimensions","input_values":[1,0,7,3],"input_length":4,"expected_result":8,"expected_output_hex":"0700000000000000"},
+    {"id":"linear-composition-zero-dimensions","input_values":[2,0,2,3,4],"input_length":5,"expected_result":8,"expected_output_hex":"0e00000000000000"},
+    {"id":"quadratic-one-variable","input_values":[3,1,1,2,3,1,2],"input_length":7,"expected_result":16,"expected_output_hex":"06000000000000001000000000000000"},
+    {"id":"identity-on-two-variable-series","input_values":[2,2,0,1,5,6,7,8],"input_length":8,"expected_result":32,"expected_output_hex":"0500000000000000060000000000000007000000000000000800000000000000"},
+    {"id":"square-cross-term","input_values":[3,2,0,0,1,0,2,3,5],"input_length":9,"expected_result":32,"expected_output_hex":"0000000000000000000000000000000000000000000000000c00000000000000"},
+    {"id":"cubic-with-overlapping-constant","input_values":[4,2,0,0,0,1,1,1,2,3],"input_length":10,"expected_result":32,"expected_output_hex":"0100000000000000030000000000000006000000000000001500000000000000"},
+    {"id":"modular-cancellation","input_values":[3,1,1,998244351,1,1,1],"input_length":7,"expected_result":16,"expected_output_hex":"00000000000000000000000000000000"},
+    {"id":"negative-coefficient-count","input_values":[-1,0],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coefficient-count-too-large","input_values":[9,0,0],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"dimension-too-large","input_values":[0,5],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coefficient-out-of-range","input_values":[1,0,998244353,0],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-set-series","input_values":[2,1,2,3,0],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra-input-word","input_values":[0,0,0,9],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,0,5,7],"input_length":4,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-buffer","input_values":[1,0,5,7],"input_length":4,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input-pointer","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

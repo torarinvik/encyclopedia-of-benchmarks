@@ -11,7 +11,7 @@ This benchmark builds an eertree, also called a palindromic tree, as lowercase c
 
 The online tree has two sentinel roots, for odd and even palindrome extension. For each new letter it follows suffix links until it finds a suffix palindrome that can be extended; a missing transition creates exactly one new palindrome node. The count after a prefix is the number of non-root nodes created so far. At most `n + 2` nodes are needed. A dense transition row for each of 26 letters gives `O(26n)` logical storage and initialization work, which is linear for this fixed alphabet. Suffix-link searches take amortized `O(n)` total time over all prefixes. The ports reserve space for the maximum 130 nodes.
 
-[`workload.json`](workload.json) covers empty and singleton strings, unary and alternating strings, nested palindromes, repeated prefixes that add no new palindrome, all 26 letters, malformed inputs, and a null-input probe. [`benchmarks/eertree_oracle.py`](../../eertree_oracle.py) independently enumerates every substring of each prefix and compares it with its reversal. [`benchmarks/verify_eertree.py`](../../verify_eertree.py) statically checks fixture results, contract metadata, provenance, and all nine source files; it does not compile or execute the ports.
+[`workload.json`](workload.json) covers empty and singleton strings, unary and alternating strings, nested palindromes, repeated prefixes that add no new palindrome, all 26 letters, malformed inputs, and a null-input probe. [`benchmarks/eertree_oracle.py`](../../eertree_oracle.py) independently enumerates every substring of each prefix and compares it with its reversal. [`benchmarks/verify_eertree.py`](../../verify_eertree.py) statically checks fixture results, contract metadata, provenance, and all ten source files; it does not compile or execute the ports.
 
 ## Algorithm references
 
@@ -20,4 +20,4 @@ The online tree has two sentinel roots, for odd and even palindrome extension. F
 
 ## Implementations
 
-The nine ports use the shared `i64_array_scalar` ABI. Source files are in the `e` directory for `c`, `c3`, `cpp`, `elisa`, `nim`, `odin`, `rust`, `v`, and `zig`.
+The ten ports use the shared `i64_array_scalar` ABI. Source files are in the `e` directory for `c`, `c3`, `cpp`, `elisa`, `mojo`, `nim`, `odin`, `rust`, `v`, and `zig`.

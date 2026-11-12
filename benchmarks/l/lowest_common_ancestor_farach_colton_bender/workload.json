@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "id": "lowest-common-ancestor-farach-colton-bender-v1",
+  "algorithm": "lowest_common_ancestor_farach_colton_bender",
+  "function_symbol": "lowest_common_ancestor_farach_colton_bender",
+  "abi": "i64_array_bytes_output",
+  "description": "Batched tree LCA using Euler-tour ±1 RMQ microblocks and macroblock sparse table.",
+  "source": {
+    "title": "CP-Algorithms: Farach–Colton–Bender LCA",
+    "authors": ["CP-Algorithms contributors"],
+    "reference": "Lowest Common Ancestor — Farach Colton and Bender algorithm",
+    "url": "https://cp-algorithms.com/graph/lca_farachcoltonbender.html",
+    "repository_license": "CC BY-SA 4.0",
+    "algorithm_attribution": "Euler-tour ±1 RMQ using microblock signatures and macroblock sparse table",
+    "implementation_status": "clean-room bounded profile; algorithm description only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, root_id, edge_count, query_count, (edge_u, edge_v)*edge_count, (query_u, query_v)*query_count]",
+    "node_count_range": [1, 256],
+    "query_count_range": [0, 1024],
+    "edge_count_rule": "node_count - 1",
+    "maximum_length": 2562,
+    "tree_precondition": "Edges form one connected acyclic undirected tree.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "One unsigned vertex ID byte per LCA query, in input order.",
+    "maximum_bytes": 1024,
+    "success_result": "number of answer bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "zero_query_null_output_is_valid": true
+  },
+  "workspace": {
+    "bytes": 65536,
+    "meaning": "Fixed adjacency and Euler-tour arrays, microblock signatures/tables, macroblock sparse table, DFS stack, and staged answers."
+  },
+  "contract": {
+    "operation": "Answer a batch of lowest-common-ancestor queries under the supplied root.",
+    "algorithm": "Iterative Euler tour; ±1 depth microblocks use signature lookup tables, with a sparse table over block minima.",
+    "complexity": "O(N) preprocessing and O(1) per query with a logarithmic microblock width; O(N) bounded storage.",
+    "error_precedence": "Validate frame, all edges and query vertices, and tree connectivity before output-capacity checks; stage all answers before writing.",
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-node-self-queries",
+      "input_values": [1, 0, 0, 3, 0, 0, 0, 0, 0, 0],
+      "input_length": 10,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output_hex": "000000"
+    },
+    {
+      "id": "balanced-tree-batch",
+      "input_values": [7, 0, 6, 6, 0, 1, 0, 2, 1, 3, 1, 4, 2, 5, 2, 6, 3, 4, 3, 5, 5, 6, 0, 4, 6, 6, 4, 2],
+      "input_length": 28,
+      "output_capacity": 6,
+      "expected_result": 6,
+      "expected_output_hex": "010002000600"
+    },
+    {
+      "id": "arbitrary-root",
+      "input_values": [6, 4, 5, 4, 4, 1, 4, 5, 1, 0, 1, 3, 3, 2, 0, 2, 0, 5, 4, 4, 3, 2],
+      "input_length": 22,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "01040403"
+    },
+    {
+      "id": "chain-crosses-micro-and-macroblocks",
+      "input_values": [9, 0, 8, 4, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 4, 5, 7, 0, 8, 3, 3],
+      "input_length": 28,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "04050003"
+    },
+    {
+      "id": "zero-query-null-output",
+      "input_values": [1, 0, 0, 0],
+      "input_length": 4,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-edge-disconnected-graph",
+      "input_values": [4, 0, 3, 1, 0, 1, 1, 0, 2, 3, 0, 0],
+      "input_length": 12,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-query-endpoint",
+      "input_values": [2, 0, 1, 1, 0, 1, 0, 2],
+      "input_length": 8,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [2, 0, 1, 1, 0, 1, 0, 1],
+      "input_length": 8,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-with-query",
+      "input_values": [2, 0, 1, 1, 0, 1, 0, 1],
+      "input_length": 8,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

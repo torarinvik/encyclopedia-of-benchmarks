@@ -1,0 +1,422 @@
+const DTT_MAX_VERTICES: usize = 16
+const DTT_MAX_OPERATIONS: usize = 32
+const DTT_MAX_EDGES: usize = DTT_MAX_VERTICES - 1
+const DTT_MAX_NODES: usize = 75
+const DTT_MAX_INPUT: usize = 143
+const DTT_MAX_WEIGHT: i64 = 1000
+const DTT_EDGE_BASE: i16 = 0
+const DTT_EDGE_COMPRESS: i16 = 1
+const DTT_RAKE_ZERO: i16 = 2
+const DTT_RAKE_MERGE: i16 = 3
+const DTT_RAKE_BRANCH: i16 = 4
+
+struct DttNode:
+    kind: i16
+    a: i16
+    b: i16
+    c: i16
+    parent: i16
+    endpoint0: i16
+    endpoint1: i16
+    pivot: i16
+    edge_id: i16
+    length: i64
+    far0: i64
+    far1: i64
+    diameter: i64
+    best1: i64
+    best2: i64
+
+struct DttContext:
+    nodes: DttNode[DTT_MAX_NODES]
+    weights: i64[DTT_MAX_EDGES]
+    edge_u: i16[DTT_MAX_EDGES]
+    edge_v: i16[DTT_MAX_EDGES]
+    base_rake: i16[DTT_MAX_VERTICES]
+    base_edge: i16[DTT_MAX_EDGES]
+    adjacency: u8[DTT_MAX_VERTICES * DTT_MAX_VERTICES]
+    active: u8[DTT_MAX_VERTICES]
+    edge_cluster: i16[DTT_MAX_VERTICES * DTT_MAX_VERTICES]
+    branches: i16[DTT_MAX_VERTICES * DTT_MAX_VERTICES]
+    branch_count: usize[DTT_MAX_VERTICES]
+    node_count: usize
+
+def dtt_find_root(parent: mutable view[i32], vertex_value: usize) -> usize:
+    vertex: mutable usize = vertex_value
+    while parent[vertex].usize() != vertex:
+        parent[vertex] <- parent[parent[vertex].usize()]
+        vertex <- parent[vertex].usize()
+    vertex
+
+def dtt_far_at(context: DttContext&, node_id: usize, vertex: i16) -> i64:
+    node: DttNode = context.nodes[node_id]
+    if node.endpoint0 == vertex: return node.far0
+    node.far1
+
+def dtt_recalculate(context: mutable DttContext&, node_id: usize) -> void:
+    kind: i16 = context.nodes[node_id].kind
+    if kind == DTT_EDGE_BASE:
+        weight: i64 = context.weights[context.nodes[node_id].edge_id.usize()]
+        context.nodes[node_id].length <- weight
+        context.nodes[node_id].far0 <- weight
+        context.nodes[node_id].far1 <- weight
+        context.nodes[node_id].diameter <- weight
+        return
+    if kind == DTT_RAKE_ZERO:
+        context.nodes[node_id].best1 <- 0
+        context.nodes[node_id].best2 <- 0
+        context.nodes[node_id].diameter <- 0
+        return
+    if kind == DTT_RAKE_MERGE:
+        left_id: usize = context.nodes[node_id].a.usize()
+        right_id: usize = context.nodes[node_id].b.usize()
+        left_best1: i64 = context.nodes[left_id].best1
+        left_best2: i64 = context.nodes[left_id].best2
+        right_best1: i64 = context.nodes[right_id].best1
+        right_best2: i64 = context.nodes[right_id].best2
+        arms: i64[4] = {left_best1, left_best2, right_best1, right_best2}
+        first: mutable i64 = 0
+        second: mutable i64 = 0
+        for i in 0..<4:
+            if arms[i] >= first:
+                second <- first
+                first <- arms[i]
+            elif arms[i] > second:
+                second <- arms[i]
+        context.nodes[node_id].best1 <- first
+        context.nodes[node_id].best2 <- second
+        left_diameter: i64 = context.nodes[left_id].diameter
+        right_diameter: i64 = context.nodes[right_id].diameter
+        diameter: mutable i64 = if left_diameter > right_diameter then left_diameter else right_diameter
+        if left_best1 + right_best1 > diameter: diameter <- left_best1 + right_best1
+        context.nodes[node_id].diameter <- diameter
+        return
+    if kind == DTT_RAKE_BRANCH:
+        edge_id: usize = context.nodes[node_id].a.usize()
+        local_id: usize = context.nodes[node_id].b.usize()
+        edge_length: i64 = context.nodes[edge_id].length
+        edge_diameter: i64 = context.nodes[edge_id].diameter
+        local_best1: i64 = context.nodes[local_id].best1
+        local_diameter: i64 = context.nodes[local_id].diameter
+        center_far: i64 = dtt_far_at(context&, edge_id, context.nodes[node_id].endpoint0)
+        pivot_far: i64 = dtt_far_at(context&, edge_id, context.nodes[node_id].pivot)
+        branch_arm: i64 = edge_length + local_best1
+        context.nodes[node_id].best1 <- if center_far > branch_arm then center_far else branch_arm
+        context.nodes[node_id].best2 <- 0
+        diameter: mutable i64 = if edge_diameter > local_diameter then edge_diameter else local_diameter
+        if pivot_far + local_best1 > diameter: diameter <- pivot_far + local_best1
+        context.nodes[node_id].diameter <- diameter
+        return
+
+    first_id: usize = context.nodes[node_id].a.usize()
+    second_id: usize = context.nodes[node_id].b.usize()
+    local_id: usize = context.nodes[node_id].c.usize()
+    y: i16 = context.nodes[node_id].endpoint0
+    z: i16 = context.nodes[node_id].endpoint1
+    x: i16 = context.nodes[node_id].pivot
+    first_length: i64 = context.nodes[first_id].length
+    second_length: i64 = context.nodes[second_id].length
+    first_diameter: i64 = context.nodes[first_id].diameter
+    second_diameter: i64 = context.nodes[second_id].diameter
+    first_y: i64 = dtt_far_at(context&, first_id, y)
+    first_x: i64 = dtt_far_at(context&, first_id, x)
+    second_x: i64 = dtt_far_at(context&, second_id, x)
+    second_z: i64 = dtt_far_at(context&, second_id, z)
+    local_best1: i64 = context.nodes[local_id].best1
+    local_diameter: i64 = context.nodes[local_id].diameter
+    context.nodes[node_id].length <- first_length + second_length
+    from_y: i64 = first_length + (if second_x > local_best1 then second_x else local_best1)
+    from_z: i64 = second_length + (if first_x > local_best1 then first_x else local_best1)
+    context.nodes[node_id].far0 <- if first_y > from_y then first_y else from_y
+    context.nodes[node_id].far1 <- if second_z > from_z then second_z else from_z
+    diameter: mutable i64 = if first_diameter > second_diameter then first_diameter else second_diameter
+    if local_diameter > diameter: diameter <- local_diameter
+    if first_x + second_x > diameter: diameter <- first_x + second_x
+    if first_x + local_best1 > diameter: diameter <- first_x + local_best1
+    if second_x + local_best1 > diameter: diameter <- second_x + local_best1
+    context.nodes[node_id].diameter <- diameter
+
+def dtt_append(context: mutable DttContext&, kind: i16, a: i16, b: i16, c: i16,
+               endpoint0: i16, endpoint1: i16, pivot: i16, edge_id: i16) -> i16:
+    if context.node_count >= DTT_MAX_NODES: return -1
+    id: usize = context.node_count
+    context.node_count <- context.node_count + 1
+    context.nodes[id].kind <- kind
+    context.nodes[id].a <- a
+    context.nodes[id].b <- b
+    context.nodes[id].c <- c
+    context.nodes[id].parent <- -1
+    context.nodes[id].endpoint0 <- endpoint0
+    context.nodes[id].endpoint1 <- endpoint1
+    context.nodes[id].pivot <- pivot
+    context.nodes[id].edge_id <- edge_id
+    context.nodes[id].length <- 0
+    context.nodes[id].far0 <- 0
+    context.nodes[id].far1 <- 0
+    context.nodes[id].diameter <- 0
+    context.nodes[id].best1 <- 0
+    context.nodes[id].best2 <- 0
+    if a >= 0: context.nodes[a.usize()].parent <- id.i16()
+    if b >= 0: context.nodes[b.usize()].parent <- id.i16()
+    if c >= 0: context.nodes[c.usize()].parent <- id.i16()
+    dtt_recalculate(context&, id)
+    id.i16()
+
+def dtt_make_rake(context: mutable DttContext&, base: i16, vertex: usize) -> i16:
+    level: mutable i16[17] = zeroed
+    next: mutable i16[17] = zeroed
+    count: mutable usize = 1
+    level[0] <- base
+    for i in 0..<context.branch_count[vertex]:
+        level[count] <- context.branches[vertex * DTT_MAX_VERTICES + i]
+        count <- count + 1
+    while count > 1:
+        next_count: mutable usize = 0
+        i: mutable usize = 0
+        while i < count:
+            if i + 1 == count:
+                next[next_count] <- level[i]
+                next_count <- next_count + 1
+            else:
+                merged: i16 = dtt_append(context&, DTT_RAKE_MERGE, level[i], level[i + 1], -1, -1, -1, -1, -1)
+                if merged < 0: return -1
+                next[next_count] <- merged
+                next_count <- next_count + 1
+            i <- i + 2
+        for j in 0..<next_count: level[j] <- next[j]
+        count <- next_count
+    level[0]
+
+def dtt_neighbor_count(context: DttContext&, n: usize, vertex: usize,
+                       output: mutable view[i16]) -> usize:
+    count: mutable usize = 0
+    for other in 0..<n:
+        edge_at: usize = vertex * DTT_MAX_VERTICES + other
+        if context.active[other] != 0 and context.adjacency[edge_at] != 0:
+            if count < 2: output[count] <- other.i16()
+            count <- count + 1
+    count
+
+def dtt_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def dynamic_top_tree_component_diameter_impl(input: i64&, length: usize,
+                                              output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > DTT_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > DTT_MAX_VERTICES.i64() or q_value < 0 or q_value > DTT_MAX_OPERATIONS.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    edge_end: usize = 2 + 3 * (n - 1)
+    if length != edge_end + 3 * q: return -1
+
+    input_view: view[i64] = input[0:length]
+    context: mutable DttContext = zeroed
+    parent: mutable i32[DTT_MAX_VERTICES] = zeroed
+    for vertex in 0..<n: parent[vertex] <- vertex.i32()
+    for edge_id in 0..<(n - 1):
+        offset: usize = 2 + 3 * edge_id
+        u_value: i64 = input_view[offset]
+        v_value: i64 = input_view[offset + 1]
+        weight: i64 = input_view[offset + 2]
+        if u_value < 0 or u_value >= n.i64() or v_value < 0 or v_value >= n.i64() or u_value == v_value or weight < 0 or weight > DTT_MAX_WEIGHT: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        root_u: usize = dtt_find_root(parent[0:DTT_MAX_VERTICES], u)
+        root_v: usize = dtt_find_root(parent[0:DTT_MAX_VERTICES], v)
+        if root_u == root_v: return -1
+        parent[root_u] <- root_v.i32()
+        context.edge_u[edge_id] <- u.i16()
+        context.edge_v[edge_id] <- v.i16()
+        context.weights[edge_id] <- weight
+    if n > 1:
+        root0: usize = dtt_find_root(parent[0:DTT_MAX_VERTICES], 0)
+        for vertex in 1..<n:
+            if dtt_find_root(parent[0:DTT_MAX_VERTICES], vertex) != root0: return -1
+
+    op_code: mutable i16[DTT_MAX_OPERATIONS] = zeroed
+    op_edge: mutable i16[DTT_MAX_OPERATIONS] = zeroed
+    op_value: mutable i64[DTT_MAX_OPERATIONS] = zeroed
+    query_count: mutable usize = 0
+    for op in 0..<q:
+        offset: usize = edge_end + 3 * op
+        opcode: i64 = input_view[offset]
+        edge_id: i64 = input_view[offset + 1]
+        value: i64 = input_view[offset + 2]
+        if opcode == 0:
+            if edge_id < 0 or edge_id >= (n - 1).i64() or value < 0 or value > DTT_MAX_WEIGHT: return -1
+        elif opcode == 1:
+            if edge_id != 0 or value != 0: return -1
+            query_count <- query_count + 1
+        else:
+            return -1
+        op_code[op] <- opcode.i16()
+        op_edge[op] <- edge_id.i16()
+        op_value[op] <- value
+
+    output_bytes: usize = query_count * 8
+    if output_bytes > 0 and (output.is_null() or capacity < output_bytes): return -2
+
+    context.node_count <- 0
+    for i in 0..<(DTT_MAX_VERTICES * DTT_MAX_VERTICES): context.edge_cluster[i] <- -1
+    for vertex in 0..<n:
+        context.active[vertex] <- 1
+        base: i16 = dtt_append(context&, DTT_RAKE_ZERO, -1, -1, -1, -1, -1, -1, -1)
+        if base < 0: return -1
+        context.base_rake[vertex] <- base
+    for edge_id in 0..<(n - 1):
+        u: usize = context.edge_u[edge_id].usize()
+        v: usize = context.edge_v[edge_id].usize()
+        cluster: i16 = dtt_append(context&, DTT_EDGE_BASE, -1, -1, -1, u.i16(), v.i16(), -1, edge_id.i16())
+        if cluster < 0: return -1
+        context.base_edge[edge_id] <- cluster
+        context.adjacency[u * DTT_MAX_VERTICES + v] <- 1
+        context.adjacency[v * DTT_MAX_VERTICES + u] <- 1
+        context.edge_cluster[u * DTT_MAX_VERTICES + v] <- cluster
+        context.edge_cluster[v * DTT_MAX_VERTICES + u] <- cluster
+
+    active_count: mutable usize = n
+    while active_count > 1:
+        if active_count == 2:
+            pair: mutable usize[2] = zeroed
+            found: mutable usize = 0
+            for vertex in 0..<n:
+                if context.active[vertex] != 0:
+                    pair[found] <- vertex
+                    found <- found + 1
+            x: usize = pair[0]
+            y: usize = pair[1]
+            local: i16 = dtt_make_rake(context&, context.base_rake[x], x)
+            if local < 0: return -1
+            edge: i16 = context.edge_cluster[x * DTT_MAX_VERTICES + y]
+            branch: i16 = dtt_append(context&, DTT_RAKE_BRANCH, edge, local, -1, y.i16(), -1, x.i16(), -1)
+            if branch < 0: return -1
+            branch_at: usize = y * DTT_MAX_VERTICES + context.branch_count[y]
+            context.branches[branch_at] <- branch
+            context.branch_count[y] <- context.branch_count[y] + 1
+            context.adjacency[x * DTT_MAX_VERTICES + y] <- 0
+            context.adjacency[y * DTT_MAX_VERTICES + x] <- 0
+            context.active[x] <- 0
+            active_count <- active_count - 1
+            break
+
+        leaves: mutable usize[DTT_MAX_VERTICES] = zeroed
+        leaf_neighbor: mutable usize[DTT_MAX_VERTICES] = zeroed
+        leaf_count: mutable usize = 0
+        for vertex in 0..<n:
+            if context.active[vertex] != 0:
+                adjacent: mutable i16[2] = zeroed
+                if dtt_neighbor_count(context&, n, vertex, adjacent[0:2]) == 1:
+                    leaves[leaf_count] <- vertex
+                    leaf_neighbor[leaf_count] <- adjacent[0].usize()
+                    leaf_count <- leaf_count + 1
+        for i in 0..<leaf_count:
+            x: usize = leaves[i]
+            y: usize = leaf_neighbor[i]
+            local: i16 = dtt_make_rake(context&, context.base_rake[x], x)
+            if local < 0: return -1
+            edge: i16 = context.edge_cluster[x * DTT_MAX_VERTICES + y]
+            branch: i16 = dtt_append(context&, DTT_RAKE_BRANCH, edge, local, -1, y.i16(), -1, x.i16(), -1)
+            if branch < 0 or context.branch_count[y] >= DTT_MAX_VERTICES: return -1
+            branch_at: usize = y * DTT_MAX_VERTICES + context.branch_count[y]
+            context.branches[branch_at] <- branch
+            context.branch_count[y] <- context.branch_count[y] + 1
+        for i in 0..<leaf_count:
+            x: usize = leaves[i]
+            y: usize = leaf_neighbor[i]
+            context.adjacency[x * DTT_MAX_VERTICES + y] <- 0
+            context.adjacency[y * DTT_MAX_VERTICES + x] <- 0
+            context.edge_cluster[x * DTT_MAX_VERTICES + y] <- -1
+            context.edge_cluster[y * DTT_MAX_VERTICES + x] <- -1
+            context.active[x] <- 0
+            active_count <- active_count - 1
+        if active_count <= 1: break
+
+        chosen: mutable u8[DTT_MAX_VERTICES] = zeroed
+        compress_vertices: mutable usize[DTT_MAX_VERTICES] = zeroed
+        compress_count: mutable usize = 0
+        for x in 0..<n:
+            if context.active[x] != 0:
+                adjacent: mutable i16[2] = zeroed
+                if dtt_neighbor_count(context&, n, x, adjacent[0:2]) != 2: continue
+                y: usize = adjacent[0].usize()
+                z: usize = adjacent[1].usize()
+                if chosen[y] == 0 and chosen[z] == 0:
+                    chosen[x] <- 1
+                    compress_vertices[compress_count] <- x
+                    compress_count <- compress_count + 1
+
+        pending_x: mutable usize[DTT_MAX_VERTICES] = zeroed
+        pending_y: mutable usize[DTT_MAX_VERTICES] = zeroed
+        pending_z: mutable usize[DTT_MAX_VERTICES] = zeroed
+        pending_cluster: mutable i16[DTT_MAX_VERTICES] = zeroed
+        for i in 0..<compress_count:
+            x: usize = compress_vertices[i]
+            adjacent: mutable i16[2] = zeroed
+            dtt_neighbor_count(context&, n, x, adjacent[0:2])
+            y: usize = adjacent[0].usize()
+            z: usize = adjacent[1].usize()
+            local: i16 = dtt_make_rake(context&, context.base_rake[x], x)
+            if local < 0: return -1
+            first_edge: i16 = context.edge_cluster[y * DTT_MAX_VERTICES + x]
+            second_edge: i16 = context.edge_cluster[x * DTT_MAX_VERTICES + z]
+            compressed: i16 = dtt_append(context&, DTT_EDGE_COMPRESS, first_edge, second_edge, local,
+                                           y.i16(), z.i16(), x.i16(), -1)
+            if compressed < 0: return -1
+            pending_x[i] <- x
+            pending_y[i] <- y
+            pending_z[i] <- z
+            pending_cluster[i] <- compressed
+        for i in 0..<compress_count:
+            x: usize = pending_x[i]
+            y: usize = pending_y[i]
+            z: usize = pending_z[i]
+            context.adjacency[y * DTT_MAX_VERTICES + x] <- 0
+            context.adjacency[x * DTT_MAX_VERTICES + y] <- 0
+            context.adjacency[x * DTT_MAX_VERTICES + z] <- 0
+            context.adjacency[z * DTT_MAX_VERTICES + x] <- 0
+            context.edge_cluster[y * DTT_MAX_VERTICES + x] <- -1
+            context.edge_cluster[x * DTT_MAX_VERTICES + y] <- -1
+            context.edge_cluster[x * DTT_MAX_VERTICES + z] <- -1
+            context.edge_cluster[z * DTT_MAX_VERTICES + x] <- -1
+            context.active[x] <- 0
+            active_count <- active_count - 1
+        for i in 0..<compress_count:
+            y: usize = pending_y[i]
+            z: usize = pending_z[i]
+            context.adjacency[y * DTT_MAX_VERTICES + z] <- 1
+            context.adjacency[z * DTT_MAX_VERTICES + y] <- 1
+            context.edge_cluster[y * DTT_MAX_VERTICES + z] <- pending_cluster[i]
+            context.edge_cluster[z * DTT_MAX_VERTICES + y] <- pending_cluster[i]
+
+    root_vertex: mutable usize = 0
+    while context.active[root_vertex] == 0: root_vertex <- root_vertex + 1
+    root: i16 = dtt_make_rake(context&, context.base_rake[root_vertex], root_vertex)
+    if root < 0: return -1
+    staged: mutable i64[DTT_MAX_OPERATIONS] = zeroed
+    staged_count: mutable usize = 0
+    for op in 0..<q:
+        if op_code[op] == 0:
+            edge_id: usize = op_edge[op].usize()
+            context.weights[edge_id] <- op_value[op]
+            node_id: usize = context.base_edge[edge_id].usize()
+            dtt_recalculate(context&, node_id)
+            ancestor: mutable i16 = context.nodes[node_id].parent
+            while ancestor >= 0:
+                dtt_recalculate(context&, ancestor.usize())
+                ancestor <- context.nodes[ancestor.usize()].parent
+        else:
+            staged[staged_count] <- context.nodes[root.usize()].diameter
+            staged_count <- staged_count + 1
+
+    if output_bytes > 0:
+        output_view: mutable view[u8] = output[0:capacity]
+        for i in 0..<staged_count: dtt_store(staged[i], output_view, i * 8)
+    output_bytes.i64()
+
+export fn dynamic_top_tree_component_diameter(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = dynamic_top_tree_component_diameter_impl

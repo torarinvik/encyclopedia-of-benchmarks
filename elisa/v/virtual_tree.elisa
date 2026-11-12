@@ -1,0 +1,160 @@
+// Build a bounded LCA-closed virtual tree in DFS order.
+const MAX_N: usize = 32
+const MAX_K: usize = 32
+const MAX_INPUT: usize = 66
+const MAX_VIRTUAL: usize = 32
+const MAX_CANDIDATES: usize = 64
+const MAX_WORDS: usize = 1 + 3 * MAX_VIRTUAL
+
+def virtual_tree_put(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def virtual_tree_lca(a0: usize, b0: usize, parent: view[usize], depth: view[usize]) -> usize:
+    a: mutable usize = a0
+    b: mutable usize = b0
+    while depth[a] > depth[b]: a <- parent[a]
+    while depth[b] > depth[a]: b <- parent[b]
+    while a != b:
+        a <- parent[a]
+        b <- parent[b]
+    a
+
+def virtual_tree_ancestor(a: usize, b: usize, tin: view[usize], tout: view[usize]) -> bool:
+    tin[a] <= tin[b] and tin[b] < tout[a]
+
+def virtual_tree_sort(items: mutable view[usize], count: usize, tin: view[usize]) -> void:
+    i: mutable usize = 1
+    while i < count:
+        value: usize = items[i]
+        j: mutable usize = i
+        while j > 0 and tin[items[j - 1]] > tin[value]:
+            items[j] <- items[j - 1]
+            j <- j - 1
+        items[j] <- value
+        i <- i + 1
+
+def virtual_tree_impl(input: view[i64], output: mutable view[u8], capacity: usize,
+                      output_is_null: bool) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > MAX_INPUT or input[0] < 1 or input[0] > MAX_N.i64() or
+       input[1] < 0 or input[1] > MAX_K.i64() or input[1] > input[0]: return -1
+    n: usize = input[0].usize()
+    k: usize = input[1].usize()
+    if length != n + k + 1: return -1
+
+    parent: mutable usize[MAX_N] = zeroed
+    depth: mutable usize[MAX_N] = zeroed
+    children: mutable usize[MAX_N * MAX_N] = zeroed
+    child_count: mutable usize[MAX_N] = zeroed
+    vertex: mutable usize = 1
+    while vertex < n:
+        p_value: i64 = input[vertex + 1]
+        if p_value < 0 or p_value >= n.i64() or p_value == vertex.i64(): return -1
+        p: usize = p_value.usize()
+        parent[vertex] <- p
+        children[p * MAX_N + child_count[p]] <- vertex
+        child_count[p] <- child_count[p] + 1
+        vertex <- vertex + 1
+    marks: mutable usize[MAX_K] = zeroed
+    i: mutable usize = 0
+    while i < k:
+        mark_value: i64 = input[n + 1 + i]
+        if mark_value < 0 or mark_value >= n.i64(): return -1
+        marks[i] <- mark_value.usize()
+        j: usize = 0
+        while j < i:
+            if marks[j] == marks[i]: return -1
+            j <- j + 1
+        i <- i + 1
+
+    tin: mutable usize[MAX_N] = zeroed
+    tout: mutable usize[MAX_N] = zeroed
+    stack_node: mutable usize[MAX_N] = zeroed
+    stack_next: mutable usize[MAX_N] = zeroed
+    for v in 0..<MAX_N:
+        tin[v] <- MAX_N
+        tout[v] <- MAX_N
+    timer: mutable usize = 0
+    top: mutable usize = 1
+    reached: mutable usize = 1
+    stack_node[0] <- 0
+    tin[0] <- timer
+    timer <- timer + 1
+    while top > 0:
+        frame: usize = top - 1
+        current: usize = stack_node[frame]
+        if stack_next[frame] == child_count[current]:
+            tout[current] <- timer
+            top <- top - 1
+            continue
+        child: usize = children[current * MAX_N + stack_next[frame]]
+        stack_next[frame] <- stack_next[frame] + 1
+        if tin[child] != MAX_N: return -1
+        tin[child] <- timer
+        timer <- timer + 1
+        depth[child] <- depth[current] + 1
+        reached <- reached + 1
+        stack_node[top] <- child
+        stack_next[top] <- 0
+        top <- top + 1
+    if reached != n: return -1
+
+    words: mutable i64[MAX_WORDS] = zeroed
+    word_count: mutable usize = 1
+    if k == 0: words[0] <- 0
+    else:
+        virtual_tree_sort(marks[0:MAX_K], k, tin[0:MAX_N])
+        nodes: mutable usize[MAX_CANDIDATES] = zeroed
+        count: mutable usize = 0
+        nodes[count] <- 0
+        count <- count + 1
+        for mark_index in 0..<k:
+            nodes[count] <- marks[mark_index]
+            count <- count + 1
+        mark_index: usize = 1
+        while mark_index < k:
+            nodes[count] <- virtual_tree_lca(marks[mark_index - 1], marks[mark_index],
+                                               parent[0:MAX_N], depth[0:MAX_N])
+            count <- count + 1
+            mark_index <- mark_index + 1
+        virtual_tree_sort(nodes[0:MAX_CANDIDATES], count, tin[0:MAX_N])
+        unique: mutable usize[MAX_VIRTUAL] = zeroed
+        unique_count: mutable usize = 0
+        for node_index in 0..<count:
+            if unique_count == 0 or unique[unique_count - 1] != nodes[node_index]:
+                unique[unique_count] <- nodes[node_index]
+                unique_count <- unique_count + 1
+        words[0] <- unique_count.i64()
+        stack: mutable usize[MAX_VIRTUAL] = zeroed
+        stack_size: mutable usize = 0
+        for node_index in 0..<unique_count:
+            current: usize = unique[node_index]
+            while stack_size > 0 and not virtual_tree_ancestor(stack[stack_size - 1], current,
+                                                                  tin[0:MAX_N], tout[0:MAX_N]):
+                stack_size <- stack_size - 1
+            virtual_parent: usize = current
+            if stack_size > 0: virtual_parent <- stack[stack_size - 1]
+            words[word_count] <- current.i64()
+            words[word_count + 1] <- virtual_parent.i64()
+            words[word_count + 2] <- (depth[current] - depth[virtual_parent]).i64()
+            word_count <- word_count + 3
+            stack[stack_size] <- current
+            stack_size <- stack_size + 1
+
+    byte_count: usize = word_count * 8
+    if output_is_null or capacity < byte_count: return -2
+    for word_index in 0..<word_count:
+        virtual_tree_put(output, word_index * 8, words[word_index])
+    byte_count.i64()
+
+def virtual_tree(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("virtual_tree"):
+    if input == null or length < 2 or length > MAX_INPUT: return -1
+    if output == null:
+        scratch: mutable u8[1] = zeroed
+        return virtual_tree_impl(input[0:length], scratch[0:1], capacity, True)
+    virtual_tree_impl(input[0:length], output[0:capacity], capacity, False)

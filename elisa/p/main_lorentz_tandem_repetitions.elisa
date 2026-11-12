@@ -1,0 +1,169 @@
+const ML_MAX_N: usize = 24
+const ML_MAX_REPETITIONS: usize = ML_MAX_N * ML_MAX_N / 4
+const ML_INPUT_MAX: usize = ML_MAX_N + 1
+const ML_Z_MAX: usize = 2 * ML_MAX_N + 1
+
+def ml_min(a: usize, b: usize) -> usize:
+    if a < b: a else: b
+
+def ml_max(a: usize, b: usize) -> usize:
+    if a > b: a else: b
+
+def ml_z_values(text: view[i64], length: usize, z: mutable view[usize]) -> void:
+    i: mutable usize = 0
+    while i < length:
+        z[i] <- 0
+        i <- i + 1
+    left: mutable usize = 0
+    right: mutable usize = 0
+    has_box: mutable bool = false
+    i <- 1
+    while i < length:
+        if has_box and i <= right:
+            remaining: usize = right - i + 1
+            if z[i - left] < remaining: z[i] <- z[i - left] else: z[i] <- remaining
+        while i + z[i] < length and text[z[i]] == text[i + z[i]]:
+            z[i] <- z[i] + 1
+        if not has_box or i + z[i] - 1 > right:
+            left <- i
+            right <- i + z[i] - 1
+            has_box <- true
+        i <- i + 1
+
+def ml_z_at(z: view[usize], length: usize, index: usize) -> usize:
+    if index < length: z[index] else: 0
+
+def ml_divide(symbols: view[i64], offset: usize, length: usize,
+        marked: mutable view[bool]) -> void:
+    if length <= 1: return
+    left_size: usize = length / 2
+    right_size: usize = length - left_size
+    middle: usize = offset + left_size
+    buffer: mutable i64[ML_Z_MAX] = zeroed
+    z: mutable usize[ML_Z_MAX] = zeroed
+    before: mutable usize[ML_MAX_N] = zeroed
+    after: mutable usize[ML_MAX_N] = zeroed
+    ml_divide(symbols, offset, left_size, marked)
+    ml_divide(symbols, middle, right_size, marked)
+
+    i: mutable usize = 0
+    while i < left_size:
+        buffer[i] <- symbols[middle - 1 - i]
+        i <- i + 1
+    ml_z_values(buffer[0:ML_Z_MAX], left_size, z[0:ML_Z_MAX])
+    center: mutable usize = 0
+    while center < left_size:
+        before[center] <- ml_z_at(z[0:ML_Z_MAX], left_size, left_size - center)
+        center <- center + 1
+
+    used: mutable usize = 0
+    i <- 0
+    while i < right_size:
+        buffer[used] <- symbols[middle + i]
+        used <- used + 1
+        i <- i + 1
+    buffer[used] <- -1
+    used <- used + 1
+    i <- 0
+    while i < left_size:
+        buffer[used] <- symbols[offset + i]
+        used <- used + 1
+        i <- i + 1
+    ml_z_values(buffer[0:ML_Z_MAX], used, z[0:ML_Z_MAX])
+    center <- 0
+    while center < left_size:
+        after[center] <- ml_z_at(z[0:ML_Z_MAX], used, right_size + 1 + center)
+        center <- center + 1
+
+    i <- 0
+    while i < left_size:
+        buffer[i] <- symbols[middle - 1 - i]
+        i <- i + 1
+    used <- left_size
+    buffer[used] <- -1
+    used <- used + 1
+    i <- 0
+    while i < right_size:
+        buffer[used] <- symbols[offset + length - 1 - i]
+        used <- used + 1
+        i <- i + 1
+    ml_z_values(buffer[0:ML_Z_MAX], used, z[0:ML_Z_MAX])
+    i <- 0
+    while i < right_size:
+        before[left_size + i] <- ml_z_at(z[0:ML_Z_MAX], used, left_size + 1 + right_size - 1 - i)
+        i <- i + 1
+
+    i <- 0
+    while i < right_size:
+        buffer[i] <- symbols[middle + i]
+        i <- i + 1
+    ml_z_values(buffer[0:ML_Z_MAX], right_size, z[0:ML_Z_MAX])
+    i <- 0
+    while i < right_size:
+        after[left_size + i] <- ml_z_at(z[0:ML_Z_MAX], right_size, i + 1)
+        i <- i + 1
+
+    center <- 0
+    while center < length:
+        left_biased: bool = center < left_size
+        half: mutable usize = center - left_size + 1
+        if left_biased: half <- left_size - center
+        if before[center] + after[center] >= half:
+            low: usize = ml_max(1, if half > after[center]: half - after[center] else: 0)
+            high: usize = ml_min(half, before[center])
+            first_half: mutable usize = low
+            while first_half <= high:
+                if not (left_biased and first_half == half):
+                    start: mutable usize = center - half - first_half + 1
+                    if left_biased: start <- center - first_half
+                    marked[(offset + start) * (ML_MAX_N + 1) + half] <- true
+                first_half <- first_half + 1
+        center <- center + 1
+
+def ml_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def main_lorentz_tandem_repetitions_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > ML_INPUT_MAX: return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > ML_MAX_N.i64() or length != n_value.usize() + 1: return -1
+    n: usize = n_value.usize()
+    symbols: mutable i64[ML_MAX_N] = zeroed
+    input_view: view[i64] = input[0:length]
+    i: mutable usize = 0
+    while i < n:
+        symbols[i] <- input_view[i + 1]
+        if symbols[i] < 0 or symbols[i] > 255: return -1
+        i <- i + 1
+
+    marked: mutable bool[ML_MAX_N * (ML_MAX_N + 1)] = zeroed
+    ml_divide(symbols[0:ML_MAX_N], 0, n, marked[0:ML_MAX_N * (ML_MAX_N + 1)])
+    codes: mutable i64[ML_MAX_REPETITIONS] = zeroed
+    count: mutable usize = 0
+    start: mutable usize = 0
+    while start < n:
+        half: mutable usize = 1
+        while half <= n / 2:
+            if start + 2 * half <= n and marked[start * (ML_MAX_N + 1) + half]:
+                codes[count] <- (start * 32 + half).i64()
+                count <- count + 1
+            half <- half + 1
+        start <- start + 1
+    required: usize = 8 * (count + 1)
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    ml_store(count.i64(), output_view, 0)
+    i <- 0
+    while i < count:
+        ml_store(codes[i], output_view, 8 * (i + 1))
+        i <- i + 1
+    required.i64()
+
+export fn main_lorentz_tandem_repetitions(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = main_lorentz_tandem_repetitions_impl

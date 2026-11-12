@@ -1,0 +1,37 @@
+const MIN_VERTICES: usize = 3
+const MAX_VERTICES: usize = 64
+const MAX_INPUT_LENGTH: usize = 131
+const MAX_COORDINATE: i64 = 1000000
+
+def point_in_polygon_impl(values: view[i64], n: usize, qx: i64, qy: i64) -> i64:
+    inside: mutable bool = false
+    for i in 0..<n:
+        j: usize = (i + 1) % n
+        ax: i64 = values[3 + 2 * i]
+        ay: i64 = values[4 + 2 * i]
+        bx: i64 = values[3 + 2 * j]
+        by: i64 = values[4 + 2 * j]
+        turn: i64 = (bx - ax) * (qy - ay) - (by - ay) * (qx - ax)
+        min_x: i64 = if ax < bx: ax else: bx
+        max_x: i64 = if ax > bx: ax else: bx
+        min_y: i64 = if ay < by: ay else: by
+        max_y: i64 = if ay > by: ay else: by
+        if turn == 0 and qx >= min_x and qx <= max_x and qy >= min_y and qy <= max_y:
+            return 1
+        if (ay > qy) != (by > qy) and ((by > ay and turn > 0) or (by < ay and turn < 0)):
+            inside <- not inside
+    if inside: 1 else: 0
+
+def point_in_polygon_ray_casting_impl(input: view[i64]) -> i64:
+    if input.len() < 9 or input.len() > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    if n_value < MIN_VERTICES.i64() or n_value > MAX_VERTICES.i64(): return -1
+    n: usize = n_value.usize()
+    if input.len() != 3 + 2 * n: return -1
+    for i in 1..<input.len():
+        if input[i] < -MAX_COORDINATE or input[i] > MAX_COORDINATE: return -1
+    point_in_polygon_impl(input, n, input[1], input[2])
+
+export fn point_in_polygon_ray_casting(values: i64&, length: usize) -> i64:
+    if values.is_null() or length > MAX_INPUT_LENGTH: return -1
+    point_in_polygon_ray_casting_impl(values[0:length])

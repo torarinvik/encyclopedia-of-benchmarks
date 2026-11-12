@@ -1,0 +1,103 @@
+const MAX_N: usize = 40
+const MAX_M: usize = 2047
+const MAX_INPUT: usize = 4096
+const MAX_OUTPUT: usize = 81
+
+def gabow_scc_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    if input[0] < 0 or input[0] > 40 or input[1] < 0 or input[1] > 2047: return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 2*m: return -1
+    adjacency: mutable u64[40] = zeroed
+    neighbors: mutable usize[1600] = zeroed
+    degree: mutable usize[40] = zeroed
+    for e in 0..<m:
+        source: i64 = input[2+2*e]
+        target: i64 = input[3+2*e]
+        if source < 0 or target < 0 or source >= n.i64() or target >= n.i64(): return -1
+        u: usize = source.usize()
+        v: usize = target.usize()
+        bit: u64 = 1u64 << v
+        if (adjacency[u] & bit) == 0:
+            adjacency[u] <- adjacency[u] | bit
+            neighbors[u*MAX_N+degree[u]] <- v
+            degree[u] <- degree[u] + 1
+    preorder: mutable i64[40] = zeroed
+    component: mutable i64[40] = zeroed
+    vertices: mutable usize[40] = zeroed
+    boundaries: mutable usize[40] = zeroed
+    dfs: mutable usize[40] = zeroed
+    next_neighbor: mutable usize[40] = zeroed
+    for v in 0..<n:
+        preorder[v] <- -1
+        component[v] <- -1
+    vertex_count: usize = 0
+    boundary_count: usize = 0
+    depth: usize = 0
+    clock: usize = 0
+    component_count: usize = 0
+    for root in 0..<n:
+        if preorder[root] >= 0: continue
+        preorder[root] <- clock.i64()
+        clock <- clock + 1
+        vertices[vertex_count] <- root
+        vertex_count <- vertex_count + 1
+        boundaries[boundary_count] <- root
+        boundary_count <- boundary_count + 1
+        dfs[depth] <- root
+        next_neighbor[depth] <- 0
+        depth <- depth + 1
+        while depth > 0:
+            frame: usize = depth - 1
+            v: usize = dfs[frame]
+            if next_neighbor[frame] < degree[v]:
+                w: usize = neighbors[v*MAX_N+next_neighbor[frame]]
+                next_neighbor[frame] <- next_neighbor[frame] + 1
+                if preorder[w] < 0:
+                    preorder[w] <- clock.i64()
+                    clock <- clock + 1
+                    vertices[vertex_count] <- w
+                    vertex_count <- vertex_count + 1
+                    boundaries[boundary_count] <- w
+                    boundary_count <- boundary_count + 1
+                    dfs[depth] <- w
+                    next_neighbor[depth] <- 0
+                    depth <- depth + 1
+                elif component[w] < 0:
+                    while boundary_count > 0 and preorder[boundaries[boundary_count-1]] > preorder[w]:
+                        boundary_count <- boundary_count - 1
+            else:
+                depth <- depth - 1
+                if boundary_count > 0 and boundaries[boundary_count-1] == v:
+                    boundary_count <- boundary_count - 1
+                    done: bool = false
+                    while not done:
+                        vertex_count <- vertex_count - 1
+                        member: usize = vertices[vertex_count]
+                        component[member] <- component_count.i64()
+                        done <- member == v
+                    component_count <- component_count + 1
+    staged: mutable u8[81] = zeroed
+    position: usize = 1
+    staged[0] <- component_count.u8()
+    for first in 0..<n:
+        id: i64 = component[first]
+        seen: bool = false
+        for earlier in 0..<first:
+            if component[earlier] == id: seen <- true
+        if seen: continue
+        size: usize = 0
+        for v in first..<n:
+            if component[v] == id: size <- size + 1
+        staged[position] <- size.u8()
+        position <- position + 1
+        for v in first..<n:
+            if component[v] == id:
+                staged[position] <- v.u8()
+                position <- position + 1
+    if output.is_null() or output_capacity < position: return -2
+    for q in 0..<position: output[q] <- staged[q]
+    position.i64()
+
+export fn gabow_scc(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = gabow_scc_impl

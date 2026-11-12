@@ -1,0 +1,204 @@
+const TRI_MAX_N: usize = 24
+const TRI_MAX_M: usize = 24
+const TRI_MAX_Q: usize = 128
+const TRI_INPUT_MAX: usize = 483
+const TRI_BIT_STRIDE: usize = 25
+
+def tri_angle_less(ax: i64, ay: i64, bx: i64, by: i64) -> bool:
+    ah: i64 = 2
+    bh: i64 = 2
+    if ay < 0: ah = 0
+    elif ay == 0 and ax >= 0: ah = 1
+    if by < 0: bh = 0
+    elif by == 0 and bx >= 0: bh = 1
+    if ah != bh: return ah < bh
+    return ax * by - ay * bx > 0
+
+def tri_direction_less(ax: i64, ay: i64, bx: i64, by: i64) -> bool:
+    if tri_angle_less(ax, ay, bx, by): return true
+    if tri_angle_less(bx, by, ax, ay): return false
+    ar: i64 = ax * ax + ay * ay
+    br: i64 = bx * bx + by * by
+    if ar != br: return ar < br
+    if ax != bx: return ax < bx
+    return ay < by
+
+def tri_lower_ray(anchor: usize, count: usize, rx: i64, ry: i64,
+        direction_x: view[i64], direction_y: view[i64]) -> usize:
+    base: usize = anchor * TRI_MAX_M
+    low: mutable usize = 0
+    high: mutable usize = count
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        if tri_angle_less(direction_x[base + middle], direction_y[base + middle], rx, ry): low <- middle + 1
+        else: high <- middle
+    low
+
+def tri_upper_ray(anchor: usize, count: usize, rx: i64, ry: i64,
+        direction_x: view[i64], direction_y: view[i64]) -> usize:
+    base: usize = anchor * TRI_MAX_M
+    low: mutable usize = 0
+    high: mutable usize = count
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        if not tri_angle_less(rx, ry, direction_x[base + middle], direction_y[base + middle]): low <- middle + 1
+        else: high <- middle
+    low
+
+def tri_fenwick_prefix(anchor: usize, end_value: usize, bit: view[i64]) -> i64:
+    base: usize = anchor * TRI_BIT_STRIDE
+    end: mutable usize = end_value
+    total: mutable i64 = 0
+    while end > 0:
+        total <- total + bit[base + end]
+        end <- end & (end - 1)
+    total
+
+def tri_arc_count(anchor: usize, count: usize, sx: i64, sy: i64, ex: i64, ey: i64,
+        direction_x: view[i64], direction_y: view[i64], bit: view[i64]) -> i64:
+    left: usize = tri_lower_ray(anchor, count, sx, sy, direction_x, direction_y)
+    right: usize = tri_upper_ray(anchor, count, ex, ey, direction_x, direction_y)
+    if not tri_angle_less(ex, ey, sx, sy):
+        tri_fenwick_prefix(anchor, right, bit) - tri_fenwick_prefix(anchor, left, bit)
+    else:
+        tri_fenwick_prefix(anchor, count, bit) - tri_fenwick_prefix(anchor, left, bit) + tri_fenwick_prefix(anchor, right, bit)
+
+def tri_halfplane_count(u: usize, v: usize, a_x: view[i64], a_y: view[i64],
+        counts: view[i64], zero_counts: view[i64], direction_x: view[i64], direction_y: view[i64], bit: view[i64]) -> i64:
+    dx: i64 = a_x[v] - a_x[u]
+    dy: i64 = a_y[v] - a_y[u]
+    zero_counts[u] + tri_arc_count(u, counts[u].usize(), -dx, -dy, dx, dy, direction_x, direction_y, bit)
+
+def tri_store_le(value: i64, output: mutable view[u8], position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def count_points_in_triangle_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > TRI_INPUT_MAX: return -1
+    input_view: view[i64] = input[0:length]
+    nr: i64 = input_view[0]
+    mr: i64 = input_view[1]
+    qr: i64 = input_view[2]
+    if nr < 1 or nr > TRI_MAX_N.i64() or mr < 1 or mr > TRI_MAX_M.i64() or qr < 1 or qr > TRI_MAX_Q.i64(): return -1
+    n: usize = nr.usize()
+    m: usize = mr.usize()
+    q: usize = qr.usize()
+    if length != 3 + 2 * n + 2 * m + 3 * q: return -1
+    a_x: mutable i64[TRI_MAX_N] = zeroed
+    a_y: mutable i64[TRI_MAX_N] = zeroed
+    b_x: mutable i64[TRI_MAX_M] = zeroed
+    b_y: mutable i64[TRI_MAX_M] = zeroed
+    queries: mutable i64[3 * TRI_MAX_Q] = zeroed
+    cursor: mutable usize = 3
+    i: mutable usize = 0
+    while i < n:
+        a_x[i] <- input_view[cursor]
+        a_y[i] <- input_view[cursor + 1]
+        cursor <- cursor + 2
+        if a_x[i] < -1000000000 or a_x[i] > 1000000000 or a_y[i] < -1000000000 or a_y[i] > 1000000000: return -1
+        i <- i + 1
+    i <- 0
+    while i < m:
+        b_x[i] <- input_view[cursor]
+        b_y[i] <- input_view[cursor + 1]
+        cursor <- cursor + 2
+        if b_x[i] < -1000000000 or b_x[i] > 1000000000 or b_y[i] < -1000000000 or b_y[i] > 1000000000: return -1
+        i <- i + 1
+    i <- 0
+    while i < q:
+        ia: i64 = input_view[cursor]
+        ib: i64 = input_view[cursor + 1]
+        ic: i64 = input_view[cursor + 2]
+        cursor <- cursor + 3
+        if ia < 0 or ia >= nr or ib < 0 or ib >= nr or ic < 0 or ic >= nr: return -1
+        queries[3 * i] <- ia
+        queries[3 * i + 1] <- ib
+        queries[3 * i + 2] <- ic
+        i <- i + 1
+    required: usize = 8 * q
+    if output.is_null() or capacity < required: return -2
+
+    direction_x: mutable i64[TRI_MAX_N * TRI_MAX_M] = zeroed
+    direction_y: mutable i64[TRI_MAX_N * TRI_MAX_M] = zeroed
+    counts: mutable i64[TRI_MAX_N] = zeroed
+    zero_counts: mutable i64[TRI_MAX_N] = zeroed
+    bit: mutable i64[TRI_MAX_N * TRI_BIT_STRIDE] = zeroed
+    u: mutable usize = 0
+    while u < n:
+        base: usize = u * TRI_MAX_M
+        j: mutable usize = 0
+        while j < m:
+            dx: i64 = b_x[j] - a_x[u]
+            dy: i64 = b_y[j] - a_y[u]
+            if dx == 0 and dy == 0: zero_counts[u] <- zero_counts[u] + 1
+            else:
+                at: usize = counts[u].usize()
+                direction_x[base + at] <- dx
+                direction_y[base + at] <- dy
+                counts[u] <- counts[u] + 1
+            j <- j + 1
+        i <- 1
+        while i < counts[u].usize():
+            item_x: i64 = direction_x[base + i]
+            item_y: i64 = direction_y[base + i]
+            pos: mutable usize = i
+            while pos > 0 and tri_direction_less(item_x, item_y, direction_x[base + pos - 1], direction_y[base + pos - 1]):
+                direction_x[base + pos] <- direction_x[base + pos - 1]
+                direction_y[base + pos] <- direction_y[base + pos - 1]
+                pos <- pos - 1
+            direction_x[base + pos] <- item_x
+            direction_y[base + pos] <- item_y
+            i <- i + 1
+        bit_base: usize = u * TRI_BIT_STRIDE
+        i <- 0
+        while i < counts[u].usize():
+            at: mutable usize = i + 1
+            while at <= counts[u].usize():
+                bit[bit_base + at] <- bit[bit_base + at] + 1
+                step: mutable usize = 1
+                while at % (2 * step) == 0: step <- step * 2
+                at <- at + step
+            i <- i + 1
+        u <- u + 1
+
+    answers: mutable i64[TRI_MAX_Q] = zeroed
+    qi: mutable usize = 0
+    while qi < q:
+        ia: usize = queries[3 * qi].usize()
+        ib: mutable usize = queries[3 * qi + 1].usize()
+        ic: mutable usize = queries[3 * qi + 2].usize()
+        orient: i64 = (a_x[ib] - a_x[ia]) * (a_y[ic] - a_y[ia]) - (a_y[ib] - a_y[ia]) * (a_x[ic] - a_x[ia])
+        if orient == 0:
+            answers[qi] <- 0
+            qi <- qi + 1
+            continue
+        if orient < 0:
+            temp: usize = ib
+            ib <- ic
+            ic <- temp
+        a_x_view: view[i64] = a_x[0:n]
+        a_y_view: view[i64] = a_y[0:n]
+        counts_view: view[i64] = counts[0:TRI_MAX_N]
+        zeros_view: view[i64] = zero_counts[0:TRI_MAX_N]
+        dx_view: view[i64] = direction_x[0:TRI_MAX_N * TRI_MAX_M]
+        dy_view: view[i64] = direction_y[0:TRI_MAX_N * TRI_MAX_M]
+        bit_view: view[i64] = bit[0:TRI_MAX_N * TRI_BIT_STRIDE]
+        outside: i64 = tri_halfplane_count(ia, ib, a_x_view, a_y_view, counts_view, zeros_view, dx_view, dy_view, bit_view)
+        outside <- outside + tri_halfplane_count(ib, ic, a_x_view, a_y_view, counts_view, zeros_view, dx_view, dy_view, bit_view)
+        outside <- outside + tri_halfplane_count(ic, ia, a_x_view, a_y_view, counts_view, zeros_view, dx_view, dy_view, bit_view)
+        pair_sum: i64 = zero_counts[ib] + tri_arc_count(ib, counts[ib].usize(), a_x[ib] - a_x[ic], a_y[ib] - a_y[ic], a_x[ib] - a_x[ia], a_y[ib] - a_y[ia], dx_view, dy_view, bit_view)
+        pair_sum <- pair_sum + zero_counts[ic] + tri_arc_count(ic, counts[ic].usize(), a_x[ic] - a_x[ia], a_y[ic] - a_y[ia], a_x[ic] - a_x[ib], a_y[ic] - a_y[ib], dx_view, dy_view, bit_view)
+        pair_sum <- pair_sum + zero_counts[ia] + tri_arc_count(ia, counts[ia].usize(), a_x[ia] - a_x[ib], a_y[ia] - a_y[ib], a_x[ia] - a_x[ic], a_y[ia] - a_y[ic], dx_view, dy_view, bit_view)
+        answers[qi] <- m.i64() - outside + pair_sum
+        qi <- qi + 1
+    output_view: mutable view[u8] = output[0:required]
+    i <- 0
+    while i < q:
+        tri_store_le(answers[i], output_view, 8 * i)
+        i <- i + 1
+    required.i64()
+
+export fn count_points_in_triangle(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = count_points_in_triangle_impl

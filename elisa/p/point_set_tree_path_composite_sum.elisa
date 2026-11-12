@@ -1,0 +1,578 @@
+const PTS_MAX_N: usize = 16
+const PTS_MAX_Q: usize = 32
+const PTS_MAX_E: usize = PTS_MAX_N - 1
+const PTS_MAX_CLUSTERS: usize = 75
+const PTS_MAX_INPUT: usize = 238
+const PTS_MOD: i64 = 998_244_353
+const PTS_VERTEX: i16 = 0
+const PTS_EDGE: i16 = 1
+const PTS_RAKE: i16 = 2
+const PTS_BRANCH: i16 = 3
+const PTS_ATTACH: i16 = 4
+const PTS_COMPRESS: i16 = 5
+
+struct PtsAffine:
+    multiplier: i64
+    addend: i64
+
+struct PtsCluster:
+    kind: i16
+    a: i16
+    b: i16
+    parent: i16
+    shared: i16
+    boundary0: i16
+    boundary1: i16
+    boundary_count: i16
+    edge_id: i16
+    has0: bool
+    has1: bool
+    mask: u16
+    count: i32
+    sum0: i64
+    sum1: i64
+    forward: PtsAffine
+    reverse: PtsAffine
+
+struct PtsOutside:
+    sum0: i64
+    count0: i64
+    sum1: i64
+    count1: i64
+
+struct PtsSumCount:
+    sum: i64
+    count: i64
+
+struct PtsState:
+    nodes: PtsCluster[PTS_MAX_CLUSTERS]
+    values: i64[PTS_MAX_N]
+    edge_map: PtsAffine[PTS_MAX_E]
+    edge_u: i16[PTS_MAX_E]
+    edge_v: i16[PTS_MAX_E]
+    vertex_leaf: i16[PTS_MAX_N]
+    edge_leaf: i16[PTS_MAX_E]
+    adjacency: u8[PTS_MAX_N * PTS_MAX_N]
+    edge_cluster: i16[PTS_MAX_N * PTS_MAX_N]
+    active: u8[PTS_MAX_N]
+    branches: i16[PTS_MAX_N * PTS_MAX_N]
+    branch_count: usize[PTS_MAX_N]
+    node_count: usize
+
+def pts_mod(value: i64) -> i64:
+    remainder: i64 = value % PTS_MOD
+    if remainder < 0: return remainder + PTS_MOD
+    remainder
+
+def pts_identity() -> PtsAffine:
+    PtsAffine{multiplier: 1, addend: 0}
+
+def pts_compose(outer: PtsAffine, inner: PtsAffine) -> PtsAffine:
+    PtsAffine{
+        multiplier: outer.multiplier * inner.multiplier % PTS_MOD,
+        addend: (outer.multiplier * inner.addend + outer.addend) % PTS_MOD,
+    }
+
+def pts_apply(mapping: PtsAffine, sum: i64, count: i64) -> i64:
+    (mapping.multiplier * sum + mapping.addend * count) % PTS_MOD
+
+def pts_boundary_index(node: PtsCluster, vertex: i16) -> i16:
+    if node.boundary0 == vertex: return 0
+    if node.boundary_count == 2 and node.boundary1 == vertex: return 1
+    -1
+
+def pts_has(node: PtsCluster, vertex: i16) -> bool:
+    index: i16 = pts_boundary_index(node, vertex)
+    if index == 0: return node.has0
+    if index == 1: return node.has1
+    false
+
+def pts_sum_at(node: PtsCluster, vertex: i16) -> i64:
+    if pts_boundary_index(node, vertex) == 0: return node.sum0
+    node.sum1
+
+def pts_map_at(node: PtsCluster, from: i16, to: i16) -> PtsAffine:
+    if from == to or node.boundary_count != 2: return pts_identity()
+    if node.boundary0 == from and node.boundary1 == to: return node.forward
+    node.reverse
+
+def pts_recalculate(state: mutable PtsState&, node_id: usize) -> void:
+    kind: i16 = state.nodes[node_id].kind
+    if kind == PTS_VERTEX:
+        vertex: usize = state.nodes[node_id].boundary0.usize()
+        state.nodes[node_id].count <- 1
+        state.nodes[node_id].mask <- (1.u16() << vertex)
+        state.nodes[node_id].sum0 <- state.values[vertex]
+        state.nodes[node_id].has0 <- true
+        return
+    if kind == PTS_EDGE:
+        edge_id: usize = state.nodes[node_id].edge_id.usize()
+        state.nodes[node_id].forward <- state.edge_map[edge_id]
+        state.nodes[node_id].reverse <- state.edge_map[edge_id]
+        return
+
+    parent: PtsCluster = state.nodes[node_id]
+    a: PtsCluster = state.nodes[parent.a.usize()]
+    b: PtsCluster = state.nodes[parent.b.usize()]
+    shared: i16 = parent.shared
+    overlap: bool = pts_has(a, shared) and pts_has(b, shared)
+    duplicate_count: i64 = if overlap then 1 else 0
+    duplicate: i64 = if overlap then state.values[shared.usize()] else 0
+    state.nodes[node_id].count <- (a.count.i64() + b.count.i64() - duplicate_count).i32()
+    state.nodes[node_id].mask <- a.mask | b.mask
+
+    for index in 0..<parent.boundary_count.usize():
+        boundary: i16 = if index == 0 then parent.boundary0 else parent.boundary1
+        total: mutable i64 = 0
+        if boundary == shared:
+            total <- pts_mod(pts_sum_at(a, shared) + pts_sum_at(b, shared) - duplicate)
+        elif pts_boundary_index(a, boundary) >= 0:
+            sibling_sum: i64 = pts_mod(pts_sum_at(b, shared) - duplicate)
+            total <- (pts_sum_at(a, boundary) +
+                pts_apply(pts_map_at(a, boundary, shared), sibling_sum,
+                          b.count.i64() - duplicate_count)) % PTS_MOD
+        else:
+            sibling_sum: i64 = pts_mod(pts_sum_at(a, shared) - duplicate)
+            total <- (pts_sum_at(b, boundary) +
+                pts_apply(pts_map_at(b, boundary, shared), sibling_sum,
+                          a.count.i64() - duplicate_count)) % PTS_MOD
+        has_boundary: bool = pts_has(a, boundary) or pts_has(b, boundary)
+        if index == 0:
+            state.nodes[node_id].sum0 <- total
+            state.nodes[node_id].has0 <- has_boundary
+        else:
+            state.nodes[node_id].sum1 <- total
+            state.nodes[node_id].has1 <- has_boundary
+
+    if parent.boundary_count == 2:
+        u: i16 = parent.boundary0
+        v: i16 = parent.boundary1
+        a_has_u: bool = pts_boundary_index(a, u) >= 0
+        a_has_v: bool = pts_boundary_index(a, v) >= 0
+        b_has_u: bool = pts_boundary_index(b, u) >= 0
+        b_has_v: bool = pts_boundary_index(b, v) >= 0
+        forward: mutable PtsAffine = pts_identity()
+        reverse: mutable PtsAffine = pts_identity()
+        if a_has_u and a_has_v:
+            forward <- pts_map_at(a, u, v)
+            reverse <- pts_map_at(a, v, u)
+        elif b_has_u and b_has_v:
+            forward <- pts_map_at(b, u, v)
+            reverse <- pts_map_at(b, v, u)
+        else:
+            forward <- pts_compose(pts_map_at(a, u, shared), pts_map_at(b, shared, v))
+            reverse <- pts_compose(pts_map_at(b, v, shared), pts_map_at(a, shared, u))
+        state.nodes[node_id].forward <- forward
+        state.nodes[node_id].reverse <- reverse
+
+def pts_append(state: mutable PtsState&, kind: i16, a_id: i16, b_id: i16,
+               shared: i16) -> i16:
+    if state.node_count >= PTS_MAX_CLUSTERS: return -1
+    id: usize = state.node_count
+    state.node_count <- state.node_count + 1
+    state.nodes[id].kind <- kind
+    state.nodes[id].a <- a_id
+    state.nodes[id].b <- b_id
+    state.nodes[id].parent <- -1
+    state.nodes[id].shared <- shared
+    state.nodes[id].boundary0 <- -1
+    state.nodes[id].boundary1 <- -1
+    state.nodes[id].boundary_count <- 1
+    state.nodes[id].edge_id <- -1
+    state.nodes[id].has0 <- false
+    state.nodes[id].has1 <- false
+    state.nodes[id].mask <- 0
+    state.nodes[id].count <- 0
+    state.nodes[id].sum0 <- 0
+    state.nodes[id].sum1 <- 0
+    state.nodes[id].forward <- pts_identity()
+    state.nodes[id].reverse <- pts_identity()
+
+    if kind == PTS_VERTEX:
+        state.nodes[id].boundary0 <- shared
+    elif kind == PTS_EDGE:
+        state.nodes[id].boundary0 <- a_id
+        state.nodes[id].boundary1 <- b_id
+        state.nodes[id].boundary_count <- 2
+        state.nodes[id].edge_id <- shared
+    else:
+        a: PtsCluster = state.nodes[a_id.usize()]
+        b: PtsCluster = state.nodes[b_id.usize()]
+        a_other: i16 = if a.boundary_count == 2 and a.boundary0 == shared then a.boundary1 else a.boundary0
+        b_other: i16 = if b.boundary_count == 2 and b.boundary0 == shared then b.boundary1 else b.boundary0
+        if kind == PTS_RAKE:
+            state.nodes[id].boundary0 <- shared
+        elif kind == PTS_BRANCH:
+            state.nodes[id].boundary0 <- a_other
+        elif kind == PTS_ATTACH:
+            state.nodes[id].boundary0 <- a.boundary0
+            state.nodes[id].boundary1 <- a.boundary1
+            state.nodes[id].boundary_count <- 2
+        else:
+            state.nodes[id].boundary0 <- a_other
+            state.nodes[id].boundary1 <- b_other
+            state.nodes[id].boundary_count <- 2
+        state.nodes[a_id.usize()].parent <- id.i16()
+        state.nodes[b_id.usize()].parent <- id.i16()
+    pts_recalculate(state&, id)
+    id.i16()
+
+def pts_make_rake(state: mutable PtsState&, base: i16, vertex: usize) -> i16:
+    level: mutable i16[17] = zeroed
+    next: mutable i16[17] = zeroed
+    count: mutable usize = 1
+    level[0] <- base
+    for i in 0..<state.branch_count[vertex]:
+        level[count] <- state.branches[vertex * PTS_MAX_N + i]
+        count <- count + 1
+    while count > 1:
+        next_count: mutable usize = 0
+        i: mutable usize = 0
+        while i < count:
+            if i + 1 == count:
+                next[next_count] <- level[i]
+                next_count <- next_count + 1
+            else:
+                shared: i16 = state.nodes[level[i].usize()].boundary0
+                merged: i16 = pts_append(state&, PTS_RAKE, level[i], level[i + 1], shared)
+                if merged < 0: return -1
+                next[next_count] <- merged
+                next_count <- next_count + 1
+            i <- i + 2
+        for j in 0..<next_count: level[j] <- next[j]
+        count <- next_count
+    level[0]
+
+def pts_neighbor_count(state: PtsState&, n: usize, vertex: usize,
+                       output: mutable view[i16]) -> usize:
+    count: mutable usize = 0
+    for other in 0..<n:
+        edge_at: usize = vertex * PTS_MAX_N + other
+        if state.active[other] != 0 and state.adjacency[edge_at] != 0:
+            if count < 2: output[count] <- other.i16()
+            count <- count + 1
+    count
+
+def pts_find_root(parent: mutable view[i32], initial: usize) -> usize:
+    vertex: mutable usize = initial
+    while parent[vertex].usize() != vertex:
+        parent[vertex] <- parent[parent[vertex].usize()]
+        vertex <- parent[vertex].usize()
+    vertex
+
+def pts_context_at(parent: PtsCluster, outside: PtsOutside,
+                   vertex: i16) -> PtsSumCount:
+    index: i16 = pts_boundary_index(parent, vertex)
+    if index == 0: return PtsSumCount{sum: outside.sum0, count: outside.count0}
+    if index == 1: return PtsSumCount{sum: outside.sum1, count: outside.count1}
+    PtsSumCount{sum: 0, count: 0}
+
+def pts_child_context(state: PtsState&, parent_id: usize, child_id: usize,
+                      outside: PtsOutside, values: view[i64]) -> PtsOutside:
+    parent: PtsCluster = state.nodes[parent_id]
+    child: PtsCluster = state.nodes[child_id]
+    sibling_id: usize = if child_id == parent.a.usize() then parent.b.usize() else parent.a.usize()
+    sibling: PtsCluster = state.nodes[sibling_id]
+    shared: i16 = parent.shared
+    overlap: bool = pts_has(child, shared) and pts_has(sibling, shared)
+    duplicate_count: i64 = if overlap then 1 else 0
+    duplicate: i64 = if overlap then values[shared.usize()] else 0
+    count_at_shared: mutable i64 = sibling.count.i64() - duplicate_count
+    sum_at_shared: mutable i64 = pts_mod(pts_sum_at(sibling, shared) - duplicate)
+
+    for index in 0..<sibling.boundary_count.usize():
+        boundary: i16 = if index == 0 then sibling.boundary0 else sibling.boundary1
+        if pts_boundary_index(parent, boundary) < 0: continue
+        inherited: PtsSumCount = pts_context_at(parent, outside, boundary)
+        sum_at_shared <- (sum_at_shared +
+            pts_apply(pts_map_at(sibling, shared, boundary), inherited.sum, inherited.count)) % PTS_MOD
+        count_at_shared <- count_at_shared + inherited.count
+
+    result: mutable PtsOutside = zeroed
+    for index in 0..<child.boundary_count.usize():
+        boundary: i16 = if index == 0 then child.boundary0 else child.boundary1
+        out_sum: mutable i64 = sum_at_shared
+        out_count: mutable i64 = count_at_shared
+        if boundary != shared:
+            out_sum <- pts_apply(pts_map_at(child, boundary, shared), sum_at_shared, count_at_shared)
+            if pts_boundary_index(parent, boundary) >= 0:
+                inherited: PtsSumCount = pts_context_at(parent, outside, boundary)
+                out_sum <- (out_sum + inherited.sum) % PTS_MOD
+                out_count <- out_count + inherited.count
+        if index == 0:
+            result.sum0 <- out_sum
+            result.count0 <- out_count
+        else:
+            result.sum1 <- out_sum
+            result.count1 <- out_count
+    result
+
+def pts_query(state: PtsState&, root: usize, vertex: usize) -> i64:
+    path: mutable i16[PTS_MAX_CLUSTERS] = zeroed
+    path_length: mutable usize = 1
+    path[0] <- state.vertex_leaf[vertex]
+    while path[path_length - 1].usize() != root and path_length < PTS_MAX_CLUSTERS:
+        parent: i16 = state.nodes[path[path_length - 1].usize()].parent
+        if parent < 0: return -1
+        path[path_length] <- parent
+        path_length <- path_length + 1
+    if path[path_length - 1].usize() != root: return -1
+    outside: mutable PtsOutside = zeroed
+    step: mutable usize = path_length - 1
+    while step > 0:
+        outside <- pts_child_context(state&, path[step].usize(), path[step - 1].usize(),
+                                     outside, state.values[0:PTS_MAX_N])
+        step <- step - 1
+    leaf: usize = state.vertex_leaf[vertex].usize()
+    (state.nodes[leaf].sum0 + outside.sum0) % PTS_MOD
+
+def pts_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def point_set_tree_path_composite_sum_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > PTS_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    q_value: i64 = input_view[1]
+    if n_value < 1 or n_value > PTS_MAX_N.i64() or q_value < 1 or q_value > PTS_MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    state: mutable PtsState = zeroed
+    cursor: mutable usize = 2
+    for vertex in 0..<n:
+        if cursor >= length: return -1
+        value: i64 = input_view[cursor]
+        if value < 0 or value >= PTS_MOD: return -1
+        state.values[vertex] <- value
+        cursor <- cursor + 1
+
+    parent: mutable i32[PTS_MAX_N] = zeroed
+    for vertex in 0..<n: parent[vertex] <- vertex.i32()
+    for edge in 0..<(n - 1):
+        if cursor + 4 > length: return -1
+        u_value: i64 = input_view[cursor]
+        v_value: i64 = input_view[cursor + 1]
+        multiplier: i64 = input_view[cursor + 2]
+        addend: i64 = input_view[cursor + 3]
+        cursor <- cursor + 4
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value: return -1
+        if multiplier < 1 or multiplier >= PTS_MOD or addend < 0 or addend >= PTS_MOD: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        root_u: usize = pts_find_root(parent[0:PTS_MAX_N], u)
+        root_v: usize = pts_find_root(parent[0:PTS_MAX_N], v)
+        if root_u == root_v: return -1
+        parent[root_u] <- root_v.i32()
+        state.edge_u[edge] <- u.i16()
+        state.edge_v[edge] <- v.i16()
+        state.edge_map[edge] <- PtsAffine{multiplier: multiplier, addend: addend}
+    root0: usize = pts_find_root(parent[0:PTS_MAX_N], 0)
+    for vertex in 1..<n:
+        if pts_find_root(parent[0:PTS_MAX_N], vertex) != root0: return -1
+
+    op_code: mutable i16[PTS_MAX_Q] = zeroed
+    op_item: mutable i16[PTS_MAX_Q] = zeroed
+    op_root: mutable i16[PTS_MAX_Q] = zeroed
+    op_first: mutable i64[PTS_MAX_Q] = zeroed
+    op_second: mutable i64[PTS_MAX_Q] = zeroed
+    for operation in 0..<q:
+        if cursor >= length: return -1
+        opcode: i64 = input_view[cursor]
+        cursor <- cursor + 1
+        if opcode == 0:
+            if cursor + 3 > length: return -1
+            item: i64 = input_view[cursor]
+            value: i64 = input_view[cursor + 1]
+            root: i64 = input_view[cursor + 2]
+            cursor <- cursor + 3
+            if item < 0 or item >= n_value or value < 0 or value >= PTS_MOD or root < 0 or root >= n_value: return -1
+            op_code[operation] <- 0
+            op_item[operation] <- item.i16()
+            op_first[operation] <- value
+            op_root[operation] <- root.i16()
+        elif opcode == 1:
+            if cursor + 4 > length: return -1
+            item: i64 = input_view[cursor]
+            multiplier: i64 = input_view[cursor + 1]
+            addend: i64 = input_view[cursor + 2]
+            root: i64 = input_view[cursor + 3]
+            cursor <- cursor + 4
+            if item < 0 or item >= n_value - 1 or multiplier < 1 or multiplier >= PTS_MOD or addend < 0 or addend >= PTS_MOD or root < 0 or root >= n_value: return -1
+            op_code[operation] <- 1
+            op_item[operation] <- item.i16()
+            op_first[operation] <- multiplier
+            op_second[operation] <- addend
+            op_root[operation] <- root.i16()
+        else:
+            return -1
+    if cursor != length: return -1
+    required: usize = 8 * q
+    if output.is_null() or capacity < required: return -2
+
+    state.node_count <- 0
+    for index in 0..<(PTS_MAX_N * PTS_MAX_N): state.edge_cluster[index] <- -1
+    for vertex in 0..<n:
+        leaf: i16 = pts_append(state&, PTS_VERTEX, -1, -1, vertex.i16())
+        if leaf < 0: return -1
+        state.vertex_leaf[vertex] <- leaf
+    for edge in 0..<(n - 1):
+        u: usize = state.edge_u[edge].usize()
+        v: usize = state.edge_v[edge].usize()
+        leaf: i16 = pts_append(state&, PTS_EDGE, u.i16(), v.i16(), edge.i16())
+        if leaf < 0: return -1
+        state.edge_leaf[edge] <- leaf
+        state.adjacency[u * PTS_MAX_N + v] <- 1
+        state.adjacency[v * PTS_MAX_N + u] <- 1
+        state.edge_cluster[u * PTS_MAX_N + v] <- leaf
+        state.edge_cluster[v * PTS_MAX_N + u] <- leaf
+    for vertex in 0..<n: state.active[vertex] <- 1
+    active_count: mutable usize = n
+    while active_count > 1:
+        if active_count == 2:
+            pair: mutable usize[2] = zeroed
+            found: mutable usize = 0
+            for vertex in 0..<n:
+                if state.active[vertex] != 0:
+                    pair[found] <- vertex
+                    found <- found + 1
+            x: usize = pair[0]
+            y: usize = pair[1]
+            local: i16 = pts_make_rake(state&, state.vertex_leaf[x], x)
+            if local < 0: return -1
+            edge_cluster: i16 = state.edge_cluster[x * PTS_MAX_N + y]
+            branch: i16 = pts_append(state&, PTS_BRANCH, edge_cluster, local, x.i16())
+            if branch < 0 or state.branch_count[y] >= PTS_MAX_N: return -1
+            state.branches[y * PTS_MAX_N + state.branch_count[y]] <- branch
+            state.branch_count[y] <- state.branch_count[y] + 1
+            state.adjacency[x * PTS_MAX_N + y] <- 0
+            state.adjacency[y * PTS_MAX_N + x] <- 0
+            state.edge_cluster[x * PTS_MAX_N + y] <- -1
+            state.edge_cluster[y * PTS_MAX_N + x] <- -1
+            state.active[x] <- 0
+            active_count <- active_count - 1
+            break
+
+        leaves: mutable usize[PTS_MAX_N] = zeroed
+        leaf_neighbors: mutable usize[PTS_MAX_N] = zeroed
+        leaf_count: mutable usize = 0
+        for vertex in 0..<n:
+            if state.active[vertex] != 0:
+                adjacent: mutable i16[2] = zeroed
+                if pts_neighbor_count(state&, n, vertex, adjacent[0:2]) == 1:
+                    leaves[leaf_count] <- vertex
+                    leaf_neighbors[leaf_count] <- adjacent[0].usize()
+                    leaf_count <- leaf_count + 1
+        for i in 0..<leaf_count:
+            x: usize = leaves[i]
+            y: usize = leaf_neighbors[i]
+            local: i16 = pts_make_rake(state&, state.vertex_leaf[x], x)
+            if local < 0: return -1
+            edge: i16 = state.edge_cluster[x * PTS_MAX_N + y]
+            branch: i16 = pts_append(state&, PTS_BRANCH, edge, local, x.i16())
+            if branch < 0 or state.branch_count[y] >= PTS_MAX_N: return -1
+            state.branches[y * PTS_MAX_N + state.branch_count[y]] <- branch
+            state.branch_count[y] <- state.branch_count[y] + 1
+        for i in 0..<leaf_count:
+            x: usize = leaves[i]
+            y: usize = leaf_neighbors[i]
+            state.adjacency[x * PTS_MAX_N + y] <- 0
+            state.adjacency[y * PTS_MAX_N + x] <- 0
+            state.edge_cluster[x * PTS_MAX_N + y] <- -1
+            state.edge_cluster[y * PTS_MAX_N + x] <- -1
+            state.active[x] <- 0
+            active_count <- active_count - 1
+        if active_count <= 1: break
+
+        chosen: mutable u8[PTS_MAX_N] = zeroed
+        compress_vertices: mutable usize[PTS_MAX_N] = zeroed
+        compress_count: mutable usize = 0
+        for x in 0..<n:
+            if state.active[x] != 0:
+                adjacent: mutable i16[2] = zeroed
+                if pts_neighbor_count(state&, n, x, adjacent[0:2]) != 2: continue
+                y: usize = adjacent[0].usize()
+                z: usize = adjacent[1].usize()
+                if chosen[y] == 0 and chosen[z] == 0:
+                    chosen[x] <- 1
+                    compress_vertices[compress_count] <- x
+                    compress_count <- compress_count + 1
+
+        pending_x: mutable usize[PTS_MAX_N] = zeroed
+        pending_y: mutable usize[PTS_MAX_N] = zeroed
+        pending_z: mutable usize[PTS_MAX_N] = zeroed
+        pending_cluster: mutable i16[PTS_MAX_N] = zeroed
+        for i in 0..<compress_count:
+            x: usize = compress_vertices[i]
+            adjacent: mutable i16[2] = zeroed
+            pts_neighbor_count(state&, n, x, adjacent[0:2])
+            y: usize = adjacent[0].usize()
+            z: usize = adjacent[1].usize()
+            local: i16 = pts_make_rake(state&, state.vertex_leaf[x], x)
+            if local < 0: return -1
+            first_edge: i16 = state.edge_cluster[y * PTS_MAX_N + x]
+            second_edge: i16 = state.edge_cluster[x * PTS_MAX_N + z]
+            attached: i16 = pts_append(state&, PTS_ATTACH, first_edge, local, x.i16())
+            if attached < 0: return -1
+            compressed: i16 = pts_append(state&, PTS_COMPRESS, attached, second_edge, x.i16())
+            if compressed < 0: return -1
+            pending_x[i] <- x
+            pending_y[i] <- y
+            pending_z[i] <- z
+            pending_cluster[i] <- compressed
+        for i in 0..<compress_count:
+            x: usize = pending_x[i]
+            y: usize = pending_y[i]
+            z: usize = pending_z[i]
+            state.adjacency[y * PTS_MAX_N + x] <- 0
+            state.adjacency[x * PTS_MAX_N + y] <- 0
+            state.adjacency[x * PTS_MAX_N + z] <- 0
+            state.adjacency[z * PTS_MAX_N + x] <- 0
+            state.edge_cluster[y * PTS_MAX_N + x] <- -1
+            state.edge_cluster[x * PTS_MAX_N + y] <- -1
+            state.edge_cluster[x * PTS_MAX_N + z] <- -1
+            state.edge_cluster[z * PTS_MAX_N + x] <- -1
+            state.active[x] <- 0
+            active_count <- active_count - 1
+        for i in 0..<compress_count:
+            y: usize = pending_y[i]
+            z: usize = pending_z[i]
+            state.adjacency[y * PTS_MAX_N + z] <- 1
+            state.adjacency[z * PTS_MAX_N + y] <- 1
+            state.edge_cluster[y * PTS_MAX_N + z] <- pending_cluster[i]
+            state.edge_cluster[z * PTS_MAX_N + y] <- pending_cluster[i]
+
+    root_vertex: mutable usize = 0
+    while state.active[root_vertex] == 0: root_vertex <- root_vertex + 1
+    root_rake: i16 = pts_make_rake(state&, state.vertex_leaf[root_vertex], root_vertex)
+    if root_rake < 0: return -1
+
+    answers: mutable i64[PTS_MAX_Q] = zeroed
+    for operation in 0..<q:
+        item: usize = op_item[operation].usize()
+        node_id: usize
+        if op_code[operation] == 0:
+            state.values[item] <- op_first[operation]
+            node_id <- state.vertex_leaf[item].usize()
+            pts_recalculate(state&, node_id)
+        else:
+            state.edge_map[item] <- PtsAffine{multiplier: op_first[operation], addend: op_second[operation]}
+            node_id <- state.edge_leaf[item].usize()
+            pts_recalculate(state&, node_id)
+        ancestor: mutable i16 = state.nodes[node_id].parent
+        while ancestor >= 0:
+            pts_recalculate(state&, ancestor.usize())
+            ancestor <- state.nodes[ancestor.usize()].parent
+        answer: i64 = pts_query(state&, root_rake.usize(), op_root[operation].usize())
+        if answer < 0: return -1
+        answers[operation] <- answer
+
+    output_view: mutable view[u8] = output[0:required]
+    for operation in 0..<q: pts_store(answers[operation], output_view, 8 * operation)
+    required.i64()
+
+export fn point_set_tree_path_composite_sum(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = point_set_tree_path_composite_sum_impl

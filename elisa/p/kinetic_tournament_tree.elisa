@@ -1,0 +1,199 @@
+const KTT_MAX_N: usize = 8
+const KTT_MAX_M: usize = 32
+const KTT_BASE: usize = 8
+const KTT_INPUT_MAX: usize = 2 + 2 * KTT_MAX_N + 4 * KTT_MAX_M
+const KTT_INF: i64 = 1 << 60
+const KTT_I64_MIN: i64 = -9223372036854775807 - 1
+
+def ktt_pull(node: usize, slope: view[i64], valid: mutable view[bool],
+        winner: mutable view[usize], best: mutable view[i64], deadline: mutable view[i64]) -> void:
+    left: usize = 2 * node
+    right: usize = left + 1
+    if not valid[left] and not valid[right]:
+        valid[node] <- false
+        deadline[node] <- KTT_INF
+        return
+    if not valid[left] or not valid[right]:
+        child: usize = left
+        if valid[right]: child <- right
+        valid[node] <- true
+        winner[node] <- winner[child]
+        best[node] <- best[child]
+        deadline[node] <- deadline[child]
+        return
+    li: usize = winner[left]
+    ri: usize = winner[right]
+    choose_left: bool = best[left] > best[right] or (best[left] == best[right] and slope[li] > slope[ri])
+    win: usize = right
+    lose: usize = left
+    if choose_left:
+        win <- left
+        lose <- right
+    wi: usize = winner[win]
+    lo: usize = winner[lose]
+    crossing: mutable i64 = KTT_INF
+    if slope[wi] < slope[lo]:
+        gap: i64 = best[win] - best[lose]
+        slope_gap: i64 = slope[lo] - slope[wi]
+        if gap <= 0: crossing <- 0 else: crossing <- (gap + slope_gap - 1) / slope_gap
+    valid[node] <- true
+    winner[node] <- wi
+    best[node] <- best[win]
+    earliest: i64 = crossing
+    if deadline[left] < earliest: earliest <- deadline[left]
+    if deadline[right] < earliest: earliest <- deadline[right]
+    deadline[node] <- earliest
+
+def ktt_apply(node: usize, slope: view[i64], valid: view[bool], winner: view[usize],
+        best: mutable view[i64], lazy: mutable view[i64], deadline: mutable view[i64], delta: i64) -> void:
+    if not valid[node]: return
+    best[node] <- best[node] + slope[winner[node]] * delta
+    lazy[node] <- lazy[node] + delta
+    deadline[node] <- deadline[node] - delta
+
+def ktt_push(node: usize, slope: view[i64], valid: view[bool], winner: view[usize],
+        best: mutable view[i64], lazy: mutable view[i64], deadline: mutable view[i64]) -> void:
+    delta: i64 = lazy[node]
+    if delta == 0 or node >= KTT_BASE: return
+    ktt_apply(2 * node, slope, valid, winner, best, lazy, deadline, delta)
+    ktt_apply(2 * node + 1, slope, valid, winner, best, lazy, deadline, delta)
+    lazy[node] <- 0
+
+def ktt_repair(node: usize, slope: view[i64], valid: mutable view[bool], winner: mutable view[usize],
+        best: mutable view[i64], lazy: mutable view[i64], deadline: mutable view[i64]) -> void:
+    if node >= KTT_BASE or not valid[node]: return
+    ktt_push(node, slope, valid, winner, best, lazy, deadline)
+    if valid[2 * node] and deadline[2 * node] <= 0:
+        ktt_repair(2 * node, slope, valid, winner, best, lazy, deadline)
+    if valid[2 * node + 1] and deadline[2 * node + 1] <= 0:
+        ktt_repair(2 * node + 1, slope, valid, winner, best, lazy, deadline)
+    ktt_pull(node, slope, valid, winner, best, deadline)
+
+def ktt_translate(node: usize, lo: usize, hi: usize, ql: usize, qr: usize, delta: i64,
+        slope: view[i64], valid: mutable view[bool], winner: mutable view[usize],
+        best: mutable view[i64], lazy: mutable view[i64], deadline: mutable view[i64]) -> void:
+    if ql <= lo and hi <= qr:
+        ktt_apply(node, slope, valid, winner, best, lazy, deadline, delta)
+        ktt_repair(node, slope, valid, winner, best, lazy, deadline)
+        return
+    ktt_push(node, slope, valid, winner, best, lazy, deadline)
+    mid: usize = (lo + hi) / 2
+    if ql < mid:
+        ktt_translate(2 * node, lo, mid, ql, qr, delta, slope, valid, winner, best, lazy, deadline)
+    if mid < qr:
+        ktt_translate(2 * node + 1, mid, hi, ql, qr, delta, slope, valid, winner, best, lazy, deadline)
+    ktt_pull(node, slope, valid, winner, best, deadline)
+
+def ktt_query(node: usize, lo: usize, hi: usize, ql: usize, qr: usize,
+        slope: view[i64], valid: mutable view[bool], winner: mutable view[usize],
+        best: mutable view[i64], lazy: mutable view[i64], deadline: mutable view[i64]) -> i64:
+    if ql <= lo and hi <= qr: return best[node]
+    ktt_push(node, slope, valid, winner, best, lazy, deadline)
+    mid: usize = (lo + hi) / 2
+    answer: mutable i64 = KTT_I64_MIN
+    if ql < mid: answer <- ktt_query(2 * node, lo, mid, ql, qr, slope, valid, winner, best, lazy, deadline)
+    if mid < qr:
+        other: i64 = ktt_query(2 * node + 1, mid, hi, ql, qr, slope, valid, winner, best, lazy, deadline)
+        if other > answer: answer <- other
+    ktt_pull(node, slope, valid, winner, best, deadline)
+    answer
+
+def ktt_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def kinetic_tournament_tree_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > KTT_INPUT_MAX: return -1
+    nr: i64 = input[0]
+    mr: i64 = input[1]
+    if nr < 1 or nr > KTT_MAX_N.i64() or mr < 1 or mr > KTT_MAX_M.i64(): return -1
+    n: usize = nr.usize()
+    m: usize = mr.usize()
+    input_view: view[i64] = input[0:length]
+    cursor: mutable usize = 2
+    slope: mutable i64[KTT_MAX_N] = zeroed
+    intercept: mutable i64[KTT_MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        if cursor + 2 > length: return -1
+        slope[i] <- input_view[cursor]
+        intercept[i] <- input_view[cursor + 1]
+        cursor <- cursor + 2
+        if slope[i] < -8 or slope[i] > 8 or intercept[i] < -64 or intercept[i] > 64 or (i > 0 and slope[i] <= slope[i - 1]): return -1
+        i <- i + 1
+    kind: mutable i64[KTT_MAX_M] = zeroed
+    op_left: mutable i64[KTT_MAX_M] = zeroed
+    op_right: mutable i64[KTT_MAX_M] = zeroed
+    op_delta: mutable i64[KTT_MAX_M] = zeroed
+    query_count: mutable usize = 0
+    query: mutable usize = 0
+    while query < m:
+        if cursor >= length: return -1
+        kind[query] <- input_view[cursor]
+        cursor <- cursor + 1
+        if kind[query] == 0:
+            if cursor + 3 > length: return -1
+            op_left[query] <- input_view[cursor]
+            op_right[query] <- input_view[cursor + 1]
+            op_delta[query] <- input_view[cursor + 2]
+            cursor <- cursor + 3
+            if op_left[query] < 0 or op_left[query] > op_right[query] or op_right[query] >= nr or op_delta[query] < 1 or op_delta[query] > 8: return -1
+        elif kind[query] == 1:
+            if cursor + 2 > length: return -1
+            op_left[query] <- input_view[cursor]
+            op_right[query] <- input_view[cursor + 1]
+            cursor <- cursor + 2
+            if op_left[query] < 0 or op_left[query] > op_right[query] or op_right[query] >= nr: return -1
+            query_count <- query_count + 1
+        else: return -1
+        query <- query + 1
+    if cursor != length or query_count == 0: return -1
+    required: usize = 8 * query_count
+    if output.is_null() or capacity < required: return -2
+
+    valid: mutable bool[2 * KTT_BASE] = zeroed
+    winner: mutable usize[2 * KTT_BASE] = zeroed
+    best: mutable i64[2 * KTT_BASE] = zeroed
+    lazy: mutable i64[2 * KTT_BASE] = zeroed
+    deadline: mutable i64[2 * KTT_BASE] = zeroed
+    i <- 0
+    while i < 2 * KTT_BASE:
+        deadline[i] <- KTT_INF
+        i <- i + 1
+    i <- 0
+    while i < n:
+        node: usize = KTT_BASE + i
+        valid[node] <- true
+        winner[node] <- i
+        best[node] <- intercept[i]
+        i <- i + 1
+    node: mutable usize = KTT_BASE - 1
+    while node > 0:
+        ktt_pull(node, slope[0:KTT_MAX_N], valid[0:2*KTT_BASE], winner[0:2*KTT_BASE], best[0:2*KTT_BASE], deadline[0:2*KTT_BASE])
+        node <- node - 1
+    answers: mutable i64[KTT_MAX_M] = zeroed
+    answer_count: mutable usize = 0
+    query <- 0
+    while query < m:
+        if kind[query] == 0:
+            ktt_translate(1, 0, KTT_BASE, op_left[query].usize(), op_right[query].usize() + 1, op_delta[query],
+                slope[0:KTT_MAX_N], valid[0:2*KTT_BASE], winner[0:2*KTT_BASE], best[0:2*KTT_BASE], lazy[0:2*KTT_BASE], deadline[0:2*KTT_BASE])
+        else:
+            answers[answer_count] <- ktt_query(1, 0, KTT_BASE, op_left[query].usize(), op_right[query].usize() + 1,
+                slope[0:KTT_MAX_N], valid[0:2*KTT_BASE], winner[0:2*KTT_BASE], best[0:2*KTT_BASE], lazy[0:2*KTT_BASE], deadline[0:2*KTT_BASE])
+            answer_count <- answer_count + 1
+        query <- query + 1
+    output_view: mutable view[u8] = output[0:required]
+    i <- 0
+    while i < answer_count:
+        ktt_store(answers[i], output_view, 8 * i)
+        i <- i + 1
+    required.i64()
+
+export fn kinetic_tournament_tree(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = kinetic_tournament_tree_impl

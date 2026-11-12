@@ -1,0 +1,317 @@
+const DTVPC_MODULUS: i64 = 998_244_353
+const DTVPC_MAX_N: usize = 8
+const DTVPC_MAX_Q: usize = 12
+const DTVPC_MAX_INPUT: usize = 93
+const DTVPC_MAX_OUTPUT_BYTES: usize = 96
+const DTVPC_LEFT: usize = 0
+const DTVPC_RIGHT: usize = 8
+const DTVPC_PARENT: usize = 16
+const DTVPC_REVERSED: usize = 24
+const DTVPC_VALUE_MULTIPLIER: usize = 32
+const DTVPC_VALUE_ADDEND: usize = 40
+const DTVPC_FORWARD_MULTIPLIER: usize = 48
+const DTVPC_FORWARD_ADDEND: usize = 56
+const DTVPC_BACKWARD_MULTIPLIER: usize = 64
+const DTVPC_BACKWARD_ADDEND: usize = 72
+
+struct DtvpcAffine:
+    multiplier: i64
+    addend: i64
+
+def dtvpc_identity() -> DtvpcAffine:
+    DtvpcAffine{multiplier: 1, addend: 0}
+
+def dtvpc_compose(after: DtvpcAffine, before: DtvpcAffine) -> DtvpcAffine:
+    DtvpcAffine{
+        multiplier: after.multiplier * before.multiplier % DTVPC_MODULUS,
+        addend: (after.multiplier * before.addend + after.addend) % DTVPC_MODULUS,
+    }
+
+def dtvpc_is_aux_root(nodes: view[i64], x: usize) -> bool:
+    parent_value: i64 = nodes[DTVPC_PARENT + x]
+    parent_value < 0 or (nodes[DTVPC_LEFT + parent_value.usize()] != x.i64() and
+        nodes[DTVPC_RIGHT + parent_value.usize()] != x.i64())
+
+def dtvpc_pull(nodes: mutable view[i64], x: usize) -> void:
+    left: i64 = nodes[DTVPC_LEFT + x]
+    right: i64 = nodes[DTVPC_RIGHT + x]
+    left_forward: DtvpcAffine = dtvpc_identity()
+    right_forward: DtvpcAffine = dtvpc_identity()
+    left_backward: DtvpcAffine = dtvpc_identity()
+    right_backward: DtvpcAffine = dtvpc_identity()
+    if left >= 0:
+        left_forward <- DtvpcAffine{nodes[DTVPC_FORWARD_MULTIPLIER + left.usize()], nodes[DTVPC_FORWARD_ADDEND + left.usize()]}
+        left_backward <- DtvpcAffine{nodes[DTVPC_BACKWARD_MULTIPLIER + left.usize()], nodes[DTVPC_BACKWARD_ADDEND + left.usize()]}
+    if right >= 0:
+        right_forward <- DtvpcAffine{nodes[DTVPC_FORWARD_MULTIPLIER + right.usize()], nodes[DTVPC_FORWARD_ADDEND + right.usize()]}
+        right_backward <- DtvpcAffine{nodes[DTVPC_BACKWARD_MULTIPLIER + right.usize()], nodes[DTVPC_BACKWARD_ADDEND + right.usize()]}
+    value: DtvpcAffine = DtvpcAffine{nodes[DTVPC_VALUE_MULTIPLIER + x], nodes[DTVPC_VALUE_ADDEND + x]}
+    forward: DtvpcAffine = dtvpc_compose(right_forward, dtvpc_compose(value, left_forward))
+    backward: DtvpcAffine = dtvpc_compose(left_backward, dtvpc_compose(value, right_backward))
+    nodes[DTVPC_FORWARD_MULTIPLIER + x] <- forward.multiplier
+    nodes[DTVPC_FORWARD_ADDEND + x] <- forward.addend
+    nodes[DTVPC_BACKWARD_MULTIPLIER + x] <- backward.multiplier
+    nodes[DTVPC_BACKWARD_ADDEND + x] <- backward.addend
+
+def dtvpc_reverse(nodes: mutable view[i64], x_value: i64) -> void:
+    if x_value < 0: return
+    x: usize = x_value.usize()
+    temporary: i64 = nodes[DTVPC_LEFT + x]
+    nodes[DTVPC_LEFT + x] <- nodes[DTVPC_RIGHT + x]
+    nodes[DTVPC_RIGHT + x] <- temporary
+    temporary <- nodes[DTVPC_FORWARD_MULTIPLIER + x]
+    nodes[DTVPC_FORWARD_MULTIPLIER + x] <- nodes[DTVPC_BACKWARD_MULTIPLIER + x]
+    nodes[DTVPC_BACKWARD_MULTIPLIER + x] <- temporary
+    temporary <- nodes[DTVPC_FORWARD_ADDEND + x]
+    nodes[DTVPC_FORWARD_ADDEND + x] <- nodes[DTVPC_BACKWARD_ADDEND + x]
+    nodes[DTVPC_BACKWARD_ADDEND + x] <- temporary
+    nodes[DTVPC_REVERSED + x] <- 1 - nodes[DTVPC_REVERSED + x]
+
+def dtvpc_push(nodes: mutable view[i64], x: usize) -> void:
+    if nodes[DTVPC_REVERSED + x] == 0: return
+    dtvpc_reverse(nodes, nodes[DTVPC_LEFT + x])
+    dtvpc_reverse(nodes, nodes[DTVPC_RIGHT + x])
+    nodes[DTVPC_REVERSED + x] <- 0
+
+def dtvpc_rotate(nodes: mutable view[i64], x: usize) -> void:
+    p: usize = nodes[DTVPC_PARENT + x].usize()
+    g_value: i64 = nodes[DTVPC_PARENT + p]
+    is_right: bool = nodes[DTVPC_RIGHT + p] == x.i64()
+    middle: i64 = if is_right then nodes[DTVPC_LEFT + x] else nodes[DTVPC_RIGHT + x]
+    if not dtvpc_is_aux_root(nodes, p):
+        g: usize = g_value.usize()
+        if nodes[DTVPC_LEFT + g] == p.i64(): nodes[DTVPC_LEFT + g] <- x.i64()
+        else: nodes[DTVPC_RIGHT + g] <- x.i64()
+    nodes[DTVPC_PARENT + x] <- g_value
+    if is_right:
+        nodes[DTVPC_LEFT + x] <- p.i64()
+        nodes[DTVPC_RIGHT + p] <- middle
+    else:
+        nodes[DTVPC_RIGHT + x] <- p.i64()
+        nodes[DTVPC_LEFT + p] <- middle
+    nodes[DTVPC_PARENT + p] <- x.i64()
+    if middle >= 0: nodes[DTVPC_PARENT + middle.usize()] <- p.i64()
+    dtvpc_pull(nodes, p)
+    dtvpc_pull(nodes, x)
+
+def dtvpc_splay(nodes: mutable view[i64], x: usize) -> void:
+    stack: mutable usize[DTVPC_MAX_N] = zeroed
+    count: mutable usize = 1
+    y: mutable usize = x
+    stack[0] <- y
+    while not dtvpc_is_aux_root(nodes, y):
+        y <- nodes[DTVPC_PARENT + y].usize()
+        stack[count] <- y
+        count <- count + 1
+    while count > 0:
+        count <- count - 1
+        dtvpc_push(nodes, stack[count])
+    while not dtvpc_is_aux_root(nodes, x):
+        p: usize = nodes[DTVPC_PARENT + x].usize()
+        if not dtvpc_is_aux_root(nodes, p):
+            g: usize = nodes[DTVPC_PARENT + p].usize()
+            zigzig: bool = (nodes[DTVPC_LEFT + p] == x.i64()) == (nodes[DTVPC_LEFT + g] == p.i64())
+            dtvpc_rotate(nodes, if zigzig then p else x)
+        dtvpc_rotate(nodes, x)
+
+def dtvpc_access(nodes: mutable view[i64], x: usize) -> void:
+    last: mutable i64 = -1
+    y: mutable i64 = x.i64()
+    while y >= 0:
+        index: usize = y.usize()
+        dtvpc_splay(nodes, index)
+        nodes[DTVPC_RIGHT + index] <- last
+        if last >= 0: nodes[DTVPC_PARENT + last.usize()] <- y
+        dtvpc_pull(nodes, index)
+        last <- y
+        y <- nodes[DTVPC_PARENT + index]
+    dtvpc_splay(nodes, x)
+
+def dtvpc_make_root(nodes: mutable view[i64], x: usize) -> void:
+    dtvpc_access(nodes, x)
+    dtvpc_reverse(nodes, x.i64())
+
+def dtvpc_find_root(nodes: mutable view[i64], x_value: usize) -> usize:
+    root: mutable usize = x_value
+    dtvpc_access(nodes, root)
+    dtvpc_push(nodes, root)
+    while nodes[DTVPC_LEFT + root] >= 0:
+        root <- nodes[DTVPC_LEFT + root].usize()
+        dtvpc_push(nodes, root)
+    dtvpc_splay(nodes, root)
+    root
+
+def dtvpc_link(nodes: mutable view[i64], u: usize, v: usize) -> bool:
+    if u == v: return false
+    dtvpc_make_root(nodes, u)
+    if dtvpc_find_root(nodes, v) == u: return false
+    nodes[DTVPC_PARENT + u] <- v.i64()
+    true
+
+def dtvpc_cut(nodes: mutable view[i64], u: usize, v: usize) -> bool:
+    if u == v: return false
+    dtvpc_make_root(nodes, u)
+    dtvpc_access(nodes, v)
+    if nodes[DTVPC_LEFT + v] != u.i64() or nodes[DTVPC_RIGHT + u] >= 0: return false
+    nodes[DTVPC_LEFT + v] <- -1
+    nodes[DTVPC_PARENT + u] <- -1
+    dtvpc_pull(nodes, v)
+    true
+
+def dtvpc_set_value(nodes: mutable view[i64], vertex: usize, multiplier: i64, addend: i64) -> void:
+    dtvpc_access(nodes, vertex)
+    nodes[DTVPC_VALUE_MULTIPLIER + vertex] <- multiplier
+    nodes[DTVPC_VALUE_ADDEND + vertex] <- addend
+    dtvpc_pull(nodes, vertex)
+
+def dtvpc_path(nodes: mutable view[i64], u: usize, v: usize, result: mutable view[i64]) -> bool:
+    dtvpc_make_root(nodes, u)
+    if dtvpc_find_root(nodes, v) != u: return false
+    dtvpc_make_root(nodes, u)
+    dtvpc_access(nodes, v)
+    result[0] <- nodes[DTVPC_FORWARD_MULTIPLIER + v]
+    result[1] <- nodes[DTVPC_FORWARD_ADDEND + v]
+    true
+
+def dtvpc_find_dsu(parent: mutable view[usize], item_value: usize) -> usize:
+    item: mutable usize = item_value
+    while parent[item] != item:
+        parent[item] <- parent[parent[item]]
+        item <- parent[item]
+    item
+
+def dtvpc_connected(adjacency: view[bool], n: usize, start: usize, target: usize) -> bool:
+    seen: mutable bool[DTVPC_MAX_N] = zeroed
+    stack: mutable usize[DTVPC_MAX_N] = zeroed
+    top: mutable usize = 1
+    seen[start] <- true
+    stack[0] <- start
+    while top > 0:
+        top <- top - 1
+        u: usize = stack[top]
+        if u == target: return true
+        for v in 0..<n:
+            if adjacency[u * DTVPC_MAX_N + v] and not seen[v]:
+                seen[v] <- true
+                stack[top] <- v
+                top <- top + 1
+    false
+
+def dtvpc_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+export fn dynamic_tree_vertex_set_path_composite(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > DTVPC_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    q_value: i64 = input_view[1]
+    if n_value < 1 or n_value > DTVPC_MAX_N.i64() or q_value < 1 or q_value > DTVPC_MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length < 2 + 2 * n + 2 * (n - 1) + 4 * q: return -1
+    values: mutable i64[2 * DTVPC_MAX_N] = zeroed
+    for i in 0..<n:
+        multiplier: i64 = input_view[2 + 2 * i]
+        addend: i64 = input_view[3 + 2 * i]
+        if multiplier < 1 or multiplier >= DTVPC_MODULUS or addend < 0 or addend >= DTVPC_MODULUS: return -1
+        values[2 * i] <- multiplier
+        values[2 * i + 1] <- addend
+    adjacency: mutable bool[DTVPC_MAX_N * DTVPC_MAX_N] = zeroed
+    dsu: mutable usize[DTVPC_MAX_N] = zeroed
+    edge_u: mutable usize[DTVPC_MAX_N] = zeroed
+    edge_v: mutable usize[DTVPC_MAX_N] = zeroed
+    for i in 0..<n: dsu[i] <- i
+    cursor: mutable usize = 2 + 2 * n
+    for edge in 0..<n - 1:
+        uv: i64 = input_view[cursor]
+        vv: i64 = input_view[cursor + 1]
+        cursor <- cursor + 2
+        if uv < 0 or uv >= n_value or vv < 0 or vv >= n_value or uv == vv: return -1
+        u: usize = uv.usize()
+        v: usize = vv.usize()
+        root_u: usize = dtvpc_find_dsu(dsu[0:DTVPC_MAX_N], u)
+        root_v: usize = dtvpc_find_dsu(dsu[0:DTVPC_MAX_N], v)
+        if root_u == root_v: return -1
+        dsu[root_v] <- root_u
+        adjacency[u * DTVPC_MAX_N + v] <- true
+        adjacency[v * DTVPC_MAX_N + u] <- true
+        edge_u[edge] <- u
+        edge_v[edge] <- v
+    queries: mutable i64[5 * DTVPC_MAX_Q] = zeroed
+    answer_count: mutable usize = 0
+    for i in 0..<q:
+        if cursor >= length: return -1
+        kind: i64 = input_view[cursor]
+        queries[5 * i] <- kind
+        cursor <- cursor + 1
+        if kind == 0:
+            if length - cursor < 4: return -1
+            for k in 0..<4: queries[5 * i + 1 + k] <- input_view[cursor + k]
+            cursor <- cursor + 4
+            u64: i64 = queries[5 * i + 1]
+            v64: i64 = queries[5 * i + 2]
+            w64: i64 = queries[5 * i + 3]
+            x64: i64 = queries[5 * i + 4]
+            if u64 < 0 or u64 >= n_value or v64 < 0 or v64 >= n_value or w64 < 0 or w64 >= n_value or x64 < 0 or x64 >= n_value or u64 == v64 or w64 == x64: return -1
+            u: usize = u64.usize(); v: usize = v64.usize(); w: usize = w64.usize(); x: usize = x64.usize()
+            if not adjacency[u * DTVPC_MAX_N + v]: return -1
+            adjacency[u * DTVPC_MAX_N + v] <- false
+            adjacency[v * DTVPC_MAX_N + u] <- false
+            if dtvpc_connected(adjacency[0:DTVPC_MAX_N * DTVPC_MAX_N], n, w, x): return -1
+            adjacency[w * DTVPC_MAX_N + x] <- true
+            adjacency[x * DTVPC_MAX_N + w] <- true
+        elif kind == 1:
+            if length - cursor < 3: return -1
+            for k in 0..<3: queries[5 * i + 1 + k] <- input_view[cursor + k]
+            cursor <- cursor + 3
+            if queries[5*i+1] < 0 or queries[5*i+1] >= n_value or queries[5*i+2] < 1 or queries[5*i+2] >= DTVPC_MODULUS or queries[5*i+3] < 0 or queries[5*i+3] >= DTVPC_MODULUS: return -1
+        elif kind == 2:
+            if length - cursor < 3: return -1
+            for k in 0..<3: queries[5 * i + 1 + k] <- input_view[cursor + k]
+            cursor <- cursor + 3
+            if queries[5*i+1] < 0 or queries[5*i+1] >= n_value or queries[5*i+2] < 0 or queries[5*i+2] >= n_value or queries[5*i+3] < 0 or queries[5*i+3] >= DTVPC_MODULUS: return -1
+            answer_count <- answer_count + 1
+        else: return -1
+    if cursor != length: return -1
+    required: usize = 8 * answer_count
+    if output.is_null() or capacity < required: return -2
+    safe_capacity: mutable usize = required
+    if safe_capacity > DTVPC_MAX_OUTPUT_BYTES: safe_capacity <- DTVPC_MAX_OUTPUT_BYTES
+    output_view: mutable view[u8] = if output.is_null() then zeroed else output[0:safe_capacity]
+    nodes: mutable i64[10 * DTVPC_MAX_N] = zeroed
+    for i in 0..<DTVPC_MAX_N:
+        nodes[DTVPC_LEFT + i] <- -1
+        nodes[DTVPC_RIGHT + i] <- -1
+        nodes[DTVPC_PARENT + i] <- -1
+    for i in 0..<n:
+        nodes[DTVPC_VALUE_MULTIPLIER + i] <- values[2 * i]
+        nodes[DTVPC_VALUE_ADDEND + i] <- values[2 * i + 1]
+        nodes[DTVPC_FORWARD_MULTIPLIER + i] <- values[2 * i]
+        nodes[DTVPC_FORWARD_ADDEND + i] <- values[2 * i + 1]
+        nodes[DTVPC_BACKWARD_MULTIPLIER + i] <- values[2 * i]
+        nodes[DTVPC_BACKWARD_ADDEND + i] <- values[2 * i + 1]
+    nodes_view: mutable view[i64] = nodes[0:10 * DTVPC_MAX_N]
+    for edge in 0..<n - 1:
+        if not dtvpc_link(nodes_view, edge_u[edge], edge_v[edge]): return -1
+    answers: mutable i64[DTVPC_MAX_Q] = zeroed
+    written: mutable usize = 0
+    for i in 0..<q:
+        kind: i64 = queries[5 * i]
+        if kind == 0:
+            u: usize = queries[5*i+1].usize(); v: usize = queries[5*i+2].usize()
+            w: usize = queries[5*i+3].usize(); x: usize = queries[5*i+4].usize()
+            if not dtvpc_cut(nodes_view,u,v) or not dtvpc_link(nodes_view,w,x): return -1
+        elif kind == 1:
+            dtvpc_set_value(nodes_view, queries[5*i+1].usize(), queries[5*i+2], queries[5*i+3])
+        else:
+            pair: mutable i64[2] = zeroed
+            pair_view: mutable view[i64] = pair[0:2]
+            if not dtvpc_path(nodes_view, queries[5*i+1].usize(), queries[5*i+2].usize(), pair_view): return -1
+            answers[written] <- (pair[0] * queries[5*i+3] + pair[1]) % DTVPC_MODULUS
+            written <- written + 1
+    for i in 0..<written: dtvpc_store_le(answers[i], output_view, 8 * i)
+    required.i64()

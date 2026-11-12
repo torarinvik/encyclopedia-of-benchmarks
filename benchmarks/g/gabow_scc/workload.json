@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "id": "gabow-path-based-scc-directed-graph-byte-output-v1",
+  "algorithm": "gabow_scc",
+  "function_symbol": "gabow_scc",
+  "abi": "i64_array_bytes_output",
+  "description": "One-pass Gabow path-based SCC decomposition with preorder, unresolved-vertex stack, and candidate-boundary stack.",
+  "source": {
+    "title": "Path-based depth-first search for strong and biconnected components",
+    "authors": ["Harold N. Gabow"],
+    "publication": "Information Processing Letters 74 (2000), 107–114",
+    "doi": "10.1016/S0020-0190(00)00051-X",
+    "url": "https://doi.org/10.1016/S0020-0190(00)00051-X",
+    "author_copy": "https://www.cs.princeton.edu/courses/archive/spr09/cos423/Lectures/bi-gabow.pdf",
+    "license_note": "The article is published by Elsevier; its copyright and terms remain with the publisher. The package uses the algorithm description only and reproduces no prose, source code, or test data.",
+    "algorithm_attribution": "Gabow path-based strongly connected components",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "directed_graph_edge_pairs",
+    "encoding": "[vertex_count, edge_count, (source, target)*edge_count]",
+    "vertex_count_range": [0, 40],
+    "edge_count_range": [0, 2047],
+    "maximum_input_length": 4096,
+    "vertex_ids": "zero-based",
+    "graph_semantics": "simple directed graph; repeated edges are coalesced and self-loops are allowed",
+    "disconnected_graphs": "process every vertex and every component",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "encoding": "component count followed by component size and sorted vertex IDs, all one byte each",
+    "component_ordering": "lexicographic by sorted vertex list",
+    "empty_graph": "single zero component-count byte",
+    "maximum_bytes": 81,
+    "result": "number of output bytes",
+    "output_untouched_on_error": true
+  },
+  "contract": {
+    "method": "Iterative DFS with preorder values, unresolved-vertex stack S, and candidate-boundary stack P; active edges discard later candidate boundaries, and a surviving top boundary emits the suffix of S through its vertex.",
+    "complexity": "SCC traversal is O(V+E); canonical output normalization is O(V^2), so total time is O(V^2+E), with O(V+E) bounded storage",
+    "distinctness": "Uses Gabow's path-boundary stack method, not Tarjan low-link updates or Kosaraju's transpose pass."
+  },
+  "workspace": {
+    "elements": 2001,
+    "meaning": "Bounded duplicate-filter mask, unique-neighbor rows, degree and preorder/component arrays, four DFS/component stacks, and staged output bytes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call"
+  },
+  "cases": [
+    {
+      "id": "empty-graph",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output_bytes": [0]
+    },
+    {
+      "id": "isolated-vertices",
+      "input_values": [4, 0],
+      "input_length": 2,
+      "expected_result": 9,
+      "expected_output_bytes": [4, 1, 0, 1, 1, 1, 2, 1, 3]
+    },
+    {
+      "id": "nested-cycles-with-outgoing-singleton",
+      "input_values": [6, 7, 0, 1, 1, 2, 2, 0, 2, 3, 3, 4, 4, 3, 4, 5],
+      "input_length": 16,
+      "expected_result": 10,
+      "expected_output_bytes": [3, 3, 0, 1, 2, 2, 3, 4, 1, 5]
+    },
+    {
+      "id": "edge-to-completed-component",
+      "input_values": [4, 5, 0, 1, 1, 0, 2, 3, 3, 2, 2, 0],
+      "input_length": 12,
+      "expected_result": 7,
+      "expected_output_bytes": [2, 2, 0, 1, 2, 2, 3]
+    },
+    {
+      "id": "duplicate-edges-and-self-loops",
+      "input_values": [3, 5, 0, 0, 0, 1, 0, 1, 1, 0, 2, 2],
+      "input_length": 12,
+      "expected_result": 6,
+      "expected_output_bytes": [2, 2, 0, 1, 1, 2]
+    },
+    {
+      "id": "two-components-with-cross-boundary-edge",
+      "input_values": [5, 6, 0, 1, 1, 2, 2, 3, 3, 1, 0, 4, 4, 0],
+      "input_length": 14,
+      "expected_result": 8,
+      "expected_output_bytes": [2, 2, 0, 4, 3, 1, 2, 3]
+    },
+    {
+      "id": "directed-chain",
+      "input_values": [3, 2, 0, 1, 1, 2],
+      "input_length": 6,
+      "expected_result": 7,
+      "expected_output_bytes": [3, 1, 0, 1, 1, 1, 2]
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [6, 7, 0, 1, 1, 2, 2, 0, 2, 3, 3, 4, 4, 3, 4, 5],
+      "input_length": 16,
+      "output_capacity": 9,
+      "expected_result": -2,
+      "expected_output_bytes": []
+    },
+    {
+      "id": "null-output",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_bytes": []
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_bytes": []
+    },
+    {
+      "id": "invalid-endpoint",
+      "input_values": [2, 1, 0, 2],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_bytes": []
+    },
+    {
+      "id": "trailing-input-value",
+      "input_values": [1, 0, 7],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_bytes": []
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-geometric-multipoint-evaluation-bluestein-ntt-bytes-v1",
+  "algorithm": "multipoint_evaluation_on_geometric_sequence",
+  "function_symbol": "multipoint_evaluation_on_geometric_sequence",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "polynomial/multipoint_evaluation_on_geometric_sequence/task.md",
+    "limits_path": "polynomial/multipoint_evaluation_on_geometric_sequence/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/polynomial/multipoint_evaluation_on_geometric_sequence/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/polynomial/multipoint_evaluation_on_geometric_sequence/info.toml",
+    "official_n_max": 524288,
+    "official_m_max": 524288,
+    "official_start_ratio_range": [0, 998244352],
+    "modulus": 998244353,
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Mathematical operation and modulus only; bounded profile, chirp-z transform, ports, fixtures, oracles, and prose are clean-room."
+  },
+  "oracle": "benchmarks/m/multipoint_evaluation_on_geometric_sequence/primary_oracle.py",
+  "independent_oracle": "benchmarks/m/multipoint_evaluation_on_geometric_sequence/independent_oracle.py",
+  "contract": {
+    "operation": "Return f(a*r^i) modulo 998244353 for i=0..M-1.",
+    "input_layout": "[N, M, a, r, c_0, ..., c_(N-1)]",
+    "coefficient_count_range": [1, 8],
+    "point_count_range": [1, 8],
+    "coefficient_and_start_ratio_range": [0, 998244352],
+    "modulus": 998244353,
+    "leading_coefficient": "May be zero in this local profile.",
+    "algorithm": "For nonzero a and r, use T_k=k(k-1)/2 and r^(ij)=r^T_(i+j)r^(-T_i)r^(-T_j), then compute the resulting cross-correlation by one fixed 32-point radix-2 NTT convolution. Handle a=0 and r=0 directly.",
+    "independent_algorithm": "Evaluate each geometric point independently with Horner's recurrence.",
+    "output_layout": "M little-endian signed 64-bit values in increasing i order.",
+    "error_precedence": "Malformed input returns -1 before output checks. Valid input with null output or capacity below the exact output size returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, M, a, r, coefficients...]",
+    "maximum_valid_length": 12,
+    "maximum_parseable_length": 12,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 8,
+    "maximum_bytes": 64,
+    "success_result": "8*M bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "maximum_bytes": 1024,
+    "model": "Two fixed 32-value NTT arrays and scalar chirp, inverse-chirp, and butterfly state."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"ratio-one-repeated-point","input_values":[3,4,1,1,1,2,3],"input_length":7,"expected_result":32,"expected_output_hex":"0600000000000000060000000000000006000000000000000600000000000000"},
+    {"id":"small-geometric-progression","input_values":[2,4,2,3,1,2],"input_length":6,"expected_result":32,"expected_output_hex":"05000000000000000d0000000000000025000000000000006d00000000000000"},
+    {"id":"zero-ratio-first-point-then-zero","input_values":[3,4,3,0,1,2,3],"input_length":7,"expected_result":32,"expected_output_hex":"2200000000000000010000000000000001000000000000000100000000000000"},
+    {"id":"zero-start-repeats-zero","input_values":[2,4,0,7,5,6],"input_length":6,"expected_result":32,"expected_output_hex":"0500000000000000050000000000000005000000000000000500000000000000"},
+    {"id":"trailing-zero-coefficients-allowed","input_values":[3,2,2,4,7,0,0],"input_length":7,"expected_result":16,"expected_output_hex":"07000000000000000700000000000000"},
+    {"id":"linear-doubling","input_values":[2,4,1,2,0,1],"input_length":6,"expected_result":32,"expected_output_hex":"0100000000000000020000000000000004000000000000000800000000000000"},
+    {"id":"near-modulus-alternation","input_values":[2,4,998244352,998244352,0,1],"input_length":6,"expected_result":32,"expected_output_hex":"0000803b0000000001000000000000000000803b000000000100000000000000"},
+    {"id":"single-coefficient","input_values":[1,3,12,9,998244352],"input_length":5,"expected_result":24,"expected_output_hex":"0000803b000000000000803b000000000000803b00000000"},
+    {"id":"invalid-count","input_values":[0,1,1,1],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-ratio","input_values":[1,1,1,998244353,4],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-coefficients","input_values":[2,2,1,2,3],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra-input-word","input_values":[1,1,1,1,4,5],"input_length":6,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[1,1,2,3,4],"input_length":5,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,2,3,4],"input_length":5,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

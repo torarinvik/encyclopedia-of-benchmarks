@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-sort-points-by-argument-bounded-v1",
+  "algorithm": "sort_points_by_argument",
+  "function_symbol": "sort_points_by_argument",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "article_url": "https://github.com/yosupo06/library-checker-problems/blob/master/geo/sort_points_by_argument/task.md",
+    "task_url": "https://judge.yosupo.jp/problem/sort_points_by_argument",
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Task semantics and limits only; comparator, bounded fixtures, oracles, prose, and ports are clean-room."
+  },
+  "oracle": "benchmarks/s/sort_points_by_argument/primary_oracle.py",
+  "independent_oracle": "benchmarks/s/sort_points_by_argument/independent_oracle.py",
+  "contract": {
+    "operation": "Sort integer 2D vectors by increasing atan2(y,x) argument over the seam at the negative x-axis.",
+    "input_layout": "[N, x0,y0, ..., x(N-1),y(N-1)]",
+    "angle_order": "The order starts immediately after the negative x-axis and proceeds counterclockwise through the lower half-plane, positive x-axis, upper half-plane, and back to the negative x-axis. atan2(0,0)=0, so the zero vector ties with the positive x-axis.",
+    "algorithm": "A strict half-plane partition and signed 64-bit cross products compare angles exactly, without floating point. Equal arguments use increasing squared length, then lexicographic coordinates as a deterministic tie break.",
+    "independent_algorithm": "Use exact rational slopes within eight monotone angular sectors and compare sector keys, avoiding the cross-product comparator.",
+    "output_layout": "Sorted points as N consecutive little-endian signed 64-bit coordinate pairs.",
+    "maximum_point_count": 64,
+    "workspace_bytes": 16384,
+    "error_precedence": "Malformed framing or coordinate bounds return -1 before output checks. Valid input with null output or capacity below 16*N returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, then N (x,y) pairs]",
+    "n_range": [1, 64],
+    "coordinate_range": [-1000000000, 1000000000],
+    "maximum_valid_length": 129,
+    "maximum_parseable_input_length": 129,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 128,
+    "maximum_bytes": 1024,
+    "success_result": "16*N bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 16384,
+    "storage": "Fixed arrays for 64 points, a 64-point merge buffer, and 128 staged output coordinates."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "all-quadrants-axes-and-origin",
+      "input_values": [9,0,0,1,0,0,1,-1,0,0,-1,1,1,-1,1,-1,-1,1,-1],
+      "input_length": 19,
+      "output_capacity": 144,
+      "expected_result": 144,
+      "expected_output_hex": "ffffffffffffffffffffffff0000000000000000ffffffffffffffff0100000000000000ffffffffffffffff000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000010000000000000000000000000000000100000000000000ffffffffffffffff0100000000000000ffffffffffffffff0000000000000000"
+    },
+    {
+      "id": "near-parallel-large-integer-vectors",
+      "input_values": [5,1000000000,999999999,999999999,999999998,-1,0,0,-1000000000,0,0],
+      "input_length": 11,
+      "output_capacity": 80,
+      "expected_result": 80,
+      "expected_output_hex": "0000000000000000003665c4ffffffffffc99a3b00000000fec99a3b0000000000ca9a3b00000000ffc99a3b000000000000000000000000000000000000000000000000ffffffffffffffff0000000000000000"
+    },
+    {
+      "id": "same-ray-distance-ties",
+      "input_values": [8,-3,-3,-1,-1,-2,-2,2,4,1,2,1,0,0,0,2,0],
+      "input_length": 17,
+      "output_capacity": 128,
+      "expected_result": 128,
+      "expected_output_hex": "fffffffffffffffffffffffffefffffffffffffffefffffffffffffffdfffffffffffffffdffffffffffffff0000000000000000000000000000000001000000000000000000000000000000020000000000000000000000000000000100000000000000020000000000000002000000000000000400000000000000"
+    },
+    {
+      "id": "zero-point-count-invalid",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coordinate-out-of-range",
+      "input_values": [1,1000000001,0],
+      "input_length": 3,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-point-frame",
+      "input_values": [2,1,2],
+      "input_length": 3,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1,0,0],
+      "input_length": 3,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1,0,0],
+      "input_length": 3,
+      "output_capacity": 16,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

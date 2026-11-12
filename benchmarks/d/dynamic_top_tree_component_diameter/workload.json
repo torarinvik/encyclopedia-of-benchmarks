@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "id": "dynamic-top-tree-component-diameter-bounded-v1",
+  "algorithm": "dynamic_top_tree_component_diameter",
+  "function_symbol": "dynamic_top_tree_component_diameter",
+  "abi": "i64_array_bytes_output",
+  "description": "Fixed-tree edge-weight updates and diameter queries using a maintained rake/compress cluster hierarchy.",
+  "oracle": "benchmarks/dynamic_top_tree_component_diameter_oracle.py",
+  "independent_oracle": "benchmarks/d/dynamic_top_tree_component_diameter/independent_oracle.py",
+  "source": {
+    "title": "OI Wiki: Top Tree",
+    "authors": ["OI Wiki contributors"],
+    "url": "https://oi-wiki.org/ds/top-tree/",
+    "license": "CC BY-SA 4.0 and SATA",
+    "algorithm_attribution": "Rake/compress cluster summaries for dynamic tree diameter; clean-room bounded balanced contraction hierarchy"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[N, Q, (u, v, w)*(N-1), (opcode, edge_id, value)*Q]",
+    "vertex_count_range": [1, 16],
+    "operation_count_range": [0, 32],
+    "maximum_valid_length": 143,
+    "maximum_parseable_length": 143,
+    "vertex_ids": "zero-based",
+    "initial_topology": "a fixed connected tree with N-1 edges in edge-id order",
+    "initial_edge_weight_range": [0, 1000],
+    "edge_update_weight_range": [0, 1000],
+    "operations": {
+      "0": "set edge weight: (0, edge_id, new_weight)",
+      "1": "query whole-tree diameter: (1, 0, 0)"
+    },
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_array",
+    "encoding": "one little-endian signed i64 diameter for each query, in operation order",
+    "maximum_bytes": 256,
+    "success_result": "8 * query_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 16384,
+    "meaning": "Fixed rake/compress node arena, vertex/edge tables, and staged output for N<=16 and Q<=32."
+  },
+  "contract": {
+    "operation": "Maintain edge weights on one fixed tree and report its weighted diameter.",
+    "algorithm": "Build a balanced rake/compress cluster hierarchy once. Edge nodes store path length, endpoint farthest distances, and diameter; rake nodes merge the two largest arms and child diameters; compress nodes join adjacent path clusters. An edge update recomputes its leaf and ancestor summaries.",
+    "complexity": "O(N^2 log N) bounded hierarchy construction, O(log^2 N) worst-case cluster-ancestor recomputation per edge update, O(1) per diameter query, and O(N^2) fixed storage.",
+    "maximum_cluster_nodes": 75,
+    "maximum_weighted_diameter": 15000,
+    "error_precedence": "Validate framing, tree topology, fields, and output capacity before processing operations; stage all answers before writing.",
+    "zero_query_null_output": "A valid trace with no diameter queries returns zero bytes and permits a null output pointer."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"path-edge-updates","input_values":[3,5,0,1,2,1,2,3,1,0,0,0,0,10,1,0,0,0,1,0,1,0,0],"input_length":23,"expected_result":24,"expected_output_hex":"05000000000000000d000000000000000a00000000000000"},
+    {"id":"star-rake-summary-updates","input_values":[4,5,0,1,2,0,2,4,0,3,3,1,0,0,0,0,10,1,0,0,0,2,0,1,0,0],"input_length":26,"expected_result":24,"expected_output_hex":"07000000000000000e000000000000000e00000000000000"},
+    {"id":"six-vertex-path-compress-summary","input_values":[6,1,0,1,1,1,2,1,2,3,1,3,4,1,4,5,1,1,0,0],"input_length":20,"expected_result":8,"expected_output_hex":"0500000000000000"},
+    {"id":"single-vertex-zero-diameter","input_values":[1,2,1,0,0,1,0,0],"input_length":8,"expected_result":16,"expected_output_hex":"00000000000000000000000000000000"},
+    {"id":"cyclic-initial-edge-list","input_values":[3,1,0,1,1,1,2,1,2,0,1],"input_length":11,"expected_result":-1,"expected_output_hex":""},
+    {"id":"initial-weight-over-limit","input_values":[2,1,0,1,1001,1,0,0],"input_length":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"update-edge-id-out-of-range","input_values":[2,1,0,1,5,0,1,3],"input_length":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"query-reserved-fields-nonzero","input_values":[1,1,1,0,1],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"unknown-operation","input_values":[1,1,9,0,0],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-frame","input_values":[1,1,1,0],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,1,0,0],"input_length":5,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,1,1,0,0],"input_length":5,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":5,"input_is_null":true,"output_capacity":8,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-undirected-global-vertex-connectivity-v1",
+  "algorithm": "vertex_connectivity",
+  "function_symbol": "vertex_connectivity",
+  "abi": "i64_array_scalar",
+  "description": "Global vertex connectivity through vertex splitting and repeated augmenting-path max flow.",
+  "source": {
+    "title": "Edge connectivity / Vertex connectivity",
+    "authors": ["CP-Algorithms contributors"],
+    "url": "https://cp-algorithms.com/graph/edge_vertex_connectivity.html",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "license_note": "The article's license applies to its text. This package uses its high-level algorithm description only; no article prose, code, or test data is reproduced."
+  },
+  "input": {
+    "kind": "undirected_graph_edge_pairs",
+    "encoding": "[vertex_count, edge_count, (left, right)*edge_count]",
+    "vertex_count_range": [0, 10],
+    "edge_count_range": [0, 45],
+    "maximum_input_length": 92,
+    "vertex_ids": "zero-based",
+    "graph_semantics": "undirected simple graph; duplicate edges are coalesced and self-loops are ignored",
+    "invalid_result": -1,
+    "definition": "Disconnected graphs have connectivity 0; a complete graph on n>=2 vertices has connectivity n-1; otherwise the result is the minimum number of vertices whose removal disconnects the graph."
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "global vertex-connectivity value",
+    "maximum_result": 9
+  },
+  "contract": {
+    "method": "For each nonadjacent vertex pair, split each graph vertex into an in/out pair, cap internal split arcs at one and graph arcs at one, then compute an augmenting-path maximum flow. The minimum pairwise flow is global vertex connectivity; complete graphs return n-1.",
+    "complexity": "O(V^2) max-flow calls in the worst case, each using bounded Edmonds-Karp on a 2V-node split graph; the local profile caps V at 10 and E at 45.",
+    "distinctness": "Computes arbitrary vertex-separator cardinality, beyond articulation-point (single-vertex cut) detection; this is not edge connectivity or global edge min-cut."
+  },
+  "workspace": {
+    "elements": 470,
+    "meaning": "10 adjacency masks, a 10-element fixed-array helper copy on Zig, 20x20 residual capacities, and graph/BFS queue and parent arrays."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call"
+  },
+  "cases": [
+    {"id":"empty-graph","input_values":[0,0],"input_length":2,"expected_result":0},
+    {"id":"single-vertex","input_values":[1,0],"input_length":2,"expected_result":0},
+    {"id":"disconnected-pairs","input_values":[4,2,0,1,2,3],"input_length":6,"expected_result":0},
+    {"id":"complete-two-vertex-graph","input_values":[2,1,0,1],"input_length":4,"expected_result":1},
+    {"id":"three-vertex-path","input_values":[3,2,0,1,1,2],"input_length":6,"expected_result":1},
+    {"id":"triangle","input_values":[3,3,0,1,1,2,2,0],"input_length":8,"expected_result":2},
+    {"id":"four-cycle","input_values":[4,4,0,1,1,2,2,3,3,0],"input_length":10,"expected_result":2},
+    {"id":"two-vertex-disjoint-paths-between-nonadjacent-pair","input_values":[5,6,0,2,0,3,0,4,1,2,1,3,1,4],"input_length":14,"expected_result":2},
+    {"id":"complete-four-graph-missing-one-edge","input_values":[4,5,0,2,0,3,1,2,1,3,2,3],"input_length":12,"expected_result":2},
+    {"id":"two-triangles-sharing-an-articulation","input_values":[5,6,0,1,1,2,2,0,0,3,3,4,4,0],"input_length":14,"expected_result":1},
+    {"id":"duplicate-edge-and-self-loop","input_values":[3,4,0,0,0,1,0,1,1,2],"input_length":10,"expected_result":1},
+    {"id":"isolated-vertex","input_values":[4,2,0,1,1,2],"input_length":6,"expected_result":0},
+    {"id":"maximum-complete-graph","input_values":[10,45,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,1,2,1,3,1,4,1,5,1,6,1,7,1,8,1,9,2,3,2,4,2,5,2,6,2,7,2,8,2,9,3,4,3,5,3,6,3,7,3,8,3,9,4,5,4,6,4,7,4,8,4,9,5,6,5,7,5,8,5,9,6,7,6,8,6,9,7,8,7,9,8,9],"input_length":92,"expected_result":9},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"negative-vertex-count","input_values":[-1,0],"input_length":2,"expected_result":-1},
+    {"id":"vertex-count-over-bound","input_values":[11,0],"input_length":2,"expected_result":-1},
+    {"id":"edge-count-over-bound","input_values":[2,46],"input_length":2,"expected_result":-1},
+    {"id":"out-of-range-endpoint","input_values":[3,1,0,3],"input_length":4,"expected_result":-1},
+    {"id":"truncated-edge","input_values":[2,1,0],"input_length":3,"expected_result":-1}
+  ]
+}

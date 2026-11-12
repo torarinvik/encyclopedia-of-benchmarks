@@ -1,0 +1,129 @@
+const GEO_MODULUS: i64 = 998244353
+const GEO_MAX_N: usize = 8
+const GEO_MAX_M: usize = 8
+const GEO_NTT_SIZE: usize = 32
+const GEO_MAX_INPUT: usize = 12
+const GEO_MAX_OUTPUT_BYTES: usize = 64
+
+def geo_mod_pow(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- result * base % GEO_MODULUS
+        base <- base * base % GEO_MODULUS
+        exponent <- exponent >> 1
+    return result
+
+def geo_store_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def geo_ntt(values: mutable view[i64], inverse: bool) -> void:
+    j: mutable usize = 0
+    for i in 1..<GEO_NTT_SIZE:
+        bit: mutable usize = GEO_NTT_SIZE / 2
+        while (j & bit) != 0:
+            j <- j ^ bit
+            bit <- bit >> 1
+        j <- j ^ bit
+        if i < j:
+            temp: i64 = values[i]
+            values[i] <- values[j]
+            values[j] <- temp
+    block: mutable usize = 2
+    while block <= GEO_NTT_SIZE:
+        root: mutable i64 = geo_mod_pow(3, (GEO_MODULUS - 1) / block.i64())
+        if inverse: root <- geo_mod_pow(root, GEO_MODULUS - 2)
+        half: usize = block / 2
+        start: mutable usize = 0
+        while start < GEO_NTT_SIZE:
+            factor: mutable i64 = 1
+            for offset in 0..<half:
+                even: i64 = values[start + offset]
+                odd: i64 = values[start + offset + half] * factor % GEO_MODULUS
+                values[start + offset] <- (even + odd) % GEO_MODULUS
+                values[start + offset + half] <- (even - odd + GEO_MODULUS) % GEO_MODULUS
+                factor <- factor * root % GEO_MODULUS
+            start <- start + block
+        block <- block * 2
+    if inverse:
+        scale: i64 = geo_mod_pow(GEO_NTT_SIZE.i64(), GEO_MODULUS - 2)
+        for i in 0..<GEO_NTT_SIZE: values[i] <- values[i] * scale % GEO_MODULUS
+
+def geo_evaluate(coefficients: view[i64], offset: usize, count: usize, x: i64) -> i64:
+    value: mutable i64 = 0
+    degree: mutable usize = count
+    while degree > 0:
+        degree <- degree - 1
+        value <- (value * x + coefficients[offset + degree]) % GEO_MODULUS
+    return value
+
+def multipoint_evaluation_on_geometric_sequence_impl(
+    input: view[i64], length: usize, output: mutable view[u8],
+    capacity: usize, output_is_null: bool,
+) -> i64:
+    if length < 5 or length > GEO_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > GEO_MAX_N.i64() or m_value < 1 or m_value > GEO_MAX_M.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    start: i64 = input[2]
+    ratio: i64 = input[3]
+    if length != n + 4 or start < 0 or start >= GEO_MODULUS or ratio < 0 or ratio >= GEO_MODULUS: return -1
+    for i in 0..<n:
+        if input[4 + i] < 0 or input[4 + i] >= GEO_MODULUS: return -1
+    bytes: usize = 8 * m
+    if output_is_null or capacity < bytes: return -2
+    if start == 0:
+        for i in 0..<m: geo_store_le(output, 8 * i, input[4])
+        return bytes.i64()
+    if ratio == 0:
+        geo_store_le(output, 0, geo_evaluate(input, 4, n, start))
+        for i in 1..<m: geo_store_le(output, 8 * i, input[4])
+        return bytes.i64()
+
+    inverse_ratio: i64 = geo_mod_pow(ratio, GEO_MODULUS - 2)
+    left: mutable i64[GEO_NTT_SIZE] = zeroed
+    right: mutable i64[GEO_NTT_SIZE] = zeroed
+    start_power: mutable i64 = 1
+    inverse_chirp: mutable i64 = 1
+    inverse_ratio_power: mutable i64 = 1
+    for degree in 0..<n:
+        left[n - 1 - degree] <- input[4 + degree] * start_power % GEO_MODULUS * inverse_chirp % GEO_MODULUS
+        start_power <- start_power * start % GEO_MODULUS
+        inverse_chirp <- inverse_chirp * inverse_ratio_power % GEO_MODULUS
+        inverse_ratio_power <- inverse_ratio_power * inverse_ratio % GEO_MODULUS
+    chirp: mutable i64 = 1
+    ratio_power: mutable i64 = 1
+    for index in 0..<(n + m - 1):
+        right[index] <- chirp
+        chirp <- chirp * ratio_power % GEO_MODULUS
+        ratio_power <- ratio_power * ratio % GEO_MODULUS
+    geo_ntt(left[0:GEO_NTT_SIZE], false)
+    geo_ntt(right[0:GEO_NTT_SIZE], false)
+    for i in 0..<GEO_NTT_SIZE: left[i] <- left[i] * right[i] % GEO_MODULUS
+    geo_ntt(left[0:GEO_NTT_SIZE], true)
+    inverse_chirp <- 1
+    inverse_ratio_power <- 1
+    for i in 0..<m:
+        geo_store_le(output, 8 * i, left[n - 1 + i] * inverse_chirp % GEO_MODULUS)
+        inverse_chirp <- inverse_chirp * inverse_ratio_power % GEO_MODULUS
+        inverse_ratio_power <- inverse_ratio_power * inverse_ratio % GEO_MODULUS
+    return bytes.i64()
+
+export fn multipoint_evaluation_on_geometric_sequence(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize,
+) -> i64:
+    if input.is_null() or length < 5 or length > GEO_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return multipoint_evaluation_on_geometric_sequence_impl(input_view, length, scratch[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > GEO_MAX_OUTPUT_BYTES: safe_capacity <- GEO_MAX_OUTPUT_BYTES
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    multipoint_evaluation_on_geometric_sequence_impl(input_view, length, output_view, capacity, false)

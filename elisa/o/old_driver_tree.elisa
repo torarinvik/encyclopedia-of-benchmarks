@@ -1,0 +1,189 @@
+const ODT_MAX_N: usize = 32
+const ODT_MAX_Q: usize = 32
+const ODT_MAX_INPUT: usize = 195
+const ODT_MAX_RUNS: usize = 36
+const ODT_RUN_BASE: usize = 1
+const ODT_STATE_SIZE: usize = ODT_RUN_BASE + 3 * ODT_MAX_RUNS
+
+def odt_lower_bound(state: view[i64], count: usize, point: i64) -> usize:
+    lo: mutable usize = 0
+    hi: mutable usize = count
+    while lo < hi:
+        mid: usize = lo + (hi - lo) / 2
+        if state[ODT_RUN_BASE + 3 * mid] < point: lo <- mid + 1
+        else: hi <- mid
+    lo
+
+def odt_split_at(state: mutable view[i64], point: i64, n: i64) -> void:
+    if point <= 0 or point >= n: return
+    count: usize = state[0].usize()
+    at: usize = odt_lower_bound(state, count, point)
+    if at < count and state[ODT_RUN_BASE + 3 * at] == point: return
+    old_right: i64 = state[ODT_RUN_BASE + 3 * (at - 1) + 1]
+    old_value: i64 = state[ODT_RUN_BASE + 3 * (at - 1) + 2]
+    i: mutable usize = count
+    while i > at:
+        state[ODT_RUN_BASE + 3 * i] <- state[ODT_RUN_BASE + 3 * (i - 1)]
+        state[ODT_RUN_BASE + 3 * i + 1] <- state[ODT_RUN_BASE + 3 * (i - 1) + 1]
+        state[ODT_RUN_BASE + 3 * i + 2] <- state[ODT_RUN_BASE + 3 * (i - 1) + 2]
+        i <- i - 1
+    state[ODT_RUN_BASE + 3 * (at - 1) + 1] <- point - 1
+    state[ODT_RUN_BASE + 3 * at] <- point
+    state[ODT_RUN_BASE + 3 * at + 1] <- old_right
+    state[ODT_RUN_BASE + 3 * at + 2] <- old_value
+    state[0] <- i64(count + 1)
+
+def odt_coalesce(state: mutable view[i64]) -> void:
+    count: usize = state[0].usize()
+    write: mutable usize = 0
+    for read in 0..<count:
+        if write > 0 and state[ODT_RUN_BASE + 3 * (write - 1) + 1] + 1 == state[ODT_RUN_BASE + 3 * read] and
+            state[ODT_RUN_BASE + 3 * (write - 1) + 2] == state[ODT_RUN_BASE + 3 * read + 2]:
+            state[ODT_RUN_BASE + 3 * (write - 1) + 1] <- state[ODT_RUN_BASE + 3 * read + 1]
+        else:
+            state[ODT_RUN_BASE + 3 * write] <- state[ODT_RUN_BASE + 3 * read]
+            state[ODT_RUN_BASE + 3 * write + 1] <- state[ODT_RUN_BASE + 3 * read + 1]
+            state[ODT_RUN_BASE + 3 * write + 2] <- state[ODT_RUN_BASE + 3 * read + 2]
+            write <- write + 1
+    state[0] <- i64(write)
+
+def odt_modular_power(base: i64, exponent_input: i64, modulus: i64) -> i64:
+    value: mutable i64 = base % modulus
+    if value < 0: value <- value + modulus
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1 % modulus
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- result * value % modulus
+        value <- value * value % modulus
+        exponent <- exponent >> 1
+    result
+
+def odt_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+export fn old_driver_tree(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > ODT_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    nv: i64 = input_view[0]
+    qv: i64 = input_view[1]
+    if nv < 1 or nv > ODT_MAX_N.i64() or qv < 0 or qv > ODT_MAX_Q.i64() or length < 2 + nv.usize(): return -1
+    n: usize = nv.usize()
+    q: usize = qv.usize()
+    initial: mutable i64[ODT_MAX_N] = zeroed
+    ops: mutable i64[5 * ODT_MAX_Q] = zeroed
+    cursor: mutable usize = 2 + n
+    answer_count: mutable usize = 0
+    for i in 0..<n:
+        initial[i] <- input_view[2 + i]
+        if initial[i] < -1000 or initial[i] > 1000: return -1
+    for i in 0..<q:
+        if cursor >= length: return -1
+        kind: i64 = input_view[cursor]
+        cursor <- cursor + 1
+        words: usize = if kind == 3 then 4 else if kind >= 0 and kind <= 2 then 3 else 0
+        if words == 0 or length - cursor < words: return -1
+        left: i64 = input_view[cursor]
+        right: i64 = input_view[cursor + 1]
+        arg: i64 = input_view[cursor + 2]
+        extra: mutable i64 = 0
+        cursor <- cursor + 3
+        if kind == 3:
+            extra <- input_view[cursor]
+            cursor <- cursor + 1
+        if left < 0 or left > right or right >= nv: return -1
+        if (kind <= 1 and (arg < -1000 or arg > 1000)) or
+            (kind == 2 and (arg < 1 or arg > right - left + 1)) or
+            (kind == 3 and (arg < 0 or arg > 8 or extra < 1 or extra > 1000000000)): return -1
+        base: usize = 5 * i
+        ops[base] <- kind
+        ops[base + 1] <- left
+        ops[base + 2] <- right
+        ops[base + 3] <- arg
+        ops[base + 4] <- extra
+        if kind >= 2: answer_count <- answer_count + 1
+    if cursor != length or length > 2 + ODT_MAX_N + 5 * ODT_MAX_Q: return -1
+    required: usize = 8 * answer_count
+    if required > 0 and (output.is_null() or capacity < required): return -2
+    out_view: mutable view[u8] = if required > 0 then output[0:required] else zeroed
+    state: mutable i64[ODT_STATE_SIZE] = zeroed
+    for i in 0..<n:
+        count: usize = state[0].usize()
+        if count > 0 and state[ODT_RUN_BASE + 3 * (count - 1) + 2] == initial[i]:
+            state[ODT_RUN_BASE + 3 * (count - 1) + 1] <- i.i64()
+        else:
+            state[ODT_RUN_BASE + 3 * count] <- i.i64()
+            state[ODT_RUN_BASE + 3 * count + 1] <- i.i64()
+            state[ODT_RUN_BASE + 3 * count + 2] <- initial[i]
+            state[0] <- i64(count + 1)
+    state_view: mutable view[i64] = state[0:ODT_STATE_SIZE]
+    written: mutable usize = 0
+    for oi in 0..<q:
+        base: usize = 5 * oi
+        kind: i64 = ops[base]
+        left: i64 = ops[base + 1]
+        right: i64 = ops[base + 2]
+        arg: i64 = ops[base + 3]
+        extra: i64 = ops[base + 4]
+        if kind <= 1:
+            odt_split_at(state_view, right + 1, nv)
+            odt_split_at(state_view, left, nv)
+            count: usize = state[0].usize()
+            start: usize = odt_lower_bound(state_view, count, left)
+            finish: usize = odt_lower_bound(state_view, count, right + 1)
+            if kind == 0:
+                removed: usize = finish - start
+                old_count: usize = count
+                j: mutable usize = finish
+                while j < old_count:
+                    state[ODT_RUN_BASE + 3 * (j - removed)] <- state[ODT_RUN_BASE + 3 * j]
+                    state[ODT_RUN_BASE + 3 * (j - removed) + 1] <- state[ODT_RUN_BASE + 3 * j + 1]
+                    state[ODT_RUN_BASE + 3 * (j - removed) + 2] <- state[ODT_RUN_BASE + 3 * j + 2]
+                    j <- j + 1
+                count <- old_count - removed
+                j <- count
+                while j > start:
+                    state[ODT_RUN_BASE + 3 * j] <- state[ODT_RUN_BASE + 3 * (j - 1)]
+                    state[ODT_RUN_BASE + 3 * j + 1] <- state[ODT_RUN_BASE + 3 * (j - 1) + 1]
+                    state[ODT_RUN_BASE + 3 * j + 2] <- state[ODT_RUN_BASE + 3 * (j - 1) + 2]
+                    j <- j - 1
+                state[ODT_RUN_BASE + 3 * start] <- left
+                state[ODT_RUN_BASE + 3 * start + 1] <- right
+                state[ODT_RUN_BASE + 3 * start + 2] <- arg
+                state[0] <- i64(count + 1)
+            else:
+                for j in start..<finish: state[ODT_RUN_BASE + 3 * j + 2] <- state[ODT_RUN_BASE + 3 * j + 2] + arg
+            odt_coalesce(state_view)
+        else if kind == 2:
+            ordered: mutable i64[ODT_MAX_N] = zeroed
+            used: mutable usize = 0
+            count: usize = state[0].usize()
+            for j in 0..<count:
+                lo: i64 = if state[ODT_RUN_BASE + 3 * j] > left then state[ODT_RUN_BASE + 3 * j] else left
+                hi: i64 = if state[ODT_RUN_BASE + 3 * j + 1] < right then state[ODT_RUN_BASE + 3 * j + 1] else right
+                if lo <= hi:
+                    for _ in 0..(hi - lo + 1).usize():
+                        at: mutable usize = used
+                        value: i64 = state[ODT_RUN_BASE + 3 * j + 2]
+                        while at > 0 and ordered[at - 1] > value:
+                            ordered[at] <- ordered[at - 1]
+                            at <- at - 1
+                        ordered[at] <- value
+                        used <- used + 1
+            odt_store_le(ordered[(arg - 1).usize()], out_view, 8 * written)
+            written <- written + 1
+        else:
+            total: mutable i64 = 0
+            count: usize = state[0].usize()
+            for j in 0..<count:
+                lo: i64 = if state[ODT_RUN_BASE + 3 * j] > left then state[ODT_RUN_BASE + 3 * j] else left
+                hi: i64 = if state[ODT_RUN_BASE + 3 * j + 1] < right then state[ODT_RUN_BASE + 3 * j + 1] else right
+                if lo <= hi:
+                    width: i64 = hi - lo + 1
+                    value: i64 = odt_modular_power(state[ODT_RUN_BASE + 3 * j + 2], arg, extra)
+                    total <- (total + width * value) % extra
+            odt_store_le(total, out_view, 8 * written)
+            written <- written + 1
+    required.i64()

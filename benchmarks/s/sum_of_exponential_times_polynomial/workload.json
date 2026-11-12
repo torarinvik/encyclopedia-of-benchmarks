@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "sum-of-exponential-times-polynomial-bounded-v1",
+  "algorithm": "sum_of_exponential_times_polynomial",
+  "function_symbol": "sum_of_exponential_times_polynomial",
+  "abi": "i64_array_scalar",
+  "description": "Finite geometric-weighted power sum by binary composition of moment blocks.",
+  "source": {
+    "title": "Library Checker: Sum of Exponential Times Polynomial",
+    "authors": ["Library Checker contributors"],
+    "reference": "Other / sum_of_exponential_times_polynomial",
+    "url": "https://github.com/yosupo06/library-checker-problems/tree/master/other/sum_of_exponential_times_polynomial",
+    "repository_license": "Apache-2.0",
+    "algorithm_attribution": "Finite weighted power sum; clean-room binary block composition and independent rational-tail identity",
+    "implementation_status": "clean-room bounded profile; task contract and mathematical identities only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[r, d, n]",
+    "r_range": [0, 998244352],
+    "degree_range": [0, 32],
+    "n_range": [0, 1000000000000000000],
+    "maximum_valid_length": 3,
+    "maximum_parseable_length": 4,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "sum(r^i * i^d, i=0..n-1) modulo 998244353",
+    "modulus": 998244353,
+    "zero_to_zero": 1,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "operation": "Evaluate the finite geometric-weighted d-th power sum for n terms.",
+    "algorithm": "Represent each block by its weighted moments of orders zero through d. Concatenate blocks using the binomial shift identity and binary exponentiation of a one-element block.",
+    "complexity": "O(d^2 log n) time and O(d^2) fixed binomial storage (O(d) moment vectors).",
+    "supports_ratio_one": true,
+    "supports_zero_length": true,
+    "error_precedence": "Validate exact input shape and all three parameter ranges before evaluating.",
+    "input_is_unchanged": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "empty-sum-zero-ratio", "input_values": [0, 0, 0], "input_length": 3, "expected_result": 0},
+    {"id": "empty-sum-maximum-degree", "input_values": [998244352, 32, 0], "input_length": 3, "expected_result": 0},
+    {"id": "zero-ratio-zero-degree-convention", "input_values": [0, 0, 5], "input_length": 3, "expected_result": 1},
+    {"id": "zero-ratio-positive-degree", "input_values": [0, 7, 1000000000000000000], "input_length": 3, "expected_result": 0},
+    {"id": "unit-ratio-degree-zero-small", "input_values": [1, 0, 7], "input_length": 3, "expected_result": 7},
+    {"id": "unit-ratio-linear-moment", "input_values": [1, 1, 10], "input_length": 3, "expected_result": 45},
+    {"id": "unit-ratio-square-moment", "input_values": [1, 2, 5], "input_length": 3, "expected_result": 30},
+    {"id": "unit-ratio-huge-zero-degree", "input_values": [1, 0, 1000000000000000000], "input_length": 3, "expected_result": 733427426},
+    {"id": "ratio-two-geometric-sum", "input_values": [2, 0, 4], "input_length": 3, "expected_result": 15},
+    {"id": "ratio-two-linear-moment", "input_values": [2, 1, 4], "input_length": 3, "expected_result": 34},
+    {"id": "ratio-two-square-moment", "input_values": [2, 2, 4], "input_length": 3, "expected_result": 90},
+    {"id": "ratio-two-cubic-moment", "input_values": [2, 3, 4], "input_length": 3, "expected_result": 250},
+    {"id": "ratio-minus-one-alternating-linear", "input_values": [998244352, 1, 5], "input_length": 3, "expected_result": 2},
+    {"id": "maximum-degree-two-terms", "input_values": [7, 32, 2], "input_length": 3, "expected_result": 7},
+    {"id": "maximum-profile-boundary", "input_values": [0, 32, 1000000000000000000], "input_length": 3, "expected_result": 0},
+    {"id": "negative-ratio", "input_values": [-1, 2, 3], "input_length": 3, "expected_result": -1},
+    {"id": "degree-over-profile", "input_values": [2, 33, 10], "input_length": 3, "expected_result": -1},
+    {"id": "negative-length", "input_values": [2, 3, -1], "input_length": 3, "expected_result": -1},
+    {"id": "length-over-profile", "input_values": [2, 3, 1000000000000000001], "input_length": 3, "expected_result": -1},
+    {"id": "short-frame", "input_values": [2, 3], "input_length": 2, "expected_result": -1},
+    {"id": "long-frame", "input_values": [2, 3, 4, 5], "input_length": 4, "expected_result": -1}
+  ]
+}

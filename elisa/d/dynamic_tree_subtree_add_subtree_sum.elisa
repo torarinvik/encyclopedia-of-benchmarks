@@ -1,0 +1,342 @@
+const MAX_N: usize = 16
+const MAX_Q: usize = 32
+const MAX_TOKENS: usize = MAX_N + 2 * (MAX_N - 1 + MAX_Q)
+const NODE_FIELDS: usize = 10 * MAX_TOKENS
+const TOTAL_FIELDS: usize = NODE_FIELDS + 2
+const MAX_INPUT: usize = 3 * MAX_N + 5 * MAX_Q + 1
+const MAX_DELTA: i64 = 1000
+const LEFT: usize = 0 * MAX_TOKENS
+const RIGHT: usize = 1 * MAX_TOKENS
+const PARENT: usize = 2 * MAX_TOKENS
+const PRIORITY: usize = 3 * MAX_TOKENS
+const SEQUENCE_SIZE: usize = 4 * MAX_TOKENS
+const MARKER_COUNT: usize = 5 * MAX_TOKENS
+const IS_MARKER: usize = 6 * MAX_TOKENS
+const OWN_VALUE: usize = 7 * MAX_TOKENS
+const SUM: usize = 8 * MAX_TOKENS
+const LAZY_ADD: usize = 9 * MAX_TOKENS
+const NEXT_NODE: usize = NODE_FIELDS
+const RANDOM_STATE: usize = NODE_FIELDS + 1
+
+def seq_size(nodes: view[i64], id: i64) -> usize:
+    if id < 0: return 0
+    nodes[SEQUENCE_SIZE + id.usize()].usize()
+
+def marker_count(nodes: view[i64], id: i64) -> usize:
+    if id < 0: return 0
+    nodes[MARKER_COUNT + id.usize()].usize()
+
+def node_sum(nodes: view[i64], id: i64) -> i64:
+    if id < 0: return 0
+    nodes[SUM + id.usize()]
+
+def pull(nodes: mutable view[i64], id: usize) -> void:
+    left: i64 = nodes[LEFT + id]
+    right: i64 = nodes[RIGHT + id]
+    own_marker: usize = if nodes[IS_MARKER + id] != 0: 1 else: 0
+    nodes[SEQUENCE_SIZE + id] <- 1.i64() + seq_size(nodes, left).i64() + seq_size(nodes, right).i64()
+    nodes[MARKER_COUNT + id] <- (own_marker + marker_count(nodes, left) + marker_count(nodes, right)).i64()
+    nodes[SUM + id] <- nodes[OWN_VALUE + id] + node_sum(nodes, left) + node_sum(nodes, right)
+
+def apply_add(nodes: mutable view[i64], id: i64, delta: i64) -> void:
+    if id < 0: return
+    index: usize = id.usize()
+    count: usize = nodes[MARKER_COUNT + index].usize()
+    if count == 0: return
+    nodes[SUM + index] <- nodes[SUM + index] + delta * count.i64()
+    if nodes[IS_MARKER + index] != 0: nodes[OWN_VALUE + index] <- nodes[OWN_VALUE + index] + delta
+    nodes[LAZY_ADD + index] <- nodes[LAZY_ADD + index] + delta
+
+def push(nodes: mutable view[i64], id: usize) -> void:
+    delta: i64 = nodes[LAZY_ADD + id]
+    if delta == 0: return
+    apply_add(nodes, nodes[LEFT + id], delta)
+    apply_add(nodes, nodes[RIGHT + id], delta)
+    nodes[LAZY_ADD + id] <- 0
+
+def next_priority(nodes: mutable view[i64]) -> i64:
+    x: mutable i64 = nodes[RANDOM_STATE]
+    x <- (x ^ (x << 13)) & 0xffffffff
+    x <- (x ^ (x >> 17)) & 0xffffffff
+    x <- (x ^ (x << 5)) & 0xffffffff
+    nodes[RANDOM_STATE] <- x
+    x
+
+def new_node(nodes: mutable view[i64], marker: bool, value: i64) -> i64:
+    id: usize = nodes[NEXT_NODE].usize()
+    if id >= MAX_TOKENS: return -1
+    nodes[NEXT_NODE] <- (id + 1).i64()
+    nodes[LEFT + id] <- -1
+    nodes[RIGHT + id] <- -1
+    nodes[PARENT + id] <- -1
+    nodes[PRIORITY + id] <- next_priority(nodes)
+    nodes[SEQUENCE_SIZE + id] <- 1
+    nodes[MARKER_COUNT + id] <- if marker: 1 else: 0
+    nodes[IS_MARKER + id] <- if marker: 1 else: 0
+    nodes[OWN_VALUE + id] <- if marker: value else: 0
+    nodes[SUM + id] <- if marker: value else: 0
+    nodes[LAZY_ADD + id] <- 0
+    id.i64()
+
+def split(nodes: mutable view[i64], root: i64, count: usize) -> (i64, i64):
+    if root < 0: return (-1, -1)
+    index: usize = root.usize()
+    push(nodes, index)
+    nodes[PARENT + index] <- -1
+    left: i64 = nodes[LEFT + index]
+    if seq_size(nodes, left) >= count:
+        parts: (i64, i64) = split(nodes, left, count)
+        nodes[LEFT + index] <- parts.1
+        if parts.1 >= 0: nodes[PARENT + parts.1.usize()] <- root
+        pull(nodes, index)
+        nodes[PARENT + index] <- -1
+        return (parts.0, root)
+    right: i64 = nodes[RIGHT + index]
+    parts: (i64, i64) = split(nodes, right, count - seq_size(nodes, left) - 1)
+    nodes[RIGHT + index] <- parts.0
+    if parts.0 >= 0: nodes[PARENT + parts.0.usize()] <- root
+    pull(nodes, index)
+    nodes[PARENT + index] <- -1
+    (root, parts.1)
+
+def merge(nodes: mutable view[i64], first: i64, second: i64) -> i64:
+    if first < 0:
+        if second >= 0: nodes[PARENT + second.usize()] <- -1
+        return second
+    if second < 0:
+        nodes[PARENT + first.usize()] <- -1
+        return first
+    a: usize = first.usize()
+    b: usize = second.usize()
+    nodes[PARENT + a] <- -1
+    nodes[PARENT + b] <- -1
+    if nodes[PRIORITY + a] >= nodes[PRIORITY + b]:
+        push(nodes, a)
+        joined: i64 = merge(nodes, nodes[RIGHT + a], second)
+        nodes[RIGHT + a] <- joined
+        if joined >= 0: nodes[PARENT + joined.usize()] <- first
+        pull(nodes, a)
+        nodes[PARENT + a] <- -1
+        return first
+    push(nodes, b)
+    joined: i64 = merge(nodes, first, nodes[LEFT + b])
+    nodes[LEFT + b] <- joined
+    if joined >= 0: nodes[PARENT + joined.usize()] <- second
+    pull(nodes, b)
+    nodes[PARENT + b] <- -1
+    second
+
+def root_of(nodes: view[i64], start: i64) -> i64:
+    id: mutable i64 = start
+    while nodes[PARENT + id.usize()] >= 0: id <- nodes[PARENT + id.usize()]
+    id
+
+def rank_of(nodes: view[i64], start: i64) -> usize:
+    id: mutable i64 = start
+    rank: mutable usize = seq_size(nodes, nodes[LEFT + id.usize()])
+    while nodes[PARENT + id.usize()] >= 0:
+        parent: i64 = nodes[PARENT + id.usize()]
+        if nodes[RIGHT + parent.usize()] == id:
+            rank <- rank + 1 + seq_size(nodes, nodes[LEFT + parent.usize()])
+        id <- parent
+    rank
+
+def rotate_to(nodes: mutable view[i64], id: i64) -> i64:
+    root: i64 = root_of(nodes, id)
+    parts: (i64, i64) = split(nodes, root, rank_of(nodes, id))
+    merge(nodes, parts.1, parts.0)
+
+def link_tours(nodes: mutable view[i64], markers: view[i64], u: usize, v: usize) -> (bool, i64, i64):
+    root_u: i64 = root_of(nodes, markers[u])
+    root_v: i64 = root_of(nodes, markers[v])
+    if root_u == root_v: return (false, -1, -1)
+    a: (i64, i64) = split(nodes, root_u, rank_of(nodes, markers[u]) + 1)
+    b: (i64, i64) = split(nodes, root_v, rank_of(nodes, markers[v]))
+    b2: (i64, i64) = split(nodes, b.1, 1)
+    uv: i64 = new_node(nodes, false, 0)
+    vu: i64 = new_node(nodes, false, 0)
+    if uv < 0 or vu < 0: return (false, -1, -1)
+    root: i64 = merge(nodes, a.0, uv)
+    root <- merge(nodes, root, b2.1)
+    root <- merge(nodes, root, b.0)
+    root <- merge(nodes, root, b2.0)
+    root <- merge(nodes, root, vu)
+    root <- merge(nodes, root, a.1)
+    (true, uv, vu)
+
+def cut_tours(nodes: mutable view[i64], uv: i64, vu: i64) -> bool:
+    root: i64 = rotate_to(nodes, uv)
+    reverse_rank: usize = rank_of(nodes, vu)
+    if reverse_rank == 0: return false
+    first: (i64, i64) = split(nodes, root, 1)
+    second: (i64, i64) = split(nodes, first.1, reverse_rank - 1)
+    third: (i64, i64) = split(nodes, second.1, 1)
+    if first.0 != uv or third.0 != vu: return false
+    nodes[LEFT + uv.usize()] <- -1
+    nodes[RIGHT + uv.usize()] <- -1
+    nodes[PARENT + uv.usize()] <- -1
+    nodes[LEFT + vu.usize()] <- -1
+    nodes[RIGHT + vu.usize()] <- -1
+    nodes[PARENT + vu.usize()] <- -1
+    true
+
+def side_operation(nodes: mutable view[i64], uv: i64, vu: i64, update: bool, delta: i64) -> (bool, i64):
+    root: i64 = rotate_to(nodes, uv)
+    reverse_rank: usize = rank_of(nodes, vu)
+    if reverse_rank == 0: return (false, 0)
+    first: (i64, i64) = split(nodes, root, 1)
+    second: (i64, i64) = split(nodes, first.1, reverse_rank - 1)
+    if first.0 != uv or second.0 < 0: return (false, 0)
+    answer: mutable i64 = 0
+    if update: apply_add(nodes, second.0, delta)
+    else: answer <- node_sum(nodes, second.0)
+    joined: i64 = merge(nodes, first.0, second.0)
+    joined <- merge(nodes, joined, second.1)
+    (true, answer)
+
+def connected(adjacency: view[bool], n: usize, start: usize, goal: usize) -> bool:
+    seen: mutable bool[MAX_N] = zeroed
+    queue: mutable usize[MAX_N] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    queue[0] <- start
+    seen[start] <- true
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        if u == goal: return true
+        for v in 0..<n:
+            if adjacency[u * MAX_N + v] and not seen[v]:
+                seen[v] <- true
+                queue[tail] <- v
+                tail <- tail + 1
+    false
+
+def validate_fields(input: view[i64], n: usize, q: usize) -> (bool, usize):
+    for i in 0..<n:
+        if input[2 + i] < 0 or input[2 + i] > MAX_DELTA: return (false, 0)
+    edge_start: usize = 2 + n
+    for i in 0..<(n - 1):
+        u: i64 = input[edge_start + 2 * i]
+        v: i64 = input[edge_start + 2 * i + 1]
+        if u < 0 or u >= n.i64() or v < 0 or v >= n.i64() or u == v: return (false, 0)
+    operations: usize = edge_start + 2 * (n - 1)
+    queries: mutable usize = 0
+    for i in 0..<q:
+        at: usize = operations + 5 * i
+        kind: i64 = input[at]
+        v: i64 = input[at + 1]
+        p: i64 = input[at + 2]
+        a: i64 = input[at + 3]
+        b: i64 = input[at + 4]
+        if kind == 0:
+            if v < 0 or v >= n.i64() or p < 0 or p >= n.i64() or a < 0 or a >= n.i64() or b < 0 or b >= n.i64() or v == p or a == b: return (false, 0)
+        elif kind == 1:
+            if v < 0 or v >= n.i64() or p < 0 or p >= n.i64() or v == p or a < 0 or a > MAX_DELTA or b != 0: return (false, 0)
+        elif kind == 2:
+            if v < 0 or v >= n.i64() or p < 0 or p >= n.i64() or v == p or a != 0 or b != 0: return (false, 0)
+            queries <- queries + 1
+        else: return (false, 0)
+    (true, queries)
+
+def validate_topology(input: view[i64], n: usize, q: usize) -> bool:
+    adjacency: mutable bool[MAX_N * MAX_N] = zeroed
+    edge_start: usize = 2 + n
+    operations: usize = edge_start + 2 * (n - 1)
+    for i in 0..<(n - 1):
+        u: usize = input[edge_start + 2 * i].usize()
+        v: usize = input[edge_start + 2 * i + 1].usize()
+        if adjacency[u * MAX_N + v]: return false
+        adjacency[u * MAX_N + v] <- true
+        adjacency[v * MAX_N + u] <- true
+    for v in 0..<n:
+        if not connected(adjacency[0:MAX_N * MAX_N], n, 0, v): return false
+    for i in 0..<q:
+        at: usize = operations + 5 * i
+        kind: usize = input[at].usize()
+        v: usize = input[at + 1].usize()
+        p: usize = input[at + 2].usize()
+        if kind == 0:
+            a: usize = input[at + 3].usize()
+            b: usize = input[at + 4].usize()
+            if not adjacency[v * MAX_N + p]: return false
+            adjacency[v * MAX_N + p] <- false
+            adjacency[p * MAX_N + v] <- false
+            if connected(adjacency[0:MAX_N * MAX_N], n, a, b): return false
+            adjacency[a * MAX_N + b] <- true
+            adjacency[b * MAX_N + a] <- true
+        elif not adjacency[v * MAX_N + p]: return false
+    true
+
+def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def dynamic_tree_subtree_add_subtree_sum_impl(input: view[i64], output: mutable view[u8],
+    output_capacity: usize, output_is_null: bool) -> i64:
+    n: usize = input[0].usize()
+    q: usize = input[1].usize()
+    fields: (bool, usize) = validate_fields(input, n, q)
+    if not fields.0 or not validate_topology(input, n, q): return -1
+    output_bytes: usize = fields.1 * 8
+    if output_bytes > 0 and (output_is_null or output_capacity < output_bytes): return -2
+    nodes: mutable i64[TOTAL_FIELDS] = zeroed
+    nodes[RANDOM_STATE] <- 0x9e3779b9
+    markers: mutable i64[MAX_N] = zeroed
+    for i in 0..<n: markers[i] <- new_node(nodes[0:TOTAL_FIELDS], true, input[2 + i])
+    directed: mutable i64[MAX_N * MAX_N] = zeroed
+    for i in 0..<(MAX_N * MAX_N): directed[i] <- -1
+    edge_start: usize = 2 + n
+    operations: usize = edge_start + 2 * (n - 1)
+    for i in 0..<(n - 1):
+        u: usize = input[edge_start + 2 * i].usize()
+        v: usize = input[edge_start + 2 * i + 1].usize()
+        link_result: (bool, i64, i64) = link_tours(nodes[0:TOTAL_FIELDS], markers[0:MAX_N], u, v)
+        if not link_result.0: return -1
+        directed[u * MAX_N + v] <- link_result.1
+        directed[v * MAX_N + u] <- link_result.2
+    answers: mutable i64[MAX_Q] = zeroed
+    answer_count: mutable usize = 0
+    for i in 0..<q:
+        at: usize = operations + 5 * i
+        kind: usize = input[at].usize()
+        v: usize = input[at + 1].usize()
+        p: usize = input[at + 2].usize()
+        if kind == 0:
+            a: usize = input[at + 3].usize()
+            b: usize = input[at + 4].usize()
+            uv: i64 = directed[v * MAX_N + p]
+            vu: i64 = directed[p * MAX_N + v]
+            if uv < 0 or vu < 0 or not cut_tours(nodes[0:TOTAL_FIELDS], uv, vu): return -1
+            directed[v * MAX_N + p] <- -1
+            directed[p * MAX_N + v] <- -1
+            link_result: (bool, i64, i64) = link_tours(nodes[0:TOTAL_FIELDS], markers[0:MAX_N], a, b)
+            if not link_result.0: return -1
+            directed[a * MAX_N + b] <- link_result.1
+            directed[b * MAX_N + a] <- link_result.2
+        elif kind == 1:
+            outcome: (bool, i64) = side_operation(nodes[0:TOTAL_FIELDS], directed[p * MAX_N + v], directed[v * MAX_N + p], true, input[at + 3])
+            if not outcome.0: return -1
+        else:
+            outcome: (bool, i64) = side_operation(nodes[0:TOTAL_FIELDS], directed[p * MAX_N + v], directed[v * MAX_N + p], false, 0)
+            if not outcome.0: return -1
+            answers[answer_count] <- outcome.1
+            answer_count <- answer_count + 1
+    for i in 0..<answer_count: put_i64(output, 8 * i, answers[i])
+    output_bytes.i64()
+
+def dynamic_tree_subtree_add_subtree_sum(input: i64&, input_length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("dynamic_tree_subtree_add_subtree_sum"):
+    if input.is_null() or input_length < 2 or input_length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    q64: i64 = input[1]
+    if n64 < 1 or n64 > MAX_N.i64() or q64 < 0 or q64 > MAX_Q.i64(): return -1
+    n: usize = n64.usize()
+    q: usize = q64.usize()
+    if input_length != 3 * n + 5 * q: return -1
+    if output.is_null():
+        dummy: mutable u8[1] = zeroed
+        return dynamic_tree_subtree_add_subtree_sum_impl(input[0:input_length], dummy[0:1], capacity, true)
+    dynamic_tree_subtree_add_subtree_sum_impl(input[0:input_length], output[0:capacity], capacity, false)

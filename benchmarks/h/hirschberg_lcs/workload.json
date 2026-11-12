@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "hirschberg-linear-space-lcs-reconstruction-v1",
+  "algorithm": "hirschberg_lcs",
+  "function_symbol": "hirschberg_lcs",
+  "abi": "i64_array_bytes_output",
+  "description": "Reconstruct one deterministic longest common subsequence by linear-space divide-and-conquer traceback.",
+  "source": {
+    "title": "A linear space algorithm for computing maximal common subsequences",
+    "authors": ["Daniel S. Hirschberg"],
+    "year": 1975,
+    "reference": "Communications of the ACM 18(6), pp. 341-343, DOI 10.1145/360825.360861",
+    "url": "https://doi.org/10.1145/360825.360861",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[first_length, second_length, first_symbols..., second_symbols...]",
+    "sequence_length_range": [0, 64],
+    "symbol_range": [0, 127],
+    "exact_length": "2 + first_length + second_length",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 132,
+    "tie_rule": "Longer sequence is recursion axis (first input on equal lengths); choose smallest second-sequence split offset maximizing forward[j]+backward[width-j]; one-symbol base case chooses its earliest match.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_string",
+    "encoding": "the symbols of one common subsequence in order, with no header or terminator",
+    "maximum_output_bytes": 64,
+    "success_result": "number of output bytes written",
+    "valid_empty_result": 0,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Two 65-element DP rows, a 64-byte staged certificate, and bounded recursion state."
+  },
+  "complexity": {
+    "time": "O(n*m)",
+    "auxiliary_space": "O(min(n,m) + log(max(n,m))) excluding returned bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "Primary uses Hirschberg forward/backward rows and smallest maximizing splits; independent full-table dynamic programming checks that the emitted byte sequence is common to both inputs and has optimal length.",
+  "cases": [
+    {"id":"both_empty","input_values":[0,0],"input_length":2,"output_capacity":64,"expected_result":0,"expected_output_hex":""},
+    {"id":"empty_first","input_values":[0,3,65,66,67],"input_length":5,"output_capacity":64,"expected_result":0,"expected_output_hex":""},
+    {"id":"unique_asymmetric_subsequence","input_values":[6,3,65,66,67,68,69,70,65,67,69],"input_length":11,"output_capacity":64,"expected_result":3,"expected_output_hex":"414345"},
+    {"id":"smallest_split_tie","input_values":[2,2,65,66,66,65],"input_length":6,"output_capacity":64,"expected_result":1,"expected_output_hex":"42"},
+    {"id":"classic_aggtab_gxtxayb","input_values":[6,7,65,71,71,84,65,66,71,88,84,88,65,89,66],"input_length":15,"output_capacity":64,"expected_result":4,"expected_output_hex":"47544142"},
+    {"id":"repeated_symbols","input_values":[4,2,65,65,65,65,65,65],"input_length":8,"output_capacity":64,"expected_result":2,"expected_output_hex":"4141"},
+    {"id":"nul_and_ascii_boundary","input_values":[2,2,0,127,0,127],"input_length":6,"output_capacity":64,"expected_result":2,"expected_output_hex":"007f"},
+    {"id":"maximum_identical_sequences","input_values":[64,64,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63],"input_length":130,"output_capacity":64,"expected_result":64,"expected_output_hex":"000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f"},
+    {"id":"invalid_symbol","input_values":[1,1,128,128],"input_length":4,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input","input_values":[1,1,65,65,0],"input_length":5,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"oversized_sequence","input_values":[65,0],"input_length":2,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_capacity","input_values":[3,3,65,66,67,65,66,67],"input_length":8,"output_capacity":2,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output_for_empty_result","input_values":[0,0],"input_length":2,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,120 @@
+const MAX_VERTICES: usize = 32
+const MAX_INPUT: usize = 131
+const MAX_COORD: i64 = 1000000
+
+def msp_cross(ax: i64, ay: i64, bx: i64, by: i64) -> i64:
+    ax * by - ay * bx
+
+def msp_half(x: i64, y: i64) -> usize:
+    if y > 0 or (y == 0 and x >= 0): 0 else: 1
+
+def msp_angle_compare(ax: i64, ay: i64, bx: i64, by: i64) -> i64:
+    ah: usize = msp_half(ax, ay)
+    bh: usize = msp_half(bx, by)
+    if ah != bh: return if ah < bh: -1 else: 1
+    turn: i64 = msp_cross(ax, ay, bx, by)
+    if turn > 0: -1 else: if turn < 0: 1 else: 0
+
+def msp_edge_x(px: view[i64], py: view[i64], i: usize, n: usize) -> i64:
+    next: usize = (i + 1) % n
+    px[next] - px[i]
+
+def msp_edge_y(px: view[i64], py: view[i64], i: usize, n: usize) -> i64:
+    next: usize = (i + 1) % n
+    py[next] - py[i]
+
+def msp_valid_polygon(px: view[i64], py: view[i64], n: usize) -> bool:
+    wraps: mutable usize = 0
+    for i in 0..<n:
+        next: usize = (i + 1) % n
+        next2: usize = (i + 2) % n
+        ax: i64 = px[next] - px[i]
+        ay: i64 = py[next] - py[i]
+        bx: i64 = px[next2] - px[next]
+        by: i64 = py[next2] - py[next]
+        if (ax == 0 and ay == 0) or msp_cross(ax, ay, bx, by) <= 0: return false
+        if msp_angle_compare(bx, by, ax, ay) < 0: wraps <- wraps + 1
+    wraps == 1
+
+def msp_rotate_lowest(px: mutable view[i64], py: mutable view[i64], n: usize) -> void:
+    first: mutable usize = 0
+    for i in 1..<n:
+        if py[i] < py[first] or (py[i] == py[first] and px[i] < px[first]): first <- i
+    tx: mutable i64[MAX_VERTICES] = zeroed
+    ty: mutable i64[MAX_VERTICES] = zeroed
+    for i in 0..<n:
+        tx[i] <- px[(first + i) % n]
+        ty[i] <- py[(first + i) % n]
+    for i in 0..<n:
+        px[i] <- tx[i]
+        py[i] <- ty[i]
+
+def msp_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def minkowski_sum_convex_polygons_impl(input: view[i64], output: mutable view[u8], capacity: usize,
+        output_is_null: bool) -> i64:
+    length: usize = input.len()
+    if length < 14 or length > MAX_INPUT: return -1
+    if input[0] < 3 or input[0] > 32 or input[1] < 3 or input[1] > 32: return -1
+    pn: usize = input[0].usize()
+    qn: usize = input[1].usize()
+    if length != 2 + 2 * pn + 2 * qn: return -1
+    px: mutable i64[MAX_VERTICES] = zeroed
+    py: mutable i64[MAX_VERTICES] = zeroed
+    qx: mutable i64[MAX_VERTICES] = zeroed
+    qy: mutable i64[MAX_VERTICES] = zeroed
+    sx: mutable i64[2 * MAX_VERTICES] = zeroed
+    sy: mutable i64[2 * MAX_VERTICES] = zeroed
+    at: mutable usize = 2
+    for i in 0..<pn:
+        px[i] <- input[at]
+        py[i] <- input[at + 1]
+        at <- at + 2
+        if px[i] < -MAX_COORD or px[i] > MAX_COORD or py[i] < -MAX_COORD or py[i] > MAX_COORD: return -1
+    for i in 0..<qn:
+        qx[i] <- input[at]
+        qy[i] <- input[at + 1]
+        at <- at + 2
+        if qx[i] < -MAX_COORD or qx[i] > MAX_COORD or qy[i] < -MAX_COORD or qy[i] > MAX_COORD: return -1
+    if not msp_valid_polygon(px[0:pn], py[0:pn], pn) or not msp_valid_polygon(qx[0:qn], qy[0:qn], qn): return -1
+    msp_rotate_lowest(px[0:pn], py[0:pn], pn)
+    msp_rotate_lowest(qx[0:qn], qy[0:qn], qn)
+    i: mutable usize = 0
+    j: mutable usize = 0
+    count: mutable usize = 0
+    while i < pn or j < qn:
+        sx[count] <- px[i % pn] + qx[j % qn]
+        sy[count] <- py[i % pn] + qy[j % qn]
+        count <- count + 1
+        if i == pn:
+            j <- j + 1
+            continue
+        if j == qn:
+            i <- i + 1
+            continue
+        ax: i64 = msp_edge_x(px[0:pn], py[0:pn], i, pn)
+        ay: i64 = msp_edge_y(px[0:pn], py[0:pn], i, pn)
+        bx: i64 = msp_edge_x(qx[0:qn], qy[0:qn], j, qn)
+        by: i64 = msp_edge_y(qx[0:qn], qy[0:qn], j, qn)
+        order: i64 = msp_angle_compare(ax, ay, bx, by)
+        if order <= 0: i <- i + 1
+        if order >= 0: j <- j + 1
+    needed: usize = (1 + 2 * count) * 8
+    if output_is_null or needed > capacity or output.len() < needed: return -2
+    msp_put_i64(output, 0, count.i64())
+    for k in 0..<count:
+        msp_put_i64(output, 8 + 16 * k, sx[k])
+        msp_put_i64(output, 16 + 16 * k, sy[k])
+    needed.i64()
+
+export fn minkowski_sum_convex_polygons(values: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length > MAX_INPUT: return -1
+    if output.is_null():
+        staged: mutable u8[1] = zeroed
+        return minkowski_sum_convex_polygons_impl(values[0:length], staged[0:1], capacity, true)
+    minkowski_sum_convex_polygons_impl(values[0:length], output[0:capacity], capacity, false)

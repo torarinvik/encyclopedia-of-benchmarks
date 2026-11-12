@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-polynomial-root-finding-bounded-cantor-zassenhaus-bytes-v1",
+  "algorithm": "polynomial_root_finding",
+  "function_symbol": "polynomial_root_finding",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "polynomial/polynomial_root_finding/task.md",
+    "limits_path": "polynomial/polynomial_root_finding/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/polynomial/polynomial_root_finding/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/polynomial/polynomial_root_finding/info.toml",
+    "official_n_max": 4000,
+    "modulus": 998244353,
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Operation and field only; bounded profile, ports, fixtures, oracles, and prose are clean-room."
+  },
+  "oracle": "benchmarks/p/polynomial_root_finding/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/polynomial_root_finding/independent_oracle.py",
+  "contract": {
+    "operation": "Return every distinct a in F_998244353 for which f(a)=0.",
+    "input_layout": "[N, f_0, ..., f_N] with coefficients in ascending degree order.",
+    "n_range": [0, 8],
+    "coefficient_range": [0, 998244352],
+    "leading_coefficient_nonzero": true,
+    "modulus": 998244353,
+    "algorithm": "Compute gcd(f,x^p-x) to isolate the squarefree linear part, then use deterministic-seeded Cantor-Zassenhaus character splits. After 32 affine-polynomial attempts per factor, scan all shifts x+c; quadratic-character correlation guarantees a split for every product of at least two distinct linear factors.",
+    "independent_algorithm": "Use deg(gcd(f,x^p-x)) to determine the number of roots in the base field, then directly evaluate f(x) at field elements in increasing order until all roots are found; this is O(pN) in the worst case and serves only as the independent bounded-profile oracle.",
+    "output_layout": "Little-endian signed 64-bit word count followed by the distinct roots in ascending order.",
+    "error_precedence": "Malformed input returns -1 before output checks. Valid input with null output or insufficient output capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, f_0, ..., f_N]",
+    "maximum_valid_length": 10,
+    "maximum_parseable_length": 10,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 9,
+    "maximum_bytes": 72,
+    "success_result": "8*(1+root_count) bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"nonzero-constant-no-roots","input_values":[0,7],"input_length":2,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"linear-root-zero","input_values":[1,0,1],"input_length":3,"expected_result":16,"expected_output_hex":"01000000000000000000000000000000"},
+    {"id":"linear-root-thirteen","input_values":[1,998244340,1],"input_length":3,"expected_result":16,"expected_output_hex":"01000000000000000d00000000000000"},
+    {"id":"quadratic-roots-zero-and-one","input_values":[2,0,998244352,1],"input_length":4,"expected_result":24,"expected_output_hex":"020000000000000000000000000000000100000000000000"},
+    {"id":"quadratic-roots-three-and-five","input_values":[2,15,998244345,1],"input_length":4,"expected_result":24,"expected_output_hex":"020000000000000003000000000000000500000000000000"},
+    {"id":"repeated-root-is-reported-once","input_values":[2,9,998244347,1],"input_length":4,"expected_result":16,"expected_output_hex":"01000000000000000300000000000000"},
+    {"id":"maximum-degree-eight-distinct-roots","input_values":[8,0,998239313,13068,998231221,6769,998242393,322,998244325,1],"input_length":10,"expected_result":72,"expected_output_hex":"080000000000000000000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000"},
+    {"id":"degree-above-profile","input_values":[9,1],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-leading-coefficient","input_values":[2,1,0,0],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coefficient-out-of-field","input_values":[1,998244353,1],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra-input-word","input_values":[1,0,1,9],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,15,998244345,1],"input_length":4,"output_capacity":16,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-buffer","input_values":[1,0,1],"input_length":3,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input-buffer","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

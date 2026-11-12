@@ -22,6 +22,7 @@ LANGUAGES = {
     "c3": "c3",
     "cpp": "cpp",
     "elisa": "elisa",
+    "mojo": "mojo",
     "nim": "nim",
     "odin": "odin",
     "rust": "rs",
@@ -122,7 +123,7 @@ def main() -> int:
     readme = readme_path.read_text(encoding="utf-8")
     for source in SOURCE_BASIS:
         require(source["url"] in readme, f"README is missing provenance URL: {source['title']}")
-    print("eertree static contract, substring oracle, provenance, and nine source paths checked")
+    print("eertree static contract, substring oracle, provenance, and ten source paths checked")
     return 0
 
 

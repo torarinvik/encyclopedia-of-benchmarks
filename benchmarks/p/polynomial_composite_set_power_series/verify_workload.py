@@ -1,0 +1,111 @@
+"""Static fixture, provenance, and ten-language inventory checker."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+try:
+    from .independent_oracle import expected_output as independent_output
+    from .primary_oracle import expected_output as primary_output
+except ImportError:
+    from independent_oracle import expected_output as independent_output
+    from primary_oracle import expected_output as primary_output
+
+PACKAGE = Path(__file__).resolve().parent
+ROOT = PACKAGE.parents[2]
+SYMBOL = "polynomial_composite_set_power_series"
+TASK_URL = "https://github.com/yosupo06/library-checker-problems/blob/master/set_power_series/polynomial_composite_set_power_series/task.md"
+LIMITS_URL = "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/set_power_series/polynomial_composite_set_power_series/info.toml"
+PORTS = {
+    "c": ROOT / "c/p/polynomial_composite_set_power_series.c",
+    "c3": ROOT / "c3/p/polynomial_composite_set_power_series.c3",
+    "cpp": ROOT / "cpp/p/polynomial_composite_set_power_series.cpp",
+    "elisa": ROOT / "elisa/p/polynomial_composite_set_power_series.elisa",
+    "mojo": ROOT / "mojo/p/polynomial_composite_set_power_series.mojo",
+    "nim": ROOT / "nim/p/polynomial_composite_set_power_series.nim",
+    "odin": ROOT / "odin/p/polynomial_composite_set_power_series.odin",
+    "rust": ROOT / "rust/p/polynomial_composite_set_power_series.rs",
+    "v": ROOT / "v/p/polynomial_composite_set_power_series.v",
+    "zig": ROOT / "zig/p/polynomial_composite_set_power_series.zig",
+}
+REQUIRED_CASES = {
+    "zero-polynomial-zero-dimensions", "constant-polynomial-zero-dimensions",
+    "linear-composition-zero-dimensions", "quadratic-one-variable",
+    "identity-on-two-variable-series", "square-cross-term",
+    "cubic-with-overlapping-constant", "modular-cancellation",
+    "negative-coefficient-count", "coefficient-count-too-large",
+    "dimension-too-large", "coefficient-out-of-range", "truncated-set-series",
+    "extra-input-word", "short-output-capacity", "null-output-buffer",
+    "null-input-pointer",
+}
+
+
+def verify() -> list[str]:
+    errors: list[str] = []
+    try:
+        workload = json.loads((PACKAGE / "workload.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        return [f"workload cannot be read: {error}"]
+
+    source = workload.get("source", {})
+    if (workload.get("schema_version") != 1 or workload.get("algorithm") != SYMBOL
+            or workload.get("function_symbol") != SYMBOL
+            or workload.get("abi") != "i64_array_bytes_output"
+            or source.get("task_url") != TASK_URL or source.get("limits_url") != LIMITS_URL
+            or source.get("repository_license") != "Apache-2.0"):
+        errors.append("workload identity or official source attribution mismatch")
+    if (workload.get("oracle") != "benchmarks/p/polynomial_composite_set_power_series/primary_oracle.py"
+            or workload.get("independent_oracle") != "benchmarks/p/polynomial_composite_set_power_series/independent_oracle.py"):
+        errors.append("oracle paths mismatch")
+    contract = workload.get("contract", {})
+    if (contract.get("coefficient_count_range") != [0, 8]
+            or contract.get("n_range") != [0, 4]
+            or contract.get("modulus") != 998244353
+            or "O(M*3^N)" not in contract.get("algorithm", "")):
+        errors.append("bounded polynomial-composition contract mismatch")
+    if (workload.get("input", {}).get("maximum_valid_length") != 26
+            or workload.get("input", {}).get("maximum_parseable_length") != 27
+            or workload.get("output", {}).get("maximum_bytes") != 128
+            or workload.get("workspace", {}).get("maximum_bytes") != 512):
+        errors.append("input, output, or workspace bounds mismatch")
+
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or not cases:
+        return errors + ["workload must contain named fixtures"]
+    identifiers = {case.get("id") for case in cases if isinstance(case, dict)}
+    if len(identifiers) != len(cases) or not REQUIRED_CASES <= identifiers:
+        errors.append("fixture IDs are missing or duplicated")
+    for case in cases:
+        if not isinstance(case, dict):
+            errors.append("fixture entry is not an object")
+            continue
+        values = case.get("input_values", [])
+        length = case.get("input_length")
+        null_input = case.get("input_is_null", False)
+        primary = primary_output(values, case.get("output_capacity"),
+                                 case.get("output_is_null", False), null_input, length)
+        independent = independent_output(values, case.get("output_capacity"),
+                                         case.get("output_is_null", False), null_input, length)
+        if (length != len(values) or primary != independent
+                or primary[0] != case.get("expected_result")
+                or primary[1].hex() != case.get("expected_output_hex")):
+            errors.append(f"fixture/oracle mismatch: {case.get('id')}")
+
+    readme = (PACKAGE / "README.md").read_text(encoding="utf-8")
+    rights = (PACKAGE / "RIGHTS.md").read_text(encoding="utf-8")
+    if TASK_URL not in readme or LIMITS_URL not in readme or "Apache-2.0" not in rights:
+        errors.append("documentation omits task attribution or rights")
+    for language, path in PORTS.items():
+        if not path.is_file():
+            errors.append(f"missing {language} port: {path.relative_to(ROOT)}")
+        elif SYMBOL not in path.read_text(encoding="utf-8"):
+            errors.append(f"entrypoint missing from {language} port")
+        elif str(path.relative_to(ROOT)) not in readme:
+            errors.append(f"README does not link {language} port")
+    return errors
+
+
+if __name__ == "__main__":
+    for error in verify():
+        print(error)

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "hunt-szymanski-sparse-lcs-bounded-v1",
+  "algorithm": "hunt_szymanski_lcs",
+  "function_symbol": "hunt_szymanski_lcs",
+  "abi": "i64_array_scalar",
+  "source": {
+    "kind": "clean-room algorithmic method profile",
+    "title": "A fast algorithm for computing longest common subsequences",
+    "authors": ["James W. Hunt", "Thomas G. Szymanski"],
+    "publication": "Communications of the ACM 20(5), 1977",
+    "url": "https://doi.org/10.1145/359581.359603",
+    "repository_license": "ACM article; no article material reused",
+    "algorithm_attribution": "Matching-position enumeration with descending per-symbol positions and a minimum-tail LIS frontier"
+  },
+  "contract": {
+    "operation": "Return the LCS length of two bounded ASCII-symbol sequences.",
+    "input_layout": "[left_length, right_length, left_symbols..., right_symbols...]",
+    "sequence_length_range": [0, 64],
+    "symbol_range": [0, 127],
+    "matching_pair_count": "R = number of pairs (i,j) for which left[i] == right[j]",
+    "time_complexity": "O(n + m + R log(min(n,m)+1)); worst case O(n*m*log(min(n,m)+1))",
+    "auxiliary_storage": "128 fixed right-position lists of 64 int32 entries plus 64 int32 tails, at most 33536 bytes",
+    "invalid_result": -1
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[left_length, right_length, left_symbols..., right_symbols...]",
+    "maximum_valid_length": 130,
+    "maximum_parseable_input_length": 131,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "valid_range": [0, 64],
+    "invalid_result": -1
+  },
+  "workspace": {
+    "bytes": 33536,
+    "meaning": "Fixed 128-by-64 int32 right-position table and 64-entry int32 LIS-tail array; the 128-entry count table adds 512 bytes, included in the bound."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id": "both-empty", "input_values": [0, 0], "expected_result": 0},
+    {"id": "empty-left", "input_values": [0, 3, 65, 66, 67], "expected_result": 0},
+    {"id": "empty-right", "input_values": [3, 0, 65, 66, 67], "expected_result": 0},
+    {"id": "identical-sequences", "input_values": [5, 5, 65, 66, 67, 68, 69, 65, 66, 67, 68, 69], "expected_result": 5},
+    {"id": "classic-aggtab-gxtxayb", "input_values": [6, 7, 65, 71, 71, 84, 65, 66, 71, 88, 84, 88, 65, 89, 66], "expected_result": 4},
+    {"id": "reverse-permutation", "input_values": [6, 6, 0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1, 0], "expected_result": 1},
+    {"id": "alternating-symbols", "input_values": [4, 4, 65, 66, 65, 66, 66, 65, 66, 65], "expected_result": 3},
+    {"id": "dense-repeated-symbols", "input_values": [5, 3, 65, 65, 65, 65, 65, 65, 65, 65], "expected_result": 3},
+    {"id": "maximum-dense-match-events", "input_values": [64, 64, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65], "expected_result": 64},
+    {"id": "maximum-disjoint-alphabets", "input_values": [64, 64, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127], "expected_result": 0},
+    {"id": "short-count-frame", "input_values": [1], "expected_result": -1},
+    {"id": "oversized-left-length", "input_values": [65], "expected_result": -1},
+    {"id": "truncated-frame", "input_values": [2, 2, 65, 66], "expected_result": -1},
+    {"id": "extra-symbol", "input_values": [1, 1, 65, 66, 67], "expected_result": -1},
+    {"id": "negative-symbol", "input_values": [1, 1, -1, 65], "expected_result": -1},
+    {"id": "symbol-above-ascii-bound", "input_values": [1, 1, 128, 65], "expected_result": -1}
+  ]
+}

@@ -1,0 +1,252 @@
+const ROOT_MODULUS: i64 = 998_244_353
+const ROOT_PRNG_MODULUS: i64 = 2_147_483_647
+const ROOT_MAX_N: usize = 8
+const ROOT_MAX_INPUT: usize = 10
+const ROOT_MAX_PRODUCT: usize = 17
+const ROOT_POLY_WORDS: usize = ROOT_MAX_PRODUCT + 1
+const ROOT_DEGREE_SLOT: usize = ROOT_MAX_PRODUCT
+const ROOT_MAX_OUTPUT_BYTES: usize = 72
+
+def root_normalize(value: i64) -> i64:
+    reduced: mutable i64 = value % ROOT_MODULUS
+    if reduced < 0: reduced <- reduced + ROOT_MODULUS
+    reduced
+
+def root_power_mod(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- result * base % ROOT_MODULUS
+        base <- base * base % ROOT_MODULUS
+        exponent <- exponent >> 1
+    result
+
+def root_zero_poly(output: mutable view[i64]) -> void:
+    for i in 0..<ROOT_POLY_WORDS: output[i] <- 0
+    output[ROOT_DEGREE_SLOT] <- -1
+
+def root_copy_poly(source: view[i64], destination: mutable view[i64]) -> void:
+    for i in 0..<ROOT_POLY_WORDS: destination[i] <- source[i]
+
+def root_trim(poly: mutable view[i64]) -> void:
+    degree: mutable i64 = poly[ROOT_DEGREE_SLOT]
+    while degree >= 0 and poly[degree.usize()] == 0: degree <- degree - 1
+    poly[ROOT_DEGREE_SLOT] <- degree
+
+def root_poly_mod(value: view[i64], divisor: view[i64], output: mutable view[i64]) -> void:
+    root_zero_poly(output)
+    value_degree: i64 = value[ROOT_DEGREE_SLOT]
+    divisor_degree: i64 = divisor[ROOT_DEGREE_SLOT]
+    if divisor_degree <= 0 or value_degree < 0: return
+    for i in 0..=value_degree.usize(): output[i] <- value[i]
+    output[ROOT_DEGREE_SLOT] <- value_degree
+    inverse: i64 = root_power_mod(divisor[divisor_degree.usize()], ROOT_MODULUS - 2)
+    while output[ROOT_DEGREE_SLOT] >= divisor_degree:
+        shift: usize = (output[ROOT_DEGREE_SLOT] - divisor_degree).usize()
+        factor: i64 = output[output[ROOT_DEGREE_SLOT].usize()] * inverse % ROOT_MODULUS
+        for i in 0..=divisor_degree.usize():
+            at: usize = shift + i
+            output[at] <- root_normalize(output[at] - factor * divisor[i])
+        root_trim(output)
+
+def root_multiply_mod(left: view[i64], right: view[i64], modulus_poly: view[i64],
+    output: mutable view[i64]) -> void:
+    root_zero_poly(output)
+    left_degree: i64 = left[ROOT_DEGREE_SLOT]
+    right_degree: i64 = right[ROOT_DEGREE_SLOT]
+    if left_degree < 0 or right_degree < 0: return
+    product: mutable i64[ROOT_MAX_PRODUCT] = zeroed
+    for i in 0..=left_degree.usize():
+        for j in 0..=right_degree.usize():
+            product[i + j] <- (product[i + j] + left[i] * right[j]) % ROOT_MODULUS
+    expanded: mutable i64[ROOT_POLY_WORDS] = zeroed
+    expanded_degree: usize = (left_degree + right_degree).usize()
+    for i in 0..=expanded_degree: expanded[i] <- product[i]
+    expanded[ROOT_DEGREE_SLOT] <- expanded_degree.i64()
+    root_poly_mod(expanded[0:ROOT_POLY_WORDS], modulus_poly, output)
+
+def root_polynomial_power_mod(base: view[i64], exponent_value: i64,
+    modulus_poly: view[i64], output: mutable view[i64]) -> void:
+    result: mutable i64[ROOT_POLY_WORDS] = zeroed
+    result[0] <- 1
+    result[ROOT_DEGREE_SLOT] <- 0
+    base_copy: mutable i64[ROOT_POLY_WORDS] = zeroed
+    root_poly_mod(base, modulus_poly, base_copy[0:ROOT_POLY_WORDS])
+    exponent: mutable i64 = exponent_value
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            product: mutable i64[ROOT_POLY_WORDS] = zeroed
+            root_multiply_mod(result[0:ROOT_POLY_WORDS], base_copy[0:ROOT_POLY_WORDS],
+                modulus_poly, product[0:ROOT_POLY_WORDS])
+            root_copy_poly(product[0:ROOT_POLY_WORDS], result[0:ROOT_POLY_WORDS])
+        square: mutable i64[ROOT_POLY_WORDS] = zeroed
+        root_multiply_mod(base_copy[0:ROOT_POLY_WORDS], base_copy[0:ROOT_POLY_WORDS],
+            modulus_poly, square[0:ROOT_POLY_WORDS])
+        root_copy_poly(square[0:ROOT_POLY_WORDS], base_copy[0:ROOT_POLY_WORDS])
+        exponent <- exponent >> 1
+    root_copy_poly(result[0:ROOT_POLY_WORDS], output)
+
+def root_polynomial_gcd(left_input: view[i64], right_input: view[i64],
+    output: mutable view[i64]) -> void:
+    left: mutable i64[ROOT_POLY_WORDS] = zeroed
+    right: mutable i64[ROOT_POLY_WORDS] = zeroed
+    root_copy_poly(left_input, left[0:ROOT_POLY_WORDS])
+    root_copy_poly(right_input, right[0:ROOT_POLY_WORDS])
+    while right[ROOT_DEGREE_SLOT] >= 0:
+        remainder: mutable i64[ROOT_POLY_WORDS] = zeroed
+        root_poly_mod(left[0:ROOT_POLY_WORDS], right[0:ROOT_POLY_WORDS], remainder[0:ROOT_POLY_WORDS])
+        root_copy_poly(right[0:ROOT_POLY_WORDS], left[0:ROOT_POLY_WORDS])
+        root_copy_poly(remainder[0:ROOT_POLY_WORDS], right[0:ROOT_POLY_WORDS])
+    root_copy_poly(left[0:ROOT_POLY_WORDS], output)
+    if output[ROOT_DEGREE_SLOT] >= 0:
+        inverse: i64 = root_power_mod(output[output[ROOT_DEGREE_SLOT].usize()], ROOT_MODULUS - 2)
+        for i in 0..=output[ROOT_DEGREE_SLOT].usize():
+            output[i] <- output[i] * inverse % ROOT_MODULUS
+
+def root_divide_exact(value: view[i64], divisor: view[i64], output: mutable view[i64]) -> void:
+    work: mutable i64[ROOT_POLY_WORDS] = zeroed
+    root_copy_poly(value, work[0:ROOT_POLY_WORDS])
+    root_zero_poly(output)
+    value_degree: i64 = work[ROOT_DEGREE_SLOT]
+    divisor_degree: i64 = divisor[ROOT_DEGREE_SLOT]
+    output_degree: i64 = value_degree - divisor_degree
+    if output_degree < 0: return
+    output[ROOT_DEGREE_SLOT] <- output_degree
+    inverse: i64 = root_power_mod(divisor[divisor_degree.usize()], ROOT_MODULUS - 2)
+    while work[ROOT_DEGREE_SLOT] >= divisor_degree:
+        shift: usize = (work[ROOT_DEGREE_SLOT] - divisor_degree).usize()
+        factor: i64 = work[work[ROOT_DEGREE_SLOT].usize()] * inverse % ROOT_MODULUS
+        output[shift] <- factor
+        for i in 0..=divisor_degree.usize():
+            at: usize = shift + i
+            work[at] <- root_normalize(work[at] - factor * divisor[i])
+        root_trim(work[0:ROOT_POLY_WORDS])
+    root_trim(output)
+
+def root_split_with_affine(poly: view[i64], slope: i64, offset: i64,
+    first: mutable view[i64], second: mutable view[i64]) -> bool:
+    affine: mutable i64[ROOT_POLY_WORDS] = zeroed
+    affine[0] <- offset
+    affine[1] <- slope
+    affine[ROOT_DEGREE_SLOT] <- 1
+    affine_reduced: mutable i64[ROOT_POLY_WORDS] = zeroed
+    root_poly_mod(affine[0:ROOT_POLY_WORDS], poly, affine_reduced[0:ROOT_POLY_WORDS])
+    powered: mutable i64[ROOT_POLY_WORDS] = zeroed
+    root_polynomial_power_mod(affine_reduced[0:ROOT_POLY_WORDS], (ROOT_MODULUS - 1) / 2,
+        poly, powered[0:ROOT_POLY_WORDS])
+    if powered[ROOT_DEGREE_SLOT] < 0:
+        powered[0] <- ROOT_MODULUS - 1
+        powered[ROOT_DEGREE_SLOT] <- 0
+    else: powered[0] <- root_normalize(powered[0] - 1)
+    root_trim(powered[0:ROOT_POLY_WORDS])
+    part: mutable i64[ROOT_POLY_WORDS] = zeroed
+    root_polynomial_gcd(poly, powered[0:ROOT_POLY_WORDS], part[0:ROOT_POLY_WORDS])
+    part_degree: i64 = part[ROOT_DEGREE_SLOT]
+    if part_degree <= 0 or part_degree >= poly[ROOT_DEGREE_SLOT]: return false
+    root_copy_poly(part[0:ROOT_POLY_WORDS], first)
+    root_divide_exact(poly, part[0:ROOT_POLY_WORDS], second)
+    true
+
+def root_collect_roots(poly: view[i64], roots: mutable view[i64],
+    root_count_input: usize, state_input: i64) -> usize:
+    degree: i64 = poly[ROOT_DEGREE_SLOT]
+    if degree == 1:
+        roots[root_count_input] <- root_normalize(-poly[0] * root_power_mod(poly[1], ROOT_MODULUS - 2))
+        return root_count_input + 1
+    state: mutable i64 = state_input
+    first: mutable i64[ROOT_POLY_WORDS] = zeroed
+    second: mutable i64[ROOT_POLY_WORDS] = zeroed
+    for _ in 0..<32:
+        state <- state * 48_271 % ROOT_PRNG_MODULUS
+        slope: mutable i64 = state % ROOT_MODULUS
+        if slope == 0: slope <- 1
+        state <- state * 48_271 % ROOT_PRNG_MODULUS
+        offset: i64 = state % ROOT_MODULUS
+        if root_split_with_affine(poly, slope, offset,
+            first[0:ROOT_POLY_WORDS], second[0:ROOT_POLY_WORDS]):
+            first_count: usize = root_collect_roots(first[0:ROOT_POLY_WORDS], roots,
+                root_count_input, state)
+            return root_collect_roots(second[0:ROOT_POLY_WORDS], roots, first_count, state + 1)
+    offset: mutable usize = 0
+    while offset < ROOT_MODULUS.usize():
+        if root_split_with_affine(poly, 1, offset.i64(),
+            first[0:ROOT_POLY_WORDS], second[0:ROOT_POLY_WORDS]):
+            first_count: usize = root_collect_roots(first[0:ROOT_POLY_WORDS], roots,
+                root_count_input, state)
+            return root_collect_roots(second[0:ROOT_POLY_WORDS], roots, first_count, state + offset.i64() + 1)
+        offset <- offset + 1
+    root_count_input
+
+def root_find_roots(poly: view[i64], roots: mutable view[i64]) -> usize:
+    if poly[ROOT_DEGREE_SLOT] <= 0: return 0
+    x: mutable i64[ROOT_POLY_WORDS] = zeroed
+    x[1] <- 1
+    x[ROOT_DEGREE_SLOT] <- 1
+    x_mod: mutable i64[ROOT_POLY_WORDS] = zeroed
+    root_poly_mod(x[0:ROOT_POLY_WORDS], poly, x_mod[0:ROOT_POLY_WORDS])
+    x_to_p: mutable i64[ROOT_POLY_WORDS] = zeroed
+    root_polynomial_power_mod(x_mod[0:ROOT_POLY_WORDS], ROOT_MODULUS, poly, x_to_p[0:ROOT_POLY_WORDS])
+    largest: mutable i64 = x_to_p[ROOT_DEGREE_SLOT]
+    if x_mod[ROOT_DEGREE_SLOT] > largest: largest <- x_mod[ROOT_DEGREE_SLOT]
+    if largest >= 0:
+        for i in 0..=largest.usize():
+            left: i64 = 0
+            right: i64 = 0
+            if i.i64() <= x_to_p[ROOT_DEGREE_SLOT]: left <- x_to_p[i]
+            if i.i64() <= x_mod[ROOT_DEGREE_SLOT]: right <- x_mod[i]
+            x_to_p[i] <- root_normalize(left - right)
+    x_to_p[ROOT_DEGREE_SLOT] <- largest
+    root_trim(x_to_p[0:ROOT_POLY_WORDS])
+    linear_part: mutable i64[ROOT_POLY_WORDS] = zeroed
+    root_polynomial_gcd(poly, x_to_p[0:ROOT_POLY_WORDS], linear_part[0:ROOT_POLY_WORDS])
+    if linear_part[ROOT_DEGREE_SLOT] <= 0: return 0
+    seed: mutable i64 = 1
+    for i in 0..=poly[ROOT_DEGREE_SLOT].usize():
+        seed <- (seed * 31 + poly[i]) % (ROOT_PRNG_MODULUS - 1) + 1
+    count: usize = root_collect_roots(linear_part[0:ROOT_POLY_WORDS], roots, 0, seed)
+    for i in 0..<count:
+        for j in (i + 1)..<count:
+            if roots[j] < roots[i]:
+                saved: i64 = roots[i]
+                roots[i] <- roots[j]
+                roots[j] <- saved
+    count
+
+def root_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def polynomial_root_finding_impl(input: view[i64], length: usize,
+    output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+    if length < 2 or length > ROOT_MAX_INPUT: return -1
+    degree_value: i64 = input[0]
+    if degree_value < 0 or degree_value > ROOT_MAX_N.i64() or length != degree_value.usize() + 2: return -1
+    polynomial: mutable i64[ROOT_POLY_WORDS] = zeroed
+    degree: usize = degree_value.usize()
+    polynomial[ROOT_DEGREE_SLOT] <- degree_value
+    for i in 0..=degree:
+        if input[i + 1] < 0 or input[i + 1] >= ROOT_MODULUS: return -1
+        polynomial[i] <- input[i + 1]
+    if polynomial[degree] == 0: return -1
+    roots: mutable i64[ROOT_MAX_N] = zeroed
+    root_count: usize = root_find_roots(polynomial[0:ROOT_POLY_WORDS], roots[0:ROOT_MAX_N])
+    bytes: usize = 8 * (root_count + 1)
+    if output_is_null or capacity < bytes: return -2
+    root_store_le(root_count.i64(), output, 0)
+    for i in 0..<root_count: root_store_le(roots[i], output, 8 * (i + 1))
+    bytes.i64()
+
+export fn polynomial_root_finding(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > ROOT_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return polynomial_root_finding_impl(input_view, length, scratch[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > ROOT_MAX_OUTPUT_BYTES: safe_capacity <- ROOT_MAX_OUTPUT_BYTES
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    polynomial_root_finding_impl(input_view, length, output_view, capacity, false)

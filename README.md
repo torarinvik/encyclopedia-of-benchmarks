@@ -80,6 +80,10 @@ The latest static audit of the pinned TheAlgorithms inventory records 2,506 dist
 
 [Euclidean minimum spanning tree](benchmarks/m/euclidean_mst/README.md) generates Delaunay candidates with exact predicates, then selects the tree with Kruskal.
 
+[Sort points by argument](benchmarks/s/sort_points_by_argument/README.md) orders integer vectors by exact half-plane and cross-product comparisons, including the angle seam, zero vector, and collinear ties.
+
+[Count points in triangle](benchmarks/c/count_points_in_triangle/README.md) answers strict-interior point counts for batches of indexed triangle queries using angular Fenwick sweeps and inclusion-exclusion.
+
 [Minimum-diameter spanning tree](benchmarks/m/minimum_diameter_spanning_tree/README.md) enumerates graph-metric centers and builds a shortest-path tree around the best center.
 
 [Strict second-best MST](benchmarks/s/second_best_mst/README.md) finds the least strictly heavier spanning tree and reports its one-edge exchange certificate.
@@ -89,6 +93,20 @@ The latest static audit of the pinned TheAlgorithms inventory records 2,506 dist
 [Jump on tree](benchmarks/j/jump_on_tree/README.md) answers kth-vertex-on-path queries using shared binary-lifting preprocessing.
 
 [Vertex-set path composite](benchmarks/v/vertex_set_path_composite/README.md) combines point-updated affine maps along a tree path while preserving traversal direction.
+
+[Dynamic tree vertex add and subtree sum](benchmarks/d/dynamic_tree_vertex_add_subtree_sum/README.md) maintains a link-cut tree with virtual-subtree totals while replacing edges, adding vertex weights, and querying one side of an edge.
+
+[Dynamic tree subtree add and subtree sum](benchmarks/d/dynamic_tree_subtree_add_subtree_sum/README.md) uses a lazy Euler-tour treap to add to one edge-oriented component and query its sum while replacing edges in a tree.
+
+[Euler Tour Tree](benchmarks/e/euler_tour_tree/README.md) maintains a dynamic forest with implicit-treap Euler tours, supporting link, cut, vertex-weight assignment, and component size/weight queries.
+
+[Dynamic top-tree component diameter](benchmarks/d/dynamic_top_tree_component_diameter/README.md) builds a balanced rake/compress hierarchy once for a fixed tree, then updates edge weights through cluster ancestors and answers diameter queries from the root summary.
+
+[Dynamic tree vertex-set path composite](benchmarks/t/dynamic_tree_vertex_set_path_composite/README.md) maintains forward and reverse affine-composition summaries in a link-cut tree for edge replacement, vertex-map updates, and oriented path queries.
+
+[Garsia–Wachs alphabetic tree](benchmarks/g/garsia_wachs_alphabetic_tree/README.md) computes minimum weighted external path length for ordered leaf weights and returns an ordered depth certificate.
+
+[Schreier–Sims](benchmarks/s/schreier_sims/README.md) builds a fixed-base stabilizer chain for bounded permutation-group order and membership queries, checked against full group closure.
 
 [Hafnian of a matrix](benchmarks/l/hafnian_of_matrix/README.md) computes the weighted sum over perfect pairings with bounded subset dynamic programming modulo 998244353.
 
@@ -175,6 +193,48 @@ The latest static audit of the pinned TheAlgorithms inventory records 2,506 dist
 [Polynomial interpolation](benchmarks/p/polynomial_interpolation/README.md) reconstructs coefficients from distinct modular points and values using Lagrange bases, with an independent Vandermonde-elimination oracle.
 
 [Power projection of a set power series](benchmarks/p/power_projection_of_set_power_series/README.md) returns weighted projections of successive powers in the square-zero subset algebra, with an independent assignment-enumeration oracle.
+
+[Multipoint polynomial evaluation](benchmarks/m/multipoint_evaluation/README.md) evaluates one polynomial at a batch of supplied points using product and remainder trees, with an independent Horner oracle.
+
+[Polynomial root finding over a finite field](benchmarks/p/polynomial_root_finding/README.md) isolates and splits every base-field linear factor using Cantor–Zassenhaus, with an independent direct-evaluation oracle.
+
+[Multipoint evaluation on a geometric sequence](benchmarks/m/multipoint_evaluation_on_geometric_sequence/README.md) uses the Bluestein chirp-z identity and NTT convolution, with repeated Horner evaluation as an independent oracle.
+
+[Polynomial interpolation on a geometric sequence](benchmarks/p/polynomial_interpolation_on_geometric_sequence/README.md) reconstructs coefficients from geometric sample points using q-Newton divided differences, with an independent Vandermonde-elimination oracle.
+
+[Polynomial composition in a set power series](benchmarks/p/polynomial_composite_set_power_series/README.md) evaluates a univariate polynomial in the square-zero subset algebra using Horner composition and subset convolution, with an independent ordered-factor assignment oracle.
+
+[Farach–Colton–Bender lowest common ancestor](benchmarks/l/lowest_common_ancestor_farach_colton_bender/README.md) answers batched tree queries with Euler-tour ±1 RMQ microblocks and a macroblock sparse table; parent climbing and BFS/ancestor-set oracles are kept independent.
+
+[Fixed-root HLD path-composite sum](benchmarks/p/point_set_tree_path_composite_sum_fixed_root/README.md) maintains affine path aggregates after vertex-value and edge-map updates with heavy-light decomposition and a segment tree; a full postorder recomputation provides the independent oracle.
+
+[Arbitrary-root point-set tree path-composite sum](benchmarks/p/point_set_tree_path_composite_sum/README.md) maintains affine maps and vertex values in a balanced rake/compress top tree, then propagates outside summaries to answer each chosen-root aggregate; direct path reconstruction is the independent oracle.
+
+[De Bruijn sequence generation](benchmarks/d/de_bruijn_sequences/README.md) uses FKM necklace concatenation to emit a bounded k-ary cycle; cyclic-window validation is independent of the generator.
+
+[Knuth's power tree](benchmarks/k/knuth_power_tree/README.md) finds first-discovery exponent paths in one shared addition-chain tree using breadth-first parent expansion; an explicit path-frontier oracle checks the result.
+
+[Prefix-substring LCS](benchmarks/p/prefix_substring_lcs/README.md) batches prefix/substring longest-common-subsequence queries with semi-local boundary values and Fenwick sweeps; direct per-query LCS is the independent oracle.
+
+[Main–Lorentz tandem repetitions](benchmarks/p/main_lorentz_tandem_repetitions/README.md) enumerates every tandem square using divide-and-conquer Z comparisons, with direct adjacent-block comparison as an independent oracle.
+
+[Suffix balanced tree](benchmarks/s/suffix_balanced_tree/README.md) constructs a suffix array by reverse insertion into a scapegoat-style tree whose comparisons use successor suffix ranks, with direct suffix sorting as an independent oracle.
+
+[Old Driver Tree / Chtholly Tree](benchmarks/o/old_driver_tree/README.md) stores a bounded array as maximal constant-value runs for range updates, kth-order queries, and modular power sums. The workload describes its construction-sensitive worst case.
+
+[Segment History Extreme](benchmarks/s/segment_history_extreme/README.md) maintains current and historical range maxima under range assignment and addition, with independent direct-array and prefix-replay oracles.
+
+[Segment Tree Beats](benchmarks/s/segment_tree_beats/README.md) supports range chmin, chmax, addition, and sum queries using second extrema and lazy propagation; a direct-array oracle backs the nine-port scalar suite.
+
+[Point in polygon by ray casting](benchmarks/p/point_in_polygon_ray_casting/README.md) uses exact integer crossings with even–odd fill semantics and explicitly classifies boundary points as inside.
+
+[Kinetic Tournament Tree](benchmarks/p/kinetic_tournament_tree/README.md) tracks changing winners of fixed-slope lines under range translations using certificate deadlines, with direct line evaluation as an independent oracle.
+
+[Minimum string representation](benchmarks/m/minimum_string_representation/README.md) finds the earliest lexicographically least cyclic rotation with linear two-candidate elimination; direct rotation comparison is the independent oracle.
+
+[Infinite geometric-weighted power sum](benchmarks/s/sum_of_exponential_times_polynomial_limit/README.md) evaluates `Σ r^i i^d` modulo 998244353 through an Eulerian-polynomial identity, with an independent Stirling-number oracle.
+
+[Finite geometric-weighted power sum](benchmarks/s/sum_of_exponential_times_polynomial/README.md) evaluates `Σ r^i i^d` for `0 <= i < n` using binary composition of moment blocks, with a rational-tail/Faulhaber oracle.
 
 [Baswana–Sen weighted spanner Algorithm II](benchmarks/s/baswana_sen_weighted_spanner/README.md) replays bounded vertex-clustering rounds from supplied sample masks and joins residual edges to sampled clusters.
 
@@ -863,9 +923,13 @@ The pinned Go `longestarithmeticsubsequence` implementation uses the same endpoi
 
 The pinned Java `FIFOCache` source uses its default zero TTL, so sequential puts and gets expose FIFO insertion-order eviction: overwrite removes and appends the key, while reads do not reorder entries. The bounded [`fifocache`](benchmarks/f/fifocache/README.md) contract records hit/miss counts, get results, and final FIFO contents across nine languages; TTL timing, concurrency, callbacks, and explicit removal are outside its scope. [Pinned source](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/caches/FIFOCache.java).
 
-Recent Library Checker, CP-Algorithms, and OI Wiki additions include [D'Esopo–Pape shortest paths](benchmarks/d/d_esopo_pape/README.md), [Dominator tree](benchmarks/d/dominator_tree/README.md), [Deque operate all composite](benchmarks/d/deque_operate_all_composite/README.md), [Eertree](benchmarks/e/eertree/README.md), [incremental strongly connected components](benchmarks/i/incremental_scc/README.md), [`k_shortest_walk`](benchmarks/k/k_shortest_walk/README.md), [Li Chao tree](benchmarks/l/li_chao_tree/README.md), [Link-Cut Tree](benchmarks/l/link_cut_tree/README.md), [Manhattan MST](benchmarks/m/manhattan_mst/README.md), [point set range composite](benchmarks/p/point_set_range_composite/README.md), [queue operate all composite](benchmarks/q/queue_operate_all_composite/README.md), [Rectangle add point get](benchmarks/r/rectangle_add_point_get/README.md), [range affine point get](benchmarks/r/range_affine_point_get/README.md), [range affine range sum](benchmarks/r/range_affine_range_sum/README.md), [range set range composite](benchmarks/r/range_set_range_composite/README.md), [run enumeration](benchmarks/r/runenumerate/README.md), [st-numbering](benchmarks/s/st_numbering/README.md), [Static range inversions query](benchmarks/s/static_range_inversions_query/README.md), [Static range LIS query](benchmarks/s/static_range_lis_query/README.md), [Static rectangle add rectangle sum](benchmarks/s/static_rectangle_add_rectangle_sum/README.md), [counting directed spanning trees](benchmarks/c/counting_spanning_trees_directed/README.md), [counting undirected spanning trees](benchmarks/c/counting_spanning_trees_undirected/README.md), [rooted tree isomorphism classification](benchmarks/r/rooted_tree_isomorphism_classification/README.md), [segment add get min](benchmarks/s/segment_add_get_min/README.md), [segment tree beats](benchmarks/s/segment_tree_beats/README.md), [static range mode query](benchmarks/s/static_range_mode_query/README.md), and [three-edge-connected components](benchmarks/t/three_edge_connected_components/README.md). Their source comparisons, duplicate decisions, and suite-integration status are tracked in the [additional algorithm coverage ledger](benchmarks/ALGORITHM_EXPANSION_COVERAGE.md).
+Recent source-backed additions from Library Checker, Rosetta Code, CP-Algorithms, OI Wiki, and published algorithm papers include [D'Esopo–Pape shortest paths](benchmarks/d/d_esopo_pape/README.md), [Dominator tree](benchmarks/d/dominator_tree/README.md), [Deque operate all composite](benchmarks/d/deque_operate_all_composite/README.md), [Eertree](benchmarks/e/eertree/README.md), [Gabow path-based SCC](benchmarks/g/gabow_scc/README.md), [Hunt–Szymanski sparse LCS](benchmarks/h/hunt_szymanski_lcs/README.md), [incremental strongly connected components](benchmarks/i/incremental_scc/README.md), [`k_shortest_walk`](benchmarks/k/k_shortest_walk/README.md), [Li Chao tree](benchmarks/l/li_chao_tree/README.md), [Link-Cut Tree](benchmarks/l/link_cut_tree/README.md), [Manhattan MST](benchmarks/m/manhattan_mst/README.md), [Minkowski sum of convex polygons](benchmarks/p/minkowski_sum_convex_polygons/README.md), [point in polygon by ray casting](benchmarks/p/point_in_polygon_ray_casting/README.md), [point set range composite](benchmarks/p/point_set_range_composite/README.md), [queue operate all composite](benchmarks/q/queue_operate_all_composite/README.md), [Rectangle add point get](benchmarks/r/rectangle_add_point_get/README.md), [range affine point get](benchmarks/r/range_affine_point_get/README.md), [range affine range sum](benchmarks/r/range_affine_range_sum/README.md), [range set range composite](benchmarks/r/range_set_range_composite/README.md), [run enumeration](benchmarks/r/runenumerate/README.md), [SA-IS suffix-array construction](benchmarks/s/suffix_array_sais/README.md), [st-numbering](benchmarks/s/st_numbering/README.md), [Static range inversions query](benchmarks/s/static_range_inversions_query/README.md), [Static range LIS query](benchmarks/s/static_range_lis_query/README.md), [Static rectangle add rectangle sum](benchmarks/s/static_rectangle_add_rectangle_sum/README.md), [counting directed spanning trees](benchmarks/c/counting_spanning_trees_directed/README.md), [counting undirected spanning trees](benchmarks/c/counting_spanning_trees_undirected/README.md), [Crochemore–Perrin Two-Way string matching](benchmarks/c/crochemore_perrin_two_way/README.md), [rooted tree isomorphism classification](benchmarks/r/rooted_tree_isomorphism_classification/README.md), [segment add get min](benchmarks/s/segment_add_get_min/README.md), [segment tree beats](benchmarks/s/segment_tree_beats/README.md), [static range mode query](benchmarks/s/static_range_mode_query/README.md), [three-edge-connected components](benchmarks/t/three_edge_connected_components/README.md), and [global vertex connectivity](benchmarks/v/vertex_connectivity/README.md). Their source comparisons, duplicate decisions, and suite-integration status are tracked in the [additional algorithm coverage ledger](benchmarks/ALGORITHM_EXPANSION_COVERAGE.md).
 
 [Dynamic graph vertex-add component-sum](benchmarks/d/dynamic_graph_vertex_add_component_sum/README.md) covers edge insertion/removal, vertex-value updates, and component-sum queries with a time segment tree and rollback DSU; its ten ports are registered in the byte-output suite with direct-graph and independent rebuild-DSU oracles.
+
+[Virtual tree](benchmarks/v/virtual_tree/README.md) builds the LCA-closed compressed tree for a marked vertex set; its ten ports use adjacent-mark LCAs and the byte-output suite includes generated tree, empty-mark, maximum-output, malformed-input, and capacity cases.
+
+[Hirschberg LCS reconstruction](benchmarks/h/hirschberg_lcs/README.md) returns an actual longest common subsequence using shared forward and backward rows; its full-table verifier checks the result independently, and the byte-output suite covers maximum sequences and capacity boundaries.
 
 [Deque operate all composite](benchmarks/d/deque_operate_all_composite/README.md) maintains affine-function composition across pushes and pops at both ends; its nine ports are registered in the scalar suite with a direct-list oracle. [Rectangle add point get](benchmarks/r/rectangle_add_point_get/README.md) supports dynamic half-open rectangle updates with point queries, while [static rectangle add rectangle sum](benchmarks/s/static_rectangle_add_rectangle_sum/README.md) handles a fixed update batch and rectangle-sum queries modulo 998244353. Both rectangle packages have ten ports and byte-output suite registration. [Static range LIS query](benchmarks/s/static_range_lis_query/README.md) provides strict LIS lengths over permutation subranges with a bounded per-query scan, while [static range inversions](benchmarks/s/static_range_inversions_query/README.md) answers strict inversion counts on arbitrary subranges using Mo ordering and a Fenwick tree. Both are registered in the byte-output suite.
 
@@ -918,3 +982,7 @@ Recent Library Checker, CP-Algorithms, and OI Wiki additions include [D'Esopo–
 The [SPLASH-2-inspired water profiles](benchmarks/s/splash2_water_nsquared/README.md) share a bounded rational molecule-pair law and byte output. [`splash2_water_nsquared`](benchmarks/s/splash2_water_nsquared/README.md) scans all pairs; [`water_spatial`](benchmarks/w/water_spatial/README.md) builds uniform cells and searches clipped neighbor cells. Each has ten ports and independent oracle coverage; neither claims to reproduce the full molecular-dynamics application.
 
 [Incremental XOR linear basis](benchmarks/x/xor_linear_basis/README.md) maintains a 63-pivot basis for insertions, maximum-subset-XOR queries, and representability checks. Ten ports, exhaustive-subset primary and independent checkers bounded to 16 insertions, and byte-output suite wiring are present.
+
+[GraphAIBench gated graph-message update](benchmarks/g/graphai_ggnn_message_update/README.md) sums each vertex's outgoing neighbor states, applies reset/update gates and a recurrent candidate using six supplied matrices, and emits the next node states. Nine standard-language ports plus Mojo are wired into the float64 slice suite.
+
+[Kahan compensated summation](benchmarks/k/kahan_summation/README.md) processes ordered binary64 values with a running correction term. Ten ports, an exact-step independent verifier, and float64 slice suite registration are present.

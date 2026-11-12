@@ -1,0 +1,56 @@
+# Return the LCS length from descending matching positions and an LIS frontier.
+def hunt_szymanski_lcs_impl(input_values: i64&, length: usize) -> i64:
+    if length < 2 or length > 131:
+        return -1
+    n_value: i64 = input_values[0]
+    m_value: i64 = input_values[1]
+    if n_value < 0 or n_value > 64 or m_value < 0 or m_value > 64:
+        return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + n + m:
+        return -1
+
+    index: mutable usize = 0
+    while index < n + m:
+        value: i64 = input_values[2 + index]
+        if value < 0 or value > 127:
+            return -1
+        index <- index + 1
+
+    positions: mutable i32[8192] = zeroed
+    counts: mutable i32[128] = zeroed
+    tails: mutable i32[64] = zeroed
+    right_index: mutable usize = 0
+    while right_index < m:
+        symbol: usize = input_values[2 + n + right_index].usize()
+        count: usize = counts[symbol].usize()
+        positions[symbol * 64 + count] <- right_index.i32()
+        counts[symbol] <- counts[symbol] + 1
+        right_index <- right_index + 1
+
+    tail_count: mutable usize = 0
+    left_index: mutable usize = 0
+    while left_index < n:
+        symbol: usize = input_values[2 + left_index].usize()
+        count: mutable usize = counts[symbol].usize()
+        while count > 0:
+            count <- count - 1
+            position: i32 = positions[symbol * 64 + count]
+            low: mutable usize = 0
+            high: mutable usize = tail_count
+            while low < high:
+                middle: usize = low + (high - low) / 2
+                if tails[middle] >= position:
+                    high <- middle
+                else:
+                    low <- middle + 1
+            if low == tail_count:
+                tails[tail_count] <- position
+                tail_count <- tail_count + 1
+            else:
+                tails[low] <- position
+        left_index <- left_index + 1
+    tail_count.i64()
+
+export fn hunt_szymanski_lcs(input_values: i64&, length: usize) -> i64 = hunt_szymanski_lcs_impl

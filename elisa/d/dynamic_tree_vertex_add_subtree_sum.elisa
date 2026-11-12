@@ -1,0 +1,226 @@
+const MAX_N: usize = 32
+const MAX_Q: usize = 64
+const NODE_FIELDS: usize = 7 * MAX_N
+const MAX_INPUT: usize = 3 * MAX_N + 5 * MAX_Q + 1
+const MAX_VALUE: i64 = 1000
+const LEFT: usize = 0
+const RIGHT: usize = MAX_N
+const PARENT: usize = 2 * MAX_N
+const REV: usize = 3 * MAX_N
+const VALUE: usize = 4 * MAX_N
+const VIRTUAL: usize = 5 * MAX_N
+const SUM: usize = 6 * MAX_N
+
+def lct_aux_root(nodes: view[i64], x: usize) -> bool:
+    parent: i64 = nodes[PARENT + x]
+    parent < 0 or (nodes[LEFT + parent.usize()] != x.i64() and nodes[RIGHT + parent.usize()] != x.i64())
+
+def lct_sum(nodes: view[i64], x: i64) -> i64:
+    if x < 0: return 0
+    nodes[SUM + x.usize()]
+
+def lct_pull(nodes: mutable view[i64], x: usize) -> void:
+    nodes[SUM + x] <- nodes[VALUE + x] + nodes[VIRTUAL + x] + lct_sum(nodes, nodes[LEFT + x]) + lct_sum(nodes, nodes[RIGHT + x])
+
+def lct_reverse(nodes: mutable view[i64], x: i64) -> void:
+    if x < 0: return
+    index: usize = x.usize()
+    temporary: i64 = nodes[LEFT + index]
+    nodes[LEFT + index] <- nodes[RIGHT + index]
+    nodes[RIGHT + index] <- temporary
+    nodes[REV + index] <- 1 - nodes[REV + index]
+
+def lct_push(nodes: mutable view[i64], x: usize) -> void:
+    if nodes[REV + x] == 0: return
+    lct_reverse(nodes, nodes[LEFT + x])
+    lct_reverse(nodes, nodes[RIGHT + x])
+    nodes[REV + x] <- 0
+
+def lct_rotate(nodes: mutable view[i64], x: usize) -> void:
+    p: usize = nodes[PARENT + x].usize()
+    g_value: i64 = nodes[PARENT + p]
+    right_child: bool = nodes[RIGHT + p] == x.i64()
+    middle: i64 = if right_child then nodes[LEFT + x] else nodes[RIGHT + x]
+    if not lct_aux_root(nodes, p):
+        g: usize = g_value.usize()
+        if nodes[LEFT + g] == p.i64(): nodes[LEFT + g] <- x.i64()
+        else: nodes[RIGHT + g] <- x.i64()
+    nodes[PARENT + x] <- g_value
+    if right_child:
+        nodes[LEFT + x] <- p.i64()
+        nodes[RIGHT + p] <- middle
+    else:
+        nodes[RIGHT + x] <- p.i64()
+        nodes[LEFT + p] <- middle
+    nodes[PARENT + p] <- x.i64()
+    if middle >= 0: nodes[PARENT + middle.usize()] <- p.i64()
+    lct_pull(nodes, p)
+    lct_pull(nodes, x)
+
+def lct_splay(nodes: mutable view[i64], x: usize) -> void:
+    stack: mutable usize[MAX_N] = zeroed
+    count: mutable usize = 1
+    y: mutable usize = x
+    stack[0] <- y
+    while not lct_aux_root(nodes, y):
+        y <- nodes[PARENT + y].usize()
+        stack[count] <- y
+        count <- count + 1
+    while count > 0:
+        count <- count - 1
+        lct_push(nodes, stack[count])
+    while not lct_aux_root(nodes, x):
+        p: usize = nodes[PARENT + x].usize()
+        if not lct_aux_root(nodes, p):
+            g: usize = nodes[PARENT + p].usize()
+            zigzig: bool = (nodes[LEFT + p] == x.i64()) == (nodes[LEFT + g] == p.i64())
+            lct_rotate(nodes, if zigzig then p else x)
+        lct_rotate(nodes, x)
+
+def lct_access(nodes: mutable view[i64], x: usize) -> void:
+    last: mutable i64 = -1
+    y: mutable i64 = x.i64()
+    while y >= 0:
+        index: usize = y.usize()
+        lct_splay(nodes, index)
+        old_right: i64 = nodes[RIGHT + index]
+        delta: i64 = lct_sum(nodes, old_right) - lct_sum(nodes, last)
+        nodes[VIRTUAL + index] <- nodes[VIRTUAL + index] + delta
+        nodes[RIGHT + index] <- last
+        if last >= 0: nodes[PARENT + last.usize()] <- y
+        lct_pull(nodes, index)
+        last <- y
+        y <- nodes[PARENT + index]
+    lct_splay(nodes, x)
+
+def lct_make_root(nodes: mutable view[i64], x: usize) -> void:
+    lct_access(nodes, x)
+    lct_reverse(nodes, x.i64())
+
+def lct_find_root(nodes: mutable view[i64], x: usize) -> usize:
+    lct_access(nodes, x)
+    lct_push(nodes, x)
+    root: mutable usize = x
+    while nodes[LEFT + root] >= 0:
+        root <- nodes[LEFT + root].usize()
+        lct_push(nodes, root)
+    lct_splay(nodes, root)
+    root
+
+def lct_link(nodes: mutable view[i64], u: usize, v: usize) -> bool:
+    if u == v: return false
+    lct_make_root(nodes, u)
+    if lct_find_root(nodes, v) == u: return false
+    lct_access(nodes, v)
+    nodes[PARENT + u] <- v.i64()
+    nodes[VIRTUAL + v] <- nodes[VIRTUAL + v] + nodes[SUM + u]
+    lct_pull(nodes, v)
+    true
+
+def lct_cut(nodes: mutable view[i64], u: usize, v: usize) -> bool:
+    if u == v: return false
+    lct_make_root(nodes, u)
+    lct_access(nodes, v)
+    if nodes[LEFT + v] != u.i64() or nodes[RIGHT + u] >= 0: return false
+    nodes[LEFT + v] <- -1
+    nodes[PARENT + u] <- -1
+    lct_pull(nodes, v)
+    true
+
+def lct_subtree_sum(nodes: mutable view[i64], vertex: usize, parent: usize) -> i64:
+    lct_make_root(nodes, parent)
+    lct_access(nodes, vertex)
+    if nodes[LEFT + vertex] != parent.i64() or nodes[RIGHT + parent] >= 0: return -1
+    nodes[VALUE + vertex] + nodes[VIRTUAL + vertex]
+
+def lct_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def dynamic_tree_vertex_add_subtree_sum(input: i64&, input_length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("dynamic_tree_vertex_add_subtree_sum"):
+    if input.is_null() or input_length < 3 or input_length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    q64: i64 = input[1]
+    if n64 < 1 or n64 > MAX_N.i64() or q64 < 0 or q64 > MAX_Q.i64(): return -1
+    n: usize = n64.usize()
+    q: usize = q64.usize()
+    if input_length != 3 * n + 5 * q: return -1
+    i: mutable usize = 0
+    while i < n:
+        if input[2 + i] < 0 or input[2 + i] > MAX_VALUE: return -1
+        i <- i + 1
+    edge_start: usize = 2 + n
+    operation_start: usize = edge_start + 2 * (n - 1)
+    i <- 0
+    while i < n - 1:
+        u: i64 = input[edge_start + 2 * i]
+        v: i64 = input[edge_start + 2 * i + 1]
+        if u < 0 or u >= n64 or v < 0 or v >= n64 or u == v: return -1
+        i <- i + 1
+    i <- 0
+    while i < q:
+        at: usize = operation_start + 5 * i
+        kind: i64 = input[at]
+        a: i64 = input[at + 1]
+        b: i64 = input[at + 2]
+        c: i64 = input[at + 3]
+        d: i64 = input[at + 4]
+        if kind == 0:
+            if a < 0 or a >= n64 or b < 0 or b >= n64 or c < 0 or c >= n64 or d < 0 or d >= n64 or a == b or c == d: return -1
+        else if kind == 1:
+            if a < 0 or a >= n64 or b < 0 or b > MAX_VALUE or c != 0 or d != 0: return -1
+        else if kind == 2:
+            if a < 0 or a >= n64 or b < 0 or b >= n64 or c != 0 or d != 0: return -1
+        else: return -1
+        i <- i + 1
+    nodes: mutable i64[NODE_FIELDS] = zeroed
+    i <- 0
+    while i < MAX_N:
+        nodes[LEFT + i] <- -1
+        nodes[RIGHT + i] <- -1
+        nodes[PARENT + i] <- -1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        nodes[VALUE + i] <- input[2 + i]
+        nodes[SUM + i] <- input[2 + i]
+        i <- i + 1
+    i <- 0
+    while i < n - 1:
+        u: usize = input[edge_start + 2 * i].usize()
+        v: usize = input[edge_start + 2 * i + 1].usize()
+        if not lct_link(nodes[0:NODE_FIELDS], u, v): return -1
+        i <- i + 1
+    answers: mutable i64[MAX_Q] = zeroed
+    answer_count: mutable usize = 0
+    i <- 0
+    while i < q:
+        at: usize = operation_start + 5 * i
+        kind: i64 = input[at]
+        a: usize = input[at + 1].usize()
+        b: usize = input[at + 2].usize()
+        if kind == 0:
+            c: usize = input[at + 3].usize()
+            d: usize = input[at + 4].usize()
+            if not lct_cut(nodes[0:NODE_FIELDS], a, b) or not lct_link(nodes[0:NODE_FIELDS], c, d): return -1
+        else if kind == 1:
+            lct_access(nodes[0:NODE_FIELDS], a)
+            nodes[VALUE + a] <- nodes[VALUE + a] + b.i64()
+            lct_pull(nodes[0:NODE_FIELDS], a)
+        else:
+            answer: i64 = lct_subtree_sum(nodes[0:NODE_FIELDS], a, b)
+            if answer < 0: return -1
+            answers[answer_count] <- answer
+            answer_count <- answer_count + 1
+        i <- i + 1
+    output_bytes: usize = 8 * answer_count
+    if output_bytes > 0 and (output.is_null() or capacity < output_bytes): return -2
+    i <- 0
+    while i < answer_count:
+        lct_put_i64(answers[i], output[0:output_bytes], 8 * i)
+        i <- i + 1
+    output_bytes.i64()

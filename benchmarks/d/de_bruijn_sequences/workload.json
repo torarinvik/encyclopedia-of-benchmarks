@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "de-bruijn-sequences-bounded-v1",
+  "algorithm": "de_bruijn_sequences",
+  "function_symbol": "de_bruijn_sequences",
+  "abi": "i64_array_bytes_output",
+  "description": "Generate a lexicographically smallest k-ary de Bruijn cycle using FKM necklace concatenation.",
+  "source": {
+    "title": "Rosetta Code: De Bruijn sequences",
+    "url": "https://rosettacode.org/wiki/De_Bruijn_sequences",
+    "mirror_url": "https://rosettagit.org/tasks/de-bruijn-sequences/",
+    "algorithm_reference": "Fredricksen and Maiorana, Discrete Mathematics 23 (1978)",
+    "algorithm_doi": "10.1016/0012-365X(78)90002-X",
+    "source_license": "GNU Free Documentation License 1.2 applies to Rosetta Code page content; no page prose or code is reused",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[alphabet_size, order]",
+    "alphabet_size_range": [2, 10],
+    "order_range": [1, 16],
+    "cycle_length_limit": 10000,
+    "maximum_valid_length": 2,
+    "maximum_parseable_length": 3,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "ASCII digits for symbols 0 through alphabet_size-1; cycle followed by its first order-1 symbols",
+    "length_formula": "alphabet_size^order + order - 1",
+    "maximum_bytes": 10003,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 17,
+    "meaning": "Fixed FKM symbol-state array; recursion depth is at most 16"
+  },
+  "contract": {
+    "operation": "Return a linearized k-ary de Bruijn cycle in ASCII digit form.",
+    "algorithm": "FKM necklace concatenation: recursively enumerate periodic prefixes and emit each Lyndon necklace whose period divides order.",
+    "complexity": "O(k^order) output time and O(order) auxiliary storage.",
+    "tie_rule": "Visit symbols in ascending order, yielding the lexicographically smallest FKM cycle.",
+    "error_precedence": "Validate input shape and bounds, then output pointer and capacity, then write the generated sequence.",
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "profiles": [
+      {"id": "canonical-decimal-four-digit", "input_values": [10, 4], "output_bytes": 10003},
+      {"id": "small-binary", "input_values": [2, 12], "output_bytes": 4107}
+    ]
+  },
+  "cases": [
+    {"id": "binary-order-one", "input_values": [2, 1], "input_length": 2, "output_capacity": 2, "expected_result": 2, "expected_output_hex": "3031"},
+    {"id": "binary-order-two", "input_values": [2, 2], "input_length": 2, "output_capacity": 5, "expected_result": 5, "expected_output_hex": "3030313130"},
+    {"id": "binary-order-three", "input_values": [2, 3], "input_length": 2, "output_capacity": 10, "expected_result": 10, "expected_output_hex": "30303031303131313030"},
+    {"id": "ternary-order-two", "input_values": [3, 2], "input_length": 2, "output_capacity": 10, "expected_result": 10, "expected_output_hex": "30303130323131323230"},
+    {"id": "capacity-too-small", "input_values": [2, 2], "input_length": 2, "output_capacity": 4, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [2, 2], "input_length": 2, "output_capacity": 5, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "invalid-alphabet", "input_values": [1, 3], "input_length": 2, "output_capacity": 10003, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "cycle-over-limit", "input_values": [10, 5], "input_length": 2, "output_capacity": 10003, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "wrong-input-length", "input_values": [2], "input_length": 1, "output_capacity": 10003, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "empty-input", "input_values": [], "input_length": 0, "output_capacity": 10003, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

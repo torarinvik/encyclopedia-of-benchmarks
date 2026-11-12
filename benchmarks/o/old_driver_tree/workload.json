@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "oi-wiki-old-driver-tree-bounded-bytes-v1",
+  "algorithm": "old_driver_tree",
+  "function_symbol": "old_driver_tree",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "OI Wiki",
+    "chapter": "ds/odt",
+    "url": "https://en.oi-wiki.org/ds/odt/",
+    "license": "CC BY-SA 4.0 and SATA",
+    "reuse_scope": "Algorithm description only; ports, workload, oracles, and prose are clean-room."
+  },
+  "oracle": "benchmarks/o/old_driver_tree/primary_oracle.py",
+  "independent_oracle": "benchmarks/o/old_driver_tree/independent_oracle.py",
+  "contract": {
+    "operation": "Maintain a sequence as maximal constant-value intervals and process range assignment, range addition, kth-order-statistic, and modular power-sum operations.",
+    "input_layout": "[N,Q,initial_values..., variable-width operations...]; assignment/add/kth records are [kind,left,right,arg], power-sum records are [3,left,right,exponent,modulus].",
+    "indexing": "All update and query ranges are zero-based and inclusive.",
+    "n_range": [1, 32],
+    "operation_count_range": [0, 32],
+    "initial_value_range": [-1000, 1000],
+    "update_argument_range": [-1000, 1000],
+    "kth_rank": "For opcode 2, arg is a one-based rank within the queried range.",
+    "power_sum": "Opcode 3 uses exponent 0..8 and modulus 1..1000000000; 0^0 is defined as 1 before reduction.",
+    "opcodes": {"0": "assign each value in [left,right] to arg", "1": "add arg to each value in [left,right]", "2": "return the arg-th smallest value in [left,right]", "3": "return sum(value^exponent mod modulus) mod modulus over [left,right]"},
+    "algorithm": "Store ordered, non-overlapping maximal equal-value intervals. Split at right+1 before left, replace or update the covered interval records, then coalesce equal neighbors. Kth queries expand intersecting runs and sort the bounded values; power sums multiply each run's modular power by its overlap width.",
+    "output_layout": "One little-endian signed 64-bit answer for each opcode 2 or 3, in operation order.",
+    "error_policy": "Malformed input returns -1. If at least one answer is produced, a null output pointer or capacity below 8*answer_count returns -2 without writes. When there are no answers, a null output pointer is accepted and success returns 0.",
+    "complexity": "With R current runs and at most N array elements, the sorted-array ordered set uses O(R) boundary lookup/insertion/deletion; an update is O(R), kth is O(R+N^2) in the insertion-sort ports, and power-sum is O(R log exponent). The randomized-like assignment traces tend to merge runs, but there is no worst-case guarantee: singleton assignments can maintain Θ(N) runs, giving construction-sensitive Θ(NQ) update and power-sum scanning (plus kth sorting). Storage is O(N+Q).",
+    "maximum_current_value_magnitude": 33000,
+    "interval_capacity": 36
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 194,
+    "maximum_parseable_length": 195,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 32,
+    "maximum_bytes": 256,
+    "success_result": "8*answer_count bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"randomized-assignment-add-kth-powersum","input_values":[5,7,3,1,3,2,1,0,1,3,4,2,0,4,3,1,2,4,2,3,0,4,2,100,0,0,4,-2,2,1,3,2,3,0,4,0,7],"input_length":37,"output_capacity":32,"expected_result":32,"expected_output_hex":"04000000000000006a00000000000000feffffffffffffff0500000000000000"},
+    {"id":"randomized-like-run-collapse","input_values":[6,8,0,1,0,1,0,1,0,1,4,3,0,0,2,1,1,2,5,-1,0,4,5,0,2,0,5,4,3,0,5,2,97,0,1,4,0,2,0,5,2],"input_length":41,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000006000000000000000000000000000000"},
+    {"id":"assignments-coalesce-adjacent-runs","input_values":[4,6,1,2,2,3,0,1,2,1,0,3,3,1,2,0,3,4,3,0,3,3,17,1,0,2,-1,3,0,3,1,13],"input_length":32,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000004000000000000000100000000000000"},
+    {"id":"single-element-zero-power-modulus-one","input_values":[1,2,-7,3,0,0,0,1,2,0,0,1],"input_length":12,"output_capacity":16,"expected_result":16,"expected_output_hex":"0000000000000000f9ffffffffffffff"},
+    {"id":"empty-trace-null-output","input_values":[1,0,8],"input_length":3,"output_is_null":true,"expected_result":0,"expected_output_hex":""},
+    {"id":"invalid-kth-rank-before-output-check","input_values":[3,1,4,4,4,2,0,2,4],"input_length":9,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-zero-modulus","input_values":[1,1,0,3,0,0,0,0],"input_length":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[5,7,3,1,3,2,1,0,1,3,4,2,0,4,3,1,2,4,2,3,0,4,2,100,0,0,4,-2,2,1,3,2,3,0,4,0,7],"input_length":37,"output_capacity":31,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-with-answer","input_values":[1,1,9,2,0,0,1],"input_length":7,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input-pointer","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "games-on-arbitrary-directed-graphs-byte-output-v1",
+  "algorithm": "games_on_arbitrary_graphs",
+  "function_symbol": "games_on_arbitrary_graphs",
+  "abi": "i64_array_bytes_output",
+  "description": "Classify every vertex of a finite directed game graph as a win, loss, or draw using reverse-edge retrograde propagation.",
+  "source": {
+    "title": "Games on arbitrary graphs",
+    "authors": ["CP-Algorithms contributors"],
+    "url": "https://cp-algorithms.com/game_theory/games_on_graphs.html",
+    "license": "CC BY-SA 4.0",
+    "license_note": "The package independently implements the described algorithm. It does not reproduce article prose, source code, or test data."
+  },
+  "input": {
+    "kind": "directed_graph_edge_pairs",
+    "encoding": "[vertex_count, edge_count, (source, target)*edge_count]",
+    "vertex_count_range": [0, 16],
+    "edge_count_range": [0, 32],
+    "maximum_input_length": 66,
+    "vertex_ids": "zero-based",
+    "graph_semantics": "Repeated directed edges are coalesced; self-loops and directed cycles are allowed.",
+    "game_semantics": "Players alternate moves from the current vertex. A player with no legal outgoing move loses. A position is a draw when neither player can force a win or loss under optimal play.",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "encoding": "One byte for vertex_count followed by one status byte per vertex in ascending vertex ID order.",
+    "status_codes": {"draw": 0, "winning_for_player_to_move": 1, "losing_for_player_to_move": 2},
+    "empty_graph": "single zero vertex-count byte",
+    "maximum_bytes": 17,
+    "result": "number of output bytes",
+    "output_untouched_on_error": true
+  },
+  "contract": {
+    "method": "Initialize all sinks as losses. Traverse reverse edges: a predecessor of a loss is a win; a predecessor becomes a loss after all distinct successors are known wins. Remaining unresolved vertices are draws.",
+    "complexity": "O(V+E) time and O(V+E) bounded storage after repeated-edge coalescing.",
+    "distinctness": "Classifies every position in a cyclic directed graph with retrograde propagation; this is distinct from a subtraction-game Sprague-Grundy mex computation."
+  },
+  "workspace": {
+    "elements": 161,
+    "meaning": "Sixteen outgoing masks, sixteen incoming-list heads, two 32-entry incoming-edge arrays, sixteen remaining-successor counts, sixteen status entries, sixteen work-queue entries, and seventeen staged output bytes."
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call"},
+  "cases": [
+    {"id":"empty-graph","input_values":[0,0],"input_length":2,"expected_result":1,"expected_output_bytes":[0]},
+    {"id":"single-terminal","input_values":[1,0],"input_length":2,"expected_result":2,"expected_output_bytes":[1,2]},
+    {"id":"one-move-to-terminal","input_values":[2,1,0,1],"input_length":4,"expected_result":3,"expected_output_bytes":[2,1,2]},
+    {"id":"two-cycle-draw","input_values":[2,2,0,1,1,0],"input_length":6,"expected_result":3,"expected_output_bytes":[2,0,0]},
+    {"id":"alternating-chain","input_values":[3,2,0,1,1,2],"input_length":6,"expected_result":4,"expected_output_bytes":[3,2,1,2]},
+    {"id":"winning-choice-over-draw","input_values":[3,3,0,1,0,2,2,2],"input_length":8,"expected_result":4,"expected_output_bytes":[3,1,2,0]},
+    {"id":"all-successors-win","input_values":[4,4,0,1,0,2,1,3,2,3],"input_length":10,"expected_result":5,"expected_output_bytes":[4,2,1,1,2]},
+    {"id":"cycle-with-terminal-exit","input_values":[3,3,0,1,1,0,1,2],"input_length":8,"expected_result":4,"expected_output_bytes":[3,2,1,2]},
+    {"id":"self-loop-draw","input_values":[1,1,0,0],"input_length":4,"expected_result":2,"expected_output_bytes":[1,0]},
+    {"id":"duplicate-edges-coalesced","input_values":[2,3,0,1,0,1,1,0],"input_length":8,"expected_result":3,"expected_output_bytes":[2,0,0]},
+    {"id":"maximum-vertex-count-isolated","input_values":[16,0],"input_length":2,"expected_result":17,"expected_output_bytes":[16,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]},
+    {"id":"short-output-capacity","input_values":[2,1,0,1],"input_length":4,"output_capacity":2,"expected_result":-2,"expected_output_bytes":[]},
+    {"id":"null-output","input_values":[0,0],"input_length":2,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output_bytes":[]},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"invalid-endpoint","input_values":[2,1,0,2],"input_length":4,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"trailing-input-value","input_values":[1,0,7],"input_length":3,"expected_result":-1,"expected_output_bytes":[]}
+  ]
+}
