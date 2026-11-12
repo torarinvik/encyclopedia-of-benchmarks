@@ -121,6 +121,62 @@ from p.pow_of_formal_power_series.primary_oracle import (
 from p.pow_of_formal_power_series.verify_workload import (
     verify as verify_pow_of_formal_power_series_package,
 )
+from e.exp_of_set_power_series.primary_oracle import (
+    MAX_INPUT_LENGTH as EXP_SET_SERIES_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as EXP_SET_SERIES_MAX_OUTPUT_BYTES,
+    expected_output as exp_of_set_power_series_oracle,
+)
+from e.exp_of_set_power_series.verify_workload import (
+    verify as verify_exp_of_set_power_series_package,
+)
+from p.product_of_polynomial_sequence.primary_oracle import (
+    MAX_INPUT_LENGTH as POLYNOMIAL_SEQUENCE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as POLYNOMIAL_SEQUENCE_MAX_OUTPUT_BYTES,
+    expected_output as product_of_polynomial_sequence_oracle,
+)
+from p.product_of_polynomial_sequence.verify_workload import (
+    verify as verify_product_of_polynomial_sequence_package,
+)
+from f.factorization_of_polynomials.primary_oracle import (
+    MAX_INPUT_LENGTH as POLYNOMIAL_FACTORIZATION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as POLYNOMIAL_FACTORIZATION_MAX_OUTPUT_BYTES,
+    expected_output as factorization_of_polynomials_oracle,
+)
+from f.factorization_of_polynomials.verify_workload import (
+    verify as verify_factorization_of_polynomials_package,
+)
+from c.conversion_from_monomial_basis_to_newton_basis.primary_oracle import (
+    MAX_INPUT_LENGTH as NEWTON_BASIS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as NEWTON_BASIS_MAX_OUTPUT_BYTES,
+    expected_output as conversion_from_monomial_basis_to_newton_basis_oracle,
+)
+from c.conversion_from_monomial_basis_to_newton_basis.verify_workload import (
+    verify as verify_newton_basis_package,
+)
+from s.shift_of_sampling_points_of_polynomial.primary_oracle import (
+    MAX_INPUT_LENGTH as SHIFT_SAMPLES_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SHIFT_SAMPLES_MAX_OUTPUT_BYTES,
+    expected_output as shift_of_sampling_points_of_polynomial_oracle,
+)
+from s.shift_of_sampling_points_of_polynomial.verify_workload import (
+    verify as verify_shift_sampling_points_package,
+)
+from p.power_projection_of_set_power_series.primary_oracle import (
+    MAX_INPUT_LENGTH as POWER_PROJECTION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as POWER_PROJECTION_MAX_OUTPUT_BYTES,
+    expected_output as power_projection_of_set_power_series_oracle,
+)
+from p.power_projection_of_set_power_series.verify_workload import (
+    verify as verify_power_projection_package,
+)
+from p.polynomial_interpolation.primary_oracle import (
+    MAX_INPUT_LENGTH as POLYNOMIAL_INTERPOLATION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as POLYNOMIAL_INTERPOLATION_MAX_OUTPUT_BYTES,
+    expected_output as polynomial_interpolation_oracle,
+)
+from p.polynomial_interpolation.verify_workload import (
+    verify as verify_polynomial_interpolation_package,
+)
 from npb_cg_sparse_inverse_power_oracle import (
     MAX_INPUT_LENGTH as NPB_CG_SPARSE_INVERSE_POWER_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as NPB_CG_SPARSE_INVERSE_POWER_MAX_OUTPUT_BYTES,
@@ -6446,6 +6502,13 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "division_of_polynomials": division_of_polynomials_oracle,
     "compositional_inverse_of_formal_power_series": compositional_inverse_of_formal_power_series_oracle,
     "pow_of_formal_power_series": pow_of_formal_power_series_oracle,
+    "exp_of_set_power_series": exp_of_set_power_series_oracle,
+    "product_of_polynomial_sequence": product_of_polynomial_sequence_oracle,
+    "factorization_of_polynomials": factorization_of_polynomials_oracle,
+    "conversion_from_monomial_basis_to_newton_basis": conversion_from_monomial_basis_to_newton_basis_oracle,
+    "shift_of_sampling_points_of_polynomial": shift_of_sampling_points_of_polynomial_oracle,
+    "power_projection_of_set_power_series": power_projection_of_set_power_series_oracle,
+    "polynomial_interpolation": polynomial_interpolation_oracle,
     "vector_scheduling": vector_scheduling_oracle,
     "vector_bin_packing": vector_bin_packing_oracle,
     "list_ranking_independent_set_contraction": list_ranking_contraction_oracle,
@@ -7080,6 +7143,34 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
     "pow_of_formal_power_series": (
         POW_FPS_MAX_INPUT_LENGTH,
         8 * POW_FPS_MAX_N,
+    ),
+    "exp_of_set_power_series": (
+        EXP_SET_SERIES_MAX_INPUT_LENGTH,
+        EXP_SET_SERIES_MAX_OUTPUT_BYTES,
+    ),
+    "product_of_polynomial_sequence": (
+        POLYNOMIAL_SEQUENCE_MAX_INPUT_LENGTH,
+        POLYNOMIAL_SEQUENCE_MAX_OUTPUT_BYTES,
+    ),
+    "factorization_of_polynomials": (
+        POLYNOMIAL_FACTORIZATION_MAX_INPUT_LENGTH,
+        POLYNOMIAL_FACTORIZATION_MAX_OUTPUT_BYTES,
+    ),
+    "conversion_from_monomial_basis_to_newton_basis": (
+        NEWTON_BASIS_MAX_INPUT_LENGTH,
+        NEWTON_BASIS_MAX_OUTPUT_BYTES,
+    ),
+    "shift_of_sampling_points_of_polynomial": (
+        SHIFT_SAMPLES_MAX_INPUT_LENGTH,
+        SHIFT_SAMPLES_MAX_OUTPUT_BYTES,
+    ),
+    "power_projection_of_set_power_series": (
+        POWER_PROJECTION_MAX_INPUT_LENGTH,
+        POWER_PROJECTION_MAX_OUTPUT_BYTES,
+    ),
+    "polynomial_interpolation": (
+        POLYNOMIAL_INTERPOLATION_MAX_INPUT_LENGTH,
+        POLYNOMIAL_INTERPOLATION_MAX_OUTPUT_BYTES,
     ),
     "npb_cg_sparse_inverse_power": (
         NPB_CG_SPARSE_INVERSE_POWER_MAX_INPUT_LENGTH,
@@ -37517,6 +37608,62 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         errors = verify_pow_of_formal_power_series_package()
         if errors:
             raise ValueError("pow_of_formal_power_series package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "exp_of_set_power_series":
+        package_workload = ROOT / "benchmarks/e/exp_of_set_power_series/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("exp_of_set_power_series workload differs from its package file")
+        errors = verify_exp_of_set_power_series_package()
+        if errors:
+            raise ValueError("exp_of_set_power_series package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "product_of_polynomial_sequence":
+        package_workload = ROOT / "benchmarks/p/product_of_polynomial_sequence/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("product_of_polynomial_sequence workload differs from its package file")
+        errors = verify_product_of_polynomial_sequence_package()
+        if errors:
+            raise ValueError("product_of_polynomial_sequence package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "factorization_of_polynomials":
+        package_workload = ROOT / "benchmarks/f/factorization_of_polynomials/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("factorization_of_polynomials workload differs from its package file")
+        errors = verify_factorization_of_polynomials_package()
+        if errors:
+            raise ValueError("factorization_of_polynomials package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "conversion_from_monomial_basis_to_newton_basis":
+        package_workload = ROOT / "benchmarks/c/conversion_from_monomial_basis_to_newton_basis/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("conversion_from_monomial_basis_to_newton_basis workload differs from its package file")
+        errors = verify_newton_basis_package()
+        if errors:
+            raise ValueError("conversion_from_monomial_basis_to_newton_basis package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "shift_of_sampling_points_of_polynomial":
+        package_workload = ROOT / "benchmarks/s/shift_of_sampling_points_of_polynomial/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("shift_of_sampling_points_of_polynomial workload differs from its package file")
+        errors = verify_shift_sampling_points_package()
+        if errors:
+            raise ValueError("shift_of_sampling_points_of_polynomial package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "power_projection_of_set_power_series":
+        package_workload = ROOT / "benchmarks/p/power_projection_of_set_power_series/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("power_projection_of_set_power_series workload differs from its package file")
+        errors = verify_power_projection_package()
+        if errors:
+            raise ValueError("power_projection_of_set_power_series package is incomplete: " + "; ".join(errors))
+        return
+    if algorithm == "polynomial_interpolation":
+        package_workload = ROOT / "benchmarks/p/polynomial_interpolation/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("polynomial_interpolation workload differs from its package file")
+        errors = verify_polynomial_interpolation_package()
+        if errors:
+            raise ValueError("polynomial_interpolation package is incomplete: " + "; ".join(errors))
         return
     if algorithm == "npb_cg_sparse_inverse_power":
         package_workload = ROOT / "benchmarks/n/npb_cg_sparse_inverse_power/workload.json"

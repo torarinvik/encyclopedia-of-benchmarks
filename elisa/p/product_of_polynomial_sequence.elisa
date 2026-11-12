@@ -1,0 +1,88 @@
+const PRODUCT_MODULUS: i64 = 998_244_353
+const PRODUCT_MAX_FACTORS: usize = 6
+const PRODUCT_MAX_COEFFICIENTS: usize = 25
+const PRODUCT_MAX_INPUT: usize = 38
+const PRODUCT_MAX_OUTPUT_BYTES: usize = 200
+
+def product_sequence_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def product_of_polynomial_sequence_impl(input: view[i64], length: usize,
+        output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+    if length < 1 or length > PRODUCT_MAX_INPUT: return -1
+    if input[0] < 0 or input[0] > PRODUCT_MAX_FACTORS.i64(): return -1
+    count: usize = input[0].usize()
+    polynomials: mutable i64[PRODUCT_MAX_FACTORS * PRODUCT_MAX_COEFFICIENTS] = zeroed
+    poly_lengths: mutable usize[PRODUCT_MAX_FACTORS] = zeroed
+    cursor: mutable usize = 1
+    degree_sum: mutable usize = 0
+    for p in 0..<count:
+        if cursor >= length or input[cursor] < 0 or input[cursor] > 4: return -1
+        degree: usize = input[cursor].usize()
+        cursor <- cursor + 1
+        if cursor + degree + 1 > length: return -1
+        for i in 0..<(degree + 1):
+            coefficient: i64 = input[cursor + i]
+            if coefficient < 0 or coefficient >= PRODUCT_MODULUS: return -1
+            polynomials[p * PRODUCT_MAX_COEFFICIENTS + i] <- coefficient
+        if polynomials[p * PRODUCT_MAX_COEFFICIENTS + degree] == 0: return -1
+        poly_lengths[p] <- degree + 1
+        degree_sum <- degree_sum + degree
+        cursor <- cursor + degree + 1
+    if cursor != length: return -1
+
+    result_length: usize = degree_sum + 1
+    output_bytes: usize = 8 * result_length
+    if output_is_null or capacity < output_bytes: return -2
+    if count == 0:
+        product_sequence_store_le(1, output, 0)
+        return 8
+
+    scratch: mutable i64[PRODUCT_MAX_COEFFICIENTS] = zeroed
+    active: mutable usize = count
+    while active > 1:
+        next_count: mutable usize = 0
+        i: mutable usize = 0
+        while i < active:
+            destination: usize = next_count * PRODUCT_MAX_COEFFICIENTS
+            if i + 1 == active:
+                source: usize = i * PRODUCT_MAX_COEFFICIENTS
+                for j in 0..<poly_lengths[i]:
+                    polynomials[destination + j] <- polynomials[source + j]
+                poly_lengths[next_count] <- poly_lengths[i]
+            else:
+                left_start: usize = i * PRODUCT_MAX_COEFFICIENTS
+                right_start: usize = (i + 1) * PRODUCT_MAX_COEFFICIENTS
+                left_length: usize = poly_lengths[i]
+                right_length: usize = poly_lengths[i + 1]
+                product_length: usize = left_length + right_length - 1
+                for j in 0..<product_length: scratch[j] <- 0
+                for a in 0..<left_length:
+                    for b in 0..<right_length:
+                        slot: usize = a + b
+                        scratch[slot] <- (scratch[slot] +
+                            polynomials[left_start + a] * polynomials[right_start + b]) % PRODUCT_MODULUS
+                for j in 0..<product_length:
+                    polynomials[destination + j] <- scratch[j]
+                poly_lengths[next_count] <- product_length
+            next_count <- next_count + 1
+            i <- i + 2
+        active <- next_count
+    for i in 0..<result_length:
+        product_sequence_store_le(polynomials[i], output, 8 * i)
+    output_bytes.i64()
+
+export fn product_of_polynomial_sequence(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > PRODUCT_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch_output: mutable u8[1] = zeroed
+        return product_of_polynomial_sequence_impl(input_view, length, scratch_output[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > PRODUCT_MAX_OUTPUT_BYTES: safe_capacity <- PRODUCT_MAX_OUTPUT_BYTES
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    product_of_polynomial_sequence_impl(input_view, length, output_view, capacity, false)

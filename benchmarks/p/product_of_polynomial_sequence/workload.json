@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-polynomial-sequence-balanced-product-bytes-v1",
+  "algorithm": "product_of_polynomial_sequence",
+  "function_symbol": "product_of_polynomial_sequence",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "polynomial/product_of_polynomial_sequence/task.md",
+    "limits_path": "polynomial/product_of_polynomial_sequence/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/polynomial/product_of_polynomial_sequence/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/polynomial/product_of_polynomial_sequence/info.toml",
+    "official_n_max": 500000,
+    "official_degree_sum_max": 500000,
+    "modulus": 998244353,
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Operation and modulus only; bounded profile, ports, fixtures, oracles, and prose are clean-room."
+  },
+  "oracle": "benchmarks/p/product_of_polynomial_sequence/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/product_of_polynomial_sequence/independent_oracle.py",
+  "contract": {
+    "operation": "Multiply K polynomials modulo 998244353 and return all coefficients in ascending degree order.",
+    "input_layout": "[K, d_0, a_0, ..., a_d0, ..., d_(K-1), a_0, ..., a_d], with each degree followed by exactly degree+1 coefficients.",
+    "factor_count_range": [0, 6],
+    "degree_per_factor_range": [0, 4],
+    "total_degree_max": 24,
+    "coefficient_range": [0, 998244352],
+    "leading_coefficient": "nonzero for every supplied polynomial",
+    "modulus": 998244353,
+    "algorithm": "Balanced pairwise product tree using naive modular convolution at each internal node; O((D+K)^2 log(K+2)) coefficient operations for total degree D, including constant-only factors.",
+    "output_layout": "1+sum(d_i) little-endian signed 64-bit coefficients in ascending degree order; the empty product is [1].",
+    "error_precedence": "Malformed input returns -1 before output checks. Valid input with null output or capacity below the exact output size returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[K, degree_0, coefficients..., ..., degree_(K-1), coefficients...]",
+    "maximum_valid_length": 37,
+    "maximum_parseable_length": 38,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 25,
+    "maximum_bytes": 200,
+    "success_result": "8*(1+sum(degrees)) bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "maximum_bytes": 1536,
+    "model": "Six fixed 25-coefficient buffers, one 25-coefficient convolution buffer, and bounded lengths/indices."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-product-is-one","input_values":[0],"input_length":1,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"product-of-constants","input_values":[2,0,2,0,3],"input_length":5,"expected_result":8,"expected_output_hex":"0600000000000000"},
+    {"id":"mixed-linear-and-quadratic","input_values":[2,1,1,2,2,3,2,1],"input_length":8,"expected_result":32,"expected_output_hex":"0300000000000000080000000000000005000000000000000200000000000000"},
+    {"id":"six-linear-factors","input_values":[6,1,1,1,1,1,1,1,1,1,1,1,1],"input_length":13,"expected_result":56,"expected_output_hex":"010000000000000006000000000000000f0000000000000014000000000000000f0000000000000006000000000000000100000000000000"},
+    {"id":"modular-cancellation","input_values":[2,1,998244352,1,1,1],"input_length":6,"expected_result":24,"expected_output_hex":"0000803b0000000000000000000000000100000000000000"},
+    {"id":"single-quartic-preserved","input_values":[1,4,0,3,2,1,5],"input_length":7,"expected_result":40,"expected_output_hex":"00000000000000000300000000000000020000000000000001000000000000000500000000000000"},
+    {"id":"negative-factor-count","input_values":[-1],"input_length":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"factor-count-too-large","input_values":[7],"input_length":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"degree-too-large","input_values":[1,5,1,1,1,1,1,1],"input_length":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-leading-coefficient","input_values":[1,2,1,2,0],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coefficient-out-of-range","input_values":[1,0,998244353],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-factor","input_values":[1,2,1],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra-input-word","input_values":[0,1],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[0],"input_length":1,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-buffer","input_values":[0],"input_length":1,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input-pointer","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

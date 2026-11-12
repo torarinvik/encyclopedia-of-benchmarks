@@ -57,6 +57,27 @@ from c.compositional_inverse_of_formal_power_series.independent_oracle import (
 from p.pow_of_formal_power_series.independent_oracle import (
     expected_output as pow_of_formal_power_series_independent_oracle,
 )
+from e.exp_of_set_power_series.independent_oracle import (
+    expected_output as exp_of_set_power_series_independent_oracle,
+)
+from p.product_of_polynomial_sequence.independent_oracle import (
+    expected_output as product_of_polynomial_sequence_independent_oracle,
+)
+from f.factorization_of_polynomials.independent_oracle import (
+    expected_output as factorization_of_polynomials_independent_oracle,
+)
+from c.conversion_from_monomial_basis_to_newton_basis.independent_oracle import (
+    expected_output as conversion_from_monomial_basis_to_newton_basis_independent_oracle,
+)
+from s.shift_of_sampling_points_of_polynomial.independent_oracle import (
+    expected_output as shift_of_sampling_points_of_polynomial_independent_oracle,
+)
+from p.power_projection_of_set_power_series.independent_oracle import (
+    expected_output as power_projection_of_set_power_series_independent_oracle,
+)
+from p.polynomial_interpolation.independent_oracle import (
+    expected_output as polynomial_interpolation_independent_oracle,
+)
 from npb_cg_sparse_inverse_power_verifier_oracle import (
     MAX_INPUT_LENGTH as NPB_CG_SPARSE_INVERSE_POWER_VERIFIER_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as NPB_CG_SPARSE_INVERSE_POWER_VERIFIER_MAX_OUTPUT_BYTES,
@@ -5479,7 +5500,12 @@ ALGORITHMS = (*ALGORITHMS, "npb_cg_sparse_inverse_power", "hpcg_profile",
               "composition_of_formal_power_series", "inv_of_polynomials",
               "sqrt_of_formal_power_series", "polynomial_taylor_shift",
               "division_of_polynomials", "compositional_inverse_of_formal_power_series",
-              "pow_of_formal_power_series")
+              "pow_of_formal_power_series", "exp_of_set_power_series",
+              "product_of_polynomial_sequence", "factorization_of_polynomials",
+              "conversion_from_monomial_basis_to_newton_basis",
+              "shift_of_sampling_points_of_polynomial",
+              "power_projection_of_set_power_series",
+              "polynomial_interpolation")
 WORKSPACE_ALGORITHMS.update({
     "npb_cg_sparse_inverse_power", "hpcg_profile", "baswana_sen_weighted_spanner",
     "npb_lu_block_ssor", "q_binomial_coefficient_prime_mod",
@@ -5488,7 +5514,11 @@ WORKSPACE_ALGORITHMS.update({
     "log_of_formal_power_series", "composition_of_formal_power_series",
     "inv_of_polynomials", "sqrt_of_formal_power_series",
     "polynomial_taylor_shift", "division_of_polynomials",
-    "compositional_inverse_of_formal_power_series", "pow_of_formal_power_series"})
+    "compositional_inverse_of_formal_power_series", "pow_of_formal_power_series",
+    "exp_of_set_power_series", "product_of_polynomial_sequence",
+    "factorization_of_polynomials", "conversion_from_monomial_basis_to_newton_basis",
+    "shift_of_sampling_points_of_polynomial", "power_projection_of_set_power_series"})
+WORKSPACE_ALGORITHMS.add("polynomial_interpolation")
 WORKSPACE_ALGORITHMS.update({
     "ams_sketch", "count_min_sketch_affine", "deterministic_line_search",
     "color_coding_k_path",
@@ -12723,6 +12753,13 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "division_of_polynomials": division_of_polynomials_independent_oracle,
     "compositional_inverse_of_formal_power_series": compositional_inverse_of_formal_power_series_independent_oracle,
     "pow_of_formal_power_series": pow_of_formal_power_series_independent_oracle,
+    "exp_of_set_power_series": exp_of_set_power_series_independent_oracle,
+    "product_of_polynomial_sequence": product_of_polynomial_sequence_independent_oracle,
+    "factorization_of_polynomials": factorization_of_polynomials_independent_oracle,
+    "conversion_from_monomial_basis_to_newton_basis": conversion_from_monomial_basis_to_newton_basis_independent_oracle,
+    "shift_of_sampling_points_of_polynomial": shift_of_sampling_points_of_polynomial_independent_oracle,
+    "power_projection_of_set_power_series": power_projection_of_set_power_series_independent_oracle,
+    "polynomial_interpolation": polynomial_interpolation_independent_oracle,
     "vector_scheduling": vector_scheduling_independent_oracle,
     "vector_bin_packing": vector_bin_packing_independent_oracle,
     "list_ranking_independent_set_contraction": list_ranking_contraction_independent_oracle,
@@ -16477,7 +16514,13 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                        "inv_of_polynomials", "sqrt_of_formal_power_series",
                        "polynomial_taylor_shift", "division_of_polynomials",
                        "compositional_inverse_of_formal_power_series",
-                       "pow_of_formal_power_series"}:
+                       "pow_of_formal_power_series", "exp_of_set_power_series",
+                       "product_of_polynomial_sequence",
+                       "factorization_of_polynomials",
+                       "conversion_from_monomial_basis_to_newton_basis",
+                       "shift_of_sampling_points_of_polynomial",
+                       "power_projection_of_set_power_series",
+                       "polynomial_interpolation"}:
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
     elif algorithm == "online_bridge_finding":

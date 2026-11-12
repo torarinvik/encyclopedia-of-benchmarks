@@ -25,8 +25,10 @@ multiplicity_K degree_K b_K,0 ... b_K,degree_K
 Factors are emitted in degree then coefficient-tuple order. A malformed call
 returns `-1`; a valid call with a null output buffer or insufficient capacity
 returns `-2` without writing. The maximum valid input is 11 words, maximum
-parseable input is 12 words, maximum output is 33 words (264 bytes), and
+parseable input is 12 words, maximum output is 27 words (216 bytes), and
 workspace is bounded at 2,048 bytes.
+The output bound is attained at degree eight over `F_5`, where six distinct
+factors can fit; the smaller supported fields allow fewer distinct factors.
 
 ## Algorithm
 
@@ -36,9 +38,13 @@ through all monic polynomials up to half its degree. Irreducible candidates
 are repeatedly divided out of the input, recording multiplicities. Any
 remaining nonconstant polynomial is irreducible: if it were reducible, one of
 its factors would have degree at most half its degree and would have appeared
-in the exhaustive candidate set. At `p<=5` and `N<=8`, at most 780 candidates
-and 30 trial divisors per irreducibility check are considered; the bounded
-work is `O(p^6*N^2)` and uses fixed arrays.
+in the exhaustive candidate set. For each candidate degree `d`, there are
+`p^d` candidates and at most `sum(p^e, 1<=e<=floor(d/2))` trial divisors;
+polynomial division costs `O(d^2)`. Extraction needs at most `N/d` divisions
+per candidate, each `O(N*d)`. Overall this is
+`O(sum_d p^d * (d^2 * sum_e p^e + N^2))`. At `p<=5` and `N<=8`, at most 780
+candidates and 30 trial divisors per irreducibility check are considered;
+the ports use fixed arrays.
 
 The primary oracle uses the same irreducible-candidate sieve. The independent
 oracle recursively splits a polynomial at any proper monic divisor, then

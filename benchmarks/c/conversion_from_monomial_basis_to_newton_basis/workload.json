@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-monomial-to-newton-synthetic-division-bytes-v1",
+  "algorithm": "conversion_from_monomial_basis_to_newton_basis",
+  "function_symbol": "conversion_from_monomial_basis_to_newton_basis",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "yosupo06/library-checker-problems",
+    "task_path": "polynomial/conversion_from_monomial_basis_to_newton_basis/task.md",
+    "limits_path": "polynomial/conversion_from_monomial_basis_to_newton_basis/info.toml",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/polynomial/conversion_from_monomial_basis_to_newton_basis/task.md",
+    "limits_url": "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/polynomial/conversion_from_monomial_basis_to_newton_basis/info.toml",
+    "official_n_max": 131072,
+    "modulus": 998244353,
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Operation and modulus only; bounded profile, ports, fixtures, oracles, and prose are clean-room."
+  },
+  "oracle": "benchmarks/c/conversion_from_monomial_basis_to_newton_basis/primary_oracle.py",
+  "independent_oracle": "benchmarks/c/conversion_from_monomial_basis_to_newton_basis/independent_oracle.py",
+  "contract": {
+    "operation": "Convert f(x)=sum(a_i*x^i) to Newton coefficients b_i with basis product_{j<i}(x-p_j) over F_998244353.",
+    "input_layout": "[N, a_0, ..., a_(N-1), p_0, ..., p_(N-1)]",
+    "n_range": [1, 12],
+    "coefficient_and_node_range": [0, 998244352],
+    "modulus": 998244353,
+    "algorithm": "Repeated evaluation and synthetic division in O(N^2) time and O(N) coefficient storage.",
+    "output_layout": "N little-endian signed 64-bit Newton coefficients b_0 through b_(N-1).",
+    "error_precedence": "Malformed input returns -1 before output checks. Valid input with null output or capacity below 8*N returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, a_0, ..., a_(N-1), p_0, ..., p_(N-1)]",
+    "maximum_valid_length": 25,
+    "maximum_parseable_length": 25,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 12,
+    "maximum_bytes": 96,
+    "success_result": "8*N bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 288,
+    "meaning": "Residual, answer, and a bounded synthetic-division quotient vector."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"constant-polynomial","input_values":[1,5,3],"input_length":3,"expected_result":8,"expected_output_hex":"0500000000000000"},
+    {"id":"linear-monomial-at-two-nodes","input_values":[2,0,1,2,4],"input_length":5,"expected_result":16,"expected_output_hex":"02000000000000000100000000000000"},
+    {"id":"quadratic-at-consecutive-nodes","input_values":[3,0,0,1,1,2,3],"input_length":7,"expected_result":24,"expected_output_hex":"010000000000000003000000000000000100000000000000"},
+    {"id":"repeated-newton-nodes","input_values":[4,5,0,2,1,0,0,2,3],"input_length":9,"expected_result":32,"expected_output_hex":"0500000000000000000000000000000004000000000000000100000000000000"},
+    {"id":"zero-polynomial","input_values":[3,0,0,0,3,2,1],"input_length":7,"expected_result":24,"expected_output_hex":"000000000000000000000000000000000000000000000000"},
+    {"id":"maximum-residue","input_values":[1,998244352,998244352],"input_length":3,"expected_result":8,"expected_output_hex":"0000803b00000000"},
+    {"id":"zero-size-invalid","input_values":[0],"input_length":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coefficient-out-of-range","input_values":[1,998244353,0],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"node-out-of-range","input_values":[1,4,998244353],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-input","input_values":[2,0,1,2],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra-input-word","input_values":[1,4,3,5],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,0,1,2,4],"input_length":5,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-buffer","input_values":[1,5,3],"input_length":3,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input-pointer","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

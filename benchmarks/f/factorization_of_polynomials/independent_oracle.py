@@ -9,7 +9,7 @@ import struct
 _FIELD_PRIMES = {2, 3, 5}
 _DEGREE_LIMIT = 8
 _WORD_LIMIT = 12
-_BYTE_LIMIT = 264
+_BYTE_LIMIT = 216
 
 
 def _normalize(poly: list[int]) -> list[int]:
@@ -40,7 +40,9 @@ def _divide(poly: list[int], divisor: list[int], p: int) -> tuple[list[int], lis
 
 def _split(poly: list[int], p: int) -> list[tuple[int, ...]]:
     degree = len(poly) - 1
-    if degree <= 1:
+    if degree == 0:
+        return []
+    if degree == 1:
         return [tuple(poly)]
     for divisor_degree in range(1, degree // 2 + 1):
         for code in range(p ** divisor_degree):

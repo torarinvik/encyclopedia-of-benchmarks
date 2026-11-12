@@ -8,7 +8,7 @@ import struct
 PRIMES = (2, 3, 5)
 MAX_N = 8
 MAX_INPUT_LENGTH = 12
-MAX_OUTPUT_BYTES = 264
+MAX_OUTPUT_BYTES = 216
 
 
 def _trim(poly: list[int]) -> list[int]:

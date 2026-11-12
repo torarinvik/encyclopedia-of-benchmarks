@@ -162,6 +162,20 @@ The latest static audit of the pinned TheAlgorithms inventory records 2,506 dist
 
 [Power of a formal power series](benchmarks/p/pow_of_formal_power_series/README.md) returns the first N coefficients of f(x)^M using truncated repeated squaring and an independent valuation/binomial-series oracle.
 
+[Exponential of a set power series](benchmarks/e/exp_of_set_power_series/README.md) computes exp(f) in the square-zero subset algebra with a cardinality recurrence and an independent set-partition oracle.
+
+[Product of a polynomial sequence](benchmarks/p/product_of_polynomial_sequence/README.md) builds a balanced product tree over a bounded polynomial sequence, with an independent left-to-right multiplication oracle.
+
+[Finite-field polynomial factorization](benchmarks/f/factorization_of_polynomials/README.md) extracts monic irreducibles and multiplicities over small prime fields by exhaustive candidate enumeration, with an independent recursive-splitting oracle.
+
+[Monomial-to-Newton basis conversion](benchmarks/c/conversion_from_monomial_basis_to_newton_basis/README.md) derives Newton coefficients through repeated synthetic division, with an independent basis-matrix elimination oracle.
+
+[Shift of polynomial sampling points](benchmarks/s/shift_of_sampling_points_of_polynomial/README.md) evaluates the polynomial at consecutive shifted points from supplied samples using forward differences, with an independent Lagrange oracle.
+
+[Polynomial interpolation](benchmarks/p/polynomial_interpolation/README.md) reconstructs coefficients from distinct modular points and values using Lagrange bases, with an independent Vandermonde-elimination oracle.
+
+[Power projection of a set power series](benchmarks/p/power_projection_of_set_power_series/README.md) returns weighted projections of successive powers in the square-zero subset algebra, with an independent assignment-enumeration oracle.
+
 [Baswana–Sen weighted spanner Algorithm II](benchmarks/s/baswana_sen_weighted_spanner/README.md) replays bounded vertex-clustering rounds from supplied sample masks and joins residual edges to sampled clusters.
 
 [HJM forward-rate path generation](benchmarks/m/hjm_forward_path/README.md) replays PARSEC Swaptions' triangular interest-rate path from explicit factor shocks, with bounded drift and yield-curve inputs.

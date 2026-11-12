@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-enum { MAX_N = 8, MAX_POLY = 9, MAX_FACTORS = 8, MAX_INPUT = 12 };
+enum { MAX_N = 8, MAX_POLY = 9, MAX_FACTORS = 8, MAX_INPUT = 12, MAX_OUTPUT_BYTES = 216 };
 
 static void store_le(uint8_t *output, size_t offset, int64_t value)
 {
@@ -165,6 +165,7 @@ int64_t factorization_of_polynomials(const int64_t *input, size_t length,
     size_t words = 1;
     for (int i = 0; i < factor_count; ++i) words += (size_t)degrees[i] + 3;
     size_t bytes = words * 8;
+    if (bytes > MAX_OUTPUT_BYTES) return -1;
     if (output == NULL || capacity < bytes) return -2;
 
     size_t word = 0;

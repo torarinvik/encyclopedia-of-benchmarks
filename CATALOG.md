@@ -5278,6 +5278,34 @@ This bounded Library Checker profile finds g with f(g(x))=x modulo x^N over F_99
 
 This bounded Library Checker profile computes f(x)^M modulo x^N over F_998244353 for arbitrary coefficients and 0<=M<=10^18. Ten language ports use truncated repeated squaring for N<=32 through `i64_array_bytes_output`; an independent valuation and binomial-series oracle covers zero constants, zero exponent, and truncation by valuation. This differs from formal-series exp and log, which impose input-constant constraints and do not compute arbitrary powers. See the [guide](benchmarks/p/pow_of_formal_power_series/README.md) for the local bounds, workload, rights note, and package checker.
 
+## Exponential of a set power series (`exp_of_set_power_series`)
+
+This bounded Library Checker profile computes exp(f) modulo xᵢ²=0 for every variable over F_998244353, with zero constant coefficient and N<=5. Ten ports use a subset-cardinality recurrence in O(3^N) through `i64_array_bytes_output`; an independent set-partition oracle sums unordered partitions directly. It is distinct from `fast_subset_convolution`, which multiplies supplied set functions but does not exponentiate one. See the [guide](benchmarks/e/exp_of_set_power_series/README.md) for the workload, rights note, and package checker.
+
+## Product of a polynomial sequence (`product_of_polynomial_sequence`)
+
+This bounded Library Checker profile multiplies an input sequence of up to six nonzero polynomials over F_998244353, with individual degrees at most four and total degree at most 24. Ten ports use a balanced pairwise product tree with naive modular convolution through `i64_array_bytes_output`; an independent oracle multiplies from left to right. The empty sequence returns the multiplicative identity. This sequence-level operation differs from a single polynomial convolution. See the [guide](benchmarks/p/product_of_polynomial_sequence/README.md) for input/output encoding, bounds, workload, rights note, and package checker.
+
+## Factorization of polynomials (`factorization_of_polynomials`)
+
+This bounded Library Checker profile factors monic polynomials over p∈{2,3,5} for degree N<=8 and returns distinct monic irreducibles with their multiplicities. Ten ports exhaustively enumerate and test candidate irreducible factors through `i64_array_bytes_output`; an independent recursive-splitting oracle verifies the factorization. This is distinct from integer factorization and from finding only the roots over a field. See the [guide](benchmarks/f/factorization_of_polynomials/README.md) for encoding, complexity, workload, rights note, and package checker.
+
+## Conversion from monomial basis to Newton basis (`conversion_from_monomial_basis_to_newton_basis`)
+
+This bounded Library Checker profile converts monomial coefficients into the basis `Π_{j<i}(x-p_j)` over F_998244353, allowing repeated nodes. Ten ports use repeated evaluation and synthetic division for N<=12 through `i64_array_bytes_output`; an independent basis-matrix construction and modular Gaussian elimination oracle checks the coefficients. This basis transform differs from Newton interpolation at nodes, which begins from function values. See the [guide](benchmarks/c/conversion_from_monomial_basis_to_newton_basis/README.md) for the contract, workload, rights note, and package checker.
+
+## Shift of sampling points of a polynomial (`shift_of_sampling_points_of_polynomial`)
+
+This bounded Library Checker profile receives f(0),...,f(N-1) and returns f(c),...,f(c+M-1) over F_998244353 for N,M<=16. Ten ports use forward differences and Newton falling-factorial evaluation through `i64_array_bytes_output`; an independent Lagrange-evaluation oracle checks each point. It shifts sample locations, unlike coefficient Taylor shift, which transforms the polynomial’s coefficient vector. See the [guide](benchmarks/s/shift_of_sampling_points_of_polynomial/README.md) for the bounds, workload, rights note, and package checker.
+
+## Polynomial interpolation (`polynomial_interpolation`)
+
+This bounded Library Checker profile reconstructs the degree-<N polynomial for N distinct points and values over F_998244353, with N<=12. Ten language ports construct and sum Lagrange basis polynomials in O(N^3); an independent Vandermonde system solved by modular Gauss-Jordan elimination also takes O(N^3). It is distinct from monomial-to-Newton basis conversion, which transforms supplied coefficients rather than interpolating point values. See the [guide](benchmarks/p/polynomial_interpolation/README.md) for the contract, workload, rights note, and package checker.
+
+## Power projection of a set power series (`power_projection_of_set_power_series`)
+
+This bounded Library Checker profile returns weighted projections of s(x)^m for m=0,...,M-1 in the square-zero subset algebra over F_998244353, with N<=4 and M<=8. Ten ports advance successive powers with naive submask convolution; an independent oracle enumerates variable assignments across the ordered factors. It extends subset convolution with a batch weighted-power operation. See the [guide](benchmarks/p/power_projection_of_set_power_series/README.md) for input encoding, bounds, workload, rights note, and package checker.
+
 ## Point-set range-sort affine composition (`point_set_range_sort_range_composite`)
 
 This bounded Library Checker profile maintains `(priority, affine-map)` records under point replacement, range sorting in either priority direction, and ordered affine composition queries. Ten language ports use a bounded list simulation for N<=16 and Q<=32, with a one-based query-weighted checksum through the i64-array-scalar suite. A separate priority-ID/selection-sort oracle checks the primary list-simulation oracle. See the [guide](benchmarks/p/point_set_range_sort_range_composite/README.md), [workload](benchmarks/p/point_set_range_sort_range_composite/workload.json), and [official task](https://judge.yosupo.jp/problem/point_set_range_sort_range_composite).

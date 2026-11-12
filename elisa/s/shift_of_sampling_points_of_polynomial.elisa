@@ -1,0 +1,82 @@
+const SHIFT_SAMPLES_MODULUS: i64 = 998_244_353
+const SHIFT_SAMPLES_MAX_N: usize = 16
+const SHIFT_SAMPLES_MAX_M: usize = 16
+const SHIFT_SAMPLES_MAX_INPUT: usize = 20
+const SHIFT_SAMPLES_MAX_OUTPUT_BYTES: usize = 128
+
+def shift_samples_mod_pow(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- result * base % SHIFT_SAMPLES_MODULUS
+        base <- base * base % SHIFT_SAMPLES_MODULUS
+        exponent <- exponent >> 1
+    return result
+
+def shift_samples_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def shift_of_sampling_points_of_polynomial_impl(
+    input: view[i64], length: usize, output: mutable view[u8],
+    capacity: usize, output_is_null: bool,
+) -> i64:
+    if length < 4 or length > SHIFT_SAMPLES_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    start: i64 = input[2]
+    if n_value < 1 or n_value > SHIFT_SAMPLES_MAX_N.i64() or m_value < 1 or m_value > SHIFT_SAMPLES_MAX_M.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != n + 3 or start < 0 or start >= SHIFT_SAMPLES_MODULUS: return -1
+    for i in 0..<n:
+        if input[i + 3] < 0 or input[i + 3] >= SHIFT_SAMPLES_MODULUS: return -1
+
+    output_bytes: usize = 8 * m
+    if output_is_null or capacity < output_bytes: return -2
+    differences: mutable i64[SHIFT_SAMPLES_MAX_N] = zeroed
+    newton: mutable i64[SHIFT_SAMPLES_MAX_N] = zeroed
+    factorial: mutable i64[SHIFT_SAMPLES_MAX_N] = zeroed
+    inverse_factorial: mutable i64[SHIFT_SAMPLES_MAX_N] = zeroed
+    for i in 0..<n: differences[i] <- input[i + 3]
+    factorial[0] <- 1
+    for k in 1..<n: factorial[k] <- factorial[k - 1] * k.i64() % SHIFT_SAMPLES_MODULUS
+    inverse_factorial[n - 1] <- shift_samples_mod_pow(factorial[n - 1], SHIFT_SAMPLES_MODULUS - 2)
+    k: mutable usize = n - 1
+    while k > 0:
+        inverse_factorial[k - 1] <- inverse_factorial[k] * k.i64() % SHIFT_SAMPLES_MODULUS
+        k <- k - 1
+    for k in 0..<n:
+        newton[k] <- differences[0] * inverse_factorial[k] % SHIFT_SAMPLES_MODULUS
+        for i in 0..<(n - k - 1):
+            differences[i] <- differences[i + 1] - differences[i]
+            if differences[i] < 0: differences[i] <- differences[i] + SHIFT_SAMPLES_MODULUS
+
+    for offset in 0..<m:
+        x: mutable i64 = start + offset.i64()
+        if x >= SHIFT_SAMPLES_MODULUS: x <- x - SHIFT_SAMPLES_MODULUS
+        basis: mutable i64 = 1
+        value: mutable i64 = 0
+        for k in 0..<n:
+            value <- (value + newton[k] * basis) % SHIFT_SAMPLES_MODULUS
+            factor: mutable i64 = x - k.i64()
+            if factor < 0: factor <- factor + SHIFT_SAMPLES_MODULUS
+            basis <- basis * factor % SHIFT_SAMPLES_MODULUS
+        shift_samples_store_le(value, output, 8 * offset)
+    output_bytes.i64()
+
+export fn shift_of_sampling_points_of_polynomial(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize,
+) -> i64:
+    if input.is_null() or length < 4 or length > SHIFT_SAMPLES_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return shift_of_sampling_points_of_polynomial_impl(input_view, length, scratch[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > SHIFT_SAMPLES_MAX_OUTPUT_BYTES: safe_capacity <- SHIFT_SAMPLES_MAX_OUTPUT_BYTES
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    shift_of_sampling_points_of_polynomial_impl(input_view, length, output_view, capacity, false)

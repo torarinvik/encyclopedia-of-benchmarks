@@ -25,7 +25,7 @@
     "coefficient_range": "0 <= a_i < p",
     "leading_coefficient": 1,
     "algorithm": "Enumerate monic candidates through degree floor(N/2), filter each by exhaustive trial division through degree floor(d/2), and repeatedly divide the input by each irreducible candidate.",
-    "complexity": "At most 780 monic candidates are enumerated for p<=5 and N<=8; each irreducibility check tests at most 30 smaller monic divisors. Polynomial division is quadratic in degree, so the bounded exhaustive search is at most O(p^6*N^2) with these fixed small limits.",
+    "complexity": "For each candidate degree d<=floor(N/2), p^d monic candidates are checked against at most sum_{e=1..floor(d/2)} p^e monic divisors; each divisibility test uses O(d^2) coefficient operations. Extracting factors tries at most N/d divisions per candidate, each O(N*d), giving O(sum_d p^d*(d^2*sum_e p^e+N^2)); at p<=5 and N<=8 there are at most 780 candidates and 30 trial divisors per irreducibility check.",
     "output_layout": "Little-endian signed 64-bit words: K, then for each distinct factor [multiplicity, degree, b_0, ..., b_degree]. Factors are sorted by degree then coefficient tuple; coefficients are low degree first.",
     "error_precedence": "Malformed input returns -1 before output checks. Valid input with null output or capacity below the required encoded size returns -2 without writes."
   },
@@ -39,8 +39,8 @@
   },
   "output": {
     "kind": "little_endian_signed_64_bit_word_array",
-    "maximum_output_elements": 33,
-    "maximum_bytes": 264,
+    "maximum_output_elements": 27,
+    "maximum_bytes": 216,
     "success_result": "encoded byte length",
     "invalid_result": -1,
     "null_output_result": -2,
@@ -68,7 +68,7 @@
     {"id":"non-monic-input","input_values":[1,2,1,0],"input_length":4,"expected_result":-1,"expected_output_hex":""},
     {"id":"unsupported-prime-profile","input_values":[1,7,1,1],"input_length":4,"expected_result":-1,"expected_output_hex":""},
     {"id":"coefficient-out-of-range","input_values":[1,3,3,1],"input_length":4,"expected_result":-1,"expected_output_hex":""},
-    {"id":"degree-above-profile","input_values":[9,2,0,0,0,0,0,0,0,0,1],"input_length":11,"expected_result":-1,"expected_output_hex":""},
+    {"id":"degree-above-profile","input_values":[9,2,0,0,0,0,0,0,0,0,0,1],"input_length":12,"expected_result":-1,"expected_output_hex":""},
     {"id":"truncated-input","input_values":[2,2,1,1],"input_length":4,"expected_result":-1,"expected_output_hex":""},
     {"id":"extra-input-word","input_values":[0,2,1,1],"input_length":4,"expected_result":-1,"expected_output_hex":""},
     {"id":"short-output-capacity","input_values":[1,2,1,1],"input_length":4,"output_capacity":39,"expected_result":-2,"expected_output_hex":""},

@@ -61,8 +61,8 @@ def verify() -> list[str]:
         errors.append("bounded finite-field factorization contract mismatch")
     if (workload.get("input", {}).get("maximum_valid_length") != 11
             or workload.get("input", {}).get("maximum_parseable_length") != 12
-            or workload.get("output", {}).get("maximum_bytes") != 264
-            or workload.get("output", {}).get("maximum_output_elements") != 33
+            or workload.get("output", {}).get("maximum_bytes") != 216
+            or workload.get("output", {}).get("maximum_output_elements") != 27
             or workload.get("workspace", {}).get("bytes") != 2048):
         errors.append("input, output, or workspace bounds mismatch")
 

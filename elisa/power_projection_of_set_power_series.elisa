@@ -1,0 +1,70 @@
+const MODULUS: i64 = 998244353
+const MAX_N: usize = 4
+const MAX_M: usize = 8
+const MAX_SIZE: usize = 16
+const MAX_INPUT: usize = 35
+const MAX_OUTPUT: usize = 64
+
+def store_le(value: i64, output: mutable view[u8], position: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def power_projection_impl(
+    input: view[i64], length: usize, output: mutable view[u8],
+    capacity: usize, output_is_null: bool,
+) -> i64:
+    if length < 2 or length > MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    powers_value: i64 = input[1]
+    if n_value < 0 or n_value > MAX_N.i64() or powers_value < 0 or powers_value > MAX_M.i64(): return -1
+    n: usize = n_value.usize()
+    powers: usize = powers_value.usize()
+    size: usize = 1 << n
+    if length != 2 + 2 * size: return -1
+
+    series: mutable [MAX_SIZE]i64 = [0; MAX_SIZE]
+    weights: mutable [MAX_SIZE]i64 = [0; MAX_SIZE]
+    for mask in 0..<size:
+        coefficient: i64 = input[2 + mask]
+        weight: i64 = input[2 + size + mask]
+        if coefficient < 0 or coefficient >= MODULUS or weight < 0 or weight >= MODULUS: return -1
+        series[mask] <- coefficient
+        weights[mask] <- weight
+
+    bytes: usize = 8 * powers
+    if output_is_null or capacity < bytes: return -2
+
+    current: mutable [MAX_SIZE]i64 = [0; MAX_SIZE]
+    next: mutable [MAX_SIZE]i64 = [0; MAX_SIZE]
+    current[0] <- 1
+    for power in 0..<powers:
+        projection: mutable i64 = 0
+        for mask in 0..<size:
+            projection <- (projection + weights[mask] * current[mask]) % MODULUS
+        store_le(projection, output, 8 * power)
+        if power + 1 == powers: break
+        for mask in 0..<size:
+            total: mutable i64 = 0
+            subset: mutable usize = mask
+            while true:
+                total <- (total + current[subset] * series[mask ^ subset]) % MODULUS
+                if subset == 0: break
+                subset <- (subset - 1) & mask
+            next[mask] <- total
+        for mask in 0..<size: current[mask] <- next[mask]
+    return bytes.i64()
+
+export fn power_projection_of_set_power_series(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize,
+) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return power_projection_impl(input_view, length, scratch[0:1], capacity, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > MAX_OUTPUT: safe_capacity <- MAX_OUTPUT
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    power_projection_impl(input_view, length, output_view, capacity, false)
