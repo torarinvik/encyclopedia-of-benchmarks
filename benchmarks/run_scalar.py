@@ -88,6 +88,9 @@ from sum_of_totient_function_oracle import MODULUS as SUM_OF_TOTIENT_MODULUS
 from sum_of_totient_function_oracle import expected_result as sum_of_totient_function_expected
 from meissel_lehmer_prime_count_oracle import MAX_INPUT as MEISSEL_LEHMER_MAX_INPUT
 from meissel_lehmer_prime_count_oracle import expected_output as meissel_lehmer_prime_count_expected
+from legendre_prime_count_oracle import MAX_INPUT as LEGENDRE_PRIME_COUNT_MAX_INPUT
+from legendre_prime_count_oracle import MIN_INPUT as LEGENDRE_PRIME_COUNT_MIN_INPUT
+from legendre_prime_count_oracle import expected_output as legendre_prime_count_expected
 
 ROOT = Path(__file__).resolve().parents[1]
 I64_MIN = -(2**63)
@@ -2400,6 +2403,90 @@ def validate_meissel_lehmer_prime_count_workload(workload: dict) -> None:
             raise ValueError(f"meissel_lehmer_prime_count port or README link is missing: {relative}")
 
 
+LEGENDRE_PRIME_COUNT_CASES = {
+    "negative": -1,
+    "signed-minimum": I64_MIN,
+    "zero": 0,
+    "one": 1,
+    "first-prime": 2,
+    "first-composite": 4,
+    "small-prime-boundary": 100,
+    "square-root-boundary": 1000,
+    "maximum": LEGENDRE_PRIME_COUNT_MAX_INPUT,
+    "first-unsupported": LEGENDRE_PRIME_COUNT_MAX_INPUT + 1,
+    "signed-maximum": I64_MAX,
+}
+
+
+def validate_legendre_prime_count_workload(workload: dict) -> None:
+    expected_source = {
+        "repository": "Library Checker problem set and MathWorld",
+        "algorithm": "Legendre prime-counting formula and partial-sieve function",
+        "url": "https://mathworld.wolfram.com/LegendresFormula.html",
+        "operation_url": "https://judge.yosupo.jp/problem/counting_primes",
+        "source_type": "problem_contract_and_algorithm_description",
+        "reuse": "The operation contract and mathematical formula are used as references; all implementations and oracles are independently written. No source code or prose is copied.",
+    }
+    expected_contract = {
+        "operation": "Return pi(x), the number of primes less than or equal to x.",
+        "input_range": [LEGENDRE_PRIME_COUNT_MIN_INPUT, LEGENDRE_PRIME_COUNT_MAX_INPUT],
+        "invalid_input_result": -1,
+        "algorithm": "Legendre formula pi(x)=phi(x,pi(sqrt(x)))+pi(sqrt(x))-1; evaluate phi by recursive inclusion-exclusion over the first pi(sqrt(x)) primes.",
+        "oracle": "Direct Sieve of Eratosthenes through x, independent of the Legendre formula.",
+    }
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "source", "contract", "cases", "measurement"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "legendre-prime-count-i64-v1"
+            or workload.get("algorithm") != "legendre_prime_count"
+            or workload.get("function_symbol") != "legendre_prime_count"
+            or workload.get("abi") != "i64_scalar"
+            or workload.get("source") != expected_source
+            or workload.get("contract") != expected_contract
+            or workload.get("measurement") != {
+                "comparison_model": "scalar_call", "sample_count": 7,
+                "warmup_rounds": 2, "repetitions_per_sample": 10,
+            }
+            or LEGENDRE_PRIME_COUNT_MIN_INPUT != 0
+            or LEGENDRE_PRIME_COUNT_MAX_INPUT != 10_000
+            or not isinstance(cases, list) or len(cases) != len(LEGENDRE_PRIME_COUNT_CASES)):
+        raise ValueError("legendre_prime_count workload differs from its bounded scalar contract")
+    observed: dict[str, int] = {}
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        if (not isinstance(case, dict)
+                or set(case) != {"id", "input_value", "expected_result"}
+                or type(case.get("id")) is not str
+                or type(case.get("input_value")) is not int
+                or not I64_MIN <= case["input_value"] <= I64_MAX
+                or type(case.get("expected_result")) is not int
+                or case["id"] in observed
+                or case["expected_result"] != legendre_prime_count_expected(case["input_value"])
+                or case["expected_result"] < -1):
+            raise ValueError(f"legendre_prime_count fixture differs from its formula oracle: {case_id}")
+        observed[case["id"]] = case["input_value"]
+    if observed != LEGENDRE_PRIME_COUNT_CASES:
+        raise ValueError("legendre_prime_count workload is missing a reviewed boundary case")
+    readme = (ROOT / "benchmarks" / "l" / "legendre_prime_count" / "README.md").read_text(
+        encoding="utf-8")
+    if (expected_source["url"] not in readme
+            or expected_source["operation_url"] not in readme
+            or "meissel_lehmer_prime_count" not in readme
+            or "direct Sieve of Eratosthenes" not in readme):
+        raise ValueError("legendre_prime_count README is missing provenance or distinctness notes")
+    for relative in (
+            "c/l/legendre_prime_count.c", "c3/l/legendre_prime_count.c3",
+            "cpp/l/legendre_prime_count.cpp", "elisa/l/legendre_prime_count.elisa",
+            "mojo/l/legendre_prime_count.mojo", "nim/l/legendre_prime_count.nim",
+            "odin/l/legendre_prime_count.odin", "rust/l/legendre_prime_count.rs",
+            "v/l/legendre_prime_count.v", "zig/l/legendre_prime_count.zig"):
+        port = ROOT / relative
+        if (not port.is_file() or "legendre_prime_count" not in port.read_text(encoding="utf-8")
+                or relative not in readme):
+            raise ValueError(f"legendre_prime_count port or README link is missing: {relative}")
+
+
 def validate_expected_result(algorithm: str, input_value: int, expected_result: int) -> None:
     if algorithm == "newton_square_root":
         if expected_result != newton_square_root_expected(input_value):
@@ -2444,6 +2531,10 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
     if algorithm == "meissel_lehmer_prime_count":
         if expected_result != meissel_lehmer_prime_count_expected(input_value):
             raise ValueError("meissel_lehmer_prime_count expected_result must match the independent segmented-sieve oracle")
+        return
+    if algorithm == "legendre_prime_count":
+        if expected_result != legendre_prime_count_expected(input_value):
+            raise ValueError("legendre_prime_count expected_result must match the Legendre partial-sieve formula")
         return
     if algorithm == "multiple_of_3_or_5_term":
         if expected_result != multiple_of_3_or_5_term_expected(input_value):
@@ -4059,6 +4150,8 @@ def main() -> int:
         validate_sum_of_totient_function_workload(workload)
     elif algorithm == "meissel_lehmer_prime_count":
         validate_meissel_lehmer_prime_count_workload(workload)
+    elif algorithm == "legendre_prime_count":
+        validate_legendre_prime_count_workload(workload)
     timing = workload["measurement"]
     sample_count = args.samples if args.samples is not None else int(timing["sample_count"])
     warmup_rounds = args.warmups if args.warmups is not None else int(timing["warmup_rounds"])

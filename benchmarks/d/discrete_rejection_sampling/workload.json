@@ -21,7 +21,7 @@
     "attempt_cap_range": [1, 32],
     "weight_range": [1, 20],
     "proposal_draw_range": "0 <= draw < sum(proposal_weights)",
-    "acceptance_draw_range": "0 <= draw < 2^32; draw represents draw/2^32",
+    "acceptance_draw_range": "After selecting category i, 0 <= draw < W*proposal_weights[i]*M, where W is the target-weight sum and M is the integer envelope",
     "exact_length": "3 + 2*category_count + 2*attempt_cap",
     "maximum_valid_input_length": 83,
     "maximum_parseable_input_length": 83,
@@ -29,13 +29,13 @@
     "null_input_result": -1,
     "exhausted_attempt_tape_result": -3
   },
-  "algorithm": {
+  "semantics": {
     "target_probability": "p[i] = target_weights[i] / W, where W is the sum of target weights",
     "proposal_probability": "q[i] = proposal_weights[i] / Q, where Q is the sum of proposal weights",
     "envelope": "M = max_i ceil(target_weights[i]*Q / (W*proposal_weights[i]))",
     "proposal_step": "Choose the first category whose cumulative proposal weight exceeds proposal_draw.",
-    "acceptance_step": "Accept category i iff acceptance_draw * W * proposal_weights[i] * M < 2^32 * target_weights[i] * Q.",
-    "tape_consumption": "Each attempt consumes exactly one proposal draw and one acceptance draw. Stop after samples_wanted acceptances or attempt_cap attempts; unused suffix records are ignored.",
+    "acceptance_step": "For the selected category i, accept iff acceptance_draw < target_weights[i]*Q; acceptance_draw is uniform on the exact integer range [0, W*proposal_weights[i]*M).",
+    "tape_consumption": "Each attempt consumes exactly one proposal draw and one acceptance draw. Stop after samples_wanted acceptances or attempt_cap attempts; unused suffix records are not consumed, though every encoded record must be well-formed.",
     "exhaustion": "If the cap is reached before enough samples are accepted, return -3 and write no output."
   },
   "output": {
@@ -62,18 +62,32 @@
     "warmup_rounds": 1,
     "repetitions_per_sample": 100
   },
-  "oracle_method": "Primary recomputes the integer envelope and tests each attempt by cross multiplication. Independent oracle builds exact Fraction-derived integer acceptance thresholds and uses cumulative-weight binary search.",
+  "oracle_method": "Primary recomputes the integer envelope and replays a proposal draw followed by an exact category-specific integer acceptance draw. Independent oracle uses a cumulative-weight binary search to select categories and validates acceptance ranges independently.",
   "cases": [
-    {"id":"one-category-always-accepts","input_values":[1,2,2,1,1,0,0,0,4294967295],"input_length":9,"output_capacity":128,"expected_result":32,"expected_output_hex":"0000000000000000010000000000000000000000000000000100000000000000"},
+    {"id":"one-category-always-accepts","input_values":[1,2,2,1,1,0,0,0,0],"input_length":9,"output_capacity":128,"expected_result":32,"expected_output_hex":"0000000000000000010000000000000000000000000000000100000000000000"},
     {"id":"balanced-proposal-two-categories","input_values":[2,2,2,1,1,1,1,0,0,1,0],"input_length":11,"output_capacity":128,"expected_result":32,"expected_output_hex":"0000000000000000010000000000000001000000000000000100000000000000"},
-    {"id":"skewed-proposal-reject-then-accept","input_values":[2,1,2,3,1,1,3,2,500000000,0,4294967295],"input_length":11,"output_capacity":128,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
-    {"id":"attempt-cap-exhausted","input_values":[2,1,1,3,1,1,3,2,4294967295],"input_length":9,"output_capacity":128,"expected_result":-3,"expected_output_hex":""},
+    {"id":"skewed-proposal-reject-then-accept","input_values":[2,1,2,3,1,1,3,2,4,0,11],"input_length":11,"output_capacity":128,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
+    {"id":"attempt-cap-exhausted","input_values":[2,1,1,3,1,1,1,1,2],"input_length":9,"output_capacity":128,"expected_result":-3,"expected_output_hex":""},
     {"id":"proposal-draw-at-upper-bound","input_values":[2,1,1,1,1,1,1,2,0],"input_length":9,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"acceptance-draw-at-category-bound","input_values":[1,1,1,1,1,0,1],"input_length":7,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
     {"id":"zero-target-weight-invalid","input_values":[1,1,1,0,1,0,0],"input_length":7,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
     {"id":"trailing-input-invalid","input_values":[1,1,1,1,1,0,0,17],"input_length":8,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
     {"id":"short-output-capacity","input_values":[1,1,1,1,1,0,0],"input_length":7,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
     {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
     {"id":"null-output","input_values":[1,1,1,1,1,0,0],"input_length":7,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
-    {"id":"maximum-profile","input_values":[8,8,32,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":83,"output_capacity":128,"expected_result":128,"expected_output_hex":"000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000"}
+    {"id":"maximum-output-profile","input_values":[1,8,8,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":21,"output_capacity":128,"expected_result":128,"expected_output_hex":"000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000"},
+    {"id":"maximum-input-profile","input_values":[
+      8,1,32,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0
+    ],"input_length":83,"output_capacity":128,"expected_result":16,"expected_output_hex":"00000000000000000100000000000000"}
   ]
 }

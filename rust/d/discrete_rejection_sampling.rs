@@ -2,7 +2,6 @@ const MAX_CATEGORIES: usize = 8;
 const MAX_SAMPLES: usize = 8;
 const MAX_ATTEMPTS: usize = 32;
 const MAX_INPUT_VALUES: usize = 83;
-const DRAW_SCALE: u64 = 1u64 << 32;
 
 unsafe fn store_i64_le(output: *mut u8, offset: usize, value: i64) {
     let bits = value as u64;
@@ -66,9 +65,12 @@ pub unsafe extern "C" fn discrete_rejection_sampling(
     for attempt in 0..attempts {
         let proposal_draw = values[tape_offset + 2 * attempt];
         let acceptance_draw = values[tape_offset + 2 * attempt + 1];
-        if proposal_draw < 0 || proposal_draw as u64 >= proposal_total
-            || acceptance_draw < 0 || acceptance_draw as u64 >= DRAW_SCALE
-        {
+        if proposal_draw < 0 || proposal_draw as u64 >= proposal_total || acceptance_draw < 0 {
+            return -1;
+        }
+        let category = cumulative[..n].partition_point(|&end| end <= proposal_draw as u64);
+        let acceptance_range = target_total * proposal[category] * envelope;
+        if acceptance_draw as u64 >= acceptance_range {
             return -1;
         }
     }
@@ -85,9 +87,7 @@ pub unsafe extern "C" fn discrete_rejection_sampling(
         let proposal_draw = values[tape_offset + 2 * attempt] as u64;
         let acceptance_draw = values[tape_offset + 2 * attempt + 1] as u64;
         let category = cumulative[..n].partition_point(|&end| end <= proposal_draw);
-        let left = acceptance_draw * target_total * proposal[category] * envelope;
-        let right = DRAW_SCALE * target[category] * proposal_total;
-        if left < right {
+        if acceptance_draw < (target[category] * proposal_total) as i64 {
             staged[produced] = category as i64;
             staged[produced + 1] = attempts_since_acceptance as i64;
             produced += 2;

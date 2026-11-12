@@ -1,4 +1,4 @@
-"""Independent threshold-table oracle for finite discrete rejection sampling."""
+"""Independent binary-search oracle for finite discrete rejection sampling."""
 
 from __future__ import annotations
 
@@ -11,7 +11,6 @@ MAX_CATEGORIES = 8
 MAX_SAMPLES = 8
 MAX_ATTEMPTS = 32
 MAX_WEIGHT = 20
-DRAW_SCALE = 1 << 32
 MAX_PARSEABLE_LENGTH = 3 + 2 * MAX_CATEGORIES + 2 * MAX_ATTEMPTS
 MAX_OUTPUT_BYTES = 16 * MAX_SAMPLES
 
@@ -31,11 +30,25 @@ def _parse(values: Sequence[int] | None):
     if any(not 1 <= weight <= MAX_WEIGHT for weight in (*target, *proposal)):
         return None
     proposal_total = sum(proposal)
+    target_total = sum(target)
+    envelope = max(
+        _ceil_fraction(Fraction(target[i] * proposal_total, target_total * proposal[i]))
+        for i in range(n)
+    )
+    cumulative = []
+    running = 0
+    for weight in proposal:
+        running += weight
+        cumulative.append(running)
     records = []
     start = 3 + 2 * n
     for pos in range(start, start + 2 * attempts, 2):
         candidate, accept = values[pos:pos + 2]
-        if not 0 <= candidate < proposal_total or not 0 <= accept < DRAW_SCALE:
+        if not 0 <= candidate < proposal_total or accept < 0:
+            return None
+        category = bisect_right(cumulative, candidate)
+        acceptance_range = target_total * proposal[category] * envelope
+        if accept >= acceptance_range:
             return None
         records.append((candidate, accept))
     return wanted, target, proposal, records
@@ -83,18 +96,12 @@ def expected_output(
     for weight in proposal:
         running += weight
         cumulative.append(running)
-    thresholds = [
-        _ceil_fraction(Fraction(DRAW_SCALE * target[i] * proposal_total,
-                                target_total * proposal[i] * envelope))
-        for i in range(len(target))
-    ]
-
     answer: list[int] = []
     pending_attempts = 0
     for proposal_draw, accept_draw in records:
         pending_attempts += 1
         category = bisect_right(cumulative, proposal_draw)
-        if accept_draw < thresholds[category]:
+        if accept_draw < target[category] * proposal_total:
             answer.extend((category, pending_attempts))
             pending_attempts = 0
             if len(answer) == 2 * wanted:

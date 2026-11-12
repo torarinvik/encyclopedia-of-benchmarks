@@ -3,7 +3,6 @@ const DRS_MAX_CATEGORIES: usize = 8
 const DRS_MAX_SAMPLES: usize = 8
 const DRS_MAX_ATTEMPTS: usize = 32
 const DRS_MAX_INPUT_VALUES: usize = 83
-const DRS_DRAW_SCALE: u64 = 4294967296
 
 def drs_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
@@ -58,8 +57,11 @@ export fn discrete_rejection_sampling(input: i64&, length: usize,
     while attempt < attempts:
         proposal_draw: i64 = values[tape_offset + 2 * attempt]
         acceptance_draw: i64 = values[tape_offset + 2 * attempt + 1]
-        if proposal_draw < 0 or proposal_draw.u64() >= proposal_total or acceptance_draw < 0 or acceptance_draw.u64() >= DRS_DRAW_SCALE:
-            return -1
+        if proposal_draw < 0 or proposal_draw.u64() >= proposal_total or acceptance_draw < 0: return -1
+        category: mutable usize = 0
+        while cumulative[category].u64() <= proposal_draw.u64(): category <- category + 1
+        acceptance_range: u64 = target_total * proposal[category].u64() * envelope
+        if acceptance_draw.u64() >= acceptance_range: return -1
         attempt <- attempt + 1
 
     output_bytes: usize = 16 * wanted
@@ -76,9 +78,7 @@ export fn discrete_rejection_sampling(input: i64&, length: usize,
         category: mutable usize = 0
         while cumulative[category].u64() <= proposal_draw:
             category <- category + 1
-        left: u64 = acceptance_draw * target_total * proposal[category].u64() * envelope
-        right: u64 = DRS_DRAW_SCALE * target[category].u64() * proposal_total
-        if left < right:
+        if acceptance_draw < (target[category].u64() * proposal_total).i64():
             drs_store_i64_le(staged_view, produced * 8, category.i64())
             drs_store_i64_le(staged_view, (produced + 1) * 8, attempts_since_acceptance.i64())
             produced <- produced + 2

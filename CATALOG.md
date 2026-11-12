@@ -5489,3 +5489,40 @@ This bounded geometry profile intersects up to 12 closed integer half-planes ins
 ## SMAWK row minima (`smawk_row_minima`)
 
 This bounded matrix-search profile returns the leftmost minimum column for every row of a promised totally monotone matrix. Ten language ports use column reduction, recursive odd-row minima, and interpolation; an independent direct row scan checks the results. This differs from the convolution-specific monotone divide-and-conquer profile because it searches a general explicit totally monotone matrix. See the [guide](benchmarks/s/smawk_row_minima/README.md), [workload](benchmarks/s/smawk_row_minima/workload.json), and [Aggarwal et al. paper](https://doi.org/10.1007/BF01840359).
+
+## Minimum-cost max-flow with tight-edge blocking flow (`min_cost_max_flow_blocking_paths`)
+
+This bounded source/sink flow profile uses shortest residual-distance labels followed by blocking flow over tight residual arcs. Ten language ports share the graph bounds and `[flow,cost]` output of the existing reduced-cost Dijkstra successive-shortest-path benchmark, allowing a direct method comparison. An independent Bellman–Ford successive-path oracle checks the results. See the [guide](benchmarks/m/min_cost_max_flow_blocking_paths/README.md), [workload](benchmarks/m/min_cost_max_flow_blocking_paths/workload.json), and [OI Wiki article](https://en.oi-wiki.org/graph/flow/min-cost/).
+
+## Convex polygon point-membership queries (`point_in_convex_polygon_log_query`)
+
+This bounded geometry profile answers batched inside-or-boundary queries for a strictly convex CCW polygon. Ten language ports rotate to the lexicographically smallest vertex, locate a radial-fan wedge by binary search, and classify the point with exact cross products; an independent linear edge scan checks the answers. It differs from arbitrary-polygon ray casting and triangulation-hierarchy point location. See the [guide](benchmarks/p/point_in_convex_polygon_log_query/README.md), [workload](benchmarks/p/point_in_convex_polygon_log_query/workload.json), and [CP-Algorithms article](https://cp-algorithms.com/geometry/point-in-convex-polygon.html).
+
+## Legendre prime counting (`legendre_prime_count`)
+
+This bounded scalar profile returns `π(x)` for `0 <= x <= 10000` using Legendre's partial-sieve formula and recursive inclusion-exclusion for `φ(x,a)`. Ten language ports use a primary Legendre oracle; an independent direct Eratosthenes sieve checks outputs. It differs from the existing trial-division sequence, Lehmer prime counting, and direct prime enumeration by its formula and recurrence. See the [guide](benchmarks/l/legendre_prime_count/README.md), [workload](benchmarks/l/legendre_prime_count/workload.json), [Library Checker operation](https://judge.yosupo.jp/problem/counting_primes), and [MathWorld formula](https://mathworld.wolfram.com/LegendresFormula.html).
+
+## Finite discrete rejection sampling (`discrete_rejection_sampling`)
+
+This bounded byte-output profile samples from a finite integer-weight target using supplied proposal weights, an integer rejection envelope, and a deterministic draw tape. Ten ports emit accepted categories with attempts-per-sample; exact category-specific acceptance ranges preserve the target law, and tape exhaustion has its own result. An independent cumulative-table oracle checks the trace. It differs from the fixed Gaussian polar transform and weighted-priority subset selection. See the [guide](benchmarks/d/discrete_rejection_sampling/README.md), [workload](benchmarks/d/discrete_rejection_sampling/workload.json), [Algorithm Archive overview](https://www.algorithm-archive.org/contents/box_muller/box_muller_rejection.html), and [Devroye's textbook](https://doi.org/10.1007/978-1-4613-8643-8_2).
+
+## Brent–Kung formal power-series composition (`brent_kung_fps_composition`)
+
+This bounded profile computes `f(g) mod x^N` over `F_998244353`, with `g(0)=0` and `N<=32`, using Brent–Kung baby-step/giant-step blocks. Ten ports build truncated baby powers, combine coefficient blocks, and evaluate by giant-step Horner; an independent Horner oracle checks the same operation. It provides a method comparison with the existing descending-Horner composition and is not merely the larger Library Checker size variant. The byte-output suite includes generated maximum-size series, malformed frames, and output-capacity probes. See the [guide](benchmarks/b/brent_kung_fps_composition/README.md), [workload](benchmarks/b/brent_kung_fps_composition/workload.json), [Brent and Kung's paper](https://doi.org/10.1145/322092.322099), and [FLINT's algorithm notes](https://github.com/flintlib/flint/blob/main/doc/src/algorithms/polynomials/composition.md).
+
+
+## Exact graph Steiner tree by terminal-subset DP (`steiner_tree_subset_dp`)
+
+This bounded graph profile finds the exact minimum edge-weight subgraph joining up to five terminals in a supplied simple weighted graph with at most eight vertices and fourteen edges. Ten ports combine terminal subsets at candidate roots and propagate states using multi-source shortest paths; an independent oracle enumerates edge subsets and checks connectivity. It differs from [`steiner_tree_gain_greedy`](benchmarks/s/steiner_tree_gain_greedy/README.md), which greedily chooses from a supplied finite family of full components. The scalar-array suite includes random graphs, disconnected cases, malformed edges and terminals, maximum bounds, and null-input coverage. See the [guide](benchmarks/p/steiner_tree_subset_dp/README.md), [workload](benchmarks/p/steiner_tree_subset_dp/workload.json), and [OI Wiki article](https://oi-wiki.org/graph/steiner-tree/).
+
+## Create Maximum Number (`create_maximum_number`)
+
+This bounded byte-output profile selects the lexicographically greatest length-`k` sequence from two ordered digit sources, each at most six values long. Ten ports enumerate feasible source splits, select each maximum subsequence with a decreasing stack, and merge by comparing the remaining suffixes; an independent memoized skip/take dynamic program chooses output positions directly. The LeetCode title is used only as an algorithm index. See the [guide](benchmarks/c/create_maximum_number/README.md), [workload](benchmarks/c/create_maximum_number/workload.json), [clean-room rights note](benchmarks/c/create_maximum_number/RIGHTS.md), and [title page](https://leetcode.com/problems/create-maximum-number/).
+
+## Minimum-spanning-tree edge classification (`mst_edge_classification`)
+
+This bounded connected-graph profile classifies each input edge as absent from all, present in some, or present in every minimum spanning tree. Ten ports process equal-weight Kruskal groups, contract strictly lighter edges, and find bridges in the edge-ID-preserving quotient multigraph before unioning the group. A force/forbid Kruskal oracle checks the same classes independently. The title-only LeetCode discovery does not reuse problem text or examples. See the [guide](benchmarks/m/mst_edge_classification/README.md), [workload](benchmarks/m/mst_edge_classification/workload.json), [rights note](benchmarks/m/mst_edge_classification/RIGHTS.md), and [CP-Algorithms Kruskal](https://cp-algorithms.com/graph/mst_kruskal.html) and [bridge](https://cp-algorithms.com/graph/bridge-searching.html) references.
+
+## Two-dimensional trapped rainwater (`trapping_rain_water_ii`)
+
+This bounded terrain profile totals retained water by escaping from the grid boundary. Ten language ports use a min-heap flood that visits cells in increasing effective escape height; an independent oracle tests per-cell escape by threshold search and BFS. It differs from the one-dimensional profile maxima/two-pointer methods and local flood-fill operation. See the [guide](benchmarks/t/trapping_rain_water_ii/README.md), [workload](benchmarks/t/trapping_rain_water_ii/workload.json), [rights note](benchmarks/t/trapping_rain_water_ii/RIGHTS.md), and [title/topic index](https://leetcode.com/problems/trapping-rain-water-ii/).

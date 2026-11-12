@@ -117,6 +117,60 @@ from min_cost_max_flow_blocking_paths_oracle import (
 from min_cost_max_flow_blocking_paths_independent_oracle import (
     expected_output as min_cost_max_flow_blocking_paths_independent_oracle,
 )
+from point_in_convex_polygon_log_query_oracle import (
+    MAX_COORDINATE as POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_COORDINATE,
+    MAX_INPUT_LENGTH as POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_PARSEABLE_LENGTH,
+    MAX_OUTPUT_BYTES as POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_OUTPUT_BYTES,
+    MAX_QUERIES as POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_QUERIES,
+    MAX_VERTICES as POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_VERTICES,
+    WORKSPACE_BYTES as POINT_IN_CONVEX_POLYGON_LOG_QUERY_WORKSPACE_BYTES,
+)
+from point_in_convex_polygon_log_query_verifier_oracle import (
+    expected_output as point_in_convex_polygon_log_query_independent_oracle,
+)
+from discrete_rejection_sampling_oracle import (
+    MAX_ATTEMPTS as DISCRETE_REJECTION_SAMPLING_MAX_ATTEMPTS,
+    MAX_CATEGORIES as DISCRETE_REJECTION_SAMPLING_MAX_CATEGORIES,
+    MAX_INPUT_LENGTH as DISCRETE_REJECTION_SAMPLING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DISCRETE_REJECTION_SAMPLING_MAX_OUTPUT_BYTES,
+    MAX_SAMPLES as DISCRETE_REJECTION_SAMPLING_MAX_SAMPLES,
+    MAX_WEIGHT as DISCRETE_REJECTION_SAMPLING_MAX_WEIGHT,
+    MAX_PARSEABLE_LENGTH as DISCRETE_REJECTION_SAMPLING_MAX_PARSEABLE_LENGTH,
+    WORKSPACE_BYTES as DISCRETE_REJECTION_SAMPLING_WORKSPACE_BYTES,
+)
+from discrete_rejection_sampling_verifier_oracle import (
+    expected_output as discrete_rejection_sampling_independent_oracle,
+)
+from b.brent_kung_fps_composition.primary_oracle import (
+    MAX_N as BRENT_KUNG_FPS_COMPOSITION_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as BRENT_KUNG_FPS_COMPOSITION_MAX_PARSEABLE_LENGTH,
+    MAX_OUTPUT_BYTES as BRENT_KUNG_FPS_COMPOSITION_MAX_OUTPUT_BYTES,
+    MODULUS as BRENT_KUNG_FPS_COMPOSITION_MODULUS,
+    WORKSPACE_BYTES as BRENT_KUNG_FPS_COMPOSITION_WORKSPACE_BYTES,
+)
+from b.brent_kung_fps_composition.independent_oracle import (
+    expected_output as brent_kung_fps_composition_independent_oracle,
+)
+from c.create_maximum_number.primary_oracle import (
+    MAX_OUTPUT_BYTES as CREATE_MAXIMUM_NUMBER_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_LENGTH as CREATE_MAXIMUM_NUMBER_MAX_PARSEABLE_LENGTH,
+    MAX_SOURCE_LENGTH as CREATE_MAXIMUM_NUMBER_MAX_SOURCE_LENGTH,
+    WORKSPACE_BYTES as CREATE_MAXIMUM_NUMBER_WORKSPACE_BYTES,
+)
+from c.create_maximum_number.independent_oracle import (
+    expected_output as create_maximum_number_independent_oracle,
+)
+from mst_edge_classification_oracle import (
+    MAX_EDGES as MST_EDGE_CLASSIFICATION_MAX_EDGES,
+    MAX_PARSEABLE_INPUT_LENGTH as MST_EDGE_CLASSIFICATION_MAX_PARSEABLE_LENGTH,
+    MAX_OUTPUT_BYTES as MST_EDGE_CLASSIFICATION_MAX_OUTPUT_BYTES,
+    MAX_VALID_INPUT_LENGTH as MST_EDGE_CLASSIFICATION_MAX_VALID_LENGTH,
+    MAX_VERTICES as MST_EDGE_CLASSIFICATION_MAX_VERTICES,
+    expected_output as mst_edge_classification_primary_oracle,
+)
+from mst_edge_classification_exhaustive_oracle import (
+    expected_output as mst_edge_classification_independent_oracle,
+)
 from s.suffix_array_sais.independent_oracle import (
     expected_output as suffix_array_sais_independent_oracle,
 )
@@ -5850,6 +5904,11 @@ ALGORITHMS = (*ALGORITHMS, "lengauer_tarjan_dominator_tree")
 ALGORITHMS = (*ALGORITHMS, "half_plane_intersection")
 ALGORITHMS = (*ALGORITHMS, "smawk_row_minima")
 ALGORITHMS = (*ALGORITHMS, "min_cost_max_flow_blocking_paths")
+ALGORITHMS = (*ALGORITHMS, "point_in_convex_polygon_log_query")
+ALGORITHMS = (*ALGORITHMS, "discrete_rejection_sampling")
+ALGORITHMS = (*ALGORITHMS, "brent_kung_fps_composition")
+ALGORITHMS = (*ALGORITHMS, "create_maximum_number")
+ALGORITHMS = (*ALGORITHMS, "mst_edge_classification")
 WORKSPACE_ALGORITHMS.update({
     "npb_cg_sparse_inverse_power", "hpcg_profile", "baswana_sen_weighted_spanner",
     "npb_lu_block_ssor", "q_binomial_coefficient_prime_mod",
@@ -5874,6 +5933,11 @@ WORKSPACE_ALGORITHMS.add("lengauer_tarjan_dominator_tree")
 WORKSPACE_ALGORITHMS.add("half_plane_intersection")
 WORKSPACE_ALGORITHMS.add("smawk_row_minima")
 WORKSPACE_ALGORITHMS.add("min_cost_max_flow_blocking_paths")
+WORKSPACE_ALGORITHMS.add("point_in_convex_polygon_log_query")
+WORKSPACE_ALGORITHMS.add("discrete_rejection_sampling")
+WORKSPACE_ALGORITHMS.add("brent_kung_fps_composition")
+WORKSPACE_ALGORITHMS.add("create_maximum_number")
+WORKSPACE_ALGORITHMS.add("mst_edge_classification")
 WORKSPACE_ALGORITHMS.update({
     "ams_sketch", "count_min_sketch_affine", "deterministic_line_search",
     "color_coding_k_path",
@@ -13192,6 +13256,11 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "half_plane_intersection": half_plane_intersection_independent_oracle,
     "smawk_row_minima": smawk_row_minima_independent_oracle,
     "min_cost_max_flow_blocking_paths": min_cost_max_flow_blocking_paths_independent_oracle,
+    "point_in_convex_polygon_log_query": point_in_convex_polygon_log_query_independent_oracle,
+    "discrete_rejection_sampling": discrete_rejection_sampling_independent_oracle,
+    "brent_kung_fps_composition": brent_kung_fps_composition_independent_oracle,
+    "create_maximum_number": create_maximum_number_independent_oracle,
+    "mst_edge_classification": mst_edge_classification_independent_oracle,
     "suffix_array_sais": suffix_array_sais_independent_oracle,
     "minkowski_sum_convex_polygons": minkowski_sum_convex_polygons_independent_oracle,
     "de_bruijn_sequences": de_bruijn_sequences_independent_oracle,
@@ -19731,6 +19800,101 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or workload.get("contract", {}).get("output_bytes") != max_output
                 or output_spec.get("maximum_bytes") != max_output):
             raise ValueError("min_cost_max_flow_blocking_paths bounds differ from its tight-edge profile")
+    elif algorithm == "point_in_convex_polygon_log_query":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_PARSEABLE_LENGTH
+                or max_output != POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_OUTPUT_BYTES
+                or workspace_bytes != POINT_IN_CONVEX_POLYGON_LOG_QUERY_WORKSPACE_BYTES
+                or max_input != 131 or max_output != 256
+                or POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_VERTICES != 32
+                or POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_QUERIES != 32
+                or POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_COORDINATE != 1_000_000
+                or input_spec.get("vertex_count_range") != [3, 32]
+                or input_spec.get("query_count_range") != [0, 32]
+                or input_spec.get("coordinate_range") != [-1_000_000, 1_000_000]
+                or input_spec.get("maximum_valid_length") != 130
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_values") != 32
+                or output_spec.get("maximum_output_bytes") != max_output
+                or output_spec.get("zero_query_null_output") is not True):
+            raise ValueError("point_in_convex_polygon_log_query bounds differ from its convex fan-query profile")
+    elif algorithm == "discrete_rejection_sampling":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != DISCRETE_REJECTION_SAMPLING_MAX_PARSEABLE_LENGTH
+                or max_input != DISCRETE_REJECTION_SAMPLING_MAX_INPUT_LENGTH
+                or max_output != DISCRETE_REJECTION_SAMPLING_MAX_OUTPUT_BYTES
+                or workspace_bytes != DISCRETE_REJECTION_SAMPLING_WORKSPACE_BYTES
+                or max_input != 83 or max_output != 128 or workspace_bytes != 4096
+                or DISCRETE_REJECTION_SAMPLING_MAX_CATEGORIES != 8
+                or DISCRETE_REJECTION_SAMPLING_MAX_SAMPLES != 8
+                or DISCRETE_REJECTION_SAMPLING_MAX_ATTEMPTS != 32
+                or DISCRETE_REJECTION_SAMPLING_MAX_WEIGHT != 20
+                or input_spec.get("category_count_range") != [1, 8]
+                or input_spec.get("samples_wanted_range") != [1, 8]
+                or input_spec.get("attempt_cap_range") != [1, 32]
+                or input_spec.get("weight_range") != [1, 20]
+                or input_spec.get("maximum_valid_input_length") != max_input
+                or input_spec.get("maximum_parseable_input_length") != max_input
+                or input_spec.get("exhausted_attempt_tape_result") != -3
+                or output_spec.get("maximum_output_bytes") != max_output
+                or workload.get("semantics", {}).get("envelope", "").find("ceil") < 0
+                or workload.get("semantics", {}).get("acceptance_step", "").find("W*proposal_weights[i]*M") < 0):
+            raise ValueError("discrete_rejection_sampling bounds differ from its exact integer-draw profile")
+    elif algorithm == "brent_kung_fps_composition":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        contract = workload.get("contract", {})
+        if (max_input != BRENT_KUNG_FPS_COMPOSITION_MAX_PARSEABLE_LENGTH
+                or max_output != BRENT_KUNG_FPS_COMPOSITION_MAX_OUTPUT_BYTES
+                or workspace_bytes != BRENT_KUNG_FPS_COMPOSITION_WORKSPACE_BYTES
+                or max_input != 66 or max_output != 256 or workspace_bytes != 8192
+                or BRENT_KUNG_FPS_COMPOSITION_MAX_N != 32
+                or BRENT_KUNG_FPS_COMPOSITION_MODULUS != 998_244_353
+                or workload.get("input", {}).get("maximum_valid_length") != 65
+                or workload.get("input", {}).get("maximum_parseable_length") != max_input
+                or workload.get("output", {}).get("maximum_bytes") != max_output
+                or contract.get("n_range") != [1, 32]
+                or contract.get("modulus") != BRENT_KUNG_FPS_COMPOSITION_MODULUS
+                or contract.get("inner_constant_condition") != "b_0 = 0"):
+            raise ValueError("brent_kung_fps_composition bounds differ from its bounded composition profile")
+    elif algorithm == "create_maximum_number":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != CREATE_MAXIMUM_NUMBER_MAX_PARSEABLE_LENGTH
+                or max_input != 16 or max_output != CREATE_MAXIMUM_NUMBER_MAX_OUTPUT_BYTES
+                or max_output != 12 or workspace_bytes != CREATE_MAXIMUM_NUMBER_WORKSPACE_BYTES
+                or CREATE_MAXIMUM_NUMBER_MAX_SOURCE_LENGTH != 6
+                or input_spec.get("maximum_valid_length") != 15
+                or input_spec.get("maximum_parseable_length") != max_input
+                or input_spec.get("source_length_range") != [0, 6]
+                or input_spec.get("digit_range") != [0, 9]
+                or output_spec.get("maximum_output_bytes") != max_output
+                or workload.get("tie_rules", {}).get("merge", "").find("proper extension") < 0):
+            raise ValueError("create_maximum_number bounds differ from its split-and-merge profile")
+    elif algorithm == "mst_edge_classification":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != MST_EDGE_CLASSIFICATION_MAX_PARSEABLE_LENGTH
+                or max_input != 75 or max_output != MST_EDGE_CLASSIFICATION_MAX_OUTPUT_BYTES
+                or max_output != 24 or workspace_bytes != 24
+                or MST_EDGE_CLASSIFICATION_MAX_VERTICES != 12
+                or MST_EDGE_CLASSIFICATION_MAX_EDGES != 24
+                or MST_EDGE_CLASSIFICATION_MAX_VALID_LENGTH != 74
+                or input_spec.get("vertex_count_range") != [1, 12]
+                or input_spec.get("edge_count_range") != [0, 24]
+                or input_spec.get("maximum_valid_input_length") != 74
+                or input_spec.get("maximum_parseable_input_length") != max_input
+                or input_spec.get("edge_weight_range") != [0, 20]
+                or input_spec.get("connected_graph_required") is not True
+                or output_spec.get("maximum_bytes") != max_output
+                or workload.get("contract", {}).get("class_codes") != {
+                    "never_in_an_mst": 0,
+                    "some_but_not_all_msts": 1,
+                    "every_mst": 2,
+                }):
+            raise ValueError("mst_edge_classification bounds differ from its Kruskal-group profile")
     elif algorithm == "suffix_array_sais":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -19896,10 +20060,20 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             inconsistent_framing = (
                 result >= 0 and (result != len(output) or len(output) > max_output
                                  or output_is_null and not (
-                                     algorithm == "mediabench_g721_encode"
+                                     algorithm in {
+                                         "mediabench_g721_encode",
+                                         "point_in_convex_polygon_log_query",
+                                         "mst_edge_classification",
+                                     }
                                      and result == 0 and not output)
                                  or capacity < result)
                 or result < 0 and (result not in (-1, -2) or output)
+            )
+        if algorithm == "discrete_rejection_sampling":
+            inconsistent_framing = (
+                result >= 0 and (result != len(output) or len(output) > max_output
+                                 or output_is_null or capacity < result)
+                or result < 0 and (result not in (-1, -2, -3) or output)
             )
         if inconsistent_framing:
             raise ValueError(f"{algorithm} oracle returned inconsistent byte framing")
@@ -20482,6 +20656,510 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_result, null_output = add((), input_is_null=True, input_length=0)
         if null_result != -1 or null_output:
             raise ValueError("SMAWK accepted a null input pointer")
+    elif algorithm == "min_cost_max_flow_blocking_paths":
+        def pack_min_cost_flow(vertex_count, source, sink, flow_limit, edges):
+            return (vertex_count, len(edges), source, sink, flow_limit,
+                    *(value for edge in edges for value in edge))
+
+        rng_min_cost_blocking = random.Random(0xB10C)
+        generated_inputs = []
+        for _ in range(128):
+            vertex_count = rng_min_cost_blocking.randint(
+                2, MIN_COST_MAX_FLOW_BLOCKING_MAX_VERTICES)
+            source = rng_min_cost_blocking.randrange(vertex_count)
+            sink = rng_min_cost_blocking.randrange(vertex_count - 1)
+            if sink >= source:
+                sink += 1
+            flow_limit = rng_min_cost_blocking.randint(
+                0, MIN_COST_MAX_FLOW_BLOCKING_MAX_FLOW_LIMIT)
+            edge_count = rng_min_cost_blocking.randint(
+                0, MIN_COST_MAX_FLOW_BLOCKING_MAX_EDGES)
+            edges = [(
+                rng_min_cost_blocking.randrange(vertex_count),
+                rng_min_cost_blocking.randrange(vertex_count),
+                rng_min_cost_blocking.randint(0, 5),
+                rng_min_cost_blocking.randint(0, 20),
+            ) for _ in range(edge_count)]
+            generated_inputs.append(
+                pack_min_cost_flow(vertex_count, source, sink, flow_limit, edges))
+
+        maximum_edges = [(0, MIN_COST_MAX_FLOW_BLOCKING_MAX_VERTICES - 1, 5, 0)] * (
+            MIN_COST_MAX_FLOW_BLOCKING_MAX_EDGES)
+        maximum_values = pack_min_cost_flow(
+            MIN_COST_MAX_FLOW_BLOCKING_MAX_VERTICES, 0,
+            MIN_COST_MAX_FLOW_BLOCKING_MAX_VERTICES - 1,
+            MIN_COST_MAX_FLOW_BLOCKING_MAX_FLOW_LIMIT, maximum_edges)
+        if len(maximum_values) != MIN_COST_MAX_FLOW_BLOCKING_MAX_INPUT_LENGTH:
+            raise ValueError("blocking-flow maximum frame differs from its input bound")
+        maximum_result, maximum_output = add(maximum_values)
+        expected_maximum_output = struct.pack("<qq", 16, 0)
+        if maximum_result != 16 or maximum_output != expected_maximum_output:
+            raise ValueError("blocking-flow maximum parallel-edge profile differs from its output")
+        generated_inputs.append(maximum_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            if result != 16 or len(output) != 16:
+                raise ValueError("blocking-flow generated graph has invalid output framing")
+            if case_index % 8 == 0:
+                short_result, short_output = add(values, 15)
+                if short_result != -2 or short_output:
+                    raise ValueError("blocking-flow accepted insufficient output capacity")
+                exact_result, exact_output = add(values, 16)
+                if exact_result != result or exact_output != output:
+                    raise ValueError("blocking-flow rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("blocking-flow accepted a null output buffer")
+
+        malformed_flow_graphs = (
+            (), (2,), (1, 0, 0, 0, 0), (9, 0, 0, 1, 0),
+            (2, 17, 0, 1, 0), (2, 0, 0, 0, 0),
+            (2, 0, 0, 1, 17), (2, 1, 0, 1, 1, 0, 2, 1, 0),
+            (2, 1, 0, 1, 1, 0, 1, 6, 0),
+            (2, 1, 0, 1, 1, 0, 1, 1, 21),
+            (2, 0, 0, 1, 1, 9),
+        )
+        for malformed in malformed_flow_graphs:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("blocking-flow accepted malformed graph input")
+        precedence_result, precedence_output = add(
+            (2, 0, 0, 0, 0), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("blocking-flow output errors took precedence over invalid input")
+        for capacity in (0, 15, 16):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < 16 else (16, maximum_output))
+            if (result, output) != expected:
+                raise ValueError("blocking-flow maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("blocking-flow accepted a null input pointer")
+    elif algorithm == "point_in_convex_polygon_log_query":
+        def pack_convex_polygon_queries(polygon, queries):
+            return (len(polygon), len(queries),
+                    *(coordinate for point in polygon for coordinate in point),
+                    *(coordinate for point in queries for coordinate in point))
+
+        rng_convex_queries = random.Random(0xC0A7)
+        generated_inputs = []
+        for _ in range(128):
+            vertex_count = rng_convex_queries.randint(
+                3, POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_VERTICES)
+            start_x = -vertex_count // 2
+            polygon = [(x, x * x) for x in range(start_x, start_x + vertex_count)]
+            offset = rng_convex_queries.randrange(vertex_count)
+            polygon = polygon[offset:] + polygon[:offset]
+            query_count = rng_convex_queries.randint(
+                0, POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_QUERIES)
+            queries = [(rng_convex_queries.randint(-300, 300),
+                        rng_convex_queries.randint(-300, 300))
+                       for _ in range(query_count)]
+            generated_inputs.append(pack_convex_polygon_queries(polygon, queries))
+
+        maximum_polygon = [(x, x * x) for x in range(-16, 16)]
+        maximum_queries = [((0, 500) if index % 3 == 2 else
+                            ((0, 0) if index % 3 == 1 else (0, 1)))
+                           for index in range(POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_QUERIES)]
+        maximum_values = pack_convex_polygon_queries(maximum_polygon, maximum_queries)
+        if len(maximum_values) != 130:
+            raise ValueError("convex polygon maximum frame differs from its valid-input bound")
+        maximum_result, maximum_output = add(maximum_values)
+        expected_answers = [0 if index % 3 == 2 else 1
+                            for index in range(POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_QUERIES)]
+        expected_maximum_output = struct.pack(
+            "<" + "q" * POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_QUERIES,
+            *expected_answers)
+        if (maximum_result != POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_OUTPUT_BYTES
+                or maximum_output != expected_maximum_output):
+            raise ValueError("convex polygon maximum query batch differs from its output bound")
+        generated_inputs.append(maximum_values)
+
+        triangle = [(0, 0), (4, 0), (0, 4)]
+        zero_query_values = pack_convex_polygon_queries(triangle, [])
+        zero_query_result, zero_query_output = add(
+            zero_query_values, 0, output_is_null=True)
+        if zero_query_result != 0 or zero_query_output:
+            raise ValueError("convex polygon rejected a null output for an empty query batch")
+
+        for case_index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            if result != len(output) or result > POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_OUTPUT_BYTES:
+                raise ValueError("convex polygon generated query batch has invalid output framing")
+            if case_index % 8 == 0:
+                short_result, short_output = add(values, max(0, result - 1))
+                if result > 0 and (short_result != -2 or short_output):
+                    raise ValueError("convex polygon accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if exact_result != result or exact_output != output:
+                    raise ValueError("convex polygon rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if result > 0 and (null_result != -2 or null_output):
+                    raise ValueError("convex polygon accepted a null output for nonempty results")
+
+        maximum_parseable_invalid = (*maximum_values, 0)
+        if len(maximum_parseable_invalid) != POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_PARSEABLE_LENGTH:
+            raise ValueError("convex polygon maximum parseable frame differs from its bound")
+        malformed_polygons = (
+            (), (2, 0), (3, 0),
+            (4, 0, 0, 0, 4, 0, 4, 4, 0, 0),
+            (4, 0, 0, 0, 0, 4, 4, 4, 4, 0),
+            (4, 0, 0, 0, 2, 0, 4, 0, 0, 4),
+            (3, 0, -1_000_001, 0, 4, 0, 0, 4),
+            (33, 0), (3, 33), maximum_parseable_invalid,
+        )
+        for malformed in malformed_polygons:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("convex polygon accepted malformed input")
+        precedence_result, precedence_output = add(
+            (3, 0), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("convex polygon output errors took precedence over invalid input")
+        for capacity in (0, POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_OUTPUT_BYTES - 1,
+                         POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_OUTPUT_BYTES
+                        else (POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_OUTPUT_BYTES,
+                              maximum_output))
+            if (result, output) != expected:
+                raise ValueError("convex polygon maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("convex polygon accepted a null input pointer")
+    elif algorithm == "discrete_rejection_sampling":
+        def pack_rejection_input(target, proposal, wanted, attempt_cap, rng):
+            target_total = sum(target)
+            proposal_total = sum(proposal)
+            envelope = max(
+                (weight * proposal_total + target_total * q_weight - 1)
+                // (target_total * q_weight)
+                for weight, q_weight in zip(target, proposal)
+            )
+            records = []
+            for _ in range(attempt_cap):
+                proposal_draw = rng.randrange(proposal_total)
+                cumulative = 0
+                for category, q_weight in enumerate(proposal):
+                    cumulative += q_weight
+                    if proposal_draw < cumulative:
+                        break
+                acceptance_range = target_total * proposal[category] * envelope
+                records.extend((proposal_draw, rng.randrange(acceptance_range)))
+            return (len(target), wanted, attempt_cap, *target, *proposal, *records)
+
+        rng_rejection = random.Random(0xD15C)
+        generated_inputs = []
+        for _ in range(128):
+            categories = rng_rejection.randint(
+                1, DISCRETE_REJECTION_SAMPLING_MAX_CATEGORIES)
+            target = [rng_rejection.randint(1, DISCRETE_REJECTION_SAMPLING_MAX_WEIGHT)
+                      for _ in range(categories)]
+            proposal = [rng_rejection.randint(1, DISCRETE_REJECTION_SAMPLING_MAX_WEIGHT)
+                        for _ in range(categories)]
+            wanted = rng_rejection.randint(1, DISCRETE_REJECTION_SAMPLING_MAX_SAMPLES)
+            attempt_cap = rng_rejection.randint(1, DISCRETE_REJECTION_SAMPLING_MAX_ATTEMPTS)
+            generated_inputs.append(
+                pack_rejection_input(target, proposal, wanted, attempt_cap, rng_rejection))
+
+        maximum_input = (
+            8, 1, DISCRETE_REJECTION_SAMPLING_MAX_ATTEMPTS,
+            *([1] * 8), *([1] * 8),
+            *([0, 0] * DISCRETE_REJECTION_SAMPLING_MAX_ATTEMPTS),
+        )
+        if len(maximum_input) != DISCRETE_REJECTION_SAMPLING_MAX_INPUT_LENGTH:
+            raise ValueError("discrete rejection maximum input differs from its declared bound")
+        maximum_input_result, maximum_input_output = add(maximum_input)
+        if (maximum_input_result != 16
+                or maximum_input_output != struct.pack("<qq", 0, 1)):
+            raise ValueError("discrete rejection maximum-input tape differs from its result")
+        generated_inputs.append(maximum_input)
+
+        maximum_output_input = (
+            1, DISCRETE_REJECTION_SAMPLING_MAX_SAMPLES,
+            DISCRETE_REJECTION_SAMPLING_MAX_SAMPLES,
+            1, 1, *([0, 0] * DISCRETE_REJECTION_SAMPLING_MAX_SAMPLES),
+        )
+        maximum_output_result, maximum_output = add(maximum_output_input)
+        expected_maximum_output = struct.pack(
+            "<" + "q" * (2 * DISCRETE_REJECTION_SAMPLING_MAX_SAMPLES),
+            *([0, 1] * DISCRETE_REJECTION_SAMPLING_MAX_SAMPLES))
+        if (maximum_output_result != DISCRETE_REJECTION_SAMPLING_MAX_OUTPUT_BYTES
+                or maximum_output != expected_maximum_output):
+            raise ValueError("discrete rejection full-output trace differs from its output bound")
+        generated_inputs.append(maximum_output_input)
+
+        for case_index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            wanted = values[1]
+            if result == -3:
+                if output:
+                    raise ValueError("discrete rejection exhaustion wrote output")
+            elif result != 16 * wanted or len(output) != result:
+                raise ValueError("discrete rejection generated tape has invalid success framing")
+            if case_index % 8 == 0 and result > 0:
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("discrete rejection accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if exact_result != result or exact_output != output:
+                    raise ValueError("discrete rejection rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("discrete rejection accepted a null output buffer")
+
+        malformed_tapes = (
+            (), (1, 1, 1), (0, 1, 1, 1, 1, 0, 0),
+            (9, 1, 1), (1, 9, 1, 1, 1, 0, 0),
+            (1, 1, 0, 1, 1, 0, 0),
+            (1, 1, 33, 1, 1, 0, 0),
+            (1, 1, 1, 0, 1, 0, 0),
+            (1, 1, 1, 1, 21, 0, 0),
+            (1, 1, 1, 1, 1, 1, 0),
+            (1, 1, 1, 1, 1, 0, 1),
+            (1, 1, 1, 1, 1, 0, 0, 9),
+            (2, 1, 2, 3, 1, 1, 1, 0, 0, 1),
+        )
+        for malformed in malformed_tapes:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("discrete rejection accepted malformed input or draw tape")
+        precedence_result, precedence_output = add(
+            (1, 1, 1, 1, 1, 1, 0), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("discrete rejection output errors took precedence over invalid input")
+        for capacity in (0, DISCRETE_REJECTION_SAMPLING_MAX_OUTPUT_BYTES - 1,
+                         DISCRETE_REJECTION_SAMPLING_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_output_input, capacity)
+            expected = ((-2, b"") if capacity < DISCRETE_REJECTION_SAMPLING_MAX_OUTPUT_BYTES
+                        else (DISCRETE_REJECTION_SAMPLING_MAX_OUTPUT_BYTES,
+                              maximum_output))
+            if (result, output) != expected:
+                raise ValueError("discrete rejection maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("discrete rejection accepted a null input pointer")
+    elif algorithm == "brent_kung_fps_composition":
+        rng_brent_kung = random.Random(0xB7E17)
+        generated_inputs = []
+        for _ in range(96):
+            n = rng_brent_kung.randint(1, BRENT_KUNG_FPS_COMPOSITION_MAX_N)
+            outer = [rng_brent_kung.randrange(BRENT_KUNG_FPS_COMPOSITION_MODULUS)
+                     for _ in range(n)]
+            inner = [0] + [rng_brent_kung.randrange(BRENT_KUNG_FPS_COMPOSITION_MODULUS)
+                           for _ in range(n - 1)]
+            generated_inputs.append((n, *outer, *inner))
+
+        maximum_n = BRENT_KUNG_FPS_COMPOSITION_MAX_N
+        maximum_values = (
+            maximum_n,
+            *(index * 1_234_567 % BRENT_KUNG_FPS_COMPOSITION_MODULUS
+              for index in range(maximum_n)),
+            0, *(index * 765_431 % BRENT_KUNG_FPS_COMPOSITION_MODULUS
+                 for index in range(1, maximum_n)),
+        )
+        if len(maximum_values) != 1 + 2 * maximum_n:
+            raise ValueError("Brent–Kung maximum frame differs from its valid-input bound")
+        expected_maximum = brent_kung_fps_composition_independent_oracle(maximum_values)
+        maximum_result, maximum_output = add(maximum_values)
+        if (maximum_result != BRENT_KUNG_FPS_COMPOSITION_MAX_OUTPUT_BYTES
+                or len(maximum_output) != BRENT_KUNG_FPS_COMPOSITION_MAX_OUTPUT_BYTES
+                or (maximum_result, maximum_output) != expected_maximum):
+            raise ValueError("Brent–Kung maximum composition differs from the Horner oracle")
+        generated_inputs.append(maximum_values)
+
+        for index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            expected = brent_kung_fps_composition_independent_oracle(values)
+            if (result, output) != expected or result != 8 * values[0]:
+                raise ValueError("Brent–Kung composition differs from the independent Horner oracle")
+            if index % 8 == 0:
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("Brent–Kung composition accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if (exact_result, exact_output) != (result, output):
+                    raise ValueError("Brent–Kung composition rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("Brent–Kung composition accepted a null output buffer")
+
+        malformed = (
+            (), (1,), (0, 0, 0), (32, *([0] * 65)),
+            (1, 998_244_353, 0), (1, 0, 998_244_353),
+            (1, 0, 1), (2, 1, 2, 0), (1, 0, 0, 9),
+        )
+        for values in malformed:
+            result, output = add(values)
+            if result != -1 or output:
+                raise ValueError("Brent–Kung composition accepted malformed input")
+        precedence_result, precedence_output = add((1, 0, 1), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("Brent–Kung output errors took precedence over invalid input")
+        for capacity in (0, BRENT_KUNG_FPS_COMPOSITION_MAX_OUTPUT_BYTES - 1,
+                         BRENT_KUNG_FPS_COMPOSITION_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < BRENT_KUNG_FPS_COMPOSITION_MAX_OUTPUT_BYTES
+                        else expected_maximum)
+            if (result, output) != expected:
+                raise ValueError("Brent–Kung maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("Brent–Kung composition accepted a null input")
+    elif algorithm == "create_maximum_number":
+        rng_maximum_number = random.Random(0xC321)
+        generated_inputs = []
+        for _ in range(96):
+            first_length = rng_maximum_number.randint(
+                0, CREATE_MAXIMUM_NUMBER_MAX_SOURCE_LENGTH)
+            second_length = rng_maximum_number.randint(
+                0, CREATE_MAXIMUM_NUMBER_MAX_SOURCE_LENGTH)
+            requested = rng_maximum_number.randint(0, first_length + second_length)
+            first = [rng_maximum_number.randrange(10) for _ in range(first_length)]
+            second = [rng_maximum_number.randrange(10) for _ in range(second_length)]
+            generated_inputs.append((first_length, second_length, requested, *first, *second))
+
+        maximum_values = (
+            6, 6, 12, *([0] * 6), *([1] * 6),
+        )
+        if len(maximum_values) != 15:
+            raise ValueError("create_maximum_number maximum frame differs from its valid-input bound")
+        expected_maximum = create_maximum_number_independent_oracle(maximum_values)
+        maximum_result, maximum_output = add(maximum_values)
+        if (maximum_result != CREATE_MAXIMUM_NUMBER_MAX_OUTPUT_BYTES
+                or maximum_output != bytes((1,) * 6 + (0,) * 6)
+                or (maximum_result, maximum_output) != expected_maximum):
+            raise ValueError("create_maximum_number maximum selection differs from its independent DP")
+        generated_inputs.append(maximum_values)
+
+        for index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            expected = create_maximum_number_independent_oracle(values)
+            if (result, output) != expected or result != values[2]:
+                raise ValueError("create_maximum_number disagrees with the independent skip/take DP")
+            if index % 8 == 0 and result > 0:
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("create_maximum_number accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if (exact_result, exact_output) != (result, output):
+                    raise ValueError("create_maximum_number rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("create_maximum_number accepted a null output buffer")
+
+        malformed = (
+            (), (1,), (-1, 0, 0), (0, 7, 0), (0, 0, 1),
+            (1, 0, 1, 10), (1, 0, 1, -1), (6, 6, 13, *([0] * 12)),
+            (0, 0, 0, 7), (6, 6, 12, *([0] * 12), 9),
+        )
+        for values in malformed:
+            result, output = add(values)
+            if result != -1 or output:
+                raise ValueError("create_maximum_number accepted malformed input")
+        empty_values = (0, 0, 0)
+        empty_result, empty_output = add(empty_values)
+        if empty_result != 0 or empty_output:
+            raise ValueError("create_maximum_number did not preserve the valid empty result")
+        null_empty_result, null_empty_output = add(
+            empty_values, 0, output_is_null=True)
+        if null_empty_result != -2 or null_empty_output:
+            raise ValueError("create_maximum_number accepted a null output for empty result")
+        for capacity in (0, CREATE_MAXIMUM_NUMBER_MAX_OUTPUT_BYTES - 1,
+                         CREATE_MAXIMUM_NUMBER_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < CREATE_MAXIMUM_NUMBER_MAX_OUTPUT_BYTES
+                        else expected_maximum)
+            if (result, output) != expected:
+                raise ValueError("create_maximum_number maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("create_maximum_number accepted a null input pointer")
+    elif algorithm == "mst_edge_classification":
+        rng_mst_edges = random.Random(0xA157)
+        generated_inputs = []
+        for _ in range(96):
+            vertex_count = rng_mst_edges.randint(1, MST_EDGE_CLASSIFICATION_MAX_VERTICES)
+            edges: list[tuple[int, int, int]] = []
+            used: set[tuple[int, int]] = set()
+            for vertex in range(1, vertex_count):
+                parent = rng_mst_edges.randrange(vertex)
+                pair = (parent, vertex)
+                used.add(pair)
+                edges.append((pair[0], pair[1], rng_mst_edges.randint(0, 20)))
+            possible = [(left, right) for left in range(vertex_count)
+                        for right in range(left + 1, vertex_count)
+                        if (left, right) not in used]
+            rng_mst_edges.shuffle(possible)
+            extra_count = rng_mst_edges.randint(
+                0, min(MST_EDGE_CLASSIFICATION_MAX_EDGES - len(edges), len(possible)))
+            for left, right in possible[:extra_count]:
+                edges.append((left, right, rng_mst_edges.randint(0, 20)))
+            packed = (vertex_count, len(edges),
+                      *(word for edge in edges for word in edge))
+            if len(packed) > MST_EDGE_CLASSIFICATION_MAX_VALID_LENGTH:
+                raise ValueError("mst_edge_classification generated graph exceeds its input bound")
+            generated_inputs.append(packed)
+
+        maximum_edges = []
+        for left in range(8):
+            for right in range(left + 1, 8):
+                if len(maximum_edges) == MST_EDGE_CLASSIFICATION_MAX_EDGES:
+                    break
+                maximum_edges.append((left, right, 4))
+            if len(maximum_edges) == MST_EDGE_CLASSIFICATION_MAX_EDGES:
+                break
+        maximum_values = (
+            8, len(maximum_edges),
+            *(word for edge in maximum_edges for word in edge),
+        )
+        if len(maximum_values) != MST_EDGE_CLASSIFICATION_MAX_VALID_LENGTH:
+            raise ValueError("mst_edge_classification maximum graph differs from its input bound")
+        expected_maximum = mst_edge_classification_independent_oracle(maximum_values)
+        maximum_result, maximum_output = add(maximum_values)
+        if (maximum_result != MST_EDGE_CLASSIFICATION_MAX_OUTPUT_BYTES
+                or maximum_output != bytes([1] * MST_EDGE_CLASSIFICATION_MAX_OUTPUT_BYTES)
+                or (maximum_result, maximum_output) != expected_maximum):
+            raise ValueError("mst_edge_classification maximum graph differs from force/forbid Kruskal")
+        generated_inputs.append(maximum_values)
+
+        for packed in generated_inputs:
+            independent = mst_edge_classification_independent_oracle(packed)
+            primary = mst_edge_classification_primary_oracle(packed)
+            actual = add(packed)
+            if independent != primary or actual != independent:
+                raise ValueError("mst_edge_classification oracles disagree on a connected graph")
+
+        maximum_result, maximum_output = add(maximum_values)
+        for capacity in (0, MST_EDGE_CLASSIFICATION_MAX_OUTPUT_BYTES - 1,
+                         MST_EDGE_CLASSIFICATION_MAX_OUTPUT_BYTES):
+            actual = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < MST_EDGE_CLASSIFICATION_MAX_OUTPUT_BYTES
+                        else expected_maximum)
+            if actual != expected:
+                raise ValueError("mst_edge_classification maximum output-capacity probe failed")
+        if add(maximum_values, output_is_null=True) != (-2, b""):
+            raise ValueError("mst_edge_classification accepted a null nonempty output buffer")
+
+        empty_tree = (1, 0)
+        if add(empty_tree) != (0, b"") or add(
+                empty_tree, output_is_null=True) != (0, b""):
+            raise ValueError("mst_edge_classification did not preserve the empty one-vertex tree")
+
+        malformed = (
+            (), (1,), (0, 0), (13, 0), (2, -1), (2, 1, 0, 1, -1),
+            (2, 1, 0, 1, 21), (2, 1, 0, 0, 1), (2, 1, 1, 0, 1),
+            (3, 1, 0, 1, 1), (3, 2, 0, 1, 1, 0, 1, 2),
+            (2, 1, 0, 1, 1, 9),
+        )
+        for packed in malformed:
+            if add(packed) != (-1, b""):
+                raise ValueError("mst_edge_classification accepted malformed input")
+        if add((3, 1, 0, 1, 1), 0, output_is_null=True) != (-1, b""):
+            raise ValueError("mst_edge_classification output errors took precedence over invalid input")
+        if add((), input_is_null=True, input_length=0) != (-1, b""):
+            raise ValueError("mst_edge_classification accepted a null input pointer")
     elif algorithm == "disjoint_sparse_table_affine_composition":
         def pack_affine_queries(maps, queries):
             return (len(maps), len(queries),

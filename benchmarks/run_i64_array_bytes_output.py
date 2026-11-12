@@ -111,6 +111,50 @@ from min_cost_max_flow_blocking_paths_oracle import (
 from m.min_cost_max_flow_blocking_paths.verify_min_cost_max_flow_blocking_paths_package import (
     validate_package as verify_min_cost_max_flow_blocking_paths_package,
 )
+from point_in_convex_polygon_log_query_oracle import (
+    MAX_INPUT_LENGTH as POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_OUTPUT_BYTES,
+    expected_output as point_in_convex_polygon_log_query_oracle,
+)
+from check_point_in_convex_polygon_log_query_package import (
+    static_issues as point_in_convex_polygon_log_query_static_issues,
+)
+from discrete_rejection_sampling_oracle import (
+    MAX_INPUT_LENGTH as DISCRETE_REJECTION_SAMPLING_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_LENGTH as DISCRETE_REJECTION_SAMPLING_MAX_PARSEABLE_LENGTH,
+    MAX_OUTPUT_BYTES as DISCRETE_REJECTION_SAMPLING_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as DISCRETE_REJECTION_SAMPLING_WORKSPACE_BYTES,
+    expected_output as discrete_rejection_sampling_oracle,
+)
+from check_discrete_rejection_sampling_package import (
+    static_issues as discrete_rejection_sampling_static_issues,
+)
+from b.brent_kung_fps_composition.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BRENT_KUNG_FPS_COMPOSITION_MAX_PARSEABLE_LENGTH,
+    MAX_OUTPUT_BYTES as BRENT_KUNG_FPS_COMPOSITION_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as BRENT_KUNG_FPS_COMPOSITION_WORKSPACE_BYTES,
+    expected_output as brent_kung_fps_composition_oracle,
+)
+from b.brent_kung_fps_composition.verify_workload import (
+    verify as verify_brent_kung_fps_composition_package,
+)
+from c.create_maximum_number.primary_oracle import (
+    MAX_PARSEABLE_LENGTH as CREATE_MAXIMUM_NUMBER_MAX_PARSEABLE_LENGTH,
+    MAX_OUTPUT_BYTES as CREATE_MAXIMUM_NUMBER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as CREATE_MAXIMUM_NUMBER_WORKSPACE_BYTES,
+    expected_output as create_maximum_number_oracle,
+)
+from c.create_maximum_number.check_inventory import (
+    check_inventory as check_create_maximum_number_inventory,
+)
+from mst_edge_classification_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MST_EDGE_CLASSIFICATION_MAX_PARSEABLE_LENGTH,
+    MAX_OUTPUT_BYTES as MST_EDGE_CLASSIFICATION_MAX_OUTPUT_BYTES,
+    expected_output as mst_edge_classification_oracle,
+)
+from m.mst_edge_classification.verify_mst_edge_classification_package import (
+    validate_package as validate_mst_edge_classification_package,
+)
 from minkowski_sum_convex_polygons_oracle import (
     MAX_INPUT_LENGTH as MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_OUTPUT_BYTES,
@@ -6804,6 +6848,11 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "half_plane_intersection": half_plane_intersection_oracle,
     "smawk_row_minima": smawk_row_minima_oracle,
     "min_cost_max_flow_blocking_paths": min_cost_max_flow_blocking_paths_oracle,
+    "point_in_convex_polygon_log_query": point_in_convex_polygon_log_query_oracle,
+    "discrete_rejection_sampling": discrete_rejection_sampling_oracle,
+    "brent_kung_fps_composition": brent_kung_fps_composition_oracle,
+    "create_maximum_number": create_maximum_number_oracle,
+    "mst_edge_classification": mst_edge_classification_oracle,
     "suffix_array_sais": suffix_array_sais_oracle,
     "minkowski_sum_convex_polygons": minkowski_sum_convex_polygons_oracle,
     "de_bruijn_sequences": de_bruijn_sequences_oracle,
@@ -7472,6 +7521,26 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
     "min_cost_max_flow_blocking_paths": (
         MIN_COST_MAX_FLOW_BLOCKING_MAX_INPUT_LENGTH,
         MIN_COST_MAX_FLOW_BLOCKING_MAX_OUTPUT_BYTES,
+    ),
+    "point_in_convex_polygon_log_query": (
+        POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_INPUT_LENGTH,
+        POINT_IN_CONVEX_POLYGON_LOG_QUERY_MAX_OUTPUT_BYTES,
+    ),
+    "discrete_rejection_sampling": (
+        DISCRETE_REJECTION_SAMPLING_MAX_PARSEABLE_LENGTH,
+        DISCRETE_REJECTION_SAMPLING_MAX_OUTPUT_BYTES,
+    ),
+    "brent_kung_fps_composition": (
+        BRENT_KUNG_FPS_COMPOSITION_MAX_PARSEABLE_LENGTH,
+        BRENT_KUNG_FPS_COMPOSITION_MAX_OUTPUT_BYTES,
+    ),
+    "create_maximum_number": (
+        CREATE_MAXIMUM_NUMBER_MAX_PARSEABLE_LENGTH,
+        CREATE_MAXIMUM_NUMBER_MAX_OUTPUT_BYTES,
+    ),
+    "mst_edge_classification": (
+        MST_EDGE_CLASSIFICATION_MAX_PARSEABLE_LENGTH,
+        MST_EDGE_CLASSIFICATION_MAX_OUTPUT_BYTES,
     ),
     "suffix_array_sais": (SUFFIX_ARRAY_SAIS_MAX_INPUT_LENGTH, SUFFIX_ARRAY_SAIS_MAX_OUTPUT_BYTES),
     "minkowski_sum_convex_polygons": (
@@ -38034,6 +38103,48 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         if issues:
             raise ValueError("min_cost_max_flow_blocking_paths package is incomplete: "
                              + "; ".join(issues))
+        return
+    if algorithm == "point_in_convex_polygon_log_query":
+        package_workload = ROOT / "benchmarks/p/point_in_convex_polygon_log_query/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("point_in_convex_polygon_log_query workload differs from its package file")
+        issues = point_in_convex_polygon_log_query_static_issues()
+        if issues:
+            raise ValueError("point_in_convex_polygon_log_query package is incomplete: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "discrete_rejection_sampling":
+        package_workload = ROOT / "benchmarks/d/discrete_rejection_sampling/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("discrete_rejection_sampling workload differs from its package file")
+        issues = discrete_rejection_sampling_static_issues()
+        if issues:
+            raise ValueError("discrete_rejection_sampling package is incomplete: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "brent_kung_fps_composition":
+        package_workload = ROOT / "benchmarks/b/brent_kung_fps_composition/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("brent_kung_fps_composition workload differs from its package file")
+        issues = verify_brent_kung_fps_composition_package()
+        if issues:
+            raise ValueError("brent_kung_fps_composition package is incomplete: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "create_maximum_number":
+        package_workload = ROOT / "benchmarks/c/create_maximum_number/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("create_maximum_number workload differs from its package file")
+        issues = check_create_maximum_number_inventory()
+        if issues:
+            raise ValueError("create_maximum_number package is incomplete: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "mst_edge_classification":
+        package_workload = ROOT / "benchmarks/m/mst_edge_classification/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("mst_edge_classification workload differs from its package file")
+        validate_mst_edge_classification_package()
         return
     if algorithm == "suffix_array_sais":
         package_workload = ROOT / "benchmarks/s/suffix_array_sais/workload.json"

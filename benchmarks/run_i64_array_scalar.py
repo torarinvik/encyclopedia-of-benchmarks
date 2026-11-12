@@ -1699,6 +1699,20 @@ from range_affine_range_sum_verifier import verify_workload as validate_range_af
 from range_linear_add_range_min_verifier import verify_static_sources as validate_range_linear_add_range_min_sources
 from range_linear_add_range_min_verifier import verify_workload as validate_range_linear_add_range_min_package_workload
 from m.maximum_independent_set.verify_workload import validate as validate_maximum_independent_set_package_workload
+from steiner_tree_subset_dp_oracle import (
+    MAX_INPUT_LENGTH as STEINER_TREE_SUBSET_DP_MAX_INPUT_LENGTH,
+    expected_result as steiner_tree_subset_dp_expected,
+)
+from check_steiner_tree_subset_dp_package import (
+    static_issues as steiner_tree_subset_dp_static_issues,
+)
+from trapping_rain_water_ii_oracle import (
+    MAX_INPUT_LENGTH as TRAPPING_RAIN_WATER_II_MAX_INPUT_LENGTH,
+    expected_result as trapping_rain_water_ii_expected,
+)
+from check_trapping_rain_water_ii_package import (
+    static_issues as trapping_rain_water_ii_static_issues,
+)
 
 
 def validate_three_edge_connected_components_workload(workload: dict) -> None:
@@ -1855,6 +1869,24 @@ def validate_manhattan_mst_workload(workload: dict) -> None:
             or workload.get("abi") != "i64_array_scalar"):
         raise ValueError("manhattan_mst workload does not identify the scalar benchmark")
     validate_manhattan_mst_package_workload()
+
+
+def validate_steiner_tree_subset_dp_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/p/steiner_tree_subset_dp/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("steiner_tree_subset_dp workload differs from its package file")
+    issues = steiner_tree_subset_dp_static_issues()
+    if issues:
+        raise ValueError("steiner_tree_subset_dp package is incomplete: " + "; ".join(issues))
+
+
+def validate_trapping_rain_water_ii_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/t/trapping_rain_water_ii/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("trapping_rain_water_ii workload differs from its package file")
+    issues = trapping_rain_water_ii_static_issues()
+    if issues:
+        raise ValueError("trapping_rain_water_ii package is incomplete: " + "; ".join(issues))
 
 
 def validate_convex_layers_workload(workload: dict) -> None:
@@ -7079,6 +7111,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         MAX_GRAPH_ENUMERATION_INPUT_LENGTH if algorithm == "graph_enumeration" else
                         LI_CHAO_TREE_MAX_INPUT_LENGTH if algorithm == "li_chao_tree" else
                         MANHATTAN_MST_MAX_INPUT_LENGTH if algorithm == "manhattan_mst" else
+                        STEINER_TREE_SUBSET_DP_MAX_INPUT_LENGTH
+                        if algorithm == "steiner_tree_subset_dp" else
+                        TRAPPING_RAIN_WATER_II_MAX_INPUT_LENGTH
+                        if algorithm == "trapping_rain_water_ii" else
                         THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
                         if algorithm == "three_edge_connected_components" else
                         VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH + 1
@@ -8271,6 +8307,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = manhattan_mst_expected(values)
         if expected != expected_from_source:
             raise ValueError("manhattan_mst expected_result must match the complete Manhattan metric MST")
+    elif algorithm == "steiner_tree_subset_dp":
+        expected_from_source = steiner_tree_subset_dp_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("steiner_tree_subset_dp expected_result must match terminal-subset DP")
+    elif algorithm == "trapping_rain_water_ii":
+        expected_from_source = trapping_rain_water_ii_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("trapping_rain_water_ii expected_result must match boundary escape levels")
     elif algorithm == "hpcc_random_access":
         expected_from_source = hpcc_random_access_expected(
             values,
@@ -22167,6 +22211,10 @@ def main() -> int:
         validate_incremental_scc_workload(workload)
     elif algorithm == "manhattan_mst":
         validate_manhattan_mst_workload(workload)
+    elif algorithm == "steiner_tree_subset_dp":
+        validate_steiner_tree_subset_dp_workload(workload)
+    elif algorithm == "trapping_rain_water_ii":
+        validate_trapping_rain_water_ii_workload(workload)
     elif algorithm == "hpcc_random_access":
         validate_hpcc_random_access_workload(workload)
     elif algorithm == "convex_layers":

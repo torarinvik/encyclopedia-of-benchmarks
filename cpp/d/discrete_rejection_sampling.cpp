@@ -6,7 +6,6 @@ constexpr std::size_t max_categories = 8;
 constexpr std::size_t max_samples = 8;
 constexpr std::size_t max_attempts = 32;
 constexpr std::size_t max_input_values = 83;
-constexpr std::uint64_t draw_scale = UINT64_C(4294967296);
 
 void store_i64_le(std::uint8_t* output, std::size_t offset, std::int64_t value) {
     std::uint64_t bits = static_cast<std::uint64_t>(value);
@@ -60,8 +59,11 @@ extern "C" std::int64_t discrete_rejection_sampling(
     for (std::size_t attempt = 0; attempt < attempts; ++attempt) {
         const std::int64_t proposal_draw = input[tape_offset + 2 * attempt];
         const std::int64_t acceptance_draw = input[tape_offset + 2 * attempt + 1];
-        if (proposal_draw < 0 || static_cast<std::uint64_t>(proposal_draw) >= proposal_total ||
-            acceptance_draw < 0 || static_cast<std::uint64_t>(acceptance_draw) >= draw_scale) return -1;
+        if (proposal_draw < 0 || static_cast<std::uint64_t>(proposal_draw) >= proposal_total || acceptance_draw < 0) return -1;
+        std::size_t category = 0;
+        while (static_cast<std::uint64_t>(cumulative[category]) <= static_cast<std::uint64_t>(proposal_draw)) ++category;
+        const std::uint64_t acceptance_range = target_total * static_cast<std::uint64_t>(proposal[category]) * envelope;
+        if (static_cast<std::uint64_t>(acceptance_draw) >= acceptance_range) return -1;
     }
 
     const std::size_t output_bytes = 16 * wanted;
@@ -75,10 +77,7 @@ extern "C" std::int64_t discrete_rejection_sampling(
         const auto acceptance_draw = static_cast<std::uint64_t>(input[tape_offset + 2 * attempt + 1]);
         std::size_t category = 0;
         while (static_cast<std::uint64_t>(cumulative[category]) <= proposal_draw) ++category;
-        const std::uint64_t left = acceptance_draw * target_total *
-                                   static_cast<std::uint64_t>(proposal[category]) * envelope;
-        const std::uint64_t right = draw_scale * static_cast<std::uint64_t>(target[category]) * proposal_total;
-        if (left < right) {
+        if (acceptance_draw < static_cast<std::uint64_t>(target[category]) * proposal_total) {
             staged[produced++] = static_cast<std::int64_t>(category);
             staged[produced++] = static_cast<std::int64_t>(attempts_since_acceptance);
             attempts_since_acceptance = 0;

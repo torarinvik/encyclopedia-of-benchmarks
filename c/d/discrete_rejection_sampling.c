@@ -5,7 +5,6 @@
 #define DRS_MAX_SAMPLES 8
 #define DRS_MAX_ATTEMPTS 32
 #define DRS_MAX_INPUT_VALUES 83
-#define DRS_DRAW_SCALE UINT64_C(4294967296)
 
 static void drs_store_i64_le(uint8_t *output, size_t offset, int64_t value) {
     uint64_t bits = (uint64_t)value;
@@ -57,8 +56,11 @@ int64_t discrete_rejection_sampling(const int64_t *input, size_t length,
     for (size_t attempt = 0; attempt < attempts; ++attempt) {
         const int64_t proposal_draw = input[tape_offset + 2 * attempt];
         const int64_t acceptance_draw = input[tape_offset + 2 * attempt + 1];
-        if (proposal_draw < 0 || (uint64_t)proposal_draw >= proposal_total ||
-            acceptance_draw < 0 || (uint64_t)acceptance_draw >= DRS_DRAW_SCALE) return -1;
+        if (proposal_draw < 0 || (uint64_t)proposal_draw >= proposal_total || acceptance_draw < 0) return -1;
+        size_t category = 0;
+        while ((uint64_t)cumulative[category] <= (uint64_t)proposal_draw) ++category;
+        const uint64_t acceptance_range = target_total * (uint64_t)proposal[category] * envelope;
+        if ((uint64_t)acceptance_draw >= acceptance_range) return -1;
     }
 
     const size_t output_bytes = 16 * wanted;
@@ -74,10 +76,7 @@ int64_t discrete_rejection_sampling(const int64_t *input, size_t length,
         size_t category = 0;
         while ((uint64_t)cumulative[category] <= proposal_draw) ++category;
 
-        const uint64_t left = acceptance_draw * target_total *
-                              (uint64_t)proposal[category] * envelope;
-        const uint64_t right = DRS_DRAW_SCALE * (uint64_t)target[category] * proposal_total;
-        if (left < right) {
+        if (acceptance_draw < (uint64_t)target[category] * proposal_total) {
             staged[produced++] = (int64_t)category;
             staged[produced++] = (int64_t)attempts_since_acceptance;
             attempts_since_acceptance = 0;

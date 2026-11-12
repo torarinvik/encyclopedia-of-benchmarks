@@ -3,7 +3,6 @@ const
   MaxSamples = 8
   MaxAttempts = 32
   MaxInputValues = 83
-  DrawScale = 4_294_967_296'u64
 
 proc storeI64Le(output: ptr UncheckedArray[uint8], offset: int, value: int64) =
   let bits = cast[uint64](value)
@@ -47,8 +46,11 @@ proc discrete_rejection_sampling*(input: ptr UncheckedArray[int64], length: csiz
   for attempt in 0 ..< attempts:
     let proposalDraw = input[tapeOffset + 2 * attempt]
     let acceptanceDraw = input[tapeOffset + 2 * attempt + 1]
-    if proposalDraw < 0 or uint64(proposalDraw) >= proposalTotal or
-        acceptanceDraw < 0 or uint64(acceptanceDraw) >= DrawScale: return -1
+    if proposalDraw < 0 or uint64(proposalDraw) >= proposalTotal or acceptanceDraw < 0: return -1
+    var category = 0
+    while cumulative[category] <= uint64(proposalDraw): inc category
+    let acceptanceRange = targetTotal * proposal[category] * envelope
+    if uint64(acceptanceDraw) >= acceptanceRange: return -1
 
   let outputBytes = 16 * wanted
   if output.isNil or capacity < csize_t(outputBytes): return -2
@@ -61,9 +63,7 @@ proc discrete_rejection_sampling*(input: ptr UncheckedArray[int64], length: csiz
     let acceptanceDraw = uint64(input[tapeOffset + 2 * attempt + 1])
     var category = 0
     while cumulative[category] <= proposalDraw: inc category
-    let left = acceptanceDraw * targetTotal * proposal[category] * envelope
-    let right = DrawScale * target[category] * proposalTotal
-    if left < right:
+    if acceptanceDraw < int64(target[category] * proposalTotal):
       staged[produced] = int64(category)
       staged[produced + 1] = int64(attemptsSinceAcceptance)
       produced += 2

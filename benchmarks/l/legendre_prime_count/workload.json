@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "legendre-prime-count-i64-v1",
+  "algorithm": "legendre_prime_count",
+  "function_symbol": "legendre_prime_count",
+  "abi": "i64_scalar",
+  "source": {
+    "repository": "Library Checker problem set and MathWorld",
+    "algorithm": "Legendre prime-counting formula and partial-sieve function",
+    "url": "https://mathworld.wolfram.com/LegendresFormula.html",
+    "operation_url": "https://judge.yosupo.jp/problem/counting_primes",
+    "source_type": "problem_contract_and_algorithm_description",
+    "reuse": "The operation contract and mathematical formula are used as references; all implementations and oracles are independently written. No source code or prose is copied."
+  },
+  "contract": {
+    "operation": "Return pi(x), the number of primes less than or equal to x.",
+    "input_range": [0, 10000],
+    "invalid_input_result": -1,
+    "algorithm": "Legendre formula pi(x)=phi(x,pi(sqrt(x)))+pi(sqrt(x))-1; evaluate phi by recursive inclusion-exclusion over the first pi(sqrt(x)) primes.",
+    "oracle": "Direct Sieve of Eratosthenes through x, independent of the Legendre formula."
+  },
+  "cases": [
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "signed-minimum", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "zero", "input_value": 0, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 0},
+    {"id": "first-prime", "input_value": 2, "expected_result": 1},
+    {"id": "first-composite", "input_value": 4, "expected_result": 2},
+    {"id": "small-prime-boundary", "input_value": 100, "expected_result": 25},
+    {"id": "square-root-boundary", "input_value": 1000, "expected_result": 168},
+    {"id": "maximum", "input_value": 10000, "expected_result": 1229},
+    {"id": "first-unsupported", "input_value": 10001, "expected_result": -1},
+    {"id": "signed-maximum", "input_value": 9223372036854775807, "expected_result": -1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10
+  }
+}

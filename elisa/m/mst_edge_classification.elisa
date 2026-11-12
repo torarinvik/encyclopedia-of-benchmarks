@@ -1,0 +1,148 @@
+# Equal-weight Kruskal groups with quotient-edge bridge checks.
+const MAX_VERTICES: usize = 12
+const MAX_EDGES: usize = 24
+const MAX_INPUT_LENGTH: usize = 2 + 3 * MAX_EDGES + 1
+
+def mst_find_root(parent: mutable view[usize], vertex: usize) -> usize:
+    root: mutable usize = vertex
+    while parent[root] != root |parent|:
+        root <- parent[root]
+    current: mutable usize = vertex
+    while parent[current] != current |parent, root|:
+        next: usize = parent[current]
+        parent[current] <- root
+        current <- next
+    return root
+
+def mst_join(parent: mutable view[usize], left: usize, right: usize) -> void:
+    left_root: usize = mst_find_root(parent, left)
+    right_root: usize = mst_find_root(parent, right)
+    if left_root != right_root:
+        parent[right_root] <- left_root
+
+def mst_alternative_path_exists(left: view[usize], right: view[usize],
+        edge_ids: view[usize], edge_count: usize, omitted_edge: usize,
+        source: usize, target: usize) -> bool:
+    seen: mutable bool[MAX_VERTICES] = zeroed
+    queue: mutable usize[MAX_VERTICES] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    seen[source] <- true
+    queue[tail] <- source
+    tail <- tail + 1
+    while head < tail |head, tail, queue, seen, left, right, edge_ids|:
+        vertex: usize = queue[head]
+        head <- head + 1
+        if vertex == target:
+            return true
+        edge: mutable usize = 0
+        while edge < edge_count |edge, tail, queue, seen, left, right, edge_ids|:
+            if edge_ids[edge] != omitted_edge:
+                neighbor: mutable usize = MAX_VERTICES
+                if left[edge] == vertex:
+                    neighbor <- right[edge]
+                elif right[edge] == vertex:
+                    neighbor <- left[edge]
+                if neighbor < MAX_VERTICES and not seen[neighbor]:
+                    seen[neighbor] <- true
+                    queue[tail] <- neighbor
+                    tail <- tail + 1
+            edge <- edge + 1
+    return false
+
+def mst_edge_classification_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    if input[0] < 1 or input[0] > i64(MAX_VERTICES) or input[1] < 0 or input[1] > i64(MAX_EDGES):
+        return -1
+    vertex_count: usize = input[0].usize()
+    edge_count: usize = input[1].usize()
+    if length != 2 + 3 * edge_count:
+        return -1
+
+    left: mutable usize[MAX_EDGES] = zeroed
+    right: mutable usize[MAX_EDGES] = zeroed
+    weight: mutable usize[MAX_EDGES] = zeroed
+    order: mutable usize[MAX_EDGES] = zeroed
+    classes: mutable u8[MAX_EDGES] = zeroed
+    for edge in 0..<edge_count |edge, input, left, right, weight, order|:
+        u: i64 = input[2 + 3 * edge]
+        v: i64 = input[3 + 3 * edge]
+        w: i64 = input[4 + 3 * edge]
+        if u < 0 or u >= v or v >= vertex_count.i64() or w < 0 or w > 20:
+            return -1
+        left[edge] <- u.usize()
+        right[edge] <- v.usize()
+        weight[edge] <- w.usize()
+        order[edge] <- edge
+        prior: mutable usize = 0
+        while prior < edge |prior, left, right|:
+            if left[prior] == left[edge] and right[prior] == right[edge]:
+                return -1
+            prior <- prior + 1
+
+    i: mutable usize = 1
+    while i < edge_count |i, order, weight|:
+        item: usize = order[i]
+        j: mutable usize = i
+        while j > 0 and (weight[order[j - 1]] > weight[item] or
+                (weight[order[j - 1]] == weight[item] and order[j - 1] > item)) |j, order, weight|:
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- item
+        i <- i + 1
+
+    parent: mutable usize[MAX_VERTICES] = zeroed
+    for vertex in 0..<vertex_count |vertex, parent|:
+        parent[vertex] <- vertex
+    start: mutable usize = 0
+    while start < edge_count |start, order, weight, parent, left, right, classes|:
+        stop: mutable usize = start + 1
+        group_weight: usize = weight[order[start]]
+        while stop < edge_count and weight[order[stop]] == group_weight |stop, order, weight|:
+            stop <- stop + 1
+        q_left: mutable usize[MAX_EDGES] = zeroed
+        q_right: mutable usize[MAX_EDGES] = zeroed
+        q_id: mutable usize[MAX_EDGES] = zeroed
+        q_count: mutable usize = 0
+        position: mutable usize = start
+        while position < stop |position, order, parent, left, right, q_left, q_right, q_id, q_count|:
+            id: usize = order[position]
+            a: usize = mst_find_root(parent[0:vertex_count], left[id])
+            b: usize = mst_find_root(parent[0:vertex_count], right[id])
+            if a != b:
+                q_left[q_count] <- a
+                q_right[q_count] <- b
+                q_id[q_count] <- id
+                q_count <- q_count + 1
+            position <- position + 1
+        edge: mutable usize = 0
+        while edge < q_count |edge, q_left, q_right, q_id, q_count, classes|:
+            if mst_alternative_path_exists(q_left[0:q_count], q_right[0:q_count],
+                    q_id[0:q_count], q_count, q_id[edge], q_left[edge], q_right[edge]):
+                classes[q_id[edge]] <- 1
+            else:
+                classes[q_id[edge]] <- 2
+            edge <- edge + 1
+        position <- start
+        while position < stop |position, order, parent, left, right|:
+            id: usize = order[position]
+            mst_join(parent[0:vertex_count], left[id], right[id])
+            position <- position + 1
+        start <- stop
+
+    representative: usize = mst_find_root(parent[0:vertex_count], 0)
+    vertex: mutable usize = 1
+    while vertex < vertex_count |vertex, parent, representative|:
+        if mst_find_root(parent[0:vertex_count], vertex) != representative:
+            return -1
+        vertex <- vertex + 1
+    if output_capacity < edge_count or (edge_count > 0 and output.is_null()):
+        return -2
+    for edge in 0..<edge_count |edge, classes, output|:
+        output[edge] <- classes[edge]
+    return edge_count.i64()
+
+export fn mst_edge_classification(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = mst_edge_classification_impl

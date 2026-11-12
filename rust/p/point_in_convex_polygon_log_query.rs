@@ -30,8 +30,8 @@ fn contains_fan(fan: &[Point; MAX_VERTICES], m: usize, query: Point) -> i64 {
     let origin = Point::default();
     let first = cross(fan[0], query); let last = cross(fan[m - 1], query);
     if first < 0 || last > 0 { return 0; }
-    if first == 0 { return i64::from(on_segment(origin, fan[0], query)); }
-    if last == 0 { return i64::from(on_segment(origin, fan[m - 1], query)); }
+    if first == 0 { return if on_segment(origin, fan[0], query) { 1 } else { 0 }; }
+    if last == 0 { return if on_segment(origin, fan[m - 1], query) { 1 } else { 0 }; }
     let (mut lo, mut hi) = (0usize, m);
     while hi - lo > 1 {
         let mid = (lo + hi) / 2;
@@ -39,7 +39,7 @@ fn contains_fan(fan: &[Point; MAX_VERTICES], m: usize, query: Point) -> i64 {
     }
     let side = cross(sub(fan[lo + 1], fan[lo]), sub(query, fan[lo]));
     if side < 0 { return 0; }
-    if side == 0 { return i64::from(on_segment(fan[lo], fan[lo + 1], query)); }
+    if side == 0 { return if on_segment(fan[lo], fan[lo + 1], query) { 1 } else { 0 }; }
     1
 }
 unsafe fn put_i64(out: *mut u8, offset: &mut usize, value: i64) {

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-brent-kung-fps-composition-i64-array-v1",
+  "algorithm": "brent_kung_fps_composition",
+  "function_symbol": "brent_kung_fps_composition",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "repository": "Brent and Kung, Journal of the ACM (1978); Library Checker",
+    "algorithm": "Brent–Kung baby-step/giant-step formal power-series composition",
+    "paper_doi": "10.1145/322092.322099",
+    "paper_url": "https://maths-people.anu.edu.au/~brent/pd/rpb045.pdf",
+    "algorithm_explanation_url": "https://github.com/flintlib/flint/blob/main/doc/src/algorithms/polynomials/composition.md",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/polynomial/composition_of_formal_power_series_large/task.md",
+    "base_task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/polynomial/composition_of_formal_power_series/task.md",
+    "repository_license": "Apache-2.0",
+    "reuse_scope": "Mathematical method and operation contract only; all benchmark code, oracles, and fixtures are clean-room."
+  },
+  "oracle": "benchmarks/b/brent_kung_fps_composition/primary_oracle.py",
+  "independent_oracle": "benchmarks/b/brent_kung_fps_composition/independent_oracle.py",
+  "contract": {
+    "operation": "Given f(x)=sum(a_i*x^i) and g(x)=sum(b_i*x^i), with b_0=0, return f(g(x)) modulo x^N over F_998244353.",
+    "input_layout": "[N, a_0, ..., a_(N-1), b_0, ..., b_(N-1)]",
+    "n_range": [1, 32],
+    "coefficient_range": [0, 998244352],
+    "inner_constant_condition": "b_0 = 0",
+    "algorithm": "Brent–Kung block composition with m=ceil(sqrt(N)): truncated baby powers, coefficient-block evaluation, then giant-step Horner composition. Naive truncated polynomial products give O(N^(5/2)) field operations.",
+    "modulus": 998244353,
+    "output_layout": "N little-endian signed 64-bit coefficients c_0 through c_(N-1).",
+    "error_precedence": "Malformed input returns -1 before output checks. Negative or non-integer capacity is invalid; valid input with null output or insufficient capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, a_0, ..., a_(N-1), b_0, ..., b_(N-1)]",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_output_elements": 32,
+    "maximum_bytes": 256,
+    "success_result": "8*N bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Bounded baby-power and block tables, accumulators, and one truncated-product buffer."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"constant-composition","input_values":[1,7,0],"input_length":3,"expected_result":8,"expected_output_hex":"0700000000000000"},
+    {"id":"linear-substitution","input_values":[2,3,4,0,5],"input_length":5,"expected_result":16,"expected_output_hex":"03000000000000001400000000000000"},
+    {"id":"three-term-blocks","input_values":[3,1,2,3,0,1,1],"input_length":7,"expected_result":24,"expected_output_hex":"010000000000000002000000000000000500000000000000"},
+    {"id":"identity-inner-series","input_values":[4,1,2,3,4,0,1,0,0],"input_length":9,"expected_result":32,"expected_output_hex":"0100000000000000020000000000000003000000000000000400000000000000"},
+    {"id":"sparse-high-block","input_values":[4,5,0,0,6,0,1,1,0],"input_length":9,"expected_result":32,"expected_output_hex":"0500000000000000000000000000000000000000000000000600000000000000"},
+    {"id":"five-term-baby-giant","input_values":[5,1,1,1,1,1,0,1,2,0,0],"input_length":11,"expected_result":40,"expected_output_hex":"01000000000000000100000000000000030000000000000005000000000000000b00000000000000"},
+    {"id":"zero-length-invalid","input_values":[0],"input_length":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"nonzero-inner-constant-invalid","input_values":[1,7,1],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coefficient-out-of-range","input_values":[1,998244353,0],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-input","input_values":[2,3,4,0],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra-input-word","input_values":[1,7,0,9],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,3,4,0,5],"input_length":5,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-buffer","input_values":[1,7,0],"input_length":3,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input-pointer","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

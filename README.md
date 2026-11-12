@@ -996,3 +996,21 @@ The [SPLASH-2-inspired water profiles](benchmarks/s/splash2_water_nsquared/READM
 [Half-plane intersection](benchmarks/h/half_plane_intersection/README.md) constructs the exact rational convex region cut out by up to twelve primitive integer inequalities inside a fixed bounding square. Ten ports use angle sorting and deque pruning; an independent pair-intersection and convex-hull oracle and byte-output suite profile are included.
 
 [SMAWK row minima](benchmarks/s/smawk_row_minima/README.md) finds the leftmost minimum of every row in a promised totally monotone matrix using column reduction, recursive odd-row minima, and interpolation. Ten ports, an independent row-scan oracle, bounded fixtures, and byte-output suite registration are present.
+
+[Minimum-cost max-flow with tight-edge blocking flow](benchmarks/m/min_cost_max_flow_blocking_paths/README.md) recomputes shortest residual distances and sends blocking flow over tight arcs. Ten ports share the existing reduced-cost shortest-path contract; a Bellman–Ford successive-path oracle and byte-output suite registration are included.
+
+[Convex polygon point-membership queries](benchmarks/p/point_in_convex_polygon_log_query/README.md) rotate a strictly convex polygon to a canonical pivot and binary-search its radial fan for each query. Ten ports, an independent linear edge scan, bounded workloads, and byte-output suite registration are included.
+
+[Legendre prime counting](benchmarks/l/legendre_prime_count/README.md) evaluates the partial-sieve formula through `x = 10,000`. Ten ports, an independent direct-sieve oracle, bounded scalar fixtures, and scalar-suite registration are included.
+
+[Finite discrete rejection sampling](benchmarks/d/discrete_rejection_sampling/README.md) replays a supplied proposal and acceptance-draw tape against integer target weights using an exact integer envelope. Ten ports, an independent oracle, an explicit exhaustion result, bounded byte-output cases, and suite registration are included.
+
+[Brent–Kung formal power-series composition](benchmarks/b/brent_kung_fps_composition/README.md) computes `f(g) mod x^N` with baby-step/giant-step blocks over `F_998244353`, distinct from the existing descending-Horner composition. Ten ports, independent Horner verification, bounded workloads, and byte-output suite registration are included.
+
+[Exact graph Steiner tree by terminal-subset DP](benchmarks/p/steiner_tree_subset_dp/README.md) finds the minimum weight connecting a bounded terminal set using subset merges and multi-source shortest-path relaxation. It differs from the finite-family gain-greedy approximation. Ten ports, an independent edge-subset oracle, bounded workload, and scalar-array suite registration are included.
+
+[Create Maximum Number](benchmarks/c/create_maximum_number/README.md) chooses the lexicographically greatest length-`k` digit sequence from two ordered sources using split enumeration, monotone subsequence selection, and suffix-aware merging. Ten ports, an independent skip/take oracle, bounded workload, and byte-output suite registration are included.
+
+[Minimum-spanning-tree edge classification](benchmarks/m/mst_edge_classification/README.md) labels every edge as absent from all, present in some, or present in every minimum spanning tree. Ten ports use equal-weight Kruskal groups and edge-ID-aware quotient bridges; an independent force/forbid Kruskal oracle and byte-output suite profile are included.
+
+[Two-dimensional trapped rainwater](benchmarks/t/trapping_rain_water_ii/README.md) computes retained volume using a min-heap flood from boundary cells. Ten ports, an independent per-cell threshold/BFS oracle, bounded grid workloads, and scalar-array suite registration are included.

@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "minimum-mean-cycle-karp-bounded-v1",
+  "algorithm": "minimum_mean_cycle_karp",
+  "function_symbol": "minimum_mean_cycle_karp",
+  "abi": "i64_array_bytes_output",
+  "description": "Return the exact reduced mean weight of a minimum-mean directed cycle using Karp's characterization.",
+  "source": {
+    "title": "A characterization of the minimum cycle mean in a digraph",
+    "authors": ["Richard M. Karp"],
+    "year": 1978,
+    "journal": "Discrete Mathematics 23(3), pages 309-311",
+    "doi": "10.1016/0012-365X(78)90011-0",
+    "url": "https://doi.org/10.1016/0012-365X(78)90011-0",
+    "implementation_status": "bounded clean-room profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,(u,v,weight)*m]",
+    "vertex_range": [1, 8],
+    "edge_count_range": "1 through min(16,n*n)",
+    "edge_endpoints": "zero-based vertices in [0,n)",
+    "weight_range": [-1000, 1000],
+    "graph_promise": "directed simple graph with no duplicate ordered endpoint pair; graph must be strongly connected",
+    "exact_length": "2 + 3*m",
+    "maximum_valid_length": 50,
+    "maximum_parseable_length": 51,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_string",
+    "encoding": "two signed little-endian i64 words [reduced_mean_numerator,positive_denominator]",
+    "maximum_output_bytes": 16,
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "minimum_bytes": 16,
+    "meaning": "Fixed edge, reachability, and exact-length path-cost tables; no allocation is required."
+  },
+  "complexity": {
+    "primary_time": "O(n*m+n^2)",
+    "primary_auxiliary_space": "O(n^2+m)",
+    "independent_oracle_time": "O(n!+m) in the bounded simple-cycle enumeration",
+    "independent_oracle_space": "O(n+m) excluding recursion frames"
+  },
+  "oracle_method": "Primary computes minimum walk costs F_k(v) for every exact length k<=n from source 0, then applies Karp's min_v max_{k<n,F_k(v) finite} (F_n(v)-F_k(v))/(n-k) characterization. The independent oracle enumerates simple directed cycles once each by their least vertex and directly compares exact rational means.",
+  "rational_encoding": "Reduce numerator and denominator by gcd(abs(numerator),denominator); denominator is positive, including zero mean encoded as 0/1.",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"two_cycle_fractional_mean","input_values":[2,2,0,1,2,1,0,-1],"input_length":8,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000200000000000000"},
+    {"id":"negative_self_loop_is_best","input_values":[2,3,0,1,0,1,0,0,0,0,-2],"input_length":11,"output_capacity":16,"expected_result":16,"expected_output_hex":"feffffffffffffff0100000000000000"},
+    {"id":"three_cycle_fractional_mean","input_values":[3,6,0,1,-2,1,2,1,2,0,2,1,0,4,0,2,4,2,1,2],"input_length":20,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000300000000000000"},
+    {"id":"maximum_input_zero_weight_graph","input_values":[8,16,0,1,0,0,7,0,1,0,0,1,2,0,2,1,0,2,3,0,3,2,0,3,4,0,4,3,0,4,5,0,5,4,0,5,6,0,6,5,0,6,7,0,7,6,0,7,0,0],"input_length":50,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000100000000000000"},
+    {"id":"not_strongly_connected","input_values":[2,1,0,1,0],"input_length":5,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"duplicate_ordered_edge","input_values":[2,3,0,1,0,0,1,0,0,1,0],"input_length":11,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"weight_out_of_range","input_values":[1,1,0,0,1001],"input_length":5,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input_value","input_values":[1,1,0,0,0,9],"input_length":6,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[2,2,0,1,2,1,0,-1],"input_length":8,"output_capacity":8,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[1,1,0,0,-1],"input_length":5,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

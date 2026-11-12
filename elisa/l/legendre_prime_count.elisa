@@ -1,0 +1,37 @@
+const MAX_INPUT: i64 = 10000
+
+def legendre_prime_count_phi(primes: view[i64], value: i64, count: usize) -> i64:
+    if value == 0: return 0
+    if count == 0: return value
+    if count == 1: return value - value / 2
+    prime: i64 = primes[count - 1]
+    if value < prime: return 1
+    legendre_prime_count_phi(primes, value, count - 1) -
+        legendre_prime_count_phi(primes, value / prime, count - 1)
+
+def legendre_prime_count_impl(value: i64) -> i64:
+    if value < 0 or value > MAX_INPUT: return -1
+    if value < 2: return 0
+    root: mutable i64 = 0
+    while (root + 1) * (root + 1) <= value:
+        root <- root + 1
+    composite: mutable u8[101] = zeroed
+    candidate: mutable usize = 2
+    while candidate * candidate <= root.usize():
+        if composite[candidate] == 0:
+            multiple: mutable usize = candidate * candidate
+            while multiple <= root.usize():
+                composite[multiple] <- 1
+                multiple <- multiple + candidate
+        candidate <- candidate + 1
+    primes: mutable i64[25] = zeroed
+    count: mutable usize = 0
+    candidate <- 2
+    while candidate <= root.usize():
+        if composite[candidate] == 0:
+            primes[count] <- candidate.i64()
+            count <- count + 1
+        candidate <- candidate + 1
+    legendre_prime_count_phi(primes[0:count], value, count) + count.i64() - 1
+
+export fn legendre_prime_count(value: i64) -> i64 = legendre_prime_count_impl

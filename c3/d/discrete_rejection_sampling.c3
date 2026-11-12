@@ -4,7 +4,6 @@ const usz MAX_CATEGORIES = 8;
 const usz MAX_SAMPLES = 8;
 const usz MAX_ATTEMPTS = 32;
 const usz MAX_INPUT_VALUES = 83;
-const ulong DRAW_SCALE = 4294967296ul;
 
 fn void store_i64_le(char* output, usz offset, long value) {
     ulong bits = (ulong)value;
@@ -56,8 +55,11 @@ fn long discrete_rejection_sampling(long* input, usz length, char* output,
     for (usz attempt = 0; attempt < attempts; ++attempt) {
         long proposal_draw = input[tape_offset + 2 * attempt];
         long acceptance_draw = input[tape_offset + 2 * attempt + 1];
-        if (proposal_draw < 0 || (ulong)proposal_draw >= proposal_total ||
-            acceptance_draw < 0 || (ulong)acceptance_draw >= DRAW_SCALE) return -1;
+        if (proposal_draw < 0 || (ulong)proposal_draw >= proposal_total || acceptance_draw < 0) return -1;
+        usz category = 0;
+        while ((ulong)cumulative[category] <= (ulong)proposal_draw) category += 1;
+        ulong acceptance_range = target_total * (ulong)proposal[category] * envelope;
+        if ((ulong)acceptance_draw >= acceptance_range) return -1;
     }
 
     usz output_bytes = 16 * wanted;
@@ -71,9 +73,7 @@ fn long discrete_rejection_sampling(long* input, usz length, char* output,
         ulong acceptance_draw = (ulong)input[tape_offset + 2 * attempt + 1];
         usz category = 0;
         while ((ulong)cumulative[category] <= proposal_draw) category += 1;
-        ulong left = acceptance_draw * target_total * (ulong)proposal[category] * envelope;
-        ulong right = DRAW_SCALE * (ulong)target[category] * proposal_total;
-        if (left < right) {
+        if (acceptance_draw < (long)((ulong)target[category] * proposal_total)) {
             staged[produced] = (long)category;
             staged[produced + 1] = (long)attempts_since_acceptance;
             produced += 2;

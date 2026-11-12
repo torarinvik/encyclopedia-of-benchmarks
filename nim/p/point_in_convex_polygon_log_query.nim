@@ -28,8 +28,8 @@ proc containsFan(fan: ptr UncheckedArray[Point], m: int, query: Point): int64 =
   let first = cross(fan[0], query)
   let last = cross(fan[m - 1], query)
   if first < 0 or last > 0: return 0
-  if first == 0: return int64(onSegment(origin, fan[0], query))
-  if last == 0: return int64(onSegment(origin, fan[m - 1], query))
+  if first == 0: return (if onSegment(origin, fan[0], query): 1'i64 else: 0'i64)
+  if last == 0: return (if onSegment(origin, fan[m - 1], query): 1'i64 else: 0'i64)
   var lo = 0
   var hi = m
   while hi - lo > 1:
@@ -37,7 +37,7 @@ proc containsFan(fan: ptr UncheckedArray[Point], m: int, query: Point): int64 =
     if cross(fan[mid], query) >= 0: lo = mid else: hi = mid
   let side = cross(sub(fan[lo + 1], fan[lo]), sub(query, fan[lo]))
   if side < 0: return 0
-  if side == 0: return int64(onSegment(fan[lo], fan[lo + 1], query))
+  if side == 0: return (if onSegment(fan[lo], fan[lo + 1], query): 1'i64 else: 0'i64)
   1
 proc putI64(outBytes: ptr UncheckedArray[uint8], offset: var int, value: int64) =
   let bits = cast[uint64](value)

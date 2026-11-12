@@ -1061,6 +1061,8 @@ from run_i64_array_scalar import validate_queue_operate_all_composite_workload
 from run_i64_array_scalar import validate_deque_operate_all_composite_workload
 from run_i64_array_scalar import validate_sum_of_multiplicative_function_large_workload
 from run_i64_array_scalar import validate_manhattan_mst_workload
+from run_i64_array_scalar import validate_steiner_tree_subset_dp_workload
+from run_i64_array_scalar import validate_trapping_rain_water_ii_workload
 from run_i64_array_scalar import validate_convex_layers_workload
 from run_i64_array_scalar import validate_minimum_string_representation_workload
 from run_i64_array_scalar import validate_sum_of_exponential_times_polynomial_limit_workload
@@ -1799,6 +1801,20 @@ from point_in_polygon_ray_casting_oracle import MAX_COORDINATE as POINT_IN_POLYG
 from point_in_polygon_ray_casting_oracle import MAX_INPUT_LENGTH as POINT_IN_POLYGON_RAY_CASTING_MAX_INPUT_LENGTH
 from point_in_polygon_ray_casting_oracle import MAX_VERTICES as POINT_IN_POLYGON_RAY_CASTING_MAX_VERTICES
 from point_in_polygon_ray_casting_verifier_oracle import expected_result as point_in_polygon_ray_casting_oracle
+from steiner_tree_subset_dp_verifier_oracle import (
+    MAX_INPUT_LENGTH as STEINER_TREE_SUBSET_DP_MAX_INPUT_LENGTH,
+    expected_result as steiner_tree_subset_dp_oracle,
+)
+from trapping_rain_water_ii_oracle import (
+    MAX_INPUT_LENGTH as TRAPPING_RAIN_WATER_II_MAX_INPUT_LENGTH,
+    MAX_ROWS as TRAPPING_RAIN_WATER_II_MAX_ROWS,
+    MAX_COLS as TRAPPING_RAIN_WATER_II_MAX_COLS,
+    expected_result as trapping_rain_water_ii_primary_oracle,
+)
+from trapping_rain_water_ii_verifier_oracle import (
+    MAX_HEIGHT as TRAPPING_RAIN_WATER_II_MAX_HEIGHT,
+    expected_result as trapping_rain_water_ii_oracle,
+)
 from vertex_connectivity_oracle import MAX_EDGES as VERTEX_CONNECTIVITY_MAX_EDGES
 from vertex_connectivity_oracle import MAX_INPUT_LENGTH as VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH
 from vertex_connectivity_oracle import MAX_VERTICES as VERTEX_CONNECTIVITY_MAX_VERTICES
@@ -2130,6 +2146,8 @@ ALGORITHMS += ("three_edge_connected_components",)
 ALGORITHMS += ("incremental_scc",)
 ALGORITHMS += ("manhattan_mst",)
 ALGORITHMS += ("convex_layers",)
+ALGORITHMS += ("steiner_tree_subset_dp",)
+ALGORITHMS += ("trapping_rain_water_ii",)
 ALGORITHMS += ("hpcc_random_access",)
 ALGORITHMS += ("segment_add_get_min",)
 ALGORITHMS += ("point_set_range_composite",)
@@ -4157,6 +4175,10 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return deque_operate_all_composite_verifier_oracle(values)
     if algorithm == "manhattan_mst":
         return manhattan_mst_oracle(values)
+    if algorithm == "steiner_tree_subset_dp":
+        return steiner_tree_subset_dp_oracle(values)
+    if algorithm == "trapping_rain_water_ii":
+        return trapping_rain_water_ii_oracle(values)
     if algorithm == "convex_layers":
         return convex_layers_oracle(values)
     if algorithm == "knapsack_zero_one_tabulation":
@@ -5508,6 +5530,10 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                 )
     elif algorithm == "manhattan_mst":
         validate_manhattan_mst_workload(workload)
+    elif algorithm == "steiner_tree_subset_dp":
+        validate_steiner_tree_subset_dp_workload(workload)
+    elif algorithm == "trapping_rain_water_ii":
+        validate_trapping_rain_water_ii_workload(workload)
     elif algorithm == "convex_layers":
         validate_convex_layers_workload(workload)
     elif algorithm == "minimum_string_representation":
@@ -7670,6 +7696,74 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed_manhattan:
             if len(values) <= MANHATTAN_MST_MAX_INPUT_LENGTH:
                 cases[values] = manhattan_mst_oracle(list(values))
+    elif algorithm == "steiner_tree_subset_dp":
+        rng_steiner = random.Random(0x57E1A3)
+        for _ in range(48):
+            vertex_count = rng_steiner.randint(1, 8)
+            possible_edges = [(u, v) for u in range(vertex_count)
+                              for v in range(u + 1, vertex_count)]
+            edge_count = rng_steiner.randint(0, min(14, len(possible_edges)))
+            chosen_edges = rng_steiner.sample(possible_edges, edge_count)
+            edges = [(u, v, rng_steiner.randint(0, 1000)) for u, v in chosen_edges]
+            terminal_count = rng_steiner.randint(1, min(5, vertex_count))
+            terminals = rng_steiner.sample(range(vertex_count), terminal_count)
+            packed = (vertex_count, edge_count, terminal_count, *terminals,
+                      *(word for edge in edges for word in edge))
+            if len(packed) > STEINER_TREE_SUBSET_DP_MAX_INPUT_LENGTH:
+                raise ValueError("steiner_tree_subset_dp generated graph exceeds its parser bound")
+            cases[packed] = steiner_tree_subset_dp_oracle(list(packed))
+
+        malformed_steiner = (
+            (), (1,), (0, 0, 1, 0), (9, 0, 1, 0),
+            (2, 2, 1, 0, 0, 1, 1, 0, 1, 2),
+            (2, 1, 2, 0, 0, 0, 1, 7),
+            (2, 1, 2, 0, 1, 1, 0, 7),
+            (2, 1, 2, 0, 1, 0, 2, 7),
+            (2, 1, 2, 0, 1, 0, 1, -1),
+            (2, 1, 1, 0, 0, 1, 0, 7),
+            (1, 0, 1, 0, 9),
+        )
+        for values in malformed_steiner:
+            if len(values) <= STEINER_TREE_SUBSET_DP_MAX_INPUT_LENGTH:
+                cases[values] = steiner_tree_subset_dp_oracle(list(values))
+        special_records.append("NULL 0 -1\n")
+    elif algorithm == "trapping_rain_water_ii":
+        rng_trapping = random.Random(0x7A9)
+        for _ in range(96):
+            rows = rng_trapping.randint(1, TRAPPING_RAIN_WATER_II_MAX_ROWS)
+            cols = rng_trapping.randint(1, TRAPPING_RAIN_WATER_II_MAX_COLS)
+            heights = [rng_trapping.randint(0, TRAPPING_RAIN_WATER_II_MAX_HEIGHT)
+                       for _ in range(rows * cols)]
+            packed = (rows, cols, *heights)
+            if len(packed) > TRAPPING_RAIN_WATER_II_MAX_INPUT_LENGTH:
+                raise ValueError("trapping_rain_water_ii generated grid exceeds its input bound")
+            primary = trapping_rain_water_ii_primary_oracle(packed)
+            independent = trapping_rain_water_ii_oracle(packed)
+            if primary != independent:
+                raise ValueError("trapping_rain_water_ii heap and threshold/BFS oracles disagree")
+            cases[packed] = independent
+
+        maximum_heights = [
+            1000 if row in (0, 7) or col in (0, 7) else 0
+            for row in range(8) for col in range(8)
+        ]
+        maximum_values = (8, 8, *maximum_heights)
+        if len(maximum_values) != TRAPPING_RAIN_WATER_II_MAX_INPUT_LENGTH:
+            raise ValueError("trapping_rain_water_ii maximum frame differs from its input bound")
+        if (trapping_rain_water_ii_primary_oracle(maximum_values) != 36000
+                or trapping_rain_water_ii_oracle(maximum_values) != 36000):
+            raise ValueError("trapping_rain_water_ii maximum basin differs from the 36000-volume bound")
+        cases[maximum_values] = 36000
+
+        malformed_trapping = (
+            (), (1,), (0, 2), (9, 1, 0), (1, 9, 0),
+            (2, 2, 0, 1, 2), (2, 2, 0, 1, 2, 3, 4, 5),
+            (2, 2, 0, 1, -1, 3), (2, 2, 0, 1, 1001, 3),
+            (1, 1, 5, 99),
+        )
+        for values in malformed_trapping:
+            if len(values) <= TRAPPING_RAIN_WATER_II_MAX_INPUT_LENGTH:
+                cases[values] = trapping_rain_water_ii_oracle(list(values))
     elif algorithm == "segment_tree_beats":
         rng_segment_beats = random.Random(0x5E6BEA75)
         for _ in range(128):

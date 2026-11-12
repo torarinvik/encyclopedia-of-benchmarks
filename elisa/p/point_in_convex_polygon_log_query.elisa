@@ -1,0 +1,101 @@
+const PCL_MAX_VERTICES: usize = 32
+const PCL_MAX_QUERIES: usize = 32
+const PCL_MAX_INPUT: usize = 131
+const PCL_MAX_COORD: i64 = 1000000
+
+def fn pcl_cross(ax: i64, ay: i64, bx: i64, by: i64) -> i64:
+    ax * by - ay * bx
+
+def fn pcl_on_segment(ax: i64, ay: i64, bx: i64, by: i64, qx: i64, qy: i64) -> bool:
+    dx: i64 = bx - ax
+    dy: i64 = by - ay
+    min_x: i64 = if ax < bx: ax else: bx
+    max_x: i64 = if ax > bx: ax else: bx
+    min_y: i64 = if ay < by: ay else: by
+    max_y: i64 = if ay > by: ay else: by
+    pcl_cross(dx, dy, qx - ax, qy - ay) == 0 and qx >= min_x and qx <= max_x and qy >= min_y and qy <= max_y
+
+def fn pcl_contains(fan_x: view[i64], fan_y: view[i64], m: usize, qx: i64, qy: i64) -> i64:
+    first: i64 = pcl_cross(fan_x[0], fan_y[0], qx, qy)
+    last: i64 = pcl_cross(fan_x[m - 1], fan_y[m - 1], qx, qy)
+    if first < 0 or last > 0: return 0
+    if first == 0:
+        return if pcl_on_segment(0, 0, fan_x[0], fan_y[0], qx, qy): 1 else: 0
+    if last == 0:
+        return if pcl_on_segment(0, 0, fan_x[m - 1], fan_y[m - 1], qx, qy): 1 else: 0
+    lo: mutable usize = 0
+    hi: mutable usize = m
+    while hi - lo > 1:
+        mid: usize = (lo + hi) / 2
+        if pcl_cross(fan_x[mid], fan_y[mid], qx, qy) >= 0: lo <- mid else: hi <- mid
+    dx: i64 = fan_x[lo + 1] - fan_x[lo]
+    dy: i64 = fan_y[lo + 1] - fan_y[lo]
+    side: i64 = pcl_cross(dx, dy, qx - fan_x[lo], qy - fan_y[lo])
+    if side < 0: return 0
+    if side == 0:
+        return if pcl_on_segment(fan_x[lo], fan_y[lo], fan_x[lo + 1], fan_y[lo + 1], qx, qy): 1 else: 0
+    1
+
+def fn pcl_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def fn point_in_convex_polygon_log_query_impl(input: view[i64], output: mutable view[u8],
+        capacity: usize, output_is_null: bool) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > PCL_MAX_INPUT: return -1
+    if input[0] < 3 or input[0] > 32 or input[1] < 0 or input[1] > 32: return -1
+    vertices: usize = input[0].usize()
+    queries: usize = input[1].usize()
+    if length != 2 + 2 * vertices + 2 * queries: return -1
+    polygon_x: mutable i64[PCL_MAX_VERTICES] = zeroed
+    polygon_y: mutable i64[PCL_MAX_VERTICES] = zeroed
+    fan_x: mutable i64[PCL_MAX_VERTICES] = zeroed
+    fan_y: mutable i64[PCL_MAX_VERTICES] = zeroed
+    query_x: mutable i64[PCL_MAX_QUERIES] = zeroed
+    query_y: mutable i64[PCL_MAX_QUERIES] = zeroed
+    answers: mutable i64[PCL_MAX_QUERIES] = zeroed
+    at: mutable usize = 2
+    for i in 0..<vertices:
+        polygon_x[i] <- input[at]
+        polygon_y[i] <- input[at + 1]
+        at <- at + 2
+        if polygon_x[i] < -PCL_MAX_COORD or polygon_x[i] > PCL_MAX_COORD or polygon_y[i] < -PCL_MAX_COORD or polygon_y[i] > PCL_MAX_COORD: return -1
+    for i in 0..<vertices:
+        next: usize = (i + 1) % vertices
+        if polygon_x[i] == polygon_x[next] and polygon_y[i] == polygon_y[next]: return -1
+        dx: i64 = polygon_x[next] - polygon_x[i]
+        dy: i64 = polygon_y[next] - polygon_y[i]
+        for j in 0..<vertices:
+            if j != i and j != next:
+                if pcl_cross(dx, dy, polygon_x[j] - polygon_x[i], polygon_y[j] - polygon_y[i]) <= 0: return -1
+            if j > i and polygon_x[j] == polygon_x[i] and polygon_y[j] == polygon_y[i]: return -1
+    for i in 0..<queries:
+        query_x[i] <- input[at]
+        query_y[i] <- input[at + 1]
+        at <- at + 2
+        if query_x[i] < -PCL_MAX_COORD or query_x[i] > PCL_MAX_COORD or query_y[i] < -PCL_MAX_COORD or query_y[i] > PCL_MAX_COORD: return -1
+    pivot: mutable usize = 0
+    for i in 1..<vertices:
+        if polygon_x[i] < polygon_x[pivot] or (polygon_x[i] == polygon_x[pivot] and polygon_y[i] < polygon_y[pivot]): pivot <- i
+    for i in 0..<vertices - 1:
+        index: usize = (pivot + i + 1) % vertices
+        fan_x[i] <- polygon_x[index] - polygon_x[pivot]
+        fan_y[i] <- polygon_y[index] - polygon_y[pivot]
+    for i in 0..<queries:
+        answers[i] <- pcl_contains(fan_x[0:vertices - 1], fan_y[0:vertices - 1], vertices - 1,
+            query_x[i] - polygon_x[pivot], query_y[i] - polygon_y[pivot])
+    needed: usize = 8 * queries
+    if needed > capacity or (output_is_null and needed > 0) or output.len() < needed: return -2
+    for i in 0..<queries: pcl_put_i64(output, 8 * i, answers[i])
+    needed.i64()
+
+export fn point_in_convex_polygon_log_query(values: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length > PCL_MAX_INPUT: return -1
+    if output.is_null():
+        staged: mutable u8[1] = zeroed
+        return point_in_convex_polygon_log_query_impl(values[0:length], staged[0:1], capacity, true)
+    point_in_convex_polygon_log_query_impl(values[0:length], output[0:capacity], capacity, false)

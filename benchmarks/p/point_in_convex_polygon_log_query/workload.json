@@ -59,7 +59,7 @@
     {"id":"collinear-edge-invalid","input_values":[4,1,0,0,2,0,4,0,0,4,1,1],"input_length":12,"output_capacity":256,"expected_result":-1,"expected_output_hex":""},
     {"id":"valid-output-capacity-too-small","input_values":[4,4,0,0,4,0,4,4,0,4,2,2,4,2,5,2,0,0],"input_length":18,"output_capacity":31,"expected_result":-2,"expected_output_hex":""},
     {"id":"null-output-for-query","input_values":[4,1,0,0,4,0,4,4,0,4,2,2],"input_length":12,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
-    {"id":"trailing-word-invalid","input_values":[0,5],"input_length":2,"output_capacity":256,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word-invalid","input_values":[3,0,0,0,4,0,0,4,99],"input_length":9,"output_capacity":256,"expected_result":-1,"expected_output_hex":""},
     {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":256,"expected_result":-1,"expected_output_hex":""}
   ]
 }

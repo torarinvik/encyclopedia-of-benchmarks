@@ -9,7 +9,6 @@ MAX_CATEGORIES = 8
 MAX_SAMPLES = 8
 MAX_ATTEMPTS = 32
 MAX_WEIGHT = 20
-DRAW_SCALE = 1 << 32
 MAX_INPUT_LENGTH = 3 + 2 * MAX_CATEGORIES + 2 * MAX_ATTEMPTS
 MAX_PARSEABLE_LENGTH = MAX_INPUT_LENGTH
 MAX_OUTPUT_BYTES = 16 * MAX_SAMPLES
@@ -34,11 +33,22 @@ def _parse(values: Sequence[int] | None) -> tuple[int, int, tuple[int, ...], tup
     if any(not 1 <= weight <= MAX_WEIGHT for weight in target + proposal):
         return None
     total_proposal = sum(proposal)
+    total_target = sum(target)
+    envelope = _envelope(target, proposal)
     records: list[tuple[int, int]] = []
     offset = 3 + 2 * categories
     for attempt in range(attempt_cap):
         proposal_draw, acceptance_draw = values[offset + 2 * attempt:offset + 2 * attempt + 2]
-        if not 0 <= proposal_draw < total_proposal or not 0 <= acceptance_draw < DRAW_SCALE:
+        if not 0 <= proposal_draw < total_proposal or acceptance_draw < 0:
+            return None
+        cumulative = 0
+        category = 0
+        for category, weight in enumerate(proposal):
+            cumulative += weight
+            if proposal_draw < cumulative:
+                break
+        acceptance_range = total_target * proposal[category] * envelope
+        if acceptance_draw >= acceptance_range:
             return None
         records.append((proposal_draw, acceptance_draw))
     return categories, samples, target, proposal, tuple(records)
@@ -55,7 +65,6 @@ def _envelope(target: Sequence[int], proposal: Sequence[int]) -> int:
 
 
 def _run(
-    categories: int,
     samples: int,
     target: Sequence[int],
     proposal: Sequence[int],
@@ -74,9 +83,7 @@ def _run(
             cumulative += weight
             if proposal_draw < cumulative:
                 break
-        numerator = target[category] * proposal_total
-        denominator = target_total * proposal[category] * envelope
-        if acceptance_draw * denominator < DRAW_SCALE * numerator:
+        if acceptance_draw < target[category] * proposal_total:
             output.extend((category, attempts_for_sample))
             attempts_for_sample = 0
             if len(output) == 2 * samples:
@@ -107,12 +114,11 @@ def expected_output(
     parsed = _parse(values)
     if parsed is None:
         return -1, b""
-    categories, samples, target, proposal, records = parsed
-    del categories
+    _, samples, target, proposal, records = parsed
     output_bytes = 16 * samples
     if output_is_null or capacity is not None and capacity < output_bytes:
         return -2, b""
-    result = _run(samples=samples, categories=len(target), target=target, proposal=proposal, records=records)
+    result = _run(samples=samples, target=target, proposal=proposal, records=records)
     if result is None:
         return -3, b""
     return output_bytes, struct.pack("<" + "q" * len(result), *result)

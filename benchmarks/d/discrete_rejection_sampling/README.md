@@ -18,18 +18,20 @@ For category `i`, the target probability is `w_i/W` and proposal probability
 is `q_i/Q`. The ports choose the integer envelope
 `M = max_i ceil(w_i*Q/(W*q_i))`, so `M*q_i/Q >= w_i/W` for every category.
 Each proposal draw is an integer in `[0,Q)`. Cumulative proposal weights
-select the first category whose cumulative total is greater than the draw. An
-acceptance draw `u` is in `[0,2^32)` and represents the exact grid point
-`u/2^32`; category `i` is accepted iff
-`u * W * q_i * M < 2^32 * w_i * Q`. These integer comparisons avoid floating
-point and leave the draw-tape behavior identical across ports. As with any
-finite supplied tape, the benchmark measures a deterministic trace rather than
-making a statistical quality claim.
+select the first category whose cumulative total is greater than the draw.
+After selecting category `i`, its acceptance draw is uniform on the category's
+integer range `[0, W*q_i*M)`. Accept iff the draw is less than `w_i*Q`. This
+uses exact integer probabilities: the proposal probability times the
+conditional acceptance probability is `w_i/(W*M)`, so conditioning on
+acceptance recovers exactly the target distribution. The deterministic input
+tape fixes each call's trace; no random generator is called by a port.
 
 Each attempt consumes one proposal and one acceptance draw. On acceptance,
 the output records `(category_index, attempts_since_previous_acceptance)`.
-Unused tape suffixes are ignored. If the tape reaches its cap before all
-requested samples are accepted, the function returns `-3` and writes nothing.
+The algorithm stops consuming records after the requested count is reached,
+but the full encoded tape must still be valid, including each selected
+category's acceptance-draw bound. If the tape reaches its cap
+before all requested samples are accepted, the function returns `-3` and writes nothing.
 Malformed frames, weights, or draws return `-1`. Null output or capacity below
 `16*samples_wanted` returns `-2`, without writes. A successful call returns
 that byte count and writes signed 64-bit little-endian values. The maximum
@@ -39,19 +41,20 @@ bytes. Time is `O(category_count * attempt_cap)`; working storage is
 
 ## Distinction and verification
 
-The local [`marsaglia_polar_normal`](../marsaglia_polar_normal/README.md)
+The local [`marsaglia_polar_normal`](../../m/marsaglia_polar_normal/README.md)
 benchmark uses a fixed two-dimensional proposal, a unit-circle acceptance
 condition, and a Gaussian transform. [`weighted_random_sampling`](../../w/weighted_random_sampling/README.md)
 selects a weighted subset by ordering rational random-priority keys. This
 package instead accepts caller-supplied finite target and proposal weights,
 computes an envelope, and emits a bounded sequence of accepted categories.
 
-The [primary oracle](primary_oracle.py) replays integer draw pairs and uses
-cross multiplication for acceptance. The [independent oracle](independent_oracle.py)
-constructs exact rational acceptance thresholds and uses a cumulative table
-with binary search. The [workload](workload.json) covers direct acceptance,
-rejection followed by acceptance, proposal bounds, malformed input, exhausted
-tape, output capacity, and the maximum profile.
+The [primary oracle](primary_oracle.py) replays integer draw pairs and uses a
+direct integer threshold. The [independent oracle](independent_oracle.py)
+constructs the proposal category with a cumulative table and binary search,
+then checks its category-specific acceptance range. The
+[workload](workload.json) covers direct acceptance, rejection followed by
+acceptance, proposal and acceptance draw bounds, malformed input, exhausted
+tape, output capacity, the maximum input, and the full 128-byte output.
 
 ## Provenance and rights
 
