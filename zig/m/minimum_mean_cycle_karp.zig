@@ -53,7 +53,7 @@ export fn minimum_mean_cycle_karp(input: ?[*]const i64, length: usize,
     output: ?[*]u8, capacity: usize) i64 {
     if (input == null or length < 2 or length > MAX_INPUT_LENGTH) return -1;
     const values = input.?[0..length];
-    if (values[0] < 1 or values[0] > MAX_VERTICES or values[1] < 1 or values[1] > MAX_EDGES) return -1;
+    if (values[0] < 1 or values[0] > 8 or values[1] < 1 or values[1] > 16) return -1;
     const n: usize = @intCast(values[0]);
     const edge_count: usize = @intCast(values[1]);
     if (edge_count > n * n or length != 2 + 3 * edge_count) return -1;

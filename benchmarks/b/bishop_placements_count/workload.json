@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-bishop-placements-i64-scalar-v1",
+  "algorithm": "bishop_placements_count",
+  "function_symbol": "bishop_placements_count",
+  "abi": "i64_array_scalar",
+  "description": "Count exact nonattacking bishop placements on an N-by-N chessboard.",
+  "source": {
+    "title": "Placing Bishops on a Chessboard",
+    "url": "https://cp-algorithms.com/combinatorics/bishops-on-chessboard.html",
+    "license": "CC BY-SA 4.0",
+    "discovery_scope": "Algorithm description and taxonomy only; no source code or article prose copied."
+  },
+  "input": {
+    "encoding": "[N,K]",
+    "board_size_range": [1, 8],
+    "bishop_count_range": [0, 16],
+    "exact_length": 2,
+    "invalid_input_result": -1,
+    "impossible_count_result": 0
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Exact number of nonattacking bishop placements.",
+    "invalid_input_result": -1
+  },
+  "algorithm": {
+    "primary": "Run the per-color diagonal-size recurrence and combine black/white counts over all splits of K.",
+    "independent_oracle": "Process each descending diagonal once and use a subset mask to prevent reuse of ascending diagonals.",
+    "primary_complexity": "O(N*K) time and O(N*K) space.",
+    "oracle_complexity": "O(N^2*2^(2N)) bounded time and O(2^(2N)) space."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"single-square-empty","input_values":[1,0],"input_length":2,"expected_result":1},
+    {"id":"single-square-one-bishop","input_values":[1,1],"input_length":2,"expected_result":1},
+    {"id":"single-square-too-many","input_values":[1,2],"input_length":2,"expected_result":0},
+    {"id":"two-by-two-two-bishops","input_values":[2,2],"input_length":2,"expected_result":4},
+    {"id":"three-by-three-two-bishops","input_values":[3,2],"input_length":2,"expected_result":26},
+    {"id":"three-by-three-one-bishop","input_values":[3,1],"input_length":2,"expected_result":9},
+    {"id":"maximum-board-two-bishops","input_values":[8,2],"input_length":2,"expected_result":1736},
+    {"id":"maximum-board-impossible-count","input_values":[8,16],"input_length":2,"expected_result":0},
+    {"id":"zero-board-invalid","input_values":[0,0],"input_length":2,"expected_result":-1},
+    {"id":"negative-count-invalid","input_values":[4,-1],"input_length":2,"expected_result":-1},
+    {"id":"count-bound-invalid","input_values":[8,17],"input_length":2,"expected_result":-1},
+    {"id":"trailing-word-invalid","input_values":[2,1,99],"input_length":3,"expected_result":-1}
+  ]
+}

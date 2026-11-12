@@ -1014,3 +1014,39 @@ The [SPLASH-2-inspired water profiles](benchmarks/s/splash2_water_nsquared/READM
 [Minimum-spanning-tree edge classification](benchmarks/m/mst_edge_classification/README.md) labels every edge as absent from all, present in some, or present in every minimum spanning tree. Ten ports use equal-weight Kruskal groups and edge-ID-aware quotient bridges; an independent force/forbid Kruskal oracle and byte-output suite profile are included.
 
 [Two-dimensional trapped rainwater](benchmarks/t/trapping_rain_water_ii/README.md) computes retained volume using a min-heap flood from boundary cells. Ten ports, an independent per-cell threshold/BFS oracle, bounded grid workloads, and scalar-array suite registration are included.
+
+[Planar face counting](benchmarks/p/planar_face_count/README.md) validates a bounded connected planar straight-line graph, orders each vertex's neighbors by polar angle, and traverses directed-edge face orbits. Ten language ports, an independent Euler-characteristic oracle, bounded fixtures, and scalar-array suite registration are included.
+
+[Hash join](benchmarks/h/hash_join/README.md) joins two bounded integer-key relations by hashing the smaller side and retaining duplicate row IDs in input order. Ten language ports, an independent nested-loop oracle, bounded byte-output workloads, and suite registration are included.
+
+[Dynamic MEX with point updates](benchmarks/d/dynamic_mex_updates/README.md) maintains candidate-value frequencies and a segment tree to report the minimum excluded value after each replacement. Ten ports, an independent direct-scan oracle, bounded workloads, and byte-output suite registration are included.
+
+[Bishop placement count](benchmarks/b/bishop_placements_count/README.md) counts exact nonattacking bishop placements by splitting the board's diagonals by square color and combining the two counts. Ten language ports, an independent diagonal-mask oracle, bounded scalar workloads, and suite registration are included.
+
+[Karp minimum directed cycle mean](benchmarks/m/minimum_mean_cycle_karp/README.md) returns the exact reduced mean weight of a minimum-mean cycle using exact-length path dynamic programming. Ten ports, an independent simple-cycle enumeration oracle, and byte-output suite registration are included.
+
+[Johnson's two-machine flow shop](benchmarks/j/johnson_two_machine_flow_shop/README.md) orders jobs on both machines to minimize makespan using Johnson's partition-and-sort rule. Ten ports, an independent exhaustive-permutation oracle, bounded workloads, and scalar-array suite registration are included.
+
+[Undirected Chinese postman](benchmarks/u/undirected_chinese_postman/README.md) finds the shortest closed route covering every edge by pairing odd-degree vertices in the shortest-path metric. Ten ports, an independent edge-coverage-state oracle, bounded workloads, and scalar-array suite registration are included.
+
+[All shortest paths in an unweighted graph](benchmarks/a/all_shortest_paths_unweighted/README.md) enumerates every lexicographically ordered shortest path through a BFS predecessor DAG. Ten ports, an independent Floyd-Warshall oracle, bounded output/workspace profiles, and byte-output suite registration are included.
+
+[Maximum number of jobs before deadlines](benchmarks/d/max_jobs_before_deadlines/README.md) chooses the largest feasible subset of arbitrary-duration jobs using reverse deadline intervals and a min-heap of residual durations. Ten ports, an independent subset/EDF oracle, bounded workloads, and scalar-array suite registration are included.
+
+[Connected labeled graph count](benchmarks/c/connected_labeled_graph_count/README.md) counts connected simple undirected graphs on a labeled vertex set modulo 998244353 using the rooted-component recurrence, with an independent EGF formal-series oracle. Ten ports and bounded scalar-suite registration are included.
+
+[Bostan–Mori recurrence term](benchmarks/b/bostan_mori_recurrence_term/README.md) extracts a distant term by parity-selecting numerator and denominator coefficients while halving the index. Ten ports, an independent companion-matrix oracle, and scalar-suite registration cover orders through eight and indices through 10^18.
+
+[Common tangents to two circles](benchmarks/c/common_tangents_two_circles/README.md) counts distinct shared tangent lines with exact signed-radius discriminants, including degenerate point circles and coincident tangency cases. Ten ports, an independent squared-distance oracle, and scalar-suite profiles are included.
+
+[Circle-line intersection counts](benchmarks/c/circle_line_intersection_count/README.md) classify each bounded integer line as missing, tangent to, or crossing a circle using exact discriminants. Ten ports, an independent line-parameter oracle, and byte-output suite registration are included.
+
+[Functional graph cycle parameters](benchmarks/f/functional_graph_cycle_parameters/README.md) finds the preperiod and eventual cycle length from one node in a bounded successor map using constant-space tortoise-and-hare traversal. Ten ports, an independent first-seen-table oracle, workload fixtures, and scalar-suite registration are included.
+
+[Largest zero submatrix](benchmarks/l/largest_zero_submatrix/README.md) updates per-column blocker heights for each binary-matrix row and uses monotone stacks to find the largest all-zero rectangle. Ten ports, an independent exhaustive rectangle oracle, and scalar-suite registration are included.
+
+[Maximum frequency stack](benchmarks/m/maximum_frequency_stack/README.md) removes an online value with highest current frequency, breaking ties by its latest active push. Ten ports, an independent active-list rescan oracle, bounded byte-output workloads, and suite registration are included.
+
+[Balanced ternary conversion](benchmarks/b/balanced_ternary_conversion/README.md) converts any signed 64-bit integer to canonical radix-three digits `Z`, `0`, and `1`. Ten ports, independent signed-remainder and carry oracles, bounded byte-output workloads, and suite registration are included.
+
+[Tree edge painting and path counts](benchmarks/t/tree_edge_paint_path_count/README.md) supports idempotent edge paints and arbitrary path queries on a bounded tree. Ten ports use directional Euler-tour segment trees with LCA path splitting; an independent BFS oracle reconstructs each path. Scalar-suite registration is included.

@@ -1,0 +1,64 @@
+const LZS_MAX_ROWS: usize = 16
+const LZS_MAX_COLUMNS: usize = 16
+
+def largest_zero_submatrix_impl(input: view[i64]) -> i64:
+    if input.length < 2 or input.length > 259:
+        return -1
+    rows_value: i64 = input[0]
+    columns_value: i64 = input[1]
+    if (rows_value < 1 or rows_value > LZS_MAX_ROWS.i64() or
+        columns_value < 1 or columns_value > LZS_MAX_COLUMNS.i64()):
+        return -1
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    if input.length != 2 + rows * columns:
+        return -1
+    for index in 2..<input.length:
+        if input[index] != 0 and input[index] != 1:
+            return -1
+
+    last_one: mutable i64[LZS_MAX_COLUMNS] = zeroed
+    left: mutable i64[LZS_MAX_COLUMNS] = zeroed
+    right: mutable i64[LZS_MAX_COLUMNS] = zeroed
+    stack: mutable usize[LZS_MAX_COLUMNS] = zeroed
+    for column in 0..<columns:
+        last_one[column] <- -1
+    best: mutable i64 = 0
+    row: mutable usize = 0
+    while row < rows:
+        for column in 0..<columns:
+            if input[2 + row * columns + column] == 1:
+                last_one[column] <- row.i64()
+
+        top: mutable usize = 0
+        for column in 0..<columns:
+            while top > 0 and last_one[stack[top - 1]] <= last_one[column]:
+                top <- top - 1
+            left[column] <- if top == 0: -1 else: stack[top - 1].i64()
+            stack[top] <- column
+            top <- top + 1
+
+        top <- 0
+        cursor: mutable usize = columns
+        while cursor > 0:
+            column: usize = cursor - 1
+            while top > 0 and last_one[stack[top - 1]] <= last_one[column]:
+                top <- top - 1
+            right[column] <- if top == 0: columns.i64() else: stack[top - 1].i64()
+            stack[top] <- column
+            top <- top + 1
+            cursor <- cursor - 1
+
+        for column in 0..<columns:
+            height: i64 = row.i64() - last_one[column]
+            width: i64 = right[column] - left[column] - 1
+            area: i64 = height * width
+            if area > best:
+                best <- area
+        row <- row + 1
+    best
+
+export fn largest_zero_submatrix(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 259:
+        return -1
+    largest_zero_submatrix_impl(input[0:length])

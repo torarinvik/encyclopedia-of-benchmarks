@@ -1,0 +1,188 @@
+alias TEPC_MAX_N = 16
+alias TEPC_MAX_Q = 32
+alias TEPC_MAX_EDGES = 15
+alias TEPC_LOG_N = 5
+
+def tepc_root_of(parent: mutable view[i64], node_value: i64) -> i64:
+    node: mutable i64 = node_value
+    while parent[node as usize] != node:
+        parent[node as usize] <- parent[parent[node as usize] as usize]
+        node <- parent[node as usize]
+    node
+
+def tepc_point_set(tree: mutable view[i64], base: usize, index: usize, value: i64) -> void:
+    position: mutable usize = base + index
+    tree[position] <- value
+    position <- position / 2
+    while position > 0:
+        tree[position] <- tree[2 * position] + tree[2 * position + 1]
+        position <- position / 2
+
+def tepc_range_sum(tree: view[i64], base_value: usize, left_value: i64, right_value: i64) -> i64:
+    if left_value > right_value: return 0
+    left: mutable usize = base_value + (left_value as usize)
+    right: mutable usize = base_value + (right_value as usize) + 1
+    total: mutable i64 = 0
+    while left < right:
+        if (left % 2) == 1:
+            total <- total + tree[left]
+            left <- left + 1
+        if (right % 2) == 1:
+            right <- right - 1
+            total <- total + tree[right]
+        left <- left / 2
+        right <- right / 2
+    total
+
+def tepc_lca(a_value: i64, b_value: i64, depth: view[i64], parent: view[i64], ancestor: view[i64]) -> i64:
+    a: mutable i64 = a_value
+    b: mutable i64 = b_value
+    if depth[a as usize] < depth[b as usize]:
+        temp: i64 = a
+        a <- b
+        b <- temp
+    difference: mutable i64 = depth[a as usize] - depth[b as usize]
+    bit: mutable usize = 0
+    while bit < TEPC_LOG_N:
+        if ((difference / (1 << bit)) % 2) == 1:
+            a <- ancestor[bit * TEPC_MAX_N + (a as usize)]
+        bit <- bit + 1
+    if a == b: return a
+    bit <- TEPC_LOG_N
+    while bit > 0:
+        bit <- bit - 1
+        if ancestor[bit * TEPC_MAX_N + (a as usize)] != ancestor[bit * TEPC_MAX_N + (b as usize)]:
+            a <- ancestor[bit * TEPC_MAX_N + (a as usize)]
+            b <- ancestor[bit * TEPC_MAX_N + (b as usize)]
+    parent[a as usize]
+
+def tree_edge_paint_path_count_impl(values: view[i64]) -> i64:
+    if values.len() < 2 or values.len() > 129: return -1
+    n: i64 = values[0]
+    q: i64 = values[1]
+    if n < 1 or n > TEPC_MAX_N or q < 0 or q > TEPC_MAX_Q: return -1
+    m: i64 = n - 1
+    if values.len() != (2 + 2 * m + 3 * q) as usize: return -1
+
+    edge_u: mutable i64[TEPC_MAX_EDGES] = zeroed
+    edge_v: mutable i64[TEPC_MAX_EDGES] = zeroed
+    dsu: mutable i64[TEPC_MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n as usize:
+        dsu[i] <- i as i64
+        i <- i + 1
+    cursor: mutable usize = 2
+    edge: mutable usize = 0
+    while edge < m as usize:
+        u: i64 = values[cursor]
+        v: i64 = values[cursor + 1]
+        cursor <- cursor + 2
+        if u < 0 or u >= n or v < 0 or v >= n or u == v: return -1
+        edge_u[edge] <- u
+        edge_v[edge] <- v
+        ru: i64 = tepc_root_of(dsu[0:TEPC_MAX_N], u)
+        rv: i64 = tepc_root_of(dsu[0:TEPC_MAX_N], v)
+        if ru == rv: return -1
+        dsu[ru as usize] <- rv
+        edge <- edge + 1
+    root: i64 = tepc_root_of(dsu[0:TEPC_MAX_N], 0)
+    i <- 1
+    while i < n as usize:
+        if tepc_root_of(dsu[0:TEPC_MAX_N], i as i64) != root: return -1
+        i <- i + 1
+
+    parent: mutable i64[TEPC_MAX_N] = zeroed
+    depth: mutable i64[TEPC_MAX_N] = zeroed
+    first: mutable i64[TEPC_MAX_N] = zeroed
+    visited: mutable u8[TEPC_MAX_N] = zeroed
+    down: mutable i64[TEPC_MAX_EDGES] = zeroed
+    up: mutable i64[TEPC_MAX_EDGES] = zeroed
+    stack_node: mutable i64[TEPC_MAX_N] = zeroed
+    stack_parent: mutable i64[TEPC_MAX_N] = zeroed
+    stack_in: mutable i64[TEPC_MAX_N] = zeroed
+    stack_cursor: mutable i64[TEPC_MAX_N] = zeroed
+    stack_parent[0] <- -1
+    stack_in[0] <- -1
+    visited[0] <- 1
+    top: mutable i64 = 0
+    occurrences: mutable i64 = 0
+    while top >= 0:
+        node: i64 = stack_node[top as usize]
+        found: mutable bool = false
+        while stack_cursor[top as usize] < m:
+            e: i64 = stack_cursor[top as usize]
+            stack_cursor[top as usize] <- e + 1
+            if edge_u[e as usize] != node and edge_v[e as usize] != node: continue
+            child: i64 = edge_u[e as usize]
+            if child == node: child <- edge_v[e as usize]
+            if child == stack_parent[top as usize]: continue
+            if visited[child as usize] != 0: return -1
+            visited[child as usize] <- 1
+            parent[child as usize] <- node
+            depth[child as usize] <- depth[node as usize] + 1
+            down[e as usize] <- occurrences
+            occurrences <- occurrences + 1
+            first[child as usize] <- occurrences
+            top <- top + 1
+            stack_node[top as usize] <- child
+            stack_parent[top as usize] <- node
+            stack_in[top as usize] <- e
+            stack_cursor[top as usize] <- 0
+            found <- true
+            break
+        if not found:
+            incoming: i64 = stack_in[top as usize]
+            top <- top - 1
+            if incoming >= 0:
+                up[incoming as usize] <- occurrences
+                occurrences <- occurrences + 1
+
+    ancestor: mutable i64[TEPC_MAX_N * TEPC_LOG_N] = zeroed
+    i <- 0
+    while i < n as usize:
+        ancestor[i] <- parent[i]
+        i <- i + 1
+    k: mutable usize = 1
+    while k < TEPC_LOG_N:
+        i <- 0
+        while i < n as usize:
+            previous: usize = (k - 1) * TEPC_MAX_N + (ancestor[(k - 1) * TEPC_MAX_N + i] as usize)
+            ancestor[k * TEPC_MAX_N + i] <- ancestor[previous]
+            i <- i + 1
+        k <- k + 1
+
+    base: mutable usize = 1
+    while base < occurrences as usize: base <- base * 2
+    forward: mutable i64[64] = zeroed
+    backward: mutable i64[64] = zeroed
+    painted: mutable u8[TEPC_MAX_EDGES] = zeroed
+    total: mutable i64 = 0
+    operation: mutable usize = 0
+    while operation < q as usize:
+        kind: i64 = values[cursor]
+        a: i64 = values[cursor + 1]
+        b: i64 = values[cursor + 2]
+        cursor <- cursor + 3
+        if kind == 0:
+            if a < 0 or a >= m or b != 0: return -1
+            if painted[a as usize] == 0:
+                painted[a as usize] <- 1
+                tepc_point_set(forward[0:64], base, down[a as usize] as usize, 1)
+                tepc_point_set(backward[0:64], base, up[a as usize] as usize, 1)
+        elif kind == 1:
+            if a < 0 or a >= n or b < 0 or b >= n: return -1
+            common: i64 = tepc_lca(a, b, depth[0:TEPC_MAX_N], parent[0:TEPC_MAX_N], ancestor[0:TEPC_MAX_N * TEPC_LOG_N])
+            la: i64 = first[common as usize]
+            ra: i64 = first[a as usize] - 1
+            lb: i64 = first[common as usize]
+            rb: i64 = first[b as usize] - 1
+            total <- total + tepc_range_sum(forward[0:64], base, la, ra) - tepc_range_sum(backward[0:64], base, la, ra)
+            total <- total + tepc_range_sum(forward[0:64], base, lb, rb) - tepc_range_sum(backward[0:64], base, lb, rb)
+        else:
+            return -1
+        operation <- operation + 1
+    total
+
+export fn tree_edge_paint_path_count(input: i64&, length: usize) -> i64:
+    if input.is_null(): return -1
+    tree_edge_paint_path_count_impl(input[0:length])

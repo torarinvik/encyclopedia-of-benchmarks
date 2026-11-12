@@ -10,10 +10,11 @@ path length.
 The exported symbol is
 `minimum_mean_cycle_karp(input, length, output, capacity) -> i64` in the
 `i64_array_bytes_output` ABI. The input is `[n,m,(u,v,weight)*m]`, with
-`1<=n<=8`, `1<=m<=n*n`, zero-based endpoints, and weights in `[-1000,1000]`.
-The directed graph must be strongly connected and must not contain duplicate
-ordered endpoint pairs. A self-loop is allowed. The frame must contain exactly
-`2+3*m` signed-i64 values; the maximum valid input has 194 values. Null input,
+`1<=n<=8`, `1<=m<=min(16,n*n)`, zero-based endpoints, and weights in `[-1000,1000]`.
+The directed graph must be strongly connected and must have unique ordered
+endpoint pairs; self-loops are allowed. The frame must contain exactly
+`2+3*m` signed-i64 values; the maximum valid input has 50 values and the
+longest parseable frame has 51. Null input,
 malformed framing, duplicate edges, invalid weights/endpoints, or a graph that
 is not strongly connected returns `-1` before output checks.
 
@@ -48,7 +49,7 @@ average weight over all cycles, which is a different objective. Its Karp
 dynamic program is also distinct from Karp's TSP cycle-merging heuristic.
 
 The [workload](workload.json) includes fractional means, a negative
-self-loop, a dense maximum-size graph, disconnected input, duplicate edges,
+self-loop, a maximum-input 8-vertex graph, disconnected input, duplicate edges,
 invalid weights, null pointers, and capacity errors. The
 [primary oracle](primary_oracle.py) follows Karp's DP formula; the
 [independent oracle](independent_oracle.py) enumerates simple cycles.

@@ -171,6 +171,99 @@ from mst_edge_classification_oracle import (
 from mst_edge_classification_exhaustive_oracle import (
     expected_output as mst_edge_classification_independent_oracle,
 )
+from m.minimum_mean_cycle_karp.primary_oracle import (
+    MAX_EDGES as MINIMUM_MEAN_CYCLE_KARP_MAX_EDGES,
+    MAX_PARSEABLE_INPUT_LENGTH as MINIMUM_MEAN_CYCLE_KARP_MAX_PARSEABLE_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MINIMUM_MEAN_CYCLE_KARP_MAX_VALID_LENGTH,
+    MAX_VERTICES as MINIMUM_MEAN_CYCLE_KARP_MAX_VERTICES,
+    OUTPUT_BYTES as MINIMUM_MEAN_CYCLE_KARP_OUTPUT_BYTES,
+    expected_output as minimum_mean_cycle_karp_primary_oracle,
+)
+from m.minimum_mean_cycle_karp.independent_oracle import (
+    expected_output as minimum_mean_cycle_karp_independent_oracle,
+)
+MINIMUM_MEAN_CYCLE_KARP_WORKSPACE_BYTES = 2048
+from h.hash_join.primary_oracle import (
+    HASH_CAPACITY as HASH_JOIN_HASH_CAPACITY,
+    MAX_OUTPUT_BYTES as HASH_JOIN_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as HASH_JOIN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_ROWS_PER_SIDE as HASH_JOIN_MAX_ROWS_PER_SIDE,
+    MAX_VALID_INPUT_LENGTH as HASH_JOIN_MAX_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as HASH_JOIN_WORKSPACE_BYTES,
+    expected_output as hash_join_primary_oracle,
+)
+from h.hash_join.independent_oracle import (
+    expected_output as hash_join_independent_oracle,
+)
+from dynamic_mex_updates_oracle import (
+    MAX_N as DYNAMIC_MEX_UPDATES_MAX_N,
+    MAX_Q as DYNAMIC_MEX_UPDATES_MAX_Q,
+    MIN_VALUE as DYNAMIC_MEX_UPDATES_MIN_VALUE,
+    MAX_VALUE as DYNAMIC_MEX_UPDATES_MAX_VALUE,
+    MAX_OUTPUT_BYTES as DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES,
+    MAX_VALID_INPUT_LENGTH as DYNAMIC_MEX_UPDATES_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as DYNAMIC_MEX_UPDATES_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as dynamic_mex_updates_primary_oracle,
+)
+from dynamic_mex_updates_verifier_oracle import (
+    expected_output as dynamic_mex_updates_independent_oracle,
+)
+from circle_line_intersection_count_oracle import (
+    MAX_Q as CIRCLE_LINE_INTERSECTION_MAX_Q,
+    MAX_COORD as CIRCLE_LINE_INTERSECTION_MAX_COORD,
+    MAX_RADIUS as CIRCLE_LINE_INTERSECTION_MAX_RADIUS,
+    MAX_NORMAL as CIRCLE_LINE_INTERSECTION_MAX_NORMAL,
+    MAX_OFFSET as CIRCLE_LINE_INTERSECTION_MAX_OFFSET,
+    MAX_OUTPUT_BYTES as CIRCLE_LINE_INTERSECTION_MAX_OUTPUT_BYTES,
+    MAX_VALID_INPUT_LENGTH as CIRCLE_LINE_INTERSECTION_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CIRCLE_LINE_INTERSECTION_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as circle_line_intersection_count_primary_oracle,
+)
+from circle_line_intersection_count_verifier_oracle import (
+    expected_output as circle_line_intersection_count_independent_oracle,
+)
+from maximum_frequency_stack_oracle import (
+    MAX_OPERATIONS as MAXIMUM_FREQUENCY_STACK_MAX_OPERATIONS,
+    MIN_VALUE as MAXIMUM_FREQUENCY_STACK_MIN_VALUE,
+    MAX_VALUE as MAXIMUM_FREQUENCY_STACK_MAX_VALUE,
+    MAX_OUTPUT_BYTES as MAXIMUM_FREQUENCY_STACK_MAX_OUTPUT_BYTES,
+    MAX_VALID_INPUT_LENGTH as MAXIMUM_FREQUENCY_STACK_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MAXIMUM_FREQUENCY_STACK_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as maximum_frequency_stack_primary_oracle,
+)
+from maximum_frequency_stack_naive_oracle import (
+    expected_output as maximum_frequency_stack_independent_oracle,
+)
+from m.maximum_frequency_stack.verify_maximum_frequency_stack_package import (
+    validate_package as validate_maximum_frequency_stack_package,
+)
+from balanced_ternary_conversion_oracle import (
+    MIN_VALUE as BALANCED_TERNARY_MIN_VALUE,
+    MAX_VALUE as BALANCED_TERNARY_MAX_VALUE,
+    MAX_VALID_INPUT_LENGTH as BALANCED_TERNARY_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as BALANCED_TERNARY_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BALANCED_TERNARY_MAX_OUTPUT_BYTES,
+    expected_output as balanced_ternary_primary_oracle,
+)
+from balanced_ternary_conversion_verifier_oracle import (
+    expected_output as balanced_ternary_independent_oracle,
+)
+from check_balanced_ternary_conversion_package import (
+    static_issues as balanced_ternary_conversion_static_issues,
+)
+from a.all_shortest_paths_unweighted.primary_oracle import (
+    MAX_VERTICES as ALL_SHORTEST_PATHS_MAX_VERTICES,
+    MAX_EDGES as ALL_SHORTEST_PATHS_MAX_EDGES,
+    MAX_PATHS as ALL_SHORTEST_PATHS_MAX_PATHS,
+    MAX_OUTPUT_BYTES as ALL_SHORTEST_PATHS_MAX_OUTPUT_BYTES,
+    MAX_VALID_INPUT_LENGTH as ALL_SHORTEST_PATHS_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as ALL_SHORTEST_PATHS_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as ALL_SHORTEST_PATHS_WORKSPACE_BYTES,
+    expected_output as all_shortest_paths_unweighted_primary_oracle,
+)
+from a.all_shortest_paths_unweighted.independent_oracle import (
+    expected_output as all_shortest_paths_unweighted_independent_oracle,
+)
 from s.suffix_array_sais.independent_oracle import (
     expected_output as suffix_array_sais_independent_oracle,
 )
@@ -5909,6 +6002,13 @@ ALGORITHMS = (*ALGORITHMS, "discrete_rejection_sampling")
 ALGORITHMS = (*ALGORITHMS, "brent_kung_fps_composition")
 ALGORITHMS = (*ALGORITHMS, "create_maximum_number")
 ALGORITHMS = (*ALGORITHMS, "mst_edge_classification")
+ALGORITHMS = (*ALGORITHMS, "minimum_mean_cycle_karp")
+ALGORITHMS = (*ALGORITHMS, "hash_join")
+ALGORITHMS = (*ALGORITHMS, "dynamic_mex_updates")
+ALGORITHMS = (*ALGORITHMS, "circle_line_intersection_count")
+ALGORITHMS = (*ALGORITHMS, "maximum_frequency_stack")
+ALGORITHMS = (*ALGORITHMS, "balanced_ternary_conversion")
+ALGORITHMS = (*ALGORITHMS, "all_shortest_paths_unweighted")
 WORKSPACE_ALGORITHMS.update({
     "npb_cg_sparse_inverse_power", "hpcg_profile", "baswana_sen_weighted_spanner",
     "npb_lu_block_ssor", "q_binomial_coefficient_prime_mod",
@@ -5938,6 +6038,13 @@ WORKSPACE_ALGORITHMS.add("discrete_rejection_sampling")
 WORKSPACE_ALGORITHMS.add("brent_kung_fps_composition")
 WORKSPACE_ALGORITHMS.add("create_maximum_number")
 WORKSPACE_ALGORITHMS.add("mst_edge_classification")
+WORKSPACE_ALGORITHMS.add("minimum_mean_cycle_karp")
+WORKSPACE_ALGORITHMS.add("hash_join")
+WORKSPACE_ALGORITHMS.add("dynamic_mex_updates")
+WORKSPACE_ALGORITHMS.add("circle_line_intersection_count")
+WORKSPACE_ALGORITHMS.add("maximum_frequency_stack")
+WORKSPACE_ALGORITHMS.add("balanced_ternary_conversion")
+WORKSPACE_ALGORITHMS.add("all_shortest_paths_unweighted")
 WORKSPACE_ALGORITHMS.update({
     "ams_sketch", "count_min_sketch_affine", "deterministic_line_search",
     "color_coding_k_path",
@@ -13261,6 +13368,13 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "brent_kung_fps_composition": brent_kung_fps_composition_independent_oracle,
     "create_maximum_number": create_maximum_number_independent_oracle,
     "mst_edge_classification": mst_edge_classification_independent_oracle,
+    "minimum_mean_cycle_karp": minimum_mean_cycle_karp_independent_oracle,
+    "hash_join": hash_join_independent_oracle,
+    "dynamic_mex_updates": dynamic_mex_updates_independent_oracle,
+    "circle_line_intersection_count": circle_line_intersection_count_independent_oracle,
+    "maximum_frequency_stack": maximum_frequency_stack_independent_oracle,
+    "balanced_ternary_conversion": balanced_ternary_independent_oracle,
+    "all_shortest_paths_unweighted": all_shortest_paths_unweighted_independent_oracle,
     "suffix_array_sais": suffix_array_sais_independent_oracle,
     "minkowski_sum_convex_polygons": minkowski_sum_convex_polygons_independent_oracle,
     "de_bruijn_sequences": de_bruijn_sequences_independent_oracle,
@@ -19895,6 +20009,186 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "every_mst": 2,
                 }):
             raise ValueError("mst_edge_classification bounds differ from its Kruskal-group profile")
+    elif algorithm == "minimum_mean_cycle_karp":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != MINIMUM_MEAN_CYCLE_KARP_MAX_PARSEABLE_LENGTH
+                or max_input != 51 or max_output != MINIMUM_MEAN_CYCLE_KARP_OUTPUT_BYTES
+                or max_output != 16
+                or workspace_bytes != MINIMUM_MEAN_CYCLE_KARP_WORKSPACE_BYTES
+                or MINIMUM_MEAN_CYCLE_KARP_MAX_VERTICES != 8
+                or MINIMUM_MEAN_CYCLE_KARP_MAX_EDGES != 16
+                or MINIMUM_MEAN_CYCLE_KARP_MAX_VALID_LENGTH != 50
+                or input_spec.get("vertex_range") != [1, 8]
+                or input_spec.get("edge_count_range") != "1 through min(16,n*n)"
+                or input_spec.get("maximum_valid_length") != 50
+                or input_spec.get("maximum_parseable_length") != max_input
+                or input_spec.get("weight_range") != [-1000, 1000]
+                or input_spec.get("graph_promise", "").find("strongly connected") < 0
+                or output_spec.get("maximum_output_bytes") != max_output
+                or output_spec.get("success_result") != max_output
+                or workload.get("workspace", {}).get("bytes") != workspace_bytes):
+            raise ValueError("minimum_mean_cycle_karp bounds differ from its exact-rational profile")
+    elif algorithm == "hash_join":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != HASH_JOIN_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 19 or max_output != HASH_JOIN_MAX_OUTPUT_BYTES
+                or max_output != 64 or workspace_bytes != HASH_JOIN_WORKSPACE_BYTES
+                or HASH_JOIN_MAX_ROWS_PER_SIDE != 8 or HASH_JOIN_HASH_CAPACITY != 17
+                or HASH_JOIN_MAX_VALID_INPUT_LENGTH != 18
+                or input_spec.get("encoding") != "[left_count,right_count,left_keys...,right_keys...]"
+                or input_spec.get("rows_per_relation_range") != [0, 8]
+                or input_spec.get("key_range") != "all signed i64 values"
+                or input_spec.get("exact_length") != "2 + left_count + right_count"
+                or input_spec.get("maximum_valid_length") != HASH_JOIN_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("encoding") != (
+                    "one byte per match: upper nibble is the zero-based left row ID, "
+                    "lower nibble is the zero-based right row ID")
+                or output_spec.get("maximum_output_bytes") != max_output
+                or output_spec.get("success_result") != "number of joined rows"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != workspace_bytes
+                or workload.get("ordering", "").find("ties build right") < 0):
+            raise ValueError("hash_join bounds differ from its smaller-side hash profile")
+    elif algorithm == "dynamic_mex_updates":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != DYNAMIC_MEX_UPDATES_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 99
+                or max_output != DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES
+                or max_output != 256
+                or DYNAMIC_MEX_UPDATES_MAX_VALID_INPUT_LENGTH != 98
+                or DYNAMIC_MEX_UPDATES_MAX_N != 32
+                or DYNAMIC_MEX_UPDATES_MAX_Q != 32
+                or DYNAMIC_MEX_UPDATES_MIN_VALUE != -1000
+                or DYNAMIC_MEX_UPDATES_MAX_VALUE != 1000
+                or workspace_bytes != DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES
+                or input_spec.get("encoding") != "[N,Q,initial_values...,(index,new_value)*Q]"
+                or input_spec.get("N_range") != [1, DYNAMIC_MEX_UPDATES_MAX_N]
+                or input_spec.get("Q_range") != [0, DYNAMIC_MEX_UPDATES_MAX_Q]
+                or input_spec.get("value_range") != [
+                    DYNAMIC_MEX_UPDATES_MIN_VALUE, DYNAMIC_MEX_UPDATES_MAX_VALUE]
+                or input_spec.get("maximum_valid_length") != DYNAMIC_MEX_UPDATES_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("success_result") != "number of bytes written"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != workspace_bytes):
+            raise ValueError("dynamic_mex_updates bounds differ from its frequency-segment-tree profile")
+    elif algorithm == "circle_line_intersection_count":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != CIRCLE_LINE_INTERSECTION_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 101
+                or max_output != CIRCLE_LINE_INTERSECTION_MAX_OUTPUT_BYTES
+                or max_output != 256
+                or CIRCLE_LINE_INTERSECTION_MAX_VALID_INPUT_LENGTH != 100
+                or CIRCLE_LINE_INTERSECTION_MAX_Q != 32
+                or CIRCLE_LINE_INTERSECTION_MAX_COORD != 1000
+                or CIRCLE_LINE_INTERSECTION_MAX_RADIUS != 1000
+                or CIRCLE_LINE_INTERSECTION_MAX_NORMAL != 100
+                or CIRCLE_LINE_INTERSECTION_MAX_OFFSET != 200000
+                or workspace_bytes != CIRCLE_LINE_INTERSECTION_MAX_OUTPUT_BYTES
+                or input_spec.get("encoding") != "[cx,cy,r,Q,(a,b,c)*Q]"
+                or input_spec.get("center_coordinate_range") != [-1000, 1000]
+                or input_spec.get("radius_range") != [0, 1000]
+                or input_spec.get("query_count_range") != [0, CIRCLE_LINE_INTERSECTION_MAX_Q]
+                or input_spec.get("normal_coefficient_range") != [-100, 100]
+                or input_spec.get("line_constant_range") != [-200000, 200000]
+                or input_spec.get("maximum_valid_length") != CIRCLE_LINE_INTERSECTION_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("success_result") != "number of bytes written"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != workspace_bytes):
+            raise ValueError("circle_line_intersection_count bounds differ from its exact line-count profile")
+    elif algorithm == "maximum_frequency_stack":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != MAXIMUM_FREQUENCY_STACK_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 130
+                or max_output != MAXIMUM_FREQUENCY_STACK_MAX_OUTPUT_BYTES
+                or max_output != 256
+                or MAXIMUM_FREQUENCY_STACK_MAX_OPERATIONS != 64
+                or MAXIMUM_FREQUENCY_STACK_MIN_VALUE != -8
+                or MAXIMUM_FREQUENCY_STACK_MAX_VALUE != 8
+                or MAXIMUM_FREQUENCY_STACK_MAX_VALID_INPUT_LENGTH != 129
+                or workspace_bytes != MAXIMUM_FREQUENCY_STACK_MAX_OUTPUT_BYTES
+                or input_spec.get("encoding") != "[Q,(opcode,argument)*Q]"
+                or input_spec.get("operation_count_range") != [0, 64]
+                or input_spec.get("value_range") != [-8, 8]
+                or input_spec.get("maximum_valid_input_length")
+                != MAXIMUM_FREQUENCY_STACK_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("success_result")
+                != "number of output bytes written; 8 bytes per pop"
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or "accepted when no result bytes are required"
+                not in output_spec.get("null_output_result", "")
+                or workspace_bytes != workload.get("workspace", {}).get("bytes")):
+            raise ValueError("maximum_frequency_stack bounds differ from its bounded trace profile")
+        validate_maximum_frequency_stack_package()
+    elif algorithm == "balanced_ternary_conversion":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != BALANCED_TERNARY_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 2
+                or max_output != BALANCED_TERNARY_MAX_OUTPUT_BYTES
+                or max_output != 41
+                or BALANCED_TERNARY_MIN_VALUE != -(1 << 63)
+                or BALANCED_TERNARY_MAX_VALUE != (1 << 63) - 1
+                or BALANCED_TERNARY_MAX_VALID_INPUT_LENGTH != 1
+                or workspace_bytes != BALANCED_TERNARY_MAX_OUTPUT_BYTES
+                or input_spec.get("encoding") != "[value]"
+                or input_spec.get("value_range") != [-(1 << 63), (1 << 63) - 1]
+                or input_spec.get("exact_length") != 1
+                or input_spec.get("maximum_valid_length")
+                != BALANCED_TERNARY_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("success_result") != "number of bytes written"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workspace_bytes != workload.get("workspace", {}).get("bytes")):
+            raise ValueError("balanced_ternary_conversion bounds differ from its signed-i64 profile")
+        issues = balanced_ternary_conversion_static_issues()
+        if issues:
+            raise ValueError("balanced_ternary_conversion package is incomplete: "
+                             + "; ".join(issues))
+    elif algorithm == "all_shortest_paths_unweighted":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != ALL_SHORTEST_PATHS_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 133
+                or max_output != ALL_SHORTEST_PATHS_MAX_OUTPUT_BYTES
+                or max_output != 1296
+                or workspace_bytes != ALL_SHORTEST_PATHS_WORKSPACE_BYTES
+                or ALL_SHORTEST_PATHS_MAX_VERTICES != 16
+                or ALL_SHORTEST_PATHS_MAX_EDGES != 64
+                or ALL_SHORTEST_PATHS_MAX_PATHS != 162
+                or ALL_SHORTEST_PATHS_MAX_VALID_INPUT_LENGTH != 132
+                or input_spec.get("vertex_count_range") != [1, 16]
+                or input_spec.get("edge_count_range") != [0, 64]
+                or input_spec.get("maximum_valid_length") != ALL_SHORTEST_PATHS_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_path_count") != ALL_SHORTEST_PATHS_MAX_PATHS
+                or output_spec.get("maximum_output_bytes") != max_output
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or workspace_bytes != workload.get("workspace", {}).get("bytes")):
+            raise ValueError("all_shortest_paths_unweighted bounds differ from its predecessor-DAG profile")
     elif algorithm == "suffix_array_sais":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -20057,6 +20351,7 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or result < 0 and (result not in (-1, -2) or output)
             )
         else:
+            # These profiles allow a null output pointer when the valid result is empty.
             inconsistent_framing = (
                 result >= 0 and (result != len(output) or len(output) > max_output
                                  or output_is_null and not (
@@ -21160,6 +21455,631 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             raise ValueError("mst_edge_classification output errors took precedence over invalid input")
         if add((), input_is_null=True, input_length=0) != (-1, b""):
             raise ValueError("mst_edge_classification accepted a null input pointer")
+    elif algorithm == "minimum_mean_cycle_karp":
+        rng_cycle_mean = random.Random(0xCA4F)
+        generated_inputs = []
+        for _ in range(96):
+            vertex_count = rng_cycle_mean.randint(1, MINIMUM_MEAN_CYCLE_KARP_MAX_VERTICES)
+            if vertex_count == 1:
+                edges = [(0, 0, rng_cycle_mean.randint(-1000, 1000))]
+            elif vertex_count == 2:
+                edges = [
+                    (0, 1, rng_cycle_mean.randint(-1000, 1000)),
+                    (1, 0, rng_cycle_mean.randint(-1000, 1000)),
+                ]
+            else:
+                edges = []
+                for vertex in range(vertex_count):
+                    following = (vertex + 1) % vertex_count
+                    edges.append((vertex, following, rng_cycle_mean.randint(-1000, 1000)))
+                    edges.append((following, vertex, rng_cycle_mean.randint(-1000, 1000)))
+            used = {(left, right) for left, right, _ in edges}
+            possible = [(left, right) for left in range(vertex_count)
+                        for right in range(vertex_count) if (left, right) not in used]
+            rng_cycle_mean.shuffle(possible)
+            extra_count = rng_cycle_mean.randint(
+                0, min(MINIMUM_MEAN_CYCLE_KARP_MAX_EDGES - len(edges), len(possible)))
+            for left, right in possible[:extra_count]:
+                edges.append((left, right, rng_cycle_mean.randint(-1000, 1000)))
+            packed = (vertex_count, len(edges),
+                      *(word for edge in edges for word in edge))
+            if len(packed) > MINIMUM_MEAN_CYCLE_KARP_MAX_VALID_LENGTH:
+                raise ValueError("minimum_mean_cycle_karp generated digraph exceeds its input bound")
+            generated_inputs.append(packed)
+
+        maximum_edges = []
+        for vertex in range(8):
+            following = (vertex + 1) % 8
+            maximum_edges.append((vertex, following, 0))
+            maximum_edges.append((following, vertex, 0))
+        maximum_values = (8, len(maximum_edges),
+                          *(word for edge in maximum_edges for word in edge))
+        if len(maximum_values) != MINIMUM_MEAN_CYCLE_KARP_MAX_VALID_LENGTH:
+            raise ValueError("minimum_mean_cycle_karp maximum frame differs from its input bound")
+        expected_maximum = minimum_mean_cycle_karp_independent_oracle(maximum_values)
+        maximum_result, maximum_output = add(maximum_values)
+        if (maximum_result != MINIMUM_MEAN_CYCLE_KARP_OUTPUT_BYTES
+                or maximum_output != struct.pack("<qq", 0, 1)
+                or (maximum_result, maximum_output) != expected_maximum):
+            raise ValueError("minimum_mean_cycle_karp maximum graph differs from cycle enumeration")
+        generated_inputs.append(maximum_values)
+
+        for packed in generated_inputs:
+            primary = minimum_mean_cycle_karp_primary_oracle(packed)
+            independent = minimum_mean_cycle_karp_independent_oracle(packed)
+            if primary != independent or add(packed) != independent:
+                raise ValueError("minimum_mean_cycle_karp exact-DP and cycle oracles disagree")
+
+        maximum_parseable_invalid = (*maximum_values, 0)
+        if len(maximum_parseable_invalid) != MINIMUM_MEAN_CYCLE_KARP_MAX_PARSEABLE_LENGTH:
+            raise ValueError("minimum_mean_cycle_karp parseable frame differs from its bound")
+        malformed = (
+            (), (1,), (0, 0), (9, 1, 0, 0, 0), (1, 0),
+            (2, 1, 0, 1, 0), (2, 2, 0, 1, 0, 0, 1, 0),
+            (2, 1, 2, 0, 1), (1, 1, 0, 0, 1001),
+            (1, 1, 0, 0, 0, 9), maximum_parseable_invalid,
+        )
+        for packed in malformed:
+            if add(packed) != (-1, b""):
+                raise ValueError("minimum_mean_cycle_karp accepted malformed input")
+        if add((2, 1, 0, 1, 0), 0, output_is_null=True) != (-1, b""):
+            raise ValueError("minimum_mean_cycle_karp output errors took precedence over invalid input")
+        if add((), input_is_null=True, input_length=0) != (-1, b""):
+            raise ValueError("minimum_mean_cycle_karp accepted a null input pointer")
+        for capacity in (0, MINIMUM_MEAN_CYCLE_KARP_OUTPUT_BYTES - 1,
+                         MINIMUM_MEAN_CYCLE_KARP_OUTPUT_BYTES):
+            actual = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < MINIMUM_MEAN_CYCLE_KARP_OUTPUT_BYTES
+                        else expected_maximum)
+            if actual != expected:
+                raise ValueError("minimum_mean_cycle_karp output-capacity probe failed")
+        if add(maximum_values, output_is_null=True) != (-2, b""):
+            raise ValueError("minimum_mean_cycle_karp accepted a null output buffer")
+    elif algorithm == "hash_join":
+        rng_hash_join = random.Random(0xA45A0C)
+        generated_inputs = []
+        key_pool = (-9, -1, 0, 1, 8, 17, 18, 34, 42, 99)
+        for _ in range(128):
+            left_count = rng_hash_join.randint(0, HASH_JOIN_MAX_ROWS_PER_SIDE)
+            right_count = rng_hash_join.randint(0, HASH_JOIN_MAX_ROWS_PER_SIDE)
+            left = [rng_hash_join.choice(key_pool) for _ in range(left_count)]
+            right = [rng_hash_join.choice(key_pool) for _ in range(right_count)]
+            packed = (left_count, right_count, *left, *right)
+            if len(packed) > HASH_JOIN_MAX_VALID_INPUT_LENGTH:
+                raise ValueError("hash_join generated relation exceeds its input bound")
+            primary = hash_join_primary_oracle(packed)
+            independent = hash_join_independent_oracle(packed)
+            if primary != independent or add(packed) != independent:
+                raise ValueError("hash_join hash table and nested-loop oracles disagree")
+            generated_inputs.append(packed)
+
+        maximum_values = (8, 8, *([42] * 16))
+        expected_maximum = hash_join_independent_oracle(maximum_values)
+        if (len(maximum_values) != HASH_JOIN_MAX_VALID_INPUT_LENGTH
+                or expected_maximum[0] != HASH_JOIN_MAX_OUTPUT_BYTES
+                or len(expected_maximum[1]) != HASH_JOIN_MAX_OUTPUT_BYTES
+                or add(maximum_values) != expected_maximum):
+            raise ValueError("hash_join maximum duplicate-key relation differs from its output bound")
+        generated_inputs.append(maximum_values)
+        signed_boundary_values = (2, 2, -(1 << 63), (1 << 63) - 1,
+                                  (1 << 63) - 1, -(1 << 63))
+        if (hash_join_primary_oracle(signed_boundary_values)
+                != hash_join_independent_oracle(signed_boundary_values)
+                or add(signed_boundary_values)
+                != hash_join_independent_oracle(signed_boundary_values)):
+            raise ValueError("hash_join signed-boundary keys differ between oracles")
+        generated_inputs.append(signed_boundary_values)
+
+        for packed in generated_inputs:
+            primary = hash_join_primary_oracle(packed)
+            independent = hash_join_independent_oracle(packed)
+            if primary != independent or add(packed) != independent:
+                raise ValueError("hash_join generated join differs from its nested-loop oracle")
+
+        maximum_parseable_invalid = (*maximum_values, 0)
+        if len(maximum_parseable_invalid) != HASH_JOIN_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError("hash_join trailing-value frame differs from its parseable bound")
+        malformed = (
+            (), (1,), (-1, 0), (0, -1), (9, 0), (0, 9),
+            (1, 1), (2, 2, 1, 2, 3), (1, 1, 1, 1, 0),
+            maximum_parseable_invalid,
+        )
+        for packed in malformed:
+            if add(packed) != (-1, b""):
+                raise ValueError("hash_join accepted malformed relation framing")
+        if add((1, 1, 7), 0, output_is_null=True) != (-1, b""):
+            raise ValueError("hash_join output errors took precedence over invalid input")
+        if add((), input_is_null=True, input_length=0) != (-1, b""):
+            raise ValueError("hash_join accepted a null input pointer")
+
+        for capacity in (0, HASH_JOIN_MAX_OUTPUT_BYTES - 1,
+                         HASH_JOIN_MAX_OUTPUT_BYTES, HASH_JOIN_WORKSPACE_BYTES):
+            expected = ((-2, b"") if capacity < HASH_JOIN_MAX_OUTPUT_BYTES
+                        else expected_maximum)
+            if add(maximum_values, capacity) != expected:
+                raise ValueError("hash_join maximum output-capacity probe failed")
+        if add(maximum_values, output_is_null=True) != (-2, b""):
+            raise ValueError("hash_join accepted a null nonempty output buffer")
+        empty_join = (0, 0)
+        if (add(empty_join, 0) != (0, b"")
+                or add(empty_join, 0, output_is_null=True) != (-2, b"")):
+            raise ValueError("hash_join empty-output null-buffer semantics differ from its contract")
+    elif algorithm == "dynamic_mex_updates":
+        for fixture in workload.get("cases", []):
+            values = tuple(fixture.get("input_values", []))
+            if (not fixture.get("input_is_null", False)
+                    and fixture.get("input_length") != len(values)):
+                raise ValueError(
+                    f"dynamic_mex_updates fixture length differs: {fixture.get('id')}"
+                )
+            arguments = {
+                "capacity": fixture.get("output_capacity", DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES),
+                "output_is_null": fixture.get("output_is_null", False),
+                "input_is_null": fixture.get("input_is_null", False),
+                "input_length": fixture.get("input_length", len(values)),
+            }
+            primary = dynamic_mex_updates_primary_oracle(values, **arguments)
+            independent = dynamic_mex_updates_independent_oracle(values, **arguments)
+            expected = (fixture.get("expected_result"),
+                        bytes.fromhex(fixture.get("expected_output_hex", "")))
+            if primary != independent or primary != expected:
+                raise ValueError(
+                    f"dynamic_mex_updates fixture differs between segment tree and direct scan: {fixture.get('id')}"
+                )
+
+        rng_dynamic_mex = random.Random(0xD1A6E7)
+        generated_inputs = []
+        for _ in range(128):
+            item_count = rng_dynamic_mex.randint(1, DYNAMIC_MEX_UPDATES_MAX_N)
+            update_count = rng_dynamic_mex.randint(0, DYNAMIC_MEX_UPDATES_MAX_Q)
+            packed = [item_count, update_count]
+            packed.extend(rng_dynamic_mex.randint(
+                DYNAMIC_MEX_UPDATES_MIN_VALUE, DYNAMIC_MEX_UPDATES_MAX_VALUE)
+                for _ in range(item_count))
+            for _update in range(update_count):
+                packed.extend((
+                    rng_dynamic_mex.randrange(item_count),
+                    rng_dynamic_mex.randint(
+                        DYNAMIC_MEX_UPDATES_MIN_VALUE, DYNAMIC_MEX_UPDATES_MAX_VALUE),
+                ))
+            primary = dynamic_mex_updates_primary_oracle(packed)
+            independent = dynamic_mex_updates_independent_oracle(packed)
+            if primary != independent or add(packed) != independent:
+                raise ValueError("dynamic_mex_updates generated trace differs between its oracles")
+            generated_inputs.append(tuple(packed))
+
+        maximum_values = (
+            DYNAMIC_MEX_UPDATES_MAX_N,
+            DYNAMIC_MEX_UPDATES_MAX_Q,
+            *range(DYNAMIC_MEX_UPDATES_MAX_N),
+            *(item for index in range(DYNAMIC_MEX_UPDATES_MAX_Q)
+              for item in (index, (index + 1) % (DYNAMIC_MEX_UPDATES_MAX_N + 1))),
+        )
+        maximum_expected = dynamic_mex_updates_independent_oracle(maximum_values)
+        if (len(maximum_values) != DYNAMIC_MEX_UPDATES_MAX_VALID_INPUT_LENGTH
+                or maximum_expected[0] != DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES
+                or add(maximum_values) != maximum_expected):
+            raise ValueError("dynamic_mex_updates maximum trace differs from its 256-byte output bound")
+        generated_inputs.append(maximum_values)
+        for packed in generated_inputs:
+            if (dynamic_mex_updates_primary_oracle(packed)
+                    != dynamic_mex_updates_independent_oracle(packed)
+                    or add(packed) != dynamic_mex_updates_independent_oracle(packed)):
+                raise ValueError("dynamic_mex_updates trace differs from its direct-scan oracle")
+
+        maximum_parseable_invalid = (*maximum_values, 0)
+        if len(maximum_parseable_invalid) != DYNAMIC_MEX_UPDATES_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError("dynamic_mex_updates trailing-value profile differs from its parseable bound")
+        malformed = (
+            (), (1,), (0, 0), (DYNAMIC_MEX_UPDATES_MAX_N + 1, 0),
+            (1, -1), (1, DYNAMIC_MEX_UPDATES_MAX_Q + 1),
+            (1, 0, 1001), (1, 0, 0, 99),
+            (1, 1, 0, 1), (1, 1, 0, -1, 0),
+            maximum_parseable_invalid,
+        )
+        for packed in malformed:
+            if add(packed) != (-1, b""):
+                raise ValueError("dynamic_mex_updates accepted malformed update framing")
+        if add((), input_is_null=True, input_length=0) != (-1, b""):
+            raise ValueError("dynamic_mex_updates accepted a null input pointer")
+        nonempty = (1, 1, 0, 0, 1)
+        if (add(nonempty, 0) != (-2, b"")
+                or add(nonempty, DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES - 1) != (-2, b"")
+                or add(nonempty, DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES, output_is_null=True) != (-2, b"")):
+            raise ValueError("dynamic_mex_updates output-capacity semantics differ from its contract")
+        zero_updates = (1, 0, 0)
+        if (add(zero_updates, 0) != (0, b"")
+                or add(zero_updates, 0, output_is_null=True) != (0, b"")):
+            raise ValueError("dynamic_mex_updates zero-update null-output semantics differ from its contract")
+    elif algorithm == "circle_line_intersection_count":
+        for fixture in workload.get("cases", []):
+            values = tuple(fixture.get("input_values", []))
+            if (not fixture.get("input_is_null", False)
+                    and fixture.get("input_length") != len(values)):
+                raise ValueError(
+                    f"circle_line_intersection_count fixture length differs: {fixture.get('id')}"
+                )
+            arguments = {
+                "capacity": fixture.get("output_capacity", CIRCLE_LINE_INTERSECTION_MAX_OUTPUT_BYTES),
+                "output_is_null": fixture.get("output_is_null", False),
+                "input_is_null": fixture.get("input_is_null", False),
+                "input_length": fixture.get("input_length", len(values)),
+            }
+            primary = circle_line_intersection_count_primary_oracle(values, **arguments)
+            independent = circle_line_intersection_count_independent_oracle(values, **arguments)
+            expected = (fixture.get("expected_result"),
+                        bytes.fromhex(fixture.get("expected_output_hex", "")))
+            if primary != independent or primary != expected:
+                raise ValueError(
+                    f"circle_line_intersection_count fixture differs between exact oracles: {fixture.get('id')}"
+                )
+
+        rng_circle_lines = random.Random(0xC1AC1E)
+        generated_inputs = []
+        for _ in range(128):
+            center_x = rng_circle_lines.randint(-CIRCLE_LINE_INTERSECTION_MAX_COORD,
+                                                CIRCLE_LINE_INTERSECTION_MAX_COORD)
+            center_y = rng_circle_lines.randint(-CIRCLE_LINE_INTERSECTION_MAX_COORD,
+                                                CIRCLE_LINE_INTERSECTION_MAX_COORD)
+            radius = rng_circle_lines.randint(0, CIRCLE_LINE_INTERSECTION_MAX_RADIUS)
+            query_count = rng_circle_lines.randint(0, CIRCLE_LINE_INTERSECTION_MAX_Q)
+            packed = [center_x, center_y, radius, query_count]
+            for _query in range(query_count):
+                a = rng_circle_lines.randint(-CIRCLE_LINE_INTERSECTION_MAX_NORMAL,
+                                             CIRCLE_LINE_INTERSECTION_MAX_NORMAL)
+                b = rng_circle_lines.randint(-CIRCLE_LINE_INTERSECTION_MAX_NORMAL,
+                                             CIRCLE_LINE_INTERSECTION_MAX_NORMAL)
+                if a == 0 and b == 0:
+                    a = 1
+                c = rng_circle_lines.randint(-CIRCLE_LINE_INTERSECTION_MAX_OFFSET,
+                                             CIRCLE_LINE_INTERSECTION_MAX_OFFSET)
+                packed.extend((a, b, c))
+            primary = circle_line_intersection_count_primary_oracle(packed)
+            independent = circle_line_intersection_count_independent_oracle(packed)
+            if primary != independent or add(packed) != independent:
+                raise ValueError("circle_line_intersection_count generated lines differ between exact oracles")
+            generated_inputs.append(tuple(packed))
+
+        maximum_values = (
+            1000, -1000, 1000, CIRCLE_LINE_INTERSECTION_MAX_Q,
+            *(item for query in range(CIRCLE_LINE_INTERSECTION_MAX_Q)
+              for item in (
+                  (query % 3 - 1) * CIRCLE_LINE_INTERSECTION_MAX_NORMAL,
+                  (((query // 3) % 3 - 1) * CIRCLE_LINE_INTERSECTION_MAX_NORMAL
+                   if not (query % 3 == 1 and (query // 3) % 3 == 1)
+                   else CIRCLE_LINE_INTERSECTION_MAX_NORMAL),
+                  -CIRCLE_LINE_INTERSECTION_MAX_OFFSET if query == 0 else
+                  CIRCLE_LINE_INTERSECTION_MAX_OFFSET if query == CIRCLE_LINE_INTERSECTION_MAX_Q - 1 else
+                  (query - 16) * 10000,
+              )),
+        )
+        maximum_expected = circle_line_intersection_count_independent_oracle(maximum_values)
+        if (len(maximum_values) != CIRCLE_LINE_INTERSECTION_MAX_VALID_INPUT_LENGTH
+                or maximum_expected[0] != CIRCLE_LINE_INTERSECTION_MAX_OUTPUT_BYTES
+                or add(maximum_values) != maximum_expected):
+            raise ValueError("circle_line_intersection_count maximum batch differs from its byte bound")
+        generated_inputs.append(maximum_values)
+        for packed in generated_inputs:
+            if (circle_line_intersection_count_primary_oracle(packed)
+                    != circle_line_intersection_count_independent_oracle(packed)
+                    or add(packed) != circle_line_intersection_count_independent_oracle(packed)):
+                raise ValueError("circle_line_intersection_count line batch differs from its discriminant oracle")
+
+        maximum_parseable_invalid = (*maximum_values, 0)
+        if len(maximum_parseable_invalid) != CIRCLE_LINE_INTERSECTION_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError("circle_line_intersection_count trailing frame differs from its parseable bound")
+        malformed = (
+            (), (0, 0, 0), (CIRCLE_LINE_INTERSECTION_MAX_COORD + 1, 0, 1, 0),
+            (0, 0, -1, 0), (0, 0, 1, -1), (0, 0, 1, CIRCLE_LINE_INTERSECTION_MAX_Q + 1),
+            (0, 0, 1, 1, 0, 0, 0), (0, 0, 1, 1, 101, 0, 0),
+            (0, 0, 1, 1, 1, 0, CIRCLE_LINE_INTERSECTION_MAX_OFFSET + 1),
+            (0, 0, 1, 1, 1, 0), maximum_parseable_invalid,
+        )
+        for packed in malformed:
+            if add(packed) != (-1, b""):
+                raise ValueError("circle_line_intersection_count accepted malformed line framing")
+        if add((), input_is_null=True, input_length=0) != (-1, b""):
+            raise ValueError("circle_line_intersection_count accepted a null input pointer")
+        one_line = (0, 0, 1, 1, 1, 0, 0)
+        if (add(one_line, 0) != (-2, b"")
+                or add(one_line, CIRCLE_LINE_INTERSECTION_MAX_OUTPUT_BYTES - 1) != (-2, b"")
+                or add(one_line, CIRCLE_LINE_INTERSECTION_MAX_OUTPUT_BYTES, output_is_null=True) != (-2, b"")):
+            raise ValueError("circle_line_intersection_count output-capacity semantics differ from its contract")
+        zero_queries = (0, 0, 0, 0)
+        if (add(zero_queries, 0) != (0, b"")
+                or add(zero_queries, 0, output_is_null=True) != (0, b"")):
+            raise ValueError("circle_line_intersection_count zero-query null-output semantics differ")
+    elif algorithm == "maximum_frequency_stack":
+        for fixture in workload.get("cases", []):
+            values = tuple(fixture.get("input_values", []))
+            if (not fixture.get("input_is_null", False)
+                    and fixture.get("input_length") != len(values)):
+                raise ValueError(
+                    f"maximum_frequency_stack fixture length differs: {fixture.get('id')}"
+                )
+            capacity = fixture.get(
+                "output_capacity", MAXIMUM_FREQUENCY_STACK_MAX_OUTPUT_BYTES)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            primary = maximum_frequency_stack_primary_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            independent = maximum_frequency_stack_independent_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            expected = (fixture.get("expected_result"),
+                        bytes(fixture.get("expected_output_bytes", [])))
+            if primary != independent or primary != expected:
+                raise ValueError(
+                    "maximum_frequency_stack fixture differs between frequency buckets "
+                    f"and active-list rescan: {fixture.get('id')}"
+                )
+            add(values, capacity, output_is_null=output_is_null,
+                input_is_null=input_is_null, input_length=input_length)
+
+        rng_frequency_stack = random.Random(0xF5AC)
+        for _ in range(128):
+            operation_count = rng_frequency_stack.randint(
+                0, MAXIMUM_FREQUENCY_STACK_MAX_OPERATIONS)
+            active_count = 0
+            operations = []
+            for _operation in range(operation_count):
+                if active_count == 0 or rng_frequency_stack.randrange(3) != 0:
+                    operations.extend((
+                        0,
+                        rng_frequency_stack.randint(
+                            MAXIMUM_FREQUENCY_STACK_MIN_VALUE,
+                            MAXIMUM_FREQUENCY_STACK_MAX_VALUE),
+                    ))
+                    active_count += 1
+                else:
+                    operations.extend((1, 0))
+                    active_count -= 1
+            packed = (operation_count, *operations)
+            primary = maximum_frequency_stack_primary_oracle(packed)
+            independent = maximum_frequency_stack_independent_oracle(packed)
+            if primary != independent or add(packed) != independent:
+                raise ValueError(
+                    "maximum_frequency_stack generated trace differs between its oracles"
+                )
+
+        maximum_values = (
+            MAXIMUM_FREQUENCY_STACK_MAX_OPERATIONS,
+            *(item for _ in range(MAXIMUM_FREQUENCY_STACK_MAX_OPERATIONS // 2)
+              for item in (0, 1)),
+            *(item for _ in range(MAXIMUM_FREQUENCY_STACK_MAX_OPERATIONS // 2)
+              for item in (1, 0)),
+        )
+        maximum_expected = maximum_frequency_stack_independent_oracle(maximum_values)
+        if (len(maximum_values) != MAXIMUM_FREQUENCY_STACK_MAX_VALID_INPUT_LENGTH
+                or maximum_expected[0] != MAXIMUM_FREQUENCY_STACK_MAX_OUTPUT_BYTES
+                or add(maximum_values) != maximum_expected):
+            raise ValueError(
+                "maximum_frequency_stack maximum trace differs from its 256-byte output bound"
+            )
+        for capacity in (0, MAXIMUM_FREQUENCY_STACK_MAX_OUTPUT_BYTES - 1,
+                         MAXIMUM_FREQUENCY_STACK_MAX_OUTPUT_BYTES):
+            expected = ((-2, b"") if capacity < MAXIMUM_FREQUENCY_STACK_MAX_OUTPUT_BYTES
+                        else maximum_expected)
+            if add(maximum_values, capacity) != expected:
+                raise ValueError(
+                    "maximum_frequency_stack maximum output-capacity probe failed"
+                )
+        if add(maximum_values, output_is_null=True) != (-2, b""):
+            raise ValueError("maximum_frequency_stack accepted a null nonempty output buffer")
+
+        maximum_parseable_invalid = (*maximum_values, 0)
+        if (len(maximum_parseable_invalid)
+                != MAXIMUM_FREQUENCY_STACK_MAX_PARSEABLE_INPUT_LENGTH):
+            raise ValueError(
+                "maximum_frequency_stack trailing-value frame differs from its parseable bound"
+            )
+        malformed = (
+            (), (0, 0), (-1,), (MAXIMUM_FREQUENCY_STACK_MAX_OPERATIONS + 1,),
+            (1,), (1, 1, 0), (1, 1, 1), (1, 9, 0), (1, 0, 9),
+            (1, 0), maximum_parseable_invalid,
+        )
+        for packed in malformed:
+            if add(packed) != (-1, b""):
+                raise ValueError("maximum_frequency_stack accepted a malformed operation trace")
+        if add((), input_is_null=True, input_length=0) != (-1, b""):
+            raise ValueError("maximum_frequency_stack accepted a null input pointer")
+        zero_pop_trace = (0,)
+        if (add(zero_pop_trace, 0) != (0, b"")
+                or add(zero_pop_trace, 0, output_is_null=True) != (0, b"")):
+            raise ValueError(
+                "maximum_frequency_stack zero-pop null-output semantics differ from its contract"
+            )
+    elif algorithm == "balanced_ternary_conversion":
+        for fixture in workload.get("cases", []):
+            values = tuple(fixture.get("input_values", []))
+            if (not fixture.get("input_is_null", False)
+                    and fixture.get("input_length") != len(values)):
+                raise ValueError(
+                    f"balanced_ternary_conversion fixture length differs: {fixture.get('id')}"
+                )
+            capacity = fixture.get("output_capacity", BALANCED_TERNARY_MAX_OUTPUT_BYTES)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            primary = balanced_ternary_primary_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            independent = balanced_ternary_independent_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            expected = (fixture.get("expected_result"),
+                        bytes.fromhex(fixture.get("expected_output_hex", "")))
+            if primary != independent or primary != expected:
+                raise ValueError(
+                    "balanced_ternary_conversion fixture differs between signed-remainder "
+                    f"and carry oracles: {fixture.get('id')}"
+                )
+            add(values, capacity, output_is_null=output_is_null,
+                input_is_null=input_is_null, input_length=input_length)
+
+        rng_balanced_ternary = random.Random(0xBA1A3CED)
+        for _ in range(128):
+            packed = (rng_balanced_ternary.randint(
+                BALANCED_TERNARY_MIN_VALUE, BALANCED_TERNARY_MAX_VALUE),)
+            primary = balanced_ternary_primary_oracle(packed)
+            independent = balanced_ternary_independent_oracle(packed)
+            if primary != independent or add(packed) != independent:
+                raise ValueError(
+                    "balanced_ternary_conversion generated value differs between its oracles"
+                )
+
+        maximum_value = (BALANCED_TERNARY_MIN_VALUE,)
+        maximum_expected = balanced_ternary_independent_oracle(maximum_value)
+        if (maximum_expected[0] != BALANCED_TERNARY_MAX_OUTPUT_BYTES
+                or len(maximum_expected[1]) != BALANCED_TERNARY_MAX_OUTPUT_BYTES
+                or add(maximum_value) != maximum_expected):
+            raise ValueError("balanced_ternary_conversion maximum digit profile is incorrect")
+        for capacity in (0, BALANCED_TERNARY_MAX_OUTPUT_BYTES - 1,
+                         BALANCED_TERNARY_MAX_OUTPUT_BYTES):
+            expected = ((-2, b"")
+                        if capacity < BALANCED_TERNARY_MAX_OUTPUT_BYTES
+                        else maximum_expected)
+            if add(maximum_value, capacity) != expected:
+                raise ValueError("balanced_ternary_conversion capacity probe failed")
+        if add(maximum_value, output_is_null=True) != (-2, b""):
+            raise ValueError("balanced_ternary_conversion accepted a null output pointer")
+        for packed in ((), (0, 0), (1, 0), (BALANCED_TERNARY_MIN_VALUE, 1)):
+            if add(packed) != (-1, b""):
+                raise ValueError("balanced_ternary_conversion accepted a malformed input frame")
+        if add((), input_is_null=True, input_length=0) != (-1, b""):
+            raise ValueError("balanced_ternary_conversion accepted a null input pointer")
+    elif algorithm == "all_shortest_paths_unweighted":
+        for fixture in workload.get("cases", []):
+            values = tuple(fixture.get("input_values", []))
+            if (not fixture.get("input_is_null", False)
+                    and fixture.get("input_length") != len(values)):
+                raise ValueError(
+                    f"all_shortest_paths_unweighted fixture length differs: {fixture.get('id')}"
+                )
+            capacity = fixture.get("output_capacity", ALL_SHORTEST_PATHS_WORKSPACE_BYTES)
+            primary = all_shortest_paths_unweighted_primary_oracle(
+                values, capacity,
+                output_is_null=fixture.get("output_is_null", False),
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length", len(values)),
+            )
+            independent = all_shortest_paths_unweighted_independent_oracle(
+                values, capacity,
+                output_is_null=fixture.get("output_is_null", False),
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length", len(values)),
+            )
+            expected = (fixture.get("expected_result"),
+                        bytes.fromhex(fixture.get("expected_output_hex", "")))
+            if primary != independent or primary != expected:
+                raise ValueError(
+                    "all_shortest_paths_unweighted fixture differs between BFS and Floyd-Warshall oracles: "
+                    f"{fixture.get('id')}"
+                )
+        rng_all_shortest = random.Random(0xA1157)
+        for _ in range(96):
+            vertex_count = rng_all_shortest.randint(1, ALL_SHORTEST_PATHS_MAX_VERTICES)
+            possible_edges = [
+                (u, v)
+                for u in range(vertex_count)
+                for v in range(u + 1, vertex_count)
+            ]
+            rng_all_shortest.shuffle(possible_edges)
+            edge_count = rng_all_shortest.randint(
+                0, min(ALL_SHORTEST_PATHS_MAX_EDGES, len(possible_edges))
+            )
+            edges = possible_edges[:edge_count]
+            source = rng_all_shortest.randrange(vertex_count)
+            target = rng_all_shortest.randrange(vertex_count)
+            packed = (vertex_count, edge_count, source, target,
+                      *(word for edge in edges for word in edge))
+            primary = all_shortest_paths_unweighted_primary_oracle(packed)
+            independent = all_shortest_paths_unweighted_independent_oracle(packed)
+            if primary != independent or add(packed) != independent:
+                raise ValueError("all_shortest_paths_unweighted random graph differs between path oracles")
+
+        layer_sizes = (1, 3, 3, 3, 3, 2, 1)
+        layers = []
+        next_vertex = 0
+        for size in layer_sizes:
+            layers.append(tuple(range(next_vertex, next_vertex + size)))
+            next_vertex += size
+        maximum_output_edges = [
+            (u, v)
+            for left_layer, right_layer in zip(layers, layers[1:])
+            for u in left_layer
+            for v in right_layer
+        ]
+        maximum_output_values = (
+            ALL_SHORTEST_PATHS_MAX_VERTICES,
+            len(maximum_output_edges),
+            0,
+            ALL_SHORTEST_PATHS_MAX_VERTICES - 1,
+            *(word for edge in maximum_output_edges for word in edge),
+        )
+        maximum_result = all_shortest_paths_unweighted_independent_oracle(maximum_output_values)
+        if (len(maximum_output_values) > ALL_SHORTEST_PATHS_MAX_VALID_INPUT_LENGTH
+                or len(maximum_output_edges) != 38
+                or maximum_result[0] != ALL_SHORTEST_PATHS_MAX_PATHS
+                or len(maximum_result[1]) != ALL_SHORTEST_PATHS_MAX_OUTPUT_BYTES
+                or all_shortest_paths_unweighted_primary_oracle(maximum_output_values) != maximum_result
+                or add(maximum_output_values) != maximum_result):
+            raise ValueError("all_shortest_paths_unweighted layered graph differs from its maximum-output bounds")
+        path_edges = [(vertex, vertex + 1) for vertex in range(ALL_SHORTEST_PATHS_MAX_VERTICES - 1)]
+        path_edge_set = set(path_edges)
+        candidates = [
+            (u, v)
+            for u in range(ALL_SHORTEST_PATHS_MAX_VERTICES)
+            for v in range(u + 1, ALL_SHORTEST_PATHS_MAX_VERTICES)
+            if (u, v) not in path_edge_set and (u, v) != (0, ALL_SHORTEST_PATHS_MAX_VERTICES - 1)
+        ]
+        maximum_input_edges = path_edges + candidates[:ALL_SHORTEST_PATHS_MAX_EDGES - len(path_edges)]
+        maximum_input_values = (
+            ALL_SHORTEST_PATHS_MAX_VERTICES,
+            len(maximum_input_edges),
+            0,
+            ALL_SHORTEST_PATHS_MAX_VERTICES - 1,
+            *(word for edge in maximum_input_edges for word in edge),
+        )
+        maximum_input_expected = all_shortest_paths_unweighted_independent_oracle(maximum_input_values)
+        if (len(maximum_input_values) != ALL_SHORTEST_PATHS_MAX_VALID_INPUT_LENGTH
+                or len(maximum_input_edges) != ALL_SHORTEST_PATHS_MAX_EDGES
+                or all_shortest_paths_unweighted_primary_oracle(maximum_input_values) != maximum_input_expected
+                or add(maximum_input_values) != maximum_input_expected):
+            raise ValueError("all_shortest_paths_unweighted maximum-size input differs from its input bounds")
+        for capacity in (ALL_SHORTEST_PATHS_MAX_OUTPUT_BYTES - 1,
+                         ALL_SHORTEST_PATHS_MAX_OUTPUT_BYTES):
+            expected_capacity = ((-2, b"") if capacity < ALL_SHORTEST_PATHS_MAX_OUTPUT_BYTES
+                                 else maximum_result)
+            if (all_shortest_paths_unweighted_primary_oracle(maximum_output_values, capacity)
+                    != expected_capacity
+                    or all_shortest_paths_unweighted_independent_oracle(maximum_output_values, capacity)
+                    != expected_capacity
+                    or add(maximum_output_values, capacity) != expected_capacity):
+                raise ValueError("all_shortest_paths_unweighted maximum-output capacity probe failed")
+        if (add(maximum_output_values, output_is_null=True) != (-2, b"")
+                or all_shortest_paths_unweighted_primary_oracle(maximum_output_values, output_is_null=True)
+                != (-2, b"")):
+            raise ValueError("all_shortest_paths_unweighted accepted a null output buffer")
+
+        maximum_parseable_invalid = (*maximum_input_values, 0)
+        if len(maximum_parseable_invalid) != ALL_SHORTEST_PATHS_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError("all_shortest_paths_unweighted trailing frame differs from its input bound")
+        malformed = (
+            (), (1,), (0, 0, 0, 0), (ALL_SHORTEST_PATHS_MAX_VERTICES + 1, 0, 0, 0),
+            (2, 0, 0, 2), (2, 1, 0, 1, 0, 0), (2, 2, 0, 1, 0, 1, 1, 0),
+            (2, 1, 0, 1, 0, 2), maximum_parseable_invalid,
+        )
+        for values in malformed:
+            if len(values) <= ALL_SHORTEST_PATHS_MAX_PARSEABLE_INPUT_LENGTH:
+                if add(values) != (-1, b""):
+                    raise ValueError("all_shortest_paths_unweighted accepted malformed graph framing")
+        if (add((2, 1, 0, 1, 0, 0), 0, output_is_null=True) != (-1, b"")
+                or add((), input_is_null=True) != (-1, b"")):
+            raise ValueError("all_shortest_paths_unweighted output/input error precedence differs")
+        empty_paths = (4, 2, 0, 3, 0, 1, 2, 3)
+        if (add(empty_paths, 0) != (0, b"")
+                or add(empty_paths, output_is_null=True) != (-2, b"")):
+            raise ValueError("all_shortest_paths_unweighted empty-output pointer semantics differ")
+        special_records.append("NULL 0 -1\n")
     elif algorithm == "disjoint_sparse_table_affine_composition":
         def pack_affine_queries(maps, queries):
             return (len(maps), len(queries),

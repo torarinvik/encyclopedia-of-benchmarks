@@ -1,0 +1,170 @@
+const PFC_MAX_N: usize = 16
+const PFC_MAX_M: usize = 42
+const PFC_MAX_INPUT: usize = 118
+const PFC_MAX_COORD: i64 = 100
+
+def pfc_orient(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
+    (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
+
+def pfc_between(a: i64, b: i64, p: i64) -> bool:
+    (a <= p and p <= b) or (b <= p and p <= a)
+
+def pfc_on_segment(x: view[i64], y: view[i64], a: usize, b: usize, p: usize) -> bool:
+    pfc_between(x[a], x[b], x[p]) and pfc_between(y[a], y[b], y[p])
+
+def pfc_segments_intersect(x: view[i64], y: view[i64], a: usize, b: usize, c: usize, d: usize) -> bool:
+    ab_c: i64 = pfc_orient(x[a], y[a], x[b], y[b], x[c], y[c])
+    ab_d: i64 = pfc_orient(x[a], y[a], x[b], y[b], x[d], y[d])
+    cd_a: i64 = pfc_orient(x[c], y[c], x[d], y[d], x[a], y[a])
+    cd_b: i64 = pfc_orient(x[c], y[c], x[d], y[d], x[b], y[b])
+    if ((ab_c > 0 and ab_d < 0) or (ab_c < 0 and ab_d > 0)) and ((cd_a > 0 and cd_b < 0) or (cd_a < 0 and cd_b > 0)):
+        return true
+    (ab_c == 0 and pfc_on_segment(x, y, a, b, c)) or
+        (ab_d == 0 and pfc_on_segment(x, y, a, b, d)) or
+        (cd_a == 0 and pfc_on_segment(x, y, c, d, a)) or
+        (cd_b == 0 and pfc_on_segment(x, y, c, d, b))
+
+def pfc_angle_half(dx: i64, dy: i64) -> usize:
+    if dy > 0 or (dy == 0 and dx >= 0):
+        return 0
+    1
+
+def pfc_angle_less(a: usize, b: usize, origin: usize, x: view[i64], y: view[i64]) -> bool:
+    ax: i64 = x[a] - x[origin]
+    ay: i64 = y[a] - y[origin]
+    bx: i64 = x[b] - x[origin]
+    by: i64 = y[b] - y[origin]
+    ah: usize = pfc_angle_half(ax, ay)
+    bh: usize = pfc_angle_half(bx, by)
+    ah < bh or (ah == bh and ax * by - ay * bx > 0)
+
+def pfc_impl(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 2 or length > PFC_MAX_INPUT:
+        return -1
+    if values[0] < 1 or values[0] > i64(PFC_MAX_N) or values[1] < 0 or values[1] > i64(PFC_MAX_M):
+        return -1
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
+    edge_cap: usize = if n == 1: 0 else: if n == 2: 1 else: 3 * n - 6
+    if m > edge_cap or length != 2 + 2 * n + 2 * m:
+        return -1
+
+    x: mutable i64[PFC_MAX_N] = zeroed
+    y: mutable i64[PFC_MAX_N] = zeroed
+    for v in 0..<n:
+        x[v] <- values[2 + 2 * v]
+        y[v] <- values[3 + 2 * v]
+        if x[v] < -PFC_MAX_COORD or x[v] > PFC_MAX_COORD or y[v] < -PFC_MAX_COORD or y[v] > PFC_MAX_COORD:
+            return -1
+        for prior in 0..<v:
+            if x[v] == x[prior] and y[v] == y[prior]:
+                return -1
+
+    adjacent: mutable i64[PFC_MAX_N * PFC_MAX_N] = zeroed
+    neighbors: mutable usize[PFC_MAX_N * PFC_MAX_N] = zeroed
+    degree: mutable usize[PFC_MAX_N] = zeroed
+    edge_u: mutable usize[PFC_MAX_M] = zeroed
+    edge_v: mutable usize[PFC_MAX_M] = zeroed
+    edge_offset: usize = 2 + 2 * n
+    for e in 0..<m |values, adjacent, neighbors, degree, edge_u, edge_v|:
+        u_value: i64 = values[edge_offset + 2 * e]
+        v_value: i64 = values[edge_offset + 2 * e + 1]
+        if u_value < 0 or u_value >= n.i64() or v_value < 0 or v_value >= n.i64() or u_value == v_value:
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        if adjacent[u * PFC_MAX_N + v] != 0:
+            return -1
+        adjacent[u * PFC_MAX_N + v] <- 1
+        adjacent[v * PFC_MAX_N + u] <- 1
+        neighbors[u * PFC_MAX_N + degree[u]] <- v
+        degree[u] <- degree[u] + 1
+        neighbors[v * PFC_MAX_N + degree[v]] <- u
+        degree[v] <- degree[v] + 1
+        edge_u[e] <- u
+        edge_v[e] <- v
+
+    reached: mutable bool[PFC_MAX_N] = zeroed
+    queue: mutable usize[PFC_MAX_N] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    reached[0] <- true
+    queue[0] <- 0
+    while head < tail |adjacent, reached, queue|:
+        u: usize = queue[head]
+        head <- head + 1
+        for v in 0..<n |adjacent, reached, queue|:
+            if adjacent[u * PFC_MAX_N + v] != 0 and not reached[v]:
+                reached[v] <- true
+                queue[tail] <- v
+                tail <- tail + 1
+    for v in 0..<n:
+        if not reached[v]:
+            return -1
+
+    for i in 0..<m |x, y, edge_u, edge_v|:
+        for j in i + 1..<m |x, y, edge_u, edge_v|:
+            u: usize = edge_u[i]
+            v: usize = edge_v[i]
+            a: usize = edge_u[j]
+            b: usize = edge_v[j]
+            common: mutable i64 = -1
+            if u == a or u == b:
+                common <- u.i64()
+            if v == a or v == b:
+                if common < 0: common <- v.i64()
+            if common >= 0:
+                center: usize = common.usize()
+                p: usize = if u == center: v else: u
+                q: usize = if a == center: b else: a
+                ax: i64 = x[p] - x[center]
+                ay: i64 = y[p] - y[center]
+                bx: i64 = x[q] - x[center]
+                by: i64 = y[q] - y[center]
+                if ax * by == ay * bx and ax * bx + ay * by > 0:
+                    return -1
+            elif pfc_segments_intersect(x[0:PFC_MAX_N], y[0:PFC_MAX_N], u, v, a, b):
+                return -1
+    if n == 1:
+        return 1
+
+    for u in 0..<n |neighbors, degree, x, y|:
+        for i in 1..<degree[u] |neighbors, degree, x, y|:
+            key: usize = neighbors[u * PFC_MAX_N + i]
+            j: mutable usize = i
+            while j > 0 and pfc_angle_less(key, neighbors[u * PFC_MAX_N + j - 1], u,
+                    x[0:PFC_MAX_N], y[0:PFC_MAX_N]):
+                neighbors[u * PFC_MAX_N + j] <- neighbors[u * PFC_MAX_N + j - 1]
+                j <- j - 1
+            neighbors[u * PFC_MAX_N + j] <- key
+
+    used: mutable bool[PFC_MAX_N * PFC_MAX_N] = zeroed
+    faces: mutable i64 = 0
+    for e in 0..<m |edge_u, edge_v, used, neighbors, degree|:
+        for direction in 0..<2 |edge_u, edge_v, used, neighbors, degree|:
+            u: mutable usize = if direction == 0: edge_u[e] else: edge_v[e]
+            v: mutable usize = if direction == 0: edge_v[e] else: edge_u[e]
+            if used[u * PFC_MAX_N + v]:
+                continue
+            faces <- faces + 1
+            steps: mutable usize = 0
+            while not used[u * PFC_MAX_N + v] |used, neighbors, degree|:
+                used[u * PFC_MAX_N + v] <- true
+                reverse: mutable i64 = -1
+                for i in 0..<degree[v] |neighbors|:
+                    if neighbors[v * PFC_MAX_N + i] == u: reverse <- i.i64()
+                if reverse < 0 or degree[v] == 0:
+                    return -1
+                next: usize = neighbors[v * PFC_MAX_N + (reverse.usize() + 1) % degree[v]]
+                u <- v
+                v <- next
+                steps <- steps + 1
+                if steps > 2 * m:
+                    return -1
+    faces
+
+export fn planar_face_count(values: i64&, length: usize) -> i64:
+    if values.is_null() or length > PFC_MAX_INPUT:
+        return -1
+    pfc_impl(values[0:length])

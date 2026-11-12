@@ -1,0 +1,105 @@
+alias UCP_MAX_N = 8
+alias UCP_MAX_M = 12
+alias UCP_INF = 1000000000
+
+def undirected_chinese_postman_impl(values: view[i64]) -> i64:
+    if values.len() < 2:
+        return -1
+    if values[0] < 1 or values[0] > i64(UCP_MAX_N) or values[1] < 0 or values[1] > i64(UCP_MAX_M):
+        return -1
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
+    if values.len() != 2 + 3 * m:
+        return -1
+    if n == 1:
+        if m == 0:
+            return 0
+        return -1
+    if m < n - 1:
+        return -1
+
+    distance: mutable i64[UCP_MAX_N * UCP_MAX_N] = zeroed
+    seen: mutable bool[UCP_MAX_N * UCP_MAX_N] = zeroed
+    degree: mutable usize[UCP_MAX_N] = zeroed
+    u: mutable usize = 0
+    while u < n:
+        v: mutable usize = 0
+        while v < n:
+            distance[u * UCP_MAX_N + v] <- if u == v: 0 else: UCP_INF.i64()
+            v <- v + 1
+        u <- u + 1
+    total_weight: mutable i64 = 0
+    edge: mutable usize = 0
+    while edge < m:
+        u_value: i64 = values[2 + 3 * edge]
+        v_value: i64 = values[3 + 3 * edge]
+        weight: i64 = values[4 + 3 * edge]
+        if u_value < 0 or u_value >= n.i64() or v_value < 0 or v_value >= n.i64() or
+           u_value == v_value or weight < 1 or weight > 1000:
+            return -1
+        eu: usize = u_value.usize()
+        ev: usize = v_value.usize()
+        if seen[eu * UCP_MAX_N + ev]:
+            return -1
+        seen[eu * UCP_MAX_N + ev] <- true
+        seen[ev * UCP_MAX_N + eu] <- true
+        distance[eu * UCP_MAX_N + ev] <- weight
+        distance[ev * UCP_MAX_N + eu] <- weight
+        degree[eu] <- degree[eu] + 1
+        degree[ev] <- degree[ev] + 1
+        total_weight <- total_weight + weight
+        edge <- edge + 1
+    middle: mutable usize = 0
+    while middle < n:
+        u <- 0
+        while u < n:
+            v <- 0
+            while v < n:
+                candidate: i64 = distance[u * UCP_MAX_N + middle] + distance[middle * UCP_MAX_N + v]
+                if candidate < distance[u * UCP_MAX_N + v]:
+                    distance[u * UCP_MAX_N + v] <- candidate
+                v <- v + 1
+            u <- u + 1
+        middle <- middle + 1
+    vertex: mutable usize = 0
+    while vertex < n:
+        if distance[vertex] >= UCP_INF.i64():
+            return -1
+        vertex <- vertex + 1
+    odd: mutable usize[UCP_MAX_N] = zeroed
+    odd_count: mutable usize = 0
+    vertex <- 0
+    while vertex < n:
+        if degree[vertex] % 2 != 0:
+            odd[odd_count] <- vertex
+            odd_count <- odd_count + 1
+        vertex <- vertex + 1
+    state_count: usize = 1 << odd_count
+    pairing: mutable i64[1 << UCP_MAX_N] = zeroed
+    mask: mutable usize = 0
+    while mask < state_count:
+        pairing[mask] <- UCP_INF.i64()
+        mask <- mask + 1
+    pairing[0] <- 0
+    mask <- 1
+    while mask < state_count:
+        first: mutable usize = 0
+        while (mask & (1 << first)) == 0:
+            first <- first + 1
+        first_bit: usize = 1 << first
+        partner: mutable usize = first + 1
+        while partner < odd_count:
+            partner_bit: usize = 1 << partner
+            if (mask & partner_bit) != 0:
+                remaining: usize = mask ^ first_bit ^ partner_bit
+                candidate: i64 = distance[odd[first] * UCP_MAX_N + odd[partner]] + pairing[remaining]
+                if candidate < pairing[mask]:
+                    pairing[mask] <- candidate
+            partner <- partner + 1
+        mask <- mask + 1
+    total_weight + pairing[state_count - 1]
+
+export fn undirected_chinese_postman(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 38:
+        return -1
+    undirected_chinese_postman_impl(input[0:length])

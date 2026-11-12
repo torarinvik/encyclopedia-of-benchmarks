@@ -1,0 +1,57 @@
+const BPC_MAX_N: usize = 8
+const BPC_MAX_K: usize = 16
+const BPC_MAX_DIAGONALS: usize = 2 * BPC_MAX_N
+
+def bpc_diagonal_size(index: usize) -> usize:
+    if index % 2 == 1:
+        return (index / 4) * 2 + 1
+    (index - 1) / 4 * 2 + 2
+
+def bpc_fill_color_counts(k: usize, last_diagonal: usize, output: mutable view[i64]) -> void:
+    dp: mutable i64[BPC_MAX_DIAGONALS * (BPC_MAX_K + 1)] = zeroed
+    dp[0] <- 1
+    dp[BPC_MAX_K + 1] <- 1
+    if k >= 1:
+        dp[BPC_MAX_K + 2] <- 1
+    diagonal: mutable usize = 2
+    while diagonal <= last_diagonal:
+        dp[diagonal * (BPC_MAX_K + 1)] <- 1
+        squares: usize = bpc_diagonal_size(diagonal)
+        placed: mutable usize = 1
+        while placed <= k:
+            offset: usize = diagonal * (BPC_MAX_K + 1) + placed
+            previous: usize = (diagonal - 2) * (BPC_MAX_K + 1)
+            ways_with_current: i64 = dp[previous + placed - 1] * (squares.i64() - placed.i64() + 1)
+            dp[offset] <- dp[previous + placed] + ways_with_current
+            placed <- placed + 1
+        diagonal <- diagonal + 1
+    placed: mutable usize = 0
+    while placed <= k:
+        output[placed] <- dp[last_diagonal * (BPC_MAX_K + 1) + placed]
+        placed <- placed + 1
+
+def bpc_impl(values: view[i64]) -> i64:
+    if values.len() != 2:
+        return -1
+    if values[0] < 1 or values[0] > i64(BPC_MAX_N) or values[1] < 0 or values[1] > i64(BPC_MAX_K):
+        return -1
+    n: usize = values[0].usize()
+    k: usize = values[1].usize()
+    maximum: usize = if n == 1: 1 else: 2 * n - 2
+    if k > maximum:
+        return 0
+    black: mutable i64[BPC_MAX_K + 1] = zeroed
+    white: mutable i64[BPC_MAX_K + 1] = zeroed
+    bpc_fill_color_counts(k, 2 * n - 1, black[0:BPC_MAX_K + 1])
+    bpc_fill_color_counts(k, 2 * n - 2, white[0:BPC_MAX_K + 1])
+    result: mutable i64 = 0
+    left: mutable usize = 0
+    while left <= k:
+        result <- result + black[left] * white[k - left]
+        left <- left + 1
+    result
+
+export fn bishop_placements_count(values: i64&, length: usize) -> i64:
+    if values.is_null() or length != 2:
+        return -1
+    bpc_impl(values[0:length])

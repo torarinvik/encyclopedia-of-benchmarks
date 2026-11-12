@@ -1,0 +1,66 @@
+const MAX_Q: usize = 32
+const MAX_OUTPUT_BYTES: usize = 8 * MAX_Q
+
+def circle_line_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def circle_line_intersection_count_impl(input: view[i64], output: mutable view[u8],
+        output_is_null: bool) -> i64:
+    if input.length < 4 or input.length > 101:
+        return -1
+    center_x: i64 = input[0]
+    center_y: i64 = input[1]
+    radius: i64 = input[2]
+    query_value: i64 = input[3]
+    if (center_x < -1000 or center_x > 1000 or center_y < -1000 or center_y > 1000 or
+        radius < 0 or radius > 1000 or query_value < 0 or query_value > MAX_Q.i64()):
+        return -1
+    query_count: usize = query_value.usize()
+    if input.length != 4 + 3 * query_count:
+        return -1
+
+    a_values: mutable i64[MAX_Q] = zeroed
+    b_values: mutable i64[MAX_Q] = zeroed
+    c_values: mutable i64[MAX_Q] = zeroed
+    for query in 0..<query_count:
+        a: i64 = input[4 + 3 * query]
+        b: i64 = input[5 + 3 * query]
+        c: i64 = input[6 + 3 * query]
+        if (a < -100 or a > 100 or b < -100 or b > 100 or (a == 0 and b == 0) or
+            c < -200000 or c > 200000):
+            return -1
+        a_values[query] <- a
+        b_values[query] <- b
+        c_values[query] <- c
+
+    needed: usize = 8 * query_count
+    if needed > 0 and (output_is_null or output.length < needed):
+        return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT_BYTES]
+    for query in 0..<query_count:
+        a: i64 = a_values[query]
+        b: i64 = b_values[query]
+        c: i64 = c_values[query]
+        offset: i64 = a * center_x + b * center_y + c
+        normal_squared: i64 = a * a + b * b
+        discriminant: i64 = radius * radius * normal_squared - offset * offset
+        count: i64 = if discriminant > 0: 2 else: (if discriminant == 0: 1 else: 0)
+        circle_line_write_i64(staged_view, 8 * query, count)
+    for byte in 0..<needed:
+        output[byte] <- staged[byte]
+    needed.i64()
+
+export fn circle_line_intersection_count(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or length > 101:
+        return -1
+    input_view: view[i64] = input[0:length]
+    if output == null:
+        empty_storage: mutable u8[1] = zeroed
+        empty_view: mutable view[u8] = empty_storage[0:0]
+        return circle_line_intersection_count_impl(input_view, empty_view, true)
+    output_view: mutable view[u8] = output[0:capacity]
+    circle_line_intersection_count_impl(input_view, output_view, false)

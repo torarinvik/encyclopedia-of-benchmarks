@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-balanced-ternary-conversion-i64-array-bytes-output-v1",
+  "algorithm": "balanced_ternary_conversion",
+  "function_symbol": "balanced_ternary_conversion",
+  "abi": "i64_array_bytes_output",
+  "description": "Canonical ASCII balanced-ternary representation of a signed 64-bit integer.",
+  "source": {
+    "title": "Balanced Ternary",
+    "url": "https://cp-algorithms.com/algebra/balanced-ternary.html",
+    "license": "CC BY-SA 4.0",
+    "discovery_scope": "Algorithm description and navigation taxonomy only; no source code, prose, tests, or examples copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[value]",
+    "value_range": [-9223372036854775808, 9223372036854775807],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "canonical most-significant-first ASCII digits Z, 0, 1",
+    "maximum_bytes": 41,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 41,
+    "meaning": "Maximum external output-buffer capacity; fixed local storage holds at most 41 digits."
+  },
+  "algorithm": {
+    "primary": "Repeated signed division by three with balanced remainder correction: remainder 2 becomes digit -1 and increments the quotient; remainder -2 becomes digit +1 and decrements it.",
+    "independent_oracle": "Convert the absolute value to ordinary ternary, propagate carries through trits 2 and 3 into balanced digits, then invert digits for a negative value.",
+    "primary_complexity": "O(log |value|) time and O(log |value|) temporary space.",
+    "oracle_complexity": "O(log |value|) time and O(log |value|) space."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "zero", "input_values": [0], "input_length": 1, "output_capacity": 1, "expected_result": 1, "expected_output_hex": "30"},
+    {"id": "positive-two-carry", "input_values": [2], "input_length": 1, "output_capacity": 2, "expected_result": 2, "expected_output_hex": "5a31"},
+    {"id": "positive-five-double-carry", "input_values": [5], "input_length": 1, "output_capacity": 3, "expected_result": 3, "expected_output_hex": "315a5a"},
+    {"id": "negative-one", "input_values": [-1], "input_length": 1, "output_capacity": 1, "expected_result": 1, "expected_output_hex": "5a"},
+    {"id": "negative-two", "input_values": [-2], "input_length": 1, "output_capacity": 2, "expected_result": 2, "expected_output_hex": "5a31"},
+    {"id": "article-example-64", "input_values": [64], "input_length": 1, "output_capacity": 5, "expected_result": 5, "expected_output_hex": "315a313031"},
+    {"id": "article-example-237", "input_values": [237], "input_length": 1, "output_capacity": 6, "expected_result": 6, "expected_output_hex": "3130305a3130"},
+    {"id": "insufficient-capacity", "input_values": [64], "input_length": 1, "output_capacity": 4, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1], "input_length": 1, "output_capacity": 1, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "trailing-input-value", "input_values": [1, 0], "input_length": 2, "output_capacity": 41, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "output_capacity": 41, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

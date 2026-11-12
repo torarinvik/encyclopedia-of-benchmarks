@@ -1,0 +1,136 @@
+const MAX_VERTICES: usize = 16
+const MAX_EDGES: usize = 64
+const MAX_INPUT: usize = 133
+const MAX_PATHS: usize = 162
+const MAX_OUTPUT: usize = 1296
+
+def all_shortest_paths_unweighted_dfs(n: usize, target: usize, predecessor: view[bool],
+        useful: view[bool], path: mutable view[u8], depth: usize,
+        staged: mutable view[u8], used: mutable usize&, count: mutable usize&,
+        overflow: mutable bool&, u: usize) -> void:
+    if overflow:
+        return
+    path[depth] <- u.u8()
+    if u == target:
+        if count >= MAX_PATHS or used + depth + 2 > MAX_OUTPUT:
+            overflow <- true
+            return
+        offset: mutable usize = 0
+        while offset <= depth:
+            staged[used] <- path[offset]
+            used <- used + 1
+            offset <- offset + 1
+        staged[used] <- 255.u8()
+        used <- used + 1
+        count <- count + 1
+        return
+    next_vertex: mutable usize = 0
+    while next_vertex < n and not overflow:
+        if useful[next_vertex] and predecessor[next_vertex * MAX_VERTICES + u]:
+            all_shortest_paths_unweighted_dfs(n, target, predecessor, useful, path, depth + 1,
+                staged, used, count, overflow, next_vertex)
+        next_vertex <- next_vertex + 1
+
+def all_shortest_paths_unweighted_impl(input: view[i64], length: usize,
+        output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+    if length < 4 or length > MAX_INPUT:
+        return -1
+    if input[0] < 1 or input[0] > 16 or input[1] < 0 or input[1] > 64:
+        return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    source_value: i64 = input[2]
+    target_value: i64 = input[3]
+    if source_value < 0 or source_value >= n.i64() or target_value < 0 or target_value >= n.i64() or length != 4 + 2 * m:
+        return -1
+    source: usize = source_value.usize()
+    target: usize = target_value.usize()
+
+    adjacent: mutable bool[256] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        raw_u: i64 = input[4 + 2 * edge]
+        raw_v: i64 = input[5 + 2 * edge]
+        if raw_u < 0 or raw_u >= n.i64() or raw_v < 0 or raw_v >= n.i64() or raw_u == raw_v:
+            return -1
+        u: usize = raw_u.usize()
+        v: usize = raw_v.usize()
+        if adjacent[u * MAX_VERTICES + v]:
+            return -1
+        adjacent[u * MAX_VERTICES + v] <- true
+        adjacent[v * MAX_VERTICES + u] <- true
+        edge <- edge + 1
+
+    distance: mutable i64[16] = zeroed
+    queue: mutable usize[16] = zeroed
+    predecessor: mutable bool[256] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        distance[vertex] <- -1
+        vertex <- vertex + 1
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    distance[source] <- 0
+    queue[0] <- source
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        v: mutable usize = 0
+        while v < n:
+            if adjacent[u * MAX_VERTICES + v]:
+                if distance[v] < 0:
+                    distance[v] <- distance[u] + 1
+                    queue[tail] <- v
+                    tail <- tail + 1
+                if distance[v] == distance[u] + 1:
+                    predecessor[v * MAX_VERTICES + u] <- true
+            v <- v + 1
+
+    useful: mutable bool[16] = zeroed
+    if distance[target] >= 0:
+        stack: mutable usize[16] = zeroed
+        size: mutable usize = 1
+        stack[0] <- target
+        useful[target] <- true
+        while size > 0:
+            size <- size - 1
+            v: usize = stack[size]
+            u: mutable usize = 0
+            while u < n:
+                if predecessor[v * MAX_VERTICES + u] and not useful[u]:
+                    useful[u] <- true
+                    stack[size] <- u
+                    size <- size + 1
+                u <- u + 1
+
+    staged: mutable u8[1296] = zeroed
+    path: mutable u8[16] = zeroed
+    used: mutable usize = 0
+    count: mutable usize = 0
+    overflow: mutable bool = false
+    if distance[target] >= 0:
+        all_shortest_paths_unweighted_dfs(n, target, predecessor[0:256], useful[0:16],
+            path[0:16], 0, staged[0:1296], used, count, overflow, source)
+    if overflow:
+        return -2
+    if output_is_null or capacity < used:
+        return -2
+    index: mutable usize = 0
+    while index < used:
+        output[index] <- staged[index]
+        index <- index + 1
+    count.i64()
+
+export fn all_shortest_paths_unweighted(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null:
+        return -1
+    if length < 4 or length > MAX_INPUT:
+        return -1
+    input_view: view[i64] = input[0:length]
+    if output == null:
+        dummy: mutable u8[1296] = zeroed
+        return all_shortest_paths_unweighted_impl(input_view, length, dummy[0:1296], capacity, true)
+    output_view_length: usize = if capacity < MAX_OUTPUT then capacity else MAX_OUTPUT
+    output_view: mutable view[u8] = output[0:output_view_length]
+    all_shortest_paths_unweighted_impl(input_view, length, output_view, capacity, false)

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-functional-graph-cycle-parameters-i64-array-scalar-v1",
+  "algorithm": "functional_graph_cycle_parameters",
+  "function_symbol": "functional_graph_cycle_parameters",
+  "abi": "i64_array_scalar",
+  "description": "Find the preperiod and period reached from one node in a finite successor map.",
+  "source": {
+    "title": "Tortoise and Hare Algorithm (Linked List cycle detection)",
+    "url": "https://cp-algorithms.com/others/tortoise_and_hare.html",
+    "license": "CC BY-SA 4.0",
+    "discovery_scope": "High-level algorithm description only; no source code or article prose copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,start,next[0],...,next[N-1]]",
+    "n_range": [1, 64],
+    "node_range": "0..N-1",
+    "successor_range": "0..N-1",
+    "exact_length": "N+2",
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 67,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "65*mu+lambda",
+    "mu_meaning": "Number of transitions from start before the first cycle node.",
+    "lambda_meaning": "Number of nodes in the eventual cycle.",
+    "valid_range": [1, 4096],
+    "invalid_input_result": -1
+  },
+  "algorithm": {
+    "primary": "Floyd tortoise-and-hare meeting, reset-to-start preperiod recovery, then one cycle lap; O(N) time and O(1) auxiliary space.",
+    "independent_oracle": "Follow successors while recording the first step at each node; the repeated node's first step is mu and the step difference is lambda.",
+    "primary_complexity": "O(N) time, O(1) auxiliary space.",
+    "independent_oracle_complexity": "O(N) time, O(N) auxiliary space."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"single-node-self-loop","input_values":[1,0,0],"input_length":3,"expected_result":1},
+    {"id":"tail-into-self-loop","input_values":[4,0,1,2,3,3],"input_length":6,"expected_result":196},
+    {"id":"tail-into-three-cycle","input_values":[6,0,1,2,3,4,2,5],"input_length":8,"expected_result":133},
+    {"id":"start-inside-three-cycle","input_values":[6,3,1,2,3,4,2,5],"input_length":8,"expected_result":3},
+    {"id":"six-cycle","input_values":[6,4,1,2,3,4,5,0],"input_length":8,"expected_result":6},
+    {"id":"other-component-is-ignored","input_values":[5,4,1,1,1,3,2],"input_length":7,"expected_result":131},
+    {"id":"maximum-tail","input_values":[64,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,63],"input_length":66,"expected_result":4096},
+    {"id":"empty-frame-invalid","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"zero-n-invalid","input_values":[0,0],"input_length":2,"expected_result":-1},
+    {"id":"start-out-of-range-invalid","input_values":[2,2,0,1],"input_length":4,"expected_result":-1},
+    {"id":"successor-out-of-range-invalid","input_values":[2,0,1,2],"input_length":4,"expected_result":-1},
+    {"id":"missing-successor-invalid","input_values":[3,0,1,2],"input_length":4,"expected_result":-1},
+    {"id":"maximum-trailing-word-invalid","input_values":[64,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,63,9],"input_length":67,"expected_result":-1}
+  ]
+}

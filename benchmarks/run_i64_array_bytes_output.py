@@ -155,6 +155,73 @@ from mst_edge_classification_oracle import (
 from m.mst_edge_classification.verify_mst_edge_classification_package import (
     validate_package as validate_mst_edge_classification_package,
 )
+from m.minimum_mean_cycle_karp.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MINIMUM_MEAN_CYCLE_KARP_MAX_PARSEABLE_LENGTH,
+    OUTPUT_BYTES as MINIMUM_MEAN_CYCLE_KARP_MAX_OUTPUT_BYTES,
+    expected_output as minimum_mean_cycle_karp_oracle,
+)
+from m.minimum_mean_cycle_karp.check_inventory import (
+    check_inventory as check_minimum_mean_cycle_karp_inventory,
+)
+from h.hash_join.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as HASH_JOIN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as HASH_JOIN_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as HASH_JOIN_MAX_WORKSPACE_BYTES,
+    expected_output as hash_join_oracle,
+)
+from h.hash_join.check_inventory import (
+    check_inventory as check_hash_join_inventory,
+)
+from dynamic_mex_updates_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DYNAMIC_MEX_UPDATES_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES,
+    MAX_VALID_INPUT_LENGTH as DYNAMIC_MEX_UPDATES_MAX_VALID_INPUT_LENGTH,
+    expected_output as dynamic_mex_updates_oracle,
+)
+from circle_line_intersection_count_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as CIRCLE_LINE_INTERSECTION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CIRCLE_LINE_INTERSECTION_MAX_OUTPUT_BYTES,
+    MAX_VALID_INPUT_LENGTH as CIRCLE_LINE_INTERSECTION_MAX_VALID_INPUT_LENGTH,
+    expected_output as circle_line_intersection_count_oracle,
+)
+from check_circle_line_intersection_count_package import (
+    static_issues as circle_line_intersection_count_static_issues,
+)
+from check_dynamic_mex_updates_package import (
+    static_issues as dynamic_mex_updates_static_issues,
+)
+from maximum_frequency_stack_oracle import (
+    MAX_OPERATIONS as MAXIMUM_FREQUENCY_STACK_MAX_OPERATIONS,
+    MIN_VALUE as MAXIMUM_FREQUENCY_STACK_MIN_VALUE,
+    MAX_VALUE as MAXIMUM_FREQUENCY_STACK_MAX_VALUE,
+    MAX_VALID_INPUT_LENGTH as MAXIMUM_FREQUENCY_STACK_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MAXIMUM_FREQUENCY_STACK_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MAXIMUM_FREQUENCY_STACK_MAX_OUTPUT_BYTES,
+    expected_output as maximum_frequency_stack_oracle,
+)
+from m.maximum_frequency_stack.verify_maximum_frequency_stack_package import (
+    validate_package as validate_maximum_frequency_stack_package,
+)
+from balanced_ternary_conversion_oracle import (
+    MIN_VALUE as BALANCED_TERNARY_MIN_VALUE,
+    MAX_VALUE as BALANCED_TERNARY_MAX_VALUE,
+    MAX_VALID_INPUT_LENGTH as BALANCED_TERNARY_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as BALANCED_TERNARY_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BALANCED_TERNARY_MAX_OUTPUT_BYTES,
+    expected_output as balanced_ternary_conversion_oracle,
+)
+from check_balanced_ternary_conversion_package import (
+    static_issues as balanced_ternary_conversion_static_issues,
+)
+from a.all_shortest_paths_unweighted.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ALL_SHORTEST_PATHS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as ALL_SHORTEST_PATHS_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as ALL_SHORTEST_PATHS_WORKSPACE_BYTES,
+    expected_output as all_shortest_paths_unweighted_oracle,
+)
+from a.all_shortest_paths_unweighted.check_inventory import (
+    check_inventory as check_all_shortest_paths_unweighted_inventory,
+)
 from minkowski_sum_convex_polygons_oracle import (
     MAX_INPUT_LENGTH as MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as MINKOWSKI_SUM_CONVEX_POLYGONS_MAX_OUTPUT_BYTES,
@@ -6853,6 +6920,13 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "brent_kung_fps_composition": brent_kung_fps_composition_oracle,
     "create_maximum_number": create_maximum_number_oracle,
     "mst_edge_classification": mst_edge_classification_oracle,
+    "minimum_mean_cycle_karp": minimum_mean_cycle_karp_oracle,
+    "hash_join": hash_join_oracle,
+    "dynamic_mex_updates": dynamic_mex_updates_oracle,
+    "circle_line_intersection_count": circle_line_intersection_count_oracle,
+    "maximum_frequency_stack": maximum_frequency_stack_oracle,
+    "balanced_ternary_conversion": balanced_ternary_conversion_oracle,
+    "all_shortest_paths_unweighted": all_shortest_paths_unweighted_oracle,
     "suffix_array_sais": suffix_array_sais_oracle,
     "minkowski_sum_convex_polygons": minkowski_sum_convex_polygons_oracle,
     "de_bruijn_sequences": de_bruijn_sequences_oracle,
@@ -7541,6 +7615,31 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
     "mst_edge_classification": (
         MST_EDGE_CLASSIFICATION_MAX_PARSEABLE_LENGTH,
         MST_EDGE_CLASSIFICATION_MAX_OUTPUT_BYTES,
+    ),
+    "minimum_mean_cycle_karp": (
+        MINIMUM_MEAN_CYCLE_KARP_MAX_PARSEABLE_LENGTH,
+        MINIMUM_MEAN_CYCLE_KARP_MAX_OUTPUT_BYTES,
+    ),
+    "hash_join": (HASH_JOIN_MAX_PARSEABLE_INPUT_LENGTH, HASH_JOIN_MAX_OUTPUT_BYTES),
+    "dynamic_mex_updates": (
+        DYNAMIC_MEX_UPDATES_MAX_PARSEABLE_INPUT_LENGTH,
+        DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES,
+    ),
+    "circle_line_intersection_count": (
+        CIRCLE_LINE_INTERSECTION_MAX_PARSEABLE_INPUT_LENGTH,
+        CIRCLE_LINE_INTERSECTION_MAX_OUTPUT_BYTES,
+    ),
+    "maximum_frequency_stack": (
+        MAXIMUM_FREQUENCY_STACK_MAX_PARSEABLE_INPUT_LENGTH,
+        MAXIMUM_FREQUENCY_STACK_MAX_OUTPUT_BYTES,
+    ),
+    "balanced_ternary_conversion": (
+        BALANCED_TERNARY_MAX_PARSEABLE_INPUT_LENGTH,
+        BALANCED_TERNARY_MAX_OUTPUT_BYTES,
+    ),
+    "all_shortest_paths_unweighted": (
+        ALL_SHORTEST_PATHS_MAX_PARSEABLE_INPUT_LENGTH,
+        ALL_SHORTEST_PATHS_MAX_OUTPUT_BYTES,
     ),
     "suffix_array_sais": (SUFFIX_ARRAY_SAIS_MAX_INPUT_LENGTH, SUFFIX_ARRAY_SAIS_MAX_OUTPUT_BYTES),
     "minkowski_sum_convex_polygons": (
@@ -38145,6 +38244,160 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         if workload != json.loads(package_workload.read_text(encoding="utf-8")):
             raise ValueError("mst_edge_classification workload differs from its package file")
         validate_mst_edge_classification_package()
+        return
+    if algorithm == "minimum_mean_cycle_karp":
+        package_workload = ROOT / "benchmarks/m/minimum_mean_cycle_karp/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("minimum_mean_cycle_karp workload differs from its package file")
+        issues = check_minimum_mean_cycle_karp_inventory()
+        if issues:
+            raise ValueError("minimum_mean_cycle_karp package is incomplete: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "hash_join":
+        package_workload = ROOT / "benchmarks/h/hash_join/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("hash_join workload differs from its package file")
+        if workload.get("workspace", {}).get("bytes") != HASH_JOIN_MAX_WORKSPACE_BYTES:
+            raise ValueError("hash_join workspace differs from its fixed hash-table profile")
+        issues = check_hash_join_inventory()
+        if issues:
+            raise ValueError("hash_join package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "dynamic_mex_updates":
+        package_workload = ROOT / "benchmarks/d/dynamic_mex_updates/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("dynamic_mex_updates workload differs from its package file")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (DYNAMIC_MEX_UPDATES_MAX_VALID_INPUT_LENGTH != 98
+                or DYNAMIC_MEX_UPDATES_MAX_PARSEABLE_INPUT_LENGTH != 99
+                or DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES != 256
+                or input_spec.get("N_range") != [1, 32]
+                or input_spec.get("Q_range") != [0, 32]
+                or input_spec.get("value_range") != [-1000, 1000]
+                or input_spec.get("exact_length") != "2+N+2*Q"
+                or input_spec.get("maximum_valid_length") != DYNAMIC_MEX_UPDATES_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != DYNAMIC_MEX_UPDATES_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("maximum_bytes") != DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES):
+            raise ValueError("dynamic_mex_updates metadata differs from its bounded update profile")
+        issues = dynamic_mex_updates_static_issues()
+        if issues:
+            raise ValueError("dynamic_mex_updates package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "circle_line_intersection_count":
+        package_workload = ROOT / "benchmarks/c/circle_line_intersection_count/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("circle_line_intersection_count workload differs from its package file")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (CIRCLE_LINE_INTERSECTION_MAX_VALID_INPUT_LENGTH != 100
+                or CIRCLE_LINE_INTERSECTION_MAX_PARSEABLE_INPUT_LENGTH != 101
+                or CIRCLE_LINE_INTERSECTION_MAX_OUTPUT_BYTES != 256
+                or input_spec.get("encoding") != "[cx,cy,r,Q,(a,b,c)*Q]"
+                or input_spec.get("center_coordinate_range") != [-1000, 1000]
+                or input_spec.get("radius_range") != [0, 1000]
+                or input_spec.get("query_count_range") != [0, 32]
+                or input_spec.get("normal_coefficient_range") != [-100, 100]
+                or input_spec.get("line_constant_range") != [-200000, 200000]
+                or input_spec.get("exact_length") != "4+3*Q"
+                or input_spec.get("maximum_valid_length") != CIRCLE_LINE_INTERSECTION_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != CIRCLE_LINE_INTERSECTION_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("maximum_bytes") != CIRCLE_LINE_INTERSECTION_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != CIRCLE_LINE_INTERSECTION_MAX_OUTPUT_BYTES):
+            raise ValueError("circle_line_intersection_count metadata differs from its bounded geometry profile")
+        issues = circle_line_intersection_count_static_issues()
+        if issues:
+            raise ValueError("circle_line_intersection_count package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "maximum_frequency_stack":
+        package_workload = ROOT / "benchmarks/m/maximum_frequency_stack/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("maximum_frequency_stack workload differs from its package file")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (MAXIMUM_FREQUENCY_STACK_MAX_OPERATIONS != 64
+                or MAXIMUM_FREQUENCY_STACK_MIN_VALUE != -8
+                or MAXIMUM_FREQUENCY_STACK_MAX_VALUE != 8
+                or MAXIMUM_FREQUENCY_STACK_MAX_VALID_INPUT_LENGTH != 129
+                or MAXIMUM_FREQUENCY_STACK_MAX_PARSEABLE_INPUT_LENGTH != 130
+                or MAXIMUM_FREQUENCY_STACK_MAX_OUTPUT_BYTES != 256
+                or input_spec.get("encoding") != "[Q,(opcode,argument)*Q]"
+                or input_spec.get("operation_count_range") != [0, 64]
+                or input_spec.get("value_range") != [-8, 8]
+                or input_spec.get("maximum_valid_input_length")
+                != MAXIMUM_FREQUENCY_STACK_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_length")
+                != MAXIMUM_FREQUENCY_STACK_MAX_PARSEABLE_INPUT_LENGTH
+                or output_spec.get("maximum_bytes") != MAXIMUM_FREQUENCY_STACK_MAX_OUTPUT_BYTES
+                or output_spec.get("success_result")
+                != "number of output bytes written; 8 bytes per pop"
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or "accepted when no result bytes are required"
+                not in output_spec.get("null_output_result", "")
+                or workload.get("workspace", {}).get("bytes")
+                != MAXIMUM_FREQUENCY_STACK_MAX_OUTPUT_BYTES):
+            raise ValueError("maximum_frequency_stack metadata differs from its bounded trace profile")
+        validate_maximum_frequency_stack_package()
+        return
+    if algorithm == "balanced_ternary_conversion":
+        package_workload = ROOT / "benchmarks/b/balanced_ternary_conversion/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("balanced_ternary_conversion workload differs from its package file")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (BALANCED_TERNARY_MIN_VALUE != -(1 << 63)
+                or BALANCED_TERNARY_MAX_VALUE != (1 << 63) - 1
+                or BALANCED_TERNARY_MAX_VALID_INPUT_LENGTH != 1
+                or BALANCED_TERNARY_MAX_PARSEABLE_INPUT_LENGTH != 2
+                or BALANCED_TERNARY_MAX_OUTPUT_BYTES != 41
+                or input_spec.get("encoding") != "[value]"
+                or input_spec.get("value_range") != [-(1 << 63), (1 << 63) - 1]
+                or input_spec.get("exact_length") != 1
+                or input_spec.get("maximum_valid_length")
+                != BALANCED_TERNARY_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length")
+                != BALANCED_TERNARY_MAX_PARSEABLE_INPUT_LENGTH
+                or output_spec.get("maximum_bytes") != BALANCED_TERNARY_MAX_OUTPUT_BYTES
+                or output_spec.get("success_result") != "number of bytes written"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes")
+                != BALANCED_TERNARY_MAX_OUTPUT_BYTES):
+            raise ValueError("balanced_ternary_conversion metadata differs from its signed-i64 profile")
+        issues = balanced_ternary_conversion_static_issues()
+        if issues:
+            raise ValueError("balanced_ternary_conversion package is incomplete: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "all_shortest_paths_unweighted":
+        package_workload = ROOT / "benchmarks/a/all_shortest_paths_unweighted/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("all_shortest_paths_unweighted workload differs from its package file")
+        if workload.get("workspace", {}).get("bytes") != ALL_SHORTEST_PATHS_WORKSPACE_BYTES:
+            raise ValueError("all_shortest_paths_unweighted workspace differs from its predecessor-DAG profile")
+        if (workload.get("input", {}).get("maximum_valid_length") != 132
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != ALL_SHORTEST_PATHS_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_path_count") != 162
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != ALL_SHORTEST_PATHS_MAX_OUTPUT_BYTES):
+            raise ValueError("all_shortest_paths_unweighted metadata differs from its bounded path profile")
+        issues = check_all_shortest_paths_unweighted_inventory()
+        if issues:
+            raise ValueError("all_shortest_paths_unweighted package is incomplete: "
+                             + "; ".join(issues))
         return
     if algorithm == "suffix_array_sais":
         package_workload = ROOT / "benchmarks/s/suffix_array_sais/workload.json"

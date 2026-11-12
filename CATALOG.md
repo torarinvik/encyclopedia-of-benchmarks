@@ -5526,3 +5526,75 @@ This bounded connected-graph profile classifies each input edge as absent from a
 ## Two-dimensional trapped rainwater (`trapping_rain_water_ii`)
 
 This bounded terrain profile totals retained water by escaping from the grid boundary. Ten language ports use a min-heap flood that visits cells in increasing effective escape height; an independent oracle tests per-cell escape by threshold search and BFS. It differs from the one-dimensional profile maxima/two-pointer methods and local flood-fill operation. See the [guide](benchmarks/t/trapping_rain_water_ii/README.md), [workload](benchmarks/t/trapping_rain_water_ii/workload.json), [rights note](benchmarks/t/trapping_rain_water_ii/RIGHTS.md), and [title/topic index](https://leetcode.com/problems/trapping-rain-water-ii/).
+
+## Hash join (`hash_join`)
+
+This bounded relational profile hashes the smaller input relation, preserving all duplicate row IDs in insertion order, then probes the other relation. Ten language ports emit one byte per matching row pair, packed with left and right row IDs in separate nibbles; ties build the right side. See the [guide](benchmarks/h/hash_join/README.md), [workload](benchmarks/h/hash_join/workload.json), and [rights note](benchmarks/h/hash_join/RIGHTS.md).
+
+## Bishop placement count (`bishop_placements_count`)
+
+This bounded combinatorics profile counts exact placements of indistinguishable bishops that do not share a diagonal. Ten language ports split the diagonal-size recurrence by square color and combine the counts; an independent diagonal-mask subset DP checks the results. See the [guide](benchmarks/b/bishop_placements_count/README.md), [workload](benchmarks/b/bishop_placements_count/workload.json), and [rights note](benchmarks/b/bishop_placements_count/RIGHTS.md).
+
+## Planar face counting (`planar_face_count`)
+
+This bounded geometry profile accepts connected simple planar straight-line graphs and counts their faces, including the unbounded face. Ten language ports sort incident neighbors by polar angle and traverse directed-edge face orbits; an independent oracle checks the validated input and applies Euler's formula. See the [guide](benchmarks/p/planar_face_count/README.md), [workload](benchmarks/p/planar_face_count/workload.json), and [rights note](benchmarks/p/planar_face_count/RIGHTS.md).
+
+## Karp minimum directed cycle mean (`minimum_mean_cycle_karp`)
+
+This bounded strongly connected directed-graph profile returns the exact reduced rational mean weight of its minimum-mean cycle. Ten ports use Karp's exact-length path-cost DP and min-max characterization; an independent oracle enumerates simple directed cycles. It differs from negative-cycle detection, which asks only whether any cycle has negative total weight, and from shortest-path algorithms. See the [guide](benchmarks/m/minimum_mean_cycle_karp/README.md), [workload](benchmarks/m/minimum_mean_cycle_karp/workload.json), [rights note](benchmarks/m/minimum_mean_cycle_karp/RIGHTS.md), and Karp's [1978 paper](https://doi.org/10.1016/0012-365X(78)90011-0).
+
+## Johnson's two-machine flow shop (`johnson_two_machine_flow_shop`)
+
+This bounded scheduling profile minimizes the makespan when every job visits two machines in the same order. Ten ports apply Johnson's partition-and-sort rule with deterministic input-index ties; an independent exhaustive permutation oracle checks the optimum. It differs from one-machine weighted completion scheduling and from assembly-line routing. See the [guide](benchmarks/j/johnson_two_machine_flow_shop/README.md), [workload](benchmarks/j/johnson_two_machine_flow_shop/workload.json), and [rights note](benchmarks/j/johnson_two_machine_flow_shop/RIGHTS.md).
+
+## Undirected Chinese postman (`undirected_chinese_postman`)
+
+This bounded weighted-graph profile returns the minimum closed walk that traverses each edge. Ten ports use Floyd–Warshall distances followed by minimum bitmask pairing of odd-degree vertices; an independent Dijkstra search over current vertex and covered-edge mask checks the route cost directly. See the [guide](benchmarks/u/undirected_chinese_postman/README.md), [workload](benchmarks/u/undirected_chinese_postman/workload.json), and [rights note](benchmarks/u/undirected_chinese_postman/RIGHTS.md).
+
+## All shortest paths in an unweighted graph (`all_shortest_paths_unweighted`)
+
+This bounded graph profile emits every shortest path between two vertices in lexicographic order, one byte per vertex followed by `0xff`. Ten ports build a BFS predecessor DAG; a separate Floyd–Warshall distance oracle checks the paths. The contract caps output at 162 paths and 1296 bytes and declares 4096 bytes of workspace. See the [guide](benchmarks/a/all_shortest_paths_unweighted/README.md), [workload](benchmarks/a/all_shortest_paths_unweighted/workload.json), and [rights note](benchmarks/a/all_shortest_paths_unweighted/RIGHTS.md).
+
+## Maximum number of jobs before deadlines (`max_jobs_before_deadlines`)
+
+This bounded single-machine scheduling profile selects the largest set of nonpreemptive jobs that can all finish by their deadlines. Ten ports sweep deadline intervals in reverse and retain remaining durations in a min-heap; an independent subset enumerator tests feasibility in earliest-deadline order. See the [guide](benchmarks/d/max_jobs_before_deadlines/README.md), [workload](benchmarks/d/max_jobs_before_deadlines/workload.json), and [rights note](benchmarks/d/max_jobs_before_deadlines/RIGHTS.md).
+
+## Connected labeled graph count (`connected_labeled_graph_count`)
+
+This bounded counting profile returns the number of connected simple undirected graphs on `N` labeled vertices modulo 998244353. Ten ports use the rooted-component recurrence; an independent formal-series EGF oracle checks the count. See the [guide](benchmarks/c/connected_labeled_graph_count/README.md), [workload](benchmarks/c/connected_labeled_graph_count/workload.json), and [rights note](benchmarks/c/connected_labeled_graph_count/RIGHTS.md).
+
+## Dynamic MEX with point updates (`dynamic_mex_updates`)
+
+This bounded sequence profile reports the minimum excluded nonnegative value after each point replacement. Ten ports maintain frequencies on `0..N` and descend a segment tree to find the first unoccupied value; an independent array scan checks each result. The byte-output contract returns one little-endian i64 per update and supports up to 32 updates. See the [guide](benchmarks/d/dynamic_mex_updates/README.md), [workload](benchmarks/d/dynamic_mex_updates/workload.json), and [rights note](benchmarks/d/dynamic_mex_updates/RIGHTS.md).
+
+## Bostan–Mori recurrence term (`bostan_mori_recurrence_term`)
+
+This bounded modular profile extracts a requested term from an order-at-most-eight linear recurrence for indices up to `10^18`. Ten ports use Bostan–Mori numerator/denominator parity reduction; an independent companion-matrix exponentiation oracle checks the result. See the [guide](benchmarks/b/bostan_mori_recurrence_term/README.md), [workload](benchmarks/b/bostan_mori_recurrence_term/workload.json), and [rights note](benchmarks/b/bostan_mori_recurrence_term/RIGHTS.md).
+
+## Circle-line intersection counts (`circle_line_intersection_count`)
+
+This bounded geometry profile classifies each supplied infinite line against an integer circle as having zero, one, or two intersection points. Ten ports use the exact translated-line discriminant; an independent oracle derives the quadratic discriminant by parameterizing the line. Up to 32 counts are returned as little-endian i64 values. See the [guide](benchmarks/c/circle_line_intersection_count/README.md), [workload](benchmarks/c/circle_line_intersection_count/workload.json), and [rights note](benchmarks/c/circle_line_intersection_count/RIGHTS.md).
+
+## Common tangents to two circles (`common_tangents_two_circles`)
+
+This bounded exact-geometry profile counts distinct common tangent lines for two integer circles, including the one-line and three-line tangency cases and zero-radius point circles. Ten ports enumerate signed-radius discriminants; an independent squared-distance threshold oracle checks the counts. The scalar suite includes threshold-adjacent, deterministic generated, maximum-coordinate, malformed, and null-input probes. See the [guide](benchmarks/c/common_tangents_two_circles/README.md), [workload](benchmarks/c/common_tangents_two_circles/workload.json), and [rights note](benchmarks/c/common_tangents_two_circles/RIGHTS.md).
+
+## Functional graph cycle parameters (`functional_graph_cycle_parameters`)
+
+This bounded successor-map profile returns the preperiod and eventual cycle length from a selected node, encoded as `65*mu+lambda`. Ten ports use Floyd's constant-space tortoise-and-hare method; an independent first-seen table oracle checks the result. The scalar suite includes generated functional graphs, a maximum-length tail, malformed maps, and null input. See the [guide](benchmarks/f/functional_graph_cycle_parameters/README.md), [workload](benchmarks/f/functional_graph_cycle_parameters/workload.json), [rights note](benchmarks/f/functional_graph_cycle_parameters/RIGHTS.md), and the [CP-Algorithms description](https://cp-algorithms.com/others/tortoise_and_hare.html).
+
+## Largest zero submatrix (`largest_zero_submatrix`)
+
+This bounded binary-matrix profile returns the maximum area of an axis-aligned all-zero rectangle. Ten ports update each column's most recent one and use left/right monotone-stack blockers per row; an independent oracle enumerates rectangles and inspects their cells. See the [guide](benchmarks/l/largest_zero_submatrix/README.md), [workload](benchmarks/l/largest_zero_submatrix/workload.json), and [rights note](benchmarks/l/largest_zero_submatrix/RIGHTS.md).
+
+## Maximum frequency stack (`maximum_frequency_stack`)
+
+This bounded online stack removes a value with the highest current frequency, breaking ties by the most recent active push. Ten ports maintain stacks indexed by frequency; an independent oracle rescans the active sequence after every pop. Each pop emits one little-endian i64 value, with at most 256 output bytes. See the [guide](benchmarks/m/maximum_frequency_stack/README.md), [workload](benchmarks/m/maximum_frequency_stack/workload.json), and [rights note](benchmarks/m/maximum_frequency_stack/RIGHTS.md).
+
+## Balanced ternary conversion (`balanced_ternary_conversion`)
+
+This bounded integer conversion profile accepts any signed i64 and returns its canonical radix-three representation with digits `Z`, `0`, and `1`. Ten ports use repeated signed-division normalization; an independent oracle carries through ordinary ternary digits and inverts them for negative inputs. The output is at most 41 ASCII bytes. See the [guide](benchmarks/b/balanced_ternary_conversion/README.md), [workload](benchmarks/b/balanced_ternary_conversion/workload.json), and [rights note](benchmarks/b/balanced_ternary_conversion/RIGHTS.md).
+
+## Tree edge painting and path counts (`tree_edge_paint_path_count`)
+
+This bounded tree trace idempotently paints edges and sums painted-edge counts over vertex-to-vertex path queries. Ten ports record both directions of a DFS Euler tour in segment trees and split each query at its LCA; an independent oracle uses BFS to reconstruct each path directly. See the [guide](benchmarks/t/tree_edge_paint_path_count/README.md), [workload](benchmarks/t/tree_edge_paint_path_count/workload.json), and [rights note](benchmarks/t/tree_edge_paint_path_count/RIGHTS.md).

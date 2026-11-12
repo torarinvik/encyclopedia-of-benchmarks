@@ -1,0 +1,80 @@
+# Build a key multimap for the smaller side, then probe in source order.
+const HJ_MAX_ROWS: usize = 8
+const HJ_HASH_CAPACITY: usize = 17
+const HJ_MAX_INPUT: usize = 19
+const HJ_MAX_OUTPUT: usize = 64
+
+def hj_bucket(key: i64) -> usize:
+    remainder: mutable i64 = key % 17
+    if remainder < 0: remainder <- remainder + 17
+    remainder.usize()
+
+def hj_impl(input: view[i64], length: usize, output: mutable view[u8], capacity: usize,
+            output_is_null: bool) -> i64:
+    if length < 2 or length > HJ_MAX_INPUT: return -1
+    left_value: i64 = input[0]
+    right_value: i64 = input[1]
+    if left_value < 0 or left_value > 8 or right_value < 0 or right_value > 8: return -1
+    left_count: usize = left_value.usize()
+    right_count: usize = right_value.usize()
+    if length != 2 + left_count + right_count: return -1
+
+    build_left: bool = left_count < right_count
+    build_count: usize = if build_left then left_count else right_count
+    probe_count: usize = if build_left then right_count else left_count
+    build_offset: usize = if build_left then 2 else 2 + left_count
+    probe_offset: usize = if build_left then 2 + left_count else 2
+    keys: mutable i64[17] = zeroed
+    occupied: mutable bool[17] = zeroed
+    heads: mutable i64[17] = zeroed
+    tails: mutable i64[17] = zeroed
+    next_row: mutable i64[8] = zeroed
+    staged: mutable u8[64] = zeroed
+    for slot in 0..<HJ_HASH_CAPACITY:
+        heads[slot] <- -1
+        tails[slot] <- -1
+    for row in 0..<HJ_MAX_ROWS:
+        next_row[row] <- -1
+
+    for row in 0..<build_count:
+        key: i64 = input[build_offset + row]
+        slot: mutable usize = hj_bucket(key)
+        while occupied[slot] and keys[slot] != key:
+            slot <- (slot + 1) % HJ_HASH_CAPACITY
+        if not occupied[slot]:
+            occupied[slot] <- true
+            keys[slot] <- key
+        if tails[slot] < 0:
+            heads[slot] <- row.i64()
+        else:
+            next_row[tails[slot].usize()] <- row.i64()
+        tails[slot] <- row.i64()
+
+    match_count: mutable usize = 0
+    for probe_row in 0..<probe_count:
+        key: i64 = input[probe_offset + probe_row]
+        slot: mutable usize = hj_bucket(key)
+        while occupied[slot] and keys[slot] != key:
+            slot <- (slot + 1) % HJ_HASH_CAPACITY
+        if not occupied[slot]: continue
+        build_row: mutable i64 = heads[slot]
+        while build_row >= 0:
+            build_id: usize = build_row.usize()
+            left_id: usize = if build_left then build_id else probe_row
+            right_id: usize = if build_left then probe_row else build_id
+            staged[match_count] <- ((left_id << 4) | right_id).u8()
+            match_count <- match_count + 1
+            build_row <- next_row[build_id]
+
+    if output_is_null or capacity < match_count: return -2
+    for index in 0..<match_count:
+        output[index] <- staged[index]
+    match_count.i64()
+
+export fn hash_join(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > HJ_MAX_INPUT: return -1
+    dummy: mutable u8[64] = zeroed
+    if output.is_null():
+        return hj_impl(input[0:length], length, dummy[0:64], capacity, true)
+    output_view: mutable view[u8] = output[0:capacity]
+    hj_impl(input[0:length], length, output_view, capacity, false)

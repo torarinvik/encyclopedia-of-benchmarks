@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "rosettacode-hash-join-bounded-v1",
+  "algorithm": "hash_join",
+  "function_symbol": "hash_join",
+  "abi": "i64_array_bytes_output",
+  "description": "Inner-join two integer-key relations by hashing the smaller side and probing the other.",
+  "source": {
+    "title": "Hash join",
+    "authors": ["Rosetta Code contributors"],
+    "url": "https://rosettagit.org/tasks/hash-join/",
+    "license": "GFDL-1.3-or-later",
+    "implementation_status": "bounded clean-room profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[left_count,right_count,left_keys...,right_keys...]",
+    "rows_per_relation_range": [0, 8],
+    "key_range": "all signed i64 values",
+    "exact_length": "2 + left_count + right_count",
+    "maximum_valid_length": 18,
+    "maximum_parseable_length": 19,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_string",
+    "encoding": "one byte per match: upper nibble is the zero-based left row ID, lower nibble is the zero-based right row ID",
+    "maximum_output_bytes": 64,
+    "success_result": "number of joined rows",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "minimum_bytes": 64,
+    "meaning": "Fixed 17-slot open-addressed key table, duplicate-row chains, and staged match bytes."
+  },
+  "complexity": {
+    "primary_expected_time": "O(left_count + right_count + match_count)",
+    "primary_worst_case_time": "O(build_count^2 + probe_count*distinct_build_keys + match_count)",
+    "primary_auxiliary_space": "O(HASH_CAPACITY + build_count + match_count)",
+    "independent_oracle_time": "O(left_count*right_count)",
+    "independent_oracle_space": "O(match_count)"
+  },
+  "ordering": "Build the smaller relation; ties build right. Probe rows are visited in their source-table order, and matching build rows are visited in source-table order. Bytes encode row IDs in left/right order regardless of which side is built.",
+  "oracle_method": "The primary uses open addressing to locate each distinct build key and a linked posting chain to retain duplicate row IDs. The independent oracle compares every left/right key pair directly, arranging its loops to match the documented probe/build order.",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"duplicate_keys_and_unmatched_rows","input_values":[5,5,5,2,5,7,9,5,5,2,9,12],"input_length":12,"output_capacity":64,"expected_result":6,"expected_output_hex":"000112202143"},
+    {"id":"left_is_smaller_and_hash_collision","input_values":[2,4,1,18,18,1,18,99],"input_length":8,"output_capacity":64,"expected_result":3,"expected_output_hex":"100112"},
+    {"id":"negative_key_and_normalized_hash_collision","input_values":[2,3,-1,16,16,-1,16],"input_length":7,"output_capacity":64,"expected_result":3,"expected_output_hex":"100112"},
+    {"id":"right_is_smaller","input_values":[4,2,0,18,1,35,18,35],"input_length":8,"output_capacity":64,"expected_result":2,"expected_output_hex":"1031"},
+    {"id":"empty_result","input_values":[2,2,1,2,3,4],"input_length":6,"output_capacity":64,"expected_result":0,"expected_output_hex":""},
+    {"id":"empty_left_relation","input_values":[0,3,5,5,9],"input_length":5,"output_capacity":64,"expected_result":0,"expected_output_hex":""},
+    {"id":"maximum_rows_and_matches","input_values":[8,8,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42],"input_length":18,"output_capacity":64,"expected_result":64,"expected_output_hex":"00010203040506071011121314151617202122232425262730313233343536374041424344454647505152535455565760616263646566677071727374757677"},
+    {"id":"maximum_parseable_trailing_value","input_values":[8,8,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,9],"input_length":19,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative_count","input_values":[-1,0],"input_length":2,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_frame","input_values":[2,2,1,2,3],"input_length":5,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[2,2,1,1,1,1],"input_length":6,"output_capacity":1,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output_even_for_empty_join","input_values":[0,0],"input_length":2,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

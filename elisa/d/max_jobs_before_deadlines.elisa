@@ -1,0 +1,117 @@
+const MAX_JOBS: usize = 12
+
+def max_jobs_heap_before(left_duration: i64, left_id: i64,
+                         right_duration: i64, right_id: i64) -> bool:
+    left_duration < right_duration or
+        (left_duration == right_duration and left_id < right_id)
+
+def max_jobs_heap_push(durations: mutable view[i64], ids: mutable view[i64],
+                       size: mutable view[usize], duration: i64, id: i64) -> void:
+    index: mutable usize = size[0]
+    size[0] <- size[0] + 1
+    while index > 0:
+        parent: usize = (index - 1) / 2
+        if not max_jobs_heap_before(duration, id, durations[parent], ids[parent]):
+            break
+        durations[index] <- durations[parent]
+        ids[index] <- ids[parent]
+        index <- parent
+    durations[index] <- duration
+    ids[index] <- id
+
+def max_jobs_heap_pop(durations: mutable view[i64], ids: mutable view[i64],
+                      size: mutable view[usize], result_duration: mutable view[i64],
+                      result_id: mutable view[i64]) -> void:
+    result_duration[0] <- durations[0]
+    result_id[0] <- ids[0]
+    size[0] <- size[0] - 1
+    if size[0] == 0:
+        return
+    last_duration: i64 = durations[size[0]]
+    last_id: i64 = ids[size[0]]
+    index: mutable usize = 0
+    while 2 * index + 1 < size[0]:
+        child: mutable usize = 2 * index + 1
+        if child + 1 < size[0] and max_jobs_heap_before(
+                durations[child + 1], ids[child + 1], durations[child], ids[child]):
+            child <- child + 1
+        if not max_jobs_heap_before(durations[child], ids[child], last_duration, last_id):
+            break
+        durations[index] <- durations[child]
+        ids[index] <- ids[child]
+        index <- child
+    durations[index] <- last_duration
+    ids[index] <- last_id
+
+def max_jobs_before_deadlines_impl(input: view[i64]) -> i64:
+    if input.length < 1 or input.length > 1 + 2 * MAX_JOBS:
+        return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > MAX_JOBS.i64():
+        return -1
+    count: usize = count_value.usize()
+    if input.length != 1 + 2 * count:
+        return -1
+
+    deadlines: mutable i64[MAX_JOBS] = zeroed
+    durations: mutable i64[MAX_JOBS] = zeroed
+    ids: mutable i64[MAX_JOBS] = zeroed
+    for index in 0..<count:
+        deadline: i64 = input[1 + 2 * index]
+        duration: i64 = input[2 + 2 * index]
+        if deadline < 0 or deadline > 1000 or duration < 1 or duration > 1000:
+            return -1
+        deadlines[index] <- deadline
+        durations[index] <- duration
+        ids[index] <- index.i64()
+
+    index: mutable usize = 1
+    while index < count:
+        item_deadline: i64 = deadlines[index]
+        item_duration: i64 = durations[index]
+        item_id: i64 = ids[index]
+        position: mutable usize = index
+        while position > 0 and deadlines[position - 1] > item_deadline:
+            deadlines[position] <- deadlines[position - 1]
+            durations[position] <- durations[position - 1]
+            ids[position] <- ids[position - 1]
+            position <- position - 1
+        deadlines[position] <- item_deadline
+        durations[position] <- item_duration
+        ids[position] <- item_id
+        index <- index + 1
+
+    heap_durations: mutable i64[MAX_JOBS] = zeroed
+    heap_ids: mutable i64[MAX_JOBS] = zeroed
+    heap_size: mutable usize[1] = zeroed
+    duration_view: mutable view[i64] = heap_durations[0:MAX_JOBS]
+    id_view: mutable view[i64] = heap_ids[0:MAX_JOBS]
+    size_view: mutable view[usize] = heap_size[0:1]
+    result_duration: mutable i64[1] = zeroed
+    result_id: mutable i64[1] = zeroed
+    result_duration_view: mutable view[i64] = result_duration[0:1]
+    result_id_view: mutable view[i64] = result_id[0:1]
+    completed: mutable i64 = 0
+    end: mutable usize = count
+    while end > 0:
+        end <- end - 1
+        max_jobs_heap_push(duration_view, id_view, size_view, durations[end], ids[end])
+        lower: i64 = if end == 0: 0 else: deadlines[end - 1]
+        interval: mutable i64 = deadlines[end] - lower
+        while interval > 0 and heap_size[0] > 0:
+            max_jobs_heap_pop(duration_view, id_view, size_view,
+                              result_duration_view, result_id_view)
+            if result_duration[0] <= interval:
+                interval <- interval - result_duration[0]
+                completed <- completed + 1
+            else:
+                max_jobs_heap_push(duration_view, id_view, size_view,
+                                   result_duration[0] - interval, result_id[0])
+                interval <- 0
+    completed
+
+export fn max_jobs_before_deadlines(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > 1 + 2 * MAX_JOBS:
+        return -1
+    input_view: view[i64] = input[0:length]
+    max_jobs_before_deadlines_impl(input_view)

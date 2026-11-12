@@ -1713,6 +1713,115 @@ from trapping_rain_water_ii_oracle import (
 from check_trapping_rain_water_ii_package import (
     static_issues as trapping_rain_water_ii_static_issues,
 )
+from planar_face_count_oracle import (
+    MAX_INPUT_LENGTH as PLANAR_FACE_COUNT_MAX_INPUT_LENGTH,
+    expected_result as planar_face_count_expected,
+)
+from check_planar_face_count_package import (
+    static_issues as planar_face_count_static_issues,
+)
+from bishop_placements_count_oracle import (
+    MAX_K as BISHOP_PLACEMENTS_COUNT_MAX_K,
+    MAX_N as BISHOP_PLACEMENTS_COUNT_MAX_N,
+    expected_result as bishop_placements_count_expected,
+)
+from check_bishop_placements_count_package import (
+    static_issues as bishop_placements_count_static_issues,
+)
+BISHOP_PLACEMENTS_COUNT_MAX_INPUT_LENGTH = 3
+from johnson_two_machine_flow_shop_oracle import (
+    MAX_INPUT_LENGTH as JOHNSON_TWO_MACHINE_FLOW_SHOP_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as JOHNSON_TWO_MACHINE_FLOW_SHOP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_JOBS as JOHNSON_TWO_MACHINE_FLOW_SHOP_MAX_JOBS,
+    MAX_TIME as JOHNSON_TWO_MACHINE_FLOW_SHOP_MAX_TIME,
+    expected_result as johnson_two_machine_flow_shop_expected,
+)
+from check_johnson_two_machine_flow_shop_package import (
+    static_issues as johnson_two_machine_flow_shop_static_issues,
+)
+from undirected_chinese_postman_oracle import (
+    MAX_INPUT_LENGTH as UNDIRECTED_CHINESE_POSTMAN_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as UNDIRECTED_CHINESE_POSTMAN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VERTICES as UNDIRECTED_CHINESE_POSTMAN_MAX_VERTICES,
+    MAX_EDGES as UNDIRECTED_CHINESE_POSTMAN_MAX_EDGES,
+    MAX_WEIGHT as UNDIRECTED_CHINESE_POSTMAN_MAX_WEIGHT,
+    expected_result as undirected_chinese_postman_expected,
+)
+from check_undirected_chinese_postman_package import (
+    static_issues as undirected_chinese_postman_static_issues,
+)
+from max_jobs_before_deadlines_oracle import (
+    MAX_JOBS as MAX_JOBS_BEFORE_DEADLINES_MAX_JOBS,
+    MAX_DEADLINE as MAX_JOBS_BEFORE_DEADLINES_MAX_DEADLINE,
+    MAX_DURATION as MAX_JOBS_BEFORE_DEADLINES_MAX_DURATION,
+    MAX_VALID_INPUT_LENGTH as MAX_JOBS_BEFORE_DEADLINES_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MAX_JOBS_BEFORE_DEADLINES_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as max_jobs_before_deadlines_expected,
+)
+from check_max_jobs_before_deadlines_package import (
+    static_issues as max_jobs_before_deadlines_static_issues,
+)
+from connected_labeled_graph_count_oracle import (
+    MAX_N as CONNECTED_LABELED_GRAPH_COUNT_MAX_N,
+    MODULUS as CONNECTED_LABELED_GRAPH_COUNT_MODULUS,
+    MAX_VALID_INPUT_LENGTH as CONNECTED_LABELED_GRAPH_COUNT_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CONNECTED_LABELED_GRAPH_COUNT_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as connected_labeled_graph_count_expected,
+)
+from bostan_mori_recurrence_term_oracle import (
+    MAX_ORDER as BOSTAN_MORI_MAX_ORDER,
+    MAX_INDEX as BOSTAN_MORI_MAX_INDEX,
+    MODULUS as BOSTAN_MORI_MODULUS,
+    MAX_VALID_INPUT_LENGTH as BOSTAN_MORI_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as BOSTAN_MORI_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as bostan_mori_recurrence_term_expected,
+)
+from check_bostan_mori_recurrence_term_package import (
+    static_issues as bostan_mori_recurrence_term_static_issues,
+)
+from check_connected_labeled_graph_count_package import (
+    static_issues as connected_labeled_graph_count_static_issues,
+)
+from common_tangents_two_circles_oracle import (
+    MAX_COORDINATE as COMMON_TANGENTS_TWO_CIRCLES_MAX_COORDINATE,
+    MAX_INPUT_LENGTH as COMMON_TANGENTS_TWO_CIRCLES_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as COMMON_TANGENTS_TWO_CIRCLES_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RADIUS as COMMON_TANGENTS_TWO_CIRCLES_MAX_RADIUS,
+    expected_result as common_tangents_two_circles_expected,
+)
+from check_common_tangents_two_circles_package import (
+    static_issues as common_tangents_two_circles_static_issues,
+)
+from functional_graph_cycle_parameters_oracle import (
+    ENCODING_BASE as FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_ENCODING_BASE,
+    MAX_N as FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_MAX_VALID_INPUT_LENGTH,
+    expected_result as functional_graph_cycle_parameters_expected,
+)
+from largest_zero_submatrix_oracle import (
+    MAX_ROWS as LARGEST_ZERO_SUBMATRIX_MAX_ROWS,
+    MAX_COLUMNS as LARGEST_ZERO_SUBMATRIX_MAX_COLUMNS,
+    MAX_VALID_INPUT_LENGTH as LARGEST_ZERO_SUBMATRIX_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as LARGEST_ZERO_SUBMATRIX_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as largest_zero_submatrix_expected,
+)
+from check_largest_zero_submatrix_package import (
+    static_issues as largest_zero_submatrix_static_issues,
+)
+from check_functional_graph_cycle_parameters_package import (
+    static_issues as functional_graph_cycle_parameters_static_issues,
+)
+from tree_edge_paint_path_count_oracle import (
+    MAX_N as TREE_EDGE_PAINT_PATH_COUNT_MAX_N,
+    MAX_QUERIES as TREE_EDGE_PAINT_PATH_COUNT_MAX_QUERIES,
+    MAX_VALID_INPUT_LENGTH as TREE_EDGE_PAINT_PATH_COUNT_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as TREE_EDGE_PAINT_PATH_COUNT_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as tree_edge_paint_path_count_expected,
+)
+from check_tree_edge_paint_path_count_package import (
+    static_issues as tree_edge_paint_path_count_static_issues,
+)
 
 
 def validate_three_edge_connected_components_workload(workload: dict) -> None:
@@ -1887,6 +1996,198 @@ def validate_trapping_rain_water_ii_workload(workload: dict) -> None:
     issues = trapping_rain_water_ii_static_issues()
     if issues:
         raise ValueError("trapping_rain_water_ii package is incomplete: " + "; ".join(issues))
+
+
+def validate_planar_face_count_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/p/planar_face_count/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("planar_face_count workload differs from its package file")
+    issues = planar_face_count_static_issues()
+    if issues:
+        raise ValueError("planar_face_count package is incomplete: " + "; ".join(issues))
+
+
+def validate_bishop_placements_count_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/b/bishop_placements_count/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("bishop_placements_count workload differs from its package file")
+    if (workload.get("input", {}).get("board_size_range") != [1, BISHOP_PLACEMENTS_COUNT_MAX_N]
+            or workload.get("input", {}).get("bishop_count_range") != [0, BISHOP_PLACEMENTS_COUNT_MAX_K]
+            or workload.get("input", {}).get("exact_length") != 2
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("bishop_placements_count workload differs from its bounded [N,K] contract")
+    issues = bishop_placements_count_static_issues()
+    if issues:
+        raise ValueError("bishop_placements_count package is incomplete: " + "; ".join(issues))
+
+
+def validate_johnson_two_machine_flow_shop_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/j/johnson_two_machine_flow_shop/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("johnson_two_machine_flow_shop workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (input_contract.get("job_count_range") != [1, JOHNSON_TWO_MACHINE_FLOW_SHOP_MAX_JOBS]
+            or input_contract.get("processing_time_range") != [0, JOHNSON_TWO_MACHINE_FLOW_SHOP_MAX_TIME]
+            or input_contract.get("exact_length") != "1+2*N"
+            or input_contract.get("maximum_valid_length") != JOHNSON_TWO_MACHINE_FLOW_SHOP_MAX_INPUT_LENGTH
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("johnson_two_machine_flow_shop workload differs from its bounded schedule contract")
+    issues = johnson_two_machine_flow_shop_static_issues()
+    if issues:
+        raise ValueError("johnson_two_machine_flow_shop package is incomplete: " + "; ".join(issues))
+
+
+def validate_undirected_chinese_postman_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/u/undirected_chinese_postman/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("undirected_chinese_postman workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (input_contract.get("vertex_range") != [1, UNDIRECTED_CHINESE_POSTMAN_MAX_VERTICES]
+            or input_contract.get("edge_count_range") != [0, UNDIRECTED_CHINESE_POSTMAN_MAX_EDGES]
+            or input_contract.get("positive_edge_weight_range") != [1, UNDIRECTED_CHINESE_POSTMAN_MAX_WEIGHT]
+            or input_contract.get("exact_length") != "2+3*M"
+            or input_contract.get("maximum_valid_length") != UNDIRECTED_CHINESE_POSTMAN_MAX_INPUT_LENGTH
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("undirected_chinese_postman workload differs from its bounded route-inspection contract")
+    issues = undirected_chinese_postman_static_issues()
+    if issues:
+        raise ValueError("undirected_chinese_postman package is incomplete: " + "; ".join(issues))
+
+
+def validate_max_jobs_before_deadlines_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/d/max_jobs_before_deadlines/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("max_jobs_before_deadlines workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (input_contract.get("job_count_range") != [0, MAX_JOBS_BEFORE_DEADLINES_MAX_JOBS]
+            or input_contract.get("deadline_range") != [0, MAX_JOBS_BEFORE_DEADLINES_MAX_DEADLINE]
+            or input_contract.get("duration_range") != [1, MAX_JOBS_BEFORE_DEADLINES_MAX_DURATION]
+            or input_contract.get("exact_length") != "1+2*N"
+            or input_contract.get("maximum_valid_length") != MAX_JOBS_BEFORE_DEADLINES_MAX_INPUT_LENGTH
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("max_jobs_before_deadlines workload differs from its bounded EDF profile")
+    issues = max_jobs_before_deadlines_static_issues()
+    if issues:
+        raise ValueError("max_jobs_before_deadlines package is incomplete: " + "; ".join(issues))
+
+
+def validate_connected_labeled_graph_count_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/c/connected_labeled_graph_count/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("connected_labeled_graph_count workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (input_contract.get("vertex_count_range") != [1, CONNECTED_LABELED_GRAPH_COUNT_MAX_N]
+            or input_contract.get("exact_length") != CONNECTED_LABELED_GRAPH_COUNT_MAX_INPUT_LENGTH
+            or input_contract.get("maximum_valid_length") != CONNECTED_LABELED_GRAPH_COUNT_MAX_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != CONNECTED_LABELED_GRAPH_COUNT_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or workload.get("output", {}).get("modulus") != CONNECTED_LABELED_GRAPH_COUNT_MODULUS
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("connected_labeled_graph_count workload differs from its bounded modular profile")
+    issues = connected_labeled_graph_count_static_issues()
+    if issues:
+        raise ValueError("connected_labeled_graph_count package is incomplete: " + "; ".join(issues))
+
+
+def validate_bostan_mori_recurrence_term_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/b/bostan_mori_recurrence_term/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("bostan_mori_recurrence_term workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (input_contract.get("order_range") != [1, BOSTAN_MORI_MAX_ORDER]
+            or input_contract.get("index_range") != [0, BOSTAN_MORI_MAX_INDEX]
+            or input_contract.get("coefficient_and_initial_term_range") != [0, BOSTAN_MORI_MODULUS - 1]
+            or input_contract.get("exact_length") != "2+2*d"
+            or input_contract.get("maximum_valid_length") != BOSTAN_MORI_MAX_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != BOSTAN_MORI_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or workload.get("output", {}).get("modulus") != BOSTAN_MORI_MODULUS
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("bostan_mori_recurrence_term workload differs from its bounded field profile")
+    issues = bostan_mori_recurrence_term_static_issues()
+    if issues:
+        raise ValueError("bostan_mori_recurrence_term package is incomplete: " + "; ".join(issues))
+
+
+def validate_common_tangents_two_circles_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/c/common_tangents_two_circles/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("common_tangents_two_circles workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (input_contract.get("center_coordinate_range") != [
+                -COMMON_TANGENTS_TWO_CIRCLES_MAX_COORDINATE,
+                COMMON_TANGENTS_TWO_CIRCLES_MAX_COORDINATE,
+            ]
+            or input_contract.get("radius_range") != [0, COMMON_TANGENTS_TWO_CIRCLES_MAX_RADIUS]
+            or input_contract.get("exact_length") != COMMON_TANGENTS_TWO_CIRCLES_MAX_INPUT_LENGTH
+            or input_contract.get("maximum_valid_length") != COMMON_TANGENTS_TWO_CIRCLES_MAX_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != COMMON_TANGENTS_TWO_CIRCLES_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("common_tangents_two_circles workload differs from its bounded exact geometry contract")
+    issues = common_tangents_two_circles_static_issues()
+    if issues:
+        raise ValueError("common_tangents_two_circles package is incomplete: " + "; ".join(issues))
+
+
+def validate_functional_graph_cycle_parameters_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/f/functional_graph_cycle_parameters/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("functional_graph_cycle_parameters workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (input_contract.get("n_range") != [1, FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_MAX_N]
+            or input_contract.get("exact_length") != "N+2"
+            or input_contract.get("maximum_valid_length") != FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or workload.get("output", {}).get("encoding") != "65*mu+lambda"
+            or FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_ENCODING_BASE != FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_MAX_N + 1
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("functional_graph_cycle_parameters workload differs from its bounded functional-map contract")
+    issues = functional_graph_cycle_parameters_static_issues()
+    if issues:
+        raise ValueError("functional_graph_cycle_parameters package is incomplete: " + "; ".join(issues))
+
+
+def validate_largest_zero_submatrix_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/l/largest_zero_submatrix/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("largest_zero_submatrix workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (input_contract.get("row_range") != [1, LARGEST_ZERO_SUBMATRIX_MAX_ROWS]
+            or input_contract.get("column_range") != [1, LARGEST_ZERO_SUBMATRIX_MAX_COLUMNS]
+            or input_contract.get("cell_values") != [0, 1]
+            or input_contract.get("exact_length") != "2+R*C"
+            or input_contract.get("maximum_valid_length") != LARGEST_ZERO_SUBMATRIX_MAX_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != LARGEST_ZERO_SUBMATRIX_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or workload.get("output", {}).get("result_range") != [0, 256]
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("largest_zero_submatrix workload differs from its binary-matrix contract")
+    issues = largest_zero_submatrix_static_issues()
+    if issues:
+        raise ValueError("largest_zero_submatrix package is incomplete: " + "; ".join(issues))
+
+
+def validate_tree_edge_paint_path_count_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/t/tree_edge_paint_path_count/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("tree_edge_paint_path_count workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (input_contract.get("n_range") != [1, TREE_EDGE_PAINT_PATH_COUNT_MAX_N]
+            or input_contract.get("query_count_range") != [0, TREE_EDGE_PAINT_PATH_COUNT_MAX_QUERIES]
+            or input_contract.get("exact_length") != "2+2*(N-1)+3*Q"
+            or input_contract.get("maximum_valid_length")
+            != TREE_EDGE_PAINT_PATH_COUNT_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length")
+            != TREE_EDGE_PAINT_PATH_COUNT_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or workload.get("output", {}).get("valid_range") != [0, 255]
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("tree_edge_paint_path_count workload differs from its bounded tree contract")
+    issues = tree_edge_paint_path_count_static_issues()
+    if issues:
+        raise ValueError("tree_edge_paint_path_count package is incomplete: " + "; ".join(issues))
 
 
 def validate_convex_layers_workload(workload: dict) -> None:
@@ -7115,6 +7416,28 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "steiner_tree_subset_dp" else
                         TRAPPING_RAIN_WATER_II_MAX_INPUT_LENGTH
                         if algorithm == "trapping_rain_water_ii" else
+                        PLANAR_FACE_COUNT_MAX_INPUT_LENGTH
+                        if algorithm == "planar_face_count" else
+                        BISHOP_PLACEMENTS_COUNT_MAX_INPUT_LENGTH
+                        if algorithm == "bishop_placements_count" else
+                        JOHNSON_TWO_MACHINE_FLOW_SHOP_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "johnson_two_machine_flow_shop" else
+                        UNDIRECTED_CHINESE_POSTMAN_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "undirected_chinese_postman" else
+                        MAX_JOBS_BEFORE_DEADLINES_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "max_jobs_before_deadlines" else
+                        CONNECTED_LABELED_GRAPH_COUNT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "connected_labeled_graph_count" else
+                        BOSTAN_MORI_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "bostan_mori_recurrence_term" else
+                        COMMON_TANGENTS_TWO_CIRCLES_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "common_tangents_two_circles" else
+                        FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "functional_graph_cycle_parameters" else
+                        LARGEST_ZERO_SUBMATRIX_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "largest_zero_submatrix" else
+                        TREE_EDGE_PAINT_PATH_COUNT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "tree_edge_paint_path_count" else
                         THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
                         if algorithm == "three_edge_connected_components" else
                         VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH + 1
@@ -8315,6 +8638,50 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = trapping_rain_water_ii_expected(values)
         if expected != expected_from_source:
             raise ValueError("trapping_rain_water_ii expected_result must match boundary escape levels")
+    elif algorithm == "planar_face_count":
+        expected_from_source = planar_face_count_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("planar_face_count expected_result must match directed-edge face orbits")
+    elif algorithm == "bishop_placements_count":
+        expected_from_source = bishop_placements_count_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("bishop_placements_count expected_result must match the diagonal-size recurrence")
+    elif algorithm == "johnson_two_machine_flow_shop":
+        expected_from_source = johnson_two_machine_flow_shop_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("johnson_two_machine_flow_shop expected_result must match Johnson's schedule")
+    elif algorithm == "undirected_chinese_postman":
+        expected_from_source = undirected_chinese_postman_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("undirected_chinese_postman expected_result must match closed route cost")
+    elif algorithm == "max_jobs_before_deadlines":
+        expected_from_source = max_jobs_before_deadlines_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("max_jobs_before_deadlines expected_result must match reverse-deadline selection")
+    elif algorithm == "connected_labeled_graph_count":
+        expected_from_source = connected_labeled_graph_count_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("connected_labeled_graph_count expected_result must match the connected-graph recurrence")
+    elif algorithm == "bostan_mori_recurrence_term":
+        expected_from_source = bostan_mori_recurrence_term_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("bostan_mori_recurrence_term expected_result must match Bostan–Mori coefficient extraction")
+    elif algorithm == "common_tangents_two_circles":
+        expected_from_source = common_tangents_two_circles_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("common_tangents_two_circles expected_result must match the signed-radius discriminants")
+    elif algorithm == "functional_graph_cycle_parameters":
+        expected_from_source = functional_graph_cycle_parameters_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("functional_graph_cycle_parameters expected_result must match tortoise-and-hare parameters")
+    elif algorithm == "largest_zero_submatrix":
+        expected_from_source = largest_zero_submatrix_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("largest_zero_submatrix expected_result must match row-wise blocker stacks")
+    elif algorithm == "tree_edge_paint_path_count":
+        expected_from_source = tree_edge_paint_path_count_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("tree_edge_paint_path_count expected_result must match directional-tour path counts")
     elif algorithm == "hpcc_random_access":
         expected_from_source = hpcc_random_access_expected(
             values,
@@ -22215,6 +22582,28 @@ def main() -> int:
         validate_steiner_tree_subset_dp_workload(workload)
     elif algorithm == "trapping_rain_water_ii":
         validate_trapping_rain_water_ii_workload(workload)
+    elif algorithm == "planar_face_count":
+        validate_planar_face_count_workload(workload)
+    elif algorithm == "bishop_placements_count":
+        validate_bishop_placements_count_workload(workload)
+    elif algorithm == "johnson_two_machine_flow_shop":
+        validate_johnson_two_machine_flow_shop_workload(workload)
+    elif algorithm == "undirected_chinese_postman":
+        validate_undirected_chinese_postman_workload(workload)
+    elif algorithm == "max_jobs_before_deadlines":
+        validate_max_jobs_before_deadlines_workload(workload)
+    elif algorithm == "connected_labeled_graph_count":
+        validate_connected_labeled_graph_count_workload(workload)
+    elif algorithm == "bostan_mori_recurrence_term":
+        validate_bostan_mori_recurrence_term_workload(workload)
+    elif algorithm == "common_tangents_two_circles":
+        validate_common_tangents_two_circles_workload(workload)
+    elif algorithm == "functional_graph_cycle_parameters":
+        validate_functional_graph_cycle_parameters_workload(workload)
+    elif algorithm == "largest_zero_submatrix":
+        validate_largest_zero_submatrix_workload(workload)
+    elif algorithm == "tree_edge_paint_path_count":
+        validate_tree_edge_paint_path_count_workload(workload)
     elif algorithm == "hpcc_random_access":
         validate_hpcc_random_access_workload(workload)
     elif algorithm == "convex_layers":

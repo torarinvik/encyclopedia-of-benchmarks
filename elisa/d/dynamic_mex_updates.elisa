@@ -1,0 +1,122 @@
+const MAX_N: usize = 32
+const MAX_Q: usize = 32
+const MAX_OUTPUT_BYTES: usize = 8 * MAX_Q
+
+def dmu_tree_set(tree: mutable view[i64], base: usize,
+                 value: usize, present: i64) -> void:
+    node: mutable usize = base + value
+    tree[node] <- present
+    node <- node / 2
+    while node > 0:
+        tree[node] <- tree[2 * node] + tree[2 * node + 1]
+        node <- node / 2
+
+def dmu_find_mex(tree: view[i64], base: usize, domain_size: usize) -> usize:
+    node: mutable usize = 1
+    start: mutable usize = 0
+    span: mutable usize = base
+    while span > 1:
+        half: usize = span / 2
+        left_width: usize = 0
+        if start < domain_size:
+            left_width <- if domain_size - start < half: domain_size - start else: half
+        if tree[2 * node].usize() < left_width:
+            node <- 2 * node
+            span <- half
+        else:
+            node <- 2 * node + 1
+            start <- start + half
+            span <- half
+    start
+
+def dmu_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def dynamic_mex_updates_impl(input: view[i64], output: mutable view[u8],
+                             output_is_null: bool) -> i64:
+    if input.length < 2 or input.length > 99:
+        return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or q_value < 0 or q_value > MAX_Q.i64():
+        return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if input.length != 2 + n + 2 * q:
+        return -1
+
+    current: mutable i64[MAX_N] = zeroed
+    update_indices: mutable usize[MAX_Q] = zeroed
+    update_values: mutable i64[MAX_Q] = zeroed
+    for index in 0..<n:
+        value: i64 = input[2 + index]
+        if value < -1000 or value > 1000:
+            return -1
+        current[index] <- value
+    cursor: mutable usize = 2 + n
+    for operation in 0..<q:
+        index: i64 = input[cursor]
+        value: i64 = input[cursor + 1]
+        cursor <- cursor + 2
+        if index < 0 or index >= n_value or value < -1000 or value > 1000:
+            return -1
+        update_indices[operation] <- index.usize()
+        update_values[operation] <- value
+
+    needed: usize = 8 * q
+    if needed > 0 and (output_is_null or output.length < needed):
+        return -2
+    base: mutable usize = 1
+    while base < n + 1:
+        base <- base * 2
+    frequencies: mutable i64[MAX_N + 1] = zeroed
+    tree: mutable i64[2 * (2 * MAX_N)] = zeroed
+    tree_view: mutable view[i64] = tree[0:2 * (2 * MAX_N)]
+    for index in 0..<n:
+        value: i64 = current[index]
+        if value >= 0 and value <= n_value:
+            frequencies[value.usize()] <- frequencies[value.usize()] + 1
+    for value in 0..<(n + 1):
+        tree[base + value] <- if frequencies[value] > 0: 1 else: 0
+    node: mutable usize = base
+    while node > 1:
+        node <- node - 1
+        tree[node] <- tree[2 * node] + tree[2 * node + 1]
+
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT_BYTES]
+    for operation in 0..<q:
+        index: usize = update_indices[operation]
+        old_value: i64 = current[index]
+        new_value: i64 = update_values[operation]
+        if old_value != new_value:
+            if old_value >= 0 and old_value <= n_value:
+                old_index: usize = old_value.usize()
+                frequencies[old_index] <- frequencies[old_index] - 1
+                if frequencies[old_index] == 0:
+                    dmu_tree_set(tree_view, base, old_index, 0)
+            if new_value >= 0 and new_value <= n_value:
+                new_index: usize = new_value.usize()
+                if frequencies[new_index] == 0:
+                    dmu_tree_set(tree_view, base, new_index, 1)
+                frequencies[new_index] <- frequencies[new_index] + 1
+            current[index] <- new_value
+        answer: usize = dmu_find_mex(tree_view, base, n + 1)
+        dmu_write_i64(staged_view, 8 * operation, answer.i64())
+    for byte in 0..<needed:
+        output[byte] <- staged[byte]
+    needed.i64()
+
+export fn dynamic_mex_updates(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 99:
+        return -1
+    input_view: view[i64] = input[0:length]
+    if output == null:
+        empty_storage: mutable u8[1] = zeroed
+        empty_view: mutable view[u8] = empty_storage[0:0]
+        return dynamic_mex_updates_impl(input_view, empty_view, true)
+    output_view: mutable view[u8] = output[0:capacity]
+    dynamic_mex_updates_impl(input_view, output_view, false)

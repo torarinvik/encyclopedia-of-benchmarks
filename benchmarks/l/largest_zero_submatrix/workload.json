@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-largest-zero-submatrix-i64-array-scalar-v1",
+  "algorithm": "largest_zero_submatrix",
+  "function_symbol": "largest_zero_submatrix",
+  "abi": "i64_array_scalar",
+  "description": "Maximum area of an axis-aligned all-zero rectangle in a bounded binary matrix.",
+  "source": {
+    "title": "Finding the largest zero submatrix",
+    "url": "https://cp-algorithms.com/dynamic_programming/zero_matrix.html",
+    "license": "CC BY-SA 4.0",
+    "discovery_scope": "Algorithm description and navigation taxonomy only; no source code, prose, tests, or examples copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[R,C,row_major_binary_cells...]",
+    "row_range": [1, 16],
+    "column_range": [1, 16],
+    "cell_values": [0, 1],
+    "exact_length": "2+R*C",
+    "maximum_valid_length": 258,
+    "maximum_parseable_length": 259,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "maximum all-zero rectangle area",
+    "result_range": [0, 256],
+    "invalid_input_result": -1
+  },
+  "algorithm": {
+    "primary": "Maintain the most recent one-row per column, then use monotone stacks to find each column's nearest strictly higher blocker on both sides for every bottom row.",
+    "independent_oracle": "Enumerate every top, bottom, left, and right boundary and inspect each candidate rectangle's cells directly.",
+    "primary_complexity": "O(R*C) time and O(C) auxiliary space.",
+    "oracle_complexity": "O(R^3*C^3) worst-case direct cell inspection for the bounded profile."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "all-zero-3-by-4",
+      "input_values": [3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 14,
+      "expected_result": 12
+    },
+    {
+      "id": "mixed-matrix-largest-block",
+      "input_values": [4, 5, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],
+      "input_length": 22,
+      "expected_result": 6
+    },
+    {
+      "id": "all-ones-has-no-zero-rectangle",
+      "input_values": [2, 3, 1, 1, 1, 1, 1, 1],
+      "input_length": 8,
+      "expected_result": 0
+    },
+    {
+      "id": "single-row-separated-zero-runs",
+      "input_values": [1, 7, 0, 0, 1, 0, 0, 0, 0],
+      "input_length": 9,
+      "expected_result": 4
+    },
+    {
+      "id": "single-column-run",
+      "input_values": [5, 1, 0, 1, 0, 0, 0],
+      "input_length": 7,
+      "expected_result": 3
+    },
+    {
+      "id": "one-zero-cell",
+      "input_values": [1, 1, 0],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "zero-row-count-invalid",
+      "input_values": [0, 3],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "nonbinary-cell-invalid",
+      "input_values": [2, 2, 0, 2, 0, 0],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated-matrix-invalid",
+      "input_values": [2, 2, 0, 0, 0],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing-cell-invalid",
+      "input_values": [1, 1, 0, 1],
+      "input_length": 4,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-connected-labeled-graph-count-i64-scalar-v1",
+  "algorithm": "connected_labeled_graph_count",
+  "function_symbol": "connected_labeled_graph_count",
+  "abi": "i64_array_scalar",
+  "description": "Count connected simple undirected graphs on a labeled vertex set modulo 998244353.",
+  "source": {
+    "title": "Counting labeled graphs",
+    "url": "https://cp-algorithms.com/combinatorics/counting_labeled_graphs.html",
+    "license": "CC BY-SA 4.0",
+    "discovery_scope": "Algorithm descriptions and navigation taxonomy only; no article code or prose copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N]",
+    "vertex_count_range": [1, 512],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Number of connected simple undirected graphs on N labeled vertices modulo 998244353.",
+    "modulus": 998244353,
+    "maximum_valid_result": 998244352,
+    "invalid_input_result": -1
+  },
+  "algorithm": {
+    "primary": "Use G_n=2^(n choose 2) and C_n=G_n-sum_{k=1}^{n-1} binom(n-1,k-1)*C_k*G_{n-k}, separating the root vertex's connected component.",
+    "independent_oracle": "Form A(x)=sum_n G_n*x^n/n!, invert A as a formal power series, and obtain connected counts from log(A)=integral(A'/A).",
+    "primary_complexity": "O(N^2) time and O(N) space.",
+    "independent_oracle_complexity": "O(N^2) time and O(N) space."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"one-vertex","input_values":[1],"input_length":1,"expected_result":1},
+    {"id":"two-vertices","input_values":[2],"input_length":1,"expected_result":1},
+    {"id":"triangle","input_values":[3],"input_length":1,"expected_result":4},
+    {"id":"four-vertices","input_values":[4],"input_length":1,"expected_result":38},
+    {"id":"five-vertices","input_values":[5],"input_length":1,"expected_result":728},
+    {"id":"six-vertices","input_values":[6],"input_length":1,"expected_result":26704},
+    {"id":"eight-vertices","input_values":[8],"input_length":1,"expected_result":251548592},
+    {"id":"zero-vertices-invalid","input_values":[0],"input_length":1,"expected_result":-1},
+    {"id":"negative-invalid","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"above-bound-invalid","input_values":[513],"input_length":1,"expected_result":-1},
+    {"id":"trailing-word-invalid","input_values":[2,99],"input_length":2,"expected_result":-1}
+  ]
+}

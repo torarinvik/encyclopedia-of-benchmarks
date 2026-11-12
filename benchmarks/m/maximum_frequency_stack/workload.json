@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "id": "maximum-frequency-stack-bounded-i64-array-byte-output-v1",
+  "algorithm": "maximum_frequency_stack",
+  "function_symbol": "maximum_frequency_stack",
+  "abi": "i64_array_bytes_output",
+  "description": "Online push and pop trace; each pop removes a currently most-frequent value, breaking ties by latest active insertion.",
+  "source": {
+    "title": "LeetCode public title-index candidate: Maximum Frequency Stack",
+    "url": "https://leetcode.com/tag/stack/",
+    "discovery_scope": "Public title/topic metadata only; no problem page or user-generated material consulted.",
+    "algorithm_attribution": "Clean-room frequency-indexed stacks with one current maximum-frequency counter.",
+    "implementation_status": "clean-room bounded ports"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[Q,(opcode,argument)*Q]; opcode 0 pushes argument, opcode 1 pops and requires argument 0",
+    "operation_count_range": [0, 64],
+    "value_range": [-8, 8],
+    "maximum_valid_input_length": 129,
+    "maximum_parseable_input_length": 130,
+    "empty_pop_is_invalid": true,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "One little-endian signed i64 value per pop, in pop order.",
+    "maximum_bytes": 256,
+    "success_result": "number of output bytes written; 8 bytes per pop",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_result": "-2 when at least one pop result must be written; accepted when no result bytes are required",
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Maximum output-buffer capacity; fixed arrays store at most 64 push events, 17 value frequencies, and 65 frequency-bucket heads."
+  },
+  "contract": {
+    "primary_method": "Keep each value's current frequency and a stack of push-event IDs for each frequency. A pop removes the latest event from the highest nonempty frequency bucket, then lowers that value's frequency.",
+    "tie_break": "Among values with the same current maximum frequency, remove the value whose latest still-active push occurred most recently.",
+    "independent_method": "Maintain the active push sequence; on every pop, rescan it to count each value and choose the rightmost occurrence of any value with maximum count.",
+    "complexity": "Primary O(Q) time and O(Q+V) fixed storage; independent oracle O(Q^2) time for V=17 bounded values.",
+    "error_behavior": "Reject malformed frames, out-of-range values/opcodes, nonzero pop arguments, and pops from an empty structure before writing output. Return -2 for null or undersized output only when output bytes are required."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id":"one-push-one-pop","input_values":[2,0,7,1,0],"input_length":5,"output_capacity":8,"expected_result":8,"expected_output_bytes":[7,0,0,0,0,0,0,0]},
+    {"id":"frequency-outranks-recency","input_values":[4,0,3,0,3,0,7,1,0],"input_length":9,"output_capacity":8,"expected_result":8,"expected_output_bytes":[3,0,0,0,0,0,0,0]},
+    {"id":"latest-insertion-breaks-frequency-tie","input_values":[7,0,5,0,7,0,5,0,7,1,0,1,0,1,0],"input_length":15,"output_capacity":24,"expected_result":24,"expected_output_bytes":[7,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0]},
+    {"id":"repeated-value-pushes-and-pops","input_values":[6,0,4,0,4,0,4,1,0,1,0,1,0],"input_length":13,"output_capacity":24,"expected_result":24,"expected_output_bytes":[4,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0]},
+    {"id":"maximum-operation-and-output-bound","input_values":[64,
+      0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
+      0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
+      0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
+      0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
+      1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
+      1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
+      1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
+      1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],"input_length":129,"output_capacity":256,"expected_result":256,"expected_output_bytes":[
+      1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,
+      1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,
+      1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,
+      1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
+    {"id":"signed-domain-values","input_values":[3,0,-8,0,8,1,0],"input_length":7,"output_capacity":8,"expected_result":8,"expected_output_bytes":[8,0,0,0,0,0,0,0]},
+    {"id":"empty-trace-null-output-accepted","input_values":[0],"input_length":1,"output_capacity":0,"output_is_null":true,"expected_result":0,"expected_output_bytes":[]},
+    {"id":"zero-pop-trace-null-output-accepted","input_values":[2,0,1,0,-1],"input_length":5,"output_capacity":0,"output_is_null":true,"expected_result":0,"expected_output_bytes":[]},
+    {"id":"empty-pop-is-invalid","input_values":[1,1,0],"input_length":3,"output_capacity":256,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"pop-argument-must-be-zero","input_values":[1,1,5],"input_length":3,"output_capacity":256,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"unknown-opcode-is-invalid","input_values":[1,9,0],"input_length":3,"output_capacity":256,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"push-value-out-of-range","input_values":[1,0,9],"input_length":3,"output_capacity":256,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"trailing-input-word-is-invalid","input_values":[1,0,3,99],"input_length":4,"output_capacity":256,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"undersized-output-for-two-pops","input_values":[4,0,7,0,7,1,0,1,0],"input_length":9,"output_capacity":8,"expected_result":-2,"expected_output_bytes":[]},
+    {"id":"null-output-with-pop-result","input_values":[2,0,4,1,0],"input_length":5,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_bytes":[]},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":256,"expected_result":-1,"expected_output_bytes":[]}
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-circle-line-intersection-count-i64-array-bytes-output-v1",
+  "algorithm": "circle_line_intersection_count",
+  "function_symbol": "circle_line_intersection_count",
+  "abi": "i64_array_bytes_output",
+  "description": "Counts the real intersection points between a bounded integer circle and each supplied infinite line using exact arithmetic.",
+  "source": {
+    "title": "Circle-Line Intersection",
+    "url": "https://cp-algorithms.com/geometry/circle-line-intersection.html",
+    "license": "CC BY-SA 4.0",
+    "discovery_scope": "Algorithm description and navigation taxonomy only; no source code, prose, tests, or examples copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[cx,cy,r,Q,(a,b,c)*Q]",
+    "center_coordinate_range": [-1000, 1000],
+    "radius_range": [0, 1000],
+    "query_count_range": [0, 32],
+    "normal_coefficient_range": [-100, 100],
+    "line_constant_range": [-200000, 200000],
+    "line_rule": "a and b may not both be zero",
+    "exact_length": "4+3*Q",
+    "maximum_valid_length": 100,
+    "maximum_parseable_length": 101,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one signed 64-bit little-endian intersection count (0, 1, or 2) per line",
+    "maximum_bytes": 256,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "zero_query_result": 0
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Maximum external output-buffer capacity; line coefficients and staged counts use bounded fixed storage."
+  },
+  "algorithm": {
+    "primary": "Translate each line to the circle center and compare D=r^2*(a^2+b^2)-k^2 against zero, where k=a*cx+b*cy+c.",
+    "independent_oracle": "Substitute a line parameter into the circle equation and classify the quadratic discriminant, with a direct vertical-line branch.",
+    "primary_complexity": "O(Q) time and O(Q) output staging space.",
+    "oracle_complexity": "O(Q) time and O(Q) space."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "secant-tangent-disjoint-and-translated-secants",
+      "input_values": [0, 0, 5, 4, 1, 0, 0, 1, 0, -5, 1, 0, -6, 0, 1, 3],
+      "input_length": 16,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0200000000000000010000000000000000000000000000000200000000000000"
+    },
+    {
+      "id": "translated-circle-tangent-and-disjoint",
+      "input_values": [2, -1, 3, 3, 1, 0, -2, 0, 1, -2, 1, 0, -6],
+      "input_length": 13,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "zero-radius-circle-is-a-point",
+      "input_values": [0, 0, 0, 2, 1, 1, 0, 1, 0, -1],
+      "input_length": 10,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000000000000000000"
+    },
+    {
+      "id": "negative-line-coefficients",
+      "input_values": [-4, 7, 5, 2, -2, 0, -8, 0, -1, 12],
+      "input_length": 10,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000000100000000000000"
+    },
+    {
+      "id": "zero-query-batch",
+      "input_values": [10, -10, 0, 0],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-radius-invalid",
+      "input_values": [0, 0, -1, 0],
+      "input_length": 4,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-line-normal-invalid",
+      "input_values": [0, 0, 1, 1, 0, 0, 1],
+      "input_length": 7,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "normal-coefficient-out-of-bound",
+      "input_values": [0, 0, 1, 1, 101, 0, 0],
+      "input_length": 7,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-line-record",
+      "input_values": [0, 0, 1, 1, 1, 0],
+      "input_length": 6,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-input-value",
+      "input_values": [0, 0, 1, 0, 99],
+      "input_length": 5,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [0, 0, 1, 1, 1, 0, 0],
+      "input_length": 7,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-for-nonempty-result",
+      "input_values": [0, 0, 1, 1, 1, 0, 0],
+      "input_length": 7,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

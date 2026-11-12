@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-tree-edge-paint-path-count-i64-array-scalar-v1",
+  "algorithm": "tree_edge_paint_path_count",
+  "function_symbol": "tree_edge_paint_path_count",
+  "abi": "i64_array_scalar",
+  "description": "Paint tree edges and sum painted-edge counts over an operation trace of arbitrary path queries.",
+  "source": {
+    "title": "Tree painting",
+    "url": "https://cp-algorithms.com/graph/tree_painting.html",
+    "license": "CC BY-SA 4.0",
+    "discovery_scope": "High-level Euler-tour and directional-sum algorithm description only; no source code or prose copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,(u,v)^(N-1),(opcode,a,b)^Q]",
+    "n_range": [1, 16],
+    "query_count_range": [0, 32],
+    "edge_id_range": "0..N-2",
+    "vertex_range": "0..N-1",
+    "paint_operation": "opcode=0 paints edge a; b must be 0; repeated painting is idempotent",
+    "path_query_operation": "opcode=1 queries vertices a,b",
+    "edge_range": "Undirected edges in input order define stable edge IDs and form one simple tree.",
+    "exact_length": "2+2*(N-1)+3*Q",
+    "maximum_valid_length": 128,
+    "maximum_parseable_length": 129,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Sum of the painted-edge counts returned by all path-query operations in trace order.",
+    "valid_range": [0, 255],
+    "invalid_input_result": -1
+  },
+  "algorithm": {
+    "primary": "Root the tree and record each DFS-tour edge traversal in one of two directional segment trees. A paint sets both occurrences; an ancestor-path query subtracts reverse-direction sums from forward-direction sums, and an arbitrary path splits at its LCA.",
+    "independent_oracle": "For each query, BFS the current tree to recover its unique path and count painted edge IDs directly.",
+    "primary_complexity": "O(N^2 + (N+Q) log N) time and O(N) auxiliary space in the bounded edge-scan implementation.",
+    "independent_oracle_complexity": "O(Q*N) time and O(N+Q) auxiliary space."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"single-vertex-queries","input_values":[1,3,1,0,0,1,0,0,1,0,0],"input_length":11,"expected_result":0},
+    {"id":"path-paint-idempotent-and-queries","input_values":[3,6,0,1,1,2,1,0,2,0,0,0,1,0,2,0,0,0,0,1,0,1,0,2],"input_length":24,"expected_result":3},
+    {"id":"star-cross-branch-queries","input_values":[4,5,0,1,0,2,0,3,0,1,0,1,1,2,0,0,0,1,1,3,1,2,3],"input_length":23,"expected_result":3},
+    {"id":"maximum-edge-count-empty-trace","input_values":[16,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14,15],"input_length":32,"expected_result":0},
+    {
+      "id":"maximum-valid-frame-and-checksum",
+      "input_values":[
+        16,32,
+        0,1, 1,2, 2,3, 3,4, 4,5, 5,6, 6,7, 7,8, 8,9, 9,10, 10,11, 11,12, 12,13, 13,14, 14,15,
+        0,0,0, 0,1,0, 0,2,0, 0,3,0, 0,4,0, 0,5,0, 0,6,0, 0,7,0, 0,8,0, 0,9,0, 0,10,0, 0,11,0, 0,12,0, 0,13,0, 0,14,0,
+        1,0,15, 1,0,15, 1,0,15, 1,0,15, 1,0,15,
+        1,0,15, 1,0,15, 1,0,15, 1,0,15, 1,0,15,
+        1,0,15, 1,0,15, 1,0,15, 1,0,15, 1,0,15,
+        1,0,15, 1,0,15
+      ],
+      "input_length":128,
+      "expected_result":255
+    },
+    {"id":"paint-invalid-on-single-vertex","input_values":[1,1,0,0,0],"input_length":5,"expected_result":-1},
+    {"id":"self-loop-tree-invalid","input_values":[2,0,0,0],"input_length":4,"expected_result":-1},
+    {"id":"bad-query-vertex","input_values":[2,1,0,1,1,0,2],"input_length":7,"expected_result":-1},
+    {"id":"trailing-word-invalid","input_values":[1,0,99],"input_length":3,"expected_result":-1}
+  ]
+}

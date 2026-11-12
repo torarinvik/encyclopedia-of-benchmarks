@@ -1,0 +1,71 @@
+alias JOHNSON_MAX_JOBS = 8
+alias JOHNSON_MAX_TIME = 1000
+
+def johnson_impl(values: view[i64]) -> i64:
+    if values.len() < 1:
+        return -1
+    if values[0] < 1 or values[0] > i64(JOHNSON_MAX_JOBS):
+        return -1
+    count: usize = values[0].usize()
+    if values.len() != 1 + 2 * count:
+        return -1
+    first: mutable i64[JOHNSON_MAX_JOBS] = zeroed
+    second: mutable i64[JOHNSON_MAX_JOBS] = zeroed
+    early: mutable usize[JOHNSON_MAX_JOBS] = zeroed
+    late: mutable usize[JOHNSON_MAX_JOBS] = zeroed
+    early_count: mutable usize = 0
+    late_count: mutable usize = 0
+    job: mutable usize = 0
+    while job < count:
+        first[job] <- values[1 + 2 * job]
+        second[job] <- values[2 + 2 * job]
+        if first[job] < 0 or first[job] > JOHNSON_MAX_TIME.i64() or
+           second[job] < 0 or second[job] > JOHNSON_MAX_TIME.i64():
+            return -1
+        is_early: bool = first[job] < second[job]
+        position: mutable usize = early_count
+        if not is_early:
+            position <- late_count
+        while position > 0:
+            previous: usize = early[position - 1]
+            if not is_early:
+                previous <- late[position - 1]
+            comes_before: bool = first[job] < first[previous] or
+                (first[job] == first[previous] and job < previous)
+            if not is_early:
+                comes_before <- second[job] > second[previous] or
+                    (second[job] == second[previous] and job < previous)
+            if not comes_before:
+                break
+            if is_early:
+                early[position] <- previous
+            else:
+                late[position] <- previous
+            position <- position - 1
+        if is_early:
+            early[position] <- job
+            early_count <- early_count + 1
+        else:
+            late[position] <- job
+            late_count <- late_count + 1
+        job <- job + 1
+    first_finish: mutable i64 = 0
+    second_finish: mutable i64 = 0
+    index: mutable usize = 0
+    while index < count:
+        job_id: mutable usize = 0
+        if index < early_count:
+            job_id <- early[index]
+        else:
+            job_id <- late[index - early_count]
+        first_finish <- first_finish + first[job_id]
+        if second_finish < first_finish:
+            second_finish <- first_finish
+        second_finish <- second_finish + second[job_id]
+        index <- index + 1
+    second_finish
+
+export fn johnson_two_machine_flow_shop(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 17:
+        return -1
+    johnson_impl(input[0:length])

@@ -1,0 +1,78 @@
+alias BMR_MAX_ORDER = 8
+alias BMR_MODULUS = 998244353
+
+def bmr_convolve(left: view[i64], right: view[i64], output: mutable view[i64]) -> void:
+    i: mutable usize = 0
+    while i < output.len():
+        output[i] <- 0
+        i <- i + 1
+    i <- 0
+    while i < left.len():
+        j: mutable usize = 0
+        while j < right.len():
+            at: usize = i + j
+            output[at] <- (output[at] + left[i] * right[j]) % BMR_MODULUS
+            j <- j + 1
+        i <- i + 1
+
+def bmr_impl(values: view[i64]) -> i64:
+    if values.len() < 2:
+        return -1
+    if values[0] < 1 or values[0] > i64(BMR_MAX_ORDER)
+            or values[1] < 0 or values[1] > 1000000000000000000:
+        return -1
+    order: usize = values[0].usize()
+    if values.len() != 2 + 2 * order:
+        return -1
+
+    numerator: mutable i64[BMR_MAX_ORDER + 1] = zeroed
+    denominator: mutable i64[BMR_MAX_ORDER + 1] = zeroed
+    initial: mutable i64[BMR_MAX_ORDER + 1] = zeroed
+    denominator[0] <- 1
+    i: mutable usize = 0
+    while i < order:
+        coefficient: i64 = values[2 + i]
+        initial[i] <- values[2 + order + i]
+        if coefficient < 0 or coefficient >= BMR_MODULUS
+                or initial[i] < 0 or initial[i] >= BMR_MODULUS:
+            return -1
+        denominator[i + 1] <- if coefficient == 0: 0 else: BMR_MODULUS - coefficient
+        i <- i + 1
+
+    product: mutable i64[2 * BMR_MAX_ORDER + 1] = zeroed
+    bmr_convolve(initial[0:order], denominator[0:order + 1], product[0:2 * order])
+    i <- 0
+    while i < order:
+        numerator[i] <- product[i]
+        i <- i + 1
+
+    index: mutable usize = values[1].usize()
+    while index > 0:
+        denominator_negative: mutable i64[BMR_MAX_ORDER + 1] = zeroed
+        numerator_product: mutable i64[2 * BMR_MAX_ORDER + 1] = zeroed
+        denominator_product: mutable i64[2 * BMR_MAX_ORDER + 1] = zeroed
+        i <- 0
+        while i <= order:
+            denominator_negative[i] <- if i % 2 == 0 or denominator[i] == 0:
+                denominator[i]
+            else:
+                BMR_MODULUS - denominator[i]
+            i <- i + 1
+        bmr_convolve(numerator[0:order], denominator_negative[0:order + 1], numerator_product[0:2 * order])
+        bmr_convolve(denominator[0:order + 1], denominator_negative[0:order + 1], denominator_product[0:2 * order + 1])
+        parity: usize = index % 2
+        i <- 0
+        while i < order:
+            numerator[i] <- numerator_product[2 * i + parity]
+            i <- i + 1
+        i <- 0
+        while i <= order:
+            denominator[i] <- denominator_product[2 * i]
+            i <- i + 1
+        index <- index / 2
+    numerator[0]
+
+export fn bostan_mori_recurrence_term(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2:
+        return -1
+    bmr_impl(input[0:length])

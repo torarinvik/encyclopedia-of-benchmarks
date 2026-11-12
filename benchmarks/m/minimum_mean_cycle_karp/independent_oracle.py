@@ -40,12 +40,12 @@ def _parse(
         edges.append((u, v, weight))
         forward[u].append((v, weight))
         reverse[v].append(u)
-    for adjacency in (forward, reverse):
+    for adjacency_index, adjacency in enumerate((forward, reverse)):
         reached = {0}
         pending = [0]
         while pending:
             u = pending.pop()
-            neighbors = (edge[0] for edge in adjacency[u]) if adjacency is forward else iter(adjacency[u])
+            neighbors = (edge[0] for edge in adjacency[u]) if adjacency_index == 0 else iter(adjacency[u])
             for v in neighbors:
                 if v not in reached:
                     reached.add(v)

@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-dynamic-mex-updates-i64-array-bytes-output-v1",
+  "algorithm": "dynamic_mex_updates",
+  "function_symbol": "dynamic_mex_updates",
+  "abi": "i64_array_bytes_output",
+  "description": "Reports the MEX after every point replacement using a frequency-aware segment tree over candidate values.",
+  "source": {
+    "title": "MEX (minimal excluded) of a sequence — MEX with array updates",
+    "url": "https://cp-algorithms.com/sequences/mex.html",
+    "license": "CC BY-SA 4.0",
+    "discovery_scope": "Algorithm description and navigation taxonomy only; no source code, prose, tests, or examples copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,initial_values...,(index,new_value)*Q]",
+    "N_range": [1, 32],
+    "Q_range": [0, 32],
+    "value_range": [-1000, 1000],
+    "index_rule": "0 <= index < N",
+    "exact_length": "2+N+2*Q",
+    "maximum_valid_length": 98,
+    "maximum_parseable_length": 99,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one signed 64-bit little-endian MEX after each update, in update order",
+    "maximum_bytes": 256,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "zero_update_result": 0
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Maximum external output-buffer capacity; bounded frequency and segment-tree arrays use fixed local storage."
+  },
+  "algorithm": {
+    "primary": "Maintain candidate frequencies for values 0..N and a segment tree storing occupied-value counts. Update leaves when a frequency crosses zero, then descend to the first interval whose occupied count is below its width.",
+    "independent_oracle": "Apply each point update to a plain array and scan candidates from zero through N for the first absent value.",
+    "primary_complexity": "O(N log N + Q log N) time and O(N) space.",
+    "oracle_complexity": "O(QN) time and O(N) space."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "mex-rises-and-falls",
+      "input_values": [3, 3, 0, 1, 3, 0, 2, 2, 2, 0, 4, 1, 0],
+      "input_length": 13,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "030000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "duplicate-frequency-crosses-zero",
+      "input_values": [3, 3, 0, 0, 2, 0, 1, 1, 1, 1, 1, 2, 0],
+      "input_length": 13,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "030000000000000000000000000000000200000000000000"
+    },
+    {
+      "id": "negative-and-large-values-do-not-occupy-candidates",
+      "input_values": [4, 3, -1, 10, 2, 9, 0, 0, 0, 2, 1, 1, 1, 1, 2],
+      "input_length": 15,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "no-op-assignment",
+      "input_values": [3, 1, 0, 1, 2, 1, 1],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0300000000000000"
+    },
+    {
+      "id": "single-value-array",
+      "input_values": [1, 1, 0, 0, 1],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "zero-updates",
+      "input_values": [2, 0, 0, 0],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-array-and-update-count",
+      "input_values": [32, 2, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 0, 32, 0, 0],
+      "input_length": 38,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000002000000000000000"
+    },
+    {
+      "id": "zero-array-length-invalid",
+      "input_values": [0, 1],
+      "input_length": 2,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-update-index",
+      "input_values": [2, 1, 0, 1, 2, 5],
+      "input_length": 6,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "replacement-outside-value-bound",
+      "input_values": [1, 1, 0, 0, 1001],
+      "input_length": 5,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-update",
+      "input_values": [2, 1, 0, 1, 1],
+      "input_length": 5,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-input-value",
+      "input_values": [1, 1, 0, 0, 1, 77],
+      "input_length": 6,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [1, 1, 0, 0, 1],
+      "input_length": 5,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-for-nonempty-result",
+      "input_values": [1, 1, 0, 0, 1],
+      "input_length": 5,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}
