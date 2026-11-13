@@ -91,6 +91,10 @@ from run_i64_array_scalar import validate_parallel_binary_search_range_threshold
 from run_i64_array_scalar import validate_cdq_three_dimensional_dominance_workload
 from run_i64_array_scalar import validate_bareiss_determinant_workload
 from run_i64_array_scalar import validate_pollard_p_minus_one_factorization_workload
+from run_i64_array_scalar import validate_factoring_exponentiation_workload
+from run_i64_array_scalar import validate_isap_maxflow_workload
+from run_i64_array_scalar import validate_elliptic_curve_method_stage1_workload
+from run_i64_array_scalar import validate_ordered_set_avl_order_statistics_workload
 from run_i64_array_scalar import validate_persistent_segment_tree_range_kth_workload
 from run_i64_array_scalar import (
     COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_ALPHABET_SIZE,
@@ -1084,6 +1088,7 @@ from run_i64_array_scalar import validate_incremental_scc_workload
 from run_i64_array_scalar import validate_segment_tree_beats_workload
 from run_i64_array_scalar import validate_point_in_polygon_ray_casting_workload
 from run_i64_array_scalar import validate_vertex_connectivity_workload
+from run_i64_array_scalar import validate_edge_connectivity_all_pairs_maxflow_workload
 from run_i64_array_scalar import validate_hunt_szymanski_lcs_workload
 from run_i64_array_scalar import validate_eertree_workload
 from run_i64_array_scalar import validate_segment_add_get_min_workload
@@ -2019,6 +2024,44 @@ from p.pollard_p_minus_one_factorization.primary_oracle import (
 from p.pollard_p_minus_one_factorization.independent_oracle import (
     expected_result as pollard_p_minus_one_oracle,
 )
+from f.factoring_exponentiation.primary_oracle import (
+    MAX_EXPONENT as FACTORING_EXPONENTIATION_MAX_EXPONENT,
+    MAX_PARSEABLE_INPUT_LENGTH as FACTORING_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as FACTORING_EXPONENTIATION_MAX_VALID_INPUT_LENGTH,
+    expected_result as factoring_exponentiation_primary_oracle,
+)
+from f.factoring_exponentiation.independent_oracle import (
+    expected_result as factoring_exponentiation_oracle,
+)
+from isap_maxflow_oracle import (
+    MAX_CAPACITY as ISAP_MAX_CAPACITY,
+    MAX_EDGES as ISAP_MAX_EDGES,
+    MAX_PARSEABLE_INPUT_LENGTH as ISAP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as ISAP_MAX_VALID_INPUT_LENGTH,
+    MAX_VERTICES as ISAP_MAX_VERTICES,
+    expected_result as isap_maxflow_primary_oracle,
+)
+from isap_maxflow_verifier_oracle import expected_result as isap_maxflow_oracle
+from e.elliptic_curve_method_stage1.primary_oracle import (
+    MAX_BOUND as ECM_STAGE1_MAX_BOUND,
+    MAX_NUMBER as ECM_STAGE1_MAX_NUMBER,
+    MAX_PARSEABLE_INPUT_LENGTH as ECM_STAGE1_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as ECM_STAGE1_MAX_VALID_INPUT_LENGTH,
+    expected_result as elliptic_curve_method_stage1_primary_oracle,
+)
+from e.elliptic_curve_method_stage1.independent_oracle import (
+    expected_result as elliptic_curve_method_stage1_oracle,
+)
+from o.ordered_set_avl_order_statistics.primary_oracle import (
+    MAX_KEY as ORDERED_SET_AVL_MAX_KEY,
+    MAX_OPERATIONS as ORDERED_SET_AVL_MAX_OPERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as ORDERED_SET_AVL_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as ORDERED_SET_AVL_MAX_VALID_INPUT_LENGTH,
+    expected_result as ordered_set_avl_primary_oracle,
+)
+from o.ordered_set_avl_order_statistics.independent_oracle import (
+    expected_result as ordered_set_avl_oracle,
+)
 from p.persistent_segment_tree_range_kth.primary_oracle import (
     MAX_N as PERSISTENT_RANGE_KTH_MAX_N,
     MAX_PARSEABLE_INPUT_LENGTH as PERSISTENT_RANGE_KTH_MAX_PARSEABLE_INPUT_LENGTH,
@@ -2100,6 +2143,16 @@ from vertex_connectivity_oracle import MAX_EDGES as VERTEX_CONNECTIVITY_MAX_EDGE
 from vertex_connectivity_oracle import MAX_INPUT_LENGTH as VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH
 from vertex_connectivity_oracle import MAX_VERTICES as VERTEX_CONNECTIVITY_MAX_VERTICES
 from vertex_connectivity_deletion_oracle import expected_result as vertex_connectivity_oracle
+from e.edge_connectivity_all_pairs_maxflow.primary_oracle import (
+    MAX_EDGES as EDGE_CONNECTIVITY_MAX_EDGES,
+    MAX_PARSEABLE_INPUT_LENGTH as EDGE_CONNECTIVITY_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as EDGE_CONNECTIVITY_MAX_VALID_INPUT_LENGTH,
+    MAX_VERTICES as EDGE_CONNECTIVITY_MAX_VERTICES,
+    expected_result as edge_connectivity_all_pairs_maxflow_primary_oracle,
+)
+from e.edge_connectivity_all_pairs_maxflow.independent_oracle import (
+    expected_result as edge_connectivity_all_pairs_maxflow_oracle,
+)
 from eertree_oracle import MAX_TEXT_LENGTH as EERTREE_MAX_TEXT_LENGTH
 from eertree_oracle import expected_result as eertree_oracle
 from segment_add_get_min_oracle import CHECKSUM_OFFSET as SEGMENT_ADD_GET_MIN_CHECKSUM_OFFSET
@@ -2425,6 +2478,7 @@ ALGORITHMS += ("li_chao_tree", "segment_tree_beats", "eertree")
 ALGORITHMS += ("monotone_convex_hull_trick",)
 ALGORITHMS += ("point_in_polygon_ray_casting",)
 ALGORITHMS += ("vertex_connectivity",)
+ALGORITHMS += ("edge_connectivity_all_pairs_maxflow",)
 ALGORITHMS += ("three_edge_connected_components",)
 ALGORITHMS += ("incremental_scc",)
 ALGORITHMS += ("manhattan_mst",)
@@ -2446,6 +2500,10 @@ ALGORITHMS += ("parallel_binary_search_range_threshold",)
 ALGORITHMS += ("cdq_three_dimensional_dominance",)
 ALGORITHMS += ("bareiss_determinant",)
 ALGORITHMS += ("pollard_p_minus_one_factorization",)
+ALGORITHMS += ("factoring_exponentiation",)
+ALGORITHMS += ("isap_maxflow",)
+ALGORITHMS += ("elliptic_curve_method_stage1",)
+ALGORITHMS += ("ordered_set_avl_order_statistics",)
 ALGORITHMS += ("persistent_segment_tree_range_kth",)
 ALGORITHMS += ("count_different_palindromic_subsequences",)
 ALGORITHMS += ("functional_graph_cycle_parameters",)
@@ -4471,6 +4529,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return point_in_polygon_ray_casting_oracle(values)
     if algorithm == "vertex_connectivity":
         return vertex_connectivity_oracle(values)
+    if algorithm == "edge_connectivity_all_pairs_maxflow":
+        return edge_connectivity_all_pairs_maxflow_oracle(values)
     if algorithm == "eertree":
         return eertree_oracle(values)
     if algorithm == "segment_add_get_min":
@@ -4517,6 +4577,14 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return bareiss_determinant_oracle(values)
     if algorithm == "pollard_p_minus_one_factorization":
         return pollard_p_minus_one_oracle(values)
+    if algorithm == "factoring_exponentiation":
+        return factoring_exponentiation_oracle(values)
+    if algorithm == "isap_maxflow":
+        return isap_maxflow_oracle(values)
+    if algorithm == "elliptic_curve_method_stage1":
+        return elliptic_curve_method_stage1_oracle(values)
+    if algorithm == "ordered_set_avl_order_statistics":
+        return ordered_set_avl_oracle(values)
     if algorithm == "persistent_segment_tree_range_kth":
         return persistent_segment_tree_range_kth_oracle(values)
     if algorithm == "count_different_palindromic_subsequences":
@@ -5840,6 +5908,21 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_point_in_polygon_ray_casting_workload(workload)
     elif algorithm == "vertex_connectivity":
         validate_vertex_connectivity_workload(workload)
+    elif algorithm == "edge_connectivity_all_pairs_maxflow":
+        validate_edge_connectivity_all_pairs_maxflow_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture["input_values"]
+            options = {
+                "input_is_null": fixture.get("input_is_null", False),
+                "input_length": fixture.get("input_length", len(values)),
+            }
+            primary = edge_connectivity_all_pairs_maxflow_primary_oracle(values, **options)
+            independent = edge_connectivity_all_pairs_maxflow_oracle(values, **options)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "edge_connectivity_all_pairs_maxflow fixture differs between all-pairs flow "
+                    f"and direct-cut oracles: {fixture.get('id')}"
+                )
     elif algorithm == "hunt_szymanski_lcs":
         validate_hunt_szymanski_lcs_workload(workload)
     elif algorithm == "eertree":
@@ -5924,6 +6007,14 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_bareiss_determinant_workload(workload)
     elif algorithm == "pollard_p_minus_one_factorization":
         validate_pollard_p_minus_one_factorization_workload(workload)
+    elif algorithm == "factoring_exponentiation":
+        validate_factoring_exponentiation_workload(workload)
+    elif algorithm == "isap_maxflow":
+        validate_isap_maxflow_workload(workload)
+    elif algorithm == "elliptic_curve_method_stage1":
+        validate_elliptic_curve_method_stage1_workload(workload)
+    elif algorithm == "ordered_set_avl_order_statistics":
+        validate_ordered_set_avl_order_statistics_workload(workload)
     elif algorithm == "persistent_segment_tree_range_kth":
         validate_persistent_segment_tree_range_kth_workload(workload)
     elif algorithm == "count_different_palindromic_subsequences":
@@ -9624,6 +9715,261 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if primary != -1 or independent != -1:
                 raise ValueError("pollard_p_minus_one_factorization accepted malformed input")
             cases[values] = independent
+    elif algorithm == "factoring_exponentiation":
+        validate_factoring_exponentiation_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values) if isinstance(values, list) else None)
+            if (not isinstance(values, list)
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or len(values) > FACTORING_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(
+                    "factoring_exponentiation fixture framing is invalid: "
+                    f"{fixture.get('id')}"
+                )
+            options = {"input_is_null": input_is_null, "input_length": input_length}
+            primary = factoring_exponentiation_primary_oracle(values, **options)
+            independent = factoring_exponentiation_oracle(values, **options)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "factoring_exponentiation fixture differs between 2-adic factoring "
+                    f"and repeated-squaring oracles: {fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append(f"NULL {input_length} -1\n")
+            else:
+                cases[tuple(values)] = independent
+
+        rng_factoring = random.Random(0xFAC701)
+        for _ in range(128):
+            d = rng_factoring.randint(3, 32)
+            modulus = 1 << d
+            remainder = rng_factoring.randrange(modulus)
+            base = rng_factoring.randrange(1, modulus, 2)
+            exponent = rng_factoring.randint(0, FACTORING_EXPONENTIATION_MAX_EXPONENT)
+            packed = (remainder, base, exponent, d)
+            primary = factoring_exponentiation_primary_oracle(packed)
+            independent = factoring_exponentiation_oracle(packed)
+            if primary != independent:
+                raise ValueError("factoring_exponentiation generated oracle results disagree")
+            cases[packed] = independent
+
+        malformed_inputs = (
+            (), (I64_MIN,), (1,), (1, 5, 0),
+            (1, 5, 0, 2), (1, 5, 0, 33), (8, 5, 0, 3),
+            (1, 2, 1, 3), (1, 0, 1, 3), (1, 5, -1, 3),
+            (1, 5, FACTORING_EXPONENTIATION_MAX_EXPONENT + 1, 32),
+            (1, 5, 0, 3, 0),
+        )
+        for values in malformed_inputs:
+            if len(values) > FACTORING_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH:
+                continue
+            primary = factoring_exponentiation_primary_oracle(values)
+            independent = factoring_exponentiation_oracle(values)
+            if primary != -1 or independent != -1:
+                raise ValueError("factoring_exponentiation accepted malformed input")
+            cases[values] = independent
+        special_records.extend((
+            "NULL 0 -1\n", "NULL 1 -1\n",
+            f"NULL {FACTORING_EXPONENTIATION_MAX_VALID_INPUT_LENGTH} -1\n",
+        ))
+    elif algorithm == "isap_maxflow":
+        validate_isap_maxflow_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values) if isinstance(values, list) else None)
+            if (not isinstance(values, list)
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or len(values) > ISAP_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(f"isap_maxflow fixture framing is invalid: {fixture.get('id')}")
+            oracle_values = None if input_is_null else values
+            primary = isap_maxflow_primary_oracle(oracle_values)
+            independent = isap_maxflow_oracle(oracle_values)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "isap_maxflow fixture differs between ISAP and the cut oracle: "
+                    f"{fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append(f"NULL {input_length} -1\n")
+            else:
+                cases[tuple(values)] = independent
+
+        rng_isap = random.Random(0x15A9)
+        for _ in range(128):
+            vertex_count = rng_isap.randint(2, ISAP_MAX_VERTICES)
+            edge_count = rng_isap.randint(0, ISAP_MAX_EDGES)
+            source, sink = rng_isap.sample(range(vertex_count), 2)
+            packed_values = [vertex_count, edge_count, source, sink]
+            for _edge in range(edge_count):
+                from_vertex = rng_isap.randrange(vertex_count)
+                to_vertex = rng_isap.randrange(vertex_count - 1)
+                if to_vertex >= from_vertex:
+                    to_vertex += 1
+                packed_values.extend((from_vertex, to_vertex, rng_isap.randint(0, ISAP_MAX_CAPACITY)))
+            packed = tuple(packed_values)
+            primary = isap_maxflow_primary_oracle(packed)
+            independent = isap_maxflow_oracle(packed)
+            if primary != independent:
+                raise ValueError("isap_maxflow generated graphs differ between ISAP and cut oracles")
+            cases[packed] = independent
+
+        malformed_inputs = (
+            (), (I64_MIN,), (2,), (1, 0, 0, 1), (ISAP_MAX_VERTICES + 1, 0, 0, 1),
+            (2, ISAP_MAX_EDGES + 1, 0, 1), (2, 0, 0, 0), (2, 1, 0, 1, 0, 0, 5),
+            (2, 1, 0, 1, 0, 2, 5), (2, 1, 0, 1, 0, 1, -1),
+            (2, 1, 0, 1, 0, 1, ISAP_MAX_CAPACITY + 1), (2, 0, 0, 1, 99),
+        )
+        for values in malformed_inputs:
+            if len(values) > ISAP_MAX_PARSEABLE_INPUT_LENGTH:
+                continue
+            primary = isap_maxflow_primary_oracle(values)
+            independent = isap_maxflow_oracle(values)
+            if primary != -1 or independent != -1:
+                raise ValueError("isap_maxflow accepted malformed input")
+            cases[values] = independent
+        special_records.extend(record for record in (
+            "NULL 0 -1\n", "NULL 1 -1\n",
+            f"NULL {ISAP_MAX_VALID_INPUT_LENGTH} -1\n",
+            f"NULL {ISAP_MAX_PARSEABLE_INPUT_LENGTH} -1\n",
+        ) if record not in special_records)
+    elif algorithm == "elliptic_curve_method_stage1":
+        validate_elliptic_curve_method_stage1_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values) if isinstance(values, list) else None)
+            if (not isinstance(values, list)
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or len(values) > ECM_STAGE1_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(
+                    "elliptic_curve_method_stage1 fixture framing is invalid: "
+                    f"{fixture.get('id')}"
+                )
+            options = {"input_is_null": input_is_null, "input_length": input_length}
+            primary = elliptic_curve_method_stage1_primary_oracle(values, **options)
+            independent = elliptic_curve_method_stage1_oracle(values, **options)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "elliptic_curve_method_stage1 fixture differs between Montgomery and affine ECM oracles: "
+                    f"{fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append(f"NULL {input_length} -1\n")
+            else:
+                cases[tuple(values)] = independent
+
+        valid_curves = ((5, 1, 2, 2), (35, 1, 2, 7))
+        for number, curve_a, point_x, point_y in valid_curves:
+            for bound in range(2, ECM_STAGE1_MAX_BOUND + 1):
+                packed = (number, curve_a, point_x, point_y, bound)
+                primary = elliptic_curve_method_stage1_primary_oracle(packed)
+                independent = elliptic_curve_method_stage1_oracle(packed)
+                if primary != independent:
+                    raise ValueError(
+                        "elliptic_curve_method_stage1 generated curves differ between ECM oracles"
+                    )
+                cases[packed] = independent
+
+        malformed_inputs = (
+            (), (I64_MIN,), (2, 0, 0, 0, 2),
+            (ECM_STAGE1_MAX_NUMBER + 1, 1, 2, 2, 2),
+            (45, 1, 2, 7, 2), (5, 2, 2, 2, 2),
+            (35, 1, 2, 8, 2), (35, 35, 2, 7, 2),
+            (35, 1, 35, 7, 2), (35, 1, 2, 35, 2),
+            (35, 1, 2, 7, 1), (35, 1, 2, 7, ECM_STAGE1_MAX_BOUND + 1),
+            (5, 1, 2, 2, 2, 99),
+        )
+        for values in malformed_inputs:
+            if len(values) > ECM_STAGE1_MAX_PARSEABLE_INPUT_LENGTH:
+                continue
+            primary = elliptic_curve_method_stage1_primary_oracle(values)
+            independent = elliptic_curve_method_stage1_oracle(values)
+            if primary != -1 or independent != -1:
+                raise ValueError("elliptic_curve_method_stage1 accepted malformed input")
+            cases[values] = independent
+        special_records.extend(record for record in (
+            "NULL 0 -1\n", "NULL 1 -1\n",
+            f"NULL {ECM_STAGE1_MAX_VALID_INPUT_LENGTH} -1\n",
+            f"NULL {ECM_STAGE1_MAX_PARSEABLE_INPUT_LENGTH} -1\n",
+        ) if record not in special_records)
+    elif algorithm == "ordered_set_avl_order_statistics":
+        validate_ordered_set_avl_order_statistics_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values) if isinstance(values, list) else None)
+            if (not isinstance(values, list)
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or len(values) > ORDERED_SET_AVL_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(
+                    "ordered_set_avl_order_statistics fixture framing is invalid: "
+                    f"{fixture.get('id')}"
+                )
+            options = {"input_is_null": input_is_null, "input_length": input_length}
+            primary = ordered_set_avl_primary_oracle(values, **options)
+            independent = ordered_set_avl_oracle(values, **options)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "ordered_set_avl_order_statistics fixture differs between the AVL and sorted-list oracles: "
+                    f"{fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append("NULL 0 -1\n")
+            else:
+                cases[tuple(values)] = independent
+
+        rng_ordered_set_avl = random.Random(0x0A71)
+        for _ in range(128):
+            initial_count = rng_ordered_set_avl.randint(0, 32)
+            initial = tuple(sorted(rng_ordered_set_avl.sample(range(ORDERED_SET_AVL_MAX_KEY + 1), initial_count)))
+            operation_count = rng_ordered_set_avl.randint(0, ORDERED_SET_AVL_MAX_OPERATIONS)
+            operations = []
+            for _operation in range(operation_count):
+                opcode = rng_ordered_set_avl.randrange(6)
+                key = rng_ordered_set_avl.randint(1, ORDERED_SET_AVL_MAX_KEY) if opcode == 2 else rng_ordered_set_avl.randint(0, ORDERED_SET_AVL_MAX_KEY)
+                operations.extend((opcode, key))
+            packed = (initial_count, operation_count, *initial, *operations)
+            primary = ordered_set_avl_primary_oracle(packed)
+            independent = ordered_set_avl_oracle(packed)
+            if primary != independent:
+                raise ValueError("ordered_set_avl_order_statistics generated traces differ between oracles")
+            cases[packed] = independent
+
+        malformed_inputs = (
+            (), (I64_MIN,), (0,), (33, 0), (0, 33),
+            (2, 0, 4, 4), (2, 0, 8, 3),
+            (0, 1, 2, 0), (0, 1, 6, 4),
+            (0, 1, 0, -1), (0, 1, 0, ORDERED_SET_AVL_MAX_KEY + 1),
+            (0, 1, 0, 1, 99),
+        )
+        for values in malformed_inputs:
+            if len(values) > ORDERED_SET_AVL_MAX_PARSEABLE_INPUT_LENGTH:
+                continue
+            primary = ordered_set_avl_primary_oracle(values)
+            independent = ordered_set_avl_oracle(values)
+            if primary != -1 or independent != -1:
+                raise ValueError("ordered_set_avl_order_statistics accepted malformed input")
+            cases[values] = independent
+        special_records.extend(record for record in (
+            "NULL 0 -1\n", "NULL 1 -1\n",
+            f"NULL {ORDERED_SET_AVL_MAX_VALID_INPUT_LENGTH} -1\n",
+            f"NULL {ORDERED_SET_AVL_MAX_PARSEABLE_INPUT_LENGTH} -1\n",
+        ) if record not in special_records)
     elif algorithm == "persistent_segment_tree_range_kth":
         validate_persistent_segment_tree_range_kth_workload(workload)
         for fixture in workload.get("cases", []):
@@ -9952,6 +10298,78 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         special_records.extend((
             "NULL 0 -1\n", "NULL 1 -1\n",
             f"NULL {VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH} -1\n",
+        ))
+    elif algorithm == "edge_connectivity_all_pairs_maxflow":
+        def add_edge_connectivity_case(
+            values: tuple[int, ...], *, require_valid: bool = False
+        ) -> int:
+            values = tuple(values)
+            if (len(values) > EDGE_CONNECTIVITY_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError(
+                    "edge_connectivity_all_pairs_maxflow input exceeds its signed-i64 parser bound"
+                )
+            primary = edge_connectivity_all_pairs_maxflow_primary_oracle(values)
+            independent = edge_connectivity_all_pairs_maxflow_oracle(values)
+            if primary != independent:
+                raise ValueError(
+                    "edge_connectivity_all_pairs_maxflow flow and direct-cut oracles disagree"
+                )
+            if require_valid and independent < 0:
+                raise ValueError("edge_connectivity_all_pairs_maxflow generated graph is invalid")
+            cases[values] = independent
+            return independent
+
+        for fixture in workload.get("cases", []):
+            values = tuple(fixture.get("input_values", []))
+            if fixture.get("input_is_null", False):
+                continue
+            else:
+                add_edge_connectivity_case(values)
+
+        maximum_values = (
+            EDGE_CONNECTIVITY_MAX_VERTICES,
+            EDGE_CONNECTIVITY_MAX_EDGES,
+            *(endpoint
+              for left in range(EDGE_CONNECTIVITY_MAX_VERTICES)
+              for right in range(left + 1, EDGE_CONNECTIVITY_MAX_VERTICES)
+              for endpoint in (left, right)),
+        )
+        if len(maximum_values) != EDGE_CONNECTIVITY_MAX_VALID_INPUT_LENGTH:
+            raise ValueError(
+                "edge_connectivity_all_pairs_maxflow complete graph does not fill its valid bound"
+            )
+        add_edge_connectivity_case(maximum_values, require_valid=True)
+
+        rng_edge_connectivity = random.Random(0xED6EC0)
+        for _ in range(128):
+            vertex_count = rng_edge_connectivity.randint(2, EDGE_CONNECTIVITY_MAX_VERTICES)
+            edges = [(left, right)
+                     for left in range(vertex_count)
+                     for right in range(left + 1, vertex_count)
+                     if rng_edge_connectivity.randrange(3) == 0]
+            packed = (vertex_count, len(edges),
+                      *(endpoint for edge in edges for endpoint in edge))
+            add_edge_connectivity_case(packed, require_valid=True)
+
+        maximum_parseable_invalid = (*maximum_values, 0)
+        if len(maximum_parseable_invalid) != EDGE_CONNECTIVITY_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError(
+                "edge_connectivity_all_pairs_maxflow trailing frame differs from its parser bound"
+            )
+        malformed_edge_connectivity = (
+            (), (1,), (-1, 0), (EDGE_CONNECTIVITY_MAX_VERTICES + 1, 0),
+            (2, -1), (2, EDGE_CONNECTIVITY_MAX_EDGES + 1),
+            (3, 1, 0), (3, 1, 0, 3), (2, 1, 0, 0),
+            (3, 2, 0, 1, 1, 0), (2, 0, 99),
+            maximum_parseable_invalid,
+        )
+        for values in malformed_edge_connectivity:
+            add_edge_connectivity_case(values)
+        special_records.extend((
+            "NULL 0 -1\n", "NULL 1 -1\n",
+            f"NULL {EDGE_CONNECTIVITY_MAX_VALID_INPUT_LENGTH} -1\n",
         ))
     elif algorithm == "eertree":
         rng_eertree = random.Random(0xEE771EE)

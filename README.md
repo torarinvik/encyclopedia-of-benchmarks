@@ -1099,8 +1099,22 @@ The [SPLASH-2-inspired water profiles](benchmarks/s/splash2_water_nsquared/READM
 
 [Aho–Corasick failure-tree counts](benchmarks/a/aho_corasick_failure_tree_counts/README.md) counts overlapping pattern occurrences by aggregating state visits from failure children to parents. Ten ports, a direct substring-scan oracle, bounded byte-output workloads, and byte-suite registration are included.
 
+[Pollard p−1 factorization](benchmarks/p/pollard_p_minus_one_factorization/README.md) applies successive maximal prime-power exponents and gcd checks to find factors with smooth predecessors. Ten ports, an independent big-exponent oracle, bounded workloads, and scalar-suite registration are included.
+
+[Edge connectivity by all-pairs max flow](benchmarks/e/edge_connectivity_all_pairs_maxflow/README.md) returns the minimum unit-capacity s–t maximum-flow value over all unordered terminal pairs in a small undirected graph. Ten ports, an independent cut-enumeration oracle, bounded workloads, and scalar-suite registration are included.
+
+[Adaptive Gauss–Kronrod 15-point quadrature](benchmarks/a/adaptive_gauss_kronrod_15_quadrature/README.md) estimates integrals with an embedded Gauss-7/Kronrod-15 pair and repeatedly splits the interval with the largest estimated error. Ten ports, closed-form verification, bounded interval work, and float64-suite registration are included.
+
+[Factoring-based exponentiation](benchmarks/f/factoring_exponentiation/README.md) computes `a*x^y mod 2^d` with a 2-adic logarithm and exponent reconstruction. Ten ports, an independent repeated-squaring oracle, bounded workloads, and scalar-suite registration are included.
+
+[ISAP maximum flow](benchmarks/i/isap_maxflow/README.md) combines reverse-BFS distance labels, dynamic relabeling, current arcs, and the gap rule. Ten ports, an independent cut oracle, bounded workloads, and scalar-suite registration are included.
+
+[ECM stage-one factor detection](benchmarks/e/elliptic_curve_method_stage1/README.md) uses Montgomery X:Z scalar multiplication on a supplied curve and point, with a gcd checkpoint after each prime-power factor. Ten ports, an independent affine-curve oracle, bounded workloads, and scalar-suite registration are included.
+
 [Ridders root finding](benchmarks/r/ridders_root_finding/README.md) uses midpoint-based exponential interpolation to preserve a sign-changing root bracket. Ten ports, an independent high-precision bisection oracle, bounded float64 workloads, and float64-suite registration are included.
 
 [Romberg integration](benchmarks/r/romberg_integration/README.md) refines nested trapezoid estimates and applies Richardson extrapolation in a bounded tableau. Ten ports, an independent closed-form antiderivative verifier, bounded float64 workloads, and float64-suite registration are included.
 
 [Persistent segment-tree range kth](benchmarks/p/persistent_segment_tree_range_kth/README.md) answers static subarray order-statistic queries by descending differences between path-copied prefix histograms. Ten ports, an independent per-slice sort oracle, bounded scalar workloads, and scalar-suite registration are included.
+
+[Dynamic ordered set with AVL order statistics](benchmarks/o/ordered_set_avl_order_statistics/README.md) combines idempotent updates with kth, rank, predecessor, and successor queries using subtree-size augmentation. Ten ports, an independent sorted-list oracle, bounded workloads, and scalar-suite registration are included.

@@ -1,0 +1,115 @@
+const STAGE1_PRIME_COUNT: usize = 11
+const STAGE1_PRIMES: i64[11] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31]
+
+def mod_norm(value_input: i64, modulus: i64) -> i64:
+    value: mutable i64 = value_input % modulus
+    if value < 0: value <- value + modulus
+    value
+
+def gcd_i64(left_input: i64, right_input: i64) -> i64:
+    left: mutable i64 = left_input
+    right: mutable i64 = right_input
+    if left < 0: left <- -left
+    if right < 0: right <- -right
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def square_free(number: i64) -> bool:
+    divisor: mutable i64 = 2
+    while divisor * divisor <= number:
+        if number % (divisor * divisor) == 0: return false
+        divisor <- divisor + 1
+    true
+
+def x_double(point: view[i64], a24: i64, modulus: i64, output: mutable view[i64]) -> void:
+    plus: i64 = mod_norm(point[0] + point[1], modulus)
+    minus: i64 = mod_norm(point[0] - point[1], modulus)
+    plus_sq: i64 = plus * plus % modulus
+    minus_sq: i64 = minus * minus % modulus
+    delta: i64 = mod_norm(plus_sq - minus_sq, modulus)
+    output[0] <- plus_sq * minus_sq % modulus
+    output[1] <- delta * mod_norm(minus_sq + a24 * delta, modulus) % modulus
+
+def x_add(left: view[i64], right: view[i64], difference: view[i64],
+          modulus: i64, output: mutable view[i64]) -> void:
+    first: i64 = mod_norm(left[0] - left[1], modulus) * mod_norm(right[0] + right[1], modulus) % modulus
+    second: i64 = mod_norm(left[0] + left[1], modulus) * mod_norm(right[0] - right[1], modulus) % modulus
+    sum_term: i64 = mod_norm(first + second, modulus)
+    difference_term: i64 = mod_norm(first - second, modulus)
+    output[0] <- difference[1] * sum_term % modulus * sum_term % modulus
+    output[1] <- difference[0] * difference_term % modulus * difference_term % modulus
+
+def x_multiply(point: view[i64], scalar: i64, a24: i64, modulus: i64,
+               output: mutable view[i64]) -> void:
+    r0: mutable i64[2] = [1, 0]
+    r1: mutable i64[2] = [point[0], point[1]]
+    copy: mutable i64 = scalar
+    highest: mutable i64 = 0
+    while copy > 1:
+        copy <- copy >> 1
+        highest <- highest + 1
+    bit: mutable i64 = highest
+    while bit >= 0:
+        sum_point: mutable i64[2] = zeroed
+        doubled: mutable i64[2] = zeroed
+        if (scalar & (1 << bit)) != 0:
+            x_add(r0[0:2], r1[0:2], point, modulus, sum_point[0:2])
+            x_double(r1[0:2], a24, modulus, doubled[0:2])
+            r0[0] <- sum_point[0]; r0[1] <- sum_point[1]
+            r1[0] <- doubled[0]; r1[1] <- doubled[1]
+        else:
+            x_add(r0[0:2], r1[0:2], point, modulus, sum_point[0:2])
+            x_double(r0[0:2], a24, modulus, doubled[0:2])
+            r1[0] <- sum_point[0]; r1[1] <- sum_point[1]
+            r0[0] <- doubled[0]; r0[1] <- doubled[1]
+        bit <- bit - 1
+    output[0] <- r0[0]
+    output[1] <- r0[1]
+
+def elliptic_curve_method_stage1_impl(input: view[i64], length: usize) -> i64:
+    if length != 5: return -1
+    number: i64 = input[0]
+    curve_a: i64 = input[1]
+    point_x: i64 = input[2]
+    point_y: i64 = input[3]
+    bound: i64 = input[4]
+    if number < 3 or number > 10000 or (number & 1) == 0 or bound < 2 or bound > 32:
+        return -1
+    if curve_a < 0 or curve_a >= number or point_x < 0 or point_x >= number or point_y < 0 or point_y >= number:
+        return -1
+    if not square_free(number) or gcd_i64(curve_a * curve_a - 4, number) != 1: return -1
+    x_sq: i64 = point_x * point_x % number
+    rhs: i64 = (x_sq * point_x + curve_a * x_sq + point_x) % number
+    if point_y * point_y % number != rhs: return -1
+    inverse_four: mutable i64 = 0
+    if number % 4 == 3:
+        inverse_four <- (number + 1) / 4
+    else:
+        inverse_four <- (3 * number + 1) / 4
+    a24: i64 = (curve_a + 2) * inverse_four % number
+    point: mutable i64[2] = [point_x, 1]
+    prime_index: mutable usize = 0
+    while prime_index < STAGE1_PRIME_COUNT:
+        prime: i64 = STAGE1_PRIMES[prime_index]
+        if prime > bound: break
+        prime_power: mutable i64 = prime
+        while prime_power <= bound / prime:
+            prime_power <- prime_power * prime
+        next_point: mutable i64[2] = zeroed
+        x_multiply(point[0:2], prime_power, a24, number, next_point[0:2])
+        point[0] <- next_point[0]
+        point[1] <- next_point[1]
+        divisor: i64 = gcd_i64(point[1], number)
+        if divisor > 1:
+            if divisor < number: return 1
+            return 0
+        prime_index <- prime_index + 1
+    0
+
+export fn elliptic_curve_method_stage1(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 5: return -1
+    input_view: view[i64] = input[0:length]
+    elliptic_curve_method_stage1_impl(input_view, length)

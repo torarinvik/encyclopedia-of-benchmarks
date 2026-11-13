@@ -1,0 +1,133 @@
+extern exp(value: f64) -> f64
+extern sin(value: f64) -> f64
+extern fabs(value: f64) -> f64
+
+const GK15_MAX_INTERVALS: usize = 16
+const GK15_MAX_INPUT_LENGTH: usize = 6
+
+struct Gk15Pair:
+    kronrod: f64
+    gauss: f64
+
+struct Gk15Interval:
+    left: f64
+    right: f64
+    value: f64
+    error: f64
+
+const GK15_NODES: f64[7] = [
+    0.9914553711208126392, 0.9491079123427585245, 0.8648644233597690728,
+    0.7415311855993944399, 0.5860872354676911303, 0.4058451513773971669,
+    0.2077849550078984676,
+]
+const GK15_KW: f64[7] = [
+    0.022935322010529225, 0.06309209262997855, 0.10479001032225018,
+    0.14065325971552592, 0.16900472663926790, 0.19035057806478541,
+    0.20443294007529889,
+]
+const GK15_GW: f64[3] = [
+    0.12948496616886969, 0.27970539148927667, 0.38183005050511894,
+]
+
+def gk15_sample(function_id: i64, x: f64) -> f64:
+    if function_id == 0: return exp(4.0 * x)
+    if function_id == 1: return sin(10.0 * x)
+    if function_id == 2: return 1.0 / (1.0 + 9.0 * x * x)
+    x2: f64 = x * x
+    x4: f64 = x2 * x2
+    x8: f64 = x4 * x4
+    x8 * x4 * x2
+
+def gk15_pair(function_id: i64, left: f64, right: f64) -> Gk15Pair:
+    center: f64 = (left + right) * 0.5
+    half: f64 = (right - left) * 0.5
+    center_value: f64 = gk15_sample(function_id, center)
+    kronrod_sum: mutable f64 = 0.2094821410847278280 * center_value
+    gauss_sum: mutable f64 = 0.4179591836734693878 * center_value
+    index: mutable usize = 0
+    while index < 7:
+        offset: f64 = half * GK15_NODES[index]
+        pair: f64 = gk15_sample(function_id, center - offset) + gk15_sample(function_id, center + offset)
+        kronrod_sum <- kronrod_sum + GK15_KW[index] * pair
+        if index == 1: gauss_sum <- gauss_sum + GK15_GW[0] * pair
+        if index == 3: gauss_sum <- gauss_sum + GK15_GW[1] * pair
+        if index == 5: gauss_sum <- gauss_sum + GK15_GW[2] * pair
+        index <- index + 1
+    Gk15Pair{kronrod: half * kronrod_sum, gauss: half * gauss_sum}
+
+def gk15_finite(x: f64) -> bool:
+    x == x and x < 1.7976931348623157e308 and x > -1.7976931348623157e308
+
+def gk15_integer(x: f64, low: i64, high: i64) -> bool:
+    if not gk15_finite(x) or x < low.f64() or x > high.f64(): return false
+    x.i64().f64() == x
+
+def gk15_valid(input: view[f64], input_length: usize) -> bool:
+    if input_length != 5 or input_length > GK15_MAX_INPUT_LENGTH: return false
+    if not gk15_integer(input[0], 0, 3) or not gk15_integer(input[1], -1000000, 1000000) or not gk15_integer(input[2], -1000000, 1000000) or not gk15_integer(input[3], 6, 8) or not gk15_integer(input[4], 1, 16): return false
+    input[1] <= input[2]
+
+def gk15_compute(input: view[f64], staged: mutable view[f64]) -> i64:
+    function_id: i64 = input[0].i64()
+    a_micro: i64 = input[1].i64()
+    b_micro: i64 = input[2].i64()
+    exponent: i64 = input[3].i64()
+    limit: usize = input[4].usize()
+    left: f64 = a_micro.f64() / 1000000.0
+    right: f64 = b_micro.f64() / 1000000.0
+    if left == right:
+        staged[0] <- 0.0
+        return 1
+
+    intervals: mutable Gk15Interval[GK15_MAX_INTERVALS] = zeroed
+    first: Gk15Pair = gk15_pair(function_id, left, right)
+    intervals[0] <- Gk15Interval{left: left, right: right, value: first.kronrod,
+                                  error: fabs(first.kronrod - first.gauss)}
+    count: mutable usize = 1
+    tolerance: mutable f64 = 1.0
+    for _ in 0..exponent: tolerance <- tolerance * 0.1
+    while true:
+        total: mutable f64 = 0.0
+        error: mutable f64 = 0.0
+        index: mutable usize = 0
+        while index < count:
+            total <- total + intervals[index].value
+            error <- error + intervals[index].error
+            index <- index + 1
+        scale: f64 = 1.0
+        if fabs(total) > 1.0: scale <- fabs(total)
+        if error <= tolerance * scale:
+            if not gk15_finite(total): return -1
+            staged[0] <- total
+            return 1
+        if count >= limit: return -3
+        best: mutable usize = 0
+        index <- 1
+        while index < count:
+            if intervals[index].error > intervals[best].error or (intervals[index].error == intervals[best].error and intervals[index].left < intervals[best].left): best <- index
+            index <- index + 1
+        left <- intervals[best].left
+        right <- intervals[best].right
+        middle: f64 = (left + right) * 0.5
+        left_pair: Gk15Pair = gk15_pair(function_id, left, middle)
+        right_pair: Gk15Pair = gk15_pair(function_id, middle, right)
+        intervals[best] <- Gk15Interval{left: left, right: middle, value: left_pair.kronrod,
+                                        error: fabs(left_pair.kronrod - left_pair.gauss)}
+        intervals[count] <- Gk15Interval{left: middle, right: right, value: right_pair.kronrod,
+                                         error: fabs(right_pair.kronrod - right_pair.gauss)}
+        count <- count + 1
+    }
+
+export fn adaptive_gauss_kronrod_15_quadrature(input: f64&, input_length: usize,
+                                               output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length > GK15_MAX_INPUT_LENGTH: return -1
+    input_view: view[f64] = input[0:input_length]
+    if not gk15_valid(input_view, input_length): return -1
+    if output.is_null() or capacity < 1: return -2
+    staged: mutable f64[1] = zeroed
+    staged_view: mutable view[f64] = staged[0:1]
+    result: i64 = gk15_compute(input_view, staged_view)
+    if result < 0: return result
+    output_view: mutable view[f64] = output[0:1]
+    output_view[0] <- staged_view[0]
+    1

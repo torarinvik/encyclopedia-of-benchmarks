@@ -18,6 +18,9 @@ from check_dormand_prince_54_adaptive_ode_package import static_issues as dorman
 from check_adaptive_simpson_quadrature_package import static_issues as adaptive_simpson_package_issues
 from check_romberg_integration_package import static_issues as romberg_integration_package_issues
 from check_ridders_root_finding_package import static_issues as ridders_root_finding_package_issues
+from check_adaptive_gauss_kronrod_15_quadrature_package import (
+    static_issues as adaptive_gauss_kronrod_15_package_issues,
+)
 from check_smo_dual_pair_update_package import static_issues as smo_dual_pair_update_package_issues
 from check_kahan_summation_package import (
     static_issues as kahan_summation_package_issues,
@@ -1046,6 +1049,10 @@ from adaptive_simpson_quadrature_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as ADAPTIVE_SIMPSON_MAX_PARSEABLE_INPUT_LENGTH,
     expected_output as adaptive_simpson_quadrature_oracle,
 )
+from adaptive_gauss_kronrod_15_quadrature_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ADAPTIVE_GK15_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as adaptive_gauss_kronrod_15_quadrature_oracle,
+)
 from d.dormand_prince_54_adaptive_ode.primary_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as DORMAND_PRINCE_54_MAX_PARSEABLE_INPUT_LENGTH,
     expected_output as dormand_prince_54_adaptive_ode_oracle,
@@ -1965,6 +1972,7 @@ ORACLES = {
     "tdigest": tdigest_abi_oracle,
     "k_means_clust": k_means_clust_oracle,
     "adaptive_simpson_quadrature": adaptive_simpson_quadrature_oracle,
+    "adaptive_gauss_kronrod_15_quadrature": adaptive_gauss_kronrod_15_quadrature_oracle,
     "dormand_prince_54_adaptive_ode": dormand_prince_54_adaptive_ode_oracle,
     "ridders_root_finding": ridders_root_finding_oracle,
     "romberg_integration": romberg_integration_oracle,
@@ -4771,6 +4779,8 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         if algorithm == "rmsprop" else 64)
     if algorithm == "adaptive_simpson_quadrature":
         max_input_length = ADAPTIVE_SIMPSON_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "adaptive_gauss_kronrod_15_quadrature":
+        max_input_length = ADAPTIVE_GK15_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "dormand_prince_54_adaptive_ode":
         max_input_length = DORMAND_PRINCE_54_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "ridders_root_finding":
@@ -11303,6 +11313,81 @@ def validate_adaptive_simpson_quadrature_workload(workload: dict) -> None:
         encode_case(case, "adaptive_simpson_quadrature", absolute_tolerance, relative_tolerance)
 
 
+def validate_adaptive_gauss_kronrod_15_quadrature_workload(workload: dict) -> None:
+    """Pin adaptive GK15 fixtures, ABI precedence, and ten source ports."""
+    package = ROOT / "benchmarks" / "a" / "adaptive_gauss_kronrod_15_quadrature"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if workload != expected_workload:
+        raise ValueError("adaptive_gauss_kronrod_15_quadrature workload differs from its package file")
+    if (workload.get("algorithm") != "adaptive_gauss_kronrod_15_quadrature"
+            or workload.get("function_symbol") != "adaptive_gauss_kronrod_15_quadrature"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("input", {}).get("maximum_valid_input_length") != 5
+            or workload.get("input", {}).get("maximum_parseable_input_length")
+            != ADAPTIVE_GK15_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_elements") != 1
+            or workload.get("output", {}).get("maximum_bytes") != 8
+            or workload.get("workspace", {}).get("elements") != 1
+            or workload.get("workspace", {}).get("bytes") != 8
+            or tolerances(workload) != (2e-7, 2e-7)):
+        raise ValueError("adaptive_gauss_kronrod_15_quadrature bounds differ from the reviewed profile")
+    issues = adaptive_gauss_kronrod_15_package_issues()
+    if issues:
+        raise ValueError("adaptive_gauss_kronrod_15_quadrature package is incomplete: "
+                         + "; ".join(issues))
+    expected_case_ids = {
+        "exponential_unit_interval", "sine_unit_interval", "rational_symmetric_interval",
+        "fourteenth_power_symmetric_interval", "exponential_negative_interval",
+        "equal_endpoints", "interval_cap_exhausted", "invalid_function_id",
+        "invalid_fractional_field", "invalid_endpoint_below_domain",
+        "invalid_descending_interval", "invalid_tolerance_exponent",
+        "invalid_interval_limit", "invalid_short_frame", "invalid_extra_frame_value",
+    }
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_case_ids:
+        raise ValueError("adaptive_gauss_kronrod_15_quadrature fixtures differ from the reviewed corpus")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "adaptive_gauss_kronrod_15_quadrature",
+                    absolute_tolerance, relative_tolerance)
+    expected_abi_ids = {
+        "null_input", "valid_input_null_output", "valid_input_zero_capacity",
+        "invalid_input_precedes_output_error", "valid_input_precedes_interval_exhaustion",
+    }
+    abi_cases = workload.get("abi_cases")
+    if not isinstance(abi_cases, list) or {case.get("id") for case in abi_cases} != expected_abi_ids:
+        raise ValueError("adaptive_gauss_kronrod_15_quadrature ABI fixtures differ from the reviewed corpus")
+    for case in abi_cases:
+        raw_values = case.get("input_values")
+        capacity = case.get("output_capacity")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        if (not isinstance(raw_values, list)
+                or len(raw_values) > ADAPTIVE_GK15_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       for value in raw_values)
+                or type(capacity) is not int or not 0 <= capacity <= 1
+                or type(input_length) is not int
+                or not 0 <= input_length <= ADAPTIVE_GK15_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and (raw_values or input_length == 0)
+                or not input_is_null and input_length != len(raw_values)):
+            raise ValueError(f"invalid adaptive Gauss-Kronrod ABI framing: {case.get('id')}")
+        values = [float(value) for value in raw_values]
+        result, output = adaptive_gauss_kronrod_15_quadrature_oracle(
+            values, capacity, output_is_null, input_is_null, input_length)
+        expected = case.get("expected_output")
+        if (type(case.get("expected_result")) is not int
+                or case["expected_result"] != result
+                or not isinstance(expected, list) or len(expected) != len(output)
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       or abs(float(value) - reference)
+                       > absolute_tolerance + relative_tolerance * abs(reference)
+                       for value, reference in zip(expected, output))):
+            raise ValueError(f"adaptive Gauss-Kronrod ABI fixture mismatch: {case.get('id')}")
+
+
 def validate_smo_dual_pair_update_workload(workload: dict) -> None:
     """Pin the bounded SMO pair-update workload and static source inventory."""
     package = ROOT / "benchmarks" / "s" / "smo_dual_pair_update"
@@ -17659,6 +17744,8 @@ def main() -> int:
         validate_k_means_clust_workload(workload)
     elif algorithm == "adaptive_simpson_quadrature":
         validate_adaptive_simpson_quadrature_workload(workload)
+    elif algorithm == "adaptive_gauss_kronrod_15_quadrature":
+        validate_adaptive_gauss_kronrod_15_quadrature_workload(workload)
     elif algorithm == "ridders_root_finding":
         validate_ridders_root_finding_workload(workload)
     elif algorithm == "romberg_integration":

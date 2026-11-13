@@ -1,0 +1,171 @@
+def node_height(heights: view[i64], node: i64) -> i64:
+    if node == 0: return 0
+    heights[node.usize()]
+
+def node_size(sizes: view[i64], node: i64) -> i64:
+    if node == 0: return 0
+    sizes[node.usize()]
+
+def refresh(heights: mutable view[i64], sizes: mutable view[i64], left: view[i64], right: view[i64], node: i64) -> void:
+    lh: i64 = node_height(heights, left[node.usize()])
+    rh: i64 = node_height(heights, right[node.usize()])
+    if lh > rh: heights[node.usize()] <- lh + 1
+    else: heights[node.usize()] <- rh + 1
+    sizes[node.usize()] <- node_size(sizes, left[node.usize()]) + node_size(sizes, right[node.usize()]) + 1
+
+def rotate_right(heights: mutable view[i64], sizes: mutable view[i64], left: mutable view[i64], right: mutable view[i64], root: i64) -> i64:
+    pivot: i64 = left[root.usize()]
+    left[root.usize()] <- right[pivot.usize()]
+    right[pivot.usize()] <- root
+    refresh(heights, sizes, left, right, root)
+    refresh(heights, sizes, left, right, pivot)
+    pivot
+
+def rotate_left(heights: mutable view[i64], sizes: mutable view[i64], left: mutable view[i64], right: mutable view[i64], root: i64) -> i64:
+    pivot: i64 = right[root.usize()]
+    right[root.usize()] <- left[pivot.usize()]
+    left[pivot.usize()] <- root
+    refresh(heights, sizes, left, right, root)
+    refresh(heights, sizes, left, right, pivot)
+    pivot
+
+def rebalance(heights: mutable view[i64], sizes: mutable view[i64], left: mutable view[i64], right: mutable view[i64], root: i64) -> i64:
+    refresh(heights, sizes, left, right, root)
+    difference: i64 = node_height(heights, left[root.usize()]) - node_height(heights, right[root.usize()])
+    if difference > 1:
+        child: i64 = left[root.usize()]
+        if node_height(heights, left[child.usize()]) < node_height(heights, right[child.usize()]):
+            left[root.usize()] <- rotate_left(heights, sizes, left, right, child)
+        return rotate_right(heights, sizes, left, right, root)
+    if difference < -1:
+        child: i64 = right[root.usize()]
+        if node_height(heights, right[child.usize()]) < node_height(heights, left[child.usize()]):
+            right[root.usize()] <- rotate_right(heights, sizes, left, right, child)
+        return rotate_left(heights, sizes, left, right, root)
+    root
+
+def insert_key(keys: mutable view[i64], heights: mutable view[i64], sizes: mutable view[i64], left: mutable view[i64], right: mutable view[i64], used: mutable view[i64], root: i64, key: i64) -> i64:
+    if root == 0:
+        used[0] <- used[0] + 1
+        node: i64 = used[0]
+        keys[node.usize()] <- key
+        heights[node.usize()] <- 1
+        sizes[node.usize()] <- 1
+        return node
+    if key < keys[root.usize()]: left[root.usize()] <- insert_key(keys, heights, sizes, left, right, used, left[root.usize()], key)
+    else if key > keys[root.usize()]: right[root.usize()] <- insert_key(keys, heights, sizes, left, right, used, right[root.usize()], key)
+    else: return root
+    rebalance(heights, sizes, left, right, root)
+
+def minimum_node(left: view[i64], root_input: i64) -> i64:
+    root: mutable i64 = root_input
+    while left[root.usize()] != 0: root <- left[root.usize()]
+    root
+
+def erase_key(keys: mutable view[i64], heights: mutable view[i64], sizes: mutable view[i64], left: mutable view[i64], right: mutable view[i64], root: i64, key: i64) -> i64:
+    if root == 0: return 0
+    if key < keys[root.usize()]: left[root.usize()] <- erase_key(keys, heights, sizes, left, right, left[root.usize()], key)
+    else if key > keys[root.usize()]: right[root.usize()] <- erase_key(keys, heights, sizes, left, right, right[root.usize()], key)
+    else if left[root.usize()] == 0: return right[root.usize()]
+    else if right[root.usize()] == 0: return left[root.usize()]
+    else:
+        next: i64 = minimum_node(left, right[root.usize()])
+        keys[root.usize()] <- keys[next.usize()]
+        right[root.usize()] <- erase_key(keys, heights, sizes, left, right, right[root.usize()], keys[next.usize()])
+    rebalance(heights, sizes, left, right, root)
+
+def kth(keys: view[i64], sizes: view[i64], left: view[i64], right: view[i64], root_input: i64, rank_input: i64) -> i64:
+    if rank_input < 1 or rank_input > node_size(sizes, root_input): return -1
+    root: mutable i64 = root_input
+    rank: mutable i64 = rank_input
+    while root != 0:
+        left_count: i64 = node_size(sizes, left[root.usize()])
+        if rank == left_count + 1: return keys[root.usize()]
+        if rank <= left_count: root <- left[root.usize()]
+        else:
+            rank <- rank - left_count - 1
+            root <- right[root.usize()]
+    -1
+
+def count_le(keys: view[i64], sizes: view[i64], left: view[i64], right: view[i64], root_input: i64, key: i64) -> i64:
+    root: mutable i64 = root_input
+    count: mutable i64 = 0
+    while root != 0:
+        if keys[root.usize()] <= key:
+            count <- count + node_size(sizes, left[root.usize()]) + 1
+            root <- right[root.usize()]
+        else: root <- left[root.usize()]
+    count
+
+def predecessor(keys: view[i64], left: view[i64], right: view[i64], root_input: i64, key: i64) -> i64:
+    root: mutable i64 = root_input
+    answer: mutable i64 = -1
+    while root != 0:
+        if keys[root.usize()] <= key:
+            answer <- keys[root.usize()]
+            root <- right[root.usize()]
+        else: root <- left[root.usize()]
+    answer
+
+def successor(keys: view[i64], left: view[i64], right: view[i64], root_input: i64, key: i64) -> i64:
+    root: mutable i64 = root_input
+    answer: mutable i64 = -1
+    while root != 0:
+        if keys[root.usize()] >= key:
+            answer <- keys[root.usize()]
+            root <- left[root.usize()]
+        else: root <- right[root.usize()]
+    answer
+
+def ordered_set_avl_order_statistics_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > 99: return -1
+    n: i64 = input[0]
+    q: i64 = input[1]
+    if n < 0 or n > 32 or q < 0 or q > 32 or length != (2 + n + 2 * q).usize(): return -1
+    i: mutable i64 = 0
+    while i < n:
+        key: i64 = input[(2 + i).usize()]
+        if key < 0 or key > 1000 or (i > 0 and input[(1 + i).usize()] >= key): return -1
+        i <- i + 1
+    i <- 0
+    while i < q:
+        op: i64 = input[(2 + n + 2 * i).usize()]
+        key: i64 = input[(3 + n + 2 * i).usize()]
+        if op < 0 or op > 5 or key < 0 or key > 1000 or (op == 2 and key < 1): return -1
+        i <- i + 1
+    keys: mutable i64[65] = zeroed
+    heights: mutable i64[65] = zeroed
+    sizes: mutable i64[65] = zeroed
+    left: mutable i64[65] = zeroed
+    right: mutable i64[65] = zeroed
+    used: mutable i64[1] = zeroed
+    root: mutable i64 = 0
+    i <- 0
+    while i < n:
+        root <- insert_key(keys[0:65], heights[0:65], sizes[0:65], left[0:65], right[0:65], used[0:1], root, input[(2 + i).usize()])
+        i <- i + 1
+    checksum: mutable i64 = 0
+    query_index: mutable i64 = 0
+    i <- 0
+    while i < q:
+        op: i64 = input[(2 + n + 2 * i).usize()]
+        key: i64 = input[(3 + n + 2 * i).usize()]
+        if op == 0:
+            root <- insert_key(keys[0:65], heights[0:65], sizes[0:65], left[0:65], right[0:65], used[0:1], root, key)
+        else if op == 1:
+            root <- erase_key(keys[0:65], heights[0:65], sizes[0:65], left[0:65], right[0:65], root, key)
+        else:
+            answer: i64 = -1
+            if op == 2: answer <- kth(keys[0:65], sizes[0:65], left[0:65], right[0:65], root, key)
+            else if op == 3: answer <- count_le(keys[0:65], sizes[0:65], left[0:65], right[0:65], root, key)
+            else if op == 4: answer <- predecessor(keys[0:65], left[0:65], right[0:65], root, key)
+            else: answer <- successor(keys[0:65], left[0:65], right[0:65], root, key)
+            query_index <- query_index + 1
+            checksum <- checksum + query_index * (answer + 1)
+        i <- i + 1
+    checksum
+
+export fn ordered_set_avl_order_statistics(input: i64&, length: usize) -> i64:
+    if input.is_null(): return -1
+    input_view: view[i64] = input[0:length]
+    ordered_set_avl_order_statistics_impl(input_view, length)

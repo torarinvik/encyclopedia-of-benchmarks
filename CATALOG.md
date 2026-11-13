@@ -5681,6 +5681,30 @@ This exact bounded-multiplicity knapsack profile transforms each residue-class t
 
 This profile scans the text while counting visited automaton states, then propagates those counts to failure parents in reverse breadth-first order. It counts overlapping matches for all patterns without work proportional to the number of reported matches. Ten ports and an independent direct substring-scan oracle are registered in the byte-output suite. See the [guide](benchmarks/a/aho_corasick_failure_tree_counts/README.md), [workload](benchmarks/a/aho_corasick_failure_tree_counts/workload.json), [CP-Algorithms](https://cp-algorithms.com/string/aho_corasick.html), and [OI Wiki](https://oi-wiki.org/string/ac-automaton/).
 
+## Pollard p−1 factorization (`pollard_p_minus_one_factorization`)
+
+This bounded stage-1 factorization profile starts from a supplied base, applies each maximal prime-power exponent through the smoothness bound, and checks the resulting residue with a gcd. Ten ports use safe signed-64-bit modular products under the `N<=10^9` bound; the independent oracle accumulates exponents as Python big integers. The scalar suite covers factor discovery, a whole-modulus gcd, exhausted bounds, and malformed frames. See the [guide](benchmarks/p/pollard_p_minus_one_factorization/README.md), [workload](benchmarks/p/pollard_p_minus_one_factorization/workload.json), and [CP-Algorithms' Pollard p−1 description](https://cp-algorithms.com/algebra/factorization.html#pollards-p-1-method).
+
+## Edge connectivity by all-pairs max flow (`edge_connectivity_all_pairs_maxflow`)
+
+This bounded undirected-graph profile runs unit-capacity Edmonds–Karp maximum flow for each unordered pair and returns the least maximum-flow value, which is zero for disconnected graphs. Ten ports use O(N²) terminal pairs with O(N³) bounded flow work per pair; the independent oracle enumerates every nontrivial vertex cut. This method measures a different global-cut algorithm from the local Stoer–Wagner package. See the [guide](benchmarks/e/edge_connectivity_all_pairs_maxflow/README.md), [workload](benchmarks/e/edge_connectivity_all_pairs_maxflow/workload.json), and [CP-Algorithms' edge-connectivity description](https://cp-algorithms.com/graph/edge_vertex_connectivity.html#edge-connectivity-using-maximum-flow).
+
+## Adaptive Gauss–Kronrod 15-point quadrature (`adaptive_gauss_kronrod_15_quadrature`)
+
+This bounded numeric profile estimates the integral and local error from an embedded Gauss-7/Kronrod-15 pair, then bisects the active interval with greatest estimated error. Ten ports use at most 16 interval records; an independent oracle checks convergence status with a priority queue and returns closed-form integrals for successful cases. Malformed input returns -1, output-buffer errors return -2 before numerical work, and interval-cap exhaustion returns -3 without writing output. See the [guide](benchmarks/a/adaptive_gauss_kronrod_15_quadrature/README.md), [workload](benchmarks/a/adaptive_gauss_kronrod_15_quadrature/workload.json), and [GSL numerical-integration manual](https://www.gnu.org/software/gsl/doc/html/integration.html).
+
+## Factoring-based exponentiation (`factoring_exponentiation`)
+
+This 32-bit power-of-two modular profile computes `a*x^y mod 2^d` by normalizing an odd unit, extracting its 2-adic logarithm, multiplying by `y`, and reconstructing the result. Ten ports use O(d) time and O(1) space; an independent repeated-squaring oracle checks results. It is method-distinct from the general modular-exponentiation packages. See the [guide](benchmarks/f/factoring_exponentiation/README.md), [workload](benchmarks/f/factoring_exponentiation/workload.json), and [CP-Algorithms article](https://cp-algorithms.com/algebra/factoring-exp.html).
+
+## ISAP maximum flow (`isap_maxflow`)
+
+This bounded directed-network profile uses reverse-BFS labels, current-arc DFS, dynamic distance relabeling, and the gap termination rule. Ten ports accept up to eight vertices and 24 edges; an independent source-side cut enumeration checks maximum-flow values. Parallel and antiparallel arcs are supported, while self-loops are rejected. See the [guide](benchmarks/i/isap_maxflow/README.md), [workload](benchmarks/i/isap_maxflow/workload.json), and [OI Wiki's ISAP description](https://oi-wiki.org/graph/flow/max-flow/#isap).
+
+## ECM stage-one factor detection (`elliptic_curve_method_stage1`)
+
+This bounded deterministic profile tests the factor-detection core of Lenstra's elliptic-curve method using a supplied point on a Montgomery-form curve. Ten ports use X:Z differential addition and a binary ladder, multiplying by successive maximal prime powers through the stage-one bound and checking each projective denominator with a gcd. The independent oracle trial-factors the small square-free modulus and uses affine group operations over its prime fields. It does not generate random curves or run stage two. See the [guide](benchmarks/e/elliptic_curve_method_stage1/README.md), [workload](benchmarks/e/elliptic_curve_method_stage1/workload.json), and the [in-progress Library Checker proposal](https://github.com/yosupo06/library-checker-problems/issues/1395).
+
 ## Ridders root finding (`ridders_root_finding`)
 
 This bounded numeric profile applies Ridders' midpoint-based exponential interpolation while preserving a sign-changing interval. Ten ports cover four fixed polynomials, exact endpoint and midpoint roots, malformed or unbracketed inputs, output-buffer errors, and iteration-cap failures. An independent high-precision bisection oracle checks the returned estimate. See the [guide](benchmarks/r/ridders_root_finding/README.md), [workload](benchmarks/r/ridders_root_finding/workload.json), and [SciPy's method reference](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.ridder.html).
@@ -5692,3 +5716,7 @@ This bounded quadrature profile repeatedly halves a composite trapezoid grid and
 ## Persistent segment-tree range kth (`persistent_segment_tree_range_kth`)
 
 This bounded static range-quantile profile builds path-copied frequency histograms for successive prefixes and descends the difference of the roots at `R+1` and `L`. Ten ports keep the compressed value domain and node pool within the fixed 193-node bound; an independent oracle sorts each requested slice. It shares the range-kth operation with the wavelet-tree package while using a different persistent-tree representation and traversal. See the [guide](benchmarks/p/persistent_segment_tree_range_kth/README.md), [workload](benchmarks/p/persistent_segment_tree_range_kth/workload.json), and [CP-Algorithms description](https://cp-algorithms.com/data_structures/segment_tree.html).
+
+## Dynamic ordered set with AVL order statistics (`ordered_set_avl_order_statistics`)
+
+This bounded dynamic-set profile supports idempotent insert/delete, one-based kth selection, count of keys at most x, inclusive predecessor, and inclusive successor. Its AVL nodes maintain both height and subtree size; an independent sorted-list oracle simulates the same trace. Initial and operation counts are at most 32, keys are in 0..1000, the maximum live set is 64, and the maximum input frame is 98 i64 values. Ten language ports and scalar-suite registration are included. See the [guide](benchmarks/o/ordered_set_avl_order_statistics/README.md), [workload](benchmarks/o/ordered_set_avl_order_statistics/workload.json), and [Library Checker task](https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/ordered_set/task.md).

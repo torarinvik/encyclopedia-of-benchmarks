@@ -75,8 +75,10 @@ def _parse(values: Sequence[int | float], input_is_null: bool,
             or not MIN_TOLERANCE_EXPONENT <= exponent <= MAX_TOLERANCE_EXPONENT
             or not 1 <= interval_limit <= MAX_INTERVALS):
         return None
-    return (function_id, a_micro / SCALE, b_micro / SCALE,
-            10.0 ** (-exponent), interval_limit)
+    tolerance = 1.0
+    for _ in range(exponent):
+        tolerance *= 0.1
+    return function_id, a_micro / SCALE, b_micro / SCALE, tolerance, interval_limit
 
 
 def _sample(function_id: int, x: float) -> float:

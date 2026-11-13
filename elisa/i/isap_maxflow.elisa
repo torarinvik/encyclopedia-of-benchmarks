@@ -1,0 +1,81 @@
+# ISAP maximum flow: reverse-BFS labels, current arcs, dynamic relabeling, and gap termination.
+def isap_maxflow_dfs(u: usize, sink: usize, amount: i64, n: usize,
+                     residual: mutable view[i64], distance: view[i64],
+                     gap: mutable view[i64], current: mutable view[usize],
+                     stopped: mutable view[i64]) -> i64:
+    if u == sink: return amount
+    while current[u] < n:
+        v: usize = current[u]
+        edge: usize = u * 8 + v
+        if residual[edge] > 0 and distance[u] == distance[v] + 1:
+            limit: mutable i64 = amount
+            if residual[edge] < limit: limit <- residual[edge]
+            sent: i64 = isap_maxflow_dfs(v, sink, limit, n, residual, distance, gap, current, stopped)
+            if sent > 0:
+                residual[edge] <- residual[edge] - sent
+                residual[v * 8 + u] <- residual[v * 8 + u] + sent
+                return sent
+            if stopped[0] != 0: return 0
+        current[u] <- current[u] + 1
+    old: i64 = distance[u]
+    best: i64 = n.i64()
+    for v in 0..<n:
+        if residual[u * 8 + v] > 0 and distance[v] < best: best <- distance[v]
+    replacement: i64 = best + 1
+    if replacement > n.i64(): replacement <- n.i64()
+    gap[old.usize()] <- gap[old.usize()] - 1
+    distance[u] <- replacement
+    gap[replacement.usize()] <- gap[replacement.usize()] + 1
+    current[u] <- 0
+    if old < n.i64() and gap[old.usize()] == 0: stopped[0] <- 1
+    0
+
+def isap_maxflow_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > 77: return -1
+    nv: i64 = input[0]
+    mv: i64 = input[1]
+    sv: i64 = input[2]
+    tv: i64 = input[3]
+    if nv < 2 or nv > 8 or mv < 0 or mv > 24 or sv < 0 or sv >= nv or tv < 0 or tv >= nv or sv == tv:
+        return -1
+    n: usize = nv.usize()
+    m: usize = mv.usize()
+    source: usize = sv.usize()
+    sink: usize = tv.usize()
+    if length != 4 + 3 * m: return -1
+    residual: mutable i64[64] = zeroed
+    for edge in 0..<m:
+        u: i64 = input[4 + 3 * edge]
+        v: i64 = input[5 + 3 * edge]
+        capacity: i64 = input[6 + 3 * edge]
+        if u < 0 or u >= nv or v < 0 or v >= nv or u == v or capacity < 0 or capacity > 100: return -1
+        index: usize = u.usize() * 8 + v.usize()
+        residual[index] <- residual[index] + capacity
+    distance: mutable i64[8] = zeroed
+    gap: mutable i64[9] = zeroed
+    current: mutable usize[8] = zeroed
+    queue: mutable usize[8] = zeroed
+    for vertex in 0..<n: distance[vertex] <- nv
+    distance[sink] <- 0
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    queue[0] <- sink
+    while head < tail:
+        v: usize = queue[head]
+        head <- head + 1
+        for predecessor in 0..<n:
+            if distance[predecessor] == nv and residual[predecessor * 8 + v] > 0:
+                distance[predecessor] <- distance[v] + 1
+                queue[tail] <- predecessor
+                tail <- tail + 1
+    if distance[source] >= nv: return 0
+    for vertex in 0..<n: gap[distance[vertex].usize()] <- gap[distance[vertex].usize()] + 1
+    flow: mutable i64 = 0
+    stopped_storage: mutable i64[1] = zeroed
+    stopped: mutable view[i64] = stopped_storage[0:1]
+    while distance[source] < nv and stopped[0] == 0:
+        flow <- flow + isap_maxflow_dfs(source, sink, 2400, n,
+            residual[0:64], distance[0:8], gap[0:9], current[0:8], stopped)
+    flow
+
+export fn isap_maxflow(input: i64&, length: usize) -> i64 = isap_maxflow_impl

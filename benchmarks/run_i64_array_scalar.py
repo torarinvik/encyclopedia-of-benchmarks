@@ -1657,6 +1657,14 @@ from check_point_in_polygon_ray_casting_package import static_issues as point_in
 from vertex_connectivity_oracle import MAX_INPUT_LENGTH as VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH
 from vertex_connectivity_oracle import expected_result as vertex_connectivity_expected
 from v.vertex_connectivity.verify_vertex_connectivity_package import validate_package as verify_vertex_connectivity_package
+from e.edge_connectivity_all_pairs_maxflow.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as EDGE_CONNECTIVITY_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as EDGE_CONNECTIVITY_MAX_VALID_INPUT_LENGTH,
+    expected_result as edge_connectivity_all_pairs_maxflow_expected,
+)
+from e.edge_connectivity_all_pairs_maxflow.verify_edge_connectivity_all_pairs_maxflow_package import (
+    static_issues as edge_connectivity_all_pairs_maxflow_static_issues,
+)
 from eertree_oracle import MAX_INPUT_LENGTH as EERTREE_MAX_INPUT_LENGTH
 from eertree_oracle import SOURCE_BASIS as EERTREE_SOURCE_BASIS
 from eertree_oracle import expected_result as eertree_expected
@@ -1900,6 +1908,48 @@ from p.pollard_p_minus_one_factorization.primary_oracle import (
 )
 from p.pollard_p_minus_one_factorization.verify_pollard_p_minus_one_factorization_package import (
     static_issues as pollard_p_minus_one_static_issues,
+)
+from f.factoring_exponentiation.primary_oracle import (
+    INVALID_RESULT as FACTORING_EXPONENTIATION_INVALID_RESULT,
+    MAX_EXPONENT as FACTORING_EXPONENTIATION_MAX_EXPONENT,
+    MAX_PARSEABLE_INPUT_LENGTH as FACTORING_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as FACTORING_EXPONENTIATION_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as FACTORING_EXPONENTIATION_WORKSPACE_BYTES,
+    expected_result as factoring_exponentiation_expected,
+)
+from f.factoring_exponentiation.check_inventory import (
+    static_issues as factoring_exponentiation_static_issues,
+)
+from isap_maxflow_oracle import (
+    MAX_CAPACITY as ISAP_MAX_CAPACITY,
+    MAX_EDGES as ISAP_MAX_EDGES,
+    MAX_FLOW as ISAP_MAX_FLOW,
+    MAX_PARSEABLE_INPUT_LENGTH as ISAP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as ISAP_MAX_VALID_INPUT_LENGTH,
+    MAX_VERTICES as ISAP_MAX_VERTICES,
+    expected_result as isap_maxflow_expected,
+)
+from check_isap_maxflow_package import static_issues as isap_maxflow_static_issues
+from e.elliptic_curve_method_stage1.primary_oracle import (
+    INVALID_RESULT as ECM_STAGE1_INVALID_RESULT,
+    MAX_BOUND as ECM_STAGE1_MAX_BOUND,
+    MAX_NUMBER as ECM_STAGE1_MAX_NUMBER,
+    MAX_PARSEABLE_INPUT_LENGTH as ECM_STAGE1_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as ECM_STAGE1_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as ECM_STAGE1_WORKSPACE_BYTES,
+    expected_result as elliptic_curve_method_stage1_expected,
+)
+from e.elliptic_curve_method_stage1.check_package import (
+    static_issues as elliptic_curve_method_stage1_static_issues,
+)
+from o.ordered_set_avl_order_statistics.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ORDERED_SET_AVL_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as ORDERED_SET_AVL_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as ORDERED_SET_AVL_WORKSPACE_BYTES,
+    expected_result as ordered_set_avl_expected,
+)
+from o.ordered_set_avl_order_statistics.check_package import (
+    static_issues as ordered_set_avl_static_issues,
 )
 from p.persistent_segment_tree_range_kth.primary_oracle import (
     INVALID_RESULT as PERSISTENT_RANGE_KTH_INVALID_RESULT,
@@ -4283,6 +4333,40 @@ def validate_vertex_connectivity_workload(workload: dict) -> None:
         verify_vertex_connectivity_package()
     except (OSError, ValueError) as error:
         raise ValueError(f"vertex_connectivity package is incomplete: {error}") from error
+
+
+def validate_edge_connectivity_all_pairs_maxflow_workload(workload: dict) -> None:
+    """Check the all-pairs flow package, workload fixtures, and source inventory."""
+    package_workload = (
+        ROOT / "benchmarks/e/edge_connectivity_all_pairs_maxflow/workload.json"
+    )
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("edge_connectivity_all_pairs_maxflow workload differs from its package file")
+    issues = edge_connectivity_all_pairs_maxflow_static_issues()
+    if issues:
+        raise ValueError("edge_connectivity_all_pairs_maxflow package is incomplete: "
+                         + "; ".join(issues))
+    for case in workload.get("cases", []):
+        values = case.get("input_values") if isinstance(case, dict) else None
+        input_is_null = case.get("input_is_null", False) if isinstance(case, dict) else False
+        input_length = case.get("input_length") if isinstance(case, dict) else None
+        if (not isinstance(values, list)
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or len(values) > EDGE_CONNECTIVITY_MAX_PARSEABLE_INPUT_LENGTH
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(
+                "edge_connectivity_all_pairs_maxflow fixture framing is invalid: "
+                f"{case.get('id') if isinstance(case, dict) else '<non-object>'}"
+            )
+        expected = edge_connectivity_all_pairs_maxflow_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError(
+                "edge_connectivity_all_pairs_maxflow fixture differs from its flow oracle: "
+                f"{case.get('id')}"
+            )
 
 
 def validate_hunt_szymanski_lcs_workload(workload: dict) -> None:
@@ -7774,6 +7858,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "lwe_encryption" else
                         POLLARD_P_MINUS_ONE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "pollard_p_minus_one_factorization" else
+                        FACTORING_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "factoring_exponentiation" else
+                        ISAP_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "isap_maxflow" else
+                        ECM_STAGE1_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "elliptic_curve_method_stage1" else
+                        ORDERED_SET_AVL_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "ordered_set_avl_order_statistics" else
                         POLLARD_RHO_JAVA_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "pollard_rho_java" else
                         POLLARD_RHO_PYTHON_MAX_PARSEABLE_LENGTH if algorithm == "pollard_rho_python" else
                         POLLARD_RHO_RUST_MAX_PARSEABLE_LENGTH if algorithm == "pollard_rho_rust" else
@@ -7859,6 +7951,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "pfaffian_of_matrix" else
                         X_FAST_TRIE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "x_fast_trie_static_predecessor" else
+                        EDGE_CONNECTIVITY_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "edge_connectivity_all_pairs_maxflow" else
                         THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
                         if algorithm == "three_edge_connected_components" else
                         VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH + 1
@@ -9159,6 +9253,34 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         )
         if expected != expected_from_source:
             raise ValueError("pollard_p_minus_one_factorization expected_result must match staged p−1 gcds")
+    elif algorithm == "factoring_exponentiation":
+        expected_from_source = factoring_exponentiation_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("factoring_exponentiation expected_result must match the 2-adic factoring method")
+    elif algorithm == "isap_maxflow":
+        expected_from_source = isap_maxflow_expected(None if case.get("input_is_null", False) else values)
+        if expected != expected_from_source:
+            raise ValueError("isap_maxflow expected_result must match the reverse-BFS ISAP oracle")
+    elif algorithm == "elliptic_curve_method_stage1":
+        expected_from_source = elliptic_curve_method_stage1_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("elliptic_curve_method_stage1 expected_result must match the Montgomery ECM oracle")
+    elif algorithm == "ordered_set_avl_order_statistics":
+        expected_from_source = ordered_set_avl_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("ordered_set_avl_order_statistics expected_result must match its AVL oracle")
     elif algorithm == "persistent_segment_tree_range_kth":
         expected_from_source = persistent_segment_tree_range_kth_expected(
             values,
@@ -23035,6 +23157,286 @@ def validate_pollard_p_minus_one_factorization_workload(workload: dict) -> None:
             )
 
 
+def validate_factoring_exponentiation_workload(workload: dict) -> None:
+    """Check the factoring method's metadata, ports, and declared results."""
+    package_workload = ROOT / "benchmarks/f/factoring_exponentiation/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("factoring_exponentiation workload differs from its package file")
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[a,x,y,d]",
+        "remainder_range": "0..2^d-1",
+        "base_range": "1..2^d-1, odd",
+        "exponent_range": [0, FACTORING_EXPONENTIATION_MAX_EXPONENT],
+        "modulus_exponent_range": [3, 32],
+        "maximum_valid_input_length": FACTORING_EXPONENTIATION_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": FACTORING_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": FACTORING_EXPONENTIATION_INVALID_RESULT,
+        "null_input_result": FACTORING_EXPONENTIATION_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_scalar",
+        "meaning": "a*x^y modulo 2^d",
+        "success_result_range": [0, FACTORING_EXPONENTIATION_MAX_EXPONENT],
+        "invalid_input_result": FACTORING_EXPONENTIATION_INVALID_RESULT,
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "cp-algorithms-factoring-exponentiation-i64-array-scalar-v1"
+            or workload.get("algorithm") != "factoring_exponentiation"
+            or workload.get("function_symbol") != "factoring_exponentiation"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("source", {}).get("url") != "https://cp-algorithms.com/algebra/factoring-exp.html"
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace", {}).get("bytes") != FACTORING_EXPONENTIATION_WORKSPACE_BYTES
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call",
+                "sample_count": 8,
+                "warmup_rounds": 2,
+                "repetitions_per_sample": 100,
+            }):
+        raise ValueError("factoring_exponentiation metadata differs from its bounded contract")
+    issues = factoring_exponentiation_static_issues()
+    if issues:
+        raise ValueError("factoring_exponentiation package is incomplete: " + "; ".join(issues))
+    for case in workload.get("cases", []):
+        values = case.get("input_values") if isinstance(case, dict) else None
+        input_length = case.get("input_length") if isinstance(case, dict) else None
+        if (not isinstance(values, list) or type(input_length) is not int
+                or len(values) > FACTORING_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH
+                or input_length != len(values)):
+            raise ValueError(
+                "factoring_exponentiation fixture framing is invalid: "
+                f"{case.get('id') if isinstance(case, dict) else '<non-object>'}"
+            )
+        expected = factoring_exponentiation_expected(values, input_length=input_length)
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError(f"factoring_exponentiation fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_isap_maxflow_workload(workload: dict) -> None:
+    """Check the ISAP profile metadata, static inventory, and fixtures."""
+    package_workload = ROOT / "benchmarks/i/isap_maxflow/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("isap_maxflow workload differs from its package file")
+    input_spec = {
+        "encoding": "[N,M,source,sink,(u,v,capacity)*M]",
+        "kind": "i64_array_scalar",
+        "vertex_count_range": [2, ISAP_MAX_VERTICES],
+        "edge_count_range": [0, ISAP_MAX_EDGES],
+        "vertex_ids": "0-based",
+        "source_sink_distinct": True,
+        "self_loops_allowed": False,
+        "parallel_edges_allowed": True,
+        "antiparallel_edges_allowed": True,
+        "capacity_range": [0, ISAP_MAX_CAPACITY],
+        "maximum_valid_input_length": ISAP_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": ISAP_MAX_PARSEABLE_INPUT_LENGTH,
+        "maximum_flow": ISAP_MAX_FLOW,
+        "invalid_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "definition": "Maximum integral flow from source to sink.",
+        "invalid_input_result": -1,
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "oiwiki-isap-maxflow-bounded-directed-v1"
+            or workload.get("algorithm") != "isap_maxflow"
+            or workload.get("function_symbol") != "isap_maxflow"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("pinned_source", {}).get("url")
+            != "https://oi-wiki.org/graph/flow/max-flow/#isap"
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace", {}).get("bytes") != 4096
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call",
+                "sample_count": 8,
+                "warmup_rounds": 2,
+                "repetitions_per_sample": 1000,
+            }):
+        raise ValueError("isap_maxflow metadata differs from its bounded contract")
+    issues = isap_maxflow_static_issues()
+    if issues:
+        raise ValueError("isap_maxflow package is incomplete: " + "; ".join(issues))
+    for case in workload.get("cases", []):
+        values = case.get("input_values") if isinstance(case, dict) else None
+        input_is_null = case.get("input_is_null", False) if isinstance(case, dict) else False
+        input_length = (
+            case.get("input_length", len(values) if isinstance(values, list) else None)
+            if isinstance(case, dict) else None
+        )
+        if (not isinstance(values, list)
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or len(values) > ISAP_MAX_PARSEABLE_INPUT_LENGTH
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(
+                "isap_maxflow fixture framing is invalid: "
+                f"{case.get('id') if isinstance(case, dict) else '<non-object>'}"
+            )
+        expected = isap_maxflow_expected(None if input_is_null else values)
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError(f"isap_maxflow fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_elliptic_curve_method_stage1_workload(workload: dict) -> None:
+    """Check the bounded ECM stage-1 metadata, ports, and fixture values."""
+    package_workload = ROOT / "benchmarks/e/elliptic_curve_method_stage1/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("elliptic_curve_method_stage1 workload differs from its package file")
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[N,A,X,Y,B1] for y^2=x^3+A*x^2+x modulo N",
+        "valid_length": ECM_STAGE1_MAX_VALID_INPUT_LENGTH,
+        "maximum_valid_input_length": ECM_STAGE1_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": ECM_STAGE1_MAX_PARSEABLE_INPUT_LENGTH,
+        "number_range": [3, ECM_STAGE1_MAX_NUMBER],
+        "number_constraints": "N is odd and square-free",
+        "curve_coefficient_range": "0<=A<N and gcd(A^2-4,N)=1",
+        "point_range": "0<=X,Y<N and Y^2 congruent to X^3+A*X^2+X modulo N",
+        "stage1_bound_range": [2, ECM_STAGE1_MAX_BOUND],
+        "invalid_input_result": ECM_STAGE1_INVALID_RESULT,
+        "null_input_result": ECM_STAGE1_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_scalar",
+        "meaning": "1 if a stage-1 checkpoint has 1<gcd(Z,N)<N; a gcd equal to N terminates the curve with 0 because the point is infinity modulo every prime factor; otherwise 0",
+        "valid_result_range": [0, 1],
+        "invalid_input_result": ECM_STAGE1_INVALID_RESULT,
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "elliptic-curve-method-stage1-factor-detection-i64-array-scalar-v1"
+            or workload.get("algorithm") != "elliptic_curve_method_stage1"
+            or workload.get("function_symbol") != "elliptic_curve_method_stage1"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("source", {}).get("urls") != [
+                "https://github.com/yosupo06/library-checker-problems/issues/1395",
+                "https://annals.math.princeton.edu/1987/126-3/p09",
+                "https://doi.org/10.1090/S0025-5718-1987-0866113-7",
+            ]
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace", {}).get("bytes") != ECM_STAGE1_WORKSPACE_BYTES
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call",
+                "sample_count": 8,
+                "warmup_rounds": 2,
+                "repetitions_per_sample": 100,
+            }):
+        raise ValueError("elliptic_curve_method_stage1 metadata differs from its bounded contract")
+    issues = elliptic_curve_method_stage1_static_issues()
+    if issues:
+        raise ValueError("elliptic_curve_method_stage1 package is incomplete: " + "; ".join(issues))
+    for case in workload.get("cases", []):
+        values = case.get("input_values") if isinstance(case, dict) else None
+        input_is_null = case.get("input_is_null", False) if isinstance(case, dict) else False
+        input_length = (
+            case.get("input_length", len(values) if isinstance(values, list) else None)
+            if isinstance(case, dict) else None
+        )
+        if (not isinstance(values, list)
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or len(values) > ECM_STAGE1_MAX_PARSEABLE_INPUT_LENGTH
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(
+                "elliptic_curve_method_stage1 fixture framing is invalid: "
+                f"{case.get('id') if isinstance(case, dict) else '<non-object>'}"
+            )
+        expected = elliptic_curve_method_stage1_expected(
+            values, input_is_null=input_is_null, input_length=input_length
+        )
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError(
+                "elliptic_curve_method_stage1 fixture differs from its primary oracle: "
+                f"{case.get('id')}"
+            )
+
+
+def validate_ordered_set_avl_order_statistics_workload(workload: dict) -> None:
+    """Check the dynamic ordered-set contract, package inventory, and fixtures."""
+    package_workload = ROOT / "benchmarks/o/ordered_set_avl_order_statistics/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("ordered_set_avl_order_statistics workload differs from its package file")
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[N,Q,initial[N],(opcode,key)*Q]",
+        "initial_count_range": [0, 32],
+        "operation_count_range": [0, 32],
+        "initial_keys": "strictly increasing integers in [0,1000]",
+        "operation_keys": "integers in [0,1000]; opcode 2 also requires key>=1",
+        "maximum_live_keys": 64,
+        "valid_length": "2+N+2*Q",
+        "maximum_valid_input_length": ORDERED_SET_AVL_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": ORDERED_SET_AVL_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": -1,
+        "null_input_result": -1,
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "dynamic-ordered-set-avl-order-statistics-i64-array-scalar-v1"
+            or workload.get("algorithm") != "ordered_set_avl_order_statistics"
+            or workload.get("function_symbol") != "ordered_set_avl_order_statistics"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("source", {}).get("urls") != [
+                "https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/ordered_set/task.md"
+            ]
+            or workload.get("input") != input_spec
+            or workload.get("operations") != {
+                "0": "insert key if absent",
+                "1": "erase key if present",
+                "2": "one-based kth key, or -1 when k exceeds set size",
+                "3": "number of keys <= key",
+                "4": "greatest key <= key, or -1 if absent",
+                "5": "least key >= key, or -1 if absent",
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_scalar",
+                "meaning": "sum((query_index+1)*(answer+1)) across query operations 2 through 5; query_index is one-based",
+                "valid_result_range": [0, 528528],
+                "invalid_input_result": -1,
+            }
+            or workload.get("workspace", {}).get("bytes") != ORDERED_SET_AVL_WORKSPACE_BYTES
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call",
+                "sample_count": 8,
+                "warmup_rounds": 2,
+                "repetitions_per_sample": 100,
+            }):
+        raise ValueError("ordered_set_avl_order_statistics metadata differs from its bounded contract")
+    issues = ordered_set_avl_static_issues()
+    if issues:
+        raise ValueError("ordered_set_avl_order_statistics package is incomplete: " + "; ".join(issues))
+    for case in workload.get("cases", []):
+        values = case.get("input_values") if isinstance(case, dict) else None
+        input_is_null = case.get("input_is_null", False) if isinstance(case, dict) else False
+        input_length = (
+            case.get("input_length", len(values) if isinstance(values, list) else None)
+            if isinstance(case, dict) else None
+        )
+        if (not isinstance(values, list)
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or len(values) > ORDERED_SET_AVL_MAX_PARSEABLE_INPUT_LENGTH
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(
+                "ordered_set_avl_order_statistics fixture framing is invalid: "
+                f"{case.get('id') if isinstance(case, dict) else '<non-object>'}"
+            )
+        expected = ordered_set_avl_expected(
+            values, input_is_null=input_is_null, input_length=input_length
+        )
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError(
+                "ordered_set_avl_order_statistics fixture differs from its oracle: "
+                f"{case.get('id')}"
+            )
+
+
 def validate_persistent_segment_tree_range_kth_workload(workload: dict) -> None:
     input_spec = {
         "kind": "signed_64_bit_integer_array",
@@ -23492,6 +23894,8 @@ def main() -> int:
         validate_point_in_polygon_ray_casting_workload(workload)
     elif algorithm == "vertex_connectivity":
         validate_vertex_connectivity_workload(workload)
+    elif algorithm == "edge_connectivity_all_pairs_maxflow":
+        validate_edge_connectivity_all_pairs_maxflow_workload(workload)
     elif algorithm == "hunt_szymanski_lcs":
         validate_hunt_szymanski_lcs_workload(workload)
     elif algorithm == "eertree":
@@ -23556,6 +23960,14 @@ def main() -> int:
         validate_bareiss_determinant_workload(workload)
     elif algorithm == "pollard_p_minus_one_factorization":
         validate_pollard_p_minus_one_factorization_workload(workload)
+    elif algorithm == "factoring_exponentiation":
+        validate_factoring_exponentiation_workload(workload)
+    elif algorithm == "isap_maxflow":
+        validate_isap_maxflow_workload(workload)
+    elif algorithm == "elliptic_curve_method_stage1":
+        validate_elliptic_curve_method_stage1_workload(workload)
+    elif algorithm == "ordered_set_avl_order_statistics":
+        validate_ordered_set_avl_order_statistics_workload(workload)
     elif algorithm == "persistent_segment_tree_range_kth":
         validate_persistent_segment_tree_range_kth_workload(workload)
     elif algorithm == "count_different_palindromic_subsequences":
@@ -23599,12 +24011,17 @@ def main() -> int:
                 "point_set_range_sort_range_composite",
                 "point_in_polygon_ray_casting",
                 "vertex_connectivity",
+                "edge_connectivity_all_pairs_maxflow",
                 "stirling_number_of_the_second_kind_small_p_large_n",
                 "stirling_number_of_the_first_kind_small_p_large_n",
                 "parallel_binary_search_range_threshold",
                 "cdq_three_dimensional_dominance",
                 "bareiss_determinant",
                 "pollard_p_minus_one_factorization",
+                "factoring_exponentiation",
+                "isap_maxflow",
+                "elliptic_curve_method_stage1",
+                "ordered_set_avl_order_statistics",
                 "persistent_segment_tree_range_kth",
                 "count_different_palindromic_subsequences") else 1
             maximum_null_length = (SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
@@ -23619,6 +24036,14 @@ def main() -> int:
                                    if algorithm == "bareiss_determinant" else
                                    POLLARD_P_MINUS_ONE_MAX_PARSEABLE_INPUT_LENGTH
                                    if algorithm == "pollard_p_minus_one_factorization" else
+                                   FACTORING_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "factoring_exponentiation" else
+                                   ISAP_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "isap_maxflow" else
+                                   ECM_STAGE1_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "elliptic_curve_method_stage1" else
+                                   ORDERED_SET_AVL_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "ordered_set_avl_order_statistics" else
                                    PERSISTENT_RANGE_KTH_MAX_PARSEABLE_INPUT_LENGTH
                                    if algorithm == "persistent_segment_tree_range_kth" else
                                    COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_MAX_PARSEABLE_INPUT_LENGTH
@@ -23637,6 +24062,8 @@ def main() -> int:
                                    if algorithm == "point_in_polygon_ray_casting" else
                                    VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH
                                    if algorithm == "vertex_connectivity" else
+                                   EDGE_CONNECTIVITY_MAX_VALID_INPUT_LENGTH
+                                   if algorithm == "edge_connectivity_all_pairs_maxflow" else
                                    THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
                                    if algorithm == "three_edge_connected_components" else
                                    INCREMENTAL_SCC_MAX_INPUT_LENGTH if algorithm == "incremental_scc" else 100002)

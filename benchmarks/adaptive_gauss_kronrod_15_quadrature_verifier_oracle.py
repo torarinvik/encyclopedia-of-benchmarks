@@ -78,7 +78,7 @@ def _independent_pair(function_id: int, a: float, b: float) -> tuple[float, floa
 
 def _parse(values: Sequence[int | float], input_is_null: bool,
            input_length: int) -> tuple[int, float, float, int, int] | None:
-    if (not isinstance(values, (tuple, list)) or input_is_null
+    if (not isinstance(values, (tuple, list)) or type(input_is_null) is not bool or input_is_null
             or type(input_length) is not int
             or not 0 <= input_length <= MAX_PARSEABLE_INPUT_LENGTH
             or len(values) > MAX_PARSEABLE_INPUT_LENGTH
@@ -105,7 +105,9 @@ def _converges_by_priority_queue(
     function_id, a, b, exponent, limit = parsed
     if a == b:
         return True
-    tolerance = 10.0 ** (-exponent)
+    tolerance = 1.0
+    for _ in range(exponent):
+        tolerance *= 0.1
     next_id = 0
     k_value, g_value = _independent_pair(function_id, a, b)
     active: dict[int, tuple[float, float, float, float]] = {

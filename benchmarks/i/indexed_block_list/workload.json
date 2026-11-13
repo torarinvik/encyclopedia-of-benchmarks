@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "oi-wiki-indexed-block-list-i64-array-bytes-output-v1",
+  "algorithm": "indexed_block_list",
+  "function_symbol": "indexed_block_list",
+  "abi": "i64_array_bytes_output",
+  "description": "Indexed insertion and access over linked fixed-size blocks with interior splitting.",
+  "pinned_source": {
+    "repository": "OI Wiki",
+    "path": "ds/block-list/",
+    "url": "https://oi-wiki.org/ds/block-list/",
+    "license": "CC BY-SA 4.0 and SATA; algorithm description only"
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[initial_count, initial_values..., operation_count, operations...]; insert=[0,index,value], access=[1,index]",
+    "block_size": 4,
+    "initial_count_range": [0, 16],
+    "operation_count_range": [0, 64],
+    "maximum_insertions": 32,
+    "maximum_accesses": 32,
+    "value_range": [-1000000, 1000000],
+    "maximum_valid_input_length": 178,
+    "maximum_parseable_input_length": 179,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_access_results",
+    "result": "number of output bytes",
+    "no_accesses_result": 0,
+    "no_accesses_accepts_null_output": true,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "maximum_output_bytes": 256
+  },
+  "workspace": {
+    "bytes": 4096,
+    "reason": "At most 16 linked block descriptors, 16 fixed blocks of nine signed 64-bit cells for the transient insertion bound, and 32 staged signed 64-bit access results; the declared limit conservatively includes language-specific indexing storage."
+  },
+  "cases": [
+    {"id": "empty_sequence", "input_values": [0, 0], "expected_result": 0, "expected_output_hex": ""},
+    {"id": "access_initial_items", "input_values": [4, 10, 20, 30, 40, 3, 1, 0, 1, 2, 1, 3, 1], "expected_result": 24, "expected_output_hex": "0a000000000000001e000000000000002800000000000000"},
+    {"id": "interior_insert_split_and_front_insert", "input_values": [8, 0, 1, 2, 3, 4, 5, 6, 7, 5, 0, 4, 99, 1, 4, 0, 0, -5, 1, 0, 1, 6], "expected_result": 24, "expected_output_hex": "6300000000000000fbffffffffffffff0400000000000000"},
+    {"id": "repeated_interior_split", "input_values": [16, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 6, 0, 2, 100, 0, 2, 101, 0, 2, 102, 0, 2, 103, 1, 2, 1, 6], "expected_result": 16, "expected_output_hex": "67000000000000000200000000000000"},
+    {"id": "zero_access_null_output", "input_values": [1, 7, 1, 0, 1, 8], "output_is_null": true, "expected_result": 0, "expected_output_hex": ""},
+    {"id": "malformed_opcode", "input_values": [1, 7, 1, 9], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "out_of_range_access", "input_values": [1, 7, 1, 1, 1], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "insert_past_end", "input_values": [1, 7, 1, 0, 2, 9], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "trailing_word", "input_values": [0, 0, 99], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null_output_for_access", "input_values": [1, 7, 1, 1, 0], "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "short_output_capacity", "input_values": [1, 7, 1, 1, 0], "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""}
+  ]
+}

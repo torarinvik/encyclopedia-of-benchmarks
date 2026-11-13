@@ -388,6 +388,8 @@ from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
                                   validate_k_means_clust_workload,
                                   ADAPTIVE_SIMPSON_MAX_PARSEABLE_INPUT_LENGTH,
                                   validate_adaptive_simpson_quadrature_workload,
+                                  ADAPTIVE_GK15_MAX_PARSEABLE_INPUT_LENGTH,
+                                  validate_adaptive_gauss_kronrod_15_quadrature_workload,
                                   RIDDERS_ROOT_FINDING_MAX_PARSEABLE_INPUT_LENGTH,
                                   validate_ridders_root_finding_workload,
                                   ROMBERG_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH,
@@ -567,6 +569,9 @@ from blocked_lu_factorization_verifier_oracle import (
 )
 from adaptive_simpson_quadrature_verifier_oracle import (
     expected_output as adaptive_simpson_quadrature_independent_oracle,
+)
+from adaptive_gauss_kronrod_15_quadrature_verifier_oracle import (
+    expected_output as adaptive_gauss_kronrod_15_quadrature_independent_oracle,
 )
 from ridders_root_finding_verifier_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as RIDDERS_ROOT_FINDING_MAX_PARSEABLE_INPUT_LENGTH,
@@ -2632,6 +2637,8 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_k_means_clust_workload(workload)
     elif algorithm == "adaptive_simpson_quadrature":
         validate_adaptive_simpson_quadrature_workload(workload)
+    elif algorithm == "adaptive_gauss_kronrod_15_quadrature":
+        validate_adaptive_gauss_kronrod_15_quadrature_workload(workload)
     elif algorithm == "ridders_root_finding":
         validate_ridders_root_finding_workload(workload)
     elif algorithm == "romberg_integration":
@@ -2699,6 +2706,16 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                                            absolute_tolerance, relative_tolerance)):
                 raise ValueError(
                     f"{case.get('id')}: adaptive Simpson fixture differs from closed-form oracle")
+        elif algorithm == "adaptive_gauss_kronrod_15_quadrature":
+            independent_result, independent_output = adaptive_gauss_kronrod_15_quadrature_independent_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: adaptive Gauss-Kronrod fixture differs from independent oracle")
         elif algorithm == "ridders_root_finding":
             independent_result, independent_output = ridders_root_finding_independent_oracle(
                 values, case.get("output_capacity", workspace),
@@ -7412,6 +7429,46 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                            > absolute_tolerance + relative_tolerance * abs(reference)
                            for value, reference in zip(expected_output, output))):
                 raise ValueError(f"adaptive Simpson ABI fixture mismatch: {case.get('id')}")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+
+    if algorithm == "adaptive_gauss_kronrod_15_quadrature":
+        if workspace != 1 or absolute_tolerance != 2e-7 or relative_tolerance != 2e-7:
+            raise ValueError("adaptive Gauss-Kronrod requires one output element and reviewed tolerances")
+        abi_cases = workload.get("abi_cases")
+        if not isinstance(abi_cases, list) or not abi_cases:
+            raise ValueError("adaptive Gauss-Kronrod requires ABI boundary fixtures")
+        for case in abi_cases:
+            raw_values = case.get("input_values")
+            input_length = case.get("input_length")
+            capacity = case.get("output_capacity", workspace)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > ADAPTIVE_GK15_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= ADAPTIVE_GK15_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(capacity) is not int or not 0 <= capacity <= 1
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and (raw_values or input_length == 0)
+                    or not input_is_null and input_length != len(raw_values)):
+                raise ValueError(f"invalid adaptive Gauss-Kronrod ABI framing: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            result, output = adaptive_gauss_kronrod_15_quadrature_independent_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           or abs(float(value) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for value, reference in zip(expected_output, output))):
+                raise ValueError(f"adaptive Gauss-Kronrod ABI fixture mismatch: {case.get('id')}")
             checker_inputs = [0.0] * input_length if input_is_null else inputs
             records.append((checker_inputs, result, [_output_token(value) for value in output],
                             capacity, int(input_is_null), int(output_is_null)))

@@ -1,0 +1,64 @@
+const FACTOR_LOG_32: u64[32] = [
+    0x00000000, 0x00000000, 0xd3cfd984, 0x9ee62e18,
+    0xe83d9070, 0xb59e81e0, 0xa17407c0, 0xce601f80,
+    0xf4807f00, 0xe701fe00, 0xbe07fc00, 0xfc1ff800,
+    0xf87ff000, 0xf1ffe000, 0xe7ffc000, 0xdfff8000,
+    0xffff0000, 0xfffe0000, 0xfffc0000, 0xfff80000,
+    0xfff00000, 0xffe00000, 0xffc00000, 0xff800000,
+    0xff000000, 0xfe000000, 0xfc000000, 0xf8000000,
+    0xf0000000, 0xe0000000, 0xc0000000, 0x80000000
+]
+
+def factoring_mask(d: usize) -> u64:
+    if d == 32:
+        return 4294967295.u64()
+    return (1.u64() << d) - 1.u64()
+
+def factoring_log(remainder_input: u64, value_input: u64, d: usize, modulus: u64, mask: u64) -> u64:
+    remainder: mutable u64 = remainder_input
+    value: mutable u64 = value_input
+    bit: usize = 2
+    while bit < d:
+        if (value & (1.u64() << bit)) != 0.u64():
+            value <- (value + (value << bit)) & mask
+            remainder <- (remainder + modulus - (FACTOR_LOG_32[bit] & mask)) & mask
+        bit <- bit + 1
+    return remainder
+
+def factoring_exp(remainder_input: u64, exponent_input: u64, d: usize, modulus: u64, mask: u64) -> u64:
+    remainder: mutable u64 = remainder_input
+    exponent: mutable u64 = exponent_input
+    bit: usize = 2
+    while bit < d:
+        if (exponent & (1.u64() << bit)) != 0.u64():
+            remainder <- (remainder + (remainder << bit)) & mask
+            exponent <- (exponent + modulus - (FACTOR_LOG_32[bit] & mask)) & mask
+        bit <- bit + 1
+    return remainder
+
+def factoring_exponentiation_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 4:
+        return -1
+    remainder_input: i64 = input[0]
+    base_input: i64 = input[1]
+    exponent_input: i64 = input[2]
+    d_input: i64 = input[3]
+    if d_input < 3 or d_input > 32 or remainder_input < 0 or base_input < 1 or exponent_input < 0 or exponent_input > 4294967295:
+        return -1
+    d: usize = d_input.usize()
+    mask: u64 = factoring_mask(d)
+    modulus: u64 = mask + 1.u64()
+    remainder: u64 = remainder_input.u64()
+    base: u64 = base_input.u64()
+    exponent: u64 = exponent_input.u64()
+    if remainder >= modulus or base >= modulus or (base & 1.u64()) == 0.u64():
+        return -1
+    if (base & 2.u64()) != 0.u64():
+        base <- (modulus - base) & mask
+        if (exponent & 1.u64()) != 0.u64():
+            remainder <- (modulus - remainder) & mask
+    log_value: u64 = factoring_log(0.u64(), base, d, modulus, mask)
+    scaled_log: u64 = (log_value * exponent) & mask
+    return factoring_exp(remainder, scaled_log, d, modulus, mask).i64()
+
+export fn factoring_exponentiation(input: i64&, length: usize) -> i64 = factoring_exponentiation_impl
