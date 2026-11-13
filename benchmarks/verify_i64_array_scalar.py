@@ -90,6 +90,7 @@ from run_i64_array_scalar import validate_minimum_queue_two_stacks_workload
 from run_i64_array_scalar import validate_parallel_binary_search_range_threshold_workload
 from run_i64_array_scalar import validate_cdq_three_dimensional_dominance_workload
 from run_i64_array_scalar import validate_bareiss_determinant_workload
+from run_i64_array_scalar import validate_pollard_p_minus_one_factorization_workload
 from run_i64_array_scalar import validate_persistent_segment_tree_range_kth_workload
 from run_i64_array_scalar import (
     COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_ALPHABET_SIZE,
@@ -1075,7 +1076,9 @@ from run_i64_array_scalar import validate_mcoloring_workload
 from run_i64_array_scalar import validate_graph_enumeration_workload
 from run_i64_array_scalar import validate_lca_workload
 from run_i64_array_scalar import validate_knapsack_zero_one_tabulation_workload
+from run_i64_array_scalar import validate_bounded_knapsack_monotone_queue_workload
 from run_i64_array_scalar import validate_li_chao_tree_workload
+from run_i64_array_scalar import validate_monotone_convex_hull_trick_workload
 from run_i64_array_scalar import validate_three_edge_connected_components_workload
 from run_i64_array_scalar import validate_incremental_scc_workload
 from run_i64_array_scalar import validate_segment_tree_beats_workload
@@ -1808,9 +1811,35 @@ from knapsack_zero_one_tabulation_oracle import MAX_ITEMS as KNAPSACK_ZERO_ONE_T
 from knapsack_zero_one_tabulation_oracle import MAX_VALUE as KNAPSACK_ZERO_ONE_TABULATION_MAX_VALUE
 from knapsack_zero_one_tabulation_oracle import MAX_WEIGHT as KNAPSACK_ZERO_ONE_TABULATION_MAX_WEIGHT
 from knapsack_zero_one_tabulation_oracle import expected_result as knapsack_zero_one_tabulation_oracle
+from b.bounded_knapsack_monotone_queue.primary_oracle import (
+    MAX_CAPACITY as BOUNDED_KNAPSACK_MAX_CAPACITY,
+    MAX_COUNT as BOUNDED_KNAPSACK_MAX_COUNT,
+    MAX_PARSEABLE_INPUT_LENGTH as BOUNDED_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_TYPES as BOUNDED_KNAPSACK_MAX_TYPES,
+    MAX_VALUE as BOUNDED_KNAPSACK_MAX_VALUE,
+    MAX_WEIGHT as BOUNDED_KNAPSACK_MAX_WEIGHT,
+    expected_result as bounded_knapsack_monotone_queue_primary_oracle,
+)
+from b.bounded_knapsack_monotone_queue.independent_oracle import (
+    expected_result as bounded_knapsack_monotone_queue_oracle,
+)
 from li_chao_tree_oracle import MAX_INPUT_LENGTH as LI_CHAO_TREE_MAX_INPUT_LENGTH
 from li_chao_tree_oracle import MAX_OPERATIONS as LI_CHAO_TREE_MAX_OPERATIONS
 from li_chao_tree_oracle import expected_result as li_chao_tree_oracle
+from monotone_convex_hull_trick_oracle import (
+    INVALID_RESULT as MONOTONE_CHT_INVALID_RESULT,
+    MAX_LINES as MONOTONE_CHT_MAX_LINES,
+    MAX_PARSEABLE_INPUT_LENGTH as MONOTONE_CHT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_QUERIES as MONOTONE_CHT_MAX_QUERIES,
+    MAX_VALID_INPUT_LENGTH as MONOTONE_CHT_MAX_VALID_INPUT_LENGTH,
+    SLOPE_LIMIT as MONOTONE_CHT_SLOPE_LIMIT,
+    INTERCEPT_LIMIT as MONOTONE_CHT_INTERCEPT_LIMIT,
+    X_LIMIT as MONOTONE_CHT_X_LIMIT,
+    expected_result as monotone_convex_hull_trick_primary_oracle,
+)
+from monotone_convex_hull_trick_verifier_oracle import (
+    expected_result as monotone_convex_hull_trick_oracle,
+)
 from three_edge_connected_components_oracle import INVALID_RESULT as THREE_EDGE_CONNECTED_COMPONENTS_INVALID_RESULT
 from three_edge_connected_components_oracle import MAX_EDGES as THREE_EDGE_CONNECTED_COMPONENTS_MAX_EDGES
 from three_edge_connected_components_oracle import MAX_INPUT_LENGTH as THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
@@ -1980,6 +2009,15 @@ from b.bareiss_determinant.primary_oracle import (
 )
 from b.bareiss_determinant.independent_oracle import (
     expected_result as bareiss_determinant_oracle,
+)
+from p.pollard_p_minus_one_factorization.primary_oracle import (
+    MAX_BOUND as POLLARD_P_MINUS_ONE_MAX_BOUND,
+    MAX_NUMBER as POLLARD_P_MINUS_ONE_MAX_NUMBER,
+    MAX_PARSEABLE_INPUT_LENGTH as POLLARD_P_MINUS_ONE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as pollard_p_minus_one_primary_oracle,
+)
+from p.pollard_p_minus_one_factorization.independent_oracle import (
+    expected_result as pollard_p_minus_one_oracle,
 )
 from p.persistent_segment_tree_range_kth.primary_oracle import (
     MAX_N as PERSISTENT_RANGE_KTH_MAX_N,
@@ -2322,6 +2360,7 @@ ALGORITHMS += ("match_word_pattern",)
 ALGORITHMS += ("power_using_recursion",)
 ALGORITHMS += ("lca",)
 ALGORITHMS += ("knapsack_zero_one_tabulation",)
+ALGORITHMS += ("bounded_knapsack_monotone_queue",)
 ALGORITHMS += ("matrix_exponentiation",)
 ALGORITHMS += ("miller_rabin_primality_checker",)
 ALGORITHMS += ("logistic_regression_predict",)
@@ -2383,6 +2422,7 @@ ALGORITHMS += ("hunt_szymanski_lcs",)
 ALGORITHMS += ("rle_levenshtein_block_dp",)
 ALGORITHMS += ("maximum_independent_set",)
 ALGORITHMS += ("li_chao_tree", "segment_tree_beats", "eertree")
+ALGORITHMS += ("monotone_convex_hull_trick",)
 ALGORITHMS += ("point_in_polygon_ray_casting",)
 ALGORITHMS += ("vertex_connectivity",)
 ALGORITHMS += ("three_edge_connected_components",)
@@ -2405,6 +2445,7 @@ ALGORITHMS += ("minimum_queue_two_stacks",)
 ALGORITHMS += ("parallel_binary_search_range_threshold",)
 ALGORITHMS += ("cdq_three_dimensional_dominance",)
 ALGORITHMS += ("bareiss_determinant",)
+ALGORITHMS += ("pollard_p_minus_one_factorization",)
 ALGORITHMS += ("persistent_segment_tree_range_kth",)
 ALGORITHMS += ("count_different_palindromic_subsequences",)
 ALGORITHMS += ("functional_graph_cycle_parameters",)
@@ -4418,6 +4459,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return mono_alphabetic_oracle(values)
     if algorithm == "li_chao_tree":
         return li_chao_tree_oracle(values)
+    if algorithm == "monotone_convex_hull_trick":
+        return monotone_convex_hull_trick_oracle(values)
     if algorithm == "three_edge_connected_components":
         return three_edge_connected_components_oracle(values)
     if algorithm == "incremental_scc":
@@ -4472,6 +4515,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return cdq_three_dimensional_dominance_oracle(values)
     if algorithm == "bareiss_determinant":
         return bareiss_determinant_oracle(values)
+    if algorithm == "pollard_p_minus_one_factorization":
+        return pollard_p_minus_one_oracle(values)
     if algorithm == "persistent_segment_tree_range_kth":
         return persistent_segment_tree_range_kth_oracle(values)
     if algorithm == "count_different_palindromic_subsequences":
@@ -4492,6 +4537,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return convex_layers_oracle(values)
     if algorithm == "knapsack_zero_one_tabulation":
         return knapsack_zero_one_tabulation_oracle(values)
+    if algorithm == "bounded_knapsack_monotone_queue":
+        return bounded_knapsack_monotone_queue_oracle(values)
     if algorithm == "sparse_matrix":
         return sparse_matrix_oracle(values)
     if algorithm == "mrucache":
@@ -5777,8 +5824,12 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_lca_workload(workload)
     elif algorithm == "knapsack_zero_one_tabulation":
         validate_knapsack_zero_one_tabulation_workload(workload)
+    elif algorithm == "bounded_knapsack_monotone_queue":
+        validate_bounded_knapsack_monotone_queue_workload(workload)
     elif algorithm == "li_chao_tree":
         validate_li_chao_tree_workload(workload)
+    elif algorithm == "monotone_convex_hull_trick":
+        validate_monotone_convex_hull_trick_workload(workload)
     elif algorithm == "three_edge_connected_components":
         validate_three_edge_connected_components_workload(workload)
     elif algorithm == "incremental_scc":
@@ -5871,6 +5922,8 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_cdq_three_dimensional_dominance_workload(workload)
     elif algorithm == "bareiss_determinant":
         validate_bareiss_determinant_workload(workload)
+    elif algorithm == "pollard_p_minus_one_factorization":
+        validate_pollard_p_minus_one_factorization_workload(workload)
     elif algorithm == "persistent_segment_tree_range_kth":
         validate_persistent_segment_tree_range_kth_workload(workload)
     elif algorithm == "count_different_palindromic_subsequences":
@@ -7785,6 +7838,50 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for packed in malformed:
             cases[packed] = KNAPSACK_ZERO_ONE_TABULATION_INVALID_RESULT
+    elif algorithm == "bounded_knapsack_monotone_queue":
+        def bounded_checked_oracle(packed: list[int]) -> int:
+            primary = bounded_knapsack_monotone_queue_primary_oracle(packed)
+            independent = bounded_knapsack_monotone_queue_oracle(packed)
+            if primary != independent:
+                raise ValueError("bounded_knapsack_monotone_queue deque and direct-count oracles disagree")
+            return independent
+
+        choices = ((1, 0, 0), (1, 2, 1), (2, 3, 2), (3, 5, 1))
+        sequences: list[tuple[tuple[int, int, int], ...]] = [()]
+        for size in range(1, 4):
+            sequences.extend(product(choices, repeat=size))
+        for items in sequences:
+            for capacity in range(9):
+                packed = [capacity, len(items)]
+                for item in items:
+                    packed.extend(item)
+                cases[tuple(packed)] = bounded_checked_oracle(packed)
+
+        rng_bounded_knapsack = random.Random(20261113)
+        for _ in range(320):
+            item_count = rng_bounded_knapsack.randrange(BOUNDED_KNAPSACK_MAX_TYPES + 1)
+            packed = [rng_bounded_knapsack.randrange(BOUNDED_KNAPSACK_MAX_CAPACITY + 1),
+                      item_count]
+            for _ in range(item_count):
+                packed.extend((
+                    rng_bounded_knapsack.choice((1, 2, 3, 8, BOUNDED_KNAPSACK_MAX_WEIGHT)),
+                    rng_bounded_knapsack.choice((0, 1, 7, BOUNDED_KNAPSACK_MAX_VALUE)),
+                    rng_bounded_knapsack.choice((0, 1, 3, BOUNDED_KNAPSACK_MAX_COUNT)),
+                ))
+            cases[tuple(packed)] = bounded_checked_oracle(packed)
+
+        malformed = (
+            (), (0,), (-1, 0), (BOUNDED_KNAPSACK_MAX_CAPACITY + 1, 0),
+            (0, -1), (0, BOUNDED_KNAPSACK_MAX_TYPES + 1), (8, 1),
+            (0, 1, 0, 1, 1), (0, 1, BOUNDED_KNAPSACK_MAX_WEIGHT + 1, 1, 1),
+            (0, 1, 1, -1, 1), (0, 1, 1, BOUNDED_KNAPSACK_MAX_VALUE + 1, 1),
+            (0, 1, 1, 1, BOUNDED_KNAPSACK_MAX_COUNT + 1),
+            (0, 0, 7),
+        )
+        for packed in malformed:
+            if len(packed) <= BOUNDED_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[packed] = bounded_checked_oracle(list(packed))
+        special_records.append("NULL 0 -1\n")
     elif algorithm == "li_chao_tree":
         rng_li_chao = random.Random(0x1C4A0)
         for _ in range(128):
@@ -7825,6 +7922,83 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed_li_chao:
             if len(values) <= LI_CHAO_TREE_MAX_INPUT_LENGTH:
                 cases[values] = li_chao_tree_oracle(list(values))
+    elif algorithm == "monotone_convex_hull_trick":
+        def add_monotone_cht_case(packed: list[int] | tuple[int, ...]) -> int:
+            values = list(packed)
+            if len(values) > MONOTONE_CHT_MAX_PARSEABLE_INPUT_LENGTH:
+                raise ValueError("monotone_convex_hull_trick generated frame exceeds its parseable bound")
+            primary = monotone_convex_hull_trick_primary_oracle(values)
+            independent = monotone_convex_hull_trick_oracle(values)
+            if primary != independent:
+                raise ValueError("monotone_convex_hull_trick deque and all-lines oracles disagree")
+            cases[tuple(values)] = independent
+            return independent
+
+        for line_count in range(1, 9):
+            for variant in range(4):
+                lines = []
+                for index in range(line_count):
+                    slope = line_count - index - 1
+                    intercept = ((index * 11 + variant * 7) % 19) - 9
+                    lines.extend((slope, intercept))
+                queries = sorted(index * 2 - 7 + variant for index in range(3))
+                packed = [line_count, len(queries), *lines, *queries]
+                add_monotone_cht_case(packed)
+
+        rng_monotone_cht = random.Random(0xC47A)
+        for _ in range(256):
+            line_count = rng_monotone_cht.randint(1, MONOTONE_CHT_MAX_LINES)
+            query_count = rng_monotone_cht.randint(0, MONOTONE_CHT_MAX_QUERIES)
+            slopes = sorted(
+                rng_monotone_cht.sample(
+                    range(-MONOTONE_CHT_SLOPE_LIMIT, MONOTONE_CHT_SLOPE_LIMIT + 1),
+                    line_count,
+                ),
+                reverse=True,
+            )
+            packed = [line_count, query_count]
+            for slope in slopes:
+                packed.extend((slope, rng_monotone_cht.randint(-MONOTONE_CHT_INTERCEPT_LIMIT,
+                                                               MONOTONE_CHT_INTERCEPT_LIMIT)))
+            packed.extend(sorted(
+                rng_monotone_cht.randint(-MONOTONE_CHT_X_LIMIT, MONOTONE_CHT_X_LIMIT)
+                for _ in range(query_count)
+            ))
+            add_monotone_cht_case(packed)
+
+        maximum_frame = [MONOTONE_CHT_MAX_LINES, MONOTONE_CHT_MAX_QUERIES]
+        for slope in range(MONOTONE_CHT_MAX_LINES - 1, -1, -1):
+            maximum_frame.extend((slope, 0))
+        maximum_frame.extend(
+            (-MONOTONE_CHT_X_LIMIT + (2 * MONOTONE_CHT_X_LIMIT * index)
+             // (MONOTONE_CHT_MAX_QUERIES - 1))
+            for index in range(MONOTONE_CHT_MAX_QUERIES)
+        )
+        if len(maximum_frame) != MONOTONE_CHT_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("monotone_convex_hull_trick maximum frame does not fill its valid bound")
+        add_monotone_cht_case(maximum_frame)
+        maximum_parseable = [*maximum_frame, 0]
+        if len(maximum_parseable) != MONOTONE_CHT_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError("monotone_convex_hull_trick maximum parseable frame has the wrong length")
+        add_monotone_cht_case(maximum_parseable)
+
+        malformed_monotone_cht = (
+            (), (1,), (0, 0), (MONOTONE_CHT_MAX_LINES + 1, 0),
+            (1, MONOTONE_CHT_MAX_QUERIES + 1, 0, 0),
+            (2, 0, 0, 0, 0, 1),
+            (2, 0, 1, 0, 1, 0),
+            (2, 0, 0, 0, 1, 0),
+            (1, 0, MONOTONE_CHT_SLOPE_LIMIT + 1, 0),
+            (1, 0, 0, MONOTONE_CHT_INTERCEPT_LIMIT + 1),
+            (1, 1, 0, 0, MONOTONE_CHT_X_LIMIT + 1),
+            (1, 2, 0, 0, 1, -1),
+            (1, 0, 0, 0, 7),
+            (2, 1, 1, 0, 0),
+        )
+        for values in malformed_monotone_cht:
+            if len(values) <= MONOTONE_CHT_MAX_PARSEABLE_INPUT_LENGTH:
+                add_monotone_cht_case(values)
+        special_records.append(f"NULL 0 {MONOTONE_CHT_INVALID_RESULT}\n")
     elif algorithm == "three_edge_connected_components":
         def add_three_edge_case(values: tuple[int, ...], *, require_valid: bool = False) -> int:
             values = tuple(values)
@@ -9395,6 +9569,61 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             cases[values] = independent
         if not any(f"NULL 0 {I64_MIN}\n" == record for record in special_records):
             special_records.append(f"NULL 0 {I64_MIN}\n")
+    elif algorithm == "pollard_p_minus_one_factorization":
+        validate_pollard_p_minus_one_factorization_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values) if isinstance(values, list) else None)
+            if (not isinstance(values, list)
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or len(values) > POLLARD_P_MINUS_ONE_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(
+                    "pollard_p_minus_one_factorization fixture framing is invalid: "
+                    f"{fixture.get('id')}"
+                )
+            options = {"input_is_null": input_is_null, "input_length": input_length}
+            primary = pollard_p_minus_one_primary_oracle(values, **options)
+            independent = pollard_p_minus_one_oracle(values, **options)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "pollard_p_minus_one_factorization fixture differs between staged prime powers "
+                    f"and cumulative-exponent oracle: {fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append(f"NULL {input_length} -1\n")
+            else:
+                cases[tuple(values)] = independent
+
+        rng_p_minus_one = random.Random(0x5011A)
+        for _ in range(64):
+            number = rng_p_minus_one.randint(2, POLLARD_P_MINUS_ONE_MAX_NUMBER)
+            bound = rng_p_minus_one.randint(2, POLLARD_P_MINUS_ONE_MAX_BOUND)
+            initial = rng_p_minus_one.randint(1, number - 1)
+            packed = (number, bound, initial)
+            primary = pollard_p_minus_one_primary_oracle(packed)
+            independent = pollard_p_minus_one_oracle(packed)
+            if primary != independent:
+                raise ValueError("pollard_p_minus_one_factorization generated oracle results disagree")
+            cases[packed] = independent
+
+        malformed_inputs = (
+            (), (I64_MIN,), (0, 2, 1), (1, 2, 1),
+            (POLLARD_P_MINUS_ONE_MAX_NUMBER + 1, 2, 1),
+            (161, 1, 2), (161, POLLARD_P_MINUS_ONE_MAX_BOUND + 1, 2),
+            (161, 3, 0), (161, 3, 161), (161, 3, 2, 0),
+        )
+        for values in malformed_inputs:
+            if len(values) > POLLARD_P_MINUS_ONE_MAX_PARSEABLE_INPUT_LENGTH:
+                continue
+            primary = pollard_p_minus_one_primary_oracle(values)
+            independent = pollard_p_minus_one_oracle(values)
+            if primary != -1 or independent != -1:
+                raise ValueError("pollard_p_minus_one_factorization accepted malformed input")
+            cases[values] = independent
     elif algorithm == "persistent_segment_tree_range_kth":
         validate_persistent_segment_tree_range_kth_workload(workload)
         for fixture in workload.get("cases", []):

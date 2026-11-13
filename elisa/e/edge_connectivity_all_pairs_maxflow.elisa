@@ -1,0 +1,90 @@
+const ECMF_MAX_VERTICES: usize = 10
+const ECMF_MAX_EDGES: usize = 45
+const ECMF_MAX_PARSEABLE: usize = 93
+
+def ecmf_pair_flow(adjacency: view[u8], n: usize, source: usize, sink: usize, limit: i64) -> i64:
+    residual: mutable i64[ECMF_MAX_VERTICES * ECMF_MAX_VERTICES] = zeroed
+    u: mutable usize = 0
+    while u < n:
+        v: mutable usize = 0
+        while v < n:
+            residual[u * ECMF_MAX_VERTICES + v] = adjacency[u * ECMF_MAX_VERTICES + v].i64()
+            v <- v + 1
+        u <- u + 1
+
+    flow: mutable i64 = 0
+    while flow < limit:
+        parent: mutable i64[ECMF_MAX_VERTICES] = zeroed
+        queue: mutable usize[ECMF_MAX_VERTICES] = zeroed
+        v <- 0
+        while v < n:
+            parent[v] <- -1
+            v <- v + 1
+        parent[source] <- source.i64()
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        queue[0] <- source
+        while head < tail and parent[sink] < 0:
+            u = queue[head]
+            head <- head + 1
+            v <- 0
+            while v < n:
+                if parent[v] < 0 and residual[u * ECMF_MAX_VERTICES + v] > 0:
+                    parent[v] <- u.i64()
+                    queue[tail] <- v
+                    tail <- tail + 1
+                    if v == sink: break
+                v <- v + 1
+        if parent[sink] < 0: break
+
+        amount: mutable i64 = limit - flow
+        v <- sink
+        while v != source:
+            u = parent[v].usize()
+            if residual[u * ECMF_MAX_VERTICES + v] < amount:
+                amount <- residual[u * ECMF_MAX_VERTICES + v]
+            v <- u
+        v <- sink
+        while v != source:
+            u = parent[v].usize()
+            residual[u * ECMF_MAX_VERTICES + v] <- residual[u * ECMF_MAX_VERTICES + v] - amount
+            residual[v * ECMF_MAX_VERTICES + u] <- residual[v * ECMF_MAX_VERTICES + u] + amount
+            v <- u
+        flow <- flow + amount
+    flow
+
+def edge_connectivity_all_pairs_maxflow_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > ECMF_MAX_PARSEABLE: return -1
+    if input[0] < 2 or input[0] > 10 or input[1] < 0 or input[1] > 45: return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 2 * m: return -1
+    adjacency: mutable u8[ECMF_MAX_VERTICES * ECMF_MAX_VERTICES] = zeroed
+    e: mutable usize = 0
+    while e < m:
+        left: i64 = input[2 + 2 * e]
+        right: i64 = input[3 + 2 * e]
+        if left < 0 or right < 0 or left >= n.i64() or right >= n.i64() or left == right: return -1
+        u: usize = left.usize()
+        v: usize = right.usize()
+        if adjacency[u * ECMF_MAX_VERTICES + v] != 0: return -1
+        adjacency[u * ECMF_MAX_VERTICES + v] <- 1
+        adjacency[v * ECMF_MAX_VERTICES + u] <- 1
+        e <- e + 1
+
+    best: mutable i64 = n.i64() - 1
+    source: mutable usize = 0
+    while source < n:
+        sink: mutable usize = source + 1
+        while sink < n:
+            flow: i64 = ecmf_pair_flow(adjacency[0:ECMF_MAX_VERTICES * ECMF_MAX_VERTICES], n, source, sink, best)
+            if flow < best: best <- flow
+            if best == 0: return 0
+            sink <- sink + 1
+        source <- source + 1
+    best
+
+export fn edge_connectivity_all_pairs_maxflow(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > ECMF_MAX_PARSEABLE: return -1
+    input_view: view[i64] = input[0:length]
+    edge_connectivity_all_pairs_maxflow_impl(input_view, length)

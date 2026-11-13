@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "edge-connectivity-all-pairs-maxflow-v1",
+  "algorithm": "edge_connectivity_all_pairs_maxflow",
+  "function_symbol": "edge_connectivity_all_pairs_maxflow",
+  "abi": "i64_array_scalar",
+  "description": "Compute undirected global edge connectivity as the minimum unit-capacity s-t maximum flow over every unordered vertex pair.",
+  "source": {
+    "title": "Edge connectivity / Vertex connectivity",
+    "authors": ["CP-Algorithms contributors"],
+    "urls": ["https://cp-algorithms.com/graph/edge_vertex_connectivity.html#edge-connectivity-using-maximum-flow"],
+    "license": "CC BY-SA 4.0 algorithm description only",
+    "implementation_status": "bounded clean-room profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M,(u,v)*M]",
+    "vertex_count_range": [2, 10],
+    "edge_count_range": [0, 45],
+    "vertices": "zero-based",
+    "graph": "simple undirected; loops and repeated undirected edges are invalid; disconnected graphs are valid",
+    "maximum_valid_input_length": 92,
+    "maximum_parseable_input_length": 93,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "minimum number of edges whose deletion disconnects the graph; zero for a disconnected graph",
+    "success_result": "edge connectivity",
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 4096,
+    "minimum_bytes": 4096,
+    "meaning": "Fixed adjacency/residual matrices, BFS parents and queue, plus parsed edge records."
+  },
+  "complexity": {
+    "primary_time": "O(N^2) Edmonds-Karp runs, each bounded by O(N^3) with the small integer-capacity profile",
+    "primary_auxiliary_space": "O(N^2+M)",
+    "independent_oracle_time": "O(2^N*M)",
+    "independent_oracle_space": "O(M)"
+  },
+  "oracle_method": "The primary runs unit-capacity max flow for every unordered terminal pair. The independent oracle enumerates nontrivial vertex cuts and counts crossing edges directly.",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"two_isolated_vertices","input_values":[2,0],"input_length":2,"expected_result":0},
+    {"id":"single_bridge","input_values":[2,1,0,1],"input_length":4,"expected_result":1},
+    {"id":"path_five","input_values":[5,4,0,1,1,2,2,3,3,4],"input_length":10,"expected_result":1},
+    {"id":"cycle_five","input_values":[5,5,0,1,1,2,2,3,3,4,0,4],"input_length":12,"expected_result":2},
+    {"id":"two_triangles_two_links","input_values":[6,8,0,1,1,2,2,0,3,4,4,5,5,3,0,3,1,4],"input_length":18,"expected_result":2},
+    {"id":"complete_five","input_values":[5,10,0,1,0,2,0,3,0,4,1,2,1,3,1,4,2,3,2,4,3,4],"input_length":22,"expected_result":4},
+    {"id":"complete_ten_maximum_frame","input_values":[10,45,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,1,2,1,3,1,4,1,5,1,6,1,7,1,8,1,9,2,3,2,4,2,5,2,6,2,7,2,8,2,9,3,4,3,5,3,6,3,7,3,8,3,9,4,5,4,6,4,7,4,8,4,9,5,6,5,7,5,8,5,9,6,7,6,8,6,9,7,8,7,9,8,9],"input_length":92,"expected_result":9},
+    {"id":"repeated_edge_invalid","input_values":[3,2,0,1,1,0],"input_length":6,"expected_result":-1},
+    {"id":"self_loop_invalid","input_values":[3,1,2,2],"input_length":4,"expected_result":-1},
+    {"id":"endpoint_out_of_range","input_values":[3,1,0,3],"input_length":4,"expected_result":-1},
+    {"id":"trailing_word","input_values":[2,1,0,1,99],"input_length":5,"expected_result":-1},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

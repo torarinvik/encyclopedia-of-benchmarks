@@ -250,6 +250,15 @@ from d.dial_bucket_shortest_paths.independent_oracle import (
 from d.dial_bucket_shortest_paths.check_inventory import (
     check_inventory as check_dial_bucket_shortest_paths_inventory,
 )
+from a.aho_corasick_failure_tree_counts.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as AHO_FAILURE_TREE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as AHO_FAILURE_TREE_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as AHO_FAILURE_TREE_MAX_OUTPUT_BYTES,
+    expected_output as aho_corasick_failure_tree_counts_primary_oracle,
+)
+from a.aho_corasick_failure_tree_counts.independent_oracle import (
+    expected_output as aho_corasick_failure_tree_counts_independent_oracle,
+)
 from dynamic_mex_updates_oracle import (
     MAX_N as DYNAMIC_MEX_UPDATES_MAX_N,
     MAX_Q as DYNAMIC_MEX_UPDATES_MAX_Q,
@@ -6107,6 +6116,7 @@ ALGORITHMS = (*ALGORITHMS, "hash_join")
 ALGORITHMS = (*ALGORITHMS, "binomial_coefficient_prime_power")
 ALGORITHMS = (*ALGORITHMS, "segment_tree_merge_split")
 ALGORITHMS = (*ALGORITHMS, "dial_bucket_shortest_paths")
+ALGORITHMS = (*ALGORITHMS, "aho_corasick_failure_tree_counts")
 ALGORITHMS = (*ALGORITHMS, "dynamic_mex_updates")
 ALGORITHMS = (*ALGORITHMS, "circle_line_intersection_count")
 ALGORITHMS = (*ALGORITHMS, "maximum_frequency_stack")
@@ -6150,6 +6160,7 @@ WORKSPACE_ALGORITHMS.add("hash_join")
 WORKSPACE_ALGORITHMS.add("binomial_coefficient_prime_power")
 WORKSPACE_ALGORITHMS.add("segment_tree_merge_split")
 WORKSPACE_ALGORITHMS.add("dial_bucket_shortest_paths")
+WORKSPACE_ALGORITHMS.add("aho_corasick_failure_tree_counts")
 WORKSPACE_ALGORITHMS.add("dynamic_mex_updates")
 WORKSPACE_ALGORITHMS.add("circle_line_intersection_count")
 WORKSPACE_ALGORITHMS.add("maximum_frequency_stack")
@@ -13487,6 +13498,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "binomial_coefficient_prime_power": binomial_coefficient_prime_power_independent_oracle,
     "segment_tree_merge_split": segment_tree_merge_split_independent_oracle,
     "dial_bucket_shortest_paths": dial_bucket_shortest_paths_independent_oracle,
+    "aho_corasick_failure_tree_counts": aho_corasick_failure_tree_counts_independent_oracle,
     "dynamic_mex_updates": dynamic_mex_updates_independent_oracle,
     "circle_line_intersection_count": circle_line_intersection_count_independent_oracle,
     "maximum_frequency_stack": maximum_frequency_stack_independent_oracle,
@@ -19923,6 +19935,17 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or DIAL_BUCKET_MAX_VALID_INPUT_LENGTH != 195
                 or workload.get("workspace", {}).get("bytes") != 4096):
             raise ValueError("dial_bucket_shortest_paths bounds or workspace differ from its nine-bucket profile")
+    elif algorithm == "aho_corasick_failure_tree_counts":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != AHO_FAILURE_TREE_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 787
+                or max_output != AHO_FAILURE_TREE_MAX_OUTPUT_BYTES
+                or max_output != 128
+                or AHO_FAILURE_TREE_MAX_VALID_INPUT_LENGTH != 786
+                or workspace_bytes != 49152
+                or workload.get("workspace", {}).get("bytes") != 49152):
+            raise ValueError("aho_corasick_failure_tree_counts bounds or workspace differ from its failure-tree profile")
     elif algorithm == "baswana_sen_weighted_spanner":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -28962,6 +28985,59 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     or add((2, 1, 0, 0, 1, 9)) != (-1, b"")
                     or add((*maximum_values, 0)) != (-1, b"")):
                 raise ValueError("Dial null, malformed-frame, or capacity semantics differ")
+        elif algorithm == "aho_corasick_failure_tree_counts":
+            if (max_input != AHO_FAILURE_TREE_MAX_PARSEABLE_INPUT_LENGTH
+                    or max_input != 787
+                    or max_output != AHO_FAILURE_TREE_MAX_OUTPUT_BYTES
+                    or max_output != 128
+                    or workspace_bytes != 49152):
+                raise ValueError("Aho failure-tree bounds or workspace differ from its contract")
+
+            for fixture in workload.get("cases", []):
+                packed = tuple(fixture.get("input_values", ()))
+                capacity = fixture.get("output_capacity", workspace_bytes)
+                output_is_null = fixture.get("output_is_null", False)
+                input_is_null = fixture.get("input_is_null", False)
+                input_length = fixture.get("input_length", len(packed))
+                expected = (fixture.get("expected_result"),
+                            bytes.fromhex(fixture.get("expected_output_hex", "")))
+                primary = aho_corasick_failure_tree_counts_primary_oracle(
+                    packed, capacity, output_is_null, input_is_null, input_length)
+                independent = aho_corasick_failure_tree_counts_independent_oracle(
+                    packed, capacity, output_is_null, input_is_null, input_length)
+                actual = add(packed, capacity, output_is_null=output_is_null,
+                             input_is_null=input_is_null, input_length=input_length)
+                if primary != independent or independent != expected or actual != expected:
+                    raise ValueError(
+                        f"Aho fixture differs between failure-tree and direct-scan oracles: {fixture.get('id')}"
+                    )
+
+            maximum_patterns = [
+                [first, second, *([1] * 30)]
+                for first in range(1, 5) for second in range(1, 5)
+            ]
+            maximum_values = tuple(
+                [16, 256, *([32] * 16),
+                 *(symbol for pattern in maximum_patterns for symbol in pattern),
+                 *([1] * 256)]
+            )
+            maximum_primary = aho_corasick_failure_tree_counts_primary_oracle(maximum_values)
+            maximum_independent = aho_corasick_failure_tree_counts_independent_oracle(maximum_values)
+            if (len(maximum_values) != AHO_FAILURE_TREE_MAX_VALID_INPUT_LENGTH
+                    or maximum_primary != maximum_independent
+                    or maximum_independent[0] != max_output
+                    or len(maximum_independent[1]) != max_output
+                    or add(maximum_values) != maximum_independent):
+                raise ValueError("Aho maximum trie/input/output differs from direct pattern scanning")
+
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                expected = ((-2, b"") if capacity < max_output else maximum_independent)
+                if add(maximum_values, capacity) != expected:
+                    raise ValueError("Aho maximum output-capacity behavior differs from its contract")
+            if (add(maximum_values, output_is_null=True) != (-2, b"")
+                    or add((), input_is_null=True, input_length=0) != (-1, b"")
+                    or add((1, 1, 1, 2, 2, 99), 0, output_is_null=True) != (-1, b"")):
+                raise ValueError("Aho null, malformed-frame, or capacity semantics differ")
         elif algorithm == "rooted_tree_isomorphism_classification":
             if (max_input != ROOTED_TREE_ISOMORPHISM_MAX_INPUT_LENGTH
                     or max_output != ROOTED_TREE_ISOMORPHISM_MAX_OUTPUT_BYTES

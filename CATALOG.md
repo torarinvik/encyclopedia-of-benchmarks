@@ -5669,6 +5669,18 @@ This bounded ODE profile integrates four fixed scalar right-hand sides with the 
 
 This bounded directed-graph profile computes single-source distances for nonnegative weights from zero through eight using a cyclic nine-bucket queue with stale-entry checks. Ten ports handle up to sixteen vertices and sixty-four edges; an independent Floyd–Warshall oracle checks the distances. The byte-output suite covers zero-weight cycles, parallel edges, stale records, unreachable vertices, and the maximum graph and output size. See the [guide](benchmarks/d/dial_bucket_shortest_paths/README.md), [workload](benchmarks/d/dial_bucket_shortest_paths/workload.json), and [CP-Algorithms' Dial section](https://cp-algorithms.com/graph/01_bfs.html).
 
+## Monotone convex hull trick (`monotone_convex_hull_trick`)
+
+This bounded lower-envelope profile requires strictly decreasing slopes and nondecreasing query coordinates. A fixed-array deque removes redundant lines and advances its front as queries increase; the primary is O(L+Q) amortized, while the independent oracle scans all lines for each query. Ten ports and a 98-value maximum valid frame are registered in the scalar suite. See the [guide](benchmarks/m/monotone_convex_hull_trick/README.md), [workload](benchmarks/m/monotone_convex_hull_trick/workload.json), and [CP-Algorithms' convex hull trick article](https://cp-algorithms.com/geometry/convex_hull_trick.html).
+
+## Bounded knapsack monotone queue (`bounded_knapsack_monotone_queue`)
+
+This exact bounded-multiplicity knapsack profile transforms each residue-class transition into a sliding maximum and expires candidates outside the item-count window. Ten ports run in O(type_count·capacity), with a direct-count two-row DP as the independent oracle. See the [guide](benchmarks/b/bounded_knapsack_monotone_queue/README.md), [workload](benchmarks/b/bounded_knapsack_monotone_queue/workload.json), and [CP-Algorithms' multiple-knapsack section](https://cp-algorithms.com/dynamic_programming/knapsack.html#monotone-queue-optimization).
+
+## Aho–Corasick failure-tree occurrence counts (`aho_corasick_failure_tree_counts`)
+
+This profile scans the text while counting visited automaton states, then propagates those counts to failure parents in reverse breadth-first order. It counts overlapping matches for all patterns without work proportional to the number of reported matches. Ten ports and an independent direct substring-scan oracle are registered in the byte-output suite. See the [guide](benchmarks/a/aho_corasick_failure_tree_counts/README.md), [workload](benchmarks/a/aho_corasick_failure_tree_counts/workload.json), [CP-Algorithms](https://cp-algorithms.com/string/aho_corasick.html), and [OI Wiki](https://oi-wiki.org/string/ac-automaton/).
+
 ## Ridders root finding (`ridders_root_finding`)
 
 This bounded numeric profile applies Ridders' midpoint-based exponential interpolation while preserving a sign-changing interval. Ten ports cover four fixed polynomials, exact endpoint and midpoint roots, malformed or unbracketed inputs, output-buffer errors, and iteration-cap failures. An independent high-precision bisection oracle checks the returned estimate. See the [guide](benchmarks/r/ridders_root_finding/README.md), [workload](benchmarks/r/ridders_root_finding/workload.json), and [SciPy's method reference](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.ridder.html).

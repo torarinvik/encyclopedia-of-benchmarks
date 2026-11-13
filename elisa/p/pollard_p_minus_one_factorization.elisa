@@ -1,0 +1,54 @@
+const MAX_PRIMES: usize = 18
+const SMALL_PRIMES: i64[18] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61]
+
+def gcd_i64(left_input: i64, right_input: i64) -> i64:
+    left: mutable i64 = left_input
+    right: mutable i64 = right_input
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def pow_mod_i64(base_input: i64, exponent_input: i64, modulus: i64) -> i64:
+    result: mutable i64 = 1
+    base: mutable i64 = base_input % modulus
+    exponent: mutable i64 = exponent_input
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            result <- (result * base) % modulus
+        base <- (base * base) % modulus
+        exponent <- exponent >> 1
+    result
+
+def pollard_p_minus_one_factorization_impl(input: i64&, length: usize) -> i64:
+    if length != 3:
+        return -1
+    number: i64 = input[0]
+    bound: i64 = input[1]
+    initial: i64 = input[2]
+    if number < 2 or number > 1000000000 or bound < 2 or bound > 64 or initial < 1 or initial >= number:
+        return -1
+    divisor: i64 = gcd_i64(initial, number)
+    if divisor > 1:
+        return divisor
+    state: mutable i64 = initial
+    i: mutable usize = 0
+    while i < MAX_PRIMES:
+        prime: i64 = SMALL_PRIMES[i]
+        if prime > bound:
+            break
+        exponent: mutable i64 = prime
+        while exponent <= bound / prime:
+            exponent <- exponent * prime
+        state <- pow_mod_i64(state, exponent, number)
+        difference: i64 = state - 1
+        if difference < 0:
+            difference <- -difference
+        divisor <- gcd_i64(difference, number)
+        if divisor > 1:
+            return if divisor < number then divisor else 0
+        i <- i + 1
+    0
+
+export fn pollard_p_minus_one_factorization(input: i64&, length: usize) -> i64 = pollard_p_minus_one_factorization_impl

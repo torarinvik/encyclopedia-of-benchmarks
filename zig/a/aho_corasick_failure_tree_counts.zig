@@ -7,13 +7,15 @@ const ALPHABET: usize = 5;
 export fn aho_corasick_failure_tree_counts(input: ?[*]const i64, length: usize, output: ?[*]u8, output_capacity: usize) i64 {
     if (input == null or length < 3) return -1;
     const values = input.?[0..length];
-    if (values[0] < 1 or values[0] > MAX_PATTERNS or values[1] < 0 or values[1] > MAX_TEXT_LENGTH) return -1;
+    if (values[0] < 1 or values[0] > @as(i64, @intCast(MAX_PATTERNS))
+        or values[1] < 0 or values[1] > @as(i64, @intCast(MAX_TEXT_LENGTH))) return -1;
     const pattern_count: usize = @intCast(values[0]);
     if (length < 2 + pattern_count) return -1;
     var starts: [MAX_PATTERNS]usize = undefined;
     var text_start: usize = 2 + pattern_count;
     for (0..pattern_count) |p| {
-        if (values[2 + p] < 1 or values[2 + p] > MAX_PATTERN_LENGTH) return -1;
+        if (values[2 + p] < 1
+            or values[2 + p] > @as(i64, @intCast(MAX_PATTERN_LENGTH))) return -1;
         const size: usize = @intCast(values[2 + p]);
         if (text_start + size > length) return -1;
         starts[p] = text_start;

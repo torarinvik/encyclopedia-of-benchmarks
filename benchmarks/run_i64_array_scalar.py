@@ -1609,9 +1609,37 @@ from knapsack_zero_one_tabulation_oracle import MAX_VALUE as KNAPSACK_ZERO_ONE_T
 from knapsack_zero_one_tabulation_oracle import MAX_WEIGHT as KNAPSACK_ZERO_ONE_TABULATION_MAX_WEIGHT
 from knapsack_zero_one_tabulation_oracle import PINNED_SOURCE as KNAPSACK_ZERO_ONE_TABULATION_PINNED_SOURCE
 from knapsack_zero_one_tabulation_oracle import expected_result as knapsack_zero_one_tabulation_expected
+from b.bounded_knapsack_monotone_queue.primary_oracle import (
+    MAX_CAPACITY as BOUNDED_KNAPSACK_MAX_CAPACITY,
+    MAX_COUNT as BOUNDED_KNAPSACK_MAX_COUNT,
+    MAX_PARSEABLE_INPUT_LENGTH as BOUNDED_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_TYPES as BOUNDED_KNAPSACK_MAX_TYPES,
+    MAX_VALUE as BOUNDED_KNAPSACK_MAX_VALUE,
+    MAX_WEIGHT as BOUNDED_KNAPSACK_MAX_WEIGHT,
+    MAX_VALID_INPUT_LENGTH as BOUNDED_KNAPSACK_MAX_INPUT_LENGTH,
+    expected_result as bounded_knapsack_monotone_queue_expected,
+)
+from b.bounded_knapsack_monotone_queue.check_inventory import (
+    static_issues as bounded_knapsack_monotone_queue_static_issues,
+)
 from li_chao_tree_oracle import MAX_INPUT_LENGTH as LI_CHAO_TREE_MAX_INPUT_LENGTH
 from li_chao_tree_oracle import SOURCE_BASIS as LI_CHAO_TREE_SOURCE_BASIS
 from li_chao_tree_oracle import expected_result as li_chao_tree_expected
+from monotone_convex_hull_trick_oracle import (
+    INVALID_RESULT as MONOTONE_CHT_INVALID_RESULT,
+    MAX_LINES as MONOTONE_CHT_MAX_LINES,
+    MAX_PARSEABLE_INPUT_LENGTH as MONOTONE_CHT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_QUERIES as MONOTONE_CHT_MAX_QUERIES,
+    MAX_VALID_INPUT_LENGTH as MONOTONE_CHT_MAX_VALID_INPUT_LENGTH,
+    SLOPE_LIMIT as MONOTONE_CHT_SLOPE_LIMIT,
+    INTERCEPT_LIMIT as MONOTONE_CHT_INTERCEPT_LIMIT,
+    X_LIMIT as MONOTONE_CHT_X_LIMIT,
+    SOURCE_BASIS as MONOTONE_CHT_SOURCE_BASIS,
+    expected_result as monotone_convex_hull_trick_expected,
+)
+from m.monotone_convex_hull_trick.check_inventory import (
+    static_issues as monotone_convex_hull_trick_static_issues,
+)
 from three_edge_connected_components_oracle import MAX_INPUT_LENGTH as THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
 from three_edge_connected_components_oracle import SOURCE_BASIS as THREE_EDGE_CONNECTED_COMPONENTS_SOURCE_BASIS
 from three_edge_connected_components_oracle import expected_result as three_edge_connected_components_expected
@@ -1861,6 +1889,18 @@ from b.bareiss_determinant.primary_oracle import (
 from b.bareiss_determinant.verify_bareiss_determinant_package import (
     static_issues as bareiss_determinant_static_issues,
 )
+from p.pollard_p_minus_one_factorization.primary_oracle import (
+    INVALID_RESULT as POLLARD_P_MINUS_ONE_INVALID_RESULT,
+    MAX_BOUND as POLLARD_P_MINUS_ONE_MAX_BOUND,
+    MAX_NUMBER as POLLARD_P_MINUS_ONE_MAX_NUMBER,
+    MAX_PARSEABLE_INPUT_LENGTH as POLLARD_P_MINUS_ONE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as POLLARD_P_MINUS_ONE_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as POLLARD_P_MINUS_ONE_WORKSPACE_BYTES,
+    expected_result as pollard_p_minus_one_expected,
+)
+from p.pollard_p_minus_one_factorization.verify_pollard_p_minus_one_factorization_package import (
+    static_issues as pollard_p_minus_one_static_issues,
+)
 from p.persistent_segment_tree_range_kth.primary_oracle import (
     INVALID_RESULT as PERSISTENT_RANGE_KTH_INVALID_RESULT,
     MAX_N as PERSISTENT_RANGE_KTH_MAX_N,
@@ -1976,6 +2016,56 @@ def validate_li_chao_tree_workload(workload: dict) -> None:
         encoding="utf-8")
     if any(source["url"] not in readme for source in LI_CHAO_TREE_SOURCE_BASIS):
         raise ValueError("li_chao_tree README is missing algorithm provenance")
+
+
+def validate_monotone_convex_hull_trick_workload(workload: dict) -> None:
+    """Check the monotone CHT contract, provenance, workload, and ports."""
+    package_workload = ROOT / "benchmarks/m/monotone_convex_hull_trick/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("monotone_convex_hull_trick workload differs from its package file")
+    input_spec = workload.get("input", {})
+    contract = workload.get("contract", {})
+    if (input_spec.get("line_count_range") != [1, MONOTONE_CHT_MAX_LINES]
+            or input_spec.get("query_count_range") != [0, MONOTONE_CHT_MAX_QUERIES]
+            or input_spec.get("encoding") != "[L,Q,(slope,intercept)*L,x[Q]]"
+            or input_spec.get("slope_range") != [-MONOTONE_CHT_SLOPE_LIMIT, MONOTONE_CHT_SLOPE_LIMIT]
+            or input_spec.get("intercept_range") != [-MONOTONE_CHT_INTERCEPT_LIMIT, MONOTONE_CHT_INTERCEPT_LIMIT]
+            or input_spec.get("query_coordinate_range") != [-MONOTONE_CHT_X_LIMIT, MONOTONE_CHT_X_LIMIT]
+            or input_spec.get("slopes_must_be_strictly_decreasing") is not True
+            or input_spec.get("queries_must_be_nondecreasing") is not True
+            or input_spec.get("maximum_valid_length") != MONOTONE_CHT_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != MONOTONE_CHT_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("invalid_input_result") != MONOTONE_CHT_INVALID_RESULT
+            or workload.get("algorithm") != "monotone_convex_hull_trick"
+            or workload.get("function_symbol") != "monotone_convex_hull_trick"
+            or workload.get("abi") != "i64_array_scalar"
+            or contract.get("slopes_must_be_strictly_decreasing") is not True
+            or contract.get("queries_must_be_nondecreasing") is not True
+            or contract.get("invalid_input_result") != MONOTONE_CHT_INVALID_RESULT
+            or contract.get("zero_queries_result") != 0
+            or workload.get("output", {}).get("result_range") != [-533280000, 533280000]
+            or workload.get("output", {}).get("invalid_input_result") != MONOTONE_CHT_INVALID_RESULT
+            or workload.get("workspace", {}).get("bytes") != 512):
+        raise ValueError("monotone_convex_hull_trick metadata differs from its bounded contract")
+    readme = (ROOT / "benchmarks/m/monotone_convex_hull_trick/README.md").read_text(encoding="utf-8")
+    if any(source["url"] not in readme for source in MONOTONE_CHT_SOURCE_BASIS):
+        raise ValueError("monotone_convex_hull_trick README is missing algorithm provenance")
+    issues = monotone_convex_hull_trick_static_issues()
+    if issues:
+        raise ValueError("monotone_convex_hull_trick package is incomplete: " + "; ".join(issues))
+    for case in workload.get("cases", []):
+        if not isinstance(case, dict):
+            raise ValueError("monotone_convex_hull_trick workload contains a malformed case")
+        values = case.get("input_values")
+        if not isinstance(values, list):
+            raise ValueError(f"monotone_convex_hull_trick input frame is invalid for {case.get('id')}")
+        expected = monotone_convex_hull_trick_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != case.get("expected_result"):
+            raise ValueError(f"monotone_convex_hull_trick fixture mismatch: {case.get('id')}")
 
 
 def validate_eertree_workload(workload: dict) -> None:
@@ -4070,6 +4160,30 @@ def validate_knapsack_zero_one_tabulation_workload(workload: dict) -> None:
         expected = knapsack_zero_one_tabulation_expected(values)
         if type(case.get("expected_result")) is not int or expected != case.get("expected_result"):
             raise ValueError(f"knapsack_zero_one_tabulation workload mismatch: {case.get('id')}")
+
+
+def validate_bounded_knapsack_monotone_queue_workload(workload: dict) -> None:
+    """Check the bounded-knapsack profile, fixtures, and package inventory."""
+    package_workload = ROOT / "benchmarks/b/bounded_knapsack_monotone_queue/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("bounded_knapsack_monotone_queue workload differs from its package file")
+    input_spec = workload.get("input", {})
+    contract = workload.get("contract", {})
+    if (input_spec.get("capacity_range") != [0, BOUNDED_KNAPSACK_MAX_CAPACITY]
+            or input_spec.get("type_count_range") != [0, BOUNDED_KNAPSACK_MAX_TYPES]
+            or input_spec.get("weight_range") != [1, BOUNDED_KNAPSACK_MAX_WEIGHT]
+            or input_spec.get("value_range") != [0, BOUNDED_KNAPSACK_MAX_VALUE]
+            or input_spec.get("multiplicity_range") != [0, BOUNDED_KNAPSACK_MAX_COUNT]
+            or input_spec.get("maximum_valid_length") != BOUNDED_KNAPSACK_MAX_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_input_length") != BOUNDED_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("invalid_input_result") != -1
+            or contract.get("time_complexity") != "O(type_count*capacity)"
+            or workload.get("workspace", {}).get("bytes") != 2080):
+        raise ValueError("bounded_knapsack_monotone_queue metadata differs from its bounded contract")
+    issues = bounded_knapsack_monotone_queue_static_issues()
+    if issues:
+        raise ValueError("bounded_knapsack_monotone_queue package is incomplete: "
+                         + "; ".join(issues))
 
 
 SEGMENT_TREE_BEATS_CASE_IDS = frozenset({
@@ -7658,6 +7772,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "fannkuch" else
                         NUSSINOV_MAX_INPUT_LENGTH if algorithm == "nussinov" else
                         LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "lwe_encryption" else
+                        POLLARD_P_MINUS_ONE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "pollard_p_minus_one_factorization" else
                         POLLARD_RHO_JAVA_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "pollard_rho_java" else
                         POLLARD_RHO_PYTHON_MAX_PARSEABLE_LENGTH if algorithm == "pollard_rho_python" else
                         POLLARD_RHO_RUST_MAX_PARSEABLE_LENGTH if algorithm == "pollard_rho_rust" else
@@ -7694,6 +7810,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         MAX_EDMONDS_KARP_INPUT_LENGTH if algorithm == "edmonds_karp" else
                         MAX_GRAPH_ENUMERATION_INPUT_LENGTH if algorithm == "graph_enumeration" else
                         LI_CHAO_TREE_MAX_INPUT_LENGTH if algorithm == "li_chao_tree" else
+                        MONOTONE_CHT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "monotone_convex_hull_trick" else
                         MANHATTAN_MST_MAX_INPUT_LENGTH if algorithm == "manhattan_mst" else
                         STEINER_TREE_SUBSET_DP_MAX_INPUT_LENGTH
                         if algorithm == "steiner_tree_subset_dp" else
@@ -7761,6 +7879,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "point_in_polygon_ray_casting" else
                         KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH
                         if algorithm == "knapsack_zero_one_tabulation" else
+                        BOUNDED_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "bounded_knapsack_monotone_queue" else
                         LCA_MAX_INPUT_LENGTH if algorithm == "lca" else
                         MCOLORING_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "mcoloring" else
                         MAX_GREEDY_GRAPH_COLORING_INPUT_LENGTH if algorithm == "greedy_graph_coloring" else
@@ -8913,6 +9033,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         )
         if expected != expected_from_source:
             raise ValueError("li_chao_tree expected_result must match direct scans of inserted lines")
+    elif algorithm == "monotone_convex_hull_trick":
+        expected_from_source = monotone_convex_hull_trick_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("monotone_convex_hull_trick expected_result must match the exact deque lower hull")
     elif algorithm == "three_edge_connected_components":
         expected_from_source = three_edge_connected_components_expected(
             values,
@@ -9023,6 +9151,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         )
         if expected != expected_from_source:
             raise ValueError("bareiss_determinant expected_result must match fraction-free elimination")
+    elif algorithm == "pollard_p_minus_one_factorization":
+        expected_from_source = pollard_p_minus_one_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("pollard_p_minus_one_factorization expected_result must match staged p−1 gcds")
     elif algorithm == "persistent_segment_tree_range_kth":
         expected_from_source = persistent_segment_tree_range_kth_expected(
             values,
@@ -9154,6 +9290,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = knapsack_zero_one_tabulation_expected(values)
         if expected != expected_from_source:
             raise ValueError("knapsack_zero_one_tabulation expected_result must match bounded 0/1 dynamic programming")
+    elif algorithm == "bounded_knapsack_monotone_queue":
+        expected_from_source = bounded_knapsack_monotone_queue_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("bounded_knapsack_monotone_queue expected_result must match the bounded deque recurrence")
     elif algorithm == "greedy_graph_coloring":
         expected_from_source = greedy_graph_coloring_expected(values)
         if expected != expected_from_source:
@@ -22836,6 +22976,65 @@ def validate_bareiss_determinant_workload(workload: dict) -> None:
             raise ValueError(f"bareiss_determinant fixture differs from its oracle: {case.get('id')}")
 
 
+def validate_pollard_p_minus_one_factorization_workload(workload: dict) -> None:
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[N,B,A]",
+        "number_range": [2, POLLARD_P_MINUS_ONE_MAX_NUMBER],
+        "smoothness_bound_range": [2, POLLARD_P_MINUS_ONE_MAX_BOUND],
+        "base_range": "1..N-1",
+        "maximum_valid_length": POLLARD_P_MINUS_ONE_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_length": POLLARD_P_MINUS_ONE_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": POLLARD_P_MINUS_ONE_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "encoding": "a proper positive divisor of N, or zero when no proper factor is exposed",
+        "success_result_range": [0, POLLARD_P_MINUS_ONE_MAX_NUMBER // 2],
+        "invalid_input_result": POLLARD_P_MINUS_ONE_INVALID_RESULT,
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "cp-algorithms-pollard-p-minus-one-i64-array-scalar-v1"
+            or workload.get("algorithm") != "pollard_p_minus_one_factorization"
+            or workload.get("function_symbol") != "pollard_p_minus_one_factorization"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("source", {}).get("url")
+            != "https://cp-algorithms.com/algebra/factorization.html#pollards-p-1-method"
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace", {}).get("bytes") != POLLARD_P_MINUS_ONE_WORKSPACE_BYTES
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call",
+                "sample_count": 8,
+                "warmup_rounds": 2,
+                "repetitions_per_sample": 100,
+            }):
+        raise ValueError("pollard_p_minus_one_factorization metadata differs from its bounded contract")
+    package_errors = pollard_p_minus_one_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or not cases:
+        raise ValueError("pollard_p_minus_one_factorization requires workload cases")
+    for case in cases:
+        values = case.get("input_values") if isinstance(case, dict) else None
+        input_length = case.get("input_length") if isinstance(case, dict) else None
+        if (not isinstance(values, list)
+                or type(input_length) is not int
+                or len(values) > POLLARD_P_MINUS_ONE_MAX_PARSEABLE_INPUT_LENGTH
+                or input_length != len(values)):
+            raise ValueError(
+                "pollard_p_minus_one_factorization fixture framing is invalid: "
+                f"{case.get('id') if isinstance(case, dict) else '<non-object>'}"
+            )
+        expected = pollard_p_minus_one_expected(values, input_length=input_length)
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError(
+                "pollard_p_minus_one_factorization fixture differs from its oracle: "
+                f"{case.get('id')}"
+            )
+
+
 def validate_persistent_segment_tree_range_kth_workload(workload: dict) -> None:
     input_spec = {
         "kind": "signed_64_bit_integer_array",
@@ -23233,8 +23432,12 @@ def main() -> int:
         validate_lca_workload(workload)
     elif algorithm == "knapsack_zero_one_tabulation":
         validate_knapsack_zero_one_tabulation_workload(workload)
+    elif algorithm == "bounded_knapsack_monotone_queue":
+        validate_bounded_knapsack_monotone_queue_workload(workload)
     elif algorithm == "li_chao_tree":
         validate_li_chao_tree_workload(workload)
+    elif algorithm == "monotone_convex_hull_trick":
+        validate_monotone_convex_hull_trick_workload(workload)
     elif algorithm == "three_edge_connected_components":
         validate_three_edge_connected_components_workload(workload)
     elif algorithm == "incremental_scc":
@@ -23351,6 +23554,8 @@ def main() -> int:
         validate_cdq_three_dimensional_dominance_workload(workload)
     elif algorithm == "bareiss_determinant":
         validate_bareiss_determinant_workload(workload)
+    elif algorithm == "pollard_p_minus_one_factorization":
+        validate_pollard_p_minus_one_factorization_workload(workload)
     elif algorithm == "persistent_segment_tree_range_kth":
         validate_persistent_segment_tree_range_kth_workload(workload)
     elif algorithm == "count_different_palindromic_subsequences":
@@ -23399,6 +23604,7 @@ def main() -> int:
                 "parallel_binary_search_range_threshold",
                 "cdq_three_dimensional_dominance",
                 "bareiss_determinant",
+                "pollard_p_minus_one_factorization",
                 "persistent_segment_tree_range_kth",
                 "count_different_palindromic_subsequences") else 1
             maximum_null_length = (SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
@@ -23411,6 +23617,8 @@ def main() -> int:
                                    if algorithm == "cdq_three_dimensional_dominance" else
                                    BAREISS_DETERMINANT_MAX_PARSEABLE_INPUT_LENGTH
                                    if algorithm == "bareiss_determinant" else
+                                   POLLARD_P_MINUS_ONE_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "pollard_p_minus_one_factorization" else
                                    PERSISTENT_RANGE_KTH_MAX_PARSEABLE_INPUT_LENGTH
                                    if algorithm == "persistent_segment_tree_range_kth" else
                                    COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_MAX_PARSEABLE_INPUT_LENGTH

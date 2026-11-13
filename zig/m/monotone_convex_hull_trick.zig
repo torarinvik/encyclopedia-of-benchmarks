@@ -15,7 +15,8 @@ fn redundant(a: Line, b: Line, c: Line) bool {
 export fn monotone_convex_hull_trick(values: ?[*]const i64, length: usize) i64 {
     if (values == null or length < 2 or length > max_length) return invalid;
     const packed = values.?;
-    if (packed[0] < 1 or packed[0] > max_lines or packed[1] < 0 or packed[1] > max_queries) return invalid;
+    if (packed[0] < 1 or packed[0] > @as(i64, @intCast(max_lines))
+        or packed[1] < 0 or packed[1] > @as(i64, @intCast(max_queries))) return invalid;
     const line_count: usize = @intCast(packed[0]);
     const query_count: usize = @intCast(packed[1]);
     if (length != 2 + 2 * line_count + query_count) return invalid;

@@ -1093,6 +1093,12 @@ The [SPLASH-2-inspired water profiles](benchmarks/s/splash2_water_nsquared/READM
 
 [Bareiss fraction-free determinant](benchmarks/b/bareiss_determinant/README.md) computes exact small integer determinants using pivoted fraction-free elimination. Ten ports, an independent signed-permutation expansion, bounded matrix workloads, and scalar-suite registration are included.
 
+[Monotone convex hull trick](benchmarks/m/monotone_convex_hull_trick/README.md) answers sorted minimum-line queries with a decreasing-slope lower hull and front advancement. Ten ports, a direct all-lines oracle, bounded workloads, and scalar-suite registration are included.
+
+[Bounded knapsack with a monotone queue](benchmarks/b/bounded_knapsack_monotone_queue/README.md) solves exact multiplicity-limited knapsack by residue-class sliding maxima. Ten ports, a direct-count independent oracle, bounded workloads, and scalar-suite registration are included.
+
+[Aho–Corasick failure-tree counts](benchmarks/a/aho_corasick_failure_tree_counts/README.md) counts overlapping pattern occurrences by aggregating state visits from failure children to parents. Ten ports, a direct substring-scan oracle, bounded byte-output workloads, and byte-suite registration are included.
+
 [Ridders root finding](benchmarks/r/ridders_root_finding/README.md) uses midpoint-based exponential interpolation to preserve a sign-changing root bracket. Ten ports, an independent high-precision bisection oracle, bounded float64 workloads, and float64-suite registration are included.
 
 [Romberg integration](benchmarks/r/romberg_integration/README.md) refines nested trapezoid estimates and applies Richardson extrapolation in a bounded tableau. Ten ports, an independent closed-form antiderivative verifier, bounded float64 workloads, and float64-suite registration are included.

@@ -23,7 +23,7 @@ pub fn monotone_convex_hull_trick(values &i64, length usize) i64 {
 	query_count := int(query_count_value)
 	if length != 2 + 2 * line_count + query_count { return invalid }
 
-	mut hull := []Line{len: max_lines, init: Line{}}
+	mut hull := [max_lines]Line{}
 	mut hull_count := 0
 	mut previous_slope := i64(9223372036854775807)
 	mut cursor := 2

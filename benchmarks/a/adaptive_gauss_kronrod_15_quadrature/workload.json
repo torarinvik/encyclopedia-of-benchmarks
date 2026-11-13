@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "id": "gsl-adaptive-gauss-kronrod-15-float64-slice-io-v1",
+  "algorithm": "adaptive_gauss_kronrod_15_quadrature",
+  "function_symbol": "adaptive_gauss_kronrod_15_quadrature",
+  "abi": "float64_slice_io",
+  "pinned_source": {
+    "repository": "GNU Scientific Library",
+    "commit": "GSL 2.8 documentation",
+    "path": "doc/integration.rst",
+    "symbol": "Gauss-Kronrod rules and QAG adaptive integration",
+    "url": "https://www.gnu.org/software/gsl/doc/html/integration.html",
+    "license": "GNU Free Documentation License for documentation; algorithm description only"
+  },
+  "contract": {
+    "input_encoding": "[function_id,a_micro,b_micro,tolerance_exponent,interval_limit]",
+    "output_encoding": "One float64 containing the Kronrod integral estimate.",
+    "equal_endpoints": "Return zero.",
+    "refinement": "Use an embedded Gauss-7/Kronrod-15 pair; split the active interval with greatest absolute estimate difference, breaking ties by smaller left endpoint. Stop when summed local error is at most 10^-exponent * max(1,abs(total)); return -3 without output if the interval cap is reached first.",
+    "error_precedence": "Malformed input returns -1 before output validation; valid input with null output or capacity below one returns -2 before numerical work; interval-cap exhaustion returns -3 without writes.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "numerical_failure_result": -3,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "exact_length": 5,
+    "maximum_valid_input_length": 5,
+    "maximum_parseable_input_length": 6,
+    "encoding": "[function_id,a_micro,b_micro,tolerance_exponent,interval_limit]",
+    "function_id_range": [0, 3],
+    "functions": ["exp(4*x)", "sin(10*x)", "1/(1+9*x*x)", "x^14"],
+    "endpoint_micro_range": [-1000000, 1000000],
+    "endpoint_order": "a_micro <= b_micro",
+    "tolerance_exponent_range": [6, 8],
+    "interval_limit_range": [1, 16],
+    "integer_valued_fields": true,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[integral_estimate]",
+    "maximum_elements": 1,
+    "maximum_bytes": 8,
+    "success_result": 1,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "numerical_failure_result": -3,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 2e-7,
+    "relative_tolerance": 2e-7
+  },
+  "workspace": {
+    "elements": 1,
+    "bytes": 8,
+    "meaning": "One staged output element; the algorithm also stores at most 16 local interval records."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 2e-7,
+    "relative_tolerance": 2e-7
+  },
+  "oracle_method": "Primary: largest-error interval refinement using embedded Gauss-7/Kronrod-15 estimates in a fixed interval list. Independent: closed-form antiderivatives for output values plus a max-priority queue implementation of the convergence-status rule.",
+  "cases": [
+    {"id":"exponential_unit_interval","input_values":[0,0,1000000,7,16],"input_length":5,"expected_result":1,"expected_output":[13.399537508286059]},
+    {"id":"sine_unit_interval","input_values":[1,0,1000000,7,16],"input_length":5,"expected_result":1,"expected_output":[0.18390715290764524]},
+    {"id":"rational_symmetric_interval","input_values":[2,-1000000,1000000,7,16],"input_length":5,"expected_result":1,"expected_output":[0.8326971815988363]},
+    {"id":"fourteenth_power_symmetric_interval","input_values":[3,-1000000,1000000,7,16],"input_length":5,"expected_result":1,"expected_output":[0.13333333333333333]},
+    {"id":"exponential_negative_interval","input_values":[0,-1000000,0,7,16],"input_length":5,"expected_result":1,"expected_output":[0.24542109027781646]},
+    {"id":"equal_endpoints","input_values":[2,123456,123456,8,1],"input_length":5,"expected_result":1,"expected_output":[0.0]},
+    {"id":"interval_cap_exhausted","input_values":[3,-1000000,1000000,8,1],"input_length":5,"expected_result":-3,"expected_output":[]},
+    {"id":"invalid_function_id","input_values":[4,0,1000000,7,16],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_fractional_field","input_values":[0,0,1000000,7.5,16],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_endpoint_below_domain","input_values":[0,-1000001,0,7,16],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_descending_interval","input_values":[1,1000000,-1000000,7,16],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_tolerance_exponent","input_values":[1,0,1000000,5,16],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_interval_limit","input_values":[2,0,1000000,7,17],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_short_frame","input_values":[1,0,1000000,7],"input_length":4,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_extra_frame_value","input_values":[0,0,1000000,7,16,9],"input_length":6,"expected_result":-1,"expected_output":[]}
+  ],
+  "abi_cases": [
+    {"id":"null_input","input_values":[],"input_length":5,"input_is_null":true,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"valid_input_null_output","input_values":[1,0,1000000,7,16],"input_length":5,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output":[]},
+    {"id":"valid_input_zero_capacity","input_values":[1,0,1000000,7,16],"input_length":5,"output_capacity":0,"expected_result":-2,"expected_output":[]},
+    {"id":"invalid_input_precedes_output_error","input_values":[4,0,1000000,7,16],"input_length":5,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output":[]},
+    {"id":"valid_input_precedes_interval_exhaustion","input_values":[3,-1000000,1000000,8,1],"input_length":5,"output_capacity":0,"expected_result":-2,"expected_output":[]}
+  ]
+}

@@ -10,7 +10,7 @@ The `i64_array_bytes_output` input is `[P,T,lengths[P],pattern_symbols...,text_s
 
 Output is one signed 64-bit little-endian occurrence count per pattern in input order. The return value is the output byte count, at most 128 bytes. Malformed input returns `-1`; null or short output returns `-2`; errors write no bytes. Maximum valid and parseable input lengths are 786 and 787 signed 64-bit words. The fixed workspace budget is 49,152 bytes, covering the i64-backed fixed tables in Elisa and Mojo.
 
-The primary oracle implements completed trie transitions, state-visit accumulation, and reverse-BFS failure propagation. The independent oracle compares each pattern directly at every possible text offset.
+The primary oracle builds failure links by breadth-first traversal, accumulates visits to states reached during scanning, and propagates counts to failure parents in reverse breadth-first order. The independent oracle compares each pattern directly at every possible text offset.
 
 ## Provenance
 

@@ -212,6 +212,15 @@ from d.dial_bucket_shortest_paths.primary_oracle import (
 from d.dial_bucket_shortest_paths.check_inventory import (
     check_inventory as check_dial_bucket_shortest_paths_inventory,
 )
+from a.aho_corasick_failure_tree_counts.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as AHO_FAILURE_TREE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as AHO_FAILURE_TREE_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as AHO_FAILURE_TREE_MAX_OUTPUT_BYTES,
+    expected_output as aho_corasick_failure_tree_counts_oracle,
+)
+from verify_aho_corasick_failure_tree_counts_package import (
+    static_issues as aho_corasick_failure_tree_counts_static_issues,
+)
 from dynamic_mex_updates_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as DYNAMIC_MEX_UPDATES_MAX_PARSEABLE_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES,
@@ -7000,6 +7009,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "binomial_coefficient_prime_power": binomial_coefficient_prime_power_oracle,
     "segment_tree_merge_split": segment_tree_merge_split_oracle,
     "dial_bucket_shortest_paths": dial_bucket_shortest_paths_oracle,
+    "aho_corasick_failure_tree_counts": aho_corasick_failure_tree_counts_oracle,
     "dynamic_mex_updates": dynamic_mex_updates_oracle,
     "circle_line_intersection_count": circle_line_intersection_count_oracle,
     "maximum_frequency_stack": maximum_frequency_stack_oracle,
@@ -7714,6 +7724,10 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
     "dial_bucket_shortest_paths": (
         DIAL_BUCKET_MAX_PARSEABLE_INPUT_LENGTH,
         DIAL_BUCKET_MAX_OUTPUT_BYTES,
+    ),
+    "aho_corasick_failure_tree_counts": (
+        AHO_FAILURE_TREE_MAX_PARSEABLE_INPUT_LENGTH,
+        AHO_FAILURE_TREE_MAX_OUTPUT_BYTES,
     ),
     "dynamic_mex_updates": (
         DYNAMIC_MEX_UPDATES_MAX_PARSEABLE_INPUT_LENGTH,
@@ -38451,6 +38465,26 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         issues = check_dial_bucket_shortest_paths_inventory()
         if issues:
             raise ValueError("dial_bucket_shortest_paths package is incomplete: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "aho_corasick_failure_tree_counts":
+        package_workload = ROOT / "benchmarks/a/aho_corasick_failure_tree_counts/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("aho_corasick_failure_tree_counts workload differs from its package file")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (AHO_FAILURE_TREE_MAX_VALID_INPUT_LENGTH != 786
+                or AHO_FAILURE_TREE_MAX_PARSEABLE_INPUT_LENGTH != 787
+                or AHO_FAILURE_TREE_MAX_OUTPUT_BYTES != 128
+                or input_spec.get("maximum_valid_input_length") != 786
+                or input_spec.get("maximum_parseable_input_length") != 787
+                or input_spec.get("maximum_trie_states") != 513
+                or output_spec.get("maximum_output_bytes") != 128
+                or workload.get("workspace", {}).get("bytes") != 49152):
+            raise ValueError("aho_corasick_failure_tree_counts metadata differs from its failure-tree profile")
+        issues = aho_corasick_failure_tree_counts_static_issues()
+        if issues:
+            raise ValueError("aho_corasick_failure_tree_counts package is incomplete: "
                              + "; ".join(issues))
         return
     if algorithm == "dynamic_mex_updates":

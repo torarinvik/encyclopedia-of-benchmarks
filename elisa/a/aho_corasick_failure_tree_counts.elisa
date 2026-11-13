@@ -5,7 +5,7 @@ const MAX_NODES: usize = 1 + MAX_PATTERNS * MAX_PATTERN_LENGTH
 const ALPHABET: usize = 5
 
 def aho_corasick_failure_tree_counts_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if length < 3 or input[0] < 1 or input[0] > 16 or input[1] < 0 or input[1] > 256:
+    if input.is_null() or length < 3 or input[0] < 1 or input[0] > 16 or input[1] < 0 or input[1] > 256:
         return -1
     pattern_count: usize = input[0].usize()
     if length < 2 + pattern_count:
@@ -45,7 +45,7 @@ def aho_corasick_failure_tree_counts_impl(input: i64&, length: usize, output: mu
             return -1
         i <- i + 1
     output_size: usize = pattern_count * 8
-    if output_capacity < output_size:
+    if output.is_null() or output_capacity < output_size:
         return -2
 
     next: mutable i64[MAX_NODES * ALPHABET]
