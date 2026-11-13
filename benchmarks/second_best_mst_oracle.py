@@ -36,9 +36,25 @@ def _parse(values, input_length=None):
             return None
         seen.add((u, v))
         edges.append((u, v, weight, edge_id))
-    if not _is_tree(n, edges):
+    if not _is_connected(n, edges):
         return None
     return n, edges
+
+
+def _is_connected(n, edges):
+    parent = list(range(n))
+
+    def find(vertex):
+        while parent[vertex] != vertex:
+            parent[vertex] = parent[parent[vertex]]
+            vertex = parent[vertex]
+        return vertex
+
+    for u, v, _weight, _edge_id in edges:
+        root_u, root_v = find(u), find(v)
+        if root_u != root_v:
+            parent[root_v] = root_u
+    return len({find(vertex) for vertex in range(n)}) == 1
 
 
 def _is_tree(n, edges):

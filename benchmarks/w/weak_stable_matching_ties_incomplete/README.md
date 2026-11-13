@@ -35,6 +35,11 @@ reproducible stable outcome but does not solve the chapter's MAX-SMTI objective.
 It also does not implement strong/super-stability tests, randomized tie
 handling, or the chapter's approximation algorithms.
 
+The supplied implementation sorts each man's acceptable choices by insertion
+and scans for the next proposer. With n participants per side, these steps
+take O(n³) time in the worst case and O(n²) workspace; there are at most n²
+proposals. The benchmark bounds n at six.
+
 The primary oracle runs the deterministic proposal process. The independent
 verifier enumerates bounded matchings, filters for strict-refinement
 stability and weak stability in the original lists, then selects the
@@ -52,6 +57,7 @@ malformed rank/acceptability data, null buffers, and short output capacity.
 | C3 | [`c3/w/weak_stable_matching_ties_incomplete.c3`](../../../c3/w/weak_stable_matching_ties_incomplete.c3) |
 | C++ | [`cpp/w/weak_stable_matching_ties_incomplete.cpp`](../../../cpp/w/weak_stable_matching_ties_incomplete.cpp) |
 | Elisa | [`elisa/w/weak_stable_matching_ties_incomplete.elisa`](../../../elisa/w/weak_stable_matching_ties_incomplete.elisa) |
+| Mojo | [`mojo/w/weak_stable_matching_ties_incomplete.mojo`](../../../mojo/w/weak_stable_matching_ties_incomplete.mojo) (unverified draft) |
 | Nim | [`nim/w/weak_stable_matching_ties_incomplete.nim`](../../../nim/w/weak_stable_matching_ties_incomplete.nim) |
 | Odin | [`odin/w/weak_stable_matching_ties_incomplete.odin`](../../../odin/w/weak_stable_matching_ties_incomplete.odin) |
 | Rust | [`rust/w/weak_stable_matching_ties_incomplete.rs`](../../../rust/w/weak_stable_matching_ties_incomplete.rs) |

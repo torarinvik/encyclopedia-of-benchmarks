@@ -13,8 +13,9 @@ rank selects an element of the currently sorted owned-neighbor list. This is
 one supplied realization of the randomized process; it does not claim the
 chapter's expected amortized update bound. The integer threshold is restricted
 to `n=4` or `n=9`, so `sqrt(n)` is exact. To resolve choices left open in the
-text, equal owned counts choose the lower vertex ID, and free-neighbor repairs
-scan IDs increasingly.
+text, equal owned counts choose the lower vertex ID. The promoted owner's
+former mate is repaired first, then the chosen neighbor's former mate if
+distinct; each repair scans free-neighbor IDs increasingly.
 
 ## Contract
 
@@ -49,12 +50,17 @@ Primary oracle: [`two_level_dynamic_maximal_matching_insertions_oracle.py`](../.
 Independent verifier: [`two_level_dynamic_maximal_matching_insertions_verifier_oracle.py`](../../two_level_dynamic_maximal_matching_insertions_verifier_oracle.py).
 Fixtures: [`workload.json`](workload.json).
 
+The [Mojo draft](../../../mojo/t/two_level_dynamic_maximal_matching_insertions.mojo)
+joins the existing ports. All drafts and the recent truncated-frame guards
+remain unverified.
+
 | Language | Port |
 |---|---|
 | C | `c/t/two_level_dynamic_maximal_matching_insertions.c` |
 | C3 | `c3/t/two_level_dynamic_maximal_matching_insertions.c3` |
 | C++ | `cpp/t/two_level_dynamic_maximal_matching_insertions.cpp` |
 | Elisa | `elisa/t/two_level_dynamic_maximal_matching_insertions.elisa` |
+| Mojo | `mojo/t/two_level_dynamic_maximal_matching_insertions.mojo` |
 | Nim | `nim/t/two_level_dynamic_maximal_matching_insertions.nim` |
 | Odin | `odin/t/two_level_dynamic_maximal_matching_insertions.odin` |
 | Rust | `rust/t/two_level_dynamic_maximal_matching_insertions.rs` |

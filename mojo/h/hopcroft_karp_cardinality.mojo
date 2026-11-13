@@ -1,10 +1,12 @@
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
-fn hkc_dfs(u:Int,nr:Int,inout adj:InlineArray[Bool,4096],inout lm:InlineArray[Int,64],inout rm:InlineArray[Int,64],inout dist:InlineArray[Int,64])->Bool:
+from std.collections import InlineArray
+
+fn hkc_dfs(u:Int,nr:Int,inout adj:InlineArray[Bool,4096],inout lm:InlineArray[Int,64],inout rm:InlineArray[Int,64],inout dist:InlineArray[Int,64],nil_distance:Int)->Bool:
     for v in range(nr):
         if not adj[u*64+v]:continue
         let mate=rm[v]
-        if mate<0 or (dist[mate]==dist[u]+1 and hkc_dfs(mate,nr,adj,lm,rm,dist)):
+        if (mate<0 and dist[u]+1==nil_distance) or (mate>=0 and dist[mate]==dist[u]+1 and hkc_dfs(mate,nr,adj,lm,rm,dist,nil_distance)):
             lm[u]=v;rm[v]=u;return true
     dist[u]=1000000;return false
 @export("hopcroft_karp_cardinality")
@@ -19,19 +21,20 @@ fn hopcroft_karp_cardinality(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) a
         adj[Int(l)*64+Int(r)]=true
     var lm=InlineArray[Int,64](fill=-1);var rm=InlineArray[Int,64](fill=-1);var dist=InlineArray[Int,64](fill=0);var matching=0
     while true:
-        var queue=InlineArray[Int,64](fill=0);var head=0;var tail=0;var found=false
+        var queue=InlineArray[Int,64](fill=0);var head=0;var tail=0;var nil_distance=1000000
         for u in range(Int(nl)):
             if lm[u]<0:dist[u]=0;queue[tail]=u;tail+=1
             else:dist[u]=1000000
         while head<tail:
             let u=queue[head];head+=1
+            if dist[u]+1>nil_distance:continue
             for v in range(Int(nr)):
                 if not adj[u*64+v]:continue
                 let mate=rm[v]
-                if mate<0:found=true
+                if mate<0:nil_distance=min(nil_distance,dist[u]+1)
                 elif dist[mate]==1000000:dist[mate]=dist[u]+1;queue[tail]=mate;tail+=1
-        if not found:break
+        if nil_distance==1000000:break
         var changed=0
-        for u in range(Int(nl)):if lm[u]<0 and hkc_dfs(u,Int(nr),adj,lm,rm,dist):matching+=1;changed+=1
+        for u in range(Int(nl)):if lm[u]<0 and hkc_dfs(u,Int(nr),adj,lm,rm,dist,nil_distance):matching+=1;changed+=1
         if changed==0:break
     return Int64(matching)

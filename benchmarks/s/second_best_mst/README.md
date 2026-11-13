@@ -11,7 +11,9 @@ includes the entering and leaving edge IDs as a one-edge-exchange certificate.
 Input is `[N,M,(u,v,w)*M]`, with `1 <= N <= 8`, `N-1 <= M <= 20`, zero-based
 endpoints satisfying `u < v`, no repeated undirected edges, and weights in
 `[0,1,000,000]`. The graph must be connected. Edges are identified by their
-input positions. Kruskal breaks equal-weight ties by input ID.
+input positions. Kruskal breaks equal-weight ties by input ID. Among exchanges
+that achieve the least strictly heavier weight, the certificate uses the
+smallest entering edge ID and then the smallest leaving edge ID.
 
 Output is four signed 64-bit little-endian values:
 

@@ -48,6 +48,7 @@
     {"id": "rank_after_internal_edges", "input_values": [4, 3, 0, 1, 1, 2, 2, 3, 0, 2], "input_length": 10, "expected_result": -1},
     {"id": "truncated", "input_values": [3, 2, 0, 1, 1, 2], "input_length": 6, "expected_result": -1},
     {"id": "trailing_value", "input_values": [2, 1, 0, 1, 0], "input_length": 5, "expected_result": -1},
-    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1},
+    {"id": "null_input_max_length", "input_values": [], "input_length": 57, "input_is_null": true, "expected_result": -1}
   ]
 }

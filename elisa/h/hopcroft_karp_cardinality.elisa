@@ -57,9 +57,7 @@ def bfs_layers(left_count: usize, right_count: usize, adjacency: view[i64],
                 right <- right + 1
     nil_distance
 
-export fn hopcroft_karp_cardinality(input: i64&, length: usize) -> i64:
-    if length < 3:
-        return -1
+def hopcroft_karp_cardinality_impl(input: view[i64], length: usize) -> i64:
     left_value: i64 = input[0]
     right_value: i64 = input[1]
     edge_value: i64 = input[2]
@@ -111,3 +109,8 @@ export fn hopcroft_karp_cardinality(input: i64&, length: usize) -> i64:
                 matching <- matching + 1
             left <- left + 1
     matching
+
+export fn hopcroft_karp_cardinality(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 8195:
+        return -1
+    hopcroft_karp_cardinality_impl(input[0:length], length)

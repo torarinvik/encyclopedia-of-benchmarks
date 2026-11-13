@@ -61,8 +61,9 @@ fn bfsLayers(left_count: usize, right_count: usize, adjacency: *const [MAX_SIDE 
     return nil_distance;
 }
 
-export fn hopcroft_karp_cardinality(input: [*]const i64, length: usize) i64 {
-    if (length < 3) return -1;
+export fn hopcroft_karp_cardinality(input_opt: ?[*]const i64, length: usize) i64 {
+    if (input_opt == null or length < 3) return -1;
+    const input = input_opt.?;
     const left_value = input[0];
     const right_value = input[1];
     const edge_value = input[2];

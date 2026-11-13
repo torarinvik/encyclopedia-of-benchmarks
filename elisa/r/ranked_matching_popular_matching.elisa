@@ -22,9 +22,10 @@ def rmp_put(value: i64, output: mutable view[u8], offset: usize) -> void:
 
 def ranked_matching_popular_matching(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("ranked_matching_popular_matching"):
     if input.is_null() or length < 6 or length > MAX_INPUT: return -1
-    a64: i64 = input[0]
-    p64: i64 = input[1]
-    e64: i64 = input[2]
+    input_view: view[i64] = input[0:length]
+    a64: i64 = input_view[0]
+    p64: i64 = input_view[1]
+    e64: i64 = input_view[2]
     if a64 < 1 or a64 > MAX_A.i64() or p64 < 1 or p64 > MAX_P.i64(): return -1
     applicants: usize = a64.usize()
     posts: usize = p64.usize()
@@ -40,9 +41,9 @@ def ranked_matching_popular_matching(input: i64&, length: usize, output: mutable
     edge: mutable usize = 0
     while edge < edges:
         at: usize = 3+3*edge
-        av: i64 = input[at]
-        pv: i64 = input[at+1]
-        rv: i64 = input[at+2]
+        av: i64 = input_view[at]
+        pv: i64 = input_view[at+1]
+        rv: i64 = input_view[at+2]
         if av < 0 or av >= a64 or pv < 0 or pv >= p64 or rv < 1 or rv > p64: return -1
         a: usize = av.usize()
         p: usize = pv.usize()
@@ -139,7 +140,7 @@ def ranked_matching_popular_matching(input: i64&, length: usize, output: mutable
                             parity[a] <- 1; queue[tail] <- a; tail <- tail+1
                         a <- a+1
                 else if mate_p[p] >= 0 and parity[mate_p[p].usize()] < 0:
-                    target <- mate_p[p].usize()
+                    target: usize = mate_p[p].usize()
                     parity[target] <- 0; queue[tail] <- target; tail <- tail+1
     class_of: mutable i64[MAX_NODES] = zeroed
     n <- 0
@@ -177,11 +178,11 @@ def ranked_matching_popular_matching(input: i64&, length: usize, output: mutable
     while a < applicants: full_limit <- full_limit*post_count; a <- a+1
     code <- 0
     while code < full_limit:
-        value <- code
+        value: mutable usize = code
         candidate: mutable usize[MAX_A] = zeroed
-        used <- 0
+        used: mutable u64 = 0
         first_count: mutable i64 = 0
-        valid <- true
+        valid: mutable bool = true
         a <- 0
         while a < applicants:
             p <- value%post_count
@@ -197,6 +198,7 @@ def ranked_matching_popular_matching(input: i64&, length: usize, output: mutable
             best <- candidate
         code <- code+1
     if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
     staged: mutable u8[MAX_OUTPUT] = zeroed
     staged_view: mutable view[u8] = staged[0:MAX_OUTPUT]
     rmp_put(if found: 1 else: 0, staged_view, 0)
@@ -205,5 +207,5 @@ def ranked_matching_popular_matching(input: i64&, length: usize, output: mutable
         rmp_put(if found: best[a].i64() else: -1, staged_view, 8*(a+1))
         a <- a+1
     i: mutable usize = 0
-    while i < output_bytes: output[i] <- staged[i]; i <- i+1
+    while i < output_bytes: output_view[i] <- staged[i]; i <- i+1
     output_bytes.i64()

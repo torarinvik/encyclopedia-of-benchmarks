@@ -421,6 +421,13 @@ from roulette_wheel_selection_oracle import expected_result as roulette_wheel_se
 from stoer_wagner_oracle import INVALID_RESULT as STOER_WAGNER_INVALID_RESULT
 from k.karger_contraction_trial.independent_oracle import expected_output as karger_contraction_trial_oracle
 from check_karger_contraction_trial_package import static_issues as karger_contraction_trial_static_issues
+from t.turnstile_one_sparse_fingerprint_recovery.independent_oracle import expected_output as sparse_recovery_oracle
+from check_turnstile_one_sparse_fingerprint_recovery_package import static_issues as sparse_recovery_static_issues
+from s.second_best_mst_binary_lifting.independent_oracle import expected_output as lifting_mst_oracle
+from s.second_best_mst_binary_lifting.primary_oracle import expected_output as lifting_mst_primary
+from check_second_best_mst_binary_lifting_package import static_issues as lifting_mst_static_issues
+from h.hopcroft_karp_cardinality.independent_oracle import expected_output as hopcroft_karp_oracle
+from b.bipartite_matching_kuhn.independent_oracle import expected_output as kuhn_flow_oracle
 from stoer_wagner_oracle import MAX_INPUT_VALUES as MAX_STOER_WAGNER_INPUT_LENGTH
 from stoer_wagner_oracle import MAX_N as STOER_WAGNER_MAX_N
 from stoer_wagner_oracle import MAX_WEIGHT as STOER_WAGNER_MAX_WEIGHT
@@ -2388,6 +2395,10 @@ ALGORITHMS += ("smith_waterman_java",)
 ALGORITHMS += ("roulette_wheel_selection",)
 ALGORITHMS += ("stoer_wagner",)
 ALGORITHMS += ("karger_contraction_trial",)
+ALGORITHMS += ("turnstile_one_sparse_fingerprint_recovery",)
+ALGORITHMS += ("second_best_mst_binary_lifting",)
+ALGORITHMS += ("hopcroft_karp_cardinality",)
+ALGORITHMS += ("bipartite_matching_kuhn",)
 ALGORITHMS += ("pushdown_automaton",)
 ALGORITHMS += ("sprague_grundy_theorem",)
 ALGORITHMS += ("sublist_search",)
@@ -4759,6 +4770,14 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return pushdown_automaton_oracle(values)
     if algorithm == "sprague_grundy_theorem":
         return sprague_grundy_theorem_oracle(values)
+    if algorithm == "bipartite_matching_kuhn":
+        return kuhn_flow_oracle(values)
+    if algorithm == "hopcroft_karp_cardinality":
+        return hopcroft_karp_oracle(values)
+    if algorithm == "second_best_mst_binary_lifting":
+        return lifting_mst_oracle(values)
+    if algorithm == "turnstile_one_sparse_fingerprint_recovery":
+        return sparse_recovery_oracle(values)
     if algorithm == "karger_contraction_trial":
         return karger_contraction_trial_oracle(values)
     if algorithm == "stoer_wagner":
@@ -11730,6 +11749,96 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             add(tuple(values))
         special_records.append(f"NULL 1 {PUSHDOWN_AUTOMATON_INVALID_RESULT}\n")
+    elif algorithm in {"hopcroft_karp_cardinality", "bipartite_matching_kuhn"}:
+        matching_oracle = kuhn_flow_oracle if algorithm == "bipartite_matching_kuhn" else hopcroft_karp_oracle
+        for case in workload.get("cases", []):
+            if case.get("input_is_null", False):
+                null_length = case.get("input_length")
+                if (case.get("input_is_null") is not True or case.get("input_values") != []
+                        or case.get("expected_result") != -1 or type(null_length) is not int
+                        or not 0 <= null_length <= 8195):
+                    raise ValueError(f"{algorithm} null fixture is malformed")
+                special_records.append(f"NULL {null_length} -1\n")
+                continue
+            values = tuple(case["input_values"])
+            if case.get("input_length") != len(values):
+                raise ValueError(f"{algorithm} input length differs from its fixture")
+            expected = matching_oracle(values)
+            if expected != case["expected_result"]:
+                raise ValueError(f"{algorithm} fixture differs from matching oracle")
+            cases[values] = expected
+        for left in range(4):
+            for right in range(4):
+                edges = tuple(product(range(left), range(right)))
+                for mask in range(1 << len(edges)):
+                    selected = tuple(edge for i, edge in enumerate(edges) if mask & (1 << i))
+                    values = (left, right, len(selected), *(v for edge in selected for v in edge))
+                    expected = matching_oracle(values)
+                    if expected != (hopcroft_karp_oracle(values) if algorithm == "bipartite_matching_kuhn"
+                                    else kuhn_flow_oracle(values)):
+                        raise ValueError("bipartite matching references disagree")
+                    cases[values] = expected
+        for values in ((), (1,), (1, 1), (1, 1, 1, 0), (1, 1, 0, 0),
+                       (65, 0, 0), (0, 65, 0), (1, 1, 4097),
+                       (1, 1, 1, -1, 0), (1, 1, 1, 0, 1),
+                       (-(1 << 63), 0, 0), (0, 0, (1 << 63) - 1)):
+            cases[values] = -1
+        complete = (64, 64, 4096, *(v for edge in product(range(64), repeat=2) for v in edge))
+        cases[complete] = 64
+        cases[complete + (0,)] = -1
+        special_records.append("NULL 3 -1\n")
+    elif algorithm == "second_best_mst_binary_lifting":
+        issues = lifting_mst_static_issues(workload)
+        if issues:
+            raise ValueError("binary-lifting second MST package: " + "; ".join(issues))
+        for case in workload.get("cases", []):
+            if not case.get("input_is_null", False):
+                values = tuple(case["input_values"])
+                cases[values] = lifting_mst_oracle(values)
+        for n in range(2, 6):
+            edges = tuple(combinations(range(n), 2))
+            for mask in range(1, 1 << len(edges)):
+                chosen = tuple(edge for i, edge in enumerate(edges) if mask & (1 << i))
+                values = (n, len(chosen), *(item for i, (u, v) in enumerate(chosen)
+                                           for item in (u, v, i % 3)))
+                expected = lifting_mst_oracle(values)
+                if lifting_mst_primary(values) != expected:
+                    raise ValueError("binary-lifting second MST references disagree")
+                cases[values] = expected
+        chain = tuple((i, i + 1) for i in range(7))
+        extras = tuple(edge for edge in combinations(range(8), 2) if edge not in chain)[:13]
+        maximum = (8, 20, *(item for u, v in chain for item in (u, v, 1)),
+                   *(item for u, v in extras for item in (u, v, 2)))
+        cases[maximum] = 9
+        cases[maximum + (0,)] = -1
+        for extreme in (-(1 << 63), (1 << 63) - 1):
+            cases[(3, extreme)] = -1
+            cases[(2, 1, 0, 1, extreme)] = -1
+        special_records.append("NULL 1 -1\n")
+        special_records.append("NULL 63 -1\n")
+    elif algorithm == "turnstile_one_sparse_fingerprint_recovery":
+        issues = sparse_recovery_static_issues(workload)
+        if issues:
+            raise ValueError("singleton fingerprint recovery package: " + "; ".join(issues))
+        for case in workload.get("cases", []):
+            if not case.get("input_is_null", False):
+                values = tuple(case["input_values"])
+                cases[values] = sparse_recovery_oracle(list(values))
+        maximum = (64, 128, 2, *((63, 1) * 128))
+        cases[maximum] = 64
+        cases[maximum + (0,)] = -1
+        # Exercise cancellations, signed counts, and colliding fingerprints.
+        for n in (1, 2, 5, 64):
+            for base in (1, 2, 1_000_000_006):
+                for index in (0, n - 1):
+                    for delta in (-1000, -1, 1, 1000):
+                        values = (n, 3, base, index, delta, index, -delta, index, delta)
+                        cases[values] = sparse_recovery_oracle(list(values))
+        for base in (1, 2, 1_000_000_006):
+            values = (3, 2, base, 0, 1, 2, 1)
+            cases[values] = sparse_recovery_oracle(list(values))
+        special_records.append("NULL 1 -1\n")
+        special_records.append("NULL 260 -1\n")
     elif algorithm == "karger_contraction_trial":
         issues = karger_contraction_trial_static_issues(workload)
         if issues:
@@ -11755,6 +11864,7 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                     values = packed + ranks
                     cases[values] = karger_contraction_trial_oracle(list(values))
         special_records.append("NULL 1 -1\n")
+        special_records.append("NULL 57 -1\n")
     elif algorithm == "stoer_wagner":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -14614,8 +14724,6 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= MAX_EDMONDS_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
     elif algorithm == "edmonds_blossom_algorithm":
-        from itertools import combinations
-
         for vertex_count in range(6):
             all_edges = list(combinations(range(vertex_count), 2))
             for edge_mask in range(1 << len(all_edges)):
@@ -14637,7 +14745,13 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             if len(values) <= MAX_EDMONDS_BLOSSOM_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
+        complete_edges = tuple(combinations(range(MAX_EDMONDS_BLOSSOM_VERTICES), 2))
+        complete = (MAX_EDMONDS_BLOSSOM_VERTICES, len(complete_edges),
+                    *(endpoint for edge in complete_edges for endpoint in edge))
+        cases[complete] = 10
+        cases[complete + (0,)] = -1
         special_records.append("NULL 1 -1\n")
+        special_records.append("NULL 382 -1\n")
     elif algorithm == "equal_loudness_filter":
         for _ in range(256):
             count = rng.randint(0, MAX_EQUAL_LOUDNESS_SAMPLES)

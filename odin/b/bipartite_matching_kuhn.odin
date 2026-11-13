@@ -22,7 +22,7 @@ try_augment :: proc "contextless" (left, right_count: int, adjacency: [^]bool,
 // Return maximum matching cardinality, or -1 for malformed graph input.
 @(export)
 bipartite_matching_kuhn :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
-	if length < 3 do return -1
+	if input == nil || length < 3 do return -1
 	if input[0] < 0 || input[0] > MAX_SIDE || input[1] < 0 || input[1] > MAX_SIDE ||
 		input[2] < 0 || input[2] > MAX_EDGES do return -1
 	left_count := int(input[0])

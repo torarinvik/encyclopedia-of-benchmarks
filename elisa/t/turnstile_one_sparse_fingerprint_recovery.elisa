@@ -1,0 +1,41 @@
+def sparse_fingerprint_power(base_value: i64, exponent_value: i64) -> i64:
+    modulus: i64 = 1000000007
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- (result * base) % modulus
+        base <- (base * base) % modulus
+        exponent <- exponent >> 1
+    result
+
+def sparse_fingerprint_impl(input: view[i64], length: usize) -> i64:
+    modulus: i64 = 1000000007
+    if length < 3 or length > 260: return -1
+    n: i64 = input[0]
+    q: i64 = input[1]
+    base: i64 = input[2]
+    if n < 1 or n > 64 or q < 0 or q > 128 or base < 1 or base >= modulus: return -1
+    if length != (3 + 2 * q).usize(): return -1
+    mass: mutable i64 = 0
+    weighted: mutable i64 = 0
+    fingerprint: mutable i64 = 0
+    for i in 0..<q.usize():
+        index: i64 = input[3 + 2 * i]
+        delta: i64 = input[4 + 2 * i]
+        if index < 0 or index >= n or delta < -1000 or delta > 1000: return -1
+        mass <- mass + delta
+        weighted <- weighted + delta * index
+        fingerprint <- (fingerprint + delta * sparse_fingerprint_power(base, index)) % modulus
+        if fingerprint < 0: fingerprint <- fingerprint + modulus
+    if mass == 0 or weighted % mass != 0: return 0
+    index: i64 = weighted / mass
+    if index < 0 or index >= n: return 0
+    expected: mutable i64 = (mass * sparse_fingerprint_power(base, index)) % modulus
+    if expected < 0: expected <- expected + modulus
+    if fingerprint == expected: return index + 1
+    0
+
+export fn turnstile_one_sparse_fingerprint_recovery(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 260: return -1
+    sparse_fingerprint_impl(input[0:length], length)

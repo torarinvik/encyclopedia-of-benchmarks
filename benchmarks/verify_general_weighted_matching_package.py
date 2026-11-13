@@ -197,7 +197,7 @@ def validate_package() -> None:
     readme = (PACKAGE / "README.md").read_text(encoding="utf-8")
     rights = (PACKAGE / "RIGHTS.md").read_text(encoding="utf-8")
     for required in (TASK_URL, LIMITS_URL, "O(N 2^N)", "maximum total weight",
-                     "general_graph_maximum_matching", "clean-room", "bitmask"):
+                     "edmonds_blossom_algorithm", "clean-room", "bitmask"):
         if required not in readme:
             raise ValueError(f"README is missing required contract or distinctness text: {required}")
     if TASK_URL not in rights or LIMITS_URL not in rights or "Apache-2.0" not in rights:

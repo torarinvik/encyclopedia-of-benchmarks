@@ -7,10 +7,10 @@ MAX_OUTPUT_BYTES = 152
 def verify(values, capacity=None, output_is_null=False):
     if values is None or len(values) < 3 or len(values) > MAX_INPUT_LENGTH:
         return -1, b""
-    if any(not isinstance(x, int) for x in values):
+    if any(type(x) is not int or not -(1 << 63) <= x < (1 << 63) for x in values):
         return -1, b""
     n, q = values[0], values[1]
-    if n not in (4, 9) or q < 0 or q > 24 or len(values) < 3+2*q:
+    if n not in (4, 9) or q < 0 or q > 24 or q > n * (n - 1) // 2 or len(values) < 3+2*q:
         return -1, b""
     p = 2
     edges = set()
@@ -25,7 +25,7 @@ def verify(values, capacity=None, output_is_null=False):
     if p >= len(values): return -1, b""
     count = values[p]
     p += 1
-    if count < 0 or len(values) != p+count: return -1, b""
+    if count < 0 or count > 4 or len(values) != p+count: return -1, b""
     tape = values[p:]
     if any(t < 0 or t >= n for t in tape): return -1, b""
     levels = [0]*n
@@ -62,7 +62,8 @@ def verify(values, capacity=None, output_is_null=False):
             if x >= 0: mates[x] = -1
         mates[u], mates[v] = v, u
         levels[u] = levels[v] = 1
-        for x in sorted({old_u, old_v}): repair(x)
+        repair(old_u)
+        if old_v != old_u: repair(old_v)
         return True
 
     edges.clear()

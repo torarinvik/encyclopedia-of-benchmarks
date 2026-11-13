@@ -14,7 +14,7 @@
     "operation": "Maintain a maximal matching and two-level partition from an initially empty graph under edge insertions.",
     "input_layout": "[n,q,(u,v)[q],random_choice_count,random_ranks[random_choice_count]]",
     "threshold": "sqrt(n), restricted to n=4 or n=9",
-    "tie_rule": "Promotion owner ties select lower ID; owned neighbors and free level-0 repair scan in ascending ID order.",
+    "tie_rule": "Promotion owner ties select lower ID; repair the owner's former mate before the chosen neighbor's former mate, and scan each owned or free-neighbor list in ascending ID order.",
     "random_rule": "Each tape value selects the corresponding rank in the current ascending owned-neighbor list; the tape length must equal consumed choices.",
     "output_layout": "[n,level[0..n),partner[0..n)], little-endian signed 64-bit words; unmatched partner is -1.",
     "error_precedence": "Malformed frame/update/random tape returns -1 before output checks; null or short output returns -2 without writes."
@@ -52,6 +52,10 @@
     {"id":"duplicate-insertion","input_values":[4,2,0,1,0,1,0],"input_length":7,"expected_result":-1,"expected_output_hex":""},
     {"id":"random-rank-out-of-range","input_values":[4,2,0,1,0,2,1,2],"input_length":8,"expected_result":-1,"expected_output_hex":""},
     {"id":"short-choice-tape","input_values":[4,2,0,1,0,2,0],"input_length":7,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-first-edge","input_values":[4,2,0],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-second-edge","input_values":[4,2,0,1,0],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"missing-rank-count","input_values":[4,2,0,1,0,2],"input_length":6,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-before-null-output","input_values":[4,2,0],"input_length":3,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
     {"id":"short-output","input_values":[4,2,0,1,0,2,1,1],"input_length":8,"output_capacity":71,"expected_result":-2,"expected_output_hex":""},
     {"id":"null-input","input_values":[],"input_length":1,"input_is_null":true,"output_capacity":152,"expected_result":-1,"expected_output_hex":""},
     {"id":"null-output","input_values":[4,2,0,1,0,2,1,1],"input_length":8,"output_capacity":72,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}

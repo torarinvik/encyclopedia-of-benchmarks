@@ -26,12 +26,12 @@ def tlm_repair(graph: view[bool], level: view[i64], mate: mutable view[i64], n: 
             return
 
 def tlm_promote(graph: view[bool], level: mutable view[i64], mate: mutable view[i64], n: usize,
-                u: usize, tape: view[usize], r: usize, used: mutable usize&): bool:
+                u: usize, tape: view[usize], r: usize, used: mutable view[usize]): bool:
     candidates: mutable usize[9] = zeroed
     count: usize = tlm_owned(graph, level, n, u, candidates[0:TLM_N])
-    if count == 0 or used >= r or tape[used] >= count: return false
-    y: usize = candidates[tape[used]]
-    used <- used + 1
+    if count == 0 or used[0] >= r or tape[used[0]] >= count: return false
+    y: usize = candidates[tape[used[0]]]
+    used[0] <- used[0] + 1
     w: i64 = mate[u]
     x: i64 = mate[y]
     if w >= 0: mate[w.usize()] <- -1; mate[u] <- -1
@@ -44,11 +44,11 @@ def tlm_promote(graph: view[bool], level: mutable view[i64], mate: mutable view[
     if x != w: tlm_repair(graph, level, mate, n, x)
     true
 
-def two_level_dynamic_maximal_matching_insertions_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize): i64:
-    if input.is_null() or length < 3 or length > 55: return -1
+def two_level_dynamic_maximal_matching_insertions_impl(input: view[i64], length: usize, output: mutable u8&, capacity: usize): i64:
     n64: i64 = input[0]
     q64: i64 = input[1]
     if (n64 != 4 and n64 != 9) or q64 < 0 or q64 > TLM_Q.i64() or q64 > n64 * (n64 - 1) / 2: return -1
+    if length < 3 + 2 * q64.usize(): return -1
     n: usize = n64.usize()
     q: usize = q64.usize()
     us: mutable usize[24] = zeroed
@@ -81,7 +81,7 @@ def two_level_dynamic_maximal_matching_insertions_impl(input: i64&, length: usiz
     mate: mutable i64[9] = zeroed
     for i in 0..<n: mate[i] <- -1
     threshold: usize = if n == 4: 2 else: 3
-    used: mutable usize = 0
+    used: mutable usize[1] = zeroed
     for e in 0..<q:
         u: usize = us[e]
         v: usize = vs[e]
@@ -98,13 +98,16 @@ def two_level_dynamic_maximal_matching_insertions_impl(input: i64&, length: usiz
         who: usize = if da > db or (da == db and u < v): u else: v
         c: mutable usize[9] = zeroed
         count: usize = tlm_owned(graph[0:TLM_N * TLM_N], level[0:TLM_N], n, who, c[0:TLM_N])
-        if count >= threshold and not tlm_promote(graph[0:TLM_N * TLM_N], level[0:TLM_N], mate[0:TLM_N], n, who, tape[0:TLM_R], r, used&): return -1
-    if used != r: return -1
+        if count >= threshold and not tlm_promote(graph[0:TLM_N * TLM_N], level[0:TLM_N], mate[0:TLM_N], n, who, tape[0:TLM_R], r, used[0:1]): return -1
+    if used[0] != r: return -1
     bytes: usize = 8 * (1 + 2 * n)
     if output.is_null() or capacity < bytes: return -2
-    tlm_put64(output[0:capacity], 0, n.i64())
-    for i in 0..<n: tlm_put64(output[0:capacity], 8+8*i, level[i])
-    for i in 0..<n: tlm_put64(output[0:capacity], 8+8*n+8*i, mate[i])
+    output_view: mutable view[u8] = output[0:bytes]
+    tlm_put64(output_view, 0, n.i64())
+    for i in 0..<n: tlm_put64(output_view, 8+8*i, level[i])
+    for i in 0..<n: tlm_put64(output_view, 8+8*n+8*i, mate[i])
     bytes.i64()
 
-export fn two_level_dynamic_maximal_matching_insertions(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = two_level_dynamic_maximal_matching_insertions_impl
+export fn two_level_dynamic_maximal_matching_insertions(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 55: return -1
+    two_level_dynamic_maximal_matching_insertions_impl(input[0:length], length, output, capacity)

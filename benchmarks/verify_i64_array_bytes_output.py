@@ -4742,17 +4742,17 @@ from a.all_distances_sketch_bottom_k_verifier_oracle import verify as all_distan
 from sublinear_bipartiteness_walk_tester_verifier_oracle import expected_output as sublinear_bipartiteness_walk_tester_independent_oracle
 from optimal_stable_marriage_verifier_oracle import expected_output as optimal_stable_marriage_independent_oracle
 from quine_mccluskey_minimization_verifier_oracle import expected_output as quine_mccluskey_minimization_independent_oracle
-from general_graph_maximum_matching_oracle import MAX_INPUT_LENGTH as GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_INPUT_LENGTH
-from general_graph_maximum_matching_verifier_oracle import verify as general_graph_maximum_matching_independent_check
 from orthogonal_range_reporting_2d_verifier_oracle import expected_output as orthogonal_range_reporting_2d_independent_oracle
 from k_median_p1_local_search_oracle import MAX_INPUT_LENGTH as K_MEDIAN_P1_LOCAL_SEARCH_MAX_INPUT_LENGTH
 from k_median_p1_local_search_verifier_oracle import verify as k_median_p1_local_search_independent_oracle
 from two_level_dynamic_maximal_matching_insertions_oracle import MAX_INPUT_LENGTH as TWO_LEVEL_DYNAMIC_MAXIMAL_MATCHING_INSERTIONS_MAX_INPUT_LENGTH
+from two_level_dynamic_maximal_matching_insertions_oracle import evaluate as two_level_dynamic_matching_primary
 from two_level_dynamic_maximal_matching_insertions_verifier_oracle import verify as two_level_dynamic_maximal_matching_insertions_independent_oracle
 from substring_parsimony_verifier_oracle import expected_output as substring_parsimony_independent_oracle
 from weighted_connected_dominating_set_verifier_oracle import expected_output as weighted_connected_dominating_set_independent_oracle
 from weighted_popular_matching_verifier_oracle import expected_output as weighted_popular_matching_independent_oracle
 from ranked_matching_popular_matching_verifier_oracle import expected_output as ranked_matching_popular_matching_independent_oracle
+from ranked_matching_popular_matching_oracle import expected_output as ranked_matching_popular_matching_primary_oracle
 from extended_gs_general_stable_allocation_verifier_oracle import expected_output as extended_gs_general_stable_allocation_independent_oracle
 from slicing_floorplan_stockmeyer_verifier_oracle import expected_output as slicing_floorplan_stockmeyer_independent_oracle
 from randomized_rounding_bernoulli_verifier_oracle import expected_output as randomized_rounding_bernoulli_independent_oracle
@@ -6020,7 +6020,6 @@ ALGORITHMS = (*ALGORITHMS, "all_distances_sketch_bottom_k")
 ALGORITHMS = (*ALGORITHMS, "sublinear_bipartiteness_walk_tester")
 ALGORITHMS = (*ALGORITHMS, "optimal_stable_marriage")
 ALGORITHMS = (*ALGORITHMS, "quine_mccluskey_minimization")
-ALGORITHMS = (*ALGORITHMS, "general_graph_maximum_matching")
 ALGORITHMS = (*ALGORITHMS, "orthogonal_range_reporting_2d")
 ALGORITHMS = (*ALGORITHMS, "k_median_p1_local_search")
 ALGORITHMS = (*ALGORITHMS, "two_level_dynamic_maximal_matching_insertions")
@@ -6153,6 +6152,19 @@ ALGORITHMS = (*ALGORITHMS, "convolution_f2_64")
 ALGORITHMS = (*ALGORITHMS, "palindrome_pairs")
 ALGORITHMS = (*ALGORITHMS, "dirichlet_convolution_and_prefix_sums")
 ALGORITHMS = (*ALGORITHMS, "all_shortest_paths_unweighted")
+from rabin_content_defined_chunking_verifier_oracle import expected_output as rabin_content_defined_chunking_independent_oracle
+from rabin_content_defined_chunking_oracle import expected_output as rabin_content_defined_chunking_primary_oracle
+from statistical_region_merging_table_oracle import expected_output as statistical_region_merging_table_primary_oracle
+from statistical_region_merging_table_verifier_oracle import expected_output as statistical_region_merging_table_independent_oracle
+from multiprobe_lsh_probe_sequence_oracle import expected_output as multiprobe_lsh_probe_sequence_primary_oracle
+from multiprobe_lsh_probe_sequence_verifier_oracle import expected_output as multiprobe_lsh_probe_sequence_independent_oracle
+
+ALGORITHMS = (*ALGORITHMS, "rabin_content_defined_chunking")
+ALGORITHMS = (*ALGORITHMS, "multiprobe_lsh_probe_sequence")
+WORKSPACE_ALGORITHMS.add("multiprobe_lsh_probe_sequence")
+ALGORITHMS = (*ALGORITHMS, "statistical_region_merging_table")
+WORKSPACE_ALGORITHMS.add("statistical_region_merging_table")
+WORKSPACE_ALGORITHMS.add("rabin_content_defined_chunking")
 ALGORITHMS = (*ALGORITHMS, "indexed_block_list")
 ALGORITHMS = (*ALGORITHMS, "prime_modulus_inverse_table")
 ALGORITHMS = (*ALGORITHMS, "sparse_supernodal_cholesky")
@@ -6304,7 +6316,6 @@ WORKSPACE_ALGORITHMS.update({
     "sublinear_bipartiteness_walk_tester",
     "optimal_stable_marriage",
     "quine_mccluskey_minimization",
-    "general_graph_maximum_matching",
     "orthogonal_range_reporting_2d",
     "k_median_p1_local_search",
     "two_level_dynamic_maximal_matching_insertions",
@@ -13525,6 +13536,9 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "newton_compositional_inverse_fps": newton_compositional_inverse_fps_independent_oracle,
     "sparse_supernodal_cholesky": sparse_supernodal_cholesky_independent_oracle,
     "gabow_scc": gabow_scc_independent_oracle,
+    "multiprobe_lsh_probe_sequence": multiprobe_lsh_probe_sequence_independent_oracle,
+    "statistical_region_merging_table": statistical_region_merging_table_independent_oracle,
+    "rabin_content_defined_chunking": rabin_content_defined_chunking_independent_oracle,
     "indexed_block_list": indexed_block_list_independent_oracle,
     "prime_modulus_inverse_table": prime_modulus_inverse_table_independent_oracle,
     "crochemore_perrin_two_way": crochemore_perrin_two_way_independent_oracle,
@@ -13850,9 +13864,6 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "sublinear_bipartiteness_walk_tester": sublinear_bipartiteness_walk_tester_independent_oracle,
     "optimal_stable_marriage": optimal_stable_marriage_independent_oracle,
     "quine_mccluskey_minimization": quine_mccluskey_minimization_independent_oracle,
-    "general_graph_maximum_matching": _adapt_array_verifier(
-        general_graph_maximum_matching_independent_check,
-        GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_INPUT_LENGTH + 1),
     "orthogonal_range_reporting_2d": orthogonal_range_reporting_2d_independent_oracle,
     "k_median_p1_local_search": _adapt_array_verifier(
         k_median_p1_local_search_independent_oracle,
@@ -19181,6 +19192,16 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             return (result == expected_result and output == expected
                     and (result < 0 or second_best_mst_validate_output(values, output)))
 
+        # Pin a cyclic graph with a heavier tree and a tied cycle whose
+        # replacement must use the second distinct path weight.
+        for values, expected_words in (
+                ((3, 3, 0, 1, 1, 1, 2, 2, 0, 2, 5), (3, 6, 2, 1)),
+                ((3, 3, 0, 1, 1, 1, 2, 2, 0, 2, 2), (3, 4, 2, 0)),
+                ((3, 3, 0, 1, 4, 1, 2, 4, 0, 2, 4), (8, -1, -1, -1))):
+            result, output = add(values)
+            if result != 32 or output != struct.pack("<4q", *expected_words):
+                raise ValueError("second_best_mst rejected a connected cycle or mishandled ties")
+
         n = SECOND_BEST_MST_VERIFIER_MAX_N
         pairs = [(u, v) for u in range(n) for v in range(u + 1, n)]
         max_edges = [(u, v, (u * 7 + v * 11) % 9)
@@ -24231,6 +24252,12 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or max_output != GBBS_MAXIMAL_MATCHING_MAX_OUTPUT_BYTES
                 or workspace_bytes != GBBS_MAXIMAL_MATCHING_MAX_OUTPUT_BYTES):
             raise ValueError("GBBS maximal matching suite bounds differ from its workload")
+        empty_result, empty_output = add((1, 0), 0)
+        if empty_result != 0 or empty_output:
+            raise ValueError("GBBS maximal matching empty graph differs")
+        empty_null_result, empty_null_output = add((1, 0), 0, output_is_null=True)
+        if empty_null_result != GBBS_MAXIMAL_MATCHING_OUTPUT_ERROR or empty_null_output:
+            raise ValueError("GBBS maximal matching accepted a null output for an empty graph")
         maximum = tuple(next(case["input_values"] for case in workload["cases"]
                              if case["id"] == "maximum-node-and-edge-bounds"))
         result, output = add(maximum)
@@ -28677,7 +28704,60 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     add(values, 0)
                     add(values, result - 1)
                 add(values, output_is_null=True)
-        if algorithm == "indexed_block_list":
+        if algorithm == "multiprobe_lsh_probe_sequence":
+            for m in range(1, 5):
+                for distances in product(range(4), repeat=m):
+                    values = (m, 3, 3**m - 1, *distances)
+                    result, output = add(values)
+                    if result != 3**m - 1 or (result, output) != multiprobe_lsh_probe_sequence_primary_oracle(values):
+                        raise ValueError("multi-probe sequence references disagree")
+                    add(values, result - 1)
+                    add(values, output_is_null=True)
+            for count in (0, 1, 2, 40, 79, 80):
+                values = (4, 1000, count, 0, 250, 500, 1000)
+                result, output = add(values)
+                if result != count or (result, output) != multiprobe_lsh_probe_sequence_primary_oracle(values):
+                    raise ValueError("multi-probe prefix or boundary-distance references disagree")
+                add(values, output_is_null=True)
+            for invalid in ((), (0, 1, 0), (1, 0, 0, 0), (1, 1, 3, 0), (1, 1, 1, 2)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("multi-probe sequence accepted malformed input")
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "statistical_region_merging_table":
+            rng = random.Random(0x53524D)
+            for height in range(1, 7):
+                for width in range(1, 7):
+                    n = height * width
+                    for sample in range(4):
+                        bounds = tuple(0 if sample == 0 else rng.randrange(65536) for _ in range(n))
+                        pixels = tuple(rng.randrange(4 if sample < 2 else 256) for _ in range(n))
+                        values = (height, width, *bounds, *pixels)
+                        result, output = add(values)
+                        if result != n or (result, output) != statistical_region_merging_table_primary_oracle(values):
+                            raise ValueError("region-merging references disagree")
+                        add(values, n - 1)
+                        add(values, output_is_null=True)
+            for invalid in ((), (1, 1, -1, 0), (1, 1, 0, 256), (1, 1, 0), (7, 1)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("region-merging accepted malformed input")
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "rabin_content_defined_chunking":
+            rng = random.Random(0xCDC16)
+            for n in range(65):
+                for data in ((0,) * n, tuple(rng.randrange(256) for _ in range(n))):
+                    values = (n, *data)
+                    result, output = add(values)
+                    if (result, output) != rabin_content_defined_chunking_primary_oracle(values):
+                        raise ValueError("content-defined chunking references disagree")
+                    if n and (not output or output[-1] != n):
+                        raise ValueError("content-defined chunking omitted final boundary")
+                    add(values, output_is_null=True)
+                    if result > 0: add(values, result - 1)
+            for invalid in ((), (65,), (1, -1), (1, 256), (2, 0)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("content-defined chunking accepted malformed input")
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "indexed_block_list":
             maximum_case = next(case for case in workload["cases"]
                                 if case["id"] == "maximum_frame_and_output")
             maximum_input = tuple(maximum_case["input_values"])
@@ -28759,6 +28839,15 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     add(values, result - 1)
                     add(values, output_is_null=True)
             add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=66)
+            # A path of maximal diameter requires every squaring level; its
+            # exact distances are the absolute differences of vertex indices.
+            n = 8
+            path = (n, *(int(abs(i - j) == 1) for i in range(n) for j in range(n)))
+            result, output = add(path)
+            expected = b"".join(struct.pack("<q", abs(i - j)) for i in range(n) for j in range(n))
+            if result != 512 or output != expected:
+                raise ValueError("seidel_unweighted_apsp maximum path distances differ")
             for invalid in ((0,), (1, 1), (2, 0, 0, 0, 0), (2, 0, 1, 0, 0)):
                 if add(invalid, 0) != (-1, b"") or add(invalid, output_is_null=True) != (-1, b""):
                     raise ValueError("seidel_unweighted_apsp error precedence differs")
@@ -28813,6 +28902,24 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                         raise ValueError("newton_compositional_inverse_fps generated case failed")
                     if newton_compositional_inverse_fps_primary_oracle(values) != (result, output):
                         raise ValueError("newton_compositional_inverse_fps oracles disagree")
+                    # Check both composition identities without either oracle's
+                    # reversion procedure, including every truncated degree.
+                    f = values[1:]
+                    g = struct.unpack("<" + "q" * n, output)
+                    for outer, inner in ((f, g), (g, f)):
+                        composed = [0] * n
+                        power = [1] + [0] * (n - 1)
+                        for coefficient in outer:
+                            for degree in range(n):
+                                composed[degree] = (composed[degree] + coefficient * power[degree]) % 998244353
+                            next_power = [0] * n
+                            for left in range(n):
+                                for right in range(n - left):
+                                    next_power[left + right] = (next_power[left + right]
+                                                                 + power[left] * inner[right]) % 998244353
+                            power = next_power
+                        if composed != [0, 1] + [0] * (n - 2):
+                            raise ValueError("newton_compositional_inverse_fps composition identity failed")
                     add(values, result - 1)
                     add(values, output_is_null=True)
             add((), input_is_null=True, input_length=0)
@@ -28821,6 +28928,63 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 if add(invalid, 0) != (-1, b"") or add(invalid, output_is_null=True) != (-1, b""):
                     raise ValueError("newton_compositional_inverse_fps error precedence differs")
             add((2, 0, 1, *([0] * 15)))
+        elif algorithm == "ranked_matching_popular_matching":
+            # Exhaust all valid tied/incomplete preference rows for small markets.
+            for posts in range(1, 4):
+                rows = []
+                for row in product(range(posts + 1), repeat=posts):
+                    present = set(row) - {0}
+                    if present and present == set(range(1, max(present) + 1)):
+                        rows.append(row)
+                for applicants in (1, 2):
+                    for profile in product(rows, repeat=applicants):
+                        edges = tuple((a, p, rank) for a, row in enumerate(profile)
+                                      for p, rank in enumerate(row) if rank)
+                        values = (applicants, posts, len(edges),
+                                  *(field for edge in edges for field in edge))
+                        result, output = add(values)
+                        if (result, output) != ranked_matching_popular_matching_primary_oracle(values):
+                            raise ValueError("ranked matching references disagree on a generated profile")
+                        if result != 8 * (applicants + 1):
+                            raise ValueError("ranked matching returned an unexpected output length")
+            for invalid in ((1, 2, 1, 0, 0, 2),
+                            (1, 1, 2, 0, 0, 1, 0, 0, 1),
+                            (2, 1, 2, 0, 0, 1, 0, 0, 1),
+                            (1, 1, 1, 0, 0)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("ranked matching error precedence differs")
+            add((), input_is_null=True, input_length=0)
+            values = (2, 1, 2, 0, 0, 1, 1, 0, 1)
+            add(values, 23)
+            add(values, output_is_null=True)
+        elif algorithm == "two_level_dynamic_maximal_matching_insertions":
+            small_edges = tuple(combinations(range(4), 2))
+            for edges in product(small_edges, repeat=3):
+                if len(set(edges)) != len(edges):
+                    continue
+                prefix = (4, len(edges), *(vertex for edge in edges for vertex in edge))
+                for rank_count in range(3):
+                    for ranks in product(range(4), repeat=rank_count):
+                        values = (*prefix, rank_count, *ranks)
+                        result, output = add(values)
+                        if (result, output) != two_level_dynamic_matching_primary(values):
+                            raise ValueError("dynamic matching references disagree on a generated trace")
+            for n in (4, 9):
+                for q in range(1, min(24, n * (n - 1) // 2) + 1):
+                    edges = tuple(combinations(range(n), 2))[:q]
+                    prefix = (n, q, *(endpoint for edge in edges for endpoint in edge))
+                    for length in (2, 3, len(prefix) - 1, len(prefix)):
+                        if length < 3:
+                            continue
+                        values = prefix[:length]
+                        result, output = add(values)
+                        if result != -1 or output:
+                            raise ValueError("dynamic matching accepted a truncated edge frame")
+                        result, output = add(values, output_is_null=True)
+                        if result != -1 or output:
+                            raise ValueError("dynamic matching output error preceded malformed input")
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=max_input)
         elif algorithm == "sparse_supernodal_cholesky":
             maximum_input = tuple(next(case["input_values"] for case in workload["cases"]
                                        if case["id"] == "maximum_diagonal"))
@@ -28846,7 +29010,9 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                                               for k in range(col + 1))
                                    for row in range(n) for col in range(row + 1))
                     masks = tuple((1 << (row + 1)) - 1 for row in range(n))
-                    for boundaries in (tuple(range(n + 1)), (0, n)):
+                    partitions = [tuple(range(n + 1)), (0, n)]
+                    partitions.extend((0, split, n) for split in range(1, n))
+                    for boundaries in partitions:
                         values = (n, len(boundaries) - 1, *boundaries, *masks, *packed)
                         result, output = add(values)
                         primary_result, primary_output = sparse_supernodal_cholesky_primary_oracle(values)
@@ -28886,6 +29052,14 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                             (1, 1, 0, 1, 1, -1), (1, 1, 0, 1, 1, 1000001)):
                 add(invalid, 0)
                 add(invalid, output_is_null=True)
+            for case_id in ("missing_fill", "partial_panel", "later_nonpositive_pivot",
+                            "nonzero_outside_pattern"):
+                invalid = tuple(next(case["input_values"] for case in workload["cases"]
+                                     if case["id"] == case_id))
+                if (sparse_supernodal_cholesky_primary_oracle(invalid, capacity=0) != (-1, b"")
+                        or add(invalid, 0) != (-1, b"")
+                        or add(invalid, output_is_null=True) != (-1, b"")):
+                    raise ValueError("sparse_supernodal_cholesky invalid-input precedence differs")
         elif algorithm == "prime_modulus_inverse_table":
             maximum_case = next(case for case in workload["cases"]
                                 if case["expected_result"] == 128)

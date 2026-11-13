@@ -26,6 +26,7 @@ proc two_level_dynamic_maximal_matching_insertions*(input:ptr UncheckedArray[int
   if input==nil or length<3 or length>55:return -1
   let n0=input[0];let q0=input[1]
   if (n0!=4 and n0!=9) or q0<0 or q0>Q or q0>n0*(n0-1) div 2:return -1
+  if length < csize_t(3 + 2 * q0): return -1
   let n=int(n0);let q=int(q0);var us,vs:array[Q,int];var seen:array[81,bool];var p=2
   for e in 0..<q:
     let u0=input[p];let v0=input[p+1];p+=2

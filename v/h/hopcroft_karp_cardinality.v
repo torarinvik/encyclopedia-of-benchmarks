@@ -63,7 +63,7 @@ fn bfs_layers(left_count int, right_count int, adjacency &bool, pair_right &i32,
 // Return maximum matching cardinality, or -1 for malformed graph input.
 @[export: 'hopcroft_karp_cardinality']
 pub fn hopcroft_karp_cardinality(input &i64, length usize) i64 {
-	if length < 3 { return -1 }
+	if input == nil || length < 3 { return -1 }
 	unsafe {
 		if input[0] < 0 || input[0] > i64(max_side) || input[1] < 0 || input[1] > i64(max_side) || input[2] < 0 || input[2] > i64(max_edges) { return -1 }
 		left_count := int(input[0])

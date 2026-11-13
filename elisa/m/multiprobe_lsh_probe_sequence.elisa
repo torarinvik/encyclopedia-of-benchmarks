@@ -1,0 +1,113 @@
+def mpls_score(mask: usize, distances: view[usize], choice_count: usize) -> usize:
+    score: mutable usize = 0
+    for i in 0..<choice_count:
+        if (mask & (1.usize() << i)) != 0: score <- score + distances[i]*distances[i]
+    score
+
+def mpls_count(mask: usize) -> usize:
+    value: mutable usize = mask
+    count: mutable usize = 0
+    while value != 0:
+        count <- count + (value & 1)
+        value <- value >> 1
+    count
+
+def mpls_less(a: usize, b: usize, distances: view[usize], n: usize) -> bool:
+    sa: usize = mpls_score(a, distances, n)
+    sb: usize = mpls_score(b, distances, n)
+    if sa != sb: return sa < sb
+    ca: usize = mpls_count(a)
+    cb: usize = mpls_count(b)
+    if ca != cb: return ca < cb
+    a < b
+
+def mpls_push(heap: mutable view[usize], size: usize, mask: usize,
+        distances: view[usize], n: usize) -> usize:
+    at: mutable usize = size
+    while at > 0 and mpls_less(mask, heap[(at-1)/2], distances, n):
+        heap[at] <- heap[(at-1)/2]
+        at <- (at-1)/2
+    heap[at] <- mask
+    size + 1
+
+def mpls_pop(heap: mutable view[usize], size: usize, distances: view[usize], n: usize) -> usize:
+    result: usize = heap[0]
+    remaining: usize = size - 1
+    last: usize = heap[remaining]
+    at: mutable usize = 0
+    while 2*at+1 < remaining:
+        child: mutable usize = 2*at+1
+        if child+1 < remaining and mpls_less(heap[child+1], heap[child], distances, n): child <- child+1
+        if not mpls_less(heap[child], last, distances, n): break
+        heap[at] <- heap[child]
+        at <- child
+    if remaining > 0: heap[at] <- last
+    result
+
+def multiprobe_lsh_probe_sequence_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > 7: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 4 or values[1] < 1 or values[1] > 1000: return -1
+    m: usize = values[0].usize()
+    width: usize = values[1].usize()
+    limit: mutable usize = 1
+    for i in 0..<m: limit <- limit*3
+    if length != 3+m or values[2] < 0 or values[2] >= limit.i64(): return -1
+    count: usize = values[2].usize()
+    distances: mutable usize[8] = zeroed
+    coords: mutable usize[8] = zeroed
+    signs: mutable i64[8] = zeroed
+    for i in 0..<m:
+        if values[3+i] < 0 or values[3+i] > width.i64(): return -1
+        distances[2*i] <- values[3+i].usize()
+        distances[2*i+1] <- width - distances[2*i]
+        coords[2*i] <- i
+        coords[2*i+1] <- i
+        signs[2*i] <- -1
+        signs[2*i+1] <- 1
+    for i in 1..<2*m:
+        d: usize = distances[i]
+        c: usize = coords[i]
+        s: i64 = signs[i]
+        j: mutable usize = i
+        while j > 0 and (distances[j-1] > d or (distances[j-1] == d and (coords[j-1] > c or (coords[j-1] == c and signs[j-1] > s)))):
+            distances[j] <- distances[j-1]
+            coords[j] <- coords[j-1]
+            signs[j] <- signs[j-1]
+            j <- j-1
+        distances[j] <- d
+        coords[j] <- c
+        signs[j] <- s
+    distance_view: view[usize] = distances[0:2*m]
+    heap: mutable usize[256] = zeroed
+    heap_view: mutable view[usize] = heap[0:256]
+    heap_size: mutable usize = 0
+    result: mutable u8[80] = zeroed
+    emitted: mutable usize = 0
+    heap_size <- mpls_push(heap_view, heap_size, 1, distance_view, 2*m)
+    while emitted < count:
+        mask: usize = mpls_pop(heap_view, heap_size, distance_view, 2*m)
+        heap_size <- heap_size - 1
+        top: mutable usize = 0
+        while (1.usize() << (top+1)) <= mask: top <- top+1
+        if top+1 < 2*m:
+            heap_size <- mpls_push(heap_view, heap_size, (mask ^ (1.usize() << top)) | (1.usize() << (top+1)), distance_view, 2*m)
+            heap_size <- mpls_push(heap_view, heap_size, mask | (1.usize() << (top+1)), distance_view, 2*m)
+        seen: mutable usize = 0
+        valid: mutable bool = true
+        for i in 0..<2*m:
+            if (mask & (1.usize() << i)) != 0:
+                bit: usize = 1.usize() << coords[i]
+                if (seen & bit) != 0: valid <- false; break
+                seen <- seen | bit
+        if valid:
+            result[emitted] <- mask.u8()
+            emitted <- emitted+1
+    if output.is_null() or capacity < count: return -2
+    out: mutable view[u8] = output[0:count]
+    for i in 0..<count: out[i] <- result[i]
+    count.i64()
+
+export fn multiprobe_lsh_probe_sequence(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = multiprobe_lsh_probe_sequence_impl

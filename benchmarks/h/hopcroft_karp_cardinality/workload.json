@@ -21,6 +21,13 @@
   },
   "cases": [
     {
+      "id": "null-input-maximum-length",
+      "input_values": [],
+      "input_length": 8195,
+      "input_is_null": true,
+      "expected_result": -1
+    },
+    {
       "id": "empty-partitions",
       "input_values": [
         0,

@@ -16,8 +16,9 @@ fn tryAugment(left: usize, right_count: usize, adjacency: *const [MAX_SIDE * MAX
     return false;
 }
 
-export fn bipartite_matching_kuhn(input: [*]const i64, length: usize) i64 {
-    if (length < 3) return -1;
+export fn bipartite_matching_kuhn(input_opt: ?[*]const i64, length: usize) i64 {
+    if (input_opt == null or length < 3) return -1;
+    const input = input_opt.?;
     const left_value = input[0];
     const right_value = input[1];
     const edge_value = input[2];

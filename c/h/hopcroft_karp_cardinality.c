@@ -38,8 +38,7 @@ static int bfs_layers(size_t left_count, size_t right_count, const bool *adjacen
     size_t queue[MAX_SIDE];
     size_t head = 0, tail = 0;
     for (size_t left = 0; left < left_count; ++left) {
-        if (distance[left] == -1) {
-            distance[left] = 0;
+        if (distance[left] == 0) {
             queue[tail++] = left;
         }
     }

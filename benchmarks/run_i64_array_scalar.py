@@ -508,6 +508,10 @@ from roulette_wheel_selection_oracle import expected_result as roulette_wheel_se
 from stoer_wagner_oracle import MAX_INPUT_VALUES as MAX_STOER_WAGNER_INPUT_LENGTH
 from k.karger_contraction_trial.primary_oracle import expected_output as karger_contraction_trial_expected
 from check_karger_contraction_trial_package import static_issues as karger_contraction_trial_static_issues
+from t.turnstile_one_sparse_fingerprint_recovery.primary_oracle import expected_output as sparse_recovery_expected
+from check_turnstile_one_sparse_fingerprint_recovery_package import static_issues as sparse_recovery_static_issues
+from s.second_best_mst_binary_lifting.primary_oracle import expected_output as lifting_mst_expected
+from check_second_best_mst_binary_lifting_package import static_issues as lifting_mst_static_issues
 from stoer_wagner_oracle import expected_result as stoer_wagner_expected
 from pushdown_automaton_oracle import INVALID_RESULT as PUSHDOWN_AUTOMATON_INVALID_RESULT
 from pushdown_automaton_oracle import MAX_INPUT_LENGTH as MAX_PUSHDOWN_AUTOMATON_INPUT_LENGTH
@@ -8377,6 +8381,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_LARGEST_PRODUCT_IN_A_GRID_INPUT_LENGTH if algorithm == "largest_product_in_a_grid"
                         else MAX_STOER_WAGNER_INPUT_LENGTH if algorithm == "stoer_wagner"
                         else 57 if algorithm == "karger_contraction_trial"
+                        else 260 if algorithm == "turnstile_one_sparse_fingerprint_recovery"
+                        else 63 if algorithm == "second_best_mst_binary_lifting"
                         else MAX_PUSHDOWN_AUTOMATON_INPUT_LENGTH if algorithm == "pushdown_automaton"
                         else MAX_SPRAGUE_GRUNDY_INPUT_LENGTH if algorithm == "sprague_grundy_theorem"
                         else MAX_STOCHASTIC_MATRIX_INPUT_VALUES if algorithm == "stochastic_matrix"
@@ -8604,6 +8610,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         max_input_length = HUNT_SZYMANSKI_LCS_MAX_PARSEABLE_INPUT_LENGTH
     elif algorithm == "rle_levenshtein_block_dp":
         max_input_length = RLE_LEVENSHTEIN_BLOCK_DP_MAX_INPUT_LENGTH
+    elif algorithm in {"hopcroft_karp_cardinality", "bipartite_matching_kuhn"}:
+        max_input_length = 8196
     elif algorithm == "maximum_independent_set":
         max_input_length = MAXIMUM_INDEPENDENT_SET_MAX_INPUT_LENGTH
     if (not isinstance(values, list) or len(values) > max_input_length
@@ -9018,8 +9026,17 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = roulette_wheel_selection_expected(values)
         if expected != expected_from_source:
             raise ValueError("roulette_wheel_selection expected_result must match deterministic weighted ticket selection")
+    elif algorithm == "second_best_mst_binary_lifting":
+        if expected != lifting_mst_expected(values, case.get("input_is_null", False),
+                                             case.get("input_length", len(values))):
+            raise ValueError("binary-lifting second MST expected_result differs from reference")
+    elif algorithm == "turnstile_one_sparse_fingerprint_recovery":
+        if expected != sparse_recovery_expected(
+                values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("singleton fingerprint recovery expected_result differs from replay")
     elif algorithm == "karger_contraction_trial":
-        if expected != karger_contraction_trial_expected(values):
+        if expected != karger_contraction_trial_expected(values, case.get("input_is_null", False),
+                                                          case.get("input_length", len(values))):
             raise ValueError("karger_contraction_trial expected_result does not match contraction replay")
     elif algorithm == "stoer_wagner":
         expected_from_source = stoer_wagner_expected(values)
@@ -10830,7 +10847,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = -1
         if expected != expected_from_source:
             raise ValueError("crc16 expected_result must match the bounded CRC-16/CCITT-FALSE byte recurrence")
-    elif algorithm == "hopcroft_karp_cardinality":
+    elif algorithm in {"hopcroft_karp_cardinality", "bipartite_matching_kuhn"}:
         valid = (
             len(values) >= 3
             and 0 <= values[0] <= 64
@@ -10866,7 +10883,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                 1 for left in range(left_count) if augment(left, set())
             )
         if expected != expected_from_source:
-            raise ValueError("hopcroft_karp_cardinality expected_result must match maximum bipartite matching cardinality")
+            raise ValueError("bipartite matching expected_result must match maximum matching cardinality")
     elif algorithm == "faraday_lenz_law":
         valid = (len(values) == 3 and -1_000_000_000 <= values[0] <= 1_000_000_000
                  and -1_000_000_000 <= values[1] <= 1_000_000_000
@@ -23908,6 +23925,14 @@ def main() -> int:
         validate_eertree_workload(workload)
     elif algorithm == "segment_add_get_min":
         validate_segment_add_get_min_workload(workload)
+    elif algorithm == "second_best_mst_binary_lifting":
+        issues = lifting_mst_static_issues(workload)
+        if issues:
+            raise ValueError("binary-lifting second MST package: " + "; ".join(issues))
+    elif algorithm == "turnstile_one_sparse_fingerprint_recovery":
+        issues = sparse_recovery_static_issues(workload)
+        if issues:
+            raise ValueError("singleton fingerprint recovery package: " + "; ".join(issues))
     elif algorithm == "karger_contraction_trial":
         issues = karger_contraction_trial_static_issues(workload)
         if issues:
@@ -24034,9 +24059,15 @@ def main() -> int:
                 "ordered_set_avl_order_statistics",
                 "persistent_segment_tree_range_kth",
                 "count_different_palindromic_subsequences",
-                "karger_contraction_trial") else 1
+                "karger_contraction_trial", "turnstile_one_sparse_fingerprint_recovery",
+                "second_best_mst_binary_lifting") else 1
             maximum_null_length = (SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
                                    if algorithm == "segment_add_get_min" else
+                                   260 if algorithm == "turnstile_one_sparse_fingerprint_recovery" else
+                                   63 if algorithm == "second_best_mst_binary_lifting" else
+                                   57 if algorithm == "karger_contraction_trial" else
+                                   382 if algorithm == "edmonds_blossom_algorithm" else
+                                   8195 if algorithm in {"hopcroft_karp_cardinality", "bipartite_matching_kuhn"} else
                                    STIRLING_S1_SMALL_P_MAX_INPUT_LENGTH
                                    if algorithm == "stirling_number_of_the_first_kind_small_p_large_n" else
                                    PBS_THRESHOLD_MAX_PARSEABLE_INPUT_LENGTH

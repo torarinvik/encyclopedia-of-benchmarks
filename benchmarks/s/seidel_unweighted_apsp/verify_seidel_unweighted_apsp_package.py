@@ -80,6 +80,7 @@ def static_issues() -> list[str]:
                     if (result, output.hex()) != expected:
                         issues.append(f"{name} oracle disagrees with fixture: {case_id}")
             required = {"singleton", "single-edge", "three-vertex-path", "disconnected",
+                        "disconnected-nontrivial-components", "nonbinary-entry", "trailing-entry",
                         "invalid-before-null-output", "asymmetric", "self-loop", "short-output",
                         "null-output", "null-input"}
             if not required <= seen:

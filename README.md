@@ -1132,3 +1132,5 @@ The [SPLASH-2-inspired water profiles](benchmarks/s/splash2_water_nsquared/READM
 [Seidel unweighted all-pairs distances](benchmarks/s/seidel_unweighted_apsp/README.md) uses adjacency squaring and distance recovery on bounded connected graphs. Its ten language drafts and suite wiring remain unexecuted.
 
 [Sparse supernodal Cholesky](benchmarks/s/sparse_supernodal_cholesky/README.md) factors a supplied filled sparse pattern in bounded supernodes, with ten language ports and byte-output suite registration. The package remains unexecuted.
+
+[Second-best MST with binary lifting](benchmarks/s/second_best_mst_binary_lifting/README.md) finds the least strictly heavier spanning-tree weight using lifted path summaries. Ten language drafts and scalar-suite registration are present; they remain unexecuted.

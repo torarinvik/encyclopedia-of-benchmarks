@@ -11,7 +11,8 @@ def wsmt_store(output: mutable view[u8], offset: usize, value: i64): void:
 def weak_stable_matching_ties_incomplete_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize): i64:
     if input.is_null() or length < 1 or length > MAX_INPUT: return -1
-    n_raw: i64 = input[0]
+    input_view: view[i64] = input[0:length]
+    n_raw: i64 = input_view[0]
     if n_raw < 1 or n_raw > MAX_N.i64(): return -1
     n: usize = n_raw.usize()
     side_size: usize = n * n
@@ -22,12 +23,12 @@ def weak_stable_matching_ties_incomplete_impl(input: i64&, length: usize,
     choice_count: mutable usize[MAX_N] = zeroed
     for man in 0..<n:
         for woman in 0..<n:
-            rank: i64 = input[1 + man * n + woman]
+            rank: i64 = input_view[1 + man * n + woman]
             if rank < 0 or rank > n_raw: return -1
             men_rank[man][woman] <- rank
     for woman in 0..<n:
         for man in 0..<n:
-            rank: i64 = input[1 + side_size + woman * n + man]
+            rank: i64 = input_view[1 + side_size + woman * n + man]
             if rank < 0 or rank > n_raw or ((rank > 0) != (men_rank[man][woman] > 0)): return -1
             women_rank[woman][man] <- rank
     for man in 0..<n:
@@ -72,9 +73,10 @@ def weak_stable_matching_ties_incomplete_impl(input: i64&, length: usize,
     words[0] <- pairs.i64()
     output_bytes: usize = 8 * (1 + 2 * pairs)
     if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
     for word in 0..<(1 + 2 * pairs): wsmt_store(staged[0:MAX_OUTPUT_BYTES], 8 * word, words[word])
-    for byte in 0..<output_bytes: output[byte] <- staged[byte]
+    for byte in 0..<output_bytes: output_view[byte] <- staged[byte]
     output_bytes.i64()
 
 export fn weak_stable_matching_ties_incomplete(input: i64&, length: usize,

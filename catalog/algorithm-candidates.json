@@ -13425,8 +13425,8 @@
           "local_folder_source": "rust"
         }
       ],
-      "benchmark_name": "bipartite_matching_hopcroft_karp",
-      "benchmark_contract": "benchmarks/b/bipartite_matching_hopcroft_karp/README.md",
+      "benchmark_name": "hopcroft_karp_cardinality",
+      "benchmark_contract": "benchmarks/h/hopcroft_karp_cardinality/README.md",
       "additional_benchmark_names": [
         "bipartite_matching_kuhn"
       ],

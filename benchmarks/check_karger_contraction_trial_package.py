@@ -56,7 +56,9 @@ def static_issues(workload=None):
         null = case.get("input_is_null", False)
         result = case.get("expected_result")
         if (not isinstance(values, list) or type(length) is not int
-                or length != len(values) or type(null) is not bool or type(result) is not int):
+                or type(null) is not bool or type(result) is not int
+                or (null and (values or not 0 <= length <= 57))
+                or (not null and length != len(values))):
             issues.append(f"invalid fixture framing: {case_id}")
             continue
         if primary(values, null, length) != result or reference(values, null, length) != result:
@@ -66,13 +68,14 @@ def static_issues(workload=None):
     required = {"single_edge", "parallel_edges", "triangle", "cycle", "uneven_cut",
                 "maximum_graph", "disconnected", "self_loop", "vertex_out_of_range",
                 "negative_rank", "rank_too_large", "rank_after_internal_edges",
-                "truncated", "trailing_value", "null_input"}
+                "truncated", "trailing_value", "null_input", "null_input_max_length"}
     if not required <= seen:
         issues.append("missing required workload cases: " + ", ".join(sorted(required - seen)))
     maximum = next((case for case in cases
                     if case.get("id") == "maximum_graph"), None)
     if maximum is not None and (maximum.get("input_length") != 56
-                                or maximum.get("input_values", [])[:2] != [8, 24]):
+                                or not isinstance(maximum.get("input_values"), list)
+                                or maximum["input_values"][:2] != [8, 24]):
         issues.append("maximum graph does not exercise both input bounds")
     return issues
 

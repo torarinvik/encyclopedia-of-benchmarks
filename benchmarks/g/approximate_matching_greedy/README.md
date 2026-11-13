@@ -21,8 +21,13 @@ bytes.
 
 This differs from [`gbbs_maximal_matching`](../gbbs_maximal_matching/README.md),
 which follows a supplied edge-priority order to obtain a maximal matching
-without weights or a maximum-weight approximation guarantee. It also differs
-from exact maximum-cardinality matching profiles.
+without weights or a maximum-weight approximation guarantee. Both select
+unmatched endpoints in a fixed priority order, but the GBBS profile constructs
+its order directly from a supplied rank permutation in `O(M)`; this profile's
+ports repeatedly scan the remaining weights to find the maximum, taking
+`O(M²)` for selection, and accumulate the selected weight. These differences
+are part of the measured work. It also differs from exact maximum-cardinality
+matching profiles.
 
 ## Source attribution and rights
 
@@ -44,6 +49,7 @@ the independent verifier is
 | C3 | [`c3/g/approximate_matching_greedy.c3`](../../../c3/g/approximate_matching_greedy.c3) |
 | C++ | [`cpp/g/approximate_matching_greedy.cpp`](../../../cpp/g/approximate_matching_greedy.cpp) |
 | Elisa | [`elisa/g/approximate_matching_greedy.elisa`](../../../elisa/g/approximate_matching_greedy.elisa) |
+| Mojo | [`mojo/g/approximate_matching_greedy.mojo`](../../../mojo/g/approximate_matching_greedy.mojo) |
 | Nim | [`nim/g/approximate_matching_greedy.nim`](../../../nim/g/approximate_matching_greedy.nim) |
 | Odin | [`odin/g/approximate_matching_greedy.odin`](../../../odin/g/approximate_matching_greedy.odin) |
 | Rust | [`rust/g/approximate_matching_greedy.rs`](../../../rust/g/approximate_matching_greedy.rs) |

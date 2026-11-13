@@ -61,7 +61,7 @@ bfs_layers :: proc "contextless" (left_count, right_count: int, adjacency: [^]bo
 // Return maximum matching cardinality, or -1 for malformed graph input.
 @(export)
 hopcroft_karp_cardinality :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
-	if length < 3 do return -1
+	if input == nil || length < 3 do return -1
 	if input[0] < 0 || input[0] > MAX_SIDE || input[1] < 0 || input[1] > MAX_SIDE ||
 		input[2] < 0 || input[2] > MAX_EDGES do return -1
 	left_count := int(input[0])

@@ -37,8 +37,7 @@ asymptotic performance.
 
 ## Distinctness
 
-[`general_graph_maximum_matching`](../general_graph_maximum_matching/README.md)
-and [`edmonds_blossom_algorithm`](../../e/edmonds_blossom_algorithm/README.md)
+[`edmonds_blossom_algorithm`](../../e/edmonds_blossom_algorithm/README.md)
 optimize matching cardinality in an unweighted general graph. Weighted stable
 and popular matching packages optimize preference-based objectives, and
 [`tree_matching`](../../t/tree_matching/README.md) relies on a tree structure.

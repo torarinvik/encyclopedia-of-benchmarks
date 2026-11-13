@@ -51,7 +51,8 @@
   },
   "cases": [
     {"id":"unique-weight-cycle","input_values":[3,3,0,1,1,1,2,2,0,2,5],"input_length":11,"output_capacity":32,"expected_result":32,"expected_output_hex":"0300000000000000060000000000000002000000000000000100000000000000"},
-    {"id":"equal-maximum-needs-second-distinct-path-weight","input_values":[3,3,0,1,1,1,2,2,2,0,2,2],"input_length":12,"output_capacity":32,"expected_result":32,"expected_output_hex":"0300000000000000040000000000000002000000000000000000000000000000"},
+    {"id":"equal-maximum-needs-second-distinct-path-weight","input_values":[3,3,0,1,1,1,2,2,0,2,2],"input_length":11,"output_capacity":32,"expected_result":32,"expected_output_hex":"0300000000000000040000000000000002000000000000000000000000000000"},
+    {"id":"equal-removal-weights-use-smallest-edge-id","input_values":[4,4,0,1,1,1,2,2,2,3,2,0,3,3],"input_length":14,"output_capacity":32,"expected_result":32,"expected_output_hex":"0500000000000000060000000000000003000000000000000100000000000000"},
     {"id":"all-spanning-trees-equal","input_values":[3,3,0,1,4,1,2,4,0,2,4],"input_length":11,"output_capacity":32,"expected_result":32,"expected_output_hex":"0800000000000000ffffffffffffffffffffffffffffffffffffffffffffffff"},
     {"id":"single-vertex","input_values":[1,0],"input_length":2,"output_capacity":32,"expected_result":32,"expected_output_hex":"0000000000000000ffffffffffffffffffffffffffffffffffffffffffffffff"},
     {"id":"only-one-tree","input_values":[3,2,0,1,1,1,2,2],"input_length":8,"output_capacity":32,"expected_result":32,"expected_output_hex":"0300000000000000ffffffffffffffffffffffffffffffffffffffffffffffff"},

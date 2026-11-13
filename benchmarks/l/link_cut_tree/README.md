@@ -26,6 +26,7 @@ Each port uses a link-cut tree represented by an auxiliary splay forest. Reversa
 | C3 | [c3/l/link_cut_tree.c3](../../../c3/l/link_cut_tree.c3) |
 | C++ | [cpp/l/link_cut_tree.cpp](../../../cpp/l/link_cut_tree.cpp) |
 | Elisa | [elisa/l/link_cut_tree.elisa](../../../elisa/l/link_cut_tree.elisa) |
+| Mojo | [mojo/l/link_cut_tree.mojo](../../../mojo/l/link_cut_tree.mojo) (draft, unverified) |
 | Nim | [nim/l/link_cut_tree.nim](../../../nim/l/link_cut_tree.nim) |
 | Odin | [odin/l/link_cut_tree.odin](../../../odin/l/link_cut_tree.odin) |
 | Rust | [rust/l/link_cut_tree.rs](../../../rust/l/link_cut_tree.rs) |

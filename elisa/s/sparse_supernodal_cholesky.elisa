@@ -1,9 +1,7 @@
 extern sqrt(value: f64) -> f64
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def sparse_supernodal_cholesky_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 56:
-        return -1
+def sparse_supernodal_cholesky_impl(input: view[i64], length: usize, output: mutable u8&, capacity: usize) -> i64:
     if input[0] < 1 or input[0] > 8 or input[1] < 1 or input[1] > input[0]:
         return -1
     n: usize = input[0].usize()
@@ -144,6 +142,7 @@ def sparse_supernodal_cholesky_impl(input: i64&, length: usize, output: mutable 
     required: usize = triangle * 8
     if output.is_null() or capacity < required:
         return -2
+    output_view: mutable view[u8] = output[0:required]
     offset: mutable usize = 0
     row <- 0
     while row < n:
@@ -157,11 +156,14 @@ def sparse_supernodal_cholesky_impl(input: i64&, length: usize, output: mutable 
             memcpy(&bits, &value, 8)
             byte: mutable usize = 0
             while byte < 8:
-                output[offset] <- ((bits >> (8 * byte)) & 255).u8()
+                output_view[offset] <- ((bits >> (8 * byte)) & 255).u8()
                 offset <- offset + 1
                 byte <- byte + 1
             col <- col + 1
         row <- row + 1
     required.i64()
 
-export fn sparse_supernodal_cholesky(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = sparse_supernodal_cholesky_impl
+export fn sparse_supernodal_cholesky(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 56:
+        return -1
+    sparse_supernodal_cholesky_impl(input[0:length], length, output, capacity)

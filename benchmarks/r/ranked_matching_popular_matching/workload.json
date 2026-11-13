@@ -57,6 +57,22 @@
   },
   "cases": [
     {
+      "id": "private-last-resort-used",
+      "input_values": [2, 1, 2, 0, 0, 1, 1, 0, 1],
+      "input_length": 9,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000200000000000000"
+    },
+    {
+      "id": "private-last-resort-short-output",
+      "input_values": [2, 1, 2, 0, 0, 1, 1, 0, 1],
+      "input_length": 9,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
       "id": "identical-strict-lists-have-popular-matching",
       "input_values": [2, 2, 4, 0, 0, 1, 0, 1, 2, 1, 0, 1, 1, 1, 2],
       "input_length": 15,

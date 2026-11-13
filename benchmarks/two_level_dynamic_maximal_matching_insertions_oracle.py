@@ -8,10 +8,10 @@ MAX_OUTPUT_BYTES = 8 * MAX_OUTPUT_ELEMENTS
 def _simulate(values):
     if values is None or len(values) < 3 or len(values) > MAX_INPUT_LENGTH:
         return None
-    if any(not isinstance(x, int) for x in values):
+    if any(type(x) is not int or not -(1 << 63) <= x < (1 << 63) for x in values):
         return None
     n, q = values[:2]
-    if n not in (4, 9) or not 0 <= q <= 24 or len(values) < 3 + 2*q:
+    if n not in (4, 9) or not 0 <= q <= 24 or q > n * (n - 1) // 2 or len(values) < 3 + 2*q:
         return None
     pos = 2
     graph = [[False]*n for _ in range(n)]
@@ -28,7 +28,7 @@ def _simulate(values):
         return None
     r = values[pos]
     pos += 1
-    if r < 0 or len(values) != pos + r:
+    if not 0 <= r <= 4 or len(values) != pos + r:
         return None
     ranks = values[pos:]
     if any(x < 0 or x >= n for x in ranks):
@@ -77,8 +77,9 @@ def _simulate(values):
             mate[y] = -1
         level[u] = level[y] = 1
         mate[u], mate[y] = y, u
-        for z in sorted({w, x}):
-            rematch_free_low(z)
+        rematch_free_low(w)
+        if x != w:
+            rematch_free_low(x)
         return True
 
     for u, v in edges:

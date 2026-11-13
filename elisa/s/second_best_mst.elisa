@@ -3,15 +3,14 @@ const MAX_M: usize = 20
 const OUTPUT_BYTES: usize = 32
 
 def second_best_mst_store(value: i64, output: mutable view[u8], offset: usize) -> void:
-    bits: u64 = value.u64()
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
         byte <- byte + 1
 
-def second_best_mst(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("second_best_mst"):
-    if input.is_null() or length < 2 or length > 2 + 3 * MAX_M: return -1
+def second_best_mst_impl(input: view[i64], length: usize, output: mutable u8&, capacity: usize) -> i64:
     n_value: i64 = input[0]
     m_value: i64 = input[1]
     if n_value < 1 or n_value > MAX_N.i64() or m_value < n_value - 1 or m_value > MAX_M.i64(): return -1
@@ -174,3 +173,7 @@ def second_best_mst(input: i64&, length: usize, output: mutable u8&, capacity: u
     second_best_mst_store(entering_edge, output[0:OUTPUT_BYTES], 16)
     second_best_mst_store(leaving_edge, output[0:OUTPUT_BYTES], 24)
     OUTPUT_BYTES.i64()
+
+export fn second_best_mst(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 2 + 3 * MAX_M: return -1
+    second_best_mst_impl(input[0:length], length, output, capacity)

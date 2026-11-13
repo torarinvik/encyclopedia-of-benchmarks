@@ -19,6 +19,13 @@ The 20-vertex bound keeps the independent subset recurrence used by the oracle
 small while still exercising blossom contraction. The benchmark ports use
 Edmonds' O(V^3) augmenting-path algorithm.
 
+The same unweighted blossom method is discussed by Marcin Mucha in
+*Encyclopedia of Algorithms*, “Maximum Matching,”
+[DOI 10.1007/978-1-4939-2864-4_225](https://doi.org/10.1007/978-1-4939-2864-4_225).
+The former `general_graph_maximum_matching` profile used a narrower simple
+graph domain and a byte-output wrapper for the same cardinality algorithm.
+Randomized algebraic and weighted variants are separate methods.
+
 ## Implementations
 
 | Language | Source |
@@ -27,6 +34,7 @@ Edmonds' O(V^3) augmenting-path algorithm.
 | C3 | [`c3/e/edmonds_blossom_algorithm.c3`](../../../c3/e/edmonds_blossom_algorithm.c3) |
 | C++ | [`cpp/e/edmonds_blossom_algorithm.cpp`](../../../cpp/e/edmonds_blossom_algorithm.cpp) |
 | Elisa | [`elisa/e/edmonds_blossom_algorithm.elisa`](../../../elisa/e/edmonds_blossom_algorithm.elisa) |
+| Mojo | [`mojo/e/edmonds_blossom_algorithm.mojo`](../../../mojo/e/edmonds_blossom_algorithm.mojo) |
 | Nim | [`nim/e/edmonds_blossom_algorithm.nim`](../../../nim/e/edmonds_blossom_algorithm.nim) |
 | Odin | [`odin/e/edmonds_blossom_algorithm.odin`](../../../odin/e/edmonds_blossom_algorithm.odin) |
 | Rust | [`rust/e/edmonds_blossom_algorithm.rs`](../../../rust/e/edmonds_blossom_algorithm.rs) |

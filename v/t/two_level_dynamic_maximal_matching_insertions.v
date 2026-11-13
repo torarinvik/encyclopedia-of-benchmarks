@@ -8,7 +8,7 @@ fn tm_promote(g [][]bool, mut level []int, mut mate []int, n int, u int, tape []
 @[export: 'two_level_dynamic_maximal_matching_insertions']
 pub fn two_level_dynamic_maximal_matching_insertions(input &i64,length usize,mut output &u8,capacity usize) i64 {
  unsafe {
-  if input==nil || length<3 || length>55 { return -1 }; n64:=input[0]; q64:=input[1]; if (n64!=4 && n64!=9)||q64<0||q64>TM_Q||q64>n64*(n64-1)/2 { return -1 }; n:=int(n64); q:=int(q64); mut us:=[]int{len:q,init:0}; mut vs:=[]int{len:q,init:0}; mut seen:=[][]bool{len:TM_N,init:[]bool{len:TM_N,init:false}}; mut p:=2
+  if input==nil || length<3 || length>55 { return -1 }; n64:=input[0]; q64:=input[1]; if (n64!=4 && n64!=9)||q64<0||q64>TM_Q||q64>n64*(n64-1)/2 { return -1 }; if length < usize(3 + 2 * q64) { return -1 }; n:=int(n64); q:=int(q64); mut us:=[]int{len:q,init:0}; mut vs:=[]int{len:q,init:0}; mut seen:=[][]bool{len:TM_N,init:[]bool{len:TM_N,init:false}}; mut p:=2
   for e in 0..q { u64:=input[p];v64:=input[p+1];p+=2;if u64<0||v64<=u64||v64>=n64||seen[int(u64)][int(v64)] { return -1 };seen[int(u64)][int(v64)]=true;us[e]=int(u64);vs[e]=int(v64) }
   if p>=int(length) { return -1 };r64:=input[p];p++;if r64<0||r64>TM_R||int(length)!=p+int(r64) { return -1 };r:=int(r64);mut tape:=[]int{len:r,init:0};for i in 0..r{x:=input[p+i];if x<0||x>=n64{return -1};tape[i]=int(x)}
   mut g:=[][]bool{len:TM_N,init:[]bool{len:TM_N,init:false}};mut level:=[]int{len:TM_N,init:0};mut mate:=[]int{len:TM_N,init:-1};mut used:=0;t:=if n==4 { 2 } else { 3 }

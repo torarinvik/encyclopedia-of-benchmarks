@@ -6,6 +6,8 @@ This benchmark implements the five number-theory operations in Library Checkerâ€
 
 Input is a signed 64-bit array beginning with a query count `T` in `1..=128`. Each query begins with an operation code: `0` encodes the path to `[a,b]`; `1` decodes `[run_count,(direction,count)...]`; `2` finds the LCA of `[a,b]` and `[c,d]`; `3` asks for the ancestor at depth `k` of `[a,b]`; `4` returns the descendant interval for `[a,b]`. Directions are `0=L`, `1=R`. Query records are concatenated without separators. Fractions are reduced positive pairs with numerator and denominator at most 1,000,000,000. Run counts and ancestor depths are at most 1,000,000,000; direction runs must alternate. The total input is at most 16,384 words and each path has at most 64 runs.
 
+For operation `3`, `k` is a one-based positive path depth measured from `1/1`: follow the first `k` left/right moves from the root. The result is missing when `k` exceeds the node's path length; depth zero is outside this bounded contract. This convention is explicit because ancestor queries can alternatively be expressed as a distance upward from the node.
+
 Output consists of tagged signed-i64 words in little-endian byte order. Each result starts with its operation code. Encoded paths then contain a run count and `(direction,count)` pairs; decoded paths and LCAs contain a numerator and denominator; missing ancestors contain only `-1`; descendant ranges contain lower numerator/denominator and upper numerator/denominator. The return value is the number of queries. Invalid input returns `-1`; insufficient output capacity or a null output pointer returns `-2`. Maximum output is 262,144 bytes. Path encoding and common-prefix/LCA work in `O(log max(a,b))`; path decoding and range/ancestor operations work in `O(r)` for `r` encoded runs. The batch uses `O(T + r)` workspace.
 
 This workload normalizes Library Checkerâ€™s textual operation names into integer tags and caps the problem size for a portable, single-call ABI. It does not reuse task statements, tests, or submissions. The [official task contract](https://judge.yosupo.jp/problem/stern_brocot_tree) and [upstream task description](https://github.com/yosupo06/library-checker-problems/blob/master/number_theory/stern_brocot_tree/task.md) define the five operations and fraction conventions. The local oracle is [`benchmarks/stern_brocot_tree_oracle.py`](../../stern_brocot_tree_oracle.py).
@@ -20,6 +22,7 @@ See [`workload.json`](workload.json) for one fixture for each query operation.
 | C3 | [`c3/s/stern_brocot_tree.c3`](../../../c3/s/stern_brocot_tree.c3) |
 | C++ | [`cpp/s/stern_brocot_tree.cpp`](../../../cpp/s/stern_brocot_tree.cpp) |
 | Elisa | [`elisa/s/stern_brocot_tree.elisa`](../../../elisa/s/stern_brocot_tree.elisa) |
+| Mojo | [`mojo/s/stern_brocot_tree.mojo`](../../../mojo/s/stern_brocot_tree.mojo) (draft, unverified) |
 | Nim | [`nim/s/stern_brocot_tree.nim`](../../../nim/s/stern_brocot_tree.nim) |
 | Odin | [`odin/s/stern_brocot_tree.odin`](../../../odin/s/stern_brocot_tree.odin) |
 | Rust | [`rust/s/stern_brocot_tree.rs`](../../../rust/s/stern_brocot_tree.rs) |

@@ -21,6 +21,11 @@ exhaustive enumeration for a tiny complete-ranking profile; it does not claim
 to implement the chapter's polynomial-time weighted-popularity algorithms,
 and it excludes incomplete lists and preference ties.
 
+For n applicants and m items, the implementation considers at most
+`(m+1)^n` encoded assignments for each candidate and compares votes across
+n applicants. Its worst-case time is O(n(m+1)^(2n)) and its workspace is
+O(n), excluding the input and output buffers.
+
 Source: “Weighted Popular Matchings,” *Encyclopedia of Algorithms*, DOI
 [`10.1007/978-1-4939-2864-4_477`](https://doi.org/10.1007/978-1-4939-2864-4_477).
 The package is clean-room work; no textbook prose or code was copied.
@@ -33,6 +38,7 @@ The package is clean-room work; no textbook prose or code was copied.
 | C3 | `c3/w/weighted_popular_matching.c3` |
 | C++ | `cpp/w/weighted_popular_matching.cpp` |
 | Elisa | `elisa/w/weighted_popular_matching.elisa` |
+| Mojo | `mojo/w/weighted_popular_matching.mojo` |
 | Nim | `nim/w/weighted_popular_matching.nim` |
 | Odin | `odin/w/weighted_popular_matching.odin` |
 | Rust | `rust/w/weighted_popular_matching.rs` |
@@ -41,3 +47,4 @@ The package is clean-room work; no textbook prose or code was copied.
 
 Primary oracle: `benchmarks/weighted_popular_matching_oracle.py`.
 Independent verifier oracle: `benchmarks/weighted_popular_matching_verifier_oracle.py`.
+The Mojo port is a draft and has not been executed.

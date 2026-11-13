@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn integer_sqrt(value:Int64)->Int64:
     var low:Int64=1;var high:Int64=1000000
     while low<high:

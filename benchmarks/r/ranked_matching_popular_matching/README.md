@@ -36,6 +36,11 @@ Real posts use IDs `0..post_count-1`; applicant `a`'s private last resort is
 Invalid input returns `-1`; null output or capacity below `8*(applicant_count+1)`
 returns `-2` without writing.
 
+For `a` applicants and `p` real posts, this profile enumerates at most
+`(p+1)^a` rank-one assignments and `(p+a)^a` complete assignments. Its
+worst-case running time is O(a((p+1)^a + (p+a)^a) + a(p+a)); the fixed
+matrices and alternating forest use O(a(p+a)) space.
+
 Source: “Ranked Matching,” Kavitha Telikepalli, *Encyclopedia of Algorithms*,
 DOI [`10.1007/978-1-4939-2864-4_331`](https://doi.org/10.1007/978-1-4939-2864-4_331).
 This clean-room profile does not copy book prose or source code. It differs
@@ -44,6 +49,9 @@ rankings.
 
 Primary oracle: `benchmarks/ranked_matching_popular_matching_oracle.py`.
 Independent verifier: `benchmarks/ranked_matching_popular_matching_verifier_oracle.py`.
+The suite also defines exhaustive generated profiles for up to two applicants
+and three posts, plus malformed-input and output-capacity checks. These checks
+and the Mojo draft have not been executed.
 
 | Language | Port |
 |---|---|
@@ -51,6 +59,7 @@ Independent verifier: `benchmarks/ranked_matching_popular_matching_verifier_orac
 | C3 | `c3/r/ranked_matching_popular_matching.c3` |
 | C++ | `cpp/r/ranked_matching_popular_matching.cpp` |
 | Elisa | `elisa/r/ranked_matching_popular_matching.elisa` |
+| Mojo | `mojo/r/ranked_matching_popular_matching.mojo` (unverified draft) |
 | Nim | `nim/r/ranked_matching_popular_matching.nim` |
 | Odin | `odin/r/ranked_matching_popular_matching.odin` |
 | Rust | `rust/r/ranked_matching_popular_matching.rs` |

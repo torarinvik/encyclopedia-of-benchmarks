@@ -9,7 +9,7 @@ fn seidel_unweighted_apsp(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c
     if input[0] < 1 or input[0] > 8: return -1
     let n = Int(input[0])
     if length != c_size_t(1 + n * n): return -1
-    var levels = InlineArray[Int64, 256](0)
+    var levels = InlineArray[Int64, 256](fill=0)
     for i in range(n):
         for j in range(n):
             let value = input[1 + i * n + j]
@@ -18,8 +18,8 @@ fn seidel_unweighted_apsp(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c
     for i in range(n):
         for j in range(i):
             if levels[8 * i + j] != levels[8 * j + i]: return -1
-    var seen = InlineArray[Bool, 8](False)
-    var queue = InlineArray[Int, 8](0)
+    var seen = InlineArray[Bool, 8](fill=False)
+    var queue = InlineArray[Int, 8](fill=0)
     seen[0] = True
     var head = 0
     var tail = 1
@@ -50,8 +50,8 @@ fn seidel_unweighted_apsp(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c
                     if i != j and (levels[64 * level + 8 * i + j] != 0 or paths > 0):
                         levels[64 * (level + 1) + 8 * i + j] = 1
             level += 1
-    var result = InlineArray[Int64, 64](0)
-    var next = InlineArray[Int64, 64](0)
+    var result = InlineArray[Int64, 64](fill=0)
+    var next = InlineArray[Int64, 64](fill=0)
     for i in range(n):
         for j in range(n):
             if i != j: result[8 * i + j] = 1

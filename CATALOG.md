@@ -5749,6 +5749,14 @@ This bounded connected-graph profile uses Seidel adjacency squaring and distance
 
 This bounded connected multigraph profile replays one contraction trial using a supplied sequence of live-edge ranks. Ten language drafts, a workload, and scalar suite wiring are present but unexecuted. See the [guide](benchmarks/k/karger_contraction_trial/README.md) and [workload](benchmarks/k/karger_contraction_trial/workload.json).
 
+## Turnstile one-sparse fingerprint recovery (`turnstile_one_sparse_fingerprint_recovery`)
+
+This bounded signed-update stream maintains moments and a polynomial fingerprint to recover a candidate singleton index. A fixed base can admit collisions. Ten language drafts, independent reference implementations, a workload, and scalar suite wiring are present but unexecuted. See the [guide](benchmarks/t/turnstile_one_sparse_fingerprint_recovery/README.md) and [workload](benchmarks/t/turnstile_one_sparse_fingerprint_recovery/workload.json).
+
+## Second-best MST with binary lifting (`second_best_mst_binary_lifting`)
+
+This bounded profile finds the least strictly heavier spanning-tree weight using binary-lifted path summaries. Ten language drafts, two references, a workload, and scalar-suite wiring are present but unexecuted. See the [guide](benchmarks/s/second_best_mst_binary_lifting/README.md) and [workload](benchmarks/s/second_best_mst_binary_lifting/workload.json).
+
 ## Sparse supernodal Cholesky (`sparse_supernodal_cholesky`)
 
 This bounded profile factors a sparse matrix using supplied supernodes and a filled pattern. Ten source ports and byte-output suite registration are present but unexecuted. See the [guide](benchmarks/s/sparse_supernodal_cholesky/README.md) and [workload](benchmarks/s/sparse_supernodal_cholesky/workload.json).

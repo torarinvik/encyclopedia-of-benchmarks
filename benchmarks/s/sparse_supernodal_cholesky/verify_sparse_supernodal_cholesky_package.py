@@ -33,6 +33,19 @@ def static_issues() -> list[str]:
                 or workload.get("workspace", {}).get("bytes") != 4096
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"):
             issues.append("workload metadata differs from the sparse Cholesky contract")
+        cases = workload.get("cases", [])
+        if not isinstance(cases, list) or any(not isinstance(case, dict) for case in cases):
+            issues.append("workload cases must be objects in a list")
+        else:
+            ids = [case.get("id") for case in cases]
+            required = {"singleton", "sparse_chain", "two_column_supernode",
+                        "two_dense_supernodes_signed_panel", "maximum_diagonal",
+                        "missing_fill", "partial_panel", "later_nonpositive_pivot",
+                        "nonzero_outside_pattern", "short_output", "null_output", "null_input"}
+            if any(not isinstance(case_id, str) for case_id in ids):
+                issues.append("workload case IDs must be strings")
+            elif len(set(ids)) != len(ids) or not required.issubset(ids):
+                issues.append("workload case IDs are duplicated or required cases are missing")
     except (OSError, json.JSONDecodeError) as error:
         issues.append(f"invalid workload: {error}")
     return issues

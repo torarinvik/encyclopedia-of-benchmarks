@@ -1,0 +1,162 @@
+def second_mst_merge(first: i64, second: i64, candidate: i64, other: i64, result: mutable view[i64]) -> void:
+    result[0] <- -1
+    result[1] <- -1
+    values: i64[4] = [first, second, candidate, other]
+    for i in 0..<4:
+        value: i64 = values[i]
+        if value > result[0]:
+            result[1] <- result[0]
+            result[0] <- value
+        elif value < result[0] and value > result[1]:
+            result[1] <- value
+
+def second_mst_lifting_impl(input: view[i64], length: usize) -> i64:
+    nv: i64 = input[0]
+    mv: i64 = input[1]
+    if nv < 1 or nv > 8 or mv < nv - 1 or mv > 20: return -1
+    n: usize = nv.usize()
+    m: usize = mv.usize()
+    if length != 2 + 3 * m: return -1
+    edge_u: mutable usize[20] = zeroed
+    edge_v: mutable usize[20] = zeroed
+    weights: mutable i64[20] = zeroed
+    order: mutable usize[20] = zeroed
+    seen: mutable bool[64] = zeroed
+    for i in 0..<m:
+        u: i64 = input[2 + 3 * i]
+        v: i64 = input[3 + 3 * i]
+        weight: i64 = input[4 + 3 * i]
+        if u < 0 or u >= v or v >= nv or weight < 0 or weight > 1000000: return -1
+        index: usize = u.usize() * 8 + v.usize()
+        if seen[index]: return -1
+        seen[index] <- true
+        edge_u[i] <- u.usize()
+        edge_v[i] <- v.usize()
+        weights[i] <- weight
+        order[i] <- i
+    sort_index: mutable usize = 1
+    while sort_index < m:
+        edge: usize = order[sort_index]
+        j: mutable usize = sort_index
+        while j > 0 and weights[order[j - 1]] > weights[edge]:
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- edge
+        sort_index <- sort_index + 1
+    parent: mutable usize[8] = zeroed
+    degree: mutable usize[8] = zeroed
+    adjacent: mutable usize[64] = zeroed
+    tree_weight: mutable i64[64] = zeroed
+    selected: mutable bool[20] = zeroed
+    for i in 0..<n: parent[i] <- i
+    count: mutable usize = 0
+    total: mutable i64 = 0
+    for i in 0..<m:
+        edge: usize = order[i]
+        a: mutable usize = edge_u[edge]
+        b: mutable usize = edge_v[edge]
+        while parent[a] != a: a <- parent[a]
+        while parent[b] != b: b <- parent[b]
+        if a != b:
+            parent[a] <- b
+            selected[edge] <- true
+            count <- count + 1
+            total <- total + weights[edge]
+            u: usize = edge_u[edge]
+            v: usize = edge_v[edge]
+            pos_u: usize = u * 8 + degree[u]
+            pos_v: usize = v * 8 + degree[v]
+            adjacent[pos_u] <- v
+            adjacent[pos_v] <- u
+            tree_weight[pos_u] <- weights[edge]
+            tree_weight[pos_v] <- weights[edge]
+            degree[u] <- degree[u] + 1
+            degree[v] <- degree[v] + 1
+    if count != n - 1: return -1
+    up: mutable usize[32] = zeroed
+    maximum: mutable i64[32] = zeroed
+    runner_up: mutable i64[32] = zeroed
+    depth: mutable i64[8] = zeroed
+    queue: mutable usize[8] = zeroed
+    for i in 0..<32:
+        maximum[i] <- -1
+        runner_up[i] <- -1
+    for i in 0..<n: depth[i] <- -1
+    depth[0] <- 0
+    queue[0] <- 0
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    while head < tail:
+        vertex: usize = queue[head]
+        head <- head + 1
+        for i in 0..<degree[vertex]:
+            pos: usize = vertex * 8 + i
+            next: usize = adjacent[pos]
+            if depth[next] < 0:
+                depth[next] <- depth[vertex] + 1
+                up[next] <- vertex
+                maximum[next] <- tree_weight[pos]
+                queue[tail] <- next
+                tail <- tail + 1
+    pair: mutable i64[2] = zeroed
+    for level in 1..<4:
+        for vertex in 0..<n:
+            prev: usize = (level - 1) * 8 + vertex
+            mid: usize = up[prev]
+            other: usize = (level - 1) * 8 + mid
+            dest: usize = level * 8 + vertex
+            up[dest] <- up[other]
+            second_mst_merge(maximum[prev], runner_up[prev], maximum[other], runner_up[other], pair[0:2])
+            maximum[dest] <- pair[0]
+            runner_up[dest] <- pair[1]
+    increase: mutable i64 = -1
+    for edge in 0..<m:
+        if not selected[edge]:
+            a: mutable usize = edge_u[edge]
+            b: mutable usize = edge_v[edge]
+            if depth[a] < depth[b]:
+                temporary: usize = a
+                a <- b
+                b <- temporary
+            first: mutable i64 = -1
+            second: mutable i64 = -1
+            difference: usize = (depth[a] - depth[b]).usize()
+            for level in 0..<4:
+                if (difference & (1.usize() << level)) != 0:
+                    pos: usize = level * 8 + a
+                    second_mst_merge(first, second, maximum[pos], runner_up[pos], pair[0:2])
+                    first <- pair[0]
+                    second <- pair[1]
+                    a <- up[pos]
+            if a != b:
+                level: mutable usize = 4
+                while level > 0:
+                    level <- level - 1
+                    pa: usize = level * 8 + a
+                    pb: usize = level * 8 + b
+                    if up[pa] != up[pb]:
+                        second_mst_merge(first, second, maximum[pa], runner_up[pa], pair[0:2])
+                        first <- pair[0]
+                        second <- pair[1]
+                        second_mst_merge(first, second, maximum[pb], runner_up[pb], pair[0:2])
+                        first <- pair[0]
+                        second <- pair[1]
+                        a <- up[pa]
+                        b <- up[pb]
+                second_mst_merge(first, second, maximum[a], runner_up[a], pair[0:2])
+                first <- pair[0]
+                second <- pair[1]
+                second_mst_merge(first, second, maximum[b], runner_up[b], pair[0:2])
+                first <- pair[0]
+                second <- pair[1]
+            removed: mutable i64 = second
+            if weights[edge] > first: removed <- first
+            if removed >= 0 and removed < weights[edge]:
+                delta: i64 = weights[edge] - removed
+                if increase < 0 or delta < increase: increase <- delta
+    if increase < 0: return 0
+    total + increase + 1
+
+export fn second_best_mst_binary_lifting(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 63: return -1
+    second_mst_lifting_impl(input[0:length], length)

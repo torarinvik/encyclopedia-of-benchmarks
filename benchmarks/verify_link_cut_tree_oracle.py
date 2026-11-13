@@ -15,6 +15,7 @@ PORTS = {
     "c3": "c3/l/link_cut_tree.c3",
     "cpp": "cpp/l/link_cut_tree.cpp",
     "elisa": "elisa/l/link_cut_tree.elisa",
+    "mojo": "mojo/l/link_cut_tree.mojo",
     "nim": "nim/l/link_cut_tree.nim",
     "odin": "odin/l/link_cut_tree.odin",
     "rust": "rust/l/link_cut_tree.rs",

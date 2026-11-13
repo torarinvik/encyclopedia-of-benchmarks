@@ -1199,9 +1199,6 @@ from optimal_stable_marriage_oracle import expected_output as optimal_stable_mar
 from quine_mccluskey_minimization_oracle import MAX_INPUT as QUINE_MCCLUSKEY_MINIMIZATION_MAX_INPUT
 from quine_mccluskey_minimization_oracle import MAX_OUTPUT_BYTES as QUINE_MCCLUSKEY_MINIMIZATION_MAX_OUTPUT_BYTES
 from quine_mccluskey_minimization_oracle import expected_output as quine_mccluskey_minimization_oracle
-from general_graph_maximum_matching_oracle import MAX_INPUT_LENGTH as GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_INPUT_LENGTH
-from general_graph_maximum_matching_oracle import MAX_OUTPUT_BYTES as GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_OUTPUT_BYTES
-from general_graph_maximum_matching_oracle import evaluate as general_graph_maximum_matching_core_oracle
 from orthogonal_range_reporting_2d_oracle import MAX_INPUT as ORTHOGONAL_RANGE_REPORTING_2D_MAX_INPUT
 from orthogonal_range_reporting_2d_oracle import MAX_OUTPUT_BYTES as ORTHOGONAL_RANGE_REPORTING_2D_MAX_OUTPUT_BYTES
 from orthogonal_range_reporting_2d_oracle import expected_output as orthogonal_range_reporting_2d_oracle
@@ -7025,7 +7022,14 @@ def prefix_substring_lcs_oracle(values, capacity=None, output_is_null=False,
     )
 
 
+from rabin_content_defined_chunking_oracle import expected_output as rabin_content_defined_chunking_oracle
+from statistical_region_merging_table_oracle import expected_output as statistical_region_merging_table_oracle
+from multiprobe_lsh_probe_sequence_oracle import expected_output as multiprobe_lsh_probe_sequence_oracle
+
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
+    "multiprobe_lsh_probe_sequence": multiprobe_lsh_probe_sequence_oracle,
+    "statistical_region_merging_table": statistical_region_merging_table_oracle,
+    "rabin_content_defined_chunking": rabin_content_defined_chunking_oracle,
     "seidel_unweighted_apsp": seidel_unweighted_apsp_oracle,
     "newton_inverse_sqrt_fps": newton_inverse_sqrt_fps_oracle,
     "newton_reciprocal_fps": newton_reciprocal_fps_oracle,
@@ -7357,9 +7361,6 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "sublinear_bipartiteness_walk_tester": sublinear_bipartiteness_walk_tester_oracle,
     "optimal_stable_marriage": optimal_stable_marriage_oracle,
     "quine_mccluskey_minimization": quine_mccluskey_minimization_oracle,
-    "general_graph_maximum_matching": _adapt_array_evaluator(
-        general_graph_maximum_matching_core_oracle,
-        GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_INPUT_LENGTH + 1),
     "orthogonal_range_reporting_2d": orthogonal_range_reporting_2d_oracle,
     "k_median_p1_local_search": _adapt_array_evaluator(
         k_median_p1_local_search_core_oracle,
@@ -7699,6 +7700,9 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
 EXTERNAL_BYTE_OUTPUT_BOUNDS = {
+    "multiprobe_lsh_probe_sequence": (7, 80),
+    "statistical_region_merging_table": (74, 36),
+    "rabin_content_defined_chunking": (65, 64),
     "seidel_unweighted_apsp": (66, 512),
     "newton_inverse_sqrt_fps": (66, 512),
     "newton_reciprocal_fps": (66, 512),
@@ -8494,9 +8498,6 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
     "quine_mccluskey_minimization": (
         QUINE_MCCLUSKEY_MINIMIZATION_MAX_INPUT,
         QUINE_MCCLUSKEY_MINIMIZATION_MAX_OUTPUT_BYTES),
-    "general_graph_maximum_matching": (
-        GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_INPUT_LENGTH + 1,
-        GENERAL_GRAPH_MAXIMUM_MATCHING_MAX_OUTPUT_BYTES),
     "orthogonal_range_reporting_2d": (
         ORTHOGONAL_RANGE_REPORTING_2D_MAX_INPUT,
         ORTHOGONAL_RANGE_REPORTING_2D_MAX_OUTPUT_BYTES),
@@ -38313,6 +38314,66 @@ def _saga_base_state_is_valid(values: list[int]) -> bool:
 def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     if not isinstance(workload.get("cases"), list) or not workload["cases"]:
         raise ValueError(f"{algorithm} workload must contain fixture cases")
+    if algorithm == "multiprobe_lsh_probe_sequence":
+        path = ROOT / "benchmarks/m/multiprobe_lsh_probe_sequence/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("multi-probe workload differs from its package file")
+        extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                      "mojo": "mojo", "nim": "nim", "odin": "odin", "rust": "rs",
+                      "v": "v", "zig": "zig"}
+        for language, extension in extensions.items():
+            port = ROOT / language / "m" / f"{algorithm}.{extension}"
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"multi-probe port is missing its symbol: {port}")
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("input", {}).get("maximum_valid_length") != 7
+                or workload.get("input", {}).get("maximum_parseable_length") != 7
+                or workload.get("output", {}).get("maximum_bytes") != 80
+                or workload.get("workspace", {}).get("bytes") != 4096):
+            raise ValueError("multi-probe metadata differs from its bounded contract")
+        # Continue into the generic fixture and oracle checks below.
+    if algorithm == "statistical_region_merging_table":
+        path = ROOT / "benchmarks/s/statistical_region_merging_table/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("region-merging workload differs from its package file")
+        extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                      "mojo": "mojo", "nim": "nim", "odin": "odin", "rust": "rs",
+                      "v": "v", "zig": "zig"}
+        for language, extension in extensions.items():
+            port = ROOT / language / "s" / f"{algorithm}.{extension}"
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"region-merging port is missing its symbol: {port}")
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("input", {}).get("maximum_valid_length") != 74
+                or workload.get("input", {}).get("maximum_parseable_length") != 74
+                or workload.get("output", {}).get("maximum_bytes") != 36
+                or workload.get("workspace", {}).get("bytes") != 4096):
+            raise ValueError("region-merging metadata differs from its bounded contract")
+        # Continue into the generic fixture and oracle checks below.
+    if algorithm == "rabin_content_defined_chunking":
+        path = ROOT / "benchmarks/r/rabin_content_defined_chunking/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("content-defined chunking workload differs from its package file")
+        extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                      "mojo": "mojo", "nim": "nim", "odin": "odin", "rust": "rs",
+                      "v": "v", "zig": "zig"}
+        for language, extension in extensions.items():
+            port = ROOT / language / "r" / f"{algorithm}.{extension}"
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"content-defined chunking port is missing its symbol: {port}")
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("input", {}).get("maximum_valid_length") != 65
+                or workload.get("input", {}).get("maximum_parseable_length") != 65
+                or workload.get("output", {}).get("maximum_bytes") != 64
+                or workload.get("workspace", {}).get("bytes") != 1024):
+            raise ValueError("content-defined chunking metadata differs from its bounded contract")
+        # Continue into the generic fixture and oracle checks below.
     if algorithm == "seidel_unweighted_apsp":
         path = ROOT / "benchmarks/s/seidel_unweighted_apsp/workload.json"
         if workload != json.loads(path.read_text(encoding="utf-8")):
@@ -43248,7 +43309,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("link_cut_tree README is missing provenance, contract, or oracle details")
         for relative in (
                 "c/l/link_cut_tree.c", "c3/l/link_cut_tree.c3", "cpp/l/link_cut_tree.cpp",
-                "elisa/l/link_cut_tree.elisa", "nim/l/link_cut_tree.nim",
+                "elisa/l/link_cut_tree.elisa", "mojo/l/link_cut_tree.mojo", "nim/l/link_cut_tree.nim",
                 "odin/l/link_cut_tree.odin", "rust/l/link_cut_tree.rs",
                 "v/l/link_cut_tree.v", "zig/l/link_cut_tree.zig"):
             port = ROOT / relative
@@ -44695,6 +44756,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         for relative in (
                 "c/g/gbbs_maximal_matching.c", "c3/g/gbbs_maximal_matching.c3",
                 "cpp/g/gbbs_maximal_matching.cpp", "elisa/g/gbbs_maximal_matching.elisa",
+                "mojo/g/gbbs_maximal_matching.mojo",
                 "nim/g/gbbs_maximal_matching.nim", "odin/g/gbbs_maximal_matching.odin",
                 "rust/g/gbbs_maximal_matching.rs", "v/g/gbbs_maximal_matching.v",
                 "zig/g/gbbs_maximal_matching.zig"):
