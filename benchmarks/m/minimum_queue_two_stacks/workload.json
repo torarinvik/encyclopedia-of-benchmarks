@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-minimum-queue-two-stacks-i64-array-scalar-v1",
+  "algorithm": "minimum_queue_two_stacks",
+  "function_symbol": "minimum_queue_two_stacks",
+  "abi": "i64_array_scalar",
+  "description": "Amortized FIFO enqueue, dequeue, and minimum-query traces using two prefix-minimum stacks.",
+  "source": {
+    "title": "Minimum Stack / Minimum Queue",
+    "authors": ["CP-Algorithms contributors"],
+    "reference": "Queue modification method 3",
+    "url": "https://cp-algorithms.com/data_structures/stack_queue_modification.html",
+    "license": "CC BY-SA 4.0",
+    "algorithm_attribution": "Maintain a value and prefix minimum on each of two stacks; transfer input to output only when output is empty.",
+    "implementation_status": "bounded clean-room two-stack minimum-queue profile"
+  },
+  "contract": {
+    "operation": "Execute a bounded FIFO trace with enqueue, dequeue-and-report, and minimum-query operations.",
+    "trace_encoding": "[Q,(0,value)|(1)|(2)] with opcode 0 enqueue, 1 dequeue/report front, and 2 report current minimum.",
+    "result_encoding": "Checksum of dequeue and minimum-query results weighted by one-based operation index, plus remaining FIFO values weighted by one-based queue position; each value is offset by 1001.",
+    "primary_method": "Two fixed-capacity stacks each store their values and running minimum; transfer the input stack in reverse only when the output stack is empty.",
+    "independent_method": "Direct FIFO list simulation with a fresh linear minimum scan on every query.",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[Q,(opcode[,value])...]",
+    "operation_count_range": [0, 32],
+    "queue_capacity": 16,
+    "opcodes": {
+      "0": "enqueue the following value",
+      "1": "dequeue and report the front value",
+      "2": "report the current minimum"
+    },
+    "enqueue_value_range": [-1000, 1000],
+    "maximum_valid_length": 57,
+    "maximum_parseable_length": 65,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "weighted trace checksum",
+    "result_range": [0, 4000000],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Four fixed 16-element i64 arrays store values and prefix minima for the two stacks."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/m/minimum_queue_two_stacks/primary_oracle.py",
+  "independent_oracle": "benchmarks/m/minimum_queue_two_stacks/independent_oracle.py",
+  "cases": [
+    {"id": "empty-trace", "input_values": [0], "input_length": 1, "expected_result": 0},
+    {"id": "enqueue-only", "input_values": [3, 0, 5, 0, -2, 0, 7], "input_length": 7, "expected_result": 6028},
+    {"id": "fifo-minimum-transfer", "input_values": [6, 0, 4, 0, -2, 0, 4, 2, 1, 2], "input_length": 10, "expected_result": 18024},
+    {"id": "duplicate-minima", "input_values": [4, 0, 2, 0, 2, 1, 2], "input_length": 7, "expected_result": 8024},
+    {"id": "negative-minimum", "input_values": [5, 0, -3, 0, -8, 2, 1, 2], "input_length": 8, "expected_result": 12929},
+    {"id": "refill-after-drain", "input_values": [5, 0, -1, 1, 0, 4, 2, 1], "input_length": 8, "expected_result": 11045},
+    {"id": "maximum-valid-frame", "input_values": [32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1, 1, 1, 1,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 57, "expected_result": 300300},
+    {"id": "maximum-parseable-overflow", "input_values": [32,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 65, "expected_result": -1},
+    {"id": "empty-dequeue", "input_values": [1, 1], "input_length": 2, "expected_result": -1},
+    {"id": "empty-minimum-query", "input_values": [1, 2], "input_length": 2, "expected_result": -1},
+    {"id": "unknown-opcode", "input_values": [1, 9], "input_length": 2, "expected_result": -1},
+    {"id": "missing-enqueue-value", "input_values": [1, 0], "input_length": 2, "expected_result": -1},
+    {"id": "trailing-word", "input_values": [0, 9], "input_length": 2, "expected_result": -1},
+    {"id": "enqueue-value-outside-profile", "input_values": [1, 0, 1001], "input_length": 3, "expected_result": -1},
+    {"id": "missing-second-operation", "input_values": [2, 0, 7], "input_length": 3, "expected_result": -1},
+    {"id": "operation-count-outside-profile", "input_values": [33], "input_length": 1, "expected_result": -1},
+    {"id": "empty-nonnull-frame", "input_values": [], "input_length": 0, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

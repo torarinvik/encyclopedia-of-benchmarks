@@ -1,0 +1,218 @@
+const STMS_DOMAIN: i32 = 64
+const STMS_MAX_Q: usize = 32
+const STMS_MAX_ROOTS: usize = 33
+const STMS_MAX_NODES: usize = 1024
+const STMS_MAX_INPUT: usize = 131
+const STMS_MAX_OUTPUT: usize = 256
+
+def stms_new_node(left: mutable view[i32], right: mutable view[i32],
+        total: mutable view[i64], used: mutable usize&) -> i32:
+    if used >= STMS_MAX_NODES: return -1
+    node: usize = used
+    used <- used + 1
+    left[node] <- 0
+    right[node] <- 0
+    total[node] <- 0
+    node.i32()
+
+def stms_insert(left: mutable view[i32], right: mutable view[i32],
+        total: mutable view[i64], used: mutable usize&, node_value: i32,
+        lo: i32, hi: i32, value: i32, amount: i64) -> i32:
+    node: mutable i32 = node_value
+    if node == 0:
+        node <- stms_new_node(left, right, total, used)
+        if node < 0: return -1
+    node_index: usize = node.usize()
+    if lo == hi:
+        total[node_index] <- total[node_index] + amount
+        return node
+    mid: i32 = (lo + hi) / 2
+    if value <= mid:
+        child: i32 = stms_insert(left, right, total, used, left[node_index], lo, mid, value, amount)
+        if child < 0: return -1
+        left[node_index] <- child
+    else:
+        child: i32 = stms_insert(left, right, total, used, right[node_index], mid + 1, hi, value, amount)
+        if child < 0: return -1
+        right[node_index] <- child
+    total[node_index] <- total[left[node_index].usize()] + total[right[node_index].usize()]
+    node
+
+def stms_merge(left: mutable view[i32], right: mutable view[i32],
+        total: mutable view[i64], a: i32, b: i32, lo: i32, hi: i32) -> i32:
+    if a == 0: return b
+    if b == 0: return a
+    ai: usize = a.usize()
+    bi: usize = b.usize()
+    if lo == hi:
+        total[ai] <- total[ai] + total[bi]
+        return a
+    mid: i32 = (lo + hi) / 2
+    left[ai] <- stms_merge(left, right, total, left[ai], left[bi], lo, mid)
+    right[ai] <- stms_merge(left, right, total, right[ai], right[bi], mid + 1, hi)
+    total[ai] <- total[left[ai].usize()] + total[right[ai].usize()]
+    a
+
+def stms_split(left: mutable view[i32], right: mutable view[i32],
+        total: mutable view[i64], used: mutable usize&, node: i32,
+        lo: i32, hi: i32, ql: i32, qr: i32, moved: mutable i32&) -> i32:
+    moved <- 0
+    if node == 0 or qr < lo or hi < ql: return node
+    if ql <= lo and hi <= qr:
+        moved <- node
+        return 0
+    node_index: usize = node.usize()
+    mid: i32 = (lo + hi) / 2
+    moved_left: mutable i32 = 0
+    moved_right: mutable i32 = 0
+    remain_left: i32 = stms_split(left, right, total, used, left[node_index], lo, mid, ql, qr, moved_left)
+    if remain_left < 0: return -1
+    remain_right: i32 = stms_split(left, right, total, used, right[node_index], mid + 1, hi, ql, qr, moved_right)
+    if remain_right < 0: return -1
+    left[node_index] <- remain_left
+    right[node_index] <- remain_right
+    total[node_index] <- total[remain_left.usize()] + total[remain_right.usize()]
+    if moved_left != 0 or moved_right != 0:
+        moved <- stms_new_node(left, right, total, used)
+        if moved < 0: return -1
+        moved_index: usize = moved.usize()
+        left[moved_index] <- moved_left
+        right[moved_index] <- moved_right
+        total[moved_index] <- total[moved_left.usize()] + total[moved_right.usize()]
+    node
+
+def stms_range_sum(left: view[i32], right: view[i32], total: view[i64],
+        node: i32, lo: i32, hi: i32, ql: i32, qr: i32) -> i64:
+    if node == 0 or qr < lo or hi < ql: return 0
+    node_index: usize = node.usize()
+    if ql <= lo and hi <= qr: return total[node_index]
+    mid: i32 = (lo + hi) / 2
+    stms_range_sum(left, right, total, left[node_index], lo, mid, ql, qr) +
+        stms_range_sum(left, right, total, right[node_index], mid + 1, hi, ql, qr)
+
+def stms_kth(left: view[i32], right: view[i32], total: view[i64],
+        node: i32, lo: i32, hi: i32, k: i64) -> i64:
+    if node == 0 or k > total[node.usize()]: return -1
+    if lo == hi: return lo.i64()
+    node_index: usize = node.usize()
+    mid: i32 = (lo + hi) / 2
+    left_node: i32 = left[node_index]
+    if k <= total[left_node.usize()]:
+        stms_kth(left, right, total, left_node, lo, mid, k)
+    else:
+        stms_kth(left, right, total, right[node_index], mid + 1, hi,
+            k - total[left_node.usize()])
+
+def stms_pack_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def stms_impl(input: view[i64], output: mutable view[u8],
+        output_is_null: bool, capacity: usize) -> i64:
+    if input.length < 2 or input.length > STMS_MAX_INPUT: return -1
+    if input[0] != STMS_DOMAIN.i64() or input[1] < 0 or input[1] > STMS_MAX_Q.i64(): return -1
+    q: usize = input[1].usize()
+    if input.length != 2 + 4 * q: return -1
+
+    operations: mutable i64[STMS_MAX_Q * 4] = zeroed
+    operation_view: mutable view[i64] = operations[0:STMS_MAX_Q * 4]
+    root_count: mutable usize = 1
+    operation: mutable usize = 0
+    while operation < q:
+        base: usize = 2 + 4 * operation
+        op: i64 = input[base]
+        a: i64 = input[base + 1]
+        b: i64 = input[base + 2]
+        c: i64 = input[base + 3]
+        a_ok: bool = a >= 0 and a.usize() < root_count
+        b_ok: bool = b >= 0 and b.usize() < root_count
+        valid: bool = false
+        if op == 0:
+            valid <- a_ok and b >= 1 and b <= 64 and c >= 1 and c <= 10
+        elif op == 1:
+            valid <- a_ok and b >= 1 and b <= c and c <= 64 and root_count < STMS_MAX_ROOTS
+            if valid: root_count <- root_count + 1
+        elif op == 2:
+            valid <- a_ok and b_ok and a != b and c == 0
+        elif op == 3:
+            valid <- a_ok and b >= 1 and b <= c and c <= 64
+        elif op == 4:
+            valid <- a_ok and b >= 1 and b <= 320 and c == 0
+        if not valid: return -1
+        operation_view[4 * operation] <- op
+        operation_view[4 * operation + 1] <- a
+        operation_view[4 * operation + 2] <- b
+        operation_view[4 * operation + 3] <- c
+        operation <- operation + 1
+
+    nodes_left: mutable i32[STMS_MAX_NODES] = zeroed
+    nodes_right: mutable i32[STMS_MAX_NODES] = zeroed
+    nodes_total: mutable i64[STMS_MAX_NODES] = zeroed
+    left_view: mutable view[i32] = nodes_left[0:STMS_MAX_NODES]
+    right_view: mutable view[i32] = nodes_right[0:STMS_MAX_NODES]
+    total_view: mutable view[i64] = nodes_total[0:STMS_MAX_NODES]
+    roots: mutable i32[STMS_MAX_ROOTS] = zeroed
+    root_view: mutable view[i32] = roots[0:STMS_MAX_ROOTS]
+    staged: mutable u8[STMS_MAX_OUTPUT] = zeroed
+    staged_view: mutable view[u8] = staged[0:STMS_MAX_OUTPUT]
+    used: mutable usize = 1
+    active_roots: mutable usize = 1
+    bytes: mutable usize = 0
+    operation <- 0
+    while operation < q:
+        let op: i64 = operation_view[4 * operation]
+        let a: usize = operation_view[4 * operation + 1].usize()
+        let b: i64 = operation_view[4 * operation + 2]
+        let c: i64 = operation_view[4 * operation + 3]
+        let b_index: usize = b.usize()
+        if op == 0:
+            updated: i32 = stms_insert(left_view, right_view, total_view, used,
+                root_view[a], 1, 64, b.i32(), c)
+            if updated < 0: return -1
+            root_view[a] <- updated
+        elif op == 1:
+            moved: mutable i32 = 0
+            remain: i32 = stms_split(left_view, right_view, total_view, used,
+                root_view[a], 1, 64, b.i32(), c.i32(), moved)
+            if remain < 0 or moved < 0: return -1
+            root_view[a] <- remain
+            root_view[active_roots] <- moved
+            active_roots <- active_roots + 1
+        elif op == 2:
+            root_view[a] <- stms_merge(left_view, right_view, total_view,
+                root_view[a], root_view[b_index], 1, 64)
+            root_view[b_index] <- 0
+        elif op == 3:
+            answer: i64 = stms_range_sum(left_view, right_view, total_view,
+                root_view[a], 1, 64, b.i32(), c.i32())
+            stms_pack_i64(staged_view, bytes, answer)
+            bytes <- bytes + 8
+        else:
+            answer: i64 = stms_kth(left_view, right_view, total_view,
+                root_view[a], 1, 64, b)
+            stms_pack_i64(staged_view, bytes, answer)
+            bytes <- bytes + 8
+        operation <- operation + 1
+    if output_is_null or capacity < bytes: return -2
+    copy_index: mutable usize = 0
+    while copy_index < bytes:
+        output[copy_index] <- staged_view[copy_index]
+        copy_index <- copy_index + 1
+    bytes.i64()
+
+export fn segment_tree_merge_split(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > STMS_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        empty_storage: mutable u8[1] = zeroed
+        empty_view: mutable view[u8] = empty_storage[0:0]
+        return stms_impl(input_view, empty_view, true, capacity)
+    safe_capacity: usize = capacity
+    if safe_capacity > STMS_MAX_OUTPUT: safe_capacity = STMS_MAX_OUTPUT
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    stms_impl(input_view, output_view, false, safe_capacity)

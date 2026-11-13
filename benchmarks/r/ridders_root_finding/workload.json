@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "id": "ridders-root-finding-float64-slice-io-v1",
+  "algorithm": "ridders_root_finding",
+  "function_symbol": "ridders_root_finding",
+  "abi": "float64_slice_io",
+  "pinned_source": {
+    "repository": "SciPy reference documentation",
+    "commit": "release-documentation",
+    "path": "scipy.optimize.ridder reference",
+    "symbol": "ridder",
+    "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.ridder.html",
+    "role": "algorithm description and original-paper citation only",
+    "license": "BSD-3-Clause for SciPy documentation; original method cited to Ridders (1979)"
+  },
+  "contract": {
+    "operation": "Find a real root in a sign-changing interval using Ridders' midpoint-based exponential interpolation update.",
+    "input_encoding": "[function_id,left_milli,right_milli,tolerance_micro,max_iterations]",
+    "integer_fields": "All five finite float64 input values must represent exact integers.",
+    "functions": {
+      "0": "f(x)=x^2-2",
+      "1": "f(x)=x^3-2",
+      "2": "f(x)=x^3+x-1",
+      "3": "f(x)=x"
+    },
+    "endpoint_scale": 1000,
+    "endpoint_milli_range": [-3000, 3000],
+    "endpoint_order": "left_milli < right_milli",
+    "bracket_rule": "At least one endpoint must be an exact root, or endpoint function values must have opposite signs. The supported functions have at most one root in any accepted sign-changing interval.",
+    "tolerance": "tolerance_micro/1,000,000; the accepted interval is closed when its width is at most this value.",
+    "tolerance_micro_range": [1, 1000],
+    "iteration_limit_range": [24, 32],
+    "update": "Return an exact endpoint root first, then an exact midpoint root. Otherwise compute D=sqrt(f(m)^2-f(left)*f(right)) and z=m+(m-left)*sign(f(left)-f(right))*f(m)/D. Replace the endpoint with the same sign as f(z), preserving a sign-changing bracket. A nonpositive/nonfinite radicand, zero/nonfinite denominator, or candidate outside the open bracket returns numerical-failure status -3 without writes.",
+    "stopping_rule": "After an endpoint or midpoint exact-root check, return the bracket midpoint when width<=tolerance. If the iteration cap is reached first, return -3 without writes.",
+    "output_encoding": "One float64 root estimate.",
+    "error_precedence": "Malformed or unbracketed input returns -1 before output validation; valid input with null output or capacity below one returns -2 without writes; numerical failure or cap exhaustion returns -3 without writes.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "numerical_failure_result": -3,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "exact_length": 5,
+    "maximum_valid_input_length": 5,
+    "maximum_parseable_input_length": 6,
+    "encoding": "[function_id,left_milli,right_milli,tolerance_micro,max_iterations]",
+    "function_id_range": [0, 3],
+    "endpoint_milli_range": [-3000, 3000],
+    "endpoint_order": "left_milli < right_milli",
+    "tolerance_micro_range": [1, 1000],
+    "iteration_limit_range": [24, 32],
+    "integer_valued_fields": true,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[root_estimate]",
+    "maximum_elements": 1,
+    "maximum_bytes": 8,
+    "success_result": 1,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "numerical_failure_result": -3,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 0.0011,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 1,
+    "bytes": 8,
+    "meaning": "One staged root estimate; scalar bracket state is local."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 0.0011,
+    "relative_tolerance": 1e-12
+  },
+  "oracle_method": "Primary: binary64 Ridders updates with sign-preserving bracket replacement. Independent: 80-digit Decimal bisection until the fixed polynomial root is isolated independently of the Ridders iteration path.",
+  "cases": [
+    {"id":"sqrt_two_positive_bracket","input_values":[0,1000,2000,100,24],"input_length":5,"expected_result":1,"expected_output":[1.4142135623730951]},
+    {"id":"sqrt_two_negative_bracket","input_values":[0,-2000,0,100,24],"input_length":5,"expected_result":1,"expected_output":[-1.4142135623730951]},
+    {"id":"cube_root_two","input_values":[1,1000,2000,100,24],"input_length":5,"expected_result":1,"expected_output":[1.2599210498948732]},
+    {"id":"monotone_cubic_root","input_values":[2,0,1000,100,24],"input_length":5,"expected_result":1,"expected_output":[0.6823278038280193]},
+    {"id":"exact_left_endpoint_root","input_values":[3,0,1000,1,24],"input_length":5,"expected_result":1,"expected_output":[0.0]},
+    {"id":"exact_right_endpoint_root","input_values":[3,-1000,0,1,24],"input_length":5,"expected_result":1,"expected_output":[0.0]},
+    {"id":"exact_midpoint_root","input_values":[3,-1000,1000,1,24],"input_length":5,"expected_result":1,"expected_output":[0.0]},
+    {"id":"tightest_tolerance_maximum_iteration_cap","input_values":[1,1000,2000,1,32],"input_length":5,"expected_result":1,"expected_output":[1.2599210498948732]},
+    {"id":"invalid_function_id","input_values":[4,1000,2000,100,24],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_unbracketed_interval","input_values":[3,1000,2000,100,24],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_reversed_interval","input_values":[0,2000,1000,100,24],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_fractional_field","input_values":[0,1000,2000,100.5,24],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_endpoint_outside_domain","input_values":[0,-3001,0,100,24],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_tolerance","input_values":[0,1000,2000,0,24],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_iteration_limit","input_values":[0,1000,2000,100,23],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_short_frame","input_values":[0,1000,2000,100],"input_length":4,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_extra_frame_value","input_values":[0,1000,2000,100,24,7],"input_length":6,"expected_result":-1,"expected_output":[]}
+  ],
+  "abi_cases": [
+    {"id":"null_input","input_values":[],"input_length":5,"input_is_null":true,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"valid_input_null_output","input_values":[0,1000,2000,100,24],"input_length":5,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output":[]},
+    {"id":"valid_input_zero_capacity","input_values":[0,1000,2000,100,24],"input_length":5,"output_capacity":0,"expected_result":-2,"expected_output":[]},
+    {"id":"invalid_input_precedes_output_error","input_values":[3,1000,2000,100,24],"input_length":5,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output":[]}
+  ]
+}

@@ -1,0 +1,86 @@
+extern sqrt(value: f64) -> f64
+
+const MAX_INPUT_LENGTH: usize = 6
+
+def exact_integer(value: f64, low: i64, high: i64) -> bool:
+    if value != value or value < low.f64() or value > high.f64(): return false
+    value.i64().f64() == value
+
+def polynomial(function_id: i64, x: f64) -> f64:
+    if function_id == 0: return x*x-2.0
+    if function_id == 1: return x*x*x-2.0
+    if function_id == 2: return x*x*x+x-1.0
+    x
+
+def opposite_sign(left: f64, right: f64) -> bool:
+    (left < 0.0) != (right < 0.0)
+
+def valid_input(input: view[f64], input_length: usize) -> bool:
+    if input_length != 5 or input_length > MAX_INPUT_LENGTH: return false
+    if not exact_integer(input[0], 0, 3) or not exact_integer(input[1], -3000, 3000) or not exact_integer(input[2], -3000, 3000) or not exact_integer(input[3], 1, 1000) or not exact_integer(input[4], 24, 32): return false
+    if input[1] >= input[2]: return false
+    function_id: i64 = input[0].i64()
+    left: f64 = input[1] / 1000.0
+    right: f64 = input[2] / 1000.0
+    f_left: f64 = polynomial(function_id, left)
+    f_right: f64 = polynomial(function_id, right)
+    (f_left == 0.0 or f_right == 0.0 or opposite_sign(f_left, f_right))
+
+def compute_root(input: view[f64], staged: mutable view[f64]) -> i64:
+    function_id: i64 = input[0].i64()
+    mut left: f64 = input[1] / 1000.0
+    mut right: f64 = input[2] / 1000.0
+    tolerance: f64 = input[3] / 1000000.0
+    iterations: i64 = input[4].i64()
+    mut f_left: f64 = polynomial(function_id, left)
+    mut f_right: f64 = polynomial(function_id, right)
+    if f_left == 0.0:
+        staged[0] <- left
+        return 1
+    if f_right == 0.0:
+        staged[0] <- right
+        return 1
+    for _ in 0..iterations:
+        if right-left <= tolerance:
+            staged[0] <- (left+right)*0.5
+            return 1
+        middle: f64 = (left+right)*0.5
+        f_middle: f64 = polynomial(function_id, middle)
+        if f_middle == 0.0:
+            staged[0] <- middle
+            return 1
+        radicand: f64 = f_middle*f_middle-f_left*f_right
+        if radicand != radicand or radicand <= 0.0 or radicand > 1.0e308: return -3
+        denominator: f64 = sqrt(radicand)
+        if denominator != denominator or denominator == 0.0 or denominator > 1.0e308: return -3
+        direction: f64 = if f_left < f_right then -1.0 else 1.0
+        candidate: f64 = middle+(middle-left)*direction*f_middle/denominator
+        if candidate != candidate or candidate <= left or candidate >= right: return -3
+        f_candidate: f64 = polynomial(function_id, candidate)
+        if f_candidate == 0.0:
+            staged[0] <- candidate
+            return 1
+        if opposite_sign(f_left, f_candidate):
+            right = candidate
+            f_right = f_candidate
+        else:
+            left = candidate
+            f_left = f_candidate
+        if right-left <= tolerance:
+            staged[0] <- (left+right)*0.5
+            return 1
+    -3
+
+export fn ridders_root_finding(input: f64&, input_length: usize,
+                               output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length != 5 or input_length > MAX_INPUT_LENGTH: return -1
+    input_view: view[f64] = input[0:input_length]
+    if not valid_input(input_view, input_length): return -1
+    if output.is_null() or capacity < 1: return -2
+    mut staged: f64[1] = zeroed
+    staged_view: mutable view[f64] = staged[0:1]
+    status: i64 = compute_root(input_view, staged_view)
+    if status < 0: return status
+    output_view: mutable view[f64] = output[0:1]
+    output_view[0] <- staged_view[0]
+    1

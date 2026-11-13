@@ -14,6 +14,11 @@ import shlex
 import subprocess
 
 from build_abi import ROOT, sha256_file
+from check_dormand_prince_54_adaptive_ode_package import static_issues as dormand_prince_54_package_issues
+from check_adaptive_simpson_quadrature_package import static_issues as adaptive_simpson_package_issues
+from check_romberg_integration_package import static_issues as romberg_integration_package_issues
+from check_ridders_root_finding_package import static_issues as ridders_root_finding_package_issues
+from check_smo_dual_pair_update_package import static_issues as smo_dual_pair_update_package_issues
 from check_kahan_summation_package import (
     static_issues as kahan_summation_package_issues,
 )
@@ -1027,6 +1032,37 @@ from k_means_clust_oracle import (
     RELATIVE_TOLERANCE as K_MEANS_CLUST_RELATIVE_TOLERANCE,
     expected_output as k_means_clust_oracle,
 )
+from blocked_lu_factorization_oracle import (
+    ABSOLUTE_TOLERANCE as BLOCKED_LU_ABSOLUTE_TOLERANCE,
+    MAX_OUTPUT_BYTES as BLOCKED_LU_MAX_OUTPUT_BYTES,
+    MAX_OUTPUT_ELEMENTS as BLOCKED_LU_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as BLOCKED_LU_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BLOCKED_LU_MAX_VALID_INPUT_LENGTH,
+    RELATIVE_TOLERANCE as BLOCKED_LU_RELATIVE_TOLERANCE,
+    WORKSPACE_BYTES as BLOCKED_LU_WORKSPACE_BYTES,
+    expected_output as blocked_lu_factorization_oracle,
+)
+from adaptive_simpson_quadrature_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ADAPTIVE_SIMPSON_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as adaptive_simpson_quadrature_oracle,
+)
+from d.dormand_prince_54_adaptive_ode.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DORMAND_PRINCE_54_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as dormand_prince_54_adaptive_ode_oracle,
+)
+from ridders_root_finding_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as RIDDERS_ROOT_FINDING_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as ridders_root_finding_oracle,
+)
+from romberg_integration_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ROMBERG_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as romberg_integration_oracle,
+)
+from smo_dual_pair_update_oracle import (
+    MAX_OUTPUT_ELEMENTS as SMO_DUAL_PAIR_UPDATE_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as SMO_DUAL_PAIR_UPDATE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as smo_dual_pair_update_oracle,
+)
 from lu_decompose_oracle import (
     ABSOLUTE_TOLERANCE as LU_DECOMPOSE_ABSOLUTE_TOLERANCE,
     INVALID_RESULT as LU_DECOMPOSE_INVALID_RESULT,
@@ -1928,6 +1964,12 @@ ORACLES = {
     "pseudo_inverse": pseudo_inverse_abi_oracle,
     "tdigest": tdigest_abi_oracle,
     "k_means_clust": k_means_clust_oracle,
+    "adaptive_simpson_quadrature": adaptive_simpson_quadrature_oracle,
+    "dormand_prince_54_adaptive_ode": dormand_prince_54_adaptive_ode_oracle,
+    "ridders_root_finding": ridders_root_finding_oracle,
+    "romberg_integration": romberg_integration_oracle,
+    "smo_dual_pair_update": smo_dual_pair_update_oracle,
+    "blocked_lu_factorization": blocked_lu_factorization_oracle,
     "lu_decompose": lu_decompose_oracle,
     "lu_elimination": lu_elimination_oracle,
     "lu_pivot_decomposition": lu_pivot_decomposition_oracle,
@@ -4727,6 +4769,18 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         if algorithm == "travelling_salesman_python_held_karp" else
                         RMSPROP_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "rmsprop" else 64)
+    if algorithm == "adaptive_simpson_quadrature":
+        max_input_length = ADAPTIVE_SIMPSON_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "dormand_prince_54_adaptive_ode":
+        max_input_length = DORMAND_PRINCE_54_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "ridders_root_finding":
+        max_input_length = RIDDERS_ROOT_FINDING_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "romberg_integration":
+        max_input_length = ROMBERG_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "smo_dual_pair_update":
+        max_input_length = SMO_DUAL_PAIR_UPDATE_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "blocked_lu_factorization":
+        max_input_length = BLOCKED_LU_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "kalman_filter":
         max_input_length = KALMAN_FILTER_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "rader_fft":
@@ -4863,6 +4917,9 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                                                       "cbench_lame_mid_side",
                                                       "cbench_rsynth_natural_glottal_sample",
                                                       "cbench_rsynth_impulsive_glottal_sample",
+                                                      "adaptive_simpson_quadrature",
+                                                      "smo_dual_pair_update",
+                                                      "blocked_lu_factorization",
                                                       "tsvc_s222_interleaved_square_recurrence",
                                                       "metropolis_mcmc"}
                 and not (allow_nonfinite and case.get("input_is_null") is True
@@ -4890,7 +4947,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                      "tsvc_s242_fused_prefix_update", "tsvc_s351_direct_unrolled_saxpy",
                      "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                      "median_of_running_array_double", "median_of_running_array_float",
-                     "mean_shift", "k_means_clust", "lu_decompose", "lu_elimination",
+                     "mean_shift", "k_means_clust", "blocked_lu_factorization", "lu_decompose", "lu_elimination",
                      "lu_pivot_decomposition",
                      "kohonen_som_trace",
                      "kohonen_som_topology",
@@ -11120,6 +11177,294 @@ def validate_mean_shift_workload(workload: dict) -> None:
             raise ValueError(f"mean_shift ABI workload mismatch: {case.get('id')}")
 
 
+def validate_blocked_lu_factorization_workload(workload: dict) -> None:
+    """Validate the bounded blocked-LU profile and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "b" / "blocked_lu_factorization"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if workload != expected_workload:
+        raise ValueError("blocked_lu_factorization workload differs from its package file")
+
+    if (workload.get("algorithm") != "blocked_lu_factorization"
+            or workload.get("function_symbol") != "blocked_lu_factorization"
+            or workload.get("input", {}).get("maximum_valid_input_length")
+            != BLOCKED_LU_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_input_length")
+            != BLOCKED_LU_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_elements")
+            != BLOCKED_LU_MAX_OUTPUT_ELEMENTS
+            or workload.get("output", {}).get("maximum_bytes")
+            != BLOCKED_LU_MAX_OUTPUT_BYTES
+            or workload.get("workspace", {}).get("elements")
+            != BLOCKED_LU_MAX_OUTPUT_ELEMENTS
+            or workload.get("workspace", {}).get("bytes") != BLOCKED_LU_WORKSPACE_BYTES
+            or tolerances(workload) != (BLOCKED_LU_ABSOLUTE_TOLERANCE,
+                                        BLOCKED_LU_RELATIVE_TOLERANCE)):
+        raise ValueError("blocked_lu_factorization bounds differ from the reviewed profile")
+
+    ports = {
+        "c": ROOT / "c/b/blocked_lu_factorization.c",
+        "c3": ROOT / "c3/b/blocked_lu_factorization.c3",
+        "cpp": ROOT / "cpp/b/blocked_lu_factorization.cpp",
+        "elisa": ROOT / "elisa/b/blocked_lu_factorization.elisa",
+        "mojo": ROOT / "mojo/b/blocked_lu_factorization.mojo",
+        "nim": ROOT / "nim/b/blocked_lu_factorization.nim",
+        "odin": ROOT / "odin/b/blocked_lu_factorization.odin",
+        "rust": ROOT / "rust/b/blocked_lu_factorization.rs",
+        "v": ROOT / "v/b/blocked_lu_factorization.v",
+        "zig": ROOT / "zig/b/blocked_lu_factorization.zig",
+    }
+    missing = [language for language, path in ports.items() if not path.is_file()]
+    if missing:
+        raise ValueError("blocked_lu_factorization ports are missing: " + ", ".join(missing))
+    readme_path = package / "README.md"
+    rights_path = package / "RIGHTS.md"
+    if not readme_path.is_file() or not rights_path.is_file():
+        raise ValueError("blocked_lu_factorization README or rights record is missing")
+    readme = readme_path.read_text(encoding="utf-8")
+    if ("10.1145/223982.223990" not in readme
+            or "Blocked right-looking LU factorization" not in readme
+            or "not described as a reproduction" not in readme):
+        raise ValueError("blocked_lu_factorization README is missing provenance or scope notes")
+
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    if not isinstance(cases, list) or not cases or not isinstance(abi_cases, list) or not abi_cases:
+        raise ValueError("blocked_lu_factorization requires semantic and ABI fixtures")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "blocked_lu_factorization", absolute_tolerance, relative_tolerance)
+
+    for case in abi_cases:
+        values = case.get("input_values")
+        capacity = case.get("output_capacity", BLOCKED_LU_MAX_OUTPUT_ELEMENTS)
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else -1)
+        if (not isinstance(values, list)
+                or len(values) > BLOCKED_LU_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       for value in values)
+                or type(capacity) is not int
+                or not 0 <= capacity <= BLOCKED_LU_MAX_OUTPUT_ELEMENTS
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or type(input_length) is not int
+                or not 0 <= input_length <= BLOCKED_LU_MAX_PARSEABLE_INPUT_LENGTH
+                or input_is_null and (values or input_length == 0)
+                or not input_is_null and input_length != len(values)):
+            raise ValueError(f"blocked_lu_factorization ABI framing is invalid: {case.get('id')}")
+        result, output = blocked_lu_factorization_oracle(
+            values, capacity, output_is_null, input_is_null, input_length)
+        expected_output = case.get("expected_output")
+        if (type(case.get("expected_result")) is not int
+                or case["expected_result"] != result
+                or not isinstance(expected_output, list)
+                or len(expected_output) != len(output)
+                or any(type(actual) not in (int, float) or not math.isfinite(float(actual))
+                       or abs(float(actual) - reference)
+                       > absolute_tolerance + relative_tolerance * abs(reference)
+                       for actual, reference in zip(expected_output, output))):
+            raise ValueError(f"blocked_lu_factorization ABI fixture mismatch: {case.get('id')}")
+
+
+def validate_adaptive_simpson_quadrature_workload(workload: dict) -> None:
+    """Pin the bounded adaptive-Simpson workload and inventory its source ports."""
+    package = ROOT / "benchmarks" / "a" / "adaptive_simpson_quadrature"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if workload != expected_workload:
+        raise ValueError("adaptive_simpson_quadrature workload differs from its package file")
+    if (workload.get("algorithm") != "adaptive_simpson_quadrature"
+            or workload.get("function_symbol") != "adaptive_simpson_quadrature"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("input", {}).get("maximum_valid_input_length") != 5
+            or workload.get("input", {}).get("maximum_parseable_input_length")
+            != ADAPTIVE_SIMPSON_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_elements") != 1
+            or workload.get("output", {}).get("maximum_bytes") != 8
+            or workload.get("workspace", {}).get("elements") != 1
+            or workload.get("workspace", {}).get("bytes") != 8
+            or tolerances(workload) != (1e-7, 1e-7)):
+        raise ValueError("adaptive_simpson_quadrature bounds differ from the reviewed profile")
+    issues = adaptive_simpson_package_issues()
+    if issues:
+        raise ValueError("adaptive_simpson_quadrature package is incomplete: " + "; ".join(issues))
+    expected_cases = {
+        "quartic_unit_interval", "quartic_symmetric_interval", "quartic_negative_interval",
+        "sine_unit_interval", "sine_negative_to_zero", "reciprocal_symmetric_interval",
+        "reciprocal_full_profile_interval", "equal_endpoint_interval", "invalid_function_id",
+        "invalid_fractional_field", "invalid_endpoint_below_domain", "invalid_descending_interval",
+        "invalid_tolerance_exponent", "invalid_tolerance_exponent_above_range",
+        "invalid_refinement_depth", "invalid_short_frame", "invalid_extra_frame_value",
+    }
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_cases:
+        raise ValueError("adaptive_simpson_quadrature fixtures differ from the reviewed corpus")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "adaptive_simpson_quadrature", absolute_tolerance, relative_tolerance)
+
+
+def validate_smo_dual_pair_update_workload(workload: dict) -> None:
+    """Pin the bounded SMO pair-update workload and static source inventory."""
+    package = ROOT / "benchmarks" / "s" / "smo_dual_pair_update"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if workload != expected_workload:
+        raise ValueError("smo_dual_pair_update workload differs from its package file")
+    if (workload.get("algorithm") != "smo_dual_pair_update"
+            or workload.get("function_symbol") != "smo_dual_pair_update"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("input", {}).get("maximum_valid_input_length") != 46
+            or workload.get("input", {}).get("maximum_parseable_input_length")
+            != SMO_DUAL_PAIR_UPDATE_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_elements")
+            != SMO_DUAL_PAIR_UPDATE_MAX_OUTPUT_ELEMENTS
+            or workload.get("output", {}).get("maximum_bytes") != 72
+            or workload.get("workspace", {}).get("elements") != 128
+            or workload.get("workspace", {}).get("bytes") != 1024
+            or tolerances(workload) != (1e-12, 1e-12)):
+        raise ValueError("smo_dual_pair_update bounds differ from the reviewed profile")
+    issues = smo_dual_pair_update_package_issues()
+    if issues:
+        raise ValueError("smo_dual_pair_update package is incomplete: " + "; ".join(issues))
+    expected_cases = {
+        "opposite_labels_clipped_at_C", "interior_pair_step",
+        "zero_curvature_duplicate_features", "same_label_pair_step",
+        "maximum_frame_zero_curvature_pair", "invalid_fractional_field",
+        "invalid_infeasible_initial_alpha", "invalid_same_pair_index",
+        "invalid_short_frame", "invalid_extra_frame_value",
+    }
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_cases:
+        raise ValueError("smo_dual_pair_update fixtures differ from the reviewed corpus")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "smo_dual_pair_update", absolute_tolerance, relative_tolerance)
+
+
+def validate_ridders_root_finding_workload(workload: dict) -> None:
+    """Pin the bounded Ridders fixtures and check the source inventory statically."""
+    package = ROOT / "benchmarks" / "r" / "ridders_root_finding"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if workload != expected_workload:
+        raise ValueError("ridders_root_finding workload differs from its package file")
+    if (workload.get("algorithm") != "ridders_root_finding"
+            or workload.get("function_symbol") != "ridders_root_finding"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("input", {}).get("maximum_valid_input_length") != 5
+            or workload.get("input", {}).get("maximum_parseable_input_length")
+            != RIDDERS_ROOT_FINDING_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_elements") != 1
+            or workload.get("output", {}).get("maximum_bytes") != 8
+            or workload.get("workspace", {}).get("elements") != 1
+            or workload.get("workspace", {}).get("bytes") != 8
+            or tolerances(workload) != (1.1e-3, 1e-12)):
+        raise ValueError("ridders_root_finding bounds differ from the reviewed profile")
+    issues = ridders_root_finding_package_issues()
+    if issues:
+        raise ValueError("ridders_root_finding package is incomplete: " + "; ".join(issues))
+    expected_cases = {
+        "sqrt_two_positive_bracket", "sqrt_two_negative_bracket", "cube_root_two",
+        "monotone_cubic_root", "exact_left_endpoint_root", "exact_right_endpoint_root",
+        "exact_midpoint_root", "tightest_tolerance_maximum_iteration_cap",
+        "invalid_function_id", "invalid_unbracketed_interval", "invalid_reversed_interval",
+        "invalid_fractional_field", "invalid_endpoint_outside_domain", "invalid_tolerance",
+        "invalid_iteration_limit", "invalid_short_frame", "invalid_extra_frame_value",
+    }
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_cases:
+        raise ValueError("ridders_root_finding fixtures differ from the reviewed corpus")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "ridders_root_finding", absolute_tolerance, relative_tolerance)
+
+
+def validate_romberg_integration_workload(workload: dict) -> None:
+    """Pin the bounded Romberg workload and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "r" / "romberg_integration"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if workload != expected_workload:
+        raise ValueError("romberg_integration workload differs from its package file")
+    if (workload.get("algorithm") != "romberg_integration"
+            or workload.get("function_symbol") != "romberg_integration"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("input", {}).get("maximum_valid_input_length") != 4
+            or workload.get("input", {}).get("maximum_parseable_input_length")
+            != ROMBERG_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_elements") != 1
+            or workload.get("output", {}).get("maximum_bytes") != 8
+            or workload.get("workspace", {}).get("elements") != 1
+            or workload.get("workspace", {}).get("bytes") != 8
+            or tolerances(workload) != (2e-5, 1e-12)):
+        raise ValueError("romberg_integration bounds differ from the reviewed profile")
+    issues = romberg_integration_package_issues()
+    if issues:
+        raise ValueError("romberg_integration package is incomplete: " + "; ".join(issues))
+    expected_cases = {
+        "exponential_symmetric_interval", "fifth_power_symmetric_interval",
+        "fifth_power_unit_interval", "reciprocal_symmetric_interval", "cosine_zero_to_one",
+        "exponential_short_interval", "equal_endpoints", "invalid_function_id",
+        "invalid_fractional_field", "invalid_endpoint_below_range", "invalid_descending_interval",
+        "invalid_low_level_count", "invalid_high_level_count", "invalid_short_frame",
+        "invalid_extra_frame_value",
+    }
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_cases:
+        raise ValueError("romberg_integration fixtures differ from the reviewed corpus")
+    abi_cases = workload.get("abi_cases")
+    if (not isinstance(abi_cases, list)
+            or {case.get("id") for case in abi_cases} != {
+                "null_input", "valid_input_null_output", "valid_input_zero_capacity",
+                "invalid_input_precedes_output_error"}):
+        raise ValueError("romberg_integration ABI fixtures differ from the reviewed corpus")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "romberg_integration", absolute_tolerance, relative_tolerance)
+
+
+def validate_dormand_prince_54_adaptive_ode_workload(workload: dict) -> None:
+    """Pin the adaptive DOPRI profile and statically inventory its ten ports."""
+    package = ROOT / "benchmarks" / "d" / "dormand_prince_54_adaptive_ode"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if workload != expected_workload:
+        raise ValueError("dormand_prince_54_adaptive_ode workload differs from its package file")
+    if (workload.get("algorithm") != "dormand_prince_54_adaptive_ode"
+            or workload.get("function_symbol") != "dormand_prince_54_adaptive_ode"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("input", {}).get("maximum_valid_input_length") != 6
+            or workload.get("input", {}).get("maximum_parseable_input_length")
+            != DORMAND_PRINCE_54_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("input", {}).get("tolerance_exponent_range") != [8, 9]
+            or workload.get("output", {}).get("maximum_elements") != 1
+            or workload.get("output", {}).get("maximum_bytes") != 8
+            or workload.get("workspace", {}).get("elements") != 1
+            or workload.get("workspace", {}).get("bytes") != 8
+            or tolerances(workload) != (2e-7, 2e-7)):
+        raise ValueError("dormand_prince_54_adaptive_ode bounds differ from the reviewed profile")
+    issues = dormand_prince_54_package_issues()
+    if issues:
+        raise ValueError("dormand_prince_54_adaptive_ode package is incomplete: " + "; ".join(issues))
+    expected_cases = {
+        "exponential_growth", "negative_exponential_growth", "affine_forcing",
+        "sine_forcing", "constant_derivative", "symmetric_sine_cancellation",
+        "affine_forcing_negative_interval", "adaptive_rejection_and_growth",
+        "invalid_function_id", "invalid_fractional_field", "invalid_initial_state",
+        "invalid_endpoint_outside_range", "invalid_nonincreasing_interval",
+        "invalid_loose_tolerance", "invalid_tight_tolerance", "invalid_low_attempt_limit",
+        "invalid_high_attempt_limit", "invalid_short_frame", "invalid_extra_frame_value",
+    }
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_cases:
+        raise ValueError("dormand_prince_54_adaptive_ode fixtures differ from the reviewed corpus")
+    abi_cases = workload.get("abi_cases")
+    if (not isinstance(abi_cases, list)
+            or {case.get("id") for case in abi_cases} != {
+                "null_input", "valid_input_null_output", "valid_input_zero_capacity",
+                "invalid_input_precedes_output_error"}):
+        raise ValueError("dormand_prince_54_adaptive_ode ABI fixtures differ from the reviewed set")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "dormand_prince_54_adaptive_ode", absolute_tolerance, relative_tolerance)
+
+
 LU_DECOMPOSE_CASE_IDS = frozenset({
     "single_element", "two_by_two_fractional_lower_factor",
     "three_by_three_integer_factors", "three_by_three_fractional_factors",
@@ -17312,6 +17657,18 @@ def main() -> int:
         validate_momentum_sgd_workload(workload)
     elif algorithm == "k_means_clust":
         validate_k_means_clust_workload(workload)
+    elif algorithm == "adaptive_simpson_quadrature":
+        validate_adaptive_simpson_quadrature_workload(workload)
+    elif algorithm == "ridders_root_finding":
+        validate_ridders_root_finding_workload(workload)
+    elif algorithm == "romberg_integration":
+        validate_romberg_integration_workload(workload)
+    elif algorithm == "dormand_prince_54_adaptive_ode":
+        validate_dormand_prince_54_adaptive_ode_workload(workload)
+    elif algorithm == "smo_dual_pair_update":
+        validate_smo_dual_pair_update_workload(workload)
+    elif algorithm == "blocked_lu_factorization":
+        validate_blocked_lu_factorization_workload(workload)
     elif algorithm == "lu_decompose":
         validate_lu_decompose_workload(workload)
     elif algorithm == "lu_elimination":

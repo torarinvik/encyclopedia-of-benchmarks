@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "aho-corasick-failure-tree-counts-v1",
+  "algorithm": "aho_corasick_failure_tree_counts",
+  "function_symbol": "aho_corasick_failure_tree_counts",
+  "abi": "i64_array_bytes_output",
+  "description": "Count every pattern's overlapping occurrences by propagating scanned automaton-state visits through the failure tree.",
+  "source": {
+    "title": "Aho–Corasick failure-tree occurrence counting",
+    "authors": ["CP-Algorithms contributors", "OI Wiki contributors"],
+    "urls": ["https://cp-algorithms.com/string/aho_corasick.html", "https://oi-wiki.org/string/ac-automaton/"],
+    "license": "algorithm descriptions only; CC BY-SA 4.0, OI Wiki also records SATA",
+    "implementation_status": "bounded clean-room profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[P,T,pattern_lengths[P],pattern_symbols...,text_symbols...]",
+    "pattern_count_range": [1, 16],
+    "pattern_length_range": [1, 32],
+    "text_length_range": [0, 256],
+    "symbol_range": [1, 4],
+    "patterns_must_be_unique": true,
+    "maximum_trie_states": 513,
+    "maximum_valid_input_length": 786,
+    "maximum_parseable_input_length": 787,
+    "matching": "case-sensitive; overlapping occurrences and suffix-pattern matches count",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_string",
+    "encoding": "one signed 64-bit little-endian occurrence count per pattern in input order",
+    "maximum_output_bytes": 128,
+    "success_result": "output byte count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 49152,
+    "minimum_bytes": 49152,
+    "meaning": "Bounded trie transitions, terminal indices, failure links, BFS order, visit counters, and staged output; sized for the Elisa and Mojo i64-backed fixed tables."
+  },
+  "complexity": {
+    "primary_time": "O(trie_states*maximum_pattern_length + text_length + pattern_count) with amortized failure fallback during scanning",
+    "primary_auxiliary_space": "O(trie_states*alphabet + trie_states + pattern_count)",
+    "independent_oracle_time": "O(pattern_count*text_length*maximum_pattern_length)",
+    "independent_oracle_space": "O(sum_pattern_lengths + text_length)"
+  },
+  "oracle_method": "The primary builds failure links by breadth-first traversal, increments the visit count for each state reached in the text scan, and propagates counts to failure parents in reverse BFS order. The independent oracle checks each pattern at every possible text start.",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"dense_suffix_chain","input_values":[3,4,1,2,3,1,1,1,1],"input_length":9,"output_capacity":128,"expected_result":24,"expected_output_hex":"040000000000000003000000000000000200000000000000"},
+    {"id":"deep_dense_suffix_chain","input_values":[4,8,1,2,3,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"input_length":24,"output_capacity":128,"expected_result":32,"expected_output_hex":"0800000000000000070000000000000006000000000000000500000000000000"},
+    {"id":"failure_fallback_and_overlap","input_values":[2,5,1,2,1,2,1,1,2,1,2,1],"input_length":12,"output_capacity":128,"expected_result":16,"expected_output_hex":"03000000000000000200000000000000"},
+    {"id":"no_matches","input_values":[2,3,1,2,2,3,4,1,1,1],"input_length":10,"output_capacity":128,"expected_result":16,"expected_output_hex":"00000000000000000000000000000000"},
+    {"id":"empty_text","input_values":[2,0,1,2,1,2,3],"input_length":7,"output_capacity":128,"expected_result":16,"expected_output_hex":"00000000000000000000000000000000"},
+    {"id":"duplicate_pattern","input_values":[2,2,1,1,2,2,2,2],"input_length":8,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"symbol_out_of_profile","input_values":[1,0,1,5],"input_length":4,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_value","input_values":[1,1,1,2,2,99],"input_length":6,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[3,4,1,2,3,1,1,1,1],"input_length":9,"output_capacity":23,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[1,0,1,2],"input_length":4,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,91 @@
+extern sin(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+
+const MAX_INPUT_LENGTH: usize = 7
+
+def finite(value: f64) -> bool:
+    value == value and value <= 1.0e300 and value >= -1.0e300
+
+def exact_integer(value: f64, low: i64, high: i64) -> bool:
+    finite(value) and value >= low.f64() and value <= high.f64() and value.i64().f64() == value
+
+def rhs(id: i64, x: f64, y: f64) -> f64:
+    if id == 0: return y
+    if id == 1: return x + y
+    if id == 2: return sin(x)
+    1.0
+
+def trial(id: i64, x: f64, y: f64, h: f64, k1: f64,
+          y5: mutable f64&, error: mutable f64&, k7: mutable f64&) -> bool:
+    k2: f64 = rhs(id,x+h*(1.0/5.0),y+h*((1.0/5.0)*k1))
+    k3: f64 = rhs(id,x+h*(3.0/10.0),y+h*((3.0/40.0)*k1+(9.0/40.0)*k2))
+    k4: f64 = rhs(id,x+h*(4.0/5.0),y+h*((44.0/45.0)*k1-(56.0/15.0)*k2+(32.0/9.0)*k3))
+    k5: f64 = rhs(id,x+h*(8.0/9.0),y+h*((19372.0/6561.0)*k1-(25360.0/2187.0)*k2+(64448.0/6561.0)*k3-(212.0/729.0)*k4))
+    k6: f64 = rhs(id,x+h,y+h*((9017.0/3168.0)*k1-(355.0/33.0)*k2+(46732.0/5247.0)*k3+(49.0/176.0)*k4-(5103.0/18656.0)*k5))
+    y5 <- y+h*((35.0/384.0)*k1+(500.0/1113.0)*k3+(125.0/192.0)*k4-(2187.0/6784.0)*k5+(11.0/84.0)*k6)
+    k7 <- rhs(id,x+h,y5)
+    error <- h*((71.0/57600.0)*k1-(71.0/16695.0)*k3+(71.0/1920.0)*k4-(17253.0/339200.0)*k5+(22.0/525.0)*k6-(1.0/40.0)*k7)
+    finite(y5) and finite(error) and finite(k7)
+
+def integrate(id: i64, initial_y: f64, initial_x: f64, ending: f64,
+              exponent: i64, attempts: i64, result: mutable f64&) -> i64:
+    tolerance: f64 = pow(10.0,-exponent.f64())
+    x: mutable f64 = initial_x
+    y: mutable f64 = initial_y
+    h: mutable f64 = (ending-initial_x)/4.0
+    if h > 0.25: h <- 0.25
+    k1: mutable f64 = rhs(id,x,y)
+    for attempt in 0..<attempts.usize():
+        remaining: f64 = ending-x
+        if remaining <= 0.0:
+            result <- y
+            return 1
+        step: f64 = h
+        if step > 0.25: step = 0.25
+        if step > remaining: step = remaining
+        if step <= 0.0 or x+step == x: return -3
+        y5: mutable f64 = 0.0
+        error: mutable f64 = 0.0
+        k7: mutable f64 = 0.0
+        if not trial(id,x,y,step,k1,y5,error,k7): return -3
+        scale: f64 = tolerance*(1.0+max(abs(y),abs(y5)))
+        norm: f64 = abs(error)/scale
+        if not finite(norm): return -3
+        if norm <= 1.0:
+            if step == remaining: x <- ending
+            else: x <- x+step
+            y <- y5
+            k1 <- k7
+            if x >= ending:
+                result <- y
+                return if finite(y) then 1 else -3
+        factor: f64 = 5.0
+        if norm != 0.0: factor = 0.9*pow(norm,-0.2)
+        if factor < 0.2: factor = 0.2
+        if factor > 5.0: factor = 5.0
+        h <- step*factor
+    -3
+
+def valid_input(input: view[f64]) -> bool:
+    if input.len() != 6: return false
+    if not exact_integer(input[0],0,3) or not exact_integer(input[1],-1000,1000) or not exact_integer(input[2],-1000,1000) or not exact_integer(input[3],-1000,1000) or not exact_integer(input[4],8,9) or not exact_integer(input[5],64,128): return false
+    input[3] > input[2]
+
+export fn dormand_prince_54_adaptive_ode(input: f64&, input_length: usize,
+                                         output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length != 6 or input_length > MAX_INPUT_LENGTH: return -1
+    input_view: view[f64] = input[0:input_length]
+    if not valid_input(input_view): return -1
+    if output.is_null() or output_capacity < 1: return -2
+    id: i64 = input_view[0].i64()
+    initial_y: f64 = input_view[1]/1000.0
+    initial_x: f64 = input_view[2]/1000.0
+    ending: f64 = input_view[3]/1000.0
+    exponent: i64 = input_view[4].i64()
+    attempts: i64 = input_view[5].i64()
+    result: mutable f64 = 0.0
+    status: i64 = integrate(id,initial_y,initial_x,ending,exponent,attempts,result)
+    if status != 1 or not finite(result): return -3
+    output_view: mutable view[f64] = output[0:1]
+    output_view[0] <- result
+    1

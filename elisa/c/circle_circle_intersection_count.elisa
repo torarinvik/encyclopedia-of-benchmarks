@@ -1,0 +1,37 @@
+alias CCIC_MAX_COORDINATE = 1000
+alias CCIC_MAX_RADIUS = 1000
+
+def ccic_classify(x1: i64, y1: i64, r1: i64,
+                  x2: i64, y2: i64, r2: i64) -> i64:
+    dx: i64 = x2 - x1
+    dy: i64 = y2 - y1
+    if dx == 0 and dy == 0:
+        if r1 == r2: return 3
+        return 0
+    a: i64 = -2 * dx
+    b: i64 = -2 * dy
+    c: i64 = dx * dx + dy * dy + r1 * r1 - r2 * r2
+    discriminant: i64 = r1 * r1 * (a * a + b * b) - c * c
+    if discriminant < 0: return 0
+    if discriminant == 0: return 1
+    return 2
+
+def ccic_impl(values: view[i64]) -> i64:
+    if values.len() != 6: return -1
+    x1: i64 = values[0]
+    y1: i64 = values[1]
+    r1: i64 = values[2]
+    x2: i64 = values[3]
+    y2: i64 = values[4]
+    r2: i64 = values[5]
+    if x1 < -CCIC_MAX_COORDINATE or x1 > CCIC_MAX_COORDINATE or
+       y1 < -CCIC_MAX_COORDINATE or y1 > CCIC_MAX_COORDINATE or
+       x2 < -CCIC_MAX_COORDINATE or x2 > CCIC_MAX_COORDINATE or
+       y2 < -CCIC_MAX_COORDINATE or y2 > CCIC_MAX_COORDINATE or
+       r1 < 1 or r1 > CCIC_MAX_RADIUS or r2 < 1 or r2 > CCIC_MAX_RADIUS:
+        return -1
+    ccic_classify(x1, y1, r1, x2, y2, r2)
+
+export fn circle_circle_intersection_count(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 6: return -1
+    ccic_impl(input[0:length])

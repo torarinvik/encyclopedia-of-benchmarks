@@ -386,6 +386,18 @@ from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
                                   validate_mean_shift_workload,
                                   validate_local_weighted_learning_workload,
                                   validate_k_means_clust_workload,
+                                  ADAPTIVE_SIMPSON_MAX_PARSEABLE_INPUT_LENGTH,
+                                  validate_adaptive_simpson_quadrature_workload,
+                                  RIDDERS_ROOT_FINDING_MAX_PARSEABLE_INPUT_LENGTH,
+                                  validate_ridders_root_finding_workload,
+                                  ROMBERG_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH,
+                                  validate_romberg_integration_workload,
+                                  DORMAND_PRINCE_54_MAX_PARSEABLE_INPUT_LENGTH,
+                                  validate_dormand_prince_54_adaptive_ode_workload,
+                                  validate_smo_dual_pair_update_workload,
+                                  SMO_DUAL_PAIR_UPDATE_MAX_OUTPUT_ELEMENTS,
+                                  SMO_DUAL_PAIR_UPDATE_MAX_PARSEABLE_INPUT_LENGTH,
+                                  validate_blocked_lu_factorization_workload,
                                   validate_lu_decompose_workload,
                                   validate_lu_elimination_workload,
                                   validate_lu_pivot_decomposition_workload,
@@ -549,6 +561,34 @@ from k_means_clust_oracle import (
     MAX_POINT_COUNT as K_MEANS_CLUST_MAX_POINT_COUNT,
     MAX_VALID_INPUT_LENGTH as K_MEANS_CLUST_MAX_VALID_INPUT_LENGTH,
     expected_output as k_means_clust_abi_oracle,
+)
+from blocked_lu_factorization_verifier_oracle import (
+    expected_output as blocked_lu_factorization_independent_oracle,
+)
+from adaptive_simpson_quadrature_verifier_oracle import (
+    expected_output as adaptive_simpson_quadrature_independent_oracle,
+)
+from ridders_root_finding_verifier_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as RIDDERS_ROOT_FINDING_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as ridders_root_finding_independent_oracle,
+)
+from romberg_integration_verifier_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ROMBERG_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as romberg_integration_independent_oracle,
+)
+from d.dormand_prince_54_adaptive_ode.independent_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DORMAND_PRINCE_54_INDEPENDENT_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as dormand_prince_54_adaptive_ode_independent_oracle,
+)
+from smo_dual_pair_update_verifier_oracle import (
+    expected_output as smo_dual_pair_update_independent_oracle,
+)
+from blocked_lu_factorization_oracle import (
+    ABSOLUTE_TOLERANCE as BLOCKED_LU_ABSOLUTE_TOLERANCE,
+    MAX_OUTPUT_ELEMENTS as BLOCKED_LU_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as BLOCKED_LU_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BLOCKED_LU_MAX_VALID_INPUT_LENGTH,
+    RELATIVE_TOLERANCE as BLOCKED_LU_RELATIVE_TOLERANCE,
 )
 from lu_decompose_oracle import (
     MAX_DIMENSION as LU_DECOMPOSE_MAX_DIMENSION,
@@ -2590,6 +2630,18 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_momentum_sgd_workload(workload)
     elif algorithm == "k_means_clust":
         validate_k_means_clust_workload(workload)
+    elif algorithm == "adaptive_simpson_quadrature":
+        validate_adaptive_simpson_quadrature_workload(workload)
+    elif algorithm == "ridders_root_finding":
+        validate_ridders_root_finding_workload(workload)
+    elif algorithm == "romberg_integration":
+        validate_romberg_integration_workload(workload)
+    elif algorithm == "dormand_prince_54_adaptive_ode":
+        validate_dormand_prince_54_adaptive_ode_workload(workload)
+    elif algorithm == "smo_dual_pair_update":
+        validate_smo_dual_pair_update_workload(workload)
+    elif algorithm == "blocked_lu_factorization":
+        validate_blocked_lu_factorization_workload(workload)
     elif algorithm == "lu_decompose":
         validate_lu_decompose_workload(workload)
     elif algorithm == "lu_elimination":
@@ -2637,7 +2689,67 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
     for case in workload.get("cases", []):
         values, expected_result, expected_output = encode_case(
             case, algorithm, absolute_tolerance, relative_tolerance)
-        if algorithm == "tsvc_s111_odd_index_neighbor_update":
+        if algorithm == "adaptive_simpson_quadrature":
+            independent_result, independent_output = adaptive_simpson_quadrature_independent_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: adaptive Simpson fixture differs from closed-form oracle")
+        elif algorithm == "ridders_root_finding":
+            independent_result, independent_output = ridders_root_finding_independent_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: Ridders fixture differs from independent bisection oracle")
+        elif algorithm == "romberg_integration":
+            independent_result, independent_output = romberg_integration_independent_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: Romberg fixture differs from independent antiderivative oracle")
+        elif algorithm == "dormand_prince_54_adaptive_ode":
+            independent_result, independent_output = dormand_prince_54_adaptive_ode_independent_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: DOPRI fixture differs from independent closed-form oracle")
+        elif algorithm == "smo_dual_pair_update":
+            independent_result, independent_output = smo_dual_pair_update_independent_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: SMO fixture differs from direct pair-objective oracle")
+        elif algorithm == "blocked_lu_factorization":
+            independent_result, independent_output = blocked_lu_factorization_independent_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: blocked LU fixture differs from independent Doolittle oracle")
+        elif algorithm == "tsvc_s111_odd_index_neighbor_update":
             independent_result, independent_output = tsvc_s111_verifier_oracle(
                 values, case.get("output_capacity", workspace),
                 case.get("output_is_null", False), case.get("input_is_null", False),
@@ -7222,6 +7334,301 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
             add_lu_case(inputs)
         add_lu_case([2.0, 1.0, 2.0, 2.0, 4.0], output_is_null=True)
         add_lu_case([], input_is_null=True, input_length=2)
+
+    if algorithm == "smo_dual_pair_update":
+        if (workspace < SMO_DUAL_PAIR_UPDATE_MAX_OUTPUT_ELEMENTS
+                or absolute_tolerance != 1e-12 or relative_tolerance != 1e-12):
+            raise ValueError("smo_dual_pair_update requires room for nine outputs and 1e-12 tolerances")
+        abi_cases = workload.get("abi_cases")
+        if not isinstance(abi_cases, list) or not abi_cases:
+            raise ValueError("smo_dual_pair_update requires ABI boundary fixtures")
+        for case in abi_cases:
+            raw_values = case.get("input_values")
+            input_length = case.get("input_length")
+            capacity = case.get("output_capacity", workspace)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > SMO_DUAL_PAIR_UPDATE_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= SMO_DUAL_PAIR_UPDATE_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(capacity) is not int or not 0 <= capacity <= SMO_DUAL_PAIR_UPDATE_MAX_OUTPUT_ELEMENTS
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and (raw_values or input_length == 0)
+                    or not input_is_null and input_length != len(raw_values)):
+                raise ValueError(f"invalid SMO ABI framing: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            result, output = smo_dual_pair_update_independent_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           or abs(float(value) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for value, reference in zip(expected_output, output))):
+                raise ValueError(f"SMO ABI fixture mismatch: {case.get('id')}")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+
+    if algorithm == "adaptive_simpson_quadrature":
+        if (workspace != 1 or absolute_tolerance != 1e-7 or relative_tolerance != 1e-7):
+            raise ValueError("adaptive_simpson_quadrature requires one output element and 1e-7 tolerances")
+        abi_cases = workload.get("abi_cases")
+        if not isinstance(abi_cases, list) or not abi_cases:
+            raise ValueError("adaptive_simpson_quadrature requires ABI boundary fixtures")
+        for case in abi_cases:
+            raw_values = case.get("input_values")
+            input_length = case.get("input_length")
+            capacity = case.get("output_capacity", workspace)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > ADAPTIVE_SIMPSON_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= ADAPTIVE_SIMPSON_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(capacity) is not int or not 0 <= capacity <= 1
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and (raw_values or input_length == 0)
+                    or not input_is_null and input_length != len(raw_values)):
+                raise ValueError(f"invalid adaptive Simpson ABI framing: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            result, output = adaptive_simpson_quadrature_independent_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           or abs(float(value) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for value, reference in zip(expected_output, output))):
+                raise ValueError(f"adaptive Simpson ABI fixture mismatch: {case.get('id')}")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+
+    if algorithm == "ridders_root_finding":
+        if (workspace != 1 or absolute_tolerance != 1.1e-3 or relative_tolerance != 1e-12):
+            raise ValueError("ridders_root_finding requires one output element and reviewed tolerances")
+        abi_cases = workload.get("abi_cases")
+        if not isinstance(abi_cases, list) or not abi_cases:
+            raise ValueError("ridders_root_finding requires ABI boundary fixtures")
+        expected_ids = {"null_input", "valid_input_null_output", "valid_input_zero_capacity",
+                        "invalid_input_precedes_output_error"}
+        if {case.get("id") for case in abi_cases if isinstance(case, dict)} != expected_ids:
+            raise ValueError("ridders_root_finding ABI fixture inventory differs from the reviewed set")
+        for case in abi_cases:
+            raw_values = case.get("input_values")
+            input_length = case.get("input_length")
+            capacity = case.get("output_capacity", workspace)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > RIDDERS_ROOT_FINDING_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= RIDDERS_ROOT_FINDING_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(capacity) is not int or not 0 <= capacity <= 1
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and (raw_values or input_length == 0)
+                    or not input_is_null and input_length != len(raw_values)):
+                raise ValueError(f"invalid Ridders ABI framing: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            result, output = ridders_root_finding_independent_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           or abs(float(value) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for value, reference in zip(expected_output, output))):
+                raise ValueError(f"Ridders ABI fixture mismatch: {case.get('id')}")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+
+    if algorithm == "romberg_integration":
+        if (workspace != 1 or absolute_tolerance != 2e-5 or relative_tolerance != 1e-12):
+            raise ValueError("romberg_integration requires one output element and reviewed tolerances")
+        abi_cases = workload.get("abi_cases")
+        if not isinstance(abi_cases, list) or not abi_cases:
+            raise ValueError("romberg_integration requires ABI boundary fixtures")
+        expected_ids = {"null_input", "valid_input_null_output", "valid_input_zero_capacity",
+                        "invalid_input_precedes_output_error"}
+        if {case.get("id") for case in abi_cases if isinstance(case, dict)} != expected_ids:
+            raise ValueError("romberg_integration ABI fixture inventory differs from the reviewed set")
+        for case in abi_cases:
+            raw_values = case.get("input_values")
+            input_length = case.get("input_length")
+            capacity = case.get("output_capacity", workspace)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > ROMBERG_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= ROMBERG_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(capacity) is not int or not 0 <= capacity <= 1
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and (raw_values or input_length == 0)
+                    or not input_is_null and input_length != len(raw_values)):
+                raise ValueError(f"invalid Romberg ABI framing: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            result, output = romberg_integration_independent_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           or abs(float(value) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for value, reference in zip(expected_output, output))):
+                raise ValueError(f"Romberg ABI fixture mismatch: {case.get('id')}")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+
+    if algorithm == "dormand_prince_54_adaptive_ode":
+        if (workspace != 1 or absolute_tolerance != 2e-7 or relative_tolerance != 2e-7):
+            raise ValueError("dormand_prince_54_adaptive_ode requires one output and 2e-7 tolerances")
+        abi_cases = workload.get("abi_cases")
+        expected_ids = {"null_input", "valid_input_null_output", "valid_input_zero_capacity",
+                        "invalid_input_precedes_output_error"}
+        if (not isinstance(abi_cases, list)
+                or {case.get("id") for case in abi_cases if isinstance(case, dict)} != expected_ids):
+            raise ValueError("dormand_prince_54_adaptive_ode ABI fixture inventory differs from the reviewed set")
+        for case in abi_cases:
+            raw_values = case.get("input_values")
+            input_length = case.get("input_length")
+            capacity = case.get("output_capacity", workspace)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > DORMAND_PRINCE_54_INDEPENDENT_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= DORMAND_PRINCE_54_INDEPENDENT_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(capacity) is not int or not 0 <= capacity <= 1
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and (raw_values or input_length == 0)
+                    or not input_is_null and input_length != len(raw_values)):
+                raise ValueError(f"invalid DOPRI ABI framing: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            result, output = dormand_prince_54_adaptive_ode_independent_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           or abs(float(value) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for value, reference in zip(expected_output, output))):
+                raise ValueError(f"DOPRI ABI fixture mismatch: {case.get('id')}")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+
+    if algorithm == "blocked_lu_factorization":
+        if (workspace != BLOCKED_LU_MAX_OUTPUT_ELEMENTS
+                or absolute_tolerance != BLOCKED_LU_ABSOLUTE_TOLERANCE
+                or relative_tolerance != BLOCKED_LU_RELATIVE_TOLERANCE):
+            raise ValueError("blocked_lu_factorization requires 128 output elements and 1e-10 tolerances")
+
+        def add_blocked_lu_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            result, output = blocked_lu_factorization_independent_oracle(
+                [] if input_is_null else inputs, capacity, output_is_null,
+                input_is_null, input_length)
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result,
+                            [_output_token(value) for value in output], capacity,
+                            int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > BLOCKED_LU_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"invalid blocked_lu_factorization ABI values: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity", workspace)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            input_length = case.get("input_length", len(inputs))
+            result, output = blocked_lu_factorization_independent_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            primary_result, primary_output = ORACLES[algorithm](
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (result != primary_result
+                    or not _matches_output(primary_output, output,
+                                           absolute_tolerance, relative_tolerance)
+                    or case.get("expected_result") != result
+                    or not isinstance(expected_output, list)
+                    or not _matches_output(expected_output, output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"blocked_lu_factorization ABI fixture differs from the independent oracle: {case.get('id')}")
+            add_blocked_lu_case(inputs, capacity, output_is_null,
+                                input_is_null, input_length)
+
+        rng_blocked_lu = random.Random(20261112)
+        maximum_input: list[float] | None = None
+        for index in range(128):
+            dimension = 8 if index == 0 else rng_blocked_lu.choice((2, 4, 6, 8))
+            matrix = [[0] * dimension for _ in range(dimension)]
+            for row in range(dimension):
+                for column in range(dimension):
+                    if row == column:
+                        matrix[row][column] = 8
+                    else:
+                        matrix[row][column] = rng_blocked_lu.randint(-1, 1)
+            inputs = [float(dimension),
+                      *(float(value) for row in matrix for value in row)]
+            if index == 0:
+                maximum_input = inputs
+                if len(inputs) != BLOCKED_LU_MAX_VALID_INPUT_LENGTH:
+                    raise ValueError("blocked_lu_factorization maximum input has the wrong length")
+            primary_result, primary_output = ORACLES[algorithm](inputs)
+            independent_result, independent_output = blocked_lu_factorization_independent_oracle(inputs)
+            if (primary_result != independent_result
+                    or not _matches_output(primary_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError("blocked_lu_factorization generated profile differs from independent Doolittle oracle")
+            result, output = add_blocked_lu_case(inputs)
+            if result <= 0 or len(output) != result:
+                raise ValueError("blocked_lu_factorization rejected a generated valid matrix")
+            if index == 0:
+                add_blocked_lu_case(inputs, capacity=result - 1)
+                add_blocked_lu_case(inputs, output_is_null=True)
+        if (maximum_input is None
+                or len(maximum_input) + 1 != BLOCKED_LU_MAX_PARSEABLE_INPUT_LENGTH):
+            raise ValueError("blocked_lu_factorization maximum parseable shape has the wrong length")
 
     if algorithm == "lu_elimination":
         if (workspace != LU_ELIMINATION_MAX_OUTPUT_ELEMENTS

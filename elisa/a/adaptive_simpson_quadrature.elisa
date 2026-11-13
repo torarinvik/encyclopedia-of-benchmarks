@@ -1,0 +1,74 @@
+extern sin(value: f64) -> f64
+extern fabs(value: f64) -> f64
+
+const MAX_INPUT_LENGTH: usize = 6
+
+def adaptive_sample(function_id: i64, x: f64) -> f64:
+    if function_id == 0:
+        return x * x * x * x
+    if function_id == 1:
+        return sin(x)
+    1.0 / (1.0 + x * x)
+
+def adaptive_simpson(a: f64, b: f64, fa: f64, fm: f64, fb: f64) -> f64:
+    (b - a) * (fa + 4.0 * fm + fb) / 6.0
+
+def adaptive_refine(function_id: i64, a: f64, b: f64, fa: f64, fm: f64, fb: f64,
+                    whole: f64, tolerance: f64, depth: i64) -> f64:
+    middle: f64 = (a + b) * 0.5
+    left_middle: f64 = (a + middle) * 0.5
+    right_middle: f64 = (middle + b) * 0.5
+    flm: f64 = adaptive_sample(function_id, left_middle)
+    frm: f64 = adaptive_sample(function_id, right_middle)
+    left: f64 = adaptive_simpson(a, middle, fa, flm, fm)
+    right: f64 = adaptive_simpson(middle, b, fm, frm, fb)
+    delta: f64 = left + right - whole
+    if depth == 0 or fabs(delta) <= 15.0 * tolerance:
+        return left + right + delta / 15.0
+    adaptive_refine(function_id, a, middle, fa, flm, fm, left, tolerance * 0.5, depth - 1) + adaptive_refine(function_id, middle, b, fm, frm, fb, right, tolerance * 0.5, depth - 1)
+
+def adaptive_integer(x: f64, low: i64, high: i64) -> bool:
+    if x != x or x > 1.7976931348623157e308 or x < -1.7976931348623157e308:
+        return false
+    if x < low.f64() or x > high.f64():
+        return false
+    x.i64().f64() == x
+
+def adaptive_simpson_quadrature_impl(input: view[f64], input_length: usize,
+                                     staged: mutable view[f64]) -> i64:
+    if input_length != 5 or input_length > MAX_INPUT_LENGTH: return -1
+    if not adaptive_integer(input[0], 0, 2) or not adaptive_integer(input[1], -2000000, 2000000) or not adaptive_integer(input[2], -2000000, 2000000) or not adaptive_integer(input[3], 7, 8) or not adaptive_integer(input[4], 8, 12): return -1
+    function_id: i64 = input[0].i64()
+    a_micro: i64 = input[1].i64()
+    b_micro: i64 = input[2].i64()
+    exponent: i64 = input[3].i64()
+    depth: i64 = input[4].i64()
+    if a_micro > b_micro: return -1
+    if staged.len() < 1: return -2
+    a: f64 = a_micro.f64() / 1000000.0
+    b: f64 = b_micro.f64() / 1000000.0
+    result: mutable f64 = 0.0
+    if a != b:
+        midpoint: f64 = (a + b) * 0.5
+        fa: f64 = adaptive_sample(function_id, a)
+        fm: f64 = adaptive_sample(function_id, midpoint)
+        fb: f64 = adaptive_sample(function_id, b)
+        tolerance: mutable f64 = 1.0
+        for _ in 0..exponent: tolerance <- tolerance * 0.1
+        result <- adaptive_refine(function_id, a, b, fa, fm, fb,
+                                  adaptive_simpson(a, b, fa, fm, fb), tolerance, depth)
+    staged[0] <- result
+    1
+
+export fn adaptive_simpson_quadrature(input: f64&, input_length: usize,
+                                      output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length > MAX_INPUT_LENGTH: return -1
+    input_view: view[f64] = input[0:input_length]
+    staged: mutable f64[1] = zeroed
+    staged_view: mutable view[f64] = staged[0:1]
+    result: i64 = adaptive_simpson_quadrature_impl(input_view, input_length, staged_view)
+    if result < 0: return result
+    if output.is_null() or capacity < 1: return -2
+    output_view: mutable view[f64] = output[0:1]
+    output_view[0] <- staged_view[0]
+    1

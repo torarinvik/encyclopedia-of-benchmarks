@@ -1,0 +1,189 @@
+const MAX_POINTS: usize = 64
+const MAX_PARSEABLE_LENGTH: usize = 194
+
+struct CdqPoint:
+    x: i64
+    y: i64
+    z: i64
+    multiplicity: i64
+    z_rank: usize
+    original_index: usize
+
+struct CdqContext:
+    points: CdqPoint[64]
+    original_group: usize[64]
+    dominated: i64[64]
+    bit: i64[65]
+    source_order: usize[64]
+    target_order: usize[64]
+    z_values: i64[64]
+
+def cdq_point_less(a: CdqPoint, b: CdqPoint) -> bool:
+    a.x < b.x or (a.x == b.x and (a.y < b.y or (a.y == b.y and a.z < b.z)))
+
+def cdq_same_coordinates(a: CdqPoint, b: CdqPoint) -> bool:
+    a.x == b.x and a.y == b.y and a.z == b.z
+
+def cdq_bit_add(context: mutable CdqContext&, start: usize, delta: i64, limit: usize) -> void:
+    index: mutable usize = start
+    while index <= limit:
+        context.bit[index] <- context.bit[index] + delta
+        index <- index + (index & (index ^ (index - 1)))
+
+def cdq_bit_sum(context: CdqContext&, start: usize) -> i64:
+    index: mutable usize = start
+    total: mutable i64 = 0
+    while index > 0:
+        total <- total + context.bit[index]
+        index <- index - (index & (index ^ (index - 1)))
+    total
+
+def cdq_count(context: mutable CdqContext&, left: usize, right: usize, group_count: usize) -> void:
+    if left >= right: return
+    middle: usize = left + (right - left) / 2
+    cdq_count(context&, left, middle, group_count)
+    cdq_count(context&, middle + 1, right, group_count)
+
+    source_cursor: mutable usize = left
+    target_position: mutable usize = middle + 1
+    while target_position <= right:
+        target: usize = context.source_order[target_position]
+        while source_cursor <= middle:
+            source: usize = context.source_order[source_cursor]
+            if context.points[source].y > context.points[target].y: break
+            source_rank: usize = context.points[source].z_rank
+            source_weight: i64 = context.points[source].multiplicity
+            cdq_bit_add(context&, source_rank, source_weight, group_count)
+            source_cursor <- source_cursor + 1
+        target_rank: usize = context.points[target].z_rank
+        amount: i64 = cdq_bit_sum(context&, target_rank)
+        context.dominated[target] <- context.dominated[target] + amount
+        target_position <- target_position + 1
+    i: mutable usize = left
+    while i < source_cursor:
+        source: usize = context.source_order[i]
+        source_rank: usize = context.points[source].z_rank
+        source_weight: i64 = context.points[source].multiplicity
+        cdq_bit_add(context&, source_rank, -source_weight, group_count)
+        i <- i + 1
+
+    left_cursor: mutable usize = left
+    right_cursor: mutable usize = middle + 1
+    destination: mutable usize = left
+    while left_cursor <= middle and right_cursor <= right:
+        left_point: usize = context.source_order[left_cursor]
+        right_point: usize = context.source_order[right_cursor]
+        if context.points[left_point].y <= context.points[right_point].y:
+            context.target_order[destination] <- left_point
+            left_cursor <- left_cursor + 1
+        else:
+            context.target_order[destination] <- right_point
+            right_cursor <- right_cursor + 1
+        destination <- destination + 1
+    while left_cursor <= middle:
+        context.target_order[destination] <- context.source_order[left_cursor]
+        left_cursor <- left_cursor + 1
+        destination <- destination + 1
+    while right_cursor <= right:
+        context.target_order[destination] <- context.source_order[right_cursor]
+        right_cursor <- right_cursor + 1
+        destination <- destination + 1
+    i <- left
+    while i <= right:
+        context.source_order[i] <- context.target_order[i]
+        i <- i + 1
+
+def cdq_three_dimensional_dominance_impl(input: view[i64], length: usize) -> i64:
+    if length < 1 or length > MAX_PARSEABLE_LENGTH: return -1
+    raw_count: i64 = input[0]
+    if raw_count < 1 or raw_count > MAX_POINTS.i64(): return -1
+    n: usize = raw_count.usize()
+    if length != 1 + 3 * n: return -1
+
+    context: mutable CdqContext = zeroed
+    i: mutable usize = 0
+    while i < n:
+        x: i64 = input[1 + 3 * i]
+        y: i64 = input[2 + 3 * i]
+        z: i64 = input[3 + 3 * i]
+        if x < -1000 or x > 1000 or y < -1000 or y > 1000 or z < -1000 or z > 1000:
+            return -1
+        context.points[i].x <- x
+        context.points[i].y <- y
+        context.points[i].z <- z
+        context.points[i].multiplicity <- 1
+        context.points[i].original_index <- i
+        i <- i + 1
+
+    i <- 1
+    while i < n:
+        value: CdqPoint = context.points[i]
+        j: mutable usize = i
+        while j > 0 and cdq_point_less(value, context.points[j - 1]):
+            context.points[j] <- context.points[j - 1]
+            j <- j - 1
+        context.points[j] <- value
+        i <- i + 1
+
+    group_count: mutable usize = 0
+    i <- 0
+    while i < n:
+        point: CdqPoint = context.points[i]
+        if group_count > 0 and cdq_same_coordinates(point, context.points[group_count - 1]):
+            context.points[group_count - 1].multiplicity <- context.points[group_count - 1].multiplicity + 1
+            context.original_group[point.original_index] <- group_count - 1
+        else:
+            context.points[group_count] <- point
+            context.points[group_count].multiplicity <- 1
+            context.original_group[point.original_index] <- group_count
+            group_count <- group_count + 1
+        i <- i + 1
+
+    i <- 0
+    while i < group_count:
+        context.z_values[i] <- context.points[i].z
+        i <- i + 1
+    i <- 1
+    while i < group_count:
+        value: i64 = context.z_values[i]
+        j: mutable usize = i
+        while j > 0 and value < context.z_values[j - 1]:
+            context.z_values[j] <- context.z_values[j - 1]
+            j <- j - 1
+        context.z_values[j] <- value
+        i <- i + 1
+    z_count: mutable usize = 0
+    i <- 0
+    while i < group_count:
+        value: i64 = context.z_values[i]
+        if z_count == 0 or value != context.z_values[z_count - 1]:
+            context.z_values[z_count] <- value
+            z_count <- z_count + 1
+        i <- i + 1
+    i <- 0
+    while i < group_count:
+        low: mutable usize = 0
+        high: mutable usize = z_count
+        while low < high:
+            middle: usize = low + (high - low) / 2
+            if context.z_values[middle] < context.points[i].z:
+                low <- middle + 1
+            else:
+                high <- middle
+        context.points[i].z_rank <- low + 1
+        context.source_order[i] <- i
+        i <- i + 1
+
+    if group_count > 1: cdq_count(context&, 0, group_count - 1, z_count)
+    result: mutable i64 = 0
+    i <- 0
+    while i < n:
+        group: usize = context.original_group[i]
+        count: i64 = context.dominated[group] + context.points[group].multiplicity - 1
+        result <- result + (i + 1).i64() * count
+        i <- i + 1
+    result
+
+export fn cdq_three_dimensional_dominance(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_PARSEABLE_LENGTH: return -1
+    cdq_three_dimensional_dominance_impl(input[0:length], length)

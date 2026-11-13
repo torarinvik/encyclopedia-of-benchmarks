@@ -45,6 +45,14 @@ from c.crochemore_perrin_two_way.primary_oracle import (
 from c.crochemore_perrin_two_way.verify_workload import (
     verify_workload as verify_crochemore_perrin_two_way_package,
 )
+from p.palindrome_pairs.primary_oracle import (
+    MAX_OUTPUT_BYTES as PALINDROME_PAIRS_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as PALINDROME_PAIRS_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as palindrome_pairs_oracle,
+)
+from p.palindrome_pairs.check_inventory import (
+    static_issues as palindrome_pairs_static_issues,
+)
 from v.virtual_tree.primary_oracle import (
     MAX_INPUT_LENGTH as VIRTUAL_TREE_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as VIRTUAL_TREE_MAX_OUTPUT_BYTES,
@@ -172,6 +180,38 @@ from h.hash_join.primary_oracle import (
 from h.hash_join.check_inventory import (
     check_inventory as check_hash_join_inventory,
 )
+from b.binomial_coefficient_prime_power.primary_oracle import (
+    MAX_INPUT_LENGTH as BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as BINOMIAL_COEFFICIENT_PRIME_POWER_WORKSPACE_BYTES,
+    expected_output as binomial_coefficient_prime_power_oracle,
+)
+from check_binomial_coefficient_prime_power_package import (
+    static_issues as binomial_coefficient_prime_power_static_issues,
+)
+from s.segment_tree_merge_split.primary_oracle import (
+    MAX_OUTPUT_BYTES as SEGMENT_TREE_MERGE_SPLIT_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as SEGMENT_TREE_MERGE_SPLIT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SEGMENT_TREE_MERGE_SPLIT_MAX_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as SEGMENT_TREE_MERGE_SPLIT_WORKSPACE_BYTES,
+    MAX_OPERATION_BUFFER_BYTES as SEGMENT_TREE_MERGE_SPLIT_OPERATION_BUFFER_BYTES,
+    MAX_DECLARED_FIXED_ARRAY_BYTES as SEGMENT_TREE_MERGE_SPLIT_FIXED_ARRAY_BYTES,
+    MAX_INTERNAL_NODE_POOL_BYTES as SEGMENT_TREE_MERGE_SPLIT_NODE_POOL_BYTES,
+    expected_output as segment_tree_merge_split_oracle,
+)
+from check_segment_tree_merge_split_package import (
+    static_issues as segment_tree_merge_split_static_issues,
+)
+from d.dial_bucket_shortest_paths.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DIAL_BUCKET_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DIAL_BUCKET_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as DIAL_BUCKET_WORKSPACE_BYTES,
+    expected_output as dial_bucket_shortest_paths_oracle,
+)
+from d.dial_bucket_shortest_paths.check_inventory import (
+    check_inventory as check_dial_bucket_shortest_paths_inventory,
+)
 from dynamic_mex_updates_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as DYNAMIC_MEX_UPDATES_MAX_PARSEABLE_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES,
@@ -212,6 +252,41 @@ from balanced_ternary_conversion_oracle import (
 )
 from check_balanced_ternary_conversion_package import (
     static_issues as balanced_ternary_conversion_static_issues,
+)
+from online_temporary_task_load_balancing_oracle import (
+    MAX_MACHINES as ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_MACHINES,
+    MAX_TASKS as ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_TASKS,
+    MAX_VALID_INPUT_LENGTH as ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_OUTPUT_BYTES,
+    expected_output as online_temporary_task_load_balancing_oracle,
+)
+from check_online_temporary_task_load_balancing_package import (
+    static_issues as online_temporary_task_load_balancing_static_issues,
+)
+from convolution_f2_64_oracle import (
+    MAX_N as CONVOLUTION_F2_64_MAX_N,
+    MAX_M as CONVOLUTION_F2_64_MAX_M,
+    MAX_VALID_INPUT_LENGTH as CONVOLUTION_F2_64_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CONVOLUTION_F2_64_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CONVOLUTION_F2_64_MAX_OUTPUT_BYTES,
+    expected_output as convolution_f2_64_oracle,
+)
+from check_convolution_f2_64_package import (
+    static_issues as convolution_f2_64_static_issues,
+)
+from d.dirichlet_convolution_and_prefix_sums.primary_oracle import (
+    MODULUS as DIRICHLET_CONVOLUTION_MODULUS,
+    MAX_N as DIRICHLET_CONVOLUTION_MAX_N,
+    MAX_QUOTIENT_COUNT as DIRICHLET_CONVOLUTION_MAX_QUOTIENT_COUNT,
+    MAX_VALID_INPUT_LENGTH as DIRICHLET_CONVOLUTION_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as DIRICHLET_CONVOLUTION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DIRICHLET_CONVOLUTION_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as DIRICHLET_CONVOLUTION_WORKSPACE_BYTES,
+    expected_output as dirichlet_convolution_and_prefix_sums_oracle,
+)
+from d.dirichlet_convolution_and_prefix_sums.verify_workload import (
+    static_issues as dirichlet_convolution_and_prefix_sums_static_issues,
 )
 from a.all_shortest_paths_unweighted.primary_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as ALL_SHORTEST_PATHS_MAX_PARSEABLE_INPUT_LENGTH,
@@ -6922,10 +6997,17 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "mst_edge_classification": mst_edge_classification_oracle,
     "minimum_mean_cycle_karp": minimum_mean_cycle_karp_oracle,
     "hash_join": hash_join_oracle,
+    "binomial_coefficient_prime_power": binomial_coefficient_prime_power_oracle,
+    "segment_tree_merge_split": segment_tree_merge_split_oracle,
+    "dial_bucket_shortest_paths": dial_bucket_shortest_paths_oracle,
     "dynamic_mex_updates": dynamic_mex_updates_oracle,
     "circle_line_intersection_count": circle_line_intersection_count_oracle,
     "maximum_frequency_stack": maximum_frequency_stack_oracle,
     "balanced_ternary_conversion": balanced_ternary_conversion_oracle,
+    "online_temporary_task_load_balancing": online_temporary_task_load_balancing_oracle,
+    "convolution_f2_64": convolution_f2_64_oracle,
+    "palindrome_pairs": palindrome_pairs_oracle,
+    "dirichlet_convolution_and_prefix_sums": dirichlet_convolution_and_prefix_sums_oracle,
     "all_shortest_paths_unweighted": all_shortest_paths_unweighted_oracle,
     "suffix_array_sais": suffix_array_sais_oracle,
     "minkowski_sum_convex_polygons": minkowski_sum_convex_polygons_oracle,
@@ -7621,6 +7703,18 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
         MINIMUM_MEAN_CYCLE_KARP_MAX_OUTPUT_BYTES,
     ),
     "hash_join": (HASH_JOIN_MAX_PARSEABLE_INPUT_LENGTH, HASH_JOIN_MAX_OUTPUT_BYTES),
+    "binomial_coefficient_prime_power": (
+        BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_PARSEABLE_INPUT_LENGTH,
+        BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_OUTPUT_BYTES,
+    ),
+    "segment_tree_merge_split": (
+        SEGMENT_TREE_MERGE_SPLIT_MAX_PARSEABLE_INPUT_LENGTH,
+        SEGMENT_TREE_MERGE_SPLIT_MAX_OUTPUT_BYTES,
+    ),
+    "dial_bucket_shortest_paths": (
+        DIAL_BUCKET_MAX_PARSEABLE_INPUT_LENGTH,
+        DIAL_BUCKET_MAX_OUTPUT_BYTES,
+    ),
     "dynamic_mex_updates": (
         DYNAMIC_MEX_UPDATES_MAX_PARSEABLE_INPUT_LENGTH,
         DYNAMIC_MEX_UPDATES_MAX_OUTPUT_BYTES,
@@ -7636,6 +7730,22 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
     "balanced_ternary_conversion": (
         BALANCED_TERNARY_MAX_PARSEABLE_INPUT_LENGTH,
         BALANCED_TERNARY_MAX_OUTPUT_BYTES,
+    ),
+    "online_temporary_task_load_balancing": (
+        ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_PARSEABLE_INPUT_LENGTH,
+        ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_OUTPUT_BYTES,
+    ),
+    "convolution_f2_64": (
+        CONVOLUTION_F2_64_MAX_PARSEABLE_INPUT_LENGTH,
+        CONVOLUTION_F2_64_MAX_OUTPUT_BYTES,
+    ),
+    "palindrome_pairs": (
+        PALINDROME_PAIRS_MAX_PARSEABLE_INPUT_LENGTH,
+        PALINDROME_PAIRS_MAX_OUTPUT_BYTES,
+    ),
+    "dirichlet_convolution_and_prefix_sums": (
+        DIRICHLET_CONVOLUTION_MAX_PARSEABLE_INPUT_LENGTH,
+        DIRICHLET_CONVOLUTION_MAX_OUTPUT_BYTES,
     ),
     "all_shortest_paths_unweighted": (
         ALL_SHORTEST_PATHS_MAX_PARSEABLE_INPUT_LENGTH,
@@ -38264,6 +38374,85 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         if issues:
             raise ValueError("hash_join package is incomplete: " + "; ".join(issues))
         return
+    if algorithm == "binomial_coefficient_prime_power":
+        package_workload = ROOT / "benchmarks/b/binomial_coefficient_prime_power/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("binomial_coefficient_prime_power workload differs from its package file")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_INPUT_LENGTH != 67
+                or BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_PARSEABLE_INPUT_LENGTH != 68
+                or BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_OUTPUT_BYTES != 128
+                or BINOMIAL_COEFFICIENT_PRIME_POWER_WORKSPACE_BYTES != 2560
+                or input_spec.get("encoding") != "[p,e,Q,(n,k)*Q]"
+                or input_spec.get("exact_length") != "3+2*Q"
+                or input_spec.get("maximum_valid_length") != 67
+                or input_spec.get("maximum_parseable_length") != 68
+                or output_spec.get("maximum_bytes") != 128
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != 2560):
+            raise ValueError("binomial_coefficient_prime_power metadata differs from its p-adic bounded profile")
+        issues = binomial_coefficient_prime_power_static_issues()
+        if issues:
+            raise ValueError("binomial_coefficient_prime_power package is incomplete: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "segment_tree_merge_split":
+        package_workload = ROOT / "benchmarks/s/segment_tree_merge_split/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("segment_tree_merge_split workload differs from its package file")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (SEGMENT_TREE_MERGE_SPLIT_MAX_VALID_INPUT_LENGTH != 130
+                or SEGMENT_TREE_MERGE_SPLIT_MAX_PARSEABLE_INPUT_LENGTH != 131
+                or SEGMENT_TREE_MERGE_SPLIT_MAX_OUTPUT_BYTES != 256
+                or SEGMENT_TREE_MERGE_SPLIT_WORKSPACE_BYTES != 256
+                or SEGMENT_TREE_MERGE_SPLIT_NODE_POOL_BYTES != 16_516
+                or input_spec.get("encoding") != "[64,Q,(opcode,a,b,c)*Q]"
+                or input_spec.get("exact_length") != "2 + 4*Q"
+                or input_spec.get("maximum_valid_length") != 130
+                or input_spec.get("maximum_parseable_length") != 131
+                or output_spec.get("maximum_output_bytes") != 256
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != 256
+                or workload.get("workspace", {}).get("internal_node_pool_bytes") != 16_516
+                or workload.get("workspace", {}).get("operation_buffer_bytes") != 1024
+                or workload.get("workspace", {}).get("declared_fixed_array_bytes") != 17_796
+                or SEGMENT_TREE_MERGE_SPLIT_OPERATION_BUFFER_BYTES != 1024
+                or SEGMENT_TREE_MERGE_SPLIT_FIXED_ARRAY_BYTES != 17_796):
+            raise ValueError("segment_tree_merge_split metadata differs from its bounded sparse-tree profile")
+        issues = segment_tree_merge_split_static_issues()
+        if issues:
+            raise ValueError("segment_tree_merge_split package is incomplete: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "dial_bucket_shortest_paths":
+        package_workload = ROOT / "benchmarks/d/dial_bucket_shortest_paths/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("dial_bucket_shortest_paths workload differs from its package file")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        details = workload.get("algorithm_details", {})
+        if (DIAL_BUCKET_MAX_PARSEABLE_INPUT_LENGTH != 196
+                or DIAL_BUCKET_MAX_OUTPUT_BYTES != 128
+                or DIAL_BUCKET_WORKSPACE_BYTES != 4096
+                or input_spec.get("encoding") != "[N,M,source,(u,v,weight)*M]"
+                or input_spec.get("maximum_valid_length") != 195
+                or input_spec.get("maximum_parseable_length") != 196
+                or output_spec.get("maximum_bytes") != 128
+                or details.get("ring_bucket_count") != 9
+                or details.get("maximum_finite_distance") != 120
+                or workload.get("workspace", {}).get("bytes") != 4096):
+            raise ValueError("dial_bucket_shortest_paths metadata differs from its bounded cyclic-bucket profile")
+        issues = check_dial_bucket_shortest_paths_inventory()
+        if issues:
+            raise ValueError("dial_bucket_shortest_paths package is incomplete: "
+                             + "; ".join(issues))
+        return
     if algorithm == "dynamic_mex_updates":
         package_workload = ROOT / "benchmarks/d/dynamic_mex_updates/workload.json"
         if workload != json.loads(package_workload.read_text(encoding="utf-8")):
@@ -38379,6 +38568,124 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         issues = balanced_ternary_conversion_static_issues()
         if issues:
             raise ValueError("balanced_ternary_conversion package is incomplete: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "online_temporary_task_load_balancing":
+        package_workload = ROOT / "benchmarks/o/online_temporary_task_load_balancing/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("online_temporary_task_load_balancing workload differs from its package file")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_MACHINES != 8
+                or ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_TASKS != 32
+                or ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_VALID_INPUT_LENGTH != 98
+                or ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_PARSEABLE_INPUT_LENGTH != 99
+                or ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_OUTPUT_BYTES != 264
+                or input_spec.get("encoding") != "[machine_count, task_count, (arrival, weight, duration)*]"
+                or input_spec.get("machine_count_range") != [1, 8]
+                or input_spec.get("task_count_range") != [0, 32]
+                or input_spec.get("active_interval") != "[arrival, arrival + duration)"
+                or input_spec.get("maximum_valid_length") != 98
+                or input_spec.get("maximum_parseable_length") != 99
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("maximum_bytes") != 264
+                or output_spec.get("success_result") != "8 * (1 + task_count) bytes written"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != 2048):
+            raise ValueError("online_temporary_task_load_balancing metadata differs from its bounded event profile")
+        issues = online_temporary_task_load_balancing_static_issues()
+        if issues:
+            raise ValueError("online_temporary_task_load_balancing package is incomplete: "
+                             + "; ".join(issues))
+        return
+    if algorithm == "convolution_f2_64":
+        package_workload = ROOT / "benchmarks/c/convolution_f2_64/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("convolution_f2_64 workload differs from its package file")
+        contract = workload.get("contract", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (CONVOLUTION_F2_64_MAX_N != 8
+                or CONVOLUTION_F2_64_MAX_M != 8
+                or CONVOLUTION_F2_64_MAX_VALID_INPUT_LENGTH != 18
+                or CONVOLUTION_F2_64_MAX_PARSEABLE_INPUT_LENGTH != 19
+                or CONVOLUTION_F2_64_MAX_OUTPUT_BYTES != 120
+                or contract.get("input_layout") != "[N,M,a[0..N),b[0..M)]"
+                or contract.get("local_length_range") != [1, 8]
+                or contract.get("field") != "GF(2)[x]/(x^64+x^4+x^3+x+1)"
+                or contract.get("field_addition") != "bitwise XOR"
+                or input_spec.get("maximum_valid_length") != 18
+                or input_spec.get("maximum_parseable_length") != 19
+                or input_spec.get("invalid_result") != -1
+                or output_spec.get("maximum_bytes") != 120
+                or output_spec.get("success_result") != "number of bytes written"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != 512):
+            raise ValueError("convolution_f2_64 metadata differs from its bounded field profile")
+        issues = convolution_f2_64_static_issues()
+        if issues:
+            raise ValueError("convolution_f2_64 package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "palindrome_pairs":
+        package_workload = ROOT / "benchmarks/p/palindrome_pairs/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("palindrome_pairs workload differs from its package file")
+        contract = workload.get("contract", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (PALINDROME_PAIRS_MAX_PARSEABLE_INPUT_LENGTH != 74
+                or PALINDROME_PAIRS_MAX_OUTPUT_BYTES != 56
+                or input_spec.get("encoding") != "[N,(word_length,word_symbols...)*N]"
+                or input_spec.get("word_count_range") != [0, 8]
+                or input_spec.get("word_length_range") != [0, 8]
+                or input_spec.get("maximum_valid_length") != 73
+                or input_spec.get("maximum_parseable_length") != 74
+                or contract.get("empty_words")
+                != "Empty words are valid and participate in ordered pairs."
+                or contract.get("output_order") != "Lexicographic order by (left_index,right_index)."
+                or output_spec.get("maximum_output_bytes") != 56
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != 4096):
+            raise ValueError("palindrome_pairs metadata differs from its bounded word-list profile")
+        issues = palindrome_pairs_static_issues()
+        if issues:
+            raise ValueError("palindrome_pairs package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "dirichlet_convolution_and_prefix_sums":
+        package_workload = ROOT / "benchmarks/d/dirichlet_convolution_and_prefix_sums/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("dirichlet_convolution_and_prefix_sums workload differs from its package file")
+        contract = workload.get("contract", {})
+        if (DIRICHLET_CONVOLUTION_MODULUS != 998244353
+                or DIRICHLET_CONVOLUTION_MAX_N != 64
+                or DIRICHLET_CONVOLUTION_MAX_QUOTIENT_COUNT != 15
+                or DIRICHLET_CONVOLUTION_MAX_VALID_INPUT_LENGTH != 31
+                or DIRICHLET_CONVOLUTION_MAX_PARSEABLE_INPUT_LENGTH != 32
+                or DIRICHLET_CONVOLUTION_MAX_OUTPUT_BYTES != 120
+                or DIRICHLET_CONVOLUTION_WORKSPACE_BYTES != 1024
+                or contract.get("local_n_range") != [1, 64]
+                or contract.get("maximum_quotient_count") != 15
+                or contract.get("modulus") != DIRICHLET_CONVOLUTION_MODULUS
+                or contract.get("quotient_set")
+                != "Q_N = unique values floor(N/x) for 1<=x<=N, sorted ascending"
+                or contract.get("prefix_residue_range") != [1, 998244352]
+                or workload.get("input", {}).get("maximum_valid_length") != 31
+                or workload.get("input", {}).get("maximum_parseable_length") != 32
+                or workload.get("output", {}).get("maximum_bytes") != 120
+                or workload.get("output", {}).get("success_result") != "number of bytes written"
+                or workload.get("output", {}).get("invalid_input_result") != -1
+                or workload.get("output", {}).get("null_output_result") != -2
+                or workload.get("output", {}).get("insufficient_output_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != 1024):
+            raise ValueError("dirichlet_convolution_and_prefix_sums metadata differs from its bounded quotient profile")
+        issues = dirichlet_convolution_and_prefix_sums_static_issues()
+        if issues:
+            raise ValueError("dirichlet_convolution_and_prefix_sums package is incomplete: "
                              + "; ".join(issues))
         return
     if algorithm == "all_shortest_paths_unweighted":

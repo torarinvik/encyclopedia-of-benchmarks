@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "id": "leetcode-title-palindrome-pairs-byte-output-v1",
+  "algorithm": "palindrome_pairs",
+  "function_symbol": "palindrome_pairs",
+  "abi": "i64_array_bytes_output",
+  "description": "Enumerate ordered word-index pairs whose concatenation is palindromic.",
+  "source": {
+    "title": "Palindrome Pairs",
+    "url": "https://leetcode.com/problems/palindrome-pairs/",
+    "discovery_scope": "Public title index only; no problem text, constraints, examples, tests, submissions, or site code reused."
+  },
+  "contract": {
+    "operation": "Return every ordered pair of distinct word indices for which the first word followed by the second word is a palindrome.",
+    "duplicate_words": "Word values may repeat; different input positions remain distinct indices.",
+    "empty_words": "Empty words are valid and participate in ordered pairs.",
+    "output_order": "Lexicographic order by (left_index,right_index).",
+    "error_precedence": "Validate and compute the complete result before checking the output pointer or capacity; error calls write no bytes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,(word_length,word_symbols...)*N]",
+    "word_count_range": [0, 8],
+    "word_length_range": [0, 8],
+    "symbol_range": [0, 3],
+    "exact_length": "1 + sum(1 + word_length[i])",
+    "maximum_valid_length": 73,
+    "maximum_parseable_length": 74,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_vector",
+    "encoding": "One byte per pair: (left_index << 3) | right_index.",
+    "order": "Lexicographic by left index and then right index.",
+    "maximum_output_bytes": 56,
+    "success_result": "bytes written",
+    "empty_query_result": 0,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed word storage, 17-slot reversed-word multimap, pair deduplication bitmap, and staged output."
+  },
+  "complexity": {
+    "primary": "O(N*L^2 + N^2*L) worst case for split palindrome scans and duplicate-heavy lookup chains in the fixed-size 17-slot table, with N<=8 and L<=8.",
+    "independent_oracle": "O(N^2*L) direct virtual-concatenation checks."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "empty-word-list", "input_values": [0], "input_length": 1, "output_capacity": 0, "expected_result": 0, "expected_output_hex": ""},
+    {"id": "two-empty-words", "input_values": [2, 0, 0], "input_length": 3, "output_capacity": 2, "expected_result": 2, "expected_output_hex": "0108"},
+    {"id": "reverse-word-pair", "input_values": [2, 2, 0, 1, 2, 1, 0], "input_length": 7, "output_capacity": 2, "expected_result": 2, "expected_output_hex": "0108"},
+    {"id": "prefix-suffix-and-empty-word", "input_values": [3, 1, 0, 2, 1, 0, 0], "input_length": 7, "output_capacity": 3, "expected_result": 3, "expected_output_hex": "010210"},
+    {"id": "duplicate-word-values-keep-distinct-indices", "input_values": [3, 1, 0, 1, 0, 1, 0], "input_length": 7, "output_capacity": 6, "expected_result": 6, "expected_output_hex": "0102080a1011"},
+    {"id": "maximum-input-and-output", "input_values": [8,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 73, "output_capacity": 56, "expected_result": 56, "expected_output_hex": "01020304050607080a0b0c0d0e0f1011131415161718191a1c1d1e1f20212223252728292a2b2c2e2f3031323334353738393a3b3c3d3e"}
+  ],
+  "abi_cases": [
+    {"id": "null-input", "input_values": [], "input_length": 1, "input_is_null": true, "output_capacity": 56, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "truncated-word", "input_values": [1, 2, 0], "input_length": 3, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "extra-word", "input_values": [0, 9], "input_length": 2, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-symbol", "input_values": [1, 1, 4], "input_length": 3, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "word-too-long", "input_values": [1, 9], "input_length": 2, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "maximum-parseable-trailing-word", "input_values": [8,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      8, 0, 0, 0, 0, 0, 0, 0, 0,
+      99], "input_length": 74, "output_capacity": 56, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "valid-empty-output-null", "input_values": [0], "input_length": 1, "output_capacity": 0, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "short-output", "input_values": [2, 0, 0], "input_length": 3, "output_capacity": 1, "expected_result": -2, "expected_output_hex": ""}
+  ]
+}

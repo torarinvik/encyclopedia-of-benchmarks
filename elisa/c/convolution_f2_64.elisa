@@ -1,0 +1,73 @@
+alias F2C_MAX_N = 8
+alias F2C_MAX_M = 8
+alias F2C_MAX_PARSEABLE = 19
+
+def convolution_f2_64_unsigned_bits(value: i64) -> u64:
+    if value >= 0: return value.u64()
+    complement: u64 = (~value).u64()
+    0xffffffffffffffff.u64() - complement
+
+def convolution_f2_64_multiply(left_value: u64, right_value: u64) -> u64:
+    shifted: mutable u64 = left_value
+    multiplier: mutable u64 = right_value
+    product: mutable u64 = 0
+    bit: mutable usize = 0
+    while bit < 64:
+        if (multiplier & 1.u64()) != 0: product <- product ^ shifted
+        carry: u64 = shifted >> 63
+        shifted <- shifted << 1
+        if carry != 0: shifted <- shifted ^ 0x1b.u64()
+        multiplier <- multiplier >> 1
+        bit <- bit + 1
+    product
+
+def convolution_f2_64_frame_bytes(values: view[i64]) -> i64:
+    if values.len() < 2 or values.len() > F2C_MAX_PARSEABLE: return -1
+    n: i64 = values[0]
+    m: i64 = values[1]
+    if n < 1 or n > F2C_MAX_N or m < 1 or m > F2C_MAX_M: return -1
+    if values.len() != (2 + n + m) as usize: return -1
+    8 * (n + m - 1)
+
+def convolution_f2_64_impl(input: view[i64], output: mutable view[u8]) -> i64:
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    count: usize = n + m - 1
+    a: mutable u64[F2C_MAX_N] = zeroed
+    b: mutable u64[F2C_MAX_M] = zeroed
+    product: mutable u64[F2C_MAX_N + F2C_MAX_M - 1] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        a[i] <- convolution_f2_64_unsigned_bits(input[2 + i])
+        i <- i + 1
+    j: mutable usize = 0
+    while j < m:
+        b[j] <- convolution_f2_64_unsigned_bits(input[2 + n + j])
+        j <- j + 1
+    i <- 0
+    while i < n:
+        j <- 0
+        while j < m:
+            product[i + j] <- product[i + j] ^ convolution_f2_64_multiply(a[i], b[j])
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < count:
+        bits: mutable u64 = product[i]
+        byte: mutable usize = 0
+        while byte < 8:
+            output[8 * i + byte] <- (bits & 255.u64()).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        i <- i + 1
+    (8 * count) as i64
+
+export fn convolution_f2_64(input: i64&, length: usize,
+                            output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > F2C_MAX_PARSEABLE: return -1
+    input_view: view[i64] = input[0:length]
+    needed: i64 = convolution_f2_64_frame_bytes(input_view)
+    if needed < 0: return -1
+    if output.is_null() or output_capacity < needed as usize: return -2
+    output_view: mutable view[u8] = output[0:needed as usize]
+    convolution_f2_64_impl(input_view, output_view)

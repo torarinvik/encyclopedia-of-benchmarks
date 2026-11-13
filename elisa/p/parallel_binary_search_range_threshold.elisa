@@ -1,0 +1,139 @@
+const pbs_max_n: usize = 16
+const pbs_max_events: usize = 32
+const pbs_max_queries: usize = 32
+const pbs_max_input: usize = 196
+
+def parallel_binary_search_range_threshold_impl(input: view[i64], length: usize) -> i64:
+    if length < 3 or length > pbs_max_input: return -1
+    n_value: i64 = input[0]
+    event_value: i64 = input[1]
+    query_value: i64 = input[2]
+    if n_value < 1 or n_value > 16 or event_value < 0 or event_value > 32 or
+       query_value < 0 or query_value > 32:
+        return -1
+    n: usize = n_value.usize()
+    event_count: usize = event_value.usize()
+    query_count: usize = query_value.usize()
+    if length != 3 + 3 * event_count + 3 * query_count: return -1
+
+    event_left: mutable i64[pbs_max_events] = zeroed
+    event_right: mutable i64[pbs_max_events] = zeroed
+    event_delta: mutable i64[pbs_max_events] = zeroed
+    query_left: mutable i64[pbs_max_queries] = zeroed
+    query_right: mutable i64[pbs_max_queries] = zeroed
+    query_target: mutable i64[pbs_max_queries] = zeroed
+    event_left_view: mutable view[i64] = event_left[0:pbs_max_events]
+    event_right_view: mutable view[i64] = event_right[0:pbs_max_events]
+    event_delta_view: mutable view[i64] = event_delta[0:pbs_max_events]
+    query_left_view: mutable view[i64] = query_left[0:pbs_max_queries]
+    query_right_view: mutable view[i64] = query_right[0:pbs_max_queries]
+    query_target_view: mutable view[i64] = query_target[0:pbs_max_queries]
+    cursor: mutable usize = 3
+    for event in 0..<event_count:
+        left: i64 = input[cursor]
+        right: i64 = input[cursor + 1]
+        delta: i64 = input[cursor + 2]
+        cursor <- cursor + 3
+        if left < 0 or left > right or right >= n_value or delta < 0 or delta > 1000: return -1
+        event_left_view[event] <- left
+        event_right_view[event] <- right
+        event_delta_view[event] <- delta
+    for query in 0..<query_count:
+        left: i64 = input[cursor]
+        right: i64 = input[cursor + 1]
+        target: i64 = input[cursor + 2]
+        cursor <- cursor + 3
+        if left < 0 or left > right or right >= n_value or target < 1 or target > 512000: return -1
+        query_left_view[query] <- left
+        query_right_view[query] <- right
+        query_target_view[query] <- target
+
+    low: mutable i64[pbs_max_queries] = zeroed
+    high: mutable i64[pbs_max_queries] = zeroed
+    next_query: mutable i64[pbs_max_queries] = zeroed
+    low_view: mutable view[i64] = low[0:pbs_max_queries]
+    high_view: mutable view[i64] = high[0:pbs_max_queries]
+    next_query_view: mutable view[i64] = next_query[0:pbs_max_queries]
+    for query in 0..<query_count:
+        high_view[query] <- event_value + 1
+
+    loop:
+        heads: mutable i64[pbs_max_events + 1] = zeroed
+        heads_view: mutable view[i64] = heads[0:pbs_max_events + 1]
+        for time in 0..<pbs_max_events + 1:
+            heads_view[time] <- -1
+        for query in 0..<query_count:
+            next_query_view[query] <- -1
+        active: mutable bool = false
+        for query in 0..<query_count:
+            if high_view[query] - low_view[query] > 1:
+                active <- true
+                middle_value: i64 = (low_view[query] + high_view[query]) / 2
+                middle: usize = middle_value.usize()
+                next_query_view[query] <- heads_view[middle]
+                heads_view[middle] <- query.i64()
+        if not active: break
+
+        bit1: mutable i64[pbs_max_n + 2] = zeroed
+        bit2: mutable i64[pbs_max_n + 2] = zeroed
+        bit1_view: mutable view[i64] = bit1[0:pbs_max_n + 2]
+        bit2_view: mutable view[i64] = bit2[0:pbs_max_n + 2]
+        applied: mutable usize = 0
+        for middle in 0..<event_count + 1:
+            while applied < middle:
+                left: usize = event_left_view[applied].usize() + 1
+                right: usize = event_right_view[applied].usize() + 1
+                delta: i64 = event_delta_view[applied]
+                index: mutable usize = left
+                while index <= n + 1:
+                    bit1_view[index] <- bit1_view[index] + delta
+                    index <- index + (index & (index ^ (index - 1)))
+                index <- right + 1
+                while index <= n + 1:
+                    bit1_view[index] <- bit1_view[index] - delta
+                    index <- index + (index & (index ^ (index - 1)))
+                index <- left
+                while index <= n + 1:
+                    bit2_view[index] <- bit2_view[index] + delta * (left - 1).i64()
+                    index <- index + (index & (index ^ (index - 1)))
+                index <- right + 1
+                while index <= n + 1:
+                    bit2_view[index] <- bit2_view[index] - delta * right.i64()
+                    index <- index + (index & (index ^ (index - 1)))
+                applied <- applied + 1
+
+            query_id: mutable i64 = heads_view[middle]
+            while query_id >= 0:
+                id: usize = query_id.usize()
+                left: usize = query_left_view[id].usize()
+                right: usize = query_right_view[id].usize()
+                index: mutable usize = right + 1
+                sum_right_1: mutable i64 = 0
+                sum_right_2: mutable i64 = 0
+                while index > 0:
+                    sum_right_1 <- sum_right_1 + bit1_view[index]
+                    sum_right_2 <- sum_right_2 + bit2_view[index]
+                    index <- index - (index & (index ^ (index - 1)))
+                prefix_right: i64 = (right + 1).i64() * sum_right_1 - sum_right_2
+                index <- left
+                sum_left_1: mutable i64 = 0
+                sum_left_2: mutable i64 = 0
+                while index > 0:
+                    sum_left_1 <- sum_left_1 + bit1_view[index]
+                    sum_left_2 <- sum_left_2 + bit2_view[index]
+                    index <- index - (index & (index ^ (index - 1)))
+                prefix_left: i64 = left.i64() * sum_left_1 - sum_left_2
+                if prefix_right - prefix_left >= query_target_view[id]:
+                    high_view[id] <- middle.i64()
+                else:
+                    low_view[id] <- middle.i64()
+                query_id <- next_query_view[id]
+
+    result: mutable i64 = 0
+    for query in 0..<query_count:
+        result <- result + (query + 1).i64() * (high_view[query] + 1)
+    result
+
+export fn parallel_binary_search_range_threshold(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > pbs_max_input: return -1
+    parallel_binary_search_range_threshold_impl(input[0:length], length)

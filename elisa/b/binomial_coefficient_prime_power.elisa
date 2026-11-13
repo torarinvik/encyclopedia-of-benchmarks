@@ -1,0 +1,104 @@
+const BCP_MAX_QUERIES: usize = 32
+const BCP_MAX_N: usize = 128
+const BCP_MAX_PARSEABLE: usize = 68
+const BCP_MAX_MODULUS: i64 = 1000000000
+
+def bcp_is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    divisor: mutable i64 = 2
+    while divisor <= value / divisor:
+        if value % divisor == 0:
+            return false
+        divisor <- divisor + 1
+    true
+
+def bcp_pow_mod(base_value: i64, exponent_value: i64, modulus: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) == 1:
+            result <- result * base % modulus
+        base <- base * base % modulus
+        exponent <- exponent >> 1
+    result
+
+def bcp_impl(input: view[i64], output: mutable view[u8], output_is_null: bool) -> i64:
+    if input.length < 3 or input.length > BCP_MAX_PARSEABLE:
+        return -1
+    p: i64 = input[0]
+    e: i64 = input[1]
+    q_value: i64 = input[2]
+    if p < 2 or p > 31 or not bcp_is_prime(p) or e < 1 or e > 8 or q_value < 0 or q_value > BCP_MAX_QUERIES.i64():
+        return -1
+    modulus: mutable i64 = 1
+    exponent_index: mutable i64 = 0
+    while exponent_index < e:
+        modulus <- modulus * p
+        if modulus > BCP_MAX_MODULUS:
+            return -1
+        exponent_index <- exponent_index + 1
+    q: usize = q_value.usize()
+    if input.length != 3 + 2 * q:
+        return -1
+    index: mutable usize = 0
+    while index < q:
+        n: i64 = input[3 + 2 * index]
+        k: i64 = input[4 + 2 * index]
+        if n < 0 or n > BCP_MAX_N.i64() or k < 0 or k > n:
+            return -1
+        index <- index + 1
+    if q == 0:
+        return 0
+    required: usize = 4 * q
+    if output_is_null or output.length < required:
+        return -2
+
+    unit_prefix: mutable i64[BCP_MAX_N + 1] = zeroed
+    p_free_factorial: mutable i64[BCP_MAX_N + 1] = zeroed
+    valuation: mutable u16[BCP_MAX_N + 1] = zeroed
+    residues: mutable u32[BCP_MAX_QUERIES] = zeroed
+    unit_prefix[0] <- 1
+    p_free_factorial[0] <- 1
+    n_index: mutable usize = 1
+    while n_index <= BCP_MAX_N:
+        factor: i64 = if n_index % p.usize() == 0: 1 else: n_index.i64()
+        unit_prefix[n_index] <- unit_prefix[n_index - 1] * factor % modulus
+        p_free_factorial[n_index] <- unit_prefix[n_index] * p_free_factorial[n_index / p.usize()] % modulus
+        valuation[n_index] <- (n_index / p.usize() + valuation[n_index / p.usize()].usize()).u16()
+        n_index <- n_index + 1
+    phi: i64 = modulus / p * (p - 1)
+    index <- 0
+    while index < q:
+        n: usize = input[3 + 2 * index].usize()
+        k: usize = input[4 + 2 * index].usize()
+        p_power: usize = (valuation[n].usize() - valuation[k].usize() - valuation[n - k].usize())
+        if p_power < e.usize():
+            denominator: i64 = p_free_factorial[k] * p_free_factorial[n - k] % modulus
+            inverse: i64 = bcp_pow_mod(denominator, phi - 1, modulus)
+            prime_factor: i64 = bcp_pow_mod(p, p_power.i64(), modulus)
+            residues[index] <- (p_free_factorial[n] * inverse % modulus * prime_factor % modulus).u32()
+        index <- index + 1
+    index <- 0
+    while index < q:
+        bits: mutable u32 = residues[index]
+        byte: mutable usize = 0
+        while byte < 4:
+            output[4 * index + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        index <- index + 1
+    required.i64()
+
+export fn binomial_coefficient_prime_power(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > BCP_MAX_PARSEABLE:
+        return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        empty_storage: mutable u8[1] = zeroed
+        empty_view: mutable view[u8] = empty_storage[0:0]
+        return bcp_impl(input_view, empty_view, true)
+    output_view: mutable view[u8] = output[0:capacity]
+    bcp_impl(input_view, output_view, false)

@@ -1,0 +1,60 @@
+# Monotone-slope lower hull with sorted-query front advancement.
+const MCHT_MAX_LINES: usize = 32
+const MCHT_MAX_QUERIES: usize = 32
+const MCHT_MAX_LENGTH: usize = 99
+const MCHT_INVALID: i64 = -9223372036854775807 - 1
+
+struct MchtLine:
+    slope: i64
+    intercept: i64
+
+def mcht_value(line: MchtLine, x: i64) -> i64:
+    line.slope * x + line.intercept
+
+def mcht_redundant(first: MchtLine, middle: MchtLine, last: MchtLine) -> bool:
+    left: i64 = (middle.intercept - first.intercept) * (middle.slope - last.slope)
+    right: i64 = (last.intercept - middle.intercept) * (first.slope - middle.slope)
+    left >= right
+
+def monotone_convex_hull_trick_impl(values: view[i64], length: usize) -> i64:
+    if length < 2 or length > MCHT_MAX_LENGTH: return MCHT_INVALID
+    line_count_value: i64 = values[0]
+    query_count_value: i64 = values[1]
+    if line_count_value < 1 or line_count_value > MCHT_MAX_LINES.i64() or
+       query_count_value < 0 or query_count_value > MCHT_MAX_QUERIES.i64(): return MCHT_INVALID
+    line_count: usize = line_count_value.usize()
+    query_count: usize = query_count_value.usize()
+    if length != 2 + 2 * line_count + query_count: return MCHT_INVALID
+
+    hull: mutable MchtLine[MCHT_MAX_LINES] = zeroed
+    hull_count: mutable usize = 0
+    previous_slope: mutable i64 = 9223372036854775807
+    cursor: mutable usize = 2
+    while cursor < 2 + 2 * line_count:
+        line: MchtLine = MchtLine(slope=values[cursor], intercept=values[cursor + 1])
+        cursor <- cursor + 2
+        if line.slope < -1000 or line.slope > 1000 or line.intercept < -10000 or
+           line.intercept > 10000 or line.slope >= previous_slope: return MCHT_INVALID
+        previous_slope <- line.slope
+        while hull_count >= 2 and mcht_redundant(hull[hull_count - 2], hull[hull_count - 1], line):
+            hull_count <- hull_count - 1
+        hull[hull_count] <- line
+        hull_count <- hull_count + 1
+
+    front: mutable usize = 0
+    previous_x: mutable i64 = -9223372036854775807 - 1
+    checksum: mutable i64 = 0
+    query_start: usize = 2 + 2 * line_count
+    for query_index in 0..<query_count:
+        x: i64 = values[query_start + query_index]
+        if x < -1000 or x > 1000 or (query_index > 0 and x < previous_x): return MCHT_INVALID
+        previous_x <- x
+        while front + 1 < hull_count and mcht_value(hull[front + 1], x) <= mcht_value(hull[front], x):
+            front <- front + 1
+        checksum <- checksum + (query_index + 1).i64() * mcht_value(hull[front], x)
+    checksum
+
+export fn monotone_convex_hull_trick(input_values: i64&, length: usize) -> i64:
+    if input_values.is_null() or length < 2 or length > MCHT_MAX_LENGTH: return MCHT_INVALID
+    input: view[i64] = input_values[0:length]
+    monotone_convex_hull_trick_impl(input, length)

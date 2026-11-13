@@ -1,0 +1,137 @@
+const MAX_N: usize = 32
+const MAX_Q: usize = 32
+const MAX_INPUT_LENGTH: usize = 131
+const MAX_NODES: usize = 193
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+
+def persistent_segment_tree_range_kth_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > 32 or q_value < 0 or q_value > 32:
+        return INVALID_RESULT
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 2 + n + 3 * q:
+        return INVALID_RESULT
+
+    coordinates: mutable i64[32] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        value: i64 = input[2 + i]
+        if value < -1000 or value > 1000:
+            return INVALID_RESULT
+        coordinates[i] <- value
+        i <- i + 1
+    i <- 1
+    while i < n:
+        value: i64 = coordinates[i]
+        j: mutable usize = i
+        while j > 0 and coordinates[j - 1] > value:
+            coordinates[j] <- coordinates[j - 1]
+            j <- j - 1
+        coordinates[j] <- value
+        i <- i + 1
+    distinct: mutable usize = 0
+    i <- 0
+    while i < n:
+        if distinct == 0 or coordinates[i] != coordinates[distinct - 1]:
+            coordinates[distinct] <- coordinates[i]
+            distinct <- distinct + 1
+        i <- i + 1
+
+    query_offset: usize = 2 + n
+    qi: mutable usize = 0
+    while qi < q:
+        left: i64 = input[query_offset + 3 * qi]
+        right: i64 = input[query_offset + 3 * qi + 1]
+        k: i64 = input[query_offset + 3 * qi + 2]
+        if left < 0 or right < left or right >= n_value or k < 1 or k > right - left + 1:
+            return INVALID_RESULT
+        qi <- qi + 1
+
+    left_child: mutable i32[193] = zeroed
+    right_child: mutable i32[193] = zeroed
+    counts: mutable i32[193] = zeroed
+    roots: mutable i32[33] = zeroed
+    node_count: mutable usize = 1
+    i <- 0
+    while i < n:
+        value: i64 = input[2 + i]
+        low: mutable usize = 0
+        high: mutable usize = distinct
+        while low < high:
+            middle: usize = low + (high - low) / 2
+            if coordinates[middle] < value:
+                low <- middle + 1
+            else:
+                high <- middle
+        rank: usize = low
+        previous_root: usize = (roots[i]).usize()
+        if node_count >= MAX_NODES:
+            return INVALID_RESULT
+        new_root: usize = node_count
+        node_count <- node_count + 1
+        left_child[new_root] <- left_child[previous_root]
+        right_child[new_root] <- right_child[previous_root]
+        counts[new_root] <- counts[previous_root] + 1
+        old_node: mutable usize = previous_root
+        new_node: mutable usize = new_root
+        low <- 0
+        high <- distinct
+        while high - low > 1:
+            middle: usize = low + (high - low) / 2
+            old_child: mutable usize = 0
+            if rank < middle:
+                old_child <- (left_child[old_node]).usize()
+            else:
+                old_child <- (right_child[old_node]).usize()
+            if node_count >= MAX_NODES:
+                return INVALID_RESULT
+            new_child: usize = node_count
+            node_count <- node_count + 1
+            left_child[new_child] <- left_child[old_child]
+            right_child[new_child] <- right_child[old_child]
+            counts[new_child] <- counts[old_child] + 1
+            if rank < middle:
+                left_child[new_node] <- new_child.i32()
+                high <- middle
+            else:
+                right_child[new_node] <- new_child.i32()
+                low <- middle
+            old_node <- old_child
+            new_node <- new_child
+        roots[i + 1] <- new_root.i32()
+        i <- i + 1
+
+    checksum: mutable i64 = 0
+    qi <- 0
+    while qi < q:
+        offset: usize = query_offset + 3 * qi
+        left: usize = (input[offset]).usize()
+        right: usize = (input[offset + 1]).usize()
+        k: mutable i32 = (input[offset + 2]).i32()
+        before: mutable usize = (roots[left]).usize()
+        after: mutable usize = (roots[right + 1]).usize()
+        low: mutable usize = 0
+        high: mutable usize = distinct
+        while high - low > 1:
+            middle: usize = low + (high - low) / 2
+            in_left: usize = (left_child[after]).usize()
+            out_left: usize = (left_child[before]).usize()
+            left_count: i32 = counts[in_left] - counts[out_left]
+            if k <= left_count:
+                before <- out_left
+                after <- in_left
+                high <- middle
+            else:
+                k <- k - left_count
+                before <- (right_child[before]).usize()
+                after <- (right_child[after]).usize()
+                low <- middle
+        checksum <- checksum + (qi.i64() + 1) * coordinates[low]
+        qi <- qi + 1
+    checksum
+
+export fn persistent_segment_tree_range_kth(input: i64&, length: usize) -> i64 = persistent_segment_tree_range_kth_impl

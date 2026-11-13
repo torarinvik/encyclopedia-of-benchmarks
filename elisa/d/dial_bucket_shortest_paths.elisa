@@ -1,0 +1,124 @@
+const DBSP_MAX_VERTICES: usize = 16
+const DBSP_MAX_EDGES: usize = 64
+const DBSP_MAX_DISTANCE: i64 = 120
+const DBSP_BUCKETS: usize = 9
+const DBSP_MAX_INPUT: usize = 196
+
+def dbsp_enqueue(record_vertex: mutable view[i64], record_distance: mutable view[i64],
+                 record_next: mutable view[i64], bucket_head: mutable view[i64],
+                 bucket_tail: mutable view[i64], used: mutable usize&,
+                 vertex: usize, distance: i64) -> void:
+    record: usize = used
+    record_vertex[record] <- vertex.i64()
+    record_distance[record] <- distance
+    record_next[record] <- -1
+    bucket: usize = (distance % DBSP_BUCKETS.i64()).usize()
+    if bucket_tail[bucket] < 0:
+        bucket_head[bucket] <- record.i64()
+        bucket_tail[bucket] <- record.i64()
+    else:
+        previous: usize = bucket_tail[bucket].usize()
+        record_next[previous] <- record.i64()
+        bucket_tail[bucket] <- record.i64()
+    used <- used + 1
+
+export fn dial_bucket_shortest_paths(input: i64&, length: usize,
+                                     output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > DBSP_MAX_INPUT:
+        return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    m_value: i64 = input_view[1]
+    source_value: i64 = input_view[2]
+    if n_value < 1 or n_value > DBSP_MAX_VERTICES.i64() or
+       m_value < 0 or m_value > DBSP_MAX_EDGES.i64():
+        return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if source_value < 0 or source_value >= n_value or length != 3 + 3 * m:
+        return -1
+
+    edge_head: mutable i64[DBSP_MAX_VERTICES] = zeroed
+    for vertex in 0..<DBSP_MAX_VERTICES:
+        edge_head[vertex] <- -1
+    edge_to: mutable i64[DBSP_MAX_EDGES] = zeroed
+    edge_weight: mutable i64[DBSP_MAX_EDGES] = zeroed
+    edge_next: mutable i64[DBSP_MAX_EDGES] = zeroed
+    cursor: mutable usize = 3
+    for edge in 0..<m:
+        from_value: i64 = input_view[cursor]
+        to_value: i64 = input_view[cursor + 1]
+        weight: i64 = input_view[cursor + 2]
+        if from_value < 0 or from_value >= n_value or to_value < 0 or to_value >= n_value or
+           weight < 0 or weight > 8:
+            return -1
+        from_vertex: usize = from_value.usize()
+        edge_to[edge] <- to_value
+        edge_weight[edge] <- weight
+        edge_next[edge] <- edge_head[from_vertex]
+        edge_head[from_vertex] <- edge.i64()
+        cursor <- cursor + 3
+
+    required: usize = 8 * n
+    if output.is_null() or capacity < required:
+        return -2
+
+    distance: mutable i64[DBSP_MAX_VERTICES] = zeroed
+    settled: mutable bool[DBSP_MAX_VERTICES] = zeroed
+    for vertex in 0..<n:
+        distance[vertex] <- DBSP_MAX_DISTANCE + 1
+    source: usize = source_value.usize()
+    distance[source] <- 0
+
+    record_vertex: mutable i64[DBSP_MAX_EDGES + 1] = zeroed
+    record_distance: mutable i64[DBSP_MAX_EDGES + 1] = zeroed
+    record_next: mutable i64[DBSP_MAX_EDGES + 1] = zeroed
+    bucket_head: mutable i64[DBSP_BUCKETS] = zeroed
+    bucket_tail: mutable i64[DBSP_BUCKETS] = zeroed
+    for bucket in 0..<DBSP_BUCKETS:
+        bucket_head[bucket] <- -1
+        bucket_tail[bucket] <- -1
+    record_vertex_view: mutable view[i64] = record_vertex[0:DBSP_MAX_EDGES + 1]
+    record_distance_view: mutable view[i64] = record_distance[0:DBSP_MAX_EDGES + 1]
+    record_next_view: mutable view[i64] = record_next[0:DBSP_MAX_EDGES + 1]
+    bucket_head_view: mutable view[i64] = bucket_head[0:DBSP_BUCKETS]
+    bucket_tail_view: mutable view[i64] = bucket_tail[0:DBSP_BUCKETS]
+    used: mutable usize = 0
+    dbsp_enqueue(record_vertex_view, record_distance_view, record_next_view,
+                 bucket_head_view, bucket_tail_view, used, source, 0)
+
+    current: mutable i64 = 0
+    while current <= DBSP_MAX_DISTANCE:
+        bucket: usize = (current % DBSP_BUCKETS.i64()).usize()
+        while bucket_head[bucket] >= 0:
+            record: usize = bucket_head[bucket].usize()
+            bucket_head[bucket] <- record_next[record]
+            if bucket_head[bucket] < 0:
+                bucket_tail[bucket] <- -1
+            vertex: usize = record_vertex[record].usize()
+            if record_distance[record] != current or settled[vertex] or distance[vertex] != current:
+                continue
+            settled[vertex] <- true
+            edge: mutable i64 = edge_head[vertex]
+            while edge >= 0:
+                edge_id: usize = edge.usize()
+                target: usize = edge_to[edge_id].usize()
+                candidate: i64 = current + edge_weight[edge_id]
+                if not settled[target] and candidate < distance[target]:
+                    distance[target] <- candidate
+                    dbsp_enqueue(record_vertex_view, record_distance_view, record_next_view,
+                                 bucket_head_view, bucket_tail_view, used, target, candidate)
+                edge <- edge_next[edge_id]
+        current <- current + 1
+
+    staged: mutable u8[DBSP_MAX_VERTICES * 8] = zeroed
+    for vertex in 0..<n:
+        value: i64 = distance[vertex]
+        if value > DBSP_MAX_DISTANCE:
+            value = -1
+        for byte in 0..<8:
+            staged[vertex * 8 + byte] <- ((value >> (8 * byte)) & 255).u8()
+    output_view: mutable view[u8] = output[0:required]
+    for byte in 0..<required:
+        output_view[byte] <- staged[byte]
+    required.i64()

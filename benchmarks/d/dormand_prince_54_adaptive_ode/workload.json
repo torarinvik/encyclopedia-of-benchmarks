@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "id": "dormand-prince-54-adaptive-ode-float64-slice-io-v1",
+  "algorithm": "dormand_prince_54_adaptive_ode",
+  "function_symbol": "dormand_prince_54_adaptive_ode",
+  "abi": "float64_slice_io",
+  "pinned_source": {
+    "repository": "SciPy reference documentation",
+    "commit": "release-documentation",
+    "path": "scipy.integrate.RK45 reference",
+    "symbol": "RK45",
+    "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.RK45.html",
+    "role": "algorithm description and original-paper citation only",
+    "license": "BSD-3-Clause for SciPy documentation; original method cited to Dormand and Prince (1980)"
+  },
+  "contract": {
+    "operation": "Integrate one of four bounded scalar ODEs using the adaptive Dormand–Prince embedded 5(4) Runge–Kutta method with local-error acceptance/rejection and FSAL derivative reuse.",
+    "input_encoding": "[function_id,y0_milli,x0_milli,x_end_milli,tolerance_exponent,max_attempts]",
+    "integer_fields": "All six input fields are finite exact integers represented by float64 values.",
+    "functions": {
+      "0": "y'=y",
+      "1": "y'=x+y",
+      "2": "y'=sin(x)",
+      "3": "y'=1"
+    },
+    "state_and_endpoint_scale": 1000,
+    "state_and_endpoint_milli_range": [-1000, 1000],
+    "endpoint_order": "x_end_milli > x0_milli",
+    "tolerance_exponent_range": [8, 9],
+    "internal_tolerances": "absolute_tolerance=relative_tolerance=10^-tolerance_exponent; the accepted exponent range keeps requested tolerances below the suite's 2e-7 absolute/relative output comparison tolerance.",
+    "max_attempts_range": [64, 128],
+    "step_profile": "Initial step=min((x_end-x0)/4,0.25); maximum step=0.25. Each attempt uses the seven-stage Dormand–Prince 5(4) tableau. The fifth-order state is accepted when abs(embedded_error)/(tol*(1+max(abs(y),abs(y5))))<=1. A rejected step does not change x, y, or the cached first derivative. On acceptance the final stage derivative is reused as the next first stage (FSAL). The next step factor is safety*error_norm^(-1/5), with safety=0.9 and factor clamped to [0.2,5]. A zero error norm uses factor 5.",
+    "output_encoding": "One float64 approximation to y(x_end).",
+    "error_precedence": "Malformed input returns -1 before output-buffer validation. Valid input with a null output or capacity below one returns -2. A nonfinite internal result or exhausted valid attempt budget returns -3. Every error leaves output untouched.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "numerical_failure_result": -3,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "exact_length": 6,
+    "maximum_valid_input_length": 6,
+    "maximum_parseable_input_length": 7,
+    "encoding": "[function_id,y0_milli,x0_milli,x_end_milli,tolerance_exponent,max_attempts]",
+    "function_id_range": [0, 3],
+    "state_and_endpoint_milli_range": [-1000, 1000],
+    "endpoint_order": "x_end_milli > x0_milli",
+    "tolerance_exponent_range": [8, 9],
+    "max_attempts_range": [64, 128],
+    "integer_valued_fields": true,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[y_at_x_end]",
+    "maximum_elements": 1,
+    "maximum_bytes": 8,
+    "success_result": 1,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "numerical_failure_result": -3,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 2e-7,
+    "relative_tolerance": 2e-7
+  },
+  "workspace": {
+    "elements": 1,
+    "bytes": 8,
+    "meaning": "One staged output value; all solver state is scalar local state."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 2e-7,
+    "relative_tolerance": 2e-7
+  },
+  "oracle_method": "Primary: binary64 Dormand–Prince 5(4) adaptive integration with accept/reject control and FSAL. Independent: closed-form solutions for all four supported right-hand sides.",
+  "cases": [
+    {"id":"exponential_growth","input_values":[0,1000,0,1000,8,128],"input_length":6,"expected_result":1,"expected_output":[2.718281828459045]},
+    {"id":"negative_exponential_growth","input_values":[0,-250,-1000,1000,8,128],"input_length":6,"expected_result":1,"expected_output":[-1.8472640247326626]},
+    {"id":"affine_forcing","input_values":[1,0,0,1000,8,128],"input_length":6,"expected_result":1,"expected_output":[0.7182818284590451]},
+    {"id":"sine_forcing","input_values":[2,0,0,1000,8,128],"input_length":6,"expected_result":1,"expected_output":[0.45969769413186023]},
+    {"id":"constant_derivative","input_values":[3,250,-500,500,9,128],"input_length":6,"expected_result":1,"expected_output":[1.25]},
+    {"id":"symmetric_sine_cancellation","input_values":[2,0,-1000,1000,8,128],"input_length":6,"expected_result":1,"expected_output":[0.0]},
+    {"id":"affine_forcing_negative_interval","input_values":[1,0,-1000,0,9,64],"input_length":6,"expected_result":1,"expected_output":[-1.0]},
+    {"id":"adaptive_rejection_and_growth","input_values":[0,1000,-1000,1000,8,128],"input_length":6,"expected_result":1,"expected_output":[7.38905609893065]},
+    {"id":"invalid_function_id","input_values":[4,0,0,1000,8,128],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_fractional_field","input_values":[0,0,0,1000,8.5,128],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_initial_state","input_values":[0,1001,0,1000,8,128],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_endpoint_outside_range","input_values":[3,0,0,1001,8,128],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_nonincreasing_interval","input_values":[3,0,1000,1000,8,128],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_loose_tolerance","input_values":[0,0,0,1000,7,128],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_tight_tolerance","input_values":[0,0,0,1000,10,128],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_low_attempt_limit","input_values":[0,0,0,1000,8,63],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_high_attempt_limit","input_values":[0,0,0,1000,8,129],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_short_frame","input_values":[0,0,0,1000,8],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_extra_frame_value","input_values":[0,0,0,1000,8,128,17],"input_length":7,"expected_result":-1,"expected_output":[]}
+  ],
+  "abi_cases": [
+    {"id":"null_input","input_values":[],"input_length":6,"input_is_null":true,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"valid_input_null_output","input_values":[0,1000,0,1000,8,128],"input_length":6,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output":[]},
+    {"id":"valid_input_zero_capacity","input_values":[0,1000,0,1000,8,128],"input_length":6,"output_capacity":0,"expected_result":-2,"expected_output":[]},
+    {"id":"invalid_input_precedes_output_error","input_values":[4,0,0,1000,8,128],"input_length":6,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output":[]}
+  ]
+}

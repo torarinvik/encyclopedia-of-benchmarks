@@ -1,0 +1,104 @@
+const PFM_MAX_N: usize = 8
+const PFM_MAX_DIMENSION: usize = 16
+const PFM_MAX_PARSEABLE: usize = 258
+const PFM_MODULUS: i64 = 998244353
+
+def pfaffian_of_matrix_normalize(value: i64) -> i64:
+    remainder: i64 = value % PFM_MODULUS.i64()
+    if remainder < 0: return remainder + PFM_MODULUS.i64()
+    remainder
+
+def pfaffian_of_matrix_multiply(left: i64, right: i64) -> i64:
+    (left * right) % PFM_MODULUS.i64()
+
+def pfaffian_of_matrix_power(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            result <- pfaffian_of_matrix_multiply(result, base)
+        base <- pfaffian_of_matrix_multiply(base, base)
+        exponent <- exponent >> 1
+    result
+
+def pfaffian_of_matrix_impl(input: view[i64]) -> i64:
+    if input.len() < 5 or input.len() > PFM_MAX_PARSEABLE: return -1
+    half: i64 = input[0]
+    if half < 1 or half > PFM_MAX_N.i64(): return -1
+    dimension: usize = (2 * half).usize()
+    if input.len() != 1 + dimension * dimension: return -1
+
+    matrix: mutable i64[PFM_MAX_DIMENSION * PFM_MAX_DIMENSION] = zeroed
+    row: mutable usize = 0
+    while row < dimension:
+        column: mutable usize = 0
+        while column < dimension:
+            value: i64 = input[1 + row * dimension + column]
+            if value < 0 or value >= PFM_MODULUS.i64(): return -1
+            matrix[row * PFM_MAX_DIMENSION + column] <- value
+            column <- column + 1
+        row <- row + 1
+    row <- 0
+    while row < dimension:
+        if matrix[row * PFM_MAX_DIMENSION + row] != 0: return -1
+        column <- row + 1
+        while column < dimension:
+            if (matrix[row * PFM_MAX_DIMENSION + column]
+                + matrix[column * PFM_MAX_DIMENSION + row]) % PFM_MODULUS.i64() != 0:
+                return -1
+            column <- column + 1
+        row <- row + 1
+
+    result: mutable i64 = 1
+    pivot_index: mutable usize = 0
+    while pivot_index < dimension:
+        partner: mutable usize = pivot_index + 1
+        while partner < dimension and matrix[pivot_index * PFM_MAX_DIMENSION + partner] == 0:
+            partner <- partner + 1
+        if partner == dimension: return 0
+        if partner != pivot_index + 1:
+            swapped: usize = pivot_index + 1
+            k: mutable usize = 0
+            while k < dimension:
+                temporary: i64 = matrix[swapped * PFM_MAX_DIMENSION + k]
+                matrix[swapped * PFM_MAX_DIMENSION + k] <- matrix[partner * PFM_MAX_DIMENSION + k]
+                matrix[partner * PFM_MAX_DIMENSION + k] <- temporary
+                k <- k + 1
+            k <- 0
+            while k < dimension:
+                temporary: i64 = matrix[k * PFM_MAX_DIMENSION + swapped]
+                matrix[k * PFM_MAX_DIMENSION + swapped] <- matrix[k * PFM_MAX_DIMENSION + partner]
+                matrix[k * PFM_MAX_DIMENSION + partner] <- temporary
+                k <- k + 1
+            if result != 0: result <- PFM_MODULUS.i64() - result
+
+        first: usize = pivot_index * PFM_MAX_DIMENSION
+        second: usize = (pivot_index + 1) * PFM_MAX_DIMENSION
+        pivot: i64 = matrix[first + pivot_index + 1]
+        result <- pfaffian_of_matrix_multiply(result, pivot)
+        inverse: i64 = pfaffian_of_matrix_power(pivot, PFM_MODULUS.i64() - 2)
+        row <- pivot_index + 2
+        while row < dimension:
+            column <- row + 1
+            while column < dimension:
+                cross: i64 = pfaffian_of_matrix_normalize(
+                    pfaffian_of_matrix_multiply(matrix[first + row], matrix[second + column])
+                    - pfaffian_of_matrix_multiply(matrix[first + column], matrix[second + row]))
+                value: i64 = pfaffian_of_matrix_normalize(
+                    matrix[row * PFM_MAX_DIMENSION + column]
+                    - pfaffian_of_matrix_multiply(cross, inverse))
+                matrix[row * PFM_MAX_DIMENSION + column] <- value
+                if value == 0:
+                    matrix[column * PFM_MAX_DIMENSION + row] <- 0
+                else:
+                    matrix[column * PFM_MAX_DIMENSION + row] <- PFM_MODULUS.i64() - value
+                column <- column + 1
+            row <- row + 1
+        pivot_index <- pivot_index + 2
+    result
+
+export fn pfaffian_of_matrix(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > PFM_MAX_PARSEABLE: return -1
+    input_view: view[i64] = input[0:length]
+    pfaffian_of_matrix_impl(input_view)

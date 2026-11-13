@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-x-fast-trie-static-predecessor-i64-array-scalar-v1",
+  "algorithm": "x_fast_trie_static_predecessor",
+  "function_symbol": "x_fast_trie_static_predecessor",
+  "abi": "i64_array_scalar",
+  "description": "Batch static predecessor queries using sorted x-fast prefix-level catalogs.",
+  "source": {
+    "title": "Predecessor Search, String Algorithms and Data Structures",
+    "author": "Djamal Belazzougui",
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_632",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_632",
+    "related_original_work": "Dan E. Willard, Log-logarithmic worst-case range queries are possible in space Theta(N), 1983, DOI 10.1016/0020-0190(83)90075-3",
+    "copyright": "Springer; use algorithm names and high-level descriptions only."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,key[0..N),query[0..Q)]",
+    "key_count_range": [0, 24],
+    "query_count_range": [0, 24],
+    "key_and_query_range": [0, 65535],
+    "keys_must_be_unique": true,
+    "exact_length": "2+N+Q",
+    "maximum_valid_length": 50,
+    "maximum_parseable_length": 51,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "sum((zero_based_query_index+1)*(predecessor+1)); missing predecessor -1 contributes zero",
+    "exact_hit_returns_query_key": true,
+    "empty_key_set_result": 0,
+    "zero_query_result": 0
+  },
+  "algorithm": {
+    "primary": "Build sorted distinct key-prefix catalogs for depths 0..16; binary-search depths for each query's longest present prefix, then climb to the nearest represented left sibling and return that subtree's maximum key.",
+    "independent_oracle": "Sort the key set and answer each query using a direct upper-bound search.",
+    "primary_complexity": "O(16N) preprocessing and O(16 log N) worst-case query work with deterministic sorted prefix catalogs.",
+    "oracle_complexity": "O(N log N + Q log N) time."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-set-queries","input_values":[0,3,0,5,65535],"input_length":5,"expected_result":0},
+    {"id":"zero-queries","input_values":[3,0,10,20,30],"input_length":5,"expected_result":0},
+    {"id":"exact-gap-and-high-query","input_values":[3,4,10,20,30,0,10,25,65535],"input_length":9,"expected_result":209},
+    {"id":"below-minimum","input_values":[2,3,100,300,0,99,100],"input_length":7,"expected_result":303},
+    {"id":"unsorted-input-keys","input_values":[3,3,30,10,20,15,20,25],"input_length":8,"expected_result":116},
+    {"id":"universe-boundaries","input_values":[2,3,0,65535,0,65534,65535],"input_length":7,"expected_result":196611},
+    {"id":"duplicate-key","input_values":[3,1,5,5,9,5],"input_length":6,"expected_result":-1},
+    {"id":"key-out-of-range","input_values":[1,1,65536,0],"input_length":4,"expected_result":-1},
+    {"id":"query-out-of-range","input_values":[1,1,4,-1],"input_length":4,"expected_result":-1},
+    {"id":"trailing-value","input_values":[1,1,4,3,99],"input_length":5,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

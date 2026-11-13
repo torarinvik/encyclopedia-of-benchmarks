@@ -2,11 +2,11 @@ const MaxMachines = 8
 const MaxTasks = 32
 const MaxParseableWords = 99
 
-proc eventLess(left, right: int; finish: array[MaxTasks, int64]): bool =
+proc eventLess(left, right: int; finish: openArray[int64]): bool =
   finish[left] < finish[right] or (finish[left] == finish[right] and left < right)
 
 proc heapPush(heap: var array[MaxTasks, int]; size: var int; task: int,
-              finish: array[MaxTasks, int64]) =
+              finish: openArray[int64]) =
   var position = size
   inc size
   while position > 0:
@@ -17,7 +17,7 @@ proc heapPush(heap: var array[MaxTasks, int]; size: var int; task: int,
   heap[position] = task
 
 proc heapPop(heap: var array[MaxTasks, int]; size: var int,
-             finish: array[MaxTasks, int64]): int =
+             finish: openArray[int64]): int =
   result = heap[0]
   dec size
   if size == 0: return

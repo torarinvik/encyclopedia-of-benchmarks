@@ -58,7 +58,7 @@
   },
   "cases": [
     {"id":"no-tasks","input_values":[3,0],"input_length":2,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
-    {"id":"overlapping-loads","input_values":[2,3,0,5,4,1,4,3,2,2,5],"input_length":11,"output_capacity":32,"expected_result":32,"expected_output_hex":"0700000000000000000000000000000001000000000000000000000000000000"},
+    {"id":"overlapping-loads","input_values":[2,3,0,5,4,1,6,3,2,2,5],"input_length":11,"output_capacity":32,"expected_result":32,"expected_output_hex":"0700000000000000000000000000000001000000000000000000000000000000"},
     {"id":"completion-before-arrival","input_values":[2,2,0,5,2,2,3,1],"input_length":8,"output_capacity":24,"expected_result":24,"expected_output_hex":"050000000000000000000000000000000000000000000000"},
     {"id":"simultaneous-arrival-input-order","input_values":[2,3,0,3,5,0,3,5,0,2,5],"input_length":11,"output_capacity":32,"expected_result":32,"expected_output_hex":"0500000000000000000000000000000001000000000000000000000000000000"},
     {"id":"unsorted-arrivals","input_values":[2,2,3,1,1,2,1,1],"input_length":8,"output_capacity":264,"expected_result":-1,"expected_output_hex":""},

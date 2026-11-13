@@ -1,0 +1,72 @@
+extern exp(value: f64) -> f64
+extern cos(value: f64) -> f64
+
+const MAX_INPUT_LENGTH: usize = 5
+
+def exact_integer(value: f64, low: i64, high: i64) -> bool:
+    if value != value or value < low.f64() or value > high.f64(): return false
+    value.i64().f64() == value
+
+def integrand(function_id: i64, x: f64) -> f64:
+    if function_id == 0: return exp(x)
+    if function_id == 1: return x*x*x*x*x
+    if function_id == 2: return 1.0/(1.0+x*x)
+    cos(x)
+
+def valid_input(input: view[f64], input_length: usize) -> bool:
+    if input_length != 4 or input_length > MAX_INPUT_LENGTH: return false
+    if not exact_integer(input[0],0,3) or not exact_integer(input[1],-1000000,1000000) or not exact_integer(input[2],-1000000,1000000) or not exact_integer(input[3],3,8): return false
+    input[1] <= input[2]
+
+def compute_romberg(input: view[f64], staged: mutable view[f64]) -> i64:
+    function_id: i64 = input[0].i64()
+    a_micro: i64 = input[1].i64()
+    b_micro: i64 = input[2].i64()
+    levels: i64 = input[3].i64()
+    a: f64 = a_micro.f64()/1000000.0
+    b: f64 = b_micro.f64()/1000000.0
+    if a == b:
+        staged[0] <- 0.0
+        return 1
+    mut previous: f64[9] = zeroed
+    previous[0] <- (b-a)*(integrand(function_id,a)+integrand(function_id,b))*0.5
+    mut level: i64 = 1
+    while level <= levels:
+        interval_count: i64 = 1 << level
+        spacing: f64 = (b-a)/interval_count.f64()
+        mut added: f64 = 0.0
+        mut index: i64 = 1
+        while index < interval_count:
+            added <- added+integrand(function_id,a+index.f64()*spacing)
+            index <- index+2
+        mut current: f64[9] = zeroed
+        current[0] <- previous[0]*0.5+spacing*added
+        mut factor: f64 = 4.0
+        mut order: i64 = 1
+        while order <= level:
+            current[order.usize()] <- current[(order-1).usize()]+(current[(order-1).usize()]-previous[(order-1).usize()])/(factor-1.0)
+            factor <- factor*4.0
+            order <- order+1
+        order <- 0
+        while order <= level:
+            previous[order.usize()] <- current[order.usize()]
+            order <- order+1
+        level <- level+1
+    result: f64 = previous[levels.usize()]
+    if result != result or result > 1.0e308 or result < -1.0e308: return -1
+    staged[0] <- result
+    1
+
+export fn romberg_integration(input: f64&, input_length: usize,
+                              output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length != 4 or input_length > MAX_INPUT_LENGTH: return -1
+    input_view: view[f64] = input[0:input_length]
+    if not valid_input(input_view,input_length): return -1
+    if output.is_null() or capacity < 1: return -2
+    mut staged: f64[1] = zeroed
+    staged_view: mutable view[f64] = staged[0:1]
+    status: i64 = compute_romberg(input_view,staged_view)
+    if status < 0: return status
+    output_view: mutable view[f64] = output[0:1]
+    output_view[0] <- staged_view[0]
+    1

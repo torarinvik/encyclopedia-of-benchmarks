@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "oiwiki-segment-tree-merge-split-byte-output-v1",
+  "algorithm": "segment_tree_merge_split",
+  "function_symbol": "segment_tree_merge_split",
+  "abi": "i64_array_bytes_output",
+  "description": "Maintain bounded value-domain multisets in sparse segment trees with destructive merge and range split.",
+  "source": {
+    "title": "Segment Tree Merge and Split",
+    "repository": "OI Wiki",
+    "url": "https://oi-wiki.org/ds/seg-merge-split/",
+    "license": "CC BY-SA 4.0/SATA",
+    "algorithm_attribution": "Sparse segment-tree merge, interval split, point update, range query, and kth descent; clean-room bounded profile."
+  },
+  "contract": {
+    "operation": "Maintain a collection of sparse segment-tree multisets over [1,64], supporting insertion, destructive merge, interval extraction, range counts, and 1-based kth queries.",
+    "root_semantics": "Root 0 starts empty. Every split appends a fresh root ID; merge empties its source root without deleting the ID.",
+    "merge_semantics": "Merge combines multiplicities pointwise, reuses a nonempty subtree when the other subtree is empty, and consumes the source root.",
+    "split_semantics": "A split moves all values in the inclusive range [left,right] to the next root ID and leaves values outside the range in the source root.",
+    "output_semantics": "Each opcode 3 or 4 emits one signed 64-bit answer in operation order; absent kth answers are -1.",
+    "error_precedence": "Validate and process the complete input trace before output pointer or capacity checks; error calls write no bytes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[64,Q,(opcode,a,b,c)*Q]",
+    "domain": [1, 64],
+    "operation_count_range": [0, 32],
+    "operations": {
+      "0 root value count": "insert count copies of value into an existing root; value is 1..64 and count is 1..10",
+      "1 root left right": "extract the inclusive value interval to the next root ID",
+      "2 destination source 0": "destructively merge distinct existing roots and empty source",
+      "3 root left right": "query inclusive range multiplicity",
+      "4 root k 0": "query the 1-based kth value, or -1 when k exceeds the root size"
+    },
+    "root_id_range": "Existing roots only; at most one new root is created by each split.",
+    "range_rule": "1 <= left <= right <= 64",
+    "k_range": [1, 320],
+    "unused_fields_must_be_zero": true,
+    "exact_length": "2 + 4*Q",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 131,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "encoding": "One signed 64-bit value per range-count or kth query, in operation order.",
+    "maximum_output_bytes": 256,
+    "success_result": "bytes written",
+    "empty_query_result": 0,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Output staging buffer for at most 32 signed 64-bit query answers.",
+    "operation_buffer_bytes": 1024,
+    "operation_buffer_meaning": "Parsed operation records: 32 records of four signed 64-bit words each.",
+    "internal_node_pool_bytes": 16516,
+    "internal_node_pool_meaning": "1024 sparse nodes at 16 bytes each plus 33 root IDs.",
+    "declared_fixed_array_bytes": 17796,
+    "declared_fixed_array_meaning": "The node/root pool, parsed operation buffer, and output staging buffer; scalar locals are excluded."
+  },
+  "complexity": {
+    "insert": "O(log V)",
+    "range_count": "O(log V)",
+    "kth": "O(log V)",
+    "range_split": "O(log V) for the fixed contiguous interval, allocating only partial-overlap boundary nodes",
+    "merge": "Visits overlapping nonempty nodes and reuses a nonempty subtree when its partner is empty; total destructive merge work is charged to visited nodes.",
+    "space": "O(Q log V) sparse nodes for the bounded insertion/split trace; fixed arena capacity is 1024 nodes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "Primary: sparse segment-tree insertion, destructive node-wise merge, and boundary-path split. Independent: one fixed 64-bin count array per root with direct slicing, summation, and linear kth scan.",
+  "cases": [
+    {
+      "id": "split-merge-range-and-kth",
+      "input_values": [64, 10, 0, 0, 3, 2, 1, 0, 1, 8, 3, 0, 1, 64, 3, 1, 1, 64, 4, 0, 1, 0, 4, 1, 2, 0, 2, 0, 1, 0, 0, 0, 3, 1, 3, 8, 4, 0, 1, 0],
+      "input_length": 42,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "00000000000000000200000000000000ffffffffffffffff030000000000000003000000000000000300000000000000"
+    },
+    {
+      "id": "empty-split-and-empty-source-merge",
+      "input_values": [64, 6, 0, 0, 64, 4, 1, 0, 1, 64, 3, 0, 1, 64, 3, 1, 1, 64, 2, 0, 1, 0, 3, 0, 64, 64],
+      "input_length": 26,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000004000000000000000400000000000000"
+    },
+    {
+      "id": "partial-split-retains-values-outside-interval",
+      "input_values": [64, 8, 0, 0, 1, 2, 0, 0, 32, 1, 0, 0, 64, 3, 1, 0, 16, 48, 3, 0, 1, 64, 3, 1, 1, 64, 4, 0, 3, 0, 4, 1, 1, 0],
+      "input_length": 34,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0500000000000000010000000000000040000000000000002000000000000000"
+    },
+    {
+      "id": "merge-overlapping-value-counts",
+      "input_values": [64, 7, 0, 0, 5, 2, 1, 0, 1, 8, 0, 0, 5, 3, 2, 0, 1, 0, 3, 0, 1, 64, 4, 0, 5, 0, 4, 1, 1, 0],
+      "input_length": 30,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "05000000000000000500000000000000ffffffffffffffff"
+    },
+    {
+      "id": "maximum-input-and-output",
+      "input_values": [64, 32, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64, 3, 0, 1, 64],
+      "input_length": 130,
+      "output_capacity": 256,
+      "expected_result": 256,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "abi_cases": [
+    {"id": "null-input", "input_values": [], "input_length": 2, "input_is_null": true, "output_capacity": 256, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "truncated-record", "input_values": [64, 1, 0, 0, 1], "input_length": 5, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "extra-word", "input_values": [64, 0, 0], "input_length": 3, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "unknown-opcode", "input_values": [64, 1, 9, 0, 0, 0], "input_length": 6, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "unknown-root", "input_values": [64, 1, 3, 1, 1, 64], "input_length": 6, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "self-merge", "input_values": [64, 1, 2, 0, 0, 0], "input_length": 6, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-split-range", "input_values": [64, 1, 1, 0, 1, 65], "input_length": 6, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "zero-k", "input_values": [64, 1, 4, 0, 0, 0], "input_length": 6, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-input-before-null-output", "input_values": [64, 1, 2, 0, 0, 0], "input_length": 6, "output_capacity": 0, "output_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "valid-empty-output-null", "input_values": [64, 0], "input_length": 2, "output_capacity": 0, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "short-query-output", "input_values": [64, 1, 3, 0, 1, 64], "input_length": 6, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""}
+  ]
+}

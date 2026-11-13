@@ -1,0 +1,85 @@
+const CPMT_MIN_VERTICES: usize = 3
+const CPMT_MAX_VERTICES: usize = 12
+const CPMT_MAX_PARSEABLE_LENGTH: usize = 26
+const CPMT_COORD_LIMIT: i64 = 1000
+
+struct CpmtPoint:
+    x: i64
+    y: i64
+
+def cpmt_cross(a: CpmtPoint, b: CpmtPoint, c: CpmtPoint) -> i64:
+    (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+
+def cpmt_squared_length(points: view[CpmtPoint], left: usize, right: usize) -> i64:
+    dx: i64 = points[left].x - points[right].x
+    dy: i64 = points[left].y - points[right].y
+    dx * dx + dy * dy
+
+def cpmt_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > CPMT_MAX_PARSEABLE_LENGTH:
+        return -1
+    if input[0] < CPMT_MIN_VERTICES.i64() or input[0] > CPMT_MAX_VERTICES.i64():
+        return -1
+    n: usize = input[0].usize()
+    if length != 1 + 2 * n:
+        return -1
+    points: mutable CpmtPoint[CPMT_MAX_VERTICES] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        x: i64 = input[1 + 2 * i]
+        y: i64 = input[2 + 2 * i]
+        if x < -CPMT_COORD_LIMIT or x > CPMT_COORD_LIMIT or y < -CPMT_COORD_LIMIT or y > CPMT_COORD_LIMIT:
+            return -1
+        points[i] <- CpmtPoint{x: x, y: y}
+        i <- i + 1
+    area2: mutable i64 = 0
+    i <- 0
+    while i < n:
+        next: usize = (i + 1) % n
+        area2 <- area2 + points[i].x * points[next].y - points[i].y * points[next].x
+        i <- i + 1
+    if area2 == 0:
+        return -1
+    orientation: i64 = if area2 > 0: 1 else: -1
+    i <- 0
+    while i < n:
+        next: usize = (i + 1) % n
+        j: mutable usize = 0
+        while j < n:
+            if j != i and j != next and orientation * cpmt_cross(points[i], points[next], points[j]) <= 0:
+                return -1
+            j <- j + 1
+        i <- i + 1
+
+    best: mutable i64[CPMT_MAX_VERTICES][CPMT_MAX_VERTICES] = zeroed
+    i <- 0
+    while i + 1 < n:
+        best[i][i + 1] <- cpmt_squared_length(points[0:n], i, i + 1)
+        i <- i + 1
+    span: mutable usize = 2
+    while span < n:
+        i <- 0
+        while i + span < n:
+            right: usize = i + span
+            boundary: i64 = cpmt_squared_length(points[0:n], i, right)
+            optimum: mutable i64 = 8000001
+            middle: mutable usize = i + 1
+            while middle < right:
+                candidate: mutable i64 = best[i][middle]
+                if best[middle][right] > candidate:
+                    candidate <- best[middle][right]
+                if boundary > candidate:
+                    candidate <- boundary
+                if candidate < optimum:
+                    optimum <- candidate
+                middle <- middle + 1
+            best[i][right] <- optimum
+            i <- i + 1
+        span <- span + 1
+    best[0][n - 1]
+
+export fn convex_polygon_minimax_length_triangulation(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > CPMT_MAX_PARSEABLE_LENGTH:
+        return -1
+    cpmt_impl(input[0:length])

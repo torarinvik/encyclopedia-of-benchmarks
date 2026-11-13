@@ -4,8 +4,7 @@
 enum {
     MAX_MACHINES = 8,
     MAX_TASKS = 32,
-    MAX_PARSEABLE_WORDS = 99,
-    MAX_OUTPUT_BYTES = 264
+    MAX_PARSEABLE_WORDS = 99
 };
 
 static int event_less(size_t left, size_t right, const int64_t finish[MAX_TASKS]) {

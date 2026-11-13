@@ -1,0 +1,118 @@
+const XFAST_MAX_KEYS: usize = 24
+const XFAST_MAX_QUERIES: usize = 24
+const XFAST_UNIVERSE_BITS: usize = 16
+const XFAST_LEVELS: usize = 17
+const XFAST_MAX_PARSEABLE: usize = 51
+
+def xfast_prefix_of(key: i64, depth: usize) -> i64:
+    if depth == 0:
+        return 0
+    key >> (XFAST_UNIVERSE_BITS - depth)
+
+def xfast_find_prefix(prefixes: view[i64], counts: view[i64], depth: usize, wanted: i64) -> i64:
+    low: mutable usize = 0
+    high: mutable usize = counts[depth].usize()
+    row: usize = depth * XFAST_MAX_KEYS
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        if prefixes[row + middle] < wanted:
+            low <- middle + 1
+        else:
+            high <- middle
+    if low < counts[depth].usize() and prefixes[row + low] == wanted:
+        return low.i64()
+    -1
+
+def xfast_predecessor(prefixes: view[i64], maxima: view[i64], counts: view[i64], query: i64) -> i64:
+    low: mutable usize = 0
+    high: mutable usize = XFAST_LEVELS
+    while high - low > 1:
+        middle: usize = low + (high - low) / 2
+        if xfast_find_prefix(prefixes, counts, middle, xfast_prefix_of(query, middle)) >= 0:
+            low <- middle
+        else:
+            high <- middle
+    if low == XFAST_UNIVERSE_BITS:
+        return query
+    depth: mutable usize = low + 1
+    while depth > 0:
+        query_prefix: i64 = query >> (XFAST_UNIVERSE_BITS - depth)
+        if (query_prefix & 1) == 1:
+            sibling: i64 = xfast_find_prefix(prefixes, counts, depth, query_prefix - 1)
+            if sibling >= 0:
+                return maxima[depth * XFAST_MAX_KEYS + sibling.usize()]
+        depth <- depth - 1
+    -1
+
+def xfast_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > XFAST_MAX_PARSEABLE:
+        return -1
+    if input[0] < 0 or input[0] > XFAST_MAX_KEYS.i64() or input[1] < 0 or input[1] > XFAST_MAX_QUERIES.i64():
+        return -1
+    n: usize = input[0].usize()
+    q: usize = input[1].usize()
+    if length != 2 + n + q:
+        return -1
+    keys: mutable i64[XFAST_MAX_KEYS] = zeroed
+    queries: mutable i64[XFAST_MAX_QUERIES] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        keys[i] <- input[2 + i]
+        if keys[i] < 0 or keys[i] > 65535:
+            return -1
+        i <- i + 1
+    i <- 1
+    while i < n:
+        key: i64 = keys[i]
+        at: mutable usize = i
+        while at > 0 and key < keys[at - 1]:
+            keys[at] <- keys[at - 1]
+            at <- at - 1
+        keys[at] <- key
+        i <- i + 1
+    i <- 1
+    while i < n:
+        if keys[i] == keys[i - 1]:
+            return -1
+        i <- i + 1
+    i <- 0
+    while i < q:
+        queries[i] <- input[2 + n + i]
+        if queries[i] < 0 or queries[i] > 65535:
+            return -1
+        i <- i + 1
+    if n == 0 or q == 0:
+        return 0
+
+    prefixes: mutable i64[XFAST_LEVELS * XFAST_MAX_KEYS] = zeroed
+    maxima: mutable i64[XFAST_LEVELS * XFAST_MAX_KEYS] = zeroed
+    counts: mutable i64[XFAST_LEVELS] = zeroed
+    depth: mutable usize = 0
+    while depth < XFAST_LEVELS:
+        i <- 0
+        while i < n:
+            value: i64 = xfast_prefix_of(keys[i], depth)
+            row: usize = depth * XFAST_MAX_KEYS
+            count: usize = counts[depth].usize()
+            if count == 0 or prefixes[row + count - 1] != value:
+                prefixes[row + count] <- value
+                maxima[row + count] <- keys[i]
+                counts[depth] <- counts[depth] + 1
+            else:
+                maxima[row + count - 1] <- keys[i]
+            i <- i + 1
+        depth <- depth + 1
+    checksum: mutable i64 = 0
+    i <- 0
+    while i < q:
+        pred: i64 = xfast_predecessor(prefixes[0:XFAST_LEVELS * XFAST_MAX_KEYS], maxima[0:XFAST_LEVELS * XFAST_MAX_KEYS],
+            counts[0:XFAST_LEVELS], queries[i])
+        checksum <- checksum + (i.i64() + 1) * (pred + 1)
+        i <- i + 1
+    checksum
+
+export fn x_fast_trie_static_predecessor(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > XFAST_MAX_PARSEABLE:
+        return -1
+    xfast_impl(input[0:length])

@@ -1,0 +1,141 @@
+const BLOCKED_LU_MAX_INPUT: usize = 66
+const BLOCKED_LU_MAX_OUTPUT: usize = 128
+
+def blocked_lu_finite(x: f64) -> bool:
+    x == x and x < 1.7976931348623157e308 and x > -1.7976931348623157e308
+
+def blocked_lu_exact_integer(x: f64, lo: i64, hi: i64) -> bool:
+    if not blocked_lu_finite(x) or x < lo.f64() or x > hi.f64(): return false
+    x.i64().f64() == x
+
+def blocked_lu_compute(input: view[f64], staged: mutable view[f64], input_length: usize) -> i64:
+    if input_length < 1 or input_length > BLOCKED_LU_MAX_INPUT: return -1
+    if not blocked_lu_exact_integer(input[0], 2, 8): return -1
+    n: usize = input[0].usize()
+    if n % 2 != 0 or input_length != 1 + n * n: return -1
+
+    schur: mutable f64[64] = zeroed
+    row: mutable usize = 0
+    while row < n:
+        off_sum: mutable i64 = 0
+        col: mutable usize = 0
+        while col < n:
+            p: usize = row * n + col
+            lo: i64 = -2
+            hi: i64 = 2
+            if row == col: lo <- 1; hi <- 16
+            value: f64 = input[p + 1]
+            if not blocked_lu_exact_integer(value, lo, hi): return -1
+            schur[p] <- value
+            if row != col:
+                integer: i64 = value.i64()
+                if integer < 0: off_sum <- off_sum - integer
+                else: off_sum <- off_sum + integer
+            col <- col + 1
+        if schur[row * n + row] <= off_sum.f64(): return -1
+        row <- row + 1
+
+    lower: mutable f64[64] = zeroed
+    upper: mutable f64[64] = zeroed
+    k: mutable usize = 0
+    while k < n:
+        u00: f64 = schur[k * n + k]
+        u01: f64 = schur[k * n + k + 1]
+        if not blocked_lu_finite(u00) or u00 == 0.0: return -1
+        l10: f64 = schur[(k + 1) * n + k] / u00
+        u11: f64 = schur[(k + 1) * n + k + 1] - l10 * u01
+        if not blocked_lu_finite(l10) or not blocked_lu_finite(u11) or u11 == 0.0: return -1
+        lower[k * n + k] <- 1.0
+        lower[(k + 1) * n + k] <- l10
+        lower[(k + 1) * n + k + 1] <- 1.0
+        upper[k * n + k] <- u00
+        upper[k * n + k + 1] <- u01
+        upper[(k + 1) * n + k + 1] <- u11
+
+        j: mutable usize = k + 2
+        while j < n:
+            col <- j
+            while col < j + 2:
+                s0: f64 = schur[k * n + col]
+                s1: f64 = schur[(k + 1) * n + col]
+                upper[k * n + col] <- s0
+                upper[(k + 1) * n + col] <- s1 - l10 * s0
+                col <- col + 1
+            j <- j + 2
+        i: mutable usize = k + 2
+        while i < n:
+            row <- i
+            while row < i + 2:
+                s0: f64 = schur[row * n + k]
+                s1: f64 = schur[row * n + k + 1]
+                l0: f64 = s0 / u00
+                l1: f64 = (s1 - l0 * u01) / u11
+                lower[row * n + k] <- l0
+                lower[row * n + k + 1] <- l1
+                row <- row + 1
+            i <- i + 2
+        i <- k + 2
+        while i < n:
+            j <- k + 2
+            while j < n:
+                row <- i
+                while row < i + 2:
+                    col <- j
+                    while col < j + 2:
+                        update: f64 = lower[row * n + k] * upper[k * n + col] +
+                            lower[row * n + k + 1] * upper[(k + 1) * n + col]
+                        schur[row * n + col] <- schur[row * n + col] - update
+                        col <- col + 1
+                    row <- row + 1
+                j <- j + 2
+            i <- i + 2
+        k <- k + 2
+
+    m: usize = n * n
+    row <- 0
+    while row < n:
+        lower[row * n + row] <- 1.0
+        col <- row
+        while col < n:
+            upper[row * n + col] <- schur[row * n + col]
+            col <- col + 1
+        row <- row + 1
+    index: mutable usize = 0
+    while index < m:
+        if not blocked_lu_finite(lower[index]) or not blocked_lu_finite(upper[index]): return -1
+        staged[index] <- lower[index]
+        staged[m + index] <- upper[index]
+        index <- index + 1
+    (2 * m).i64()
+
+def blocked_lu_factorization_impl(input: view[f64], output: mutable view[f64],
+                                  input_length: usize) -> i64:
+    staged: mutable f64[BLOCKED_LU_MAX_OUTPUT] = zeroed
+    staged_view: mutable view[f64] = staged[0:BLOCKED_LU_MAX_OUTPUT]
+    result: i64 = blocked_lu_compute(input, staged_view, input_length)
+    if result < 0: return result
+    output_length: usize = result.usize()
+    if output.len() < output_length: return -2
+    index: mutable usize = 0
+    while index < output_length:
+        output[index] <- staged_view[index]
+        index <- index + 1
+    result
+
+def blocked_lu_factorization_impl_with_null_output(input: view[f64], input_length: usize) -> i64:
+    staged: mutable f64[BLOCKED_LU_MAX_OUTPUT] = zeroed
+    staged_view: mutable view[f64] = staged[0:BLOCKED_LU_MAX_OUTPUT]
+    result: i64 = blocked_lu_compute(input, staged_view, input_length)
+    if result < 0: return result
+    -2
+
+export fn blocked_lu_factorization(input: f64&, input_length: usize,
+                                   output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > BLOCKED_LU_MAX_INPUT: return -1
+    input_view: view[f64] = input[0:input_length]
+    if output.is_null():
+        return blocked_lu_factorization_impl_with_null_output(input_view, input_length)
+    safe_capacity: usize = capacity
+    if safe_capacity > BLOCKED_LU_MAX_OUTPUT: safe_capacity = BLOCKED_LU_MAX_OUTPUT
+    output_view: mutable view[f64] = output[0:safe_capacity]
+    blocked_lu_factorization_impl(input_view, output_view, input_length)

@@ -58,7 +58,7 @@ fn long online_temporary_task_load_balancing(long* input, usz length,
 
     long[MAX_TASKS] arrival, weight, finish;
     usz[MAX_TASKS] assigned, heap;
-    long[MAX_MACHINES] loads;
+    long[MAX_MACHINES] loads = {};
     long[MAX_TASKS + 1] staged;
     usz heap_size = 0;
     long previous_arrival = -1;

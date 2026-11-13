@@ -1,0 +1,70 @@
+alias CDPS_MAX_LENGTH = 20
+alias CDPS_MODULUS = 1_000_000_007
+
+def cdps_normalize(value: i64) -> i64:
+    var result = value % CDPS_MODULUS
+    if result < 0: result <- result + CDPS_MODULUS
+    result
+
+def cdps_impl(values: view[i64]) -> i64:
+    if values.len() < 1 or values.len() > CDPS_MAX_LENGTH + 2: return -1
+    let n_value = values[0]
+    if n_value < 0 or n_value > CDPS_MAX_LENGTH: return -1
+    if values.len() != n_value.usize() + 1: return -1
+    let n = n_value.usize()
+    var symbols: mutable usize[CDPS_MAX_LENGTH] = zeroed
+    for i in range(n):
+        if values[i + 1] < 0 or values[i + 1] > 3: return -1
+        symbols[i] <- values[i + 1].usize()
+    if n == 0: return 0
+
+    var next_equal: mutable usize[CDPS_MAX_LENGTH] = zeroed
+    var previous_equal: mutable i64[CDPS_MAX_LENGTH] = zeroed
+    var next_at: mutable usize[4] = zeroed
+    var previous_at: mutable i64[4] = zeroed
+    for symbol in range(4):
+        next_at[symbol] <- n
+        previous_at[symbol] <- -1
+    for step in range(n):
+        let i = n - 1 - step
+        let symbol = symbols[i]
+        next_equal[i] <- next_at[symbol]
+        next_at[symbol] <- i
+    for i in range(n):
+        let symbol = symbols[i]
+        previous_equal[i] <- previous_at[symbol]
+        previous_at[symbol] <- i.i64()
+
+    var dp: mutable i64[CDPS_MAX_LENGTH * CDPS_MAX_LENGTH] = zeroed
+    for i in range(n): dp[i * CDPS_MAX_LENGTH + i] <- 1
+    var width: mutable usize = 2
+    while width <= n:
+        var left: mutable usize = 0
+        while left + width <= n:
+            let right = left + width - 1
+            let inner = if width > 2: dp[(left + 1) * CDPS_MAX_LENGTH + right - 1] else: 0
+            var value: mutable i64 = 0
+            if symbols[left] != symbols[right]:
+                value <- dp[(left + 1) * CDPS_MAX_LENGTH + right]
+                    + dp[left * CDPS_MAX_LENGTH + right - 1] - inner
+            else:
+                let first = next_equal[left]
+                let last = previous_equal[right]
+                if first >= right or last <= left.i64() or first.i64() > last:
+                    value <- 2 * inner + 2
+                elif first.i64() == last:
+                    value <- 2 * inner + 1
+                else:
+                    var duplicates: mutable i64 = 0
+                    if first + 1 <= (last - 1).usize():
+                        duplicates <- dp[(first + 1) * CDPS_MAX_LENGTH + (last - 1).usize()]
+                    value <- 2 * inner - duplicates
+            dp[left * CDPS_MAX_LENGTH + right] <- cdps_normalize(value)
+            left <- left + 1
+        width <- width + 1
+    dp[n - 1]
+
+export fn count_different_palindromic_subsequences(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > CDPS_MAX_LENGTH + 2: return -1
+    let values: view[i64] = input[0:length]
+    cdps_impl(values)

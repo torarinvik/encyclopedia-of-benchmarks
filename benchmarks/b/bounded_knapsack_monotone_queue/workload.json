@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-bounded-knapsack-monotone-queue-i64-array-scalar-v1",
+  "algorithm": "bounded_knapsack_monotone_queue",
+  "function_symbol": "bounded_knapsack_monotone_queue",
+  "abi": "i64_array_scalar",
+  "description": "Exact bounded-multiplicity knapsack using residue-class sliding maxima.",
+  "source": {
+    "title": "Knapsack Problem: Multiple Knapsack / Monotone Queue Optimization",
+    "authors": ["CP-Algorithms contributors"],
+    "reference": "CP-Algorithms dynamic-programming article",
+    "url": "https://cp-algorithms.com/dynamic_programming/knapsack.html#monotone-queue-optimization",
+    "license": "CC BY-SA 4.0",
+    "algorithm_attribution": "Residue-class transition transformed into a sliding maximum over adjusted previous-row values.",
+    "implementation_status": "bounded clean-room exact profile; algorithm description only"
+  },
+  "contract": {
+    "operation": "Maximize total value subject to total weight at most capacity and each type's count limit.",
+    "encoding": "[capacity,type_count,(weight,value,count)*type_count]",
+    "algorithm": "For each item type, compute each residue-class sequence with a decreasing deque over a multiplicity-width window.",
+    "independent_method": "Two-row dynamic programming that enumerates each permitted copy count directly.",
+    "time_complexity": "O(type_count*capacity)",
+    "space_complexity": "O(capacity)",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[capacity,type_count,(weight,value,count)*type_count]",
+    "capacity_range": [0, 64],
+    "type_count_range": [0, 16],
+    "weight_range": [1, 16],
+    "value_range": [0, 100],
+    "multiplicity_range": [0, 16],
+    "exact_length": "2 + 3*type_count",
+    "maximum_valid_length": 50,
+    "maximum_parseable_input_length": 51,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Maximum value achievable without exceeding capacity.",
+    "valid_result_range": [0, 6400],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 2080,
+    "meaning": "Four fixed 65-element i64/int arrays for two DP rows and monotone-queue scores/indices; language implementations may use smaller index arrays."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/b/bounded_knapsack_monotone_queue/primary_oracle.py",
+  "independent_oracle": "benchmarks/b/bounded_knapsack_monotone_queue/independent_oracle.py",
+  "cases": [
+    {"id":"empty-zero-capacity","input_values":[0,0],"input_length":2,"expected_result":0},
+    {"id":"empty-positive-capacity","input_values":[64,0],"input_length":2,"expected_result":0},
+    {"id":"classic-bounded-combination","input_values":[10,3,3,5,2,4,6,2,5,8,1],"input_length":11,"expected_result":16},
+    {"id":"zero-capacity","input_values":[0,2,1,100,16,2,50,16],"input_length":8,"expected_result":0},
+    {"id":"zero-multiplicity","input_values":[20,2,2,100,0,3,4,3],"input_length":8,"expected_result":12},
+    {"id":"residue-class-combination","input_values":[10,2,4,7,2,3,4,2],"input_length":8,"expected_result":15},
+    {"id":"zero-value-and-limited-copy","input_values":[2,2,1,0,16,2,3,1],"input_length":8,"expected_result":3},
+    {"id":"multiplicity-window-caps-choice","input_values":[8,1,1,7,3],"input_length":5,"expected_result":21},
+    {"id":"maximum-capacity-and-count","input_values":[64,1,1,100,16],"input_length":5,"expected_result":1600},
+    {"id":"maximum-valid-frame","input_values":[64,16,16,100,16,16,100,16,16,100,16,16,100,16,16,100,16,16,100,16,16,100,16,16,100,16,16,100,16,16,100,16,16,100,16,16,100,16,16,100,16,16,100,16,16,100,16,16,100,16],"input_length":50,"expected_result":400},
+    {"id":"invalid-zero-weight","input_values":[8,1,0,7,3],"input_length":5,"expected_result":-1},
+    {"id":"invalid-value","input_values":[8,1,1,101,3],"input_length":5,"expected_result":-1},
+    {"id":"invalid-count","input_values":[8,1,1,7,17],"input_length":5,"expected_result":-1},
+    {"id":"trailing-word","input_values":[8,1,1,7,3,0],"input_length":6,"expected_result":-1},
+    {"id":"truncated-record","input_values":[8,1,1,7],"input_length":4,"expected_result":-1},
+    {"id":"capacity-out-of-range","input_values":[65,0],"input_length":2,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

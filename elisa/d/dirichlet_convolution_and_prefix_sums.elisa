@@ -1,0 +1,95 @@
+const DCP_MAX_N: usize = 64
+const DCP_MAX_Q: usize = 15
+const DCP_MAX_PARSEABLE: usize = 32
+const DCP_MODULUS: i64 = 998244353
+
+def dirichlet_convolution_prefix_at(quotients: view[i64], prefix: view[i64],
+                                    count: usize, value: i64) -> i64:
+    if value == 0: return 0
+    index: mutable usize = 0
+    while index < count:
+        if quotients[index] == value: return prefix[index]
+        index <- index + 1
+    0
+
+def dirichlet_convolution_compute(input: view[i64], output_values: mutable view[i64]) -> i64:
+    if input.len() < 3 or input.len() > DCP_MAX_PARSEABLE: return -1
+    n: i64 = input[0]
+    if n < 1 or n > DCP_MAX_N.i64(): return -1
+
+    descending: mutable i64[DCP_MAX_Q] = zeroed
+    count: mutable usize = 0
+    left: mutable i64 = 1
+    while left <= n:
+        value: i64 = n / left
+        descending[count] <- value
+        count <- count + 1
+        left <- n / value + 1
+    quotients: mutable i64[DCP_MAX_Q] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        quotients[index] <- descending[count - 1 - index]
+        index <- index + 1
+    if input.len() != 1 + 2 * count: return -1
+
+    f_prefix: mutable i64[DCP_MAX_Q] = zeroed
+    g_prefix: mutable i64[DCP_MAX_Q] = zeroed
+    index <- 0
+    while index < count:
+        f_prefix[index] <- input[1 + index]
+        g_prefix[index] <- input[1 + count + index]
+        if f_prefix[index] < 1 or f_prefix[index] >= DCP_MODULUS.i64()
+            or g_prefix[index] < 1 or g_prefix[index] >= DCP_MODULUS.i64():
+            return -1
+        index <- index + 1
+
+    out_index: mutable usize = 0
+    while out_index < count:
+        x: i64 = quotients[out_index]
+        total: mutable i64 = 0
+        block_start: mutable i64 = 1
+        while block_start <= x:
+            quotient: i64 = x / block_start
+            right: i64 = x / quotient
+            below: i64 = x / (quotient + 1)
+            interval: i64 = dirichlet_convolution_prefix_at(
+                quotients[0:DCP_MAX_Q], f_prefix[0:DCP_MAX_Q], count, right)
+                - dirichlet_convolution_prefix_at(
+                quotients[0:DCP_MAX_Q], f_prefix[0:DCP_MAX_Q], count, below)
+            interval <- interval % DCP_MODULUS.i64()
+            if interval < 0: interval <- interval + DCP_MODULUS.i64()
+            q_index: mutable usize = 0
+            while q_index < count and quotients[q_index] != quotient:
+                q_index <- q_index + 1
+            if q_index == count: return -1
+            total <- (total + interval * g_prefix[q_index]) % DCP_MODULUS.i64()
+            block_start <- right + 1
+        output_values[out_index] <- total
+        out_index <- out_index + 1
+    count.i64()
+
+def dirichlet_convolution_store(values: view[i64], count: usize,
+                                output: mutable view[u8]) -> void:
+    index: mutable usize = 0
+    while index < count:
+        bits: mutable u64 = values[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[8 * index + byte] <- (bits & 255.u64()).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        index <- index + 1
+
+export fn dirichlet_convolution_and_prefix_sums(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length > DCP_MAX_PARSEABLE: return -1
+    input_view: view[i64] = input[0:length]
+    results: mutable i64[DCP_MAX_Q] = zeroed
+    count_result: i64 = dirichlet_convolution_compute(
+        input_view, results[0:DCP_MAX_Q])
+    if count_result < 0: return count_result
+    needed: usize = 8 * count_result.usize()
+    if output.is_null() or output_capacity < needed: return -2
+    output_view: mutable view[u8] = output[0:needed]
+    dirichlet_convolution_store(results[0:DCP_MAX_Q], count_result.usize(), output_view)
+    needed.i64()

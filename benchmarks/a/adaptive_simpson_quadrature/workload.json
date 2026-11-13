@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "id": "oiwiki-adaptive-simpson-float64-slice-io-v1",
+  "algorithm": "adaptive_simpson_quadrature",
+  "function_symbol": "adaptive_simpson_quadrature",
+  "abi": "float64_slice_io",
+  "pinned_source": {
+    "repository": "OI-wiki/OI-wiki",
+    "commit": "web-description",
+    "path": "docs/math/integral.md",
+    "symbol": "Adaptive Simpson quadrature description",
+    "url": "https://en.oi-wiki.org/math/integral/#245",
+    "role": "algorithm description only",
+    "license": "CC BY-SA 4.0 and SATA"
+  },
+  "contract": {
+    "operation": "Recursively refine Simpson estimates on intervals whose split estimate disagrees with the whole-interval estimate by more than the local error threshold.",
+    "input_encoding": "[function_id,a_micro,b_micro,tolerance_exponent,max_depth]",
+    "integer_fields": "All five finite float64 input values must represent exact integers.",
+    "functions": {
+      "0": "f(x)=x^4",
+      "1": "f(x)=sin(x)",
+      "2": "f(x)=1/(1+x^2)"
+    },
+    "endpoint_scale": 1000000,
+    "endpoint_micro_range": [-2000000, 2000000],
+    "endpoint_order": "a_micro <= b_micro",
+    "tolerance": "10^-tolerance_exponent",
+    "tolerance_exponent_range": [7, 8],
+    "maximum_refinement_depth_range": [8, 12],
+    "stopping_rule": "Accept when abs(left+right-whole)<=15*tolerance or depth reaches zero; return left+right+(left+right-whole)/15. Otherwise recurse on both halves with half the tolerance.",
+    "equal_endpoints": "Return zero.",
+    "output_encoding": "One float64 containing the integral estimate.",
+    "error_precedence": "Malformed input returns -1 before output validation; valid input with null output or capacity below one returns -2 without writes.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "exact_length": 5,
+    "maximum_valid_input_length": 5,
+    "maximum_parseable_input_length": 6,
+    "encoding": "[function_id,a_micro,b_micro,tolerance_exponent,max_depth]",
+    "function_id_range": [0, 2],
+    "endpoint_micro_range": [-2000000, 2000000],
+    "endpoint_order": "a_micro <= b_micro",
+    "tolerance_exponent_range": [7, 8],
+    "maximum_refinement_depth_range": [8, 12],
+    "integer_valued_fields": true,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[integral_estimate]",
+    "maximum_elements": 1,
+    "maximum_bytes": 8,
+    "success_result": 1,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-7,
+    "relative_tolerance": 1e-7
+  },
+  "workspace": {
+    "elements": 1,
+    "bytes": 8,
+    "meaning": "One staged output value; recursive state is bounded by depth 12."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-7,
+    "relative_tolerance": 1e-7
+  },
+  "oracle_method": "Primary: adaptive Simpson recursion with reused endpoint and midpoint samples. Independent: closed-form antiderivatives for the three supported integrands.",
+  "cases": [
+    {"id":"quartic_unit_interval","input_values":[0,0,1000000,7,8],"input_length":5,"expected_result":1,"expected_output":[0.2]},
+    {"id":"quartic_symmetric_interval","input_values":[0,-1000000,1000000,7,9],"input_length":5,"expected_result":1,"expected_output":[0.4]},
+    {"id":"quartic_negative_interval","input_values":[0,-1000000,0,7,10],"input_length":5,"expected_result":1,"expected_output":[0.2]},
+    {"id":"sine_unit_interval","input_values":[1,0,1000000,7,8],"input_length":5,"expected_result":1,"expected_output":[0.45969769413186023]},
+    {"id":"sine_negative_to_zero","input_values":[1,-1000000,0,7,10],"input_length":5,"expected_result":1,"expected_output":[-0.45969769413186023]},
+    {"id":"reciprocal_symmetric_interval","input_values":[2,-1000000,1000000,7,10],"input_length":5,"expected_result":1,"expected_output":[1.5707963267948966]},
+    {"id":"reciprocal_full_profile_interval","input_values":[2,-2000000,2000000,8,12],"input_length":5,"expected_result":1,"expected_output":[2.214297435588181]},
+    {"id":"equal_endpoint_interval","input_values":[2,123456,123456,8,12],"input_length":5,"expected_result":1,"expected_output":[0.0]},
+    {"id":"invalid_function_id","input_values":[3,0,1000000,7,8],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_fractional_field","input_values":[0.5,0,1000000,7,8],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_endpoint_below_domain","input_values":[0,-2000001,0,7,8],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_descending_interval","input_values":[1,1000000,-1000000,7,8],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_tolerance_exponent","input_values":[1,0,1000000,6,8],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_tolerance_exponent_above_range","input_values":[1,0,1000000,9,8],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_refinement_depth","input_values":[2,0,1000000,7,13],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_short_frame","input_values":[1,0,1000000,7],"input_length":4,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_extra_frame_value","input_values":[0,0,1000000,7,8,17],"input_length":6,"expected_result":-1,"expected_output":[]}
+  ],
+  "abi_cases": [
+    {"id":"null_input","input_values":[],"input_length":5,"input_is_null":true,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"valid_input_null_output","input_values":[1,0,1000000,7,8],"input_length":5,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output":[]},
+    {"id":"valid_input_zero_capacity","input_values":[1,0,1000000,7,8],"input_length":5,"output_capacity":0,"expected_result":-2,"expected_output":[]},
+    {"id":"invalid_input_precedes_output_error","input_values":[3,0,1000000,7,8],"input_length":5,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output":[]}
+  ]
+}

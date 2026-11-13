@@ -84,9 +84,26 @@ from run_i64_array_scalar import validate_max_jobs_before_deadlines_workload
 from run_i64_array_scalar import validate_connected_labeled_graph_count_workload
 from run_i64_array_scalar import validate_bostan_mori_recurrence_term_workload
 from run_i64_array_scalar import validate_common_tangents_two_circles_workload
+from run_i64_array_scalar import validate_circle_circle_intersection_count_workload
+from run_i64_array_scalar import validate_fifteen_puzzle_solvability_workload
+from run_i64_array_scalar import validate_minimum_queue_two_stacks_workload
+from run_i64_array_scalar import validate_parallel_binary_search_range_threshold_workload
+from run_i64_array_scalar import validate_cdq_three_dimensional_dominance_workload
+from run_i64_array_scalar import validate_bareiss_determinant_workload
+from run_i64_array_scalar import validate_persistent_segment_tree_range_kth_workload
+from run_i64_array_scalar import (
+    COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_ALPHABET_SIZE,
+    COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_MAX_LENGTH,
+    COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_MAX_PARSEABLE_INPUT_LENGTH,
+    COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_MAX_VALID_INPUT_LENGTH,
+    validate_count_different_palindromic_subsequences_workload,
+)
 from run_i64_array_scalar import validate_functional_graph_cycle_parameters_workload
 from run_i64_array_scalar import validate_largest_zero_submatrix_workload
 from run_i64_array_scalar import validate_tree_edge_paint_path_count_workload
+from run_i64_array_scalar import validate_convex_polygon_minimax_length_triangulation_workload
+from run_i64_array_scalar import validate_pfaffian_of_matrix_workload
+from run_i64_array_scalar import validate_x_fast_trie_static_predecessor_workload
 from sum_of_floor_of_linear_oracle import MAX_N as SUM_OF_FLOOR_MAX_N
 from sum_of_floor_of_linear_oracle import MAX_M as SUM_OF_FLOOR_MAX_M
 from sum_of_floor_of_linear_oracle import expected_result as sum_of_floor_of_linear_oracle
@@ -1904,6 +1921,82 @@ from common_tangents_two_circles_oracle import (
 from common_tangents_two_circles_verifier_oracle import (
     expected_result as common_tangents_two_circles_oracle,
 )
+from c.circle_circle_intersection_count.primary_oracle import (
+    MAX_COORDINATE as CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE,
+    MAX_INPUT_LENGTH as CIRCLE_CIRCLE_INTERSECTION_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CIRCLE_CIRCLE_INTERSECTION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RADIUS as CIRCLE_CIRCLE_INTERSECTION_MAX_RADIUS,
+    expected_output as circle_circle_intersection_count_primary_oracle,
+)
+from c.circle_circle_intersection_count.independent_oracle import (
+    expected_output as circle_circle_intersection_count_oracle,
+)
+from f.fifteen_puzzle_solvability.primary_oracle import (
+    MAX_INPUT_LENGTH as FIFTEEN_PUZZLE_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as FIFTEEN_PUZZLE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as fifteen_puzzle_solvability_primary_oracle,
+)
+from f.fifteen_puzzle_solvability.independent_oracle import (
+    expected_output as fifteen_puzzle_solvability_oracle,
+)
+from m.minimum_queue_two_stacks.primary_oracle import (
+    MAX_OPERATIONS as MIN_QUEUE_MAX_OPERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as MIN_QUEUE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MIN_QUEUE_MAX_VALID_INPUT_LENGTH,
+    QUEUE_CAPACITY as MIN_QUEUE_CAPACITY,
+    VALUE_MAX as MIN_QUEUE_VALUE_MAX,
+    VALUE_MIN as MIN_QUEUE_VALUE_MIN,
+    expected_result as minimum_queue_two_stacks_primary_oracle,
+)
+from m.minimum_queue_two_stacks.independent_oracle import (
+    expected_result as minimum_queue_two_stacks_oracle,
+)
+from p.parallel_binary_search_range_threshold.primary_oracle import (
+    MAX_EVENTS as PBS_THRESHOLD_MAX_EVENTS,
+    MAX_N as PBS_THRESHOLD_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as PBS_THRESHOLD_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_QUERIES as PBS_THRESHOLD_MAX_QUERIES,
+    MAX_THRESHOLD as PBS_THRESHOLD_MAX_THRESHOLD,
+    MAX_VALID_INPUT_LENGTH as PBS_THRESHOLD_MAX_VALID_INPUT_LENGTH,
+    expected_result as parallel_binary_search_range_threshold_primary_oracle,
+)
+from p.parallel_binary_search_range_threshold.independent_oracle import (
+    expected_result as parallel_binary_search_range_threshold_oracle,
+)
+from c.cdq_three_dimensional_dominance.primary_oracle import (
+    MAX_N as CDQ_DOMINANCE_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as CDQ_DOMINANCE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as CDQ_DOMINANCE_MAX_VALID_INPUT_LENGTH,
+    expected_result as cdq_three_dimensional_dominance_primary_oracle,
+)
+from c.cdq_three_dimensional_dominance.independent_oracle import (
+    expected_result as cdq_three_dimensional_dominance_oracle,
+)
+from b.bareiss_determinant.primary_oracle import (
+    MAX_DIMENSION as BAREISS_DETERMINANT_MAX_DIMENSION,
+    MAX_PARSEABLE_INPUT_LENGTH as BAREISS_DETERMINANT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BAREISS_DETERMINANT_MAX_VALID_INPUT_LENGTH,
+    expected_result as bareiss_determinant_primary_oracle,
+)
+from b.bareiss_determinant.independent_oracle import (
+    expected_result as bareiss_determinant_oracle,
+)
+from p.persistent_segment_tree_range_kth.primary_oracle import (
+    MAX_N as PERSISTENT_RANGE_KTH_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as PERSISTENT_RANGE_KTH_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_Q as PERSISTENT_RANGE_KTH_MAX_Q,
+    MAX_VALID_INPUT_LENGTH as PERSISTENT_RANGE_KTH_MAX_VALID_INPUT_LENGTH,
+    expected_result as persistent_segment_tree_range_kth_primary_oracle,
+)
+from p.persistent_segment_tree_range_kth.independent_oracle import (
+    expected_result as persistent_segment_tree_range_kth_oracle,
+)
+from count_different_palindromic_subsequences_oracle import (
+    expected_result as count_different_palindromic_subsequences_primary_oracle,
+)
+from count_different_palindromic_subsequences_verifier_oracle import (
+    expected_result as count_different_palindromic_subsequences_oracle,
+)
 from functional_graph_cycle_parameters_oracle import (
     MAX_N as FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_MAX_N,
     MAX_PARSEABLE_INPUT_LENGTH as FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_MAX_PARSEABLE_INPUT_LENGTH,
@@ -1931,6 +2024,39 @@ from tree_edge_paint_path_count_oracle import (
 )
 from tree_edge_paint_path_count_independent_oracle import (
     expected_result as tree_edge_paint_path_count_oracle,
+)
+from convex_polygon_minimax_length_triangulation_oracle import (
+    MIN_VERTICES as CONVEX_POLYGON_MINIMAX_TRIANGULATION_MIN_VERTICES,
+    MAX_VERTICES as CONVEX_POLYGON_MINIMAX_TRIANGULATION_MAX_VERTICES,
+    COORDINATE_LIMIT as CONVEX_POLYGON_MINIMAX_TRIANGULATION_COORDINATE_LIMIT,
+    MAX_VALID_INPUT_LENGTH as CONVEX_POLYGON_MINIMAX_TRIANGULATION_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CONVEX_POLYGON_MINIMAX_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as convex_polygon_minimax_length_triangulation_primary_oracle,
+)
+from convex_polygon_minimax_length_triangulation_verifier_oracle import (
+    expected_result as convex_polygon_minimax_length_triangulation_oracle,
+)
+from p.pfaffian_of_matrix.primary_oracle import (
+    MODULUS as PFAFFIAN_OF_MATRIX_MODULUS,
+    MAX_N as PFAFFIAN_OF_MATRIX_MAX_N,
+    MAX_DIMENSION as PFAFFIAN_OF_MATRIX_MAX_DIMENSION,
+    MAX_VALID_INPUT_LENGTH as PFAFFIAN_OF_MATRIX_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PFAFFIAN_OF_MATRIX_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as pfaffian_of_matrix_primary_oracle,
+)
+from p.pfaffian_of_matrix.independent_oracle import (
+    expected_result as pfaffian_of_matrix_oracle,
+)
+from x_fast_trie_static_predecessor_oracle import (
+    MAX_KEYS as X_FAST_TRIE_MAX_KEYS,
+    MAX_QUERIES as X_FAST_TRIE_MAX_QUERIES,
+    UNIVERSE_BITS as X_FAST_TRIE_UNIVERSE_BITS,
+    MAX_VALID_INPUT_LENGTH as X_FAST_TRIE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as X_FAST_TRIE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as x_fast_trie_static_predecessor_primary_oracle,
+)
+from x_fast_trie_static_predecessor_verifier_oracle import (
+    expected_result as x_fast_trie_static_predecessor_oracle,
 )
 from vertex_connectivity_oracle import MAX_EDGES as VERTEX_CONNECTIVITY_MAX_EDGES
 from vertex_connectivity_oracle import MAX_INPUT_LENGTH as VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH
@@ -2273,9 +2399,20 @@ ALGORITHMS += ("max_jobs_before_deadlines",)
 ALGORITHMS += ("connected_labeled_graph_count",)
 ALGORITHMS += ("bostan_mori_recurrence_term",)
 ALGORITHMS += ("common_tangents_two_circles",)
+ALGORITHMS += ("circle_circle_intersection_count",)
+ALGORITHMS += ("fifteen_puzzle_solvability",)
+ALGORITHMS += ("minimum_queue_two_stacks",)
+ALGORITHMS += ("parallel_binary_search_range_threshold",)
+ALGORITHMS += ("cdq_three_dimensional_dominance",)
+ALGORITHMS += ("bareiss_determinant",)
+ALGORITHMS += ("persistent_segment_tree_range_kth",)
+ALGORITHMS += ("count_different_palindromic_subsequences",)
 ALGORITHMS += ("functional_graph_cycle_parameters",)
 ALGORITHMS += ("largest_zero_submatrix",)
 ALGORITHMS += ("tree_edge_paint_path_count",)
+ALGORITHMS += ("convex_polygon_minimax_length_triangulation",)
+ALGORITHMS += ("pfaffian_of_matrix",)
+ALGORITHMS += ("x_fast_trie_static_predecessor",)
 ALGORITHMS += ("hpcc_random_access",)
 ALGORITHMS += ("segment_add_get_min",)
 ALGORITHMS += ("point_set_range_composite",)
@@ -4323,12 +4460,34 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return bostan_mori_recurrence_term_oracle(values)
     if algorithm == "common_tangents_two_circles":
         return common_tangents_two_circles_oracle(values)
+    if algorithm == "circle_circle_intersection_count":
+        return circle_circle_intersection_count_oracle(values)
+    if algorithm == "fifteen_puzzle_solvability":
+        return fifteen_puzzle_solvability_oracle(values)
+    if algorithm == "minimum_queue_two_stacks":
+        return minimum_queue_two_stacks_oracle(values)
+    if algorithm == "parallel_binary_search_range_threshold":
+        return parallel_binary_search_range_threshold_oracle(values)
+    if algorithm == "cdq_three_dimensional_dominance":
+        return cdq_three_dimensional_dominance_oracle(values)
+    if algorithm == "bareiss_determinant":
+        return bareiss_determinant_oracle(values)
+    if algorithm == "persistent_segment_tree_range_kth":
+        return persistent_segment_tree_range_kth_oracle(values)
+    if algorithm == "count_different_palindromic_subsequences":
+        return count_different_palindromic_subsequences_oracle(values)
     if algorithm == "functional_graph_cycle_parameters":
         return functional_graph_cycle_parameters_oracle(values)
     if algorithm == "largest_zero_submatrix":
         return largest_zero_submatrix_oracle(values)
     if algorithm == "tree_edge_paint_path_count":
         return tree_edge_paint_path_count_oracle(values)
+    if algorithm == "convex_polygon_minimax_length_triangulation":
+        return convex_polygon_minimax_length_triangulation_oracle(values)
+    if algorithm == "pfaffian_of_matrix":
+        return pfaffian_of_matrix_oracle(values)
+    if algorithm == "x_fast_trie_static_predecessor":
+        return x_fast_trie_static_predecessor_oracle(values)
     if algorithm == "convex_layers":
         return convex_layers_oracle(values)
     if algorithm == "knapsack_zero_one_tabulation":
@@ -5700,12 +5859,34 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_bostan_mori_recurrence_term_workload(workload)
     elif algorithm == "common_tangents_two_circles":
         validate_common_tangents_two_circles_workload(workload)
+    elif algorithm == "circle_circle_intersection_count":
+        validate_circle_circle_intersection_count_workload(workload)
+    elif algorithm == "fifteen_puzzle_solvability":
+        validate_fifteen_puzzle_solvability_workload(workload)
+    elif algorithm == "minimum_queue_two_stacks":
+        validate_minimum_queue_two_stacks_workload(workload)
+    elif algorithm == "parallel_binary_search_range_threshold":
+        validate_parallel_binary_search_range_threshold_workload(workload)
+    elif algorithm == "cdq_three_dimensional_dominance":
+        validate_cdq_three_dimensional_dominance_workload(workload)
+    elif algorithm == "bareiss_determinant":
+        validate_bareiss_determinant_workload(workload)
+    elif algorithm == "persistent_segment_tree_range_kth":
+        validate_persistent_segment_tree_range_kth_workload(workload)
+    elif algorithm == "count_different_palindromic_subsequences":
+        validate_count_different_palindromic_subsequences_workload(workload)
     elif algorithm == "functional_graph_cycle_parameters":
         validate_functional_graph_cycle_parameters_workload(workload)
     elif algorithm == "largest_zero_submatrix":
         validate_largest_zero_submatrix_workload(workload)
     elif algorithm == "tree_edge_paint_path_count":
         validate_tree_edge_paint_path_count_workload(workload)
+    elif algorithm == "convex_polygon_minimax_length_triangulation":
+        validate_convex_polygon_minimax_length_triangulation_workload(workload)
+    elif algorithm == "pfaffian_of_matrix":
+        validate_pfaffian_of_matrix_workload(workload)
+    elif algorithm == "x_fast_trie_static_predecessor":
+        validate_x_fast_trie_static_predecessor_workload(workload)
     elif algorithm == "convex_layers":
         validate_convex_layers_workload(workload)
     elif algorithm == "minimum_string_representation":
@@ -8424,6 +8605,255 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= TREE_EDGE_PAINT_PATH_COUNT_MAX_PARSEABLE_INPUT_LENGTH:
                 cases[values] = tree_edge_paint_path_count_oracle(values)
         special_records.append("NULL 0 -1\n")
+    elif algorithm == "convex_polygon_minimax_length_triangulation":
+        validate_convex_polygon_minimax_length_triangulation_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list)
+                    or fixture.get("input_length") != len(values)
+                    or len(values) > CONVEX_POLYGON_MINIMAX_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH):
+                raise ValueError(
+                    "convex_polygon_minimax_length_triangulation fixture framing is invalid: "
+                    f"{fixture.get('id')}"
+                )
+            input_is_null = fixture.get("input_is_null", False)
+            primary = convex_polygon_minimax_length_triangulation_primary_oracle(
+                values, input_is_null=input_is_null,
+                input_length=fixture.get("input_length", len(values)))
+            independent = convex_polygon_minimax_length_triangulation_oracle(
+                values, input_is_null=input_is_null,
+                input_length=fixture.get("input_length", len(values)))
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "convex_polygon_minimax_length_triangulation fixture differs "
+                    f"between interval DP and exhaustive enumeration: {fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append("NULL 0 -1\n")
+            else:
+                cases[tuple(values)] = independent
+
+        def parabola_polygon(vertex_count: int, scale: int, slope: int,
+                             offset: int, reverse: bool, rotation: int) -> tuple[int, ...]:
+            first_x = -(vertex_count // 2)
+            points = [(x, scale * x * x + slope * x + offset)
+                      for x in range(first_x, first_x + vertex_count)]
+            if reverse:
+                points.reverse()
+            rotation %= vertex_count
+            points = points[rotation:] + points[:rotation]
+            return (vertex_count, *(coordinate for point in points for coordinate in point))
+
+        maximum_values = parabola_polygon(
+            CONVEX_POLYGON_MINIMAX_TRIANGULATION_MAX_VERTICES, 1, 0, 0, False, 0)
+        maximum_primary = convex_polygon_minimax_length_triangulation_primary_oracle(
+            maximum_values)
+        maximum_independent = convex_polygon_minimax_length_triangulation_oracle(
+            maximum_values)
+        if (len(maximum_values) != CONVEX_POLYGON_MINIMAX_TRIANGULATION_MAX_VALID_INPUT_LENGTH
+                or maximum_primary != maximum_independent
+                or maximum_independent < 0
+                or maximum_independent > 8 * CONVEX_POLYGON_MINIMAX_TRIANGULATION_COORDINATE_LIMIT ** 2):
+            raise ValueError(
+                "convex_polygon_minimax_length_triangulation maximum polygon differs from its bound"
+            )
+        cases[maximum_values] = maximum_independent
+
+        rng_minimax_polygon = random.Random(0x715)
+        for _ in range(32):
+            vertex_count = rng_minimax_polygon.randint(
+                CONVEX_POLYGON_MINIMAX_TRIANGULATION_MIN_VERTICES,
+                CONVEX_POLYGON_MINIMAX_TRIANGULATION_MAX_VERTICES)
+            values = parabola_polygon(
+                vertex_count,
+                rng_minimax_polygon.randint(1, 3),
+                rng_minimax_polygon.randint(-2, 2),
+                rng_minimax_polygon.randint(-10, 10),
+                bool(rng_minimax_polygon.randrange(2)),
+                rng_minimax_polygon.randrange(vertex_count),
+            )
+            primary = convex_polygon_minimax_length_triangulation_primary_oracle(values)
+            independent = convex_polygon_minimax_length_triangulation_oracle(values)
+            if primary != independent:
+                raise ValueError(
+                    "convex_polygon_minimax_length_triangulation generated polygon "
+                    "differs between interval DP and enumeration"
+                )
+            cases[values] = independent
+
+        maximum_parseable_invalid = (*maximum_values, 0)
+        if len(maximum_parseable_invalid) != CONVEX_POLYGON_MINIMAX_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError(
+                "convex_polygon_minimax_length_triangulation trailing frame differs from its bound"
+            )
+        malformed_polygons = (
+            (), (2, 0, 0, 1, 0), (3, 0, 0, 1, 1, 2, 2),
+            (4, 0, 0, 4, 4, 0, 4, 4, 0),
+            (4, 0, 0, 4, 0, 4, 4, 4, 0),
+            (3, -1001, 0, 0, 3, 4, 0),
+            (13, *(0 for _ in range(26))), maximum_parseable_invalid,
+        )
+        for values in malformed_polygons:
+            if len(values) <= CONVEX_POLYGON_MINIMAX_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH:
+                primary = convex_polygon_minimax_length_triangulation_primary_oracle(values)
+                independent = convex_polygon_minimax_length_triangulation_oracle(values)
+                if primary != -1 or independent != -1:
+                    raise ValueError(
+                        "convex_polygon_minimax_length_triangulation accepted malformed polygon input"
+                    )
+                cases[values] = independent
+    elif algorithm == "pfaffian_of_matrix":
+        validate_pfaffian_of_matrix_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list)
+                    or fixture.get("input_length") != len(values)
+                    or len(values) > PFAFFIAN_OF_MATRIX_MAX_PARSEABLE_INPUT_LENGTH):
+                raise ValueError(
+                    f"pfaffian_of_matrix fixture framing is invalid: {fixture.get('id')}"
+                )
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            primary = pfaffian_of_matrix_primary_oracle(
+                values, input_length=input_length, input_is_null=input_is_null)
+            independent = pfaffian_of_matrix_oracle(
+                values, input_length=input_length, input_is_null=input_is_null)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "pfaffian_of_matrix fixture differs between pivoted elimination "
+                    f"and pairing recurrence: {fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append("NULL 0 -1\n")
+            else:
+                cases[tuple(values)] = independent
+
+        maximum_dimension = PFAFFIAN_OF_MATRIX_MAX_DIMENSION
+        maximum_matrix = [[0] * maximum_dimension for _ in range(maximum_dimension)]
+        for index in range(0, maximum_dimension, 2):
+            maximum_matrix[index][index + 1] = 1
+            maximum_matrix[index + 1][index] = PFAFFIAN_OF_MATRIX_MODULUS - 1
+        maximum_values = (
+            PFAFFIAN_OF_MATRIX_MAX_N,
+            *(entry for row in maximum_matrix for entry in row),
+        )
+        maximum_primary = pfaffian_of_matrix_primary_oracle(maximum_values)
+        maximum_independent = pfaffian_of_matrix_oracle(maximum_values)
+        if (len(maximum_values) != PFAFFIAN_OF_MATRIX_MAX_VALID_INPUT_LENGTH
+                or maximum_primary != maximum_independent
+                or maximum_independent != 1):
+            raise ValueError("pfaffian_of_matrix maximum frame differs from its pairing profile")
+        cases[maximum_values] = maximum_independent
+
+        rng_pfaffian = random.Random(0xFAFF1A)
+        for _ in range(12):
+            half_dimension = rng_pfaffian.randint(1, PFAFFIAN_OF_MATRIX_MAX_N)
+            dimension = 2 * half_dimension
+            matrix = [[0] * dimension for _ in range(dimension)]
+            for row in range(dimension):
+                for column in range(row + 1, dimension):
+                    value = rng_pfaffian.randrange(PFAFFIAN_OF_MATRIX_MODULUS)
+                    matrix[row][column] = value
+                    matrix[column][row] = (-value) % PFAFFIAN_OF_MATRIX_MODULUS
+            if rng_pfaffian.randrange(4) == 0:
+                matrix = [[0] * dimension for _ in range(dimension)]
+            values = (half_dimension, *(entry for row in matrix for entry in row))
+            primary = pfaffian_of_matrix_primary_oracle(values)
+            independent = pfaffian_of_matrix_oracle(values)
+            if primary != independent:
+                raise ValueError(
+                    "pfaffian_of_matrix generated matrix differs between elimination "
+                    "and pairing recurrence"
+                )
+            cases[values] = independent
+
+        maximum_parseable_invalid = (*maximum_values, 0)
+        if len(maximum_parseable_invalid) != PFAFFIAN_OF_MATRIX_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError("pfaffian_of_matrix trailing frame differs from its parseable bound")
+        malformed_matrices = (
+            (), (0,), (PFAFFIAN_OF_MATRIX_MAX_N + 1,),
+            (1, 0, 1, 0, 0),
+            maximum_parseable_invalid,
+        )
+        for values in malformed_matrices:
+            primary = pfaffian_of_matrix_primary_oracle(values)
+            independent = pfaffian_of_matrix_oracle(values)
+            if primary != -1 or independent != -1:
+                raise ValueError("pfaffian_of_matrix accepted a malformed matrix frame")
+            cases[values] = independent
+    elif algorithm == "x_fast_trie_static_predecessor":
+        validate_x_fast_trie_static_predecessor_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list)
+                    or fixture.get("input_length") != len(values)
+                    or len(values) > X_FAST_TRIE_MAX_PARSEABLE_INPUT_LENGTH):
+                raise ValueError(
+                    f"x_fast_trie_static_predecessor fixture framing is invalid: {fixture.get('id')}"
+                )
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            primary = x_fast_trie_static_predecessor_primary_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            independent = x_fast_trie_static_predecessor_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "x_fast_trie_static_predecessor fixture differs between prefix "
+                    f"directories and sorted-array search: {fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append("NULL 0 -1\n")
+            else:
+                cases[tuple(values)] = independent
+
+        maximum_values = (
+            X_FAST_TRIE_MAX_KEYS,
+            X_FAST_TRIE_MAX_QUERIES,
+            *range(X_FAST_TRIE_MAX_KEYS),
+            *(65535 - 2500 * index for index in range(X_FAST_TRIE_MAX_QUERIES)),
+        )
+        if len(maximum_values) != X_FAST_TRIE_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("x_fast_trie_static_predecessor maximum frame differs from its bound")
+        maximum_primary = x_fast_trie_static_predecessor_primary_oracle(maximum_values)
+        maximum_independent = x_fast_trie_static_predecessor_oracle(maximum_values)
+        if maximum_primary != maximum_independent:
+            raise ValueError("x_fast_trie_static_predecessor maximum frame differs between oracles")
+        cases[maximum_values] = maximum_independent
+
+        rng_x_fast = random.Random(0xF457)
+        for _ in range(128):
+            key_count = rng_x_fast.randint(0, X_FAST_TRIE_MAX_KEYS)
+            query_count = rng_x_fast.randint(0, X_FAST_TRIE_MAX_QUERIES)
+            keys = rng_x_fast.sample(range(1 << X_FAST_TRIE_UNIVERSE_BITS), key_count)
+            queries = tuple(
+                rng_x_fast.randrange(1 << X_FAST_TRIE_UNIVERSE_BITS)
+                for _query in range(query_count)
+            )
+            values = (key_count, query_count, *keys, *queries)
+            primary = x_fast_trie_static_predecessor_primary_oracle(values)
+            independent = x_fast_trie_static_predecessor_oracle(values)
+            if primary != independent:
+                raise ValueError(
+                    "x_fast_trie_static_predecessor generated trace differs between "
+                    "prefix directories and sorted-array search"
+                )
+            cases[values] = independent
+
+        maximum_parseable_invalid = (*maximum_values, 0)
+        if len(maximum_parseable_invalid) != X_FAST_TRIE_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError("x_fast_trie_static_predecessor trailing frame differs from its bound")
+        malformed_predecessor = (
+            (), (25, 0), (0, 25), (1, 1, 1), (2, 0, 7, 7),
+            (1, 0, 65536), (0, 1, 0, -1), (0, 0, 99),
+            maximum_parseable_invalid,
+        )
+        for values in malformed_predecessor:
+            primary = x_fast_trie_static_predecessor_primary_oracle(values)
+            independent = x_fast_trie_static_predecessor_oracle(values)
+            if primary != -1 or independent != -1:
+                raise ValueError("x_fast_trie_static_predecessor accepted malformed input")
+            cases[values] = independent
     elif algorithm == "common_tangents_two_circles":
         validate_common_tangents_two_circles_workload(workload)
         for fixture in workload.get("cases", []):
@@ -8506,6 +8936,591 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= COMMON_TANGENTS_TWO_CIRCLES_MAX_PARSEABLE_INPUT_LENGTH:
                 cases[values] = common_tangents_two_circles_oracle(values)
         special_records.append("NULL 0 -1\n")
+    elif algorithm == "circle_circle_intersection_count":
+        validate_circle_circle_intersection_count_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list)
+                    or fixture.get("input_length") != len(values)
+                    or len(values) > CIRCLE_CIRCLE_INTERSECTION_MAX_PARSEABLE_INPUT_LENGTH):
+                raise ValueError(
+                    f"circle_circle_intersection_count fixture framing is invalid: {fixture.get('id')}"
+                )
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            primary = circle_circle_intersection_count_primary_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            independent = circle_circle_intersection_count_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "circle_circle_intersection_count fixture differs between radical-axis "
+                    f"and squared-distance oracles: {fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append("NULL 0 -1\n")
+            else:
+                cases[tuple(values)] = independent
+
+        for first_radius in (1, 2, 5, 17, CIRCLE_CIRCLE_INTERSECTION_MAX_RADIUS):
+            for second_radius in (1, 3, 5, 19, CIRCLE_CIRCLE_INTERSECTION_MAX_RADIUS):
+                inner = abs(first_radius - second_radius)
+                outer = first_radius + second_radius
+                distances = sorted({0, max(0, inner - 1), inner, inner + 1,
+                                    max(0, outer - 1), outer, outer + 1})
+                for distance in distances:
+                    if distance > 2 * CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE:
+                        continue
+                    values = (0, 0, first_radius, distance, 0, second_radius)
+                    primary = circle_circle_intersection_count_primary_oracle(values)
+                    independent = circle_circle_intersection_count_oracle(values)
+                    if primary != independent:
+                        raise ValueError(
+                            "circle_circle_intersection_count exact-threshold boundary oracles disagree"
+                        )
+                    cases[values] = independent
+
+        rng_circle_circle = random.Random(0xC1AC1E)
+        for _ in range(128):
+            values = (
+                rng_circle_circle.randint(-CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE,
+                                           CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE),
+                rng_circle_circle.randint(-CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE,
+                                           CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE),
+                rng_circle_circle.randint(1, CIRCLE_CIRCLE_INTERSECTION_MAX_RADIUS),
+                rng_circle_circle.randint(-CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE,
+                                           CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE),
+                rng_circle_circle.randint(-CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE,
+                                           CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE),
+                rng_circle_circle.randint(1, CIRCLE_CIRCLE_INTERSECTION_MAX_RADIUS),
+            )
+            primary = circle_circle_intersection_count_primary_oracle(values)
+            independent = circle_circle_intersection_count_oracle(values)
+            if primary != independent:
+                raise ValueError(
+                    "circle_circle_intersection_count generated circles differ between oracles"
+                )
+            cases[values] = independent
+
+        maximum_values = (
+            -CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE,
+            -CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE,
+            CIRCLE_CIRCLE_INTERSECTION_MAX_RADIUS,
+            CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE,
+            CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE,
+            CIRCLE_CIRCLE_INTERSECTION_MAX_RADIUS,
+        )
+        if len(maximum_values) != CIRCLE_CIRCLE_INTERSECTION_MAX_INPUT_LENGTH:
+            raise ValueError("circle_circle_intersection_count maximum frame differs from its bound")
+        maximum_primary = circle_circle_intersection_count_primary_oracle(maximum_values)
+        maximum_independent = circle_circle_intersection_count_oracle(maximum_values)
+        if maximum_primary != maximum_independent:
+            raise ValueError("circle_circle_intersection_count maximum coordinates differ between oracles")
+        cases[maximum_values] = maximum_independent
+
+        maximum_parseable_invalid = (*maximum_values, 0)
+        if len(maximum_parseable_invalid) != CIRCLE_CIRCLE_INTERSECTION_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError("circle_circle_intersection_count trailing frame differs from its bound")
+        malformed_circle_pairs = (
+            (), (0,), (0, 0, 1, 0, 0), maximum_parseable_invalid,
+            (CIRCLE_CIRCLE_INTERSECTION_MAX_COORDINATE + 1, 0, 1, 0, 0, 1),
+            (0, 0, 0, 1, 0, 1),
+            (0, 0, CIRCLE_CIRCLE_INTERSECTION_MAX_RADIUS + 1, 1, 0, 1),
+            (I64_MIN, 0, 1, 0, 0, 1), (0, 0, 1, I64_MAX, 0, 1),
+        )
+        for values in malformed_circle_pairs:
+            primary = circle_circle_intersection_count_primary_oracle(values)
+            independent = circle_circle_intersection_count_oracle(values)
+            if primary != -1 or independent != -1:
+                raise ValueError("circle_circle_intersection_count accepted malformed input")
+            cases[values] = independent
+        if not any("NULL 0 -1\n" == record for record in special_records):
+            special_records.append("NULL 0 -1\n")
+    elif algorithm == "fifteen_puzzle_solvability":
+        validate_fifteen_puzzle_solvability_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list)
+                    or fixture.get("input_length") != len(values)
+                    or len(values) > FIFTEEN_PUZZLE_MAX_PARSEABLE_INPUT_LENGTH):
+                raise ValueError(
+                    f"fifteen_puzzle_solvability fixture framing is invalid: {fixture.get('id')}"
+                )
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            primary = fifteen_puzzle_solvability_primary_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            independent = fifteen_puzzle_solvability_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "fifteen_puzzle_solvability fixture differs between inversion-row and "
+                    f"permutation-color oracles: {fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append("NULL 0 -1\n")
+            else:
+                cases[tuple(values)] = independent
+
+        rng_fifteen_puzzle = random.Random(0x15A6)
+        for _ in range(128):
+            board = list(range(16))
+            rng_fifteen_puzzle.shuffle(board)
+            values = tuple(board)
+            primary = fifteen_puzzle_solvability_primary_oracle(values)
+            independent = fifteen_puzzle_solvability_oracle(values)
+            if primary != independent:
+                raise ValueError("fifteen_puzzle_solvability generated board parity oracles disagree")
+            cases[values] = independent
+
+        maximum_board = tuple(range(15, -1, -1))
+        if len(maximum_board) != FIFTEEN_PUZZLE_MAX_INPUT_LENGTH:
+            raise ValueError("fifteen_puzzle_solvability maximum board differs from its bound")
+        maximum_primary = fifteen_puzzle_solvability_primary_oracle(maximum_board)
+        maximum_independent = fifteen_puzzle_solvability_oracle(maximum_board)
+        if maximum_primary != maximum_independent:
+            raise ValueError("fifteen_puzzle_solvability maximum board parity oracles disagree")
+        cases[maximum_board] = maximum_independent
+
+        maximum_parseable_invalid = (*maximum_board, 16)
+        if len(maximum_parseable_invalid) != FIFTEEN_PUZZLE_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError("fifteen_puzzle_solvability trailing frame differs from its bound")
+        malformed_boards = (
+            (), (0,), tuple(range(15)), maximum_parseable_invalid,
+            (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 14, 0),
+            (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 0),
+            (I64_MIN, *range(1, 16), 0),
+        )
+        for values in malformed_boards:
+            primary = fifteen_puzzle_solvability_primary_oracle(values)
+            independent = fifteen_puzzle_solvability_oracle(values)
+            if primary != -1 or independent != -1:
+                raise ValueError("fifteen_puzzle_solvability accepted a malformed board")
+            cases[values] = independent
+        if not any("NULL 0 -1\n" == record for record in special_records):
+            special_records.append("NULL 0 -1\n")
+    elif algorithm == "minimum_queue_two_stacks":
+        validate_minimum_queue_two_stacks_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list)
+                    or fixture.get("input_length") != len(values)
+                    or len(values) > MIN_QUEUE_MAX_PARSEABLE_INPUT_LENGTH):
+                raise ValueError(
+                    f"minimum_queue_two_stacks fixture framing is invalid: {fixture.get('id')}"
+                )
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            primary = minimum_queue_two_stacks_primary_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            independent = minimum_queue_two_stacks_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "minimum_queue_two_stacks fixture differs between augmented stacks and "
+                    f"direct FIFO oracle: {fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append("NULL 0 -1\n")
+            else:
+                cases[tuple(values)] = independent
+
+        rng_minimum_queue = random.Random(0xA11CE)
+        for _ in range(128):
+            operation_count = rng_minimum_queue.randint(0, MIN_QUEUE_MAX_OPERATIONS)
+            trace = [operation_count]
+            queue = []
+            for _operation in range(operation_count):
+                if not queue:
+                    opcode = 0
+                elif len(queue) >= MIN_QUEUE_CAPACITY:
+                    opcode = rng_minimum_queue.choice((1, 2))
+                else:
+                    opcode = rng_minimum_queue.choice((0, 1, 2))
+                trace.append(opcode)
+                if opcode == 0:
+                    value = rng_minimum_queue.randint(MIN_QUEUE_VALUE_MIN, MIN_QUEUE_VALUE_MAX)
+                    trace.append(value)
+                    queue.append(value)
+                elif opcode == 1:
+                    queue.pop(0)
+            packed = tuple(trace)
+            if len(packed) > MIN_QUEUE_MAX_VALID_INPUT_LENGTH:
+                raise ValueError("minimum_queue_two_stacks generated trace exceeds the valid frame bound")
+            primary = minimum_queue_two_stacks_primary_oracle(packed)
+            independent = minimum_queue_two_stacks_oracle(packed)
+            if primary != independent:
+                raise ValueError("minimum_queue_two_stacks generated traces differ between oracles")
+            cases[packed] = independent
+
+        malformed_traces = (
+            (), (I64_MIN,), (33,), (1, 3), (1, 0), (1, 9),
+            (1, 0, MIN_QUEUE_VALUE_MAX + 1),
+            (2, 0, 7), (0, 5),
+            (17, *(item for _ in range(17) for item in (0, 1))),
+        )
+        for values in malformed_traces:
+            if len(values) > MIN_QUEUE_MAX_PARSEABLE_INPUT_LENGTH:
+                continue
+            primary = minimum_queue_two_stacks_primary_oracle(values)
+            independent = minimum_queue_two_stacks_oracle(values)
+            if primary != -1 or independent != -1:
+                raise ValueError("minimum_queue_two_stacks accepted a malformed trace")
+            cases[values] = independent
+        if not any("NULL 0 -1\n" == record for record in special_records):
+            special_records.append("NULL 0 -1\n")
+    elif algorithm == "parallel_binary_search_range_threshold":
+        validate_parallel_binary_search_range_threshold_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values) if isinstance(values, list) else None)
+            if (not isinstance(values, list)
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or len(values) > PBS_THRESHOLD_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(
+                    f"parallel_binary_search_range_threshold fixture framing is invalid: {fixture.get('id')}"
+                )
+            primary = parallel_binary_search_range_threshold_primary_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            independent = parallel_binary_search_range_threshold_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "parallel_binary_search_range_threshold fixture differs between batched Fenwick "
+                    f"search and replay/scan oracles: {fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append("NULL 0 -1\n")
+            else:
+                cases[tuple(values)] = independent
+
+        rng_pbs = random.Random(0xB1A5)
+        for _ in range(128):
+            n = rng_pbs.randint(1, PBS_THRESHOLD_MAX_N)
+            event_count = rng_pbs.randint(0, PBS_THRESHOLD_MAX_EVENTS)
+            query_count = rng_pbs.randint(0, PBS_THRESHOLD_MAX_QUERIES)
+            trace = [n, event_count, query_count]
+            for _event in range(event_count):
+                left = rng_pbs.randrange(n)
+                right = rng_pbs.randrange(left, n)
+                trace.extend((left, right, rng_pbs.randint(0, 1000)))
+            for _query in range(query_count):
+                left = rng_pbs.randrange(n)
+                right = rng_pbs.randrange(left, n)
+                trace.extend((left, right, rng_pbs.randint(1, PBS_THRESHOLD_MAX_THRESHOLD)))
+            packed = tuple(trace)
+            if len(packed) > PBS_THRESHOLD_MAX_VALID_INPUT_LENGTH:
+                raise ValueError("parallel_binary_search_range_threshold generated trace exceeds its valid bound")
+            primary = parallel_binary_search_range_threshold_primary_oracle(packed)
+            independent = parallel_binary_search_range_threshold_oracle(packed)
+            if primary != independent:
+                raise ValueError("parallel_binary_search_range_threshold generated oracles disagree")
+            cases[packed] = independent
+
+        maximum_values = (
+            PBS_THRESHOLD_MAX_N,
+            PBS_THRESHOLD_MAX_EVENTS,
+            PBS_THRESHOLD_MAX_QUERIES,
+            *(item for _ in range(PBS_THRESHOLD_MAX_EVENTS)
+              for item in (0, PBS_THRESHOLD_MAX_N - 1, 1000)),
+            *(item for _ in range(PBS_THRESHOLD_MAX_QUERIES)
+              for item in (0, PBS_THRESHOLD_MAX_N - 1, PBS_THRESHOLD_MAX_THRESHOLD)),
+        )
+        if len(maximum_values) != PBS_THRESHOLD_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("parallel_binary_search_range_threshold maximum valid trace differs from its bound")
+        maximum_primary = parallel_binary_search_range_threshold_primary_oracle(maximum_values)
+        maximum_independent = parallel_binary_search_range_threshold_oracle(maximum_values)
+        if maximum_primary != maximum_independent or maximum_independent != 17424:
+            raise ValueError("parallel_binary_search_range_threshold maximum trace oracle result differs")
+        cases[maximum_values] = maximum_independent
+
+        malformed_traces = (
+            (), (I64_MIN,), (0, 0, 0), (1, -1, 0), (1, 33, 0), (1, 0, 33),
+            (1, 0, 0, 0), (1, 1, 0, 0, 1, 1), (1, 1, 0, 0, 0, -1),
+            (1, 1, 0, 0, 0, 1001), (1, 0, 1, 0, 0, 0),
+            (1, 0, 1, 0, 0, PBS_THRESHOLD_MAX_THRESHOLD + 1),
+            (1, 0, 1, 1, 0, 1), (1, 0, 1, 0, 1, 1),
+            (I64_MAX,), (*maximum_values, 0),
+        )
+        for values in malformed_traces:
+            if len(values) > PBS_THRESHOLD_MAX_PARSEABLE_INPUT_LENGTH:
+                continue
+            primary = parallel_binary_search_range_threshold_primary_oracle(values)
+            independent = parallel_binary_search_range_threshold_oracle(values)
+            if primary != -1 or independent != -1:
+                raise ValueError("parallel_binary_search_range_threshold accepted a malformed trace")
+            cases[values] = independent
+        if not any("NULL 0 -1\n" == record for record in special_records):
+            special_records.append("NULL 0 -1\n")
+    elif algorithm == "cdq_three_dimensional_dominance":
+        validate_cdq_three_dimensional_dominance_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values) if isinstance(values, list) else None)
+            if (not isinstance(values, list)
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or len(values) > CDQ_DOMINANCE_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(
+                    f"cdq_three_dimensional_dominance fixture framing is invalid: {fixture.get('id')}"
+                )
+            primary = cdq_three_dimensional_dominance_primary_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            independent = cdq_three_dimensional_dominance_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "cdq_three_dimensional_dominance fixture differs between CDQ/Fenwick "
+                    f"and direct-pair oracles: {fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append("NULL 0 -1\n")
+            else:
+                cases[tuple(values)] = independent
+
+        rng_cdq = random.Random(0xCD03)
+        for _ in range(128):
+            n = rng_cdq.randint(1, CDQ_DOMINANCE_MAX_N)
+            trace = [n]
+            for _point in range(n):
+                trace.extend((rng_cdq.randint(-8, 8), rng_cdq.randint(-8, 8), rng_cdq.randint(-8, 8)))
+            packed = tuple(trace)
+            if len(packed) > CDQ_DOMINANCE_MAX_VALID_INPUT_LENGTH:
+                raise ValueError("cdq_three_dimensional_dominance generated trace exceeds its valid bound")
+            primary = cdq_three_dimensional_dominance_primary_oracle(packed)
+            independent = cdq_three_dimensional_dominance_oracle(packed)
+            if primary != independent:
+                raise ValueError("cdq_three_dimensional_dominance generated oracles disagree")
+            cases[packed] = independent
+
+        maximum_values = (CDQ_DOMINANCE_MAX_N, *(item for _ in range(CDQ_DOMINANCE_MAX_N)
+                                                  for item in (0, 0, 0)))
+        if len(maximum_values) != CDQ_DOMINANCE_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("cdq_three_dimensional_dominance maximum input differs from its bound")
+        maximum_primary = cdq_three_dimensional_dominance_primary_oracle(maximum_values)
+        maximum_independent = cdq_three_dimensional_dominance_oracle(maximum_values)
+        if maximum_primary != maximum_independent or maximum_independent != 131040:
+            raise ValueError("cdq_three_dimensional_dominance maximum-result oracle value differs")
+        cases[maximum_values] = maximum_independent
+
+        malformed_inputs = (
+            (), (I64_MIN,), (0,), (CDQ_DOMINANCE_MAX_N + 1,),
+            (1, 0, 0, 0, 9), (2, 0, 0, 1, 2, 3),
+            (1, -1001, 0, 0), (1, 1001, 0, 0),
+            (1, 0, -1001, 0), (1, 0, 0, 1001),
+            (I64_MAX,), (*maximum_values, 0),
+        )
+        for values in malformed_inputs:
+            if len(values) > CDQ_DOMINANCE_MAX_PARSEABLE_INPUT_LENGTH:
+                continue
+            primary = cdq_three_dimensional_dominance_primary_oracle(values)
+            independent = cdq_three_dimensional_dominance_oracle(values)
+            if primary != -1 or independent != -1:
+                raise ValueError("cdq_three_dimensional_dominance accepted malformed input")
+            cases[values] = independent
+        if not any("NULL 0 -1\n" == record for record in special_records):
+            special_records.append("NULL 0 -1\n")
+    elif algorithm == "bareiss_determinant":
+        validate_bareiss_determinant_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values) if isinstance(values, list) else None)
+            if (not isinstance(values, list)
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or len(values) > BAREISS_DETERMINANT_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(f"bareiss_determinant fixture framing is invalid: {fixture.get('id')}")
+            primary = bareiss_determinant_primary_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            independent = bareiss_determinant_oracle(
+                values, input_is_null=input_is_null, input_length=input_length)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "bareiss_determinant fixture differs between Bareiss elimination and "
+                    f"signed permutation expansion: {fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append(f"NULL 0 {I64_MIN}\n")
+            else:
+                cases[tuple(values)] = independent
+
+        rng_bareiss = random.Random(0xBAAE155)
+        for _ in range(64):
+            n = rng_bareiss.randint(1, BAREISS_DETERMINANT_MAX_DIMENSION)
+            matrix_values = tuple(rng_bareiss.randint(-4, 4) for _ in range(n * n))
+            packed = (n, *matrix_values)
+            primary = bareiss_determinant_primary_oracle(packed)
+            independent = bareiss_determinant_oracle(packed)
+            if primary != independent:
+                raise ValueError("bareiss_determinant generated determinant oracles disagree")
+            cases[packed] = independent
+
+        maximum_values = (
+            BAREISS_DETERMINANT_MAX_DIMENSION,
+            *( -4 if row == column == 0 else
+               4 if row == column else 0
+               for row in range(BAREISS_DETERMINANT_MAX_DIMENSION)
+               for column in range(BAREISS_DETERMINANT_MAX_DIMENSION)),
+        )
+        if len(maximum_values) != BAREISS_DETERMINANT_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("bareiss_determinant maximum matrix differs from its valid frame bound")
+        maximum_primary = bareiss_determinant_primary_oracle(maximum_values)
+        maximum_independent = bareiss_determinant_oracle(maximum_values)
+        if maximum_primary != maximum_independent or maximum_independent != -65536:
+            raise ValueError("bareiss_determinant maximum-dimension determinant differs")
+        cases[maximum_values] = maximum_independent
+
+        malformed_inputs = (
+            (), (I64_MIN,), (0,), (BAREISS_DETERMINANT_MAX_DIMENSION + 1,),
+            (1, 0, 0), (2, 1, 0, 0), (1, 5),
+            (*maximum_values, 0),
+        )
+        for values in malformed_inputs:
+            if len(values) > BAREISS_DETERMINANT_MAX_PARSEABLE_INPUT_LENGTH:
+                continue
+            primary = bareiss_determinant_primary_oracle(values)
+            independent = bareiss_determinant_oracle(values)
+            if primary != I64_MIN or independent != I64_MIN:
+                raise ValueError("bareiss_determinant accepted malformed input")
+            cases[values] = independent
+        if not any(f"NULL 0 {I64_MIN}\n" == record for record in special_records):
+            special_records.append(f"NULL 0 {I64_MIN}\n")
+    elif algorithm == "persistent_segment_tree_range_kth":
+        validate_persistent_segment_tree_range_kth_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values) if isinstance(values, list) else None)
+            if (not isinstance(values, list)
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or len(values) > PERSISTENT_RANGE_KTH_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(
+                    "persistent_segment_tree_range_kth fixture framing is invalid: "
+                    f"{fixture.get('id')}"
+                )
+            options = {"input_is_null": input_is_null, "input_length": input_length}
+            primary = persistent_segment_tree_range_kth_primary_oracle(values, **options)
+            independent = persistent_segment_tree_range_kth_oracle(values, **options)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "persistent_segment_tree_range_kth fixture differs between persistent and sort oracles: "
+                    f"{fixture.get('id')}"
+                )
+            if input_is_null:
+                special_records.append(f"NULL 0 {I64_MIN}\n")
+            else:
+                cases[tuple(values)] = independent
+
+        rng_persistent_range_kth = random.Random(0xF057A1)
+        for _ in range(128):
+            n = rng_persistent_range_kth.randint(1, PERSISTENT_RANGE_KTH_MAX_N)
+            sequence = tuple(rng_persistent_range_kth.randint(-1000, 1000) for _ in range(n))
+            q = rng_persistent_range_kth.randint(0, PERSISTENT_RANGE_KTH_MAX_Q)
+            query_words = []
+            for _query in range(q):
+                left = rng_persistent_range_kth.randrange(n)
+                right = rng_persistent_range_kth.randint(left, n - 1)
+                k = rng_persistent_range_kth.randint(1, right - left + 1)
+                query_words.extend((left, right, k))
+            packed = (n, q, *sequence, *query_words)
+            if len(packed) > PERSISTENT_RANGE_KTH_MAX_VALID_INPUT_LENGTH:
+                raise ValueError("persistent_segment_tree_range_kth generated input exceeds its valid bound")
+            primary = persistent_segment_tree_range_kth_primary_oracle(packed)
+            independent = persistent_segment_tree_range_kth_oracle(packed)
+            if primary != independent:
+                raise ValueError("persistent_segment_tree_range_kth generated oracles disagree")
+            cases[packed] = independent
+
+        malformed_inputs = (
+            (), (I64_MIN,), (0, 0), (PERSISTENT_RANGE_KTH_MAX_N + 1, 0),
+            (1, PERSISTENT_RANGE_KTH_MAX_Q + 1), (1, 0), (1, 0, 0, 7),
+            (1, 1, 4, 1, 0, 1), (1, 1, 4, 0, 0, 0),
+            (1, 1, 4, 0, 0, 2), (1, 0, 1001),
+        )
+        for values in malformed_inputs:
+            if len(values) > PERSISTENT_RANGE_KTH_MAX_PARSEABLE_INPUT_LENGTH:
+                continue
+            primary = persistent_segment_tree_range_kth_primary_oracle(values)
+            independent = persistent_segment_tree_range_kth_oracle(values)
+            if primary != I64_MIN or independent != I64_MIN:
+                raise ValueError("persistent_segment_tree_range_kth accepted malformed input")
+            cases[values] = independent
+        if not any(f"NULL 0 {I64_MIN}\n" == record for record in special_records):
+            special_records.append(f"NULL 0 {I64_MIN}\n")
+    elif algorithm == "count_different_palindromic_subsequences":
+        validate_count_different_palindromic_subsequences_workload(workload)
+        for fixture in workload.get("cases", []):
+            values = fixture.get("input_values")
+            if (not isinstance(values, list)
+                    or fixture.get("input_length") != len(values)
+                    or len(values) > COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_MAX_PARSEABLE_INPUT_LENGTH):
+                raise ValueError(
+                    "count_different_palindromic_subsequences fixture framing is invalid: "
+                    f"{fixture.get('id')}"
+                )
+            primary = count_different_palindromic_subsequences_primary_oracle(values)
+            independent = count_different_palindromic_subsequences_oracle(values)
+            if fixture.get("expected_result") != independent or primary != independent:
+                raise ValueError(
+                    "count_different_palindromic_subsequences fixture differs between interval DP "
+                    f"and mask enumeration: {fixture.get('id')}"
+                )
+            cases[tuple(values)] = independent
+
+        rng_palindrome_subsequences = random.Random(0x730)
+        for _ in range(64):
+            n = rng_palindrome_subsequences.randint(0, 14)
+            trace = (n, *(rng_palindrome_subsequences.randrange(
+                COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_ALPHABET_SIZE) for _ in range(n)))
+            primary = count_different_palindromic_subsequences_primary_oracle(trace)
+            independent = count_different_palindromic_subsequences_oracle(trace)
+            if primary != independent:
+                raise ValueError(
+                    "count_different_palindromic_subsequences generated oracles disagree"
+                )
+            cases[trace] = independent
+
+        maximum_values = (
+            COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_MAX_LENGTH,
+            *(3 for _ in range(COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_MAX_LENGTH)),
+        )
+        if len(maximum_values) != COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("count_different_palindromic_subsequences maximum input differs from its bound")
+        maximum_primary = count_different_palindromic_subsequences_primary_oracle(maximum_values)
+        maximum_independent = count_different_palindromic_subsequences_oracle(maximum_values)
+        if maximum_primary != maximum_independent or maximum_independent != 20:
+            raise ValueError("count_different_palindromic_subsequences maximum-result oracle value differs")
+        cases[maximum_values] = maximum_independent
+
+        malformed_inputs = (
+            (), (I64_MIN,), (-1,),
+            (COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_MAX_LENGTH + 1,),
+            (1, -1), (1, COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_ALPHABET_SIZE),
+            (1, 0, 0), (*maximum_values, 0),
+        )
+        for values in malformed_inputs:
+            if len(values) > COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_MAX_PARSEABLE_INPUT_LENGTH:
+                continue
+            primary = count_different_palindromic_subsequences_primary_oracle(values)
+            independent = count_different_palindromic_subsequences_oracle(values)
+            if primary != -1 or independent != -1:
+                raise ValueError("count_different_palindromic_subsequences accepted malformed input")
+            cases[values] = independent
+        if not any("NULL 0 -1\n" == record for record in special_records):
+            special_records.append("NULL 0 -1\n")
     elif algorithm == "bostan_mori_recurrence_term":
         validate_bostan_mori_recurrence_term_workload(workload)
         for fixture in workload.get("cases", []):

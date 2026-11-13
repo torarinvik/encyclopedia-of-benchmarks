@@ -1041,6 +1041,8 @@ The [SPLASH-2-inspired water profiles](benchmarks/s/splash2_water_nsquared/READM
 
 [Circle-line intersection counts](benchmarks/c/circle_line_intersection_count/README.md) classify each bounded integer line as missing, tangent to, or crossing a circle using exact discriminants. Ten ports, an independent line-parameter oracle, and byte-output suite registration are included.
 
+[Circle-circle intersection counts](benchmarks/c/circle_circle_intersection_count/README.md) use the radical axis and an exact discriminant to classify disjoint, tangent, two-point, and coincident circles. Ten ports, an independent squared-distance oracle, and scalar-suite registration are included.
+
 [Functional graph cycle parameters](benchmarks/f/functional_graph_cycle_parameters/README.md) finds the preperiod and eventual cycle length from one node in a bounded successor map using constant-space tortoise-and-hare traversal. Ten ports, an independent first-seen-table oracle, workload fixtures, and scalar-suite registration are included.
 
 [Largest zero submatrix](benchmarks/l/largest_zero_submatrix/README.md) updates per-column blocker heights for each binary-matrix row and uses monotone stacks to find the largest all-zero rectangle. Ten ports, an independent exhaustive rectangle oracle, and scalar-suite registration are included.
@@ -1050,3 +1052,49 @@ The [SPLASH-2-inspired water profiles](benchmarks/s/splash2_water_nsquared/READM
 [Balanced ternary conversion](benchmarks/b/balanced_ternary_conversion/README.md) converts any signed 64-bit integer to canonical radix-three digits `Z`, `0`, and `1`. Ten ports, independent signed-remainder and carry oracles, bounded byte-output workloads, and suite registration are included.
 
 [Tree edge painting and path counts](benchmarks/t/tree_edge_paint_path_count/README.md) supports idempotent edge paints and arbitrary path queries on a bounded tree. Ten ports use directional Euler-tour segment trees with LCA path splitting; an independent BFS oracle reconstructs each path. Scalar-suite registration is included.
+
+[Online temporary-task load balancing](benchmarks/o/online_temporary_task_load_balancing/README.md) assigns each arriving temporary task to a least-loaded machine after expiring completed tasks, then reports peak active load and assignments. Ten ports, independent expiration-heap and history-replay oracles, bounded byte-output workloads, and suite registration are included.
+
+[Convolution over GF(2^64)](benchmarks/c/convolution_f2_64/README.md) computes carryless polynomial convolution modulo `x^64+x^4+x^3+x+1`, treating each i64 input bit pattern as a u64 field element. Ten ports, independent shift/reduce and polynomial-division oracles, bounded byte-output workloads, and suite registration are included.
+
+[Convex-polygon minimax-length triangulation](benchmarks/c/convex_polygon_minimax_length_triangulation/README.md) minimizes the longest edge over triangulations of a strictly convex integer polygon. Ten ports use interval minimax dynamic programming; an independent exhaustive enumerator checks the small bounded profile, which is registered in the scalar suite.
+
+[Pfaffian of an alternating matrix](benchmarks/p/pfaffian_of_matrix/README.md) computes the Pfaffian modulo 998244353 for bounded alternating matrices. Ten ports use pivoted elimination; an independent pairing-mask recurrence verifies the scalar profile, which is registered in the scalar suite.
+
+[Static x-fast trie predecessor](benchmarks/x/x_fast_trie_static_predecessor/README.md) answers bounded batches of integer predecessor queries using prefix-level catalogs and longest-existing-prefix search. Ten ports, an independent sorted-array oracle, and scalar-suite registration are included; the profile does not claim the classic expected `O(log log U)` bound.
+
+[Dirichlet convolution and prefix sums](benchmarks/d/dirichlet_convolution_and_prefix_sums/README.md) computes convolution-prefix values over the floor-quotient set `Q_N` from cumulative function values. Ten ports use two quotient-interval groupings with structurally independent oracles; the bounded byte-output profile is registered in the suite.
+
+[Blocked right-looking LU factorization](benchmarks/b/blocked_lu_factorization/README.md) uses a serial block-width-two schedule and trailing Schur updates. Ten ports and float64-slice suite registration are included; its bounded internal workspace is 2560 bytes.
+
+[15-puzzle solvability](benchmarks/f/fifteen_puzzle_solvability/README.md) classifies a 4×4 board by the inversion/blank-row parity invariant, without searching for a move sequence. Ten ports, independent permutation-cycle and checkerboard-color verification, and scalar-suite registration are included.
+
+[Binomial coefficients modulo prime powers](benchmarks/b/binomial_coefficient_prime_power/README.md) use p-adic factorial cancellation and invert only p-free units. Ten ports, an independent Pascal-row oracle, bounded byte-output workloads, and suite registration are included.
+
+[Minimum queue with two stacks](benchmarks/m/minimum_queue_two_stacks/README.md) maintains FIFO order and constant-time minimum queries with two prefix-minimum stacks. Ten ports, a direct FIFO oracle, bounded workloads, and scalar-suite registration are included.
+
+[Adaptive Simpson quadrature](benchmarks/a/adaptive_simpson_quadrature/README.md) refines only intervals whose local Simpson error estimate exceeds tolerance, with a correction on accepted intervals. Ten ports, a closed-form oracle, bounded workloads, and float64-suite registration are included.
+
+[Parallel binary search for range-threshold crossings](benchmarks/p/parallel_binary_search_range_threshold/README.md) batches monotone earliest-prefix queries by midpoint and replays range additions through Fenwick trees. Ten ports, independent replay-and-scan verification, bounded workloads, and scalar-suite registration are included.
+
+[Mergeable and splittable segment tree](benchmarks/s/segment_tree_merge_split/README.md) maintains sparse value-domain multisets with destructive root merges and interval extraction. Ten language ports, an independent count-array oracle, bounded byte-output workloads, and suite registration are included.
+
+[SMO dual pair update](benchmarks/s/smo_dual_pair_update/README.md) performs one analytic linear-kernel SVM dual update for a supplied coefficient pair and bias. Ten language ports, an independent restricted-objective oracle, bounded ABI fixtures, and float64-suite registration are included; this is a training primitive, not a full classifier.
+
+[CDQ 3D dominance counts](benchmarks/c/cdq_three_dimensional_dominance/README.md) counts weakly dominated points with multiplicity-weighted Fenwick queries and y-ordered CDQ merges. Ten ports, a direct ordered-pair oracle, bounded fixtures, and scalar-suite registration are included.
+
+[Distinct palindromic subsequences](benchmarks/c/count_different_palindromic_subsequences/README.md) counts distinct nonempty palindrome sequences over a bounded four-symbol alphabet. Ten ports, duplicate-aware interval DP, an independent mask enumerator, bounded workloads, and scalar-suite registration are included.
+
+[Palindrome pairs](benchmarks/p/palindrome_pairs/README.md) enumerates ordered word-index pairs whose concatenation is palindromic, including empty and duplicate words. Ten ports, split-and-lookup and direct-concatenation oracles, bounded byte-output workloads, and byte-suite registration are included.
+
+[Dormand–Prince adaptive ODE solver](benchmarks/d/dormand_prince_54_adaptive_ode/README.md) integrates four bounded scalar ODEs with the adaptive 5(4) Runge–Kutta pair, accept/reject control, and FSAL reuse. Ten ports, an independent closed-form verifier, bounded float64 workloads, and float64-suite registration are included.
+
+[Dial bucket shortest paths](benchmarks/d/dial_bucket_shortest_paths/README.md) computes directed shortest-path distances with a nine-slot cyclic bucket queue for weights from zero to eight. Ten ports, an independent Floyd–Warshall oracle, bounded byte-output workloads, and byte-suite registration are included.
+
+[Bareiss fraction-free determinant](benchmarks/b/bareiss_determinant/README.md) computes exact small integer determinants using pivoted fraction-free elimination. Ten ports, an independent signed-permutation expansion, bounded matrix workloads, and scalar-suite registration are included.
+
+[Ridders root finding](benchmarks/r/ridders_root_finding/README.md) uses midpoint-based exponential interpolation to preserve a sign-changing root bracket. Ten ports, an independent high-precision bisection oracle, bounded float64 workloads, and float64-suite registration are included.
+
+[Romberg integration](benchmarks/r/romberg_integration/README.md) refines nested trapezoid estimates and applies Richardson extrapolation in a bounded tableau. Ten ports, an independent closed-form antiderivative verifier, bounded float64 workloads, and float64-suite registration are included.
+
+[Persistent segment-tree range kth](benchmarks/p/persistent_segment_tree_range_kth/README.md) answers static subarray order-statistic queries by descending differences between path-copied prefix histograms. Ten ports, an independent per-slice sort oracle, bounded scalar workloads, and scalar-suite registration are included.

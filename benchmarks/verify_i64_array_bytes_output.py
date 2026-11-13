@@ -195,6 +195,61 @@ from h.hash_join.primary_oracle import (
 from h.hash_join.independent_oracle import (
     expected_output as hash_join_independent_oracle,
 )
+from p.palindrome_pairs.primary_oracle import (
+    MAX_OUTPUT_BYTES as PALINDROME_PAIRS_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as PALINDROME_PAIRS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as PALINDROME_PAIRS_MAX_VALID_INPUT_LENGTH,
+    MAX_WORDS as PALINDROME_PAIRS_MAX_WORDS,
+    WORKSPACE_BYTES as PALINDROME_PAIRS_WORKSPACE_BYTES,
+    expected_output as palindrome_pairs_primary_oracle,
+)
+from p.palindrome_pairs.independent_oracle import (
+    expected_output as palindrome_pairs_independent_oracle,
+)
+from p.palindrome_pairs.check_inventory import (
+    static_issues as palindrome_pairs_static_issues,
+)
+from b.binomial_coefficient_prime_power.primary_oracle import (
+    MAX_EXPONENT as BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_EXPONENT,
+    MAX_INPUT_LENGTH as BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_INPUT_LENGTH,
+    MAX_MODULUS as BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_MODULUS,
+    MAX_N as BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_N,
+    MAX_OUTPUT_BYTES as BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_OUTPUT_BYTES,
+    MAX_P as BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_P,
+    MAX_PARSEABLE_INPUT_LENGTH as BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_QUERIES as BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_QUERIES,
+    WORKSPACE_BYTES as BINOMIAL_COEFFICIENT_PRIME_POWER_WORKSPACE_BYTES,
+    expected_output as binomial_coefficient_prime_power_primary_oracle,
+)
+from b.binomial_coefficient_prime_power.independent_oracle import (
+    expected_output as binomial_coefficient_prime_power_independent_oracle,
+)
+from s.segment_tree_merge_split.primary_oracle import (
+    MAX_OUTPUT_BYTES as SEGMENT_TREE_MERGE_SPLIT_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as SEGMENT_TREE_MERGE_SPLIT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SEGMENT_TREE_MERGE_SPLIT_MAX_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as SEGMENT_TREE_MERGE_SPLIT_WORKSPACE_BYTES,
+    MAX_OPERATION_BUFFER_BYTES as SEGMENT_TREE_MERGE_SPLIT_OPERATION_BUFFER_BYTES,
+    MAX_DECLARED_FIXED_ARRAY_BYTES as SEGMENT_TREE_MERGE_SPLIT_FIXED_ARRAY_BYTES,
+    MAX_INTERNAL_NODE_POOL_BYTES as SEGMENT_TREE_MERGE_SPLIT_NODE_POOL_BYTES,
+    expected_output as segment_tree_merge_split_primary_oracle,
+)
+from s.segment_tree_merge_split.independent_oracle import (
+    expected_output as segment_tree_merge_split_independent_oracle,
+)
+from d.dial_bucket_shortest_paths.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DIAL_BUCKET_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as DIAL_BUCKET_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DIAL_BUCKET_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as DIAL_BUCKET_WORKSPACE_BYTES,
+    expected_output as dial_bucket_shortest_paths_primary_oracle,
+)
+from d.dial_bucket_shortest_paths.independent_oracle import (
+    expected_output as dial_bucket_shortest_paths_independent_oracle,
+)
+from d.dial_bucket_shortest_paths.check_inventory import (
+    check_inventory as check_dial_bucket_shortest_paths_inventory,
+)
 from dynamic_mex_updates_oracle import (
     MAX_N as DYNAMIC_MEX_UPDATES_MAX_N,
     MAX_Q as DYNAMIC_MEX_UPDATES_MAX_Q,
@@ -250,6 +305,51 @@ from balanced_ternary_conversion_verifier_oracle import (
 )
 from check_balanced_ternary_conversion_package import (
     static_issues as balanced_ternary_conversion_static_issues,
+)
+from online_temporary_task_load_balancing_oracle import (
+    MAX_MACHINES as ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_MACHINES,
+    MAX_TASKS as ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_TASKS,
+    MAX_VALID_INPUT_LENGTH as ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_OUTPUT_BYTES,
+    expected_output as online_temporary_task_load_balancing_primary_oracle,
+)
+from online_temporary_task_load_balancing_verifier_oracle import (
+    expected_output as online_temporary_task_load_balancing_independent_oracle,
+)
+from check_online_temporary_task_load_balancing_package import (
+    static_issues as online_temporary_task_load_balancing_static_issues,
+)
+from convolution_f2_64_oracle import (
+    MAX_N as CONVOLUTION_F2_64_MAX_N,
+    MAX_M as CONVOLUTION_F2_64_MAX_M,
+    MAX_VALID_INPUT_LENGTH as CONVOLUTION_F2_64_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CONVOLUTION_F2_64_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CONVOLUTION_F2_64_MAX_OUTPUT_BYTES,
+    expected_output as convolution_f2_64_primary_oracle,
+)
+from convolution_f2_64_independent_oracle import (
+    expected_output as convolution_f2_64_independent_oracle,
+)
+from check_convolution_f2_64_package import (
+    static_issues as convolution_f2_64_static_issues,
+)
+from d.dirichlet_convolution_and_prefix_sums.primary_oracle import (
+    MODULUS as DIRICHLET_CONVOLUTION_MODULUS,
+    MAX_N as DIRICHLET_CONVOLUTION_MAX_N,
+    MAX_QUOTIENT_COUNT as DIRICHLET_CONVOLUTION_MAX_QUOTIENT_COUNT,
+    MAX_VALID_INPUT_LENGTH as DIRICHLET_CONVOLUTION_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as DIRICHLET_CONVOLUTION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DIRICHLET_CONVOLUTION_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as DIRICHLET_CONVOLUTION_WORKSPACE_BYTES,
+    quotient_values as dirichlet_convolution_quotient_values,
+    expected_output as dirichlet_convolution_and_prefix_sums_primary_oracle,
+)
+from d.dirichlet_convolution_and_prefix_sums.independent_oracle import (
+    expected_output as dirichlet_convolution_and_prefix_sums_independent_oracle,
+)
+from d.dirichlet_convolution_and_prefix_sums.verify_workload import (
+    static_issues as dirichlet_convolution_and_prefix_sums_static_issues,
 )
 from a.all_shortest_paths_unweighted.primary_oracle import (
     MAX_VERTICES as ALL_SHORTEST_PATHS_MAX_VERTICES,
@@ -6004,10 +6104,17 @@ ALGORITHMS = (*ALGORITHMS, "create_maximum_number")
 ALGORITHMS = (*ALGORITHMS, "mst_edge_classification")
 ALGORITHMS = (*ALGORITHMS, "minimum_mean_cycle_karp")
 ALGORITHMS = (*ALGORITHMS, "hash_join")
+ALGORITHMS = (*ALGORITHMS, "binomial_coefficient_prime_power")
+ALGORITHMS = (*ALGORITHMS, "segment_tree_merge_split")
+ALGORITHMS = (*ALGORITHMS, "dial_bucket_shortest_paths")
 ALGORITHMS = (*ALGORITHMS, "dynamic_mex_updates")
 ALGORITHMS = (*ALGORITHMS, "circle_line_intersection_count")
 ALGORITHMS = (*ALGORITHMS, "maximum_frequency_stack")
 ALGORITHMS = (*ALGORITHMS, "balanced_ternary_conversion")
+ALGORITHMS = (*ALGORITHMS, "online_temporary_task_load_balancing")
+ALGORITHMS = (*ALGORITHMS, "convolution_f2_64")
+ALGORITHMS = (*ALGORITHMS, "palindrome_pairs")
+ALGORITHMS = (*ALGORITHMS, "dirichlet_convolution_and_prefix_sums")
 ALGORITHMS = (*ALGORITHMS, "all_shortest_paths_unweighted")
 WORKSPACE_ALGORITHMS.update({
     "npb_cg_sparse_inverse_power", "hpcg_profile", "baswana_sen_weighted_spanner",
@@ -6040,10 +6147,17 @@ WORKSPACE_ALGORITHMS.add("create_maximum_number")
 WORKSPACE_ALGORITHMS.add("mst_edge_classification")
 WORKSPACE_ALGORITHMS.add("minimum_mean_cycle_karp")
 WORKSPACE_ALGORITHMS.add("hash_join")
+WORKSPACE_ALGORITHMS.add("binomial_coefficient_prime_power")
+WORKSPACE_ALGORITHMS.add("segment_tree_merge_split")
+WORKSPACE_ALGORITHMS.add("dial_bucket_shortest_paths")
 WORKSPACE_ALGORITHMS.add("dynamic_mex_updates")
 WORKSPACE_ALGORITHMS.add("circle_line_intersection_count")
 WORKSPACE_ALGORITHMS.add("maximum_frequency_stack")
 WORKSPACE_ALGORITHMS.add("balanced_ternary_conversion")
+WORKSPACE_ALGORITHMS.add("online_temporary_task_load_balancing")
+WORKSPACE_ALGORITHMS.add("convolution_f2_64")
+WORKSPACE_ALGORITHMS.add("palindrome_pairs")
+WORKSPACE_ALGORITHMS.add("dirichlet_convolution_and_prefix_sums")
 WORKSPACE_ALGORITHMS.add("all_shortest_paths_unweighted")
 WORKSPACE_ALGORITHMS.update({
     "ams_sketch", "count_min_sketch_affine", "deterministic_line_search",
@@ -13370,11 +13484,18 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "mst_edge_classification": mst_edge_classification_independent_oracle,
     "minimum_mean_cycle_karp": minimum_mean_cycle_karp_independent_oracle,
     "hash_join": hash_join_independent_oracle,
+    "binomial_coefficient_prime_power": binomial_coefficient_prime_power_independent_oracle,
+    "segment_tree_merge_split": segment_tree_merge_split_independent_oracle,
+    "dial_bucket_shortest_paths": dial_bucket_shortest_paths_independent_oracle,
     "dynamic_mex_updates": dynamic_mex_updates_independent_oracle,
     "circle_line_intersection_count": circle_line_intersection_count_independent_oracle,
     "maximum_frequency_stack": maximum_frequency_stack_independent_oracle,
     "balanced_ternary_conversion": balanced_ternary_independent_oracle,
+    "online_temporary_task_load_balancing": online_temporary_task_load_balancing_independent_oracle,
+    "convolution_f2_64": convolution_f2_64_independent_oracle,
+    "dirichlet_convolution_and_prefix_sums": dirichlet_convolution_and_prefix_sums_independent_oracle,
     "all_shortest_paths_unweighted": all_shortest_paths_unweighted_independent_oracle,
+    "palindrome_pairs": palindrome_pairs_independent_oracle,
     "suffix_array_sais": suffix_array_sais_independent_oracle,
     "minkowski_sum_convex_polygons": minkowski_sum_convex_polygons_independent_oracle,
     "de_bruijn_sequences": de_bruijn_sequences_independent_oracle,
@@ -19742,6 +19863,66 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
         if (max_input != 36 or max_output != 16 or workspace_bytes != 2312):
             raise ValueError("q-binomial suite bounds differ from its bounded recurrence profile")
+    elif algorithm == "binomial_coefficient_prime_power":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        contract = workload.get("contract", {})
+        if (max_input != BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 68
+                or max_output != BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_OUTPUT_BYTES
+                or max_output != 128
+                or workspace_bytes != BINOMIAL_COEFFICIENT_PRIME_POWER_WORKSPACE_BYTES
+                or BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_INPUT_LENGTH != 67
+                or BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_P != 31
+                or BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_EXPONENT != 8
+                or BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_MODULUS != 1_000_000_000
+                or BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_QUERIES != 32
+                or BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_N != 128
+                or contract.get("input_layout") != "[p,e,Q,(n,k)*Q]"
+                or contract.get("prime_range") != [2, 31]
+                or contract.get("prime_must_be_prime") is not True
+                or contract.get("exponent_range") != [1, 8]
+                or contract.get("modulus_limit") != 1_000_000_000
+                or contract.get("query_count_range") != [0, 32]
+                or contract.get("n_range") != [0, 128]
+                or contract.get("k_condition") != "0<=k<=n"
+                or input_spec.get("exact_length") != "3+2*Q"
+                or input_spec.get("maximum_valid_length") != 67
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("success_result") != "number of bytes written"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("output_untouched_on_error") is not True
+                or workload.get("workspace", {}).get("bytes") != workspace_bytes):
+            raise ValueError("binomial_coefficient_prime_power bounds differ from its p-adic cancellation profile")
+    elif algorithm == "segment_tree_merge_split":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != SEGMENT_TREE_MERGE_SPLIT_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 131
+                or max_output != SEGMENT_TREE_MERGE_SPLIT_MAX_OUTPUT_BYTES
+                or max_output != 256
+                or workspace_bytes != SEGMENT_TREE_MERGE_SPLIT_WORKSPACE_BYTES
+                or SEGMENT_TREE_MERGE_SPLIT_MAX_VALID_INPUT_LENGTH != 130
+                or SEGMENT_TREE_MERGE_SPLIT_NODE_POOL_BYTES != 16_516
+                or SEGMENT_TREE_MERGE_SPLIT_OPERATION_BUFFER_BYTES != 1024
+                or SEGMENT_TREE_MERGE_SPLIT_FIXED_ARRAY_BYTES != 17_796
+                or workload.get("workspace", {}).get("operation_buffer_bytes") != 1024
+                or workload.get("workspace", {}).get("declared_fixed_array_bytes") != 17_796):
+            raise ValueError("segment_tree_merge_split bounds differ from its sparse node-pool profile")
+    elif algorithm == "dial_bucket_shortest_paths":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != DIAL_BUCKET_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 196
+                or max_output != DIAL_BUCKET_MAX_OUTPUT_BYTES
+                or max_output != 128
+                or workspace_bytes != DIAL_BUCKET_WORKSPACE_BYTES
+                or DIAL_BUCKET_MAX_VALID_INPUT_LENGTH != 195
+                or workload.get("workspace", {}).get("bytes") != 4096):
+            raise ValueError("dial_bucket_shortest_paths bounds or workspace differ from its nine-bucket profile")
     elif algorithm == "baswana_sen_weighted_spanner":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -20165,6 +20346,121 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         issues = balanced_ternary_conversion_static_issues()
         if issues:
             raise ValueError("balanced_ternary_conversion package is incomplete: "
+                             + "; ".join(issues))
+    elif algorithm == "online_temporary_task_load_balancing":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 99
+                or max_output != ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_OUTPUT_BYTES
+                or max_output != 264
+                or ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_MACHINES != 8
+                or ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_TASKS != 32
+                or ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_VALID_INPUT_LENGTH != 98
+                or input_spec.get("encoding") != "[machine_count, task_count, (arrival, weight, duration)*]"
+                or input_spec.get("machine_count_range") != [1, 8]
+                or input_spec.get("task_count_range") != [0, 32]
+                or input_spec.get("active_interval") != "[arrival, arrival + duration)"
+                or input_spec.get("maximum_valid_length") != ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("success_result") != "8 * (1 + task_count) bytes written"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workspace_bytes != 2048
+                or workspace_bytes != workload.get("workspace", {}).get("bytes")):
+            raise ValueError("online_temporary_task_load_balancing bounds differ from its bounded event profile")
+        issues = online_temporary_task_load_balancing_static_issues()
+        if issues:
+            raise ValueError("online_temporary_task_load_balancing package is incomplete: "
+                             + "; ".join(issues))
+    elif algorithm == "convolution_f2_64":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        contract = workload.get("contract", {})
+        if (max_input != CONVOLUTION_F2_64_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 19
+                or max_output != CONVOLUTION_F2_64_MAX_OUTPUT_BYTES
+                or max_output != 120
+                or CONVOLUTION_F2_64_MAX_N != 8
+                or CONVOLUTION_F2_64_MAX_M != 8
+                or CONVOLUTION_F2_64_MAX_VALID_INPUT_LENGTH != 18
+                or contract.get("input_layout") != "[N,M,a[0..N),b[0..M)]"
+                or contract.get("local_length_range") != [1, 8]
+                or contract.get("input_coefficient_domain")
+                != "Every signed i64 ABI bit pattern is reinterpreted as one unsigned 64-bit polynomial coefficient."
+                or contract.get("field") != "GF(2)[x]/(x^64+x^4+x^3+x+1)"
+                or contract.get("field_addition") != "bitwise XOR"
+                or workload.get("input", {}).get("maximum_valid_length") != 18
+                or workload.get("input", {}).get("maximum_parseable_length") != max_input
+                or workload.get("output", {}).get("maximum_bytes") != max_output
+                or workload.get("output", {}).get("success_result") != "number of bytes written"
+                or workload.get("output", {}).get("invalid_input_result") != -1
+                or workload.get("output", {}).get("null_output_result") != -2
+                or workload.get("output", {}).get("insufficient_output_capacity_result") != -2
+                or workspace_bytes != 512
+                or workspace_bytes != workload.get("workspace", {}).get("bytes")):
+            raise ValueError("convolution_f2_64 bounds differ from its bounded field profile")
+        issues = convolution_f2_64_static_issues()
+        if issues:
+            raise ValueError("convolution_f2_64 package is incomplete: " + "; ".join(issues))
+    elif algorithm == "palindrome_pairs":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != PALINDROME_PAIRS_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 74
+                or max_output != PALINDROME_PAIRS_MAX_OUTPUT_BYTES
+                or max_output != 56
+                or PALINDROME_PAIRS_MAX_VALID_INPUT_LENGTH != 73
+                or PALINDROME_PAIRS_MAX_WORDS != 8
+                or PALINDROME_PAIRS_WORKSPACE_BYTES != 4096
+                or input_spec.get("word_count_range") != [0, 8]
+                or input_spec.get("word_length_range") != [0, 8]
+                or input_spec.get("maximum_valid_length") != 73
+                or input_spec.get("maximum_parseable_length") != max_input
+                or workload.get("output", {}).get("maximum_output_bytes") != max_output
+                or workload.get("output", {}).get("invalid_input_result") != -1
+                or workload.get("output", {}).get("null_output_result") != -2
+                or workload.get("output", {}).get("insufficient_output_capacity_result") != -2
+                or workspace_bytes != PALINDROME_PAIRS_WORKSPACE_BYTES
+                or workspace_bytes != workload.get("workspace", {}).get("bytes")):
+            raise ValueError("palindrome_pairs bounds differ from its bounded word-list profile")
+        issues = palindrome_pairs_static_issues()
+        if issues:
+            raise ValueError("palindrome_pairs package is incomplete: " + "; ".join(issues))
+    elif algorithm == "dirichlet_convolution_and_prefix_sums":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        contract = workload.get("contract", {})
+        if (max_input != DIRICHLET_CONVOLUTION_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 32
+                or max_output != DIRICHLET_CONVOLUTION_MAX_OUTPUT_BYTES
+                or max_output != 120
+                or DIRICHLET_CONVOLUTION_MODULUS != 998244353
+                or DIRICHLET_CONVOLUTION_MAX_N != 64
+                or DIRICHLET_CONVOLUTION_MAX_QUOTIENT_COUNT != 15
+                or DIRICHLET_CONVOLUTION_MAX_VALID_INPUT_LENGTH != 31
+                or DIRICHLET_CONVOLUTION_WORKSPACE_BYTES != 1024
+                or contract.get("local_n_range") != [1, 64]
+                or contract.get("maximum_quotient_count") != 15
+                or contract.get("modulus") != 998244353
+                or contract.get("prefix_residue_range") != [1, 998244352]
+                or contract.get("local_profile_note")
+                != "One test case per ABI call; the official multi-case stream is represented as repeated bounded calls."
+                or workload.get("input", {}).get("maximum_valid_length") != 31
+                or workload.get("input", {}).get("maximum_parseable_length") != max_input
+                or workload.get("output", {}).get("maximum_bytes") != max_output
+                or workload.get("output", {}).get("success_result") != "number of bytes written"
+                or workload.get("output", {}).get("invalid_input_result") != -1
+                or workload.get("output", {}).get("null_output_result") != -2
+                or workload.get("output", {}).get("insufficient_output_capacity_result") != -2
+                or workspace_bytes != DIRICHLET_CONVOLUTION_WORKSPACE_BYTES
+                or workspace_bytes != workload.get("workspace", {}).get("bytes")):
+            raise ValueError("dirichlet_convolution_and_prefix_sums bounds differ from its quotient profile")
+        issues = dirichlet_convolution_and_prefix_sums_static_issues()
+        if issues:
+            raise ValueError("dirichlet_convolution_and_prefix_sums package is incomplete: "
                              + "; ".join(issues))
     elif algorithm == "all_shortest_paths_unweighted":
         validate_new_byte_output_workload(workload, algorithm)
@@ -21946,6 +22242,301 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 raise ValueError("balanced_ternary_conversion accepted a malformed input frame")
         if add((), input_is_null=True, input_length=0) != (-1, b""):
             raise ValueError("balanced_ternary_conversion accepted a null input pointer")
+    elif algorithm == "online_temporary_task_load_balancing":
+        for fixture in workload.get("cases", []):
+            values = tuple(fixture.get("input_values", []))
+            if (not fixture.get("input_is_null", False)
+                    and fixture.get("input_length") != len(values)):
+                raise ValueError(
+                    "online_temporary_task_load_balancing fixture length differs: "
+                    f"{fixture.get('id')}"
+                )
+            capacity = fixture.get("output_capacity", ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_OUTPUT_BYTES)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            primary = online_temporary_task_load_balancing_primary_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            independent = online_temporary_task_load_balancing_independent_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            expected = (fixture.get("expected_result"),
+                        bytes.fromhex(fixture.get("expected_output_hex", "")))
+            if primary != independent or primary != expected:
+                raise ValueError(
+                    "online_temporary_task_load_balancing fixture differs between "
+                    f"expiration-heap and history-replay oracles: {fixture.get('id')}"
+                )
+            add(values, capacity, output_is_null=output_is_null,
+                input_is_null=input_is_null, input_length=input_length)
+
+        rng_temporary_tasks = random.Random(0xE206)
+        for _ in range(128):
+            machine_count = rng_temporary_tasks.randint(
+                1, ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_MACHINES)
+            task_count = rng_temporary_tasks.randint(
+                0, ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_TASKS)
+            tasks = []
+            arrival = 0
+            for _task in range(task_count):
+                arrival = min(1000, arrival + rng_temporary_tasks.randint(0, 40))
+                weight = rng_temporary_tasks.randint(1, 1000)
+                duration = rng_temporary_tasks.randint(1, min(1000, 2000 - arrival))
+                tasks.extend((arrival, weight, duration))
+            packed = (machine_count, task_count, *tasks)
+            primary = online_temporary_task_load_balancing_primary_oracle(packed)
+            independent = online_temporary_task_load_balancing_independent_oracle(packed)
+            if primary != independent or add(packed) != independent:
+                raise ValueError(
+                    "online_temporary_task_load_balancing generated trace differs "
+                    "between its oracles"
+                )
+
+        maximum_values = (1, ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_TASKS,
+                          *(value for _ in range(ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_TASKS)
+                            for value in (0, 1000, 1000)))
+        maximum_expected = online_temporary_task_load_balancing_independent_oracle(
+            maximum_values)
+        if (maximum_expected[0] != ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_OUTPUT_BYTES
+                or len(maximum_expected[1]) != ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_OUTPUT_BYTES
+                or add(maximum_values) != maximum_expected):
+            raise ValueError(
+                "online_temporary_task_load_balancing maximum trace differs from its output bound"
+            )
+        one_task = (1, 1, 0, 5, 3)
+        if (add(one_task, 15) != (-2, b"")
+                or add(one_task, ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_OUTPUT_BYTES,
+                       output_is_null=True) != (-2, b"")):
+            raise ValueError(
+                "online_temporary_task_load_balancing output-capacity semantics differ"
+            )
+        zero_tasks = (3, 0)
+        if add(zero_tasks, 8, output_is_null=True) != (-2, b""):
+            raise ValueError(
+                "online_temporary_task_load_balancing accepted a null output buffer"
+            )
+        maximum_parseable_invalid = (
+            1, ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_TASKS,
+            *(value for _ in range(ONLINE_TEMPORARY_TASK_LOAD_BALANCING_MAX_TASKS)
+              for value in (0, 1, 1)), 0)
+        malformed = (
+            (), (0, 0), (1, -1), (1, 0, 7),
+            (2, 1, 1, 1, 1, 0),
+            (1, 1, 0, 1, 0),
+            (1, 1, 1000, 1, 1001),
+            maximum_parseable_invalid,
+        )
+        for packed in malformed:
+            if add(packed) != (-1, b""):
+                raise ValueError(
+                    "online_temporary_task_load_balancing accepted a malformed trace"
+                )
+        if add((), input_is_null=True, input_length=0) != (-1, b""):
+            raise ValueError(
+                "online_temporary_task_load_balancing accepted a null input pointer"
+            )
+    elif algorithm == "convolution_f2_64":
+        for fixture in workload.get("cases", []):
+            values = tuple(fixture.get("input_values", []))
+            if (not fixture.get("input_is_null", False)
+                    and fixture.get("input_length") != len(values)):
+                raise ValueError(
+                    f"convolution_f2_64 fixture length differs: {fixture.get('id')}"
+                )
+            capacity = fixture.get("output_capacity", CONVOLUTION_F2_64_MAX_OUTPUT_BYTES)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            primary = convolution_f2_64_primary_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            independent = convolution_f2_64_independent_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            expected = (fixture.get("expected_result"),
+                        bytes.fromhex(fixture.get("expected_output_hex", "")))
+            if primary != independent or primary != expected:
+                raise ValueError(
+                    "convolution_f2_64 fixture differs between shift/reduce and "
+                    f"polynomial-division oracles: {fixture.get('id')}"
+                )
+            add(values, capacity, output_is_null=output_is_null,
+                input_is_null=input_is_null, input_length=input_length)
+
+        rng_f2_64 = random.Random(0xF264)
+        for _ in range(128):
+            n = rng_f2_64.randint(1, CONVOLUTION_F2_64_MAX_N)
+            m = rng_f2_64.randint(1, CONVOLUTION_F2_64_MAX_M)
+            values = [n, m]
+            for _coefficient in range(n + m):
+                raw = rng_f2_64.getrandbits(64)
+                values.append(raw if raw < (1 << 63) else raw - (1 << 64))
+            packed = tuple(values)
+            primary = convolution_f2_64_primary_oracle(packed)
+            independent = convolution_f2_64_independent_oracle(packed)
+            if primary != independent or add(packed) != independent:
+                raise ValueError(
+                    "convolution_f2_64 generated coefficient trace differs between its oracles"
+                )
+
+        maximum_values = (8, 8, *(1 for _ in range(16)))
+        maximum_expected = convolution_f2_64_independent_oracle(maximum_values)
+        if (maximum_expected[0] != CONVOLUTION_F2_64_MAX_OUTPUT_BYTES
+                or len(maximum_expected[1]) != CONVOLUTION_F2_64_MAX_OUTPUT_BYTES
+                or add(maximum_values) != maximum_expected):
+            raise ValueError("convolution_f2_64 maximum output profile is incorrect")
+        one_product = (1, 1, 7, 9)
+        if (add(one_product, 7) != (-2, b"")
+                or add(one_product, CONVOLUTION_F2_64_MAX_OUTPUT_BYTES,
+                       output_is_null=True) != (-2, b"")):
+            raise ValueError("convolution_f2_64 output-capacity semantics differ")
+        malformed = (
+            (), (0, 1), (9, 1), (1, 0), (2, 2, 1, 2, 3),
+            (1, 1, 1, 1, 0),
+            (8, 8, *(0 for _ in range(16)), 0),
+        )
+        for packed in malformed:
+            if add(packed) != (-1, b""):
+                raise ValueError("convolution_f2_64 accepted a malformed polynomial frame")
+        if add((), input_is_null=True, input_length=0) != (-1, b""):
+            raise ValueError("convolution_f2_64 accepted a null input pointer")
+    elif algorithm == "palindrome_pairs":
+        fixtures = [*workload.get("cases", []), *workload.get("abi_cases", [])]
+        for fixture in fixtures:
+            values = tuple(fixture.get("input_values", []))
+            if (not fixture.get("input_is_null", False)
+                    and fixture.get("input_length") != len(values)):
+                raise ValueError(f"palindrome_pairs fixture length differs: {fixture.get('id')}")
+            capacity = fixture.get("output_capacity", PALINDROME_PAIRS_WORKSPACE_BYTES)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            primary = palindrome_pairs_primary_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            independent = palindrome_pairs_independent_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            expected = (fixture.get("expected_result"),
+                        bytes.fromhex(fixture.get("expected_output_hex", "")))
+            if primary != independent or primary != expected:
+                raise ValueError(
+                    f"palindrome_pairs fixture differs between split lookup and direct concatenation: {fixture.get('id')}"
+                )
+            add(values, capacity, output_is_null=output_is_null,
+                input_is_null=input_is_null, input_length=input_length)
+
+        rng_pairs = random.Random(0xBADA11)
+        generated = []
+        for _ in range(128):
+            count = rng_pairs.randint(0, PALINDROME_PAIRS_MAX_WORDS)
+            values = [count]
+            for _word in range(count):
+                word_length = rng_pairs.randint(0, 8)
+                values.append(word_length)
+                values.extend(rng_pairs.randrange(4) for _ in range(word_length))
+            packed = tuple(values)
+            primary = palindrome_pairs_primary_oracle(packed)
+            independent = palindrome_pairs_independent_oracle(packed)
+            if primary != independent or add(packed) != independent:
+                raise ValueError("palindrome_pairs generated pairs differ between independent methods")
+            generated.append(packed)
+
+        maximum_values = tuple(next(
+            fixture["input_values"] for fixture in workload.get("cases", [])
+            if fixture.get("id") == "maximum-input-and-output"))
+        maximum_expected = palindrome_pairs_independent_oracle(maximum_values)
+        if (len(maximum_values) != PALINDROME_PAIRS_MAX_VALID_INPUT_LENGTH
+                or maximum_expected[0] != PALINDROME_PAIRS_MAX_OUTPUT_BYTES
+                or len(maximum_expected[1]) != PALINDROME_PAIRS_MAX_OUTPUT_BYTES
+                or add(maximum_values) != maximum_expected):
+            raise ValueError("palindrome_pairs maximum output profile is incorrect")
+        if (add(maximum_values, PALINDROME_PAIRS_MAX_OUTPUT_BYTES - 1) != (-2, b"")
+                or add(maximum_values, PALINDROME_PAIRS_MAX_OUTPUT_BYTES,
+                       output_is_null=True) != (-2, b"")
+                or add((0,), 0, output_is_null=True) != (-2, b"")):
+            raise ValueError("palindrome_pairs output-capacity or empty-null semantics differ")
+
+        maximum_parseable_invalid = (*maximum_values, 99)
+        malformed = (
+            (), (0, 0), (1,), (-1,), (9,), (1, -1), (1, 9),
+            (1, 2, 1), (1, 1, 4), (0, 1), maximum_parseable_invalid,
+        )
+        for packed in malformed:
+            if add(packed) != (-1, b""):
+                raise ValueError("palindrome_pairs accepted malformed word-list framing")
+        if add((), input_is_null=True, input_length=0) != (-1, b""):
+            raise ValueError("palindrome_pairs accepted a null input pointer")
+    elif algorithm == "dirichlet_convolution_and_prefix_sums":
+        for fixture in workload.get("cases", []):
+            values = tuple(fixture.get("input_values", []))
+            if (not fixture.get("input_is_null", False)
+                    and fixture.get("input_length") != len(values)):
+                raise ValueError(
+                    "dirichlet_convolution_and_prefix_sums fixture length differs: "
+                    f"{fixture.get('id')}"
+                )
+            capacity = fixture.get(
+                "output_capacity", DIRICHLET_CONVOLUTION_WORKSPACE_BYTES)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            primary = dirichlet_convolution_and_prefix_sums_primary_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            independent = dirichlet_convolution_and_prefix_sums_independent_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            expected = (fixture.get("expected_result"),
+                        bytes.fromhex(fixture.get("expected_output_hex", "")))
+            if primary != independent or primary != expected:
+                raise ValueError(
+                    "dirichlet_convolution_and_prefix_sums fixture differs between "
+                    f"f-interval and g-interval grouping: {fixture.get('id')}"
+                )
+            add(values, capacity, output_is_null=output_is_null,
+                input_is_null=input_is_null, input_length=input_length)
+
+        rng_dirichlet = random.Random(0xD1A1E7)
+        for _ in range(128):
+            n = rng_dirichlet.randint(1, DIRICHLET_CONVOLUTION_MAX_N)
+            quotient_count = len(dirichlet_convolution_quotient_values(n))
+            f_values = tuple(rng_dirichlet.randint(1, DIRICHLET_CONVOLUTION_MODULUS - 1)
+                             for _ in range(quotient_count))
+            g_values = tuple(rng_dirichlet.randint(1, DIRICHLET_CONVOLUTION_MODULUS - 1)
+                             for _ in range(quotient_count))
+            packed = (n, *f_values, *g_values)
+            primary = dirichlet_convolution_and_prefix_sums_primary_oracle(packed)
+            independent = dirichlet_convolution_and_prefix_sums_independent_oracle(packed)
+            if primary != independent or add(packed) != independent:
+                raise ValueError(
+                    "dirichlet_convolution_and_prefix_sums generated prefixes differ "
+                    "between quotient-interval oracles"
+                )
+
+        maximum_values = tuple(next(
+            case["input_values"] for case in workload.get("cases", [])
+            if case.get("id") == "maximum-quotient-set-and-output"))
+        maximum_expected = dirichlet_convolution_and_prefix_sums_independent_oracle(
+            maximum_values)
+        if (len(maximum_values) != DIRICHLET_CONVOLUTION_MAX_VALID_INPUT_LENGTH
+                or maximum_expected[0] != DIRICHLET_CONVOLUTION_MAX_OUTPUT_BYTES
+                or len(maximum_expected[1]) != DIRICHLET_CONVOLUTION_MAX_OUTPUT_BYTES
+                or add(maximum_values) != maximum_expected):
+            raise ValueError("dirichlet_convolution_and_prefix_sums maximum output profile is incorrect")
+        one_query_set = (1, 1, 1)
+        if (add(maximum_values, DIRICHLET_CONVOLUTION_MAX_OUTPUT_BYTES - 1) != (-2, b"")
+                or add(one_query_set, 8, output_is_null=True) != (-2, b"")):
+            raise ValueError("dirichlet_convolution_and_prefix_sums capacity semantics differ")
+
+        maximum_parseable_invalid = (*maximum_values, 0)
+        malformed = (
+            (), (0,), (DIRICHLET_CONVOLUTION_MAX_N + 1,),
+            (2, 1, 2, 3), (1, 0, 1), (1, 1, DIRICHLET_CONVOLUTION_MODULUS),
+            (1, 1, 1, 7), maximum_parseable_invalid,
+        )
+        for packed in malformed:
+            if add(packed) != (-1, b""):
+                raise ValueError(
+                    "dirichlet_convolution_and_prefix_sums accepted malformed prefix data"
+                )
+        if add((), input_is_null=True, input_length=0) != (-1, b""):
+            raise ValueError(
+                "dirichlet_convolution_and_prefix_sums accepted a null input pointer"
+            )
     elif algorithm == "all_shortest_paths_unweighted":
         for fixture in workload.get("cases", []):
             values = tuple(fixture.get("input_values", []))
@@ -28185,6 +28776,192 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             mismatch_result, mismatch_output = add((1, 5, 2, 3, 1), input_length=4)
             if mismatch_result != -1 or mismatch_output:
                 raise ValueError("q-binomial accepted a declared-length mismatch")
+        elif algorithm == "binomial_coefficient_prime_power":
+            if (max_input != BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_PARSEABLE_INPUT_LENGTH
+                    or max_input != 68
+                    or max_output != BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_OUTPUT_BYTES
+                    or max_output != 128
+                    or workspace_bytes != BINOMIAL_COEFFICIENT_PRIME_POWER_WORKSPACE_BYTES):
+                raise ValueError("binomial prime-power bounds or workspace differ from its p-adic profile")
+
+            for fixture in workload.get("cases", []):
+                packed = tuple(fixture.get("input_values", ()))
+                capacity = fixture.get("output_capacity", workspace_bytes)
+                output_is_null = fixture.get("output_is_null", False)
+                input_is_null = fixture.get("input_is_null", False)
+                input_length = fixture.get("input_length", len(packed))
+                expected = (fixture.get("expected_result"),
+                            bytes.fromhex(fixture.get("expected_output_hex", "")))
+                primary = binomial_coefficient_prime_power_primary_oracle(
+                    packed, capacity, output_is_null, input_is_null, input_length)
+                independent = binomial_coefficient_prime_power_independent_oracle(
+                    packed, capacity, output_is_null, input_is_null, input_length)
+                if (primary != independent or independent != expected
+                        or add(packed, capacity, output_is_null=output_is_null,
+                               input_is_null=input_is_null, input_length=input_length) != expected):
+                    raise ValueError(
+                        f"binomial prime-power fixture differs between p-adic and Pascal oracles: {fixture.get('id')}"
+                    )
+
+            maximum_values = tuple(next(
+                case["input_values"] for case in workload["cases"]
+                if case.get("id") == "maximum-input-and-output-frame"))
+            maximum_expected = binomial_coefficient_prime_power_independent_oracle(maximum_values)
+            if (len(maximum_values) != BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_INPUT_LENGTH
+                    or maximum_expected[0] != max_output
+                    or len(maximum_expected[1]) != max_output
+                    or add(maximum_values) != maximum_expected):
+                raise ValueError("binomial prime-power maximum batch differs from the Pascal oracle")
+
+            rng_binomial = random.Random(0xB1A0_71A1)
+            primes_and_exponents = ((2, 8), (3, 5), (5, 3), (7, 2), (31, 1))
+            for prime, exponent in primes_and_exponents:
+                queries = []
+                for _query in range(BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_QUERIES):
+                    n_value = rng_binomial.randint(0, BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_N)
+                    k_value = rng_binomial.randint(0, n_value)
+                    queries.extend((n_value, k_value))
+                packed = (prime, exponent, BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_QUERIES,
+                          *queries)
+                primary = binomial_coefficient_prime_power_primary_oracle(packed)
+                independent = binomial_coefficient_prime_power_independent_oracle(packed)
+                if primary != independent or add(packed) != independent:
+                    raise ValueError("binomial prime-power random batch differs from Pascal additions")
+
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                expected = ((-2, b"") if capacity < max_output else maximum_expected)
+                if add(maximum_values, capacity) != expected:
+                    raise ValueError("binomial prime-power output-capacity behavior differs from its contract")
+            if add(maximum_values, output_is_null=True) != (-2, b""):
+                raise ValueError("binomial prime-power accepted a null nonempty output buffer")
+            if (add((5, 2, 0), 0) != (0, b"")
+                    or add((5, 2, 0), 0, output_is_null=True) != (0, b"")):
+                raise ValueError("binomial prime-power zero-query null-output semantics differ")
+            if add((4, 1, 1, 0, 0), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("binomial prime-power output errors took precedence over invalid input")
+            if add((), input_is_null=True, input_length=0) != (-1, b""):
+                raise ValueError("binomial prime-power accepted a null input pointer")
+            if add((2, 1, 1, 3, 1, 77)) != (-1, b""):
+                raise ValueError("binomial prime-power accepted a trailing input word")
+            if add((2, 1, 1, 3, 1), input_length=4) != (-1, b""):
+                raise ValueError("binomial prime-power accepted a declared-length mismatch")
+        elif algorithm == "segment_tree_merge_split":
+            if (max_input != SEGMENT_TREE_MERGE_SPLIT_MAX_PARSEABLE_INPUT_LENGTH
+                    or max_input != 131
+                    or max_output != SEGMENT_TREE_MERGE_SPLIT_MAX_OUTPUT_BYTES
+                    or max_output != 256
+                    or workspace_bytes != SEGMENT_TREE_MERGE_SPLIT_WORKSPACE_BYTES):
+                raise ValueError("segment tree merge/split bounds or workspace differ from its node-pool profile")
+
+            for fixture in [*workload.get("cases", []), *workload.get("abi_cases", [])]:
+                packed = tuple(fixture.get("input_values", ()))
+                capacity = fixture.get("output_capacity", workspace_bytes)
+                output_is_null = fixture.get("output_is_null", False)
+                input_is_null = fixture.get("input_is_null", False)
+                input_length = fixture.get("input_length", len(packed))
+                expected = (fixture.get("expected_result"),
+                            bytes.fromhex(fixture.get("expected_output_hex", "")))
+                primary = segment_tree_merge_split_primary_oracle(
+                    packed, capacity, output_is_null, input_is_null, input_length)
+                independent = segment_tree_merge_split_independent_oracle(
+                    packed, capacity, output_is_null, input_is_null, input_length)
+                actual = add(packed, capacity, output_is_null=output_is_null,
+                             input_is_null=input_is_null, input_length=input_length)
+                if primary != independent or independent != expected or actual != expected:
+                    raise ValueError(
+                        f"segment tree merge/split fixture differs between sparse-tree and "
+                        f"count-array oracles: {fixture.get('id')}"
+                    )
+
+            maximum_values = tuple(next(
+                fixture["input_values"] for fixture in workload["cases"]
+                if fixture.get("id") == "maximum-input-and-output"))
+            maximum_expected = segment_tree_merge_split_independent_oracle(maximum_values)
+            if (len(maximum_values) != SEGMENT_TREE_MERGE_SPLIT_MAX_VALID_INPUT_LENGTH
+                    or maximum_expected[0] != max_output
+                    or len(maximum_expected[1]) != max_output
+                    or add(maximum_values) != maximum_expected):
+                raise ValueError("segment tree merge/split maximum fixture differs from the count-array oracle")
+
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                expected = ((-2, b"") if capacity < max_output else maximum_expected)
+                if add(maximum_values, capacity) != expected:
+                    raise ValueError("segment tree merge/split output capacity differs from its contract")
+            if add(maximum_values, output_is_null=True) != (-2, b""):
+                raise ValueError("segment tree merge/split accepted a null nonempty output buffer")
+            if (add((64, 0), 0) != (0, b"")
+                    or add((64, 0), 0, output_is_null=True) != (-2, b"")):
+                raise ValueError("segment tree merge/split empty-query output semantics differ")
+            if add((64, 1, 2, 0, 0, 0), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("segment tree merge/split output checks took precedence over invalid input")
+            if (add((), input_is_null=True, input_length=0) != (-1, b"")
+                    or add((64, 0, 0)) != (-1, b"")
+                    or add((64, 0), input_length=1) != (-1, b"")):
+                raise ValueError("segment tree merge/split accepted malformed input framing")
+        elif algorithm == "dial_bucket_shortest_paths":
+            if (max_input != DIAL_BUCKET_MAX_PARSEABLE_INPUT_LENGTH
+                    or max_input != 196
+                    or max_output != DIAL_BUCKET_MAX_OUTPUT_BYTES
+                    or max_output != 128
+                    or workspace_bytes != DIAL_BUCKET_WORKSPACE_BYTES):
+                raise ValueError("Dial shortest-path bounds or workspace differ from its contract")
+
+            for fixture in workload.get("cases", []):
+                packed = tuple(fixture.get("input_values", ()))
+                capacity = fixture.get("output_capacity", workspace_bytes)
+                output_is_null = fixture.get("output_is_null", False)
+                input_is_null = fixture.get("input_is_null", False)
+                input_length = fixture.get("input_length", len(packed))
+                expected = (fixture.get("expected_result"),
+                            bytes.fromhex(fixture.get("expected_output_hex", "")))
+                primary = dial_bucket_shortest_paths_primary_oracle(
+                    packed, capacity, output_is_null, input_is_null, input_length)
+                independent = dial_bucket_shortest_paths_independent_oracle(
+                    packed, capacity, output_is_null, input_is_null, input_length)
+                actual = add(packed, capacity, output_is_null=output_is_null,
+                             input_is_null=input_is_null, input_length=input_length)
+                if primary != independent or independent != expected or actual != expected:
+                    raise ValueError(
+                        f"Dial fixture differs between cyclic buckets and Floyd-Warshall: {fixture.get('id')}"
+                    )
+
+            maximum_values = tuple(next(
+                fixture["input_values"] for fixture in workload["cases"]
+                if fixture.get("id") == "maximum-input-distance-and-output"))
+            maximum_expected = dial_bucket_shortest_paths_independent_oracle(maximum_values)
+            if (len(maximum_values) != DIAL_BUCKET_MAX_VALID_INPUT_LENGTH
+                    or maximum_expected[0] != max_output
+                    or len(maximum_expected[1]) != max_output
+                    or add(maximum_values) != maximum_expected):
+                raise ValueError("Dial maximum fixture differs from Floyd-Warshall or its 128-byte bound")
+
+            rng_dial = random.Random(0xD1A1_5EED)
+            for _sample in range(96):
+                n = rng_dial.randint(1, 16)
+                m = rng_dial.randint(0, 64)
+                values = [n, m, rng_dial.randrange(n)]
+                for _edge in range(m):
+                    values.extend((rng_dial.randrange(n), rng_dial.randrange(n),
+                                   rng_dial.randrange(9)))
+                packed = tuple(values)
+                primary = dial_bucket_shortest_paths_primary_oracle(packed)
+                independent = dial_bucket_shortest_paths_independent_oracle(packed)
+                if primary != independent or add(packed) != independent:
+                    raise ValueError("generated Dial graph differs from Floyd-Warshall")
+
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                expected = ((-2, b"") if capacity < max_output else maximum_expected)
+                if add(maximum_values, capacity) != expected:
+                    raise ValueError("Dial maximum output-capacity behavior differs from its contract")
+            if add(maximum_values, output_is_null=True) != (-2, b""):
+                raise ValueError("Dial accepted a null nonempty output buffer")
+            if (add((3, 0, 1), 0, output_is_null=True) != (-2, b"")
+                    or add((), input_is_null=True, input_length=0) != (-1, b"")
+                    or add((2, 1, 0, 0, 1, 9), 0, output_is_null=True) != (-1, b"")
+                    or add((2, 1, 0, 0, 1, 8), input_length=5) != (-1, b"")
+                    or add((2, 1, 0, 0, 1, 9)) != (-1, b"")
+                    or add((*maximum_values, 0)) != (-1, b"")):
+                raise ValueError("Dial null, malformed-frame, or capacity semantics differ")
         elif algorithm == "rooted_tree_isomorphism_classification":
             if (max_input != ROOTED_TREE_ISOMORPHISM_MAX_INPUT_LENGTH
                     or max_output != ROOTED_TREE_ISOMORPHISM_MAX_OUTPUT_BYTES

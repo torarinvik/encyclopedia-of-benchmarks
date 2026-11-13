@@ -1,0 +1,5 @@
+# Rights and provenance
+
+The source used for algorithm discovery is the SciPy [`integrate.RK45` reference](https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.RK45.html), which describes the Dormand–Prince 5(4) method and cites J. R. Dormand and P. J. Prince, “A family of embedded Runge-Kutta formulae,” *Journal of Computational and Applied Mathematics* 6(1), 1980, DOI [10.1016/0771-050X(80)90013-3](https://doi.org/10.1016/0771-050X(80)90013-3). SciPy's contributor guide states that contributed code, documentation, and other files use the modified BSD license unless otherwise specified; see [SciPy licensing](https://docs.scipy.org/doc/scipy/dev/core-dev/index.html#licensing).
+
+Only the mathematical algorithm description and citation were consulted. No SciPy implementation code, tests, examples, or prose were copied. The bounded scalar ODE callbacks, ABI, workload, oracle, and all language ports are original clean-room work. This provenance note does not change the licensing of repository files.

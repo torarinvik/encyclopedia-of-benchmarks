@@ -1,0 +1,114 @@
+const OTTL_MAX_MACHINES: usize = 8
+const OTTL_MAX_TASKS: usize = 32
+const OTTL_MAX_PARSEABLE_WORDS: usize = 99
+
+def online_temporary_task_load_balancing_impl(input: view[i64], output: mutable view[u8],
+        output_is_null: bool) -> i64:
+    if input.length < 2 or input.length > OTTL_MAX_PARSEABLE_WORDS:
+        return -1
+    machine_value: i64 = input[0]
+    task_value: i64 = input[1]
+    if machine_value < 1 or machine_value > 8 or task_value < 0 or task_value > 32:
+        return -1
+    machine_count: usize = machine_value.usize()
+    task_count: usize = task_value.usize()
+    if input.length != 2 + 3 * task_count:
+        return -1
+
+    arrival: mutable i64[OTTL_MAX_TASKS] = zeroed
+    weight: mutable i64[OTTL_MAX_TASKS] = zeroed
+    finish: mutable i64[OTTL_MAX_TASKS] = zeroed
+    assigned: mutable usize[OTTL_MAX_TASKS] = zeroed
+    loads: mutable i64[OTTL_MAX_MACHINES] = zeroed
+    heap: mutable usize[OTTL_MAX_TASKS] = zeroed
+    staged: mutable i64[OTTL_MAX_TASKS + 1] = zeroed
+    heap_size: mutable usize = 0
+    previous_arrival: mutable i64 = -1
+    for task in 0..<task_count:
+        at: i64 = input[2 + 3 * task]
+        amount: i64 = input[3 + 3 * task]
+        duration: i64 = input[4 + 3 * task]
+        if at < 0 or at > 1000 or at < previous_arrival or amount < 1 or amount > 1000 or
+           duration < 1 or duration > 1000 or at + duration > 2000:
+            return -1
+        arrival[task] <- at
+        weight[task] <- amount
+        finish[task] <- at + duration
+        previous_arrival <- at
+
+    peak: mutable i64 = 0
+    for task in 0..<task_count:
+        while heap_size > 0 and finish[heap[0]] <= arrival[task]:
+            expired: usize = heap[0]
+            heap_size <- heap_size - 1
+            if heap_size > 0:
+                replacement: usize = heap[heap_size]
+                position: mutable usize = 0
+                keep_sifting: mutable bool = true
+                while keep_sifting:
+                    left: usize = 2 * position + 1
+                    if left >= heap_size:
+                        keep_sifting <- false
+                    else:
+                        right: usize = left + 1
+                        child: mutable usize = left
+                        if right < heap_size and
+                           (finish[heap[right]] < finish[heap[left]] or
+                            (finish[heap[right]] == finish[heap[left]] and heap[right] < heap[left])):
+                            child <- right
+                        if finish[replacement] < finish[heap[child]] or
+                           (finish[replacement] == finish[heap[child]] and replacement < heap[child]):
+                            keep_sifting <- false
+                        else:
+                            heap[position] <- heap[child]
+                            position <- child
+                heap[position] <- replacement
+            loads[assigned[expired]] <- loads[assigned[expired]] - weight[expired]
+
+        machine: mutable usize = 0
+        for candidate in 1..<machine_count:
+            if loads[candidate] < loads[machine]:
+                machine <- candidate
+        assigned[task] <- machine
+        loads[machine] <- loads[machine] + weight[task]
+        if loads[machine] > peak:
+            peak <- loads[machine]
+
+        position: mutable usize = heap_size
+        heap_size <- heap_size + 1
+        keep_bubbling: mutable bool = true
+        while position > 0 and keep_bubbling:
+            parent: usize = (position - 1) / 2
+            parent_task: usize = heap[parent]
+            if finish[task] < finish[parent_task] or
+               (finish[task] == finish[parent_task] and task < parent_task):
+                heap[position] <- parent_task
+                position <- parent
+            else:
+                keep_bubbling <- false
+        heap[position] <- task
+
+    staged[0] <- peak
+    for task in 0..<task_count:
+        staged[task + 1] <- assigned[task].i64()
+    output_words: usize = task_count + 1
+    output_bytes: usize = 8 * output_words
+    if output_is_null or output.length < output_bytes:
+        return -2
+    for word in 0..<output_words:
+        bits: u64 = staged[word].u64()
+        for byte in 0..<8:
+            output[8 * word + byte] <- ((bits >> (8 * byte)) & 255).u8()
+    output_bytes.i64()
+
+export fn online_temporary_task_load_balancing(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > OTTL_MAX_PARSEABLE_WORDS:
+        return -1
+    input_view: view[i64] = input[0:length]
+    if output == null:
+        empty_storage: mutable u8[1] = zeroed
+        empty_view: mutable view[u8] = empty_storage[0:0]
+        return online_temporary_task_load_balancing_impl(input_view, empty_view, true)
+    output_view: mutable view[u8] = output[0:capacity]
+    online_temporary_task_load_balancing_impl(input_view, output_view, false)

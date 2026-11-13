@@ -6,12 +6,12 @@ MAX_MACHINES :: 8
 MAX_TASKS :: 32
 MAX_PARSEABLE_WORDS :: 99
 
-event_less :: proc(left, right: int, finish: [MAX_TASKS]i64) -> bool {
+event_less :: proc(left, right: int, finish: ^[MAX_TASKS]i64) -> bool {
 	if finish[left] != finish[right] do return finish[left] < finish[right]
 	return left < right
 }
 
-heap_push :: proc(heap: ^[MAX_TASKS]int, size: ^int, task: int, finish: [MAX_TASKS]i64) {
+heap_push :: proc(heap: ^[MAX_TASKS]int, size: ^int, task: int, finish: ^[MAX_TASKS]i64) {
 	position := size^
 	size^ += 1
 	for position > 0 {
@@ -23,7 +23,7 @@ heap_push :: proc(heap: ^[MAX_TASKS]int, size: ^int, task: int, finish: [MAX_TAS
 	heap[position] = task
 }
 
-heap_pop :: proc(heap: ^[MAX_TASKS]int, size: ^int, finish: [MAX_TASKS]i64) -> int {
+heap_pop :: proc(heap: ^[MAX_TASKS]int, size: ^int, finish: ^[MAX_TASKS]i64) -> int {
 	minimum := heap[0]
 	size^ -= 1
 	if size^ == 0 do return minimum
@@ -56,7 +56,7 @@ online_temporary_task_load_balancing :: proc "c" (input: [^]i64, length: c.size_
 	var weights: [MAX_TASKS]i64
 	var finish: [MAX_TASKS]i64
 	var assigned: [MAX_TASKS]int
-	var loads: [MAX_MACHINES]i64
+	var loads: [MAX_MACHINES]i64 = {}
 	var heap: [MAX_TASKS]int
 	heap_size := 0
 	var staged: [MAX_TASKS + 1]i64
@@ -76,7 +76,7 @@ online_temporary_task_load_balancing :: proc "c" (input: [^]i64, length: c.size_
 	peak: i64 = 0
 	for task := 0; task < task_count; task += 1 {
 		for heap_size > 0 && finish[heap[0]] <= arrivals[task] {
-			expired := heap_pop(&heap, &heap_size, finish)
+			expired := heap_pop(&heap, &heap_size, &finish)
 			loads[assigned[expired]] -= weights[expired]
 		}
 		machine := 0
@@ -86,7 +86,7 @@ online_temporary_task_load_balancing :: proc "c" (input: [^]i64, length: c.size_
 		assigned[task] = machine
 		loads[machine] += weights[task]
 		if loads[machine] > peak do peak = loads[machine]
-		heap_push(&heap, &heap_size, task, finish)
+		heap_push(&heap, &heap_size, task, &finish)
 	}
 	staged[0] = peak
 	for task := 0; task < task_count; task += 1 do staged[task + 1] = i64(assigned[task])

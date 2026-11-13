@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "bareiss-fraction-free-determinant-i64-array-scalar-v1",
+  "algorithm": "bareiss_determinant",
+  "function_symbol": "bareiss_determinant",
+  "abi": "i64_array_scalar",
+  "description": "Compute an exact small integer determinant by pivoted fraction-free elimination.",
+  "source": {
+    "title": "Sylvester's identity and multistep integer-preserving Gaussian elimination",
+    "authors": ["Erwin H. Bareiss"],
+    "url": "https://doi.org/10.1090/S0025-5718-1968-0226829-0",
+    "license": "Algorithm description cited; clean-room implementation",
+    "algorithm_attribution": "Use fraction-free elimination whose update numerator is divided exactly by the preceding pivot, as justified by Sylvester's determinant identity.",
+    "implementation_status": "bounded clean-room integer determinant profile"
+  },
+  "contract": {
+    "operation": "Return the signed determinant of the supplied square integer matrix.",
+    "input_encoding": "[N,row-major matrix entries]",
+    "dimension_range": [1, 8],
+    "entry_range": [-4, 4],
+    "result_encoding": "one signed 64-bit determinant",
+    "primary_method": "Pivoted Bareiss fraction-free elimination with exact division by the previous pivot.",
+    "independent_method": "Signed Leibniz permutation expansion with inversion parity.",
+    "invalid_input_result": -9223372036854775808
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,row-major N*N entries]",
+    "dimension_range": [1, 8],
+    "entry_range": [-4, 4],
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -9223372036854775808
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "exact signed determinant",
+    "result_range": [-268435456, 268435456],
+    "invalid_input_result": -9223372036854775808
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed 8-by-8 matrix copy, pivot and row-swap state, and bounded scalar temporaries."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/b/bareiss_determinant/primary_oracle.py",
+  "independent_oracle": "benchmarks/b/bareiss_determinant/independent_oracle.py",
+  "cases": [
+    {"id": "singleton", "input_values": [1, -4], "input_length": 2, "expected_result": -4},
+    {"id": "identity-two", "input_values": [2, 1, 0, 0, 1], "input_length": 5, "expected_result": 1},
+    {"id": "valid-negative-one", "input_values": [2, 0, 1, 1, 0], "input_length": 5, "expected_result": -1},
+    {"id": "negative-two-by-two", "input_values": [2, 1, 2, 3, 4], "input_length": 5, "expected_result": -2},
+    {"id": "upper-triangular", "input_values": [3, 2, 1, 7, 0, -3, 5, 0, 0, 4], "input_length": 10, "expected_result": -24},
+    {"id": "pivot-row-swap", "input_values": [3, 0, 1, 2, 1, 0, 3, 4, 5, 6], "input_length": 10, "expected_result": 16},
+    {"id": "singular-duplicate-rows", "input_values": [3, 1, 2, 3, 1, 2, 3, 0, 1, 1], "input_length": 10, "expected_result": 0},
+    {"id": "maximum-dimension-identity", "input_values": [
+      8,
+      1, 0, 0, 0, 0, 0, 0, 0,
+      0, 1, 0, 0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0, 0, 0, 0,
+      0, 0, 0, 1, 0, 0, 0, 0,
+      0, 0, 0, 0, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 0, 0,
+      0, 0, 0, 0, 0, 0, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 1
+    ], "input_length": 65, "expected_result": 1},
+    {"id": "trailing-word", "input_values": [1, 2, 99], "input_length": 3, "expected_result": -9223372036854775808},
+    {"id": "entry-out-of-range", "input_values": [1, 5], "input_length": 2, "expected_result": -9223372036854775808},
+    {"id": "dimension-out-of-range", "input_values": [9], "input_length": 1, "expected_result": -9223372036854775808},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -9223372036854775808}
+  ]
+}

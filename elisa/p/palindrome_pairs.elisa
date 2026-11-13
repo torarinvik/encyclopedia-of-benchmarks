@@ -1,0 +1,143 @@
+const PP_WORDS: usize = 8
+const PP_LENGTH: usize = 8
+const PP_HASH: usize = 17
+const PP_MAX_INPUT: usize = 74
+
+def pp_palindrome(words: view[i64], word_id: usize, left: usize, right: usize) -> bool:
+    lo: mutable usize = left
+    hi: mutable usize = right
+    if hi == 0:
+        return true
+    hi <- hi - 1
+    while lo < hi:
+        if words[word_id * PP_LENGTH + lo] != words[word_id * PP_LENGTH + hi]:
+            return false
+        lo <- lo + 1
+        hi <- hi - 1
+    true
+
+def pp_encode(words: view[i64], word_id: usize, left: usize, right: usize, reverse: bool) -> i64:
+    key: mutable i64 = 1
+    if reverse:
+        i: mutable usize = right
+        while i > left:
+            i <- i - 1
+            key <- key * 5 + words[word_id * PP_LENGTH + i] + 1
+    else:
+        i: mutable usize = left
+        while i < right:
+            key <- key * 5 + words[word_id * PP_LENGTH + i] + 1
+            i <- i + 1
+    key
+
+def pp_slot(keys: view[i64], key: i64) -> usize:
+    slot: mutable usize = (key.usize()) % PP_HASH
+    while keys[slot] != 0 and keys[slot] != key:
+        slot <- (slot + 1) % PP_HASH
+    slot
+
+def pp_mark(keys: view[i64], heads: view[i64], next_word: view[i64], key: i64,
+            fixed_id: usize, fixed_on_right: bool, found: mutable view[bool]) -> void:
+    slot: usize = pp_slot(keys, key)
+    if keys[slot] != key:
+        return
+    id: mutable i64 = heads[slot]
+    while id >= 0:
+        word_id: usize = id.usize()
+        if word_id != fixed_id:
+            if fixed_on_right:
+                found[word_id * PP_WORDS + fixed_id] <- true
+            else:
+                found[fixed_id * PP_WORDS + word_id] <- true
+        id <- next_word[word_id]
+
+def palindrome_pairs_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > PP_MAX_INPUT:
+        return -1
+    input_view: view[i64] = input[0:length]
+    if input_view[0] < 0 or input_view[0] > PP_WORDS.i64():
+        return -1
+    count: usize = input_view[0].usize()
+    words: mutable i64[PP_WORDS * PP_LENGTH] = zeroed
+    sizes: mutable usize[PP_WORDS] = zeroed
+    cursor: mutable usize = 1
+    id: mutable usize = 0
+    while id < count:
+        if cursor >= length or input_view[cursor] < 0 or input_view[cursor] > PP_LENGTH.i64():
+            return -1
+        size: usize = input_view[cursor].usize()
+        cursor <- cursor + 1
+        if cursor + size > length:
+            return -1
+        sizes[id] <- size
+        k: mutable usize = 0
+        while k < size:
+            if input_view[cursor] < 0 or input_view[cursor] >= 4:
+                return -1
+            words[id * PP_LENGTH + k] <- input_view[cursor]
+            cursor <- cursor + 1
+            k <- k + 1
+        id <- id + 1
+    if cursor != length:
+        return -1
+
+    keys: mutable i64[PP_HASH] = zeroed
+    heads: mutable i64[PP_HASH] = zeroed
+    next_word: mutable i64[PP_WORDS] = zeroed
+    for i in 0..<PP_HASH: heads[i] <- -1
+    for i in 0..<PP_WORDS: next_word[i] <- -1
+    id <- 0
+    while id < count:
+        words_view: view[i64] = words[0:PP_WORDS * PP_LENGTH]
+        key: i64 = pp_encode(words_view, id, 0, sizes[id], false)
+        keys_view: view[i64] = keys[0:PP_HASH]
+        slot: usize = pp_slot(keys_view, key)
+        if keys[slot] == 0:
+            keys[slot] <- key
+            heads[slot] <- id.i64()
+        else:
+            next_word[id] <- heads[slot]
+            heads[slot] <- id.i64()
+        id <- id + 1
+
+    found: mutable bool[PP_WORDS * PP_WORDS] = zeroed
+    id <- 0
+    while id < count:
+        split: mutable usize = 0
+        while split <= sizes[id]:
+            words_view: view[i64] = words[0:PP_WORDS * PP_LENGTH]
+            if pp_palindrome(words_view, id, 0, split):
+                key: i64 = pp_encode(words_view, id, split, sizes[id], true)
+                keys_view: view[i64] = keys[0:PP_HASH]
+                heads_view: view[i64] = heads[0:PP_HASH]
+                next_view: view[i64] = next_word[0:PP_WORDS]
+                found_view: mutable view[bool] = found[0:PP_WORDS * PP_WORDS]
+                pp_mark(keys_view, heads_view, next_view, key, id, true, found_view)
+            if pp_palindrome(words_view, id, split, sizes[id]):
+                key: i64 = pp_encode(words_view, id, 0, split, true)
+                keys_view: view[i64] = keys[0:PP_HASH]
+                heads_view: view[i64] = heads[0:PP_HASH]
+                next_view: view[i64] = next_word[0:PP_WORDS]
+                found_view: mutable view[bool] = found[0:PP_WORDS * PP_WORDS]
+                pp_mark(keys_view, heads_view, next_view, key, id, false, found_view)
+            split <- split + 1
+        id <- id + 1
+
+    staged: mutable u8[PP_WORDS * (PP_WORDS - 1)] = zeroed
+    bytes: mutable usize = 0
+    left: mutable usize = 0
+    while left < count:
+        right: mutable usize = 0
+        while right < count:
+            if left != right and found[left * PP_WORDS + right]:
+                staged[bytes] <- (left * PP_WORDS + right).u8()
+                bytes <- bytes + 1
+            right <- right + 1
+        left <- left + 1
+    if output.is_null() or capacity < bytes:
+        return -2
+    output_view: mutable view[u8] = output[0:capacity]
+    for i in 0..<bytes: output_view[i] <- staged[i]
+    bytes.i64()
+
+export fn palindrome_pairs(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = palindrome_pairs_impl

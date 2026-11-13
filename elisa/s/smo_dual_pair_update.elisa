@@ -1,0 +1,145 @@
+const MAX_N: usize = 8
+const MAX_D: usize = 3
+const MAX_INPUT: usize = 47
+const MAX_OUTPUT: usize = 9
+
+def smo_field(x: f64, low: i64, high: i64) -> bool:
+    if x != x or x > 1.7976931348623157e308 or x < -1.7976931348623157e308:
+        return false
+    if x < low.f64() or x > high.f64():
+        return false
+    x.i64().f64() == x
+
+def smo_dot(features: view[f64], left: usize, right: usize, d: usize) -> f64:
+    total: mutable f64 = 0.0
+    for r in 0..d:
+        total <- total + features[left * MAX_D + r] * features[right * MAX_D + r]
+    total
+
+def smo_objective(alpha: view[f64], labels: view[i64], features: view[f64],
+                  n: usize, d: usize) -> f64:
+    total: mutable f64 = 0.0
+    for p in 0..n:
+        total <- total + alpha[p]
+    for p in 0..n:
+        for q in 0..n:
+            total <- total - 0.5 * alpha[p] * alpha[q] *
+                     (labels[p] * labels[q]).f64() * smo_dot(features, p, q, d)
+    total
+
+def smo_dual_pair_update_impl(input: view[f64], input_length: usize,
+                              staged: mutable view[f64]) -> i64:
+    if input_length < 6 or input_length > MAX_INPUT: return -1
+    if not smo_field(input[0], 2, MAX_N.i64()) or not smo_field(input[1], 1, MAX_D.i64()) or
+        not smo_field(input[2], 1, 5000) or not smo_field(input[3], -1000000, 1000000): return -1
+    n: usize = input[0].usize()
+    d: usize = input[1].usize()
+    c_milli: i64 = input[2].i64()
+    b_milli: i64 = input[3].i64()
+    if input_length != 6 + 2 * n + n * d: return -1
+
+    labels: mutable i64[MAX_N] = zeroed
+    alpha: mutable f64[MAX_N] = zeroed
+    features: mutable f64[MAX_N * MAX_D] = zeroed
+    negative: mutable bool = false
+    positive: mutable bool = false
+    equality: mutable i64 = 0
+    at: mutable usize = 4
+    for k in 0..n:
+        if not smo_field(input[at], -1, 1) or input[at] == 0.0: return -1
+        labels[k] <- input[at].i64()
+        if labels[k] < 0: negative <- true
+        else: positive <- true
+        at <- at + 1
+    for k in 0..n:
+        if not smo_field(input[at], 0, c_milli): return -1
+        value: i64 = input[at].i64()
+        alpha[k] <- value.f64() / 1000.0
+        equality <- equality + labels[k] * value
+        at <- at + 1
+    if not negative or not positive or equality != 0: return -1
+    for row in 0..n:
+        for col in 0..d:
+            if not smo_field(input[at], -32, 32): return -1
+            features[row * MAX_D + col] <- input[at]
+            at <- at + 1
+    if not smo_field(input[at], 0, (n - 1).i64()) or
+        not smo_field(input[at + 1], 0, (n - 1).i64()): return -1
+    i: usize = input[at].usize()
+    j: usize = input[at + 1].usize()
+    if i == j: return -1
+    if staged.len() < n + 1: return -2
+
+    label_view: view[i64] = labels[0:n]
+    alpha_view: mutable view[f64] = alpha[0:n]
+    feature_view: view[f64] = features[0:MAX_N * MAX_D]
+    c_value: f64 = c_milli.f64() / 1000.0
+    bias: f64 = b_milli.f64() / 1000.0
+    yi: i64 = label_view[i]
+    yj: i64 = label_view[j]
+    sign: i64 = yi * yj
+    old_i: f64 = alpha_view[i]
+    old_j: f64 = alpha_view[j]
+    kii: f64 = smo_dot(feature_view, i, i, d)
+    kjj: f64 = smo_dot(feature_view, j, j, d)
+    kij: f64 = smo_dot(feature_view, i, j, d)
+    error_i: mutable f64 = bias - yi.f64()
+    error_j: mutable f64 = bias - yj.f64()
+    for k in 0..n:
+        error_i <- error_i + alpha_view[k] * label_view[k].f64() * smo_dot(feature_view, k, i, d)
+        error_j <- error_j + alpha_view[k] * label_view[k].f64() * smo_dot(feature_view, k, j, d)
+    low: mutable f64 = 0.0
+    high: mutable f64 = 0.0
+    if yi != yj:
+        low <- old_j - old_i
+        if low < 0.0: low <- 0.0
+        high <- c_value + old_j - old_i
+        if high > c_value: high <- c_value
+    else:
+        low <- old_i + old_j - c_value
+        if low < 0.0: low <- 0.0
+        high <- old_i + old_j
+        if high > c_value: high <- c_value
+    eta: f64 = 2.0 * kij - kii - kjj
+    new_j: mutable f64 = 0.0
+    if eta < 0.0:
+        new_j <- old_j - yj.f64() * (error_i - error_j) / eta
+        if new_j < low: new_j <- low
+        if new_j > high: new_j <- high
+    else:
+        candidate: mutable f64[MAX_N] = zeroed
+        candidate_view: mutable view[f64] = candidate[0:MAX_N]
+        for k in 0..n: candidate_view[k] <- alpha_view[k]
+        candidate_view[i] <- old_i + sign.f64() * (old_j - low)
+        candidate_view[j] <- low
+        low_score: f64 = smo_objective(candidate_view, label_view, feature_view, n, d)
+        candidate_view[i] <- old_i + sign.f64() * (old_j - high)
+        candidate_view[j] <- high
+        high_score: f64 = smo_objective(candidate_view, label_view, feature_view, n, d)
+        new_j <- if high_score > low_score then high else low
+    new_i: f64 = old_i + sign.f64() * (old_j - new_j)
+    delta_i: f64 = new_i - old_i
+    delta_j: f64 = new_j - old_j
+    bias_i: f64 = bias - error_i - yi.f64() * delta_i * kii - yj.f64() * delta_j * kij
+    bias_j: f64 = bias - error_j - yi.f64() * delta_i * kij - yj.f64() * delta_j * kjj
+    new_bias: f64 = if new_i > 0.0 and new_i < c_value then bias_i
+        else if new_j > 0.0 and new_j < c_value then bias_j
+        else 0.5 * (bias_i + bias_j)
+    alpha_view[i] <- new_i
+    alpha_view[j] <- new_j
+    for k in 0..n: staged[k] <- alpha_view[k]
+    staged[n] <- new_bias
+    (n + 1).i64()
+
+export fn smo_dual_pair_update(input: f64&, input_length: usize,
+                              output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length > MAX_INPUT: return -1
+    input_view: view[f64] = input[0:input_length]
+    staged: mutable f64[MAX_OUTPUT] = zeroed
+    staged_view: mutable view[f64] = staged[0:MAX_OUTPUT]
+    result: i64 = smo_dual_pair_update_impl(input_view, input_length, staged_view)
+    if result < 0: return result
+    if output.is_null() or output_capacity < result.usize(): return -2
+    output_view: mutable view[f64] = output[0:result.usize()]
+    for k in 0..result.usize(): output_view[k] <- staged_view[k]
+    result

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "oi-wiki-parallel-binary-search-range-threshold-i64-array-scalar-v1",
+  "algorithm": "parallel_binary_search_range_threshold",
+  "function_symbol": "parallel_binary_search_range_threshold",
+  "abi": "i64_array_scalar",
+  "description": "Resolve many earliest-prefix range-sum threshold queries offline with parallel binary search and Fenwick range-add/range-sum state.",
+  "source": {
+    "title": "Overall / Parallel Binary Search",
+    "authors": ["OI Wiki Team"],
+    "url": "https://en.oi-wiki.org/misc/parallel-binsearch/",
+    "license": "CC BY-SA 4.0 and SATA",
+    "algorithm_attribution": "Batch monotone answer-time searches by midpoint; replay additive events in order and query their aggregate state through a Fenwick structure.",
+    "implementation_status": "bounded clean-room first-threshold-time profile"
+  },
+  "contract": {
+    "operation": "For each requested inclusive range and positive threshold, find the earliest prefix length of nonnegative range additions whose accumulated range sum reaches the threshold.",
+    "input_encoding": "[N,M,Q,(L,R,delta)*M,(L,R,target)*Q]",
+    "range_convention": "Inclusive zero-based ranges; 0 <= L <= R < N.",
+    "result_encoding": "sum((query_index+1)*(answer+1)); answer is the earliest prefix length t in [0,M] reaching target, or M+1 if no prefix reaches it.",
+    "primary_method": "Parallel binary search groups unresolved queries by their midpoint prefix length, while two Fenwick trees replay range additions and answer range sums.",
+    "independent_method": "For each query independently, replay every event prefix into a direct array and scan the queried range after each prefix.",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M,Q,(L,R,delta)*M,(L,R,target)*Q]",
+    "array_length_range": [1, 16],
+    "event_count_range": [0, 32],
+    "query_count_range": [0, 32],
+    "event_delta_range": [0, 1000],
+    "threshold_range": [1, 512000],
+    "range_convention": "Inclusive zero-based ranges for both events and queries.",
+    "maximum_valid_length": 195,
+    "maximum_parseable_length": 196,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "weighted sum of one-based query IDs and one-based answer codes",
+    "result_range": [0, 17952],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed event/query records, parallel-search bounds and buckets, and two Fenwick arrays for range-add/range-sum queries."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/p/parallel_binary_search_range_threshold/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/parallel_binary_search_range_threshold/independent_oracle.py",
+  "cases": [
+    {"id": "empty-event-and-query-batch", "input_values": [4, 0, 0], "input_length": 3, "expected_result": 0},
+    {"id": "no-events-threshold-never-reached", "input_values": [2, 0, 1, 0, 1, 1], "input_length": 6, "expected_result": 2},
+    {"id": "first-event-crossing", "input_values": [4, 2, 2, 0, 2, 3, 1, 3, 2, 0, 0, 1, 0, 3, 8], "input_length": 15, "expected_result": 6},
+    {"id": "second-event-crossing", "input_values": [2, 2, 1, 0, 0, 3, 1, 1, 2, 0, 1, 5], "input_length": 12, "expected_result": 3},
+    {"id": "threshold-never-reached", "input_values": [1, 1, 1, 0, 0, 1000, 0, 0, 1001], "input_length": 9, "expected_result": 3},
+    {"id": "overlapping-ranges-and-thresholds", "input_values": [3, 3, 2, 0, 0, 4, 1, 2, 3, 0, 2, 2, 0, 2, 13, 0, 1, 5], "input_length": 18, "expected_result": 10},
+    {"id": "trailing-word", "input_values": [1, 0, 0, 0], "input_length": 4, "expected_result": -1},
+    {"id": "invalid-array-length", "input_values": [0, 0, 0], "input_length": 3, "expected_result": -1},
+    {"id": "invalid-event-range", "input_values": [1, 1, 0, 0, 1, 1], "input_length": 6, "expected_result": -1},
+    {"id": "negative-event-delta", "input_values": [1, 1, 0, 0, 0, -1], "input_length": 6, "expected_result": -1},
+    {"id": "zero-threshold", "input_values": [1, 0, 1, 0, 0, 0], "input_length": 6, "expected_result": -1},
+    {"id": "threshold-outside-bound", "input_values": [1, 0, 1, 0, 0, 512001], "input_length": 6, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

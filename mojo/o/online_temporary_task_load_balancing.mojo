@@ -52,7 +52,7 @@ fn online_temporary_task_load_balancing(
 ) abi("C") -> Int64:
     if input == UnsafePointer[Int64, ImmutAnyOrigin]() or Int(length) < 2 or Int(length) > MAX_PARSEABLE_WORDS:
         return -1
-    if input[0] < 1 or input[0] > MAX_MACHINES or input[1] < 0 or input[1] > MAX_TASKS:
+    if input[0] < 1 or input[0] > Int64(MAX_MACHINES) or input[1] < 0 or input[1] > Int64(MAX_TASKS):
         return -1
     let machine_count = Int(input[0])
     let task_count = Int(input[1])

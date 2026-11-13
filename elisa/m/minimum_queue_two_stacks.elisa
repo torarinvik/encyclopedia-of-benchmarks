@@ -1,0 +1,85 @@
+const mqt_capacity: usize = 16
+const mqt_max_operations: i64 = 32
+const mqt_max_input: usize = 65
+const mqt_value_min: i64 = -1000
+const mqt_value_max: i64 = 1000
+const mqt_offset: i64 = 1001
+
+def minimum_queue_two_stacks_impl(input: view[i64], length: usize) -> i64:
+    if length < 1 or length > mqt_max_input: return -1
+    operation_count_value: i64 = input[0]
+    if operation_count_value < 0 or operation_count_value > mqt_max_operations: return -1
+
+    in_values: mutable i64[mqt_capacity] = zeroed
+    in_minimums: mutable i64[mqt_capacity] = zeroed
+    out_values: mutable i64[mqt_capacity] = zeroed
+    out_minimums: mutable i64[mqt_capacity] = zeroed
+    in_value_view: mutable view[i64] = in_values[0:mqt_capacity]
+    in_minimum_view: mutable view[i64] = in_minimums[0:mqt_capacity]
+    out_value_view: mutable view[i64] = out_values[0:mqt_capacity]
+    out_minimum_view: mutable view[i64] = out_minimums[0:mqt_capacity]
+
+    operation_count: usize = operation_count_value.usize()
+    in_count: mutable usize = 0
+    out_count: mutable usize = 0
+    cursor: mutable usize = 1
+    checksum: mutable i64 = 0
+    for operation in 0..<operation_count:
+        if cursor >= length: return -1
+        opcode: i64 = input[cursor]
+        cursor <- cursor + 1
+        if opcode == 0:
+            if cursor >= length: return -1
+            value: i64 = input[cursor]
+            cursor <- cursor + 1
+            if value < mqt_value_min or value > mqt_value_max or
+               in_count + out_count >= mqt_capacity:
+                return -1
+            in_value_view[in_count] <- value
+            if in_count == 0 or value < in_minimum_view[in_count - 1]:
+                in_minimum_view[in_count] <- value
+            else:
+                in_minimum_view[in_count] <- in_minimum_view[in_count - 1]
+            in_count <- in_count + 1
+        elif opcode == 1:
+            if in_count + out_count == 0: return -1
+            if out_count == 0:
+                while in_count > 0:
+                    in_count <- in_count - 1
+                    value: i64 = in_value_view[in_count]
+                    out_value_view[out_count] <- value
+                    if out_count == 0 or value < out_minimum_view[out_count - 1]:
+                        out_minimum_view[out_count] <- value
+                    else:
+                        out_minimum_view[out_count] <- out_minimum_view[out_count - 1]
+                    out_count <- out_count + 1
+            out_count <- out_count - 1
+            checksum <- checksum + (operation + 1).i64() * (out_value_view[out_count] + mqt_offset)
+        elif opcode == 2:
+            if in_count + out_count == 0: return -1
+            observed: mutable i64 = 0
+            if in_count == 0:
+                observed <- out_minimum_view[out_count - 1]
+            elif out_count == 0:
+                observed <- in_minimum_view[in_count - 1]
+            elif in_minimum_view[in_count - 1] < out_minimum_view[out_count - 1]:
+                observed <- in_minimum_view[in_count - 1]
+            else:
+                observed <- out_minimum_view[out_count - 1]
+            checksum <- checksum + (operation + 1).i64() * (observed + mqt_offset)
+        else:
+            return -1
+    if cursor != length: return -1
+
+    position: mutable usize = 0
+    for index in 0..<out_count:
+        position <- position + 1
+        checksum <- checksum + position.i64() * (out_value_view[out_count - index - 1] + mqt_offset)
+    for index in 0..<in_count:
+        position <- position + 1
+        checksum <- checksum + position.i64() * (in_value_view[index] + mqt_offset)
+    checksum
+
+export fn minimum_queue_two_stacks(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > mqt_max_input: return -1
+    minimum_queue_two_stacks_impl(input[0:length], length)
