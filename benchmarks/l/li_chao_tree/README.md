@@ -13,7 +13,7 @@ This benchmark maintains the lower envelope of lines `y = slope*x + intercept` a
 
 The coefficient and coordinate limits keep every line value, checksum term, and total inside signed 64-bit arithmetic. Each insertion follows one root-to-leaf path in the coordinate interval, and each query compares the stored lines on its root-to-coordinate path. Both operations take `O(log U)` time, where `U = 2,000,001` is the number of integer coordinates. The tree uses `O(I log U)` nodes for `I` inserted lines; ports reserve `O(MAX_OPERATIONS log U)` node slots.
 
-[`workload.json`](workload.json) covers crossing and parallel lines, both domain edges, repeated queries, checksum boundary values, empty traces, malformed operations, and the null-input case. [`benchmarks/li_chao_tree_oracle.py`](../../li_chao_tree_oracle.py) computes each query by scanning all earlier lines, independently of the tree structure. [`benchmarks/verify_li_chao_tree.py`](../../verify_li_chao_tree.py) statically checks the workload, oracle results, provenance, and presence of all nine source files; it does not compile or run the ports.
+[`workload.json`](workload.json) covers crossing and parallel lines, both domain edges, repeated queries, checksum boundary values, empty traces, malformed operations, and the null-input case. [`benchmarks/li_chao_tree_oracle.py`](../../li_chao_tree_oracle.py) computes each query by scanning all earlier lines, independently of the tree structure. [`benchmarks/verify_li_chao_tree.py`](../../verify_li_chao_tree.py) checks the workload, oracle results, provenance, and presence of all ten source files; it does not compile or run the ports.
 
 ## Algorithm references
 
@@ -22,4 +22,4 @@ The coefficient and coordinate limits keep every line value, checksum term, and 
 
 ## Implementations
 
-The nine ports use the shared `i64_array_scalar` ABI. Their source files are under the `l` directory of `c`, `c3`, `cpp`, `elisa`, `nim`, `odin`, `rust`, `v`, and `zig`.
+Ten port drafts use the shared `i64_array_scalar` ABI. Their source files are under the `l` directory of `c`, `c3`, `cpp`, `elisa`, `mojo`, `nim`, `odin`, `rust`, `v`, and `zig`. The Mojo draft remains unverified.

@@ -20,7 +20,7 @@ import struct
 import subprocess
 import sys
 
-from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
 from gabow_scc_oracle import (
     MAX_INPUT_LENGTH as GABOW_SCC_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as GABOW_SCC_MAX_OUTPUT_BYTES,
@@ -37,6 +37,33 @@ from c.crochemore_perrin_two_way.primary_oracle import (
     MAX_PATTERN_LENGTH as CROCHEMORE_PERRIN_TWO_WAY_MAX_PATTERN_LENGTH,
     MAX_TEXT_LENGTH as CROCHEMORE_PERRIN_TWO_WAY_MAX_TEXT_LENGTH,
     WORKSPACE_BYTES as CROCHEMORE_PERRIN_TWO_WAY_WORKSPACE_BYTES,
+)
+from i.indexed_block_list.independent_oracle import (
+    expected_output as indexed_block_list_independent_oracle,
+)
+from i.indexed_block_list.verify_indexed_block_list_package import (
+    static_issues as indexed_block_list_static_issues,
+)
+from p.prime_modulus_inverse_table.independent_oracle import (
+    expected_output as prime_modulus_inverse_table_independent_oracle,
+)
+from s.sparse_supernodal_cholesky.independent_oracle import (
+    expected_output as sparse_supernodal_cholesky_independent_oracle,
+)
+from s.seidel_unweighted_apsp.independent_oracle import expected_output as seidel_unweighted_apsp_independent_oracle
+from s.seidel_unweighted_apsp.primary_oracle import expected_output as seidel_unweighted_apsp_primary_oracle
+from n.newton_compositional_inverse_fps.independent_oracle import (
+    expected_output as newton_compositional_inverse_fps_independent_oracle,
+)
+from n.newton_reciprocal_fps.independent_oracle import expected_output as newton_reciprocal_fps_independent_oracle
+from n.newton_inverse_sqrt_fps.independent_oracle import expected_output as newton_inverse_sqrt_fps_independent_oracle
+from n.newton_inverse_sqrt_fps.primary_oracle import expected_output as newton_inverse_sqrt_fps_primary_oracle
+from n.newton_reciprocal_fps.primary_oracle import expected_output as newton_reciprocal_fps_primary_oracle
+from n.newton_compositional_inverse_fps.primary_oracle import (
+    expected_output as newton_compositional_inverse_fps_primary_oracle,
+)
+from s.sparse_supernodal_cholesky.primary_oracle import (
+    expected_output as sparse_supernodal_cholesky_primary_oracle,
 )
 from v.virtual_tree.independent_oracle import (
     expected_output as virtual_tree_independent_oracle,
@@ -6126,6 +6153,20 @@ ALGORITHMS = (*ALGORITHMS, "convolution_f2_64")
 ALGORITHMS = (*ALGORITHMS, "palindrome_pairs")
 ALGORITHMS = (*ALGORITHMS, "dirichlet_convolution_and_prefix_sums")
 ALGORITHMS = (*ALGORITHMS, "all_shortest_paths_unweighted")
+ALGORITHMS = (*ALGORITHMS, "indexed_block_list")
+ALGORITHMS = (*ALGORITHMS, "prime_modulus_inverse_table")
+ALGORITHMS = (*ALGORITHMS, "sparse_supernodal_cholesky")
+ALGORITHMS = (*ALGORITHMS, "newton_compositional_inverse_fps")
+ALGORITHMS = (*ALGORITHMS, "newton_reciprocal_fps")
+ALGORITHMS = (*ALGORITHMS, "newton_inverse_sqrt_fps")
+ALGORITHMS = (*ALGORITHMS, "seidel_unweighted_apsp")
+WORKSPACE_ALGORITHMS.add("indexed_block_list")
+WORKSPACE_ALGORITHMS.add("prime_modulus_inverse_table")
+WORKSPACE_ALGORITHMS.add("sparse_supernodal_cholesky")
+WORKSPACE_ALGORITHMS.add("newton_compositional_inverse_fps")
+WORKSPACE_ALGORITHMS.add("newton_reciprocal_fps")
+WORKSPACE_ALGORITHMS.add("newton_inverse_sqrt_fps")
+WORKSPACE_ALGORITHMS.add("seidel_unweighted_apsp")
 WORKSPACE_ALGORITHMS.update({
     "npb_cg_sparse_inverse_power", "hpcg_profile", "baswana_sen_weighted_spanner",
     "npb_lu_block_ssor", "q_binomial_coefficient_prime_mod",
@@ -13478,7 +13519,14 @@ def prefix_substring_lcs_independent_oracle(
 
 
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
+    "seidel_unweighted_apsp": seidel_unweighted_apsp_independent_oracle,
+    "newton_inverse_sqrt_fps": newton_inverse_sqrt_fps_independent_oracle,
+    "newton_reciprocal_fps": newton_reciprocal_fps_independent_oracle,
+    "newton_compositional_inverse_fps": newton_compositional_inverse_fps_independent_oracle,
+    "sparse_supernodal_cholesky": sparse_supernodal_cholesky_independent_oracle,
     "gabow_scc": gabow_scc_independent_oracle,
+    "indexed_block_list": indexed_block_list_independent_oracle,
+    "prime_modulus_inverse_table": prime_modulus_inverse_table_independent_oracle,
     "crochemore_perrin_two_way": crochemore_perrin_two_way_independent_oracle,
     "virtual_tree": virtual_tree_independent_oracle,
     "hirschberg_lcs": hirschberg_lcs_independent_oracle,
@@ -19815,6 +19863,43 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or BITWISE_OR_CONVOLUTION_VERIFIER_MAX_N != 8
                 or BITWISE_OR_CONVOLUTION_VERIFIER_MAX_SIZE != 256):
             raise ValueError("bitwise_or_convolution bounds differ from its subset-zeta contract")
+    elif algorithm == "seidel_unweighted_apsp":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (66, 512, 512):
+            raise ValueError("seidel_unweighted_apsp bounds differ from its contract")
+    elif algorithm == "newton_inverse_sqrt_fps":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (66, 512, 512):
+            raise ValueError("newton_inverse_sqrt_fps bounds differ from its contract")
+    elif algorithm == "newton_reciprocal_fps":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (66, 512, 512):
+            raise ValueError("newton_reciprocal_fps bounds differ from its contract")
+    elif algorithm == "newton_compositional_inverse_fps":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (18, 128, 2176):
+            raise ValueError("newton_compositional_inverse_fps bounds differ from its contract")
+    elif algorithm == "sparse_supernodal_cholesky":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (56, 288, 4096):
+            raise ValueError("sparse_supernodal_cholesky bounds differ from its contract")
+    elif algorithm == "prime_modulus_inverse_table":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (34, 128, 4096):
+            raise ValueError("prime_modulus_inverse_table bounds differ from its contract")
+    elif algorithm == "indexed_block_list":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        issues = indexed_block_list_static_issues()
+        if (issues or max_input != 179 or max_output != 256 or workspace_bytes != 4096):
+            detail = "; ".join(issues) if issues else "bounds or workspace differ"
+            raise ValueError("indexed_block_list package is incomplete: " + detail)
     elif algorithm == "fluidanimate_sph":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -20678,6 +20763,8 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                                          "mediabench_g721_encode",
                                          "point_in_convex_polygon_log_query",
                                          "mst_edge_classification",
+                                         "indexed_block_list",
+                                         "prime_modulus_inverse_table",
                                      }
                                      and result == 0 and not output)
                                  or capacity < result)
@@ -20732,7 +20819,8 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 if result >= 0 else not output)
         elif algorithm == "min_plus_convolution_convex_convex" and "expected_output_hex" not in fixture:
             output_matches_fixture = result >= 0 and len(output) == result
-        elif algorithm in {"npb_cg_sparse_inverse_power", "hpcg_profile", "npb_lu_block_ssor"}:
+        elif algorithm in {"npb_cg_sparse_inverse_power", "hpcg_profile", "npb_lu_block_ssor",
+                           "sparse_supernodal_cholesky"}:
             expected_vector = fixture.get("expected_output")
             if result >= 0 and result % 8 == 0 and len(output) == result:
                 actual_vector = struct.unpack("<" + "d" * (result // 8), output)
@@ -28589,7 +28677,247 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     add(values, 0)
                     add(values, result - 1)
                 add(values, output_is_null=True)
-        if algorithm in {"splash2_water_nsquared", "water_spatial"}:
+        if algorithm == "indexed_block_list":
+            maximum_case = next(case for case in workload["cases"]
+                                if case["id"] == "maximum_frame_and_output")
+            maximum_input = tuple(maximum_case["input_values"])
+            maximum_result, maximum_output = add(maximum_input)
+            if (len(maximum_input) != 178 or maximum_result != 256
+                    or len(maximum_output) != 256):
+                raise ValueError("indexed_block_list maximum frame does not fill its output bound")
+            for capacity in (0, maximum_result - 1, maximum_result, workspace_bytes):
+                add(maximum_input, capacity)
+            add(maximum_input, output_is_null=True)
+            zero_access = (2, 7, 8, 0)
+            add(zero_access, 0, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=max_input)
+            malformed = (
+                (), (0,), (0, 0, 1), (1, 7, 1, 9), (1, 7, 1, 1, 1),
+                (1, 7, 1, 0, 2, 8), (0, 0, 99),
+                tuple([0] * max_input), maximum_input + (0,),
+            )
+            for values in malformed:
+                add(values)
+
+            rng = random.Random(0xB10C1157)
+            for _sample in range(96):
+                initial_count = rng.randint(0, 16)
+                initial = tuple(rng.randint(-1_000_000, 1_000_000)
+                                for _ in range(initial_count))
+                operation_count = rng.randint(0, 64)
+                operation_words: list[int] = []
+                current_size = initial_count
+                insertions = accesses = 0
+                for _operation in range(operation_count):
+                    insert = (insertions < 32 and current_size < 48
+                              and (accesses >= 32 or current_size == 0
+                                   or rng.randrange(2) == 0))
+                    if insert:
+                        index = rng.randint(0, current_size)
+                        value = rng.randint(-1_000_000, 1_000_000)
+                        operation_words.extend((0, index, value))
+                        current_size += 1
+                        insertions += 1
+                    else:
+                        index = rng.randrange(current_size)
+                        operation_words.extend((1, index))
+                        accesses += 1
+                generated = (initial_count, *initial, operation_count, *operation_words)
+                result, _output = add(generated)
+                if result > 0:
+                    add(generated, result - 1)
+                    add(generated, output_is_null=True)
+        elif algorithm == "seidel_unweighted_apsp":
+            rng = random.Random(0x53454944454C)
+            for n in range(1, 5):
+                edges = [(i, j) for i in range(n) for j in range(i)]
+                for mask in range(1 << len(edges)):
+                    adjacency = [[0] * n for _ in range(n)]
+                    for bit, (i, j) in enumerate(edges):
+                        if mask & (1 << bit):
+                            adjacency[i][j] = adjacency[j][i] = 1
+                    values = (n, *(value for row in adjacency for value in row))
+                    result, output = add(values)
+                    if seidel_unweighted_apsp_primary_oracle(values) != (result, output):
+                        raise ValueError("seidel_unweighted_apsp exhaustive oracles disagree")
+            for n in range(1, 9):
+                for sample in range(16):
+                    adjacency = [[0] * n for _ in range(n)]
+                    for vertex in range(1, n):
+                        parent = vertex - 1 if sample == 0 else rng.randrange(vertex)
+                        adjacency[vertex][parent] = adjacency[parent][vertex] = 1
+                    if sample:
+                        for i in range(n):
+                            for j in range(i):
+                                if rng.randrange(3) == 0:
+                                    adjacency[i][j] = adjacency[j][i] = 1
+                    values = (n, *(value for row in adjacency for value in row))
+                    result, output = add(values)
+                    if result != 8 * n * n or seidel_unweighted_apsp_primary_oracle(values) != (result, output):
+                        raise ValueError("seidel_unweighted_apsp oracles disagree")
+                    add(values, result - 1)
+                    add(values, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            for invalid in ((0,), (1, 1), (2, 0, 0, 0, 0), (2, 0, 1, 0, 0)):
+                if add(invalid, 0) != (-1, b"") or add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("seidel_unweighted_apsp error precedence differs")
+            add((1, 0, *([0] * 64)))
+        elif algorithm == "newton_inverse_sqrt_fps":
+            rng = random.Random(0x4953515254)
+            for n in range(1, 65):
+                values = (n, 1, *(rng.randrange(998244353) for _ in range(n - 1)))
+                result, output = add(values)
+                if result != 8 * n or newton_inverse_sqrt_fps_primary_oracle(values) != (result, output):
+                    raise ValueError("newton_inverse_sqrt_fps oracles disagree")
+                inverse = struct.unpack("<" + "q" * n, output)
+                square = [0] * n
+                for i, left in enumerate(inverse):
+                    for j in range(n - i):
+                        square[i + j] = (square[i + j] + left * inverse[j]) % 998244353
+                for degree in range(n):
+                    coefficient = sum(values[i + 1] * square[degree - i]
+                                      for i in range(degree + 1)) % 998244353
+                    if coefficient != (1 if degree == 0 else 0):
+                        raise ValueError("newton_inverse_sqrt_fps inverse identity failed")
+                add(values, result - 1)
+                add(values, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            for invalid in ((0,), (1, 0), (1, 2), (2, 1, -1), (2, 1, 998244353), (2, 1)):
+                if add(invalid, 0) != (-1, b"") or add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("newton_inverse_sqrt_fps error precedence differs")
+            add((1, 1, *([0] * 64)))
+        elif algorithm == "newton_reciprocal_fps":
+            rng = random.Random(0x5245434950)
+            for n in range(1, 65):
+                values = (n, rng.randrange(1, 998244353),
+                          *(rng.randrange(998244353) for _ in range(n - 1)))
+                result, output = add(values)
+                if result != 8 * n or newton_reciprocal_fps_primary_oracle(values) != (result, output):
+                    raise ValueError("newton_reciprocal_fps oracles disagree")
+                add(values, result - 1)
+                add(values, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            for invalid in ((0,), (1, 0), (1, -1), (1, 998244353), (2, 1)):
+                if add(invalid, 0) != (-1, b"") or add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("newton_reciprocal_fps error precedence differs")
+            add((1, 1, *([0] * 64)))
+        elif algorithm == "newton_compositional_inverse_fps":
+            rng = random.Random(0x4E4557544F4E)
+            for n in range(2, 17):
+                for _ in range(8):
+                    values = (n, 0, rng.randrange(1, 998244353),
+                              *(rng.randrange(998244353) for _ in range(n - 2)))
+                    result, output = add(values)
+                    if result != 8 * n or len(output) != result:
+                        raise ValueError("newton_compositional_inverse_fps generated case failed")
+                    if newton_compositional_inverse_fps_primary_oracle(values) != (result, output):
+                        raise ValueError("newton_compositional_inverse_fps oracles disagree")
+                    add(values, result - 1)
+                    add(values, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            for invalid in ((2, 0, 0), (2, 1, 1), (2, 0, -1),
+                            (2, 0, 998244353), (3, 0, 1), (1, 0)):
+                if add(invalid, 0) != (-1, b"") or add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("newton_compositional_inverse_fps error precedence differs")
+            add((2, 0, 1, *([0] * 15)))
+        elif algorithm == "sparse_supernodal_cholesky":
+            maximum_input = tuple(next(case["input_values"] for case in workload["cases"]
+                                       if case["id"] == "maximum_diagonal"))
+            result, output = add(maximum_input)
+            if len(maximum_input) != 55 or result != 288 or len(output) != 288:
+                raise ValueError("sparse_supernodal_cholesky maximum frame misses its bounds")
+            for capacity in (0, result - 1, result, workspace_bytes):
+                add(maximum_input, capacity)
+            add(maximum_input, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add(maximum_input + (0,))
+            # Construct positive-definite dense matrices from known integer lower
+            # factors. Exercise both singleton and one-block partitions.
+            rng = random.Random(0x5C40E5)
+            for n in range(1, 9):
+                for _ in range(8):
+                    factor = [[0] * n for _ in range(n)]
+                    for row in range(n):
+                        factor[row][row] = rng.randint(2, 5)
+                        for col in range(row):
+                            factor[row][col] = rng.randint(-2, 2)
+                    packed = tuple(1000 * sum(factor[row][k] * factor[col][k]
+                                              for k in range(col + 1))
+                                   for row in range(n) for col in range(row + 1))
+                    masks = tuple((1 << (row + 1)) - 1 for row in range(n))
+                    for boundaries in (tuple(range(n + 1)), (0, n)):
+                        values = (n, len(boundaries) - 1, *boundaries, *masks, *packed)
+                        result, output = add(values)
+                        primary_result, primary_output = sparse_supernodal_cholesky_primary_oracle(values)
+                        if result != 8 * n * (n + 1) // 2 or primary_result != result:
+                            raise ValueError("sparse_supernodal_cholesky positive-definite case failed")
+                        reference = struct.unpack("<" + "d" * (result // 8), output)
+                        primary = struct.unpack("<" + "d" * (result // 8), primary_output)
+                        if any(not math.isclose(a, b, rel_tol=1e-9, abs_tol=1e-9)
+                               for a, b in zip(reference, primary)):
+                            raise ValueError("sparse_supernodal_cholesky oracles disagree")
+                        add(values, result - 1)
+                        add(values, output_is_null=True)
+                # A bidiagonal factor produces a tridiagonal input and a
+                # filled chain pattern, exercising absent sparse slots.
+                diagonal = [rng.randint(2, 5) for _ in range(n)]
+                subdiagonal = [0] + [rng.randint(-2, 2) for _ in range(n - 1)]
+                masks = tuple((1 << row) | ((1 << (row - 1)) if row else 0)
+                              for row in range(n))
+                packed = tuple(
+                    1000 * (diagonal[row] ** 2 + subdiagonal[row] ** 2
+                            if row == col else
+                            subdiagonal[row] * diagonal[col] if col == row - 1 else 0)
+                    for row in range(n) for col in range(row + 1))
+                values = (n, n, *range(n + 1), *masks, *packed)
+                result, output = add(values)
+                if result != 8 * n * (n + 1) // 2:
+                    raise ValueError("sparse_supernodal_cholesky sparse chain failed")
+                primary_result, primary_output = sparse_supernodal_cholesky_primary_oracle(values)
+                if primary_result != result:
+                    raise ValueError("sparse_supernodal_cholesky sparse oracles disagree")
+                reference = struct.unpack("<" + "d" * (result // 8), output)
+                primary = struct.unpack("<" + "d" * (result // 8), primary_output)
+                if any(not math.isclose(a, b, rel_tol=1e-9, abs_tol=1e-9)
+                       for a, b in zip(reference, primary)):
+                    raise ValueError("sparse_supernodal_cholesky sparse oracles disagree")
+            for invalid in ((0, 1), (1, 0), (1, 1, 0, 1, 0, 4000),
+                            (1, 1, 0, 1, 1, -1), (1, 1, 0, 1, 1, 1000001)):
+                add(invalid, 0)
+                add(invalid, output_is_null=True)
+        elif algorithm == "prime_modulus_inverse_table":
+            maximum_case = next(case for case in workload["cases"]
+                                if case["expected_result"] == 128)
+            maximum_input = tuple(maximum_case["input_values"])
+            maximum_result, maximum_output = add(maximum_input)
+            if (len(maximum_input) != 33 or maximum_result != 128
+                    or len(maximum_output) != 128):
+                raise ValueError("prime_modulus_inverse_table maximum batch misses its output bound")
+            for capacity in (0, maximum_result - 1, maximum_result, workspace_bytes):
+                add(maximum_input, capacity)
+            add(maximum_input, output_is_null=True)
+            add((0,), 0, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=max_input)
+            malformed = (
+                (), (1,), (0, 0), (-1,), (33, *([1] * 33)),
+                (1, 0), (1, 257), (1, 1, 1),
+                (1, I64_MIN), (1, I64_MAX), tuple([0] * max_input),
+            )
+            for values in malformed:
+                add(values)
+
+            rng = random.Random(0x1A7E25E)
+            for _sample in range(128):
+                query_count = rng.randint(0, 32)
+                operands = tuple(rng.randint(1, 256) for _ in range(query_count))
+                generated = (query_count, *operands)
+                result, _output = add(generated)
+                if result > 0:
+                    add(generated, result - 1)
+                    add(generated, output_is_null=True)
+        elif algorithm in {"splash2_water_nsquared", "water_spatial"}:
             if (max_input != 260 or max_output != 1552 or workspace_bytes != 1552):
                 raise ValueError(f"{algorithm} bounds differ from the shared bounded pair model")
 
@@ -32627,6 +32955,10 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     records = [(*key, result, output) for key, (result, output) in records_by_key.items()]
     records.sort(key=lambda record: record[:5])
     lines = [f"{len(records)}\n"]
+    if workload.get("output", {}).get("kind") in {"float64_vector", "float64_records"}:
+        absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0)
+        relative_tolerance = workload["output"].get("relative_tolerance", 0.0)
+        lines.append(f"float64_vector {absolute_tolerance:.17g} {relative_tolerance:.17g}\n")
     for values, capacity, output_is_null, input_is_null, input_length, result, output in records:
         encoded = output.hex() if output else "-"
         header = f"{input_length} {result} {len(output)} {capacity} {int(input_is_null)} {int(output_is_null)}"
@@ -67487,7 +67819,8 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--algorithm", choices=ALGORITHMS, default=DEFAULT_ALGORITHM)
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    parser.add_argument("--languages", nargs="+", choices={**EXTENSIONS, **OPTIONAL_EXTENSIONS},
+                        default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build/i64_array_bytes_output")

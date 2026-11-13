@@ -44,6 +44,7 @@ the measured ports. See [`workload.json`](workload.json), the
 | C3 | [`c3/s/segment_add_get_min.c3`](../../../c3/s/segment_add_get_min.c3) |
 | C++ | [`cpp/s/segment_add_get_min.cpp`](../../../cpp/s/segment_add_get_min.cpp) |
 | Elisa | [`elisa/s/segment_add_get_min.elisa`](../../../elisa/s/segment_add_get_min.elisa) |
+| Mojo | [`mojo/s/segment_add_get_min.mojo`](../../../mojo/s/segment_add_get_min.mojo) (draft, unverified) |
 | Nim | [`nim/s/segment_add_get_min.nim`](../../../nim/s/segment_add_get_min.nim) |
 | Odin | [`odin/s/segment_add_get_min.odin`](../../../odin/s/segment_add_get_min.odin) |
 | Rust | [`rust/s/segment_add_get_min.rs`](../../../rust/s/segment_add_get_min.rs) |

@@ -1,4 +1,4 @@
-"""Static workload and nine-port validator for affine aggregate queues."""
+"""Static workload and ten-port validator for affine aggregate queues."""
 
 from __future__ import annotations
 
@@ -23,6 +23,7 @@ SOURCE_FILES = (
     "c3/q/queue_operate_all_composite.c3",
     "cpp/q/queue_operate_all_composite.cpp",
     "elisa/q/queue_operate_all_composite.elisa",
+    "mojo/q/queue_operate_all_composite.mojo",
     "nim/q/queue_operate_all_composite.nim",
     "odin/q/queue_operate_all_composite.odin",
     "rust/q/queue_operate_all_composite.rs",

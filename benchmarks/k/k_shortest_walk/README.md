@@ -49,8 +49,9 @@ See [`workload.json`](workload.json), the exact-length
 | C3 | [`c3/k/k_shortest_walk.c3`](../../../c3/k/k_shortest_walk.c3) |
 | C++ | [`cpp/k/k_shortest_walk.cpp`](../../../cpp/k/k_shortest_walk.cpp) |
 | Elisa | [`elisa/k/k_shortest_walk.elisa`](../../../elisa/k/k_shortest_walk.elisa) |
+| Mojo | [`mojo/k/k_shortest_walk.mojo`](../../../mojo/k/k_shortest_walk.mojo) (draft, unverified) |
 | Nim | [`nim/k/k_shortest_walk.nim`](../../../nim/k/k_shortest_walk.nim) |
-| Odin | [`odin/k_shortest_walk.odin`](../../../odin/k_shortest_walk.odin) |
+| Odin | [`odin/k/k_shortest_walk.odin`](../../../odin/k/k_shortest_walk.odin) |
 | Rust | [`rust/k/k_shortest_walk.rs`](../../../rust/k/k_shortest_walk.rs) |
 | V | [`v/k/k_shortest_walk.v`](../../../v/k/k_shortest_walk.v) |
 | Zig | [`zig/k/k_shortest_walk.zig`](../../../zig/k/k_shortest_walk.zig) |

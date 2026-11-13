@@ -45,6 +45,43 @@ from c.crochemore_perrin_two_way.primary_oracle import (
 from c.crochemore_perrin_two_way.verify_workload import (
     verify_workload as verify_crochemore_perrin_two_way_package,
 )
+from i.indexed_block_list.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as INDEXED_BLOCK_LIST_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as INDEXED_BLOCK_LIST_MAX_OUTPUT_BYTES,
+    expected_output as indexed_block_list_oracle,
+)
+from i.indexed_block_list.verify_indexed_block_list_package import (
+    static_issues as indexed_block_list_static_issues,
+)
+from p.prime_modulus_inverse_table.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PRIME_MODULUS_INVERSE_TABLE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PRIME_MODULUS_INVERSE_TABLE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as PRIME_MODULUS_INVERSE_TABLE_WORKSPACE_BYTES,
+    expected_output as prime_modulus_inverse_table_oracle,
+)
+from p.prime_modulus_inverse_table.verify_prime_modulus_inverse_table_package import (
+    static_issues as prime_modulus_inverse_table_static_issues,
+)
+from s.sparse_supernodal_cholesky.primary_oracle import expected_output as sparse_supernodal_cholesky_oracle
+from s.seidel_unweighted_apsp.primary_oracle import expected_output as seidel_unweighted_apsp_oracle
+from s.seidel_unweighted_apsp.verify_seidel_unweighted_apsp_package import (
+    static_issues as seidel_unweighted_apsp_static_issues,
+)
+from n.newton_compositional_inverse_fps.primary_oracle import expected_output as newton_compositional_inverse_fps_oracle
+from n.newton_reciprocal_fps.primary_oracle import expected_output as newton_reciprocal_fps_oracle
+from n.newton_inverse_sqrt_fps.primary_oracle import expected_output as newton_inverse_sqrt_fps_oracle
+from n.newton_inverse_sqrt_fps.verify_newton_inverse_sqrt_fps_package import (
+    static_issues as newton_inverse_sqrt_fps_static_issues,
+)
+from n.newton_reciprocal_fps.verify_newton_reciprocal_fps_package import (
+    static_issues as newton_reciprocal_fps_static_issues,
+)
+from n.newton_compositional_inverse_fps.verify_newton_compositional_inverse_fps_package import (
+    static_issues as newton_compositional_inverse_fps_static_issues,
+)
+from s.sparse_supernodal_cholesky.verify_sparse_supernodal_cholesky_package import (
+    static_issues as sparse_supernodal_cholesky_static_issues,
+)
 from p.palindrome_pairs.primary_oracle import (
     MAX_OUTPUT_BYTES as PALINDROME_PAIRS_MAX_OUTPUT_BYTES,
     MAX_PARSEABLE_INPUT_LENGTH as PALINDROME_PAIRS_MAX_PARSEABLE_INPUT_LENGTH,
@@ -6989,7 +7026,14 @@ def prefix_substring_lcs_oracle(values, capacity=None, output_is_null=False,
 
 
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
+    "seidel_unweighted_apsp": seidel_unweighted_apsp_oracle,
+    "newton_inverse_sqrt_fps": newton_inverse_sqrt_fps_oracle,
+    "newton_reciprocal_fps": newton_reciprocal_fps_oracle,
+    "newton_compositional_inverse_fps": newton_compositional_inverse_fps_oracle,
+    "sparse_supernodal_cholesky": sparse_supernodal_cholesky_oracle,
     "gabow_scc": gabow_scc_oracle,
+    "indexed_block_list": indexed_block_list_oracle,
+    "prime_modulus_inverse_table": prime_modulus_inverse_table_oracle,
     "crochemore_perrin_two_way": crochemore_perrin_two_way_oracle,
     "virtual_tree": virtual_tree_oracle,
     "hirschberg_lcs": hirschberg_lcs_oracle,
@@ -7655,6 +7699,17 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
 EXTERNAL_BYTE_OUTPUT_BOUNDS = {
+    "seidel_unweighted_apsp": (66, 512),
+    "newton_inverse_sqrt_fps": (66, 512),
+    "newton_reciprocal_fps": (66, 512),
+    "newton_compositional_inverse_fps": (18, 128),
+    "sparse_supernodal_cholesky": (56, 288),
+    "prime_modulus_inverse_table": (PRIME_MODULUS_INVERSE_TABLE_MAX_PARSEABLE_INPUT_LENGTH,
+                                     PRIME_MODULUS_INVERSE_TABLE_MAX_OUTPUT_BYTES),
+    "indexed_block_list": (
+        INDEXED_BLOCK_LIST_MAX_PARSEABLE_INPUT_LENGTH,
+        INDEXED_BLOCK_LIST_MAX_OUTPUT_BYTES,
+    ),
     "gabow_scc": (GABOW_SCC_MAX_INPUT_LENGTH, GABOW_SCC_MAX_OUTPUT_BYTES),
     "crochemore_perrin_two_way": (
         CROCHEMORE_PERRIN_TWO_WAY_MAX_INPUT_LENGTH,
@@ -38258,6 +38313,62 @@ def _saga_base_state_is_valid(values: list[int]) -> bool:
 def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     if not isinstance(workload.get("cases"), list) or not workload["cases"]:
         raise ValueError(f"{algorithm} workload must contain fixture cases")
+    if algorithm == "seidel_unweighted_apsp":
+        path = ROOT / "benchmarks/s/seidel_unweighted_apsp/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("seidel_unweighted_apsp workload differs from its package file")
+        issues = seidel_unweighted_apsp_static_issues()
+        if issues:
+            raise ValueError("seidel_unweighted_apsp package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "newton_inverse_sqrt_fps":
+        path = ROOT / "benchmarks/n/newton_inverse_sqrt_fps/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("newton_inverse_sqrt_fps workload differs from its package file")
+        issues = newton_inverse_sqrt_fps_static_issues()
+        if issues:
+            raise ValueError("newton_inverse_sqrt_fps package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "newton_reciprocal_fps":
+        path = ROOT / "benchmarks/n/newton_reciprocal_fps/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("newton_reciprocal_fps workload differs from its package file")
+        issues = newton_reciprocal_fps_static_issues()
+        if issues:
+            raise ValueError("newton_reciprocal_fps package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "newton_compositional_inverse_fps":
+        path = ROOT / "benchmarks/n/newton_compositional_inverse_fps/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("newton_compositional_inverse_fps workload differs from its package file")
+        issues = newton_compositional_inverse_fps_static_issues()
+        if issues:
+            raise ValueError("newton_compositional_inverse_fps package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "sparse_supernodal_cholesky":
+        path = ROOT / "benchmarks/s/sparse_supernodal_cholesky/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("sparse_supernodal_cholesky workload differs from its package file")
+        issues = sparse_supernodal_cholesky_static_issues()
+        if issues:
+            raise ValueError("sparse_supernodal_cholesky package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "prime_modulus_inverse_table":
+        path = ROOT / "benchmarks/p/prime_modulus_inverse_table/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("prime_modulus_inverse_table workload differs from its package file")
+        issues = prime_modulus_inverse_table_static_issues()
+        if issues:
+            raise ValueError("prime_modulus_inverse_table package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "indexed_block_list":
+        package_workload = ROOT / "benchmarks/i/indexed_block_list/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("indexed_block_list workload differs from its package file")
+        issues = indexed_block_list_static_issues()
+        if issues:
+            raise ValueError("indexed_block_list package is incomplete: " + "; ".join(issues))
+        return
     if algorithm == "gabow_scc":
         package_workload = ROOT / "benchmarks/g/gabow_scc/workload.json"
         if workload != json.loads(package_workload.read_text(encoding="utf-8")):
@@ -42476,6 +42587,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             "c3/c/counting_spanning_trees_directed.c3",
             "cpp/c/counting_spanning_trees_directed.cpp",
             "elisa/c/counting_spanning_trees_directed.elisa",
+            "mojo/c/counting_spanning_trees_directed.mojo",
             "nim/c/counting_spanning_trees_directed.nim",
             "odin/c/counting_spanning_trees_directed.odin",
             "rust/c/counting_spanning_trees_directed.rs",
@@ -42640,6 +42752,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 "c3/c/counting_spanning_trees_undirected.c3",
                 "cpp/c/counting_spanning_trees_undirected.cpp",
                 "elisa/c/counting_spanning_trees_undirected.elisa",
+                "mojo/c/counting_spanning_trees_undirected.mojo",
                 "nim/c/counting_spanning_trees_undirected.nim",
                 "odin/c/counting_spanning_trees_undirected.odin",
                 "rust/c/counting_spanning_trees_undirected.rs",
@@ -43034,7 +43147,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("st_numbering README is missing taxonomy, provenance, or complexity")
         for relative in (
                 "c/s/st_numbering.c", "c3/s/st_numbering.c3", "cpp/s/st_numbering.cpp",
-                "elisa/s/st_numbering.elisa", "nim/s/st_numbering.nim",
+                "elisa/s/st_numbering.elisa", "mojo/s/st_numbering.mojo", "nim/s/st_numbering.nim",
                 "odin/s/st_numbering.odin", "rust/s/st_numbering.rs",
                 "v/s/st_numbering.v", "zig/s/st_numbering.zig"):
             port = ROOT / relative
@@ -43274,7 +43387,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("k_shortest_walk README is missing provenance, complexity, or oracle details")
         source_paths = (
             "c/k/k_shortest_walk.c", "c3/k/k_shortest_walk.c3", "cpp/k/k_shortest_walk.cpp",
-            "elisa/k/k_shortest_walk.elisa", "nim/k/k_shortest_walk.nim",
+            "elisa/k/k_shortest_walk.elisa", "mojo/k/k_shortest_walk.mojo", "nim/k/k_shortest_walk.nim",
             "odin/k/k_shortest_walk.odin", "rust/k/k_shortest_walk.rs",
             "v/k/k_shortest_walk.v", "zig/k/k_shortest_walk.zig",
         )
@@ -43389,6 +43502,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         for relative in (
                 "c/d/dominator_tree.c", "c3/d/dominator_tree.c3",
                 "cpp/d/dominator_tree.cpp", "elisa/d/dominator_tree.elisa",
+                "mojo/d/dominator_tree.mojo",
                 "nim/d/dominator_tree.nim", "odin/d/dominator_tree.odin",
                 "rust/d/dominator_tree.rs", "v/d/dominator_tree.v",
                 "zig/d/dominator_tree.zig"):
@@ -55212,7 +55326,7 @@ def main() -> int:
                 "logistic_regression_cost_gradient",
                 "procentual_proximity",
                 "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2", "polybench_adi", "fluidanimate_sph", "npb_cg_sparse_inverse_power", "hpcg_profile",
-                "npb_lu_block_ssor",
+                "npb_lu_block_ssor", "sparse_supernodal_cholesky",
                 "particle_swarm_optimization", "convolve_1d", "convolution_fft", "median_finder", "mfcc",
                 "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "gramian", "jacobi_iteration_method", "gaussian_elimination_pivoting", "gauss_jordan", "n_body_simulation", "benchmarkgame_nbody", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work", "inverse_of_matrix", "sobel_filter", "thomas_algorithm"}:
             raise ValueError(f"unsupported float64 vector algorithm {algorithm}")

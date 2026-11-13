@@ -1118,3 +1118,17 @@ The [SPLASH-2-inspired water profiles](benchmarks/s/splash2_water_nsquared/READM
 [Persistent segment-tree range kth](benchmarks/p/persistent_segment_tree_range_kth/README.md) answers static subarray order-statistic queries by descending differences between path-copied prefix histograms. Ten ports, an independent per-slice sort oracle, bounded scalar workloads, and scalar-suite registration are included.
 
 [Dynamic ordered set with AVL order statistics](benchmarks/o/ordered_set_avl_order_statistics/README.md) combines idempotent updates with kth, rank, predecessor, and successor queries using subtree-size augmentation. Ten ports, an independent sorted-list oracle, bounded workloads, and scalar-suite registration are included.
+
+[Indexed block list](benchmarks/i/indexed_block_list/README.md) benchmarks arbitrary-index insertion and access over linked fixed-size blocks, including interior splits. Ten ports, primary and independent oracles, bounded workloads, and byte-output suite registration are included.
+
+[Prime-modulus inverse table](benchmarks/p/prime_modulus_inverse_table/README.md) builds a recurrence table for a bounded batch of modular inverses. Ten ports and byte-output suite registration are included.
+
+[Newton formal-series reversion](benchmarks/n/newton_compositional_inverse_fps/README.md) uses precision doubling to invert a series under composition. Its ten language drafts and suite wiring remain unexecuted.
+
+[Newton formal-series reciprocal](benchmarks/n/newton_reciprocal_fps/README.md) uses precision doubling for multiplicative inversion. Its ten language drafts and suite wiring remain unexecuted.
+
+[Newton formal-series reciprocal square root](benchmarks/n/newton_inverse_sqrt_fps/README.md) uses precision doubling for a unit-constant series. Its ten language drafts and suite wiring remain unexecuted.
+
+[Seidel unweighted all-pairs distances](benchmarks/s/seidel_unweighted_apsp/README.md) uses adjacency squaring and distance recovery on bounded connected graphs. Its ten language drafts and suite wiring remain unexecuted.
+
+[Sparse supernodal Cholesky](benchmarks/s/sparse_supernodal_cholesky/README.md) factors a supplied filled sparse pattern in bounded supernodes, with ten language ports and byte-output suite registration. The package remains unexecuted.

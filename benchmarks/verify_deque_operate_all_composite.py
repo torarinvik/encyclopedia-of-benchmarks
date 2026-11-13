@@ -20,6 +20,7 @@ SOURCE_PATHS = (
     "c3/d/deque_operate_all_composite.c3",
     "cpp/d/deque_operate_all_composite.cpp",
     "elisa/d/deque_operate_all_composite.elisa",
+    "mojo/d/deque_operate_all_composite.mojo",
     "nim/d/deque_operate_all_composite.nim",
     "odin/d/deque_operate_all_composite.odin",
     "rust/d/deque_operate_all_composite.rs",

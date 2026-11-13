@@ -17,6 +17,7 @@ SOURCE_FILES = (
     "c3/k/k_shortest_walk.c3",
     "cpp/k/k_shortest_walk.cpp",
     "elisa/k/k_shortest_walk.elisa",
+    "mojo/k/k_shortest_walk.mojo",
     "nim/k/k_shortest_walk.nim",
     "odin/k/k_shortest_walk.odin",
     "rust/k/k_shortest_walk.rs",

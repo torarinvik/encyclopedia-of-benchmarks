@@ -22,8 +22,8 @@ fn eulerian_path(input:UnsafePointer[Int64,ImmutAnyOrigin],length:c_size_t,out:U
         let diff=outdeg[v]-indeg[v]
         if diff==1:plus+=1;start=v
         elif diff== -1:minus+=1
-        elif diff!=0:return -1
-    if not ((plus==0 and minus==0) or (plus==1 and minus==1)):return -1
+        elif diff!=0:return 0
+    if not ((plus==0 and minus==0) or (plus==1 and minus==1)):return 0
     if plus==0:
         start=0
         while start<n and outdeg[start]==0:start+=1
@@ -33,7 +33,7 @@ fn eulerian_path(input:UnsafePointer[Int64,ImmutAnyOrigin],length:c_size_t,out:U
         if len(adj[v])>0:
             let next=adj[v][len(adj[v])-1];adj[v].pop();stack.append(next)
         else:path.append(stack[len(stack)-1]);stack.pop()
-    if len(path)!=m+1:return -1
+    if len(path)!=m+1:return 0
     let bytes=(m+1)*8
     if out==UnsafePointer[UInt8,MutAnyOrigin]() or capacity<c_size_t(bytes):return -2
     for i in range(m+1):euler_path_put(out,8*i,path[m-i])

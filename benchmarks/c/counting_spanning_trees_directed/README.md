@@ -49,6 +49,7 @@ No implementation has been executed or compiled.
 | C3 | [`c3/c/counting_spanning_trees_directed.c3`](../../../c3/c/counting_spanning_trees_directed.c3) |
 | C++ | [`cpp/c/counting_spanning_trees_directed.cpp`](../../../cpp/c/counting_spanning_trees_directed.cpp) |
 | Elisa | [`elisa/c/counting_spanning_trees_directed.elisa`](../../../elisa/c/counting_spanning_trees_directed.elisa) |
+| Mojo | [`mojo/c/counting_spanning_trees_directed.mojo`](../../../mojo/c/counting_spanning_trees_directed.mojo) (draft, unverified) |
 | Nim | [`nim/c/counting_spanning_trees_directed.nim`](../../../nim/c/counting_spanning_trees_directed.nim) |
 | Odin | [`odin/c/counting_spanning_trees_directed.odin`](../../../odin/c/counting_spanning_trees_directed.odin) |
 | Rust | [`rust/c/counting_spanning_trees_directed.rs`](../../../rust/c/counting_spanning_trees_directed.rs) |

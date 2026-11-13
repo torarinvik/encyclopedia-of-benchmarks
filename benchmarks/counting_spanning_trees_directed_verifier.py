@@ -20,6 +20,7 @@ SOURCE_FILES = (
     "c3/c/counting_spanning_trees_directed.c3",
     "cpp/c/counting_spanning_trees_directed.cpp",
     "elisa/c/counting_spanning_trees_directed.elisa",
+    "mojo/c/counting_spanning_trees_directed.mojo",
     "nim/c/counting_spanning_trees_directed.nim",
     "odin/c/counting_spanning_trees_directed.odin",
     "rust/c/counting_spanning_trees_directed.rs",

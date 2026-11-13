@@ -8,12 +8,12 @@ const MAX_ITEMS: usize = 48;
 const MAX_PARSEABLE: usize = 179;
 
 fn validInput(values: []const i64) ?usize {
-    if (values.len < 2 or values.len > MAX_PARSEABLE or values[0] < 0 or values[0] > MAX_INITIAL) return null;
+    if (values.len < 2 or values.len > MAX_PARSEABLE or values[0] < 0 or values[0] > @as(i64, MAX_INITIAL)) return null;
     const initial: usize = @intCast(values[0]);
     if (values.len < initial + 2) return null;
     for (values[1 .. 1 + initial]) |value| if (value < -1_000_000 or value > 1_000_000) return null;
     const raw_ops = values[1 + initial];
-    if (raw_ops < 0 or raw_ops > MAX_OPS) return null;
+    if (raw_ops < 0 or raw_ops > @as(i64, MAX_OPS)) return null;
     var cursor = initial + 2;
     var size = initial;
     var inserts: usize = 0;
@@ -23,13 +23,13 @@ fn validInput(values: []const i64) ?usize {
         if (values[cursor] == 0) {
             if (cursor + 3 > values.len) return null;
             const index = values[cursor + 1]; const value = values[cursor + 2];
-            if (index < 0 or @as(u64, @intCast(index)) > size or value < -1_000_000 or value > 1_000_000) return null;
+            if (index < 0 or @as(u64, @intCast(index)) > @as(u64, @intCast(size)) or value < -1_000_000 or value > 1_000_000) return null;
             inserts += 1; if (inserts > MAX_INSERTS) return null;
             size += 1; cursor += 3;
         } else if (values[cursor] == 1) {
             if (cursor + 2 > values.len) return null;
             const index = values[cursor + 1];
-            if (index < 0 or @as(u64, @intCast(index)) >= size) return null;
+            if (index < 0 or @as(u64, @intCast(index)) >= @as(u64, @intCast(size))) return null;
             accesses += 1; if (accesses > MAX_ACCESSES) return null;
             cursor += 2;
         } else return null;

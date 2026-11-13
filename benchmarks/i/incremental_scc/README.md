@@ -19,4 +19,4 @@ The direct closure update and component recount take `O(n^2)` per insertion, for
 - King and Sagert, [“A Fully Dynamic Algorithm for Maintaining the Transitive Closure”](https://doi.org/10.1006/jcss.2002.1883), describe dynamic maintenance of the transitive-closure adjacency matrix.
 - Schwentick, Vortmeier, and Zeume, [“Sketches of Dynamic Complexity”](https://sigmodrecord.org/2020/09/04/sketches-of-dynamic-complexity/), presents the single-edge insertion update rule: new reachability is old reachability plus the Cartesian product of predecessors of the tail and successors of the head.
 
-All nine implementations are independent ports for the shared `i64_array_scalar` ABI in `c/i`, `c3/i`, `cpp/i`, `elisa/i`, `nim/i`, `odin/i`, `rust/i`, `v/i`, and `zig/i`.
+Ten independent implementation drafts use the shared `i64_array_scalar` ABI in `c/i`, `c3/i`, `cpp/i`, `elisa/i`, `mojo/i`, `nim/i`, `odin/i`, `rust/i`, `v/i`, and `zig/i`. The Mojo draft remains unverified.

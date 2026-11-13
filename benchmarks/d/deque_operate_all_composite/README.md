@@ -9,7 +9,7 @@ updates one root path, and the root stores the full composition.
 The [Library Checker task](https://judge.yosupo.jp/problem/deque_operate_all_composite)
 provides the operation semantics. Its repository is Apache-2.0 licensed; this
 package uses only the task definition and algorithm taxonomy. The bounded
-contract, nine implementations, workload, and direct-list oracle are
+contract, ten implementation drafts, workload, and direct-list oracle are
 independently written.
 
 ## Contract
@@ -52,6 +52,7 @@ order and is independent of the segment-tree implementation.
 | C3 | [`c3/d/deque_operate_all_composite.c3`](../../../c3/d/deque_operate_all_composite.c3) |
 | C++ | [`cpp/d/deque_operate_all_composite.cpp`](../../../cpp/d/deque_operate_all_composite.cpp) |
 | Elisa | [`elisa/d/deque_operate_all_composite.elisa`](../../../elisa/d/deque_operate_all_composite.elisa) |
+| Mojo | [`mojo/d/deque_operate_all_composite.mojo`](../../../mojo/d/deque_operate_all_composite.mojo) (draft, unverified) |
 | Nim | [`nim/d/deque_operate_all_composite.nim`](../../../nim/d/deque_operate_all_composite.nim) |
 | Odin | [`odin/d/deque_operate_all_composite.odin`](../../../odin/d/deque_operate_all_composite.odin) |
 | Rust | [`rust/d/deque_operate_all_composite.rs`](../../../rust/d/deque_operate_all_composite.rs) |

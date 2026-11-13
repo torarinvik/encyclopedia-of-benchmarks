@@ -21,4 +21,6 @@ The chapter used to identify the problem is “Negative Cycles in Weighted Digra
 - Workload: `workload.json`
 - Primary oracle: [`benchmarks/negative_cycle_detection_oracle.py`](../../negative_cycle_detection_oracle.py)
 - Independent verifier oracle: [`benchmarks/negative_cycle_detection_verifier_oracle.py`](../../negative_cycle_detection_verifier_oracle.py)
-- Ports: C, C++, C3, Elisa, Nim, Odin, Rust, V, and Zig under their `n/` language directories.
+- Ports: C, C++, C3, Elisa, Mojo, Nim, Odin, Rust, V, and Zig under their `n/` language directories. The [Mojo draft](../../../mojo/n/negative_cycle_detection.mojo) remains unverified.
+
+The byte-output runner and verifier register `negative_cycle_detection` by algorithm name and use the shared language-path discovery. The verifier checks witness validity independently; no separate package source-inventory checker is currently registered.

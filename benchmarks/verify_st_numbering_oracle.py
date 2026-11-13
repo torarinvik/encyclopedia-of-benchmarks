@@ -17,6 +17,7 @@ PORTS = {
     "c3": "c3/s/st_numbering.c3",
     "cpp": "cpp/s/st_numbering.cpp",
     "elisa": "elisa/s/st_numbering.elisa",
+    "mojo": "mojo/s/st_numbering.mojo",
     "nim": "nim/s/st_numbering.nim",
     "odin": "odin/s/st_numbering.odin",
     "rust": "rust/s/st_numbering.rs",

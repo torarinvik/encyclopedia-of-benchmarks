@@ -5720,3 +5720,35 @@ This bounded static range-quantile profile builds path-copied frequency histogra
 ## Dynamic ordered set with AVL order statistics (`ordered_set_avl_order_statistics`)
 
 This bounded dynamic-set profile supports idempotent insert/delete, one-based kth selection, count of keys at most x, inclusive predecessor, and inclusive successor. Its AVL nodes maintain both height and subtree size; an independent sorted-list oracle simulates the same trace. Initial and operation counts are at most 32, keys are in 0..1000, the maximum live set is 64, and the maximum input frame is 98 i64 values. Ten language ports and scalar-suite registration are included. See the [guide](benchmarks/o/ordered_set_avl_order_statistics/README.md), [workload](benchmarks/o/ordered_set_avl_order_statistics/workload.json), and [Library Checker task](https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/ordered_set/task.md).
+
+## Indexed block list (`indexed_block_list`)
+
+This bounded sequence profile supports insertion at any index and indexed access using a linked chain of fixed-size blocks. A block splits after growing beyond eight values by moving its last four values to a new successor. Ten language ports use the `i64_array_bytes_output` suite; a linked-block oracle and an independent flat-list oracle check sequence behavior. The profile accepts up to 16 initial items, 32 insertions, and 32 accesses, with a maximum 178-word input and 256 output bytes. See the [guide](benchmarks/i/indexed_block_list/README.md), [workload](benchmarks/i/indexed_block_list/workload.json), and [OI Wiki block-list description](https://oi-wiki.org/ds/block-list/).
+
+## Prime-modulus inverse table (`prime_modulus_inverse_table`)
+
+This bounded batch profile constructs inverses through the largest requested operand using the linear prime-modulus recurrence. Ten ports share a byte-output contract; an independent extended-Euclid oracle supplies reference results. See the [guide](benchmarks/p/prime_modulus_inverse_table/README.md) and [workload](benchmarks/p/prime_modulus_inverse_table/workload.json).
+
+## Newton compositional inverse of a formal power series (`newton_compositional_inverse_fps`)
+
+This bounded profile uses Newton precision doubling for series reversion. Ten source drafts and byte-output suite wiring are present, but unexecuted. See the [guide](benchmarks/n/newton_compositional_inverse_fps/README.md) and [workload](benchmarks/n/newton_compositional_inverse_fps/workload.json).
+
+## Newton reciprocal of a formal power series (`newton_reciprocal_fps`)
+
+This bounded profile uses Newton precision doubling for a multiplicative series inverse. Ten source drafts and byte-output suite wiring are present, but unexecuted. See the [guide](benchmarks/n/newton_reciprocal_fps/README.md) and [workload](benchmarks/n/newton_reciprocal_fps/workload.json).
+
+## Newton reciprocal square root of a formal power series (`newton_inverse_sqrt_fps`)
+
+This bounded profile uses Newton precision doubling to compute a unit-constant series reciprocal square root. Ten source drafts and byte-output suite wiring are present, but unexecuted. See the [guide](benchmarks/n/newton_inverse_sqrt_fps/README.md) and [workload](benchmarks/n/newton_inverse_sqrt_fps/workload.json).
+
+## Seidel unweighted all-pairs distances (`seidel_unweighted_apsp`)
+
+This bounded connected-graph profile uses Seidel adjacency squaring and distance recovery. Ten source drafts and byte-output suite wiring are present, but unexecuted. See the [guide](benchmarks/s/seidel_unweighted_apsp/README.md) and [workload](benchmarks/s/seidel_unweighted_apsp/workload.json).
+
+## Karger contraction cut trial (`karger_contraction_trial`)
+
+This bounded connected multigraph profile replays one contraction trial using a supplied sequence of live-edge ranks. Ten language drafts, a workload, and scalar suite wiring are present but unexecuted. See the [guide](benchmarks/k/karger_contraction_trial/README.md) and [workload](benchmarks/k/karger_contraction_trial/workload.json).
+
+## Sparse supernodal Cholesky (`sparse_supernodal_cholesky`)
+
+This bounded profile factors a sparse matrix using supplied supernodes and a filled pattern. Ten source ports and byte-output suite registration are present but unexecuted. See the [guide](benchmarks/s/sparse_supernodal_cholesky/README.md) and [workload](benchmarks/s/sparse_supernodal_cholesky/workload.json).

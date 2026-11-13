@@ -1,0 +1,50 @@
+def karger_root(parent: view[usize], vertex: usize) -> usize:
+    current: mutable usize = vertex
+    while parent[current] != current: current <- parent[current]
+    current
+
+def karger_contraction_trial_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > 57: return -1
+    if input[0] < 2 or input[0] > 8 or input[1] < 1 or input[1] > 24: return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 2 * m + n - 2: return -1
+    lefts: mutable [24]usize = [0; 24]
+    rights: mutable [24]usize = [0; 24]
+    parent: mutable [8]usize = [0; 8]
+    for i in 0..<n: parent[i] <- i
+    for i in 0..<m:
+        a: i64 = input[2 + 2 * i]
+        b: i64 = input[3 + 2 * i]
+        if a < 0 or b < 0 or a >= n.i64() or b >= n.i64() or a == b: return -1
+        lefts[i] <- a.usize()
+        rights[i] <- b.usize()
+        left: usize = karger_root(parent[0:n], lefts[i])
+        right: usize = karger_root(parent[0:n], rights[i])
+        parent[left] <- right
+    initial: usize = karger_root(parent[0:n], 0)
+    for i in 1..<n:
+        if karger_root(parent[0:n], i) != initial: return -1
+    for i in 0..<n: parent[i] <- i
+    for step in 0..<(n - 2):
+        live: mutable i64 = 0
+        for i in 0..<m:
+            if karger_root(parent[0:n], lefts[i]) != karger_root(parent[0:n], rights[i]): live <- live + 1
+        rank: mutable i64 = input[2 + 2 * m + step]
+        if rank < 0 or rank >= live: return -1
+        for i in 0..<m:
+            left: usize = karger_root(parent[0:n], lefts[i])
+            right: usize = karger_root(parent[0:n], rights[i])
+            if left != right:
+                if rank == 0:
+                    parent[left] <- right
+                    break
+                rank <- rank - 1
+    cut: mutable i64 = 0
+    for i in 0..<m:
+        if karger_root(parent[0:n], lefts[i]) != karger_root(parent[0:n], rights[i]): cut <- cut + 1
+    cut
+
+export fn karger_contraction_trial(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 57: return -1
+    karger_contraction_trial_impl(input[0:length], length)

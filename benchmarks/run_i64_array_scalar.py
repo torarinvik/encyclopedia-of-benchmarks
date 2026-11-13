@@ -506,6 +506,8 @@ from smith_waterman_java_oracle import (
 from roulette_wheel_selection_oracle import MAX_INPUT_LENGTH as MAX_ROULETTE_WHEEL_SELECTION_INPUT_LENGTH
 from roulette_wheel_selection_oracle import expected_result as roulette_wheel_selection_expected
 from stoer_wagner_oracle import MAX_INPUT_VALUES as MAX_STOER_WAGNER_INPUT_LENGTH
+from k.karger_contraction_trial.primary_oracle import expected_output as karger_contraction_trial_expected
+from check_karger_contraction_trial_package import static_issues as karger_contraction_trial_static_issues
 from stoer_wagner_oracle import expected_result as stoer_wagner_expected
 from pushdown_automaton_oracle import INVALID_RESULT as PUSHDOWN_AUTOMATON_INVALID_RESULT
 from pushdown_automaton_oracle import MAX_INPUT_LENGTH as MAX_PUSHDOWN_AUTOMATON_INPUT_LENGTH
@@ -4300,7 +4302,7 @@ def validate_segment_tree_beats_workload(workload: dict) -> None:
         raise ValueError("segment_tree_beats README is missing its algorithm provenance URL")
     for language, extension in {
             "c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
-            "nim": "nim", "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}.items():
+            "mojo": "mojo", "nim": "nim", "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}.items():
         source = ROOT / language / "s" / f"segment_tree_beats.{extension}"
         if not source.is_file() or "segment_tree_beats" not in source.read_text(encoding="utf-8"):
             raise ValueError(f"segment_tree_beats {language} implementation is missing its exported symbol")
@@ -8374,6 +8376,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_WA_TOR_PARSEABLE_INPUT_LENGTH if algorithm == "wa_tor"
                         else MAX_LARGEST_PRODUCT_IN_A_GRID_INPUT_LENGTH if algorithm == "largest_product_in_a_grid"
                         else MAX_STOER_WAGNER_INPUT_LENGTH if algorithm == "stoer_wagner"
+                        else 57 if algorithm == "karger_contraction_trial"
                         else MAX_PUSHDOWN_AUTOMATON_INPUT_LENGTH if algorithm == "pushdown_automaton"
                         else MAX_SPRAGUE_GRUNDY_INPUT_LENGTH if algorithm == "sprague_grundy_theorem"
                         else MAX_STOCHASTIC_MATRIX_INPUT_VALUES if algorithm == "stochastic_matrix"
@@ -9015,6 +9018,9 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = roulette_wheel_selection_expected(values)
         if expected != expected_from_source:
             raise ValueError("roulette_wheel_selection expected_result must match deterministic weighted ticket selection")
+    elif algorithm == "karger_contraction_trial":
+        if expected != karger_contraction_trial_expected(values):
+            raise ValueError("karger_contraction_trial expected_result does not match contraction replay")
     elif algorithm == "stoer_wagner":
         expected_from_source = stoer_wagner_expected(values)
         if expected != expected_from_source:
@@ -23902,6 +23908,10 @@ def main() -> int:
         validate_eertree_workload(workload)
     elif algorithm == "segment_add_get_min":
         validate_segment_add_get_min_workload(workload)
+    elif algorithm == "karger_contraction_trial":
+        issues = karger_contraction_trial_static_issues(workload)
+        if issues:
+            raise ValueError("karger_contraction_trial package: " + "; ".join(issues))
     elif algorithm == "point_set_range_composite":
         validate_point_set_range_composite_workload(workload)
     elif algorithm == "queue_operate_all_composite":
@@ -24023,7 +24033,8 @@ def main() -> int:
                 "elliptic_curve_method_stage1",
                 "ordered_set_avl_order_statistics",
                 "persistent_segment_tree_range_kth",
-                "count_different_palindromic_subsequences") else 1
+                "count_different_palindromic_subsequences",
+                "karger_contraction_trial") else 1
             maximum_null_length = (SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
                                    if algorithm == "segment_add_get_min" else
                                    STIRLING_S1_SMALL_P_MAX_INPUT_LENGTH

@@ -18,7 +18,7 @@ Each push and aggregate query takes `O(1)` amortized time. A pop takes `O(1)` am
 
 ## Workload and implementations
 
-The workload includes empty-queue identity queries, composition order, FIFO removal, modular arithmetic, malformed traces, and null input. The package checker compares its fixtures against a direct-list oracle and checks that all nine language sources and provenance links are present. The benchmark uses the `i64_array_scalar` ABI.
+The workload includes empty-queue identity queries, composition order, FIFO removal, modular arithmetic, malformed traces, and null input. The package checker compares its fixtures against a direct-list oracle and checks that all ten language sources and provenance links are present. The benchmark uses the `i64_array_scalar` ABI.
 
 | Language | Source |
 | --- | --- |
@@ -26,6 +26,7 @@ The workload includes empty-queue identity queries, composition order, FIFO remo
 | C3 | [c3/q/queue_operate_all_composite.c3](../../../c3/q/queue_operate_all_composite.c3) |
 | C++ | [cpp/q/queue_operate_all_composite.cpp](../../../cpp/q/queue_operate_all_composite.cpp) |
 | Elisa | [elisa/q/queue_operate_all_composite.elisa](../../../elisa/q/queue_operate_all_composite.elisa) |
+| Mojo | [mojo/q/queue_operate_all_composite.mojo](../../../mojo/q/queue_operate_all_composite.mojo) (draft, unverified) |
 | Nim | [nim/q/queue_operate_all_composite.nim](../../../nim/q/queue_operate_all_composite.nim) |
 | Odin | [odin/q/queue_operate_all_composite.odin](../../../odin/q/queue_operate_all_composite.odin) |
 | Rust | [rust/q/queue_operate_all_composite.rs](../../../rust/q/queue_operate_all_composite.rs) |

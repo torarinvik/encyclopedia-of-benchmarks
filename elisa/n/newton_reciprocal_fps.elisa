@@ -1,0 +1,63 @@
+const NEWTON_RECIPROCAL_MODULUS: i64 = 998_244_353
+
+def newton_reciprocal_power(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if exponent % 2 != 0: result <- result * base % NEWTON_RECIPROCAL_MODULUS
+        base <- base * base % NEWTON_RECIPROCAL_MODULUS
+        exponent <- exponent / 2
+    result
+
+def newton_reciprocal_fps_impl(input: view[i64], length: usize,
+    output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+    if length < 2 or length > 66: return -1
+    if input[0] < 1 or input[0] > 64: return -1
+    n: usize = input[0].usize()
+    if length != n + 1: return -1
+    for i in 0..<n:
+        if input[i + 1] < 0 or input[i + 1] >= NEWTON_RECIPROCAL_MODULUS: return -1
+    if input[1] == 0: return -1
+    bytes: usize = 8 * n
+    if output_is_null or capacity < bytes: return -2
+    inverse: mutable [64]i64 = [0; 64]
+    correction: mutable [64]i64 = [0; 64]
+    next: mutable [64]i64 = [0; 64]
+    inverse[0] <- newton_reciprocal_power(input[1], NEWTON_RECIPROCAL_MODULUS - 2)
+    precision: mutable usize = 1
+    while precision < n:
+        width: mutable usize = 2 * precision
+        if width > n: width <- n
+        for i in 0..<width: correction[i] <- 0
+        for i in 0..<width:
+            j: mutable usize = 0
+            while j < precision and i + j < width:
+                correction[i + j] <- (correction[i + j] + input[i + 1] * inverse[j]) % NEWTON_RECIPROCAL_MODULUS
+                j <- j + 1
+        correction[0] <- (2 + NEWTON_RECIPROCAL_MODULUS - correction[0]) % NEWTON_RECIPROCAL_MODULUS
+        for i in 1..<width: correction[i] <- (NEWTON_RECIPROCAL_MODULUS - correction[i]) % NEWTON_RECIPROCAL_MODULUS
+        for i in 0..<width: next[i] <- 0
+        for i in 0..<precision:
+            for j in 0..<(width - i):
+                next[i + j] <- (next[i + j] + inverse[i] * correction[j]) % NEWTON_RECIPROCAL_MODULUS
+        for i in 0..<width: inverse[i] <- next[i]
+        precision <- width
+    for i in 0..<n:
+        bits: mutable u64 = inverse[i].u64()
+        for byte in 0..<8:
+            output[8 * i + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+    bytes.i64()
+
+export fn newton_reciprocal_fps(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 66: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable [1]u8 = [0; 1]
+        return newton_reciprocal_fps_impl(input_view, length, scratch[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > 512: safe_capacity <- 512
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    newton_reciprocal_fps_impl(input_view, length, output_view, capacity, false)

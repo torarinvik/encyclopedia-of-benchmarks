@@ -1,0 +1,9 @@
+# Newton compositional inverse of a formal power series
+
+This in-progress profile computes the first N coefficients of the unique series `g` satisfying `f(g(x)) = x mod x^N` over the prime field F_998244353. It is distinct from the existing compositional inverse port's incremental coefficient recurrence: this implementation doubles the known precision with Newton corrections.
+
+The `i64_array_bytes_output` input is `[N, f_0, ..., f_(N-1)]`, where `2 <= N <= 16`, `f_0 = 0`, `f_1 != 0`, and every coefficient is between zero and 998244352. A valid result is N little-endian signed i64 residues and returns `8*N`; malformed or null input returns `-1`, and a null or short output returns `-2` after input validation without writing. Maximum valid and parseable lengths are 17 and 18 i64 words, and the maximum output is 128 bytes.
+
+Starting with `g = x/f_1 mod x²`, each step increases precision from `m` to `min(2m,N)` by computing `g <- g - (f(g)-x)/f'(g)` in the truncated formal-series ring. Composition uses Horner evaluation and schoolbook products; the denominator reciprocal uses the coefficient recurrence. This bounded implementation takes O(N³) field operations and O(N) auxiliary storage in the worst case. It does not claim the performance or bounds of a fast polynomial library.
+
+The approach follows the mathematical method described by [FLINT](https://github.com/flintlib/flint/blob/main/doc/src/algorithms/polynomials/composition.md). The [Library Checker repository](https://github.com/yosupo06/library-checker-problems) supplies an operation index and is Apache-2.0; no upstream source code, prose, or fixtures were copied. The primary oracle follows Newton iteration, and the independent reference is the existing local package's Lagrange-inversion oracle. Drafts in all ten languages, a workload, static package inventory, and byte-output suite registration are present. No code has been run; the package requires further review.

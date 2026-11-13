@@ -1,0 +1,167 @@
+extern sqrt(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def sparse_supernodal_cholesky_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 56:
+        return -1
+    if input[0] < 1 or input[0] > 8 or input[1] < 1 or input[1] > input[0]:
+        return -1
+    n: usize = input[0].usize()
+    count: usize = input[1].usize()
+    triangle: usize = n * (n + 1) / 2
+    if length != 3 + count + n + triangle:
+        return -1
+    boundaries: mutable usize[9] = zeroed
+    masks: mutable i64[8] = zeroed
+    slots: mutable usize[64] = zeroed
+    sparse: mutable f64[36] = zeroed
+    i: mutable usize = 0
+    while i <= count:
+        value: i64 = input[2 + i]
+        if value < 0 or value > n.i64():
+            return -1
+        boundaries[i] <- value.usize()
+        if i > 0 and boundaries[i] <= boundaries[i - 1]:
+            return -1
+        i <- i + 1
+    if boundaries[0] != 0 or boundaries[count] != n:
+        return -1
+    row: mutable usize = 0
+    while row < n:
+        mask: i64 = input[3 + count + row]
+        if mask < 0 or mask >= (1.i64() << (row + 1)) or (mask & (1.i64() << row)) == 0:
+            return -1
+        masks[row] <- mask
+        row <- row + 1
+    col: mutable usize = 0
+    lower: mutable usize = 0
+    while col < n:
+        row <- col + 1
+        while row < n:
+            if (masks[row] & (1.i64() << col)) != 0:
+                lower <- row + 1
+                while lower < n:
+                    if (masks[lower] & (1.i64() << col)) != 0 and (masks[lower] & (1.i64() << row)) == 0:
+                        return -1
+                    lower <- lower + 1
+            row <- row + 1
+        col <- col + 1
+    block: mutable usize = 0
+    while block < count:
+        start: usize = boundaries[block]
+        end: usize = boundaries[block + 1]
+        row <- start
+        while row < end:
+            col <- start
+            while col < row:
+                if (masks[row] & (1.i64() << col)) == 0:
+                    return -1
+                col <- col + 1
+            row <- row + 1
+        block_mask: i64 = ((1.i64() << end) - 1) ^ ((1.i64() << start) - 1)
+        row <- end
+        while row < n:
+            selected: i64 = masks[row] & block_mask
+            if selected != 0 and selected != block_mask:
+                return -1
+            row <- row + 1
+        block <- block + 1
+    i <- 0
+    while i < 64:
+        slots[i] <- 64
+        i <- i + 1
+    cursor: mutable usize = 3 + count + n
+    used: mutable usize = 0
+    row <- 0
+    while row < n:
+        col <- 0
+        while col <= row:
+            value: i64 = input[cursor]
+            cursor <- cursor + 1
+            if value < -1000000 or value > 1000000:
+                return -1
+            if (masks[row] & (1.i64() << col)) == 0:
+                if value != 0:
+                    return -1
+            else:
+                slots[row * 8 + col] <- used
+                sparse[used] <- value.f64() / 1000.0
+                used <- used + 1
+            col <- col + 1
+        row <- row + 1
+    block <- 0
+    while block < count:
+        start: usize = boundaries[block]
+        end: usize = boundaries[block + 1]
+        col <- start
+        while col < end:
+            diagonal: usize = slots[col * 8 + col]
+            pivot: f64 = sparse[diagonal]
+            if pivot <= 0.0 or not pivot.is_finite():
+                return -1
+            sparse[diagonal] <- sqrt(pivot)
+            row <- col + 1
+            while row < end:
+                position: usize = slots[row * 8 + col]
+                sparse[position] <- sparse[position] / sparse[diagonal]
+                row <- row + 1
+            row <- col + 1
+            while row < end:
+                target: mutable usize = col + 1
+                while target <= row:
+                    position: usize = slots[row * 8 + target]
+                    sparse[position] <- sparse[position] - sparse[slots[row * 8 + col]] * sparse[slots[target * 8 + col]]
+                    target <- target + 1
+                row <- row + 1
+            col <- col + 1
+        row <- end
+        while row < n:
+            if (masks[row] & (1.i64() << start)) != 0:
+                col <- start
+                while col < end:
+                    value: mutable f64 = sparse[slots[row * 8 + col]]
+                    k: mutable usize = start
+                    while k < col:
+                        value <- value - sparse[slots[row * 8 + k]] * sparse[slots[col * 8 + k]]
+                        k <- k + 1
+                    sparse[slots[row * 8 + col]] <- value / sparse[slots[col * 8 + col]]
+                    col <- col + 1
+            row <- row + 1
+        row <- end
+        while row < n:
+            if (masks[row] & (1.i64() << start)) != 0:
+                target: mutable usize = end
+                while target <= row:
+                    if (masks[target] & (1.i64() << start)) != 0:
+                        k: mutable usize = start
+                        while k < end:
+                            position: usize = slots[row * 8 + target]
+                            sparse[position] <- sparse[position] - sparse[slots[row * 8 + k]] * sparse[slots[target * 8 + k]]
+                            k <- k + 1
+                    target <- target + 1
+            row <- row + 1
+        block <- block + 1
+    required: usize = triangle * 8
+    if output.is_null() or capacity < required:
+        return -2
+    offset: mutable usize = 0
+    row <- 0
+    while row < n:
+        col <- 0
+        while col <= row:
+            value: mutable f64 = 0.0
+            position: usize = slots[row * 8 + col]
+            if position != 64:
+                value <- sparse[position]
+            bits: mutable u64 = 0
+            memcpy(&bits, &value, 8)
+            byte: mutable usize = 0
+            while byte < 8:
+                output[offset] <- ((bits >> (8 * byte)) & 255).u8()
+                offset <- offset + 1
+                byte <- byte + 1
+            col <- col + 1
+        row <- row + 1
+    required.i64()
+
+export fn sparse_supernodal_cholesky(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = sparse_supernodal_cholesky_impl

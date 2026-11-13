@@ -1,0 +1,77 @@
+const NEWTON_FPS_MODULUS: i64 = 998_244_353
+
+def newton_fps_power(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if exponent % 2 == 1: result <- result * base % NEWTON_FPS_MODULUS
+        base <- base * base % NEWTON_FPS_MODULUS
+        exponent <- exponent / 2
+    result
+
+def newton_fps_compose(outer: view[i64], inner: view[i64], width: usize, result: mutable view[i64]) -> void:
+    scratch: mutable [16]i64 = [0; 16]
+    for i in 0..<width: result[i] <- 0
+    degree: mutable usize = width
+    while degree > 0:
+        degree <- degree - 1
+        for i in 0..<width: scratch[i] <- 0
+        for i in 0..<width:
+            for j in 0..<(width - i):
+                scratch[i + j] <- (scratch[i + j] + result[i] * inner[j]) % NEWTON_FPS_MODULUS
+        scratch[0] <- (scratch[0] + outer[degree]) % NEWTON_FPS_MODULUS
+        for i in 0..<width: result[i] <- scratch[i]
+
+def newton_compositional_inverse_fps_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 18: return -1
+    if input[0] < 2 or input[0] > 16: return -1
+    n: usize = input[0].usize()
+    if length != n + 1: return -1
+    for i in 0..<n:
+        if input[i + 1] < 0 or input[i + 1] >= NEWTON_FPS_MODULUS: return -1
+    if input[1] != 0 or input[2] == 0: return -1
+    bytes: usize = 8 * n
+    if output.is_null() or capacity < bytes: return -2
+
+    f: mutable [16]i64 = [0; 16]
+    derivative: mutable [16]i64 = [0; 16]
+    inverse: mutable [16]i64 = [0; 16]
+    residual: mutable [16]i64 = [0; 16]
+    slope: mutable [16]i64 = [0; 16]
+    reciprocal: mutable [16]i64 = [0; 16]
+    correction: mutable [16]i64 = [0; 16]
+    for i in 0..<n: f[i] <- input[i + 1]
+    for i in 1..<n: derivative[i - 1] <- i.i64() * f[i] % NEWTON_FPS_MODULUS
+    inverse_linear: i64 = newton_fps_power(f[1], NEWTON_FPS_MODULUS - 2)
+    inverse[1] <- inverse_linear
+    precision: mutable usize = 2
+    while precision < n:
+        width: mutable usize = precision * 2
+        if width > n: width <- n
+        newton_fps_compose(f[0:width], inverse[0:width], width, residual[0:width])
+        residual[1] <- (residual[1] + NEWTON_FPS_MODULUS - 1) % NEWTON_FPS_MODULUS
+        newton_fps_compose(derivative[0:width], inverse[0:width], width, slope[0:width])
+        reciprocal[0] <- inverse_linear
+        for i in 1..<width:
+            sum: mutable i64 = 0
+            for j in 1..<(i + 1):
+                sum <- (sum + slope[j] * reciprocal[i - j]) % NEWTON_FPS_MODULUS
+            reciprocal[i] <- (NEWTON_FPS_MODULUS - sum) * inverse_linear % NEWTON_FPS_MODULUS
+        for i in 0..<width:
+            correction[i] <- 0
+            for j in 0..<(i + 1):
+                correction[i] <- (correction[i] + residual[j] * reciprocal[i - j]) % NEWTON_FPS_MODULUS
+        for i in 0..<width:
+            inverse[i] <- (inverse[i] + NEWTON_FPS_MODULUS - correction[i]) % NEWTON_FPS_MODULUS
+        precision <- width
+    for i in 0..<n:
+        bits: mutable u64 = inverse[i].u64()
+        for byte in 0..<8:
+            output[8 * i + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+    bytes.i64()
+
+export fn newton_compositional_inverse_fps(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = newton_compositional_inverse_fps_impl

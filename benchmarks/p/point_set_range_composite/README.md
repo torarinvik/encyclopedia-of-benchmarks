@@ -26,7 +26,7 @@ Construction takes `O(N)` time. Each point replacement and range query takes `O(
 
 ## Workload and oracle
 
-[`workload.json`](workload.json) covers single maps, composition direction, point replacement, weighted query order, empty ranges, modular reduction, a non-power-of-two range, interleaved updates and queries, maximum dimensions, malformed inputs, and null input. The [direct-scan oracle](../../point_set_range_composite_oracle.py) applies every selected map in sequence. The [static workload and source checker](../../verify_point_set_range_composite.py) checks each fixture and all nine source paths without invoking a compiler.
+[`workload.json`](workload.json) covers single maps, composition direction, point replacement, weighted query order, empty ranges, modular reduction, a non-power-of-two range, interleaved updates and queries, maximum dimensions, malformed inputs, and null input. The [direct-scan oracle](../../point_set_range_composite_oracle.py) applies every selected map in sequence. The [static workload and source checker](../../verify_point_set_range_composite.py) checks each fixture and all ten source paths without invoking a compiler.
 
 ## Implementations
 
@@ -38,6 +38,7 @@ All ports use the `i64_array_scalar` ABI:
 | C3 | [`c3/p/point_set_range_composite.c3`](../../../c3/p/point_set_range_composite.c3) |
 | C++ | [`cpp/p/point_set_range_composite.cpp`](../../../cpp/p/point_set_range_composite.cpp) |
 | Elisa | [`elisa/p/point_set_range_composite.elisa`](../../../elisa/p/point_set_range_composite.elisa) |
+| Mojo | [`mojo/p/point_set_range_composite.mojo`](../../../mojo/p/point_set_range_composite.mojo) (draft, unverified) |
 | Nim | [`nim/p/point_set_range_composite.nim`](../../../nim/p/point_set_range_composite.nim) |
 | Odin | [`odin/p/point_set_range_composite.odin`](../../../odin/p/point_set_range_composite.odin) |
 | Rust | [`rust/p/point_set_range_composite.rs`](../../../rust/p/point_set_range_composite.rs) |

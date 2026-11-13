@@ -4,7 +4,7 @@ The pinned Java `LyndonFactorization.factorize` uses Duval's algorithm. It compa
 
 ## Contract
 
-Input is `[n, byte_0, ..., byte_(n-1)]`, where `n` is from 0 through 256 and each byte is lowercase ASCII (`a` through `z`). Lowercase ASCII preserves Java's code-unit ordering while avoiding differences in Unicode representation between ports. Output concatenates each factor followed by a zero byte; empty input produces no factors and empty output. The output buffer must have at least `2*n` bytes, the maximum encoded size. Invalid input returns `-1`, and insufficient output capacity returns `-2` before writing.
+Input is `[n, byte_0, ..., byte_(n-1)]`, where `n` is from 0 through 256 and each byte is lowercase ASCII (`a` through `z`). Lowercase ASCII preserves Java's code-unit ordering while avoiding differences in Unicode representation between ports. Output concatenates each factor followed by a zero byte; empty input produces no factors and empty output. The output buffer must have at least `2*n` bytes, the maximum encoded size. Invalid or null input returns `-1`. Insufficient output capacity, or a null output when `n > 0`, returns `-2` before writing. A null output is accepted when `n = 0`.
 
 The implementation uses the source's linear scan. See [workload](workload.json), [oracle](../../lyndon_factorization_oracle.py), and the pinned [Java source](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/LyndonFactorization.java).
 
@@ -14,6 +14,7 @@ The implementation uses the source's linear scan. See [workload](workload.json),
 | C3 | c3/l/lyndon_factorization.c3 |
 | C++ | cpp/l/lyndon_factorization.cpp |
 | Elisa | elisa/l/lyndon_factorization.elisa |
+| Mojo | [mojo/l/lyndon_factorization.mojo](../../../mojo/l/lyndon_factorization.mojo) (draft, unverified) |
 | Nim | nim/l/lyndon_factorization.nim |
 | Odin | odin/l/lyndon_factorization.odin |
 | Rust | rust/l/lyndon_factorization.rs |

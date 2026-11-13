@@ -1,4 +1,4 @@
-"""Static workload and nine-port validator for point-set range composition."""
+"""Static workload and ten-port validator for point-set range composition."""
 
 from __future__ import annotations
 
@@ -24,6 +24,7 @@ SOURCE_FILES = (
     "c3/p/point_set_range_composite.c3",
     "cpp/p/point_set_range_composite.cpp",
     "elisa/p/point_set_range_composite.elisa",
+    "mojo/p/point_set_range_composite.mojo",
     "nim/p/point_set_range_composite.nim",
     "odin/p/point_set_range_composite.odin",
     "rust/p/point_set_range_composite.rs",

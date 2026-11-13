@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "karger-contraction-trial-i64-array-scalar-v1",
+  "algorithm": "karger_contraction_trial",
+  "function_symbol": "karger_contraction_trial",
+  "input": {
+    "kind": "packed_i64_array",
+    "layout": "[n, m, (u, v)*m, ranks*(n-2)]",
+    "vertex_range": [2, 8],
+    "edge_count_range": [1, 24],
+    "graph": "connected undirected multigraph without self-loops",
+    "rank_selection": "zero-based index among crossing edges in original order at each step",
+    "maximum_input_values": 56,
+    "maximum_parseable_values": 57,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed 64-bit integer",
+    "meaning": "number of edges crossing the two remaining supervertices",
+    "invalid_result": -1
+  },
+  "provenance": {
+    "description": "Independently implemented reproducible single contraction trial based on Karger's randomized contraction method.",
+    "url": "https://people.csail.mit.edu/karger/Papers/contract.pdf"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "single_edge", "input_values": [2, 1, 0, 1], "input_length": 4, "expected_result": 1},
+    {"id": "parallel_edges", "input_values": [2, 3, 0, 1, 1, 0, 0, 1], "input_length": 8, "expected_result": 3},
+    {"id": "triangle", "input_values": [3, 3, 0, 1, 1, 2, 0, 2, 1], "input_length": 9, "expected_result": 2},
+    {"id": "cycle", "input_values": [4, 4, 0, 1, 1, 2, 2, 3, 3, 0, 0, 0], "input_length": 12, "expected_result": 2},
+    {"id": "uneven_cut", "input_values": [4, 5, 0, 1, 0, 2, 0, 3, 1, 2, 1, 3, 0, 0], "input_length": 14, "expected_result": 2},
+    {"id": "maximum_graph", "input_values": [8, 24,
+      0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7,
+      0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+      0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+      0, 0, 0, 0, 0, 0], "input_length": 56, "expected_result": 1},
+    {"id": "disconnected", "input_values": [4, 2, 0, 1, 2, 3, 0, 0], "input_length": 8, "expected_result": -1},
+    {"id": "self_loop", "input_values": [2, 1, 0, 0], "input_length": 4, "expected_result": -1},
+    {"id": "vertex_out_of_range", "input_values": [2, 1, 0, 2], "input_length": 4, "expected_result": -1},
+    {"id": "negative_rank", "input_values": [3, 2, 0, 1, 1, 2, -1], "input_length": 7, "expected_result": -1},
+    {"id": "rank_too_large", "input_values": [3, 2, 0, 1, 1, 2, 2], "input_length": 7, "expected_result": -1},
+    {"id": "rank_after_internal_edges", "input_values": [4, 3, 0, 1, 1, 2, 2, 3, 0, 2], "input_length": 10, "expected_result": -1},
+    {"id": "truncated", "input_values": [3, 2, 0, 1, 1, 2], "input_length": 6, "expected_result": -1},
+    {"id": "trailing_value", "input_values": [2, 1, 0, 1, 0], "input_length": 5, "expected_result": -1},
+    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

@@ -32,6 +32,7 @@ python3 benchmarks/verify_i64_array_bytes_output.py --algorithms eulerian_path
 | C3 | [`c3/e/eulerian_path.c3`](../../../c3/e/eulerian_path.c3) |
 | C++ | [`cpp/e/eulerian_path.cpp`](../../../cpp/e/eulerian_path.cpp) |
 | Elisa | [`elisa/e/eulerian_path.elisa`](../../../elisa/e/eulerian_path.elisa) |
+| Mojo | [`mojo/e/eulerian_path.mojo`](../../../mojo/e/eulerian_path.mojo) (no-path return fix unverified) |
 | Nim | [`nim/e/eulerian_path.nim`](../../../nim/e/eulerian_path.nim) |
 | Odin | [`odin/e/eulerian_path.odin`](../../../odin/e/eulerian_path.odin) |
 | Rust | [`rust/e/eulerian_path.rs`](../../../rust/e/eulerian_path.rs) |

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Statically check D'Esopo-Pape fixtures and all nine source paths."""
+"""Statically check D'Esopo-Pape fixtures and all ten source paths."""
 
 from __future__ import annotations
 
@@ -25,6 +25,7 @@ LANGUAGES = {
     "c3": "c3",
     "cpp": "cpp",
     "elisa": "elisa",
+    "mojo": "mojo",
     "nim": "nim",
     "odin": "odin",
     "rust": "rs",

@@ -419,6 +419,8 @@ from roulette_wheel_selection_oracle import MIN_STAKE as ROULETTE_WHEEL_SELECTIO
 from roulette_wheel_selection_oracle import MIN_VALIDATORS as ROULETTE_WHEEL_SELECTION_MIN_VALIDATORS
 from roulette_wheel_selection_oracle import expected_result as roulette_wheel_selection_oracle
 from stoer_wagner_oracle import INVALID_RESULT as STOER_WAGNER_INVALID_RESULT
+from k.karger_contraction_trial.independent_oracle import expected_output as karger_contraction_trial_oracle
+from check_karger_contraction_trial_package import static_issues as karger_contraction_trial_static_issues
 from stoer_wagner_oracle import MAX_INPUT_VALUES as MAX_STOER_WAGNER_INPUT_LENGTH
 from stoer_wagner_oracle import MAX_N as STOER_WAGNER_MAX_N
 from stoer_wagner_oracle import MAX_WEIGHT as STOER_WAGNER_MAX_WEIGHT
@@ -2385,6 +2387,7 @@ ALGORITHMS += ("traveling_salesman",)
 ALGORITHMS += ("smith_waterman_java",)
 ALGORITHMS += ("roulette_wheel_selection",)
 ALGORITHMS += ("stoer_wagner",)
+ALGORITHMS += ("karger_contraction_trial",)
 ALGORITHMS += ("pushdown_automaton",)
 ALGORITHMS += ("sprague_grundy_theorem",)
 ALGORITHMS += ("sublist_search",)
@@ -4756,6 +4759,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return pushdown_automaton_oracle(values)
     if algorithm == "sprague_grundy_theorem":
         return sprague_grundy_theorem_oracle(values)
+    if algorithm == "karger_contraction_trial":
+        return karger_contraction_trial_oracle(values)
     if algorithm == "stoer_wagner":
         return stoer_wagner_oracle(values)
     if algorithm == "is_strong_password":
@@ -11725,6 +11730,31 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             add(tuple(values))
         special_records.append(f"NULL 1 {PUSHDOWN_AUTOMATON_INVALID_RESULT}\n")
+    elif algorithm == "karger_contraction_trial":
+        issues = karger_contraction_trial_static_issues(workload)
+        if issues:
+            raise ValueError("karger_contraction_trial package: " + "; ".join(issues))
+        for case in workload.get("cases", []):
+            if not case.get("input_is_null", False):
+                values = tuple(case["input_values"])
+                cases[values] = oracle(algorithm, list(values))
+        maximum = (8, 24, *(value for edge in [(i, i + 1) for i in range(7)]
+                           + [(0, 1)] * 17 for value in edge), *(0 for _ in range(6)))
+        cases[maximum + (0,)] = -1
+        for value in (-(1 << 63), (1 << 63) - 1):
+            malformed = (3, 2, 0, 1, 1, 2, value)
+            cases[malformed] = -1
+        # Enumerate small simple graphs and rank tapes, including invalid
+        # graphs and tapes. The label-based oracle supplies each result.
+        for n in range(2, 5):
+            edges = tuple(combinations(range(n), 2))
+            for mask in range(1, 1 << len(edges)):
+                selected = tuple(edge for index, edge in enumerate(edges) if mask & (1 << index))
+                packed = (n, len(selected), *(endpoint for edge in selected for endpoint in edge))
+                for ranks in product(range(len(selected)), repeat=n - 2):
+                    values = packed + ranks
+                    cases[values] = karger_contraction_trial_oracle(list(values))
+        special_records.append("NULL 1 -1\n")
     elif algorithm == "stoer_wagner":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})

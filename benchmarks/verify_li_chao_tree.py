@@ -25,6 +25,7 @@ LANGUAGES = {
     "c3": "c3",
     "cpp": "cpp",
     "elisa": "elisa",
+    "mojo": "mojo",
     "nim": "nim",
     "odin": "odin",
     "rust": "rs",

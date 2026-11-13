@@ -21,7 +21,7 @@ The combined update profile has amortized `O((n + q) log² n)` time and `O(n)` s
 
 [`workload.json`](workload.json) includes mixed clamp/add/query traces, a single-element trace, a no-query trace, and malformed inputs. The operation profile follows the [Library Checker Range Chmin Chmax Add Range Sum problem](https://judge.yosupo.jp/problem/range_chmin_chmax_add_range_sum), used as an algorithm reference only. Implementations were written independently; no submissions or problem text were reused.
 
-The package-local [`oracle`](../../segment_tree_beats_oracle.py) evaluates each update by direct element-wise modification. [`verifier helpers`](../../segment_tree_beats_verifier.py) compare workload results against that independent oracle. The nine language ports are registered in the `i64_array_scalar` suite, which checks the workload and source inventory and supplies generated update traces, malformed inputs, and parser-bound profiles. Source review is complete; no programs, tests, checkers, builds, compilers, or benchmarks have been run.
+The package-local [`oracle`](../../segment_tree_beats_oracle.py) evaluates each update by direct element-wise modification. [`verifier helpers`](../../segment_tree_beats_verifier.py) compare workload results against that independent oracle. Ten language drafts are registered in the `i64_array_scalar` suite, which checks the workload and source inventory and supplies generated update traces, malformed inputs, and parser-bound profiles. The Mojo draft needs further review; no programs, tests, checkers, builds, compilers, or benchmarks have been run.
 
 ## Implementations
 
@@ -31,6 +31,7 @@ The package-local [`oracle`](../../segment_tree_beats_oracle.py) evaluates each 
 | C3 | [c3/s/segment_tree_beats.c3](../../../c3/s/segment_tree_beats.c3) |
 | C++ | [cpp/s/segment_tree_beats.cpp](../../../cpp/s/segment_tree_beats.cpp) |
 | Elisa | [elisa/s/segment_tree_beats.elisa](../../../elisa/s/segment_tree_beats.elisa) |
+| Mojo | [mojo/s/segment_tree_beats.mojo](../../../mojo/s/segment_tree_beats.mojo) (draft, unverified) |
 | Nim | [nim/s/segment_tree_beats.nim](../../../nim/s/segment_tree_beats.nim) |
 | Odin | [odin/s/segment_tree_beats.odin](../../../odin/s/segment_tree_beats.odin) |
 | Rust | [rust/s/segment_tree_beats.rs](../../../rust/s/segment_tree_beats.rs) |

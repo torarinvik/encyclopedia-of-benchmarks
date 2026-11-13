@@ -34,7 +34,7 @@ reduced modulo `1,000,000,007` before encoding.
 ## Provenance and independent oracle
 
 The official Library Checker index supplies the problem taxonomy and name; no
-submission code or problem text was copied. All nine implementations are
+submission code or problem text was copied. All ten implementation drafts are
 independently written around the Matrix-Tree theorem. The package oracle uses a
 different method: it enumerates every `(n-1)`-edge subset and checks for cycles
 and connectivity with disjoint-set union. The bounded fixtures cover the
@@ -55,6 +55,7 @@ The language ports and oracle have not been executed or compiled.
 | C3 | [`c3/c/counting_spanning_trees_undirected.c3`](../../../c3/c/counting_spanning_trees_undirected.c3) |
 | C++ | [`cpp/c/counting_spanning_trees_undirected.cpp`](../../../cpp/c/counting_spanning_trees_undirected.cpp) |
 | Elisa | [`elisa/c/counting_spanning_trees_undirected.elisa`](../../../elisa/c/counting_spanning_trees_undirected.elisa) |
+| Mojo | [`mojo/c/counting_spanning_trees_undirected.mojo`](../../../mojo/c/counting_spanning_trees_undirected.mojo) (draft, unverified) |
 | Nim | [`nim/c/counting_spanning_trees_undirected.nim`](../../../nim/c/counting_spanning_trees_undirected.nim) |
 | Odin | [`odin/c/counting_spanning_trees_undirected.odin`](../../../odin/c/counting_spanning_trees_undirected.odin) |
 | Rust | [`rust/c/counting_spanning_trees_undirected.rs`](../../../rust/c/counting_spanning_trees_undirected.rs) |

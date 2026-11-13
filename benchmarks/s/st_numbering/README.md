@@ -26,6 +26,7 @@ The bounded workload includes cycles and complete graphs, nonzero terminals, out
 | C3 | [c3/s/st_numbering.c3](../../../c3/s/st_numbering.c3) |
 | C++ | [cpp/s/st_numbering.cpp](../../../cpp/s/st_numbering.cpp) |
 | Elisa | [elisa/s/st_numbering.elisa](../../../elisa/s/st_numbering.elisa) |
+| Mojo | [mojo/s/st_numbering.mojo](../../../mojo/s/st_numbering.mojo) (draft, unverified) |
 | Nim | [nim/s/st_numbering.nim](../../../nim/s/st_numbering.nim) |
 | Odin | [odin/s/st_numbering.odin](../../../odin/s/st_numbering.odin) |
 | Rust | [rust/s/st_numbering.rs](../../../rust/s/st_numbering.rs) |

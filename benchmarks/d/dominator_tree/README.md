@@ -27,6 +27,7 @@ The workload is [`workload.json`](workload.json). The package-local set-based or
 | C3 | [c3/d/dominator_tree.c3](../../../c3/d/dominator_tree.c3) |
 | C++ | [cpp/d/dominator_tree.cpp](../../../cpp/d/dominator_tree.cpp) |
 | Elisa | [elisa/d/dominator_tree.elisa](../../../elisa/d/dominator_tree.elisa) |
+| Mojo | [mojo/d/dominator_tree.mojo](../../../mojo/d/dominator_tree.mojo) (draft, unverified) |
 | Nim | [nim/d/dominator_tree.nim](../../../nim/d/dominator_tree.nim) |
 | Odin | [odin/d/dominator_tree.odin](../../../odin/d/dominator_tree.odin) |
 | Rust | [rust/d/dominator_tree.rs](../../../rust/d/dominator_tree.rs) |

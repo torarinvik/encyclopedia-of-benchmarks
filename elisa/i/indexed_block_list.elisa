@@ -1,0 +1,170 @@
+const BLOCK_SIZE: usize = 4
+const MAX_INITIAL: usize = 16
+const MAX_OPS: usize = 64
+const MAX_INSERTS: usize = 32
+const MAX_ACCESSES: usize = 32
+const MAX_NODES: usize = 16
+const MAX_ITEMS: usize = 48
+const MAX_PARSEABLE: usize = 179
+const STRIDE: usize = 9
+
+def indexed_block_list_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 2 or length > MAX_PARSEABLE:
+        return -1
+    if values[0] < 0 or values[0] > 16:
+        return -1
+    initial: usize = values[0].usize()
+    if length < initial + 2:
+        return -1
+    index: mutable usize = 0
+    while index < initial:
+        if values[1 + index] < -1000000 or values[1 + index] > 1000000:
+            return -1
+        index <- index + 1
+    operations_raw: i64 = values[1 + initial]
+    if operations_raw < 0 or operations_raw > 64:
+        return -1
+    operations: usize = operations_raw.usize()
+    cursor: mutable usize = initial + 2
+    current_size: mutable usize = initial
+    inserts: mutable usize = 0
+    accesses: mutable usize = 0
+    operation: mutable usize = 0
+    opcode: mutable i64 = 0
+    while operation < operations:
+        if cursor >= length:
+            return -1
+        opcode <- values[cursor]
+        if opcode == 0:
+            if cursor + 3 > length:
+                return -1
+            raw_index: i64 = values[cursor + 1]
+            value: i64 = values[cursor + 2]
+            if raw_index < 0 or raw_index > current_size.i64() or value < -1000000 or value > 1000000:
+                return -1
+            inserts <- inserts + 1
+            if inserts > MAX_INSERTS:
+                return -1
+            current_size <- current_size + 1
+            cursor <- cursor + 3
+        elif opcode == 1:
+            if cursor + 2 > length:
+                return -1
+            access_index: i64 = values[cursor + 1]
+            if access_index < 0 or access_index >= current_size.i64():
+                return -1
+            accesses <- accesses + 1
+            if accesses > MAX_ACCESSES:
+                return -1
+            cursor <- cursor + 2
+        else:
+            return -1
+        operation <- operation + 1
+    if cursor != length or current_size > MAX_ITEMS:
+        return -1
+    if accesses == 0:
+        return 0
+    required: usize = accesses * 8
+    if output.is_null() or output_capacity < required:
+        return -2
+
+    blocks: mutable i64[144] = zeroed
+    sizes: mutable usize[16] = zeroed
+    next: mutable i64[16] = zeroed
+    answers: mutable i64[32] = zeroed
+    node: mutable usize = 0
+    offset: mutable usize = 0
+    local: mutable usize = 0
+    shift: mutable usize = 0
+    fresh: mutable usize = 0
+    first_moved: mutable usize = 0
+    move_index: mutable usize = 0
+    index <- 0
+    while index < MAX_NODES:
+        next[index] <- -1
+        index <- index + 1
+    node_count: mutable usize = 1
+
+    index <- 0
+    while index < initial:
+        node <- 0
+        offset <- 0
+        while next[node] >= 0 and index > offset + sizes[node]:
+            offset <- offset + sizes[node]
+            node <- next[node].usize()
+        local <- index - offset
+        shift <- sizes[node]
+        while shift > local:
+            blocks[node * STRIDE + shift] <- blocks[node * STRIDE + shift - 1]
+            shift <- shift - 1
+        blocks[node * STRIDE + local] <- values[1 + index]
+        sizes[node] <- sizes[node] + 1
+        if sizes[node] > 2 * BLOCK_SIZE:
+            fresh <- node_count
+            node_count <- node_count + 1
+            first_moved <- sizes[node] - BLOCK_SIZE
+            move_index <- 0
+            while move_index < BLOCK_SIZE:
+                blocks[fresh * STRIDE + move_index] <- blocks[node * STRIDE + first_moved + move_index]
+                move_index <- move_index + 1
+            sizes[fresh] <- BLOCK_SIZE
+            sizes[node] <- sizes[node] - BLOCK_SIZE
+            next[fresh] <- next[node]
+            next[node] <- fresh.i64()
+        index <- index + 1
+
+    operation_count: usize = operations
+    cursor <- initial + 2
+    answer_count: mutable usize = 0
+    operation <- 0
+    while operation < operation_count:
+        opcode <- values[cursor]
+        item_index: usize = values[cursor + 1].usize()
+        if opcode == 0:
+            node <- 0
+            offset <- 0
+            while next[node] >= 0 and item_index > offset + sizes[node]:
+                offset <- offset + sizes[node]
+                node <- next[node].usize()
+            local <- item_index - offset
+            shift <- sizes[node]
+            while shift > local:
+                blocks[node * STRIDE + shift] <- blocks[node * STRIDE + shift - 1]
+                shift <- shift - 1
+            blocks[node * STRIDE + local] <- values[cursor + 2]
+            sizes[node] <- sizes[node] + 1
+            if sizes[node] > 2 * BLOCK_SIZE:
+                fresh <- node_count
+                node_count <- node_count + 1
+                first_moved <- sizes[node] - BLOCK_SIZE
+                move_index <- 0
+                while move_index < BLOCK_SIZE:
+                    blocks[fresh * STRIDE + move_index] <- blocks[node * STRIDE + first_moved + move_index]
+                    move_index <- move_index + 1
+                sizes[fresh] <- BLOCK_SIZE
+                sizes[node] <- sizes[node] - BLOCK_SIZE
+                next[fresh] <- next[node]
+                next[node] <- fresh.i64()
+            cursor <- cursor + 3
+        else:
+            node <- 0
+            offset <- 0
+            while item_index >= offset + sizes[node]:
+                offset <- offset + sizes[node]
+                node <- next[node].usize()
+            answers[answer_count] <- blocks[node * STRIDE + item_index - offset]
+            answer_count <- answer_count + 1
+            cursor <- cursor + 2
+        operation <- operation + 1
+
+    index <- 0
+    while index < answer_count:
+        bits: u64 = answers[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[index * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    required.i64()
+
+export fn indexed_block_list(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = indexed_block_list_impl

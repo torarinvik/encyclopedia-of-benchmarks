@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "newton-reciprocal-fps-bounded-v1",
+  "algorithm": "newton_reciprocal_fps",
+  "function_symbol": "newton_reciprocal_fps",
+  "abi": "i64_array_bytes_output",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, f_0, ..., f_(N-1)]",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "maximum_bytes": 512,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {"bytes": 512},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"identity", "input_values":[1,1], "input_length":2, "expected_result":8, "expected_output_hex":"0100000000000000"},
+    {"id":"geometric", "input_values":[3,1,998244352,0], "input_length":4, "expected_result":24, "expected_output_hex":"010000000000000001000000000000000100000000000000"},
+    {"id":"zero-constant", "input_values":[1,0], "input_length":2, "expected_result":-1, "expected_output_hex":""},
+    {"id":"invalid-before-null-output", "input_values":[1,0], "input_length":2, "output_is_null":true, "expected_result":-1, "expected_output_hex":""},
+    {"id":"out-of-range", "input_values":[1,998244353], "input_length":2, "expected_result":-1, "expected_output_hex":""},
+    {"id":"truncated", "input_values":[2,1], "input_length":2, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short-output", "input_values":[1,1], "input_length":2, "output_capacity":7, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-output", "input_values":[1,1], "input_length":2, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

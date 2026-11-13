@@ -22,7 +22,7 @@ python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm smal
 
 ## Language ports
 
-The current repository contains the same bounded exhaustive candidate enumeration in all nine supported languages.
+The repository contains drafts of the bounded exhaustive candidate enumeration in all ten supported languages; the Mojo source has not been verified in this review.
 
 | Language | Source |
 | --- | --- |
@@ -30,6 +30,7 @@ The current repository contains the same bounded exhaustive candidate enumeratio
 | C3 | [c3/s/smallest_circle.c3](../../../c3/s/smallest_circle.c3) |
 | C++ | [cpp/s/smallest_circle.cpp](../../../cpp/s/smallest_circle.cpp) |
 | Elisa | [elisa/s/smallest_circle.elisa](../../../elisa/s/smallest_circle.elisa) |
+| Mojo | [mojo/s/smallest_circle.mojo](../../../mojo/s/smallest_circle.mojo) |
 | Nim | [nim/s/smallest_circle.nim](../../../nim/s/smallest_circle.nim) |
 | Odin | [odin/s/smallest_circle.odin](../../../odin/s/smallest_circle.odin) |
 | Rust | [rust/s/smallest_circle.rs](../../../rust/s/smallest_circle.rs) |

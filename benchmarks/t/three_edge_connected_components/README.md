@@ -12,7 +12,7 @@ This benchmark computes the vertex classes that remain connected after every rem
 
 The bounded implementations enumerate the empty removal, every single edge ID, and every unordered pair of distinct edge IDs. For each case they run a graph traversal, then refine the pairwise same-component relation. With `D = 1 + m + m(m-1)/2` removal cases, the ports use `O(D(nm+n²))` time when each traversal scans the small edge list and `O(n²+n+m)` auxiliary space. The limits keep this direct definition executable while preserving edge-instance semantics for loops and parallel edges.
 
-[`workload.json`](workload.json) covers isolated vertices, bridges, parallel edges, loops, a triangle, complete and edge-deficient graphs, disconnected 3-edge-connected groups, malformed input, and a null-input probe. [`benchmarks/three_edge_connected_components_oracle.py`](../../three_edge_connected_components_oracle.py) independently enumerates edge-removal sets and performs direct reachability searches. [`benchmarks/verify_three_edge_connected_components.py`](../../verify_three_edge_connected_components.py) statically checks the workload, oracle results, provenance, and all nine source paths; it does not compile or execute the ports.
+[`workload.json`](workload.json) covers isolated vertices, bridges, parallel edges, loops, a triangle, complete and edge-deficient graphs, disconnected 3-edge-connected groups, malformed input, and a null-input probe. [`benchmarks/three_edge_connected_components_oracle.py`](../../three_edge_connected_components_oracle.py) independently enumerates edge-removal sets and performs direct reachability searches. [`benchmarks/verify_three_edge_connected_components.py`](../../verify_three_edge_connected_components.py) checks the workload, oracle results, provenance, and all ten source paths; it does not compile or execute the ports.
 
 ## Source
 
@@ -20,4 +20,4 @@ The bounded implementations enumerate the empty removal, every single edge ID, a
 
 ## Implementations
 
-All nine ports use the shared `i64_array_scalar` ABI. Their files are in the `t` directory for `c`, `c3`, `cpp`, `elisa`, `nim`, `odin`, `rust`, `v`, and `zig`.
+Ten port drafts use the shared `i64_array_scalar` ABI. Their files are in the `t` directory for `c`, `c3`, `cpp`, `elisa`, `mojo`, `nim`, `odin`, `rust`, `v`, and `zig`. The Mojo draft remains unverified.

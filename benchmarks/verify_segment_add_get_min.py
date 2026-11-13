@@ -1,4 +1,4 @@
-"""Statically check the Segment Add Get Min workload and nine source ports."""
+"""Statically check the Segment Add Get Min workload and ten source ports."""
 
 from __future__ import annotations
 
@@ -28,6 +28,7 @@ SOURCE_FILES = (
     "c3/s/segment_add_get_min.c3",
     "cpp/s/segment_add_get_min.cpp",
     "elisa/s/segment_add_get_min.elisa",
+    "mojo/s/segment_add_get_min.mojo",
     "nim/s/segment_add_get_min.nim",
     "odin/s/segment_add_get_min.odin",
     "rust/s/segment_add_get_min.rs",
