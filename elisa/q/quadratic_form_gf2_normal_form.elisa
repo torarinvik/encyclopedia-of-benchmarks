@@ -1,0 +1,200 @@
+# Uncompiled GF(2) quadratic normal-form draft.
+struct QfVector:
+    low: u64
+    high: u64
+
+def qf_xor(a: QfVector, b: QfVector) -> QfVector:
+    result: mutable QfVector
+    result.low <- a.low ^ b.low
+    result.high <- a.high ^ b.high
+    result
+
+def qf_bit(a: QfVector, bit: usize) -> bool:
+    if bit < 64: return ((a.low >> bit) & 1.u64()) != 0.u64()
+    ((a.high >> (bit - 64)) & 1.u64()) != 0.u64()
+
+def qf_set(a: mutable QfVector&, bit: usize) -> void:
+    if bit < 64: a.low <- a.low | (1.u64() << bit)
+    else: a.high <- a.high | (1.u64() << (bit - 64))
+
+def qf_parity(value: u64) -> u64:
+    x: mutable u64 = value
+    x <- x ^ (x >> 32)
+    x <- x ^ (x >> 16)
+    x <- x ^ (x >> 8)
+    x <- x ^ (x >> 4)
+    x <- x ^ (x >> 2)
+    x <- x ^ (x >> 1)
+    x & 1.u64()
+
+def qf_dot(a: QfVector, b: QfVector) -> u64:
+    qf_parity((a.low & b.low) ^ (a.high & b.high))
+
+def qf_apply(rows: view[QfVector], n: usize, a: QfVector, b: QfVector) -> u64:
+    result: mutable u64 = 0
+    for i in 0..<n:
+        if qf_bit(a, i): result <- result ^ qf_dot(rows[i], b)
+    result
+
+def qf_solve(values: view[i64], bytes: mutable view[u8], n: usize, words: usize) -> i64:
+    upper: mutable QfVector[100] = zeroed
+    polar: mutable QfVector[100] = zeroed
+    for i in 0..<n:
+        for chunk in 0..<words:
+            raw: u64 = values[1 + i * words + chunk].u64()
+            for bit in 0..<63:
+                j: usize = 63 * chunk + bit
+                if ((raw >> bit) & 1.u64()) != 0.u64():
+                    qf_set(upper[i], j)
+                    if i != j:
+                        qf_set(polar[i], j)
+                        qf_set(polar[j], i)
+    remaining: mutable QfVector[100] = zeroed
+    scratch: mutable QfVector[100] = zeroed
+    hyper: mutable QfVector[100] = zeroed
+    anis: mutable QfVector[100] = zeroed
+    columns: mutable QfVector[100] = zeroed
+    for i in 0..<n: qf_set(remaining[i], i)
+    count: mutable usize = n
+    hc: mutable usize = 0
+    ac: mutable usize = 0
+    while true:
+        left: mutable usize = count
+        right: mutable usize = count
+        i: mutable usize = 0
+        while i < count and left == count:
+            j: mutable usize = i + 1
+            while j < count:
+                if qf_apply(polar[0:n], n, remaining[i], remaining[j]) != 0:
+                    left <- i
+                    right <- j
+                    break
+                j <- j + 1
+            i <- i + 1
+        if left == count: break
+        u: mutable QfVector = remaining[left]
+        v: mutable QfVector = remaining[right]
+        used: mutable usize = 0
+        for k in 0..<count:
+            if k == left or k == right: continue
+            w: mutable QfVector = remaining[k]
+            if qf_apply(polar[0:n], n, remaining[k], v) != 0: w <- qf_xor(w, u)
+            if qf_apply(polar[0:n], n, remaining[k], u) != 0: w <- qf_xor(w, v)
+            scratch[used] <- w
+            used <- used + 1
+        count <- used
+        for k in 0..<count: remaining[k] <- scratch[k]
+        qu: u64 = qf_apply(upper[0:n], n, u, u)
+        qv: u64 = qf_apply(upper[0:n], n, v, v)
+        if qu != 0 and qv != 0:
+            anis[ac] <- u
+            anis[ac + 1] <- v
+            ac <- ac + 2
+        else:
+            if qu != 0: u <- qf_xor(u, v)
+            elif qv != 0: v <- qf_xor(v, u)
+            hyper[hc] <- u
+            hyper[hc + 1] <- v
+            hc <- hc + 2
+    while ac >= 4:
+        a: QfVector = anis[ac - 2]
+        b: QfVector = anis[ac - 1]
+        c: QfVector = anis[ac - 4]
+        d: QfVector = anis[ac - 3]
+        ac <- ac - 4
+        f: QfVector = qf_xor(d, qf_xor(a, b))
+        hyper[hc] <- qf_xor(a, c)
+        hyper[hc + 1] <- qf_xor(b, c)
+        hyper[hc + 2] <- f
+        hyper[hc + 3] <- qf_xor(f, c)
+        hc <- hc + 4
+    linear: mutable QfVector = zeroed
+    has_linear: mutable bool = false
+    for i in 0..<count:
+        if qf_apply(upper[0:n], n, remaining[i], remaining[i]) != 0:
+            linear <- remaining[i]
+            has_linear <- true
+            j: mutable usize = i + 1
+            while j < count:
+                remaining[j - 1] <- remaining[j]
+                j <- j + 1
+            count <- count - 1
+            break
+    if has_linear:
+        for i in 0..<count:
+            if qf_apply(upper[0:n], n, remaining[i], remaining[i]) != 0:
+                remaining[i] <- qf_xor(remaining[i], linear)
+        if ac != 0:
+            hyper[hc] <- qf_xor(anis[0], linear)
+            hyper[hc + 1] <- qf_xor(anis[1], linear)
+            hc <- hc + 2
+            ac <- 0
+    used: mutable usize = 0
+    for i in 0..<hc:
+        columns[used] <- hyper[i]
+        used <- used + 1
+    for i in 0..<ac:
+        columns[used] <- anis[i]
+        used <- used + 1
+    if has_linear:
+        columns[used] <- linear
+        used <- used + 1
+    for i in 0..<count:
+        columns[used] <- remaining[i]
+        used <- used + 1
+    if used != n or (hc % 2) != 0 or (ac != 0 and ac != 2): return -4
+
+    matrix: mutable QfVector[100] = zeroed
+    inverse: mutable QfVector[100] = zeroed
+    for i in 0..<n:
+        qf_set(inverse[i], i)
+        for j in 0..<n:
+            if qf_bit(columns[j], i): qf_set(matrix[i], j)
+    for col in 0..<n:
+        pivot: mutable usize = col
+        while pivot < n and not qf_bit(matrix[pivot], col): pivot <- pivot + 1
+        if pivot == n: return -4
+        temp: QfVector = matrix[col]
+        matrix[col] <- matrix[pivot]
+        matrix[pivot] <- temp
+        inv_temp: QfVector = inverse[col]
+        inverse[col] <- inverse[pivot]
+        inverse[pivot] <- inv_temp
+        for row in 0..<n:
+            if row != col and qf_bit(matrix[row], col):
+                matrix[row] <- qf_xor(matrix[row], matrix[col])
+                inverse[row] <- qf_xor(inverse[row], inverse[col])
+    row_bytes: usize = (n + 7) / 8
+    staged: mutable u8[1303] = zeroed
+    staged[0] <- (hc / 2).u8()
+    staged[1] <- (ac / 2).u8()
+    if has_linear: staged[2] <- 1
+    for i in 0..<n:
+        for j in 0..<n:
+            if qf_bit(inverse[i], j):
+                pos: usize = 3 + i * row_bytes + j / 8
+                staged[pos] <- staged[pos] | (1.u8() << (j % 8))
+    needed: usize = 3 + n * row_bytes
+    for i in 0..<needed: bytes[i] <- staged[i]
+    needed.i64()
+
+export fn quadratic_form_gf2_normal_form(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > 202: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 100: return -1
+    n: usize = values[0].usize()
+    words: usize = (n + 62) / 63
+    if length != 1 + n * words: return -1
+    for i in 0..<n:
+        for chunk in 0..<words:
+            raw_value: i64 = values[1 + i * words + chunk]
+            if raw_value < 0: return -1
+            raw: u64 = raw_value.u64()
+            for bit in 0..<63:
+                if ((raw >> bit) & 1.u64()) != 0.u64():
+                    j: usize = 63 * chunk + bit
+                    if j < i or j >= n: return -1
+    needed: usize = 3 + n * ((n + 7) / 8)
+    if output == null or capacity < needed: return -2
+    qf_solve(values, output[0:needed], n, words)

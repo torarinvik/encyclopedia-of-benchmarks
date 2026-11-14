@@ -6,9 +6,10 @@ const ENWINDOW_MAX: f64 = 0.030526638
 def cbench_consumer_lame_mdct_short_impl(input: f64&, input_length: usize,
         output: mutable f64&, output_capacity: usize) -> i64:
     if input == null or input_length < 1 or input_length > 19: return -1
+    values: view[f64] = input[0:input_length]
     index: mutable usize = 0
     while index < input_length:
-        value: f64 = input[index]
+        value: f64 = values[index]
         if value != value or value < -32768.0 or value > 32768.0: return -1
         index <- index + 1
     if input_length != 18: return -1
@@ -30,18 +31,19 @@ def cbench_consumer_lame_mdct_short_impl(input: f64&, input_length: usize,
         l: mutable i64 = 2
         while l >= 0:
             base: usize = 6 * l.usize()
-            total: mutable f64 = coefficients[6 * m.usize()] * input[base]
+            total: mutable f64 = coefficients[6 * m.usize()] * values[base]
             i <- 1
             while i < 6:
-                total <- total + coefficients[6 * m.usize() + i] * input[base + i]
+                total <- total + coefficients[6 * m.usize() + i] * values[base + i]
                 i <- i + 1
             staged[3 * m.usize() + l.usize()] <- total
             l <- l - 1
         m <- m - 1
     if output == null or output_capacity < 18: return -2
+    result: mutable view[f64] = output[0:18]
     index <- 0
     while index < 18:
-        output[index] <- staged[index]
+        result[index] <- staged[index]
         index <- index + 1
     18
 

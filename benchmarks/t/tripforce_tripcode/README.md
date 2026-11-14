@@ -13,3 +13,7 @@ The salt starts as `[password[1], password[2], 'H', '.']`. Each byte below `'.'`
 ## Sources and license
 
 The algorithm attribution and GPL-3.0 terms come from the pinned tripforce source. The standard DES permutation and S-box constants are standard DES parameters. No upstream source files are included.
+
+The [Mojo draft](../../../mojo/t/tripforce_tripcode.mojo) implements the
+salted expansion and repeated DES using local DES tables. It has not been
+compiled or run; compatibility and outputs remain unverified.

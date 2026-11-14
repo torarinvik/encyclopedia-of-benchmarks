@@ -45,6 +45,7 @@ standalone ECB block profile, so the LAC-DCC coverage entry is Partial/related.
 | C3 | [`c3/m/mibench_security_blowfish.c3`](../../../c3/m/mibench_security_blowfish.c3) |
 | C++ | [`cpp/m/mibench_security_blowfish.cpp`](../../../cpp/m/mibench_security_blowfish.cpp) |
 | Elisa | [`elisa/m/mibench_security_blowfish.elisa`](../../../elisa/m/mibench_security_blowfish.elisa) |
+| Mojo | [`mojo/m/mibench_security_blowfish.mojo`](../../../mojo/m/mibench_security_blowfish.mojo) (uncompiled draft) |
 | Nim | [`nim/m/mibench_security_blowfish.nim`](../../../nim/m/mibench_security_blowfish.nim) |
 | Odin | [`odin/m/mibench_security_blowfish.odin`](../../../odin/m/mibench_security_blowfish.odin) |
 | Rust | [`rust/m/mibench_security_blowfish.rs`](../../../rust/m/mibench_security_blowfish.rs) |

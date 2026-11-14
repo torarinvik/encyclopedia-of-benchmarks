@@ -4,7 +4,7 @@ module cbench_rsynth_natural_glottal
 pub fn cbench_rsynth_natural_glottal_sample(input &f64,n usize,mut output &f64,cap usize)i64{
  unsafe{
   if input==nil||n==0||n>3{return -1}
-  for i in 0..n{if !input[i].is_finite(){return -1}}
+  for i in 0..n{if input[i]!=input[i]{return -1}}
   if n!=2||input[0]<40.0||input[0]>263.0||input[0]!=f64(int(input[0]))||input[1]<0.0||input[1]>299.0||input[1]!=f64(int(input[1])){return -1}
   nopen:=int(input[0]);index:=int(input[1]);mut result:=f32(0)
   if index<nopen{

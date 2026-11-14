@@ -43,7 +43,7 @@ proc indexed_block_list*(input: ptr UncheckedArray[int64], length: csize_t,
     else: return -1
   if cursor != int(length) or size > MaxItems: return -1
   let required = accesses * 8
-  if required > 0 and (output == nil or int(outputCapacity) < required): return -2
+  if required > 0 and (output == nil or outputCapacity < csize_t(required)): return -2
 
   var blocks: array[MaxNodes, array[2 * B + 1, int64]]
   var sizes: array[MaxNodes, int]

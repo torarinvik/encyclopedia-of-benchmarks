@@ -1,0 +1,48 @@
+# Uncompiled and unexecuted two-heap slope-trick draft.
+def st_push(heap: mutable view[i64], count: mutable usize&, value: i64) -> void:
+    i: mutable usize = count
+    count <- count+1
+    while i > 0:
+        parent: usize = (i-1)/2
+        if heap[parent] >= value: break
+        heap[i] <- heap[parent]
+        i <- parent
+    heap[i] <- value
+
+def st_replace(heap: mutable view[i64], count: usize, value: i64) -> void:
+    i: mutable usize = 0
+    while 2*i+1 < count:
+        child: mutable usize = 2*i+1
+        if child+1 < count and heap[child+1] > heap[child]: child <- child+1
+        if heap[child] <= value: break
+        heap[i] <- heap[child]
+        i <- child
+    heap[i] <- value
+
+export fn slope_trick_lipschitz_l1(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 130: return -1
+    frame: view[i64] = input[0:length]
+    if frame[0] < 0 or frame[0] > 128 or frame[1] < 0 or frame[1] > 100: return -1
+    n: usize = frame[0].usize()
+    if length != n+2: return -1
+    for i in 0..<n:
+        if frame[2+i] < 0 or frame[2+i] > 100: return -1
+    left: mutable i64[128] = zeroed
+    right: mutable i64[128] = zeroed
+    ln: mutable usize = 0
+    rn: mutable usize = 0
+    shift_l: mutable i64 = 0
+    shift_r: mutable i64 = 0
+    answer: mutable i64 = 0
+    for i in 0..<n:
+        shift_l <- shift_l-frame[1]
+        shift_r <- shift_r+frame[1]
+        st_push(left[0:128], ln, frame[2+i]-shift_l)
+        st_push(right[0:128], rn, shift_r-frame[2+i])
+        l: i64 = left[0]+shift_l
+        r: i64 = shift_r-right[0]
+        if l > r:
+            answer <- answer+l-r
+            st_replace(left[0:128], ln, r-shift_l)
+            st_replace(right[0:128], rn, shift_r-l)
+    answer

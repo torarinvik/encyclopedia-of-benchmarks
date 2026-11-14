@@ -17,6 +17,10 @@ The bounded component update takes O(1) time and O(1) auxiliary space.
 Source: [`mediabench/mpeg2/mpeg2dec/motion.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mediabench/mpeg2/mpeg2dec/motion.c), pinned to `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`; symbol: `decode_motion_vector`. Launcher: [`info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mediabench/mpeg2/mpeg2dec/info.sh). The source states Copyright (C) 1996, MPEG Software Simulation Group and describes the code as available without license fee or royalty on an “as is” basis, while disclaiming third-party patent status and noting patent royalties for commercial MPEG implementations. The pinned source does not state an explicit source-code redistribution license. These ports are clean-room implementations of the mathematical operation and contain no copied upstream code or comments; see [`NOTICE.txt`](NOTICE.txt) for the rights caveat.
 
 Independent oracle: [`mediabench_mpeg2_motion_vector_component_oracle.py`](../../mediabench_mpeg2_motion_vector_component_oracle.py). No runtime, compiler, or validator verification is claimed.
+The Elisa draft uses fixed-length views after ABI checks and declares its
+output reference mutable; these source changes are uncompiled and unexecuted.
+The verifier draft also checks all motion codes and scale sizes at predictor
+and residual boundaries against a modular-wrap identity. It has not been run.
 
 ## Ports
 

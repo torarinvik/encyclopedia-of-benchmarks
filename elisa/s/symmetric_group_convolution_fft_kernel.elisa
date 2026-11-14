@@ -1,0 +1,51 @@
+# Uncompiled view-based convolution composition. This uses the separately
+# drafted planning, forward and inverse functions and allocates no raw memory.
+# Inputs and output are disjoint n!-element views. Workspace is disjoint and
+# contains 4*n! + max(8*n!, 1809) i64 values. Metadata comes from the plan.
+def sg_fft_convolve(n: usize, left_input: view[i64], right_input: view[i64],
+                    output: mutable view[i64], workspace: mutable view[i64],
+                    level_counts: view[i64], counts: view[i64], restriction_counts: view[i64],
+                    children: view[i64], offsets: view[i64], widths: view[i64],
+                    diagonals: view[i64], partners: view[i64], coefficients: view[i64]) -> i64:
+    if n < 1 or n > 9: return -4
+    total: usize = sg_fft_factorial(n)
+    scratch_size: mutable usize = 8*total
+    if scratch_size < 1809: scratch_size <- 1809
+    if left_input.len() < total or right_input.len() < total or output.len() < total: return -4
+    if workspace.len() < 4*total+scratch_size: return -4
+    if level_counts.len() < 10 or counts.len() < 300: return -4
+    if level_counts[n] < 1 or level_counts[n] > 30: return -4
+    if sg_fft_block_offset(n,level_counts[n].usize(),level_counts,counts) != total.i64(): return -4
+    for i in 0..<total:
+        if left_input[i] < 0 or left_input[i] >= SG_MODULUS: return -4
+        if right_input[i] < 0 or right_input[i] >= SG_MODULUS: return -4
+    scratch_start: usize = 4*total
+    left_status: i64 = sg_fft_forward(n,left_input,workspace[0:total],
+        workspace[scratch_start:scratch_start+scratch_size],level_counts,counts,
+        restriction_counts,children,offsets,widths,diagonals,partners,coefficients)
+    if left_status != 0: return left_status
+    right_status: i64 = sg_fft_forward(n,right_input,workspace[total:2*total],
+        workspace[scratch_start:scratch_start+scratch_size],level_counts,counts,
+        restriction_counts,children,offsets,widths,diagonals,partners,coefficients)
+    if right_status != 0: return right_status
+    for shape in 0..<level_counts[n].usize():
+        slot: usize = n*30+shape
+        if counts[slot] < 1 or counts[slot] > 603: return -4
+        d: usize = counts[slot].usize()
+        offset: i64 = sg_fft_block_offset(n,shape,level_counts,counts)
+        if offset < 0 or offset.usize()+d*d > total: return -4
+        for row in 0..<d:
+            for col in 0..<d:
+                value: mutable i64 = 0
+                for inner in 0..<d:
+                    left: i64 = workspace[offset.usize()+row*d+inner]
+                    right: i64 = workspace[total+offset.usize()+inner*d+col]
+                    value <- (value+left*right)%SG_MODULUS
+                workspace[2*total+offset.usize()+row*d+col] <- value
+    weight_status: i64 = sg_fft_weight_blocks(n,workspace[2*total:3*total],workspace[3*total:4*total],
+        level_counts,counts,partners,coefficients,workspace[scratch_start:scratch_start+603],
+        workspace[scratch_start+603:scratch_start+1206],workspace[scratch_start+1206:scratch_start+1809])
+    if weight_status != 0: return weight_status
+    sg_fft_transpose_forward(n,workspace[3*total:4*total],output,
+        workspace[scratch_start:scratch_start+scratch_size],level_counts,counts,
+        restriction_counts,children,offsets,widths,diagonals,partners,coefficients)

@@ -1,31 +1,32 @@
 # Uncompiled and unexecuted next-occurrence automaton draft.
 export fn subsequence_automaton(input: i64&, length: usize) -> i64:
     if input == null or length < 2 or length > 354: return -1
-    if input[0] < 0 or input[0] > 64 or input[1] < 0 or input[1] > 32: return -1
-    n: usize = input[0].usize()
-    queries: usize = input[1].usize()
+    frame: view[i64] = input[0:length]
+    if frame[0] < 0 or frame[0] > 64 or frame[1] < 0 or frame[1] > 32: return -1
+    n: usize = frame[0].usize()
+    queries: usize = frame[1].usize()
     if length < 2+n: return -1
     for i in 0..<n:
-        if input[2+i] < 0 or input[2+i] > 3: return -1
+        if frame[2+i] < 0 or frame[2+i] > 3: return -1
     next: mutable usize[260] = zeroed
     for symbol in 0..<4: next[4*n+symbol] <- n
     row: mutable usize = n
     while row > 0:
         row <- row-1
         for symbol in 0..<4: next[4*row+symbol] <- next[4*(row+1)+symbol]
-        next[4*row+input[2+row].usize()] <- row
+        next[4*row+frame[2+row].usize()] <- row
     position: mutable usize = 2+n
     total: mutable usize = 0
     answer: mutable i64 = 0
     for query in 0..<queries:
-        if position == length or input[position] < 0 or input[position] > 256: return -1
-        count: usize = input[position].usize()
+        if position == length or frame[position] < 0 or frame[position] > 256: return -1
+        count: usize = frame[position].usize()
         position <- position+1
         if count > 256-total or count > length-position: return -1
         cursor: mutable usize = 0
         matches: mutable bool = true
         for i in 0..<count:
-            symbol: i64 = input[position+i]
+            symbol: i64 = frame[position+i]
             if symbol < 0 or symbol > 3: return -1
             if matches:
                 found: usize = next[4*cursor+symbol.usize()]

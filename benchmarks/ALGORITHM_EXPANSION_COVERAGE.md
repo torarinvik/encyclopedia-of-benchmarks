@@ -120,6 +120,77 @@ no checks ran.
 
 ## Catalog and suite candidates added during reviews through 2026-11-12
 
+**In progress — root:** `tree_min_cost_edge_coloring` reserves the
+minimum-cost proper edge coloring of a tree with a shared cost per color.
+[`tree_min_cost_proper_coloring`](t/tree_min_cost_proper_coloring/README.md)
+colors vertices and enforces a different adjacency relation; the existing
+matching and bipartite edge-coloring packages do not optimize costs over a
+tree's incident edges. Static README and name searches found no matching
+package. [Zhou and Nishizeki](https://doi.org/10.1023/B:JOCO.0000021940.40066.0c)
+describe a bottom-up DP with simultaneous matching sensitivity, and
+[Ito et al.](https://doi.org/10.1587/transinf.E94.D.190) give a distinct
+global matching reduction. Reserve the former fast DP profile; do not replace
+its requested matching sensitivity with the exponential reference. A bounded
+contract, small independent references, and an unexecuted fast construction
+draft and C, C++, Rust, Elisa, Nim, Zig, Odin and C3 port drafts using rectangular matching plus alternating exchanges and a workload are present; two other language ports and
+suite wiring remain. Only mathematical ideas are used; no source prose or code
+is copied. Nothing has been executed. Do not duplicate this reservation.
+
+**Source clarification needed:** The [CP-Algorithms Hungarian-algorithm article](https://cp-algorithms.com/graph/hungarian-algorithm.html)
+describes a weighted tree coloring with only adjacent vertices required to
+differ, then proposes an assignment of distinct colors to all children.
+Those are different constraints: siblings can share a color under ordinary
+proper coloring. Do not attribute the stronger sibling-distinct problem to the
+stated contract or use that recurrence for it. This lead is not yet an
+implemented or confirmed missing benchmark; compare both explicitly defined
+problems against the inventory before reserving either.
+
+**In progress — root:** `tree_min_cost_proper_coloring` reserves the ordinary
+proper vertex-coloring optimization with a separate cost for each vertex and
+color. [`graph_coloring`](g/graph_coloring/README.md) counts colorings of small
+general graphs rather than optimizing cost, while the Hungarian packages solve
+assignment rather than tree dynamic programming. Static name and README
+searches found no equivalent tree cost-coloring package. The tree-coloring
+description in the [CP-Algorithms Hungarian article](https://cp-algorithms.com/graph/hungarian-algorithm.html)
+is an idea index only; its sibling-distinct assignment recurrence is not used
+for this ordinary proper-coloring contract. A bounded contract, independent
+reference drafts, ten language drafts, workload, package checker, and scalar
+suite wiring are present; all remain unverified. Nothing has been executed. Do not
+duplicate this reservation.
+The verifier draft includes maximum-size chains, stars and input-validation
+precedence cases with directly derived expected results; they remain unrun.
+
+**In progress — root:** `fixed_length_walk_count` reserves modular counting of
+directed walks of exactly `k` edges by adjacency-matrix powers. The existing
+[`matrix_exponentiation`](m/matrix_exponentiation/README.md) builds a companion
+matrix for a linear recurrence rather than taking a general graph; the adjacent
+`fixed_length_walk_minplus` uses minimum-plus weights, not counting arithmetic.
+Static README and name searches found no matching general-graph exact-walk
+counting profile. The [CP-Algorithms fixed-length paths article](https://cp-algorithms.com/graph/fixed_length_paths.html)
+is an idea index only; all code, wording, and fixtures are independently
+authored. A contract, two references, ten language drafts, workload, package
+checker and scalar-suite wiring are present; all remain unverified. No code has run.
+Do not duplicate this reservation.
+
+**In progress — root:** `fixed_length_walk_minplus` reserves directed shortest
+walks with an exact edge count, using binary powers over the min-plus semiring.
+The existing `matrix_exponentiation` uses ordinary modular arithmetic;
+`floyd_warshall` permits any walk length, and `minimum_mean_cycle_karp` uses
+length-indexed dynamic programming to optimize a cycle mean. Subsequent static
+review found [`apsp_min_plus_repeated_squaring`](a/apsp_min_plus_repeated_squaring/README.md),
+which uses min-plus squaring for at-most-length all-pairs paths with positive
+weights, and [`min_plus_distance_product`](m/min_plus_distance_product/README.md),
+which computes a single product. The reserved profile differs through its
+exact arbitrary edge count, negative cycles and selected-power vector updates;
+it does not duplicate either contract. The
+[CP-Algorithms fixed-length paths article](https://cp-algorithms.com/graph/fixed_length_paths.html)
+is an algorithmic idea index; its prose and examples are not copied. A bounded
+contract, two reference drafts, ten language drafts, workload, an inventory checker, and draft scalar
+runner/verifier wiring are present. Integration remains unverified. Nothing has been run; do not
+duplicate this reservation.
+The verifier draft now includes full-size dense matrices with closed-form
+results and explicit invalid boundary frames; it remains unexecuted.
+
 **Inventory correction:** The earlier reservation snapshots immediately below
 understate current coverage for `monotone_radix_heap`,
 `minimum_area_enclosing_rectangle`, `closest_pair_sweep`,
@@ -129,7 +200,7 @@ checkers, and runner/verifier registrations for each. These entries remain
 drafts pending execution and validation; do not assign duplicate ports. Their
 earlier descriptions retain the algorithm-distinction and provenance decisions.
 
-**In progress — root:** `monotone_radix_heap` is reserved for a monotone integer priority queue with XOR-prefix buckets and redistribution after the minimum advances. [`dial_bucket_shortest_paths`](d/dial_bucket_shortest_paths/README.md) uses a fixed ring of exact-distance buckets; ordinary heap packages use comparison-based ordering. Neither exposes this radix-bucket queue operation. The [Ahuja–Mehlhorn–Orlin–Tarjan paper](https://doi.org/10.1145/77600.77615) identifies radix heaps as monotone priority queues for shortest paths; mathematical ideas only, independently authored code and fixtures. The bounded operation contract, two reference drafts, and a C draft are present. Nine language drafts, workload, package checker, and scalar suite registration remain outstanding. Nothing has been executed. Do not duplicate this reservation.
+**In progress — root:** `monotone_radix_heap` is reserved for a monotone integer priority queue with XOR-prefix buckets and redistribution after the minimum advances. [`dial_bucket_shortest_paths`](d/dial_bucket_shortest_paths/README.md) uses a fixed ring of exact-distance buckets; ordinary heap packages use comparison-based ordering. Neither exposes this radix-bucket queue operation. The [Ahuja–Mehlhorn–Orlin–Tarjan paper](https://doi.org/10.1145/77600.77615) identifies radix heaps as monotone priority queues for shortest paths; mathematical ideas only, independently authored code and fixtures. The bounded operation contract, two references, ten language drafts, workload, package checker, and scalar suite registration are present. Compilation and runtime verification remain outstanding. Nothing has been executed. Do not duplicate this reservation.
 
 C++, Rust, and Elisa drafts are also present. Six language drafts, workload, package checker, and scalar suite registration remain outstanding. None has been compiled or run.
 
@@ -139,7 +210,7 @@ Odin, V, and Mojo drafts are now present, bringing the package to ten language d
 
 The radix-heap workload now includes reinsertion at the current minimum and a high-bit boundary pair, exercising bucket-zero and high-prefix redistribution. These fixtures and the updated checker remain unexecuted.
 
-**In progress — root:** `minimum_area_enclosing_rectangle` is reserved for the minimum area of a rectangle enclosing a strictly convex polygon. The existing [`rotating_calipers`](r/rotating_calipers/README.md) computes the diameter via antipodal pairs, while [`minimum_diameter_spanning_tree`](m/minimum_diameter_spanning_tree/README.md) is a graph optimization. The rectangle operation uses four rotating supports and exact rational area comparisons, so its measured state transitions differ. [Toussaint's rotating-calipers paper](https://ptacts.uspto.gov/ptacts/public-informations/petitions/1536341/download-documents?artifactId=a4dYnzeXTQb2XDkU2Gq_sp88LLBLXNLPEaKi_yIOyyJP7zr_lAjz3iU) describes the method and attributes the edge-alignment theorem to Freeman and Shapira. Mathematical ideas only; independently authored contract and references. The contract and reference drafts are present; ten language ports, workload, checker, and byte-output suite integration remain outstanding. Nothing has been executed. Do not duplicate this reservation.
+**In progress — root:** `minimum_area_enclosing_rectangle` is reserved for the minimum area of a rectangle enclosing a strictly convex polygon. The existing [`rotating_calipers`](r/rotating_calipers/README.md) computes the diameter via antipodal pairs, while [`minimum_diameter_spanning_tree`](m/minimum_diameter_spanning_tree/README.md) is a graph optimization. The rectangle operation uses four rotating supports and exact rational area comparisons, so its measured state transitions differ. [Toussaint's rotating-calipers paper](https://ptacts.uspto.gov/ptacts/public-informations/petitions/1536341/download-documents?artifactId=a4dYnzeXTQb2XDkU2Gq_sp88LLBLXNLPEaKi_yIOyyJP7zr_lAjz3iU) describes the method and attributes the edge-alignment theorem to Freeman and Shapira. Mathematical ideas only; independently authored contract and references. The contract, references, ten language drafts, workload, checker, and byte-output suite integration are present; compilation and runtime verification remain outstanding. Nothing has been executed. Do not duplicate this reservation.
 
 C, C++, and Rust rotating-support drafts are now present. Seven language ports, workload, checker, and byte-output suite integration remain outstanding; none has been compiled or run.
 
@@ -151,7 +222,7 @@ Odin, V, and Mojo rotating-support drafts are now present, bringing coverage to 
 
 The rectangle workload now includes a nonintegral minimum area (`64/5`) and the package checker requires it. This fixture remains unexecuted.
 
-**In progress — root:** `closest_pair_sweep` is reserved for the planar closest-pair sweep with a y-ordered active set. [`closest_pair_divide_and_conquer`](c/closest_pair_divide_and_conquer/README.md) recursively partitions and merges y-ordered strips; [`pargeo_bichromatic_closest_pair`](p/pargeo_bichromatic_closest_pair/README.md) searches two color-specific KD-trees. Neither implements this single-set sweep. The [Tulane computational-geometry lecture](https://www.cs.tulane.edu/~carola/teaching/cs6463/fall10/slides/sweepline.pdf) describes the sweep and balanced-tree active set; mathematical method only, no copied text or code. Contract, two references, and initial C++ ordered-tree draft are present. Nine language drafts, workload, package checker, and scalar suite integration remain outstanding. No code has been run. Do not duplicate this reservation.
+**In progress — root:** `closest_pair_sweep` is reserved for the planar closest-pair sweep with a y-ordered active set. [`closest_pair_divide_and_conquer`](c/closest_pair_divide_and_conquer/README.md) recursively partitions and merges y-ordered strips; [`pargeo_bichromatic_closest_pair`](p/pargeo_bichromatic_closest_pair/README.md) searches two color-specific KD-trees. Neither implements this single-set sweep. The [Tulane computational-geometry lecture](https://www.cs.tulane.edu/~carola/teaching/cs6463/fall10/slides/sweepline.pdf) describes the sweep and balanced-tree active set; mathematical method only, no copied text or code. Contract, two references, ten language drafts, workload, package checker, and scalar suite integration are present. Compilation and runtime verification remain outstanding. No code has been run. Do not duplicate this reservation.
 
 C and Rust drafts are also present. C uses an explicitly balanced AVL active set and merge sort; Rust uses its ordered set. Seven language drafts, workload, package checker, and scalar suite integration remain outstanding. None has been compiled or run.
 
@@ -171,13 +242,13 @@ A Mojo draft now uses indexed AVL nodes and merge sort, bringing the package to 
 
 The timed closest-pair workload now includes 64 horizontal points, exercising a maximum-length frame and repeated active-set expiry. The fixture and updated checker remain unexecuted.
 
-**In progress — root:** `highest_label_push_relabel` is reserved for highest-active-height scheduling of preflow discharge. The existing [`push_relabel`](p/push_relabel/README.md) ports select active vertices by scan order on a multi-terminal contract; their pinned sources mention other schedules but the ports do not benchmark this highest-label policy. The [CP-Algorithms improved push–relabel article](https://cp-algorithms.com/graph/push-relabel-faster.html) describes the algorithmic distinction and credits Cheriyan and Maheshwari. Its text is CC BY-SA 4.0; use ideas only and independently author code and fixtures. The bounded contract, two reference drafts, and C, C++, Rust, and Elisa drafts are present. Six ports, workload, package checker, and suite registration remain outstanding; no code has run. Do not duplicate this reservation.
+**In progress — root:** `highest_label_push_relabel` is reserved for highest-active-height scheduling of preflow discharge. The existing [`push_relabel`](p/push_relabel/README.md) ports select active vertices by scan order on a multi-terminal contract; their pinned sources mention other schedules but the ports do not benchmark this highest-label policy. The [CP-Algorithms improved push–relabel article](https://cp-algorithms.com/graph/push-relabel-faster.html) describes the algorithmic distinction and credits Cheriyan and Maheshwari. Its text is CC BY-SA 4.0; use ideas only and independently author code and fixtures. The bounded contract, two references, ten language drafts, workload, package checker, and scalar suite registration are present. Compilation and runtime verification remain outstanding; no code has run. Do not duplicate this reservation.
 
 C3, Nim, Zig, Odin, V, and Mojo drafts are now present too, bringing the total to ten languages. A workload, rights note, package checker, and scalar runner/verifier registration are written. The verifier source specifies small capacity combinations, transposed networks, maximum frames, null inputs, and comparisons with min-cut and scaled-Dinic references. None of the drafts or fixtures has been compiled or run; source-level review remains outstanding.
 
 The highest-label workload now includes a nonfirst source and a constrained sink with antiparallel arcs and excess returning toward the source. The package checker requires these unexecuted fixtures.
 
-**In progress — root:** `dinic_capacity_scaling` is reserved for thresholded blocking-flow phases. The existing [`dinic_maxflow`](d/dinic_maxflow/README.md) ports use ordinary positive-residual Dinic; its pinned Python source mentions a scaling variant but the timed ports do not implement it. A threshold limits BFS and blocking-flow traversal to residual arcs of at least the current power of two, changing the explored residual networks. The [MIT blocking-flow notes](https://courses.csail.mit.edu/6.854/21/Scribe/s7-blockingFlows/scribe7.html) describe capacity scaling; mathematical idea only, with independently authored code and fixtures. The initial contract matches the existing bounded directed graph input. The contract, two independent reference drafts, and C, C++, Rust, and Elisa drafts are present; six language ports, workload, and suite registration remain outstanding. Nothing has been run. Do not duplicate this reservation.
+**In progress — root:** `dinic_capacity_scaling` is reserved for thresholded blocking-flow phases. The existing [`dinic_maxflow`](d/dinic_maxflow/README.md) ports use ordinary positive-residual Dinic; its pinned Python source mentions a scaling variant but the timed ports do not implement it. A threshold limits BFS and blocking-flow traversal to residual arcs of at least the current power of two, changing the explored residual networks. The [MIT blocking-flow notes](https://courses.csail.mit.edu/6.854/21/Scribe/s7-blockingFlows/scribe7.html) describe capacity scaling; mathematical idea only, with independently authored code and fixtures. The initial contract matches the existing bounded directed graph input. The contract, two independent references, ten language drafts, workload, package checker, and scalar suite registration are present. Compilation and runtime verification remain outstanding. Nothing has been run. Do not duplicate this reservation.
 
 C3, Nim, Zig, Odin, V, and Mojo drafts are also present, bringing the total to ten languages. The workload, rights note, package checker, and scalar runner/verifier registration are written. The verifier source specifies small capacity combinations, antiparallel arcs, maximum frames, and null inputs. No draft or fixture has been compiled or run; source-level review remains outstanding.
 
@@ -1379,16 +1450,27 @@ The registered [`cbench_ispell_hash`](c/cbench_ispell_hash/README.md) profile no
 The separate [`cbench_ispell_lookup_chain`](i/cbench_ispell_lookup_chain/README.md) benchmark now has a Mojo draft for validated hash-bucket chain traversal. Its build, runner, and verifier paths now select its existing `i` directory, and its link to the hash primitive is corrected. No builds or execution were performed.
 
 The [`cbench_lame_mid_side`](m/cbench_lame_mid_side/README.md) stereo transform now has a Mojo draft and corrected build path; the float64-slice verifier accepts explicitly selected optional Mojo. Its GPL notice and conditional source scope remain documented. No build or execution was performed.
+The Elisa draft now uses bounded ABI views, and the V draft detects NaN
+directly while retaining range checks for infinities. These edits are uncompiled.
 
 The [`asci_purple_smg2000_residual`](a/asci_purple_smg2000_residual/README.md) structured 7-point residual now has a Mojo draft, with validated integral fields and the documented exact-tenths arithmetic. The package's independent-implementation rights note remains in place. It has not been compiled or run.
 
 The source-specific [`cbench_office_pratt_boyer_moore`](c/cbench_office_pratt_boyer_moore/README.md) endpoint-skip search now has a Mojo draft and a documented worst-case complexity. Its source attribution remains recorded. It has not been compiled or run.
 
 The distinct [`cbench_rsynth_f0_flutter`](m/cbench_rsynth_f0_flutter/README.md) three-sine profile now has a Mojo draft. Its build, scalar runner and verifier paths point to its `m` package, and the source rights note remains in place. It has not been compiled or run.
+Its Elisa draft now uses the unsigned ABI length type and a bounded input
+view after null and exact-length validation. This correction is uncompiled.
+The verifier draft checks the zero-perturbation identities for zero flutter,
+zero time, and an initial frequency quotient of zero; it has not been run.
 
 The [`cbench_rsynth_natural_glottal`](m/cbench_rsynth_natural_glottal/README.md) recurrence has a Mojo draft. Static review found that both natural and impulsive glottal symbols end in `_sample` while their source and package names do not; build, float runner and verifier now resolve both explicit aliases. No build or execution was performed.
 
 The separate [`cbench_rsynth_impulsive_glottal`](m/cbench_rsynth_impulsive_glottal/README.md) resonator now also has a Mojo draft. Both RSynth glottal drafts are listed in the float suite's port inventory; neither has been compiled or run.
+Static review corrected the Elisa impulsive helper declaration, changed both
+Elisa ports to bounded ABI views, and replaced uncertain V finite-method calls
+with direct NaN checks plus existing range checks. These edits remain uncompiled.
+The float verifier draft checks the first closed-phase sample for every natural
+open duration and zero initial output for the impulsive source; it is unrun.
 
 The existing [`beta_skeleton`](b/beta_skeleton/README.md) beta=2 lune graph has a Mojo draft and explicit complexity documentation. Its source attribution and MIT notice remain in the package. The draft has not been compiled or run.
 
@@ -2125,6 +2207,16 @@ The `misra_gries_summaries` cancellation profile now has a bounded-alphabet Mojo
 The PolyBench `mvt` matrix-vector updates now have a Mojo draft. It has not been compiled or run; the package records the upstream license.
 
 The MiBench `mibench_jpeg_ycbcr_to_rgb` color conversion now has a Mojo draft. It has not been compiled or run; the package records the upstream license.
+Its V draft had non-V local declaration syntax and a mixed signed/unsigned
+capacity comparison; both are corrected in source. The package's V and Zig
+links now point to their actual `m/` paths. These edits remain unexecuted.
+Its Elisa draft now uses bounded views after ABI checks; this change remains
+uncompiled and unexecuted.
+The MiBench JPEG README now contains the full IJG attribution required by its
+suite validator, and the validator's source-presence list includes Mojo. These
+source-level corrections remain unexecuted.
+The MiBench JPEG verifier also specifies exhaustive neutral-chroma brightness
+preservation and out-of-range channel probes. These checks have not been run.
 
 The `smith_weighted_completion_time` ordering profile now has a Mojo draft. It has not been compiled or run.
 
@@ -2135,14 +2227,37 @@ The `morton_sort` stable spatial ordering profile now has a Mojo draft. It has n
 The `misc_fp_convert` mixed-precision dot-product profile now has a Mojo draft. It has not been compiled or run.
 
 The MediaBench `mediabench_mpeg2_motion_vector_component` update now has a Mojo draft. It has not been compiled or run.
+Its suite source-presence check now includes that Mojo draft. The updated
+validator has not been run.
+The Elisa port now uses exact-length ABI views and declares the output
+reference mutable; this source change has not been compiled or run.
+The verifier source now specifies modular-wrap identity checks across every
+motion code and scale size at predictor and residual boundaries; these checks
+have not been run.
 
 The MediaBench `mediabench_gsm_rpe_grid_selection` profile now has a Mojo draft. It has not been compiled or run; its package retains the upstream notice.
+Static review corrected an out-of-scope loop variable in the Elisa selection
+draft, converted its input access to a bounded view, and added Mojo to the
+suite's source-presence check. These changes remain uncompiled and unexecuted.
 
 The `misc_dt` repeated division profile now has a Mojo draft. It has not been compiled or run.
 
 The cBench `cbench_consumer_jpeg_h2v2_fancy_upsample` profile now has a Mojo draft. It has not been compiled or run; the package retains the IJG notice.
+The suite's source-presence check now includes Mojo, and the Elisa draft uses
+bounded input/output views after ABI checks. These changes remain unexecuted.
+Its verifier draft also checks constant-plane preservation at every 8-bit
+sample value; those checks remain unexecuted.
+Static port review added the missing Mojo `InlineArray` import; compilation
+and correctness remain unverified.
 
 The MediaBench `mediabench_gsm_rpe_grid_positioning` scatter now has a Mojo draft. It has not been compiled or run; its package retains the upstream notice.
+Its Elisa input now uses a bounded view, and its suite source-presence check
+includes Mojo; these changes remain uncompiled and unexecuted.
+The verifier draft composes the selection and positioning references on
+generated sample vectors and checks scatter placement. It has not been run.
+The V grid drafts now mark helper pointer indexing as unsafe locally; the
+16-bit serializer also masks signed samples before narrowing. These source
+changes remain uncompiled and unexecuted.
 
 The `max_average_length_bounded_segment` exact-search profile now has a Mojo draft. It has not been compiled or run.
 
@@ -2153,12 +2268,25 @@ The `minimal_dominating_sets_interval` pair-state DAG profile now has a Mojo dra
 The `submodular_ranking_greedy` explicit-table profile now has a Mojo draft. It has not been compiled or run.
 
 The cBench `cbench_consumer_lame_mdct_short` profile now has a Mojo draft. It has not been compiled or run; its package records upstream license terms.
+Static review updated the Elisa draft to use bounded ABI views, fixed a V
+mutable accumulator and finite-value check, and included Mojo in the suite's
+source-presence check. The changes remain uncompiled and unexecuted.
 
 The MiBench `mibench_lame_mdct_long` transform now has a Mojo draft. It has not been compiled or run; its package records upstream license terms.
+The package port list now includes Mojo, and the Elisa draft uses bounded
+input/output views after ABI checks. These edits remain uncompiled and unrun.
+The float64 workload validator now includes the Mojo draft in its source
+presence check; this change remains unexecuted.
+The V draft now rejects NaN explicitly and infinities through its range check,
+without relying on a floating-point method whose availability was unclear.
+This source correction is uncompiled.
 
 The cBench `cbench_consumer_mad_alias_reduce` fixed-point profile now has a Mojo draft. It has not been compiled or run; the package retains upstream license terms.
 
 The cBench `cbench_consumer_mad_imdct36` transform now has a Mojo draft. It has not been compiled or run; the package records upstream license terms.
+The Elisa draft now uses bounded ABI views, the V draft rejects NaN explicitly,
+and the float64 suite checks for the Mojo source. These changes remain
+uncompiled and unexecuted.
 
 The `next_fit_bin_packing` online placement profile now has a Mojo draft. It has not been compiled or run.
 
@@ -2301,6 +2429,9 @@ The KKT sampled-forest heavy-edge filter now has a Mojo draft. It has not been c
 The nonadaptive stochastic-knapsack greedy policy now has a Mojo draft. Static review also corrected builder, byte runner, and verifier workload lookup for its `k`-directory package. These changes have not been run.
 
 Static source review added explicit `std.collections.InlineArray` imports to nine Mojo drafts: `merge_find_set`, `berlekamp_massey`, `bitwise_and_convolution`, `bitwise_or_convolution`, `depthconv`, `radio_network_decay_phase`, `gcd_convolution`, `hash_map_open_addressing`, and `3sum`. A text search still finds 974 Mojo files using `InlineArray` without an explicit named import; that is an audit queue, not proof of compilation failures, because other imports and compiler prelude behavior have not been checked. No compiler or validator was run.
+Four additional media drafts now explicitly import `InlineArray`: MiBench JPEG
+color conversion, MiBench long-block MDCT, and MediaBench GSM grid selection
+and positioning. Prelude availability and compilation remain unverified.
 
 Subsequent static coverage work added Mojo drafts for `polybench_correlation`,
 `himenobmtxpa`, `maximum_fenwick_tree`, `median_of_matrix`, `median_search2`,
@@ -2437,6 +2568,16 @@ or retained by optimization; the package still lacks a Mojo port. No checks
 were executed.
 
 Static review of [`indexed_block_list`](i/indexed_block_list/README.md) found that all ten drafts skipped list construction and insertions whenever a valid trace had no reads. The early returns were moved past the operations, retaining null-output acceptance for zero-byte results; both references now process those operations too, and a corresponding verifier case is written. The Mojo block-size array is explicitly zero-initialized and signed outputs are bitcast before byte encoding; a negative-value workload case was added. None of these changes has been executed.
+The Elisa draft now confines input and nonempty output references to ABI
+boundaries and uses bounded views in the algorithm. The zero-output return
+still follows list construction and operations. This edit is uncompiled.
+Static storage review bounds the number of indexed-block descriptors at 12:
+after a split, each insertion-only block contains at least four of the at most
+48 elements; before any split there is only one block. The ports reserve 16.
+The Nim, Odin, and Mojo capacity checks now compare unsigned ABI sizes without
+narrowing the caller's capacity to a signed integer; this fix is uncompiled.
+The V draft's operation-count declaration was also corrected to V syntax; it
+has not been compiled.
 
 The former `zblock_substring_search` profile computed the same prepared Z-array as [`z_algorithm`](z/z_algorithm/README.md) and filtered it to a count. It was consolidated into the latter; its separate count-output interface is removed and a search-shaped input plus C# source attribution remain. The retained package now has verifier registration with an independent Z-array reference, capacity and null checks, and a maximum-length case. Static review also added missing input/output null guards to the Elisa, V, and Zig drafts; Elisa uses bounded views internally after checking its ABI references. Changes are unexecuted.
 
@@ -2492,6 +2633,23 @@ The Crust pole-adjacency triangle filter now has a Mojo draft. Static review als
 
 ### Library Checker catalog recheck
 
+**In progress — root:** `effective_resistance_unit_graph` is reserved for an
+exact two-terminal effective-resistance calculation on a bounded connected
+unit-resistance graph. [`counting_spanning_trees_undirected`](c/counting_spanning_trees_undirected/README.md)
+computes only the single Laplacian cofactor, while this profile also computes
+the two-terminal forest cofactor and returns their reduced ratio. The
+[CP-Algorithms matrix-tree discussion](https://cp-algorithms.com/graph/kirchhoff-theorem.html)
+identifies the resistance/cofactor relationship; use mathematical ideas only,
+with independent code and fixtures. A static search for resistance names in
+the benchmark READMEs and catalog found no matching profile. Reservation does
+not claim complete catalog coverage. Do not duplicate this work.
+The contract, independent edge-subset reference, workload, ten language
+drafts, and scalar-suite registration are written. The verifier source covers
+all simple graphs through four vertices and a maximum-edge graph. Nothing has
+been compiled or run.
+The Elisa draft now uses a bounded input view after its ABI null and length
+checks; this static edit is also uncompiled and unexecuted.
+
 The current [Library Checker problem list](https://judge.yosupo.jp/) includes several newer candidate names. A static name search of `benchmarks` and `catalog` produced the following leads; absence by name is not proof that an equivalent implementation is missing. The catalog is used as an idea index, and no problem text, code, or tests have been copied.
 
 | Candidate | Current inventory evidence and next comparison |
@@ -2545,6 +2703,58 @@ proof of missing implementations or unique algorithms: compare contracts,
 alternate symbols and locations, ownership, and rights before assigning work.
 The comparison was static; no project code or checks were run.
 
+Static follow-up across Mojo source paths found drafts for the listed SUSAN,
+LAME, RSBench, Espresso, QRduino, MUMmerGPU, Myocyte, and Schönhage–Strassen
+profiles. Three leads still have no matching Mojo source by name:
+[`cbench_blowfish_cbc`](c/cbench_blowfish_cbc/README.md),
+[`trimaran_enc_3des`](t/trimaran_enc_3des/README.md), and
+[`tripforce_tripcode`](t/tripforce_tripcode/README.md). These are existing
+registered workloads requiring language-coverage review, not new algorithms.
+The Mojo [`des_ecb`](../mojo/d/des_ecb.mojo) draft provides a related DES
+implementation, but it does not by itself implement three-key EDE or the
+salt-modified repeated DES used by tripcode. Source-name inspection does not
+establish correctness or exclude an implementation under another name.
+
+The `trimaran_enc_3des` Mojo gap now has a draft using the local DES tables
+and three forward/reverse key schedules; its package documentation and
+verifier source-presence check are updated. It remains uncompiled and unrun.
+
+Root reserves the `tripforce_tripcode` Mojo port, using its existing fixed
+candidate contract and independently written local DES primitives. Do not
+duplicate this port; no implementation or verification is claimed yet.
+
+The reserved tripcode Mojo draft is now present with salted expansion, 25 DES
+transforms, and ten-byte encoding. The existing byte-output suite registration
+applies; the new source and its results remain uncompiled and unexecuted.
+The verifier source now checks for that Mojo export. Static review also masked
+the low 32-bit half before conversion in the separate Mojo `des_ecb` draft;
+this avoids relying on narrowing a 64-bit permuted block directly. These
+changes have not been compiled or run.
+
+Static C-to-Mojo basename comparison now leaves two real source-name leads:
+`cbench_blowfish_cbc` and `mibench_security_blowfish`. Root reserves both
+Mojo ports. They share Blowfish key expansion but have distinct CBC and ECB
+contracts; preserve the existing Eric Young license and attribution in each
+source. The comparison also returned a directory artifact and a C header,
+which are not missing benchmark implementations. Nothing was executed.
+
+The CBC Mojo draft now includes key expansion, block rounds, both chaining
+directions, and the retained license notice. It has not been compiled or run;
+the MiBench ECB Mojo port remains outstanding.
+
+The reserved MiBench ECB Mojo draft is now present, using the same key
+expansion and block primitive as the CBC draft with the ECB-specific ABI and
+retained license notice. Both ports remain uncompiled and unexecuted.
+The byte-output verifier source also checks both Mojo exports and key notice
+markers; that check has not been executed.
+
+A static basename comparison found no Rust or Elisa `.rs`/`.elisa` source name
+missing from the C or Mojo `.c`/`.mojo` source names respectively, and no C
+source basename missing from C3 or Zig. A C++-to-Mojo comparison returned only
+header filenames. This is a filename inventory only: it does not establish
+matching contracts, suite registration, correctness, or completeness of the
+broader source catalog. No project code was run for this comparison.
+
 The [`mediabench_g721_encode`](g/mediabench_g721_encode/README.md) Mojo
 port has a draft implementation and byte-output ABI, with a suite source
 presence check. It has not been compiled or executed; codec correctness and
@@ -2568,6 +2778,18 @@ The [`cbench_consumer_lame_window_subband`](m/cbench_consumer_lame_window_subban
 profile now has a Mojo draft of the fixed analysis filterbank and a suite
 source-presence check. Compilation, floating-point ordering, and byte output
 remain unverified.
+Its Elisa ABI now rejects null or incorrectly sized input before constructing
+the bounded view, then uses that view throughout the filterbank. This static
+correction has not been compiled or run.
+The V draft's fixed-array literals and helper pointer access were corrected
+in source; this draft also remains uncompiled and unexecuted.
+The verifier draft now includes an independently chosen constant window with
+zero PCM, for which all 32 output bands must be zero. It has not been run.
+It also specifies signed central impulses with hand-derived cosine outputs;
+these checks have not been run.
+Static arithmetic review derives a conservative bound below 33.6 million per
+band, so Q1000 conversion remains within signed 64-bit range for the documented
+input bounds; floating-point equivalence remains unverified.
 
 The [`schoenhage_strassen_multiply`](s/schoenhage_strassen_multiply/README.md)
 Mojo draft now includes the recursive products, transforms and output ABI,
@@ -2611,21 +2833,171 @@ text, tests, or code is incorporated into the implementations.
 | [Enumerate minimum prime factors](https://github.com/yosupo06/library-checker-problems/issues/1408) | [`linear_sieve`](l/linear_sieve/README.md) already constructs a smallest-prime-factor table using the cited linear sieve recurrence; [`smallest_prime_factor`](s/smallest_prime_factor/README.md) instead uses trial division for one integer. | Already present by algorithm: the proposed checksum and sampled table output are different workloads for the existing linear sieve, not a separate sieve kernel. |
 | [Minimize DFA](https://github.com/yosupo06/library-checker-problems/issues/1387) | [`string_match_finite_automata`](s/string_match_finite_automata/README.md) builds a pattern matcher and [`hopcroft_karp_cardinality`](h/hopcroft_karp_cardinality/README.md) solves matching; neither performs DFA partition refinement. No matching minimization alias appeared in the static inventory search. | In progress — root: [`hopcroft_dfa_minimization`](h/hopcroft_dfa_minimization/README.md) has a bounded contract, ten language drafts, signature-refinement reference, fixtures, validator and scalar-suite registration. Nothing was executed; do not duplicate this reservation. |
 | [Polynomial resultant](https://github.com/yosupo06/library-checker-problems/issues/1407) | The proposal computes a polynomial resultant over a finite field; static name searches did not identify an equivalent local package. General determinant and the special Vandermonde product are related operations, not the same kernel. | In progress — root: [`polynomial_resultant_half_gcd`](p/polynomial_resultant_half_gcd/README.md) reserves a scalable half-GCD/NTT profile with small references, fixtures, a validator, draft scalar-suite registration, and unverified drafts in all ten languages. Elisa's recursion-frame budget and Zig's arena peak workspace need review. Nothing has been executed; do not duplicate this reservation. |
+| Zig resultant workspace follow-up | Static review found call-wide retention of temporary allocations. NTT, dot-product, division, inverse-iteration and recursive half-GCD scratch now use short-lived arenas; top-level batches alternate arenas while retaining the current pair. | Reduced retention in source; lifetimes, maximum-size peak space and correctness remain unverified. No compilation or profiling was performed. |
 | [Sequence automaton](https://oi-wiki.org/string/seq-automaton/) | [`is_subsequence`](i/is_subsequence/README.md) and [`validate_subsequence`](v/validate_subsequence/README.md) scan the main sequence for a single query. A static README search for next-occurrence and subsequence automata found no other matching package. | In progress — root: [`subsequence_automaton`](s/subsequence_automaton/README.md) reserves the preprocessed next-occurrence method. Contract, workload including repeated queries over a shared text, table and scan references, ten language drafts, and scalar-suite registration are present but unverified. Algorithm description only; no external code or examples copied. Nothing has been executed; do not duplicate this reservation. |
-| [Slope trick bounded-change fitting](https://oi-wiki.org/dp/opt/slope-trick/) | Median and isotonic methods do not maintain a two-sided bound on adjacent fitted values. Static searches found no matching bounded-change L1 or slope-trick profile. | In progress — root: [`slope_trick_lipschitz_l1`](s/slope_trick_lipschitz_l1/README.md) reserves the dual-heap, lazy-shift method. Contract, independent bounded-domain dynamic-programming reference, rights note, and C++ draft exist. Nine ports, workload and suite registration remain. Nothing has been executed; do not duplicate this reservation. |
-| [OI Wiki Chirp Z transform](https://oi-wiki.org/math/poly/chirp-z/) | [`fft_bluestein`](f/fft_bluestein/README.md) and [`multipoint_evaluation_on_geometric_sequence`](m/multipoint_evaluation_on_geometric_sequence/README.md) already use the chirp/Bluestein transform family. | Already present; no duplicate benchmark reserved for the same method. |
+| [Slope trick bounded-change fitting](https://oi-wiki.org/dp/opt/slope-trick/) | Median and isotonic methods do not maintain a two-sided bound on adjacent fitted values. Static searches found no matching bounded-change L1 or slope-trick profile. | In progress — root: [`slope_trick_lipschitz_l1`](s/slope_trick_lipschitz_l1/README.md) reserves the dual-heap, lazy-shift method. Contract, independent bounded-domain dynamic-programming reference, rights note, workload, ten language drafts, and scalar-suite registration exist but remain unverified. Nothing has been executed; do not duplicate this reservation. |
+| [Weighted binary search for path selection](https://oi-wiki.org/dp/opt/wqs-binary-search/) | [`max_non_adjacent_sum`](m/max_non_adjacent_sum/README.md) has no exact selection count; [`maximum_independent_set`](m/maximum_independent_set/README.md) is an unweighted graph problem. Static searches found no matching exact-cardinality path profile using penalty search. | In progress — root: [`wqs_path_independent_set`](w/wqs_path_independent_set/README.md) reserves the penalty-search method. Contract, independent exact-count dynamic-programming oracle, rights note, workload, ten language drafts, and scalar-suite registration exist but remain unverified. Nothing has been executed; do not duplicate this reservation. |
+| [OI Wiki Chirp Z transform](https://oi-wiki.org/math/poly/czt/) | [`fft_bluestein`](f/fft_bluestein/README.md) and [`multipoint_evaluation_on_geometric_sequence`](m/multipoint_evaluation_on_geometric_sequence/README.md) already use the chirp/Bluestein transform family. | Already present; no duplicate benchmark reserved for the same method. |
+| [OI Wiki Cartesian tree](https://en.oi-wiki.org/ds/cartesian-tree/) | [`cartesian_tree`](c/cartesian_tree/README.md) already constructs an array Cartesian tree with the same monotonic-stack right-spine method. | Construction already present; no duplicate construction benchmark reserved. Its histogram application is method-distinct from the direct stack scan and is reserved separately below. |
+| [Cartesian-tree histogram area](https://en.oi-wiki.org/ds/cartesian-tree/) | [`largest_rectangle_histogram`](l/largest_rectangle_histogram/README.md) calculates areas during stack pops, while [`cartesian_tree`](c/cartesian_tree/README.md) emits the tree without calculating its subtree-area maximum. | In progress — root: [`cartesian_histogram_area`](c/cartesian_histogram_area/README.md) reserves explicit tree construction and postorder subtree aggregation. Contract, independent interval reference, rights note, workload, ten language drafts, and scalar-suite registration exist but remain unverified. Nothing has been executed; do not duplicate this reservation. |
+| [CP-Algorithms minimum-diameter spanning tree](https://lib.cp-algorithms.com/verify/graph/minimum_diameter_spanning_tree.test.cpp) | [`minimum_diameter_spanning_tree`](m/minimum_diameter_spanning_tree/README.md) already covers the graph objective and has a center-enumeration profile. | Already present; the catalog task identifies an existing benchmark, so no duplicate is reserved. This crosswalk does not assert that the two implementations use identical internal optimizations. |
 | [Quadratic form over GF(2)](https://github.com/yosupo06/library-checker-problems/issues/1398) | Static searches found no obvious quadratic-form canonicalization package. Binary matrix elimination and quadratic-equation solvers do not establish equivalence to a characteristic-two quadratic-form change of basis. | Candidate: review aliases and the normal-form/output contract before reservation. |
 | [Range-constraint topological ordering](https://github.com/yosupo06/library-checker-problems/issues/1428) | The existing [`topological_sort`](t/topological_sort/README.md) consumes explicit directed edges. [`two_interval_precedence_chain`](t/two_interval_precedence_chain/README.md) solves a different scheduling-chain problem. The existential predecessor condition is not an ordinary conjunction of edges; no matching compressed-range package was found in the static alias search. | In progress — root: [`range_constraint_topological_feasibility`](r/range_constraint_topological_feasibility/README.md) has ten language drafts, an expanded-range reference, fixtures, a validator and scalar-suite registration. Nothing has been compiled or executed; do not duplicate the reservation. |
 | [Weighted two-vertex cuts](https://github.com/yosupo06/library-checker-problems/issues/1427) | Existing biconnectivity and [`vertex_connectivity`](v/vertex_connectivity/README.md) cover related connectivity questions, but the proposal aggregates component counts after every vertex pair and points to triconnected decomposition. The encyclopedia crosswalk records SPQR support as incomplete. | Candidate: investigate SPQR/triconnected aliases and a scalable decomposition before reservation; repeated vertex-pair deletion is useful as a small oracle but does not substitute for that kernel. |
 | [Lexicographically minimal concatenation](https://github.com/yosupo06/library-checker-problems/issues/1414) | [`string_heap_sort`](s/string_heap_sort/README.md) sorts fixed-width keys directly, while [`largest_of_very_large_numbers`](l/largest_of_very_large_numbers/README.md) compares powers. Neither orders variable strings by their virtual pairwise concatenations; no equivalent was found in the static alias search. | In progress — root: [`lexicographically_minimal_concatenation`](l/lexicographically_minimal_concatenation/README.md) has ten suffix-array/LCP drafts, independent references, fixtures, a validator and byte-suite registration. Nothing has been compiled or executed; do not duplicate this reservation. |
-| [Convolution on the symmetric group](https://github.com/yosupo06/library-checker-problems/issues/1432) | The current issue index lists this proposal, but its linked page was unavailable to the web reader during this pass. | Unresolved lead: obtain an accessible operation definition and compare group-convolution and permutation packages before deciding whether it is distinct. |
+| [Convolution on the symmetric group](https://github.com/yosupo06/library-checker-problems/issues/1432) | The proposal asks for convolution of two functions indexed by permutations, under permutation composition modulo 998244353, and suggests a symmetric-group Fourier method for degrees up to nine. A static README and catalog search found no symmetric-group convolution or nonabelian Fourier profile; existing cyclic, XOR, subset, and multiplicative convolutions use different index operations. | Confirmed distinct candidate; a scalable symmetric-group Fourier implementation and its field/representation constraints need research before reservation. The proposal notes its bounds are tentative. A direct factorial-squared implementation is suitable as a small independent oracle, not a substitute for the proposed scalable kernel. The [SnFFT paper](https://jmlr.csail.mit.edu/beta/papers/v16/plumb15a.html) identifies Fourier transforms and convolution on permutation groups; use source material for ideas only. No code, problem text, or fixtures were copied, and no program was run. |
 | [Suffix array over a linear integer alphabet](https://github.com/yosupo06/library-checker-problems/issues/1419) | Existing [`suffix_array_sais`](s/suffix_array_sais/README.md) uses SA-IS on a bounded byte alphabet. The proposed wider alphabet changes the input range, not the construction method. | Already present by algorithm; a larger-alphabet workload remains a possible coverage improvement, not a separate algorithm. |
 | [Hook-length count for Young tableaux](https://github.com/yosupo06/library-checker-problems/issues/1418) | No matching Young-tableau/hook-length package found in the static inventory search. Integer partition packages enumerate different objects. | Drafted: [`hook_length_tableaux`](h/hook_length_tableaux/README.md) has ten language drafts, a row-oriented oracle, fixtures, and scalar-suite registration. None has been executed or verified. |
 | [Pairwise difference product](https://github.com/yosupo06/library-checker-problems/issues/1417) | The [`polynomial_interpolation`](p/polynomial_interpolation/README.md) oracle builds a Vandermonde system but solves interpolation; [`multipoint_evaluation`](m/multipoint_evaluation/README.md) exposes individual values, not the ordered difference product. | In progress: [`difference_product`](d/difference_product/README.md) has ten language drafts, an independent oracle, fixtures, and scalar runner/verifier registration. The sources and suite changes are unexecuted; correctness, compilation, and Elisa workspace/stack bounds remain unverified. Do not duplicate this reservation. |
 | [Maximum-area triangle in a convex polygon](https://github.com/yosupo06/library-checker-problems/issues/1397) | The existing [`triangle`](t/triangle/README.md) computes centers for three fixed vertices, while [`rotating_calipers`](r/rotating_calipers/README.md) computes diameter. No matching maximum-triangle package was found in the static alias search. | In progress — root: [`maximum_area_triangle_convex`](m/maximum_area_triangle_convex/README.md) has a bounded contract, ten language drafts, an exhaustive reference, fixtures, a package validator and scalar-suite registration. Nothing has been executed or verified. Do not duplicate this reservation. |
 
+**In progress — root:** `quadratic_form_gf2_normal_form` reserves a
+characteristic-two quadratic-form reduction, including an invertible change
+of coordinates and a canonical form. Static README and catalog searches for
+quadratic forms, Arf invariants, symplectic bases, and hyperbolic planes found
+no matching package; scalar quadratic solvers and GF(2) matrix operations do
+not perform this reduction. The [Library Checker proposal](https://github.com/yosupo06/library-checker-problems/issues/1398)
+is an idea index; no proposal text, implementation, or examples are copied.
+The planned degree range reaches 100. Symbolic result-validator and direct
+construction-reference drafts are present. The ABI and all ten language
+construction drafts are written. A small workload, ABI reference adapter, and byte-output
+runner/verifier registration are drafted, including generated forms through
+degree 100 and symbolic validation. The integration remains unexecuted.
+The package now explicitly records the deterministic basis-selection policy
+required by the byte-exact harness; the independent validator also accepts
+other valid bases. The verifier source specifies exhaustive forms through
+degree four and cross-chunk boundary cases. Port-by-port agreement remains unverified.
+The Rust inversion draft now copies pivot rows before mutating other rows,
+avoiding simultaneous indexed borrows. This change has not been compiled.
+Static review also repaired missing closing braces in its quadratic and polar
+evaluation loops. This syntax correction has not been compiled.
+Do not duplicate this reservation. Nothing has been run.
+
 This crosswalk is a partial search, not proof that every alias has been found.
 The proposals are open ideas, not necessarily accepted Library Checker tasks.
+The Elisa drafts for `subsequence_automaton`, `slope_trick_lipschitz_l1`, and
+`wqs_path_independent_set` now use bounded frame views after their ABI input
+checks. These edits have not been compiled or run.
+The Elisa drafts for `cartesian_histogram_area`,
+`range_constraint_topological_feasibility`, `maximum_area_triangle_convex`,
+and `hook_length_tableaux` also use bounded views for their inputs after
+the relevant ABI and framing checks; these edits remain unexecuted.
+The same static input-view cleanup was applied to the Elisa drafts of
+`hopcroft_dfa_minimization`, `polynomial_resultant_half_gcd`,
+`difference_product`, and `lexicographically_minimal_concatenation`. Their
+existing workspace and correctness questions remain unverified.
+
+For the symmetric-group convolution lead, [Maslen and Rockmore's group-FFT
+overview](https://library2.msri.org/books/Book46/files/11maslen.pdf) describes
+subgroup-chain factorization and partition-indexed representation blocks.
+Its orthogonal basis is presented over complex numbers; the proposed finite
+field implementation still needs a basis and inverse transform valid in the
+specified field, an explicit permutation-composition convention, and a
+factorial-scaled workspace plan. The paper is used as mathematical guidance,
+not as a source of copied code or fixtures. Direct noncommutative convolution
+on small groups can serve as an independent reference once the convention is
+fixed. Root now reserves `symmetric_group_convolution_fft` for the full
+degree-1-through-9 transform profile. A small direct reference is for
+validation only; it must not replace the fast transform. No production kernel
+or suite integration is claimed, and nothing has been run.
+The draft now has pair-oriented and target-oriented small references, explicit
+noncommutative S3 probes, and notes fixing composition, Fourier block order,
+and subgroup cosets. A tableau enumerator and proposed sparse seminormal
+generators are now drafted; their relations and the scalable inverse remain
+unverified. None of these references or probes has been executed.
+Static review changed tableau order to group restriction blocks by their last
+cell and added unexecuted reference checks for Coxeter relations and subgroup
+block boundaries through degree five. This is not a production FFT.
+A research forward-transform draft now uses the subgroup recurrence and has
+unexecuted convolution-theorem checks against the small references. An inverse
+draft uses the transposed recurrence and an invariant diagonal form; both
+transforms and round-trip checks remain unexecuted. Scalable workspace,
+language ports and suite wiring remain.
+An unexecuted research convolution now connects the forward transform,
+ordered block multiplication, and inverse transform; it is not a production
+port and its scaling and results remain unverified.
+The generic byte-output C runner and checker now support compile-time bounds;
+the builder selects the degree-nine limits for this reserved symbol while
+retaining existing defaults for other algorithms. Python runner/verifier
+integration and a streaming path for paired comparison remain outstanding.
+The harness and builder changes have not been compiled or run.
+The Python runner now has algorithm-specific input and output size guards and
+permits a zero-length null case for the reserved symbol. Oracle dispatch and
+verifier integration remain outstanding; these edits have not been executed.
+Closed-form identity and constant-function corpus cases are drafted through
+degree nine, including an extra-word rejection. They have not been generated
+or run and do not substitute for dense independent reference cases.
+The ABI reference now supports constant and single-support inputs throughout
+the full proposed degree range, with lexicographic permutation translation;
+other inputs above degree five remain explicitly unsupported by the reference.
+Source-only small-case comparisons are drafted but have not been run.
+An independently written C++ tableau/generator plan scaffold now exists for
+degrees through nine, with restriction embeddings, forward and inverse
+subgroup transforms, and a C++ ABI draft. These are uncompiled; exception
+handling, dependency tracking, other language ports and suite registration
+remain outstanding.
+The C++ ABI now maps internal logic errors to `-4`, and the builder records
+its three header hashes. The byte-output runner now validates those hashes and
+includes them in records; the verifier source compares the recorded list with
+the manifest. Runtime verification and suite registration remain outstanding;
+the edits have not been executed.
+A separate Rust tableau/generator/restriction plan and forward subgroup
+transform are now drafted, along with an inverse recurrence and ABI entry
+point. The builder and runner record and check the three Rust module hashes.
+The plan, forward transform, inverse, and block products now use fallible vector
+reservation in the source draft; allocation handling still needs verification.
+The byte runner now has draft oracle dispatch and a small hand-derived workload.
+The paired C harness has an uncompiled full-size stdin path and an unexecuted
+driver for selected structured cases. A verifier draft checks an existing build,
+the checker corpus, and recorder provenance; it has not been executed. The
+other language ports and end-to-end verification remain outstanding. None of the
+drafts has been compiled or run.
+The C port now has uncompiled tableau, generator and restriction planning,
+subgroup forward and inverse transforms, and an ABI entry point. The builder,
+runner and verifier sources record or check its three header dependencies;
+the port and provenance handling remain unverified.
+The small byte-output workload now also specifies dense modular products and
+invalid-input precedence, including null inputs with nonzero declared length;
+these fixture additions have not been executed.
+Uncompiled Nim tableau, generator and restriction planning, forward and inverse
+subgroup transforms, and an ABI entry point are drafted. The builder, runner and
+verifier sources record or check the three module hashes; allocation-failure
+behavior remains unresolved and all of these drafts remain unverified.
+The Nim build draft selects ARC for this sequence-heavy kernel rather than the
+default `--mm:none`; runtime initialization and reclamation are unverified.
+Uncompiled Zig representation planning, forward and inverse subgroup transforms,
+and ABI entry point now have builder, runner and verifier source-dependency
+handling. Correctness, allocation handling and peak scratch use remain
+unverified.
+An uncompiled Odin representation plan, forward and inverse transforms, and ABI
+entry point are drafted. The entry initializes a default Odin context before
+allocation; initialization and allocation-failure behavior remain unverified.
+An uncompiled V representation plan, forward and inverse transforms, and ABI
+entry point are drafted; memory handling under `-gc none` and recoverable
+allocation-failure behavior remain outstanding.
+An uncompiled C3 representation plan, forward and inverse transforms, and ABI
+entry point now cover tableaux, generators, restrictions and error statuses.
+Correctness and failure handling remain unverified.
+Uncompiled Elisa drafts use caller-owned views for tableau, restriction and
+generator planning, forward subgroup recursion, inverse weighting and transpose
+recursion, an ordered block-product kernel, and an ABI allocation wrapper. The
+build source composes the four helper files and provenance checks their hashes;
+compilation, workspace bounds, allocation handling and correctness remain open.
+An uncompiled Mojo draft uses caller-owned lists for tableau, restriction and
+generator planning, forward subgroup recursion, inverse weighting, transpose
+recursion and an ABI entry point. Recoverable allocation handling and all
+runtime behavior remain unverified.
+Static review also added singleton field-boundary and degree-three identity
+fixtures to the shared byte-output workload; they remain unexecuted.
+The structured full-range corpus now drafts dense sign-character and
+even-subgroup cases in addition to identity, constant, and sparse cases; the
+paired driver recognizes their names. These cases have not been generated or run.
+The ABI reference source now recognizes exact sign-character and even-subgroup
+operands over the full range, so the byte runner can reference those shapes;
+its recognition and formulas remain unexecuted.
+The structured corpus and ABI reference also draft dense coordinate-function
+cases in both product orders, using counts of constrained permutations rather
+than the transform. The paired driver recognizes them; none has been run.
 
 The existing [`doe_rsbench_doppler_xs`](r/doe_rsbench_doppler_xs/README.md)
 profile now has an MIT-attributed Mojo draft with both complex approximation
@@ -2711,6 +3083,13 @@ unexecuted.
 The package rights note no longer gives a stale port count, and its guide now
 states the fixed-size time and space costs. This is documentation review, not
 evidence of cipher correctness.
+Static source review found that the BEEBS first-block ciphertext occurs only in
+a commented-out upstream value; upstream's active check verifies decrypted
+plaintext. The RFC-derived known-answer fixture and derived error probes were
+removed in favor of independently chosen error inputs. The source-derived
+successful case was also replaced by an independently chosen input; its output
+is computed by the local reference during suite operation. That reference has
+not been executed or independently validated, so correctness remains unproven.
 
 The `almabench` Mojo draft now contains the orbital coefficients, daily model,
 six-decimal formatter, and ABI. Floating-point equivalence and retention of

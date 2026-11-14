@@ -1,0 +1,71 @@
+# Uncompiled and unexecuted matrix-tree draft; arrays stay bounded after the ABI boundary.
+def resistance_minor(lap: i64[36], n: usize, first: usize, second: usize) -> i64:
+    matrix: mutable i64[36] = zeroed
+    rows: mutable usize = 0
+    for i in 0..<n:
+        if i != first and i != second:
+            col: mutable usize = 0
+            for j in 0..<n:
+                if j != first and j != second:
+                    matrix[rows*6+col] <- lap[i*6+j]
+                    col <- col+1
+            rows <- rows+1
+    if rows == 0: return 1
+    previous: mutable i64 = 1
+    k: mutable usize = 0
+    while k+1 < rows:
+        pivot: i64 = matrix[k*6+k]
+        if pivot == 0: return 0
+        i: mutable usize = k+1
+        while i < rows:
+            j: mutable usize = k+1
+            while j < rows:
+                matrix[i*6+j] <- (matrix[i*6+j]*pivot-matrix[i*6+k]*matrix[k*6+j])/previous
+                j <- j+1
+            i <- i+1
+        i <- k+1
+        while i < rows:
+            matrix[i*6+k] <- 0
+            i <- i+1
+        previous <- pivot
+        k <- k+1
+    matrix[(rows-1)*6+rows-1]
+
+export fn effective_resistance_unit_graph(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > 35: return -1
+    frame: view[i64] = input[0:length]
+    nv: i64 = frame[0]
+    mv: i64 = frame[1]
+    sv: i64 = frame[2]
+    tv: i64 = frame[3]
+    if nv < 2 or nv > 6 or mv < 0 or mv > 15 or sv < 0 or sv >= nv or tv < 0 or tv >= nv or sv == tv: return -1
+    n: usize = nv.usize()
+    m: usize = mv.usize()
+    s: usize = sv.usize()
+    t: usize = tv.usize()
+    if length != 4+2*m: return -1
+    lap: mutable i64[36] = zeroed
+    seen: mutable bool[36] = zeroed
+    for i in 0..<m:
+        uv: i64 = frame[4+2*i]
+        vv: i64 = frame[5+2*i]
+        if uv < 0 or uv >= nv or vv < 0 or vv >= nv or uv == vv: return -1
+        u: usize = uv.usize()
+        v: usize = vv.usize()
+        if seen[u*6+v]: return -1
+        seen[u*6+v] <- true
+        seen[v*6+u] <- true
+        lap[u*6+u] <- lap[u*6+u]+1
+        lap[v*6+v] <- lap[v*6+v]+1
+        lap[u*6+v] <- lap[u*6+v]-1
+        lap[v*6+u] <- lap[v*6+u]-1
+    trees: i64 = resistance_minor(lap,n,t,n)
+    if trees <= 0: return -1
+    forests: i64 = resistance_minor(lap,n,s,t)
+    a: mutable i64 = trees
+    b: mutable i64 = forests
+    while b != 0:
+        r: i64 = a%b
+        a <- b
+        b <- r
+    (forests/a)*65536+trees/a

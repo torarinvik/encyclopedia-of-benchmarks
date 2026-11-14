@@ -52,7 +52,12 @@ A [C draft](../../../c/p/polynomial_resultant_half_gcd.c) also includes the
 recursive matrix reduction, factor tracking, and an exported entry point. It
 remains unverified. A [Zig draft](../../../zig/p/polynomial_resultant_half_gcd.zig)
 uses an arena for temporary polynomials; its peak workspace and correctness
-remain unverified.
+remain unverified. NTT buffers, polynomial dot products, division and inverse
+scratch, and recursive half-GCD intermediates now use shorter-lived arenas.
+Top-level reduction batches also alternate arenas, releasing the previous
+batch after transferring the current pair. Maximum-size memory use remains
+unverified; see
+[implementation notes](IMPLEMENTATION_NOTES.md).
 
 A [C3 draft](../../../c3/p/polynomial_resultant_half_gcd.c3) now includes
 the reduction, factor tracking, and scalar export. It is unverified.
@@ -71,6 +76,9 @@ been compiled or run.
 
 The unexecuted [structured case builder](structured_cases.py) specifies
 closed-form probes around the recursive cutoff and at the maximum frame size.
+It also specifies equal-degree inputs that require an ordinary division before
+a long reduction chain, including nonmonic divisors. These exercise leading
+coefficient handling and the lifetime transition between batches.
 The verifier includes them without sending them to the small determinant
 validator, which is intentionally limited to degree sum 32.
 The verifier also drafts small dense comparisons between the two references

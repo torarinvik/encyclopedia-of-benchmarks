@@ -105,7 +105,7 @@ fn des_feistel(right:UInt32,key:UInt64,e:List[Int],p:List[Int],sbox:List[Int])->
         joined=(joined<<4)|UInt32(sbox[i*64+row*16+col])
     return UInt32(des_perm(UInt64(joined),p,32))
 fn des_encrypt(block:UInt64,keys:List[UInt64],ip:List[Int],inv:List[Int],e:List[Int],p:List[Int],sbox:List[Int])->UInt64:
-    let permuted=des_perm(block,ip,64);var left=UInt32(permuted>>32);var right=UInt32(permuted)
+    let permuted=des_perm(block,ip,64);var left=UInt32(permuted>>32);var right=UInt32(permuted & UInt64(0xffffffff))
     for i in range(16):let next=left^des_feistel(right,keys[i],e,p,sbox);left=right;right=next
     return des_perm((UInt64(right)<<32)|UInt64(left),inv,64)
 @export("des_ecb")

@@ -62,6 +62,19 @@ def cases():
         a, b = continuants(degree)
         yield f"long_quotient_chain_{degree}", frame(a, b), 3
         yield f"long_quotient_chain_swapped_{degree}", frame(b, a), 3
+        # Both have equal degree, forcing an initial ordinary division before
+        # the long reduction chain. Adding the first polynomial to the second
+        # leaves the resultant unchanged; swapping odd degrees changes sign.
+        equal_degree = [(value + (b[i] if i < len(b) else 0)) % P
+                        for i, value in enumerate(a)]
+        yield f"equal_degree_then_chain_{degree}", frame(a, equal_degree), 3
+        yield f"equal_degree_then_chain_swapped_{degree}", frame(equal_degree, a), P - 3
+        # A nonmonic first divisor forces the fallback division to invert a
+        # leading coefficient; a is monic, so adding 7*a preserves Res(a,b).
+        scaled_equal = [(7*value + (b[i] if i < len(b) else 0)) % P
+                        for i, value in enumerate(a)]
+        yield f"nonmonic_equal_then_chain_{degree}", frame(a, scaled_equal), 3
+        yield f"nonmonic_equal_then_chain_swapped_{degree}", frame(scaled_equal, a), P - 3
 
     # Highest permitted degree sum, exercising the full scalar frame bound.
     a = sparse(50000, 1, 1)

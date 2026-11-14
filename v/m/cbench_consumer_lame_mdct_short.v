@@ -11,7 +11,7 @@ fn cbench_consumer_lame_mdct_short(input &f64, input_length usize, mut output &f
 		if input == nil || input_length == 0 || input_length > 19 { return -1 }
 		for k in 0 .. input_length {
 			value := input[k]
-			if !value.is_finite() || value < -32768.0 || value > 32768.0 { return -1 }
+			if value != value || value < -32768.0 || value > 32768.0 { return -1 }
 		}
 		if input_length != 18 { return -1 }
 		mut coefficients := [36]f64{}
@@ -28,7 +28,7 @@ fn cbench_consumer_lame_mdct_short(input &f64, input_length usize, mut output &f
 			for l in 0 .. 3 {
 				base := 6 * (2 - l)
 				row := 5 - m
-				total := coefficients[6 * row] * input[base]
+				mut total := coefficients[6 * row] * input[base]
 				for i in 1 .. 6 { total += coefficients[6 * row + i] * input[base + i] }
 				staged[3 * row + (2 - l)] = total
 			}

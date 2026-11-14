@@ -12,9 +12,10 @@ def hdm_enqueue(id: usize, queued: mutable view[i64], queue: mutable view[i64],
 
 export fn hopcroft_dfa_minimization(input: i64&, length: usize) -> i64:
     if input == null or length < 2: return -1
-    if input[0] < 1 or input[0] > 4096 or input[1] < 1 or input[1] > 4: return -1
-    n: usize = input[0].usize()
-    k: usize = input[1].usize()
+    header: view[i64] = input[0:2]
+    if header[0] < 1 or header[0] > 4096 or header[1] < 1 or header[1] > 4: return -1
+    n: usize = header[0].usize()
+    k: usize = header[1].usize()
     if length != 2 + n * (k + 1): return -1
     values: view[i64] = input[0:length]
     for s in 0..<n:

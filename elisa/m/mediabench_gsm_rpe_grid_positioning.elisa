@@ -30,18 +30,19 @@ def mediabench_gsm_rpe_impl(input: i64&, input_length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
     if input.is_null() or input_length < 1 or input_length > MEDIABENCH_GSM_RPE_MAX_INPUT:
         return -1
-    if input_length != MEDIABENCH_GSM_RPE_INPUT_COUNT or input[0] < 0 or input[0] > 3:
+    values: view[i64] = input[0:input_length]
+    if input_length != MEDIABENCH_GSM_RPE_INPUT_COUNT or values[0] < 0 or values[0] > 3:
         return -1
     index: mutable usize = 1
     while index < MEDIABENCH_GSM_RPE_INPUT_COUNT:
-        if input[index] < -32768 or input[index] > 32767: return -1
+        if values[index] < -32768 or values[index] > 32767: return -1
         index <- index + 1
 
     staged: mutable i64[40] = zeroed
-    grid: usize = input[0].usize()
+    grid: usize = values[0].usize()
     index <- 0
     while index < 13:
-        staged[grid + 3 * index] <- input[index + 1]
+        staged[grid + 3 * index] <- values[index + 1]
         index <- index + 1
     if output.is_null() or output_capacity < MEDIABENCH_GSM_RPE_OUTPUT_BYTES:
         return -2

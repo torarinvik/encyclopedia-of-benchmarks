@@ -96,3 +96,24 @@ entry-point hash. The scalar runner requires those dependencies, compares
 their current hashes to the manifest, and includes them in output records;
 the verifier checks that the records retain the manifest entries. This
 provenance wiring has not been executed.
+
+Static inspection found that the Zig draft originally retained temporary
+results in one call-wide arena. The top-level loop now alternates two arenas:
+each batch owns its output pair and swaps into the current slot before the
+previous slot is released. The fallback division copies the old divisor into
+the new arena before releasing the old slot. NTT transform buffers, dot-product
+intermediates, division scratch, each inverse-series iteration, and each
+recursive half-GCD call now use nested temporary arenas. A recursive call
+copies its four resulting matrix entries into its caller's arena before freeing
+its own workspace; quotient heads are stored separately in the caller-owned
+head array. This ownership scheme is uncompiled and its lifetimes remain to be
+verified. The
+mathematical O(M(d) log d) time target does not establish a corresponding
+linear peak-space bound for this implementation; large valid inputs may need
+substantially more memory than the live polynomial state. Further optimization
+requires checking ownership of matrices and remainders that remain referenced
+by callers. The structured verifier inputs now include equal-degree initial
+division with monic and nonmonic divisors followed by a long reduction chain,
+but have not been executed. No
+peak-memory measurement or code
+execution has been performed.

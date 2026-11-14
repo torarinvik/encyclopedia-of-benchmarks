@@ -34,3 +34,7 @@ rights note, package checker, and scalar runner/verifier registration are
 present. The verifier source specifies small capacity combinations, threshold
 transitions, transposed networks, split parallel edges, maximum frames, and null inputs. The Elisa
 draft uses bounded views internally. Nothing has been compiled or run.
+
+The workload includes a unit-capacity network where ascending-vertex traversal
+first uses edge 2→4 and must subsequently traverse its reverse residual edge
+to route both units of flow.

@@ -1,0 +1,130 @@
+# Uncompiled matching-sensitivity tree edge-coloring draft.
+def tec_assignment(cost: view[i64], d: usize, width: usize, deletion: mutable view[i64]) -> i64:
+    inf: i64 = 1000000000000000
+    row_dual: mutable i64[17] = zeroed
+    col_dual: mutable i64[17] = zeroed
+    owner: mutable usize[17] = zeroed
+    for row in 1..<(d + 1):
+        previous: mutable usize[17] = zeroed
+        used: mutable bool[17] = zeroed
+        slack: mutable i64[17] = zeroed
+        for col in 0..<(width + 1): slack[col] <- inf
+        owner[0] <- row
+        col: mutable usize = 0
+        while true:
+            used[col] <- true
+            active: usize = owner[col]
+            step: mutable i64 = inf
+            next_col: mutable usize = 0
+            for candidate in 1..<(width + 1):
+                if not used[candidate]:
+                    reduced: i64 = cost[(active - 1) * 16 + candidate - 1] - row_dual[active] - col_dual[candidate]
+                    if reduced < slack[candidate]:
+                        slack[candidate] <- reduced
+                        previous[candidate] <- col
+                    if slack[candidate] < step:
+                        step <- slack[candidate]
+                        next_col <- candidate
+            if next_col == 0: return -1
+            for candidate in 0..<(width + 1):
+                if used[candidate]:
+                    row_dual[owner[candidate]] <- row_dual[owner[candidate]] + step
+                    col_dual[candidate] <- col_dual[candidate] - step
+                elif candidate != 0: slack[candidate] <- slack[candidate] - step
+            col <- next_col
+            if owner[col] == 0: break
+        while col != 0:
+            parent: usize = previous[col]
+            owner[col] <- owner[parent]
+            col <- parent
+    base: mutable i64 = 0
+    free_col: mutable usize = width
+    for col in 0..<width:
+        if owner[col + 1] != 0:
+            base <- base + cost[(owner[col + 1] - 1) * 16 + col]
+        else: free_col <- col
+    if width == d: return base
+    if free_col == width: return -1
+    distance: mutable i64[16] = zeroed
+    updated: mutable i64[16] = zeroed
+    for col in 0..<width: distance[col] <- inf
+    distance[free_col] <- 0
+    for pass in 0..<d:
+        for col in 0..<width: updated[col] <- distance[col]
+        for col in 0..<width:
+            if owner[col + 1] == 0: continue
+            row: usize = owner[col + 1] - 1
+            for dest in 0..<width:
+                if distance[dest] != inf:
+                    candidate: i64 = cost[row * 16 + dest] - cost[row * 16 + col] + distance[dest]
+                    if candidate < updated[col]: updated[col] <- candidate
+        for col in 0..<width: distance[col] <- updated[col]
+    for col in 0..<width:
+        if distance[col] == inf: return -1
+        deletion[col] <- base + distance[col]
+    base
+
+def tec_solve(values: view[i64]) -> i64:
+    if values.len() < 2 or values.len() > 82: return -1
+    nv: i64 = values[0]
+    kv: i64 = values[1]
+    if nv < 1 or nv > 64 or kv < 1 or kv > 16: return -1
+    n: usize = nv.usize()
+    k: usize = kv.usize()
+    if values.len() != n + 1 + k: return -1
+    parents: mutable usize[64] = zeroed
+    degree: mutable usize[64] = zeroed
+    child_count: mutable usize[64] = zeroed
+    for vertex in 1..<n:
+        raw: i64 = values[1 + vertex]
+        if raw < 0 or raw >= vertex.i64(): return -1
+        parents[vertex] <- raw.usize()
+        degree[parents[vertex]] <- degree[parents[vertex]] + 1
+        degree[vertex] <- degree[vertex] + 1
+    prices: mutable i64[16] = zeroed
+    for color in 0..<k:
+        value: i64 = values[n + 1 + color]
+        if value < 0 or value > 1000000: return -1
+        prices[color] <- value
+    for vertex in 0..<n:
+        if degree[vertex] > k: return -2
+    for color in 1..<k:
+        value: i64 = prices[color]
+        j: mutable usize = color
+        while j > 0 and prices[j - 1] > value:
+            prices[j] <- prices[j - 1]
+            j <- j - 1
+        prices[j] <- value
+    children: mutable usize[1024] = zeroed
+    for vertex in 1..<n:
+        parent: usize = parents[vertex]
+        children[16 * parent + child_count[parent]] <- vertex
+        child_count[parent] <- child_count[parent] + 1
+    tables: mutable i64[1024] = zeroed
+    vertex: mutable usize = n
+    while vertex > 0:
+        vertex <- vertex - 1
+        d: usize = child_count[vertex]
+        if d == 0: continue
+        saturated: bool = vertex == 0 and d == k
+        width: mutable usize = d + 1
+        if saturated: width <- d
+        cost: mutable i64[256] = zeroed
+        deletion: mutable i64[16] = zeroed
+        for row in 0..<d:
+            child: usize = children[16 * vertex + row]
+            for col in 0..<width:
+                index: mutable usize = col
+                if index > child_count[child]: index <- child_count[child]
+                cost[16 * row + col] <- prices[col] + tables[16 * child + index]
+        base: i64 = tec_assignment(cost[0:256], d, width, deletion[0:16])
+        if base < 0: return -1
+        if saturated: tables[16 * vertex] <- base
+        else:
+            for col in 0..<width: tables[16 * vertex + col] <- deletion[col]
+    if child_count[0] == k: return tables[0]
+    tables[child_count[0]]
+
+export fn tree_min_cost_edge_coloring(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 82: return -1
+    tec_solve(input[0:length])

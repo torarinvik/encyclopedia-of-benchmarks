@@ -75,6 +75,14 @@ from p.polynomial_resultant_half_gcd.remainder_oracle import expected as polynom
 from p.polynomial_resultant_half_gcd.validation import validate_workload as validate_polynomial_resultant_half_gcd_workload
 from s.subsequence_automaton.primary_oracle import expected as subsequence_automaton_expected
 from s.subsequence_automaton.validation import validate_workload as validate_subsequence_automaton_workload
+from s.slope_trick_lipschitz_l1.independent_oracle import expected as slope_trick_lipschitz_l1_expected
+from s.slope_trick_lipschitz_l1.validation import validate_workload as validate_slope_trick_lipschitz_l1_workload
+from w.wqs_path_independent_set.independent_oracle import expected as wqs_path_independent_set_expected
+from w.wqs_path_independent_set.validation import validate_workload as validate_wqs_path_independent_set_workload
+from c.cartesian_histogram_area.independent_oracle import expected as cartesian_histogram_area_expected
+from c.cartesian_histogram_area.validation import validate_workload as validate_cartesian_histogram_area_workload
+from e.effective_resistance_unit_graph.independent_oracle import expected as effective_resistance_unit_graph_expected
+from e.effective_resistance_unit_graph.validation import validate_workload as validate_effective_resistance_unit_graph_workload
 from m.maximum_area_triangle_convex.independent_oracle import expected as maximum_area_triangle_convex_expected
 from m.maximum_area_triangle_convex.validation import validate_workload as validate_maximum_area_triangle_convex_workload
 from r.range_constraint_topological_feasibility.independent_oracle import expected as range_constraint_topological_feasibility_expected
@@ -531,6 +539,12 @@ from d.dinic_capacity_scaling.primary_oracle import expected_output as dinic_cap
 from h.highest_label_push_relabel.primary_oracle import expected_output as highest_label_push_relabel_expected
 from c.closest_pair_sweep.primary_oracle import expected_output as closest_pair_sweep_expected
 from m.monotone_radix_heap.primary_oracle import expected_output as monotone_radix_heap_expected
+from f.fixed_length_walk_minplus.reference import expected as fixed_length_walk_minplus_expected
+from check_fixed_length_walk_minplus_package import static_issues as fixed_length_walk_minplus_static_issues
+from f.fixed_length_walk_count.reference import expected as fixed_length_walk_count_expected
+from check_fixed_length_walk_count_package import static_issues as fixed_length_walk_count_static_issues
+from t.tree_min_cost_proper_coloring.reference import expected as tree_min_cost_proper_coloring_expected
+from check_tree_min_cost_proper_coloring_package import static_issues as tree_min_cost_proper_coloring_static_issues
 from b.backward_nondeterministic_dawg_match.independent_oracle import expected_output as bndm_expected
 from check_backward_nondeterministic_dawg_match_package import static_issues as bndm_static_issues
 from b.backward_oracle_match.independent_oracle import expected_output as bom_expected
@@ -7910,7 +7924,10 @@ def validate_naive_knapsack_solver_workload(workload: dict) -> None:
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     # Permit one extra element so this profile can exercise its exact-length rejection case.
-    max_input_length = (355 if algorithm == "subsequence_automaton" else
+    max_input_length = (35 if algorithm == "effective_resistance_unit_graph" else
+                        65 if algorithm == "cartesian_histogram_area" else
+                        131 if algorithm in ("slope_trick_lipschitz_l1", "wqs_path_independent_set") else
+                        355 if algorithm == "subsequence_automaton" else
                         100002 if algorithm == "polynomial_resultant_half_gcd" else
                         20483 if algorithm == "hopcroft_dfa_minimization" else
                         32771 if algorithm == "range_constraint_topological_feasibility" else
@@ -8477,6 +8494,9 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else 197 if algorithm == "highest_label_push_relabel"
                         else 130 if algorithm == "closest_pair_sweep"
                         else 130 if algorithm == "monotone_radix_heap"
+                        else 261 if algorithm == "fixed_length_walk_minplus"
+                        else 261 if algorithm == "fixed_length_walk_count"
+                        else 1090 if algorithm == "tree_min_cost_proper_coloring"
                         else 4162 if algorithm == "backward_nondeterministic_dawg_match"
                         else 4162 if algorithm == "backward_oracle_match"
                         else 707 if algorithm == "wavelet_matrix"
@@ -8858,6 +8878,19 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
     elif algorithm == "subsequence_automaton":
         if expected != subsequence_automaton_expected(None if case.get("input_is_null", False) else values):
             raise ValueError("subsequence automaton differs from its reference")
+    elif algorithm == "slope_trick_lipschitz_l1":
+        if expected != slope_trick_lipschitz_l1_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("slope-trick cost differs from dynamic programming")
+    elif algorithm == "wqs_path_independent_set":
+        if expected != wqs_path_independent_set_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("WQS path optimum differs from exact-count dynamic programming")
+    elif algorithm == "cartesian_histogram_area":
+        null = case.get("input_is_null", False)
+        if expected != cartesian_histogram_area_expected(None if null else values, case.get("input_length", len(values)), null):
+            raise ValueError("Cartesian histogram area differs from interval enumeration")
+    elif algorithm == "effective_resistance_unit_graph":
+        if expected != effective_resistance_unit_graph_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("effective resistance differs from forest enumeration")
     elif algorithm == "maximum_area_triangle_convex":
         expected_from_source = maximum_area_triangle_convex_expected(
             None if case.get("input_is_null", False) else values)
@@ -9219,6 +9252,15 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         if expected != monotone_radix_heap_expected(values, case.get("input_is_null", False),
                                                    case.get("input_length", len(values))):
             raise ValueError("monotone_radix_heap expected_result differs from reference")
+    elif algorithm == "fixed_length_walk_minplus":
+        if expected != fixed_length_walk_minplus_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("fixed_length_walk_minplus expected_result differs from reference")
+    elif algorithm == "fixed_length_walk_count":
+        if expected != fixed_length_walk_count_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("fixed_length_walk_count expected_result differs from reference")
+    elif algorithm == "tree_min_cost_proper_coloring":
+        if expected != tree_min_cost_proper_coloring_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("tree_min_cost_proper_coloring expected_result differs from reference")
     elif algorithm == "karger_contraction_trial":
         if expected != karger_contraction_trial_expected(values, case.get("input_is_null", False),
                                                           case.get("input_length", len(values))):
@@ -23921,6 +23963,14 @@ def main() -> int:
         validate_polynomial_resultant_half_gcd_workload(workload)
     elif algorithm == "subsequence_automaton":
         validate_subsequence_automaton_workload(workload)
+    elif algorithm == "slope_trick_lipschitz_l1":
+        validate_slope_trick_lipschitz_l1_workload(workload)
+    elif algorithm == "wqs_path_independent_set":
+        validate_wqs_path_independent_set_workload(workload)
+    elif algorithm == "cartesian_histogram_area":
+        validate_cartesian_histogram_area_workload(workload)
+    elif algorithm == "effective_resistance_unit_graph":
+        validate_effective_resistance_unit_graph_workload(workload)
     elif algorithm == "maximum_area_triangle_convex":
         validate_maximum_area_triangle_convex_workload(workload)
     elif algorithm == "range_constraint_topological_feasibility":
@@ -24314,6 +24364,18 @@ def main() -> int:
         issues = bndm_static_issues(workload)
         if issues:
             raise ValueError("backward_nondeterministic_dawg_match package: " + "; ".join(issues))
+    elif algorithm == "fixed_length_walk_minplus":
+        issues = fixed_length_walk_minplus_static_issues(workload)
+        if issues:
+            raise ValueError("fixed_length_walk_minplus package: " + "; ".join(issues))
+    elif algorithm == "fixed_length_walk_count":
+        issues = fixed_length_walk_count_static_issues(workload)
+        if issues:
+            raise ValueError("fixed_length_walk_count package: " + "; ".join(issues))
+    elif algorithm == "tree_min_cost_proper_coloring":
+        issues = tree_min_cost_proper_coloring_static_issues(workload)
+        if issues:
+            raise ValueError("tree_min_cost_proper_coloring package: " + "; ".join(issues))
     elif algorithm == "monotone_radix_heap":
         issues = monotone_radix_heap_static_issues(workload)
         if issues:
@@ -24422,9 +24484,9 @@ def main() -> int:
             raise ValueError(f"input_is_null must be boolean for {case['id']}")
         if input_is_null:
             minimum_null_length = 0 if algorithm in (
-                "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie",
+                "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie", "effective_resistance_unit_graph",
                 "mccat_08_main", "mccat_09_vor", "mallocbench_espresso", "ptrdist_anagram",
-                "stanford_puzzle", "mallocbench_cfrac", "hook_length_tableaux", "difference_product", "polynomial_resultant_half_gcd", "subsequence_automaton", "maximum_area_triangle_convex", "range_constraint_topological_feasibility", "hopcroft_dfa_minimization", "npb_serial_dc", "npb_dc_smallest_parent",
+                "stanford_puzzle", "mallocbench_cfrac", "hook_length_tableaux", "difference_product", "polynomial_resultant_half_gcd", "subsequence_automaton", "slope_trick_lipschitz_l1", "wqs_path_independent_set", "cartesian_histogram_area", "maximum_area_triangle_convex", "range_constraint_topological_feasibility", "hopcroft_dfa_minimization", "npb_serial_dc", "npb_dc_smallest_parent",
                 "prolangs_c_assembler", "prolangs_c_bison_nullable",
                 "versabench_dbms_choose_entry", "tsvc_s424_alias_overlap_feedback",
                 "tsvc_s423_antidependence_offset64", "tsvc_s258_wrapped_scalar_expansion",
@@ -24449,7 +24511,7 @@ def main() -> int:
                 "persistent_segment_tree_range_kth",
                 "count_different_palindromic_subsequences",
                 "karger_contraction_trial", "directed_girth_bfs", "functional_graph_cycle_brent", "offline_range_distinct_fenwick", "dinic_capacity_scaling", "highest_label_push_relabel", "closest_pair_sweep", "monotone_radix_heap", "backward_nondeterministic_dawg_match", "backward_oracle_match", "wavelet_matrix", "xor_filter_peeling", "turnstile_one_sparse_fingerprint_recovery",
-                "second_best_mst_binary_lifting", "longest_common_substring_sam") else 1
+                "second_best_mst_binary_lifting", "longest_common_substring_sam", "fixed_length_walk_minplus", "fixed_length_walk_count", "tree_min_cost_proper_coloring") else 1
             maximum_null_length = (SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
                                    if algorithm == "segment_add_get_min" else
                                    260 if algorithm == "turnstile_one_sparse_fingerprint_recovery" else
@@ -24462,6 +24524,9 @@ def main() -> int:
                                    197 if algorithm == "highest_label_push_relabel" else
                                    130 if algorithm == "closest_pair_sweep" else
                                    130 if algorithm == "monotone_radix_heap" else
+                                   261 if algorithm == "fixed_length_walk_minplus" else
+                                   261 if algorithm == "fixed_length_walk_count" else
+                                   1090 if algorithm == "tree_min_cost_proper_coloring" else
                                    4162 if algorithm == "backward_nondeterministic_dawg_match" else
                                    4162 if algorithm == "backward_oracle_match" else
                                    707 if algorithm == "wavelet_matrix" else

@@ -1,6 +1,6 @@
 # IJG YCbCr-to-RGB table conversion
 
-This package isolates the 8-bit `ycc_rgb_convert` pixel kernel selected by the pinned MiBench `consumer-jpeg` decoder path. It is a color-space conversion only; JPEG marker parsing, Huffman decoding, IDCT, chroma upsampling, scanline management, and image I/O are excluded. The existing `picojpeg` profile is restricted to grayscale input and does not cover this color conversion. The separate TIFF RGB-to-grayscale benchmark also has a different operation and coefficients.
+This package isolates the 8-bit `ycc_rgb_convert` pixel kernel selected by the pinned MiBench `consumer-jpeg` decoder path, based on work by the Independent JPEG Group (IJG). It is a color-space conversion only; JPEG marker parsing, Huffman decoding, IDCT, chroma upsampling, scanline management, and image I/O are excluded. The existing `picojpeg` profile is restricted to grayscale input and does not cover this color conversion. The separate TIFF RGB-to-grayscale benchmark also has a different operation and coefficients.
 
 ## Contract
 
@@ -31,5 +31,12 @@ The independent oracle is [`mibench_jpeg_ycbcr_to_rgb_oracle.py`](../../mibench_
 - Nim: [`nim/m/mibench_jpeg_ycbcr_to_rgb.nim`](../../../nim/m/mibench_jpeg_ycbcr_to_rgb.nim)
 - Odin: [`odin/m/mibench_jpeg_ycbcr_to_rgb.odin`](../../../odin/m/mibench_jpeg_ycbcr_to_rgb.odin)
 - Rust: [`rust/m/mibench_jpeg_ycbcr_to_rgb.rs`](../../../rust/m/mibench_jpeg_ycbcr_to_rgb.rs)
-- V: [`v/mibench_jpeg_ycbcr_to_rgb.v`](../../../v/mibench_jpeg_ycbcr_to_rgb.v)
-- Zig: [`zig/mibench_jpeg_ycbcr_to_rgb.zig`](../../../zig/mibench_jpeg_ycbcr_to_rgb.zig)
+- V: [`v/m/mibench_jpeg_ycbcr_to_rgb.v`](../../../v/m/mibench_jpeg_ycbcr_to_rgb.v)
+- Zig: [`zig/m/mibench_jpeg_ycbcr_to_rgb.zig`](../../../zig/m/mibench_jpeg_ycbcr_to_rgb.zig)
+
+The V draft's local declarations and unsigned capacity comparison have been
+corrected statically; the port remains uncompiled and unexecuted.
+The Elisa draft uses bounded input and output views after the corresponding ABI
+checks; this edit is also uncompiled and unexecuted.
+The verifier source specifies all 256 brightness values at neutral chroma,
+plus malformed channel extremes. These checks have not been executed.

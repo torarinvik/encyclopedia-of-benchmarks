@@ -13,7 +13,7 @@ pub fn mibench_lame_mdct_long(input &f64, input_length usize, mut output &f64, o
 		if input == nil || input_length == 0 || input_length > max_input_length { return -1 }
 		for k in 0 .. input_length {
 			value := input[k]
-			if !value.is_finite() || value < -16.0 || value > 16.0 { return -1 }
+			if value != value || value < -16.0 || value > 16.0 { return -1 }
 		}
 		if input_length != input_count { return -1 }
 		mut staged := [output_count]f64{}

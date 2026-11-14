@@ -3,13 +3,15 @@ const HOOK_PRIME: i64 = 998244353
 
 export fn hook_length_tableaux(input: i64&, length: usize) -> i64:
     if input == null or length == 0: return -1
-    if input[0] < 0 or input[0] > 65536: return -1
-    rows: usize = input[0].usize()
+    header: view[i64] = input[0:1]
+    if header[0] < 0 or header[0] > 65536: return -1
+    rows: usize = header[0].usize()
     if length != rows + 1: return -1
+    frame: view[i64] = input[0:length]
     total: mutable i64 = 0
     previous: mutable i64 = 1000000
     for i in 0..<rows:
-        width: i64 = input[i + 1]
+        width: i64 = frame[i + 1]
         if width < 1 or width > previous: return -1
         total <- total + width
         if total > 1000000: return -1
@@ -17,10 +19,10 @@ export fn hook_length_tableaux(input: i64&, length: usize) -> i64:
     product: mutable i64 = 1
     height: mutable usize = rows
     if rows > 0:
-        for column in 0..<input[1].usize():
-            while height > 0 and input[height] <= column.i64(): height <- height - 1
+        for column in 0..<frame[1].usize():
+            while height > 0 and frame[height] <= column.i64(): height <- height - 1
             for row in 0..<height:
-                hook: i64 = input[row + 1] - column.i64() + (height - row - 1).i64()
+                hook: i64 = frame[row + 1] - column.i64() + (height - row - 1).i64()
                 product <- product * hook % HOOK_PRIME
     factorial: mutable i64 = 1
     for i in 2..<total.usize() + 1:

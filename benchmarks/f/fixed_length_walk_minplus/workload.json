@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "fixed-length-walk-minplus-i64-array-scalar-v1",
+  "algorithm": "fixed_length_walk_minplus",
+  "function_symbol": "fixed_length_walk_minplus",
+  "abi": "i64_array_scalar",
+  "input": {"layout": "[n,k,source,target,row-major weights]", "maximum_valid_values": 260, "maximum_parseable_values": 261, "invalid_result": -100000002},
+  "output": {"encoding": "minimum exact-length walk weight, or unreachable sentinel", "invalid_result": -100000002, "unreachable_result": -100000001},
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000},
+  "source": {"url": "https://cp-algorithms.com/graph/fixed_length_paths.html", "reuse": "Mathematical idea only; independently authored code and fixtures."},
+  "cases": [
+    {"id":"zero_edge_identity", "input_values":[2,0,0,0,1000000,2,-4,1000000], "input_length":8, "expected_result":0},
+    {"id":"zero_edge_distinct", "input_values":[2,0,0,1,1000000,2,-4,1000000], "input_length":8, "expected_result":-100000001},
+    {"id":"negative_cycle_three_edges", "input_values":[2,3,0,1,1000000,2,-4,1000000], "input_length":8, "expected_result":0},
+    {"id":"parity_unreachable", "input_values":[2,4,0,1,1000000,2,-4,1000000], "input_length":8, "expected_result":-100000001},
+    {"id":"maximum_length_negative_loop", "input_values":[1,1000000,0,0,-100], "input_length":5, "expected_result":-100000000},
+    {"id":"million_edges_four_vertex_cycle", "input_values":[4,1000000,0,0,1000000,3,1000000,1000000,1000000,1000000,-2,1000000,1000000,1000000,1000000,4,-1,1000000,1000000,1000000], "input_length":20, "expected_result":1000000},
+    {"id":"dense_negative_seventeen", "input_values":[4,17,0,3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], "input_length":20, "expected_result":-17},
+    {"id":"invalid_weight", "input_values":[1,0,0,0,101], "input_length":5, "expected_result":-100000002},
+    {"id":"trailing_word", "input_values":[1,0,0,0,0,0], "input_length":6, "expected_result":-100000002},
+    {"id":"null_input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-100000002}
+  ]
+}

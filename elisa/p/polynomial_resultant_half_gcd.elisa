@@ -424,15 +424,16 @@ def rp_resultant_work(a: mutable view[i64], first_len: usize,
 # below is conservative but its recursion bound still needs independent review.
 export fn polynomial_resultant_half_gcd(input: i64&, length: usize) -> i64:
     if input == null or length < 4 or length > 100002: return -1
-    m: i64 = input[0]
-    n: i64 = input[1]
+    values: view[i64] = input[0:length]
+    m: i64 = values[0]
+    n: i64 = values[1]
     if m < 0 or m > 50000 or n < 0 or n > 50000 or m+n > 99998: return -1
     first_count: usize = m.usize() + 1
     second_count: usize = n.usize() + 1
     if length != first_count + second_count + 2: return -1
     for i in 2..<length:
-        if input[i] < 0 or input[i] >= RP_MOD: return -1
-    if input[1 + first_count] == 0 or input[length - 1] == 0: return -1
+        if values[i] < 0 or values[i] >= RP_MOD: return -1
+    if values[1 + first_count] == 0 or values[length - 1] == 0: return -1
     max_count: mutable usize = first_count
     if second_count > max_count: max_count <- second_count
     stride: usize = 2 * max_count + 2
@@ -447,14 +448,14 @@ export fn polynomial_resultant_half_gcd(input: i64&, length: usize) -> i64:
     bn: mutable usize = second_count
     sign: mutable i64 = 1
     if first_count >= second_count:
-        for i in 0..<first_count: workspace[i] <- input[2+i]
-        for i in 0..<second_count: workspace[stride+i] <- input[2+first_count+i]
+        for i in 0..<first_count: workspace[i] <- values[2+i]
+        for i in 0..<second_count: workspace[stride+i] <- values[2+first_count+i]
     else:
         an <- second_count
         bn <- first_count
         if (m & 1) != 0 and (n & 1) != 0: sign <- RP_MOD-1
-        for i in 0..<second_count: workspace[i] <- input[2+first_count+i]
-        for i in 0..<first_count: workspace[stride+i] <- input[2+i]
+        for i in 0..<second_count: workspace[i] <- values[2+first_count+i]
+        for i in 0..<first_count: workspace[stride+i] <- values[2+i]
     value: i64 = rp_resultant_work(
         workspace[0:stride], an, workspace[stride:2*stride], bn,
         workspace[12*stride:16*stride], stride,

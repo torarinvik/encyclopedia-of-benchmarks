@@ -116,6 +116,7 @@ The independent byte-level model is
 | C3 | [`c3/c/cbench_blowfish_cbc.c3`](../../../c3/c/cbench_blowfish_cbc.c3) |
 | C++ | [`cpp/c/cbench_blowfish_cbc.cpp`](../../../cpp/c/cbench_blowfish_cbc.cpp) |
 | Elisa | [`elisa/c/cbench_blowfish_cbc.elisa`](../../../elisa/c/cbench_blowfish_cbc.elisa) |
+| Mojo | [`mojo/c/cbench_blowfish_cbc.mojo`](../../../mojo/c/cbench_blowfish_cbc.mojo) (uncompiled draft) |
 | Nim | [`nim/c/cbench_blowfish_cbc.nim`](../../../nim/c/cbench_blowfish_cbc.nim) |
 | Odin | [`odin/c/cbench_blowfish_cbc.odin`](../../../odin/c/cbench_blowfish_cbc.odin) |
 | Rust | [`rust/c/cbench_blowfish_cbc.rs`](../../../rust/c/cbench_blowfish_cbc.rs) |

@@ -8,9 +8,7 @@ const MAX_ITEMS: usize = 48
 const MAX_PARSEABLE: usize = 179
 const STRIDE: usize = 9
 
-def indexed_block_list_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if values.is_null() or length < 2 or length > MAX_PARSEABLE:
-        return -1
+def indexed_block_list_impl(values: view[i64], length: usize, output: mutable u8&, output_capacity: usize) -> i64:
     if values[0] < 0 or values[0] > 16:
         return -1
     initial: usize = values[0].usize()
@@ -155,14 +153,18 @@ def indexed_block_list_impl(values: i64&, length: usize, output: mutable u8&, ou
             cursor <- cursor + 2
         operation <- operation + 1
 
+    if required == 0: return 0
+    output_bytes: mutable view[u8] = output[0:required]
     index <- 0
     while index < answer_count:
         bits: u64 = answers[index].u64()
         byte: mutable usize = 0
         while byte < 8:
-            output[index * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+            output_bytes[index * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
             byte <- byte + 1
         index <- index + 1
     required.i64()
 
-export fn indexed_block_list(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = indexed_block_list_impl
+export fn indexed_block_list(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 2 or length > MAX_PARSEABLE: return -1
+    indexed_block_list_impl(values[0:length], length, output, output_capacity)

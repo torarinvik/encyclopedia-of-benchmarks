@@ -1,4 +1,5 @@
 # IJG fixed-point color conversion; see benchmarks/m/mibench_jpeg_ycbcr_to_rgb/LICENSE.txt.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 

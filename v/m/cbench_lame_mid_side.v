@@ -6,7 +6,7 @@ const sqrt2 = 1.414213562373095048801688724209698079
 pub fn cbench_lame_mid_side(input &f64, n usize, mut output &f64, cap usize) i64 {
   unsafe {
     if input == nil || n == 0 || n > 66 { return -1 }
-    for i in 0 .. n { if !input[i].is_finite() { return -1 } }
+    for i in 0 .. n { if input[i] != input[i] { return -1 } }
     if input[0] < 1.0 || input[0] > 32.0 || input[0] != f64(int(input[0])) { return -1 }
     count := int(input[0])
     if n != usize(1+2*count) { return -1 }

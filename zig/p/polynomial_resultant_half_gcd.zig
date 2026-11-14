@@ -69,8 +69,12 @@ fn mul(alloc: Allocator, a: []const i64, b: []const i64) !Poly {
     } else {
         var size: usize = 1;
         while (size < count) size *= 2;
-        const x = try zeros(alloc, size);
-        const y = try zeros(alloc, size);
+        // Transform buffers do not escape this multiplication. Keep them out
+        // of the call-wide arena so they can be released after copying out.
+        var temporary = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+        defer temporary.deinit();
+        const x = try zeros(temporary.allocator(), size);
+        const y = try zeros(temporary.allocator(), size);
         @memcpy(x[0..a.len], a); @memcpy(y[0..b.len], b);
         ntt(x, false); ntt(y, false);
         for (0..size) |i| x[i] = @rem(x[i]*y[i], P);
@@ -92,14 +96,18 @@ fn inverseSeries(alloc: Allocator, f: []const i64, count: usize) !Poly {
     inv[0] = power(f[0], @intCast(P - 2));
     while (inv.len < count) {
         const size = @min(count, 2 * inv.len);
-        const product = try mul(alloc, f[0..@min(size, f.len)], inv);
-        const correction = try zeros(alloc, size);
+        // Only the copied next inverse escapes this doubling iteration.
+        var temporary = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+        defer temporary.deinit();
+        const scratch = temporary.allocator();
+        const product = try mul(scratch, f[0..@min(size, f.len)], inv);
+        const correction = try zeros(scratch, size);
         for (0..size) |i| {
             const x = if (i < product.len) product[i] else 0;
             correction[i] = @rem(P - x, P);
         }
         correction[0] = @rem(correction[0] + 2, P);
-        const update = try mul(alloc, inv, correction);
+        const update = try mul(scratch, inv, correction);
         inv = try zeros(alloc, size);
         @memcpy(inv[0..@min(size, update.len)], update[0..@min(size, update.len)]);
     }
@@ -108,19 +116,23 @@ fn inverseSeries(alloc: Allocator, f: []const i64, count: usize) !Poly {
 
 fn divrem(alloc: Allocator, a: []const i64, b: []const i64) !Pair {
     if (a.len < b.len) return .{ .x = try zeros(alloc, 0), .y = try alloc.dupe(i64, a) };
+    // Quotient and remainder belong to the caller; all other arrays are local.
+    var temporary = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer temporary.deinit();
+    const scratch = temporary.allocator();
     const count = a.len - b.len + 1;
-    const high = try zeros(alloc, count);
-    const reversed = try zeros(alloc, b.len);
+    const high = try zeros(scratch, count);
+    const reversed = try zeros(scratch, b.len);
     for (0..count) |i| high[i] = a[a.len - 1 - i];
     for (0..b.len) |i| reversed[i] = b[b.len - 1 - i];
-    const inv = try inverseSeries(alloc, reversed, count);
-    const qr = try mul(alloc, high, inv);
+    const inv = try inverseSeries(scratch, reversed, count);
+    const qr = try mul(scratch, high, inv);
     const q = try zeros(alloc, count);
     for (0..count) |i| {
         const index = count - 1 - i;
         if (index < qr.len) q[i] = qr[index];
     }
-    const removed = try mul(alloc, q, b);
+    const removed = try mul(scratch, q, b);
     const r = try zeros(alloc, b.len - 1);
     for (0..r.len) |i| r[i] = @rem(a[i] - (if (i < removed.len) removed[i] else 0) + P, P);
     return .{ .x = trim(q), .y = trim(r) };
@@ -141,7 +153,12 @@ fn step(alloc: Allocator, q: []const i64) !Matrix {
 }
 
 fn dot(alloc: Allocator, a: []const i64, b: []const i64, c: []const i64, d: []const i64) !Poly {
-    return add(alloc, try mul(alloc, a, b), try mul(alloc, c, d));
+    var temporary = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer temporary.deinit();
+    const scratch = temporary.allocator();
+    const left = try mul(scratch, a, b);
+    const right = try mul(scratch, c, d);
+    return add(alloc, left, right);
 }
 
 fn compose(alloc: Allocator, x: Matrix, y: Matrix) !Matrix {
@@ -156,6 +173,16 @@ fn apply(alloc: Allocator, m: Matrix, a: []const i64, b: []const i64) !Pair {
 fn upper(a: []const i64, shift: usize) []const i64 { return a[@min(shift, a.len)..]; }
 
 fn half(alloc: Allocator, a: []const i64, b: []const i64, heads: []Head, count: *usize) Allocator.Error!Matrix {
+    // Recursive intermediates belong to this call. Only the four resulting
+    // polynomial entries escape into the caller's allocation scope.
+    var temporary = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer temporary.deinit();
+    const matrix = try halfInner(temporary.allocator(), a, b, heads, count);
+    return .{ .a = try alloc.dupe(i64, matrix.a), .b = try alloc.dupe(i64, matrix.b),
+              .c = try alloc.dupe(i64, matrix.c), .d = try alloc.dupe(i64, matrix.d) };
+}
+
+fn halfInner(alloc: Allocator, a: []const i64, b: []const i64, heads: []Head, count: *usize) Allocator.Error!Matrix {
     if (b.len == 0) return identity(alloc);
     const degree = a.len - 1;
     const threshold = (degree + 1) / 2;
@@ -195,13 +222,21 @@ fn resultant(alloc: Allocator, first: []const i64, second: []const i64) !i64 {
         std.mem.swap([]const i64, &a, &b);
     }
     const heads = try alloc.alloc(Head, a.len + 1);
+    // The current pair lives in one arena. Each batch writes its replacement
+    // into another; after swapping arenas, the old pair and intermediates can
+    // be released together without invalidating the new pair.
+    var current = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer current.deinit();
     while (true) {
         if (b.len == 1) return @rem(answer * power(b[0], a.len-1), P);
+        var next = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+        defer next.deinit();
+        const batch = next.allocator();
         var count: usize = 0;
         var reduced: ?Pair = null;
         if (a.len != b.len) {
-            const matrix = try half(alloc, a, b, heads, &count);
-            if (count != 0) reduced = try apply(alloc, matrix, a, b);
+            const matrix = try half(batch, a, b, heads, &count);
+            if (count != 0) reduced = try apply(batch, matrix, a, b);
         }
         if (reduced) |pair| {
             if (pair.y.len == 0) return 0;
@@ -218,15 +253,16 @@ fn resultant(alloc: Allocator, first: []const i64, second: []const i64) !i64 {
             }
             a = pair.x; b = pair.y;
         } else {
-            const division = try divrem(alloc, a, b);
+            const division = try divrem(batch, a, b);
             if (division.y.len == 0) return 0;
             const da = a.len-1;
             const db = b.len-1;
             const dr = division.y.len-1;
             if ((da & 1) != 0 and (db & 1) != 0) answer = P-answer;
             answer = @rem(answer * power(b[b.len-1], da-dr), P);
-            a = b; b = division.y;
+            a = try batch.dupe(i64, b); b = division.y;
         }
+        std.mem.swap(std.heap.ArenaAllocator, &current, &next);
     }
 }
 

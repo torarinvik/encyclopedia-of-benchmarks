@@ -62,6 +62,9 @@ edges and interior columns, vertical neighbor context, replicated image-edge
 rows, malformed dimensions/sample values, and output-capacity failures. The
 independent oracle is
 [`cbench_consumer_jpeg_h2v2_fancy_upsample_oracle.py`](../../cbench_consumer_jpeg_h2v2_fancy_upsample_oracle.py).
+The verifier draft additionally specifies constant-plane preservation for
+every 8-bit sample value, covering replicated borders and both rounding
+biases. These checks have not been run.
 
 | Language | Port |
 | --- | --- |

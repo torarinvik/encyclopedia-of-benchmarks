@@ -10,7 +10,9 @@ fn asr2(value i64) i64 {
 
 fn store_i64_le(mut output &u8, offset int, value i64) {
 	bits := u64(value)
-	for byte in 0 .. 8 { output[offset + byte] = u8((bits >> (8 * byte)) & 255) }
+	unsafe {
+		for byte in 0 .. 8 { output[offset + byte] = u8((bits >> (8 * byte)) & 255) }
+	}
 }
 
 @[export: 'mediabench_gsm_rpe_grid_selection']

@@ -1,0 +1,178 @@
+# Uncompiled, allocation-free helpers for the subgroup transform. These take
+# caller-owned views; the inverse and integration remain open.
+const SG_FFT_MODULUS: i64 = 998244353
+
+def sg_fft_factorial(n: usize) -> usize:
+    value: mutable usize = 1
+    for i in 2..<n+1: value <- value*i
+    value
+
+# Return the lexicographic rank, or -4 if the view is not a permutation.
+def sg_fft_rank(permutation: view[i64], n: usize) -> i64:
+    if n < 1 or n > 9 or permutation.len() < n: return -4
+    rank: mutable usize = 0
+    for i in 0..<n:
+        if permutation[i] < 0 or permutation[i] >= n.i64(): return -4
+        smaller: mutable usize = 0
+        for j in i+1..<n:
+            if permutation[j] == permutation[i]: return -4
+            if permutation[j] < permutation[i]: smaller <- smaller+1
+        rank <- rank+smaller*sg_fft_factorial(n-1-i)
+    rank.i64()
+
+# `values[0:n]` must already be a permutation; the routine returns false at
+# the last permutation, leaving that permutation unchanged.
+def sg_fft_next_permutation(values: mutable view[i64], n: usize) -> bool:
+    if n < 2 or n > 9 or values.len() < n: return false
+    pivot: mutable usize = n-1
+    while pivot > 0 and values[pivot-1] >= values[pivot]: pivot <- pivot-1
+    if pivot == 0: return false
+    successor: mutable usize = n-1
+    while values[successor] <= values[pivot-1]: successor <- successor-1
+    temp: i64 = values[pivot-1]
+    values[pivot-1] <- values[successor]
+    values[successor] <- temp
+    left: mutable usize = pivot
+    right: mutable usize = n-1
+    while left < right:
+        current: i64 = values[left]
+        values[left] <- values[right]
+        values[right] <- current
+        left <- left+1
+        right <- right-1
+    true
+
+# `source` and `destination` are disjoint d*d row-major matrices. Generator
+# arrays use the layout documented by sg_make_generators. If transpose is true,
+# apply the matrix transpose, as needed by the inverse recurrence.
+def sg_fft_apply_generator(slot: usize, label: usize, d: usize,
+                           diagonals: view[i64], partners: view[i64], coefficients: view[i64],
+                           source: view[i64], destination: mutable view[i64], transpose: bool) -> i64:
+    if slot >= 300 or label >= 8 or d < 1 or d > 603: return -4
+    base: usize = (slot*8+label)*603
+    if diagonals.len() < base+d or partners.len() < base+d or coefficients.len() < base+d: return -4
+    if source.len() < d*d or destination.len() < d*d: return -4
+    for i in 0..<d*d: destination[i] <- 0
+    for row in 0..<d:
+        diagonal: i64 = diagonals[base+row]
+        partner: i64 = partners[base+row]
+        coefficient: i64 = coefficients[base+row]
+        if diagonal < 0 or diagonal >= SG_FFT_MODULUS: return -4
+        if partner < -1 or partner >= d.i64(): return -4
+        if coefficient < 0 or coefficient >= SG_FFT_MODULUS: return -4
+        for col in 0..<d:
+            if transpose:
+                value: mutable i64 = (diagonal*source[row*d+col])%SG_FFT_MODULUS
+                if partner >= 0:
+                    value <- (value+coefficient*source[partner.usize()*d+col])%SG_FFT_MODULUS
+                destination[row*d+col] <- value
+            else:
+                value: i64 = source[row*d+col]
+                at: usize = row*d+col
+                destination[at] <- (destination[at]+diagonal*value)%SG_FFT_MODULUS
+                if partner >= 0:
+                    target: usize = partner.usize()*d+col
+                    destination[target] <- (destination[target]+coefficient*value)%SG_FFT_MODULUS
+    0
+
+# Each level packs its square representation blocks consecutively. The sum
+# of their sizes is n!, and each block uses row-major ordering.
+def sg_fft_block_offset(n: usize, shape: usize, level_counts: view[i64], counts: view[i64]) -> i64:
+    if n < 1 or n > 9 or level_counts.len() < 10 or counts.len() < 300: return -4
+    if level_counts[n] < 0 or level_counts[n] > 30 or shape > level_counts[n].usize(): return -4
+    total: mutable usize = 0
+    for i in 0..<shape:
+        value: i64 = counts[n*30+i]
+        if value < 1 or value > 603: return -4
+        dimension: usize = value.usize()
+        total <- total+dimension*dimension
+        if total > sg_fft_factorial(n): return -4
+    total.i64()
+
+# `input` and `output` each hold n! values and are disjoint. The packed
+# output blocks follow sg_fft_block_offset. `workspace` is disjoint from both
+# and has at least 8*n! values. Each recursion frame reserves two (n-1)!
+# regions, two n! matrix buffers, and 8*(n-1)! for its child; this fits because
+# 2*n! + 10*(n-1)! <= 8*n! for n >= 2. Metadata and generator views follow
+# the plan draft's layouts. This recursion is uncompiled and unverified.
+def sg_fft_forward(n: usize, input: view[i64], output: mutable view[i64],
+                   workspace: mutable view[i64], level_counts: view[i64], counts: view[i64],
+                   restriction_counts: view[i64], children: view[i64], offsets: view[i64], widths: view[i64],
+                   diagonals: view[i64], partners: view[i64], coefficients: view[i64]) -> i64:
+    if n < 1 or n > 9: return -4
+    total: usize = sg_fft_factorial(n)
+    if input.len() < total or output.len() < total or workspace.len() < 8*total: return -4
+    if level_counts.len() < 10 or counts.len() < 300 or restriction_counts.len() < 300: return -4
+    if children.len() < 2700 or offsets.len() < 2700 or widths.len() < 2700: return -4
+    if level_counts[n] < 1 or level_counts[n] > 30: return -4
+    end_offset: i64 = sg_fft_block_offset(n,level_counts[n].usize(),level_counts,counts)
+    if end_offset != total.i64(): return -4
+    if n == 1:
+        output[0] <- input[0]
+        return 0
+    for i in 0..<total: output[i] <- 0
+    child_size: usize = sg_fft_factorial(n-1)
+    matrix_a_start: usize = 2*child_size
+    matrix_b_start: usize = matrix_a_start+total
+    child_workspace_start: usize = matrix_b_start+total
+    for image in 0..<n:
+        h: mutable i64[9] = zeroed
+        permutation: mutable i64[9] = zeroed
+        for i in 0..<n-1: h[i] <- i.i64()
+        index: mutable usize = 0
+        more: mutable bool = true
+        while more:
+            for i in 0..<n-1: permutation[i] <- h[i]
+            permutation[n-1] <- (n-1).i64()
+            for i in 0..<n:
+                if permutation[i] == image.i64(): permutation[i] <- (n-1).i64()
+                else if permutation[i] == (n-1).i64(): permutation[i] <- image.i64()
+            rank: i64 = sg_fft_rank(permutation[0:9],n)
+            if rank < 0 or index >= child_size: return -4
+            workspace[index] <- input[rank.usize()]
+            index <- index+1
+            more <- sg_fft_next_permutation(h[0:9],n-1)
+        if index != child_size: return -4
+        child_status: i64 = sg_fft_forward(n-1,workspace[0:child_size],
+            workspace[child_size:2*child_size],workspace[child_workspace_start:workspace.len()],
+            level_counts,counts,restriction_counts,children,offsets,widths,diagonals,partners,coefficients)
+        if child_status != 0: return child_status
+        for shape in 0..<level_counts[n].usize():
+            slot: usize = n*30+shape
+            if counts[slot] < 1 or counts[slot] > 603: return -4
+            dimension: usize = counts[slot].usize()
+            square: usize = dimension*dimension
+            if square > total: return -4
+            block_offset: i64 = sg_fft_block_offset(n,shape,level_counts,counts)
+            if block_offset < 0 or block_offset.usize()+square > total: return -4
+            if restriction_counts[slot] < 0 or restriction_counts[slot] > 9: return -4
+            for i in 0..<square: workspace[matrix_a_start+i] <- 0
+            for k in 0..<restriction_counts[slot].usize():
+                at: usize = slot*9+k
+                if children[at] < 0 or children[at] >= level_counts[n-1] or offsets[at] < 0 or widths[at] < 1: return -4
+                child_index: usize = children[at].usize()
+                offset: usize = offsets[at].usize()
+                width: usize = widths[at].usize()
+                if offset+width > dimension or counts[(n-1)*30+child_index] != width.i64(): return -4
+                child_offset: i64 = sg_fft_block_offset(n-1,child_index,level_counts,counts)
+                if child_offset < 0 or child_offset.usize()+width*width > child_size: return -4
+                for row in 0..<width:
+                    for col in 0..<width:
+                        workspace[matrix_a_start+(offset+row)*dimension+offset+col] <-
+                            workspace[child_size+child_offset.usize()+row*width+col]
+            for generator in image..<n-1:
+                status: i64 = sg_fft_apply_generator(slot,generator,dimension,diagonals,partners,coefficients,
+                    workspace[matrix_a_start:matrix_a_start+square],workspace[matrix_b_start:matrix_b_start+square],false)
+                if status != 0: return status
+                for i in 0..<square: workspace[matrix_a_start+i] <- workspace[matrix_b_start+i]
+            generator: mutable usize = n-2
+            while generator > image:
+                generator <- generator-1
+                status: i64 = sg_fft_apply_generator(slot,generator,dimension,diagonals,partners,coefficients,
+                    workspace[matrix_a_start:matrix_a_start+square],workspace[matrix_b_start:matrix_b_start+square],false)
+                if status != 0: return status
+                for i in 0..<square: workspace[matrix_a_start+i] <- workspace[matrix_b_start+i]
+            for i in 0..<square:
+                at: usize = block_offset.usize()+i
+                output[at] <- (output[at]+workspace[matrix_a_start+i])%SG_FFT_MODULUS
+    0

@@ -127,9 +127,10 @@ def lmc_sort_words(order: mutable view[i64], scratch: mutable view[i64], count: 
 
 export fn lexicographically_minimal_concatenation(input: i64&, length: usize,
                                                    output: mutable u8&, capacity: usize) -> i64:
-    if input == null or length == 0 or input[0] < 0 or input[0] > 16384: return -1
-    count: usize = input[0].usize()
+    if input == null or length == 0: return -1
     values: view[i64] = input[0:length]
+    if values[0] < 0 or values[0] > 16384: return -1
+    count: usize = values[0].usize()
     offset: mutable usize = 1
     total: mutable usize = 0
     for i in 0..<count:

@@ -24,9 +24,11 @@ const output_count = 40
 const output_bytes = 80
 
 fn store_i16_le(mut output &u8, offset int, value i64) {
-	bits := u16(value)
-	output[offset] = u8(bits & 255)
-	output[offset + 1] = u8(bits >> 8)
+	bits := u16(value & 65535)
+	unsafe {
+		output[offset] = u8(bits & 255)
+		output[offset + 1] = u8(bits >> 8)
+	}
 }
 
 @[export: 'mediabench_gsm_rpe_grid_positioning']

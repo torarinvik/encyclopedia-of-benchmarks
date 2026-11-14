@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from q.quadratic_form_gf2_normal_form.abi_reference import expected as quadratic_form_gf2_oracle
 from b.benchmarkgame_nbody_oracle import expected_output as benchmarkgame_nbody_oracle
 from b.benchmarkgame_nbody_verifier_oracle import expected_output as benchmarkgame_nbody_independent_oracle
 from b.benchmarkgame_puzzle_verifier_oracle import expected_output as benchmarkgame_puzzle_independent_oracle
@@ -6277,12 +6278,14 @@ ALGORITHMS = (*ALGORITHMS, "sticky_sampling_summary")
 ALGORITHMS = (*ALGORITHMS, "exponential_histogram_window")
 ALGORITHMS = (*ALGORITHMS, "hyperloglog_raw_estimate")
 ALGORITHMS = (*ALGORITHMS, "hyperloglog_corrected_estimate")
+ALGORITHMS = (*ALGORITHMS, "quadratic_form_gf2_normal_form")
 ALGORITHMS = (*ALGORITHMS, "prime_modulus_inverse_table")
 ALGORITHMS = (*ALGORITHMS, "sparse_supernodal_cholesky")
 ALGORITHMS = (*ALGORITHMS, "newton_compositional_inverse_fps")
 ALGORITHMS = (*ALGORITHMS, "newton_reciprocal_fps")
 ALGORITHMS = (*ALGORITHMS, "newton_inverse_sqrt_fps")
 ALGORITHMS = (*ALGORITHMS, "seidel_unweighted_apsp")
+WORKSPACE_ALGORITHMS.add("quadratic_form_gf2_normal_form")
 WORKSPACE_ALGORITHMS.add("indexed_block_list")
 WORKSPACE_ALGORITHMS.add("xor_leaf_tree_traversal")
 WORKSPACE_ALGORITHMS.add("incremental_minimum_spanning_forest")
@@ -13610,6 +13613,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "multiprobe_lsh_probe_sequence": multiprobe_lsh_probe_sequence_independent_oracle,
     "statistical_region_merging_table": statistical_region_merging_table_independent_oracle,
     "rabin_content_defined_chunking": rabin_content_defined_chunking_independent_oracle,
+    "quadratic_form_gf2_normal_form": quadratic_form_gf2_oracle,
     "indexed_block_list": indexed_block_list_independent_oracle,
     "xor_leaf_tree_traversal": xor_leaf_tree_traversal_oracle,
     "incremental_minimum_spanning_forest": incremental_msf_independent_oracle,
@@ -16011,6 +16015,21 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         workspace_bytes = STATIC_RECTANGLE_ADD_RECTANGLE_SUM_VERIFIER_MAX_OUTPUT_BYTES
     if workspace_bytes is None and algorithm in EXTERNAL_BYTE_OUTPUT_BOUNDS:
         workspace_bytes = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm][1]
+    if algorithm in ("mibench_security_blowfish", "cbench_blowfish_cbc"):
+        category = "m" if algorithm == "mibench_security_blowfish" else "c"
+        mojo_source = ROOT / "mojo" / category / f"{algorithm}.mojo"
+        if not mojo_source.is_file():
+            raise ValueError(f"{algorithm} Mojo source is missing")
+        mojo_text = mojo_source.read_text(encoding="utf-8")
+        if (f'@export("{algorithm}")' not in mojo_text
+                or "Copyright (C) 1995-1997 Eric Young" not in mojo_text
+                or "This product includes cryptographic software written by" not in mojo_text
+                or "The licence and distribution terms" not in mojo_text):
+            raise ValueError(f"{algorithm} Mojo export or license notice is missing")
+    if algorithm == "tripforce_tripcode":
+        mojo_source = ROOT / "mojo" / "t" / "tripforce_tripcode.mojo"
+        if not mojo_source.is_file() or '@export("tripforce_tripcode")' not in mojo_source.read_text(encoding="utf-8"):
+            raise ValueError("tripforce_tripcode Mojo source or export is missing")
     if algorithm == "trimaran_enc_3des":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
         expected_ids = {
@@ -16062,6 +16081,9 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     if isinstance(case, dict)} != expected_ids):
             raise ValueError("trimaran_enc_3des metadata differs from its pinned fixed-key block contract")
         package = ROOT / "benchmarks" / "t" / "trimaran_enc_3des"
+        mojo_source = ROOT / "mojo" / "t" / "trimaran_enc_3des.mojo"
+        if not mojo_source.is_file() or '@export("trimaran_enc_3des")' not in mojo_source.read_text(encoding="utf-8"):
+            raise ValueError("trimaran_enc_3des Mojo source or export is missing")
         readme = (package / "README.md").read_text(encoding="utf-8")
         notice = (package / "LICENSE_NOTICE.txt").read_text(encoding="utf-8")
         gpl = (package / "LICENSE-GPL-2.0-or-later.txt").read_text(encoding="utf-8")
@@ -20176,6 +20198,29 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             port = ROOT / language / "k" / f"kmp_slp_jump_output.{extension}"
             if not port.is_file() or "kmp_slp_jump_output" not in port.read_text(encoding="utf-8"):
                 raise ValueError(f"compressed KMP source missing for {language}")
+    elif algorithm == "quadratic_form_gf2_normal_form":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (workload.get("schema_version") != 1
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or input_spec.get("maximum_valid_input_length") != 201
+                or input_spec.get("maximum_parseable_input_length") != 202
+                or input_spec.get("invalid_input_result") != -1
+                or input_spec.get("null_input_result") != -1
+                or output_spec.get("maximum_output_bytes") != 1303
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or (max_input, max_output, workspace_bytes) != (202, 1303, 1303)):
+            raise ValueError("GF(2) quadratic normal-form bounds differ from its contract")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            path = ROOT / language / "q" / f"{algorithm}.{extension}"
+            if not path.is_file() or algorithm not in path.read_text(encoding="utf-8"):
+                raise ValueError(f"GF(2) quadratic normal-form draft missing for {language}")
     elif algorithm == "indexed_block_list":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -25187,6 +25232,29 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             add(tuple(malformed))
     elif algorithm == "cbench_consumer_lame_window_subband":
         window = tuple(workload["cases"][0]["input_values"][511:])
+        # An independently chosen admissible coefficient table must still
+        # map an all-zero PCM slice to zero in every subband.
+        uniform_window = (30_000_000,) * 256
+        result, output = add((0,) * 511 + uniform_window)
+        if result != 256 or output != bytes(256):
+            raise ValueError("LAME filterbank does not preserve a zero PCM slice")
+        # With only sample 255 nonzero, the sole nonzero intermediate is the
+        # central term. Under a uniform window its 16 cosine factors are
+        # +/-sqrt(2)/2; the chosen amplitude rounds safely away from a tie.
+        impulse = [0] * 511
+        impulse[255] = 4
+        bands = [0] * 32
+        for row in range(16):
+            value = 2828 if (2 * row + 1) % 8 in (1, 7) else -2828
+            bands[row] = value
+            bands[31 - row] = value
+        result, output = add(tuple(impulse) + uniform_window)
+        if result != 256 or output != struct.pack("<32q", *bands):
+            raise ValueError("LAME filterbank central impulse differs from its cosine identity")
+        impulse[255] = -4
+        result, output = add(tuple(impulse) + uniform_window)
+        if result != 256 or output != struct.pack("<32q", *(-band for band in bands)):
+            raise ValueError("LAME filterbank negative impulse differs from its cosine identity")
         traces = (
             (0,) * 511,
             (32767,) * 511,
@@ -25231,7 +25299,20 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add(negative_edge)
         rng = random.Random(20261025)
         for _ in range(24):
-            add(tuple(rng.randrange(-32768, 32768) for _ in range(40)))
+            values = tuple(rng.randrange(-32768, 32768) for _ in range(40))
+            result, selection = add(values)
+            if result != 112 or len(selection) != 112:
+                raise ValueError("GSM grid selection returned invalid framing")
+            grid, *selected = struct.unpack("<14q", selection)
+            if not 0 <= grid < 4 or selected != [values[grid + 3 * i] for i in range(13)]:
+                raise ValueError("GSM grid selection did not return its selected samples")
+            position_result, positioned = mediabench_gsm_rpe_grid_positioning_verifier_oracle(
+                (grid, *selected), capacity=80)
+            expected = [0] * 40
+            for i in range(13):
+                expected[grid + 3 * i] = values[grid + 3 * i]
+            if position_result != 80 or positioned != struct.pack("<40h", *expected):
+                raise ValueError("GSM grid positioning did not reconstruct the selected grid")
         capacity_probe = tuple((index * 8191) % 65536 - 32768 for index in range(40))
         for capacity in (0, 111, 112, 113, workspace_bytes):
             add(capacity_probe, capacity)
@@ -27128,6 +27209,20 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             result, output = add(values)
             if result != MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES or len(output) != result:
                 raise ValueError("MediaBench MPEG2 component generated case has invalid byte framing")
+        # A modular wrap identity provides an independently expressed check
+        # of both branch directions, including every motion-code extreme.
+        for r_size in range(7):
+            limit = 16 << r_size
+            for motion_code in range(-16, 17):
+                residuals = (0,) if motion_code == 0 or r_size == 0 else (0, (1 << r_size) - 1)
+                for residual in residuals:
+                    magnitude = ((abs(motion_code) - 1) << r_size) + residual + 1 if motion_code else 0
+                    delta = magnitude if motion_code > 0 else -magnitude
+                    for predictor in (-limit, -limit + 1, 0, limit - 1):
+                        expected_value = (predictor + delta + limit) % (2 * limit) - limit
+                        result, output = add((predictor, r_size, motion_code, residual))
+                        if result != 8 or output != expected_value.to_bytes(8, "little", signed=True):
+                            raise ValueError("MediaBench MPEG2 component differs from modular wrap identity")
         for capacity in (0, MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES - 1,
                          MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES, workspace_bytes):
             add((15, 0, 1, 0), capacity)
@@ -27152,6 +27247,17 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             result, output = add(values)
             if result != 3 * pixel_count or len(output) != result:
                 raise ValueError("MiBench JPEG generated case has inconsistent RGB byte framing")
+        # Neutral chroma must preserve every brightness exactly, independent
+        # of the rounding and clipping used for nonzero chroma offsets.
+        for first in range(0, 256, MIBENCH_JPEG_YCBCR_MAX_PIXELS):
+            samples = tuple(word for y in range(first, first + MIBENCH_JPEG_YCBCR_MAX_PIXELS)
+                            for word in (y, 128, 128))
+            values = (MIBENCH_JPEG_YCBCR_MAX_PIXELS, *samples)
+            result, output = add(values)
+            expected = bytes(y for y in range(first, first + MIBENCH_JPEG_YCBCR_MAX_PIXELS)
+                             for _ in range(3))
+            if result != len(expected) or output != expected:
+                raise ValueError("MiBench JPEG neutral chroma does not preserve brightness")
         maximum = make_jpeg_ycbcr_case(MIBENCH_JPEG_YCBCR_MAX_PIXELS)
         result, output = add(maximum)
         if (len(maximum) != MIBENCH_JPEG_YCBCR_MAX_INPUT_LENGTH
@@ -27166,6 +27272,8 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         malformed = (
             (), (0,), (MIBENCH_JPEG_YCBCR_MAX_PIXELS + 1, *([0] * 49)),
             (2, 0, 128, 128), (1, 256, 128, 128),
+            (1, -1, 128, 128), (1, 0, -1, 128), (1, 0, 128, 256),
+            (1, -(1 << 63), 128, 128), (1, 0, (1 << 63) - 1, 128),
             tuple(maximum[:-1]), tuple(maximum) + (0,), tuple([0] * max_input),
         )
         for values in malformed:
@@ -27182,6 +27290,13 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 result, output = add(values)
                 if result != 4 * width * height or len(output) != result:
                     raise ValueError("cBench JPEG h2v2 generated case has invalid expanded-plane framing")
+        # Constant planes remain constant, including the replicated borders
+        # and the alternating rounding biases, for every 8-bit sample value.
+        for sample in range(256):
+            values = (3, 1, sample, sample, sample)
+            result, output = add(values)
+            if result != 12 or output != bytes([sample]) * 12:
+                raise ValueError("cBench JPEG h2v2 does not preserve a constant plane")
         maximum = make_h2v2_case(16, 8)
         result, output = add(maximum)
         if (len(maximum) != 130 or result != CBENCH_JPEG_H2V2_MAX_OUTPUT_BYTES
@@ -30562,6 +30677,62 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     raise ValueError("xor leaf traversal random tree output framing differs")
                 if (result, output) != xor_leaf_tree_traversal_primary(values):
                     raise ValueError("xor leaf traversal references disagree on a random tree")
+        elif algorithm == "quadratic_form_gf2_normal_form":
+            # Enumerate every upper-triangular form through degree four.
+            # The ABI reference independently checks the resulting basis
+            # against the original quadratic polynomial on units and pairs.
+            for n in range(1, 5):
+                coefficients = [(i, j) for i in range(n) for j in range(i, n)]
+                for mask in range(1 << len(coefficients)):
+                    rows = [0] * n
+                    for bit, (i, j) in enumerate(coefficients):
+                        if (mask >> bit) & 1:
+                            rows[i] |= 1 << j
+                    result, output = add((n, *rows))
+                    if result != 3 + n or len(output) != result:
+                        raise ValueError("GF(2) small form has incorrect output framing")
+            # The zero form retains the identity basis, including at the
+            # two-chunk, maximum-degree boundary.
+            identity_frame = (100, *([0] * 200))
+            result, output = add(identity_frame)
+            identity = b"\x00\x00\x00" + b"".join(
+                (1 << i).to_bytes(13, "little") for i in range(100))
+            if result != 1303 or output != identity:
+                raise ValueError("GF(2) zero form does not preserve the identity basis")
+            # The coefficient of x0*x63 lives in the second 63-bit input
+            # chunk.  Its pair is selected first; all other unit vectors
+            # remain in index order in the radical.
+            crossing_rows = [(0, 1)] + [(0, 0)] * 63
+            crossing_frame = (64, *(word for row in crossing_rows for word in row))
+            crossing_basis_rows = (1, 1 << 63, *(1 << i for i in range(1, 63)))
+            crossing_expected = b"\x01\x00\x00" + b"".join(
+                row.to_bytes(8, "little") for row in crossing_basis_rows)
+            if add(crossing_frame) != (515, crossing_expected):
+                raise ValueError("GF(2) cross-chunk hyperbolic pair is incorrect")
+            # A linear term in the highest coordinate becomes the first
+            # output coordinate, ahead of the zero radical coordinates.
+            high_linear_rows = [(0, 0)] * 99 + [(0, 1 << 36)]
+            high_linear_frame = (100, *(word for row in high_linear_rows for word in row))
+            high_linear_basis_rows = (1 << 99, *(1 << i for i in range(99)))
+            high_linear_expected = b"\x00\x00\x01" + b"".join(
+                row.to_bytes(13, "little") for row in high_linear_basis_rows)
+            if add(high_linear_frame) != (1303, high_linear_expected):
+                raise ValueError("GF(2) high-coordinate radical term is incorrect")
+            rng_qf = random.Random(0x51464E46)
+            for n in (1, 2, 3, 4, 8, 16, 63, 64, 100):
+                words = (n + 62) // 63
+                rows = [rng_qf.getrandbits(n) & ~((1 << i) - 1) for i in range(n)]
+                values = (n, *(row >> (63 * j) & ((1 << 63) - 1)
+                               for row in rows for j in range(words)))
+                result, output = add(values)
+                expected_size = 3 + n * ((n + 7) // 8)
+                if result != expected_size or len(output) != expected_size:
+                    raise ValueError("GF(2) quadratic normal form has incorrect output size")
+                if n == 100:
+                    add(values, expected_size - 1)
+                    add(values, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((2, 0, 1), 0, output_is_null=True)
         elif algorithm == "indexed_block_list":
             maximum_case = next(case for case in workload["cases"]
                                 if case["id"] == "maximum_frame_and_output")
@@ -30577,6 +30748,15 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             add(zero_access, 0, output_is_null=True)
             insertion_only = (2, 7, 8, 3, 0, 0, 5, 0, 2, 6, 0, 4, 9)
             add(insertion_only, 0, output_is_null=True)
+            # Repeated front insertions drive interior block splits toward the
+            # descriptor bound, then read both the new prefix and old tail.
+            initial = tuple(range(16))
+            insertions = tuple(word for value in range(32) for word in (0, 0, -value - 1))
+            positions = (*range(24), *range(40, 48))
+            reads = tuple(word for position in positions for word in (1, position))
+            split_stress = (16, *initial, 64, *insertions, *reads)
+            if add(split_stress) != indexed_block_list_primary_oracle(split_stress):
+                raise ValueError("indexed_block_list references disagree on repeated front splits")
             add((), input_is_null=True, input_length=0)
             add((), input_is_null=True, input_length=max_input)
             malformed = (
@@ -69909,6 +70089,12 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
         elif algorithm == "min_plus_convolution_convex_convex":
             _oracle_result, oracle_bytes = min_plus_convolution_convex_convex_independent_oracle(values)
             expected_output_length = len(oracle_bytes)
+        elif algorithm == "beebs_nettle_cast128":
+            _oracle_result, oracle_bytes = beebs_nettle_cast128_verifier_oracle(
+                values, case.get("output_capacity", BEEBS_NETTLE_CAST128_MAX_OUTPUT_BYTES),
+                output_is_null=case.get("output_is_null", False), input_is_null=input_is_null,
+                input_length=input_length)
+            expected_output_length = len(oracle_bytes)
         elif algorithm == "z_algorithm":
             _, oracle_bytes = z_array_verifier_oracle(
                 values, case.get("output_capacity", max(0, 4 * (len(values) - 1))),
@@ -69939,6 +70125,7 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
         if (record["algorithm"] != algorithm
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]
+                or record["implementation"].get("source_dependencies") != manifest.get("source_dependencies")
                 or record["workload"]["input_length"] != input_length
                 or record["workload"]["input_values"] != values
                 or record["workload"].get("input_is_null", False) != input_is_null

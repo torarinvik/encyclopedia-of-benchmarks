@@ -161,6 +161,15 @@ from p.polynomial_resultant_half_gcd.structured_cases import cases as polynomial
 from s.subsequence_automaton.primary_oracle import expected as subsequence_automaton_primary
 from s.subsequence_automaton.independent_oracle import expected as subsequence_automaton_oracle
 from s.subsequence_automaton.validation import validate_workload as validate_subsequence_automaton_workload
+from s.slope_trick_lipschitz_l1.independent_oracle import expected as slope_trick_lipschitz_l1_oracle
+from s.slope_trick_lipschitz_l1.validation import validate_workload as validate_slope_trick_lipschitz_l1_workload
+from w.wqs_path_independent_set.independent_oracle import expected as wqs_path_independent_set_oracle
+from w.wqs_path_independent_set.independent_oracle import enumerate_small as wqs_path_independent_set_enumerate
+from w.wqs_path_independent_set.validation import validate_workload as validate_wqs_path_independent_set_workload
+from c.cartesian_histogram_area.independent_oracle import expected as cartesian_histogram_area_oracle
+from c.cartesian_histogram_area.validation import validate_workload as validate_cartesian_histogram_area_workload
+from e.effective_resistance_unit_graph.independent_oracle import expected as effective_resistance_unit_graph_oracle
+from e.effective_resistance_unit_graph.validation import validate_workload as validate_effective_resistance_unit_graph_workload
 from m.maximum_area_triangle_convex.independent_oracle import expected as maximum_area_triangle_convex_oracle
 from m.maximum_area_triangle_convex.validation import validate_workload as validate_maximum_area_triangle_convex_workload
 from r.range_constraint_topological_feasibility.independent_oracle import expected as range_constraint_topological_feasibility_oracle
@@ -458,6 +467,12 @@ from h.highest_label_push_relabel.primary_oracle import expected_output as highe
 from c.closest_pair_sweep.independent_oracle import expected_output as closest_pair_sweep_oracle
 from c.closest_pair_sweep.primary_oracle import expected_output as closest_pair_sweep_primary
 from m.monotone_radix_heap.independent_oracle import expected_output as monotone_radix_heap_oracle
+from f.fixed_length_walk_minplus.reference import expected as fixed_length_walk_minplus_oracle, expected_short as fixed_length_walk_minplus_short
+from check_fixed_length_walk_minplus_package import static_issues as fixed_length_walk_minplus_static_issues
+from f.fixed_length_walk_count.reference import expected as fixed_length_walk_count_oracle, expected_short as fixed_length_walk_count_short
+from check_fixed_length_walk_count_package import static_issues as fixed_length_walk_count_static_issues
+from t.tree_min_cost_proper_coloring.reference import expected as tree_min_cost_proper_coloring_oracle, brute_small as tree_min_cost_proper_coloring_brute
+from check_tree_min_cost_proper_coloring_package import static_issues as tree_min_cost_proper_coloring_static_issues
 from m.monotone_radix_heap.primary_oracle import expected_output as monotone_radix_heap_primary
 from b.backward_nondeterministic_dawg_match.independent_oracle import expected_output as bndm_oracle
 from b.backward_nondeterministic_dawg_match.primary_oracle import expected_output as bndm_primary
@@ -2300,6 +2315,10 @@ ALGORITHMS += ("range_constraint_topological_feasibility",)
 ALGORITHMS += ("hopcroft_dfa_minimization",)
 ALGORITHMS += ("polynomial_resultant_half_gcd",)
 ALGORITHMS += ("subsequence_automaton",)
+ALGORITHMS += ("slope_trick_lipschitz_l1",)
+ALGORITHMS += ("wqs_path_independent_set",)
+ALGORITHMS += ("cartesian_histogram_area",)
+ALGORITHMS += ("effective_resistance_unit_graph",)
 ALGORITHMS += ("npb_serial_dc",)
 ALGORITHMS += ("npb_dc_smallest_parent",)
 ALGORITHMS += ("doe_pathfinder_signature_search",)
@@ -2469,6 +2488,9 @@ ALGORITHMS += ("dinic_capacity_scaling",)
 ALGORITHMS += ("highest_label_push_relabel",)
 ALGORITHMS += ("closest_pair_sweep",)
 ALGORITHMS += ("monotone_radix_heap",)
+ALGORITHMS += ("fixed_length_walk_minplus",)
+ALGORITHMS += ("fixed_length_walk_count",)
+ALGORITHMS += ("tree_min_cost_proper_coloring",)
 ALGORITHMS += ("backward_nondeterministic_dawg_match",)
 ALGORITHMS += ("backward_oracle_match",)
 ALGORITHMS += ("wavelet_matrix",)
@@ -4427,6 +4449,14 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return polynomial_resultant_half_gcd_oracle(values)
     if algorithm == "subsequence_automaton":
         return subsequence_automaton_oracle(values)
+    if algorithm == "slope_trick_lipschitz_l1":
+        return slope_trick_lipschitz_l1_oracle(values)
+    if algorithm == "wqs_path_independent_set":
+        return wqs_path_independent_set_oracle(values)
+    if algorithm == "cartesian_histogram_area":
+        return cartesian_histogram_area_oracle(values)
+    if algorithm == "effective_resistance_unit_graph":
+        return effective_resistance_unit_graph_oracle(values)
     if algorithm == "maximum_area_triangle_convex":
         return maximum_area_triangle_convex_oracle(values)
     if algorithm == "range_constraint_topological_feasibility":
@@ -4897,6 +4927,12 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return closest_pair_sweep_oracle(values)
     if algorithm == "monotone_radix_heap":
         return monotone_radix_heap_oracle(values)
+    if algorithm == "fixed_length_walk_minplus":
+        return fixed_length_walk_minplus_oracle(values)
+    if algorithm == "fixed_length_walk_count":
+        return fixed_length_walk_count_oracle(values)
+    if algorithm == "tree_min_cost_proper_coloring":
+        return tree_min_cost_proper_coloring_oracle(values)
     if algorithm == "backward_nondeterministic_dawg_match":
         return bndm_oracle(values)
     if algorithm == "backward_oracle_match":
@@ -5975,6 +6011,14 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_polynomial_resultant_half_gcd_workload(workload)
     elif algorithm == "subsequence_automaton":
         validate_subsequence_automaton_workload(workload)
+    elif algorithm == "slope_trick_lipschitz_l1":
+        validate_slope_trick_lipschitz_l1_workload(workload)
+    elif algorithm == "wqs_path_independent_set":
+        validate_wqs_path_independent_set_workload(workload)
+    elif algorithm == "cartesian_histogram_area":
+        validate_cartesian_histogram_area_workload(workload)
+    elif algorithm == "effective_resistance_unit_graph":
+        validate_effective_resistance_unit_graph_workload(workload)
     elif algorithm == "maximum_area_triangle_convex":
         validate_maximum_area_triangle_convex_workload(workload)
     elif algorithm == "range_constraint_topological_feasibility":
@@ -6437,6 +6481,82 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
     cases = {tuple(encode_case(case, algorithm)): case["expected_result"]
              for case in workload["cases"] if not case.get("input_is_null", False)}
     special_records: list[str] = []
+    if algorithm == "effective_resistance_unit_graph":
+        for n in range(2, 5):
+            possible = [(u, v) for u in range(n) for v in range(u+1, n)]
+            for mask in range(1 << len(possible)):
+                edges = [edge for i, edge in enumerate(possible) if mask & (1 << i)]
+                for s in range(n):
+                    for t in range(n):
+                        if s == t:
+                            continue
+                        values = (n, len(edges), s, t, *(x for edge in edges for x in edge))
+                        cases[values] = effective_resistance_unit_graph_oracle(values)
+        complete = tuple((u, v) for u in range(6) for v in range(u+1, 6))
+        values = (6, 15, 0, 5, *(x for edge in complete for x in edge))
+        cases[values] = effective_resistance_unit_graph_oracle(values)
+        cases[values + (0,)] = -1
+        for n, edges in (
+                (5, ((0,1), (1,2), (2,3), (3,4), (0,4), (1,3))),
+                (6, ((0,1), (1,2), (2,3), (3,4), (4,5), (0,5), (1,4), (2,5)))):
+            original = (n, len(edges), 0, n-1, *(x for edge in edges for x in edge))
+            reversed_edges = (n, len(edges), n-1, 0,
+                              *(x for u, v in reversed(edges) for x in (v, u)))
+            relabeled = (n, len(edges), n-1, 0,
+                         *(x for u, v in edges for x in (n-1-u, n-1-v)))
+            result = effective_resistance_unit_graph_oracle(original)
+            if (result < 0 or effective_resistance_unit_graph_oracle(reversed_edges) != result
+                    or effective_resistance_unit_graph_oracle(relabeled) != result):
+                raise ValueError("effective resistance changed under graph or terminal permutation")
+            cases[original] = result
+            cases[reversed_edges] = result
+            cases[relabeled] = result
+        for malformed in ((1 << 32 | 2, 1, 0, 1, 0, 1),
+                          (2, 1 << 32 | 1, 0, 1, 0, 1),
+                          (2, 1, 0, 1, -(1 << 63), 1),
+                          (2, 1, 0, 1, 0, (1 << 63)-1)):
+            cases[malformed] = -1
+        special_records.extend(("NULL 1 -1\n", "NULL 35 -1\n"))
+    if algorithm == "cartesian_histogram_area":
+        for n in range(7):
+            for heights in product(range(4), repeat=n):
+                cases[heights] = cartesian_histogram_area_oracle(heights)
+        for heights in ((1000000,) * 64, tuple(range(64)), tuple(reversed(range(64))),
+                        (3, 0, 3, 2) * 16):
+            cases[heights] = cartesian_histogram_area_oracle(heights)
+        cases[(0,) * 65] = -(1 << 63)
+        cases[(-(1 << 63),)] = -(1 << 63)
+        cases[((1 << 63) - 1,)] = -(1 << 63)
+    if algorithm == "wqs_path_independent_set":
+        for n in range(7):
+            for weights in product((-2, 0, 2), repeat=n):
+                for k in range((n+1)//2+1):
+                    values = (n, k, *weights)
+                    expected = wqs_path_independent_set_oracle(values)
+                    if expected != wqs_path_independent_set_enumerate(values):
+                        raise ValueError("WQS path dynamic program differs from subset enumeration")
+                    cases[values] = expected
+        for weights in ((-1000, 1000) * 64, (1000, -1000) * 64,
+                        (0,) * 128, tuple((i*137)%2001-1000 for i in range(128))):
+            for k in (0, 1, 32, 64):
+                values = (128, k, *weights)
+                cases[values] = wqs_path_independent_set_oracle(values)
+        cases[(128, 64, *([-1000] * 128), 0)] = -1000000000
+        special_records.append("NULL 0 -1000000000\n")
+    if algorithm == "slope_trick_lipschitz_l1":
+        for n in range(5):
+            for observations in product((0, 5, 10), repeat=n):
+                for h in (0, 1, 3, 100):
+                    values = (n, h, *observations)
+                    cases[values] = slope_trick_lipschitz_l1_oracle(values)
+        for h in (0, 1, 37, 100):
+            observations = tuple((i*37 + i*i*11) % 101 for i in range(128))
+            values = (128, h, *observations)
+            cases[values] = slope_trick_lipschitz_l1_oracle(values)
+        cases[(128, 0, *([0, 100] * 64))] = 6400
+        cases[(128, 100, *([0, 100] * 64))] = 0
+        cases[(128, 0, *([0] * 128), 0)] = -1
+        special_records.append("NULL 0 -1\n")
     if algorithm == "subsequence_automaton":
         for n in range(5):
             for text in product(range(2), repeat=n):
@@ -6913,7 +7033,10 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             for flutter in (0, 1, 50, 100):
                 for time_count in (0, 1, 10, 999_999, 1_000_000):
                     values = (f0_hz10, flutter, time_count)
-                    cases[values] = oracle(algorithm, list(values))
+                    result = oracle(algorithm, list(values))
+                    if (flutter == 0 or f0_hz10 < 10 or time_count == 0) and result != f0_hz10:
+                        raise ValueError("RSynth flutter violates a zero-perturbation identity")
+                    cases[values] = result
         for values in (
                 (), (0,), (0, 0), (20_001, 0, 1), (0, -1, 1),
                 (0, 101, 1), (0, 1, -1), (0, 1, 1_000_001),
@@ -7302,9 +7425,9 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         if case.get("input_is_null", False):
             input_length = case.get("input_length")
             minimum_null_length = 0 if algorithm in (
-                "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie",
+                "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie", "effective_resistance_unit_graph",
                 "mccat_08_main", "mccat_09_vor", "mallocbench_espresso", "ptrdist_anagram",
-                "stanford_puzzle", "mallocbench_cfrac", "hook_length_tableaux", "difference_product", "polynomial_resultant_half_gcd", "subsequence_automaton", "maximum_area_triangle_convex", "range_constraint_topological_feasibility", "hopcroft_dfa_minimization", "npb_serial_dc", "npb_dc_smallest_parent",
+                "stanford_puzzle", "mallocbench_cfrac", "hook_length_tableaux", "difference_product", "polynomial_resultant_half_gcd", "subsequence_automaton", "slope_trick_lipschitz_l1", "wqs_path_independent_set", "cartesian_histogram_area", "maximum_area_triangle_convex", "range_constraint_topological_feasibility", "hopcroft_dfa_minimization", "npb_serial_dc", "npb_dc_smallest_parent",
                 "prolangs_c_assembler", "prolangs_c_bison_nullable", "tsvc_vbor",
                 "versabench_dbms_choose_entry",
                 "versabench_dbms_partition_entries", "versabench_dbms_consistent_key",
@@ -12491,6 +12614,108 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         cases[maximum + (97,)] = -2
         special_records.append("NULL 0 -2\n")
         special_records.append("NULL 4162 -2\n")
+    elif algorithm == "tree_min_cost_proper_coloring":
+        issues = tree_min_cost_proper_coloring_static_issues(workload)
+        if issues:
+            raise ValueError("tree_min_cost_proper_coloring package: " + "; ".join(issues))
+        for fixture in workload["cases"]:
+            if not fixture.get("input_is_null", False):
+                values = tuple(fixture["input_values"])
+                result = tree_min_cost_proper_coloring_oracle(values)
+                if result != fixture["expected_result"]:
+                    raise ValueError("tree coloring fixture differs from reference")
+                cases[values] = result
+        for n in range(1, 5):
+            for parents in product(*(range(v) for v in range(1, n))):
+                for colors in range(1, 4):
+                    for costs in product((0, 2), repeat=n*colors):
+                        values = (n, colors, *parents, *costs)
+                        result = tree_min_cost_proper_coloring_oracle(values)
+                        if result != tree_min_cost_proper_coloring_brute(values):
+                            raise ValueError("tree coloring references disagree")
+                        cases[values] = result
+        maximum = (64, 16, *([0] * 63), *([1000000] * 1024))
+        cases[maximum] = 64000000
+        cases[maximum + (0,)] = -1
+        # In a two-color chain the only choices are the two alternating
+        # assignments; in a star, all leaves may share the cheaper color.
+        alternating_costs = tuple(cost for _ in range(64) for cost in (1000000, 0))
+        chain = (64, 2, *range(63), *alternating_costs)
+        star = (64, 2, *([0] * 63), *alternating_costs)
+        cases[chain] = 32000000
+        cases[star] = 1000000
+        cases[(64, 1, *range(63), *([0] * 64))] = -2
+        # Malformed data wins over one-color infeasibility, even at the
+        # final cost entry in the largest tree.
+        cases[(64, 1, *range(63), *([0] * 63), -1)] = -1
+        special_records.append("NULL 0 -1\n")
+        special_records.append("NULL 1090 -1\n")
+    elif algorithm == "fixed_length_walk_count":
+        issues = fixed_length_walk_count_static_issues(workload)
+        if issues:
+            raise ValueError("fixed_length_walk_count package: " + "; ".join(issues))
+        for fixture in workload["cases"]:
+            if not fixture.get("input_is_null", False):
+                values = tuple(fixture["input_values"])
+                result = fixed_length_walk_count_oracle(values)
+                if result != fixture["expected_result"]:
+                    raise ValueError("fixed-length walk count fixture differs from reference")
+                cases[values] = result
+        for entries in product((0, 1, 2), repeat=4):
+            for k in range(7):
+                for source, target in product(range(2), repeat=2):
+                    values = (2, k, source, target, *entries)
+                    result = fixed_length_walk_count_oracle(values)
+                    if result != fixed_length_walk_count_short(values):
+                        raise ValueError("walk counting references disagree")
+                    cases[values] = result
+        # A complete unit-multiplicity graph has n**(k-1) walks between
+        # any specified endpoints for k > 0, independently of matrix powers.
+        for k in (1, 17, 1000000000):
+            cases[(16, k, 0, 15, *([1] * 256))] = pow(16, k-1, 1000000007)
+        maximum = (16, 0, 0, 0, *([0] * 256))
+        cases[maximum] = 1
+        cases[maximum + (0,)] = -1
+        for values in ((0, 0, 0, 0), (17, 0, 0, 0), (1, -1, 0, 0, 0),
+                       (1, 1000000001, 0, 0, 0), (1, 0, -1, 0, 0),
+                       (1, 0, 0, 1, 0), (1, 0, 0, 0, -1), (1, 0, 0, 0, 101)):
+            cases[values] = -1
+        special_records.append("NULL 0 -1\n")
+        special_records.append("NULL 261 -1\n")
+    elif algorithm == "fixed_length_walk_minplus":
+        issues = fixed_length_walk_minplus_static_issues(workload)
+        if issues:
+            raise ValueError("fixed_length_walk_minplus package: " + "; ".join(issues))
+        for fixture in workload["cases"]:
+            if not fixture.get("input_is_null", False):
+                values = tuple(fixture["input_values"])
+                result = fixed_length_walk_minplus_oracle(values)
+                if result != fixture["expected_result"]:
+                    raise ValueError("fixed-length walk fixture differs from reference")
+                cases[values] = result
+        for a, b, c, d in product((1000000, -1, 0, 1), repeat=4):
+            for k in range(6):
+                for source, target in product(range(2), repeat=2):
+                    values = (2, k, source, target, a, b, c, d)
+                    result = fixed_length_walk_minplus_oracle(values)
+                    if result != fixed_length_walk_minplus_short(values):
+                        raise ValueError("fixed-length walk references disagree")
+                    cases[values] = result
+        maximum = (16, 0, 0, 0, *([1000000] * 256))
+        cases[maximum] = 0
+        cases[maximum + (0,)] = -100000002
+        # Uniform complete graphs have a closed-form minimum irrespective of
+        # the selected intermediate vertices. Exercise the full matrix and
+        # both small and maximum exponent paths without a circular oracle.
+        cases[(16, 13, 0, 15, *([-1] * 256))] = -13
+        cases[(16, 1000000, 15, 0, *([-1] * 256))] = -1000000
+        for values in ((0, 0, 0, 0), (17, 0, 0, 0), (1, -1, 0, 0, 0),
+                       (1, 1000001, 0, 0, 0), (1, 0, -1, 0, 0),
+                       (1, 0, 0, 1, 0), (1, 0, 0, 0, -101),
+                       (1, 0, 0, 0, 1000001)):
+            cases[values] = -100000002
+        special_records.append("NULL 0 -100000002\n")
+        special_records.append("NULL 261 -100000002\n")
     elif algorithm == "monotone_radix_heap":
         issues = monotone_radix_heap_static_issues(workload)
         if issues:

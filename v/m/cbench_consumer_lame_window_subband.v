@@ -26,12 +26,12 @@ const input_count = 767
 const max_input_length = 768
 const output_bytes = 256
 const pi = 3.14159265358979323846264338327950288
-const s_offsets = [15]int{334,398,462,14,78,142,206,16,80,144,208,272,336,400,464}
-const t_offsets = [15]int{176,112,48,496,432,368,304,494,430,366,302,238,174,110,46}
+const s_offsets = [334,398,462,14,78,142,206,16,80,144,208,272,336,400,464]!
+const t_offsets = [176,112,48,496,432,368,304,494,430,366,302,238,174,110,46]!
 
 fn store_i64_le(mut output &u8, offset int, value i64) {
 	bits := u64(value)
-	for byte in 0 .. 8 { output[offset + byte] = u8((bits >> (8 * byte)) & 255) }
+	unsafe { for byte in 0 .. 8 { output[offset + byte] = u8((bits >> (8 * byte)) & 255) } }
 }
 fn round_q1000(value f64) i64 {
 	scaled := value * 1000.0
@@ -40,7 +40,7 @@ fn round_q1000(value f64) i64 {
 	return if scaled < 0.0 { -rounded } else { rounded }
 }
 fn valid(input &i64, length usize) bool {
-	if input == nil || length == 0 || length > max_input_length || length != input_count { return false }
+	if unsafe { input == nil } || length == 0 || length > max_input_length || length != input_count { return false }
 	unsafe {
 		for i in 0 .. sample_count { if input[i] < -32768 || input[i] > 32767 { return false } }
 		for i in 0 .. window_count { if input[sample_count+i] < -4500000 || input[sample_count+i] > 36000000 { return false } }
@@ -49,6 +49,7 @@ fn valid(input &i64, length usize) bool {
 	return true
 }
 fn filterbank(input &i64, mut window [256]f64) [32]f64 {
+	unsafe {
 	maximum := window[248]
 	mut mmax := [31]f64{}
 	mut mm := [16][31]f64{}
@@ -112,6 +113,7 @@ fn filterbank(input &i64, mut window [256]f64) [32]f64 {
 		bands[row] = s0+s1; bands[31-row] = s0-s1
 	}
 	return bands
+	}
 }
 
 @[export: 'cbench_consumer_lame_window_subband']

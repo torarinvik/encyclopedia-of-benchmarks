@@ -1,0 +1,43 @@
+# Uncompiled exact-length directed walk counting draft.
+def flwc_solve(values: view[i64]) -> i64:
+    if values.len() < 4 or values.len() > 261: return -1
+    nv: i64 = values[0]
+    k: mutable i64 = values[1]
+    source: i64 = values[2]
+    target: i64 = values[3]
+    if nv < 1 or nv > 16 or k < 0 or k > 1000000000 or source < 0 or source >= nv or target < 0 or target >= nv: return -1
+    n: usize = nv.usize()
+    if values.len() != 4 + n * n: return -1
+    modulus: i64 = 1000000007
+    matrix: mutable i64[256] = zeroed
+    next: mutable i64[256] = zeroed
+    vector: mutable i64[16] = zeroed
+    temp: mutable i64[16] = zeroed
+    for i in 0..<n:
+        for j in 0..<n:
+            value: i64 = values[4 + i * n + j]
+            if value < 0 or value > 100: return -1
+            matrix[16 * i + j] <- value
+    vector[source.usize()] <- 1
+    while k > 0:
+        if (k % 2) != 0:
+            for j in 0..<n:
+                temp[j] <- 0
+                for i in 0..<n:
+                    temp[j] <- (temp[j] + vector[i] * matrix[16 * i + j]) % modulus
+            for i in 0..<n: vector[i] <- temp[i]
+        k <- k / 2
+        if k > 0:
+            for i in 0..<n:
+                for j in 0..<n:
+                    index: usize = 16 * i + j
+                    next[index] <- 0
+                    for p in 0..<n:
+                        next[index] <- (next[index] + matrix[16 * i + p] * matrix[16 * p + j]) % modulus
+            for i in 0..<n:
+                for j in 0..<n: matrix[16 * i + j] <- next[16 * i + j]
+    vector[target.usize()]
+
+export fn fixed_length_walk_count(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > 261: return -1
+    flwc_solve(input[0:length])

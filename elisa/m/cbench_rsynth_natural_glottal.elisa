@@ -6,8 +6,9 @@ def cbench_rsynth_glottal_impl(input: f64&, input_length: usize,
         return -1
     if input_length != 2:
         return -1
-    nopen_value: f64 = input[0]
-    sample_value: f64 = input[1]
+    values: view[f64] = input[0:2]
+    nopen_value: f64 = values[0]
+    sample_value: f64 = values[1]
     if nopen_value != nopen_value or sample_value != sample_value:
         return -1
     if nopen_value < 40.0 or nopen_value > 263.0 or nopen_value != nopen_value.i64().f64():
@@ -31,7 +32,8 @@ def cbench_rsynth_glottal_impl(input: f64&, input_length: usize,
         result <- (wave.f64() * 0.028).f32()
     if output.is_null() or output_capacity < 1:
         return -2
-    output[0] <- result.f64()
+    out: mutable view[f64] = output[0:1]
+    out[0] <- result.f64()
     1
 
 export fn cbench_rsynth_natural_glottal_sample(input: f64&, input_length: usize,

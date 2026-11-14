@@ -6,8 +6,9 @@ def maximum_triangle_cross(points: view[i64], a: usize, b: usize, c: usize) -> i
 
 export fn maximum_area_triangle_convex(input: i64&, length: usize) -> i64:
     if input == null or length == 0: return -1
-    if input[0] < 3 or input[0] > 1024: return -1
-    n: usize = input[0].usize()
+    header: view[i64] = input[0:1]
+    if header[0] < 3 or header[0] > 1024: return -1
+    n: usize = header[0].usize()
     if length != 1 + 2 * n: return -1
     points: view[i64] = input[1:length]
     for i in 0..<(2 * n):

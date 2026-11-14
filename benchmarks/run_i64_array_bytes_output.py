@@ -3,9 +3,13 @@
 
 from __future__ import annotations
 
+from q.quadratic_form_gf2_normal_form.abi_reference import expected as quadratic_form_gf2_oracle
 from x.xor_leaf_tree_traversal.primary_oracle import expected_output as xor_leaf_tree_traversal_oracle
 from l.lexicographically_minimal_concatenation.independent_oracle import expected_output as minimal_concatenation_oracle
 from l.lexicographically_minimal_concatenation.validation import validate_workload as validate_minimal_concatenation_workload
+from s.symmetric_group_convolution_fft.abi_reference import MAX_PARSEABLE_WORDS as SYMMETRIC_GROUP_MAX_PARSEABLE_WORDS
+from s.symmetric_group_convolution_fft.abi_reference import MAX_OUTPUT_BYTES as SYMMETRIC_GROUP_MAX_OUTPUT_BYTES
+from s.symmetric_group_convolution_fft.abi_reference import expected as symmetric_group_abi_oracle
 
 import argparse
 import bisect
@@ -7037,6 +7041,7 @@ from chord_stabilization_trace_oracle import expected_output as chord_stabilizat
 from shortest_absent_substring_sam_oracle import expected_output as shortest_absent_substring_sam_oracle
 
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
+    "quadratic_form_gf2_normal_form": quadratic_form_gf2_oracle,
     "log_of_set_power_series": log_of_set_power_series_oracle,
     "range_add_range_min": range_add_range_min_oracle,
     "discrete_logarithm_fixed_mod": discrete_logarithm_fixed_mod_oracle,
@@ -7736,6 +7741,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "baswana_sen_weighted_spanner": baswana_sen_weighted_spanner_oracle,
 }
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
+RECORDER_WORKSPACE_ALGORITHMS.add("symmetric_group_convolution_fft")
 
 EXTERNAL_BYTE_OUTPUT_BOUNDS = {
     "log_of_set_power_series": (34, 256),
@@ -7775,6 +7781,7 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
     "sparse_supernodal_cholesky": (56, 288),
     "prime_modulus_inverse_table": (PRIME_MODULUS_INVERSE_TABLE_MAX_PARSEABLE_INPUT_LENGTH,
                                      PRIME_MODULUS_INVERSE_TABLE_MAX_OUTPUT_BYTES),
+    "quadratic_form_gf2_normal_form": (202, 1303),
     "indexed_block_list": (
         INDEXED_BLOCK_LIST_MAX_PARSEABLE_INPUT_LENGTH,
         INDEXED_BLOCK_LIST_MAX_OUTPUT_BYTES,
@@ -9073,6 +9080,8 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "symmetric_group_convolution_fft":
+        return symmetric_group_abi_oracle(values, SYMMETRIC_GROUP_MAX_OUTPUT_BYTES)
     if algorithm in BYTE_OUTPUT_ALGORITHM_ORACLES:
         return BYTE_OUTPUT_ALGORITHM_ORACLES[algorithm](values)
     if algorithm == "big_integer_multiply":
@@ -50479,6 +50488,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 "c3/m/mediabench_gsm_rpe_grid_positioning.c3",
                 "cpp/m/mediabench_gsm_rpe_grid_positioning.cpp",
                 "elisa/m/mediabench_gsm_rpe_grid_positioning.elisa",
+                "mojo/m/mediabench_gsm_rpe_grid_positioning.mojo",
                 "nim/m/mediabench_gsm_rpe_grid_positioning.nim",
                 "odin/m/mediabench_gsm_rpe_grid_positioning.odin",
                 "rust/m/mediabench_gsm_rpe_grid_positioning.rs",
@@ -50561,6 +50571,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 "c3/m/mediabench_gsm_rpe_grid_selection.c3",
                 "cpp/m/mediabench_gsm_rpe_grid_selection.cpp",
                 "elisa/m/mediabench_gsm_rpe_grid_selection.elisa",
+                "mojo/m/mediabench_gsm_rpe_grid_selection.mojo",
                 "nim/m/mediabench_gsm_rpe_grid_selection.nim",
                 "odin/m/mediabench_gsm_rpe_grid_selection.odin",
                 "rust/m/mediabench_gsm_rpe_grid_selection.rs",
@@ -54035,7 +54046,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("MediaBench MPEG-2 attribution or rights notice is incomplete")
         for relative in (
                 f"c/m/{algorithm}.c", f"c3/m/{algorithm}.c3", f"cpp/m/{algorithm}.cpp",
-                f"elisa/m/{algorithm}.elisa", f"nim/m/{algorithm}.nim", f"odin/m/{algorithm}.odin",
+                f"elisa/m/{algorithm}.elisa", f"mojo/m/{algorithm}.mojo", f"nim/m/{algorithm}.nim", f"odin/m/{algorithm}.odin",
                 f"rust/m/{algorithm}.rs", f"v/m/{algorithm}.v", f"zig/m/{algorithm}.zig"):
             if not (ROOT / relative).is_file():
                 raise ValueError(f"MediaBench MPEG-2 language port is missing: {relative}")
@@ -54086,7 +54097,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("MiBench JPEG attribution or IJG license notice is incomplete")
         for relative in (
                 f"c/m/{algorithm}.c", f"c3/m/{algorithm}.c3", f"cpp/m/{algorithm}.cpp",
-                f"elisa/m/{algorithm}.elisa", f"nim/m/{algorithm}.nim", f"odin/m/{algorithm}.odin",
+                f"elisa/m/{algorithm}.elisa", f"mojo/m/{algorithm}.mojo", f"nim/m/{algorithm}.nim", f"odin/m/{algorithm}.odin",
                 f"rust/m/{algorithm}.rs", f"v/m/{algorithm}.v", f"zig/m/{algorithm}.zig"):
             port = ROOT / relative
             if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
@@ -54167,7 +54178,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("cBench JPEG h2v2 README or IJG redistribution notice is incomplete")
         for relative in (
                 f"c/c/{algorithm}.c", f"c3/c/{algorithm}.c3", f"cpp/c/{algorithm}.cpp",
-                f"elisa/c/{algorithm}.elisa", f"nim/c/{algorithm}.nim", f"odin/c/{algorithm}.odin",
+                f"elisa/c/{algorithm}.elisa", f"mojo/c/{algorithm}.mojo", f"nim/c/{algorithm}.nim", f"odin/c/{algorithm}.odin",
                 f"rust/c/{algorithm}.rs", f"v/c/{algorithm}.v", f"zig/c/{algorithm}.zig"):
             port = ROOT / relative
             if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
@@ -54568,7 +54579,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     elif algorithm == "beebs_nettle_cast128":
         pinned = "049ded9f3aeb5591f553879d3a0376b8614e9422"
         expected_ids = {
-            "beebs_first_block", "rfc2144_128_bit_known_answer", "negative_key_byte",
+            "independent_block", "negative_key_byte",
             "byte_above_range", "truncated_frame", "extra_trailing_byte", "null_input",
             "null_output", "short_output_capacity",
         }
@@ -54602,7 +54613,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                     "input_value_range": [0, 255],
                     "invalid_result": BEEBS_NETTLE_CAST128_INVALID_RESULT,
                     "output_error_result": BEEBS_NETTLE_CAST128_OUTPUT_ERROR,
-                    "algorithm_scope": "One block of encryption only. The pinned BEEBS timed function encrypts and decrypts two blocks; this bounded profile uses its first plaintext block and reports ciphertext.",
+                    "algorithm_scope": "One block of encryption only. The pinned BEEBS timed function encrypts and decrypts two blocks; this bounded profile uses an independently chosen block and reports ciphertext.",
                 }
                 or workload.get("input") != {
                     "kind": "signed_64_bit_integer_array",
@@ -54995,6 +55006,11 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                     and type(declared[0]) in (int, float) and math.isfinite(declared[0])
                     and len(output) == 8 and math.isclose(struct.unpack("<d", output)[0], declared[0],
                         rel_tol=1e-12, abs_tol=1e-8))
+        elif (algorithm == "beebs_nettle_cast128" and case_id == "independent_block"
+              and result >= 0 and "expected_output_hex" not in case):
+            # The reference computes bytes for independently chosen inputs;
+            # no external known-answer vector is embedded in the workload.
+            output_matches_fixture = len(output) == result == BEEBS_NETTLE_CAST128_BLOCK_BYTES
         elif algorithm == "beebs_fasta":
             expected_text = case.get("expected_output_text")
             output_matches_fixture = (isinstance(expected_text, str)
@@ -55099,6 +55115,24 @@ def main() -> int:
             or sha256_file(executable) != binary["sha256"]
             or sha256_file(runner) != binary["harness_sha256"]):
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
+    if algorithm == "symmetric_group_convolution_fft" and language in {"c", "cpp", "rust", "nim", "zig", "elisa"}:
+        suffix = {"c": "h", "cpp": "hpp", "rust": "rs", "nim": "nim", "zig": "zig", "elisa": "elisa"}[language]
+        parts = ("plan", "forward", "inverse", "kernel") if language == "elisa" else ("plan", "forward", "inverse")
+        required_dependencies = {
+            f"{language}/s/symmetric_group_convolution_fft_{part}.{suffix}"
+            for part in parts
+        }
+        dependencies = manifest.get("source_dependencies")
+        if (not isinstance(dependencies, list) or len(dependencies) != len(required_dependencies)
+                or any(not isinstance(item, dict) or not isinstance(item.get("path"), str)
+                       or not isinstance(item.get("sha256"), str) for item in dependencies)
+                or {item["path"] for item in dependencies} != required_dependencies):
+            parser.error("symmetric-group manifest must record all source dependencies; rebuild first")
+        for item in dependencies:
+            dependency = (ROOT / item["path"]).resolve()
+            dependency.relative_to(ROOT)
+            if not dependency.is_file() or sha256_file(dependency) != item["sha256"]:
+                parser.error("symmetric-group source dependency changed since the recorded build; rebuild first")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
     workload_path = args.workload or (
         ROOT / "benchmarks" / "s" / algorithm / "workload.json"
@@ -55196,7 +55230,38 @@ def main() -> int:
             workload_path = flat_workload
     from workload_json import load_workload
     workload = load_workload(workload_path)
-    if algorithm == "splash2_water_nsquared":
+    if algorithm == "symmetric_group_convolution_fft":
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("input", {}).get("maximum_valid_input_length") != 725761
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 725762
+                or workload.get("output", {}).get("maximum_output_bytes") != 1451520
+                or not isinstance(workload.get("cases"), list) or not workload["cases"]):
+            raise ValueError("symmetric-group workload metadata differs from its contract")
+        seen = set()
+        for case in workload["cases"]:
+            case_id = case.get("id")
+            values = case.get("input_values")
+            length = case.get("input_length")
+            capacity = case.get("output_capacity", workload.get("workspace", {}).get("bytes"))
+            input_null = case.get("input_is_null", False)
+            output_null = case.get("output_is_null", False)
+            if (not isinstance(case_id, str) or case_id in seen or not isinstance(values, list)
+                    or type(length) is not int or type(capacity) is not int
+                    or not 0 <= capacity <= SYMMETRIC_GROUP_MAX_OUTPUT_BYTES
+                    or type(input_null) is not bool or type(output_null) is not bool
+                    or input_null and (values or output_null or length < 0
+                                       or length > SYMMETRIC_GROUP_MAX_PARSEABLE_WORDS)
+                    or not input_null and length != len(values)):
+                raise ValueError(f"invalid symmetric-group fixture framing: {case_id}")
+            seen.add(case_id)
+            result, data = symmetric_group_abi_oracle(
+                values, capacity, input_is_null=input_null, output_is_null=output_null,
+                input_length=length)
+            if result != case.get("expected_result") or data.hex() != case.get("expected_output_hex"):
+                raise ValueError(f"symmetric-group fixture differs from reference: {case_id}")
+    elif algorithm == "splash2_water_nsquared":
         validate_new_byte_output_workload(workload, algorithm)
         verify_splash2_water_nsquared_package()
     elif algorithm == "water_spatial":
@@ -55464,6 +55529,8 @@ def main() -> int:
     run_id = dt.datetime.now(dt.timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
     implementation = {key: manifest[key] for key in (
         "language", "source_path", "source_sha256", "compiler", "compiler_version", "build_flags")}
+    if "source_dependencies" in manifest:
+        implementation["source_dependencies"] = manifest["source_dependencies"]
     implementation.update({"runner_source_sha256": binary["harness_sha256"],
                            "binary_sha256": binary["sha256"],
                            "build_command": "\n".join(shlex.join(command) for command in manifest["commands"])})
@@ -56006,6 +56073,8 @@ def main() -> int:
                             MAX_INPUT_LENGTH)
         if algorithm in EXTERNAL_BYTE_OUTPUT_BOUNDS:
             max_input_length = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm][0]
+        if algorithm == "symmetric_group_convolution_fft":
+            max_input_length = SYMMETRIC_GROUP_MAX_PARSEABLE_WORDS
         if (not isinstance(values, list) or len(values) > max_input_length
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
             raise ValueError(f"invalid signed 64-bit digit array in {case['id']}")
@@ -56017,7 +56086,7 @@ def main() -> int:
                                            and input_length in {0, 1, 2})
             else:
                 minimum_null_input_length = 0 if algorithm in {
-                    "print_reverse", "lru", "linkedlist_implentation_usingarray", "random",
+                    "print_reverse", "lru", "linkedlist_implentation_usingarray", "random", "symmetric_group_convolution_fft",
                     "self_organizing_linked_list", "simple_proof_of_work", "mandelbrot",
                     "singlylinkedlist", "scapegoat_tree", "tabu_search", "z_algorithm",
                     *BYTE_OUTPUT_ALGORITHM_ORACLES} else 1
@@ -56080,14 +56149,20 @@ def main() -> int:
                 "maximum_bytes", workload.get("output", {}).get(
                     "maximum_output_bytes", len(required_output)))
         output_capacity = case.get("workspace_bytes", case.get("output_capacity", default_capacity))
-        if (type(output_capacity) is not int or not 0 <= output_capacity <= MAX_OUTPUT_CAPACITY):
+        max_output_capacity = (SYMMETRIC_GROUP_MAX_OUTPUT_BYTES
+                               if algorithm == "symmetric_group_convolution_fft" else MAX_OUTPUT_CAPACITY)
+        if (type(output_capacity) is not int or not 0 <= output_capacity <= max_output_capacity):
             raise ValueError(f"invalid output capacity in {case['id']}")
         output_is_null = case.get("output_is_null", False)
         if type(output_is_null) is not bool:
             raise ValueError(f"output_is_null must be a boolean in {case['id']}")
         if input_is_null and output_is_null:
             raise ValueError(f"input and output cannot both be null in {case['id']}")
-        if algorithm == "simple_proof_of_work":
+        if algorithm == "symmetric_group_convolution_fft":
+            expected_count, expected = symmetric_group_abi_oracle(
+                values, output_capacity, input_is_null=input_is_null,
+                output_is_null=output_is_null, input_length=input_length)
+        elif algorithm == "simple_proof_of_work":
             expected_count, expected = simple_proof_of_work_expected_output(
                 values, output_capacity, output_is_null, input_is_null, input_length)
         elif algorithm == "print_reverse":

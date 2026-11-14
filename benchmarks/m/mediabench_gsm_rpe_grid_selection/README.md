@@ -56,3 +56,6 @@ not copy the upstream function body.
 - Zig: [`zig/m/mediabench_gsm_rpe_grid_selection.zig`](../../../zig/m/mediabench_gsm_rpe_grid_selection.zig)
 
 No tests, builds, or runtime checks are claimed.
+The verifier source also composes the selection and positioning references on
+independently generated sample vectors and checks the selected positions and
+zero-filled remainder. This cross-check has not been run.

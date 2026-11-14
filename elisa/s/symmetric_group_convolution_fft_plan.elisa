@@ -1,0 +1,191 @@
+# Uncompiled tableau and restriction-plan draft. Every working buffer is a
+# caller-owned view; no raw pointer is needed in this planning code.
+# Level/shape slots: n*30+r. Basis cell: (slot*603+tableau)*9+label.
+# Restriction slot: (n*30+r)*9+corner_index. Basis dimension <= 602 because
+# the squared irreducible dimensions sum to n!, and n <= 9.
+
+def sg_same_shape(shapes: view[i64], slot: usize, shape: view[i64]) -> bool:
+    for i in 0..<9:
+        if shapes[slot*9+i] != shape[i]: return false
+    true
+
+def sg_enumerate(n: usize, next: usize, shape: mutable view[i64],
+                 tableau: mutable view[i64], level_counts: mutable view[i64],
+                 shapes: mutable view[i64], counts: mutable view[i64],
+                 basis: mutable view[i64]) -> i64:
+    if next == n:
+        shape_count: usize = level_counts[n].usize()
+        index: mutable usize = 0
+        while index < shape_count and not sg_same_shape(shapes, n*30+index, shape):
+            index <- index+1
+        if index == shape_count:
+            if shape_count == 30: return -4
+            for i in 0..<9: shapes[(n*30+index)*9+i] <- shape[i]
+            level_counts[n] <- (shape_count+1).i64()
+        slot: usize = n*30+index
+        count: usize = counts[slot].usize()
+        if count >= 603: return -4
+        for i in 0..<n: basis[(slot*603+count)*9+i] <- tableau[i]
+        counts[slot] <- (count+1).i64()
+        return 0
+    row: mutable usize = 0
+    while row < n:
+        allowed: mutable bool = true
+        if row > 0 and shape[row] >= shape[row-1]: allowed <- false
+        if allowed:
+            column: i64 = shape[row]
+            tableau[next] <- (row*9).i64()+column
+            shape[row] <- column+1
+            status: i64 = sg_enumerate(n,next+1,shape,tableau,level_counts,shapes,counts,basis)
+            shape[row] <- column
+            if status != 0: return status
+            if column == 0: break
+        row <- row+1
+    0
+
+def sg_basis_less(basis: view[i64], slot: usize, left: usize, right: usize, n: usize) -> bool:
+    label: mutable usize = n
+    while label > 0:
+        label <- label-1
+        a: i64 = basis[(slot*603+left)*9+label]
+        b: i64 = basis[(slot*603+right)*9+label]
+        if a < b: return true
+        if a > b: return false
+    false
+
+# Buffers are disjoint. They have at least 10, 2700, 300, 1628100, 300,
+# 2700, 2700 and 2700 elements respectively, in the order listed below.
+# The last three views receive child index, offset and width for each block.
+def sg_make_tableau_plan(degree: usize, level_counts: mutable view[i64],
+                         shapes: mutable view[i64], counts: mutable view[i64],
+                         basis: mutable view[i64], restriction_counts: mutable view[i64],
+                         children: mutable view[i64], offsets: mutable view[i64],
+                         widths: mutable view[i64]) -> i64:
+    if degree < 1 or degree > 9: return -4
+    if level_counts.len() < 10 or shapes.len() < 2700 or counts.len() < 300 or basis.len() < 1628100: return -4
+    if restriction_counts.len() < 300 or children.len() < 2700 or offsets.len() < 2700 or widths.len() < 2700: return -4
+    for i in 0..<10: level_counts[i] <- 0
+    for i in 0..<300:
+        counts[i] <- 0
+        restriction_counts[i] <- 0
+    for n in 1..<degree+1:
+        shape: mutable i64[9] = zeroed
+        tableau: mutable i64[9] = zeroed
+        status: i64 = sg_enumerate(n,0,shape[0:9],tableau[0:9],level_counts,shapes,counts,basis)
+        if status != 0: return status
+        for r in 0..<level_counts[n].usize():
+            slot: usize = n*30+r
+            for i in 1..<counts[slot].usize():
+                j: mutable usize = i
+                while j > 0 and sg_basis_less(basis,slot,j,j-1,n):
+                    for label in 0..<n:
+                        a: usize = (slot*603+j)*9+label
+                        b: usize = (slot*603+j-1)*9+label
+                        value: i64 = basis[a]
+                        basis[a] <- basis[b]
+                        basis[b] <- value
+                    j <- j-1
+        if n > 1:
+            for r in 0..<level_counts[n].usize():
+                slot: usize = n*30+r
+                start: mutable usize = 0
+                while start < counts[slot].usize():
+                    corner: i64 = basis[(slot*603+start)*9+n-1]
+                    end: mutable usize = start+1
+                    while end < counts[slot].usize() and basis[(slot*603+end)*9+n-1] == corner:
+                        end <- end+1
+                    row: usize = (corner/9).usize()
+                    if row >= 9 or shapes[slot*9+row] == 0: return -4
+                    child: mutable usize = 0
+                    found: mutable bool = false
+                    while child < level_counts[n-1].usize() and not found:
+                        candidate: usize = (n-1)*30+child
+                        matches: mutable bool = true
+                        for label in 0..<9:
+                            expected: mutable i64 = shapes[slot*9+label]
+                            if label == row: expected <- expected-1
+                            if shapes[candidate*9+label] != expected: matches <- false
+                        if matches: found <- true
+                        else: child <- child+1
+                    if not found: return -4
+                    child_slot: usize = (n-1)*30+child
+                    if counts[child_slot].usize() != end-start: return -4
+                    for i in 0..<end-start:
+                        for label in 0..<n-1:
+                            if basis[(slot*603+start+i)*9+label] != basis[(child_slot*603+i)*9+label]: return -4
+                    block: usize = restriction_counts[slot].usize()
+                    if block >= 9: return -4
+                    at: usize = slot*9+block
+                    children[at] <- child.i64()
+                    offsets[at] <- start.i64()
+                    widths[at] <- (end-start).i64()
+                    restriction_counts[slot] <- (block+1).i64()
+                    start <- end
+    0
+
+const SG_MODULUS: i64 = 998244353
+
+def sg_power(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    value: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: value <- (value*base)%SG_MODULUS
+        base <- (base*base)%SG_MODULUS
+        exponent <- exponent >> 1
+    value
+
+def sg_compare_tableau(basis: view[i64], slot: usize, index: usize,
+                       target: view[i64], n: usize) -> i64:
+    label: mutable usize = n
+    while label > 0:
+        label <- label-1
+        value: i64 = basis[(slot*603+index)*9+label]
+        if value < target[label]: return -1
+        if value > target[label]: return 1
+    0
+
+# Generator element (slot, adjacent label, basis column) is stored at
+# (slot*8+label)*603+column in each of the three disjoint output views.
+# A partner of -1 denotes a one-entry column. The caller owns all buffers.
+def sg_make_generators(degree: usize, level_counts: view[i64], counts: view[i64],
+                       basis: view[i64], diagonals: mutable view[i64],
+                       partners: mutable view[i64], coefficients: mutable view[i64]) -> i64:
+    if degree < 1 or degree > 9: return -4
+    if level_counts.len() < 10 or counts.len() < 300 or basis.len() < 1628100: return -4
+    if diagonals.len() < 1447200 or partners.len() < 1447200 or coefficients.len() < 1447200: return -4
+    for n in 1..<degree+1:
+        if level_counts[n] < 0 or level_counts[n] > 30: return -4
+        for r in 0..<level_counts[n].usize():
+            slot: usize = n*30+r
+            if counts[slot] < 1 or counts[slot] > 603: return -4
+            count: usize = counts[slot].usize()
+            for label in 0..<n-1:
+                for index in 0..<count:
+                    first: i64 = basis[(slot*603+index)*9+label]
+                    second: i64 = basis[(slot*603+index)*9+label+1]
+                    distance: i64 = second%9-second/9-first%9+first/9
+                    if distance == 0: return -4
+                    diagonal: i64 = sg_power((distance+SG_MODULUS)%SG_MODULUS,SG_MODULUS-2)
+                    at: usize = (slot*8+label)*603+index
+                    diagonals[at] <- diagonal
+                    partners[at] <- -1
+                    coefficients[at] <- 0
+                    if distance != 1 and distance != -1:
+                        target: mutable i64[9] = zeroed
+                        for i in 0..<n: target[i] <- basis[(slot*603+index)*9+i]
+                        temp: i64 = target[label]
+                        target[label] <- target[label+1]
+                        target[label+1] <- temp
+                        lo: mutable usize = 0
+                        hi: mutable usize = count
+                        while lo < hi:
+                            mid: usize = lo+(hi-lo)/2
+                            if sg_compare_tableau(basis,slot,mid,target[0:9],n) < 0: lo <- mid+1
+                            else: hi <- mid
+                        if lo == count: return -4
+                        if sg_compare_tableau(basis,slot,lo,target[0:9],n) != 0: return -4
+                        partners[at] <- lo.i64()
+                        if distance > 0: coefficients[at] <- 1
+                        else: coefficients[at] <- (1-diagonal*diagonal%SG_MODULUS+SG_MODULUS)%SG_MODULUS
+    0

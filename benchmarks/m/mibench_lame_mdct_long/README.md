@@ -55,6 +55,7 @@ the bounded fixtures are in [`workload.json`](workload.json).
 - C3: [`c3/m/mibench_lame_mdct_long.c3`](../../../c3/m/mibench_lame_mdct_long.c3)
 - C++: [`cpp/m/mibench_lame_mdct_long.cpp`](../../../cpp/m/mibench_lame_mdct_long.cpp)
 - Elisa: [`elisa/m/mibench_lame_mdct_long.elisa`](../../../elisa/m/mibench_lame_mdct_long.elisa)
+- Mojo: [`mojo/m/mibench_lame_mdct_long.mojo`](../../../mojo/m/mibench_lame_mdct_long.mojo)
 - Nim: [`nim/m/mibench_lame_mdct_long.nim`](../../../nim/m/mibench_lame_mdct_long.nim)
 - Odin: [`odin/m/mibench_lame_mdct_long.odin`](../../../odin/m/mibench_lame_mdct_long.odin)
 - Rust: [`rust/m/mibench_lame_mdct_long.rs`](../../../rust/m/mibench_lame_mdct_long.rs)
@@ -62,3 +63,4 @@ the bounded fixtures are in [`workload.json`](workload.json).
 - Zig: [`zig/m/mibench_lame_mdct_long.zig`](../../../zig/m/mibench_lame_mdct_long.zig)
 
 No runtime, compiler, or validator verification is claimed.
+The Elisa draft uses bounded views after ABI checks; this edit is uncompiled.

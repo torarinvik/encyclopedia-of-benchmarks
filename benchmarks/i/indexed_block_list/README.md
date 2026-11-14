@@ -8,6 +8,13 @@ The signed 64-bit input is `[initial_count, initial_values..., operation_count, 
 
 The longest valid input has 178 words and the parseable malformed-frame limit is 179 words. Output is at most 256 bytes. The bounded port workspace is at most 4,096 bytes; it stores at most 16 block descriptors, nine values per block during an insertion, and 32 staged answers. In this fixed profile, each operation traverses the linked blocks and may shift at most `2B+1` values within one block, for `O(number_of_blocks + B)` work. The chosen `B = 4` is a small fixed constant for the bounded workload, not a claim of an asymptotic square-root bound as the input grows.
 
+There are at most 48 elements after validation. Every split replaces a
+nine-element block with blocks of sizes five and four; later operations only
+insert, so every block after the first split retains at least four elements.
+Thus a nonempty split list has at most 12 blocks, within the 16 allocated
+descriptors. Before the first split there is only one descriptor, including
+for an empty list. This is a source-level bound, not a runtime check.
+
 ## Distinction and provenance
 
 The existing `unrolled_linked_list` package only appends and flattens, with tail splitting. This package exercises indexed insertion, indexed access, and interior block splitting. Its operation design follows the linked-array block-list description in [OI Wiki](https://oi-wiki.org/ds/block-list/). The implementation and workload were written independently; no source code or examples were copied.
@@ -17,4 +24,13 @@ Insertion-only traces still build and update the list, even though they return
 zero output bytes; the final structure is unobservable and optimized builds may
 eliminate work in those traces. The suite source also defines insertion-and-read traces at every index around
 the block split threshold and compares the two references. These checks have
-not been run.
+not been run. The Elisa draft uses bounded input and output views after ABI
+validation; its allocation-free zero-output path does not create an output view.
+The verifier also specifies a maximum-length trace with 32 front insertions
+followed by 32 reads across the new prefix and original tail; this stresses
+repeated splits and remains unexecuted.
+The Nim, Odin, and Mojo drafts compare output capacity in the ABI's unsigned
+size type, avoiding narrowing a large capacity to a signed integer. This
+source-level fix has not been compiled or run.
+The V draft also uses V's ordinary declaration syntax for the operation
+count; this correction is likewise uncompiled.

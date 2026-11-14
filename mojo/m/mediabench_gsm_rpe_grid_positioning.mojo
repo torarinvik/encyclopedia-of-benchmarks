@@ -1,5 +1,6 @@
 # Independent GSM grid positioning. The upstream notice is retained in
 # benchmarks/m/mediabench_gsm_rpe_grid_positioning/COPYRIGHT.txt.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 

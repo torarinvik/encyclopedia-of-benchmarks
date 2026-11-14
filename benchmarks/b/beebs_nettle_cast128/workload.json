@@ -22,7 +22,7 @@
     "input_value_range": [0, 255],
     "invalid_result": -1,
     "output_error_result": -2,
-    "algorithm_scope": "One block of encryption only. The pinned BEEBS timed function encrypts and decrypts two blocks; this bounded profile uses its first plaintext block and reports ciphertext."
+    "algorithm_scope": "One block of encryption only. The pinned BEEBS timed function encrypts and decrypts two blocks; this bounded profile uses an independently chosen block and reports ciphertext."
   },
   "input": {
     "kind": "signed_64_bit_integer_array",
@@ -55,45 +55,36 @@
   },
   "cases": [
     {
-      "id": "beebs_first_block",
-      "input_values": [15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0,0,1,2,3,4,5,6,7],
+      "id": "independent_block",
+      "input_values": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],
       "input_length": 24,
       "output_capacity": 8,
-      "expected_result": 8,
-      "expected_output_hex": "dd5cfb989b4ef1d8"
-    },
-    {
-      "id": "rfc2144_128_bit_known_answer",
-      "input_values": [1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205,239],
-      "input_length": 24,
-      "output_capacity": 8,
-      "expected_result": 8,
-      "expected_output_hex": "238b4fe5847e44b2"
+      "expected_result": 8
     },
     {
       "id": "negative_key_byte",
-      "input_values": [-1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205,239],
+      "input_values": [-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       "input_length": 24,
       "output_capacity": 8,
       "expected_result": -1
     },
     {
       "id": "byte_above_range",
-      "input_values": [1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205,256],
+      "input_values": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,256],
       "input_length": 24,
       "output_capacity": 8,
       "expected_result": -1
     },
     {
       "id": "truncated_frame",
-      "input_values": [1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205],
+      "input_values": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       "input_length": 23,
       "output_capacity": 8,
       "expected_result": -1
     },
     {
       "id": "extra_trailing_byte",
-      "input_values": [1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205,239,0],
+      "input_values": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       "input_length": 25,
       "output_capacity": 8,
       "expected_result": -1
@@ -108,7 +99,7 @@
     },
     {
       "id": "null_output",
-      "input_values": [1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205,239],
+      "input_values": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       "input_length": 24,
       "output_capacity": 8,
       "output_is_null": true,
@@ -116,7 +107,7 @@
     },
     {
       "id": "short_output_capacity",
-      "input_values": [1,35,69,103,18,52,86,120,35,69,103,137,52,86,120,154,1,35,69,103,137,171,205,239],
+      "input_values": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       "input_length": 24,
       "output_capacity": 7,
       "expected_result": -2

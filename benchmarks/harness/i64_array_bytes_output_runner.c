@@ -12,8 +12,12 @@
 #error "Compile with -DBENCHMARK_FUNCTION=<exported function symbol>"
 #endif
 
+#ifndef MAX_INPUT_LENGTH
 #define MAX_INPUT_LENGTH 100002
+#endif
+#ifndef MAX_OUTPUT_BYTES
 #define MAX_OUTPUT_BYTES 400004
+#endif
 typedef int64_t (*output_fn)(const int64_t *, size_t, uint8_t *, size_t);
 extern int64_t BENCHMARK_FUNCTION(const int64_t *values, size_t length,
                                  uint8_t *output, size_t output_capacity);

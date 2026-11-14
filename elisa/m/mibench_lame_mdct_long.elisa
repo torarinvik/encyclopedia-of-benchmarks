@@ -9,9 +9,10 @@ def mibench_lame_mdct_long_impl(input: f64&, input_length: usize,
         output: mutable f64&, output_capacity: usize) -> i64:
     if input.is_null() or input_length < 1 or input_length > MIBENCH_LAME_MDCT_LONG_MAX_INPUT:
         return -1
+    values: view[f64] = input[0:input_length]
     index: mutable usize = 0
     while index < input_length:
-        value: f64 = input[index]
+        value: f64 = values[index]
         if value != value or value < -16.0 or value > 16.0:
             return -1
         index <- index + 1
@@ -28,15 +29,16 @@ def mibench_lame_mdct_long_impl(input: f64&, input_length: usize,
             if index >= 9: offset <- 74
             angle: f64 = MIBENCH_LAME_MDCT_LONG_PI *
                 (2 * m + 1).f64() * (4 * index + offset).f64() / 144.0
-            total <- total + input[index] * cos(angle)
+            total <- total + values[index] * cos(angle)
             index <- index + 1
         staged[m] <- (4.0 / 36.0) * total
         m <- m + 1
     if output.is_null() or output_capacity < MIBENCH_LAME_MDCT_LONG_OUTPUT_COUNT:
         return -2
+    result: mutable view[f64] = output[0:MIBENCH_LAME_MDCT_LONG_OUTPUT_COUNT]
     m <- 0
     while m < MIBENCH_LAME_MDCT_LONG_OUTPUT_COUNT:
-        output[m] <- staged[m]
+        result[m] <- staged[m]
         m <- m + 1
     MIBENCH_LAME_MDCT_LONG_OUTPUT_COUNT.i64()
 

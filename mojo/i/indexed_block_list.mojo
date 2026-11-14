@@ -97,7 +97,7 @@ fn indexed_block_list(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_siz
     if cursor != n or size > IBL_MAX_ITEMS:
         return -1
     let required = accesses * 8
-    if required > 0 and (output == UnsafePointer[UInt8, MutAnyOrigin]() or Int(capacity) < required):
+    if required > 0 and (output == UnsafePointer[UInt8, MutAnyOrigin]() or capacity < c_size_t(required)):
         return -2
 
     var blocks = InlineArray[Int64, 144]()

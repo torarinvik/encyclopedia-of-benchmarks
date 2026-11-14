@@ -64,9 +64,10 @@ def rct_connect(index: usize, left: usize, right: usize, query_left: usize, quer
 
 export fn range_constraint_topological_feasibility(input: i64&, length: usize) -> i64:
     if input == null or length < 2: return -1
-    if input[0] < 1 or input[0] > 4096 or input[1] < 0 or input[1] > 8192: return -1
-    n: usize = input[0].usize()
-    m: usize = input[1].usize()
+    header: view[i64] = input[0:2]
+    if header[0] < 1 or header[0] > 4096 or header[1] < 0 or header[1] > 8192: return -1
+    n: usize = header[0].usize()
+    m: usize = header[1].usize()
     if length != 2 + 4 * m: return -1
     values: view[i64] = input[0:length]
     for i in 0..<m:

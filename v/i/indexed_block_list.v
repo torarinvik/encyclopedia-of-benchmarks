@@ -84,7 +84,7 @@ pub fn indexed_block_list(input &i64, length usize, output &u8, output_capacity 
 		for i in 0 .. max_nodes { next[i] = -1 }
 		mut node_count := 1
 		for i in 0 .. initial { ibl_insert(mut blocks[..], mut sizes[..], mut next[..], mut node_count, i, input[1 + i]) }
-		let operation_count := int(raw_ops)
+		operation_count := int(raw_ops)
 		cursor = initial + 2
 		mut answers := [max_accesses]i64{}
 		mut answer_count := 0

@@ -2,14 +2,15 @@
 extern exp(value: f64) -> f64
 extern cos(value: f64) -> f64
 
-def fn f64 cbench_rsynth_impulsive_sample_impl(f64& input, usize input_length,
-        mutable f64& output, usize output_capacity) -> i64:
+def cbench_rsynth_impulsive_sample_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
     if input.is_null() or input_length < 1 or input_length > 3:
         return -1
     if input_length != 2:
         return -1
-    open_value: f64 = input[0]
-    sample_value: f64 = input[1]
+    values: view[f64] = input[0:2]
+    open_value: f64 = values[0]
+    sample_value: f64 = values[1]
     if open_value != open_value or sample_value != sample_value:
         return -1
     if open_value < 40.0 or open_value > 263.0 or open_value != open_value.i64().f64():
@@ -43,7 +44,8 @@ def fn f64 cbench_rsynth_impulsive_sample_impl(f64& input, usize input_length,
         i <- i + 1
     if output.is_null() or output_capacity < 1:
         return -2
-    output[0] <- result.f64()
+    out: mutable view[f64] = output[0:1]
+    out[0] <- result.f64()
     return 1
 
 export fn cbench_rsynth_impulsive_glottal_sample(input: f64&, input_length: usize,

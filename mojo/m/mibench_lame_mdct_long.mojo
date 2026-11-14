@@ -1,4 +1,5 @@
 # Independent bounded long-block MDCT; see package license notice.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.math import cos, isfinite
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer

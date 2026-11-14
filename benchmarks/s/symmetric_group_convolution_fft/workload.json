@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "symmetric-group-convolution-fft-i64-bytes-v1",
+  "algorithm": "symmetric_group_convolution_fft",
+  "function_symbol": "symmetric_group_convolution_fft",
+  "abi": "i64_array_bytes_output",
+  "source": {"repository": "yosupo06/library-checker-problems", "path": "issues/1432", "license": "Apache-2.0; algorithm idea only"},
+  "input": {"kind": "signed_i64_array", "layout": "[n, a[n!], b[n!]]", "maximum_valid_input_length": 725761, "maximum_parseable_input_length": 725762, "invalid_result": -1},
+  "output": {"kind": "little_endian_unsigned_i32_vector", "maximum_output_bytes": 1451520, "invalid_result": -1, "output_error_result": -2, "no_write_on_error": true},
+  "workspace": {"bytes": 24},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 1},
+  "cases": [
+    {"id": "singleton", "input_values": [1,7,11], "input_length": 3, "expected_result": 4, "expected_output_hex": "4d000000"},
+    {"id": "singleton_modular_product", "input_values": [1,998244352,998244352], "input_length": 3, "expected_result": 4, "expected_output_hex": "01000000"},
+    {"id": "dense_degree_two", "input_values": [2,2,3,5,7], "input_length": 5, "expected_result": 8, "expected_output_hex": "1f0000001d000000"},
+    {"id": "modular_cancellation", "input_values": [2,998244352,1,1,1], "input_length": 5, "expected_result": 8, "expected_output_hex": "0000000000000000"},
+    {"id": "noncommuting_left_first", "input_values": [3,0,0,1,0,0,0,0,1,0,0,0,0], "input_length": 13, "expected_result": 24, "expected_output_hex": "000000000000000000000000010000000000000000000000"},
+    {"id": "noncommuting_right_first", "input_values": [3,0,1,0,0,0,0,0,0,1,0,0,0], "input_length": 13, "expected_result": 24, "expected_output_hex": "000000000000000000000000000000000100000000000000"},
+    {"id": "degree_three_right_identity", "input_values": [3,1,2,3,4,5,6,1,0,0,0,0,0], "input_length": 13, "expected_result": 24, "expected_output_hex": "010000000200000003000000040000000500000006000000"},
+    {"id": "negative_coefficient", "input_values": [1,-1,1], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "coefficient_at_modulus", "input_values": [1,998244353,1], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "degree_zero", "input_values": [0], "input_length": 1, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_before_short_output", "input_values": [1,-1,1], "input_length": 3, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_before_null_output", "input_values": [1,-1,1], "input_length": 3, "output_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "extra_word", "input_values": [1,1,1,0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short_output", "input_values": [1,7,11], "input_length": 3, "output_capacity": 3, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output", "input_values": [1,7,11], "input_length": 3, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null_input_nonzero_length", "input_values": [], "input_length": 3, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

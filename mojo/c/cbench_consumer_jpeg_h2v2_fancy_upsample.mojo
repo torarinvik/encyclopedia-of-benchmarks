@@ -1,4 +1,5 @@
 # Independent bounded IJG upsampling adaptation; see package README and LICENSE.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 

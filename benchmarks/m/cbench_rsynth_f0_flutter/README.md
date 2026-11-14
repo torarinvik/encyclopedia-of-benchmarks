@@ -7,3 +7,6 @@ Input is `[F0hz10,f0_flutter,time_count]`. Bounds are `F0hz10` 0..20000, flutter
 The profile excludes frame parsing, synthesis state, sample generation, and all dictionary/phone/speech data. The ports are clean-room adaptations. The package-level CMU notice identifies RSynth as public domain while noting that certain dictionaries, including `beep`, have separate restrictions; no such data is included or used. See [LICENSE.txt](LICENSE.txt). No runtime verification is claimed.
 
 The [Mojo draft](../../../mojo/m/cbench_rsynth_f0_flutter.mojo) follows the same bounded formula. Each call performs a fixed amount of work and uses constant space.
+
+The verifier draft checks zero perturbation when flutter or time is zero, and
+when integer `F0hz10/10` is zero. These source-level checks remain unexecuted.

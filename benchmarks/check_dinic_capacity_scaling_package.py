@@ -56,7 +56,7 @@ def static_issues(workload=None):
         expected = case.get("expected_result")
         if type(expected) is not int or primary(values, null, length) != expected or independent(values, null, length) != expected:
             issues.append(f"reference disagreement: {case_id}")
-    required = {"multiple_thresholds", "antiparallel", "disconnected", "zero_capacities", "maximum_parallel_frame",
+    required = {"multiple_thresholds", "antiparallel", "reverse_residual_rerouting", "disconnected", "zero_capacities", "maximum_parallel_frame",
                 "invalid_self_loop", "invalid_capacity", "trailing_word", "null_input", "null_at_parser_limit"}
     if not required <= seen:
         issues.append("missing cases: " + ", ".join(sorted(required - seen)))

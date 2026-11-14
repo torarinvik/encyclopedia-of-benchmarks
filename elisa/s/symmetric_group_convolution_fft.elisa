@@ -1,0 +1,60 @@
+# Uncompiled C ABI draft. Raw references are confined to ABI and allocator
+# boundaries; plan and transform computations operate on disjoint views.
+extern calloc(count: usize, size: usize) -> mutable i64&?
+extern free(memory: mutable i64&) -> void
+
+export fn symmetric_group_convolution_fft(input: i64&, length: usize,
+                                           output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > 725762: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 9: return -1
+    n: usize = values[0].usize()
+    count: usize = sg_fft_factorial(n)
+    if length != 1+2*count: return -1
+    for i in 1..<length:
+        if values[i] < 0 or values[i] >= SG_MODULUS: return -1
+    if output == null or capacity < 4*count: return -2
+
+    levels_start: usize = 0
+    shapes_start: usize = levels_start+10
+    counts_start: usize = shapes_start+2700
+    basis_start: usize = counts_start+300
+    restriction_start: usize = basis_start+1628100
+    children_start: usize = restriction_start+300
+    offsets_start: usize = children_start+2700
+    widths_start: usize = offsets_start+2700
+    diagonals_start: usize = widths_start+2700
+    partners_start: usize = diagonals_start+1447200
+    coefficients_start: usize = partners_start+1447200
+    result_start: usize = coefficients_start+1447200
+    work_start: usize = result_start+count
+    scratch_size: mutable usize = 8*count
+    if scratch_size < 1809: scratch_size <- 1809
+    memory_size: usize = work_start+4*count+scratch_size
+    memory: mutable i64& = get calloc(memory_size,8) else return -3
+    storage: mutable view[i64] = memory[0:memory_size]
+    status: mutable i64 = sg_make_tableau_plan(n,storage[levels_start:shapes_start],
+        storage[shapes_start:counts_start],storage[counts_start:basis_start],
+        storage[basis_start:restriction_start],storage[restriction_start:children_start],
+        storage[children_start:offsets_start],storage[offsets_start:widths_start],
+        storage[widths_start:diagonals_start])
+    if status == 0:
+        status <- sg_make_generators(n,storage[levels_start:shapes_start],storage[counts_start:basis_start],
+            storage[basis_start:restriction_start],storage[diagonals_start:partners_start],
+            storage[partners_start:coefficients_start],storage[coefficients_start:result_start])
+    if status == 0:
+        status <- sg_fft_convolve(n,values[1:1+count],values[1+count:length],
+            storage[result_start:work_start],storage[work_start:memory_size],
+            storage[levels_start:shapes_start],storage[counts_start:basis_start],
+            storage[restriction_start:children_start],storage[children_start:offsets_start],
+            storage[offsets_start:widths_start],storage[widths_start:diagonals_start],
+            storage[diagonals_start:partners_start],storage[partners_start:coefficients_start],
+            storage[coefficients_start:result_start])
+    if status == 0:
+        bytes: mutable view[u8] = output[0:4*count]
+        for i in 0..<count:
+            value: u64 = storage[result_start+i].u64()
+            for byte in 0..<4: bytes[4*i+byte] <- ((value >> (8*byte)) & 255.u64()).u8()
+    free(memory)
+    if status != 0: return status
+    (4*count).i64()

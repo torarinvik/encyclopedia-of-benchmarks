@@ -28,6 +28,7 @@ This profile covers the standalone three-key 3DES ECB stage only. It does not mo
 | C3 | [`c3/t/trimaran_enc_3des.c3`](../../../c3/t/trimaran_enc_3des.c3) |
 | C++ | [`cpp/t/trimaran_enc_3des.cpp`](../../../cpp/t/trimaran_enc_3des.cpp) |
 | Elisa | [`elisa/t/trimaran_enc_3des.elisa`](../../../elisa/t/trimaran_enc_3des.elisa) |
+| Mojo | [`mojo/t/trimaran_enc_3des.mojo`](../../../mojo/t/trimaran_enc_3des.mojo) (uncompiled draft) |
 | Nim | [`nim/t/trimaran_enc_3des.nim`](../../../nim/t/trimaran_enc_3des.nim) |
 | Odin | [`odin/t/trimaran_enc_3des.odin`](../../../odin/t/trimaran_enc_3des.odin) |
 | Rust | [`rust/t/trimaran_enc_3des.rs`](../../../rust/t/trimaran_enc_3des.rs) |

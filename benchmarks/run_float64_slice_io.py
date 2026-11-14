@@ -8943,6 +8943,7 @@ def validate_mibench_lame_mdct_long_workload(workload: dict) -> None:
     for relative in (
             "c/m/mibench_lame_mdct_long.c", "c3/m/mibench_lame_mdct_long.c3",
             "cpp/m/mibench_lame_mdct_long.cpp", "elisa/m/mibench_lame_mdct_long.elisa",
+            "mojo/m/mibench_lame_mdct_long.mojo",
             "nim/m/mibench_lame_mdct_long.nim", "odin/m/mibench_lame_mdct_long.odin",
             "rust/m/mibench_lame_mdct_long.rs", "v/m/mibench_lame_mdct_long.v",
             "zig/m/mibench_lame_mdct_long.zig"):
@@ -9053,6 +9054,7 @@ def validate_cbench_consumer_mad_imdct36_workload(workload: dict) -> None:
     for relative in (
             "c/m/cbench_consumer_mad_imdct36.c", "c3/m/cbench_consumer_mad_imdct36.c3",
             "cpp/m/cbench_consumer_mad_imdct36.cpp", "elisa/m/cbench_consumer_mad_imdct36.elisa",
+            "mojo/m/cbench_consumer_mad_imdct36.mojo",
             "nim/m/cbench_consumer_mad_imdct36.nim", "odin/m/cbench_consumer_mad_imdct36.odin",
             "rust/m/cbench_consumer_mad_imdct36.rs", "v/m/cbench_consumer_mad_imdct36.v",
             "zig/m/cbench_consumer_mad_imdct36.zig"):
@@ -9317,6 +9319,7 @@ def validate_cbench_consumer_lame_mdct_short_workload(workload: dict) -> None:
     for relative in (
             "c/m/cbench_consumer_lame_mdct_short.c", "c3/m/cbench_consumer_lame_mdct_short.c3",
             "cpp/m/cbench_consumer_lame_mdct_short.cpp", "elisa/m/cbench_consumer_lame_mdct_short.elisa",
+            "mojo/m/cbench_consumer_lame_mdct_short.mojo",
             "nim/m/cbench_consumer_lame_mdct_short.nim", "odin/m/cbench_consumer_lame_mdct_short.odin",
             "rust/m/cbench_consumer_lame_mdct_short.rs", "v/m/cbench_consumer_lame_mdct_short.v",
             "zig/m/cbench_consumer_lame_mdct_short.zig"):

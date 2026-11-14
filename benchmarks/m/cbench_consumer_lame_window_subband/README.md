@@ -48,6 +48,11 @@ table so all ports share the same setup values without embedding a separate
 copy in each language. The source's recurrence and statement order remain in
 the kernel; the workload uses the pinned source table and a zero-sample
 hand-derived case. No runtime validation is claimed.
+The verifier draft additionally specifies a zero PCM slice with an independently
+chosen uniform admissible window; all subbands must be zero. It is unexecuted.
+It also specifies positive and negative central impulses under that window,
+with expected bands derived from the odd multiples of pi/4. These checks are
+likewise unexecuted.
 
 ## Ports and oracle
 
@@ -66,3 +71,12 @@ hand-derived case. No runtime validation is claimed.
 
 The fixed 511-sample, 32-band profile uses O(1) time and space per call;
 generalizing the cosine mix to `b` bands gives O(b²) mixing work.
+
+The input bounds also give a conservative arithmetic range. Every normalized
+coefficient and cosine-table multiplier has magnitude below 1.44 because
+the input coefficients have magnitude at most 36,000,000 and every divisor
+exceeds 25,000,000. Each intermediate term has magnitude below 742,000, and
+the separate final `s` term is below 400,000. A band therefore has magnitude
+below `400,000 + 31 * 1.44 * 742,000`, or 33.6 million. Even after scaling
+by 1,000 and rounding, this is far below the signed 64-bit limit. This is a
+conservative source-level bound; floating-point equivalence remains unverified.

@@ -362,7 +362,14 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         if algorithm == "almabench":
             flags.append("-fstrict-fp")
         flags.extend(implementation_flags)
-        run([compiler, *flags, "-o", str(artifact), str(source)])
+        compile_source = source
+        if algorithm == "symmetric_group_convolution_fft":
+            helpers = [ROOT / "elisa/s" / f"symmetric_group_convolution_fft_{part}.elisa"
+                       for part in ("plan", "forward", "inverse", "kernel")]
+            compile_source = directory / "symmetric_group_convolution_fft_combined.elisa"
+            compile_source.write_text("\n\n".join(path.read_text(encoding="utf-8")
+                                                  for path in [*helpers, source]) + "\n", encoding="utf-8")
+        run([compiler, *flags, "-o", str(artifact), str(compile_source)])
         # `-emit obj` leaves out the Elisa runtime. A port that allocates (a darray sized
         # to its input) references runtime symbols such as arena_alloc; link the runtime
         # built by the same compiler only then, so every other port links exactly as before.
@@ -373,7 +380,10 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         flags = ["--emit", "object", "-O3", *implementation_flags]
         run([compiler, "build", *flags, "-o", str(artifact), str(source)])
     elif language == "nim":
-        flags = ["--app:staticlib", "--noMain", "--mm:none", "-d:release"]
+        # This transform allocates many temporary sequences per call. ARC is
+        # needed to release them instead of retaining them under --mm:none.
+        memory_mode = "--mm:arc" if algorithm == "symmetric_group_convolution_fft" else "--mm:none"
+        flags = ["--app:staticlib", "--noMain", memory_mode, "-d:release"]
         if algorithm in {"pi_monte_carlo_estimation", "shunting_yard", "mandelbrot", "floatmm",
                          "almabench", "stanford_realmm", "matmul_f64_4x4"}:
             flags.append("--passC:-ffp-contract=off")
@@ -494,8 +504,13 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
             workspace_flag = [f"-DBENCHMARK_WORKSPACE_BYTES={workspace_bytes}"]
         harness_fp_flags = (["-ffp-contract=off"]
                             if algorithm == "pi_monte_carlo_estimation" else [])
+        large_group_harness_flags = (
+            ["-DMAX_INPUT_LENGTH=725762", "-DMAX_OUTPUT_BYTES=1451520"]
+            if (family == "i64_array_bytes_output"
+                and algorithm == "symmetric_group_convolution_fft") else [])
         run([c_compiler, "-std=c11", "-O3", "-DNDEBUG", f"-DBENCHMARK_FUNCTION={function_symbol}",
              *harness_fp_flags, *workspace_flag, *null_empty_input_flag, *sort_flags,
+             *large_group_harness_flags,
              "-c", str(harness), "-o", str(harness_object)])
         linker = compiler if language == "cpp" else c_compiler
         command = [linker, str(harness_object), str(artifact),
@@ -537,6 +552,50 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
             ROOT / "cpp/p/polynomial_resultant_half_gcd_reduction.hpp",
             ROOT / "cpp/p/polynomial_resultant_half_gcd_kernel.hpp",
         )
+        manifest["source_dependencies"] = [
+            {"path": path.relative_to(ROOT).as_posix(), "sha256": sha256_file(path)}
+            for path in dependencies
+        ]
+    if algorithm == "symmetric_group_convolution_fft" and language == "c":
+        dependencies = (
+            ROOT / "c/s/symmetric_group_convolution_fft_plan.h",
+            ROOT / "c/s/symmetric_group_convolution_fft_forward.h",
+            ROOT / "c/s/symmetric_group_convolution_fft_inverse.h",
+        )
+        manifest["source_dependencies"] = [
+            {"path": path.relative_to(ROOT).as_posix(), "sha256": sha256_file(path)}
+            for path in dependencies
+        ]
+    if algorithm == "symmetric_group_convolution_fft" and language == "cpp":
+        dependencies = (
+            ROOT / "cpp/s/symmetric_group_convolution_fft_plan.hpp",
+            ROOT / "cpp/s/symmetric_group_convolution_fft_forward.hpp",
+            ROOT / "cpp/s/symmetric_group_convolution_fft_inverse.hpp",
+        )
+        manifest["source_dependencies"] = [
+            {"path": path.relative_to(ROOT).as_posix(), "sha256": sha256_file(path)}
+            for path in dependencies
+        ]
+    if algorithm == "symmetric_group_convolution_fft" and language == "rust":
+        dependencies = (
+            ROOT / "rust/s/symmetric_group_convolution_fft_plan.rs",
+            ROOT / "rust/s/symmetric_group_convolution_fft_forward.rs",
+            ROOT / "rust/s/symmetric_group_convolution_fft_inverse.rs",
+        )
+        manifest["source_dependencies"] = [
+            {"path": path.relative_to(ROOT).as_posix(), "sha256": sha256_file(path)}
+            for path in dependencies
+        ]
+    if algorithm == "symmetric_group_convolution_fft" and language in {"nim", "zig"}:
+        dependencies = tuple(ROOT / language / "s" / f"symmetric_group_convolution_fft_{part}.{language}"
+                             for part in ("plan", "forward", "inverse"))
+        manifest["source_dependencies"] = [
+            {"path": path.relative_to(ROOT).as_posix(), "sha256": sha256_file(path)}
+            for path in dependencies
+        ]
+    if algorithm == "symmetric_group_convolution_fft" and language == "elisa":
+        dependencies = tuple(ROOT / "elisa/s" / f"symmetric_group_convolution_fft_{part}.elisa"
+                             for part in ("plan", "forward", "inverse", "kernel"))
         manifest["source_dependencies"] = [
             {"path": path.relative_to(ROOT).as_posix(), "sha256": sha256_file(path)}
             for path in dependencies

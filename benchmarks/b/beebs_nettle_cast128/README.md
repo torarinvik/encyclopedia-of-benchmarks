@@ -10,7 +10,7 @@ This fixed-size profile uses constant time and space with respect to its input:
 each call performs one 128-bit key expansion and 16 cipher rounds. The S-box
 tables and temporary key material are bounded independently of the input values.
 
-The pinned BEEBS benchmark uses the fixed 16-byte key `0f0e...0100` and 16-byte plaintext `000102...0f`, then encrypts and decrypts both blocks in its timed function. This package projects that workload to a single encryption block and expands the supplied key on each call; the round-trip decryption is outside this bounded operation. The workload preserves BEEBS's first block and also includes RFC 2144's 128-bit known-answer vector.
+The pinned BEEBS benchmark uses a fixed key and two plaintext blocks, then encrypts and decrypts both blocks in its timed function. This package projects that workload to a single encryption block and expands the supplied key on each call; the round-trip decryption is outside this bounded operation. Its valid workload input is independently chosen.
 
 ## Source and rights
 
@@ -26,6 +26,16 @@ S-boxes, key expansion, and its ABI. Odin's subkey buffer type was
 also corrected to 32-bit words. None has been verified against the corrected
 oracle. Treat this package as incomplete until the ports and fixtures are
 reviewed. No code has been run.
+
+The pinned BEEBS file contains the first-block ciphertext as a commented-out
+value; its active verification checks the decrypted plaintext instead. The
+source-derived successful case, the RFC known-answer case, and its derived
+error probes have been removed. For the independently chosen successful input,
+the suite draft obtains the expected bytes from the local reference rather than
+storing an external vector. That reference is unexecuted and does not provide
+an independently verified known answer; cipher correctness remains unproven.
+The verifier draft derives the corresponding expected output length from that
+same reference when checking recorder metadata. Neither path has been run.
 
 See [workload](workload.json) and [oracle](../../beebs_nettle_cast128_oracle.py).
 

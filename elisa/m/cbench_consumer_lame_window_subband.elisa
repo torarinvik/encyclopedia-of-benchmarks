@@ -43,7 +43,7 @@ def round_q1000(value: f64) -> i64:
     if scaled < 0.0: -rounded else: rounded
 
 def valid(input: view[i64], length: usize) -> bool:
-    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH or length != INPUT_COUNT:
+    if length < 1 or length > MAX_INPUT_LENGTH or length != INPUT_COUNT:
         return false
     index: mutable usize = 0
     while index < SAMPLE_COUNT:
@@ -157,14 +157,16 @@ def filterbank(input: view[i64], window: mutable view[f64], bands: mutable view[
 
 export fn cbench_consumer_lame_window_subband(input: i64&, input_length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if not valid(input[0:input_length], input_length): return -1
+    if input.is_null() or input_length != INPUT_COUNT: return -1
+    values: view[i64] = input[0:input_length]
+    if not valid(values, input_length): return -1
     window: mutable f64[WINDOW_COUNT] = zeroed
     index: mutable usize = 0
     while index < WINDOW_COUNT:
-        window[index] <- input[SAMPLE_COUNT + index].f64() / 1000000000.0
+        window[index] <- values[SAMPLE_COUNT + index].f64() / 1000000000.0
         index <- index + 1
     bands: mutable f64[BAND_COUNT] = zeroed
-    filterbank(input[0:input_length], window[0:WINDOW_COUNT], bands[0:BAND_COUNT])
+    filterbank(values, window[0:WINDOW_COUNT], bands[0:BAND_COUNT])
     staged: mutable i64[BAND_COUNT] = zeroed
     index <- 0
     while index < BAND_COUNT:

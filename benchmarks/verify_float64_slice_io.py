@@ -4402,6 +4402,15 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                     raise ValueError("RSynth verifier rejected a bounded open/closed phase sample")
                 records.append((generated_input, result, [_output_token(output[0])],
                                 workspace, 0, 0))
+        # The first sample outside the open phase is zero at every duration.
+        for open_samples in range(40, 264):
+            generated_input = [float(open_samples), float(open_samples)]
+            result, output = cbench_rsynth_natural_glottal_verifier_oracle(
+                generated_input, workspace)
+            if result != 1 or output != [0.0]:
+                raise ValueError("RSynth natural source did not enter its closed phase")
+            records.append((generated_input, result, [_output_token(output[0])],
+                            workspace, 0, 0))
         maximum_input = [263.0, 299.0]
         result, output = cbench_rsynth_natural_glottal_verifier_oracle(maximum_input, workspace)
         if result != 1 or output != [0.0]:
@@ -4416,7 +4425,8 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                 generated_input = [float(nopen), float(sample_index)]
                 result, output = cbench_rsynth_impulsive_glottal_verifier_oracle(
                     generated_input, workspace)
-                if result != 1 or len(output) != 1 or not math.isfinite(output[0]):
+                if (result != 1 or len(output) != 1 or not math.isfinite(output[0])
+                        or sample_index == 0 and output[0] != 0.0):
                     raise ValueError("RSynth impulsive verifier rejected a bounded resonator sample")
                 records.append((generated_input, result, [_output_token(output[0])],
                                 workspace, 0, 0))

@@ -1,0 +1,51 @@
+# Uncompiled and unexecuted Cartesian-tree histogram draft.
+export fn cartesian_histogram_area(heights: i64&, length: usize) -> i64:
+    if length == 0: return 0
+    if heights == null or length > 64: return -9223372036854775807 - 1
+    values: view[i64] = heights[0:length]
+    for i in 0..<length:
+        if values[i] < 0 or values[i] > 1000000: return -9223372036854775807 - 1
+    left: mutable usize[64] = zeroed
+    right: mutable usize[64] = zeroed
+    stack: mutable usize[64] = zeroed
+    order: mutable usize[64] = zeroed
+    sizes: mutable usize[64] = zeroed
+    for i in 0..<length:
+        left[i] <- length
+        right[i] <- length
+    top: mutable usize = 0
+    for i in 0..<length:
+        last: mutable usize = length
+        while top > 0 and values[stack[top-1]] > values[i]:
+            top <- top-1
+            last <- stack[top]
+        if top > 0: right[stack[top-1]] <- i
+        left[i] <- last
+        stack[top] <- i
+        top <- top+1
+    root: usize = stack[0]
+    top <- 1
+    stack[0] <- root
+    used: mutable usize = 0
+    while top > 0:
+        top <- top-1
+        node: usize = stack[top]
+        order[used] <- node
+        used <- used+1
+        if left[node] < length:
+            stack[top] <- left[node]
+            top <- top+1
+        if right[node] < length:
+            stack[top] <- right[node]
+            top <- top+1
+    best: mutable i64 = 0
+    while used > 0:
+        used <- used-1
+        node: usize = order[used]
+        size: mutable usize = 1
+        if left[node] < length: size <- size+sizes[left[node]]
+        if right[node] < length: size <- size+sizes[right[node]]
+        sizes[node] <- size
+        area: i64 = values[node]*size.i64()
+        if area > best: best <- area
+    best

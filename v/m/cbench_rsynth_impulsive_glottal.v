@@ -6,7 +6,7 @@ import math
 pub fn cbench_rsynth_impulsive_glottal_sample(input &f64,n usize,mut output &f64,cap usize)i64{
 	unsafe{
 		if input==nil||n==0||n>3{return -1}
-		for i in 0..n{if !input[i].is_finite(){return -1}}
+		for i in 0..n{if input[i]!=input[i]{return -1}}
 		if n!=2||input[0]<40||input[0]>263||input[0]!=f64(int(input[0]))||input[1]<0||input[1]>299||input[1]!=f64(int(input[1])){return -1}
 		open:=int(input[0]);target:=int(input[1]);rate:=8000
 		minus_pi:=f32(-math.pi/f64(rate));two_pi:=f32(-2.0*f64(minus_pi));bw:=rate/open
